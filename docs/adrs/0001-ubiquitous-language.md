@@ -19,7 +19,7 @@ Open Dough itself.
 | Term | Meaning | Skill naming |
 | --- | --- | --- |
 | Internal skills | Agent skills used only within Open Dough itself | No required prefix |
-| Open-domain skills | Agent skills exposed for installation into other projects | Names must start with `dough-` |
+| Open-Dough skills | Agent skills exposed for installation into other projects | Names must start with `dough-` |
 
 Rule naming remains undecided.
 
