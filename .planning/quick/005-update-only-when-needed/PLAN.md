@@ -1,11 +1,11 @@
 # Keep a recorded Open Dough installation current only when needed
 
 Status: unfinished. Shared update behavior is implemented, with Codex, Cursor,
-and Claude Code older-to-latest and equal-version evidence recorded.
-Retrospective corrections R1, R1b, R2, R3, and R4 plus remaining native
-newer-preserved decisions are planned below. Fresh installation, unversioned
-migration, release publication, and released self-use have moved to their own
-story plans.
+and Claude Code older-to-latest and equal-version evidence recorded, plus Codex
+and Cursor newer-preserved native proof. Retrospective corrections R1, R1b, R2,
+R3, and R4 plus remaining Claude Code newer-preserved native proof are planned
+below. Fresh installation, unversioned migration, release publication, and
+released self-use have moved to their own story plans.
 
 Source: [SEED-001, Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Fresh installation: [Story 5a](../008-install-latest-release/PLAN.md).
@@ -62,6 +62,7 @@ provenance, not product code.
 | 23. Codex older-version native invocation | done | Codex CLI 0.144.1 session `01a075b0-54b3-7742-bae8-dc67be70f8b4`; fixture with Codex+Cursor+Claude at `0.1.2`; git-bootstrap `v0.1.10` `f59a15fd34a55a7c0a18284f755284b7187220f8`; one `install` trace; only Codex `SKILL.md`/`VERSION` changed |
 | 24. Cursor older-version native invocation | done | Cursor 3.19.13 / `dd066f332fcea7382764400fde902f61920648d0` session `5df9a8c4-e88d-4cac-9c64-34a9d81081ef`; fixture with Codex+Cursor+Claude at `0.1.2`; git-bootstrap `v0.1.10` `651357c054702313661886a259e22cbb46b109de`; one `install` trace; only Cursor `SKILL.md`/`VERSION` changed |
 | 29. Codex newer-version native invocation | done | Codex CLI 0.144.1 session `01a075c2-cb89-71d3-84f3-a4a651e36a73`; fixture with Codex+Cursor+Claude at `0.2.0`; git-bootstrap `v0.1.10` `a6afbc7590264c7b6a9b28bdd4069b3979494a6f`; `apply-newer` only; all target hashes and timestamps unchanged |
+| 30. Cursor newer-version native invocation | done | Cursor 3.19.13 / `dd066f332fcea7382764400fde902f61920648d0` session `5df9a8c4-e88d-4cac-9c64-34a9d81081ef`; fixture with Codex+Cursor+Claude at `0.2.0`; git-bootstrap `v0.1.10` `3b08b10c504150e38a4468425ce60a5192f44608`; `apply-newer` only; all target hashes and timestamps unchanged |
 
 Focused retrospective checks reran `bash tests/install-latest-release.sh` and
 `bash tests/update-when-needed.sh`; both passed on 2026-09-06. Separate probes
@@ -267,10 +268,28 @@ fixture, target, trace, and hashes remain available under
 
 ### 30. Preserve a newer Cursor installation
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Cursor records a version newer than source latest → native update →
 no downgrade or selected-file write.
-Proof: Independent Cursor observation equivalent to 29.
+Proof: Cursor 3.19.13 (`dd066f332fcea7382764400fde902f61920648d0`) session
+`5df9a8c4-e88d-4cac-9c64-34a9d81081ef` ran from
+`/tmp/open-dough-slice30-proof.SdDjBx/target project` with Cursor, Codex, and
+Claude installations all recording `0.2.0`; the Cursor files were read-only and
+contained a local-edit sentinel. The native `/dough-update` invocation
+identified Cursor, selected `.cursor/skills/dough-update`, listed fixture tags,
+selected peeled `v0.1.10` commit
+`3b08b10c504150e38a4468425ce60a5192f44608`, and inspected that detached
+snapshot's helper, installer, skill, sourced modules, and changelog before
+running `apply --checkout --platform cursor`. Output reported `Installed:
+0.2.0` and `Outcome: installed 0.2.0 is newer than source 0.1.10; no downgrade
+or target writes.` `OPEN_DOUGH_TRACE` contains only one `apply-newer` line and
+no `install` line. Independent before/after hashes, mtimes, and target Git
+status prove no selected, coexistence, sentinel, or unrelated project file
+changed; Codex and Claude remain at `0.2.0`. The session removed its pinned
+bootstrap checkout. `bash tests/update-when-needed.sh` and
+`bash tests/pin-and-inspect.sh` also passed after the native run; the named
+fixture, target, trace, and hashes remain available under
+`/tmp/open-dough-slice30-proof.SdDjBx`.
 
 ### 31. Preserve a newer Claude Code installation
 Type: Behavior
@@ -285,8 +304,8 @@ R1–R4 are done. Slice 21 rechecked Cursor equal-version after the pin-and-insp
 skill change, slice 23 proves the native Codex older-to-latest journey, slice 24
 proves the matching Cursor upgrade, and slice 25 now proves the matching Claude
 Code upgrade. Codex and Claude equal-version rows 20 and 22 were not re-run;
-slice 29 now proves the Codex newer-version no-downgrade path, while
-newer-preserved rows 30–31 remain.
+slice 29 now proves the Codex newer-version no-downgrade path, slice 30 proves
+the matching Cursor path, and newer-preserved row 31 remains.
 
 Slice 25 note: the native session ran via `claude -p` with
 `--allowedTools "Bash Edit Write Read"` rather than a permission-bypass mode —
