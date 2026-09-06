@@ -150,11 +150,19 @@ turn the result into a complete ADR-authoring suite.
 
 ### 3. Produce a self-contained dough-adr-awareness candidate
 Type: Behavior
-Status: planned
+Status: done
 Proof: Using the assessment from slice 2, one native Codex extraction writes the
 candidate and recognition record; inspection maps every required behavior to
 self-contained guidance or explicit adopter context and finds no inaccessible
 Doughnut reference.
+
+Evidence: Native Codex produced the draft under
+`.planning/extracted-guidance/dough-adr-awareness/`. The 157-line skill and
+90-line recognition record map current-status authority, supersession, citations,
+conflict stops, explicit exceptions, human lifecycle ownership, conditional
+templates, and failure boundaries; forbidden-reference inspection found no
+absolute machine paths, Doughnut ADR location, project decisions, or domain terms.
+The inspected source checksum remained unchanged.
 
 Behavior: The required context has been assessed → complete extraction → obtain
 `dough-adr-awareness` with Accepted-decision selection, supersession following,
