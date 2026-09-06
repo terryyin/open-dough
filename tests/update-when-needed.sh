@@ -194,6 +194,11 @@ legacy="${temporary_dir}/legacy project"
 prepare_target "${legacy}"
 legacy_source="${temporary_dir}/legacy-v0.1.0"
 mkdir -p -- "${legacy_source}/src/skills/dough-update"
+if ! git -C "${source_dir}" rev-parse --verify --quiet 'v0.1.0^{commit}' \
+  > /dev/null; then
+  echo "FAIL: git tag v0.1.0 is required so this test can use the genuine legacy installer." >&2
+  exit 1
+fi
 git -C "${source_dir}" show v0.1.0:install.sh > "${legacy_source}/install.sh"
 git -C "${source_dir}" show v0.1.0:src/skills/dough-update/SKILL.md > \
   "${legacy_source}/src/skills/dough-update/SKILL.md"
