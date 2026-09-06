@@ -194,9 +194,8 @@ tools; platforms are not separate product stories.
 
 ### 4. Create an identifiable Open Dough release with the internal skill
 
-- **Status:** Unfinished; first in the backlog, re-refined 2026-09-06. The
-  [reused first plan](../quick/004-versioned-updates/PLAN.md) covers only this
-  story and has been refined in place into nine Behavior leaves.
+- **Status:** Completed 2026-09-06. Published annotated `v0.1.0` on `53b6da2`.
+  Native proof is in the [story plan](../quick/004-versioned-updates/PLAN.md).
 - **For / why:** The maintainer needs a repeatable way to describe and identify
   a delivered version without a release framework.
 - **Evaluation:** Invoke the internal skill with a chosen version and change
@@ -262,16 +261,13 @@ changes.
 
 #### Acceptance and stopping point
 
-Native discovery, invocation, and release behavior are pending separately for
-Codex, Cursor, and Claude Code in the first plan. Verify coexistence and that
-ordinary installer/update use still preserves internal guidance and distributes
-only its existing payload. Reuse earlier evidence only for unchanged behavior;
-new internal-skill discovery requires new observations.
+Completed 2026-09-06. Native discovery, invocation, and release behavior are
+recorded separately for Codex, Cursor, and Claude Code in the story plan.
+Installer output still omits the internal skill and acceptance guard. `v0.1.0`
+is published; notes do not claim Stories 5–6.
 
-This story is complete when the maintainer can use and share the release
-workflow in all three tools. Cancelling Stories 5–6 still leaves a useful,
-identified release and a repeatable internal skill. No unresolved scope
-question blocks this story; the proposed order remains open to owner steering.
+Cancelling Stories 5–6 still leaves a useful, identified release and a repeatable
+internal skill.
 
 <a id="detect-installed-version"></a>
 <a id="update-only-when-needed"></a>
@@ -372,10 +368,11 @@ combined outcome without reopening release production or version detection.
 
 ## Ordering and Scope Reduction
 
-The working backlog order is Story 4 (release), Story 5 (update when needed),
-then Story 6 (show changes). Their complete outcomes, rather than implementation
-layers or platform batches, define the boundaries. Refine only the first now;
-later plan fragments are deliberately not ready to execute.
+The working backlog order is Story 5 (update when needed), then Story 6
+(show changes). Story 4 (identifiable release) is complete. Their complete
+outcomes, rather than implementation layers or platform batches, define the
+boundaries. Later plan fragments still need story and slice-plan refinement
+before execution.
 
 First to defer is automatic changelog presentation: manual reading still works.
 If capacity is smaller still, defer version-aware updating and keep the useful
