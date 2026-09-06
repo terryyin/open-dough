@@ -220,15 +220,100 @@ changes.
 
 ### 5a. Install the latest released Open Dough guidance safely
 
-- **Status:** Candidate split; refine before updating or refining its provisional plan.
+- **Status:** Refined again, 2026-09-06; implementation and earlier evidence
+  exist, but acceptance remains incomplete. The existing slice plan is now
+  reconciled and refined; ready for execution, not executed in this pass.
 - **For / why:** An adopting developer needs a trustworthy first installation.
 - **Evaluation:** Each native tool installs and discovers the highest numeric
   release from the supplied URL; only the inspected pinned release executes.
 - **Value / learning:** Makes release identity usable without update behavior.
 - **Effort hypothesis:** M, medium confidence; implementation exists, but the
   trust boundary, oversized README, and fresh Cursor proof remain.
-- **Depends on:** Story 4's valid release. Provisional
-  [plan](../quick/008-install-latest-release/PLAN.md), not for direct execution.
+- **Depends on:** Story 4's valid release. Refined
+  [plan](../quick/008-install-latest-release/PLAN.md) retains completed evidence
+  and assigns the remaining implementation and native proof.
+
+#### Goal
+
+As a developer adopting Open Dough, install the latest released `dough-update`
+from my supplied repository URL into my project and use it in my running AI
+tool, knowing which release was installed. This provides a usable first
+installation for the bootstrap loop without waiting for legacy migration or
+publication of the version-aware updater.
+
+#### Scope
+
+- Start with no Open Dough installation for the selected tool. Capture the
+  intended project before fetching; use the supplied repository URL and the
+  running tool, even when other tools already have installations in the project.
+- Select the highest numeric `vMAJOR.MINOR.PATCH` release under Accepted
+  ADR 0003. Pin its commit before executing any fetched repository code; inspect
+  the installer, its executable dependencies, and the payload from that snapshot.
+  Execute that same inspected snapshot. If the selection no longer agrees with
+  the pinned release, stop without silently fetching and executing a replacement.
+- Verify the installed skill matches the pinned payload and record its numeric
+  version only after successful verification. Report the supplied URL, selected
+  tag and commit, tool, installed path, and actual outcome. The trust signal is
+  an observed link between inspected code, executed code, and installed content;
+  a printed commit alone does not establish it.
+- Preserve ordinary repeat protection: an existing selected skill directory
+  stops installation without changing its files or record. An explicitly
+  authorized `--force` reinstall replaces the selected skill and record,
+  including local edits, with latest. This remains a bounded installation
+  exception; it does not promise local-edit merging or unversioned migration.
+- Fetch or release-validation failure stops before target writes, with no
+  fallback to an older tag or branch. If copying or verification fails after
+  writing starts, report possible incomplete files and leave the previous
+  successful record unchanged (or absent on a fresh install). Do not claim
+  success or promise automatic rollback. Clean temporary work on success/failure.
+- Make the installed skill discoverable and invocable in a fresh native session
+  of Codex, Cursor, and Claude Code, using one shared behavioral source with
+  minimal platform adaptation. A first invocation against the same latest
+  release demonstrates the already-delivered current-version no-op from Story 5b.
+- Keep installation instructions easy to find from the README and consistent
+  with the pin-and-inspect behavior. Preserve unrelated project content, source
+  guidance, other tools' installations and records, and home-level guidance.
+  Internal skills and the repository acceptance guard remain undistributed.
+- Exclude additional skills/rules, global installation, automatic tool detection
+  from installed directories, cross-tool synchronization, requested versions,
+  release publication, real-project self-adoption, inline changelog presentation,
+  and general repair or conflict handling. Stories 5c–6 retain their outcomes;
+  Story 5b's recorded-update behavior is reused, not expanded here.
+
+#### Key examples
+
+| Pre-condition | Trigger | Observable result |
+| --- | --- | --- |
+| No selected installation; supplied source has `v0.1.9` and `v0.1.10`, with newer untagged branch changes | Ask the running agent to install Open Dough | Installs inspected `v0.1.10` content, records `0.1.10`, and reports its exact source/tag/commit and selected path. No default-branch repository script executes. |
+| Cursor has no installation; Codex and Claude Code already have their own copies | Install in Cursor, then start a fresh Cursor session | Only Cursor's copy and record are installed; `/dough-update` is discovered and invoked. With the same latest release it reports current without an installer call or installed-file/record writes. Equivalent native journeys apply separately to Codex and Claude Code. |
+| The selected skill directory already exists, including local edits | Repeat the ordinary installation request | Warns and stops without changing the selected files or record; explains the explicit overwrite option. |
+| The developer explicitly authorizes reinstalling the selected copy | Install with `--force` | Replaces only that tool's skill and record with the verified latest release; local edits in those files are overwritten and other guidance is preserved. |
+| No numeric release exists, or the highest release has inconsistent metadata or a missing payload | Request installation | Reports the specific failure before target writes; does not choose a lower release or default-branch content. |
+| The pinned commit no longer satisfies latest selection after inspection | Continue installation | Stops without executing newly fetched replacement code or changing the target. |
+| Copying or payload verification fails after writing begins | Attempt installation | Reports incomplete installation, creates no successful fresh version record, and explains explicit reinstall recovery; temporary work is cleaned. |
+
+#### Acceptance and evidence
+
+For each platform, observe the supplied-URL installation interaction, pinned
+code inspection/execution, payload and record verification, repeat/force
+behavior, preservation of coexisting guidance, fresh native discovery and
+invocation, and the existing same-release update no-op. Script tests support
+these observations but do not replace native proof. Controlled tagged sources
+can demonstrate this story before Story 5d publishes the updater.
+
+| Platform | Earlier evidence retained | Still pending for this refined story |
+| --- | --- | --- |
+| Codex | Quick 008 records fresh discovery in session `01a07569-9c9e-7412-bcae-87049e00f575`; Story 5b records native current-version no-op. | Corrected installation journey through fresh discovery/invocation and coexistence; earlier discovery alone does not prove the revised pin-and-inspect flow. |
+| Cursor | Quick 008 records CLI installation and an in-session file read; Story 5b records native current-version no-op. | Corrected installation journey, fresh fixture session discovery/invocation, and coexistence; file reads do not close native discovery. |
+| Claude Code | Quick 008 records fresh discovery in session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`; Story 5b records native current-version no-op. | Corrected installation journey through fresh discovery/invocation and coexistence; earlier discovery alone does not prove the revised pin-and-inspect flow. |
+
+This refinement borrowed Doughnut's `story-refinement` skill and planning rule,
+and reused the selected split, ADR 0003, provisional evidence, and current
+installation/update instructions. No native verification was performed in this
+pass. Existing evidence remains valid only for unchanged behavior. No unresolved
+product decision blocks this story. The subsequent slice-plan refinement
+reconciled the existing plan and sized its remaining work; implementation and
+collection of the missing proof remain pending.
 
 <a id="detect-installed-version"></a>
 <a id="update-only-when-needed"></a>
@@ -386,7 +471,8 @@ deferred while new installations and recorded updates remain useful.
 Quick 005 retains original leaves 8–9, 11–15, 20–25, and 29–31 plus
 retrospective corrections. Quick 008 receives 1–7 and 17–19; Quick 009 receives
 10, 16, 26–28, and 32–34; Quick 010 receives 35–36; Quick 011 receives 37–42.
-Completed and partial status/evidence moved with their leaves. The new plans are
+Completed and partial status/evidence moved with their leaves. Quick 008's story
+and slices have now been refined again; the other unfinished split plans remain
 explicitly not executable until their stories and slices are refined again.
 Quick 005's plan file was dropped after all of its leaves and retrospective
 corrections completed; its evidence is summarized in Story 5b above and in the
@@ -394,8 +480,10 @@ product backlog.
 
 ## Open Decisions
 
-- Stories 5a and 5c–5e, plus Story 6, need story refinement before their mapped
-  plans can be updated or refined. Local-edit conflict handling stays outside.
+- Story 5a and its existing slice plan are refined and ready for execution;
+  acceptance evidence remains pending as mapped in that plan. Stories 5c–5e
+  and Story 6 still need story refinement first. Local-edit conflict handling
+  stays outside.
 
 ## When to Surface
 
