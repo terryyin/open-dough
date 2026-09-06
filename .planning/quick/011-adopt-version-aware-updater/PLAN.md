@@ -1,8 +1,10 @@
 # Adopt and reuse released guidance in Open Dough
 
-**Status: ready for direct execution.** Updated and slice-refined 2026-09-06;
-all execution slices remain planned. No installation or native verification
-was performed during planning.
+**Status: complete, 2026-09-06.** All nine native adoption, ADR-use, and
+current/no-write observations passed independently in Codex, Cursor, and Claude
+Code. The released payload is committed at `706af65`; main
+`a0f30d0e799bda1d62761b58a97bb5c46e949ca6` was then integrated and the three
+no-write observations were repeated against its newer project-local updater.
 
 ## Source and recovered mapping
 
@@ -24,8 +26,10 @@ was performed during planning.
 The maintainer adopts Open Dough's released guidance in this worktree and uses
 it natively in Codex, Cursor, and Claude Code. Finish one platform's adoption,
 ADR use, and current/no-write update before moving to the next, so useful self-use
-is available at each completed platform boundary. Then move to
-[Donut adoption and redundant ADR-awareness removal](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install).
+is available at each completed platform boundary. The next selected work is
+[proving Codex use after the completed replacement](../../seeds/SEED-006-extend-adr-guidance-adoption.md#prove-codex-use-after-replacement);
+the independently integrated ADR-adoption work stopped at its accepted 4A
+boundary and left Plans 014–017 unexecuted.
 
 - Target: /Users/terryyin/git/open-dough-adopt-released-guidance on
   codex/adopt-released-guidance. Capture its absolute path before fetching;
@@ -98,7 +102,7 @@ Key examples refer to the four rows in the refined story, in order.
 | Example 3: current update makes no writes | 3, 6, 9 | Fresh native invocation selects the same recorded release; helper trace shows apply-skip-equal, no install entry, and unchanged payload/record bytes and modification metadata. |
 | Example 4: coexistence and all preservation promises | Every slice | Before/after inventories, hashes, and native action transcript show only the selected adoption payload/record changed; all other guidance remains intact. |
 | Independent native evidence and minimal shared adaptation | 1–9 | Each platform has its own adoption, ADR use, and no-op result; no source or adapter changes. Missing observations stay pending. |
-| Bounded completion without unrelated prerequisites | 9 / story close | All nine observations are recorded and exclusions remain untouched; next selected work is backlog item two. |
+| Bounded completion without unrelated prerequisites | 9 / story close | All nine observations are recorded and exclusions remain untouched; the next selected queue item remains Plan 014. |
 
 ### Shared proof procedure
 
@@ -158,7 +162,7 @@ attributable.
 
 ### 1. Adopt the released guidance in Codex
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared adoption procedure in native Codex, using .agents/skills/ and
 $dough-update. Exact released payload/record and preservation verified.
 Behavior: Codex has the current updater without a record or ADR-awareness →
@@ -167,7 +171,7 @@ installation adopts the inspected latest release.
 
 ### 2. Apply installed ADR-awareness in Codex
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared ADR-use procedure in a fresh Codex session, invoking
 $dough-adr-awareness from .agents/skills/; local citations and no changes.
 Behavior: Codex's release is adopted → assess the next-story ADR question with
@@ -175,7 +179,7 @@ the installed skill → receive a relevant, human-authority-preserving assessmen
 
 ### 3. Leave Codex's current installation unwritten
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared current-update procedure in a fresh Codex session, invoking
 $dough-update; selected helper trace and unchanged four-file metadata.
 Behavior: Codex records the still-latest release → invoke installed update →
@@ -183,7 +187,7 @@ report current without an installer call or installed-file/record writes.
 
 ### 4. Adopt the released guidance in Cursor
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared adoption procedure in native Cursor, using .cursor/skills/ and
 /dough-update; exact payload/record, Codex, Claude, and unrelated guidance checked.
 Behavior: Cursor has the current updater without a record or ADR-awareness →
@@ -192,7 +196,7 @@ installation adopts the inspected latest release.
 
 ### 5. Apply installed ADR-awareness in Cursor
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared ADR-use procedure in a fresh Cursor session, invoking
 /dough-adr-awareness from .cursor/skills/; local citations and no changes.
 Behavior: Cursor's release is adopted → assess the next-story ADR question with
@@ -200,7 +204,7 @@ the installed skill → receive a relevant, human-authority-preserving assessmen
 
 ### 6. Leave Cursor's current installation unwritten
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared current-update procedure in a fresh Cursor session, invoking
 /dough-update; selected helper trace and unchanged four-file metadata.
 Behavior: Cursor records the still-latest release → invoke installed update →
@@ -208,7 +212,7 @@ report current without an installer call or installed-file/record writes.
 
 ### 7. Adopt the released guidance in Claude Code
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared adoption procedure in native Claude Code, using .claude/skills/
 and /dough-update; exact payload/record, other tools, and unrelated guidance checked.
 Behavior: Claude Code has the current updater without a record or ADR-awareness →
@@ -217,7 +221,7 @@ installation adopts the inspected latest release.
 
 ### 8. Apply installed ADR-awareness in Claude Code
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared ADR-use procedure in a fresh Claude Code session, invoking
 /dough-adr-awareness from .claude/skills/; local citations and no changes.
 Behavior: Claude Code's release is adopted → assess the next-story ADR question
@@ -225,25 +229,49 @@ with the installed skill → receive a relevant, human-authority-preserving asse
 
 ### 9. Leave Claude Code's current installation unwritten
 Type: Behavior
-Status: planned
+Status: complete
 Proof: Shared current-update procedure in a fresh Claude Code session, invoking
 /dough-update; selected helper trace and unchanged four-file metadata.
 Behavior: Claude Code records the still-latest release → invoke installed update →
 report current without an installer call or installed-file/record writes.
 
-## Evidence and remaining work
+## Execution evidence and outcome
 
 | Platform | Retained native evidence, while inputs remain unchanged | Adoption / ADR use / no-op |
 | --- | --- | --- |
-| Codex | [Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release): native pinned installation; [5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed): version decisions; [Quick 007, 11–12](../007-generalize-project-guidance/PLAN.md): discovery/use/coexistence. | Pending / Pending / Pending (1–3). |
-| Cursor | Story 5a: native pinned installation; 5b: version decisions; Quick 007, 14: discovery/use/coexistence. | Pending / Pending / Pending (4–6). |
-| Claude Code | Story 5a: native pinned installation; 5b: version decisions; Quick 007, 16: discovery/use/coexistence. | Pending / Pending / Pending (7–9). |
+| Codex | [Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release): native pinned installation; [5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed): version decisions; [Quick 007, 11–12](../007-generalize-project-guidance/PLAN.md): discovery/use/coexistence. | Complete with Codex CLI 0.144.1. Adoption session `01a076d3-acbc-7153-bbfb-e3d698a40865` recorded unknown → 0.2.0; ADR session `01a076e5-d251-7411-81f6-daac52f98dd2` cited Accepted 0000/0003 and kept Proposed 0001/0002 non-binding; initial no-op session `01a076eb-1f4c-7621-aa01-df388ae35e8f` and post-main session `01a07708-e154-72b2-a414-6eced74922f7` both returned 0 with `apply-skip-equal`, no install entry, and unchanged exact metadata. |
+| Cursor | Story 5a: native pinned installation; 5b: version decisions; Quick 007, 14: discovery/use/coexistence. | Complete with Cursor 3.19.13 / agent build 2026.09.02-c22c1a3. Interactive adoption recorded unknown → 0.2.0; ADR session `fceb7298-506a-4418-a5fe-10a0236e3417` produced the same current-decision result; no-op sessions `391a6d83-1cec-4566-b60f-06e3693232d5` and, after main, `b80048de-88b8-4d62-a9e1-ed88c6e83762` returned 0 with the selected skip trace and unchanged exact metadata. |
+| Claude Code | Story 5a: native pinned installation; 5b: version decisions; Quick 007, 16: discovery/use/coexistence. | Complete with Claude Code 2.1.263. Adoption session `7de94a3f-9d3a-43dd-970c-46378d8d1f5d` recorded unknown → 0.2.0; ADR session `b66d03e0-5b54-4b02-b48c-8d62f43a9d43` produced the same current-decision result; no-op sessions `14312ac8-1273-4aca-8cbe-c4f329aa1b36` and, after main, `58741d28-e970-427a-963c-d9741d6571fc` returned 0 with the selected skip trace and unchanged exact metadata. |
 
-For each completed leaf, replace Pending with the tool version/session,
-source/tag/commit where relevant, selected paths and before/after record, actual
-native outcome, and preservation/no-write observations. Reuse a completed leaf
-unless a later change invalidates its inputs. File installation cannot close
-the separate native-use entries.
+Every adoption independently resolved `v0.2.0` to peeled commit
+`676188a66504f7dc751e03311f9be5245757b24a`, inspected the complete helper and
+payload chain, used no `--force`, and initially produced these release hashes:
+updater `44dd1ace5afa1295b02299324115a3958006478b4e4d2d5338029449a7fa84fe`,
+VERSION `1f930dd1f133c1f97a94fe3acb8db34372cf4c01ffdb2b3ff4ca72f9494121e9`,
+ADR skill `da15cc5c7d505b38aa90e706129d9c4c7fd9ff6a0feabdbc8f4b190b7920c6c1`,
+and recognition `bad0dd5db04a659fd2cea2cf8d9f27b78a740c871a87a128f7be1d08efd0c782`.
+Only each selected native root's two ADR files and updater VERSION were new;
+the already-equal updater was not fabricated as a change.
+
+Main integration later changed all three project-local updater copies to
+`fa42eeedfc2ed842ccb9ca098257bf687bde8dbb8c4f82bdf06b7971038fefbd`
+while retaining VERSION 0.2.0. Because that changed a proof input, slices 3, 6,
+and 9 were repeated. Their updater `mtime_ns` / `ctime_ns` remained respectively
+Codex `1788703355020918596` / `1788703355020918596`, Cursor
+`1788703355021344638` / `1788703355021344638`, and Claude Code
+`1788703355021098804` / `1788703355021098804`. Each fresh native trace contained
+exactly one selected-root `apply-skip-equal` and no installer entry; VERSION and
+both ADR files also retained their previously captured hashes and nanosecond
+metadata. Thus the released comparison record did not overwrite newer
+project-local updater behavior.
+
+All ADR-use sessions read the local index, cited Accepted ADR 0000 and ADR 0003,
+kept Proposed ADRs non-binding, preserved human lifecycle/exception authority,
+reported no status or filename hygiene conflict, emitted `## ADR CHECK COMPLETE`,
+and left the repository unchanged. Operation-owned checkouts, traces, and
+terminal sessions were cleaned. Source, ADRs/index, internal skills, acceptance
+guard, sibling native roots, unrelated project files, home guidance, main
+checkout, and other worktrees were preserved by this story.
 
 ## Slice refinement result and sizing
 
@@ -272,4 +300,5 @@ planning/decomposition rules at checkout
 5e1534c093d9c0604ff96b4c46ec309eae5cf30f. Applied both to this existing plan;
 no borrowed skill was installed or distributed. All contract promises have
 owners, original mappings are preserved, and no completed evidence was discarded.
-Planning is complete; execution and its nine native observations remain pending.
+Planning and execution are complete; all nine native observations passed, and
+the post-main no-write repetitions preserved the newer local updater behavior.

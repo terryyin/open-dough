@@ -526,10 +526,10 @@ Story 5e owns adoption.
 
 ### 5e. Adopt and reuse released guidance in Open Dough
 
-- **Status:** Refined 2026-09-06; self-adoption and native verification pending.
-  The existing [slice plan](../quick/011-adopt-version-aware-updater/PLAN.md)
-  is aligned and slice-refined: ready for direct execution, with all nine native
-  adoption/use checks still planned.
+- **Status:** Complete 2026-09-06. All nine independent native adoption,
+  ADR-use, and no-write observations passed. The released installation is
+  committed at `706af65`; detailed sessions and preservation evidence remain in
+  [Quick 011](../quick/011-adopt-version-aware-updater/PLAN.md).
 - **Depends on:** [Publication (5d)](#publish-version-aware-updater), complete.
 - **Effort hypothesis:** S–M, medium confidence; assumes the released flow works
   unchanged and fresh native sessions are available for all three tools.
@@ -538,9 +538,8 @@ Story 5e owns adoption.
 
 As the Open Dough maintainer, use the released updater and ADR-awareness in
 Open Dough itself through the same project-local flow available to adopters,
-so the project benefits from its shared guidance and we can move promptly to
-[Donut adoption and redundant ADR-awareness removal](SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install),
-the second backlog item.
+so the project benefits from its shared guidance and the queue can move to
+[proving Codex use after the completed replacement](SEED-006-extend-adr-guidance-adoption.md#prove-codex-use-after-replacement).
 
 The stopping point is one successful adoption and fresh native reuse in each
 supported tool. No waiting period, further extraction, or manufactured source
@@ -583,9 +582,10 @@ improvement is needed.
   changed input invalidates them; native launch trouble remains pending evidence,
   not a reason to claim success or build new infrastructure.
 - Donut installation, equivalence assessment, redundant-file removal, caller
-  repair, and proof that architecture-triggered use survives belong to item two.
-  That story must make the first clear-equivalent adoption work without waiting
-  for recurring update-time replacement or local-difference reconciliation.
+  repair, and proof that architecture-triggered use survives are outside this
+  story. Main independently completed the authorized replacement through its
+  4A cutoff and split the remaining proof/preservation work into Plans 014–017;
+  this execution did not advance those plans.
   Further extraction (including the borrowed refinement skill), inline changelog
   display, automatic migration, rollback, global installation, and speculative
   hardening are deferred. A concrete blocker to safe adoption must be surfaced.
@@ -611,15 +611,22 @@ static evidence, not a new native installation or update result.
 
 | Platform / native root | Earlier evidence retained while unchanged | New self-use evidence |
 | --- | --- | --- |
-| Codex / .agents/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
-| Cursor / .cursor/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
-| Claude Code / .claude/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
+| Codex / .agents/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Codex CLI 0.144.1 independently adopted v0.2.0, used installed ADR-awareness, and twice proved selected-root `apply-skip-equal` with no install or metadata write; the second proof preserved the newer post-main local updater. |
+| Cursor / .cursor/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Cursor 3.19.13 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
+| Claude Code / .claude/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Claude Code 2.1.263 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
 
-Record source URL, actual tag/commit, target, selected paths and before/after
-records, native tool/session and invocation, ADR outcome, and preservation/no-write
-observations in the plan or change summary. File copying or another tool's
-success cannot close missing native evidence. Once these observations pass,
-proceed to item two; do not reopen completed general behavior without a reason.
+Every native update resolved `https://github.com/terryyin/open-dough.git` to
+`v0.2.0` / `676188a66504f7dc751e03311f9be5245757b24a`, inspected the pinned
+helper and complete payload, and used no `--force`. Adoption recorded each
+missing VERSION as 0.2.0 and installed both ADR files while preserving all other
+surfaces. Fresh ADR sessions cited Accepted ADRs 0000 and 0003, treated Proposed
+0001/0002 as non-binding, retained human authority, found no status/filename
+conflict, and changed no files. Fresh no-op sessions returned 0 with exactly one
+selected-root skip trace, no installer entry, and identical SHA-256,
+`mtime_ns`, and `ctime_ns` before/after. After main changed all three local
+updater copies, the no-op checks were repeated and proved the release record
+preserves that newer project-local behavior. Quick 011 records the exact session
+IDs, hashes, and timestamps.
 
 No unresolved product decision was identified in story refinement. The follow-up
 slice-planning pass updated the existing plan and preserved its earlier mappings.
@@ -676,12 +683,11 @@ combined outcome without reopening release production or version detection.
 
 ## Ordering and Scope Reduction
 
-Safe installation (5a) and publication (5d) are complete. The first remaining
-outcome is the bounded self-adoption and native reuse in Open Dough (5e) refined
-above, using the existing released flow. After that, implement
-and deliver first-install replacement in Donut under SEED-004 Story 4. Publish
-any accepted replacement changes with the existing release workflow before
-claiming they are available through released installation.
+Safe installation (5a), publication (5d), and bounded self-adoption (5e) are
+complete. Main independently completed the authorized ADR replacement through
+its 4A cutoff. The first remaining outcome is the native Codex proof in
+[SEED-006](SEED-006-extend-adr-guidance-adoption.md#prove-codex-use-after-replacement),
+followed by the separately bounded Plans 015–017.
 
 The two new extraction stories and update-time replacement do not block
 first-install ADR-awareness replacement. This sequence replaces the earlier
@@ -708,7 +714,7 @@ subsequently refined to five remaining slices, all now accepted. The spent
 Quick 005, Quick 008, and Quick 010 plans were dropped after completion; their
 evidence is summarized in Stories 5b, 5a, and 5d above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
-Quick 011 is now aligned to refined Story 5e and slice-refined for execution.
+Quick 011 is aligned to Story 5e and retains its completed execution evidence.
 The other unfinished split plans remain explicitly not executable until their
 stories and slices are refined again.
 
@@ -716,15 +722,17 @@ stories and slices are refined again.
 
 - Story 5a is complete with all five slices accepted and earlier evidence retained.
   Story 5d is complete with independently verified public `v0.2.0`. Story 5e
-  and its existing slice plan are refined; execution evidence remains pending.
+  and all nine native observations are complete; post-main repetitions also
+  proved current-version updates preserve newer project-local updater behavior.
   Story 6 needs refinement when manual release-note reading becomes a pain;
   local-edit conflict handling stays outside.
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) now starts with Story 5e before
-SEED-004's first ADR-awareness replacement and places Story 6 later.
-[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4, 5a, 5b, and 5d. Execute only a selected story with a
+The [product backlog](../PRODUCT-BACKLOG.md) now starts with SEED-006's native
+Codex proof after the completed 4A replacement and places Story 6 later.
+[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains
+Stories 1–4, 5a, 5b, 5d, and 5e. Execute only a selected story with a
 refined plan; do not chain the provisional plans as one delivery.
 
 ## Breadcrumbs
