@@ -36,5 +36,6 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
    file matches the fetched source. Say `Updated Open Dough guidance from
    <source-url>.`, replacing `<source-url>` with the actual supplied URL. Report
    the installed path and tell the user to start a fresh session in the same
-   tool to use the updated guidance. If fetching or installation fails, report
-   that failure without claiming an update succeeded.
+   tool, then invoke `/dough-update` in Cursor or `$dough-update` in Codex, to
+   use the updated guidance. If fetching or installation fails, report that
+   failure without claiming an update succeeded.
