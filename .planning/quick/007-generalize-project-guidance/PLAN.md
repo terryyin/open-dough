@@ -381,10 +381,18 @@ Use only minimal host adaptation; keep shared instructions in one source.
 
 ### 14. Use an installed improvement natively in Cursor
 Type: Behavior
-Status: planned
+Status: done
 Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Cursor,
 with source-context and alternate-layout requests evaluated by the same ADR-awareness rubric.
 Record the selected installation and unchanged other-platform guidance.
+
+Evidence: Native Cursor invoked the installed updater against a cloneable fixture
+default branch, reported its origin and exact commit, and refreshed only the three
+files under `.cursor/skills/`. Codex and Claude Code copies plus companion Cursor
+guidance remained unchanged. A fresh native session invoked the updated
+`dough-adr-awareness` skill, named both conflicting alternate-layout authorities
+and their `Replaced`/`Adopted` values, stopped for human precedence, and changed no
+adopter files. The post-refactor shared-harness proof exited 0.
 
 Behavior: Cursor has the previous public skill → update and invoke the installed
 replacement → use the changed ADR-awareness behavior with local context intact.
