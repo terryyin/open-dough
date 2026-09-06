@@ -65,19 +65,25 @@ The exact file mappings and capability differences will be documented as integra
 
 ## Installation and updates
 
-Open Dough will be installed **into a target project's repository**. Installation places lifecycle content and the selected platform integration files there; updating Open Dough directly changes those installed files.
+Open Dough will be installed **into a target project's repository**. Installation places lifecycle content and the selected platform integration files there; updating Open Dough directly changes those installed files. Global installation is not supported.
 
-Open Dough will be versioned, but installation and updates will support **only the latest version**. Selecting or pinning a version through the installer or updater will not be supported.
+Installation uses the content addressed by the supplied URL. The usual source is the latest content on the repository's default branch (`main` for Open Dough), rather than a published release. An explicitly supplied source URL is honored rather than redirected to a different version.
+
+The initial updater simply fetches and applies the latest default-branch content. It does not detect the installed version or check whether a newer version exists before applying it. Installed-version tracking and update detection are a separate, later story.
 
 The intended adoption flow is:
 
 1. Select the platforms the project uses.
-2. Run the installation mechanism against the target repository to install the latest Open Dough version.
+2. Run the installation mechanism with the source URL and target repository to install Open Dough for the selected platforms.
 3. Review the added files, add project-specific context, and commit them.
 4. Use the installed guidance during development.
-5. Run an update to bring the installed files to the latest Open Dough version, review the resulting changes, and commit them.
+5. Run an update to apply the latest default-branch content to the installed files, review the resulting changes, and commit them.
 
-The installer and updater still need a precise contract. The proposed design is to record the installed version, identify which files Open Dough manages, and keep project-specific additions separate where possible. Updates must account for existing tool configuration and local edits; their merge and conflict behavior has not yet been decided.
+Installing into a project that already has Open Dough warns or stops by default. An explicit override allows reinstallation and overwrites Open Dough's installed files, including local edits, without migration or merging. The exact override syntax and installation-presence check remain for refinement.
+
+The first Codex installation will provide only one skill: an update placeholder. Its proposed name is `dough-update`; invocation will explain that updating is not implemented yet. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
+
+The installer and updater still need a precise contract for file ownership and project-specific additions. Conflict behavior for the automatic update command remains for later discussion. Codex installation and a simple update come first, followed by Cursor and Claude Code together.
 
 Installation commands and destination paths will be documented once the mechanism exists.
 
@@ -85,7 +91,7 @@ Installation commands and destination paths will be documented once the mechanis
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 
-The delivery mechanism is still open: a GitHub-hosted installer, downloadable release, or another repository-based approach could fulfill this model. Versions will identify releases and track what is installed; installation and updates will always target the latest version.
+The delivery mechanism is still open. It must support the supplied source URL and the default-branch update flow without requiring a published release. Version tracking is deferred and will not be required for the initial installation and update loop.
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 
