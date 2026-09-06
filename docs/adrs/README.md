@@ -58,3 +58,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | --- | --- | --- |
 | [0000](./0000-use-adrs-accepted.md) | Accepted | Use Architectural Decision Records (ADRs) |
 | [0001](./0001-ubiquitous-language.md) | Proposed | Ubiquitous language |
+| [0002](./0002-software-development-lifecycle-principles.md) | Proposed | Software development lifecycle principles |
