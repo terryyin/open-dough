@@ -292,10 +292,16 @@ Behavior: An evaluated public payload is available → select Claude Code instal
 
 ### 10. Preserve existing guidance on repeat installation
 Type: Behavior
-Status: planned
+Status: done
 Proof: One focused installer scenario edits the installed public skill, observes
 ordinary-repeat rejection with no partial payload change, then applies explicit
 force and compares the resulting selected payload and preserved sentinels.
+
+Evidence: A Cursor fixture proved a collision at the later ADR skill stops before
+the earlier updater is written; with all three managed files locally edited,
+ordinary repeat left the complete tree digest unchanged. Explicit `--force`
+restored exactly the declared payload while preserving sidecars, unrelated project
+guidance, and Codex/Claude copies.
 
 Behavior: The selected public payload already exists → repeat installation →
 preserve it unless replacement was explicitly requested, in which case replace
