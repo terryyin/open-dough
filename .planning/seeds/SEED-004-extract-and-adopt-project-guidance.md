@@ -239,9 +239,10 @@ conflict cannot be resolved.
 
 ### 4. Start using Open Dough without leaving overlapping local guidance
 
-- **Status:** Refined 2026-09-06 in `codex/adopt-adr-awareness`; not yet planned
-  or implemented. Borrowed Donut's `story-refinement` skill and its planning
-  rule. This pass changes story understanding only.
+- **Status:** Refined 2026-09-06 in `codex/adopt-adr-awareness`, with a
+  [slice plan](../quick/013-adopt-adr-awareness/PLAN.md) prepared using Donut's
+  `slice-planning` skill. The plan recommends refining slices 3 and 23 before
+  their execution. Implementation and native adoption verification are pending.
 - **Value / learning:** Demonstrate the first useful replacement in a real
   adopter using the already-extracted `dough-adr-awareness` and recognition
   record. A reusable adoption journey must work without a maintainer manually
@@ -363,8 +364,9 @@ Changed guidance needs fresh native evidence; file copying is insufficient.
 
 No unresolved product decision prevents slice planning within this boundary.
 Actual local policy gaps, if encountered, remain explicit blockers to the
-affected removal. This refinement creates no execution plan, installs nothing,
-and removes nothing from Donut.
+affected removal. The linked slice plan now records executable leaves and
+proof ownership; neither refinement nor planning has installed or removed
+anything from Donut.
 
 <a id="extract-plan-execution-with-ci-monitor"></a>
 
