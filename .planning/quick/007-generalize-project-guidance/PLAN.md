@@ -216,10 +216,17 @@ that gap is resolved. Never remove the original from the real project.
 
 ### 6. Apply ADR guidance in an unrelated project's own layout
 Type: Behavior
-Status: planned
+Status: done
 Proof: A fresh native Codex session uses the candidate in a disposable project
 with a supplied ADR home at `architecture/decisions/` and a local index/status
 convention; inspect the cited decision and absence of imposed Doughnut directories.
+
+Evidence: A fresh Codex session with only the generalized skill used the fixture's
+`architecture/decisions/` home, `Adopted`/`Replaced` lifecycle, and local exception
+trail; followed ARC-07→ARC-12, cited the current record, stopped the telemetry
+conflict, preserved human ownership, and imposed neither `docs/adrs/` nor source
+project identity. The adopter tree plus candidate/recognition digests were
+byte-identical before and after.
 
 Behavior: An unrelated project supplies its own ADR context → invokes the
 candidate → receives the same useful ADR assessment using its own decision records.
