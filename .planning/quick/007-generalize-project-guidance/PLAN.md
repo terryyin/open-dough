@@ -276,10 +276,16 @@ obtain the same shared guidance through Cursor's native skill directory only.
 
 ### 9. Install the evaluated public payload for Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same focused installer fixture selects Claude Code, compares its
 complete public payload, and confirms Codex, Cursor, unrelated guidance, and
 internal Open Dough material are unchanged or absent as appropriate.
+
+Evidence: Claude Code now selects the one shared three-file public payload and
+installs it only under `.claude/skills/`. The same parameterized fixture proved
+source completeness before writes, exact installed content, and preservation of
+Codex, Cursor, internal, guard, and unrelated material. Cross-platform installer
+branches now vary only by native destination root.
 
 Behavior: An evaluated public payload is available → select Claude Code installation
 → obtain the same shared guidance through Claude Code's native skill directory only.

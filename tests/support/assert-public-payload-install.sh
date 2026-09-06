@@ -13,8 +13,12 @@ case "${platform}" in
     relative_skill_root=.cursor/skills
     platform_label=Cursor
     ;;
+  claude)
+    relative_skill_root=.claude/skills
+    platform_label='Claude Code'
+    ;;
   *)
-    echo "Usage: $0 <codex|cursor>" >&2
+    echo "Usage: $0 <codex|cursor|claude>" >&2
     exit 1
     ;;
 esac

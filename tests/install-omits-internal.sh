@@ -123,6 +123,10 @@ EOF
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.claude/skills/dough-update/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
+  "${target}/.claude/skills/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
+  "${target}/.claude/skills/dough-adr-awareness/RECOGNITION.md"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.cursor/skills/dough-update/SKILL.md"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -134,6 +138,8 @@ expect_files << 'EOF'
 ./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
+./.claude/skills/dough-adr-awareness/RECOGNITION.md
+./.claude/skills/dough-adr-awareness/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/dough-adr-awareness/RECOGNITION.md

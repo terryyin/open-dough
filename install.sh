@@ -45,7 +45,7 @@ if [[ ! -d "${target}" ]]; then
   exit 1
 fi
 
-complete_public_payload=(
+managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-adr-awareness/RECOGNITION.md
@@ -54,15 +54,12 @@ complete_public_payload=(
 case "${platform}" in
   codex)
     relative_skill_root=.agents/skills
-    managed_files=("${complete_public_payload[@]}")
     ;;
   cursor)
     relative_skill_root=.cursor/skills
-    managed_files=("${complete_public_payload[@]}")
     ;;
   claude)
     relative_skill_root=.claude/skills
-    managed_files=(dough-update/SKILL.md)
     ;;
   *)
     echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor, claude." >&2
