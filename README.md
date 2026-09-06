@@ -93,7 +93,17 @@ makes no changes. See [Codex skill discovery](https://learn.chatgpt.com/docs/bui
 To check the installer from a source checkout, run `bash tests/install.sh`.
 
 If `.agents/skills/dough-update` already exists, installation warns and stops
-without changing it. Explicit forced reinstallation is the next planned step.
+without changing it. To reinstall, add `--force` to the installer line in the
+clone command above:
+
+```bash
+bash "$install_dir/open-dough/install.sh" --target "$PWD" --force
+```
+
+This replaces the installed `SKILL.md`, including any local edits, with the
+supplied source. It does not merge changes or replace other skills. Review and
+commit the installed file in the target project. Open Dough's own installed
+copy lives at the same destination, separately from the distributable source.
 
 ### Planned update flow
 
@@ -111,11 +121,11 @@ The intended adoption flow is:
 4. Use the installed guidance during development.
 5. Run an update to apply the latest default-branch content to the installed files, review the resulting changes, and commit them.
 
-Installing into a project that already has Open Dough stops by default. The planned `--force` override will replace the installed placeholder, including local edits, without migration or merging.
+Installing into a project that already has Open Dough stops by default. The `--force` override replaces the installed placeholder, including local edits, without migration or merging.
 
 The Codex installation currently provides only the `dough-update` placeholder. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
 
-The installer and updater still need a precise contract for file ownership and project-specific additions. Conflict behavior for the automatic update command remains for later discussion. Codex installation and a simple update come first, followed by Cursor and Claude Code together.
+Broader file ownership and project-specific additions remain to be defined as more guidance is added. Conflict behavior for the automatic update command remains for later discussion. A simple Codex update comes next, followed by Cursor and Claude Code together.
 
 ## Distribution
 

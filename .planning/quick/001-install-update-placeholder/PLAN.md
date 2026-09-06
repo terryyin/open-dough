@@ -1,124 +1,55 @@
 # Install the Open Dough update placeholder
 
-Status: in progress — installation and repeat protection verified; force next.
+Status: complete — all three slices verified and delivered individually.
 Source: [SEED-001, Story 1](../../seeds/SEED-001-install-and-update-open-dough.md#install-from-github).
 
-## Goal and scope
+## Outcome
 
-Install Open Dough's `dough-update` placeholder into a project for Codex.
-Installing again stops with a warning; `--force` overwrites the installed file.
-Use Open Dough itself to demonstrate the complete flow and learn from it.
+Open Dough installs its Codex `dough-update` placeholder from a shallow clone
+of the supplied repository's default branch. The installer copies only
+`skills/dough-update/SKILL.md` to the target project's
+`.agents/skills/dough-update/SKILL.md`. Repetition stops with a warning;
+`--force` replaces installed content without merging. Open Dough's installed
+copy is checked in separately from its distributable source.
 
-Only this placeholder is included. Real updating, versions, migration, merging,
-additional rules, other platforms, and a comprehensive edge-case suite wait.
+Real updating, versions, migration, broader rules, other platforms, and
+comprehensive edge cases remain outside this story. ADR 0000 was followed;
+ADR 0001 remains Proposed.
 
-## Execution context and decisions
+## Completed slices and proof
 
-- There is no existing installer, runtime, or test framework. Use Bash and Git
-  already available in the development environment; introduce no package stack.
-- Start with a cloneable public GitHub repository URL. A documented shallow
-  clone into a temporary directory obtains its default branch; run that copy's
-  `install.sh --target <project> [--force]`. This honors the supplied repository
-  URL without adding a URL resolver or release lookup.
-- Keep distributable content at `skills/dough-update/SKILL.md`. The installer
-  reads it relative to its own location and copies it to
-  `<project>/.agents/skills/dough-update/SKILL.md`. Source and installed output
-  remain separate even when Open Dough installs itself.
-- Use that skill directory's existence as the simple already-installed check.
-  Write only this skill's destination; do not replace the whole `.agents` tree
-  or create root agent instructions/global configuration.
-- The skill has `name` and `description` metadata and instructions to report
-  that updating is not implemented. Codex supports repository-local
-  `.agents/skills` discovery: [official skill documentation](https://learn.chatgpt.com/docs/build-skills).
-- Follow [ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md).
-  Using the refined story's recommended `dough-update` name does not change
-  ADR 0001's Proposed status.
+1. **Install and invoke the placeholder — Behavior, done.**
+   `bash tests/install.sh` verified matching supplied content and preservation
+   of an unrelated skill, from outside the source checkout into a path with
+   spaces. A fresh Codex session discovered the temporary installation and
+   returned “Updating Open Dough is not implemented yet.”
+2. **Stop an ordinary repeat installation — Behavior, done.**
+   The same check verified a warning, nonzero exit, explicit `--force`
+   instruction, and unchanged locally edited installed content.
+3. **Overwrite when the maintainer insists — Behavior, done.**
+   The same check verified forced replacement matches the supplied source and
+   preserves the unrelated sentinel. Missing/unknown argument checks and Bash
+   syntax checks also passed.
 
-## Ordered slices
+Each slice received independent refactor review before commit and push.
+Skill metadata validation passed. Usage and enduring behavior are documented
+in [README](../../../README.md) and `tests/install.sh`.
 
-### 1. Install and invoke the placeholder
-Type: Behavior
-Status: done
-Proof: A focused installer check in a temporary target observes the supplied
-skill content at the project-local destination. A fresh Codex session discovers
-it and invocation reports that updating is not implemented.
+## GitHub and Codex demonstration
 
-Observed 2026-09-06: `bash tests/install.sh` passed (matching source content,
-unrelated sentinel preserved, invoked outside the checkout). Skill metadata
-validation and Bash syntax checks passed. A fresh bundled Codex CLI 0.153.4
-session in a temporary installed target invoked `$dough-update` and returned
-"Updating Open Dough is not implemented yet." No commands or edits were made
-by the invocation. Independent refactor review found no changes needed.
-GitHub self-install demonstration also passed: shallow HTTPS clone of default
-branch commit `2b45a50`, install into `/Users/terryyin/git/open-dough`, compare
-source and installed files, then fresh bundled Codex session
-`01a0744e-36be-7d02-b967-147bd3aea43f` invoked `$dough-update` and returned the
-same placeholder message without commands or edits. The clone/install steps
-followed README; automatic command review rejected its `rm -rf` cleanup trap,
-so the demonstration retained the temporary clone instead. The installed copy
-is checked in for project self-use.
-
-Behavior: A target has no Open Dough installation → run the source checkout's
-installer for that target → the update placeholder is available in Codex.
-
-Add the minimal source skill, `install.sh`, and a small `tests/install.sh` shell
-check that drives the real installer. Document the GitHub clone/install command
-and skill invocation in README. In the same temporary-target check, keep one
-unrelated sentinel file and observe that installation preserves it.
-
-### 2. Stop an ordinary repeat installation
-Type: Behavior
-Status: done
-Proof: Run install again against the populated target; observe a warning,
-nonzero exit, and unchanged installed content.
-
-Behavior: Open Dough is installed → run install without override → it stops
-and tells the maintainer how to explicitly reinstall.
-
-Add the simple directory-presence guard and extend the same shell check.
-
-Observed 2026-09-06: `bash tests/install.sh` passed after adding the guard;
-ordinary repetition returned nonzero with a warning and `--force` instruction,
-preserving both locally edited installed content and the unrelated sentinel.
-
-### 3. Overwrite when the maintainer insists
-Type: Behavior
-Status: planned
-Proof: Edit the installed placeholder, then run install with `--force`; observe
-that its contents match the supplied source again.
-
-Behavior: Open Dough is installed → explicitly force installation → the supplied
-placeholder replaces the previous installed content without merging.
-
-Add the override, extend the shell check, and document the forced form.
-
-## Verification and delivery
-
-Run `bash tests/install.sh` as the focused proof as each behavior is added.
-The checks correspond to the three behaviors above; no new test framework.
-Use temporary targets for overwrite checks, not the maintainer's working files.
-
-After the implementation is available at the GitHub URL, follow the documented
-clone/install command into Open Dough itself and invoke `dough-update` in a fresh
-Codex session. This completes Story 1's first example; slices 2–3 cover its
-repeat-install example. Record the observed result here before marking the
-story complete. Local file-copy checks alone do not prove Codex discovery or
-the GitHub entry point.
-
-Each slice targets roughly five minutes of implementation and focused checking.
-Native-session and network demonstration time may be longer. No Structure
-slice is needed. The refinement-trigger review found no reason for another
-planning pass; refine an individual slice if execution exposes unexpected work.
-
-During execution, use Donut's execute-plan workflow for slice review and wrap-up,
-with this repository's focused shell check rather than Donut's application
-tooling. Keep progress in this PLAN; when complete, record the outcome in the
-home story/backlog and trim spent planning detail.
+On 2026-09-06, shallow-cloned `https://github.com/terryyin/open-dough.git`
+(default-branch revision `2b45a50`) and ran that clone's installer targeting
+Open Dough itself, following README's clone/install steps. The installed file
+matched the supplied source. A fresh bundled Codex CLI 0.153.4 session
+(`01a0744e-36be-7d02-b967-147bd3aea43f`) invoked `$dough-update` and returned
+“Updating Open Dough is not implemented yet.” It ran no commands or edits.
 
 ## Learnings
 
-- The standalone Codex CLI 0.144.1 cannot invoke the configured model; the
-  desktop app's bundled CLI 0.153.4 successfully verified the skill instead.
-- This repository has no CI workflows or formatter; use the focused Bash test,
-  syntax checks, and diff whitespace check for local verification. Donut's
-  application formatter and CI observer do not apply.
+- The standalone Codex CLI 0.144.1 was too old for the configured model; the
+  desktop app's bundled CLI 0.153.4 verified native discovery and invocation.
+- Automatic command review rejected the README command's `rm -rf` cleanup
+  trap. The demonstration retained its temporary clone and completed the same
+  clone/install steps without the cleanup trap.
+- This repository has no CI workflows or formatter. Focused Bash verification,
+  syntax checks, and diff whitespace review replace Donut application tooling.

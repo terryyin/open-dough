@@ -19,8 +19,8 @@ guidance is usable and that improvements reach the project using it.
 
 The owner chose this bootstrap loop as the near-future goal and identified
 OpenGSD (`../gsd-core`) as a source of inspiration and reusable code. The current
-repository has product documentation and a backlog direction, but no installer,
-updater, or installed Open Dough guidance.
+repository now has the placeholder installer and its installed Codex skill;
+the real updater remains the next queued story.
 
 ## Decisions and Constraints
 
@@ -73,10 +73,9 @@ evidence and implementation possibilities separately from stories.
 
 ### 1. Install Open Dough's update placeholder from a supplied URL for Codex
 
-- **Status:** Unfinished; queued; refined 2026-09-06.
-- **Depends on:** None.
-- **Effort hypothesis:** M (1–2 hours), low confidence; one placeholder skill
-  and a simple installer.
+- **Status:** Complete, 2026-09-06. GitHub installation into Open Dough and
+  fresh Codex invocation verified; repeat protection and forced replacement
+  passed the focused installer check. [Execution outcome](../quick/001-install-update-placeholder/PLAN.md).
 
 #### Goal
 
@@ -85,20 +84,12 @@ start using the installation flow and learn from it.
 
 #### Scope
 
-- Install one update placeholder from the supplied URL into the target project.
-  Recommended name: `dough-update`. Invoking it says updating is not implemented.
-- If Open Dough is already installed, warn and stop. Let the user explicitly
-  insist on reinstalling, overwriting Open Dough's installed files. Recommended
-  option: `--force`.
-- Keep this project-local and simple: no real updating, version checks,
-  migrations, or merging. Further rules and edge cases can follow actual use.
-
-#### Key examples
-
-1. Install from Open Dough's GitHub URL into this repository, then invoke the
-   skill in Codex. It responds that updating is not implemented yet.
-2. Install again: it warns and stops. Explicitly force the reinstall: it writes
-   the supplied content over the previous Open Dough installation.
+- Install `dough-update` from the supplied cloneable URL into the target project.
+  Invoking it reports that updating is not implemented yet.
+- Stop with a warning when the skill directory already exists. Explicit
+  `--force` reinstallation overwrites its installed file, including local edits.
+- Keep this project-local: no real updating, version checks, migrations,
+  merging, additional rules, or comprehensive edge-case suite.
 
 <a id="update-after-source-change"></a>
 
@@ -183,24 +174,26 @@ start using the installation flow and learn from it.
 
 First establish self-installation in Codex, then the unconditional update loop.
 Next extend those behaviors to Cursor and Claude Code together. Add version
-tracking and update detection last. This preserves four queued outcomes while
+tracking and update detection last. This preserves four ordered outcomes while
 keeping the initial update small.
 
 First to drop: Story 4, then Story 3. Defer Story 2 only if a usable first
 installation is the deliberately chosen stopping point. Stories are sized by
 observable scope, not by auditing GSD's implementation. All estimates remain
-hypotheses; no executable plan or implementation is authorized by this queue.
+hypotheses; the queue alone does not authorize implementation. Story 1 was
+subsequently selected, planned, executed, and completed.
 
 ## Open Decisions
 
-- `dough-update` and `--force` are recommended names. Keep installation details
+- Story 1 uses `dough-update` and `--force`. Keep further installation details
   minimal and adjust them through use.
 - Conflict handling for the later update story remains for future discussion.
   Version detection stays in Story 4.
 
 ## When to Surface
 
-The four stories are in the [product backlog](../PRODUCT-BACKLOG.md). Refine the
+The remaining stories are in the [product backlog](../PRODUCT-BACKLOG.md), with
+Story 1 recorded as recently done. Refine the
 chosen story's goal, scope, and examples before slice planning. Keep backlog
 prioritization separate from execution and architectural acceptance.
 

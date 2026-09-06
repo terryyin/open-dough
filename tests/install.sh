@@ -29,4 +29,8 @@ fi
 [[ $(cat "$installed_skill") == 'Keep my local changes.' ]]
 [[ $(cat "$sentinel") == 'Keep this unrelated skill.' ]]
 
-echo "PASS: installs the supplied skill, stops repeats, and preserves unrelated content."
+bash "$source_dir/install.sh" --target "$target" --force
+cmp "$source_dir/skills/dough-update/SKILL.md" "$installed_skill"
+[[ $(cat "$sentinel") == 'Keep this unrelated skill.' ]]
+
+echo "PASS: installs the supplied skill, stops repeats, forces replacement, and preserves unrelated content."

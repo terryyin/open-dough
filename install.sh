@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 2 || $1 != --target ]]; then
-  echo "Usage: $0 --target <project>" >&2
+if [[ $# -lt 2 || $# -gt 3 || ${1:-} != --target || ( $# -eq 3 && ${3:-} != --force ) ]]; then
+  echo "Usage: $0 --target <project> [--force]" >&2
   exit 1
 fi
 
@@ -14,7 +14,7 @@ fi
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 destination="$target/.agents/skills/dough-update"
-if [[ -d "$destination" ]]; then
+if [[ -d "$destination" && ${3:-} != --force ]]; then
   echo "Warning: dough-update is already installed in $destination. Use --force to explicitly reinstall." >&2
   exit 1
 fi
