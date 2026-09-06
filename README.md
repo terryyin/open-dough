@@ -90,7 +90,9 @@ are preserved. Start a fresh Codex session in that project and invoke
 `$dough-update`. It reports that updating Open Dough is not implemented yet and
 makes no changes. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
-To check the installer from a source checkout, run `bash tests/install.sh`.
+To run all script tests from a source checkout, run `npm test` (requires npm)
+or `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
+discovers all `.sh` files under `tests/` and reports failure if any test fails.
 
 If `.agents/skills/dough-update` already exists, installation warns and stops
 without changing it. To reinstall, add `--force` to the installer line in the

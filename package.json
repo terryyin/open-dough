@@ -1,0 +1,7 @@
+{
+  "name": "open-dough",
+  "private": true,
+  "scripts": {
+    "test": "bash scripts/test.sh"
+  }
+}
