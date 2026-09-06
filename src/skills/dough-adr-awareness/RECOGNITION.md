@@ -156,6 +156,40 @@ does not itself perform caller repair or cleanup.
    the inspected source/tag/commit/version, and caller cleanup and original
    removal as pending. Do not create a migration state file.
 
+## Switch callers and remove the redundant original
+
+Continue an already-authorized replacement only after the retained context is
+verified and every affected native integration has a usable shared replacement.
+Reuse the existing authorization; do not ask for it again.
+
+1. Reinspect the assessment's explicit caller and discovery-link paths and use
+   them as a required checklist. If that inventory is unavailable, rederive it
+   before editing with repository-wide searches that include hidden and ignored
+   paths plus separate symlink enumeration. Follow references from local
+   architecture guidance into mixed ADR documents and other normally unindexed
+   paths; a broad search with those paths excluded is not a complete inventory.
+   If the set has drifted, or any affected integration still depends on the
+   shared original, keep the original available and report the focused readiness
+   gap.
+2. Repair the complete assessed caller set in one coherent change. Point each
+   caller at `dough-adr-awareness` in the running tool's native skill root,
+   preserving unrelated instructions inside mixed files. Do not redirect other
+   tools to the running tool's installed copy.
+3. Verify every checklist path individually after repair: each textual caller
+   resolves to the installed shared skill and every retained context value
+   remains reachable through local architecture guidance. Remove obsolete
+   discovery links to the original only when their affected integrations have
+   usable replacements.
+4. Search the assessed roots again, including hidden and ignored paths, for
+   textual and symlink references to the original. Only when the search and
+   every checklist entry are clear, remove the redundant original skill and its
+   now-empty directory. Do not remove ADR records, indexes, templates, decisions,
+   unrelated guidance, or another tool's installation.
+5. Report the inspected source/tag/commit/version, the exact caller/link paths
+   repaired or removed, the original path removed, and the complete changed-path
+   set. Keep installation state separate from cleanup state; a current-version
+   cleanup must not rewrite the installed payload or `VERSION` record.
+
 ## Evaluation status
 
 Controlled native Codex comparisons established equivalence with the original

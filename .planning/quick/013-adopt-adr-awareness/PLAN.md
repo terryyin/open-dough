@@ -7,15 +7,17 @@
   `400f530`.
 - Planning method: borrowed Donut's `slice-planning`, then
   `slice-plan-refinement`, with its planning and decomposition rules.
-- Status: slices 1–4 are done. Slice 4 exceeded its original bounded loop and
-  was refined in place into Behavior leaves 4 and 4a; execution resumes from
-  4a. Current scope and story order remain unchanged. First-install and
-  real-adoption gates still apply.
+- Status: slices 1–4a are done. Slice 4 exceeded its original bounded loop and
+  was refined in place into Behavior leaves 4 and 4a. Execution is paused at the
+  safe boundary before slice 5; resume there. Current scope and story order
+  remain unchanged. First-install and real-adoption gates still apply.
 - Execution CI observer: key
   `ci-watch-execution:terryyin/open-dough:codex/adopt-adr-awareness-execution:/root`,
   PTY session `23441`, PID `20830`, checkout
   `/Users/terryyin/.codex/worktrees/d43a/open-dough`. It follows this repository's
-  feature-branch CI because Open Dough runs `ci.yml` on every push.
+  feature-branch CI because Open Dough runs `ci.yml` on every push. This observer
+  stops at the slice 4a pause boundary; start a new observer before resuming
+  slice 5.
 
 ## Goal and scope
 
@@ -317,7 +319,7 @@ files and passed its focused native and supporting proofs.
 
 ### 4a. Switch callers and remove the now-redundant original
 Type: Behavior
-Status: planned
+Status: done
 Proof: One fresh native Codex session starts from slice 4's exact prepared-state
 fixture and continues the already-authorized cleanup. Observe one coherent
 switch of the bounded caller set and removal of only the redundant original.
@@ -330,6 +332,20 @@ original fallback. Complete the caller-switch/removal instructions and keep the
 shared-original readiness gate. Native ADR use is slice 5, not a second proof
 loop here. Sizing: about five minutes plus one native-process wait; medium
 confidence. No context design or additional platform remains.
+
+Evidence (2026-09-06): fresh `codex-cli 0.144.1` invoked the installed
+`$dough-update` from controlled fixture release `v0.1.0` at
+`0962d86ffb6ff29cd7382fb3489df83920f57705`. It reused the existing replacement
+authorization, repaired `.cursor/agent-map.md`, both affected Cursor rules, and
+the mixed `docs/adrs/README.md` caller, then removed only
+`.agents/skills/adr-awareness/SKILL.md` and its empty directory. The exact
+changed set contained those four callers and the original; every caller resolved
+to the installed shared skill. Retained context, payload and `VERSION`, ADR
+records/statuses/decisions, unrelated guidance, and other-host guidance remained
+unchanged; no install or fetch ran. Native Codex replacement use remains the
+separate slice 5 proof. The refactor gate centralized repeated native proof
+assertions, kept every non-plan file below 250 lines, and passed focused shell,
+fixture, payload, lint, formatting, and native checks.
 
 ### 5. Use the Codex replacement explicitly after cleanup
 Type: Behavior

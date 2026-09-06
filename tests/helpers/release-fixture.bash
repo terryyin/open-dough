@@ -116,6 +116,21 @@ prepare_donut_adr_codex_adoption_target() {
   rm -- "${target}/.claude/skills/adr-awareness"
 }
 
+prepare_donut_adr_codex_cleanup_target() {
+  local target=$1
+  local candidate=$2
+  local architecture_rule
+
+  prepare_donut_adr_codex_adoption_target "${target}" "${candidate}"
+  architecture_rule="${target}/.cursor/rules/architecture-decisions.mdc"
+  printf '\n%s\n' \
+    '## Retained adopter context' \
+    '' \
+    '- Architecture-shaped work includes Cross-cutting stack, persistence, API contracts, auth, packaging/monorepo layout, and shared conventions across backend/frontend/cli/mcp/e2e.' \
+    '- A human-owned exception may be recorded in a PR/commit message or note pointing at the ADR and the exception.' \
+    >> "${architecture_rule}"
+}
+
 build_latest_fixture() {
   local repo=$1
 

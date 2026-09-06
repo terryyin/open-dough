@@ -19,13 +19,15 @@ request. Assessment permission is not cleanup authorization. Report a current
 installed version separately from optional cleanup that may still be pending.
 
 If the developer authorizes replacement using the already-installed Open Dough
-ADR guidance, read the same recognition record and follow its **Retain adopter
-context before cleanup** section. Reuse replacement authorization in the request
-and do not ask for it again. This preparation stops before caller repair or
-removal and reports cleanup pending. Do not fetch a source or invoke the installer
-unless the developer also requested an install or update; an already-current
-installation may prepare authorized context without rewriting its payload or
-`VERSION` record.
+ADR guidance, read the same recognition record. Follow **Retain adopter context
+before cleanup** when required context is not yet prepared; that preparation
+stops before caller repair or removal and reports cleanup pending. When retained
+context is already verified and the developer asks to continue the authorized
+cleanup, follow **Switch callers and remove the redundant original**. Reuse the
+replacement authorization and do not ask for it again. Do not fetch a source or
+invoke the installer unless the developer also requested an install or update;
+an already-current installation may perform authorized local preparation or
+cleanup without rewriting its payload or `VERSION` record.
 
 1. Capture the target project's absolute path before fetching anything. Use the
    current project unless the user supplied another target.

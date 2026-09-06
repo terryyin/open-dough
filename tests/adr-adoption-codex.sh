@@ -9,8 +9,14 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 # shellcheck source=tests/support/native-codex.sh
 source "${source_dir}/tests/support/native-codex.sh"
 # shellcheck disable=SC1091
+# shellcheck source=tests/support/adr-adoption-codex-proof.sh
+source "${source_dir}/tests/support/adr-adoption-codex-proof.sh"
+# shellcheck disable=SC1091
 # shellcheck source=tests/support/adr-adoption-codex-preparation.sh
 source "${source_dir}/tests/support/adr-adoption-codex-preparation.sh"
+# shellcheck disable=SC1091
+# shellcheck source=tests/support/adr-adoption-codex-cleanup.sh
+source "${source_dir}/tests/support/adr-adoption-codex-cleanup.sh"
 
 recognition="${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md"
 updater="${source_dir}/src/skills/dough-update/SKILL.md"
@@ -24,10 +30,19 @@ grep -Fq '## Retain adopter context before cleanup' "${recognition}"
 grep -Fq 'do not ask for it again' "${recognition}"
 grep -Fq 'Verify every original-only value individually' "${recognition}"
 grep -Fq 'caller cleanup and original' "${recognition}"
+grep -Fq '## Switch callers and remove the redundant original' "${recognition}"
+grep -Fq 'Repair the complete assessed caller set in one coherent change' \
+  "${recognition}"
+grep -Fq 'required checklist' "${recognition}"
+grep -Fq 'hidden and ignored paths' "${recognition}"
+grep -Fq 'mixed ADR documents' "${recognition}"
+grep -Fq 'Verify every checklist path individually' "${recognition}"
+grep -Fq 'every checklist entry are clear' "${recognition}"
 grep -Fq '../dough-adr-awareness/RECOGNITION.md' "${updater}"
 grep -Fq 'Do not begin the install' "${updater}"
 grep -Fq 'already-installed Open Dough' "${updater}"
 grep -Fq 'without rewriting its payload' "${updater}"
+grep -Fq 'context is already verified' "${updater}"
 
 temporary_dir=$(mktemp -d)
 failure_line=''
@@ -63,7 +78,9 @@ candidate="${temporary_dir}/exact tagged source"
 target="${temporary_dir}/donut assessment target"
 
 build_current_tagged_release_fixture "${candidate}"
-if [[ ${2:-} == 'prepare' ]]; then
+if [[ ${2:-} == 'cleanup' ]]; then
+  prepare_donut_adr_codex_cleanup_target "${target}" "${candidate}"
+elif [[ ${2:-} == 'prepare' ]]; then
   prepare_donut_adr_codex_adoption_target "${target}" "${candidate}"
 else
   prepare_donut_adr_assessment_target "${target}" "${candidate}"
@@ -76,21 +93,15 @@ source_url="file://${candidate}"
 candidate_tag=$(git -C "${candidate}" describe --exact-match --tags HEAD)
 [[ ${candidate_tag} == "${tag}" ]]
 
-for managed_file in \
-  dough-update/SKILL.md \
-  dough-adr-awareness/SKILL.md \
-  dough-adr-awareness/RECOGNITION.md; do
-  git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
-    | cmp - "${target}/.agents/skills/${managed_file}"
-done
 installed_version=$(cat "${target}/.agents/skills/dough-update/VERSION")
-[[ ${installed_version} == "${version}" ]]
+assert_tagged_adr_adoption_payload \
+  "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
 
 before=$(snapshot_path_state "${target}")
 before_snapshot="${temporary_dir}/before.snapshot"
 printf '%s\n' "${before}" > "${before_snapshot}"
 [[ ${before} == *$'file\t.agents/skills/adr-awareness/SKILL.md\t'* ]]
-if [[ ${2:-} == 'prepare' ]]; then
+if [[ ${2:-} =~ ^(prepare|cleanup)$ ]]; then
   [[ ${before} != *$'symlink\t.claude/skills/adr-awareness\t'* ]]
 else
   [[ ${before} == *$'symlink\t.claude/skills/adr-awareness\t../../.agents/skills/adr-awareness'* ]]
@@ -102,16 +113,25 @@ if [[ $# == 0 ]]; then
   adoption_snapshot=$(snapshot_path_state "${adoption_target}")
   [[ ${adoption_snapshot} == *$'file\t.agents/skills/adr-awareness/SKILL.md\t'* ]]
   [[ ${adoption_snapshot} != *$'symlink\t.claude/skills/adr-awareness\t'* ]]
+  cleanup_target="${temporary_dir}/prepared Codex cleanup target"
+  prepare_donut_adr_codex_cleanup_target "${cleanup_target}" "${candidate}"
+  cleanup_snapshot=$(snapshot_path_state "${cleanup_target}")
+  [[ ${cleanup_snapshot} == *$'file\t.agents/skills/adr-awareness/SKILL.md\t'* ]]
+  grep -Fq 'Cross-cutting stack' \
+    "${cleanup_target}/.cursor/rules/architecture-decisions.mdc"
+  grep -Fq 'PR/commit message or note' \
+    "${cleanup_target}/.cursor/rules/architecture-decisions.mdc"
   cmp "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" \
     "${adoption_target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
   echo 'PASS: the Codex ADR-adoption assessment fixture contains the exact current tagged three-file payload, a behaviorally comparable local original, concrete callers/context, and complete byte/existence/symlink snapshot support.'
   echo 'PASS: the separate Codex adoption fixture bounds native mutation to one integration while retaining the original and other-host guidance.'
-  echo 'PENDING: native Codex assessment or authorized preparation; run tests/adr-adoption-codex.sh --native assessment or --native prepare.'
+  echo 'PASS: the cleanup fixture starts from the accepted prepared state with retained context, original, and callers intact.'
+  echo 'PENDING: native Codex assessment, authorized preparation, or cleanup; run tests/adr-adoption-codex.sh --native assessment, --native prepare, or --native cleanup.'
   exit 0
 fi
 
-if [[ $# != 2 || $1 != '--native' || ! $2 =~ ^(assessment|prepare)$ ]]; then
-  echo 'usage: tests/adr-adoption-codex.sh [--native assessment|prepare]' >&2
+if [[ $# != 2 || $1 != '--native' || ! $2 =~ ^(assessment|prepare|cleanup)$ ]]; then
+  echo 'usage: tests/adr-adoption-codex.sh [--native assessment|prepare|cleanup]' >&2
   exit 2
 fi
 
@@ -122,6 +142,13 @@ native_codex_prepare "${temporary_dir}" "${candidate}"
 
 if [[ $2 == 'prepare' ]]; then
   run_codex_adr_adoption_preparation \
+    "${target}" "${temporary_dir}" "${candidate}" "${before_snapshot}" \
+    "${source_dir}"
+  exit 0
+fi
+
+if [[ $2 == 'cleanup' ]]; then
+  run_codex_adr_adoption_cleanup \
     "${target}" "${temporary_dir}" "${candidate}" "${before_snapshot}" \
     "${source_dir}"
   exit 0
@@ -146,12 +173,7 @@ command_log="${temporary_dir}/codex-assessment-commands.txt"
 jq -r \
   'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
   "${transcript}" > "${command_log}"
-if grep -Eiq '(^|[ /])(install\.sh|open-dough-release\.sh)( |$)|git (fetch|ls-remote)' \
-  "${command_log}"; then
-  echo 'FAIL: assessment invoked installation or source-fetch machinery.' >&2
-  cat "${command_log}" >&2
-  exit 1
-fi
+assert_no_adr_adoption_install_or_fetch "${command_log}" assessment
 
 grep -Fq "Invocation: \$dough-update" "${output_file}"
 grep -Eiq 'equivalent|behavioral(ly)? (match|coverage|plausible)|behavioral(ly)?.*replace|covers|^- Match:' \
