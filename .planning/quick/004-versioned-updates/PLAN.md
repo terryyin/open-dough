@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–5 done; next is slice 6 (Cursor native release).
+Status: in progress — slices 1–6 done; next is slice 7 (Claude Code native release).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -192,7 +192,7 @@ that cannot be inferred from the existing-tag refusal in leaf 4.
 ### 6. Produce a release through Cursor's native internal skill
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the already-working shared skill and an earlier release, invoke
 `/release-version` in Cursor to produce a chosen higher tagged release.
@@ -266,7 +266,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
 | Codex | Done — 1–5 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, refuse unused 0.1.9 `01a0750f-d6a4-7911-a7e2-0ede4c930bc6`, CLI 0.153.4) | Done — 2–5 (later prepare, existing-tag refusal, unused-older refusal) |
-| Cursor | Pending — 6 | Pending — 6 |
+| Cursor | Done — 6 (`/release-version` loaded `.agents/skills/release-version/SKILL.md`; finalize 0.1.1 `1bd99d48-723d-4d9d-b280-ffe3328ab543`; `agent` 2026.04.13-a9d7fb5). No `.cursor/skills/release-version` added. | Done — 6 (fixture `v0.1.1` on `de98407`; `v0.1.0` unchanged; 0.1.0 notes byte-identical; sentinels and home guidance unchanged) |
 | Claude Code | Pending — 7 | Pending — 7 |
 
 Real maintainer self-use: pending — 8. Published release identity: pending — 9.
@@ -334,3 +334,8 @@ story detail to goal/scope only after its enduring behavior is documented.
 - Leaf 5: `$release-version prepare 0.1.9` with latest fixture `v0.2.0` and no
   `v0.1.9` refused for numeric ordering (not an existing-tag conflict). HEAD
   `b4855ab`, tag object `0460428`, and VERSION/CHANGELOG bytes unchanged.
+- Leaf 6: Cursor `agent` 2026.04.13-a9d7fb5 `/release-version finalize 0.1.1`
+  loaded the same canonical `.agents` skill (no thin Cursor copy). Fixture
+  `v0.1.1` on `de98407` (VERSION/CHANGELOG only); `v0.1.0` and 0.1.0 notes
+  unchanged. Print-mode used the logged-in Cursor session token; do not
+  record that token.
