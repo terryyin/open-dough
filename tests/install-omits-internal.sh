@@ -3,6 +3,11 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 internal_skill_names=(release-version extract-guidance)
+managed_files=(
+  dough-update/SKILL.md
+  dough-adr-awareness/SKILL.md
+  dough-adr-awareness/RECOGNITION.md
+)
 
 for internal_skill_name in "${internal_skill_names[@]}"; do
   [[ -f "${source_dir}/.agents/skills/${internal_skill_name}/SKILL.md" ]]
@@ -74,22 +79,30 @@ expect_files() {
   fi
 }
 
+assert_public_payload() {
+  local relative_skill_root=$1
+  local managed_file
+
+  for managed_file in "${managed_files[@]}"; do
+    cmp "${source_dir}/src/skills/${managed_file}" \
+      "${target}/${relative_skill_root}/${managed_file}"
+  done
+  cmp "${source_dir}/VERSION" \
+    "${target}/${relative_skill_root}/dough-update/VERSION"
+}
+
 # Run outside the checkout so the installer must locate its own source.
 cd -- "${temporary_dir}"
 
 bash "${source_dir}/install.sh" --target "${target}" --platform codex
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.agents/skills/dough-update/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${target}/.agents/skills/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
+assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-adr-awareness/RECOGNITION.md
 ./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/other-cursor-skill/SKILL.md
@@ -97,56 +110,48 @@ expect_files << 'EOF'
 EOF
 
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.cursor/skills/dough-update/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${target}/.cursor/skills/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-  "${target}/.cursor/skills/dough-adr-awareness/RECOGNITION.md"
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.agents/skills/dough-update/SKILL.md"
+assert_public_payload .cursor/skills
+assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-adr-awareness/RECOGNITION.md
 ./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/dough-adr-awareness/RECOGNITION.md
 ./.cursor/skills/dough-adr-awareness/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
+./.cursor/skills/dough-update/VERSION
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
 
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.claude/skills/dough-update/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${target}/.claude/skills/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-  "${target}/.claude/skills/dough-adr-awareness/RECOGNITION.md"
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.cursor/skills/dough-update/SKILL.md"
-cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${target}/.agents/skills/dough-update/SKILL.md"
+assert_public_payload .claude/skills
+assert_public_payload .cursor/skills
+assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-adr-awareness/RECOGNITION.md
 ./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/dough-adr-awareness/RECOGNITION.md
 ./.claude/skills/dough-adr-awareness/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
+./.claude/skills/dough-update/VERSION
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/dough-adr-awareness/RECOGNITION.md
 ./.cursor/skills/dough-adr-awareness/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
+./.cursor/skills/dough-update/VERSION
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
 
-echo "PASS: installer writes only the declared public files for each platform, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the public payload and updater VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

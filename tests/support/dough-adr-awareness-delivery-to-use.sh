@@ -56,11 +56,14 @@ delivery_prepare_fixture() {
   trap 'rm -rf -- "${delivery_temporary_dir}"' EXIT
   delivery_fixture_source="${delivery_temporary_dir}/fixture-source"
   delivery_target="${delivery_temporary_dir}/atlas adopter"
-  mkdir -p -- "${delivery_fixture_source}/src/skills/dough-update" \
+  mkdir -p -- "${delivery_fixture_source}/src/install" \
+    "${delivery_fixture_source}/src/skills/dough-update" \
     "${delivery_fixture_source}/src/skills/dough-adr-awareness"
   cp -R -- "${delivery_fixture}" "${delivery_target}"
   cp -- "${delivery_source_dir}/install.sh" \
     "${delivery_fixture_source}/install.sh"
+  cp -- "${delivery_source_dir}/src/install/"*.sh \
+    "${delivery_fixture_source}/src/install/"
   for managed_file in "${delivery_managed_files[@]}"; do
     cp -- "${delivery_source_dir}/src/skills/${managed_file}" \
       "${delivery_fixture_source}/src/skills/${managed_file}"
@@ -72,12 +75,19 @@ delivery_prepare_fixture() {
   printf '\n%s\n' \
     '- Improvement evidence: names every conflicting repository-relative status authority and its reported value before requesting human precedence.' >> \
     "${delivery_fixture_source}/src/skills/dough-adr-awareness/RECOGNITION.md"
+  printf '%s\n' '0.1.1' > "${delivery_fixture_source}/VERSION"
+  printf '%s\n' '## 0.1.1 - 2026-09-06' > \
+    "${delivery_fixture_source}/CHANGELOG.md"
   git -C "${delivery_fixture_source}" init -q --initial-branch=main
-  git -C "${delivery_fixture_source}" add install.sh src
+  git -C "${delivery_fixture_source}" add install.sh src VERSION CHANGELOG.md
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \
     commit -qm 'fixture: enumerate conflicting ADR status sources'
+  git -C "${delivery_fixture_source}" \
+    -c user.name='Open Dough fixture' \
+    -c user.email='fixture@example.invalid' \
+    tag -am 'v0.1.1' v0.1.1
   delivery_source_revision=$(git -C "${delivery_fixture_source}" rev-parse HEAD)
   delivery_source_url="file://${delivery_fixture_source}"
 
@@ -143,15 +153,13 @@ delivery_assert_update() {
   actual_changes=$(git -C "${delivery_target}" diff --name-only)
   expected_changes=$(printf '%s\n' \
     "${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" \
-    "${delivery_skill_root}/dough-adr-awareness/SKILL.md")
+    "${delivery_skill_root}/dough-adr-awareness/SKILL.md" \
+    "${delivery_skill_root}/dough-update/VERSION")
   [[ "${actual_changes}" == "${expected_changes}" ]]
   grep -Fq "${delivery_source_url}" "${update_output}"
   grep -Fq "${delivery_source_revision}" "${update_output}"
   grep -Fqi "${delivery_host_name}" "${update_output}"
-  grep -Eiq 'default branch|default-branch' "${update_output}"
-  grep -Eiq \
-    'not .*release|rather than a release|not .*version|no .*release|no .*version' \
-    "${update_output}"
+  grep -Eiq 'v0\.1\.1|release' "${update_output}"
   for managed_file in "${delivery_managed_files[@]}"; do
     grep -Fq "${delivery_skill_root}/${managed_file}" "${update_output}"
   done
@@ -205,7 +213,8 @@ delivery_print_proof() {
   cat "${use_output}"
   printf '\n%s\n' "--- ${delivery_host_upper} DELIVERY-TO-USE INTEGRITY PROOF ---"
   printf 'fixture source: %s\n' "${delivery_source_url}"
-  printf 'fixture default-branch commit: %s\n' "${delivery_source_revision}"
+  printf 'fixture release: v0.1.1\n'
+  printf 'fixture release commit: %s\n' "${delivery_source_revision}"
   printf 'installed recognition SHA-256: %s\n' "${recognition_digest}"
   printf 'preserved companion SHA-256: %s\n' "${companion_digest}"
 }

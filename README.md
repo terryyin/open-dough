@@ -8,7 +8,8 @@ The aim is to define the lifecycle once, reuse it across projects, and make it u
 
 > **Status:** Codex, Cursor, and Claude Code can install and update the
 > project-local public payload (`dough-update` plus `dough-adr-awareness` and
-> its recognition record) from a supplied repository URL.
+> its recognition record) from the latest numeric release of a supplied
+> repository URL.
 
 ## Install with an AI agent
 
@@ -31,11 +32,12 @@ Open your target project in an AI agent with web and shell access, then ask:
    ([Codex](docs/installation-and-updates.md#codex),
    [Cursor](docs/installation-and-updates.md#cursor), or
    [Claude Code](docs/installation-and-updates.md#claude-code)), using the URL
-   the user supplied. Inspect that clone's `install.sh` and all three declared
-   public source files before running it with `--target` set to the captured
-   project path, and `--platform cursor` or `--platform claude` when installing
-   for Cursor or Claude Code. Bash and Git are sufficient; installing package
-   dependencies is unnecessary.
+   the user supplied. The release helper selects and pins the highest numeric
+   `vMAJOR.MINOR.PATCH` tag. Inspect that pinned checkout's helper, installer,
+   and all three declared public source files before running it with `--target`
+   set to the captured project path, and `--platform cursor` or `--platform
+   claude` when installing for Cursor or Claude Code. Bash and Git are
+   sufficient; installing package dependencies is unnecessary.
 4. Respect the user's authorization and your environment's permission controls.
    An explicit installation request authorizes the described project-local
    installation; do not ask for the same permission again. If required access
@@ -43,11 +45,12 @@ Open your target project in an AI agent with web and shell access, then ask:
 5. If installation reports an existing skill, stop and explain that `--force`
    replaces its contents, including local edits. Use it only when the user has
    explicitly authorized that overwrite.
-6. Verify all three installed files match the cloned sources and review the
-   target project's diff for unrelated changes. Report the installed paths and
-   tell the user to invoke the updater with the source URL in a fresh session of
-   the same tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude
-   Code).
+6. Verify all three installed files match the pinned sources, the updater's
+   `VERSION` record matches the selected release, and the target project's diff
+   contains no unrelated changes. Report the installed paths, source tag and
+   commit, and tell the user to invoke the updater with the source URL in a
+   fresh session of the same tool (`$dough-update` in Codex, `/dough-update` in
+   Cursor or Claude Code).
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
@@ -104,7 +107,9 @@ bootstrap path, and contributor checks.
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 
-The installer and updater use a shallow clone of the supplied repository's default branch, without requiring a published release. Version tracking is deferred and is not required for installation or updates.
+The installer and updater select the highest numeric release tag in the supplied
+repository. A matching tag, source `VERSION`, and dated changelog entry identify
+the validated snapshot; branch content is not used as a fallback.
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 
@@ -116,9 +121,9 @@ Open Dough maintainers prepare and tag source releases with the internal
 `CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
 acceptance guard are not installed into adopting projects.
 
-Installation and `dough-update` still use a shallow clone of the supplied
-repository's default branch. A source version tag does not change that
-behavior; version-aware updates are not implemented yet.
+Installation and `dough-update` use the supplied repository's highest numeric
+release. Existing unversioned copies require one explicit `--force` bootstrap;
+afterward an installation already at the selected version is left untouched.
 
 ## License
 

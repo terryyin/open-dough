@@ -16,7 +16,7 @@ delivery_check_fixture
 grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "$0"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the Cursor delivery-to-use fixture covers a previous public skill, default-branch improvement, fresh native use, alternate-layout conflicts, platform isolation, and coexistence.'
+  echo 'PASS: the Cursor delivery-to-use fixture covers a previous public skill, pinned-release improvement, fresh native use, alternate-layout conflicts, platform isolation, and coexistence.'
   exit 0
 fi
 
@@ -38,7 +38,7 @@ codex_before=$(delivery_snapshot "${delivery_target}/.agents/skills")
 claude_before=$(delivery_snapshot "${delivery_target}/.claude/skills")
 update_output="${delivery_temporary_dir}/cursor-update-output.md"
 run_native_cursor "${update_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this adopter from the supplied cloneable fixture source. Follow the installed updater exactly. Report the source, commit, Cursor as the running tool, every installed path, and that this selects the fixture's current default branch rather than a release or installed version. Do not invoke ADR awareness yet."
+  "Use \$dough-update ${delivery_source_url} to update this adopter from the supplied cloneable fixture source. Follow the installed updater exactly. Report release v0.1.1, its source and commit, Cursor as the running tool, and every installed path. Do not invoke ADR awareness yet."
 
 delivery_assert_update "${update_output}"
 codex_after=$(delivery_snapshot "${delivery_target}/.agents/skills")

@@ -1,66 +1,78 @@
 ---
 name: dough-update
-description: Refresh Open Dough guidance from a supplied repository's current default branch. Use when the user asks to update Open Dough or invokes dough-update.
+description: Apply the latest released Open Dough guidance from a supplied repository URL to this project. Use when the user asks to update Open Dough or invokes dough-update.
 ---
 
 # Update Open Dough
+
+Install and update the latest numeric Open Dough release for the running tool.
+Pin that release with Git before any repository script runs, then call the
+inspected snapshot's helper. Do not reimplement the helper's comparison or
+installation decisions.
 
 1. Capture the target project's absolute path before fetching anything. Use the
    current project unless the user supplied another target.
 2. Use the repository URL supplied by the user. If none was supplied, ask for
    it before proceeding. Do not substitute the target project's remote or local
    working-tree content.
-3. Make a fresh temporary directory and shallow-clone the supplied URL with
-   `git clone --depth 1`, using its default branch without selecting a branch or
-   release. Do this on every invocation, even when upstream content is unchanged.
-   Record the clone's actual origin with `git remote get-url origin` and its exact
-   commit with `git rev-parse HEAD`. Stop if the origin does not identify the
-   supplied source or the commit cannot be resolved. These values identify the
-   fetched default-branch source; they are not an installed version or a release
-   selection.
+3. If the user asked to install or update a specific version, tag, or branch,
+   stop. Say `Open Dough installs and updates the latest numeric release only.
+   Requested-version updates are not supported.` Do not fetch or write.
 4. Identify the running tool from the current host. Do not infer it from which
    skill directories exist, and do not use a compatibility directory that
-   another host also reads. Select that tool's installer platform and native
-   skill root:
+   another host also reads. Select that tool's installer platform and write
+   destination:
 
-   | Running tool | `--platform` | Native skill root |
+   | Running tool | `--platform` | Installed files |
    | --- | --- | --- |
    | Codex | `codex` (omitting `--platform` is equivalent) | `.agents/skills/` |
    | Cursor | `cursor` | `.cursor/skills/` |
    | Claude Code | `claude` | `.claude/skills/` |
 
-5. Treat the following relative paths as the complete public payload allowlist:
+   The complete public payload is `dough-update/SKILL.md`,
+   `dough-adr-awareness/SKILL.md`, and
+   `dough-adr-awareness/RECOGNITION.md`. The numeric `VERSION` record lives
+   beside the selected `dough-update/SKILL.md`.
 
-   - `dough-update/SKILL.md`
-   - `dough-adr-awareness/SKILL.md`
-   - `dough-adr-awareness/RECOGNITION.md`
+5. Make a fresh temporary directory. Using only Git, pin the highest numeric
+   release before any repository script runs. Do not clone the default
+   branch, and do not execute `install.sh` or `open-dough-release.sh` from
+   the working tree or from an unpinned clone.
 
-   Inspect the fetched `install.sh` and all three corresponding files under
-   `src/skills/` before executing anything from the clone. Proceed only if the
-   installer declares exactly this payload and every write is limited to these
-   three paths under the selected native skill root in the captured target.
-   Reject missing or extra managed paths, writes to another platform root, and
-   writes elsewhere in the project or home directory. The installer may create
-   the parent directories needed for these three paths. Capture enough pre-update
-   state to verify that distributable source, unrelated project files, other
-   tools' separate installations, and home guidance remain unchanged.
-6. Run the fetched installer with
-   `bash <clone>/install.sh --target <captured-project> --platform <tool> --force`,
-   quoting both paths. Codex may omit `--platform`. Every update reapplies the
-   fetched public payload to that running tool's native copy only.
-7. Report success only after all three selected installed files byte-match their
-   fetched `src/skills/` sources and the captured preservation checks pass. Say
-   `Updated Open Dough guidance from <source-url> at <commit>.`, replacing both
-   placeholders with the actual supplied URL and resolved commit. Name the
-   running tool (Codex, Cursor, or Claude Code) and list all three installed
-   paths, so a project with more than one integration can tell which copy
-   changed. Tell the user to start a fresh session in the same tool to use the
-   refreshed guidance. If fetching, validation, installation, or verification
-   fails, report that failure without claiming an update succeeded.
-
-An older installed updater may authorize only replacement of its own `SKILL.md`
-and must refuse an installer that writes this expanded payload. Do not bypass or
-reinterpret that refusal. Bootstrap explicitly: make a fresh shallow clone of the
-supplied default branch, inspect the installer and the exact three-file allowlist
-above, then run that fetched installer once with the selected `--platform` and
-`--force`. Start a fresh session before invoking the newly installed updater.
+   a. Run `git ls-remote --tags -- <source-url>`. Keep `vMAJOR.MINOR.PATCH`
+      tags. When both a tag object and a peeled `^{}` line exist, use the
+      peeled commit. Select the highest version by comparing each component
+      as a decimal integer string; do not use shell arithmetic.
+   b. `git init` the work directory, `git fetch --depth 1 <source-url>
+      <commit>`, and check out that commit detached. Confirm
+      `git rev-parse HEAD` equals the peeled commit.
+   c. Inspect that snapshot's `src/install/open-dough-release.sh`, `install.sh`,
+      and all three public payload sources under `src/skills/`.
+   d. Run `bash <snapshot>/src/install/open-dough-release.sh apply --url
+      <source-url> --target <captured-project> --platform <tool>
+      --checkout <snapshot>`, quoting both paths. Codex may omit
+      `--platform`. Pass `--force` only when the user explicitly authorized a
+      forced reinstall. If apply reports that HEAD is not the pinned latest,
+      stop. Do not fetch or check out replacement files after inspection.
+      Proceed only if the inspected files write solely to the three declared
+      public payload paths under the selected native skill root and the selected
+      updater's `VERSION` record in the captured target project, preserving
+      distributable source, unrelated project files, other tools' separate
+      installations and records, and home guidance.
+6. Trust the helper's comparison. Equal recorded versions must not invoke
+   `install.sh` or write the selected files, even when untagged source or local
+   skill text differs. An older or missing selected record advances directly to
+   latest. A newer selected record is preserved with no downgrade. A malformed
+   selected `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
+   release failures must not write the target or fall back to a lower release
+   or branch. If replacement starts and then fails, report that installed files
+   may be incomplete, that the last successful record was left unchanged, and
+   that explicit `--force` reinstall is the recovery path.
+7. Report the helper's source URL, release tag and commit, running tool and
+   native skill root, all three installed payload paths, previous version or
+   unknown, and actual outcome. After a replacement,
+   tell the user to start a fresh session in the same tool, then invoke
+   `/dough-update` in Cursor or Claude Code, or `$dough-update` in Codex, to
+   use the updated guidance. Do not claim an update succeeded if fetching,
+   validation, comparison, or installation failed. Manual reading of the tagged
+   `CHANGELOG.md` is sufficient; do not print changelog text here.

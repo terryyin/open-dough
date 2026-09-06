@@ -17,7 +17,7 @@ grep -Fq 'danger-full-access' "$0"
 grep -Fq 'PROTECTED_WORKTREES' "$0"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the Codex delivery-to-use fixture covers a previous public skill, a cloneable default-branch improvement, a fresh native invocation, conflicting alternate-layout authorities, recognition support, and coexistence.'
+  echo 'PASS: the Codex delivery-to-use fixture covers a previous public skill, a pinned-release improvement, a fresh native invocation, conflicting alternate-layout authorities, recognition support, and coexistence.'
   exit 0
 fi
 
@@ -67,7 +67,7 @@ run_native_codex() {
 delivery_capture_update_state
 update_output="${delivery_temporary_dir}/codex-update-output.md"
 run_native_codex "${update_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this adopter from the supplied cloneable fixture source. Follow the installed updater exactly. Report the source, commit, Codex as the running tool, every installed path, and that this selects the fixture's current default branch rather than a release or installed version. Do not invoke ADR awareness yet."
+  "Use \$dough-update ${delivery_source_url} to update this adopter from the supplied cloneable fixture source. Follow the installed updater exactly. Report release v0.1.1, its source and commit, Codex as the running tool, and every installed path. Do not invoke ADR awareness yet."
 delivery_assert_update "${update_output}"
 
 use_before=$(delivery_snapshot "${delivery_target}")
@@ -85,4 +85,4 @@ delivery_print_proof "${update_output}" "${use_output}"
 printf '%s\n' \
   'PASS: fresh native Codex discovered and invoked only the installed dough-adr-awareness replacement; no original adr-awareness skill was present.' \
   'PASS: Codex enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
-  'PASS: the recognition record byte-matches the improved default-branch source, and the companion integration remained byte-identical.'
+  'PASS: the recognition record byte-matches the improved pinned release, and the companion integration remained byte-identical.'

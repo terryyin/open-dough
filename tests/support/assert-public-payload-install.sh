@@ -87,6 +87,7 @@ expected_files=$(
     for managed_file in "${managed_files[@]}"; do
       printf './%s/%s\n' "${relative_skill_root}" "${managed_file}"
     done
+    printf './%s/dough-update/VERSION\n' "${relative_skill_root}"
   } | LC_ALL=C sort
 )
 actual_files=$(list_files "${target}")

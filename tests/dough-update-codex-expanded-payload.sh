@@ -16,17 +16,15 @@ cmp "${updater}" "${source_dir}/.claude/skills/dough-update/SKILL.md"
 for managed_file in "${managed_files[@]}"; do
   grep -Fq -- "\`${managed_file}\`" "${updater}"
 done
-grep -Fq 'installer declares exactly this payload' "${updater}"
-grep -Fq 'git remote get-url origin' "${updater}"
-grep -Fq 'git rev-parse HEAD' "${updater}"
-grep -Fq 'not an installed version or a release' "${updater}"
-grep -Fq 'older installed updater may authorize only replacement of its own' \
-  "${updater}"
+grep -Fq 'complete public payload' "${updater}"
+grep -Fq 'git ls-remote --tags' "${updater}"
+grep -Fq 'highest numeric' "${updater}"
+grep -Fq 'VERSION' "${updater}"
 grep -Fq 'The old updater cannot perform a migration it' \
   "${source_dir}/docs/installation-and-updates.md"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the shared updater and all native tracked copies declare the exact three-file payload, default-branch source identity, byte verification, preservation boundary, and truthful legacy bootstrap.'
+  echo 'PASS: the shared updater and all native tracked copies declare the exact three-file payload, latest-release selection, byte verification, preservation boundary, and truthful legacy bootstrap.'
   exit 0
 fi
 
@@ -37,10 +35,12 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 fixture_source="${temporary_dir}/fixture-source"
 target="${temporary_dir}/adopter project"
-mkdir -p -- "${fixture_source}/src/skills/dough-update" \
+mkdir -p -- "${fixture_source}/src/install" \
+  "${fixture_source}/src/skills/dough-update" \
   "${fixture_source}/src/skills/dough-adr-awareness" "${target}"
 
 cp -- "${source_dir}/install.sh" "${fixture_source}/install.sh"
+cp -- "${source_dir}/src/install/"*.sh "${fixture_source}/src/install/"
 for managed_file in "${managed_files[@]}"; do
   cp -- "${source_dir}/src/skills/${managed_file}" \
     "${fixture_source}/src/skills/${managed_file}"
@@ -52,13 +52,19 @@ printf '\n%s\n' \
 printf '\n%s\n' \
   '- Improvement fixture clue: explicitly enumerates conflicting local status authorities before requesting human precedence.' \
   >> "${fixture_source}/src/skills/dough-adr-awareness/RECOGNITION.md"
+printf '%s\n' '0.1.1' > "${fixture_source}/VERSION"
+printf '%s\n' '## 0.1.1 - 2026-09-06' > "${fixture_source}/CHANGELOG.md"
 
 git -C "${fixture_source}" init -q --initial-branch=main
-git -C "${fixture_source}" add install.sh src
+git -C "${fixture_source}" add install.sh src VERSION CHANGELOG.md
 git -C "${fixture_source}" \
   -c user.name='Open Dough fixture' \
   -c user.email='fixture@example.invalid' \
   commit -qm 'fixture: improve ADR conflict reporting'
+git -C "${fixture_source}" \
+  -c user.name='Open Dough fixture' \
+  -c user.email='fixture@example.invalid' \
+  tag -am 'v0.1.1' v0.1.1
 
 source_revision=$(git -C "${fixture_source}" rev-parse HEAD)
 source_url="file://${fixture_source}"
@@ -122,7 +128,8 @@ done
 actual_changes=$(git -C "${target}" diff --name-only | LC_ALL=C sort)
 expected_changes=$(printf '%s\n' \
   '.agents/skills/dough-adr-awareness/RECOGNITION.md' \
-  '.agents/skills/dough-adr-awareness/SKILL.md' | LC_ALL=C sort)
+  '.agents/skills/dough-adr-awareness/SKILL.md' \
+  '.agents/skills/dough-update/VERSION' | LC_ALL=C sort)
 [[ "${actual_changes}" == "${expected_changes}" ]]
 target_untracked=$(git -C "${target}" ls-files --others --exclude-standard)
 [[ -z "${target_untracked}" ]]
@@ -153,6 +160,6 @@ printf 'fixture source: %s\n' "${source_url}"
 printf 'fixture commit: %s\n' "${source_revision}"
 printf 'fixture source digest: %s\n' "${source_digest}"
 printf '%s\n' \
-  'PASS: native Codex invoked the installed updater, reported the actual default-branch source identity, and left the cloneable fixture source byte-identical.'
+  'PASS: native Codex invoked the installed updater, reported the actual pinned-release source identity, and left the cloneable fixture source byte-identical.'
 printf '%s\n' \
   'PASS: the selected Codex payload byte-matches all three fetched sources; only the two intentionally improved ADR files differ from the committed baseline, while Cursor, Claude Code, unrelated guidance, distributable source, and project files are unchanged.'

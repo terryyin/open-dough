@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=src/install/open-dough-platform.sh
+source "${source_dir}/src/install/open-dough-platform.sh"
+
 usage() {
   echo "Usage: $0 --target <project> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
@@ -30,7 +35,13 @@ while [[ $# -gt 0 ]]; do
       force=1
       shift
       ;;
+    --version | --tag | --release)
+      refuse_requested_version
+      ;;
     *)
+      if looks_like_version_request "$1"; then
+        refuse_requested_version
+      fi
       usage
       ;;
   esac
@@ -45,56 +56,67 @@ if [[ ! -d "${target}" ]]; then
   exit 1
 fi
 
+destination=$(destination_for "${target}" "${platform}")
+destination_skill_root=$(dirname -- "${destination}")
 managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-adr-awareness/RECOGNITION.md
 )
 
-case "${platform}" in
-  codex)
-    relative_skill_root=.agents/skills
-    ;;
-  cursor)
-    relative_skill_root=.cursor/skills
-    ;;
-  claude)
-    relative_skill_root=.claude/skills
-    ;;
-  *)
-    echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor, claude." >&2
-    exit 1
-    ;;
-esac
-
-source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-source_skill_root="${source_dir}/src/skills"
-destination_skill_root="${target}/${relative_skill_root}"
-
 for managed_file in "${managed_files[@]}"; do
-  source_file="${source_skill_root}/${managed_file}"
-  if [[ ! -f "${source_file}" ]]; then
-    echo "Public payload is incomplete: missing src/skills/${managed_file}." >&2
+  if [[ ! -f "${source_dir}/src/skills/${managed_file}" ]]; then
+    echo "Public payload is incomplete: missing ${managed_file}" >&2
     exit 1
   fi
 done
 
+release_helper="${source_dir}/src/install/open-dough-release.sh"
+if [[ ! -f "${release_helper}" ]]; then
+  echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2
+  exit 1
+fi
+
+version=$(bash "${release_helper}" validate-checkout "${source_dir}")
 if [[ ${force} -ne 1 ]]; then
-  for managed_file in "${managed_files[@]}"; do
-    skill_name=${managed_file%%/*}
-    destination="${destination_skill_root}/${skill_name}"
-    if [[ -e "${destination}" ]]; then
-      echo "Warning: ${skill_name} is already installed in ${destination}. Use --force to explicitly reinstall." >&2
+  for managed_skill in dough-update dough-adr-awareness; do
+    if [[ -d "${destination_skill_root}/${managed_skill}" ]]; then
+      echo "Warning: ${managed_skill} is already installed in ${destination_skill_root}/${managed_skill}. Use --force to explicitly reinstall." >&2
       exit 1
     fi
   done
 fi
 
+if [[ -n "${OPEN_DOUGH_TRACE:-}" ]]; then
+  printf 'install %s\n' "${destination}" >> "${OPEN_DOUGH_TRACE}"
+fi
+
+mkdir -p -- "${destination_skill_root}/dough-update" \
+  "${destination_skill_root}/dough-adr-awareness"
+if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == copy ]]; then
+  printf '%s\n' 'partial-install' > "${destination}/SKILL.md"
+  echo "Copy failed after replacement started. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
+  exit 1
+fi
+
 for managed_file in "${managed_files[@]}"; do
-  source_file="${source_skill_root}/${managed_file}"
-  destination_file="${destination_skill_root}/${managed_file}"
-  mkdir -p -- "$(dirname -- "${destination_file}")"
-  cp -- "${source_file}" "${destination_file}"
+  cp -- "${source_dir}/src/skills/${managed_file}" \
+    "${destination_skill_root}/${managed_file}"
 done
 
+verification_failed=0
+for managed_file in "${managed_files[@]}"; do
+  if ! cmp -s -- "${source_dir}/src/skills/${managed_file}" \
+    "${destination_skill_root}/${managed_file}"; then
+    verification_failed=1
+  fi
+done
+if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == verify ]] \
+  || [[ ${verification_failed} -eq 1 ]]; then
+  echo "Installed payload verification failed. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
+  exit 1
+fi
+
+printf '%s\n' "${version}" > "${destination}/VERSION"
 echo "Installed Open Dough public guidance in ${destination_skill_root}"
+echo "Recorded version ${version}."

@@ -16,10 +16,11 @@ Run the platform command below from the existing target project's root. Set
 `source_url` to the cloneable repository URL you want to install from. To install
 into another existing project, set `target_project` to its absolute path.
 
-Each command shallow-clones the source repository's current default branch and
-runs its installer. Before running the installer, inspect the fetched
-`install.sh` and all three declared public source files. Bash and Git are
-sufficient; installing package dependencies is unnecessary.
+Each command clones the source repository and pins its highest numeric
+`vMAJOR.MINOR.PATCH` release before running the installer. Before running it,
+inspect the pinned release helper, `install.sh`, and all three declared public
+source files. Bash and Git are sufficient; installing package dependencies is
+unnecessary.
 
 If either managed skill already exists, installation warns and stops before
 changing any managed file. Reinstall only when overwriting all managed files,
@@ -36,14 +37,17 @@ installed files in the target project.
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project"
 )
 ```
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
-writes the three payload files under `.agents/skills/`. Open Dough's own tracked
-Codex installation lives there too, separately from the distributable source.
+writes the three payload files under `.agents/skills/` and records the release
+in `.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
+installation lives there too, separately from the distributable source.
 See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
 Start a fresh Codex session in the target project and invoke:
@@ -59,12 +63,15 @@ Start a fresh Codex session in the target project and invoke:
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor
 )
 ```
 
-Installation writes the three payload files under `.cursor/skills/`. See
+Installation writes the three payload files under `.cursor/skills/` and records
+the release in `.cursor/skills/dough-update/VERSION`. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
 
@@ -79,12 +86,15 @@ the target project and invoke:
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude
 )
 ```
 
-Installation writes the three payload files under `.claude/skills/`. See
+Installation writes the three payload files under `.claude/skills/` and records
+the release in `.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
 Claude Code session in the target project and invoke:
 
@@ -95,31 +105,34 @@ Claude Code session in the target project and invoke:
 Supply a cloneable repository URL on every updater invocation. The updater:
 
 1. Captures the target project before fetching.
-2. Makes a fresh shallow clone of the URL's current default branch.
-3. Records the clone's actual origin and exact commit without treating either as
-   an installed version or release selection.
+2. Resolves the URL's highest numeric release tag, fetches its exact commit into
+   a fresh temporary checkout, and validates matching `VERSION` and changelog
+   metadata without falling back to a branch or lower release.
+3. Records the actual source URL, tag, and exact commit.
 4. Selects the running tool's native skill root without inferring the tool from
    directories that happen to exist.
 5. Validates the fetched installer against the exact three-file public payload.
-6. Runs the installer with `--force` for the selected platform only.
+6. Compares the selected updater's `VERSION` record and runs the pinned
+   installer with `--force` only when replacement is required.
 7. Verifies that all three installed files byte-match the fetched sources and
    that distributable source, unrelated project files, other tools' separate
    installations, and home guidance remain unchanged.
 
-Every invocation fetches and reapplies the current default-branch payload,
-including when its contents are unchanged. No installed-version record or
-published release is selected. Review the resulting diff and start a fresh
-session in the same tool to use the refreshed guidance. The update flow assumes
-the installed skill has no local edits; project-specific edit handling remains
-future work.
+An equal recorded version produces no installed-file writes. An older or missing
+record advances to the selected release, a newer record is preserved without a
+downgrade, and a malformed record is refused. Review a resulting diff and start
+a fresh session in the same tool to use replaced guidance. The update flow
+assumes the installed skill has no local edits; project-specific edit handling
+remains future work.
 
 ## Legacy bootstrap
 
 An older installed updater may authorize only replacement of its own `SKILL.md`
 and must refuse the expanded three-file installer. Do not bypass or reinterpret
-that refusal as success. Bootstrap explicitly: make a fresh shallow clone of the
-supplied default branch, inspect the installer and all three public source files,
-then run that fetched installer once with the selected platform and `--force`.
+that refusal as success. Bootstrap explicitly: pin a fresh clone to the supplied
+repository's highest numeric release, inspect the helper, installer, and all
+three public source files, then run that pinned installer once with the selected
+platform and `--force`.
 The old updater cannot perform a migration it correctly refuses. Start a fresh
 session before invoking the newly installed updater.
 

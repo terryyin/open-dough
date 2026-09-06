@@ -53,20 +53,14 @@ Retaining recognition information is included; acting on it belongs to Stories
   then synchronized after slice 4 with `main` at `15ab9cd`. The completed
   internal `release-version` skill, native host adaptations, release metadata,
   and installer-exclusion proof are present and must remain internal.
-- `install.sh` currently copies only `src/skills/dough-update/SKILL.md` into the
-  selected tool's skill directory. `tests/install.sh` exercises all three
-  platforms, ordinary-repeat protection, forced replacement, and preservation.
-- `src/skills/dough-update/SKILL.md` explicitly refuses installers writing outside
-  that single file. Merely adding another payload to the installer would break
-  native update. Expand the shared write contract together with its public
-  documentation and installed updater adaptations; do not relax it to arbitrary
-  project writes.
+- At planning time, `install.sh` copied only `src/skills/dough-update/SKILL.md`.
+  The completed slice expands that allowlist to the three public guidance files
+  while retaining per-platform repeat protection, forced replacement, version
+  recording, and preservation checks.
 - [Accepted ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  governs tagged releases. Release `v0.1.0` has now been published, but
-  version-aware install/update selection is still not implemented: the updater
-  fetches the supplied repository's default branch. This story changes only the
-  eligible payload and must not claim or pre-empt the pending tagged-selection
-  stories. Publishing another release remains outside this request.
+  governs tagged releases. The later integration with `main` retains its
+  highest-numeric-release installer and updater while expanding only the public
+  payload. Publishing another release remains outside this request.
 - Proposed internal name: `extract-guidance`. Use one internal behavioral source
   and minimal discovery adaptations, following the internal-skill convention
   present at execution. Do not place it in the distributed public payload.
@@ -464,16 +458,18 @@ proved internal extraction plus installed update-to-fresh-use behavior. Shared
 helpers now centralize platform-neutral extraction and delivery assertions while
 the host wrappers retain only native CLI, skill-root, and isolation details.
 
+During final integration, `main`'s independently verified version-aware updater
+superseded the branch's earlier default-branch selection. The merged installer,
+updater contract, fixtures, and static checks combine that pinned-release model
+with the same three-file payload; the native extraction and fresh-use behavior
+recorded below is unchanged by source selection.
+
 Planning observations that affect execution:
 
 - The selected Doughnut skill depends on local ADR status and authority conventions;
   changing a path alone would not prove preservation of its decision behavior.
-- Both installer and updater enforce a single-skill payload today; distribution
-  cannot be completed by editing the installer alone.
-- Incorporated release work adds internal `release-version`, thin native host
-  adaptations, published `v0.1.0` metadata, and explicit installer-exclusion
-  evidence, but not tagged install/update selection. Preserve that internal/public
-  boundary and ADR 0003's version-selection contract.
+- Installer and updater now share the exact three-file public payload and retain
+  the version-aware release boundary from `main`.
 - The user explicitly selected Doughnut's `adr-awareness` skill as the first
   extraction example. Its public form is `dough-adr-awareness`; the internal skill
   remains source-selectable. Standalone public-rule distribution is outside this
