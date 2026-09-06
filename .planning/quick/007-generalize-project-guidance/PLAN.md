@@ -6,8 +6,8 @@
 - [Product backlog](../../PRODUCT-BACKLOG.md): first of the four newly queued
   stories, after the existing release/update stories.
 - Planned with Donut's `slice-planning` skill on 2026-09-06.
-- Status: planned; **refinement recommended for slices 1, 2, 6, and 8**.
-  No feature implementation or native verification has been performed.
+- Status: refined; ready for execution. No feature implementation or native
+  verification has been performed.
 
 ## Goal and scope
 
@@ -48,9 +48,10 @@ Retaining recognition information is included; acting on it belongs to Stories
 
 ## Execution context and current decisions
 
-- Baseline inspected: worktree branch `codex/extract-skills-rules` at `344f2b5`.
-  Parallel `main` has advanced. Recheck installer/updater contracts before their
-  leaves; incorporate relevant completed changes without reverting other work.
+- Baseline incorporated: planning commit `aaaf7ec` was continued on
+  `codex/generalize-project-guidance` and merged with `main` at `6af6445`.
+  The completed internal `release-version` skill and its installer-exclusion
+  proof are present and must remain internal.
 - `install.sh` currently copies only `src/skills/dough-update/SKILL.md` into the
   selected tool's skill directory. `tests/install.sh` exercises all three
   platforms, ordinary-repeat protection, forced replacement, and preservation.
@@ -60,11 +61,11 @@ Retaining recognition information is included; acting on it belongs to Stories
   documentation and installed updater adaptations; do not relax it to arbitrary
   project writes.
 - [Accepted ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  governs tagged releases. This work changes eligible payload, not release
-  selection. Use the current completed release/update implementation at execution;
-  never reintroduce default-branch fetching over a delivered tagged-release flow.
-  Prove delivery with disposable source repositories and fixture tags where
-  required; publishing a real release is outside this request.
+  governs future tagged releases. At the incorporated baseline, release metadata
+  preparation is complete but version-aware install/update selection is not:
+  the updater still fetches the supplied repository's default branch. This story
+  changes only the eligible payload and must not claim or pre-empt the pending
+  tagged-selection stories. Publishing a release remains outside this request.
 - Proposed internal name: `extract-guidance`. Use one internal behavioral source
   and minimal discovery adaptations, following the internal-skill convention
   present at execution. Do not place it in the distributed public payload.
@@ -88,15 +89,15 @@ public guidance but cannot silently fall back to the original Doughnut skill.
 
 | Promise / example | Owning slices | Observation |
 | --- | --- | --- |
-| One supplied source becomes a public candidate plus useful recognition characteristics | 1; repeated in 10 and 12 | Native extractor produces a `dough-` candidate and descriptive record; source is unchanged and an unrelated-project equivalent fits the characteristics. |
-| Required source context survives generalization | 2, 4 | Source-context substitution preserves accepted-status selection, supersession, conflict reporting, and human decision ownership without unresolved source-project dependencies. |
-| An unresolved dependency or rule-application gap is reported honestly | 3 | Explains missing behavior and withholds suitability; no unverified candidate enters installable payload. |
-| Another project can use the result with its own conventions | 5, 9, 11, 13 | Uses the supplied alternate ADR location and local status conventions without requiring Doughnut's layout or origin. |
-| Install only eligible public guidance and supporting records | 6 | Real installer fixture compares payload and confirms internal skill/guard exclusion and selected-platform preservation. |
-| Reinstall protection and explicit replacement remain truthful | 7 | Existing installation is preserved on ordinary repeat; authorized force replaces only the eligible selected payload. |
-| Native update delivers a changed public skill | 8, 9, 11, 13 | Updater accepts the bounded payload, fetches from supplied source under the established release policy, and fresh use demonstrates the changed behavior. |
-| Shared source, native discovery, invocation, and coexistence on all tools | 1, 6–13 | Separate evidence per tool; unrelated guidance and other tools' installations remain usable. |
-| No actual project migration, source mutation, or release-policy regression | 1–3, 6–13 | Disposable targets, source/target diffs and focused existing regression checks; no deletion or migration claims. |
+| One supplied source becomes a public candidate plus useful recognition characteristics | 1, 3; repeated in 13 and 15 | Native extractor produces a `dough-` candidate and descriptive record; source is unchanged and an unrelated-project equivalent fits the characteristics. |
+| Required source context survives generalization | 2, 3, 5 | Dependency assessment and source-context substitution preserve accepted-status selection, supersession, conflict reporting, and human decision ownership without inaccessible source-project references. |
+| An unresolved dependency or rule-application gap is reported honestly | 4 | Explains missing behavior and withholds suitability; no unverified candidate enters installable payload. |
+| Another project can use the result with its own conventions | 6, 12, 14, 16 | Uses the supplied alternate ADR location and local status conventions without requiring Doughnut's layout or origin. |
+| Install only eligible public guidance and supporting records | 7–9 | Selected-platform installer fixtures compare the complete payload and confirm internal skill/guard exclusion plus other-platform preservation. |
+| Reinstall protection and explicit replacement remain truthful | 10 | Existing installation is preserved on ordinary repeat; authorized force replaces only the eligible selected payload. |
+| Native update delivers a changed public skill | 11, 12, 14, 16 | Updater accepts the bounded payload, fetches from the supplied source under the current source-selection contract, and fresh use demonstrates the changed behavior. |
+| Shared source, native discovery, invocation, and coexistence on all tools | 1, 7–16 | Separate evidence per tool; unrelated guidance and other tools' installations remain usable. |
+| No actual project migration, source mutation, release-policy regression, or internal-guidance distribution | 1–4, 7–16 | Disposable targets, source/target diffs and focused existing regression checks; no deletion, migration, or premature tagged-update claims. |
 
 ## Ordered slices
 
@@ -115,22 +116,37 @@ Implement the minimal usable internal skill and its discovery with this outcome.
 Keep validation status explicit; a drafted candidate is not yet a proven substitute.
 The descriptive record belongs to this result, not a separate metadata-only slice.
 
-### 2. Preserve required context when adapting Doughnut's ADR-awareness skill
+Sizing exception: the leaf has one extraction outcome and proof loop; a fresh
+native Codex process may itself exceed five minutes, which decomposition cannot
+reduce without replacing the required native observation.
+
+### 2. Assess the context Doughnut's ADR-awareness behavior requires
 Type: Behavior
 Status: planned
 Proof: One native Codex extraction of the real Doughnut skill with its referenced
-ADR context produces a candidate whose dependency assessment explains how
-each required behavior is supplied without inaccessible source-project references.
+ADR context produces a dependency assessment that identifies the source index,
+status/supersession conventions, conflict policy, and human decision boundary.
 
 Behavior: The supplied skill depends on source-project guidance → extract it with
-that context → obtain a candidate that retains necessary ADR-awareness semantics
-through self-contained guidance or explicit adopter context.
+that context → obtain a bounded assessment of what the reusable result must
+self-contain and what the adopter must supply.
 
 Inspect only required references. Do not recursively extract sibling skills or
-turn the result into a complete ADR-authoring suite. Proposed destination for this
-concrete candidate is `dough-adr-awareness`.
+turn the result into a complete ADR-authoring suite.
 
-### 3. Withhold suitability when essential behavior cannot be preserved
+### 3. Produce a self-contained dough-adr-awareness candidate
+Type: Behavior
+Status: planned
+Proof: Using the assessment from slice 2, one native Codex extraction writes the
+candidate and recognition record; inspection maps every required behavior to
+self-contained guidance or explicit adopter context and finds no inaccessible
+Doughnut reference.
+
+Behavior: The required context has been assessed → complete extraction → obtain
+`dough-adr-awareness` with Accepted-decision selection, supersession following,
+citation, conflict reporting, and human-owned exceptions intact.
+
+### 4. Withhold suitability when essential behavior cannot be preserved
 Type: Behavior
 Status: planned
 Proof: Invoke the extractor on a bounded fixture whose required context is absent;
@@ -144,7 +160,7 @@ application gap rather than silently dropping it or declaring equivalence.
 Keep partial work reviewable and the source untouched. An unsupported rule is not
 proof of working public-rule distribution.
 
-### 4. Use the generalized skill in the original project context
+### 5. Use the generalized skill in the original project context
 Type: Behavior
 Status: planned
 Proof: Compare the original and generalized skill on the same small ADR-aware change
@@ -159,7 +175,7 @@ original skill being loaded alongside it.
 Adjust the candidate if the comparison exposes a gap; do not record success until
 that gap is resolved. Never remove the original from the real project.
 
-### 5. Apply ADR guidance in an unrelated project's own layout
+### 6. Apply ADR guidance in an unrelated project's own layout
 Type: Behavior
 Status: planned
 Proof: A fresh native Codex session uses the candidate in a disposable project
@@ -169,17 +185,18 @@ convention; inspect the cited decision and absence of imposed Doughnut directori
 Behavior: An unrelated project supplies its own ADR context → invokes the
 candidate → receives the same useful ADR assessment using its own decision records.
 
-After slices 4–5 establish usefulness, include the candidate in the disposable
+After slices 5–6 establish usefulness, include the candidate in the disposable
 source payload for installation and remaining native checks. Public acceptance
 still awaits all three platforms; no release is made by this plan. Preserve record clues that support renamed equivalents and exclude
 lookalikes with different behavior; no actual matching or removal engine is added.
 
-### 6. Install the evaluated public skill with its supporting material
+### 7. Install the evaluated public payload for Codex
 Type: Behavior
 Status: planned
-Proof: Extend the existing shell installer fixture to install the eligible public
-payload into each selected platform directory, compare required resources and
-recognition records, and check unrelated/other-platform sentinels and exclusions.
+Proof: A focused installer fixture installs Codex's complete public payload,
+compares the updater, ADR skill, and recognition record, and confirms internal
+skills, the acceptance guard, unrelated files, and other-platform copies are absent
+or unchanged as appropriate.
 
 Behavior: An evaluated public skill is in the fixture source payload → run installation for
 one selected platform → obtain all material needed to use it, alongside the
@@ -189,7 +206,27 @@ Use the smallest explicit public payload boundary needed for these skills. Rejec
 missing required source material before reporting success. Do not copy arbitrary
 repository content or treat an unresolved extraction draft as public payload.
 
-### 7. Preserve existing guidance on repeat installation
+### 8. Install the evaluated public payload for Cursor
+Type: Behavior
+Status: planned
+Proof: The same focused installer fixture selects Cursor, compares its complete
+public payload, and confirms Codex, Claude Code, unrelated guidance, and internal
+Open Dough material are unchanged or absent as appropriate.
+
+Behavior: An evaluated public payload is available → select Cursor installation →
+obtain the same shared guidance through Cursor's native skill directory only.
+
+### 9. Install the evaluated public payload for Claude Code
+Type: Behavior
+Status: planned
+Proof: The same focused installer fixture selects Claude Code, compares its
+complete public payload, and confirms Codex, Cursor, unrelated guidance, and
+internal Open Dough material are unchanged or absent as appropriate.
+
+Behavior: An evaluated public payload is available → select Claude Code installation
+→ obtain the same shared guidance through Claude Code's native skill directory only.
+
+### 10. Preserve existing guidance on repeat installation
 Type: Behavior
 Status: planned
 Proof: One focused installer scenario edits the installed public skill, observes
@@ -204,24 +241,26 @@ This is the existing installer's repeat/force contract applied to expanded publi
 payload, not reconciliation of unrelated local originals. Cover a collision at
 the new skill as well as the updater so no early writes precede a later conflict.
 
-### 8. Let the updater refresh the expanded public payload
+### 11. Let the updater refresh the expanded public payload
 Type: Behavior
 Status: planned
 Proof: A disposable source contains a bounded public-skill improvement → invoke
 the updated updater in Codex → observe allowed payload writes and verified source
-identity; existing version selection/failure tests remain applicable.
+identity; existing source-selection and failure tests remain applicable, and the
+change does not claim version-aware selection.
 
 Behavior: An adopter requests an update from a supplied source → the updater
 validates and installs eligible public guidance → the selected installed payload
-matches that source under the established release/update policy.
+matches that source under the current supplied-source update contract without
+changing release selection.
 
 Update the single-file write restriction, affected usage text, and payload checks
 coherently. Retain failures without success claims, preservation of other tools,
-and all completed version behavior. If an older updater refuses the expanded
+and all completed behavior. If an older updater refuses the expanded
 installer, document explicit bootstrap using the existing installer contract;
 do not claim an old updater can perform a migration it actively rejects.
 
-### 9. Use an installed improvement natively in Codex
+### 12. Use an installed improvement natively in Codex
 Type: Behavior
 Status: planned
 Proof: In a disposable Codex adopter, install the public skill, update it from the
@@ -234,7 +273,7 @@ replacement → use the changed ADR-awareness behavior with supporting context i
 This is one delivery-to-use proof, not file comparison alone. Record discovery,
 invocation, actual behavior, and coexistence with another installed integration.
 
-### 10. Extract guidance natively in Cursor
+### 13. Extract guidance natively in Cursor
 Type: Behavior
 Status: planned
 Proof: Discover and invoke the shared internal skill in a fresh Cursor checkout
@@ -248,17 +287,17 @@ Cursor's native discovery path.
 
 Use only minimal host adaptation; keep shared instructions in one source.
 
-### 11. Use an installed improvement natively in Cursor
+### 14. Use an installed improvement natively in Cursor
 Type: Behavior
 Status: planned
-Proof: Repeat the bounded public delivery-to-use scenario from slice 9 in Cursor,
+Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Cursor,
 with source-context and alternate-layout requests evaluated by the same ADR-awareness rubric.
 Record the selected installation and unchanged other-platform guidance.
 
 Behavior: Cursor has the previous public skill → update and invoke the installed
 replacement → use the changed ADR-awareness behavior with local context intact.
 
-### 12. Extract guidance natively in Claude Code
+### 15. Extract guidance natively in Claude Code
 Type: Behavior
 Status: planned
 Proof: Discover and invoke the shared internal skill in a fresh Claude Code
@@ -270,10 +309,10 @@ Behavior: A maintainer supplies a source in Claude Code → invokes the internal
 skill → receives the same reusable candidate and honest suitability assessment
 through Claude Code's native discovery path.
 
-### 13. Use an installed improvement natively in Claude Code
+### 16. Use an installed improvement natively in Claude Code
 Type: Behavior
 Status: planned
-Proof: Repeat the bounded public delivery-to-use scenario from slice 9 in Claude
+Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Claude
 Code, with source-context and alternate-layout requests evaluated by the same
 rubric. Record the selected installation and unchanged other-platform guidance.
 
@@ -298,19 +337,18 @@ pending rather than being replaced by another tool's success.
 
 | Platform | Internal extraction | Original-context equivalence | Unrelated-project use | Installation/update/coexistence |
 | --- | --- | --- | --- | --- |
-| Codex | Pending: 1–3 | Pending: 4 | Pending: 5, 9 | Pending: 6–9 |
-| Cursor | Pending: 10 | Pending: 11 | Pending: 11 | Pending: 6–8, 11 |
-| Claude Code | Pending: 12 | Pending: 13 | Pending: 13 | Pending: 6–8, 13 |
+| Codex | Pending: 1–4 | Pending: 5 | Pending: 6, 12 | Pending: 7, 10–12 |
+| Cursor | Pending: 13 | Pending: 14 | Pending: 14 | Pending: 8, 10–11, 14 |
+| Claude Code | Pending: 15 | Pending: 16 | Pending: 16 | Pending: 9–11, 16 |
 
 ## Readiness and learnings
 
-**Refinement recommended: slices 1, 2, 6, and 8.** The generic extraction prompt's
-first native proof, the source ADR conventions, expanded public payload boundary,
-and integration with advancing release work have low sizing confidence. These
-are named remaining uncertainties, not permission to bundle the entire story
-into one implementation task. The other leaves have bounded demonstration or
-focused regression paths; native test runtime may exceed the five-minute target.
-Read the refinement trigger gate only; no slice-plan-refinement has been run.
+Refinement completed on 2026-09-06. Original slice 2 became dependency assessment
+and candidate-production leaves; original slice 6 became one selected-platform
+installation leaf per host; original slice 8 was narrowed to the current updater's
+expanded-payload behavior, with delivery-to-use proof left to the existing native
+host leaves. Original slice 1 remains one cohesive behavior with an explicit native
+process runtime exception. Every remaining leaf has one proof loop.
 
 Planning observations that affect execution:
 
@@ -318,8 +356,9 @@ Planning observations that affect execution:
   changing a path alone would not prove preservation of its decision behavior.
 - Both installer and updater enforce a single-skill payload today; distribution
   cannot be completed by editing the installer alone.
-- Parallel release work may change the fetched-source boundary before execution.
-  Recheck that boundary and amend the affected leaves without changing ADR 0003.
+- Incorporated release work adds internal `release-version` and explicit installer
+  exclusion evidence but does not yet implement tagged install/update selection.
+  Preserve that internal/public boundary and ADR 0003's future contract.
 - The user explicitly selected Doughnut's `adr-awareness` skill as the first
   extraction example. Its public form is `dough-adr-awareness`; the internal skill
   remains source-selectable. Standalone public-rule distribution is outside this
