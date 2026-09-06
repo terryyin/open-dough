@@ -1,8 +1,8 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: BLOCKED on native launch access.** Slices 1–2 completed and committed
-2026-09-06; slices 3–5 attempted once each and remain pending. No native
-installation ran. The plan is not complete.
+**Status: EXECUTING authorized native retries.** Slices 1–3 complete;
+Cursor retry passed 2026-09-06. Codex and Claude Code acceptance remain pending.
+The initial launch failures are retained below as history, not current results.
 Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
 Source: [SEED-001, Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release).
@@ -51,7 +51,7 @@ native run. Keep the provenance limitations above when reporting acceptance.
 | Platform | Native evidence retained | New evidence still pending |
 | --- | --- | --- |
 | Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4 pending: isolated launcher denied by the current sandbox; no native installation events. |
-| Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3 pending: Cursor session-directory write denied; no native installation events. |
+| Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3 complete: authorized native retry followed the revised guide, delivered exactly the pinned payload/record, preserved guidance, and cleaned its checkout. |
 | Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5 pending: Claude startup writes denied and authentication unavailable to the launch; no installation events. |
 
 Reopen only evidence affected by a change to skill name/frontmatter/content,
@@ -225,7 +225,7 @@ code or refusal wording needed changing.
 
 ### 3. Install safely from the corrected instructions in Cursor
 Type: Behavior
-Status: pending — native launch blocked 2026-09-06
+Status: completed — authorized native retry 2026-09-06
 Proof: One native Cursor installation using the shared protocol below; capture
 `cursor agent --print --output-format stream-json` events with the existing
 workspace/sandbox launch conventions and current environment permissions.
@@ -259,6 +259,56 @@ reporting, and workflow cleanup are **unobserved**, not passed. Stderr SHA-256:
 The shared fixture recipe/source identity below was used. No unchanged retry or
 permission broadening; continued with slice 4. Preparation plus launch/review
 was under five minutes; native process wait was about one second.
+
+Successful retry (2026-09-06): the user requested another attempt and explicitly
+authorized transmission of this disposable public Open Dough fixture and synthetic
+adopter to Cursor's configured model service after automatic approval review
+rejected the initial elevated retry. The approved run retained Cursor sandboxing
+and all existing launch flags. Version `2026.09.02-c22c1a3`, Darwin arm64;
+session `cdbdd351-db77-41d1-9e5f-a13ce5fc774f`. Launcher status **0**, empty stderr,
+terminal result `is_error: false`, reported native duration 54.767 seconds (plus
+launcher startup). No model or shared setting was changed.
+
+Source `file:///private/tmp/open-dough-safe-retry.kAa5K5/source`, expected and
+agent-selected `v0.1.10`, peeled commit
+`9d5050ea5efe1f65a941777dd2e9c39f74ee6f99`. Fresh target was the sibling
+`cursor adopter`; the source branch remained divergent at
+`969a2d513365a88037c0c9899300c65fd69758e2`. Preparation reused the earlier recipe,
+with the corrected literal Codex invocation in the README-linked guide.
+
+Decisive chronological excerpts from `cursor.events.jsonl` (line numbers):
+- 15/19 and 33/34: successful README and linked guide reads.
+- 72: Git-only tag listing returned competing `v0.1.1`, `v0.1.2`, and
+  `v0.1.10`, including the latter's peeled commit above.
+- 92: `git ... fetch --depth 1 ... 9d5050e...`, detached checkout, and
+  `HEAD=9d5050ea5efe1f65a941777dd2e9c39f74ee6f99` / `Pinned OK`.
+- 106–113: eight successful, untruncated reads of the installer, all four
+  helper/dependency files, and all three public payload sources under
+  `/tmp/open-dough-install.Z7tPai/release/`.
+- 129/130: after those reads, `resolve-url`, captured tag/commit/version/HEAD
+  comparisons, `validate-checkout`, source-version comparison, then
+  `bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"`
+  with captured `platform=cursor`; no `apply` or `--force`. Output:
+  `Installed Open Dough public guidance in .../cursor adopter/.cursor/skills`
+  and `Recorded version 0.1.10.`
+- 140: all three `cmp` checks passed, `installed=0.1.10 selected=0.1.10`,
+  unchanged tracked diff, and removal of the owned checkout and seven scratch
+  records completed with `cleaned`.
+- 149: accurate final source/tag/commit, Cursor destination, three installed
+  paths plus VERSION, and fresh-session invocation; no claim of observed invocation.
+
+Independent checks against `git show <selected-commit>:src/skills/<file>` matched
+all three payload bytes and VERSION. Git baseline plus full untracked inventory
+showed exactly four additions under `.cursor/skills/`; original ADR skill/caller,
+other-platform sentinels, unrelated file, and source remained unchanged. Installer
+trace contained exactly one direct install and the branch marker stayed empty.
+The agent-owned checkout and seven scratch records were absent while the outer
+fixture remained, independently confirming cleanup. No home-guidance write was
+present in tool events. This closes only the changed initial-install path; E1–E4
+still own unchanged discovery, invocation, updating, coexistence, and failures.
+Transcript SHA-256:
+`f7b7861da2743d62641a12a0f0776d342828b0fea5be2e8f36943ff51534a6e6`.
+Decisive evidence is retained here before eventual disposable-log cleanup.
 
 ### 4. Install safely from the corrected instructions in Codex
 Type: Behavior
