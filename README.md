@@ -6,7 +6,7 @@ Open Dough defines how people and AI work together to develop software. It bring
 
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
-> **Status:** The first Codex installer provides a `dough-update` placeholder. Updating and the wider lifecycle content and platform integrations remain planned.
+> **Status:** Codex can install and update the project-local `dough-update` skill from a supplied repository URL. The wider lifecycle content and other platform integrations remain planned.
 
 ## Install with an AI agent
 
@@ -19,10 +19,10 @@ Open your target project in an AI agent with web and shell access, then ask:
 1. Use the user's current project as the target, or their explicitly supplied
    target path. Ask only if the target is unclear. Capture its absolute path
    before cloning so the source checkout does not become the installation target.
-2. Explain that the available installation adds one Codex placeholder at
-   `.agents/skills/dough-update/SKILL.md`. It does not implement updating yet;
-   Cursor and Claude Code integrations remain planned.
-3. Follow the [clone/install instructions](#install-the-codex-placeholder), using
+2. Explain that the available installation adds one Codex updater at
+   `.agents/skills/dough-update/SKILL.md`. Cursor and Claude Code integrations
+   remain planned.
+3. Follow the [clone/install instructions](#install-the-codex-updater), using
    the URL the user supplied. Inspect that clone's `install.sh` and source skill
    before running it with `--target` set to the captured project path. Bash and
    Git are sufficient; installing package dependencies is unnecessary.
@@ -35,7 +35,7 @@ Open your target project in an AI agent with web and shell access, then ask:
    explicitly authorized that overwrite.
 6. Verify the installed file matches the cloned source and review the target
    project's diff for unrelated changes. Report the installed path and tell the
-   user to invoke `$dough-update` in a fresh Codex session. Report invocation as
+   user to invoke `$dough-update` with the source URL in a fresh Codex session. Report invocation as
    verified only if you actually observed it. Commit or push only when authorized.
 
 ## Inspiration and name
@@ -95,30 +95,32 @@ The exact file mappings and capability differences will be documented as integra
 
 ## Installation and updates
 
-### Install the Codex placeholder
+### Install the Codex updater
 
 With Bash and Git available, run this from the existing target project's root:
 
 ```bash
 (
   set -e
+  target_project=$PWD
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
   git clone --depth 1 "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/install.sh" --target "$PWD"
+  bash "$install_dir/open-dough/install.sh" --target "$target_project"
 )
 ```
 
 Set `source_url` to the cloneable repository URL you want to install from. The
 command obtains that repository's default branch and runs its installer. To
-install into another existing project, replace `"$PWD"` with its path.
+install into another existing project, set `target_project` to its absolute path.
+Inspect the cloned `install.sh` and source skill before running the installer.
 
 Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
 `.agents/skills/dough-update/SKILL.md` in the target project. Other project files
 are preserved. Start a fresh Codex session in that project and invoke
-`$dough-update`. It reports that updating Open Dough is not implemented yet and
-makes no changes. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
+`$dough-update https://github.com/terryyin/open-dough.git`, substituting the source
+URL you want to update from. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
 To run all script tests from a source checkout, run `npm test` (requires npm)
 or `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
@@ -158,7 +160,7 @@ without changing it. To reinstall, add `--force` to the installer line in the
 clone command above:
 
 ```bash
-bash "$install_dir/open-dough/install.sh" --target "$PWD" --force
+bash "$install_dir/open-dough/install.sh" --target "$target_project" --force
 ```
 
 This replaces the installed `SKILL.md`, including any local edits, with the
@@ -166,33 +168,35 @@ supplied source. It does not merge changes or replace other skills. Review and
 commit the installed file in the target project. Open Dough's own installed
 copy lives at the same destination, separately from the distributable source.
 
-### Planned update flow
+### Update the installed Codex skill
 
-Open Dough will be installed **into a target project's repository**. Installation places lifecycle content and the selected platform integration files there; updating Open Dough directly changes those installed files. Global installation is not supported.
+In a fresh Codex session in the target project, ask:
 
-Installation uses the content addressed by the supplied URL. The usual source is the latest content on the repository's default branch (`main` for Open Dough), rather than a published release. An explicitly supplied source URL is honored rather than redirected to a different version.
+> $dough-update https://github.com/terryyin/open-dough.git
 
-The initial updater simply fetches and applies the latest default-branch content. It does not detect the installed version or check whether a newer version exists before applying it. Installed-version tracking and update detection are a separate, later story.
+Supply a cloneable repository URL on every invocation. The updater captures the
+target project, fetches a fresh shallow clone of that URL's default branch,
+inspects its installer and source skill, and runs that installer with `--force`.
+It replaces only `.agents/skills/dough-update/SKILL.md` in the target project.
+Distributable source, unrelated project files, and home-level guidance are preserved.
 
-The intended adoption flow is:
+Every invocation fetches and reapplies latest, including when the source content
+is unchanged. No installed-version record or published release is needed. Review
+the resulting diff and start a fresh Codex session to use the updated guidance.
 
-1. Select the platforms the project uses.
-2. Run the installation mechanism with the source URL and target repository to install Open Dough for the selected platforms.
-3. Review the added files, add project-specific context, and commit them.
-4. Use the installed guidance during development.
-5. Run an update to apply the latest default-branch content to the installed files, review the resulting changes, and commit them.
+If your installed skill still reports that updating is not implemented, first
+run the clone/install flow above once with the explicit `--force` override.
+That bootstrap installs the real updater; the placeholder cannot update itself.
+Then start a fresh Codex session and invoke the updater with your source URL.
 
-Installing into a project that already has Open Dough stops by default. The `--force` override replaces the installed placeholder, including local edits, without migration or merging.
-
-The Codex installation currently provides only the `dough-update` placeholder. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
-
-Broader file ownership and project-specific additions remain to be defined as more guidance is added. Conflict behavior for the automatic update command remains for later discussion. A simple Codex update comes next, followed by Cursor and Claude Code together.
+This update flow assumes the installed skill has no local edits. Additional
+guidance, platforms, and handling of project-specific edits remain future work.
 
 ## Distribution
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 
-The installer runs from a shallow clone of the supplied repository's default branch, without requiring a published release. The future updater's delivery mechanism remains open. Version tracking is deferred and will not be required for the initial installation and update loop.
+The installer and updater use a shallow clone of the supplied repository's default branch, without requiring a published release. Version tracking is deferred and is not required for installation or updates.
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 

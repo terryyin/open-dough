@@ -95,30 +95,57 @@ start using the installation flow and learn from it.
 
 ### 2. Apply the latest shared guidance to Open Dough's Codex installation
 
-- **Status:** Unfinished; queued.
-- **For / why:** As the maintainer, change a shared skill's source and update
-  this project's installation so development benefits from the improvement.
-- **Outcome and scope:** Fetch and apply the source repository's latest
-  default-branch content to the existing Codex installation whenever update is
-  invoked. Reuse the installation behavior without detecting installed or newer
-  versions. Source content and installed output remain distinct.
-- **Evaluation:** Starting with guidance installed in Codex and no edits to the
-  installed copies, edit a skill's distributable source and push it to `main`.
-  Run update in this repository. A fresh Codex session uses the changed skill.
-  No release is published and no version comparison gates the update. Invoking
-  update again still fetches and applies latest. Changed rules follow the same
-  contract as changed skills; source and unrelated project files are preserved.
-- **Value / learning:** Completes the smallest requested self-improvement loop
-  without requiring version infrastructure.
-- **Effort hypothesis:** M (1–2 hours), low confidence; assumes reuse of Story
-  1's installation path with an explicit default-branch source and unchanged
-  installed copies. Complex replacement or migration behavior is excluded.
-- **Depends on:** Story 1's usable Codex installation.
-- **Safe stopping point:** The maintainer can keep using and refreshing Open
-  Dough guidance even if all remaining stories are deferred.
-- **Excluded:** Version records/checks, update-availability notifications,
-  automatic merges, and policy for collisions, edits, or retired installed
-  files. These cases are deferred, not implicitly authorized for overwriting.
+- **Status:** Unfinished; refined 2026-09-06 for a small self-use experiment.
+
+#### Goal
+
+As the Open Dough maintainer, invoke the installed `dough-update` skill to bring
+a pushed source improvement into this project's Codex installation. Learn
+whether that improvement becomes usable in a fresh session, completing one
+install → change → update → use loop.
+
+#### Scope
+
+- Refresh only the existing `dough-update` skill in Open Dough's project-local
+  Codex installation, reusing the installation behavior. Keep distributable
+  source and unrelated project files intact; do not change home-level guidance.
+- Each invocation fetches and applies the source repository's latest
+  default-branch content, even when nothing has changed. No release, version
+  record, or comparison is needed.
+- Working assumption: the maintainer supplies the source repository URL when
+  requesting update; use Open Dough's URL for this demonstration. Remembering
+  or discovering a previous installation's source is unnecessary for this slice.
+- Begin with installed copies that have no local edits. This example permits
+  replacing that installed skill; it does not establish a policy for overwriting
+  customizations or require edit detection, backups, or merging.
+- Bootstrap once through the existing explicit `--force` reinstall to obtain
+  the real updater. The current placeholder cannot update itself. Demonstrate
+  a further source change through the installed updater afterward.
+- Defer additional skills, rules distribution, Cursor/Claude Code, version
+  detection, update notifications, migrations, retired-file cleanup, and a
+  comprehensive edge-case suite. The owner requested a small working example
+  to learn from, not the full guidance distribution system.
+
+#### Key examples
+
+1. **Obtain the real updater:** With the placeholder installed, once the real
+   updater is available at the supplied source URL, explicitly force reinstall
+   it using the existing flow. A fresh Codex session can invoke the real
+   `dough-update` skill.
+2. **Use a pushed improvement:** With the real updater installed and its copy
+   unedited, make a small observable wording change in the distributable skill
+   and push it to Open Dough's `main`. Invoke the installed `dough-update` with
+   that repository's URL. Its installed copy matches the latest source, and a
+   fresh Codex session demonstrates the changed wording. Distributable source
+   and unrelated project files are preserved. No tag or release is needed;
+   an unpushed local source edit is not an update source.
+3. **Repeat without another change:** Invoke update again with the same URL.
+   It still fetches and applies latest successfully, without checking whether
+   an update is available.
+
+This is a useful stopping point even if every later story is deferred. There
+are no blocking open decisions for the unedited-copy example; customization
+and conflict policy remain deferred.
 
 <a id="cursor-project-installation"></a>
 <a id="claude-code-project-installation"></a>
