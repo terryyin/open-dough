@@ -8,10 +8,11 @@ itself, learning from real work before extending adoption to other projects.
 
 ## Unfinished stories
 
-1. [Apply the latest shared guidance to Open Dough's Codex installation](seeds/SEED-001-install-and-update-open-dough.md#update-after-source-change) — SEED-001
-2. [Use and update Open Dough guidance in Cursor and Claude Code projects](seeds/SEED-001-install-and-update-open-dough.md#cursor-project-installation) — SEED-001
-3. [See whether installed Open Dough guidance is behind the latest source](seeds/SEED-001-install-and-update-open-dough.md#detect-installed-version) — SEED-001
+1. [Use and update Open Dough guidance in Cursor and Claude Code projects](seeds/SEED-001-install-and-update-open-dough.md#cursor-project-installation) — SEED-001
+2. [See whether installed Open Dough guidance is behind the latest source](seeds/SEED-001-install-and-update-open-dough.md#detect-installed-version) — SEED-001
 
 ## Recently done
+
+- [Apply the latest shared guidance to Open Dough's Codex installation](seeds/SEED-001-install-and-update-open-dough.md#update-after-source-change) — completed 2026-09-06; supplied-URL update, GitHub self-use, fresh-session wording, and unchanged-content reapplication verified.
 
 - [Install Open Dough's update placeholder from a supplied URL for Codex](seeds/SEED-001-install-and-update-open-dough.md#install-from-github) — completed 2026-09-06; GitHub self-install, Codex invocation, repeat protection, and forced replacement verified.
