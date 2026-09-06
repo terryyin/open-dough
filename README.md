@@ -92,6 +92,9 @@ makes no changes. See [Codex skill discovery](https://learn.chatgpt.com/docs/bui
 
 To check the installer from a source checkout, run `bash tests/install.sh`.
 
+If `.agents/skills/dough-update` already exists, installation warns and stops
+without changing it. Explicit forced reinstallation is the next planned step.
+
 ### Planned update flow
 
 Open Dough will be installed **into a target project's repository**. Installation places lifecycle content and the selected platform integration files there; updating Open Dough directly changes those installed files. Global installation is not supported.
@@ -108,7 +111,7 @@ The intended adoption flow is:
 4. Use the installed guidance during development.
 5. Run an update to apply the latest default-branch content to the installed files, review the resulting changes, and commit them.
 
-Installing into a project that already has Open Dough warns or stops by default. An explicit override allows reinstallation and overwrites Open Dough's installed files, including local edits, without migration or merging. The exact override syntax and installation-presence check remain for refinement.
+Installing into a project that already has Open Dough stops by default. The planned `--force` override will replace the installed placeholder, including local edits, without migration or merging.
 
 The Codex installation currently provides only the `dough-update` placeholder. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
 

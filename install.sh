@@ -14,6 +14,11 @@ fi
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 destination="$target/.agents/skills/dough-update"
+if [[ -d "$destination" ]]; then
+  echo "Warning: dough-update is already installed in $destination. Use --force to explicitly reinstall." >&2
+  exit 1
+fi
+
 mkdir -p -- "$destination"
 cp -- "$source_dir/skills/dough-update/SKILL.md" "$destination/SKILL.md"
 echo "Installed dough-update in $destination"

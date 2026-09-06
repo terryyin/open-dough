@@ -18,4 +18,15 @@ cmp "$source_dir/skills/dough-update/SKILL.md" \
   "$target/.agents/skills/dough-update/SKILL.md"
 [[ $(cat "$sentinel") == 'Keep this unrelated skill.' ]]
 
-echo "PASS: installs the supplied skill and preserves unrelated content."
+installed_skill="$target/.agents/skills/dough-update/SKILL.md"
+printf '%s\n' 'Keep my local changes.' > "$installed_skill"
+if output=$(bash "$source_dir/install.sh" --target "$target" 2>&1); then
+  echo "FAIL: repeat installation must stop." >&2
+  exit 1
+fi
+[[ "$output" == *'Warning:'* ]]
+[[ "$output" == *'--force'* ]]
+[[ $(cat "$installed_skill") == 'Keep my local changes.' ]]
+[[ $(cat "$sentinel") == 'Keep this unrelated skill.' ]]
+
+echo "PASS: installs the supplied skill, stops repeats, and preserves unrelated content."

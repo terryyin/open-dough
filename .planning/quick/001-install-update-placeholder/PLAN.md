@@ -1,6 +1,6 @@
 # Install the Open Dough update placeholder
 
-Status: in progress — first installation verified; repeat protection next.
+Status: in progress — installation and repeat protection verified; force next.
 Source: [SEED-001, Story 1](../../seeds/SEED-001-install-and-update-open-dough.md#install-from-github).
 
 ## Goal and scope
@@ -49,7 +49,14 @@ validation and Bash syntax checks passed. A fresh bundled Codex CLI 0.153.4
 session in a temporary installed target invoked `$dough-update` and returned
 "Updating Open Dough is not implemented yet." No commands or edits were made
 by the invocation. Independent refactor review found no changes needed.
-GitHub self-install demonstration remains in final delivery below.
+GitHub self-install demonstration also passed: shallow HTTPS clone of default
+branch commit `2b45a50`, install into `/Users/terryyin/git/open-dough`, compare
+source and installed files, then fresh bundled Codex session
+`01a0744e-36be-7d02-b967-147bd3aea43f` invoked `$dough-update` and returned the
+same placeholder message without commands or edits. The clone/install steps
+followed README; automatic command review rejected its `rm -rf` cleanup trap,
+so the demonstration retained the temporary clone instead. The installed copy
+is checked in for project self-use.
 
 Behavior: A target has no Open Dough installation → run the source checkout's
 installer for that target → the update placeholder is available in Codex.
@@ -61,7 +68,7 @@ unrelated sentinel file and observe that installation preserves it.
 
 ### 2. Stop an ordinary repeat installation
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run install again against the populated target; observe a warning,
 nonzero exit, and unchanged installed content.
 
@@ -69,6 +76,10 @@ Behavior: Open Dough is installed → run install without override → it stops
 and tells the maintainer how to explicitly reinstall.
 
 Add the simple directory-presence guard and extend the same shell check.
+
+Observed 2026-09-06: `bash tests/install.sh` passed after adding the guard;
+ordinary repetition returned nonzero with a warning and `--force` instruction,
+preserving both locally edited installed content and the unrelated sentinel.
 
 ### 3. Overwrite when the maintainer insists
 Type: Behavior
