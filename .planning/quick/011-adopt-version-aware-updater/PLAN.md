@@ -7,7 +7,7 @@ slice-plan-refinement skill before refinement execution or product execution.
 Do not execute these fragments as-is.
 
 Source: [SEED-001, Story 5e](../../seeds/SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater).
-Release prerequisite: [Story 5d](../010-publish-version-aware-updater/PLAN.md).
+Release prerequisite: [Story 5d](../../seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater).
 
 ## Candidate story boundary
 

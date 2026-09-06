@@ -387,8 +387,9 @@ success does not prove those outcomes; their native evidence remains pending.
 
 ## Ordering and Scope Reduction
 
-The first bounded Codex replacement is complete. Open Dough self-adoption stays
-in SEED-001. The next practical adoption work is decomposed in SEED-006: prove
+SEED-001 safe installation and publication are complete. The first bounded
+Codex replacement is also complete. Open Dough self-adoption remains in
+SEED-001. The next practical adoption work is decomposed in SEED-006: prove
 post-cleanup Codex use, prepare Donut while retaining the original, finish
 Donut cleanup only after three-tool readiness, then optionally verify updates.
 
