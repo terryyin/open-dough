@@ -235,8 +235,13 @@ changes.
 
 ### 5b. Keep a recorded installation current only when needed
 
-- **Status:** Shared behavior delivered; code corrections and native acceptance
-  remain in the [updated plan](../quick/005-update-only-when-needed/PLAN.md).
+- **Status:** Complete, 2026-09-06. Older, equal, and newer recorded versions
+  each produce the correct native outcome independently in Codex, Cursor, and
+  Claude Code, executing only the inspected pinned release; the retrospective
+  pinned-code execution, temporary-cleanup, and numeric-comparison corrections
+  are folded in. The detailed slice plan was dropped after acceptance; see the
+  [product backlog](../PRODUCT-BACKLOG.md#recently-done) for the evidence
+  summary.
 - **For / why:** A developer with a recorded installation needs a truthful
   update decision without needless overwrites or downgrade.
 - **Evaluation:** Older, equal, and newer recorded versions produce the right
@@ -273,9 +278,9 @@ one update that advances older, leaves equal unwritten, and preserves newer.
 | Selected installation records latest `0.1.2`; branch content or local skill text has changed | Invoke native update | Reports already current; no installer call and no installed-file or record writes. An empty Git diff alone is insufficient proof. |
 | Selected installation records `0.2.0`; supplied repository's latest is `0.1.2` | Invoke native update | Reports the newer installed version and preserves it without a downgrade. |
 
-Native completion requires those decisions separately in all three tools. The
-retrospective also requires fixing pinned-code execution, temporary cleanup,
-numeric comparison, and the oversized helper before final acceptance.
+Each decision was proven separately, natively, in all three tools, including
+the retrospective pinned-code execution, temporary cleanup, numeric comparison,
+and helper-size corrections.
 
 <a id="establish-unversioned-installation"></a>
 
@@ -383,19 +388,20 @@ retrospective corrections. Quick 008 receives 1–7 and 17–19; Quick 009 recei
 10, 16, 26–28, and 32–34; Quick 010 receives 35–36; Quick 011 receives 37–42.
 Completed and partial status/evidence moved with their leaves. The new plans are
 explicitly not executable until their stories and slices are refined again.
+Quick 005's plan file was dropped after all of its leaves and retrospective
+corrections completed; its evidence is summarized in Story 5b above and in the
+product backlog.
 
 ## Open Decisions
 
-- Story 5b has a refined boundary and an aligned improvement plan; its safe
-  pinning slices still need slice refinement.
 - Stories 5a and 5c–5e, plus Story 6, need story refinement before their mapped
   plans can be updated or refined. Local-edit conflict handling stays outside.
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) queues Stories 5a–6, with Stories
-1–4 retained as completed. Execute only a selected story with a refined plan;
-do not chain the provisional plans as one delivery.
+The [product backlog](../PRODUCT-BACKLOG.md) queues Stories 5a and 5c–6, with
+Stories 1–4 and 5b retained as completed. Execute only a selected story with a
+refined plan; do not chain the provisional plans as one delivery.
 
 ## Breadcrumbs
 
