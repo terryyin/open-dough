@@ -1,11 +1,10 @@
 # Keep a recorded Open Dough installation current only when needed
 
-Status: unfinished. Shared update behavior is implemented, with Codex, Cursor,
-and Claude Code older-to-latest and equal-version evidence recorded, plus Codex
-and Cursor newer-preserved native proof. Retrospective corrections R1, R1b, R2,
-R3, and R4 plus remaining Claude Code newer-preserved native proof are planned
-below. Fresh installation, unversioned migration, release publication, and
-released self-use have moved to their own story plans.
+Status: done. Shared update behavior is implemented, with Codex, Cursor, and
+Claude Code older-to-latest, equal-version, and newer-preserved native proof
+all recorded. Retrospective corrections R1, R1b, R2, R3, and R4 are complete.
+Fresh installation, unversioned migration, release publication, and released
+self-use have moved to their own story plans.
 
 Source: [SEED-001, Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Fresh installation: [Story 5a](../008-install-latest-release/PLAN.md).
@@ -293,10 +292,36 @@ fixture, target, trace, and hashes remain available under
 
 ### 31. Preserve a newer Claude Code installation
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Claude Code records a version newer than source latest → native
 update → no downgrade or selected-file write.
-Proof: Independent Claude Code observation equivalent to 29.
+Proof: Claude Code 2.1.263 session `d648601b-d784-4365-83e4-3cf6586fafcc` ran
+`claude -p` from `/tmp/open-dough-slice31-proof.SnDIkuG0YX/target project` with
+tool access limited to `Bash Edit Write Read` (no permission bypass), matching
+slice 25's scoped-tools form. Codex, Cursor, and Claude installations all
+recorded `0.2.0`; the Claude files were read-only and contained a local-edit
+sentinel comment. The native `/dough-update` invocation identified Claude Code,
+selected `.claude/skills/dough-update`, ran `git ls-remote --tags` on the
+fixture, chose peeled `v0.1.10` commit
+`b0359c3c13cd5887b43b2dfea4ba80fd05d64b8b`, fetched and detached-checked-out
+that commit into a fresh work directory (confirming `HEAD` matched before
+proceeding), inspected the snapshot, then ran `apply --checkout --platform
+claude`. Output reported source, release tag/commit, running tool and path,
+previous version `0.2.0`, and outcome "Installed version (0.2.0) is newer than
+the source's latest release (0.1.10) — no downgrade performed, no files
+written." `OPEN_DOUGH_TRACE` contains exactly one `apply-newer` line for
+`.claude/skills/dough-update` and no `install` line. Independent before/after
+`shasum -a 256` over every file under the target (excluding `.git`) is
+byte-identical; `mtime`s on the three platforms' `SKILL.md`/`VERSION` files are
+unchanged; `git status --porcelain` in the target is empty both before and
+after. Codex and Cursor remain at `0.2.0`, and the unrelated-skill and
+project-file sentinels plus the Claude local-edit comment are unchanged. The
+session removed its own pinned bootstrap work directory
+(`tmp.He1dvF6d2Z`) after verification; no other operation-owned temporary path
+remained under `/tmp` or `/var/folders`. Fixture built via
+`tests/helpers/release-fixture.bash` (`build_latest_fixture`, with the
+`v0.1.10` payload copied into the target and its `VERSION` bumped to `0.2.0`
+for all three platforms, matching the seeding used for slices 29–30).
 
 ## Readiness and learning
 
@@ -304,8 +329,9 @@ R1–R4 are done. Slice 21 rechecked Cursor equal-version after the pin-and-insp
 skill change, slice 23 proves the native Codex older-to-latest journey, slice 24
 proves the matching Cursor upgrade, and slice 25 now proves the matching Claude
 Code upgrade. Codex and Claude equal-version rows 20 and 22 were not re-run;
-slice 29 now proves the Codex newer-version no-downgrade path, slice 30 proves
-the matching Cursor path, and newer-preserved row 31 remains.
+slices 29–31 now prove the Codex, Cursor, and Claude Code newer-version
+no-downgrade paths, completing the outside-in proof of "older advances once to
+latest; newer never downgrades" across all three tools.
 
 Slice 25 note: the native session ran via `claude -p` with
 `--allowedTools "Bash Edit Write Read"` rather than a permission-bypass mode —
