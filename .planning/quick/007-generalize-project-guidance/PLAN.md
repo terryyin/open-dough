@@ -360,11 +360,18 @@ invocation, actual behavior, and coexistence with another installed integration.
 
 ### 13. Extract guidance natively in Cursor
 Type: Behavior
-Status: planned
+Status: done
 Proof: Discover and invoke the shared internal skill in a fresh Cursor checkout
 with existing guidance present; apply the focused extraction acceptance scenario
 using the selected ADR-awareness source and inspect its actual candidate,
 recognition record, and suitability assessment.
+
+Evidence: Native Cursor discovered and invoked the canonical
+`.agents/skills/extract-guidance/SKILL.md` without a Cursor adapter. In a disposable
+checkout it produced `dough-adr-awareness/SKILL.md` and `RECOGNITION.md` with
+`draft — unverified substitute` suitability, preserved the supplied source and an
+unrelated Cursor skill byte-for-byte, and installed nothing publicly. The native
+proof exited 0; source and generated-artifact digests were recorded by the harness.
 
 Behavior: A maintainer supplies a source in Cursor → invokes the internal skill →
 receives the same reusable candidate and honest suitability assessment through
