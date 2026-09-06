@@ -15,6 +15,7 @@ fixture="${temporary_dir}/fixture.git"
 target="${temporary_dir}/target project"
 build_latest_fixture "${fixture}"
 prepare_target "${target}"
+target=$(cd -- "${target}" && pwd -P)
 
 trace_file="${temporary_dir}/trace.log"
 rm -f -- "${trace_file}"

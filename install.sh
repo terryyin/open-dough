@@ -11,6 +11,11 @@ usage() {
   exit 1
 }
 
+report_copy_failure() {
+  echo "Copy failed after replacement started. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
+  exit 1
+}
+
 target=""
 platform=codex
 force=0
@@ -121,13 +126,14 @@ fi
 mkdir -p -- "${managed_skill_paths[@]}"
 if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == copy ]]; then
   printf '%s\n' 'partial-install' > "${destination}/SKILL.md"
-  echo "Copy failed after replacement started. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
-  exit 1
+  report_copy_failure
 fi
 
 for managed_file in "${managed_files[@]}"; do
-  cp -- "${source_dir}/src/skills/${managed_file}" \
-    "${destination_skill_root}/${managed_file}"
+  if ! cp -- "${source_dir}/src/skills/${managed_file}" \
+    "${destination_skill_root}/${managed_file}"; then
+    report_copy_failure
+  fi
 done
 
 verification_failed=0

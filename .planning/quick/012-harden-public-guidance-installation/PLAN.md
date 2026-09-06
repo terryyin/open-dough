@@ -10,7 +10,7 @@
   `bf02c9d`, `58d1f4f`, `05e2645`, `b98563d`, `bedee02`, `6dc8027`, and
   `a272444`; delivery commits `d5e2d0a` through `f0460e6`; and final
   release-aware integration commit `2dacaff`.
-- Status: in progress; destination-topology hardening complete.
+- Status: complete on 2026-09-06; both installer hardening slices delivered.
 
 ## Goal and scope
 
@@ -64,7 +64,7 @@ validation. Preserve other-platform and unrelated paths.
 
 ### 2. Report a real mid-copy replacement failure without advancing the record
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a deterministic fixture in which the payload copy command succeeds
 for an earlier managed file and fails for a later one. Observe a nonzero exit,
 the established incomplete-install and explicit-force recovery message, no
@@ -80,16 +80,16 @@ Handle command failures through the same truthful failure boundary as the
 existing deterministic fault path. Do not claim rollback or attempt to infer
 which partially copied files remain.
 
-## Current decisions and learnings
+## Decisions and evidence
 
-- CI observation for this execution is unavailable: the borrowed Donut
-  observer started from `/Users/terryyin/git/doughnut` with receipt
-  `/tmp/donut-ci-501/watch-fxjenr`, but the active `gh` credential is invalid
-  and no terminal result was published. Coordinator `/root` will continue with
-  `pendingCi: unobserved` and will not imply that pushed revisions are green.
+- CI observation for this execution was unavailable because the active `gh`
+  credential was invalid and the observer published no terminal result;
+  `pendingCi: unobserved` must not be read as a green CI result.
 - Canonicalizing the selected project first, then rejecting symlinks and
   non-directory objects along the selected platform root and both managed skill
   paths, provides a complete pre-write boundary for ordinary and forced installs.
+- Real payload-copy command failures now share the synthetic failure's single
+  incomplete-install boundary, before the successful-version record is written.
 - Review reproduced an out-of-target write by making `.agents/skills` a symlink;
   all three payload files and `VERSION` appeared in the outside directory.
 - Review reproduced the collision residue by placing a regular file at
