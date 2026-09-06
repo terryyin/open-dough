@@ -22,9 +22,10 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
    | --- | --- | --- |
    | Codex | `codex` (omitting `--platform` is equivalent) | `.agents/skills/dough-update/SKILL.md` |
    | Cursor | `cursor` | `.cursor/skills/dough-update/SKILL.md` |
+   | Claude Code | `claude` | `.claude/skills/dough-update/SKILL.md` |
 
-   Claude Code is not yet supported. Inspect the fetched `install.sh` and
-   `src/skills/dough-update/SKILL.md` before executing anything from the clone.
+   Inspect the fetched `install.sh` and `src/skills/dough-update/SKILL.md`
+   before executing anything from the clone.
    Proceed only if installation writes solely to the selected installed file in
    the captured target project, preserving distributable source, unrelated
    project files, other tools' separate installations, and home guidance.
@@ -34,8 +35,10 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
    fetched skill to that running tool's copy only.
 6. Report success only after installation succeeds and the selected installed
    file matches the fetched source. Say `Updated Open Dough guidance from
-   <source-url>.`, replacing `<source-url>` with the actual supplied URL. Report
-   the installed path and tell the user to start a fresh session in the same
-   tool, then invoke `/dough-update` in Cursor or `$dough-update` in Codex, to
-   use the updated guidance. If fetching or installation fails, report that
-   failure without claiming an update succeeded.
+   <source-url>.`, replacing `<source-url>` with the actual supplied URL. Name
+   the running tool (Codex, Cursor, or Claude Code) and the installed path, so
+   a project with more than one integration installed can tell which copy
+   changed. Tell the user to start a fresh session in the same tool, then
+   invoke `/dough-update` in Cursor or Claude Code, or `$dough-update` in
+   Codex, to use the updated guidance. If fetching or installation fails,
+   report that failure without claiming an update succeeded.

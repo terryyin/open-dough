@@ -20,6 +20,9 @@ We treat the beliefs in this ADR as enduring first principles against which
 processes, rules, and skills are judged across model generations. Current
 practices are provisional choices for serving those principles efficiently.
 
+Many of the ideas in this ADR come directly or indirectly from
+[LeSS (Large-Scale Scrum)](https://less.works/).
+
 This draft captures two optimization goals and seven principles from the
 discussion. It remains open for advice and refinement.
 
