@@ -121,7 +121,7 @@ See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
 Start a fresh Codex session in the target project and invoke:
 
-> ${dough}-update https://github.com/terryyin/open-dough.git
+> $dough-update https://github.com/terryyin/open-dough.git
 
 ## Cursor
 
