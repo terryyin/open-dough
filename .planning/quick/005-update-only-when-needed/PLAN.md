@@ -56,7 +56,7 @@ provenance, not product code.
 | 13. Requested version is refused | done | `tests/update-when-needed.sh`; latest-only interface remains explicit |
 | 14–15. Replacement and verification failures stay truthful | done | `tests/update-when-needed.sh`; old record retained and recovery explained |
 | 20. Codex equal-version native invocation | done | Codex 0.153.4 session `01a0756a-6ec7-7d92-8f1a-3938020d2f33` |
-| 21. Cursor equal-version native invocation | partial | CLI/write-guard proof exists; a fresh Cursor fixture session is still missing |
+| 21. Cursor equal-version native invocation | done | Cursor 3.19.13 / `2026.09.02-c22c1a3` session `3f1369da-b786-4dfb-9d1c-8006739b23aa`; fixture with Codex+Cursor+Claude at `0.1.10`; git-bootstrap `v0.1.10` `657f803f936afb39e5a33d57b3f6a8de881c2e8d`; `apply-skip-equal`; write guard and sentinels |
 | 22. Claude Code equal-version native invocation | done | Claude Code 2.1.263 session `d96a0228-7b0d-48e0-8dd7-ee998e0fc347` |
 
 Focused retrospective checks reran `bash tests/install-latest-release.sh` and
@@ -147,12 +147,20 @@ and components beyond signed 64-bit range; `resolve-url` selects `v0.9.0`.
 
 ### 21. Confirm current-version behavior in Cursor
 Type: Behavior
-Status: partial
+Status: done
 Behavior: Cursor records latest → a fresh Cursor `/dough-update` invocation →
 reports current with no installer call or selected-file writes.
-Proof: Finish the existing fixture journey in a fresh Cursor window with all
-three integrations present; record tool version, discovery path, invocation,
-tag/commit, trace, write guard, and preserved sentinels.
+Proof: Cursor 3.19.13 (`2026.09.02-c22c1a3`) session
+`3f1369da-b786-4dfb-9d1c-8006739b23aa`. Running host identified as Cursor;
+selected `/tmp/open-dough-slice21/target project/.cursor/skills/dough-update`
+(Codex and Claude copies present and unused). `git ls-remote --tags` on
+`/tmp/open-dough-slice21/fixture.git` selected peeled `v0.1.10`
+`657f803f936afb39e5a33d57b3f6a8de881c2e8d`; inspected that snapshot's helper,
+installer, and skill; ran `apply --checkout` with `--platform cursor`.
+Output: `Installed: 0.1.10` and already current. Trace:
+`apply-skip-equal` only, no `install` line. Cursor `SKILL.md`/`VERSION`
+mtimes unchanged under a write guard; local skill edit preserved; Codex and
+Claude `0.1.10` records and sentinels unchanged.
 
 ### 23. Advance Codex directly to latest
 Type: Behavior
@@ -199,12 +207,10 @@ Proof: Independent Claude Code observation equivalent to 29.
 
 ## Readiness and learning
 
-R1–R2 now have one execution path: share destinations/refusal, split
-resolve from apply, then Git-bootstrap the latest tag and refuse
-post-inspection checkout replacement. R3–R4 and native leaves each have one
-proof loop. After R2, equal-version native rows 20–22 are invalidated by the
-skill bootstrap change; rerun only proof whose covered seam moved, including
-the platform-specific native rows required by the repository acceptance guard.
+R1–R4 are done. Slice 21 rechecked Cursor equal-version after the pin-and-inspect
+skill change. Codex and Claude equal-version rows 20 and 22 were not re-run
+in this execution; native upgrade/newer rows 23–25 and 29–31 remain. Stopped
+after slice 21 as requested.
 
 Refinement learning: `apply --checkout` currently calls `pin-latest`, which
 replaces the inspected tree. R2 must verify `HEAD` against `resolve-url` and
