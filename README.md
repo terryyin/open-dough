@@ -124,6 +124,13 @@ To run all script tests from a source checkout, run `npm test` (requires npm)
 or `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
 discovers all `.sh` files under `tests/` and reports failure if any test fails.
 
+GitHub Actions runs `npm run lint` and `npm test` independently on every push
+and pull request, and can also be started manually. CI uses Node.js 24 and
+installs the locked npm dependencies and shell lint tools. New shell tests
+under `tests/` (including subdirectories) run automatically without workflow
+changes. When adding another test framework, include it in `npm test` so the
+same command continues to run the complete suite locally and in CI.
+
 For development checks, use Node.js 20.19+, 22.13+, or 24+ and install the
 locked npm dependencies with `npm ci`. Install ShellCheck 0.11+ and shfmt 3.14+
 on your PATH as well (`brew install shellcheck shfmt` on macOS).

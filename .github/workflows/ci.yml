@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [lint, test]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Install shell lint tools
+        if: matrix.check == 'lint'
+        env:
+          SHELLCHECK_VERSION: "0.11.0"
+          SHFMT_VERSION: "3.14.0"
+        run: |
+          tool_dir=$(mktemp -d)
+          trap 'rm -rf -- "${tool_dir}"' EXIT
+          curl --fail --silent --show-error --location \
+            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+            --output "${tool_dir}/shellcheck.tar.xz"
+          tar -xJf "${tool_dir}/shellcheck.tar.xz" -C "${tool_dir}"
+          sudo install -m 755 "${tool_dir}/shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
+          curl --fail --silent --show-error --location \
+            "https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64" \
+            --output "${tool_dir}/shfmt"
+          sudo install -m 755 "${tool_dir}/shfmt" /usr/local/bin/shfmt
+          shellcheck --version
+          shfmt --version
+      - name: Run ${{ matrix.check }}
+        run: npm run "${{ matrix.check }}"
