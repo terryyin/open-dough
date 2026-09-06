@@ -128,12 +128,13 @@ inspected files. README install's clone-then-`pin-latest` flow stays Story 5a.
 
 ### R3. Remove temporary release work after failed setup
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Release resolution or fetch fails after `apply` creates its temporary
 work root → operation exits truthfully → all operation-owned temporary paths are
 removed and the target remains untouched.
-Proof: Run `apply` with a dedicated `TMPDIR` against fetch and invalid-release
-fixtures; assert nonzero output, no target writes, and no child paths remaining.
+Proof: `bash tests/apply-temp-cleanup.sh` runs `apply` with a dedicated
+`TMPDIR` against missing-URL and invalid-highest fixtures; nonzero output, no
+target writes, and no child paths remaining.
 
 ### R4. Compare every accepted numeric version correctly
 Type: Behavior

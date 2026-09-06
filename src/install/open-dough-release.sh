@@ -50,7 +50,6 @@ apply_release() {
   local work resolved tag commit version work_root
   local dest installed relation
   local record_status=0
-  local created_work=0
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -96,18 +95,14 @@ apply_release() {
     work=${checkout}
     resolved=$(require_pinned_checkout "${work}" "${url}")
   else
-    created_work=1
     work_root=$(mktemp -d)
+    trap 'rm -rf -- '"${work_root}" EXIT
     work="${work_root}/release"
     resolved=$(fetch_release "${url}" "${work}")
   fi
   IFS=$'\t' read -r tag commit version << EOF
 ${resolved}
 EOF
-
-  if [[ "${created_work}" -eq 1 ]]; then
-    trap 'rm -rf -- '"${work_root}" EXIT
-  fi
 
   printf 'Source: %s\n' "${url}"
   printf 'Release: %s (commit %s)\n' "${tag}" "${commit}"
