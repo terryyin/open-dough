@@ -1,7 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: planned — story re-refined and slice plan refined; ready for direct
-execution of this story only. No implementation or release has been performed.
+Status: in progress — slice 1 done; next is slice 2 (finalize in Codex).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -124,7 +123,7 @@ with the behavior they serve; do not create preparation-only technical layers.
 ### 1. Prepare the first release in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a committed usable payload and no release history, ask the
 internal skill in Codex to prepare `0.1.0` with a change description. It leaves
@@ -266,12 +265,12 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Pending — 1–2 | Pending — 2–5 |
+| Codex | Done — 1 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; CLI 0.153.4 session `01a074f8-f035-7752-b631-355e0401ee92`). Pending — 2 | Pending — 2–5 |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
 Real maintainer self-use: pending — 8. Published release identity: pending — 9.
-Adopter output exclusion/regression: pending — 1. Record evidence with these
+Adopter output exclusion/regression: done — 1 (`bash tests/install-omits-internal.sh` and `bash tests/install.sh`). Record evidence with these
 rows during execution. Native success in one tool or copied files cannot fill
 another tool's row. Missing verification remains pending under the repository's
 [acceptance guard](../../../AGENTS.md).
@@ -303,3 +302,18 @@ release creation with publication; both are now split. The selected story no
 longer waits for any installer/updater or update-presentation work. Keep this
 compact evidence and any new learning as execution proceeds; reduce completed
 story detail to goal/scope only after its enduring behavior is documented.
+
+## Learnings
+
+- Native Codex proof used `/Applications/ChatGPT.app/Contents/Resources/codex`
+  0.153.4. PATH `codex` 0.144.1 remains too old (same as Story 1).
+- `$release-version` loaded the canonical `.agents/skills/release-version/SKILL.md`
+  with no Cursor/Claude discovery copy. Leaves 6–7 still need their own native
+  observations.
+- Fixture prepare wrote `VERSION` `0.1.0` and `## 0.1.0 - 2026-09-06` without a
+  tag or commit. Codex also added a `# Changelog` title. Unrelated staged and
+  unstaged sentinels and home `~/.codex/skills` / `~/.agents` checksums were
+  unchanged. Main repo still has no `VERSION`, `CHANGELOG.md`, or `v*` tag.
+- macOS `/tmp` vs `/private/tmp` can reject one `apply_patch`; writes to the
+  `-C` fixture path succeeded. Canonical skill already describes finalize, so
+  leaf 2 is native finalization proof rather than a second skill rewrite.
