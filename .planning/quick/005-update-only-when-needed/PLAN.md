@@ -97,7 +97,7 @@ stayed green; both production callers source `src/install/open-dough-platform.sh
 
 ### R1b. Split release resolution from update application
 Type: Structure
-Status: planned
+Status: done
 Internal change: Split the remaining helper so version validation, numeric
 compare, `resolve-url`, `fetch-release`, and `pin-latest` live in sourced
 module(s), while `apply` and the public command dispatcher stay in
@@ -105,7 +105,7 @@ module(s), while `apply` and the public command dispatcher stay in
 Every helper module is at most 250 lines.
 Enables: R2, which can verify an already-pinned checkout with the same
 resolver instead of a second algorithm.
-Proof: The same four focused tests still pass through the public commands;
+Proof: The same four focused tests still passed through the public commands;
 `wc -l` on each `src/install/open-dough-*.sh` module is ≤250.
 
 ### R2. Execute only the inspected pinned release
