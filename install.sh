@@ -56,8 +56,13 @@ if [[ ! -d "${target}" ]]; then
   exit 1
 fi
 
+target=$(cd -- "${target}" && pwd -P)
 destination=$(destination_for "${target}" "${platform}")
 destination_skill_root=$(dirname -- "${destination}")
+managed_skill_paths=(
+  "${destination_skill_root}/dough-update"
+  "${destination_skill_root}/dough-adr-awareness"
+)
 managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
@@ -78,10 +83,32 @@ if [[ ! -f "${release_helper}" ]]; then
 fi
 
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
+
+for selected_path in "$(dirname -- "${destination_skill_root}")" \
+  "${destination_skill_root}"; do
+  if [[ -L "${selected_path}" ]]; then
+    echo "Unsafe destination: selected platform skill root ${destination_skill_root} uses a symlink at ${selected_path}. Refusing installation because it could escape target ${target}." >&2
+    exit 1
+  fi
+  if [[ -e "${selected_path}" && ! -d "${selected_path}" ]]; then
+    echo "Unsafe destination: selected platform skill root ${destination_skill_root} has a non-directory path component at ${selected_path}. Move or remove the collision before installing." >&2
+    exit 1
+  fi
+done
+
+for managed_path in "${managed_skill_paths[@]}"; do
+  if [[ -L "${managed_path}" ]] \
+    || [[ -e "${managed_path}" && ! -d "${managed_path}" ]]; then
+    echo "Unsafe destination collision: expected a managed skill directory at ${managed_path}, but found a non-directory object. Move or remove it before installing." >&2
+    exit 1
+  fi
+done
+
 if [[ ${force} -ne 1 ]]; then
-  for managed_skill in dough-update dough-adr-awareness; do
-    if [[ -d "${destination_skill_root}/${managed_skill}" ]]; then
-      echo "Warning: ${managed_skill} is already installed in ${destination_skill_root}/${managed_skill}. Use --force to explicitly reinstall." >&2
+  for managed_path in "${managed_skill_paths[@]}"; do
+    if [[ -d "${managed_path}" ]]; then
+      managed_skill=${managed_path##*/}
+      echo "Warning: ${managed_skill} is already installed in ${managed_path}. Use --force to explicitly reinstall." >&2
       exit 1
     fi
   done
@@ -91,8 +118,7 @@ if [[ -n "${OPEN_DOUGH_TRACE:-}" ]]; then
   printf 'install %s\n' "${destination}" >> "${OPEN_DOUGH_TRACE}"
 fi
 
-mkdir -p -- "${destination_skill_root}/dough-update" \
-  "${destination_skill_root}/dough-adr-awareness"
+mkdir -p -- "${managed_skill_paths[@]}"
 if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == copy ]]; then
   printf '%s\n' 'partial-install' > "${destination}/SKILL.md"
   echo "Copy failed after replacement started. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
