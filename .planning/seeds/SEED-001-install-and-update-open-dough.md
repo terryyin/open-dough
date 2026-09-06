@@ -23,6 +23,14 @@ repository now installs and updates its own skill from a supplied URL in
 Codex, Cursor, and Claude Code. Stories 4–6 add identifiable releases,
 version-aware updating, and changelog presentation as separate outcomes.
 
+Priority reconsidered 2026-09-06: finish safe installation, publish the already
+extracted ADR-awareness skill, and install/use it in Open Dough itself through
+the same flow as any other target project. Then add replacement of Donut's
+redundant local guidance under SEED-004 Story 4. More extraction and inline changelog display do not block that first
+replacement. Rare unversioned installations are handled manually; no migration
+feature is planned. The
+[product backlog](../PRODUCT-BACKLOG.md) records this delivery order.
+
 ## Decisions and Constraints
 
 The owner clarified the following for the initial loop on 2026-09-06. These
@@ -222,7 +230,8 @@ changes.
 
 - **Status:** Refined again, 2026-09-06; implementation and earlier evidence
   exist, but acceptance remains incomplete. The existing slice plan is now
-  reconciled and refined; ready for execution, not executed in this pass.
+  reconciled and refined for its earlier payload; reconcile the payload scope
+  below before execution. No execution occurred in this reprioritization.
 - **For / why:** An adopting developer needs a trustworthy first installation.
 - **Evaluation:** Each native tool installs and discovers the highest numeric
   release from the supplied URL; only the inspected pinned release executes.
@@ -235,9 +244,9 @@ changes.
 
 #### Goal
 
-As a developer adopting Open Dough, install the latest released `dough-update`
-from my supplied repository URL into my project and use it in my running AI
-tool, knowing which release was installed. This provides a usable first
+As a developer adopting Open Dough, install the latest released public guidance,
+including `dough-update`, from my supplied repository URL into my project and
+use it in my running AI tool, knowing which release was installed. This provides a usable first
 installation for the bootstrap loop without waiting for legacy migration or
 publication of the version-aware updater.
 
@@ -274,10 +283,18 @@ publication of the version-aware updater.
   with the pin-and-inspect behavior. Preserve unrelated project content, source
   guidance, other tools' installations and records, and home-level guidance.
   Internal skills and the repository acceptance guard remain undistributed.
-- Exclude additional skills/rules, global installation, automatic tool detection
+- Include accepted extracted public skills in the selected release payload.
+  Reconcile the existing plan's updater-only examples with the public-payload
+  delivery already established by SEED-004 Story 1. New extraction remains in
+  SEED-004; installation acceptance verifies delivery and native use.
+- Resolve the reproduced destination-containment defect recorded in the
+  [installation follow-up](../quick/012-harden-public-guidance-installation/PLAN.md)
+  before real adoption. This is an observed violation of the project-local
+  installation contract, not a speculative prerequisite for extraction.
+- Exclude new skill extraction, global installation, automatic tool detection
   from installed directories, cross-tool synchronization, requested versions,
   release publication, real-project self-adoption, inline changelog presentation,
-  and general repair or conflict handling. Stories 5c–6 retain their outcomes;
+  and general repair or conflict handling. Stories 5d–6 retain their outcomes;
   Story 5b's recorded-update behavior is reused, not expanded here.
 
 #### Key examples
@@ -325,7 +342,7 @@ collection of the missing proof remain pending.
   Claude Code, executing only the inspected pinned release; the retrospective
   pinned-code execution, temporary-cleanup, and numeric-comparison corrections
   are folded in. The detailed slice plan was dropped after acceptance; see the
-  [product backlog](../PRODUCT-BACKLOG.md#recently-done) for the evidence
+  [recently completed stories](../PRODUCT-BACKLOG.md#recently-done) for the evidence
   summary.
 - **For / why:** A developer with a recorded installation needs a truthful
   update decision without needless overwrites or downgrade.
@@ -367,42 +384,38 @@ Each decision was proven separately, natively, in all three tools, including
 the retrospective pinned-code execution, temporary cleanup, numeric comparison,
 and helper-size corrections.
 
-<a id="establish-unversioned-installation"></a>
-
-### 5c. Establish a known release for an unversioned installation
-
-- **Status:** Candidate split; refine before updating or refining its provisional plan.
-- **For / why:** A developer with no trustworthy selected record needs a
-  deliberate path to a known, version-aware installation.
-- **Evaluation:** Missing-record and genuine legacy starting states reach latest
-  once, then a fresh native update is unwritten; no other record is inferred.
-- **Value / learning:** Makes existing adopters eligible for normal updates.
-- **Effort hypothesis:** L, low confidence until the two starting conditions are
-  refined. **Depends on:** Stories 5a–5b. Provisional
-  [plan](../quick/009-establish-unversioned-installation/PLAN.md), not executable.
-
 <a id="publish-version-aware-updater"></a>
 
-### 5d. Publish the version-aware updater
+### 5d. Publish extracted guidance and the version-aware updater
 
 - **Status:** Candidate split; refine before updating or refining its provisional plan.
-- **For / why:** The maintainer needs accepted updater behavior available as an
-  immutable release rather than only fixture code.
+- **For / why:** The maintainer needs accepted extracted skills and updater
+  behavior available together as an immutable release for real adoption.
 - **Evaluation:** A chosen higher version, metadata, tag, payload, and fresh
   fetch agree; `v0.1.0` remains unchanged.
-- **Value / learning:** Makes the updater adoptable outside its source checkout.
+- **Value / learning:** Makes the shared skills adoptable without borrowing
+  their source from Donut. Publish the accepted ADR-awareness payload and updater
+  after safe-install verification. Replacement, further skill extraction, and
+  CI monitoring do not block this first release. Later accepted additions use
+  the existing release workflow again.
 - **Effort hypothesis:** S, medium confidence. **Depends on:** accepted Stories
-  5a–5c. Provisional [plan](../quick/010-publish-version-aware-updater/PLAN.md),
-  not executable.
+  5a–5b and the extracted skills selected for this release.
+  Provisional [plan](../quick/010-publish-version-aware-updater/PLAN.md), not executable.
 
 <a id="adopt-version-aware-updater"></a>
 
-### 5e. Adopt and reuse the released updater in Open Dough
+### 5e. Adopt and reuse released guidance in Open Dough
 
 - **Status:** Candidate split; refine before updating or refining its provisional plan.
-- **For / why:** The maintainer needs real self-use evidence, not fixtures alone.
+- **For / why:** The maintainer needs real self-use evidence of the same released
+  installation flow used by other projects; this is adoption, not a separate
+  installer implementation.
 - **Evaluation:** Open Dough's three native installations adopt the published
-  release separately and each fresh invocation reports current without writes.
+  release separately; each natively discovers and uses `dough-adr-awareness` on
+  real ADR-relevant work, and a fresh updater invocation reports current without
+  writes. Further skill extractions are not required to complete this story.
+  Handle any actual unversioned starting state manually using explicit reinstall;
+  do not add an automated migration feature.
 - **Value / learning:** Closes the bootstrap loop and tests coexistence in daily use.
 - **Effort hypothesis:** M, medium confidence once the release exists.
   **Depends on:** Story 5d. Provisional
@@ -412,6 +425,9 @@ and helper-size corrections.
 
 ### 6. See the relevant changelog while updating Open Dough
 
+- **Priority:** Deferred until manually reading release notes obstructs real
+  updating. Maintaining the release changelog remains required; inline display
+  does not block publication or adoption.
 - **Status:** Unfinished; candidate boundary only. The
   [third plan](../quick/006-show-update-changelog/PLAN.md) is retained planning
   material, **not for direct execution**. Refine this story, update that plan,
@@ -419,12 +435,12 @@ and helper-size corrections.
 - **For / why:** A developer wants to understand an update's changes without
   finding and interpreting the source changelog manually.
 - **Evaluation:** Native update shows actual applicable release-note content,
-  including skipped releases or an unknown baseline, in all three tools.
+  including skipped releases from a recorded baseline, in all three tools.
 - **Value / learning:** Puts the already-authored changes into the update
   interaction; learn whether that output is sufficient for real use.
-- **Effort hypothesis:** S (30–60 minutes), low confidence; assumes Stories
-  5b–5c expose truthful recorded and unknown-baseline transitions.
-- **Depends on:** Stories 5b–5d and released changelog entries.
+- **Effort hypothesis:** S (30–60 minutes), low confidence; assumes Story 5b
+  exposes truthful transitions from a recorded baseline.
+- **Depends on:** Stories 5b and 5d and released changelog entries.
 
 #### Goal
 
@@ -436,8 +452,8 @@ running `dough-update`.
 - Before applying latest, show the changelog content for every release after
   the installed version through latest. A link alone is insufficient. Exclude
   older and unreleased entries; do not install intermediate versions.
-- For an unknown baseline, show available released history and state that the
-  previous version is unknown. Do not invent a baseline or reconstruct history.
+- Unversioned installations remain manual maintenance, outside this presentation
+  feature. Do not infer a baseline or reconstruct installation history.
 - Keep Story 5b's equal-version no-op, source/target identity, failure reporting,
   and coexistence. Missing/inconsistent required changelog content stops before
   installation changes; exact presentation and range-validation examples are
@@ -455,40 +471,55 @@ combined outcome without reopening release production or version detection.
 
 ## Ordering and Scope Reduction
 
-Order the remaining outcomes as safe fresh installation (5a), recorded update
-(5b), unversioned migration (5c), publication (5d), real self-use (5e), then
-automatic notes (6). Story 4 is complete. Each stopping point leaves a visible
-outcome or consequential learning; platform rows remain acceptance evidence,
-not separate stories.
+Current delivery order: finish safe installation (5a), publish the accepted
+ADR-awareness payload and updater (5d), then install and use that release in
+Open Dough (5e). Self-adoption uses the same project-local flow as other targets;
+it is a real-use check, not another installation mechanism. After that, implement
+and deliver first-install replacement in Donut under SEED-004 Story 4. Publish
+any accepted replacement changes with the existing release workflow before
+claiming they are available through released installation.
 
-First to drop is automatic note presentation because manual reading works,
-followed by real-project self-use when fixtures are sufficient temporarily.
-Publication is required before external adoption; unversioned migration can be
-deferred while new installations and recorded updates remain useful.
+The two new extraction stories and update-time replacement do not block
+first-install ADR-awareness replacement. This sequence replaces the earlier
+proposal to start replacement development ahead of installation and self-use.
+
+Story 4 and recorded updating (5b) are complete; retain their evidence for
+unchanged behavior. All affected behavior still requires separate native
+evidence in Codex, Cursor, and Claude Code.
+
+Keep inline notes (6) lower in priority until manual reading becomes a pain.
+Handle the limited unversioned installations manually; no migration story or
+feature is planned. Neither blocks fresh-install and recorded-update behavior. Preserve pinning, truthful outcomes,
+project containment, and existing repeat protection on the main path. Broader
+recovery and conflict handling wait for a concrete need; the reproduced
+containment defect linked from Story 5a already constitutes such evidence.
 
 ## Split-plan provenance
 
 Quick 005 retains original leaves 8–9, 11–15, 20–25, and 29–31 plus
-retrospective corrections. Quick 008 receives 1–7 and 17–19; Quick 009 receives
-10, 16, 26–28, and 32–34; Quick 010 receives 35–36; Quick 011 receives 37–42.
+retrospective corrections. Quick 008 receives 1–7 and 17–19;
+Quick 010 receives 35–36; Quick 011 receives 37–42.
 Completed and partial status/evidence moved with their leaves. Quick 008's story
 and slices have now been refined again; the other unfinished split plans remain
 explicitly not executable until their stories and slices are refined again.
 Quick 005's plan file was dropped after all of its leaves and retrospective
 corrections completed; its evidence is summarized in Story 5b above and in the
-product backlog.
+[recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
 
 ## Open Decisions
 
-- Story 5a and its existing slice plan are refined and ready for execution;
-  acceptance evidence remains pending as mapped in that plan. Stories 5c–5e
-  and Story 6 still need story refinement first. Local-edit conflict handling
-  stays outside.
+- Reconcile Story 5a's existing plan with the selected public payload and the
+  linked installation follow-up before execution; native acceptance remains
+  pending. Stories 5d–5e need refinement for the extracted-guidance release and
+  self-use scope. Story 6 needs refinement when manual release-note reading
+  becomes a pain.
+  Local-edit conflict handling stays outside.
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) queues Stories 5a and 5c–6, with
-Stories 1–4 and 5b retained as completed. Execute only a selected story with a
+The [product backlog](../PRODUCT-BACKLOG.md) orders Stories 5a, 5d, and 5e
+before SEED-004's first ADR-awareness replacement and places Story 6 later.
+[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4 and 5b. Execute only a selected story with a
 refined plan; do not chain the provisional plans as one delivery.
 
 ## Breadcrumbs
@@ -497,7 +528,7 @@ refined plan; do not chain the provisional plans as one delivery.
   unconditional update loop, then versioning; Codex first, followed by Cursor
   and Claude Code. Completed Stories 1–3 preserve that history.
 - Owner's versioning requirements: tags, changelog, comparison before update,
-  unchanged-version no-op, latest-only updating, legacy support, release-note
+  unchanged-version no-op, latest-only updating, release-note
   content, and a basic internal version skill.
 - Owner accepted the versioning proposal on 2026-09-06; ADR 0003 records it.
 - Owner then requested splitting the large story into at least three, reusing

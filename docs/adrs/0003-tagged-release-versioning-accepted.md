@@ -45,7 +45,8 @@ Terry Yin explicitly accepted the versioning proposal on 2026-09-06:
 - The default-branch behavior delivered in Stories 1–3 remains historical;
   Story 4 establishes release production; Story 5 migrates installation and
   updating to this contract, and Story 6 adds changelog presentation.
-- Existing unversioned installations need the transition described in Story 5.
+- The limited existing unversioned installations are handled manually through
+  explicit reinstall; no separate migration feature is planned.
   Version comparison, changelog presentation, and the small internal version
   skill remain delivery work across Stories 4–6, not release infrastructure.
 - Installation-record paths, helper layout, and native skill adaptation are

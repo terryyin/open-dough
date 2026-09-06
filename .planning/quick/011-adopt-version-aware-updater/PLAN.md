@@ -26,8 +26,8 @@ updater behavior.
 
 ## Questions for story and slice refinement
 
-- Which current installations need explicit legacy bootstrap versus ordinary
-  recorded update when the actual release is known?
+- Which current installations can use ordinary recorded update, and which need
+  a one-off manual reinstall before self-use? No migration feature is planned.
 - What before/after evidence is safe to collect in the real repository without
   conflating fixture acceptance with self-use?
 

@@ -2,12 +2,11 @@
 
 **Status: NOT FOR DIRECT EXECUTION.** This is reused planning material.
 Before execution, refine the linked story, update this plan to match that
-refinement and Stories 5b–5d's delivered updater/release, and run Donut's
+refinement and Stories 5b and 5d's delivered updater/release, and run Donut's
 slice-plan-refinement skill on this plan. Do not execute these fragments as-is.
 
 Source: [SEED-001, Story 6](../../seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog).
-Prerequisite: [Story 5b recorded update](../005-update-only-when-needed/PLAN.md),
-[Story 5c unversioned transition](../009-establish-unversioned-installation/PLAN.md),
+Prerequisite: [Story 5b recorded update](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed)
 and [Story 5d publication](../010-publish-version-aware-updater/PLAN.md).
 Release production: [Story 4](../004-versioned-updates/PLAN.md).
 
@@ -26,13 +25,12 @@ It does not reopen version identity, selected-tool writes, or release creation.
 
 These are inherited work groups, not execution-ready leaves. Original numbers
 refer to the former aggregate plan; version-transition mechanics belong to
-Stories 5b–5c and must not be implemented again here.
+Story 5b and must not be implemented again here.
 
 | Original work | Retained outcome | Proof to carry into the updated plan |
 | --- | --- | --- |
 | Notes portion of 6 | Explain a one-release update | Native output contains the actual latest release entry before the existing installation step, with old/new versions. A link alone is insufficient. |
 | 7 and notes portions of 17, 21 | Explain skipped releases | From `0.1.0` to `0.1.2`, display `0.1.1` and `0.1.2` entries, exclude older/unreleased notes, and retain the one direct latest installation. |
-| Notes portions of 8, 19, 23 | Explain changes when the baseline is unknown | Display available released history with an explicit unknown-version explanation; do not invent a baseline or reconstruct installation history. |
 | Changelog portion of 9 | Do not apply a release whose required notes cannot be provided consistently | Missing/inconsistent required entry or range content is explained before target mutation; preserve Story 5b's truthful failure state. Refine concrete boundaries against its delivered validation. |
 | Later-release portion of 24 | Release the actual presentation improvement | Use a subsequent chosen version and describe delivered behavior; do not re-tag a previous release or invent public test releases. |
 | Presentation portion of 25–27 | Use the released changelog interaction in Open Dough itself | Native update in each tool displays applicable notes and preserves selected-tool/source identity and coexistence. |
@@ -42,9 +40,8 @@ Stories 5b–5c and must not be implemented again here.
 - Read notes from the same resolved released snapshot as the payload. Display
   every released entry after installed through latest; exclude unreleased and
   already-installed entries. Exact formatting and ordering need story refinement.
-- Unknown installations receive available released history with that limitation
-  stated. The notes must be shown on the supported legacy transition, including
-  explicit bootstrap if that still applies after Story 5c.
+- Unversioned installations are handled manually, outside this feature; do not
+  infer a baseline or add automated transition behavior.
 - Display applicable content before applying the release; do not add a new
   approval prompt as part of presentation. Preserve existing session authorization.
 - Equal-version update still does no installation or metadata writes. Do not
@@ -59,22 +56,20 @@ Stories 5b–5c and must not be implemented again here.
 
 ## Questions for the required refinement
 
-- Which concise output makes the release range and unknown-baseline limitation
-  clear while providing the requested content?
+- Which concise output makes the release range clear while providing the
+  requested content?
 - What exact missing/inconsistent-entry cases are not already handled by
   Story 5b? Reuse its validation rather than creating competing readers.
-- How does the then-current legacy path surface the notes before changes?
-  Define one concrete journey per relevant baseline and map proof to each.
 
 ## Acceptance evidence to collect after refinement and execution
 
 | Platform | Required native evidence | Status |
 | --- | --- | --- |
-| Codex | Discovery/invocation of refreshed skill; single/skipped/unknown notes and released self-use | Pending |
+| Codex | Discovery/invocation of refreshed skill; single/skipped-release notes and released self-use | Pending |
 | Cursor | Same notes behavior with correct selected entry and coexistence | Pending |
 | Claude Code | Same notes behavior through its native entry and coexistence | Pending |
 
-Reuse Stories 5b–5c's evidence only where this change leaves the proven behavior
+Reuse Story 5b's evidence only where this change leaves the proven behavior
 intact. New changelog output requires new native observations; file equality
 or another platform's output does not establish it.
 
@@ -83,5 +78,5 @@ or another platform's output does not establish it.
 **Do not execute this plan.** Refine Story 6, update these fragments against the
 working updater, run slice-plan-refinement, and reconcile proof ownership before
 assessing readiness. No execution evidence exists. Separating presentation
-allows Stories 5b–5c to provide useful update decisions with manual changelog
+allows Story 5b to provide useful update decisions with manual changelog
 reading.

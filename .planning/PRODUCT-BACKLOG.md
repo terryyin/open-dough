@@ -1,21 +1,15 @@
 # Product backlog
 
-## Near-future direction
-
-Bootstrap Open Dough so it can install its own skills and rules into this
-repository. Then use those installed skills and rules to develop Open Dough
-itself, learning from real work before extending adoption to other projects.
-
-## Unfinished stories
-
-1. [Install the latest released Open Dough guidance safely](seeds/SEED-001-install-and-update-open-dough.md#install-latest-release) — SEED-001
-2. [Establish a known release for an unversioned installation](seeds/SEED-001-install-and-update-open-dough.md#establish-unversioned-installation) — SEED-001
-3. [Publish the version-aware Open Dough updater](seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater) — SEED-001
-4. [Adopt and reuse the released updater in Open Dough](seeds/SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater) — SEED-001
-5. [See the relevant changelog while updating Open Dough](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — SEED-001
-6. [Replace equivalent local guidance when updating Open Dough](seeds/SEED-004-extract-and-adopt-project-guidance.md#replace-equivalent-guidance-on-update) — SEED-004
-7. [Adopt shared guidance while preserving useful local differences](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-local-behavior-during-replacement) — SEED-004
-8. [Start using Open Dough without leaving overlapping local guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install) — SEED-004
+- [Install the latest released Open Dough guidance safely](seeds/SEED-001-install-and-update-open-dough.md#install-latest-release) — SEED-001
+- [Publish extracted guidance and the version-aware updater](seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater) — SEED-001
+- [Adopt and reuse released guidance in Open Dough](seeds/SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater) — SEED-001
+- [Start using Open Dough without leaving overlapping local guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install) — SEED-004
+- [Refine stories with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004
+- [Decompose product work with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004
+- [Replace equivalent local guidance when updating Open Dough](seeds/SEED-004-extract-and-adopt-project-guidance.md#replace-equivalent-guidance-on-update) — SEED-004
+- [Adopt shared guidance while preserving useful local differences](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-local-behavior-during-replacement) — SEED-004
+- [See the relevant changelog while updating Open Dough](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — SEED-001
+- [Extract reusable plan execution with its CI monitor and supporting scripts](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004
 
 ## Recently done
 

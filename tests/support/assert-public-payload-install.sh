@@ -97,6 +97,9 @@ incomplete_source="${temporary_dir}/incomplete source"
 mkdir -p -- "${incomplete_source}/src/skills/dough-update" \
   "${incomplete_source}/src/skills/dough-adr-awareness"
 cp -- "${source_dir}/install.sh" "${incomplete_source}/install.sh"
+cp -- "${source_dir}/VERSION" "${incomplete_source}/VERSION"
+cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
+cp -R -- "${source_dir}/src/install" "${incomplete_source}/src/install"
 cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${incomplete_source}/src/skills/dough-update/SKILL.md"
 cp -- "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \

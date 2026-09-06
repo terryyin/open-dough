@@ -6,6 +6,8 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 target="${temporary_dir}/target project"
+mkdir -p -- "${target}"
+target=$(cd -- "${target}" && pwd -P)
 selected_root="${target}/.cursor/skills"
 codex_root="${target}/.agents/skills"
 claude_root="${target}/.claude/skills"
@@ -19,7 +21,6 @@ assert_contents() {
 }
 
 mkdir -p -- \
-  "${selected_root}/dough-update" \
   "${selected_root}/dough-adr-awareness" \
   "${selected_root}/unrelated-guidance" \
   "${codex_root}/dough-update" \
@@ -31,8 +32,6 @@ printf '%s\n' 'Keep my local ADR skill edit.' > \
   "${selected_root}/dough-adr-awareness/SKILL.md"
 printf '%s\n' 'Keep my local recognition edit.' > \
   "${selected_root}/dough-adr-awareness/RECOGNITION.md"
-printf '%s\n' 'Keep this updater-side file.' > \
-  "${selected_root}/dough-update/LOCAL.md"
 printf '%s\n' 'Keep this ADR-side file.' > \
   "${selected_root}/dough-adr-awareness/LOCAL.md"
 printf '%s\n' 'Keep unrelated Cursor guidance.' > \
@@ -62,6 +61,9 @@ after_later_collision=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_
 [[ "${after_later_collision}" == "${before_later_collision}" ]]
 [[ ! -e "${selected_root}/dough-update/SKILL.md" ]]
 
+mkdir -p -- "${selected_root}/dough-update"
+printf '%s\n' 'Keep this updater-side file.' > \
+  "${selected_root}/dough-update/LOCAL.md"
 printf '%s\n' 'Keep my local updater edit.' > \
   "${selected_root}/dough-update/SKILL.md"
 before_repeat=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
