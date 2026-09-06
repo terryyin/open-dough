@@ -724,3 +724,8 @@ Behavior: Current adopted Donut → ordinary Claude update → truthful no-write
 - Slice 2 extracted `tests/support/native-codex.sh`; later Codex native leaves
   should reuse that protected invocation/transcript seam instead of duplicating
   sandbox setup.
+- Slice 2 CI run `34032291511/1` failed because the canonical updater change
+  was not copied to its three tracked native discovery mirrors. The existing
+  `tests/dough-update-codex-expanded-payload.sh` byte comparison reproduced the
+  mismatch; synchronizing only those mirrors made it pass. No defect remains
+  in that proof boundary.
