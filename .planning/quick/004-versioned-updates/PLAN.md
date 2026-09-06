@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–7 done; next is slice 8 (first real release).
+Status: in progress — slices 1–8 done; next is slice 9 (publish the tag).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -217,7 +217,7 @@ guidance. Reuse shared behavior, adding only a minimal native entry if necessary
 ### 8. Create the first real Open Dough release
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the complete, verified internal workflow and committed actual
 payload, the maintainer uses the skill in Open Dough itself to create its first
@@ -269,7 +269,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 | Cursor | Done — 6 (`/release-version` loaded `.agents/skills/release-version/SKILL.md`; finalize 0.1.1 `1bd99d48-723d-4d9d-b280-ffe3328ab543`; `agent` 2026.04.13-a9d7fb5). No `.cursor/skills/release-version` added. | Done — 6 (fixture `v0.1.1` on `de98407`; `v0.1.0` unchanged; 0.1.0 notes byte-identical; sentinels and home guidance unchanged) |
 | Claude Code | Done — 7 (`/release-version` selected `.claude/skills/release-version/SKILL.md` then followed canonical `.agents/skills/release-version/SKILL.md`; finalize 0.1.1 `b26a6196-a048-4d0f-b302-691e5661cb83`; CLI 2.1.263). First invoke without the thin entry was `Unknown command`. | Done — 7 (fixture `v0.1.1` on `d72f69b`; `v0.1.0` unchanged; 0.1.0 notes byte-identical; sentinels and home guidance unchanged) |
 
-Real maintainer self-use: pending — 8. Published release identity: pending — 9.
+Real maintainer self-use: done — 8 (Cursor `agent` 2026.04.13-a9d7fb5 session `d1f30913-e572-49b6-9d8e-19b91ea09b63`; local annotated `v0.1.0` on `53b6da2`; notes do not claim Stories 5–6). Published release identity: pending — 9.
 Adopter output exclusion/regression: done — 1 (`bash tests/install-omits-internal.sh` and `bash tests/install.sh`). Record evidence with these
 rows during execution. Native success in one tool or copied files cannot fill
 another tool's row. Missing verification remains pending under the repository's
@@ -344,3 +344,9 @@ story detail to goal/scope only after its enduring behavior is documented.
   unknown-command. Finalize 0.1.1 then loaded the pointer and followed the
   canonical skill. Fixture `v0.1.1` on `d72f69b`; `v0.1.0` and 0.1.0 notes
   unchanged.
+- Leaf 8: candidate `npm test`, `npm run lint`, and `git diff --check` passed
+  after a ShellCheck fix in the omission test. Native Cursor `/release-version`
+  created local annotated `v0.1.0` on `53b6da2` (`VERSION` and `CHANGELOG.md`
+  only). Notes dated `## 0.1.0 - 2026-09-06` describe installer/`dough-update`
+  and the internal skill, and deny version-aware updates. That session Read the
+  Claude pointer first, then the canonical skill. Nothing was pushed.
