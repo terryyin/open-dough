@@ -54,10 +54,11 @@ clues, not required matches or sufficient proof of equivalence.
 - Story 1 is complete with a linked evidence plan. Other stories remain
   unfinished. Reordering the backlog authorizes no extraction, installation,
   or removal of another project's files in this pass.
-- First finish shared installation, release ADR-awareness, and use it in Open
-  Dough through the same installation path as any other project. Then adopt it
-  in Donut and replace the proven redundant original. More extraction follows. Preserve safe installation and cross-platform acceptance; defer special
-  migration and difference reconciliation until a real case needs them.
+- Story 4 is complete at the first native Codex replacement boundary. Its
+  post-cleanup use and real Donut adoption are smaller stories in SEED-006.
+  Open Dough self-use remains independently owned by SEED-001. Preserve
+  cross-platform acceptance by leaving unobserved Cursor and Claude Code outcomes
+  pending rather than expanding this completed story.
 
 ## Alternatives and Working Direction
 
@@ -68,14 +69,11 @@ clues, not required matches or sufficient proof of equivalence.
 | Manually copy, rename, and reconcile guidance | A practical fallback for one item, but does not provide the requested repeatable internal skill or recognition and replacement across adopting projects. |
 | Deliver extraction and all migration behavior together | Matches the overall ambition but delays learning whether generalization preserves effectiveness. |
 
-The owner confirmed the overall direction and cross-project matching, then
-reprioritized on 2026-09-06 around repeated borrowing from Donut, then selected
-ADR-awareness adoption and replacement as the next priority. The latest order
-first completes shared installation, publication, and Open Dough self-use under
-SEED-001. Story 1 already proved extraction; Story 4 then closes Donut's adoption
-loop before Stories 6–7 extract more commonly borrowed planning skills. Story 5 retains the more complex CI-monitor extraction
-for later. Borrowing source guidance is an immediate bridge, but only extraction,
-distribution, and native reuse remove the recurring sibling-project dependency.
+The owner selected ADR-awareness as the first replacement example, then narrowed
+Story 4 after execution showed that its original three-tool, real-project, update,
+and exception matrix contained several independent outcomes. The accepted result
+is one bounded native Codex replacement. SEED-006 owns the remaining adoption
+journeys; Stories 5–7 here retain separate extraction outcomes.
 
 Local story numbers are stable references, not priority. The
 [product backlog](../PRODUCT-BACKLOG.md) records the current cross-seed order.
@@ -150,7 +148,8 @@ an effective substitute in the original context.
 - **Depends on:** Released public guidance with identifying characteristics
   and an installed target. Reuse the clear-equivalent assessment and cleanup
   demonstrated by Story 4; local-difference merging in Story 3 is not required.
-  First installation in Donut now precedes this recurring update journey.
+  Practical Donut adoption is now decomposed in SEED-006 before this recurring
+  generic update journey.
 
 #### Goal
 
@@ -232,69 +231,47 @@ conflict cannot be resolved.
 
 <a id="reconcile-guidance-on-install"></a>
 
-### 4. Start using Open Dough without leaving overlapping local guidance
+### 4. Complete one authorized ADR-guidance replacement in Codex
 
-- **Status:** Follows shared installation, release, and Open Dough self-use;
-  refine before planning or execution. Donut's local `adr-awareness` is the first
-  selected replacement.
-  Extraction and the recognition record already exist; replacement does not.
-- **For / why:** A first-time adopter already has useful guidance and wants a
-  coherent installation rather than another competing set of instructions.
-- **Evaluation:** Install released `dough-adr-awareness` into Donut, demonstrate
-  equivalence to local `adr-awareness`, remove the redundant original and repair
-  its callers when authorized, then demonstrate explicit and architecture-triggered
-  ADR use natively in Codex, Cursor, and Claude Code.
-- **Value / learning:** Makes the migration available at first adoption rather
-  than requiring the developer to wait for a subsequent update.
-- **Effort hypothesis:** M–L, low confidence; first clear-equivalent adoption
-  now establishes the assessment and cleanup reused by Story 2.
-- **Depends on:** Story 1's accepted ADR-awareness skill and recognition record,
-  safe installation (SEED-001 Story 5a), and a published payload (Story 5d).
-  Open Dough self-use (Story 5e) is the chosen preceding real-use check, not a
-  separate installation implementation. Deliver accepted replacement changes
-  through the existing release workflow before released adoption in Donut.
-  Further extraction and Stories 2–3 are not prerequisites; an existing Open
-  Dough installation in Donut is not required.
+- **Status:** Completed 2026-09-06 through slice 4a in
+  [Plan 013](../quick/013-adopt-adr-awareness/PLAN.md). Native Codex
+  assessment, context retention, caller repair, and redundant-original removal
+  passed on a protected disposable Donut-derived target. Cursor, Claude Code,
+  fresh-install, later-update, and live Donut outcomes were not claimed.
+- **For / why:** The Open Dough maintainer needed the smallest usable proof that
+  one recognized equivalent could be replaced safely after one authorization.
+- **Evaluation:** Native Codex followed the installed tagged workflow, retained
+  every required original-only value, repaired the explicit caller checklist,
+  removed only the original, and preserved ADR records and unrelated guidance.
+- **Value / learning:** The narrow success validates the replacement direction
+  without requiring automatic handling of every platform and failure case.
+- **Effort:** Completed. The former M-L scope was disproved by two execution
+  overruns and split at the first coherent value boundary.
 
 #### Goal
 
-As a developer installing Open Dough for the first time, identify and replace
-redundant local guidance while retaining the project instructions I still need.
+As an Open Dough maintainer, prove one already-installed, behaviorally
+equivalent ADR-awareness practice can be assessed and replaced in native Codex
+without losing required adopter context or unrelated project guidance.
 
 #### Scope
 
-- Evaluate existing rules, skills, and agent instructions against the guidance
-  being installed, including matches unrelated to the source project.
-- Start with Donut's `adr-awareness` and the existing public recognition record.
-  Explain coverage and affected references, then perform authorized replacement
-  and repair callers. Include the references in `.cursor/rules/general.mdc` and
-  `.cursor/rules/architecture-decisions.mdc`, and discover other actual callers.
-  Preserve the local ADR context and effective architecture-triggered application;
-  an explicitly invocable shared skill alone does not prove those triggers survived.
-  Delete only redundant guidance, not ADR documents or necessary project rules.
-  Assess by behavior; being extracted from Donut does not alone prove equivalence.
-  Share this assessment and cleanup with the later update journey in Story 2.
-- Useful local differences or conflicts stop the affected replacement and leave
-  working local guidance intact. Story 3 handles reconciliation when such a case
-  occurs; do not require that capability for clear equivalents.
-- Leave unrelated guidance intact. Handle affected guidance in mixed instruction
-  documents without removing the whole document. A match does not imply the
-  entire project's guidance must be replaced.
-- Report completion per selected replacement. An unresolved conflict preserves
-  the affected local behavior and remains pending; do not present that skill's
-  migration as successful. Unrelated clear replacements can still complete.
-- Global or home-level migration, unrelated agent reconfiguration, and scanning
-  practices outside the target project are excluded.
+- Includes a disposable exact tagged payload, read-only assessment, reuse of one
+  cleanup authorization, context retention, exhaustive caller repair, and
+  removal of the redundant original for the single Codex integration.
+- Excludes fresh installation, release publication, real Donut mutation,
+  post-cleanup use, Cursor and Claude Code adoption, automatic failure handling,
+  and update preservation.
+- The excluded work is decomposed in
+  [SEED-006](SEED-006-extend-adr-guidance-adoption.md). Open Dough self-adoption
+  remains in SEED-001.
 
-#### Key examples
+#### Completion evidence
 
-| Pre-condition | Trigger | Observable result |
-| --- | --- | --- |
-| Donut has local `adr-awareness` and rule references to it; the accepted release contains `dough-adr-awareness` and its recognition record | Install Open Dough and authorize equivalent replacement | Installs the shared skill, removes the proven redundant original, repairs callers, preserves ADR documents and local conventions, and demonstrates explicit and architecture-triggered use in each native tool. |
-| A project has no Open Dough installation but contains a renamed equivalent local skill | Install Open Dough | Explains the match and can replace it within the installation journey when authorized; the shared skill becomes usable. |
-| An agent instruction document mixes a matching practice with project-specific build instructions | Install and reconcile | Replaces the redundant practice, preserves required build instructions, and leaves references coherent. |
-| A local rule conflicts with incoming guidance and cannot be reconciled | Install Open Dough | Reports and stops the affected migration without discarding the local rule or presenting conflicting guidance as a successful adoption. |
-
+Plan 013 records `codex-cli 0.144.1`, controlled release `v0.1.0`, exact
+caller/original-only changes, preserved payload and ADR state, focused checks,
+and successful CI run `34036359908`. Missing native Cursor and Claude Code
+evidence remains pending in follow-up stories.
 <a id="extract-plan-execution-with-ci-monitor"></a>
 
 ### 5. Extract reusable plan execution with its CI monitor and supporting scripts
@@ -399,100 +376,46 @@ working execution-to-monitoring flow in an adopting project.
 
 ## Cross-platform Acceptance and Evidence
 
-Each story includes native discovery, invocation or application, and its intended
-behavior in all three tools. For Story 1, verify both the internal skill and the
-resulting public skill or rule, including installation, update delivery, and
-coexistence where affected. For Stories 2–4, verify the actual installation or
-update interaction, reference cleanup, retained local behavior, and subsequent
-native use of the resulting guidance. Verify that changes for one integration
-do not break another integration present in the same project.
-For Story 5, verify native discovery and invocation of the extraction skill and
-the resulting plan-execution skill, the execution-to-CI-monitoring behavior, and
-installation, updating, and coexistence of its required scripts in each tool.
-For Stories 6–7, separately verify native extraction, public skill discovery and
-invocation, intended planning behavior without the Donut checkout, installation,
-updating, and coexistence in Codex, Cursor, and Claude Code. Keep one shared
-behavioral source with minimal platform adaptation. Story 1's proof does not
-establish these new skills' behavior.
+Story 1 is complete with independent native extraction, delivery, use, and
+coexistence evidence in Codex, Cursor, and Claude Code. Stories 2, 3, and 5-7
+remain pending in every platform.
 
-| Platform | Story 1 | Story 2 | Story 3 | Story 4 | Story 5 | Stories 6–7 |
-| --- | --- | --- | --- | --- | --- | --- |
-| Codex | Complete: native extraction, equivalence, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification | Pending native verification | Pending native verification for each story |
-| Cursor | Complete: native extraction, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification | Pending native verification | Pending native verification for each story |
-| Claude Code | Complete: native extraction, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification | Pending native verification | Pending native verification for each story |
-
-Story 1 evidence is native and independent per platform; copying files or passing
-in one tool was not treated as proof for another. Later stories remain pending
-until their own installation or update interactions are verified natively.
+Story 4 is complete only for its deliberately narrowed native Codex replacement
+boundary. Cursor and Claude Code adoption, post-cleanup use, fresh installation,
+later updates, and live Donut changes moved to SEED-006. File copying or Codex
+success does not prove those outcomes; their native evidence remains pending.
 
 ## Ordering and Scope Reduction
 
-SEED-001 safe installation is complete. Remaining delivery order: publication of
-the existing ADR-awareness payload and Open Dough self-use; then Story 4 installs in Donut
-and replaces the redundant original. Both projects use the same installation
-flow. Story 4 adds assessment, reference repair, and removal only where equivalent
-local guidance exists; self-use needs no separate installer feature.
+SEED-001 safe installation and publication are complete. The first bounded
+Codex replacement is also complete. Open Dough self-adoption remains in
+SEED-001. The next practical adoption work is decomposed in SEED-006: prove
+post-cleanup Codex use, prepare Donut while retaining the original, finish
+Donut cleanup only after three-tool readiness, then optionally verify updates.
 
-Then extract story-refinement (6) and story-decomposition (7), publish/use those
-accepted additions, and extend replacement to later updates (2). Stories 6–7
-and 2 are not prerequisites for Story 4. First-install replacement and later
-update-time replacement remain distinct outcomes. This order supersedes the
-earlier proposal to build replacement before completing installation and self-use.
-
-Defer preserving local differences (3) until an actual mismatch occurs. Defer
-plan execution and CI monitoring (5) until that borrowing becomes the next pain.
-Potential follow-ons such as slice-planning and slice-plan-refinement wait for
-selection rather than expanding the first two extractions implicitly. Keep
-working local guidance where equivalence is unresolved. Basic preservation,
-truthful failure reporting, and native cross-platform proof remain acceptance
-conditions of the main path, not optional edge-case projects.
+Stories 2, 3, and 5-7 in this seed remain independent. Preserve local guidance
+when equivalence is unresolved; defer difference reconciliation and additional
+skill extraction until their own triggers.
 
 ## Selection and Open Decisions
 
-- The user selected Doughnut's `adr-awareness` skill as the first extraction
-  example, producing `dough-adr-awareness`. The internal skill remains selectable
-  by source at invocation; the selected example is not a provenance constraint.
-- Public rule naming remains undecided and does not block the selected skill
-  example. Standalone rule delivery needs its own concrete application proof;
-  successful skill delivery must not be reported as proof of public-rule support.
-- Story 1 delivered a companion recognition record and project-specific ADR
-  context. Reuse that extraction capability for Stories 6–7; inspect their rule
-  dependencies before treating either as straightforward. These two candidates
-  are the recommended initial choices from the repeatedly borrowed skills.
+- The completed example remains `dough-adr-awareness`; matching is behavioral,
+  not tied to Donut provenance or the original name.
+- Public rule naming remains undecided and does not block skill adoption.
+- Backlog order authorizes no execution, publication, or mutation of Donut.
 
 ## When to Surface
 
-Story 1 is recorded in the [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
-The [product backlog](../PRODUCT-BACKLOG.md) keeps one ordered list of unfinished
-stories and a separate completed section in the same file. Story 4 follows SEED-001's safe
-installation, publication, and self-use. Stories 6–7 and 2 follow Story 4;
-Stories 3 and 5 remain deferred with the triggers above. Backlog priority does
-not authorize implementation or execution of unfinished stories.
+The product backlog records completed Stories 1 and 4 and the selected
+follow-ups from SEED-006. Surface other candidates only when their stated pain
+or dependency appears.
 
 ## Breadcrumbs
 
-- Owner's initial idea, 2026-09-06: internal extraction skill, effective
-  generalization, retained identifying characteristics, and clean reconciliation
-  on updates and first installation.
-- Owner's correction: recognize matching guidance in any project; source-project
-  identity is not a prerequisite for suggesting or performing replacement.
-- Owner then queued all four stories, requested a slice plan for Story 1, and
-  selected Doughnut's `adr-awareness` skill as its concrete extraction source.
-- Owner's addition, 2026-09-06: capture a separate story for extracting plan
-  execution with its CI monitor, using Donut as an example; the monitor's
-  substantial supporting scripts make extraction more complicated.
-- Owner's reprioritization, 2026-09-06: keep every story visible, use unnumbered
-  backlog links, prioritize easier Donut skill extraction, preserve a safe
-  release/adoption order, then install in Donut and remove redundant guidance;
-  defer edge cases until encountered.
-- Owner's next correction, 2026-09-06: because ADR-awareness is already extracted
-  with its characteristics recorded, prioritize installing it in Donut and
-  removing the redundant original before extracting further skills; identify only
-  genuine prerequisites.
-- Owner's installation clarification, 2026-09-06: first fix installation, then
-  apply the same flow to Open Dough and other projects. Chosen order is safe
-  installation, publication, self-use, then Donut replacement; more extraction
-  and later update-time replacement are not prerequisites for that first cleanup.
+- Owner scope correction, 2026-09-06: stop the first adoption story after the
+  narrow successful Codex replacement; manual failure recovery is acceptable.
+- The former 40-slice remainder is mapped in
+  `SEED-006-extend-adr-guidance-adoption.md`.
 - [Donut story-refinement](../../../doughnut/.agents/skills/story-refinement/SKILL.md)
 - [Donut story-decomposition](../../../doughnut/.agents/skills/story-decomposition/SKILL.md)
 - [Public and internal skill terminology](../../docs/adrs/0001-ubiquitous-language.md)

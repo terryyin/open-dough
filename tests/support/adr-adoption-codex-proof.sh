@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+# Shared assertions for native Codex ADR-adoption proof beats.
+assert_tagged_adr_adoption_payload() {
+  local candidate=$1
+  local tag=$2
+  local target=$3
+  local installed_version=$4
+  local expected_version=$5
+  local managed_file
+
+  for managed_file in \
+    dough-update/SKILL.md \
+    dough-adr-awareness/SKILL.md \
+    dough-adr-awareness/RECOGNITION.md; do
+    # shellcheck disable=SC2312 # The caller's pipefail preserves git-show failures.
+    git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
+      | cmp - "${target}/.agents/skills/${managed_file}"
+  done
+  [[ ${installed_version} == "${expected_version}" ]]
+}
+
+assert_no_adr_adoption_install_or_fetch() {
+  local command_log=$1
+  local proof_beat=$2
+
+  if grep -Eiq '(^|[ /])(install\.sh|open-dough-release\.sh)( |$)|git (fetch|ls-remote)' \
+    "${command_log}"; then
+    printf 'FAIL: %s invoked installation or source-fetch machinery.\n' \
+      "${proof_beat}" >&2
+    cat "${command_log}" >&2
+    return 1
+  fi
+}
+
+changed_paths_between_snapshots() {
+  local before_snapshot=$1
+  local after_snapshot=$2
+
+  # shellcheck disable=SC2312 # The caller's pipefail preserves snapshot-diff failures.
+  awk -F '\t' '
+    NR == FNR { before[$2] = $0; next }
+    { after[$2] = $0 }
+    END {
+      for (path in before)
+        if (!(path in after) || before[path] != after[path]) print path
+      for (path in after)
+        if (!(path in before)) print path
+    }
+  ' "${before_snapshot}" "${after_snapshot}" | LC_ALL=C sort
+}

@@ -9,10 +9,8 @@ git_identity() {
   git -C "$1" config user.name 'Open Dough Fixture'
 }
 
-write_candidate_payload() {
+copy_current_release_files() {
   local dest=$1
-  local version=$2
-  local marker=$3
 
   mkdir -p -- "${dest}/src/install" "${dest}/src/skills/dough-update" \
     "${dest}/src/skills/dough-adr-awareness"
@@ -24,6 +22,16 @@ write_candidate_payload() {
     "${dest}/src/skills/dough-adr-awareness/SKILL.md"
   cp -- "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
     "${dest}/src/skills/dough-adr-awareness/RECOGNITION.md"
+  cp -- "${source_dir}/VERSION" "${dest}/VERSION"
+  cp -- "${source_dir}/CHANGELOG.md" "${dest}/CHANGELOG.md"
+}
+
+write_candidate_payload() {
+  local dest=$1
+  local version=$2
+  local marker=$3
+
+  copy_current_release_files "${dest}"
   printf '\n<!-- open-dough-payload %s -->\n' "${marker}" >> \
     "${dest}/src/skills/dough-update/SKILL.md"
   printf '%s\n' "${version}" > "${dest}/VERSION"
@@ -45,6 +53,82 @@ tag_release() {
 
   GIT_AUTHOR_DATE="${date}" GIT_COMMITTER_DATE="${date}" \
     git -C "${repo}" tag -a "v${version}" -m "v${version}"
+}
+
+build_current_tagged_release_fixture() {
+  local repo=$1
+  local version
+
+  version=$(cat "${source_dir}/VERSION")
+  copy_current_release_files "${repo}"
+  git -C "${repo}" init --quiet -b main
+  git_identity "${repo}"
+
+  commit_all "${repo}" "release ${version} exact candidate"
+  tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
+}
+
+snapshot_path_state() {
+  local root=$1
+  local path relative digest symlink_target
+
+  while IFS= read -r -d '' path; do
+    relative=${path#"${root}/"}
+    if [[ -L ${path} ]]; then
+      symlink_target=$(readlink "${path}")
+      printf 'symlink\t%s\t%s\n' "${relative}" "${symlink_target}"
+    elif [[ -f ${path} ]]; then
+      digest=$(shasum -a 256 "${path}")
+      printf 'file\t%s\t%s\n' "${relative}" "${digest%% *}"
+    elif [[ -d ${path} ]]; then
+      printf 'directory\t%s\n' "${relative}"
+    else
+      printf 'other\t%s\n' "${relative}"
+    fi
+  done < <(
+    # shellcheck disable=SC2312 # pipefail preserves failures across the sorted snapshot pipeline.
+    find "${root}" -mindepth 1 ! -path "${root}/.git" \
+      ! -path "${root}/.git/*" -print0 | LC_ALL=C sort -z
+  )
+}
+
+prepare_donut_adr_assessment_target() {
+  local target=$1
+  local candidate=$2
+  local fixture_source="${source_dir}/tests/fixtures/adr-adoption/donut-assessment"
+
+  mkdir -p -- "${target}"
+  cp -R -- "${fixture_source}/." "${target}/"
+  mkdir -p -- "${target}/.claude/skills"
+  ln -s ../../.agents/skills/adr-awareness \
+    "${target}/.claude/skills/adr-awareness"
+  bash "${candidate}/install.sh" --target "${target}" --platform codex
+}
+
+prepare_donut_adr_codex_adoption_target() {
+  local target=$1
+  local candidate=$2
+
+  prepare_donut_adr_assessment_target "${target}" "${candidate}"
+
+  # Bound native mutation scenarios to the one Codex integration under test.
+  # The full assessment fixture still covers the shared Claude discovery link.
+  rm -- "${target}/.claude/skills/adr-awareness"
+}
+
+prepare_donut_adr_codex_cleanup_target() {
+  local target=$1
+  local candidate=$2
+  local architecture_rule
+
+  prepare_donut_adr_codex_adoption_target "${target}" "${candidate}"
+  architecture_rule="${target}/.cursor/rules/architecture-decisions.mdc"
+  printf '\n%s\n' \
+    '## Retained adopter context' \
+    '' \
+    '- Architecture-shaped work includes Cross-cutting stack, persistence, API contracts, auth, packaging/monorepo layout, and shared conventions across backend/frontend/cli/mcp/e2e.' \
+    '- A human-owned exception may be recorded in a PR/commit message or note pointing at the ADR and the exception.' \
+    >> "${architecture_rule}"
 }
 
 build_latest_fixture() {
