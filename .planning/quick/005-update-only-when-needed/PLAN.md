@@ -58,6 +58,7 @@ provenance, not product code.
 | 20. Codex equal-version native invocation | done | Codex 0.153.4 session `01a0756a-6ec7-7d92-8f1a-3938020d2f33` |
 | 21. Cursor equal-version native invocation | done | Cursor 3.19.13 / `2026.09.02-c22c1a3` session `3f1369da-b786-4dfb-9d1c-8006739b23aa`; fixture with Codex+Cursor+Claude at `0.1.10`; git-bootstrap `v0.1.10` `657f803f936afb39e5a33d57b3f6a8de881c2e8d`; `apply-skip-equal`; write guard and sentinels |
 | 22. Claude Code equal-version native invocation | done | Claude Code 2.1.263 session `d96a0228-7b0d-48e0-8dd7-ee998e0fc347` |
+| 23. Codex older-version native invocation | done | Codex CLI 0.144.1 session `01a075b0-54b3-7742-bae8-dc67be70f8b4`; fixture with Codex+Cursor+Claude at `0.1.2`; git-bootstrap `v0.1.10` `f59a15fd34a55a7c0a18284f755284b7187220f8`; one `install` trace; only Codex `SKILL.md`/`VERSION` changed |
 
 Focused retrospective checks reran `bash tests/install-latest-release.sh` and
 `bash tests/update-when-needed.sh`; both passed on 2026-09-06. Separate probes
@@ -164,11 +165,25 @@ Claude `0.1.10` records and sentinels unchanged.
 
 ### 23. Advance Codex directly to latest
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Codex records an older release → native `$dough-update` → selected
 Codex installation advances once to latest and other copies remain unchanged.
-Proof: One installer invocation, latest bytes/record, source/tag/commit output,
-fresh-session instruction, and before/after coexistence evidence.
+Proof: Codex CLI 0.144.1 session
+`01a075b0-54b3-7742-bae8-dc67be70f8b4` ran from
+`/tmp/open-dough-slice23-proof.8n3lxr/target project` with exact write access
+to its protected Codex skill destination. The running host identified as Codex
+and selected `.agents/skills/dough-update`, while Cursor and Claude copies were
+also present. Native `$dough-update` listed fixture tags, chose peeled
+`v0.1.10` commit `f59a15fd34a55a7c0a18284f755284b7187220f8`, inspected
+that detached snapshot's helper, installer, skill, sourced modules, and
+changelog, then ran `apply --checkout --platform codex`. Output reported source,
+tag, commit, `Installed: 0.1.2`, `Outcome: updated from 0.1.2 to 0.1.10`, and
+the fresh-session instruction. `OPEN_DOUGH_TRACE` contains one `apply-upgrade`
+and exactly one `install` line. The installed skill matches the tagged bytes and
+records `0.1.10`; Git shows only Codex `SKILL.md` and `VERSION` changed. Cursor
+and Claude remain at `0.1.2`, and their hashes plus all project sentinels match
+the before snapshot. Operation-owned bootstrap directories were removed after
+verification; the named fixture remains available with its trace and hashes.
 
 ### 24. Advance Cursor directly to latest
 Type: Behavior
@@ -208,9 +223,9 @@ Proof: Independent Claude Code observation equivalent to 29.
 ## Readiness and learning
 
 R1–R4 are done. Slice 21 rechecked Cursor equal-version after the pin-and-inspect
-skill change. Codex and Claude equal-version rows 20 and 22 were not re-run
-in this execution; native upgrade/newer rows 23–25 and 29–31 remain. Stopped
-after slice 21 as requested.
+skill change, and slice 23 now proves the native Codex older-to-latest journey.
+Codex and Claude equal-version rows 20 and 22 were not re-run; native upgrade
+rows 24–25 and newer rows 29–31 remain. Stopped after slice 23 as requested.
 
 Refinement learning: `apply --checkout` currently calls `pin-latest`, which
 replaces the inspected tree. R2 must verify `HEAD` against `resolve-url` and
