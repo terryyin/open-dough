@@ -3,16 +3,14 @@
 ## Source and readiness
 
 - Selected outcome: [SEED-004, Story 4](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install), backlog item four.
-- Worktree: `codex/adopt-adr-awareness`, based on story refinement `1f76b9b`.
+- Worktree: `codex/adopt-adr-awareness-execution`, started from refinement
+  `400f530`.
 - Planning method: borrowed Donut's `slice-planning`, then
   `slice-plan-refinement`, with its planning and decomposition rules.
-- Status: **ready for direct execution from slice 1**, subject to the named
-  dependency gates. Refined in place on 2026-09-06 from plan commit `fa1176d`.
-  No product implementation, native verification, release, or Donut migration
-  was performed. There were no completed slices or execution overruns to alter.
-- All 40 remaining leaves have one bounded proof loop. Their five-minute sizing
-  is a hypothesis, not a runtime guarantee. Current scope and story order remain
-  unchanged; first-install and real-adoption gates still apply.
+- Status: slices 1–3 are done. Slice 4 exceeded its bounded loop and was refined
+  in place into Behavior leaves 4 and 4a; execution resumes from 4. Current
+  scope and story order remain unchanged. First-install and real-adoption gates
+  still apply.
 - Execution CI observer: key
   `ci-watch-execution:terryyin/open-dough:codex/adopt-adr-awareness-execution:/root`,
   PTY session `23441`, PID `20830`, checkout
@@ -99,9 +97,9 @@ install it into Open Dough or distribute its internal acceptance guard.
   unfinished. Test setup mounts the candidate's exact tagged payload into a
   disposable already-installed target; that setup is not fresh-install evidence.
 - **Before slice 10:** integrate SEED-001 Story 5a's accepted safe-install changes
-  and required evidence. Its `codex/safe-install` plan is now ready for execution
-  but not executed; plan readiness is not acceptance. Do not use the old
-  clone-then-run guide or infer readiness from this branch's historical plan.
+  and required evidence. They landed on `main` through `1a673ef`; this execution
+  branch has not integrated them yet. Do not use the old clone-then-run guide or
+  infer readiness from this branch's historical plan.
 - **Before slice 22:** slices 1–21 and applicable checks have passed on the
   integrated candidate; a release containing that behavior is available from
   the supplied URL. Reuse Story 5d's release workflow and the maintainer's version
@@ -129,9 +127,9 @@ commit, selected paths, transcript, and decisive file/symlink observations.
 | --- | --- | --- |
 | Explain equivalence and callers; assessment changes nothing | 2, 22 | Native coverage/context/affected-path explanation; target snapshot unchanged. |
 | Retain context before removing its only source | 3–4, 26–29 | Context moved out of the original; native shared use resolves it without reading the original. |
-| Authorized cleanup removes only redundant ADR guidance and repairs callers | 4, 9, 13, 16; 30–31 | Original absent, callers resolve, local facts/mixed instructions retained, no unrelated writes. |
+| Authorized cleanup removes only redundant ADR guidance and repairs callers | 4a, 9, 13, 16; 30–31 | Original absent, callers resolve, local facts/mixed instructions retained, no unrelated writes. |
 | Match a renamed equivalent by behavior | 9 | Different project/name/path still yields one justified ADR replacement. |
-| Current version does not conceal pending cleanup | 2, 4 | Native current-version result makes no installer/payload/record writes; authorized local cleanup is separate. |
+| Current version does not conceal pending cleanup | 2, 4–4a | Native current-version result makes no installer/payload/record writes; authorized local cleanup is separate. |
 | Unresolved equivalence, context, or local policy preserves the original | 2, 7, 22 | Same eligibility guard requires sound coverage; the focused uncovered-policy case refuses with unchanged original/callers. No general merging behavior is added. |
 | Keep shared original until every affected tool is ready | 8, 23–31 | Missing integration retains source/link; three independent readiness observations precede removal. |
 | Follow the accepted fresh-install flow into optional cleanup | 10, 13, 16 | Native one-request installation/adoption uses the inspected release and finishes without a second update. |
@@ -142,7 +140,7 @@ commit, selected paths, transcript, and decisive file/symlink observations.
 | Preserve Donut's status interpretation and local decisions | 22, 26–29, 32–37 | ADR 0001 remains Accepted despite its filename; Proposed ADR 0002 is not binding; no rewritten decisions/statuses. |
 | Later updates preserve adoption and current updates remain unwritten | 19–21; 38–40 | Newer fixture release preserves repaired callers; real current-version calls make no installer/payload/record writes or recreated original. |
 | Safe release contract, selected-host writes, coexistence, and omissions | Valid Story 5a/5b evidence; 10–21, 23–40 | Inspected identity/payload/record agree; unrelated and other-host installations survive; internal skills/guard remain absent. |
-| One reachable shared adoption workflow, minimal native adaptation | 2–4, 10, 13, 16, 19–21 | Guide/updater links reach shipped recognition instructions; fixture prompts/adapters do not contain the migration algorithm. |
+| One reachable shared adoption workflow, minimal native adaptation | 2–4a, 10, 13, 16, 19–21 | Guide/updater links reach shipped recognition instructions; fixture prompts/adapters do not contain the migration algorithm. |
 | Truthful installed/pending/incomplete outcomes, without invented rollback | 7–8, 12, 22, 26, 30–31 | Reports distinguish installation, preparation, removal, and remaining native verification; actual changed paths are recorded. |
 
 ## Refinement decisions
@@ -159,6 +157,20 @@ planned, so no completed evidence or resume history was discarded.
 | 21 | Refine | 24 installs for Cursor; 28 independently proves native readiness. |
 | 22 | Refine | 25 installs for Claude; 29 independently proves native readiness. |
 | 23 | Refine | 22 assesses actual drift/coverage, 26 retains context, 30 repairs the caller graph, and 31 removes only the now-unreferenced original and link. |
+
+Execution refinement (2026-09-06): original revised slice 4 exceeded ten
+minutes across implementation and four native proof attempts. Native-process
+latency explained part of the elapsed time, but the final diagnostic exposed a
+real miss: Codex removed the original without retaining the required leading
+cross-cutting trigger facts. The combined proof also mixed an inspectable safe
+context-preparation outcome with caller repair/removal. It is replaced by
+Behavior 4 (retain and verify context while the original remains) and Behavior
+4a (repair callers and remove the now-redundant original). WIP is parked at
+stash `2069543f1c2a494479c4a9a503bccda4e8120781` for selective reuse.
+Learning-escalation reassessment keeps Story 4: slices 1–3 delivered its stated
+assessment and preparation boundary, and the failure changes only proof/order
+inside this leaf, not the beneficiary, outcome, scope, examples, or sibling
+priority.
 
 No story-level escalation applies: the user outcome, exclusions, and required
 native evidence have not changed. The added boundaries separate inspection,
@@ -273,27 +285,43 @@ status, decision, caller, symlink, payload/version, and coexistence bytes. The
 three platform payload checks and Codex's read-only native assessment remained
 green; no context transfer or cleanup was performed.
 
-### 4. Complete the first authorized local ADR replacement
+### 4. Retain required context during authorized adoption preparation
 Type: Behavior
 Status: planned
 Proof: Native Codex receives replacement authorization once on slice 3's
-single-integration fixture. Observe one coherent switch of its bounded caller
-set and removal of the redundant original. Missing context is transferred from
-that original to the local rule by the native workflow; expected retained values
-must match the source. Installed payload/record, ADR decisions, and unrelated
-files stay unchanged. Do not ask again.
+single-integration fixture and performs only the safe preparation beat. Observe
+every required trigger and exception-trail value transferred from the original
+to the existing architecture rule and verified individually. Original, callers,
+installed payload/record, ADR decisions, and unrelated files stay unchanged;
+the result reports cleanup pending and does not ask again.
 
-Behavior: Retained context and an equivalent ready replacement → authorize
-cleanup → the shared practice takes over with no dangling callers. Complete the
-existing adoption instructions with the caller switch/removal; eligibility and
-authorization gates apply before any destructive step. Native ADR use is slice
-5, not a second loop here. Sizing: about five minutes, medium confidence; no
-context design, additional platform, or generalized rewrite engine remains.
+Behavior: Equivalent current replacement plus authorized preparation → retain
+and verify all original-only context → an inspectable safe target is ready for
+caller cleanup while its working original remains. Strengthen the shared
+instructions so missing required facts block removal rather than accepting a
+completion claim. Sizing: about five minutes plus one native-process wait;
+medium confidence. No caller repair or removal occurs in this leaf.
+
+### 4a. Switch callers and remove the now-redundant original
+Type: Behavior
+Status: planned
+Proof: One fresh native Codex session starts from slice 4's exact prepared-state
+fixture and continues the already-authorized cleanup. Observe one coherent
+switch of the bounded caller set and removal of only the redundant original.
+Every caller resolves, retained values still match, and installed payload/record,
+ADR decisions, and unrelated files stay unchanged. Do not ask again.
+
+Behavior: Verified retained context and one ready affected integration → continue
+authorized cleanup → the shared practice takes over with no dangling callers or
+original fallback. Complete the caller-switch/removal instructions and keep the
+shared-original readiness gate. Native ADR use is slice 5, not a second proof
+loop here. Sizing: about five minutes plus one native-process wait; medium
+confidence. No context design or additional platform remains.
 
 ### 5. Use the Codex replacement explicitly after cleanup
 Type: Behavior
 Status: planned
-Proof: One fresh Codex session after slice 4 invokes `$dough-adr-awareness` for a
+Proof: One fresh Codex session after slice 4a invokes `$dough-adr-awareness` for a
 relevant ADR check, selects and cites current records, and changes no decisions
 or implementation. Original skill and fallback paths are absent.
 
@@ -725,9 +753,9 @@ Behavior: Current adopted Donut → ordinary Claude update → truthful no-write
   receipts from native readiness. The native readiness checks now follow actual
   context retention, so they cannot be accepted merely because the original was
   still available to supply missing facts. Full native loading evidence is needed.
-- The safe-install sibling plan is now ready to execute but still has no recorded
-  execution in the inspected worktree. Its dependency remains pending; its revised
-  plan status does not authorize or prove real adoption.
+- Safe-install Story 5a completed on `main` through `1a673ef` with native Codex,
+  Cursor, and Claude Code evidence. Its accepted changes still need integration
+  into this branch before slice 10.
 - Slice 2 extracted `tests/support/native-codex.sh`; later Codex native leaves
   should reuse that protected invocation/transcript seam instead of duplicating
   sandbox setup.
