@@ -1,6 +1,6 @@
 # Install the Open Dough update placeholder
 
-Status: planned — ready for direct execution.
+Status: in progress — first installation verified; repeat protection next.
 Source: [SEED-001, Story 1](../../seeds/SEED-001-install-and-update-open-dough.md#install-from-github).
 
 ## Goal and scope
@@ -38,10 +38,18 @@ additional rules, other platforms, and a comprehensive edge-case suite wait.
 
 ### 1. Install and invoke the placeholder
 Type: Behavior
-Status: planned
+Status: done
 Proof: A focused installer check in a temporary target observes the supplied
 skill content at the project-local destination. A fresh Codex session discovers
 it and invocation reports that updating is not implemented.
+
+Observed 2026-09-06: `bash tests/install.sh` passed (matching source content,
+unrelated sentinel preserved, invoked outside the checkout). Skill metadata
+validation and Bash syntax checks passed. A fresh bundled Codex CLI 0.153.4
+session in a temporary installed target invoked `$dough-update` and returned
+"Updating Open Dough is not implemented yet." No commands or edits were made
+by the invocation. Independent refactor review found no changes needed.
+GitHub self-install demonstration remains in final delivery below.
 
 Behavior: A target has no Open Dough installation → run the source checkout's
 installer for that target → the update placeholder is available in Codex.
@@ -98,4 +106,8 @@ home story/backlog and trim spent planning detail.
 
 ## Learnings
 
-None yet.
+- The standalone Codex CLI 0.144.1 cannot invoke the configured model; the
+  desktop app's bundled CLI 0.153.4 successfully verified the skill instead.
+- This repository has no CI workflows or formatter; use the focused Bash test,
+  syntax checks, and diff whitespace check for local verification. Donut's
+  application formatter and CI observer do not apply.

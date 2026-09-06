@@ -6,7 +6,7 @@ Open Dough defines how people and AI work together to develop software. It bring
 
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
-> **Status:** Initial project definition. This repository does not yet contain the lifecycle content, platform integrations, or an installer. The installation and update behavior described below is the intended design.
+> **Status:** The first Codex installer provides a `dough-update` placeholder. Updating and the wider lifecycle content and platform integrations remain planned.
 
 ## Inspiration and name
 
@@ -65,6 +65,35 @@ The exact file mappings and capability differences will be documented as integra
 
 ## Installation and updates
 
+### Install the Codex placeholder
+
+With Bash and Git available, run this from the existing target project's root:
+
+```bash
+(
+  set -e
+  source_url=https://github.com/terryyin/open-dough.git
+  install_dir=$(mktemp -d)
+  trap 'rm -rf "$install_dir"' EXIT
+  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/install.sh" --target "$PWD"
+)
+```
+
+Set `source_url` to the cloneable repository URL you want to install from. The
+command obtains that repository's default branch and runs its installer. To
+install into another existing project, replace `"$PWD"` with its path.
+
+Installation copies `skills/dough-update/SKILL.md` from the source checkout to
+`.agents/skills/dough-update/SKILL.md` in the target project. Other project files
+are preserved. Start a fresh Codex session in that project and invoke
+`$dough-update`. It reports that updating Open Dough is not implemented yet and
+makes no changes. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
+
+To check the installer from a source checkout, run `bash tests/install.sh`.
+
+### Planned update flow
+
 Open Dough will be installed **into a target project's repository**. Installation places lifecycle content and the selected platform integration files there; updating Open Dough directly changes those installed files. Global installation is not supported.
 
 Installation uses the content addressed by the supplied URL. The usual source is the latest content on the repository's default branch (`main` for Open Dough), rather than a published release. An explicitly supplied source URL is honored rather than redirected to a different version.
@@ -81,17 +110,15 @@ The intended adoption flow is:
 
 Installing into a project that already has Open Dough warns or stops by default. An explicit override allows reinstallation and overwrites Open Dough's installed files, including local edits, without migration or merging. The exact override syntax and installation-presence check remain for refinement.
 
-The first Codex installation will provide only one skill: an update placeholder. Its proposed name is `dough-update`; invocation will explain that updating is not implemented yet. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
+The Codex installation currently provides only the `dough-update` placeholder. Explicit reinstallation will allow the project to obtain the real updater when it becomes available. Initial shared rules are still under discussion.
 
 The installer and updater still need a precise contract for file ownership and project-specific additions. Conflict behavior for the automatic update command remains for later discussion. Codex installation and a simple update come first, followed by Cursor and Claude Code together.
-
-Installation commands and destination paths will be documented once the mechanism exists.
 
 ## Distribution
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 
-The delivery mechanism is still open. It must support the supplied source URL and the default-branch update flow without requiring a published release. Version tracking is deferred and will not be required for the initial installation and update loop.
+The installer runs from a shallow clone of the supplied repository's default branch, without requiring a published release. The future updater's delivery mechanism remains open. Version tracking is deferred and will not be required for the initial installation and update loop.
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 
