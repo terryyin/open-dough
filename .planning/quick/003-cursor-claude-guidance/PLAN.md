@@ -308,16 +308,60 @@ shared skill, tests, and README. Keep Cursor's tests and delivered behavior.
 
 ### A1. Install a usable updater for Claude Code
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06; implementation in `4ee6293`.
 Behavior: Given the delivered Cursor implementation and a project without
 Claude's installation, `--platform claude` installs a skill discoverable and
 invocable in fresh Claude Code, targeting Claude's copy.
 Proof: Native invocation applies the supplied payload to the Claude path while
 Cursor/Codex sentinels survive; confirm which native skill loaded.
 
-Add only the Claude mapping and native usage adaptation to Cursor's existing
-implementation. Rerun existing Codex/Cursor installer coverage and inspect shared
-instruction changes for compatibility. Do not replace the shared implementation.
+- Installer gained `claude` as a third `--platform` value, writing
+  `.claude/skills/dough-update/SKILL.md`. Unsupported values are rejected
+  before any writes (`tests/install.sh` now uses `windsurf` for that case,
+  since `claude` is supported). Shared skill's running-tool table gained a
+  Claude Code row; success wording now names `/dough-update` for both Cursor
+  and Claude Code. README documents Claude Code install/update.
+- `bash tests/install.sh` passed: Codex default install, unsupported-selector
+  rejection, Cursor install, Claude install, repeat-protection and forced
+  replacement for all three platforms, and preservation of the other
+  platforms' copies and an unrelated `.claude/skills/other-skill` sentinel
+  throughout. `npm test`, `npm run lint`, and `git diff --check` passed.
+- Unlike Cursor, Claude Code does not read a Codex/Cursor compatibility
+  directory: a fresh Claude Code session in this repository, queried before
+  any Claude installation existed, did not list `dough-update` among its
+  available skills. A first-time Claude installation therefore needs one
+  manual bootstrap install (as Codex's own README already documents for its
+  placeholder-to-real transition), after which the skill becomes natively
+  discoverable. This is recorded as a real platform difference, not a defect.
+- Bootstrapped this repository itself (a project without Claude's
+  installation) using local fixture `file:///Users/terryyin/git/open-dough` at
+  `4ee6293e211220b562728c112210e30bf7d5a2bc`: cloned to a temporary directory
+  and ran `bash <clone>/install.sh --target /Users/terryyin/git/open-dough
+  --platform claude`, creating `.claude/skills/dough-update/SKILL.md`
+  matching source; Codex/Cursor copies and home skill directories were
+  unchanged.
+- Claude Code CLI 2.1.261. Fresh non-interactive session (`claude -p`, no
+  special permission flags) `fbe0e72b-f9e8-4712-80d2-4576fe12c74d` then listed
+  `dough-update` among its available skills alongside `dataviz`,
+  `update-config`, `code-review`, etc.
+- A second fresh session `b49320ad-288e-4f63-b782-5922e185f8a4` invoked
+  `/dough-update file:///Users/terryyin/git/open-dough`. Its transcript shows
+  it inspected the target (`git remote -v`, located `install.sh` and the
+  source skill), cloned to
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.LD7JGvFXXa`, inspected
+  the fetched installer/skill, and ran `bash "<clone>/install.sh" --target
+  "/Users/terryyin/git/open-dough" --platform claude --force`, then `diff`-ed
+  the installed file against the clone's source (`MATCH`) before deleting the
+  clone. It reported "Updated Open Dough guidance from
+  file:///Users/terryyin/git/open-dough. Installed at
+  `.claude/skills/dough-update/SKILL.md`."
+- After both runs, `.claude/skills/dough-update/SKILL.md` matched
+  `src/skills/dough-update/SKILL.md` byte-for-byte; `.agents/skills/dough-update/SKILL.md`
+  and `.cursor/skills/dough-update/SKILL.md` hashes were unchanged from before
+  the bootstrap. No `dough-update` appeared under `~/.cursor/skills`,
+  `~/.agents/skills`, `~/.claude/skills`, or `~/.codex/skills`. An unrelated,
+  pre-existing uncommitted edit to `docs/adrs/0002-software-development-lifecycle-principles.md`
+  (not made by this work) was observed and left untouched.
 Safe stop: Claude has a usable updater alongside the completed Cursor support.
 
 ### A2. Protect an existing Claude installation from ordinary reinstall
