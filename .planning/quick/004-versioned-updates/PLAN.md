@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slice 1 done; next is slice 2 (finalize in Codex).
+Status: in progress — slices 1–2 done; next is slice 3 (prepare next release).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -138,7 +138,7 @@ output enumeration described above to establish internal-only distribution.
 ### 2. Finalize a prepared release in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the prepared metadata and committed payload, ask the skill to
 finalize that same release. Its matching tag identifies the committed payload
@@ -265,7 +265,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Done — 1 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; CLI 0.153.4 session `01a074f8-f035-7752-b631-355e0401ee92`). Pending — 2 | Pending — 2–5 |
+| Codex | Done — 1–2 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, CLI 0.153.4) | Done — 2 (fixture `v0.1.0` → `80ac178`, VERSION/CHANGELOG only). Pending — 3–5 |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
@@ -317,3 +317,9 @@ story detail to goal/scope only after its enduring behavior is documented.
 - macOS `/tmp` vs `/private/tmp` can reject one `apply_patch`; writes to the
   `-C` fixture path succeeded. Canonical skill already describes finalize, so
   leaf 2 is native finalization proof rather than a second skill rewrite.
+- Leaf 2: `$release-version finalize 0.1.0` created annotated local `v0.1.0` on
+  `80ac178` (`Release 0.1.0`; files `VERSION`, `CHANGELOG.md` only). Staged and
+  unstaged sentinels survived and were not in the tag commit. Output reported
+  local finalize and no push. `-s workspace-write` was enough for prepare
+  file writes; commit+tag needed a sandbox that can write `.git` (`danger-full-access`
+  in the fixture after workspace-write hit `.git/index.lock`).
