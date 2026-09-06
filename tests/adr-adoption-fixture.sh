@@ -10,6 +10,35 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 candidate="${temporary_dir}/exact candidate"
 target="${temporary_dir}/donut assessment target"
+fixture_source="${source_dir}/tests/fixtures/adr-adoption/donut-assessment"
+original_source="${fixture_source}/.agents/skills/adr-awareness/SKILL.md"
+architecture_home="${fixture_source}/.cursor/rules/architecture-decisions.mdc"
+recognition="${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md"
+
+assert_fixture_fact_only_in_original() {
+  local expected=$1
+  local matches
+
+  matches=$(grep -RFl -- "${expected}" "${fixture_source}")
+  [[ ${matches} == "${original_source}" ]]
+  grep -Fq -- "${expected}" "${recognition}"
+  ! grep -Fq -- "${expected}" "${architecture_home}"
+}
+
+grep -Fq '## Retain adopter context before cleanup' "${recognition}"
+grep -Fq 'Use that local architecture guidance as the home' "${recognition}"
+grep -Fq 'do not copy its behavioral workflow into a second local source' \
+  "${recognition}"
+grep -Fq 'Do not rewrite ADR' "${recognition}"
+grep -Fq 'original and every caller or discovery link remain' "${recognition}"
+assert_fixture_fact_only_in_original \
+  'Cross-cutting stack, persistence, API contracts, auth'
+assert_fixture_fact_only_in_original 'packaging/monorepo'
+assert_fixture_fact_only_in_original 'backend/frontend/cli/mcp/e2e'
+assert_fixture_fact_only_in_original 'PR/commit message or note'
+assert_fixture_fact_only_in_original 'pointing at the ADR and the exception'
+grep -Fq 'docs/adrs/_template.md' "${original_source}"
+grep -Fq 'docs/adrs/_template.md' "${architecture_home}" && exit 1
 
 build_current_tagged_release_fixture "${candidate}"
 prepare_donut_adr_assessment_target "${target}" "${candidate}"
@@ -44,6 +73,10 @@ grep -Fq '.agents/skills/adr-awareness/SKILL.md' \
 grep -Fq '| Accepted |' "${target}/docs/adrs/README.md"
 grep -Fq '**Status:** Accepted' "${target}/docs/adrs/0001-session-state.md"
 grep -Fq '**Status:** Proposed' "${target}/docs/adrs/0002-package-sessions.md"
+grep -Fq 'Keep shared session state in Redis.' \
+  "${target}/docs/adrs/0001-session-state.md"
+grep -Fq 'Consider extracting session storage into a separate package.' \
+  "${target}/docs/adrs/0002-package-sessions.md"
 grep -Fq 'Keep this unrelated local guidance unchanged.' \
   "${target}/.agents/skills/unrelated-guidance/SKILL.md"
 grep -Fq 'Keep this Cursor installation unchanged.' \
@@ -68,3 +101,4 @@ snapshot_again=$(snapshot_path_state "${target}")
 [[ ${snapshot} == "${snapshot_again}" ]]
 
 echo 'PASS: disposable Donut-derived ADR assessment target has the exact tagged current Codex payload, original skill and callers/context, protected coexistence data, and a byte/existence/symlink snapshot.'
+echo 'PASS: bounded trigger and exception-trail facts are traceable only to the local original and are not prefilled in the architecture context home; shared instructions retain them before later cleanup.'

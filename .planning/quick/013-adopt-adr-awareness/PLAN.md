@@ -251,7 +251,7 @@ Cursor and Claude Code native assessment evidence remains pending.
 
 ### 3. Prepare bounded context retention for the first replacement
 Type: Structure
-Status: planned
+Status: done
 Proof: Check the existing single-integration fixture still exposes its missing
 trigger/exception facts only in the original skill, with expected retained values
 traceable to that source. Original, callers, and assessment behavior stay
@@ -265,6 +265,13 @@ existing local architecture rule is the fact home; retain trigger areas and
 exception-trail facts, not a second behavioral copy. Removal is not enabled by
 this preparatory leaf and no public command is added. Sizing: about five minutes,
 medium confidence; one small instruction block with one fixture-validation loop.
+
+Evidence (2026-09-06): fixture assertions trace the exact cross-cutting trigger
+areas and PR/commit-message-or-note exception trail only to the original skill,
+confirm they are not prefilled in the architecture rule, and preserve template,
+status, decision, caller, symlink, payload/version, and coexistence bytes. The
+three platform payload checks and Codex's read-only native assessment remained
+green; no context transfer or cleanup was performed.
 
 ### 4. Complete the first authorized local ADR replacement
 Type: Behavior

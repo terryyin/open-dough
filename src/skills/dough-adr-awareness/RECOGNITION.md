@@ -119,6 +119,36 @@ or version record, transfer context, repair callers, or remove local guidance.
 Permission to assess, install, update, or force reinstall is not permission to
 perform cleanup.
 
+## Retain adopter context before cleanup
+
+After equivalence is established and the developer has authorized replacement,
+prepare the adopter context before repairing callers or removing the original.
+This preparation does not itself authorize or perform cleanup.
+
+1. Reinspect the original and the adopter's existing architecture guidance.
+   Use that local architecture guidance as the home for required facts that are
+   available only from the original. Preserve only adopter context needed by the
+   shared skill; do not copy its behavioral workflow into a second local source
+   or merge an additional local policy.
+2. Retain the adopter's exact definition of architecture-shaped work. When the
+   original names `Cross-cutting stack, persistence, API contracts, auth,
+   packaging/monorepo layout, shared conventions across
+   backend/frontend/cli/mcp/e2e`, keep all of those trigger areas reachable
+   rather than replacing them with a generic architecture label.
+3. Retain the adopter's human-owned exception trail exactly. When the original
+   permits a `PR/commit message or note pointing at the ADR and the exception`,
+   preserve those choices without inventing another approval, exception, or
+   precedence rule.
+4. Keep the adopter's existing references to its ADR store, index, lifecycle,
+   supersession convention, and optional proposal template. Do not rewrite ADR
+   decisions, status values, index entries, history, or the human-owned process
+   while retaining context.
+5. Verify the retained facts are reachable through the local architecture
+   guidance while the original and every caller or discovery link remain
+   unchanged. Report context preparation separately from cleanup and keep the
+   replacement pending until a later authorized step has a usable replacement
+   for every affected native integration.
+
 ## Evaluation status
 
 Controlled native Codex comparisons established equivalence with the original

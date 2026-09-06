@@ -121,7 +121,7 @@ for affected_path in \
 done
 grep -Eiq 'current.*(cleanup|replacement).*(pending|not)|pending.*cleanup|cleanup.*pending' \
   "${output_file}"
-grep -Eiq 'assessment.*(read-only|only)|no (files|changes).*changed|changed nothing|did not (change|modify)|nothing was .*(edited|changed)' \
+grep -Eiq 'assessment.*(read-only|only)|no (files|changes).*(changed|performed)|changed nothing|did not (change|modify)|nothing was .*(edited|changed)' \
   "${output_file}"
 
 target_digest=$(printf '%s' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
