@@ -1,7 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: planned — story re-refined and slice plan refined; ready for direct
-execution of this story only. No implementation or release has been performed.
+Status: in progress — slices 1–5 done; next is slice 6 (Cursor native release).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -124,7 +123,7 @@ with the behavior they serve; do not create preparation-only technical layers.
 ### 1. Prepare the first release in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a committed usable payload and no release history, ask the
 internal skill in Codex to prepare `0.1.0` with a change description. It leaves
@@ -139,7 +138,7 @@ output enumeration described above to establish internal-only distribution.
 ### 2. Finalize a prepared release in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the prepared metadata and committed payload, ask the skill to
 finalize that same release. Its matching tag identifies the committed payload
@@ -154,7 +153,7 @@ success without claiming remote publication.
 ### 3. Prepare the next release while retaining its history
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a released `0.1.0`, request preparation of a chosen higher
 version with a new change description. New version/dated notes agree while the
@@ -168,7 +167,7 @@ the other tools. Finalization uses leaf 2's already-proven behavior.
 ### 4. Refuse to reuse an existing release tag
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an existing release tag, ask the skill to release that version
 again with different notes. It explains the conflict without changing the tag
@@ -181,7 +180,7 @@ than a new release. No force-tag, reset, or unrelated write appears in the trace
 ### 5. Refuse an unused version below the latest release
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given latest released `0.2.0` but no `v0.1.9` tag, request `0.1.9`.
 The skill rejects the non-increasing release even though that tag is unused.
@@ -266,12 +265,12 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Pending — 1–2 | Pending — 2–5 |
+| Codex | Done — 1–5 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, refuse unused 0.1.9 `01a0750f-d6a4-7911-a7e2-0ede4c930bc6`, CLI 0.153.4) | Done — 2–5 (later prepare, existing-tag refusal, unused-older refusal) |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
 Real maintainer self-use: pending — 8. Published release identity: pending — 9.
-Adopter output exclusion/regression: pending — 1. Record evidence with these
+Adopter output exclusion/regression: done — 1 (`bash tests/install-omits-internal.sh` and `bash tests/install.sh`). Record evidence with these
 rows during execution. Native success in one tool or copied files cannot fill
 another tool's row. Missing verification remains pending under the repository's
 [acceptance guard](../../../AGENTS.md).
@@ -303,3 +302,35 @@ release creation with publication; both are now split. The selected story no
 longer waits for any installer/updater or update-presentation work. Keep this
 compact evidence and any new learning as execution proceeds; reduce completed
 story detail to goal/scope only after its enduring behavior is documented.
+
+## Learnings
+
+- Native Codex proof used `/Applications/ChatGPT.app/Contents/Resources/codex`
+  0.153.4. PATH `codex` 0.144.1 remains too old (same as Story 1).
+- `$release-version` loaded the canonical `.agents/skills/release-version/SKILL.md`
+  with no Cursor/Claude discovery copy. Leaves 6–7 still need their own native
+  observations.
+- Fixture prepare wrote `VERSION` `0.1.0` and `## 0.1.0 - 2026-09-06` without a
+  tag or commit. Codex also added a `# Changelog` title. Unrelated staged and
+  unstaged sentinels and home `~/.codex/skills` / `~/.agents` checksums were
+  unchanged. Main repo still has no `VERSION`, `CHANGELOG.md`, or `v*` tag.
+- macOS `/tmp` vs `/private/tmp` can reject one `apply_patch`; writes to the
+  `-C` fixture path succeeded. Canonical skill already describes finalize, so
+  leaf 2 is native finalization proof rather than a second skill rewrite.
+- Leaf 2: `$release-version finalize 0.1.0` created annotated local `v0.1.0` on
+  `80ac178` (`Release 0.1.0`; files `VERSION`, `CHANGELOG.md` only). Staged and
+  unstaged sentinels survived and were not in the tag commit. Output reported
+  local finalize and no push. `-s workspace-write` was enough for prepare
+  file writes; commit+tag needed a sandbox that can write `.git` (`danger-full-access`
+  in the fixture after workspace-write hit `.git/index.lock`).
+- Leaf 3: `$release-version prepare 0.1.1` after fixture `v0.1.0` on `4557674`
+  wrote `VERSION` `0.1.1` and `## 0.1.1 - 2026-09-06`, left the 0.1.0 changelog
+  entry bytes unchanged (sha256 `9fda157d…`), and did not move `v0.1.0` or
+  create `v0.1.1` or a commit.
+- Leaf 4: `$release-version prepare 0.1.0` with different notes refused because
+  `v0.1.0` already existed. Tag peel `7df8e0a` / object `9e443c9` and
+  VERSION/CHANGELOG bytes were unchanged; trace had no force-tag, reset, or
+  metadata write.
+- Leaf 5: `$release-version prepare 0.1.9` with latest fixture `v0.2.0` and no
+  `v0.1.9` refused for numeric ordering (not an existing-tag conflict). HEAD
+  `b4855ab`, tag object `0460428`, and VERSION/CHANGELOG bytes unchanged.
