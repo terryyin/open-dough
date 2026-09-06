@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–6 done; next is slice 7 (Claude Code native release).
+Status: in progress — slices 1–7 done; next is slice 8 (first real release).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -205,7 +205,7 @@ only a thin discovery entry if needed; do not reimplement the release logic.
 ### 7. Produce a release through Claude Code's native internal skill
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the same shared skill and earlier release, invoke
 `/release-version` in Claude Code to produce a chosen higher tagged release.
@@ -267,7 +267,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 | --- | --- | --- |
 | Codex | Done — 1–5 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, refuse unused 0.1.9 `01a0750f-d6a4-7911-a7e2-0ede4c930bc6`, CLI 0.153.4) | Done — 2–5 (later prepare, existing-tag refusal, unused-older refusal) |
 | Cursor | Done — 6 (`/release-version` loaded `.agents/skills/release-version/SKILL.md`; finalize 0.1.1 `1bd99d48-723d-4d9d-b280-ffe3328ab543`; `agent` 2026.04.13-a9d7fb5). No `.cursor/skills/release-version` added. | Done — 6 (fixture `v0.1.1` on `de98407`; `v0.1.0` unchanged; 0.1.0 notes byte-identical; sentinels and home guidance unchanged) |
-| Claude Code | Pending — 7 | Pending — 7 |
+| Claude Code | Done — 7 (`/release-version` selected `.claude/skills/release-version/SKILL.md` then followed canonical `.agents/skills/release-version/SKILL.md`; finalize 0.1.1 `b26a6196-a048-4d0f-b302-691e5661cb83`; CLI 2.1.263). First invoke without the thin entry was `Unknown command`. | Done — 7 (fixture `v0.1.1` on `d72f69b`; `v0.1.0` unchanged; 0.1.0 notes byte-identical; sentinels and home guidance unchanged) |
 
 Real maintainer self-use: pending — 8. Published release identity: pending — 9.
 Adopter output exclusion/regression: done — 1 (`bash tests/install-omits-internal.sh` and `bash tests/install.sh`). Record evidence with these
@@ -339,3 +339,8 @@ story detail to goal/scope only after its enduring behavior is documented.
   `v0.1.1` on `de98407` (VERSION/CHANGELOG only); `v0.1.0` and 0.1.0 notes
   unchanged. Print-mode used the logged-in Cursor session token; do not
   record that token.
+- Leaf 7: Claude Code 2.1.263 does not discover `.agents/skills`. A thin
+  `.claude/skills/release-version/SKILL.md` pointer was required after a native
+  unknown-command. Finalize 0.1.1 then loaded the pointer and followed the
+  canonical skill. Fixture `v0.1.1` on `d72f69b`; `v0.1.0` and 0.1.0 notes
+  unchanged.
