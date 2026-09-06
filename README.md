@@ -325,6 +325,18 @@ The installer and updater use a shallow clone of the supplied repository's defau
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 
+## Maintainers
+
+Open Dough maintainers prepare and tag source releases with the internal
+`release-version` skill in this repository (`$release-version` in Codex,
+`/release-version` in Cursor or Claude Code). It writes `VERSION` and
+`CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
+acceptance guard are not installed into adopting projects.
+
+Installation and `dough-update` still use a shallow clone of the supplied
+repository's default branch. A source version tag does not change that
+behavior; version-aware updates are not implemented yet.
+
 ## License
 
 Open Dough is open source under the [MIT License](LICENSE).

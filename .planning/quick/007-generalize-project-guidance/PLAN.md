@@ -49,9 +49,10 @@ Retaining recognition information is included; acting on it belongs to Stories
 ## Execution context and current decisions
 
 - Baseline incorporated: planning commit `aaaf7ec` was continued on
-  `codex/generalize-project-guidance` and merged with `main` at `6af6445`.
-  The completed internal `release-version` skill and its installer-exclusion
-  proof are present and must remain internal.
+  `codex/generalize-project-guidance`, first merged with `main` at `6af6445`,
+  then synchronized after slice 4 with `main` at `15ab9cd`. The completed
+  internal `release-version` skill, native host adaptations, release metadata,
+  and installer-exclusion proof are present and must remain internal.
 - `install.sh` currently copies only `src/skills/dough-update/SKILL.md` into the
   selected tool's skill directory. `tests/install.sh` exercises all three
   platforms, ordinary-repeat protection, forced replacement, and preservation.
@@ -61,11 +62,11 @@ Retaining recognition information is included; acting on it belongs to Stories
   documentation and installed updater adaptations; do not relax it to arbitrary
   project writes.
 - [Accepted ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  governs future tagged releases. At the incorporated baseline, release metadata
-  preparation is complete but version-aware install/update selection is not:
-  the updater still fetches the supplied repository's default branch. This story
-  changes only the eligible payload and must not claim or pre-empt the pending
-  tagged-selection stories. Publishing a release remains outside this request.
+  governs tagged releases. Release `v0.1.0` has now been published, but
+  version-aware install/update selection is still not implemented: the updater
+  fetches the supplied repository's default branch. This story changes only the
+  eligible payload and must not claim or pre-empt the pending tagged-selection
+  stories. Publishing another release remains outside this request.
 - Proposed internal name: `extract-guidance`. Use one internal behavioral source
   and minimal discovery adaptations, following the internal-skill convention
   present at execution. Do not place it in the distributed public payload.
@@ -386,9 +387,10 @@ Planning observations that affect execution:
   changing a path alone would not prove preservation of its decision behavior.
 - Both installer and updater enforce a single-skill payload today; distribution
   cannot be completed by editing the installer alone.
-- Incorporated release work adds internal `release-version` and explicit installer
-  exclusion evidence but does not yet implement tagged install/update selection.
-  Preserve that internal/public boundary and ADR 0003's future contract.
+- Incorporated release work adds internal `release-version`, thin native host
+  adaptations, published `v0.1.0` metadata, and explicit installer-exclusion
+  evidence, but not tagged install/update selection. Preserve that internal/public
+  boundary and ADR 0003's version-selection contract.
 - The user explicitly selected Doughnut's `adr-awareness` skill as the first
   extraction example. Its public form is `dough-adr-awareness`; the internal skill
   remains source-selectable. Standalone public-rule distribution is outside this
