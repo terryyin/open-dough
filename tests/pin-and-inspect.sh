@@ -72,6 +72,8 @@ assert_payload "${target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
 assert_sentinels "${target}"
 [[ ! -s "${leak}" ]]
 
+pinned_commit=${commit}
+
 # Direct installation follows the public guide after a separate inspection.
 # The fixture knows the peeled commit; native runs prove agent tag selection.
 install_inspected_release() (
@@ -98,6 +100,18 @@ install_inspected_release() (
     cat "${snapshot}/${inspected_file}" > /dev/null
     printf '%s\n' "${inspected_file}" >> "${install_dir}.inspection"
   done
+
+  if [[ ${3:-} == stale ]]; then
+    # A valid higher release appears only after the old snapshot was inspected.
+    write_candidate_payload "${fixture}" 0.1.11 payload-0.1.11
+    commit_all "${fixture}" 'release 0.1.11 after inspection'
+    tag_release "${fixture}" 0.1.11 '2026-09-06T12:00:00'
+    bash "${source_dir}/src/install/open-dough-release.sh" validate-checkout "${fixture}" > /dev/null
+    # Keep pre-cleanup HEAD and tracked-byte evidence outside the owned child.
+    trap 'git -C "${snapshot}" rev-parse HEAD > "${install_dir}.head";
+      git -C "${snapshot}" diff --exit-code HEAD > "${install_dir}.diff";
+      rm -rf -- "${install_dir}"' EXIT
+  fi
 
   # Exact post-inspection resolve/compare/validate/direct-install sequence.
   resolved=$(bash "${snapshot}/src/install/open-dough-release.sh" resolve-url "${source_url}")
@@ -165,4 +179,28 @@ head_after=$(git -C "${poisoned}" rev-parse HEAD)
 poisoned_head=$(git -C "${fixture}" rev-parse HEAD)
 [[ "${head_after}" == "${poisoned_head}" ]]
 
-echo "PASS: git bootstrap executes only the inspected pinned release; default-branch helper never runs on that path; apply --checkout does not replace inspected files."
+stale_target="${temporary_dir}/stale project"
+prepare_target "${stale_target}"
+cp -R -- "${stale_target}" "${temporary_dir}/stale before"
+stale_checkout="${temporary_dir}/stale checkout"
+trace="${temporary_dir}/stale.trace"
+: > "${trace}"
+: > "${leak}"
+export OPEN_DOUGH_TRACE="${trace}"
+# Capture failure without disabling errexit inside the workflow via an if-call.
+set +e
+output=$(install_inspected_release "${stale_target}" "${stale_checkout}" stale 2>&1)
+stale_status=$?
+set -e
+[[ "${stale_status}" -ne 0 ]]
+[[ "${output}" == *'Release selection changed after inspection; not replacing inspected files or installing.'* ]]
+[[ "${output}" != *'Installed Open Dough'* && "${output}" != *'Recorded version'* ]]
+[[ ! -s "${trace}" && ! -s "${leak}" ]]
+diff -r "${temporary_dir}/stale before" "${stale_target}"
+assert_sentinels "${stale_target}"
+head_before_cleanup=$(cat "${stale_checkout}.head")
+[[ "${head_before_cleanup}" == "${pinned_commit}" ]]
+[[ ! -s "${stale_checkout}.diff" ]]
+[[ ! -e "${stale_checkout}" && -d "${temporary_dir}" ]]
+
+echo "PASS: git bootstrap executes only the inspected pinned release; default-branch helper never runs on that path; apply --checkout does not replace inspected files; direct install cleans its checkout and refuses a valid newer selection without writes or repinning."

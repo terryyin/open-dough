@@ -1,6 +1,6 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: EXECUTING.** Refined 2026-09-06; slice 1 completed 2026-09-06.
+**Status: EXECUTING.** Refined 2026-09-06; slices 1–2 completed 2026-09-06.
 Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
 Source: [SEED-001, Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release).
@@ -182,7 +182,7 @@ framework or public executable. Native guide-following remains slices 3–5.
 
 ### 2. Refuse a newly selected release after inspection
 Type: Behavior
-Status: planned
+Status: completed 2026-09-06
 Proof: One stale-selection case added to the same direct-install fixture; run
 `bash tests/pin-and-inspect.sh` and applicable shell lint.
 
@@ -206,6 +206,20 @@ Stop-safe boundary: the new refusal example and unchanged success/updater
 assertions are green; no intentionally failing test is left for another slice.
 Sizing: about five minutes including the fixture change, checks, cleanup, and
 record; medium confidence. One new cause and one refusal observation.
+
+Execution evidence (2026-09-06): added one valid `v0.1.11` release after
+inspection of `v0.1.10`, using the existing payload/commit/tag helpers and checking
+that the new metadata validates. The same direct-install sequence returned
+nonzero with `Release selection changed after inspection; not replacing inspected
+files or installing.` No installer trace, success report, branch execution, or
+target difference occurred. Before workflow cleanup, recorded HEAD still matched
+the original peeled commit and `git diff HEAD` was empty; afterward the child
+checkout was absent while the outer fixture and assertions remained. The EXIT
+observer only records evidence before the workflow's existing removal; it does
+not add a product cleanup path. Original success/updater cases remained green.
+`bash tests/pin-and-inspect.sh`, ShellCheck, shfmt, and `git diff --check` passed.
+About two minutes active work. E3–E4 still own other failure causes; no shared
+code or refusal wording needed changing.
 
 ### 3. Install safely from the corrected instructions in Cursor
 Type: Behavior
