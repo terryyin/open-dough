@@ -53,8 +53,8 @@ assert_sentinels() {
 }
 
 expect_files() {
-  local expected=$1
-  local actual
+  local expected actual
+  expected=$(cat || true)
   actual=$(list_files "${target}")
   if [[ "${actual}" != "${expected}" ]]; then
     echo "FAIL: installed outputs did not match the expected enumeration." >&2
@@ -74,15 +74,13 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
-  cat << 'EOF'
+expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
 
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -91,8 +89,7 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
-  cat << 'EOF'
+expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
@@ -100,7 +97,6 @@ expect_files "$(
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
 
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -111,8 +107,7 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
-  cat << 'EOF'
+expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
@@ -121,6 +116,5 @@ expect_files "$(
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
 
 echo "PASS: installer writes only managed dough-update SKILL.md for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, AGENTS.md, and CLAUDE.md."
