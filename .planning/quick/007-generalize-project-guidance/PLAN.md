@@ -170,10 +170,18 @@ citation, conflict reporting, and human-owned exceptions intact.
 
 ### 4. Withhold suitability when essential behavior cannot be preserved
 Type: Behavior
-Status: planned
+Status: done
 Proof: Invoke the extractor on a bounded fixture whose required context is absent;
 its output names the gap and keeps the candidate out of installable payload.
 Include a rule-application example in the same focused rejection scenario.
+
+Evidence: Native Codex initially exposed that the extractor still drafted an
+unusable candidate; after the focused correction, a fresh run produced only
+`ASSESSMENT.md`, labeled `suitability unresolved — no candidate produced`, and
+separately named the absent required policy and the automatic-rule/on-demand-skill
+delivery gap. No `SKILL.md`, `RECOGNITION.md`, or `src/` output existed, and the
+source SHA-256 remained
+`e43f2553b7899d0a3875ade17fb370df348eb4d538cc5b31de04a1d4b2c407c6`.
 
 Behavior: A supplied rule requires automatic application that the candidate's
 available delivery cannot preserve → assess extraction → report the unresolved

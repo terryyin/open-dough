@@ -31,9 +31,20 @@ payload.
      irrelevant local-machine paths;
    - do not invent a broader framework or extract sibling guidance.
 
+   For a rule, compare its application conditions with the proposed public
+   delivery before drafting anything. A manually invoked or on-demand skill
+   does not preserve an automatic or `alwaysApply` rule. Record that as a
+   distinct delivery gap even when missing required context independently
+   blocks extraction.
+
    If required context is unavailable, or a rule's automatic application
-   cannot be preserved by the proposed delivery, describe the unresolved gap
-   and do not present or place the candidate as installable public guidance.
+   cannot be preserved by the proposed delivery, stop candidate creation. In
+   the requested output directory, write only `ASSESSMENT.md` with the source
+   type and scope, reusable behavior, required context, every unresolved gap,
+   and what would be needed to resume. Do not create `SKILL.md` or
+   `RECOGNITION.md`, even as drafts. Label the outcome
+   `suitability unresolved — no candidate produced`; do not present or place it
+   as installable public guidance.
 
 4. Name a skill candidate `dough-<source-name>`, normalizing the source name to
    lowercase kebab-case and avoiding a second `dough-` prefix. Write a
@@ -64,8 +75,12 @@ payload.
    provenance and must never be a recognition requirement. `Validation needed`
    must name the behavioral comparison still required before distribution.
 
-5. Recompute the inspected-source checksums and compare them with step 2.
-   Report the candidate directory, the generalized assumptions, and the
-   unchanged-source result. Label the result `draft — unverified substitute`.
-   Do not move it into `src/`, describe it as suitable, or claim successful
-   extraction when checksums changed or an unresolved gap remains.
+5. Recompute the inspected-source checksums and compare them with step 2. For a
+   completed candidate draft, report the candidate directory, the generalized
+   assumptions, and the unchanged-source result, labeled
+   `draft — unverified substitute`. For an unresolved assessment, report the
+   assessment path, both the missing-context and delivery gaps when applicable,
+   and the unchanged-source result, labeled
+   `suitability unresolved — no candidate produced`. Do not move either result
+   into `src/`, describe it as suitable, or claim successful extraction when
+   checksums changed or an unresolved gap remains.
