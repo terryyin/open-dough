@@ -422,9 +422,9 @@ and helper-size corrections.
 
 ### 5d. Publish extracted guidance and the version-aware updater
 
-- **Status:** Refined 2026-09-06; publication remains unfinished. This story
-  governs the next planning pass. The provisional
-  [plan](../quick/010-publish-version-aware-updater/PLAN.md) remains non-executable.
+- **Status:** Complete 2026-09-06. The [plan](../quick/010-publish-version-aware-updater/PLAN.md)
+  records preparation, local finalization, exact-tag publication, and an
+  independent public fetch of annotated `v0.2.0` at `676188a`.
 - **Depends on:** Completed safe installation (5a), recorded updating (5b), and
   [ADR-awareness extraction](SEED-004-extract-and-adopt-project-guidance.md#generalize-project-guidance).
   Their accepted behavior is already available on `main`.
@@ -494,11 +494,11 @@ must retain native discovery, invocation, intended ADR behavior, installation,
 recorded updating, and coexistence evidence; file equality alone cannot replace
 a missing native observation.
 
-| Platform | Native evidence retained while unchanged | Publication evidence still needed |
+| Platform | Native evidence retained while unchanged | Publication evidence completed |
 | --- | --- | --- |
-| Codex | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Pending: verify the published snapshot preserves the covered shared behavior and Codex mapping; record its actual URL, tag, and commit. |
-| Cursor | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Pending: the same release-identity check with Cursor's mapping preserved; no inference from Codex success. |
-| Claude Code | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Pending: the same release-identity check with Claude Code's mapping preserved; no inference from another tool's success. |
+| Codex | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Codex mapping were unchanged; the public `v0.2.0` complete tree matches the finalized tree. |
+| Cursor | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Cursor mapping were unchanged; the same independently fetched complete tree preserves it. |
+| Claude Code | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Claude Code mapping were unchanged; the same independently fetched complete tree preserves it. |
 
 The unchanged internal release workflow has separate native discovery/invocation,
 prepare/finalize, and coexistence evidence for all three tools in
@@ -506,11 +506,13 @@ prepare/finalize, and coexistence evidence for all three tools in
 publication and fresh-fetch observation can establish release availability for
 the common source; it does not claim new native self-use or Donut replacement.
 
-#### Open decision
+#### Release outcome
 
-The maintainer has not chosen the release number or final release-note wording.
-Choose them during release preparation; the existing contract already defines
-validity. This does not block story refinement or require another product feature.
+The maintainer chose `0.2.0` and the scoped notes. Annotated tag
+`426acffe15d6227098d1282a3115690d7569cdf4` peels to
+`676188a66504f7dc751e03311f9be5245757b24a`; a fresh repository fetched that
+exact highest numeric release from `https://github.com/terryyin/open-dough.git`
+and matched its complete tree. Story 5e owns adoption.
 
 <a id="adopt-version-aware-updater"></a>
 
@@ -614,23 +616,23 @@ subsequently refined to five remaining slices, all now accepted. The spent
 Quick 005 and Quick 008 plans were dropped after completion; their evidence is
 summarized in Stories 5b and 5a above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
+Quick 010 now has three refined release slices mapped to original leaves 35–36.
 The other unfinished split plans remain explicitly not executable until their
 stories and slices are refined again.
 
 ## Open Decisions
 
 - Story 5a is complete with all five slices accepted and earlier evidence retained.
-  Story 5d is refined; its release number and final notes remain for the
-  maintainer to choose, and its provisional plan still needs a separate planning
-  pass. Story 5e needs refinement for the smallest real self-use check.
+  Story 5d is complete with independently verified public `v0.2.0`. Story 5e
+  needs refinement for the smallest real self-use check.
   Story 6 needs refinement when manual release-note reading becomes a pain;
   local-edit conflict handling stays outside.
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) now starts with Stories 5d and 5e
-before SEED-004's first ADR-awareness replacement and places Story 6 later.
-[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4, 5a, and 5b. Execute only a selected story with a
+The [product backlog](../PRODUCT-BACKLOG.md) now starts with Story 5e before
+SEED-004's first ADR-awareness replacement and places Story 6 later.
+[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4, 5a, 5b, and 5d. Execute only a selected story with a
 refined plan; do not chain the provisional plans as one delivery.
 
 ## Breadcrumbs
