@@ -8,6 +8,12 @@ The aim is to define the lifecycle once, reuse it across projects, and make it u
 
 > **Status:** Initial project definition. This repository does not yet contain the lifecycle content, platform integrations, or an installer. The installation and update behavior described below is the intended design.
 
+## Inspiration and name
+
+Open Dough is inspired by the [Donut project](https://github.com/nerds-odd-e/doughnut) and the development practices behind it.
+
+Dough is a flexible raw material: you can shape it into many things, and a donut is one specific product made from it. Open Dough carries that idea into software development, making the practices behind Donut reusable and adaptable so other projects can shape them into products of their own.
+
 ## What Open Dough shares
 
 Open Dough is the source of the shared lifecycle definition. Each adopting project receives the parts it needs to put that definition into practice.
