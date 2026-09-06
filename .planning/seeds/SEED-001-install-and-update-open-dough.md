@@ -118,25 +118,66 @@ Open Dough's Codex installation and use it in a fresh session.
 
 ### 3. Use and update Open Dough guidance in Cursor and Claude Code projects
 
-- **Status:** Unfinished; queued.
-- **For / why:** As a team using Cursor and Claude Code, adopt the same shared
-  guidance and update flow already usable in Codex within our projects.
-- **Outcome and scope:** Extend project installation and simple updates to
-  Cursor and Claude Code together. Use the same shared skill and rules; platform
-  adaptation should not require maintaining separate lifecycle definitions.
-- **Evaluation:** In each tool, install from the supplied URL into a project,
-  invoke the skill, push a shared source improvement, and apply latest through
-  update. Both tools demonstrate the improved behavior. Selected integrations
-  can coexist in a project; no home-level guidance is changed. The initial
-  update remains unconditional, without version detection.
-- **Value / learning:** Gives the team the same usable install/update workflow
-  across the remaining two tools named in the product scope.
-- **Effort hypothesis:** L (2–4 hours), low confidence; assumes reuse of Stories
-  1–2 with focused adaptation for two tools. The owner requested these platforms
-  together; verify each tool separately within this story during refinement.
-- **Depends on:** Stories 1–2's working Codex installation and update journey.
-- **Safe stopping point:** All three platforms are usable without version
-  detection or a broader lifecycle catalogue.
+- **Status:** Unfinished; refined 2026-09-06.
+- **Execution plan:** [Cursor then Claude Code](../quick/003-cursor-claude-guidance/PLAN.md).
+  The owner will hand the plan to each tool separately; Cursor completes its
+  part and records the handoff before Claude Code begins.
+
+#### Goal
+
+As a developer using Cursor or Claude Code, install and invoke `dough-update`
+in my project and use a pushed source improvement after updating. Learn whether
+the small loop already demonstrated in Codex works in both additional tools.
+
+#### Scope
+
+- Support Cursor and Claude Code together in this story, demonstrating each
+  separately. Install only the existing `dough-update` skill into the target
+  project from the supplied repository URL.
+- Reuse the shared updater behavior, adapting only what each tool needs to
+  discover, invoke, and refresh its installed skill. Do not maintain separate
+  update workflows for the tools.
+- Working assumption: installation explicitly selects the intended tool, and
+  update refreshes that tool's installation. Installing or updating one tool
+  does not require installing or synchronizing the others. Existing Codex use
+  remains available; selected integrations can coexist in the same project.
+- Supply the source URL for each update. Fetch and apply its latest default
+  branch every time, including when content is unchanged. Report success only
+  after installation succeeds, and explain how to use the refreshed skill.
+- Preserve the existing installation contract: an ordinary repeat for the
+  selected tool warns and stops; explicit `--force` reinstall replaces its
+  installed skill, including local edits. Routine update examples assume
+  unedited installed copies; customization and conflict policy remain deferred.
+- Preserve distributable source, unrelated project content, other tools'
+  separate installations, and home-level guidance.
+- Exclude additional skills, rules distribution, global installation, version
+  tracking, release publication, source-URL persistence, automatic platform
+  discovery, cross-tool synchronization, migrations, and comprehensive edge
+  cases. No broader lifecycle catalogue is needed to prove this story.
+
+#### Key examples
+
+1. **Install and use in each tool:** Starting with an existing project without
+   that tool's Open Dough installation, install from the supplied URL for
+   Cursor, then repeat the example for Claude Code. In a fresh session of each
+   tool, discover and invoke `dough-update` with the source URL. It successfully
+   refreshes that tool's project-local installation.
+2. **Use a shared improvement:** With unedited copies installed in both tools,
+   push one observable wording improvement to the shared source's default
+   branch. Invoke update in Cursor and in Claude Code separately. Each receives
+   the improvement, and a fresh session in each tool demonstrates it. A second
+   invocation without another source change still fetches and reapplies latest.
+3. **Coexist and reinstall:** In a project with Codex already installed, add
+   Cursor and Claude Code. An ordinary repeat installation for either new tool
+   stops without changing its copy; an explicit forced reinstall replaces that
+   copy. Updating either tool preserves the other tools' separate installations,
+   distributable source, unrelated project files, and home-level guidance.
+
+No blocking product questions remain under the working assumption above.
+Native discovery, invocation, and refresh need verification in both tools;
+copying files alone is not completion. Exact command syntax and destination
+paths are implementation details to resolve during slice planning. The safe
+stopping point is one usable install/update loop in each of the three tools.
 
 <a id="detect-installed-version"></a>
 
