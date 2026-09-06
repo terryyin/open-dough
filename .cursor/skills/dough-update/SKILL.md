@@ -18,6 +18,15 @@ or update flow, fetch a source, or call an installer for an assessment-only
 request. Assessment permission is not cleanup authorization. Report a current
 installed version separately from optional cleanup that may still be pending.
 
+If the developer authorizes replacement using the already-installed Open Dough
+ADR guidance, read the same recognition record and follow its **Retain adopter
+context before cleanup** section. Reuse replacement authorization in the request
+and do not ask for it again. This preparation stops before caller repair or
+removal and reports cleanup pending. Do not fetch a source or invoke the installer
+unless the developer also requested an install or update; an already-current
+installation may prepare authorized context without rewriting its payload or
+`VERSION` record.
+
 1. Capture the target project's absolute path before fetching anything. Use the
    current project unless the user supplied another target.
 2. Use the repository URL supplied by the user. If none was supplied, ask for

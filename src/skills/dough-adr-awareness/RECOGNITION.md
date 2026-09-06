@@ -123,7 +123,8 @@ perform cleanup.
 
 After equivalence is established and the developer has authorized replacement,
 prepare the adopter context before repairing callers or removing the original.
-This preparation does not itself authorize or perform cleanup.
+Reuse authorization already present; do not ask for it again. This preparation
+does not itself perform caller repair or cleanup.
 
 1. Reinspect the original and the adopter's existing architecture guidance.
    Use that local architecture guidance as the home for required facts that are
@@ -148,6 +149,12 @@ This preparation does not itself authorize or perform cleanup.
    unchanged. Report context preparation separately from cleanup and keep the
    replacement pending until a later authorized step has a usable replacement
    for every affected native integration.
+6. Verify every original-only value individually. Missing even one required
+   trigger area or exception-trail choice blocks a preparation-complete claim;
+   keep the original and callers intact and name the missing value.
+7. Report the exact retained values, the one architecture-guidance path changed,
+   the inspected source/tag/commit/version, and caller cleanup and original
+   removal as pending. Do not create a migration state file.
 
 ## Evaluation status
 

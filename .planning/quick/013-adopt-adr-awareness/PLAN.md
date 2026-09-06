@@ -7,10 +7,10 @@
   `400f530`.
 - Planning method: borrowed Donut's `slice-planning`, then
   `slice-plan-refinement`, with its planning and decomposition rules.
-- Status: slices 1–3 are done. Slice 4 exceeded its bounded loop and was refined
-  in place into Behavior leaves 4 and 4a; execution resumes from 4. Current
-  scope and story order remain unchanged. First-install and real-adoption gates
-  still apply.
+- Status: slices 1–4 are done. Slice 4 exceeded its original bounded loop and
+  was refined in place into Behavior leaves 4 and 4a; execution resumes from
+  4a. Current scope and story order remain unchanged. First-install and
+  real-adoption gates still apply.
 - Execution CI observer: key
   `ci-watch-execution:terryyin/open-dough:codex/adopt-adr-awareness-execution:/root`,
   PTY session `23441`, PID `20830`, checkout
@@ -165,8 +165,9 @@ real miss: Codex removed the original without retaining the required leading
 cross-cutting trigger facts. The combined proof also mixed an inspectable safe
 context-preparation outcome with caller repair/removal. It is replaced by
 Behavior 4 (retain and verify context while the original remains) and Behavior
-4a (repair callers and remove the now-redundant original). WIP is parked at
-stash `2069543f1c2a494479c4a9a503bccda4e8120781` for selective reuse.
+4a (repair callers and remove the now-redundant original). The parked WIP from
+stash `2069543f1c2a494479c4a9a503bccda4e8120781` was restored after refinement;
+the stash was dropped and the retained changes were narrowed to Behavior 4.
 Learning-escalation reassessment keeps Story 4: slices 1–3 delivered its stated
 assessment and preparation boundary, and the failure changes only proof/order
 inside this leaf, not the beneficiary, outcome, scope, examples, or sibling
@@ -287,7 +288,7 @@ green; no context transfer or cleanup was performed.
 
 ### 4. Retain required context during authorized adoption preparation
 Type: Behavior
-Status: planned
+Status: done
 Proof: Native Codex receives replacement authorization once on slice 3's
 single-integration fixture and performs only the safe preparation beat. Observe
 every required trigger and exception-trail value transferred from the original
@@ -301,6 +302,18 @@ caller cleanup while its working original remains. Strengthen the shared
 instructions so missing required facts block removal rather than accepting a
 completion claim. Sizing: about five minutes plus one native-process wait;
 medium confidence. No caller repair or removal occurs in this leaf.
+
+Evidence (2026-09-06): fresh `codex-cli 0.144.1` invoked the installed
+`$dough-update` from fixture release `v0.1.0` at
+`168c4400c9b0ee6300237e5e0e52b3067485d1a5`. It reused the one supplied
+replacement authorization, retained and individually verified every original
+trigger and exception value, and changed only
+`.cursor/rules/architecture-decisions.mdc`. The original, all callers, public
+payload and version record, ADR store/index/statuses/decisions, unrelated
+guidance, and other-host guidance remained unchanged; no install or source fetch
+ran, and caller repair, original removal, and native replacement use remain
+pending. The refactor gate split the capability test into 195- and 153-line
+files and passed its focused native and supporting proofs.
 
 ### 4a. Switch callers and remove the now-redundant original
 Type: Behavior

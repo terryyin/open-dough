@@ -105,6 +105,17 @@ prepare_donut_adr_assessment_target() {
   bash "${candidate}/install.sh" --target "${target}" --platform codex
 }
 
+prepare_donut_adr_codex_adoption_target() {
+  local target=$1
+  local candidate=$2
+
+  prepare_donut_adr_assessment_target "${target}" "${candidate}"
+
+  # Bound native mutation scenarios to the one Codex integration under test.
+  # The full assessment fixture still covers the shared Claude discovery link.
+  rm -- "${target}/.claude/skills/adr-awareness"
+}
+
 build_latest_fixture() {
   local repo=$1
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
@@ -8,6 +8,9 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 # shellcheck disable=SC1091
 # shellcheck source=tests/support/native-codex.sh
 source "${source_dir}/tests/support/native-codex.sh"
+# shellcheck disable=SC1091
+# shellcheck source=tests/support/adr-adoption-codex-preparation.sh
+source "${source_dir}/tests/support/adr-adoption-codex-preparation.sh"
 
 recognition="${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md"
 updater="${source_dir}/src/skills/dough-update/SKILL.md"
@@ -17,12 +20,32 @@ grep -Fq 'Assessment is read-only.' "${recognition}"
 grep -Fq 'actual repository-relative callers and discovery' "${recognition}"
 grep -Fq 'readiness in Codex, Cursor, and Claude Code remains pending' \
   "${recognition}"
+grep -Fq '## Retain adopter context before cleanup' "${recognition}"
+grep -Fq 'do not ask for it again' "${recognition}"
+grep -Fq 'Verify every original-only value individually' "${recognition}"
+grep -Fq 'caller cleanup and original' "${recognition}"
 grep -Fq '../dough-adr-awareness/RECOGNITION.md' "${updater}"
 grep -Fq 'Do not begin the install' "${updater}"
+grep -Fq 'already-installed Open Dough' "${updater}"
+grep -Fq 'without rewriting its payload' "${updater}"
 
 temporary_dir=$(mktemp -d)
+failure_line=''
+failure_command=''
+capture_native_failure() {
+  local status=$?
+
+  failure_line=${BASH_LINENO[0]}
+  failure_command=${BASH_COMMAND}
+  return "${status}"
+}
 print_native_failure() {
   local status=$?
+  if ((status != 0)); then
+    printf '%s\n' '--- FAILED CODEX ADR-ADOPTION HARNESS LOCATION ---' >&2
+    printf 'line: %s\ncommand: %s\n' \
+      "${failure_line:-unknown}" "${failure_command:-unknown}" >&2
+  fi
   if ((status != 0)) && [[ -n ${output_file:-} && -f ${output_file} ]]; then
     printf '%s\n' '--- FAILED CODEX ADR-ADOPTION ASSESSMENT OUTPUT ---' >&2
     cat "${output_file}" >&2
@@ -34,12 +57,17 @@ print_native_failure() {
   rm -rf -- "${temporary_dir}"
   exit "${status}"
 }
+trap capture_native_failure ERR
 trap print_native_failure EXIT
 candidate="${temporary_dir}/exact tagged source"
 target="${temporary_dir}/donut assessment target"
 
 build_current_tagged_release_fixture "${candidate}"
-prepare_donut_adr_assessment_target "${target}" "${candidate}"
+if [[ ${2:-} == 'prepare' ]]; then
+  prepare_donut_adr_codex_adoption_target "${target}" "${candidate}"
+else
+  prepare_donut_adr_assessment_target "${target}" "${candidate}"
+fi
 
 version=$(cat "${source_dir}/VERSION")
 tag="v${version}"
@@ -59,17 +87,31 @@ installed_version=$(cat "${target}/.agents/skills/dough-update/VERSION")
 [[ ${installed_version} == "${version}" ]]
 
 before=$(snapshot_path_state "${target}")
+before_snapshot="${temporary_dir}/before.snapshot"
+printf '%s\n' "${before}" > "${before_snapshot}"
 [[ ${before} == *$'file\t.agents/skills/adr-awareness/SKILL.md\t'* ]]
-[[ ${before} == *$'symlink\t.claude/skills/adr-awareness\t../../.agents/skills/adr-awareness'* ]]
+if [[ ${2:-} == 'prepare' ]]; then
+  [[ ${before} != *$'symlink\t.claude/skills/adr-awareness\t'* ]]
+else
+  [[ ${before} == *$'symlink\t.claude/skills/adr-awareness\t../../.agents/skills/adr-awareness'* ]]
+fi
 
 if [[ $# == 0 ]]; then
+  adoption_target="${temporary_dir}/donut Codex adoption target"
+  prepare_donut_adr_codex_adoption_target "${adoption_target}" "${candidate}"
+  adoption_snapshot=$(snapshot_path_state "${adoption_target}")
+  [[ ${adoption_snapshot} == *$'file\t.agents/skills/adr-awareness/SKILL.md\t'* ]]
+  [[ ${adoption_snapshot} != *$'symlink\t.claude/skills/adr-awareness\t'* ]]
+  cmp "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" \
+    "${adoption_target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
   echo 'PASS: the Codex ADR-adoption assessment fixture contains the exact current tagged three-file payload, a behaviorally comparable local original, concrete callers/context, and complete byte/existence/symlink snapshot support.'
-  echo 'PENDING: native Codex assessment; run tests/adr-adoption-codex.sh --native assessment.'
+  echo 'PASS: the separate Codex adoption fixture bounds native mutation to one integration while retaining the original and other-host guidance.'
+  echo 'PENDING: native Codex assessment or authorized preparation; run tests/adr-adoption-codex.sh --native assessment or --native prepare.'
   exit 0
 fi
 
-if [[ $# != 2 || $1 != '--native' || $2 != 'assessment' ]]; then
-  echo 'usage: tests/adr-adoption-codex.sh [--native assessment]' >&2
+if [[ $# != 2 || $1 != '--native' || ! $2 =~ ^(assessment|prepare)$ ]]; then
+  echo 'usage: tests/adr-adoption-codex.sh [--native assessment|prepare]' >&2
   exit 2
 fi
 
@@ -77,6 +119,13 @@ command -v codex > /dev/null
 command -v jq > /dev/null
 
 native_codex_prepare "${temporary_dir}" "${candidate}"
+
+if [[ $2 == 'prepare' ]]; then
+  run_codex_adr_adoption_preparation \
+    "${target}" "${temporary_dir}" "${candidate}" "${before_snapshot}" \
+    "${source_dir}"
+  exit 0
+fi
 
 output_file="${temporary_dir}/codex-assessment-output.md"
 transcript="${temporary_dir}/codex-assessment-transcript.jsonl"
