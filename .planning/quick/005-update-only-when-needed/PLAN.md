@@ -138,13 +138,12 @@ target writes, and no child paths remaining.
 
 ### R4. Compare every accepted numeric version correctly
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Two versions accepted by the release contract contain leading-zero or
 large numeric components → compare or resolve latest → numeric ordering is
 correct without shell-arithmetic diagnostics or overflow.
-Proof: Focused comparison and tag-selection examples include `0.08.0` versus
-`0.9.0` and components beyond signed 64-bit range. Compare the numeric strings
-accepted by ADR 0003 without machine-integer conversion.
+Proof: `bash tests/compare-versions.sh` includes `0.08.0` versus `0.9.0`
+and components beyond signed 64-bit range; `resolve-url` selects `v0.9.0`.
 
 ### 21. Confirm current-version behavior in Cursor
 Type: Behavior

@@ -71,14 +71,52 @@ read_record() {
   printf '%s\n' "${version}"
 }
 
+strip_leading_zeros() {
+  local digits=$1
+
+  while [[ ${#digits} -gt 1 && ${digits} == 0* ]]; do
+    digits=${digits#0}
+  done
+  printf '%s\n' "${digits}"
+}
+
+compare_numeric_strings() {
+  local first=$1
+  local second=$2
+  local sorted first_sort
+
+  first=$(strip_leading_zeros "${first}")
+  second=$(strip_leading_zeros "${second}")
+  if [[ ${#first} -lt ${#second} ]]; then
+    printf '%s\n' older
+    return 0
+  fi
+  if [[ ${#first} -gt ${#second} ]]; then
+    printf '%s\n' newer
+    return 0
+  fi
+  if [[ "${first}" == "${second}" ]]; then
+    printf '%s\n' equal
+    return 0
+  fi
+  sorted=$(printf '%s\n%s\n' "${first}" "${second}" | LC_ALL=C sort)
+  first_sort=${sorted%%$'\n'*}
+  if [[ "${first_sort}" == "${first}" ]]; then
+    printf '%s\n' older
+    return 0
+  fi
+  printf '%s\n' newer
+}
+
 compare_versions() {
   local first=$1
   local second=$2
   local first_major first_minor first_patch
   local second_major second_minor second_patch
+  local relation
 
   if [[ "${first}" == "${second}" ]]; then
-    echo equal
+    printf '%s\n' equal
     return 0
   fi
   IFS=. read -r first_major first_minor first_patch << EOF
@@ -87,25 +125,15 @@ EOF
   IFS=. read -r second_major second_minor second_patch << EOF
 ${second}
 EOF
-  if [[ "${first_major}" -lt "${second_major}" ]]; then
-    echo older
+  relation=$(compare_numeric_strings "${first_major}" "${second_major}")
+  if [[ "${relation}" != equal ]]; then
+    printf '%s\n' "${relation}"
     return 0
   fi
-  if [[ "${first_major}" -gt "${second_major}" ]]; then
-    echo newer
+  relation=$(compare_numeric_strings "${first_minor}" "${second_minor}")
+  if [[ "${relation}" != equal ]]; then
+    printf '%s\n' "${relation}"
     return 0
   fi
-  if [[ "${first_minor}" -lt "${second_minor}" ]]; then
-    echo older
-    return 0
-  fi
-  if [[ "${first_minor}" -gt "${second_minor}" ]]; then
-    echo newer
-    return 0
-  fi
-  if [[ "${first_patch}" -lt "${second_patch}" ]]; then
-    echo older
-    return 0
-  fi
-  echo newer
+  compare_numeric_strings "${first_patch}" "${second_patch}"
 }
