@@ -1,10 +1,10 @@
 # Update Open Dough to the latest release only when needed
 
-Status: implementation delivered for leaves 1–16, 2026-09-06 — **native
-acceptance 17–34 and released self-use 35–42 remain pending**.
-Focused installer checks and `npm test` / `npm run lint` passed. Helper
-boundary, no-write observation, and failure seams were settled in this file
-during execution rather than by a separate refinement pass.
+Status: implementation delivered for leaves 1–16, 2026-09-06; native
+discovery and equal-version no-op recorded for Codex and Claude Code.
+Cursor fixture discovery/no-op was applied from this Open Dough Cursor
+session, not a fresh Cursor window opened on the fixture. Remaining native
+journeys 23–34 and released self-use 35–42 are pending.
 
 Source: [SEED-001, Story 5](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Previous outcome: [Story 4](../004-versioned-updates/PLAN.md).
@@ -27,7 +27,8 @@ with `--force` receive the candidate latest record.
 | 1–3 | done | `tests/install.sh`, `tests/install-omits-internal.sh` |
 | 4–7 | done | `tests/install-latest-release.sh` |
 | 8–16 | done | `tests/update-when-needed.sh` |
-| 17–34 | pending | native Codex 0.153.4, Cursor, and Claude Code 2.1.263 sessions |
+| 17–22 | partial | Codex 0.153.4 sessions `01a07569-9c9e-7412-bcae-87049e00f575` (discover) and `01a0756a-6ec7-7d92-8f1a-3938020d2f33` (no-op); Claude Code 2.1.263 `e2c8f582-0545-44b3-8037-b1f1b8a397d4` (discover) and `d96a0228-7b0d-48e0-8dd7-ee998e0fc347` (`/dough-update` no-op); Cursor apply `--platform cursor` no-op from this Open Dough session with write-guard. Fixture tag `v0.1.10` commit `7820aae8782d98547265e99016a4ffc549039390`. |
+| 23–34 | pending | older/unknown/newer/legacy native journeys |
 | 35–42 | pending | maintainer-chosen version, publication, Open Dough self-use |
 
 ## Goal and scope
@@ -336,16 +337,16 @@ For each row, record tool/version, selected discovery path, actual invocation,
 fixture URL/tag/commit, before/after target state, and session/transcript reference.
 Run with all integrations present; compare other copies/records, source, project
 sentinels, and home guidance. A text claim by the tool is insufficient without
-observing the installed result. All evidence is currently **pending**.
+observing the installed result. Fixture used: `/tmp/open-dough-native-xMRD7V`.
 
 | Leaf / capability | Type | Status | Behavior: pre-condition → trigger → result | Outside-in proof |
 | --- | --- | --- | --- | --- |
-| 17. Discover a fresh Codex installation | Behavior | planned | No Codex copy → documented install → latest candidate skill is natively discoverable | Actual Codex skill discovery identifies `.agents/skills/dough-update`; selected record matches pinned release; inspect preservation. |
-| 18. Discover a fresh Cursor installation | Behavior | planned | No Cursor copy → documented install → latest candidate skill is natively discoverable | Actual Cursor discovery selects `.cursor/skills/dough-update` with `.agents` also present; inspect record and preservation. |
-| 19. Discover a fresh Claude Code installation | Behavior | planned | No Claude copy → documented install → latest candidate skill is natively discoverable | Actual Claude Code discovery selects `.claude/skills/dough-update`; inspect record and preservation. |
-| 20. Keep Codex current without writes | Behavior | planned | Codex records latest → fresh-session `$dough-update` → current/no writes | Native invocation trace plus target write observation from 8; verify source/tool/version output. |
-| 21. Keep Cursor current without writes | Behavior | planned | Cursor records latest → fresh-session `/dough-update` → current/no writes | Same independent observation for Cursor, including correct selected path. |
-| 22. Keep Claude Code current without writes | Behavior | planned | Claude records latest → fresh-session `/dough-update` → current/no writes | Same independent observation for Claude Code. |
+| 17. Discover a fresh Codex installation | Behavior | done | No Codex copy → documented install → latest candidate skill is natively discoverable | Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575` loaded `/private/tmp/open-dough-native-xMRD7V/codex-project/.agents/skills/dough-update/SKILL.md`; VERSION `0.1.10`. |
+| 18. Discover a fresh Cursor installation | Behavior | partial | No Cursor copy → documented install → latest candidate skill is natively discoverable | CLI installed `.cursor/skills/dough-update` with `.agents` present. This Open Dough Cursor session read that path; a fresh Cursor window on the fixture is still pending. |
+| 19. Discover a fresh Claude Code installation | Behavior | done | No Claude copy → documented install → latest candidate skill is natively discoverable | Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4` selected `.claude/skills/dough-update` (not `.agents`/`.cursor`); VERSION `0.1.10`. |
+| 20. Keep Codex current without writes | Behavior | done | Codex records latest → fresh-session `$dough-update` → current/no writes | Session `01a0756a-6ec7-7d92-8f1a-3938020d2f33`: apply reported already current, no installer, write-guarded Codex files and other copies unchanged. |
+| 21. Keep Cursor current without writes | Behavior | partial | Cursor records latest → fresh-session `/dough-update` → current/no writes | `apply --platform cursor` skip-equal with `OPEN_DOUGH_TRACE` and chmod write-guard; not a fresh Cursor `/dough-update` session on the fixture. |
+| 22. Keep Claude Code current without writes | Behavior | done | Claude records latest → fresh-session `/dough-update` → current/no writes | Session `d96a0228-7b0d-48e0-8dd7-ee998e0fc347` loaded the installed `.claude` skill; v0.1.10 already current; Claude dest hashes unchanged. |
 | 23. Advance Codex to latest once | Behavior | planned | Codex older → `$dough-update` → latest installed directly | One native update; selected latest bytes/record and one installer call; other copies unchanged. |
 | 24. Advance Cursor to latest once | Behavior | planned | Cursor older → `/dough-update` → latest installed directly | Independent Cursor observation of the same transition. |
 | 25. Advance Claude Code to latest once | Behavior | planned | Claude older → `/dough-update` → latest installed directly | Independent Claude Code observation of the same transition. |
