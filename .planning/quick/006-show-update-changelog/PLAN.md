@@ -7,7 +7,7 @@ slice-plan-refinement skill on this plan. Do not execute these fragments as-is.
 
 Source: [SEED-001, Story 6](../../seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog).
 Prerequisite: [Story 5b recorded update](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed)
-and [Story 5d publication](../010-publish-version-aware-updater/PLAN.md).
+and [Story 5d publication](../../seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater).
 Release production: [Story 4](../004-versioned-updates/PLAN.md).
 
 ## Candidate goal and boundary

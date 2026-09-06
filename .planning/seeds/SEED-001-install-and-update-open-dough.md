@@ -422,9 +422,9 @@ and helper-size corrections.
 
 ### 5d. Publish extracted guidance and the version-aware updater
 
-- **Status:** Complete 2026-09-06. The [plan](../quick/010-publish-version-aware-updater/PLAN.md)
-  records preparation, local finalization, exact-tag publication, and an
-  independent public fetch of annotated `v0.2.0` at `676188a`.
+- **Status:** Complete 2026-09-06. Preparation, local finalization, exact-tag
+  publication, and an independent public fetch verified annotated `v0.2.0` at
+  `676188a`. The spent plan was dropped after acceptance.
 - **Depends on:** Completed safe installation (5a), recorded updating (5b), and
   [ADR-awareness extraction](SEED-004-extract-and-adopt-project-guidance.md#generalize-project-guidance).
   Their accepted behavior is already available on `main`.
@@ -512,7 +512,15 @@ The maintainer chose `0.2.0` and the scoped notes. Annotated tag
 `426acffe15d6227098d1282a3115690d7569cdf4` peels to
 `676188a66504f7dc751e03311f9be5245757b24a`; a fresh repository fetched that
 exact highest numeric release from `https://github.com/terryyin/open-dough.git`
-and matched its complete tree. Story 5e owns adoption.
+and matched complete tree `b1dc25ed4740e1be96ff3871645f3564493dba0d`.
+`bash src/install/open-dough-release.sh validate-checkout .`, `git diff --check`,
+`npm test`, and `npm run lint` passed; `v0.1.0` and its earlier notes remained
+unchanged, and the temporary checkout was removed. Covered public sources and
+native mappings were unchanged from accepted baseline `1a673ef`, so their
+separate Codex, Cursor, and Claude Code evidence remains valid. The retired plan
+is available in Git history at `7a233e8` with
+`git show 7a233e8:.planning/quick/010-publish-version-aware-updater/PLAN.md`.
+Story 5e owns adoption.
 
 <a id="adopt-version-aware-updater"></a>
 
@@ -613,10 +621,9 @@ retrospective corrections. Quick 008 received 1–7 and 17–19;
 Quick 010 received 35–36; Quick 011 received 37–42.
 Completed and partial status/evidence moved with their leaves. Quick 008 was
 subsequently refined to five remaining slices, all now accepted. The spent
-Quick 005 and Quick 008 plans were dropped after completion; their evidence is
-summarized in Stories 5b and 5a above and in the
+Quick 005, Quick 008, and Quick 010 plans were dropped after completion; their
+evidence is summarized in Stories 5b, 5a, and 5d above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
-Quick 010 now has three refined release slices mapped to original leaves 35–36.
 The other unfinished split plans remain explicitly not executable until their
 stories and slices are refined again.
 
