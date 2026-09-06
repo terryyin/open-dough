@@ -129,10 +129,17 @@ reduce without replacing the required native observation.
 
 ### 2. Assess the context Doughnut's ADR-awareness behavior requires
 Type: Behavior
-Status: planned
+Status: done
 Proof: One native Codex extraction of the real Doughnut skill with its referenced
 ADR context produces a dependency assessment that identifies the source index,
 status/supersession conventions, conflict policy, and human decision boundary.
+
+Evidence: A fresh Codex process inspected byte-identical controlled copies of the
+source and directly required context and produced one bounded assessment; all 12
+pre/post SHA-256 values matched. It identified index plus in-file status as the
+current-decision signals, treated a conflicting filename convention as hygiene
+to explain, kept proposal templates conditional on adopter context, and
+left Cursor automatic-application parity to its native leaf.
 
 Behavior: The supplied skill depends on source-project guidance → extract it with
 that context → obtain a bounded assessment of what the reusable result must
