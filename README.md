@@ -28,16 +28,16 @@ Open your target project in an AI agent with web and shell access, then ask:
    under `.claude/skills/`. Each receives exactly
    `dough-update/SKILL.md`, `dough-adr-awareness/SKILL.md`, and
    `dough-adr-awareness/RECOGNITION.md`. Install only the running tool's copy.
-3. Follow the clone/install instructions for that tool
+3. Follow the shared [safe installation procedure](docs/installation-and-updates.md#common-installation-flow)
+   with the supplied URL and running tool
    ([Codex](docs/installation-and-updates.md#codex),
    [Cursor](docs/installation-and-updates.md#cursor), or
-   [Claude Code](docs/installation-and-updates.md#claude-code)), using the URL
-   the user supplied. The release helper selects and pins the highest numeric
-   `vMAJOR.MINOR.PATCH` tag. Inspect that pinned checkout's helper, installer,
-   and all three declared public source files before running it with `--target`
-   set to the captured project path, and `--platform cursor` or `--platform
-   claude` when installing for Cursor or Claude Code. Bash and Git are
-   sufficient; installing package dependencies is unnecessary.
+   [Claude Code](docs/installation-and-updates.md#claude-code)). Select and pin
+   the highest numeric release using Git before any fetched script runs. Inspect
+   that snapshot's installer, helper and dependencies, and three public sources;
+   then revalidate the selection and invoke its installer directly. Keep ownership
+   of the temporary checkout through inspection and clean it on success or failure.
+   Bash and Git are sufficient; installing package dependencies is unnecessary.
 4. Respect the user's authorization and your environment's permission controls.
    An explicit installation request authorizes the described project-local
    installation; do not ask for the same permission again. If required access
@@ -100,7 +100,7 @@ The exact file mappings and capability differences will be documented as integra
 ## Installation and updates
 
 See [Installation and updates](docs/installation-and-updates.md) for the exact
-three-file payload, per-platform commands, updater safety contract, legacy
+three-file payload, shared installation procedure, updater safety contract, legacy
 bootstrap path, and contributor checks.
 
 ## Distribution

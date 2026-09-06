@@ -12,37 +12,106 @@ project files, home-level guidance, and any other tool's separate installation.
 
 ## Common installation flow
 
-Run the platform command below from the existing target project's root. Set
-`source_url` to the cloneable repository URL you want to install from. To install
-into another existing project, set `target_project` to its absolute path.
+The installing agent follows this procedure in stages, keeping the same captured
+values and owned temporary directory across inspection and execution. Do not put
+inspection and execution into an unattended one-shot command.
 
-Each command clones the source repository and pins its highest numeric
-`vMAJOR.MINOR.PATCH` release before running the installer. Before running it,
-inspect the pinned release helper, `install.sh`, and all three declared public
-source files. Bash and Git are sufficient; installing package dependencies is
-unnecessary.
+1. Capture `target_project` as the existing target project's absolute path before
+   fetching. Use the user's supplied `source_url`. If a specific version, tag, or
+   branch was requested, stop before fetching or writing: Open Dough installs the
+   latest numeric release only; requested-version installation is unsupported.
+   Identify the running tool from the host, not from existing skill directories:
 
-If either managed skill already exists, installation warns and stops before
-changing any managed file. Reinstall only when overwriting all managed files,
-including local edits, is intended: add `--force` to the installer command. The
-installer does not merge changes or replace other skills. Review and commit the
-installed files in the target project.
+   | Running tool | `platform` | Native skill root |
+   | --- | --- | --- |
+   | Codex | `codex` | `.agents/skills/` |
+   | Cursor | `cursor` | `.cursor/skills/` |
+   | Claude Code | `claude` | `.claude/skills/` |
+
+2. Create a fresh temporary `install_dir` and use `snapshot="${install_dir}/release"`.
+   Own cleanup from this point until the workflow ends, including failures during
+   pinning or inspection. A persistent shell can register
+   `trap 'rm -rf -- "${install_dir}"' EXIT`; when tool calls use separate shells,
+   retain the absolute directory path and explicitly clean it in the final cleanup
+   step on every outcome. Keep the original failure status and report cleanup
+   failures. Do not rely on a trap in a shell that exits before inspection.
+
+3. Use only Git to select and pin the release before executing repository code:
+   - Run `git ls-remote --tags -- "${source_url}"`. Keep only
+     `vMAJOR.MINOR.PATCH` tags with three decimal components. Compare components
+     as decimal strings: strip leading zeros, compare lengths, then compare equal
+     lengths lexically. Do not use shell arithmetic, tag dates, or lexical sorting
+     of entire versions. No usable numeric tag means stop without a branch or
+     lower-release fallback.
+   - Capture `selected_tag`, `selected_version` (the tag without `v`), and
+     `selected_commit`. For an annotated tag use its peeled `^{}` commit, not
+     the tag object. Run `git init "${snapshot}"`, then
+     `git -C "${snapshot}" fetch --depth 1 "${source_url}" "${selected_commit}"`
+     and `git -C "${snapshot}" checkout --detach FETCH_HEAD`. Confirm
+     `git -C "${snapshot}" rev-parse HEAD` equals `selected_commit`.
+     Never run a helper or installer from an unpinned clone or the default branch.
+
+4. Read and inspect these files from that snapshot before executing any of them:
+   - `install.sh`
+   - `src/install/open-dough-release.sh`
+   - `src/install/open-dough-platform.sh`
+   - `src/install/open-dough-release-version.sh`
+   - `src/install/open-dough-release-resolve.sh`
+   - `src/skills/dough-update/SKILL.md`
+   - `src/skills/dough-adr-awareness/SKILL.md`
+   - `src/skills/dough-adr-awareness/RECOGNITION.md`
+
+   Check that this executable call chain writes only the three declared public
+   files and the selected updater's `VERSION` record under the captured target's
+   native root. Preserve source, unrelated guidance, other tools' installations,
+   and home guidance. Stop if the payload is incomplete or the inspected behavior
+   exceeds this scope. Bash and Git suffice; no package installation is needed.
+
+5. After inspection, run the following in a Bash subshell with the captured
+   values available. Propagate any nonzero status; stop on a changed selection,
+   metadata mismatch, or validation failure without fetching replacement code,
+   repinning, calling the installer, or writing the target:
+
+   ```bash
+   (
+     set -euo pipefail
+     resolved=$(bash "${snapshot}/src/install/open-dough-release.sh" resolve-url "${source_url}")
+     IFS=$'\t' read -r tag commit version <<< "${resolved}"
+     head=$(git -C "${snapshot}" rev-parse HEAD)
+     if [[ "${tag}" != "${selected_tag}" || "${commit}" != "${selected_commit}" ||
+       "${version}" != "${selected_version}" || "${head}" != "${selected_commit}" ]]; then
+       echo 'Release selection changed after inspection; not replacing inspected files or installing.' >&2
+       exit 1
+     fi
+     source_version=$(bash "${snapshot}/src/install/open-dough-release.sh" validate-checkout "${snapshot}")
+     if [[ "${source_version}" != "${selected_version}" ]]; then
+       echo 'Pinned source version does not match the selected release; refusing installation.' >&2
+       exit 1
+     fi
+     bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"
+   )
+   ```
+
+   Ordinary installation uses `install.sh` directly; `apply` has different
+   existing-installation semantics. If either managed skill already exists, stop
+   before changing managed files. Explain that `--force` replaces all managed
+   contents, including local edits, and append it to the installer command only
+   when the user explicitly authorized that overwrite. The installer does not
+   merge changes or replace other skills.
+
+6. Verify all three installed files byte-for-byte against this same snapshot and
+   the installed `dough-update/VERSION` against `selected_version`; review the
+   target diff for unrelated changes. Report the source URL, tag, exact commit,
+   running tool, all three installed paths, version record, and actual installer
+   outcome. A failed install is not success: if replacement started, report any
+   incomplete files and the unchanged last successful record (or absent fresh
+   record), with explicit `--force` reinstall as recovery. Do not promise rollback.
+   Clean the owned temporary checkout on success and failure, after any necessary
+   verification, preserving the failure status. Commit or push only when authorized.
 
 ## Codex
 
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
-    pin-latest "$install_dir/open-dough" "$source_url"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project"
-)
-```
+Follow the [shared installation procedure](#common-installation-flow) above.
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
 writes the three payload files under `.agents/skills/` and records the release
@@ -52,23 +121,11 @@ See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
 Start a fresh Codex session in the target project and invoke:
 
-> $dough-update https://github.com/terryyin/open-dough.git
+> ${dough}-update https://github.com/terryyin/open-dough.git
 
 ## Cursor
 
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
-    pin-latest "$install_dir/open-dough" "$source_url"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor
-)
-```
+Follow the [shared installation procedure](#common-installation-flow) above.
 
 Installation writes the three payload files under `.cursor/skills/` and records
 the release in `.cursor/skills/dough-update/VERSION`. See
@@ -79,19 +136,7 @@ the target project and invoke:
 
 ## Claude Code
 
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
-    pin-latest "$install_dir/open-dough" "$source_url"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude
-)
-```
+Follow the [shared installation procedure](#common-installation-flow) above.
 
 Installation writes the three payload files under `.claude/skills/` and records
 the release in `.claude/skills/dough-update/VERSION`. See
@@ -129,10 +174,9 @@ remains future work.
 
 An older installed updater may authorize only replacement of its own `SKILL.md`
 and must refuse the expanded three-file installer. Do not bypass or reinterpret
-that refusal as success. Bootstrap explicitly: pin a fresh clone to the supplied
-repository's highest numeric release, inspect the helper, installer, and all
-three public source files, then run that pinned installer once with the selected
-platform and `--force`.
+that refusal as success. Bootstrap with explicit overwrite authorization using the
+[same safe installation procedure](#common-installation-flow), adding `--force`
+only to its final direct installer command for the selected platform.
 The old updater cannot perform a migration it correctly refuses. Start a fresh
 session before invoking the newly installed updater.
 

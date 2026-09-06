@@ -1,346 +1,337 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: REFINED — ready for execution, not executed in this refinement.**
-Updated in place on 2026-09-06 using Donut's `slice-plan-refinement` skill.
+**Status: EXECUTING.** Refined 2026-09-06; slice 1 completed 2026-09-06.
+Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
 Source: [SEED-001, Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release).
-Reused behavior: [completed Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Contract: [Accepted ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+Borrowed Donut's `.agents/skills/slice-planning/SKILL.md` and then the full
+`.agents/skills/slice-plan-refinement/SKILL.md`, with its planning and
+problem-decomposition rules, from checkout
+`43f0dbe0d47840e31f4773723cfed2d663e56bc8`.
 
 ## Goal and scope
 
-A developer installs the highest numeric released `dough-update` from their
-supplied repository URL into the captured target project for the running tool,
-then discovers and invokes it in a fresh native session. Only inspected pinned
-repository code executes. Installed payload and version agree; ordinary repeat
-installation stops, while explicit force replaces the selected copy.
+An adopter installs the supplied URL's highest numeric release into the running
+tool's project-local skill root, using only inspected pinned repository code.
+The payload is the existing `dough-update/SKILL.md`,
+`dough-adr-awareness/SKILL.md`, and `dough-adr-awareness/RECOGNITION.md`, plus the
+selected updater's `VERSION` record. Preserve existing guidance, repeat/force
+policy, truthful failures, and use in Codex, Cursor, and Claude Code.
 
-Include release identity and truthful failure reporting, temporary-work cleanup,
-README discoverability, and preservation of other tools, unrelated project
-content, distributable source, home guidance, internal skills, and the guard.
-Reuse Story 5b's same-release no-op as the first-use demonstration.
+This enables backlog item four's first Donut adoption and redundant ADR skill
+removal. That item owns equivalence assessment, deletion, and caller repair.
+Publication, real-project self-adoption, extraction, migration automation,
+local-difference reconciliation, rollback, changelog presentation, and broader
+documentation work remain outside this plan.
 
-Exclude migration/unknown-baseline updating, publication, Open Dough self-adoption,
-inline release notes, extra skills/rules, global installation, requested versions,
-rollback, local-edit merging, and cross-tool synchronization. Other stories keep
-those outcomes. Fixture releases may contain the current implementation; they
-are not a claim that the updater has been publicly released.
+## Reuse decisions and evidence
+
+The owner requested reuse of established cross-platform experience. Apply the
+repository guard by reusing evidence for unchanged behavior and checking the
+changed installation path. A documentation correction does not invalidate skill
+discovery, invocation, ADR behavior, or updater semantics when their inputs,
+paths, and source stay unchanged. There is no blanket evidence expiry date.
+
+| Evidence | Retained conclusion | Boundary for reuse |
+| --- | --- | --- |
+| E1: [Quick 007](../007-generalize-project-guidance/PLAN.md), slices 7–12, 14, 16 | The three-file payload installs, updates, preserves companion/other-platform guidance, and is natively usable in each tool. | Reuse native skill discovery, application, and coexistence. Its original default-branch delivery runs do not prove the corrected initial release-install instructions. |
+| E2: [completed Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed) | Each native tool demonstrated pinned, version-aware updating; equal versions cause no installer call or writes. | Reuse updater discovery/invocation and older/equal/newer behavior. No repeated no-op or update-to-use sessions for this documentation change. |
+| E3: original Quick 008 leaves 1–7; `tests/install.sh`, `tests/install-latest-release.sh`, `tests/install-omits-internal.sh`; Quick 007 slice 10 and `tests/install-repeat-force-public-payload.sh` | Shared installer payload/record verification, ordinary-repeat protection, explicit force, numeric resolution, validation, and internal omissions already work. | Preserve direct `install.sh` dispatch and its options. These checks support shared behavior, not proof that native agents follow the revised instructions. |
+| E4: [completed Quick 012](../012-harden-public-guidance-installation/PLAN.md); `tests/install-refuses-unsafe-topology.sh`, `tests/install-reports-real-copy-failure.sh`; `tests/update-when-needed.sh` | Containment/collision refusal and truthful copy/verification failure preserve the previous successful record. | No implementation redo or native fault matrix unless these mechanisms change. Direct-install workflow cleanup is owned by the changed guide and observed in slices 1–2. |
+
+These are recorded earlier observations, not tests run in this planning pass.
+`92f30c5` identifies the current source inspected for planning, not every earlier
+native run. Keep the provenance limitations above when reporting acceptance.
+
+### Per-platform acceptance
+
+| Platform | Native evidence retained | New evidence still pending |
+| --- | --- | --- |
+| Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4: follow the corrected public install instructions and deliver the verified payload. |
+| Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3: follow the corrected public install instructions and deliver the verified payload. |
+| Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5: follow the corrected public install instructions and deliver the verified payload. |
+
+Reopen only evidence affected by a change to skill name/frontmatter/content,
+native destination/discovery configuration, relevant tool behavior, updater
+policy, installer dispatch/flags, payload, or target context. Record the specific
+invalidated claim and add its focused check. A new tool version alone is a cue
+to assess relevant changes, not to repeat every scenario. Missing evidence is
+still pending; success in another tool never substitutes for it.
 
 ## Current decisions
 
-- Install and update have different existing-file policies. Do not route an
-  ordinary installation through `apply`: it can upgrade an existing record or
-  force replacement of an unknown installation. Preserve `install.sh`'s repeat
-  guard and explicit `--force`; leave Story 5b's `apply` semantics unchanged.
-- Reuse the Git-first bootstrap described in `src/skills/dough-update/SKILL.md`:
-  list tags without executing repository code, compare decimal components as
-  strings, use the peeled commit for annotated tags, fetch that commit, and
-  confirm detached HEAD. No branch helper runs to select its own release.
-- Inspect the pinned installer, source skill, and executable dependencies:
-  `open-dough-release.sh`, `open-dough-release-resolve.sh`,
-  `open-dough-release-version.sh`, and `open-dough-platform.sh`. Inspection must
-  cover the actual call chain, not just an entry script that sources other code.
-- After inspection, use that snapshot's existing `resolve-url` and
-  `validate-checkout` commands to check the selected tag/commit/version against
-  HEAD and source metadata. Stop on mismatch; do not repin. Then invoke that
-  same snapshot's `install.sh` with the captured target and selected platform.
-  No second repository resolver, new installer API, or update-policy change is
-  needed. The installing agent reports source/tag/commit alongside the actual
-  installer result and verifies installed bytes and version.
-- Keep temporary-directory ownership in the installing workflow, including
-  cleanup across the separate pin, inspect, and execute steps. An `apply`
-  cleanup test does not prove cleanup for this direct-installer journey.
-- Consolidate public installation instructions into one shared guide linked
-  from README, with a small platform path/invocation table. Move existing update
-  documentation with its links intact; do not rewrite its delivered behavior.
-  Resolve the inherited 394-line README finding without producing another
-  oversized guide: keep ordinary documentation files at or below 250 lines.
-- Tests execute the documented boundary with controlled local tagged sources;
-  native sessions establish that agents actually follow it. Do not call a test's
-  hard-coded `v0.1.10` lookup proof of generic latest selection.
-
-## Preserved completed work and proof limits
-
-These are the original leaf identifiers, not a new execution sequence. Completed
-status is retained for unchanged behavior; no tests were rerun during refinement.
-
-| Original leaves | Retained status | Evidence and limits |
-| --- | --- | --- |
-| 1–3: record, repeat guard, force | done | `tests/install.sh` and `tests/install-omits-internal.sh` cover the direct installer for all three platform destinations and omission of internal material. Keep this policy and reuse these checks when changing its caller. |
-| 4–7: numeric latest and validation | done | `tests/install-latest-release.sh` covers supplied URL, numeric latest, payload and validation failures. Its clone-then-pin loop is helper evidence only; it does not prove the new pre-execution inspection boundary. |
-| 17: fresh Codex discovery | done, historical | Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. Does not prove the corrected installation instructions. |
-| 18: fresh Cursor discovery | partial | CLI install and an in-session file read exist. Fresh fixture discovery remains unproven. |
-| 19: fresh Claude Code discovery | done, historical | Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. Does not prove the corrected installation instructions. |
-
-Story 5b's pinned execution, numeric comparison, and native no-op proof remain
-available for unchanged updater behavior. `tests/pin-and-inspect.sh` supplies a
-poisoned-branch fixture and mismatch signal; `tests/update-when-needed.sh`
-supplies copy/verification fault hooks and no-op observations. Neither currently
-proves the complete documented fresh-install journey. Its deleted Quick 005
-plan is replaced here by the live Story 5b link.
+- Correct `README.md` and its existing `docs/installation-and-updates.md` entry
+  points in place. Use one shared agent procedure with a small platform table;
+  remove all conflicting clone-then-run installation examples, including legacy
+  bootstrap wording that points to the same unsafe sequence. No new migration
+  behavior or documentation-size target.
+- Before any fetched script executes, capture the target, list tags with Git,
+  choose the highest numeric release using decimal-string comparison, use an
+  annotated tag's peeled commit, fetch exactly that commit, and detach HEAD.
+  Reuse the Git-first sequence already described in `src/skills/dough-update/SKILL.md`;
+  do not create another installer API or a general bootstrap framework.
+- Inspect that snapshot's `install.sh`, all three public sources, and the helper
+  plus its three sourced dependencies under `src/install/`. After inspection,
+  use its existing `resolve-url` and `validate-checkout` commands. Compare the
+  returned tag/commit/version with the captured selection, HEAD, and validated
+  source version; stop on mismatch or failure. Do not fetch replacement code.
+- Invoke the same snapshot's `install.sh --target <captured-project> --platform
+  <running-tool>`. Ordinary install must not dispatch through `apply`, which has
+  different existing-installation semantics. Pass `--force` only for an already
+  authorized reinstall. Keep this existing policy wording unchanged in meaning.
+- Keep temporary ownership across pin, inspection, and execution. The installing
+  workflow cleans its own temporary checkout on success and failure; the guide
+  must not hide inspection inside a one-shot command that already executes code.
+  Report the exact source/tag/commit/tool/paths and actual installer outcome;
+  preserve failure status and do not promise rollback.
+- Expect no changes to shipped skills or installer/helper code. Such a change
+  must serve this story and triggers only its affected evidence review. Do not
+  modify other projects, add a tool-version matrix, or build a new test harness.
 
 ## Outside-in proof and ownership
 
-| Final promise / story example | Owning remaining leaves | Observable proof |
+Acceptance combines retained E1–E4 with the new observations below. It does not
+require repeating all promises in one new session.
+
+| Promise / story example | Owning evidence | Required observation |
 | --- | --- | --- |
-| Find one shared install guide from README; retain all tool and update links | 1–2 | Working relative links, bounded document size, one common install procedure and platform table; native agents reach it from README. |
-| Highest numeric supplied-URL release, inspected dependencies, exact pinned execution and verified record | 2; native 6–8 | Divergent/poisoned branch never executes; numeric `0.1.10` beats `0.1.9` regardless of date; inspected and executed commit agree; payload bytes/record and reported identity agree. |
-| Ordinary repeat never updates or overwrites | retained 1–3; native 9, 11, 13 | An older recorded installation with a local marker remains unchanged after an ordinary install request; no force/update path is used. |
-| Explicit force replaces only selected copy and record | retained 1–3; native 10, 12, 14 | Native explicit reinstall restores latest payload and record while preserving coexisting copies and unrelated material. |
-| Fetch/no-tag/invalid-highest/missing-payload refusal without fallback | 3 | Nonzero failure, no successful outcome, untouched target and released-source identity; no lower/branch installer runs. |
-| Selection changes after inspection | 4 | Old snapshot is not replaced or installed, target is untouched, mismatch explained. |
-| Failed copy/verification never records success or promises rollback | 5 | Absent fresh record or unchanged prior successful record, incomplete-files warning and explicit reinstall guidance. |
-| Temporary work cleaned on success and failure | 2–5; native 6–14 for their own runs | Operation-owned temporary paths disappear at their workflow boundary; success, prewrite rejection, partial failure, and repeat rejection covered. |
-| Native discovery and invocation; same-release update stays unwritten | 6–8 | Fresh host session discovers the installed skill and invokes it; trace plus write-sensitive observations show no installer call or file/record writes. |
-| Selected host/project; coexistence; no source/home/internal/guard writes | retained 1–3; 2 and 6–14 | Exact managed-file enumeration and before/after snapshots; other installations and sentinel content unchanged, including on rejected operations. |
-| Latest only; no unversioned branch or requested-version path | 2–3; retained installer checks | Guide refuses a requested version before fetching/writing; numeric release failures never fall back. |
+| Supplied URL, highest numeric release, inspected pinned code, complete payload/record and accurate report | Slice 1; native slices 3–5; E3 | Guide is reachable from README; no default-branch script runs; selected commit equals inspected/executed commit; declared payload and record match. |
+| Fresh native discovery, invocation, ADR behavior, same-release no-op | E1–E2, platform rows above | Retain actual native observations for unchanged skills; byte checks alone would be insufficient without that evidence. |
+| Ordinary repeat stops; explicit force affects only managed files | E3; slice 1 preserves direct-installer dispatch | Existing edited installations remain protected; changed instructions never route ordinary install through `apply` or imply force. |
+| Source has no usable latest release, validation fails, or selection changes after inspection | E3 for existing release failures; slice 2 for changed selection; slice 1 preserves rejection instructions | No fallback, repin, installer call, or target writes; truthful failure and cleanup. |
+| Partial copy/verification failure leaves the last successful record and reports incomplete files | E4; slice 1 preserves failure propagation; slices 1–2 observe workflow cleanup | Preserve the direct installer error/record behavior and unconditional cleanup instructions; no separate native or shell fault matrix. |
+| Correct project/tool, coexistence, original ADR guidance/callers, source/home preservation, no internal payload | E1, E3–E4; native slices 3–5 | Only three selected payload files and the version record change; other guidance stays intact. |
+| Latest-only, no requested-version or branch fallback | E2–E3; slices 1–2 | Instructions preserve rejection before fetching/writing and never substitute a lower or unversioned source. |
 
-## Ordered remaining slices
+## Refinement review
 
-Each leaf has one proof loop and a green stopping point. Sizing includes edits,
-focused verification, cleanup, and recording the observation here. The target
-is about five minutes; ten minutes is the non-exempt hard limit. These are
-hypotheses, not elapsed-time claims. Do not rerun unchanged native evidence
-merely because a later independent platform leaf completes.
+No execution attempt or overrun prompted this pass. Preserve the same five
+outcomes, their order, and all completed E1–E4 evidence. Refinement resolves
+concrete proof/setup ambiguity without another native scenario or product feature.
 
-### 1. Put the shared installation guide behind the README entry point
-Type: Structure
-Status: planned
-Proof: Follow README's install/update links for all three tools; compare moved
-instructions with their originals, check relative links and document lengths.
-
-Structure: Move the existing detailed instructions into bounded documentation
-under `docs/`, preserving their meaning and leaving a concise README entry.
-This immediately enables leaf 2 to correct one shared installation procedure.
-Do not add separate platform workflows or silently change update behavior.
-Sizing: about five minutes, medium confidence; mechanical move/link repair only.
-
-### 2. Install the inspected latest snapshot through the shared guide
-Type: Behavior
-Status: planned
-Proof: One focused fresh-install fixture run follows the guide's actual sequence:
-numeric latest, detached inspected commit, zero poisoned-branch execution,
-selected payload/record match, complete source/tag/commit/path report, only managed
-writes, and operation-owned temporary directory removed. Reuse the existing
-fixture builder and pin-and-inspect test; correct the fixture's bootstrap proof
-rather than creating a parallel installer implementation.
-
-Behavior: No selected installation, divergent default branch and numeric tags →
-follow README's shared guide → install only the inspected latest tagged payload.
-Replace clone-then-execute snippets for every platform with the common pin,
-inspect, revalidate, direct-install procedure in Current decisions. Preserve
-repeat/force instructions and refuse requested versions. Align the relevant
-install test caller with this final route; retain helper-only coverage as such.
-Sizing: about five minutes, medium confidence; existing commands/fixtures are
-sufficient, no new product API. Split on hidden executable-wrapper work.
-
-### 3. Leave the target untouched when no usable latest release is available
-Type: Behavior
-Status: planned
-Proof: One parameterized prewrite-rejection loop through the guide boundary:
-unreachable source, no numeric tag, inconsistent highest metadata, or missing
-highest payload → failure, no target writes/fallback, and cleaned temporary work.
-Reuse existing invalid-source fixtures, adding only absent coverage.
-
-Behavior: Latest cannot be fetched or validated → request installation → stop
-before target writes and report why. Repair the shared instructions or boundary
-only if the focused observation fails; do not build new release policy.
-Sizing: about five minutes, medium confidence; same rejection assertion with
-fixture data variations, not separate native sessions or a new framework.
-
-### 4. Stop when the inspected snapshot ceases to be latest
-Type: Behavior
-Status: planned
-Proof: Pin/inspect a fixture release, publish a higher tag only in that fixture,
-then continue the documented revalidation step. Observe mismatch, unchanged
-snapshot HEAD/bytes, no installer call or target writes, and temporary cleanup.
-
-Behavior: Latest changes after inspection → continue installation → stop without
-repinning or running replacement code. Extend the existing mismatch fixture;
-keep public tags and Story 5b semantics untouched.
-Sizing: about five minutes, high confidence; one race boundary and one proof.
-
-### 5. Keep the version truthful after an incomplete installation
-Type: Behavior
-Status: planned
-Proof: One parameterized failed-write loop using existing copy/verify fault
-hooks, for fresh installation and explicit reinstall. Require incomplete-files
-report, absent fresh record or unchanged previous successful record, no success
-claim, explicit reinstall guidance, preserved unrelated files, and temp cleanup.
-
-Behavior: Copy or verification fails after writes start → finish the install
-attempt → report incomplete installation without recording success. Reuse the
-installer's existing error behavior; cover the fresh-record gap and installing
-workflow cleanup rather than implementing rollback.
-Sizing: about five minutes, medium confidence; existing fault hooks and assertions
-with starting-state variations. Split if fault handling needs multiple fixes.
-
-### 6. Discover and use a fresh Cursor installation
-Type: Behavior
-Status: planned
-Proof: One native Cursor adoption scenario under the protocol below, recording
-a fresh fixture-window/session identifier and actual `/dough-update` invocation.
-
-Behavior: No selected copy, other hosts' copies present → install from README,
-then invoke in a fresh Cursor session → use the verified release and observe the
-same-release no-op. File reading alone cannot close original leaf 18.
-Sizing: about five minutes active work, medium confidence; native wait rule below.
-
-### 7. Discover and use a fresh Codex installation
-Type: Behavior
-Status: planned
-Proof: One native Codex adoption scenario under the protocol below; record the
-fresh session identifier and actual `$dough-update` invocation.
-
-Behavior: No selected copy, other hosts' copies present → install from README,
-then invoke in a fresh Codex session → use the verified release and observe the
-same-release no-op. Retain original leaf 17 as historical evidence.
-Sizing: about five minutes active work, medium confidence; native wait rule below.
-
-### 8. Discover and use a fresh Claude Code installation
-Type: Behavior
-Status: planned
-Proof: One native Claude Code adoption scenario under the protocol below; record
-the fresh session identifier and actual `/dough-update` invocation.
-
-Behavior: No selected copy, other hosts' copies present → install from README,
-then invoke in a fresh Claude Code session → use the verified release and observe
-the same-release no-op. Retain original leaf 19 as historical evidence.
-Sizing: about five minutes active work, medium confidence; native wait rule below.
-
-### 9. Preserve an existing Cursor copy on ordinary installation
-Type: Behavior
-Status: planned
-Proof: Native Cursor ordinary-install scenario under the repeat protocol below.
-
-Behavior: Selected copy has an older record and a local marker → ask to install
-without force → stop with overwrite explanation and preserve selected files.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-### 10. Explicitly reinstall the selected Cursor copy
-Type: Behavior
-Status: planned
-Proof: Native Cursor force scenario under the reinstall protocol below.
-
-Behavior: Existing selected copy and explicit overwrite authorization → install
-with force → replace only Cursor's payload and record with verified latest.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-### 11. Preserve an existing Codex copy on ordinary installation
-Type: Behavior
-Status: planned
-Proof: Native Codex ordinary-install scenario under the repeat protocol below.
-
-Behavior: Selected copy has an older record and a local marker → ask to install
-without force → stop with overwrite explanation and preserve selected files.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-### 12. Explicitly reinstall the selected Codex copy
-Type: Behavior
-Status: planned
-Proof: Native Codex force scenario under the reinstall protocol below.
-
-Behavior: Existing selected copy and explicit overwrite authorization → install
-with force → replace only Codex's payload and record with verified latest.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-### 13. Preserve an existing Claude Code copy on ordinary installation
-Type: Behavior
-Status: planned
-Proof: Native Claude Code ordinary-install scenario under the repeat protocol below.
-
-Behavior: Selected copy has an older record and a local marker → ask to install
-without force → stop with overwrite explanation and preserve selected files.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-### 14. Explicitly reinstall the selected Claude Code copy
-Type: Behavior
-Status: planned
-Proof: Native Claude Code force scenario under the reinstall protocol below.
-
-Behavior: Existing selected copy and explicit overwrite authorization → install
-with force → replace only Claude Code's payload and record with verified latest.
-Sizing: about five minutes active work, high confidence; native wait rule below.
-
-## Native proof protocols and evidence to record
-
-Use separate disposable target projects with spaces in their paths and controlled
-releases of the candidate code. Include other tools' installed copies/records,
-unrelated guidance, project sentinels, and source/home baselines. Start from the
-README and the supplied URL; avoid giving the agent a bypass command that would
-hide whether the public instructions work. Do not install in Open Dough itself.
-
-**Adoption (6–8):** Record host/version, supplied URL, tag/peeled commit, command
-and inspection transcript, selected target, installed byte/record comparison,
-managed-file diff and temporary cleanup. The transcript must show no fetched
-repository code before inspection. Open a genuinely fresh native session and
-observe discovery and invocation. For the same-release update, use installer
-tracing and write-sensitive evidence (timestamps with sufficient resolution or
-file-write observation), plus byte comparison. A clean diff alone is insufficient.
-The install-to-first-use chain is one adoption scenario; if installation fails,
-fix it and rerun that host before claiming the chain is complete.
-
-**Repeat (9, 11, 13):** In a disposable existing installation, prepare a valid
-older record and local payload marker. An ordinary installation request must
-stop, preserve files/record and other guidance, and explain force. Observe the
-actual native command path: `apply` advancing the record is a failure. Record
-no writes, no implicit force, truthful output, and temporary cleanup.
-
-**Reinstall (10, 12, 14):** Use that host's preserved target with explicit force
-authorization in the fixture prompt. Observe pin/inspection/revalidation and
-selected replacement, compare payload/record to latest, and verify other copies,
-source/home guidance and internal omissions. Record the true outcome and cleanup.
-
-| Platform | Adoption | Repeat | Explicit reinstall | Current evidence |
-| --- | --- | --- | --- | --- |
-| Cursor | 6 | 9 | 10 | Pending corrected journey and fresh native discovery. |
-| Codex | 7 | 11 | 12 | Pending corrected journey; original discovery proof retained above. |
-| Claude Code | 8 | 13 | 14 | Pending corrected journey; original discovery proof retained above. |
-
-Native wait rule: target about five minutes including verification when the host
-responds promptly. A single focused native scenario may take longer due to host
-startup or model/tool response waits. Record actual elapsed time and the specific
-external wait at the threshold; that is the only anticipated sizing exception.
-Do not use it to excuse implementation/debugging overrun. If a host is unavailable,
-leave its leaf pending and continue independent ready leaves; copying files or
-passing another host never substitutes for native proof.
-
-## Refinement review and execution controls
-
-| Prior fragment / trigger | Classification | Resolution |
+| Previous slice | Classification | Resolution |
 | --- | --- | --- |
-| Completed installer and release leaves 1–7 | Ready for reuse within unchanged boundary | Preserve evidence; new caller/failure proof belongs to 2–5. |
-| Unsafe README bootstrap plus oversized guide | Refine | One immediately enabling documentation Structure (1), then common fresh-install Behavior (2); separate rejection policies in 3–5. |
-| Missing current native flow and partial Cursor discovery | Refine | One adoption loop per host (6–8), Cursor first to resolve the least-proven assumption. |
-| Repeat/force could accidentally inherit update semantics | Refine | Preserve direct installer policy, then one native transition per leaf (9–14); do not hide repeat and force in an oversized platform checklist. |
-| Parent story or sibling order | No escalation | Scope unchanged; existing implementation and fixtures make approximately 70 minutes of active remaining work plausible, with native waits recorded separately. |
+| 1: public installation | Refine | Bound the document edits and direct-install fixture extension. Observe the workflow's cleanup before test teardown; compare all payload bytes and arm the branch-execution marker before bootstrap. |
+| 2: failure handling | Refine | Narrow the new proof to a valid newer release appearing after inspection. Existing no-tag, metadata, topology, and copy failures remain E3–E4. |
+| 3: Cursor installation | Refine | Make fresh-target preparation and full transcript capture explicit; the old delivery harness installs a baseline and cannot be run unchanged. |
+| 4: Codex installation | Ready | Keep one native installation; apply the now-explicit shared preparation/evidence protocol and Codex event output. |
+| 5: Claude Code installation | Ready | Keep one native installation; apply the same protocol and Claude event output. |
 
-All 14 remaining leaves are Ready as sizing hypotheses after this refinement.
-There are no unowned promises or planned product changes outside Story 5a.
-Five-minute review: split hidden preparation or independent outcomes before
-continuing. Ten-minute non-exempt overrun: safely park only attempt-owned WIP,
-record elapsed time/evidence and the disproved assumption, then refine this plan.
-After a second non-exempt overrun in this story, reassess the story boundary under
-Donut's Learning escalation; renaming leaves does not reset that count.
+Each Refine slice is replaced in place below. There is no story escalation,
+new Structure prerequisite, or added test matrix. Promise ownership above is
+unchanged except that existing refusal policies are explicitly assigned to E3.
 
-For changed code, run the focused proof and applicable repository lint checks;
-keep tests with their behavior and finish green. Native evidence-only leaves
-record observations here and need no unrelated code churn or broad test reruns.
-Any future execution workflow's cleanup/refactor/commit gates still apply.
-This request authorizes plan refinement only; no implementation, product test
-execution, commit, push, release, or installation was performed in this pass.
+## Ordered slices
 
-## Learnings that changed the plan
+### 1. Install the inspected release through the public entry point
+Type: Behavior
+Status: completed 2026-09-06
+Proof: One direct-install extension in `tests/pin-and-inspect.sh`, run with
+`bash tests/pin-and-inspect.sh`; check touched Markdown links and shell lint.
+Keep its existing updater scenarios and assertions intact.
 
-- README still has 394 lines and three clone-then-run examples. A generic warning
-  to inspect after calling a branch helper cannot satisfy the story boundary.
-- `apply --checkout` protects the inspected snapshot but retains update semantics;
-  the existing direct installer is the appropriate ordinary-repeat boundary.
-- The helper imports three scripts before dispatch. Those executable dependencies
-  belong to inspection of the pinned snapshot.
-- Existing pin-and-inspect proof hard-codes one tag and exercises `apply`;
-  validation/cleanup tests mostly cover updater-owned work. Reuse their fixtures
-  and assertions, but collect installation-specific observations in leaves 2–5.
-- Prior native discovery remains useful historical evidence. Changed public
-  instructions require new native journey proof; Cursor's fresh discovery gap
-  remains explicit until leaf 6 succeeds.
+Behavior: No selected installation; a branch differs from its tagged release →
+follow the corrected README-linked procedure → install the inspected snapshot's
+complete declared payload and truthful version, then clean the owned checkout.
+
+Bounded change:
+- In `README.md` and `docs/installation-and-updates.md`, replace the three unsafe
+  clone/pin examples with the existing Git-first agent procedure and minimal
+  platform adaptations. Keep platform anchors and update guidance; point legacy
+  reinstall to that same safe procedure. No documentation runner or new script.
+- Reuse the fixture's known peeled commit, poisoned branch, and target sentinels.
+  Export/arm its branch-execution marker before bootstrap starts, not after the
+  opportunity for an unsafe helper call. Use a fresh target for direct install.
+- Exercise the guide's exact post-inspection commands: resolve, compare captured
+  tag/commit/version and HEAD, validate source metadata, then direct `install.sh`.
+  Record inspection of the installer, helper/dependencies, and three sources.
+  An agent's latest-tag choice is proven in slices 3–5; a fixture's hard-coded
+  tag is only evidence of pin-to-execution mechanics.
+- Compare all three installed files byte-for-byte with this pinned snapshot and
+  check its version record. `assert_payload` currently checks only a marker in
+  the updater; add a direct `cmp` here, without broadening the shared helper.
+  Check untouched sentinels and zero branch execution. Retain ordinary/force
+  semantics and unconditional error/cleanup instructions so E3–E4 remain valid.
+- Give this workflow a child temporary checkout under the test-owned outer
+  directory. Observe the child absent after the workflow returns while the outer
+  directory and assertions still exist. Outer test teardown is not cleanup proof.
+
+Stop-safe boundary: the corrected install instructions and their focused proof
+are green together. Check links, shell lint, and record evidence here; no half
+published workflow, unrelated test refactor, or new public executable.
+Sizing: about five minutes including edits, focused checks, cleanup, and this
+record; medium confidence with existing fixture setup. If composing a generic
+bootstrap/parser or document runner starts taking time, drop that addition.
+
+Execution evidence (2026-09-06): README now routes all three platform anchors
+and legacy reinstall to one staged Git-first guide. The guide names all eight
+inspection files, checks captured tag/peeled commit/version/HEAD and validated
+metadata, then invokes direct `install.sh`; ordinary/force and failure policies
+are preserved. No shipped skill, installer, helper, payload, or native path changed,
+so E1–E4 remain valid within their stated boundaries.
+
+`bash tests/pin-and-inspect.sh` passed including unchanged updater examples and
+one fresh direct install: branch marker armed before Git bootstrap; eight reads
+recorded; all three payload files and VERSION byte-matched the pinned snapshot;
+sentinels survived; branch execution stayed zero. Workflow-owned child checkout
+was absent while the test-owned parent still existed. `shellcheck`, repository
+`shfmt -d -i 2 -ci -sr`, `git diff --check`, and README/guide relative link/anchor
+checks passed. About five minutes active implementation/check time; no extra
+framework or public executable. Native guide-following remains slices 3–5.
+
+### 2. Refuse a newly selected release after inspection
+Type: Behavior
+Status: planned
+Proof: One stale-selection case added to the same direct-install fixture; run
+`bash tests/pin-and-inspect.sh` and applicable shell lint.
+
+Behavior: A valid release is pinned and inspected; the source then gains a valid
+higher numeric release → revalidate before direct installation → refuse without
+repinning, calling an installer, writing the target, or recording success, and
+clean the workflow-owned checkout.
+
+Use the existing candidate/commit/tag helpers to add a valid newer release after
+inspection. A malformed tag/metadata fixture could pass for the wrong reason.
+Run slice 1's same resolve/compare/validate sequence; check nonzero result,
+truthful mismatch output, no installer trace, and unchanged target. Observe the
+old HEAD and files unchanged before cleanup, then the child checkout absent
+before the outer fixture teardown. Adjust refusal wording only if needed.
+
+Reuse E3 for no-tag/invalid metadata and E4 for topology and copy/verification
+failures. This leaf does not implement or re-prove those error policies. If a new
+caller swallows errors or adds a separate cleanup path, reopen only that affected
+proof instead of calling this one mismatch example complete coverage.
+Stop-safe boundary: the new refusal example and unchanged success/updater
+assertions are green; no intentionally failing test is left for another slice.
+Sizing: about five minutes including the fixture change, checks, cleanup, and
+record; medium confidence. One new cause and one refusal observation.
+
+### 3. Install safely from the corrected instructions in Cursor
+Type: Behavior
+Status: planned
+Proof: One native Cursor installation using the shared protocol below; capture
+`cursor agent --print --output-format stream-json` events with the existing
+workspace/sandbox launch conventions and current environment permissions.
+
+Behavior: Cursor has no selected installation → ask it to install from README
+and the supplied fixture URL → it follows the corrected pin/inspect/validate
+path and installs the verified payload only under `.cursor/skills/`.
+
+This slice owns its small source/target preparation, launch, transcript review,
+result checks, and cleanup. Borrow the existing launcher, not the delivery
+wrapper's baseline installation or its update/ADR prompts.
+Stop-safe boundary: record the observed Cursor result and decisive evidence;
+other platforms can remain pending without any red product change.
+Sizing: about five minutes active work including preparation and evidence;
+medium confidence. Record native response waits separately. Reuse E1–E2.
+
+### 4. Install safely from the corrected instructions in Codex
+Type: Behavior
+Status: planned
+Proof: One native Codex installation under the same protocol, using
+`codex exec --json` to retain tool events; a last-message file alone is insufficient.
+Reuse the established isolated launcher within current environment permissions.
+
+Behavior: Codex has no selected installation → ask it to install from README
+and the supplied fixture URL → it follows the corrected pin/inspect/validate
+path and installs the verified payload only under `.agents/skills/`.
+
+Own only this platform's target, launch, checks, record, and cleanup. Reuse the
+source preparation recipe from slice 3, rebuilding an immutable fixture if needed.
+Stop-safe boundary: a recorded Codex result; no extra discovery/updater session.
+Sizing: about five minutes active work including focused proof/cleanup;
+medium confidence. Native response waits are a stated exception; E1–E2 stand.
+
+### 5. Install safely from the corrected instructions in Claude Code
+Type: Behavior
+Status: planned
+Proof: One native Claude Code installation under the same protocol, using
+`claude --print --output-format stream-json --verbose` with the established
+launch isolation and current environment permissions.
+
+Behavior: Claude Code has no selected installation → ask it to install from
+README and the supplied fixture URL → it follows the corrected pin/inspect/validate
+path and installs the verified payload only under `.claude/skills/`.
+
+Own only this platform's target, launch, checks, record, and cleanup. Reuse the
+same source preparation recipe; keep E1–E2 rather than adding another lifecycle.
+Stop-safe boundary: record the Claude Code result; full story acceptance then
+combines all three new installation observations with retained evidence.
+Sizing: about five minutes active work including focused proof/cleanup;
+medium confidence. Native response waits are a stated exception.
+
+### Shared native preparation and evidence for slices 3–5
+
+Preparation is inside the first native slice that runs, not a separate framework
+or open-ended infrastructure step:
+
+- Reuse `tests/helpers/release-fixture.bash` to build controlled competing tags
+  and a divergent branch. Add the candidate README and guide to the fixture's
+  source branch so the agent can read the actual public instructions. Keep valid
+  release tags immutable; the tagged skills/helpers are the candidate payload.
+  Reading source instructions before pinning is allowed; executing its scripts
+  before pinning/inspection is the prohibited behavior.
+- Make a fresh target with neither selected managed skill present. Use existing
+  target/sentinel helpers, plus a small original `adr-awareness` file and caller
+  and other-platform sentinels. Record their initial bytes. Do not run the old
+  `delivery_prepare_fixture`: it installs a baseline and changes this precondition.
+- Supply the install request, source URL, and target. Let the agent find/follow
+  README and choose its native destination; do not supply a bypass command or
+  call an installed updater. Reuse native launch conventions only, not the old
+  wrapper's update/fresh-ADR lifecycle. Do not change models or shared settings.
+
+The local `--help` surfaces were inspected during refinement: Codex supports
+JSONL events, Cursor supports `stream-json`, and Claude supports `stream-json`
+and verbose output. This resolves how to request transcripts; it is not a native
+installation result or a new discovery verification. Keep current permissions;
+these output flags do not authorize broader execution access.
+
+For each single native run, inspect chronological tool events for tag selection,
+Git-only pinning, reads of the complete executable call chain and public payload,
+post-inspection validation, and the exact direct installer command/commit. Check
+all three installed files against the selected snapshot and the version record;
+check the target diff, local guidance/caller and other-platform sentinels, actual
+outcome report, and the agent's own temporary cleanup before outer fixture teardown.
+Keep launcher status and stderr; a successful log-capture command is not proof
+that the native run succeeded.
+
+Record host/version, session/transcript reference, exact source/tag/commit,
+inspection-to-execution evidence, payload checks, preservation, cleanup, and the
+actual result in the existing slice/platform row. Copy decisive short excerpts
+before disposable logs are removed; do not leave dead temporary paths as the only
+proof. A final summary or printed commit alone cannot replace tool-call evidence.
+
+Stop after that installation observation. Reuse E1–E4 for unchanged discovery,
+ADR behavior, updating, repeat/force, and faults. Reopen only evidence with an
+identified changed input/behavior. An unavailable host or incomplete trace stays
+pending; copying files or another tool's result cannot close it. Continue other
+ready platform slices without repeatedly retrying an unchanged blocker.
+
+## Execution controls and learnings
+
+- The reviewed plan remains five leaves and three new native installations.
+  No completed proof was discarded or converted into a new task. The original
+  14-leaf lifecycle matrix stays retired. Story goal, scope, and order are unchanged.
+- Refinement exposed three concrete traps: `assert_payload` checks only a marker
+  for the updater; test-owned EXIT cleanup can mask workflow cleanup; and old
+  native delivery wrappers prepare an existing installation and capture summaries.
+  The leaves now address those within their original proof loops.
+- All remaining leaves are Ready after this pass: bounded edits, one success or
+  refusal outcome, and one focused proof loop each. No additional Structure or
+  refinement gate is required before execution. Roughly 25 minutes active work
+  plus native waits remains a hypothesis, not a guarantee.
+- Include checks, slice-local cleanup, and evidence recording in the five-minute
+  target. At five minutes inspect hidden work. At ten, preserve attempt-owned
+  WIP/learning and refine the affected leaf unless one focused test or external
+  wait explains elapsed time. State that exception at the threshold; it does not
+  cover active debugging. A second non-exempt overrun requires story-boundary
+  review; renaming/retrying leaves does not reset the count.
+- Product/test changes must finish green with focused tests and applicable lint.
+  Native evidence-only leaves need their result/cleanup record, not unrelated
+  code changes or full-suite reruns. If a shared guide change invalidates an
+  earlier platform observation, reopen that claim explicitly; independent later
+  platform work does not invalidate it by itself.
+- This refinement changed only this PLAN. No product verification, implementation,
+  native installation, commit, or push occurred. Execution may start with slice 1;
+  acceptance remains pending until new observations and retained proof agree.
