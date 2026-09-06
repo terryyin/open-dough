@@ -366,27 +366,62 @@ Safe stop: Claude has a usable updater alongside the completed Cursor support.
 
 ### A2. Protect an existing Claude installation from ordinary reinstall
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06; covered by `tests/install.sh` with `4ee6293`.
 Behavior: Given a locally edited Claude skill, ordinary installation for Claude
 warns and exits nonzero without changing it.
 Proof: Focused real-installer test checks warning, failure, and preserved bytes.
+
+- After a Claude install, the test overwrites that `SKILL.md` with
+  `Keep my Claude edits.`, reruns `--platform claude` without `--force`, and
+  requires a `Warning:` / `--force` message, nonzero exit, preserved edit
+  bytes, and unchanged Codex/Cursor/unrelated `.claude` sentinels.
 Safe stop: existing Claude installation is protected.
 
 ### A3. Replace Claude's installation when explicitly forced
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06; covered by `tests/install.sh` with `4ee6293`.
 Behavior: Given the edited copy from A2, explicit `--platform claude --force`
 reinstall replaces only Claude's skill with supplied source.
 Proof: Focused comparison plus unchanged Cursor/Codex/unrelated sentinels.
+
+- The same focused test then runs `--platform claude --force`, `cmp`s the
+  Claude copy to source, and checks that Codex, Cursor, unrelated, and
+  project-file bytes are unchanged.
 Safe stop: maintainer can explicitly refresh or replace the Claude copy.
 
 ### A4. Use a pushed source improvement in Claude Code
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06.
 Behavior: Given an unedited real Claude updater and a later shared wording
 improvement on `main`, native update brings that improvement into use in Claude.
 Proof: GitHub demonstration and fresh Claude session show the changed wording;
 only Claude's installed copy changes in a project containing all integrations.
+
+- Pushed A1's installer/skill/test/README support as `4ee6293` and its native
+  installed-copy evidence as `d97dd69` to `main`; CI run 34008028315 succeeded.
+- Bootstrapped this repository's Claude copy from a fresh clone of
+  `https://github.com/terryyin/open-dough.git` (`d97dd69` on `main`) with that
+  clone's `install.sh --target /Users/terryyin/git/open-dough --platform
+  claude --force`, matching source.
+- Pushed shared wording improvement `200939e`: the success report must now
+  name the running tool (Codex, Cursor, or Claude Code) alongside the
+  installed path, so a project with more than one integration can tell which
+  copy changed. Did not hand-refresh the installed Claude copy between that
+  push and invocation.
+- Fresh session `ca5a299d-e77c-43d0-b39d-2bc3cd76f05e` invoked
+  `/dough-update https://github.com/terryyin/open-dough.git`. Its transcript
+  shows `git clone --depth 1 https://github.com/terryyin/open-dough.git
+  /tmp/dough-update-clone/open-dough` (resolved HEAD `200939e`), then `bash
+  "/tmp/dough-update-clone/open-dough/install.sh" --target
+  "/Users/terryyin/git/open-dough" --platform claude --force`, then a `diff`
+  confirming an identical file and a `git status --porcelain` scoped to only
+  the Claude path. It reported "Updated Open Dough guidance from
+  https://github.com/terryyin/open-dough.git. Tool: Claude Code. Installed
+  path: `.claude/skills/dough-update/SKILL.md`." — demonstrating the new
+  wording (naming the tool) already in use in its own report.
+- `.claude/skills/dough-update/SKILL.md` then matched the new source
+  byte-for-byte. `.agents/skills/dough-update/SKILL.md` and
+  `.cursor/skills/dough-update/SKILL.md` hashes were unchanged throughout.
 Safe stop: both tools have demonstrated the shared source-to-use loop.
 
 ### A5. Reapply unchanged source in Claude Code
