@@ -31,10 +31,10 @@ replacement. Rare unversioned installations are handled manually; no migration
 feature is planned. The
 [product backlog](../PRODUCT-BACKLOG.md) records this delivery order.
 
-Current refinement direction, 2026-09-06: safe installation is complete. Reach
-the third backlog item, Donut adoption with redundant ADR-awareness removal, as
-soon as possible. Keep publication and self-use to their smallest useful
-outcomes; postpone work that does not enable that adoption.
+Current refinement direction, 2026-09-06: safe installation and publication are
+complete. Refine the first backlog item, Open Dough self-use, to the smallest
+useful outcome so we can reach the second item, Donut adoption with redundant
+ADR-awareness removal, as soon as possible. Other work can wait.
 
 ## Decisions and Constraints
 
@@ -526,20 +526,105 @@ Story 5e owns adoption.
 
 ### 5e. Adopt and reuse released guidance in Open Dough
 
-- **Status:** Candidate split; refine before updating or refining its provisional plan.
-- **For / why:** The maintainer needs real self-use evidence of the same released
-  installation flow used by other projects; this is adoption, not a separate
-  installer implementation.
-- **Evaluation:** Open Dough's three native installations adopt the published
-  release separately; each natively discovers and uses `dough-adr-awareness` on
-  real ADR-relevant work, and a fresh updater invocation reports current without
-  writes. Further skill extractions are not required to complete this story.
-  Handle any actual unversioned starting state manually using explicit reinstall;
-  do not add an automated migration feature.
-- **Value / learning:** Closes the bootstrap loop and tests coexistence in daily use.
-- **Effort hypothesis:** M, medium confidence once the release exists.
-  **Depends on:** Story 5d. Provisional
-  [plan](../quick/011-adopt-version-aware-updater/PLAN.md), not executable.
+- **Status:** Refined 2026-09-06; self-adoption and native verification pending.
+  The existing [slice plan](../quick/011-adopt-version-aware-updater/PLAN.md)
+  is aligned and slice-refined: ready for direct execution, with all nine native
+  adoption/use checks still planned.
+- **Depends on:** [Publication (5d)](#publish-version-aware-updater), complete.
+- **Effort hypothesis:** S–M, medium confidence; assumes the released flow works
+  unchanged and fresh native sessions are available for all three tools.
+
+#### Goal
+
+As the Open Dough maintainer, use the released updater and ADR-awareness in
+Open Dough itself through the same project-local flow available to adopters,
+so the project benefits from its shared guidance and we can move promptly to
+[Donut adoption and redundant ADR-awareness removal](SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install),
+the second backlog item.
+
+The stopping point is one successful adoption and fresh native reuse in each
+supported tool. No waiting period, further extraction, or manufactured source
+improvement is needed.
+
+#### Scope
+
+- Adopt the supplied repository URL's latest numeric release into this Open
+  Dough worktree, separately for Codex, Cursor, and Claude Code. The published
+  baseline is v0.2.0 at 676188a66504f7dc751e03311f9be5245757b24a from
+  https://github.com/terryyin/open-dough.git. Resolve and inspect the actual
+  latest release at execution; this observation is not a requested-version pin.
+- Use the existing installed updater for the observed starting state. All three
+  copies already support the complete public payload and missing VERSION
+  records. Their existing unknown-record path can install the released
+  ADR-awareness files and record the release; no migration code is needed.
+  Only a genuinely older updater that refuses the expanded payload needs the
+  existing manual bootstrap with explicit overwrite authorization.
+- Keep the current three-file payload and selected updater VERSION record.
+  Fetch, pin, inspect, apply, and verify through the existing released flow;
+  preserve truthful failure reporting and temporary-checkout cleanup. Compare
+  installed bytes to the inspected release, not to untagged working-tree source.
+  Follow [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md);
+  no installer redesign, new version, or release publication is expected.
+- In fresh native sessions, discover and invoke the installed dough-update and
+  dough-adr-awareness for each tool. The updater reports current without calling
+  the installer or writing installed files or records. Use ADR-awareness on the
+  real next-story question: which Accepted Open Dough decisions constrain
+  adopting released guidance and replacing Donut's original? It must read the
+  local index, cite relevant current decisions, and retain human decision
+  authority without changing ADRs or implementing the next story.
+- Preserve distributable source, ADR documents and their index, internal
+  skills, the repository acceptance guard, unrelated guidance, other tools'
+  installations and records, and home guidance. Keep shared behavior in the
+  existing source with only the established native destination/invocation
+  adaptations. A selected tool's adoption does not synchronize other tools.
+- Reuse unchanged installation, update-decision, ADR-behavior, and coexistence
+  evidence. Add only the real-project adoption and reuse observations missing
+  here, separately per tool. Reopen wider checks only if a concrete defect or
+  changed input invalidates them; native launch trouble remains pending evidence,
+  not a reason to claim success or build new infrastructure.
+- Donut installation, equivalence assessment, redundant-file removal, caller
+  repair, and proof that architecture-triggered use survives belong to item two.
+  That story must make the first clear-equivalent adoption work without waiting
+  for recurring update-time replacement or local-difference reconciliation.
+  Further extraction (including the borrowed refinement skill), inline changelog
+  display, automatic migration, rollback, global installation, and speculative
+  hardening are deferred. A concrete blocker to safe adoption must be surfaced.
+
+#### Key examples
+
+| Pre-condition | Trigger | Observable result |
+| --- | --- | --- |
+| A selected Open Dough updater matches the released skill, but its VERSION and both ADR-awareness files are absent | Invoke the installed updater with the supplied source URL | The existing unknown-record path installs all three public files from the inspected latest release and records its version. Only the selected installation changes; source and other guidance stay intact. |
+| That tool has adopted the release | Start a fresh native session and invoke dough-adr-awareness for the next-story ADR question | The installed skill is discovered and applied, reads Open Dough's ADR index, cites relevant Accepted decisions, and preserves human authority and ADR documents. No sibling checkout supplies the skill. |
+| That installation records the same release still selected from the URL | Invoke dough-update in a fresh native session | Reports current, with no installer invocation or installed-file/record writes. An empty Git diff alone does not prove no writes. |
+| Another tool already has its own installation and local guidance | Adopt and reuse the release in the selected tool | Its native root is used and the other installation and unrelated guidance remain intact; no compatibility-path fallback or cross-tool overwrite. |
+
+#### Acceptance and evidence
+
+Read-only inspection at worktree base d7d04e9fb4343d7e64dcf30dfc3c46eca66a7126
+found the same starting state for all three platforms: dough-update/SKILL.md
+byte-matches v0.2.0, its VERSION is absent, and dough-adr-awareness/SKILL.md and
+RECOGNITION.md are absent. The installer, helper sources, public payload, README,
+and installation guide are unchanged from that release. Reading the existing
+updater and helper confirms support for this unknown-record state; this is
+static evidence, not a new native installation or update result.
+
+| Platform / native root | Earlier evidence retained while unchanged | New self-use evidence |
+| --- | --- | --- |
+| Codex / .agents/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
+| Cursor / .cursor/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
+| Claude Code / .claude/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Pending: actual release adoption, fresh installed ADR use, current/no-write update, and preservation in this worktree. |
+
+Record source URL, actual tag/commit, target, selected paths and before/after
+records, native tool/session and invocation, ADR outcome, and preservation/no-write
+observations in the plan or change summary. File copying or another tool's
+success cannot close missing native evidence. Once these observations pass,
+proceed to item two; do not reopen completed general behavior without a reason.
+
+No unresolved product decision was identified in story refinement. The follow-up
+slice-planning pass updated the existing plan and preserved its earlier mappings.
+Recheck the release and installed state when execution starts. No adoption,
+Donut changes, or skill extraction was performed by either planning pass.
 
 <a id="show-update-changelog"></a>
 
@@ -591,10 +676,9 @@ combined outcome without reopening release production or version detection.
 
 ## Ordering and Scope Reduction
 
-Safe installation (5a) is complete. Remaining delivery order: publish the accepted
-ADR-awareness payload and updater (5d), then install and use that release in
-Open Dough (5e). Self-adoption uses the same project-local flow as other targets;
-it is a real-use check, not another installation mechanism. After that, implement
+Safe installation (5a) and publication (5d) are complete. The first remaining
+outcome is the bounded self-adoption and native reuse in Open Dough (5e) refined
+above, using the existing released flow. After that, implement
 and deliver first-install replacement in Donut under SEED-004 Story 4. Publish
 any accepted replacement changes with the existing release workflow before
 claiming they are available through released installation.
@@ -624,6 +708,7 @@ subsequently refined to five remaining slices, all now accepted. The spent
 Quick 005, Quick 008, and Quick 010 plans were dropped after completion; their
 evidence is summarized in Stories 5b, 5a, and 5d above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
+Quick 011 is now aligned to refined Story 5e and slice-refined for execution.
 The other unfinished split plans remain explicitly not executable until their
 stories and slices are refined again.
 
@@ -631,7 +716,7 @@ stories and slices are refined again.
 
 - Story 5a is complete with all five slices accepted and earlier evidence retained.
   Story 5d is complete with independently verified public `v0.2.0`. Story 5e
-  needs refinement for the smallest real self-use check.
+  and its existing slice plan are refined; execution evidence remains pending.
   Story 6 needs refinement when manual release-note reading becomes a pain;
   local-edit conflict handling stays outside.
 
@@ -659,13 +744,20 @@ refined plan; do not chain the provisional plans as one delivery.
   boundary, temporary-work leakage, unsafe numeric comparison, and oversized
   changed files. The owner requested another story split while preserving the
   delivered implementation evidence.
-- Owner's current direction, 2026-09-06: create a branch/worktree for the first
+- Owner's earlier publication direction, 2026-09-06: create a branch/worktree for the first
   backlog item and borrow Donut's story-refinement skill. Reach the third item,
   safe Donut adoption with redundant ADR-awareness removal, as soon as possible;
   other work can wait. This pass refines 5d only and leaves backlog order intact.
   Borrowed `.agents/skills/story-refinement/SKILL.md` and its planning rule from
   Donut checkout `81081ebae26f58d45def73fbc3a31864ebf2fc22`; no borrowed skill was
   installed, extracted, or distributed.
+- Owner's self-use direction, 2026-09-06: create a fresh branch/worktree for
+  backlog item one and refine it using Donut's story-refinement skill. Reach item
+  two, safe Donut adoption and redundant ADR-awareness removal, as soon as
+  possible. This pass refines 5e only and preserves the ordered backlog.
+  Borrowed story-refinement and its planning/decomposition rules from Donut
+  checkout 96eede10d4755757c53d43741e483c310c98356c; used their workflow here
+  without copying, extracting, or distributing the skill.
 - [Donut story-decomposition](../../../doughnut/.agents/skills/story-decomposition/SKILL.md)
 - [Donut story-refinement](../../../doughnut/.agents/skills/story-refinement/SKILL.md)
 - [Donut slice-plan-refinement](../../../doughnut/.agents/skills/slice-plan-refinement/SKILL.md)
