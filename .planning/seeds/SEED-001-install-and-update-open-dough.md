@@ -228,109 +228,116 @@ changes.
 
 ### 5a. Install the latest released Open Dough guidance safely
 
-- **Status:** Refined again, 2026-09-06; implementation and earlier evidence
-  exist, but acceptance remains incomplete. The existing slice plan is now
-  reconciled and refined for its earlier payload; reconcile the payload scope
-  below before execution. No execution occurred in this reprioritization.
-- **For / why:** An adopting developer needs a trustworthy first installation.
-- **Evaluation:** Each native tool installs and discovers the highest numeric
-  release from the supplied URL; only the inspected pinned release executes.
-- **Value / learning:** Makes release identity usable without update behavior.
-- **Effort hypothesis:** M, medium confidence; implementation exists, but the
-  trust boundary, oversized README, and fresh Cursor proof remain.
-- **Depends on:** Story 4's valid release. Refined
-  [plan](../quick/008-install-latest-release/PLAN.md) retains completed evidence
-  and assigns the remaining implementation and native proof.
+- **Status:** Implementation and focused shell proof completed 2026-09-06;
+  native installation-path acceptance remains pending. The
+  [five-slice plan](../quick/008-install-latest-release/PLAN.md) records completed
+  slices 1–2 and one blocked launch for each native tool in slices 3–5. Current
+  sandbox access and Claude authentication visibility prevented installation;
+  unchanged-behavior evidence is explicitly retained.
+- **Depends on:** A valid tagged source under
+  [Accepted ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+  Controlled releases can prove this story before backlog item two publishes it.
 
 #### Goal
 
-As a developer adopting Open Dough, install the latest released public guidance,
-including `dough-update`, from my supplied repository URL into my project and
-use it in my running AI tool, knowing which release was installed. This provides a usable first
-installation for the bootstrap loop without waiting for legacy migration or
-publication of the version-aware updater.
+As a developer adopting Open Dough in a project such as Donut, install and use
+its released `dough-update` and `dough-adr-awareness` guidance safely, knowing
+which source and release supplied it and retaining my existing project guidance.
+
+The owner's current goal is to reach backlog item four:
+[start using Open Dough without overlapping local guidance](SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install).
+This story supplies the safe installation needed for that outcome. Item four
+then proves that Donut's original `adr-awareness` is redundant, removes it, and
+repairs its callers while preserving effective ADR use. Removal is not part of
+this story's installation success. The first-install journey can reach that
+outcome without waiting for the separate update-time replacement story.
 
 #### Scope
 
-- Start with no Open Dough installation for the selected tool. Capture the
-  intended project before fetching; use the supplied repository URL and the
-  running tool, even when other tools already have installations in the project.
-- Select the highest numeric `vMAJOR.MINOR.PATCH` release under Accepted
-  ADR 0003. Pin its commit before executing any fetched repository code; inspect
-  the installer, its executable dependencies, and the payload from that snapshot.
-  Execute that same inspected snapshot. If the selection no longer agrees with
-  the pinned release, stop without silently fetching and executing a replacement.
-- Verify the installed skill matches the pinned payload and record its numeric
-  version only after successful verification. Report the supplied URL, selected
-  tag and commit, tool, installed path, and actual outcome. The trust signal is
-  an observed link between inspected code, executed code, and installed content;
-  a printed commit alone does not establish it.
-- Preserve ordinary repeat protection: an existing selected skill directory
-  stops installation without changing its files or record. An explicitly
-  authorized `--force` reinstall replaces the selected skill and record,
-  including local edits, with latest. This remains a bounded installation
-  exception; it does not promise local-edit merging or unversioned migration.
-- Fetch or release-validation failure stops before target writes, with no
-  fallback to an older tag or branch. If copying or verification fails after
-  writing starts, report possible incomplete files and leave the previous
-  successful record unchanged (or absent on a fresh install). Do not claim
-  success or promise automatic rollback. Clean temporary work on success/failure.
-- Make the installed skill discoverable and invocable in a fresh native session
-  of Codex, Cursor, and Claude Code, using one shared behavioral source with
-  minimal platform adaptation. A first invocation against the same latest
-  release demonstrates the already-delivered current-version no-op from Story 5b.
-- Keep installation instructions easy to find from the README and consistent
-  with the pin-and-inspect behavior. Preserve unrelated project content, source
-  guidance, other tools' installations and records, and home-level guidance.
-  Internal skills and the repository acceptance guard remain undistributed.
-- Include accepted extracted public skills in the selected release payload.
-  Reconcile the existing plan's updater-only examples with the public-payload
-  delivery already established by SEED-004 Story 1. New extraction remains in
-  SEED-004; installation acceptance verifies delivery and native use.
-- Resolve the reproduced destination-containment defect recorded in the
-  [installation follow-up](../quick/012-harden-public-guidance-installation/PLAN.md)
-  before real adoption. This is an observed violation of the project-local
-  installation contract, not a speculative prerequisite for extraction.
-- Exclude new skill extraction, global installation, automatic tool detection
-  from installed directories, cross-tool synchronization, requested versions,
-  release publication, real-project self-adoption, inline changelog presentation,
-  and general repair or conflict handling. Stories 5d–6 retain their outcomes;
-  Story 5b's recorded-update behavior is reused, not expanded here.
+- Install into the captured target project for the running tool, starting with
+  neither managed Open Dough skill installed for that tool. Other local skills,
+  including Donut's `adr-awareness`, and other tools' installations may exist.
+- Deliver exactly the current three public files: `dough-update/SKILL.md`,
+  `dough-adr-awareness/SKILL.md`, and `dough-adr-awareness/RECOGNITION.md`, plus
+  the selected updater's numeric `VERSION` record. Use one shared source with
+  only the native destination and invocation adaptations for Codex, Cursor,
+  and Claude Code. Do not introduce a general payload catalogue.
+- Use the supplied URL's highest numeric `vMAJOR.MINOR.PATCH` release. Pin its
+  commit before executing fetched repository code; inspect its installer,
+  executable dependencies, and declared payload, then execute that same
+  snapshot. A changed selection stops the operation without silently repinning.
+  Correct the existing README-linked installation flow only as needed to make
+  this behavior usable; broader documentation restructuring is unnecessary.
+- Verify all installed payload bytes against the pinned sources before recording
+  success. Report the source URL, tag, commit, selected tool and paths, and actual
+  outcome. A displayed commit alone does not prove which code executed.
+- Preserve the existing repeat/force policy across both managed skills. If either
+  already exists, ordinary installation stops before changing either or its
+  record. Explicit `--force` authorization replaces the declared managed files
+  and record, including local edits, while preserving other guidance.
+- Preserve project containment, source files, local ADRs and their callers,
+  unrelated guidance, other tools' installations, and home guidance. The internal
+  skills and repository acceptance guard remain undistributed. Reuse the
+  [completed containment and copy-failure fixes](../quick/012-harden-public-guidance-installation/PLAN.md);
+  they are existing safeguards to retain, not unfinished implementation.
+- Release/fetch/validation or unsafe-destination failures stop before target
+  writes, without a lower-tag or branch fallback. A failure after copying begins
+  reports possible incomplete files and leaves the last successful version
+  record unchanged or absent. Retain explicit reinstall recovery and cleanup of
+  operation-owned temporary work; no automatic rollback or general repair.
+- Both installed skills must be discoverable and invocable in fresh native
+  sessions of each tool; ADR-awareness follows local accepted decisions and the
+  same-release updater reports current without writes. Reuse the already-recorded
+  native discovery, use, update, and coexistence observations while their inputs
+  and behavior remain unchanged. Verify the corrected installation instructions
+  once per tool; reopen only evidence affected by implementation or a concrete
+  tool-behavior change. No full lifecycle rerun is required by this story.
+- Defer new extraction (including the story-refinement skill borrowed here),
+  overlap detection/removal and caller changes, local-difference reconciliation,
+  migration automation, global installation, cross-tool synchronization, requested
+  versions, inline changelog display, and speculative hardening. Publication and
+  real-project self-use remain separate backlog items. Do only the remaining
+  work needed for safe adoption; do not add prerequisites to item four.
 
 #### Key examples
 
 | Pre-condition | Trigger | Observable result |
 | --- | --- | --- |
-| No selected installation; supplied source has `v0.1.9` and `v0.1.10`, with newer untagged branch changes | Ask the running agent to install Open Dough | Installs inspected `v0.1.10` content, records `0.1.10`, and reports its exact source/tag/commit and selected path. No default-branch repository script executes. |
-| Cursor has no installation; Codex and Claude Code already have their own copies | Install in Cursor, then start a fresh Cursor session | Only Cursor's copy and record are installed; `/dough-update` is discovered and invoked. With the same latest release it reports current without an installer call or installed-file/record writes. Equivalent native journeys apply separately to Codex and Claude Code. |
-| The selected skill directory already exists, including local edits | Repeat the ordinary installation request | Warns and stops without changing the selected files or record; explains the explicit overwrite option. |
-| The developer explicitly authorizes reinstalling the selected copy | Install with `--force` | Replaces only that tool's skill and record with the verified latest release; local edits in those files are overwritten and other guidance is preserved. |
-| No numeric release exists, or the highest release has inconsistent metadata or a missing payload | Request installation | Reports the specific failure before target writes; does not choose a lower release or default-branch content. |
-| The pinned commit no longer satisfies latest selection after inspection | Continue installation | Stops without executing newly fetched replacement code or changing the target. |
-| Copying or payload verification fails after writing begins | Attempt installation | Reports incomplete installation, creates no successful fresh version record, and explains explicit reinstall recovery; temporary work is cleaned. |
+| Donut-like project has local `adr-awareness` and callers but no selected Open Dough installation; source has `v0.1.9`, `v0.1.10`, and later untagged branch changes | Install from the supplied URL | Only inspected `v0.1.10` repository code executes; all three payload files match that commit and record `0.1.10`. Original guidance, callers, and ADR documents remain intact for item four. |
+| Another tool already has its own installation | Install for the running tool and start a fresh native session | Only the selected native root changes. Both installed skills are discovered and invoked; ADR-awareness uses local accepted decisions, and the same-release updater reports current without writes. Retain the earlier native discovery/use/no-op evidence separately for each tool; observe the changed installation path in each. |
+| Either managed skill already exists, with local edits | Repeat ordinary installation; then explicitly authorize a forced reinstall | Ordinary installation preserves both skills and the record. Authorized force replaces the declared payload and record only; other local guidance stays intact. |
+| Highest release is unusable, selection changes after inspection, or destination would escape the project | Attempt installation | Stops before target writes with a specific explanation, without executing a replacement snapshot or falling back to branch/lower-release content. |
+| A real copy or verification failure occurs after writes begin | Attempt installation | Reports possible incomplete files, preserves the previous successful record or creates none, explains explicit reinstall recovery, and cleans its temporary work. |
 
 #### Acceptance and evidence
 
-For each platform, observe the supplied-URL installation interaction, pinned
-code inspection/execution, payload and record verification, repeat/force
-behavior, preservation of coexisting guidance, fresh native discovery and
-invocation, and the existing same-release update no-op. Script tests support
-these observations but do not replace native proof. Controlled tagged sources
-can demonstrate this story before Story 5d publishes the updater.
+The owner clarified that established tool experience should reduce repeated
+verification. The public installation examples now select and pin with Git,
+inspect the full call chain and payload, revalidate, and invoke the direct
+installer. Focused success and stale-selection checks pass. Native observation
+of that corrected journey remains pending: all three launches stopped before
+installation under current access constraints. Conclusions about unchanged
+skills, discovery/use, updating, repeat/force, and containment remain retained.
 
-| Platform | Earlier evidence retained | Still pending for this refined story |
+| Platform | Earlier native evidence retained | New installation observation |
 | --- | --- | --- |
-| Codex | Quick 008 records fresh discovery in session `01a07569-9c9e-7412-bcae-87049e00f575`; Story 5b records native current-version no-op. | Corrected installation journey through fresh discovery/invocation and coexistence; earlier discovery alone does not prove the revised pin-and-inspect flow. |
-| Cursor | Quick 008 records CLI installation and an in-session file read; Story 5b records native current-version no-op. | Corrected installation journey, fresh fixture session discovery/invocation, and coexistence; file reads do not close native discovery. |
-| Claude Code | Quick 008 records fresh discovery in session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`; Story 5b records native current-version no-op. | Corrected installation journey through fresh discovery/invocation and coexistence; earlier discovery alone does not prove the revised pin-and-inspect flow. |
+| Codex | Quick 007 slices 11–12: installed updater and fresh ADR use/coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Pending (plan slice 4): existing isolated launcher denied by sandbox before Codex started. |
+| Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Pending (plan slice 3): Cursor session-directory creation denied; no installation tools ran. |
+| Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Pending (plan slice 5): startup writes denied and authentication unavailable to the launch; no installation tools ran. |
 
-This refinement borrowed Doughnut's `story-refinement` skill and planning rule,
-and reused the selected split, ADR 0003, provisional evidence, and current
-installation/update instructions. No native verification was performed in this
-pass. Existing evidence remains valid only for unchanged behavior. No unresolved
-product decision blocks this story. The subsequent slice-plan refinement
-reconciled the existing plan and sized its remaining work; implementation and
-collection of the missing proof remain pending.
+[Quick 007](../quick/007-generalize-project-guidance/PLAN.md)'s original native
+delivery used default-branch fixtures. Its unchanged discovery/ADR observations
+remain reusable; they do not establish the changed release-install route.
+[The plan](../quick/008-install-latest-release/PLAN.md) maps every promise to
+retained evidence or remaining work and records specific invalidation triggers.
+No automatic expiry or full tool-version matrix is introduced. Missing native
+proof remains pending; one platform's success does not prove another's behavior.
+
+No unresolved product decision blocks execution. Donut's story-refinement and
+slice-planning guidance was borrowed in this session from checkout
+`43f0dbe0d47840e31f4773723cfed2d663e56bc8`; no borrowed skill was installed or
+distributed. Only planning files changed; no product implementation, native
+verification, release, or Donut installation/removal occurred in these passes.
 
 <a id="detect-installed-version"></a>
 <a id="update-only-when-needed"></a>
@@ -508,11 +515,11 @@ corrections completed; its evidence is summarized in Story 5b above and in the
 
 ## Open Decisions
 
-- Reconcile Story 5a's existing plan with the selected public payload and the
-  linked installation follow-up before execution; native acceptance remains
-  pending. Stories 5d–5e need refinement for the extracted-guidance release and
-  self-use scope. Story 6 needs refinement when manual release-note reading
-  becomes a pain.
+- Story 5a's implementation and focused shell proof are complete. Its three
+  native installation observations need launcher access/authentication; the
+  five-slice plan records the blockers and retains earlier evidence.
+  Stories 5d–5e need refinement for released-guidance publication and self-use.
+  Story 6 needs refinement when manual release-note reading becomes a pain.
   Local-edit conflict handling stays outside.
 
 ## When to Surface

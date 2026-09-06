@@ -1,6 +1,8 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: EXECUTING.** Refined 2026-09-06; slices 1–2 completed 2026-09-06.
+**Status: BLOCKED on native launch access.** Slices 1–2 completed and committed
+2026-09-06; slices 3–5 attempted once each and remain pending. No native
+installation ran. The plan is not complete.
 Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
 Source: [SEED-001, Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release).
@@ -48,9 +50,9 @@ native run. Keep the provenance limitations above when reporting acceptance.
 
 | Platform | Native evidence retained | New evidence still pending |
 | --- | --- | --- |
-| Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4: follow the corrected public install instructions and deliver the verified payload. |
-| Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3: follow the corrected public install instructions and deliver the verified payload. |
-| Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5: follow the corrected public install instructions and deliver the verified payload. |
+| Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4 pending: isolated launcher denied by the current sandbox; no native installation events. |
+| Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3 pending: Cursor session-directory write denied; no native installation events. |
+| Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5 pending: Claude startup writes denied and authentication unavailable to the launch; no installation events. |
 
 Reopen only evidence affected by a change to skill name/frontmatter/content,
 native destination/discovery configuration, relevant tool behavior, updater
@@ -223,7 +225,7 @@ code or refusal wording needed changing.
 
 ### 3. Install safely from the corrected instructions in Cursor
 Type: Behavior
-Status: planned
+Status: pending — native launch blocked 2026-09-06
 Proof: One native Cursor installation using the shared protocol below; capture
 `cursor agent --print --output-format stream-json` events with the existing
 workspace/sandbox launch conventions and current environment permissions.
@@ -240,9 +242,27 @@ other platforms can remain pending without any red product change.
 Sizing: about five minutes active work including preparation and evidence;
 medium confidence. Record native response waits separately. Reuse E1–E2.
 
+Execution attempt (2026-09-06, Darwin arm64): Cursor Agent
+`2026.09.02-c22c1a3` (desktop `3.19.13`). Launched once from the fresh Cursor
+adopter with `cursor agent --print --force --trust --sandbox enabled
+--output-format stream-json --workspace <target> <request>`, retaining status and
+stderr. Exit status **1**, zero-byte event stream, no session ID or tool calls:
+
+> Error: EPERM: operation not permitted, mkdir '/Users/terryyin/.cursor/projects/private-tmp-open-dough-safe-native-9i1I9B-cursor-adopter'
+
+The target remained byte-for-byte unchanged according to Git's baseline and full
+untracked-file inventory; original ADR skill/caller and all three platform
+sentinels survived. Installer and branch marker logs stayed empty. Cursor created
+no agent-owned checkout, so its pin/inspection/execution, payload verification,
+reporting, and workflow cleanup are **unobserved**, not passed. Stderr SHA-256:
+`9de6ffd4b6de0fe170c09c3005ccdd51445e376c941cb3537c5e1007ab7da0b3`.
+The shared fixture recipe/source identity below was used. No unchanged retry or
+permission broadening; continued with slice 4. Preparation plus launch/review
+was under five minutes; native process wait was about one second.
+
 ### 4. Install safely from the corrected instructions in Codex
 Type: Behavior
-Status: planned
+Status: pending — native launch blocked 2026-09-06
 Proof: One native Codex installation under the same protocol, using
 `codex exec --json` to retain tool events; a last-message file alone is insufficient.
 Reuse the established isolated launcher within current environment permissions.
@@ -257,9 +277,29 @@ Stop-safe boundary: a recorded Codex result; no extra discovery/updater session.
 Sizing: about five minutes active work including focused proof/cleanup;
 medium confidence. Native response waits are a stated exception; E1–E2 stand.
 
+Execution attempt (2026-09-06, Darwin arm64): `codex-cli 0.144.1`.
+Used the established `sandbox-exec` profile from the delivery-to-use launcher,
+with proof/state paths under the disposable fixture and protected skills,
+worktrees, packages, plugins, and configuration. Requested `codex exec --json
+--ephemeral --ignore-user-config` with isolated sqlite/log paths, existing
+externally sandboxed execution convention, and the fresh Codex target. No model
+or shared settings were changed. Launcher exit status **71**, zero-byte event
+stream, and no native session:
+
+> sandbox-exec: sandbox_apply: Operation not permitted
+
+The enclosing task sandbox refused the existing isolated launcher before Codex
+started. Target baseline/inventory stayed unchanged; both trace files were empty.
+All installation-path observations and agent-owned cleanup remain **unobserved**.
+Stderr SHA-256:
+`d34a4e4359a4dc36526cf5b363da32f7b7594a3a09eea17cbdfd6425b052d93e`.
+No claim about CLI-version equivalence is inferred from this failed launch;
+E1–E2 retain only their earlier observations. Continued to slice 5 without retrying
+or removing isolation. Active launch/review was under five minutes; no native wait.
+
 ### 5. Install safely from the corrected instructions in Claude Code
 Type: Behavior
-Status: planned
+Status: pending — native launch blocked 2026-09-06
 Proof: One native Claude Code installation under the same protocol, using
 `claude --print --output-format stream-json --verbose` with the established
 launch isolation and current environment permissions.
@@ -274,6 +314,29 @@ Stop-safe boundary: record the Claude Code result; full story acceptance then
 combines all three new installation observations with retained evidence.
 Sizing: about five minutes active work including focused proof/cleanup;
 medium confidence. Native response waits are a stated exception.
+
+Execution attempt (2026-09-06, Darwin arm64): Claude Code `2.1.263`.
+Used `claude --print --dangerously-skip-permissions --no-session-persistence
+--output-format stream-json --verbose <request>` under the enclosing task's
+unchanged sandbox, from the fresh Claude target. Exit status **1**, empty stderr,
+7,293-byte event stream. Session: `53926afa-2997-4b4f-bc56-4f41beb7e90f`.
+Decisive chronological events:
+
+- Three `SessionStart:startup` hook responses had exit code 1:
+  `EPERM: operation not permitted, mkdir '/Users/terryyin/.claude/session-env/53926afa-2997-4b4f-bc56-4f41beb7e90f'`.
+- Initialization was followed by a synthetic assistant event with
+  `error: authentication_failed` and `Not logged in · Please run /login`.
+- Terminal result had `is_error: true`, `terminal_reason: api_error`, and zero
+  API usage. Its `subtype: success` did **not** mean installation succeeded.
+
+No agent installation tools ran; this demonstrates authentication was unavailable
+to this launch, not whether the user's ordinary host session is logged in. Target
+baseline/inventory stayed unchanged and both trace files were empty. All required
+installation observations and agent-owned cleanup remain **unobserved**. Event
+stream SHA-256:
+`c27fcd4e9d2b355d13f43972c373c0df1aafb669cd72fa89a7587b95495b4795`.
+Active launch/review was under five minutes; process wait was under one second.
+No authentication/settings changes or repeated launch were attempted.
 
 ### Shared native preparation and evidence for slices 3–5
 
@@ -322,6 +385,49 @@ identified changed input/behavior. An unavailable host or incomplete trace stays
 pending; copying files or another tool's result cannot close it. Continue other
 ready platform slices without repeatedly retrying an unchanged blocker.
 
+### Native attempt provenance and cleanup (2026-09-06)
+
+Slice 3 prepared a disposable source with `tests/helpers/release-fixture.bash`:
+competing annotated tags `v0.1.1`, `v0.1.2`, and `v0.1.10`, where highest numeric
+`v0.1.10` has the oldest tag date. Candidate README/guide were committed on the
+divergent source branch alongside branch helper/installer execution markers.
+These were fixture commits only; immutable release tags were not moved.
+
+- Supplied URL: `file:///private/tmp/open-dough-safe-native.9i1I9B/source`.
+- Expected numeric release: `v0.1.10`; peeled commit
+  `deecdc221b259ff71a4f6f75df53e3de818bc842`.
+- Divergent source branch commit:
+  `f65fab5e7f01bef7037daff1d75f5c89bde19371`.
+- Fresh targets under that root: `cursor adopter`, `codex adopter`, and
+  `claude adopter`. None had a selected managed skill. Each had all three
+  platform sentinels, original `.agents/skills/adr-awareness/SKILL.md`, its
+  `AGENTS.md` caller, and an unrelated project file committed as the baseline.
+- Each request supplied only the install URL, target, direction to read README
+  and follow the linked instructions, preservation, and no commit/push. It did
+  not provide tag selection, platform paths, or bypass installation commands.
+- All launcher statuses, stderr, event streams, source and target Git status,
+  and empty installer/branch traces were reviewed before cleanup. No native
+  agent chose a release, inspected repository code, executed the installer, or
+  created its temporary checkout. Source Git status stayed clean. Fixture cleanup
+  is not agent-owned workflow cleanup evidence.
+- After recording the decisive excerpts and digests above, the test-owned fixture,
+  raw disposable logs, and temporary preparation/launcher scripts were removed.
+  Source/tag paths above are provenance, not links to retained evidence.
+
+The sandbox access failures are a concrete blocker. Resuming slices 3–5 requires
+an environment that permits their existing native launchers' session state and
+isolation, with authentication available to Claude. Current permissions were not
+expanded for native execution. No native acceptance is inferred from shell tests;
+E1–E4 remain retained within the stated boundaries. The completed behavior commits are
+`03bdc06` (guide and successful direct install) and `286c4df` (stale selection).
+Final document review restored the literal `$dough-update` invocation after shell
+formatting had added braces; no native installer ran against that typo. A focused
+check confirmed the Codex literal, all README/guide relative links and anchors,
+and exact equality of the guide/fixture post-inspection command sequence. No
+shipped skill or earlier retained behavior was changed by this correction.
+The supplied plan/story edits were preserved. No main-worktree edits, Donut
+installation/removal, push, or release publication was performed by this task.
+
 ## Execution controls and learnings
 
 - The reviewed plan remains five leaves and three new native installations.
@@ -346,6 +452,7 @@ ready platform slices without repeatedly retrying an unchanged blocker.
   code changes or full-suite reruns. If a shared guide change invalidates an
   earlier platform observation, reopen that claim explicitly; independent later
   platform work does not invalidate it by itself.
-- This refinement changed only this PLAN. No product verification, implementation,
-  native installation, commit, or push occurred. Execution may start with slice 1;
-  acceptance remains pending until new observations and retained proof agree.
+- The earlier refinement changed only this PLAN; execution results are now
+  recorded above. Slices 1–2 are green and committed. Native slices 3–5 remain
+  pending until launcher access/authentication permits their focused observations;
+  acceptance remains incomplete.
