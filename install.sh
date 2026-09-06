@@ -45,18 +45,20 @@ if [[ ! -d "${target}" ]]; then
   exit 1
 fi
 
+complete_public_payload=(
+  dough-update/SKILL.md
+  dough-adr-awareness/SKILL.md
+  dough-adr-awareness/RECOGNITION.md
+)
+
 case "${platform}" in
   codex)
     relative_skill_root=.agents/skills
-    managed_files=(
-      dough-update/SKILL.md
-      dough-adr-awareness/SKILL.md
-      dough-adr-awareness/RECOGNITION.md
-    )
+    managed_files=("${complete_public_payload[@]}")
     ;;
   cursor)
     relative_skill_root=.cursor/skills
-    managed_files=(dough-update/SKILL.md)
+    managed_files=("${complete_public_payload[@]}")
     ;;
   claude)
     relative_skill_root=.claude/skills

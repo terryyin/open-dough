@@ -99,6 +99,10 @@ EOF
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.cursor/skills/dough-update/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
+  "${target}/.cursor/skills/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
+  "${target}/.cursor/skills/dough-adr-awareness/RECOGNITION.md"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
@@ -109,6 +113,8 @@ expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
+./.cursor/skills/dough-adr-awareness/RECOGNITION.md
+./.cursor/skills/dough-adr-awareness/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
@@ -130,6 +136,8 @@ expect_files << 'EOF'
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
+./.cursor/skills/dough-adr-awareness/RECOGNITION.md
+./.cursor/skills/dough-adr-awareness/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt

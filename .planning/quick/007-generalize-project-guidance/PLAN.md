@@ -261,10 +261,15 @@ repository content or treat an unresolved extraction draft as public payload.
 
 ### 8. Install the evaluated public payload for Cursor
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same focused installer fixture selects Cursor, compares its complete
 public payload, and confirms Codex, Claude Code, unrelated guidance, and internal
 Open Dough material are unchanged or absent as appropriate.
+
+Evidence: Cursor now selects the same complete public payload declaration as
+Codex and installs it only under `.cursor/skills/`. A parameterized fixture proved
+all three files match shared source, incomplete source stops before writes, and
+Codex, Claude, internal, guard, and unrelated material remain unchanged.
 
 Behavior: An evaluated public payload is available → select Cursor installation →
 obtain the same shared guidance through Cursor's native skill directory only.

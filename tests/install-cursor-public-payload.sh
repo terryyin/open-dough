@@ -2,4 +2,4 @@
 set -euo pipefail
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-bash "${script_dir}/support/assert-public-payload-install.sh" codex
+bash "${script_dir}/support/assert-public-payload-install.sh" cursor
