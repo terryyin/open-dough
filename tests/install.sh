@@ -14,7 +14,7 @@ printf '%s\n' 'Keep this unrelated skill.' > "${sentinel}"
 cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}"
 
-cmp "${source_dir}/skills/dough-update/SKILL.md" \
+cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
@@ -33,7 +33,7 @@ contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
 
 bash "${source_dir}/install.sh" --target "${target}" --force
-cmp "${source_dir}/skills/dough-update/SKILL.md" "${installed_skill}"
+cmp "${source_dir}/src/skills/dough-update/SKILL.md" "${installed_skill}"
 contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
 

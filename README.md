@@ -114,7 +114,7 @@ Set `source_url` to the cloneable repository URL you want to install from. The
 command obtains that repository's default branch and runs its installer. To
 install into another existing project, replace `"$PWD"` with its path.
 
-Installation copies `skills/dough-update/SKILL.md` from the source checkout to
+Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
 `.agents/skills/dough-update/SKILL.md` in the target project. Other project files
 are preserved. Start a fresh Codex session in that project and invoke
 `$dough-update`. It reports that updating Open Dough is not implemented yet and

@@ -20,5 +20,5 @@ if [[ -d "${destination}" && ${3:-} != --force ]]; then
 fi
 
 mkdir -p -- "${destination}"
-cp -- "${source_dir}/skills/dough-update/SKILL.md" "${destination}/SKILL.md"
+cp -- "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md"
 echo "Installed dough-update in ${destination}"

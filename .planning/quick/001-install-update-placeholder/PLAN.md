@@ -7,7 +7,7 @@ Source: [SEED-001, Story 1](../../seeds/SEED-001-install-and-update-open-dough.m
 
 Open Dough installs its Codex `dough-update` placeholder from a shallow clone
 of the supplied repository's default branch. The installer copies only
-`skills/dough-update/SKILL.md` to the target project's
+`src/skills/dough-update/SKILL.md` to the target project's
 `.agents/skills/dough-update/SKILL.md`. Repetition stops with a warning;
 `--force` replaces installed content without merging. Open Dough's installed
 copy is checked in separately from its distributable source.
