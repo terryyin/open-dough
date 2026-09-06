@@ -6,7 +6,9 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
 # Update Open Dough
 
 Install and update the latest numeric Open Dough release for the running tool.
-Do not implement a second release-selection algorithm; call the fetched helper.
+Pin that release with Git before any repository script runs, then call the
+inspected snapshot's helper. Do not reimplement the helper's comparison or
+installation decisions.
 
 1. Capture the target project's absolute path before fetching anything. Use the
    current project unless the user supplied another target.
@@ -27,17 +29,30 @@ Do not implement a second release-selection algorithm; call the fetched helper.
    | Cursor | `cursor` | `.cursor/skills/dough-update/SKILL.md` and `VERSION` |
    | Claude Code | `claude` | `.claude/skills/dough-update/SKILL.md` and `VERSION` |
 
-5. Make a fresh temporary directory. Clone the supplied URL only far enough to
-   inspect `src/install/open-dough-release.sh` and `install.sh`. Then run
-   `bash <clone>/src/install/open-dough-release.sh apply --url <source-url>
-   --target <captured-project> --platform <tool>`, quoting both paths. Codex
-   may omit `--platform`. Pass `--force` only when the user explicitly
-   authorized a forced reinstall. Inspect the helper, installer, and
-   `src/skills/dough-update/SKILL.md` from the operation's pinned release
-   before those executables run. Proceed only if they write solely to the
-   selected `SKILL.md` and `VERSION` in the captured target project, preserving
-   distributable source, unrelated project files, other tools' separate
-   installations and records, and home guidance.
+5. Make a fresh temporary directory. Using only Git, pin the highest numeric
+   release before any repository script runs. Do not clone the default
+   branch, and do not execute `install.sh` or `open-dough-release.sh` from
+   the working tree or from an unpinned clone.
+
+   a. Run `git ls-remote --tags -- <source-url>`. Keep `vMAJOR.MINOR.PATCH`
+      tags. When both a tag object and a peeled `^{}` line exist, use the
+      peeled commit. Select the highest version by comparing each component
+      as a decimal integer string; do not use shell arithmetic.
+   b. `git init` the work directory, `git fetch --depth 1 <source-url>
+      <commit>`, and check out that commit detached. Confirm
+      `git rev-parse HEAD` equals the peeled commit.
+   c. Inspect that snapshot's `src/install/open-dough-release.sh`,
+      `install.sh`, and `src/skills/dough-update/SKILL.md`.
+   d. Run `bash <snapshot>/src/install/open-dough-release.sh apply --url
+      <source-url> --target <captured-project> --platform <tool>
+      --checkout <snapshot>`, quoting both paths. Codex may omit
+      `--platform`. Pass `--force` only when the user explicitly authorized a
+      forced reinstall. If apply reports that HEAD is not the pinned latest,
+      stop. Do not fetch or check out replacement files after inspection.
+      Proceed only if the inspected files write solely to the selected
+      `SKILL.md` and `VERSION` in the captured target project, preserving
+      distributable source, unrelated project files, other tools' separate
+      installations and records, and home guidance.
 6. Trust the helper's comparison. Equal recorded versions must not invoke
    `install.sh` or write the selected files, even when untagged source or local
    skill text differs. An older or missing selected record advances directly to

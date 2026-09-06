@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Latest-tag resolution, fetch, and pin.
+# Latest-tag resolution, fetch, pin, and pinned-checkout verification.
 # Sourced by open-dough-release.sh.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2249
@@ -88,6 +88,22 @@ EOF
   printf 'v%s\t%s\t%s\n' "${best}" "${best_sha}" "${best}"
 }
 
+# Require checkout VERSION and changelog to match the resolved tag.
+require_checkout_matches_tag() {
+  local checkout=$1
+  local tag=$2
+  local version
+
+  if ! version=$(validate_checkout "${checkout}"); then
+    echo "Highest release ${tag} is invalid; not falling back to another release or branch." >&2
+    return 1
+  fi
+  if [[ "${version}" != "${tag#v}" ]]; then
+    echo "Highest release ${tag} is invalid; not falling back to another release or branch." >&2
+    return 1
+  fi
+}
+
 # Detach checkout at the resolved commit and require VERSION to match tag.
 # When cleanup_path is set, remove it before returning a handled failure.
 checkout_resolved_release() {
@@ -96,9 +112,9 @@ checkout_resolved_release() {
   local resolved=$3
   local head_label=$4
   local cleanup_path=${5-}
-  local tag commit version fetch_url head
+  local tag commit fetch_url head
 
-  IFS=$'\t' read -r tag commit version << EOF
+  IFS=$'\t' read -r tag commit _ << EOF
 ${resolved}
 EOF
   fetch_url=$(git_url "${url}")
@@ -114,14 +130,8 @@ EOF
     echo "${head_label} commit ${head} did not match resolved ${commit}" >&2
     return 1
   fi
-  if ! version=$(validate_checkout "${checkout}"); then
+  if ! require_checkout_matches_tag "${checkout}" "${tag}"; then
     [[ -n "${cleanup_path}" ]] && rm -rf -- "${cleanup_path}"
-    echo "Highest release ${tag} is invalid; not falling back to another release or branch." >&2
-    return 1
-  fi
-  if [[ "${version}" != "${tag#v}" ]]; then
-    [[ -n "${cleanup_path}" ]] && rm -rf -- "${cleanup_path}"
-    echo "Highest release ${tag} is invalid; not falling back to another release or branch." >&2
     return 1
   fi
 }
@@ -152,5 +162,26 @@ pin_latest() {
   fi
   resolved=$(resolve_url "${url}")
   checkout_resolved_release "${checkout}" "${url}" "${resolved}" Pinned
+  printf '%s\n' "${resolved}"
+}
+
+require_pinned_checkout() {
+  local checkout=$1
+  local url=$2
+  local resolved tag commit head
+
+  resolved=$(resolve_url "${url}")
+  IFS=$'\t' read -r tag commit _ << EOF
+${resolved}
+EOF
+  if ! head=$(git -C "${checkout}" rev-parse HEAD 2> /dev/null); then
+    echo "Checkout is not a git work tree: ${checkout}" >&2
+    return 1
+  fi
+  if [[ "${head}" != "${commit}" ]]; then
+    echo "Checkout HEAD ${head} is not the pinned latest ${commit}; not replacing inspected files." >&2
+    return 1
+  fi
+  require_checkout_matches_tag "${checkout}" "${tag}" || return 1
   printf '%s\n' "${resolved}"
 }

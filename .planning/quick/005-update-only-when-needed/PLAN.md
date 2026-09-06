@@ -110,7 +110,7 @@ Proof: The same four focused tests still passed through the public commands;
 
 ### R2. Execute only the inspected pinned release
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A developer invokes `dough-update` with a supplied URL → the agent
 uses only Git to list tags and fetch the peeled commit of the highest numeric
 `vMAJOR.MINOR.PATCH` tag into a fresh work directory (no default-branch clone
@@ -121,12 +121,10 @@ skill → runs
 latest, requires `HEAD` to equal that commit, and does not fetch or check out
 replacement files after inspection → the recorded update decision runs from
 that same commit.
-Proof: A fixture whose default-branch helper and installer write a detectable
-side-effect file, while tagged latest is clean. A scripted copy of the skill
-bootstrap performs the requested decision, writes no side-effect file, and
-does not execute default-branch or post-inspection replacement content.
-Preserve the selected target and other integrations. README install's
-clone-then-`pin-latest` flow stays Story 5a.
+Proof: `bash tests/pin-and-inspect.sh` — default-branch helper/installer write
+a leak file; the git bootstrap of tagged latest performs the install with no
+leak; `apply --checkout` on an unpinned clone refuses and does not replace
+inspected files. README install's clone-then-`pin-latest` flow stays Story 5a.
 
 ### R3. Remove temporary release work after failed setup
 Type: Behavior

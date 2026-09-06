@@ -94,7 +94,7 @@ apply_release() {
 
   if [[ -n "${checkout}" ]]; then
     work=${checkout}
-    resolved=$(pin_latest "${work}" "${url}")
+    resolved=$(require_pinned_checkout "${work}" "${url}")
   else
     created_work=1
     work_root=$(mktemp -d)
