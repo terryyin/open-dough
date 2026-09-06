@@ -419,10 +419,18 @@ through Claude Code's native discovery path.
 
 ### 16. Use an installed improvement natively in Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Claude
 Code, with source-context and alternate-layout requests evaluated by the same
 rubric. Record the selected installation and unchanged other-platform guidance.
+
+Evidence: Native Claude Code invoked the installed updater against a cloneable
+fixture default branch, reported its origin and exact commit, and refreshed only
+the three files under `.claude/skills/`. Codex and Cursor copies plus companion
+Claude guidance retained their digests. A fresh native session invoked the updated
+`dough-adr-awareness` skill, named the conflicting catalog and ARC-12 record with
+their `Replaced`/`Adopted` values, stopped for human precedence, and changed no
+adopter files. The shared-harness proof exited 0.
 
 Behavior: Claude Code has the previous public skill → update and invoke the
 installed replacement → use the changed ADR-awareness behavior with local context intact.
