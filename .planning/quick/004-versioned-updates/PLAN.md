@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–2 done; next is slice 3 (prepare next release).
+Status: in progress — slices 1–3 done; next is slice 4 (refuse existing tag).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -153,7 +153,7 @@ success without claiming remote publication.
 ### 3. Prepare the next release while retaining its history
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a released `0.1.0`, request preparation of a chosen higher
 version with a new change description. New version/dated notes agree while the
@@ -265,7 +265,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Done — 1–2 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, CLI 0.153.4) | Done — 2 (fixture `v0.1.0` → `80ac178`, VERSION/CHANGELOG only). Pending — 3–5 |
+| Codex | Done — 1–3 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, CLI 0.153.4) | Done — 2–3 (fixture `v0.1.0` unchanged through 0.1.1 prepare; 0.1.0 notes byte-identical). Pending — 4–5 |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
@@ -323,3 +323,7 @@ story detail to goal/scope only after its enduring behavior is documented.
   local finalize and no push. `-s workspace-write` was enough for prepare
   file writes; commit+tag needed a sandbox that can write `.git` (`danger-full-access`
   in the fixture after workspace-write hit `.git/index.lock`).
+- Leaf 3: `$release-version prepare 0.1.1` after fixture `v0.1.0` on `4557674`
+  wrote `VERSION` `0.1.1` and `## 0.1.1 - 2026-09-06`, left the 0.1.0 changelog
+  entry bytes unchanged (sha256 `9fda157d…`), and did not move `v0.1.0` or
+  create `v0.1.1` or a commit.
