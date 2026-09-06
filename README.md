@@ -77,18 +77,6 @@ The following principles translate the project vision into an initial design dir
 
 The detailed development philosophy and AI agent rules remain to be defined. These principles describe how Open Dough itself should be organized and adopted.
 
-## Lifecycle scope
-
-Open Dough is intended to support the full development lifecycle. An initial scope for defining the process is:
-
-1. **Understand** — clarify the problem, desired outcomes, and constraints.
-2. **Plan and design** — decide what to build, how to approach it, and how success will be checked.
-3. **Implement** — carry out the work with relevant AI agent rules and skills.
-4. **Verify and review** — check behavior, quality, and alignment with the intended outcome.
-5. **Deliver and learn** — release the work and feed what was learned back into the project and process.
-
-This is a starting structure, not a finalized workflow. The process should support iteration and feedback between activities.
-
 ## Cross-platform support
 
 Open Dough's architecture has two parts:
