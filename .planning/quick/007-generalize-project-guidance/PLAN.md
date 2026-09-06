@@ -238,11 +238,18 @@ lookalikes with different behavior; no actual matching or removal engine is adde
 
 ### 7. Install the evaluated public payload for Codex
 Type: Behavior
-Status: planned
+Status: done
 Proof: A focused installer fixture installs Codex's complete public payload,
 compares the updater, ADR skill, and recognition record, and confirms internal
 skills, the acceptance guard, unrelated files, and other-platform copies are absent
 or unchanged as appropriate.
+
+Evidence: The Codex installer now preflights the complete declared source before
+writing, then installs `dough-update/SKILL.md` and the evaluated
+`dough-adr-awareness/{SKILL,RECOGNITION}.md` under `.agents/skills/`. Focused
+fixtures proved incomplete-source rejection before writes and preservation of
+internal `extract-guidance`/`release-version`, the repository guard, unrelated
+project content, and Cursor/Claude installations.
 
 Behavior: An evaluated public skill is in the fixture source payload → run installation for
 one selected platform → obtain all material needed to use it, alongside the

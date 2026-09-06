@@ -80,9 +80,15 @@ cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}" --platform codex
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
+  "${target}/.agents/skills/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
+  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
+./.agents/skills/dough-adr-awareness/RECOGNITION.md
+./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
@@ -98,6 +104,8 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
+./.agents/skills/dough-adr-awareness/RECOGNITION.md
+./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
@@ -116,6 +124,8 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
+./.agents/skills/dough-adr-awareness/RECOGNITION.md
+./.agents/skills/dough-adr-awareness/SKILL.md
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
@@ -125,4 +135,4 @@ expect_files << 'EOF'
 ./keep this file.txt
 EOF
 
-echo "PASS: installer writes only managed dough-update SKILL.md for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the declared public files for each platform, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

@@ -47,13 +47,20 @@ fi
 
 case "${platform}" in
   codex)
-    relative_destination=.agents/skills/dough-update
+    relative_skill_root=.agents/skills
+    managed_files=(
+      dough-update/SKILL.md
+      dough-adr-awareness/SKILL.md
+      dough-adr-awareness/RECOGNITION.md
+    )
     ;;
   cursor)
-    relative_destination=.cursor/skills/dough-update
+    relative_skill_root=.cursor/skills
+    managed_files=(dough-update/SKILL.md)
     ;;
   claude)
-    relative_destination=.claude/skills/dough-update
+    relative_skill_root=.claude/skills
+    managed_files=(dough-update/SKILL.md)
     ;;
   *)
     echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor, claude." >&2
@@ -62,12 +69,33 @@ case "${platform}" in
 esac
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-destination="${target}/${relative_destination}"
-if [[ -d "${destination}" && ${force} -ne 1 ]]; then
-  echo "Warning: dough-update is already installed in ${destination}. Use --force to explicitly reinstall." >&2
-  exit 1
+source_skill_root="${source_dir}/src/skills"
+destination_skill_root="${target}/${relative_skill_root}"
+
+for managed_file in "${managed_files[@]}"; do
+  source_file="${source_skill_root}/${managed_file}"
+  if [[ ! -f "${source_file}" ]]; then
+    echo "Public payload is incomplete: missing src/skills/${managed_file}." >&2
+    exit 1
+  fi
+done
+
+if [[ ${force} -ne 1 ]]; then
+  for managed_file in "${managed_files[@]}"; do
+    skill_name=${managed_file%%/*}
+    destination="${destination_skill_root}/${skill_name}"
+    if [[ -e "${destination}" ]]; then
+      echo "Warning: ${skill_name} is already installed in ${destination}. Use --force to explicitly reinstall." >&2
+      exit 1
+    fi
+  done
 fi
 
-mkdir -p -- "${destination}"
-cp -- "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md"
-echo "Installed dough-update in ${destination}"
+for managed_file in "${managed_files[@]}"; do
+  source_file="${source_skill_root}/${managed_file}"
+  destination_file="${destination_skill_root}/${managed_file}"
+  mkdir -p -- "$(dirname -- "${destination_file}")"
+  cp -- "${source_file}" "${destination_file}"
+done
+
+echo "Installed Open Dough public guidance in ${destination_skill_root}"
