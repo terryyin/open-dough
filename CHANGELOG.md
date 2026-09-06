@@ -1,0 +1,3 @@
+## 0.1.0 - 2026-09-06
+
+Installer and dough-update install and refresh project-local Open Dough guidance from a supplied repository URL for Codex, Cursor, and Claude Code. Updates clone the default branch and unconditionally reinstall the fetched skill. Maintainers can prepare and tag source releases with the internal release-version skill (canonical .agents/skills/release-version/SKILL.md, plus a thin Claude Code discovery pointer only). The installer does not distribute that internal skill or the repository AGENTS.md acceptance guard. This release does not add version-aware updates or automatic changelog display during install or update.
