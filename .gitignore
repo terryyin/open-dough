@@ -2,6 +2,11 @@
 .DS_Store
 ._*
 
+# Dependencies and generated output
+node_modules/
+dist/
+coverage/
+
 # Editor temporary files
 *.swp
 *.swo

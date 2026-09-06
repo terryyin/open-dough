@@ -124,6 +124,28 @@ To run all script tests from a source checkout, run `npm test` (requires npm)
 or `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
 discovers all `.sh` files under `tests/` and reports failure if any test fails.
 
+For development checks, use Node.js 20.19+, 22.13+, or 24+ and install the
+locked npm dependencies with `npm ci`. Install ShellCheck 0.11+ and shfmt 3.14+
+on your PATH as well (`brew install shellcheck shfmt` on macOS).
+
+- `npm run lint` checks JavaScript/TypeScript with ESLint, code and JSON
+  formatting with Prettier, and shell scripts with ShellCheck and shfmt.
+- `npm run format` applies ESLint fixes, Prettier formatting, ShellCheck's
+  available patch fixes, and shfmt formatting, then runs all checks again.
+  It exits unsuccessfully and prints the remaining findings if anything cannot
+  be fixed automatically or a tool fails.
+
+JavaScript uses ESLint's recommended rules plus strict checks for equality,
+braces, unused arguments, mutation, and unsafe constructs. TypeScript also uses
+[typescript-eslint's strict type-checked and stylistic presets](https://typescript-eslint.io/users/configs/)
+with strict compiler settings. [ShellCheck](https://github.com/koalaman/shellcheck)
+enables every optional check and reports all severities, including info and
+style. ESLint allows zero warnings; any ShellCheck finding also fails the check.
+Shell discovery includes tracked and untracked files, honors Git ignores, and
+recognizes `.sh`, `.bash`, `.ksh`, `.bats`, and shell shebangs on extensionless files.
+JavaScript/TypeScript and JSON checks exclude dependencies, build output,
+coverage, and planning metadata.
+
 If `.agents/skills/dough-update` already exists, installation warns and stops
 without changing it. To reinstall, add `--force` to the installer line in the
 clone command above:
