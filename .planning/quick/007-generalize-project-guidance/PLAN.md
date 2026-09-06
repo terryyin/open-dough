@@ -339,10 +339,18 @@ do not claim an old updater can perform a migration it actively rejects.
 
 ### 12. Use an installed improvement natively in Codex
 Type: Behavior
-Status: planned
+Status: done
 Proof: In a disposable Codex adopter, install the public skill, update it from the
 fixture source to a known small behavior improvement, then start a fresh session
 and invoke it. Observe that improvement in the alternate-layout ADR assessment.
+
+Evidence: Fresh native Codex sessions first invoked the installed `dough-update`
+skill against a cloneable default-branch fixture and then discovered and invoked
+only the refreshed `dough-adr-awareness` skill. The updater reported the source,
+commit, tool, and all three installed paths; byte checks proved the improved
+payload and recognition record while a companion integration remained unchanged.
+The fresh use named both conflicting alternate-layout authorities and their
+`Replaced`/`Adopted` values, stopped for human precedence, and changed no files.
 
 Behavior: Codex has the previous public skill → update and invoke the installed
 replacement → use the changed ADR-awareness behavior with supporting context intact.
