@@ -84,7 +84,7 @@ inserted after the delivered implementation and before unfinished native proof.
 
 ### R1. Share platform destinations and requested-version refusal
 Type: Structure
-Status: planned
+Status: done
 Internal change: Move the Codex/Cursor/Claude write destinations and the
 latest-only requested-version refusal into one sourced module used by
 `install.sh` and `src/install/open-dough-release.sh`. Keep flags, messages, and
@@ -93,7 +93,7 @@ Enables: R1b, which can split the helper without leaving a second copy of those
 rules in the installer.
 Proof: `bash tests/install.sh`, `bash tests/install-omits-internal.sh`,
 `bash tests/install-latest-release.sh`, and `bash tests/update-when-needed.sh`
-stay green; both production callers source the same module.
+stayed green; both production callers source `src/install/open-dough-platform.sh`.
 
 ### R1b. Split release resolution from update application
 Type: Structure

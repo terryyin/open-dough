@@ -133,8 +133,7 @@ bad_source="${temporary_dir}/bad source"
 mkdir -p -- "${bad_source}/src/install" \
   "${bad_source}/src/skills/dough-update"
 cp -- "${source_dir}/install.sh" "${bad_source}/install.sh"
-cp -- "${source_dir}/src/install/open-dough-release.sh" \
-  "${bad_source}/src/install/open-dough-release.sh"
+cp -- "${source_dir}/src/install/"*.sh "${bad_source}/src/install/"
 cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${bad_source}/src/skills/dough-update/SKILL.md"
 printf '%s\n' '0.1.0' > "${bad_source}/VERSION"

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=src/install/open-dough-platform.sh
+source "${source_dir}/src/install/open-dough-platform.sh"
+
 usage() {
   echo "Usage: $0 --target <project> [--platform <codex|cursor|claude>] [--force]" >&2
-  exit 1
-}
-
-refuse_requested_version() {
-  echo "Open Dough installs and updates the latest numeric release only. Requested-version updates are not supported." >&2
   exit 1
 }
 
@@ -39,7 +39,7 @@ while [[ $# -gt 0 ]]; do
       refuse_requested_version
       ;;
     *)
-      if [[ "$1" == v*.*.* ]] || [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      if looks_like_version_request "$1"; then
         refuse_requested_version
       fi
       usage
@@ -56,24 +56,7 @@ if [[ ! -d "${target}" ]]; then
   exit 1
 fi
 
-case "${platform}" in
-  codex)
-    relative_destination=.agents/skills/dough-update
-    ;;
-  cursor)
-    relative_destination=.cursor/skills/dough-update
-    ;;
-  claude)
-    relative_destination=.claude/skills/dough-update
-    ;;
-  *)
-    echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor, claude." >&2
-    exit 1
-    ;;
-esac
-
-source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-destination="${target}/${relative_destination}"
+destination=$(destination_for "${target}" "${platform}")
 if [[ -d "${destination}" && ${force} -ne 1 ]]; then
   echo "Warning: dough-update is already installed in ${destination}. Use --force to explicitly reinstall." >&2
   exit 1

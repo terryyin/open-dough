@@ -16,8 +16,7 @@ write_candidate_payload() {
 
   mkdir -p -- "${dest}/src/install" "${dest}/src/skills/dough-update"
   cp -- "${source_dir}/install.sh" "${dest}/install.sh"
-  cp -- "${source_dir}/src/install/open-dough-release.sh" \
-    "${dest}/src/install/open-dough-release.sh"
+  cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
   cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
     "${dest}/src/skills/dough-update/SKILL.md"
   printf '\n<!-- open-dough-payload %s -->\n' "${marker}" >> \
