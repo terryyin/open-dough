@@ -6,7 +6,7 @@ Open Dough defines how people and AI work together to develop software. It bring
 
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
-> **Status:** Codex, Cursor, and Claude Code can install and update the project-local `dough-update` skill from a supplied repository URL.
+> **Status:** Codex, Cursor, and Claude Code can install and update the project-local `dough-update` skill from the latest numeric release of a supplied repository URL.
 
 ## Install with an AI agent
 
@@ -20,30 +20,36 @@ Open your target project in an AI agent with web and shell access, then ask:
    target path. Ask only if the target is unclear. Capture its absolute path
    before cloning so the source checkout does not become the installation target.
 2. Explain that installation selects one tool. Codex (default, or
-   `--platform codex`) installs `.agents/skills/dough-update/SKILL.md`. Cursor
-   (`--platform cursor`) installs `.cursor/skills/dough-update/SKILL.md`. Claude
-   Code (`--platform claude`) installs `.claude/skills/dough-update/SKILL.md`.
+   `--platform codex`) installs `.agents/skills/dough-update/SKILL.md` and a
+   numeric `VERSION` record beside it. Cursor (`--platform cursor`) installs
+   those files under `.cursor/skills/dough-update/`. Claude Code
+   (`--platform claude`) installs them under `.claude/skills/dough-update/`.
    Install only the running tool's copy.
 3. Follow the clone/install instructions for that tool
    ([Codex](#install-the-codex-updater), [Cursor](#install-the-cursor-updater),
    or [Claude Code](#install-the-claude-code-updater)), using the URL the user
-   supplied. Inspect that clone's `install.sh` and source skill before running
-   it with `--target` set to the captured project path, and `--platform cursor`
-   or `--platform claude` when installing for Cursor or Claude Code. Bash and
-   Git are sufficient; installing package dependencies is unnecessary.
+   supplied. The helper `src/install/open-dough-release.sh` selects the highest
+   numeric `vMAJOR.MINOR.PATCH` tag from that URL. Inspect that pinned
+   checkout's helper, `install.sh`, and source skill before running the
+   installer with `--target` set to the captured project path, and
+   `--platform cursor` or `--platform claude` when installing for Cursor or
+   Claude Code. Bash and Git are sufficient; installing package dependencies
+   is unnecessary.
 4. Respect the user's authorization and your environment's permission controls.
    An explicit installation request authorizes the described project-local
    installation; do not ask for the same permission again. If required access
    is unavailable, explain what is needed.
 5. If installation reports an existing skill, stop and explain that `--force`
-   replaces its contents, including local edits. Use it only when the user has
+   replaces its contents, including local edits and the selected version
+   record. Use it only when the user has
    explicitly authorized that overwrite.
-6. Verify the installed file matches the cloned source and review the target
-   project's diff for unrelated changes. Report the installed path and tell the
-   user to invoke the updater with the source URL in a fresh session of the same
-   tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude Code).
-   Report invocation as verified only if you actually observed it. Commit or
-   push only when authorized.
+6. Verify the installed skill matches the pinned source and that `VERSION`
+   records the same numeric release. Review the target project's diff for
+   unrelated changes. Report the installed path, source URL, tag, and commit,
+   and tell the user to invoke the updater with the source URL in a fresh
+   session of the same tool (`$dough-update` in Codex, `/dough-update` in
+   Cursor or Claude Code). Report invocation as verified only if you actually
+   observed it. Commit or push only when authorized.
 
 ## Inspiration and name
 
@@ -101,18 +107,22 @@ With Bash and Git available, run this from the existing target project's root:
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project"
 )
 ```
 
 Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
+command selects that repository's highest numeric release tag, not its default
+branch or newest tag by date, and runs that snapshot's installer. To
 install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
+Inspect the pinned helper, `install.sh`, and source skill before running the installer.
 
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.agents/skills/dough-update/SKILL.md` in the target project. Other project files
+Installation copies `src/skills/dough-update/SKILL.md` from the pinned checkout to
+`.agents/skills/dough-update/SKILL.md` in the target project and writes a matching
+numeric `VERSION` record beside it after verification. Other project files
 are preserved. Start a fresh Codex session in that project and invoke
 `$dough-update https://github.com/terryyin/open-dough.git`, substituting the source
 URL you want to update from. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
@@ -158,9 +168,9 @@ clone command above:
 bash "$install_dir/open-dough/install.sh" --target "$target_project" --force
 ```
 
-This replaces the installed `SKILL.md`, including any local edits, with the
-supplied source. It does not merge changes or replace other skills. Review and
-commit the installed file in the target project. Open Dough's own installed
+This replaces the installed `SKILL.md` and `VERSION`, including any local edits, with the
+pinned release. It does not merge changes or replace other skills. Review and
+commit the installed files in the target project. Open Dough's own installed
 copy lives at the same destination, separately from the distributable source.
 
 ### Update the installed Codex skill
@@ -170,24 +180,33 @@ In a fresh Codex session in the target project, ask:
 > $dough-update https://github.com/terryyin/open-dough.git
 
 Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with `--force`.
-`--platform` may be omitted for Codex, which is equivalent to `--platform codex`.
-It replaces only `.agents/skills/dough-update/SKILL.md` in the target project.
+target project, resolves the highest numeric release from that URL, inspects
+the pinned helper, installer, and source skill, and compares the selected
+installation's recorded version before writing. `--platform` may be omitted for
+Codex, which is equivalent to `--platform codex`. It updates only
+`.agents/skills/dough-update/` in the target project.
 Distributable source, unrelated project files, other tools' separate
-installations, and home-level guidance are preserved.
+installations and records, and home-level guidance are preserved.
 
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Codex session to use the updated guidance.
+If the selected record already matches latest, the updater reports that the
+installation is current and does not invoke the installer or rewrite installed
+files, even when untagged source or local skill text differs. An older or
+unknown (missing) record advances directly to latest. A newer recorded version
+is preserved with no downgrade. A malformed record is refused rather than
+treated as unknown. Requested-version updates are not supported. Release notes
+can be read in the tagged `CHANGELOG.md` until automatic changelog presentation
+is added.
 
-If your installed skill still reports that updating is not implemented, first
-run the clone/install flow above once with the explicit `--force` override.
-That bootstrap installs the real updater; the placeholder cannot update itself.
+If your installed skill still clones the default branch and writes only
+`SKILL.md`, first run the clone/install flow above once with the explicit
+`--force` override. That bootstrap installs the version-aware updater and its
+first record; the old skill cannot adopt the new write contract itself.
 Then start a fresh Codex session and invoke the updater with your source URL.
+Do not assign `0.1.0` to an unversioned copy merely because that source tag
+exists.
 
-This update flow assumes the installed skill has no local edits. Additional
-guidance, remaining platforms, and handling of project-specific edits remain
+This update flow assumes the installed skill has no local-edit merge policy.
+Additional guidance and handling of project-specific edits remain
 future work.
 
 ### Install the Cursor updater
@@ -201,19 +220,23 @@ With Bash and Git available, run this from the existing target project's root:
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor
 )
 ```
 
 Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
+command selects that repository's highest numeric release tag, not its default
+branch or newest tag by date, and runs that snapshot's installer. To
 install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
+Inspect the pinned helper, `install.sh`, and source skill before running the installer.
 Quote both paths.
 
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.cursor/skills/dough-update/SKILL.md` in the target project. Other project files
+Installation copies `src/skills/dough-update/SKILL.md` from the pinned checkout to
+`.cursor/skills/dough-update/SKILL.md` in the target project and writes a matching
+numeric `VERSION` record beside it after verification. Other project files
 and any separate Codex installation are preserved. Start a fresh Cursor session
 in that project and invoke `/dough-update https://github.com/terryyin/open-dough.git`,
 substituting the source URL you want to update from. See
@@ -227,9 +250,9 @@ clone command above:
 bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor --force
 ```
 
-This replaces only the Cursor `SKILL.md`, including any local edits, with the
-supplied source. It does not merge changes, replace other skills, or update a
-Codex copy in `.agents/skills`. Review and commit the installed file in the
+This replaces only the Cursor `SKILL.md` and `VERSION`, including any local edits, with the
+pinned release. It does not merge changes, replace other skills, or update a
+Codex copy in `.agents/skills`. Review and commit the installed files in the
 target project.
 
 ### Update the installed Cursor skill
@@ -239,18 +262,30 @@ In a fresh Cursor session in the target project, ask:
 > /dough-update https://github.com/terryyin/open-dough.git
 
 Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with
-`--platform cursor --force`. It replaces only `.cursor/skills/dough-update/SKILL.md`
-in the target project. Distributable source, unrelated project files, other
-tools' separate installations, and home-level guidance are preserved.
+target project, resolves the highest numeric release from that URL, inspects
+the pinned helper, installer, and source skill, and compares the selected
+installation's recorded version before writing. It updates only
+`.cursor/skills/dough-update/` in the target project. Distributable source,
+unrelated project files, other tools' separate installations and records, and
+home-level guidance are preserved.
 
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Cursor session to use the updated guidance.
+If the selected record already matches latest, the updater reports that the
+installation is current and does not invoke the installer or rewrite installed
+files, even when untagged source or local skill text differs. An older or
+unknown (missing) record advances directly to latest. A newer recorded version
+is preserved with no downgrade. A malformed record is refused rather than
+treated as unknown. Requested-version updates are not supported. Release notes
+can be read in the tagged `CHANGELOG.md` until automatic changelog presentation
+is added.
 
-This update flow assumes the installed skill has no local edits. Handling of
-project-specific edits remains future work.
+If your installed skill still clones the default branch and writes only
+`SKILL.md`, first run the clone/install flow above once with the explicit
+`--force` override. That bootstrap installs the version-aware updater and its
+first record. Then start a fresh Cursor session and invoke the updater with
+your source URL.
+
+This update flow assumes the installed skill has no local-edit merge policy.
+Handling of project-specific edits remains future work.
 
 ### Install the Claude Code updater
 
@@ -263,19 +298,23 @@ With Bash and Git available, run this from the existing target project's root:
   source_url=https://github.com/terryyin/open-dough.git
   install_dir=$(mktemp -d)
   trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
+  git clone "$source_url" "$install_dir/open-dough"
+  bash "$install_dir/open-dough/src/install/open-dough-release.sh" \
+    pin-latest "$install_dir/open-dough" "$source_url"
   bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude
 )
 ```
 
 Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
+command selects that repository's highest numeric release tag, not its default
+branch or newest tag by date, and runs that snapshot's installer. To
 install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
+Inspect the pinned helper, `install.sh`, and source skill before running the installer.
 Quote both paths.
 
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.claude/skills/dough-update/SKILL.md` in the target project. Other project files
+Installation copies `src/skills/dough-update/SKILL.md` from the pinned checkout to
+`.claude/skills/dough-update/SKILL.md` in the target project and writes a matching
+numeric `VERSION` record beside it after verification. Other project files
 and any separate Codex or Cursor installation are preserved. Start a fresh
 Claude Code session in that project and invoke
 `/dough-update https://github.com/terryyin/open-dough.git`, substituting the
@@ -290,9 +329,9 @@ clone command above:
 bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude --force
 ```
 
-This replaces only the Claude Code `SKILL.md`, including any local edits, with
-the supplied source. It does not merge changes, replace other skills, or update
-a Codex or Cursor copy. Review and commit the installed file in the target
+This replaces only the Claude Code `SKILL.md` and `VERSION`, including any local edits, with
+the pinned release. It does not merge changes, replace other skills, or update
+a Codex or Cursor copy. Review and commit the installed files in the target
 project.
 
 ### Update the installed Claude Code skill
@@ -302,26 +341,39 @@ In a fresh Claude Code session in the target project, ask:
 > /dough-update https://github.com/terryyin/open-dough.git
 
 Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with
-`--platform claude --force`. It replaces only
-`.claude/skills/dough-update/SKILL.md` in the target project. Distributable
-source, unrelated project files, other tools' separate installations, and
+target project, resolves the highest numeric release from that URL, inspects
+the pinned helper, installer, and source skill, and compares the selected
+installation's recorded version before writing. It updates only
+`.claude/skills/dough-update/` in the target project. Distributable source,
+unrelated project files, other tools' separate installations and records, and
 home-level guidance are preserved.
 
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Claude Code session to use the updated
-guidance.
+If the selected record already matches latest, the updater reports that the
+installation is current and does not invoke the installer or rewrite installed
+files, even when untagged source or local skill text differs. An older or
+unknown (missing) record advances directly to latest. A newer recorded version
+is preserved with no downgrade. A malformed record is refused rather than
+treated as unknown. Requested-version updates are not supported. Release notes
+can be read in the tagged `CHANGELOG.md` until automatic changelog presentation
+is added.
 
-This update flow assumes the installed skill has no local edits. Handling of
-project-specific edits remains future work.
+If your installed skill still clones the default branch and writes only
+`SKILL.md`, first run the clone/install flow above once with the explicit
+`--force` override. That bootstrap installs the version-aware updater and its
+first record. Then start a fresh Claude Code session and invoke the updater
+with your source URL.
+
+This update flow assumes the installed skill has no local-edit merge policy.
+Handling of project-specific edits remains future work.
 
 ## Distribution
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 
-The installer and updater use a shallow clone of the supplied repository's default branch, without requiring a published release. Version tracking is deferred and is not required for installation or updates.
+The installer and updater use the highest numeric release tag in the supplied
+repository. A matching Git tag, source `VERSION`, and dated changelog entry
+identify that snapshot. If no usable numeric release exists, installation and
+update stop without falling back to unversioned branch content.
 
 Package registry distribution remains an option if it later makes installation or maintenance simpler.
 
@@ -333,9 +385,9 @@ Open Dough maintainers prepare and tag source releases with the internal
 `CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
 acceptance guard are not installed into adopting projects.
 
-Installation and `dough-update` still use a shallow clone of the supplied
-repository's default branch. A source version tag does not change that
-behavior; version-aware updates are not implemented yet.
+Installation and `dough-update` use the highest numeric release tag of the
+supplied repository. Existing unversioned copies need an explicit `--force`
+bootstrap once; afterwards a current installation is left unwritten.
 
 ## License
 

@@ -274,52 +274,135 @@ internal skill.
 
 ### 5. Update Open Dough to the latest release only when needed
 
-- **Status:** Unfinished; candidate boundary only. The
-  [second plan](../quick/005-update-only-when-needed/PLAN.md) is retained planning
-  material, **not for direct execution**. Refine this story, update that plan,
-  then refine its slices before execution.
+- **Status:** Implementation for install/update behavior delivered 2026-09-06;
+  unfinished native acceptance and released self-use. The
+  [slice plan](../quick/005-update-only-when-needed/PLAN.md) records CLI proof
+  for leaves 1–16; Codex, Cursor, and Claude Code rows 17–42 remain pending.
 - **For / why:** A developer wants a current installation without needless
-  overwrites and needs a truthful record of what is installed.
-- **Evaluation:** Across all three native tools, install latest; update an
-  older/unknown installation once; repeat at the same version with no writes.
-- **Value / learning:** Useful automatic version decisions, even while the
-  developer reads the already-published changelog manually.
-- **Effort hypothesis:** M (1–2 hours), low confidence; assumes the established
-  installer/native entry points remain adequate. Reassess during refinement.
-- **Depends on:** At least one valid tagged release. Story 4 supplies it, but
-  the internal release skill itself is not technically required.
+  overwrites and needs a truthful record of what was successfully installed.
+  This lets Open Dough use its own released improvements in daily development.
+- **Evaluation:** In each native tool, install latest, advance an older or
+  unknown installation directly to latest, then repeat with no target writes.
+  Demonstrate the genuine legacy bootstrap separately from a missing record.
+- **Value / learning:** Useful automatic version decisions while the developer
+  reads release notes manually. Learn whether release identity and the one-time
+  legacy transition make self-updating reliable across all three tools.
+- **Effort hypothesis:** M, low confidence; the earlier 1–2 hour estimate is
+  unvalidated. Reassess during slice planning, including native bootstrap and
+  released self-use proof rather than counting only installer changes.
+- **Depends on:** A valid tagged release, using accepted
+  [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+  Published `v0.1.0` establishes release identity but its installer does not
+  record versions. The internal release skill is not technically required.
 
 #### Goal
 
 As an adopting developer, install or update the selected tool to the latest
 released Open Dough version and avoid rewriting an already-current installation.
+I can tell which source, tool, and version the operation actually applied.
 
 #### Scope
 
-- Use the supplied repository URL, highest numeric tagged release, and one
-  record per selected tool. Update directly to latest, without requested-version
-  selection or automatic downgrade. Initial installation records its version.
-- Compare before writing: equal versions cause no installed-file/metadata writes;
-  unknown versions transition once; newer installed versions are preserved.
-- Handle genuine old installed skills through a documented explicit bootstrap
-  where necessary. Record the version only after successful payload verification;
-  source resolution/metadata failures leave installations untouched and failed
-  installs never claim success or advance the record.
-- Preserve ordinary-repeat warning, explicit forced reinstall, other tools'
-  installations, distributable source, unrelated work, and home guidance. Keep
-  shared behavior and prove native install/update/coexistence in all three tools.
-- Report source, tool, old/unknown and resulting versions, and fresh-session use.
-  A valid tagged release already contains its changelog; reading that file
-  manually is the explicit interim workflow. Automatic release-note presentation
-  belongs to Story 6 and is not a prerequisite for this story's completion.
+- **Source and latest:** Use the supplied repository URL; ask for it only if
+  absent from the request/session. Latest is the highest numeric
+  `vMAJOR.MINOR.PATCH` release tag, not the newest tag by date or branch HEAD.
+  Resolve one tagged snapshot for its installer, payload, source `VERSION`,
+  and matching dated changelog entry. Validate that identity before mutation.
+  No tags, fetch failure, or an invalid highest release stops the operation;
+  do not silently choose a lower release or fall back to branch content.
+- **Fresh installation:** Install the selected tool's `dough-update` and record
+  the released version after successful installation and payload verification.
+  Preserve the existing ordinary-repeat warning/stop. An explicit forced
+  reinstall can replace the selected installed guidance, including local edits;
+  it is a separate repair/bootstrap action from a routine update.
+- **Routine update:** Compare the selected installation's recorded version with
+  latest before invoking the installer. Older advances directly to latest;
+  missing record means unknown and establishes a known version once. Equal
+  reports current with no installer call or installed-file/record writes,
+  including when untagged source or the local skill text differs. Newer
+  installed versions are preserved, with an explanation that no downgrade was
+  performed. A malformed existing record is an error, not an unknown baseline.
+- **Legacy transition:** The currently shipped skill clones the default branch
+  and permits only `SKILL.md` writes. It cannot be assumed to authorize or carry
+  out the new record-writing workflow. Document an explicit forced reinstall
+  from a validated latest release containing the new updater, using the supplied
+  URL and selected platform. That bootstrap installs and records latest once;
+  a fresh session then discovers the new skill and a routine update is a no-op.
+  Do not assign `0.1.0` to old copies merely because that source tag exists.
+- **Truthful failure:** Source/release/record validation errors leave installed
+  guidance and records untouched. Failed application or payload verification
+  never advances the record or reports success. If replacement already started,
+  report that installed files may be incomplete and identify forced reinstall
+  as the recovery path; an unchanged old record is not proof of intact files.
+  Automatic rollback and a transaction framework are excluded.
+- **Selected tool and coexistence:** Identify the running host, not whichever
+  installation directories happen to exist. Keep independent records and native
+  entries for Codex, Cursor, and Claude Code; update only the selected copy.
+  Preserve the other copies and records, distributable source, unrelated work,
+  and home guidance. Keep shared behavior in one source with minimal native
+  adaptation. The internal release skill and acceptance guard stay undistributed.
+- **Interaction and delivery:** Report the supplied source, resolved tag/commit,
+  selected tool/path, old version (or unknown), and actual outcome. After a
+  replacement, explain fresh-session use in that tool. Align installation and
+  update documentation with these behaviors. Publish the delivered updater as
+  a subsequent real release, then use it in Open Dough in each native tool;
+  do not move `v0.1.0` or publish artificial test releases.
+- **Boundaries:** Manual reading of the tagged `CHANGELOG.md` is sufficient.
+  Automatic changelog presentation belongs to Story 6. Requested-version
+  updates, prereleases, automatic downgrade, source persistence, global setup,
+  synchronization between tools, customization merging/backup, notifications,
+  release automation, and distributing additional guidance remain excluded.
+  Assume a valid record describes the last successful installation; routine
+  update is not a local-edit detector or integrity-repair command.
 
-#### Key example and stopping point
+#### Key examples
 
-Installed `0.1.0`, latest `0.1.2` → native update → only the selected installation
-advances directly to `0.1.2`. Repeat → reports current without reinstalling or
-writing its metadata. An unversioned copy instead establishes its first known
-version through the supported transition. This remains useful if Story 6 is
-cancelled; detecting versions is not split away from the update decision.
+Versions beyond the existing `0.1.0` below are disposable fixture versions,
+not proposed public releases.
+
+| Pre-condition | Trigger | Observable result |
+| --- | --- | --- |
+| No selected installation; supplied repository has valid `v0.1.2` and `v0.1.10`, with `v0.1.2` tagged later and different untagged branch content | Install for the selected tool | Installs `0.1.10` from its tagged snapshot, verifies its payload, and records `0.1.10`; reports matching source/tag/commit and target. |
+| Selected installation exists alongside unrelated work and the other tools' copies | Install again, then explicitly force reinstall | Ordinary repeat stops without writes. Force replaces only the selected installation and records the successfully verified release, preserving the other content. |
+| Selected installation records `0.1.0`; latest is `0.1.2` with an intermediate `0.1.1` | Invoke native update | Advances once directly to `0.1.2`; verifies before recording success; does not install intermediate releases or require inline release notes. |
+| Selected installation records latest `0.1.2`; branch content or local skill text has changed | Invoke native update | Reports already current; no installer call and no installed-file or record writes. An empty Git diff alone is insufficient proof. |
+| Selected installation records `0.2.0`; supplied repository's latest is `0.1.2` | Invoke native update | Reports the newer installed version and preserves it without a downgrade. |
+| Version-aware skill is present but its selected version record is missing | Invoke native update, then repeat | First invocation explains the unknown baseline and installs/records latest; second invocation performs no target writes. It does not infer a version from another tool or the source checkout. |
+| Genuine shipped legacy skill is installed with no version record | Follow the documented explicit forced bootstrap, then invoke update in a fresh native session | Bootstrap uses a validated release containing the version-aware updater and records it once; the new native invocation reports current. No reliance on the old skill silently expanding its allowed writes. |
+| Fetch fails, there are no numeric release tags, the highest release has mismatched `VERSION` or no matching dated notes, or the selected record is malformed | Attempt install/update as applicable | Explains the specific problem before target mutation, with no branch/lower-release fallback or success claim. A requested-version update is also rejected rather than silently ignored. |
+| An update fails after replacement starts or payload verification fails | Observe the result | No new version is recorded and no success is claimed; reports possible partial files and the explicit reinstall recovery path. |
+| All three integrations coexist in Open Dough after publishing the real updater release | Bootstrap/update each tool separately and invoke in a fresh session | Each host discovers and uses its own entry, reports its actual selected path/version, and preserves the other installations and records. |
+
+#### Acceptance and stopping point
+
+Completion requires native discovery, invocation, and the intended behavior
+separately in all three tools, including installation, updating, genuine legacy
+bootstrap, and coexistence. The execution plan must map the examples to focused
+checks and record platform evidence with the observed source/tag/commit, target,
+invocation, and outcome. New version behavior invalidates relying on earlier
+unconditional-update evidence for those promises.
+
+| Platform | Required native acceptance | Evidence status |
+| --- | --- | --- |
+| Codex | Discover selected installed skill; invoke `$dough-update`; demonstrate fresh install, older/equal/unknown decisions, legacy bootstrap, preservation of newer versions, coexistence, and released self-use | Pending — story refinement only; no native verification performed. |
+| Cursor | Discover selected installed skill; invoke `/dough-update`; demonstrate the same outcomes with all integrations present | Pending — another tool's success does not establish Cursor behavior. |
+| Claude Code | Discover selected installed skill; invoke `/dough-update`; demonstrate the same outcomes with all integrations present | Pending — file copying does not establish native behavior. |
+
+Focused installer/failure checks complement these observations. For the no-op,
+observe absence of installer invocation and target writes, rather than merely
+matching final bytes. Leave any missing native observation pending.
+
+This story is useful if Story 6 is cancelled: the developer can install latest,
+make a truthful update decision, and stop overwriting an already-current copy.
+Version detection and applying that decision remain one product outcome.
+
+#### Open decisions
+
+No unresolved product decision blocks slice planning under the scope above.
+The record path/format, deterministic helper boundaries, and exact output wording
+remain implementation choices. The slice plan selects a per-tool `VERSION`
+record and identifies the helper/proof boundaries still needing slice refinement.
+Do not execute those low-confidence leaves as if their sizing were verified.
 
 <a id="show-update-changelog"></a>
 
@@ -371,8 +454,8 @@ combined outcome without reopening release production or version detection.
 The working backlog order is Story 5 (update when needed), then Story 6
 (show changes). Story 4 (identifiable release) is complete. Their complete
 outcomes, rather than implementation layers or platform batches, define the
-boundaries. Later plan fragments still need story and slice-plan refinement
-before execution.
+boundaries. Story 5 now has an initial slice plan with flagged refinement needs;
+Story 6 still has retained fragments requiring story and slice-plan refinement.
 
 First to defer is automatic changelog presentation: manual reading still works.
 If capacity is smaller still, defer version-aware updating and keep the useful
@@ -405,9 +488,9 @@ or an instruction to run the old sequence.
 
 - No unresolved decision blocks the refined first story. Release → update →
   notes is the working recommendation and can be reordered by the owner.
-- Stories 5–6 need their own refinement before execution; their plans identify
-  the boundaries and evidence to revisit. Local-edit conflict handling remains
-  outside this set of stories.
+- Story 5 is refined and has an aligned initial slice plan; its flagged leaves
+  still need slice refinement. Story 6 still needs story refinement before execution.
+  Local-edit conflict handling remains outside this set of stories.
 
 ## When to Surface
 

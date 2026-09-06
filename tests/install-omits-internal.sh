@@ -80,10 +80,13 @@ cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}" --platform codex
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
+cmp "${source_dir}/VERSION" \
+  "${target}/.agents/skills/dough-update/VERSION"
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/other-cursor-skill/SKILL.md
@@ -93,15 +96,19 @@ EOF
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.cursor/skills/dough-update/SKILL.md"
+cmp "${source_dir}/VERSION" \
+  "${target}/.cursor/skills/dough-update/VERSION"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
+./.cursor/skills/dough-update/VERSION
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
@@ -109,6 +116,8 @@ EOF
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.claude/skills/dough-update/SKILL.md"
+cmp "${source_dir}/VERSION" \
+  "${target}/.claude/skills/dough-update/VERSION"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.cursor/skills/dough-update/SKILL.md"
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -117,12 +126,15 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
+./.agents/skills/dough-update/VERSION
 ./.agents/skills/unrelated/SKILL.md
 ./.claude/skills/dough-update/SKILL.md
+./.claude/skills/dough-update/VERSION
 ./.claude/skills/other-skill/SKILL.md
 ./.cursor/skills/dough-update/SKILL.md
+./.cursor/skills/dough-update/VERSION
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
 
-echo "PASS: installer writes only managed dough-update SKILL.md for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only managed dough-update SKILL.md and VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
