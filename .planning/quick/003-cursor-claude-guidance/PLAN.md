@@ -1,6 +1,6 @@
 # Use and update Open Dough in Cursor and Claude Code
 
-Status: Cursor C1–C3 done; C4–C5 remaining. Claude Code Part A not started.
+Status: Cursor C1–C5 done. Stop for Claude Code Part A.
 Source: [SEED-001, Story 3](../../seeds/SEED-001-install-and-update-open-dough.md#cursor-project-installation), the first unfinished [backlog item](../../PRODUCT-BACKLOG.md).
 
 ## Start here: execution ownership and stopping points
@@ -11,7 +11,8 @@ record. Do not rely on that conversation or automatically execute both parts.
 
 1. **Cursor:** own C1–C5 and the first shared installer/skill changes needed for
    Cursor. Complete the Cursor handoff below, then **stop**. Leave A1–A5 planned;
-   do not implement, launch, or delegate Claude Code's part.
+   do not implement, launch, or delegate Claude Code's part. **This Cursor part
+   is complete; stop here.**
 2. **Claude Code:** read Cursor's handoff and current code first. Own A1–A5,
    extend Cursor's implementation, and preserve completed Cursor/Codex behavior.
    Do not restart or revert Cursor's work. If its handoff is incomplete, record
@@ -218,49 +219,83 @@ Safe stop: maintainer can explicitly refresh or replace the Cursor copy.
 
 ### C4. Use a pushed source improvement in Cursor
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06.
 Behavior: Given an unedited real Cursor updater and a later shared wording
 improvement on `main`, native update brings that improvement into use in Cursor.
 Proof: Perform the GitHub demonstration above; fresh Cursor session demonstrates
 the new wording and the invocation changed only Cursor's installed copy.
+
+- Pushed installer support as `3bc1580` and `cc27294`. Bootstrapped Cursor from
+  a fresh clone of `https://github.com/terryyin/open-dough.git` (`cc27294` on
+  `main`) with that clone's
+  `install.sh --target /Users/terryyin/git/open-dough --platform cursor --force`.
+- Pushed wording improvement `5a48878`: success guidance now names
+  `/dough-update` in Cursor and `$dough-update` in Codex. Did not hand-refresh
+  the installed Cursor copy between that push and invocation.
+- Fresh session `98c5a683-1853-4dd8-9bb7-553962d0bbaa` invoked
+  `/dough-update https://github.com/terryyin/open-dough.git`, cloned into
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.EXkzltSx8W/open-dough`
+  (`5a488787cfd5a2625d3aa8cb9caa6a9407c827ac`), and ran
+  `bash "<clone>/install.sh" --target "/Users/terryyin/git/open-dough" --platform cursor --force`.
+- Cursor installed bytes then matched fetched source and contained the new
+  invocation wording. Codex `.agents/skills/dough-update/SKILL.md` was
+  unchanged. Fresh session `811425dc-a7a8-4f01-80ae-c5d35bffa6db` (C5) loaded
+  and quoted that wording.
 Safe stop: Cursor's complete source-to-use loop is observed.
 
 ### C5. Reapply unchanged source in Cursor
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06; no additional implementation change needed.
 Behavior: Given identical installed/upstream content, native Cursor update
 still freshly fetches and reapplies that content.
 Proof: Observe another clone and successful platform-selected installer run,
 matching installed bytes and preserved other copies. An empty diff is not proof.
+
+- Fresh session `811425dc-a7a8-4f01-80ae-c5d35bffa6db` invoked
+  `/dough-update https://github.com/terryyin/open-dough.git` again, quoted the
+  C4 invocation wording from
+  `.cursor/skills/dough-update/SKILL.md`, and cloned into a new directory
+  `/tmp/dough-update.kCNhBb/open-dough` at `5a48878`.
+- Trace used
+  `bash "/tmp/dough-update.kCNhBb/open-dough/install.sh" --target "/Users/terryyin/git/open-dough" --platform cursor --force`.
+  `cmp` reported identical Cursor installed and fetched source bytes. Codex
+  copy unchanged. Final `npm test`, `npm run lint`, and `git diff --check`
+  passed. CI succeeded for `cc27294` and `5a48878`.
 Safe stop: complete Cursor handoff below and STOP before A1.
 
 ## Cursor handoff — fill before leaving Cursor
 
-- Part status: C1–C3 done; C4–C5 remaining.
-- Last completed leaf / next Cursor leaf: C3 / C4.
-- Implementation and published source commits: `3bc1580` local; not yet on
-  `main`. Cursor installed copy is present at
-  `.cursor/skills/dough-update/SKILL.md` and not yet committed.
+- Part status: C1–C5 complete. STOP before A1.
+- Last completed leaf / next Cursor leaf: C5 / none. Next work is Claude Code A1.
+- Implementation and published source commits: `3bc1580` (installer/platform),
+  `cc27294` (Cursor installed copy + C1–C3 evidence), `5a48878` (wording
+  improvement) on `main`.
 - Exact supported installer syntax and shared-skill adaptation:
   `bash <source-checkout>/install.sh --target <absolute-project> [--platform <codex|cursor>] [--force]`.
-  Omitting `--platform` is `codex`. Shared skill copies identical content with
-  a running-tool table; update must pass the running tool's `--platform`.
+  Omitting `--platform` is `codex`. Shared skill is identical across
+  destinations, with a running-tool table. Cursor update must pass
+  `--platform cursor`. Claude is still rejected as unsupported.
 - Cursor version, native invocation, selected skill path, and evidence:
   Cursor IDE 3.19.13; CLI 2026.04.13-a9d7fb5. Parent session loaded
-  `.agents/skills/dough-update/SKILL.md`. Fresh session
-  `9cb00650-7eb6-4ac5-90d1-4384dd19a2c9` saw both same-name paths and followed
-  `.cursor/skills/dough-update/SKILL.md` with
-  `/dough-update file:///Users/terryyin/git/open-dough`.
-- Bootstrap revision → improvement revision and observed wording: pending C4.
+  `.agents/skills/dough-update/SKILL.md`. After Cursor install, fresh sessions
+  `9cb00650-7eb6-4ac5-90d1-4384dd19a2c9`,
+  `98c5a683-1853-4dd8-9bb7-553962d0bbaa`, and
+  `811425dc-a7a8-4f01-80ae-c5d35bffa6db` saw both same-name paths and followed
+  `.cursor/skills/dough-update/SKILL.md`.
+- Bootstrap revision → improvement revision and observed wording:
+  GitHub bootstrap `cc27294` → improvement `5a48878`. Observed wording:
+  “then invoke `/dough-update` in Cursor or `$dough-update` in Codex”.
 - Installer tests / lint / CI results and revisions: `npm test`, `npm run lint`,
-  and `git diff --check` passed at `3bc1580`. CI pending push.
+  and `git diff --check` passed. CI success for `cc27294` (run 34007035454)
+  and `5a48878` (run 34007054167).
 - Native-selection/coexistence findings, remaining risks, uncommitted work:
-  Cursor lists both `.agents/skills` and `.cursor/skills` copies when both
-  exist. The Codex copy is still the pre-platform skill; a host that follows
-  that stale copy would write Codex's path. Isolation is the running-tool
-  table plus `--platform`, not directory uniqueness. Unrelated uncommitted
-  ADR 0002 / `docs/adrs/README.md` preserved. Claude Code not implemented.
-- Ready for Claude Code: no. Set yes only after C1–C5 proof and handoff checks.
+  Cursor lists both `.agents/skills` and `.cursor/skills` copies. Codex copy
+  is still the pre-platform skill and was never written by Cursor updates.
+  Isolation is running-tool context plus `--platform`, not directories.
+  Unrelated uncommitted ADR 0002 / `docs/adrs/README.md` preserved. No Claude
+  installer mapping. `cursor-agent -p` needs a Cursor API key.
+- Ready for Claude Code: yes. Extend the existing `--platform` selector and
+  shared table; do not restart or revert Cursor/Codex behavior.
 
 Leave this story in Unfinished stories and retain its refinement. Do not mark
 the whole story complete when only Cursor works. Deliver this plan alongside
