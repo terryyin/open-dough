@@ -193,11 +193,19 @@ proof of working public-rule distribution.
 
 ### 5. Use the generalized skill in the original project context
 Type: Behavior
-Status: planned
+Status: done
 Proof: Compare the original and generalized skill on the same small ADR-aware change
 request in separate disposable source-context sessions in Codex. Observe relevant
 Accepted citations, supersession handling, conflict reporting, and no unauthorized
 status change or implementation work.
+
+Evidence: Two fresh isolated Codex sessions, each containing exactly one of the
+original or generalized skills, cited current ADR-0002 and its path, followed
+ADR-0001→0002 supersession, stopped the conflicting Redis request, preserved
+human lifecycle/exception ownership, and changed neither ADRs nor implementation.
+Pre/post project and source digests matched. The reusable native fixture takes the
+original source through explicit `ADR_AWARENESS_ORIGINAL_SKILL` input and embeds no
+developer-local path.
 
 Behavior: A candidate is available → substitute it for the original in a controlled
 source context → obtain an equally effective ADR assessment without depending on the
