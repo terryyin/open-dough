@@ -1,7 +1,7 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: EXECUTING authorized native retries.** Slices 1–3 complete;
-Cursor retry passed 2026-09-06. Codex and Claude Code acceptance remain pending.
+**Status: EXECUTING authorized native retries.** Slices 1–4 complete;
+Cursor and Codex retries passed 2026-09-06. Claude Code acceptance remains pending.
 The initial launch failures are retained below as history, not current results.
 Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
@@ -50,7 +50,7 @@ native run. Keep the provenance limitations above when reporting acceptance.
 
 | Platform | Native evidence retained | New evidence still pending |
 | --- | --- | --- |
-| Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4 pending: isolated launcher denied by the current sandbox; no native installation events. |
+| Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4 complete: authorized isolated native retry followed the revised guide, byte-verified all payload/record files, preserved guidance, and cleaned its checkout. |
 | Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3 complete: authorized native retry followed the revised guide, delivered exactly the pinned payload/record, preserved guidance, and cleaned its checkout. |
 | Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5 pending: Claude startup writes denied and authentication unavailable to the launch; no installation events. |
 
@@ -312,7 +312,7 @@ Decisive evidence is retained here before eventual disposable-log cleanup.
 
 ### 4. Install safely from the corrected instructions in Codex
 Type: Behavior
-Status: pending — native launch blocked 2026-09-06
+Status: completed — authorized native retry 2026-09-06
 Proof: One native Codex installation under the same protocol, using
 `codex exec --json` to retain tool events; a last-message file alone is insufficient.
 Reuse the established isolated launcher within current environment permissions.
@@ -346,6 +346,61 @@ Stderr SHA-256:
 No claim about CLI-version equivalence is inferred from this failed launch;
 E1–E2 retain only their earlier observations. Continued to slice 5 without retrying
 or removing isolation. Active launch/review was under five minutes; no native wait.
+
+Successful retry (2026-09-06): the user explicitly authorized transmission of
+the disposable public fixture and synthetic adopter to Codex's configured model
+service after automatic approval review requested destination-specific consent.
+The approved elevated launch retained the existing `sandbox-exec` profile,
+protected home guidance/configuration/plugin/package/worktree paths, and isolated
+state/log paths. No model or shared settings were changed. Darwin arm64,
+`codex-cli 0.144.1`, session `01a0768a-809c-7143-825d-4f7702370197`, launcher
+status **0** and terminal `turn.completed`. Native execution took about 88 seconds;
+active launch/audit/record work stayed within the leaf budget.
+
+Same immutable retry fixture URL as slice 3:
+`file:///private/tmp/open-dough-safe-retry.kAa5K5/source`; selected `v0.1.10`,
+peeled commit `9d5050ea5efe1f65a941777dd2e9c39f74ee6f99`, fresh sibling target
+`codex adopter`, selected root `.agents/skills/`.
+
+Chronological `codex.events.jsonl` evidence:
+- Lines 5/8 (`item_1`/`item_3`): README and linked guide read before fetched code.
+- Line 10 (`item_4`): `git ls-remote --tags -- <source>` returned competing
+  releases; native selection chose `v0.1.10`, fetched its peeled commit with
+  `--depth 1`, detached, and compared HEAD. Recorded owned checkout:
+  `/tmp/open-dough-install.MQAVeD/release`.
+- Line 13 (`item_6`): all eight required files were printed from that snapshot.
+  Independent transcript comparison found each file's entire tagged contents
+  in the returned output, so the 400-line per-file read limit truncated none.
+- Line 16 (`item_8`): captured tag/commit/version/HEAD comparisons after
+  `resolve-url`, followed by `validate-checkout` and source-version comparison,
+  then direct `bash "${snapshot}/install.sh" --target "${target_project}"
+  --platform "${platform}"`, with `platform=codex`; no `apply` or `--force`.
+  Exit 0: `Installed Open Dough public guidance in .../codex adopter/.agents/skills`
+  and `Recorded version 0.1.10.`
+- Line 18: the first post-install verification wrapper failed before checks with
+  `zsh:4: read-only variable: status`. This was neither an installer failure nor
+  a successful verification. The same native session repaired only its wrapper.
+- Line 21 (`item_11`): Bash wrapper used `verify_status`, compared all three
+  files, checked VERSION, compared baseline file hashes, enumerated exactly the
+  four new managed paths, printed `VERIFICATION_OK`, and removed the owned
+  checkout. Exit 0; no second installer call, repin, or payload change.
+- Lines 22/23: truthful final source/tag/commit, version, four paths, preserved
+  guidance and cleaned checkout; fresh `$dough-update` invocation suggested,
+  without claiming that invocation was observed; successful turn completion.
+
+Independent byte comparisons against the selected Git tree and exact four-file
+untracked inventory passed. The target's tracked baseline (including original ADR
+skill/caller and other-platform sentinels) and source remained unchanged; installer
+trace had exactly one install, branch marker was empty, and the agent-owned
+checkout was absent while the outer fixture still existed. No home-guidance write
+was present in tool events. Launcher stderr contained denied optional system-skill,
+plugin metadata and trust persistence, cache/state warnings, and an intentionally
+plain sentinel's frontmatter warning; these did not prevent the task, and protected
+paths were not made writable to suppress them. E1–E4 retain unchanged behavior.
+Transcript SHA-256:
+`39ae4e1a2d041e367fc1d397e78201490f487a1ede3b1270c03634bac66262b0`;
+stderr SHA-256:
+`9c5cd8b372a07a1080e35b5460effd68839d0b320249b6069cae7edb83be23c4`.
 
 ### 5. Install safely from the corrected instructions in Claude Code
 Type: Behavior
