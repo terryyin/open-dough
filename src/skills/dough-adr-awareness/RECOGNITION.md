@@ -75,6 +75,50 @@ An on-demand skill is also not a proven replacement for source guidance whose
 automatic application is material unless the target host supplies and verifies
 an equivalent native application mechanism.
 
+## Assessment before replacement
+
+Use the installed `dough-adr-awareness/SKILL.md`, this recognition record from
+the same native skill root, and the installed updater's numeric `VERSION` record.
+Do not substitute an untagged checkout, another host's installation, or a prompt
+that supplies a migration procedure.
+
+When a developer asks only whether this guidance could replace a local ADR
+practice:
+
+1. Identify at most one local ADR practice by behavior. Treat the original clues
+   above as leads, not eligibility requirements, and inspect the local source
+   before deciding whether it is equivalent.
+2. Compare its purpose, triggers, decision-selection and citation behavior,
+   conflict and supersession handling, and human-owned lifecycle and exception
+   authority against the distinguishing behavior and exclusion boundary above.
+   Explain covered behavior and name any uncovered policy that blocks a safe
+   replacement. Classify representative local records from their adopter-owned
+   authoritative status fields: when the index and record agree, a filename
+   mismatch is hygiene rather than a policy gap; explicitly report Proposed
+   records as non-binding. A real disagreement between authoritative sources
+   remains a blocker.
+3. Search the adopter for actual repository-relative callers and discovery
+   links, including references inside mixed instruction or ADR documents and
+   symlinks. Inspect every existing native guidance root, including
+   `.agents/skills/`, `.cursor/skills/`, and `.claude/skills/`; enumerate
+   symlinks separately because text-reference searches do not reveal them.
+   Name the affected paths rather than proposing a generic rename.
+4. Explain which adopter context must remain reachable: the ADR store and
+   index, authoritative statuses and supersession convention, architecture-work
+   triggers, human decision and exception trail, workflow precedence, and each
+   affected host's native automatic-application or discovery bridge.
+5. Report installation state separately from replacement state. A current
+   installed version can still have optional local cleanup pending, and native
+   readiness in Codex, Cursor, and Claude Code remains pending until it is
+   observed in each affected integration. Label local replacement and cleanup
+   as pending in every assessment-only result, including when the installed
+   version record is current.
+
+Assessment is read-only. Do not call the installer, edit the installed payload
+or version record, transfer context, repair callers, or remove local guidance.
+Permission to assess, install, update, or force reinstall is not permission to
+perform cleanup.
+
 ## Evaluation status
 
 Controlled native Codex comparisons established equivalence with the original

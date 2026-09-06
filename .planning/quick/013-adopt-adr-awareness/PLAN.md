@@ -231,7 +231,7 @@ was made.
 
 ### 2. Explain a proposed ADR replacement without changing the project
 Type: Behavior
-Status: planned
+Status: done
 Proof: One fresh Codex invocation of the installed updater requests an assessment
 at the current fixture version. Observe a coverage/caller/context explanation,
 no installer call, and an unchanged complete target snapshot.
@@ -239,6 +239,15 @@ no installer call, and an unchanged complete target snapshot.
 Behavior: Equivalent original plus current installed payload → ask for assessment
 → receive a bounded replacement proposal without writes. Add the shared record's
 assessment instructions and the updater's conditional link in this leaf.
+
+Evidence (2026-09-06): `codex-cli 0.144.1` invoked the installed
+`$dough-update` from fixture release `v0.1.0` at
+`71afceaede081f1226b4b202d2922d376b34ec85`. It explained coverage, retained
+context, and every fixture caller/link; classified the Accepted and Proposed
+records correctly; and left cleanup pending. Its structured command transcript
+contained read operations only, and the complete target snapshot remained
+`90ba44cfe1af555ca97de5613ee9a25bbdb62e2b98180c70e58c7238a9154808`.
+Cursor and Claude Code native assessment evidence remains pending.
 
 ### 3. Prepare bounded context retention for the first replacement
 Type: Structure
@@ -712,3 +721,6 @@ Behavior: Current adopted Donut → ordinary Claude update → truthful no-write
 - The safe-install sibling plan is now ready to execute but still has no recorded
   execution in the inspected worktree. Its dependency remains pending; its revised
   plan status does not authorize or prove real adoption.
+- Slice 2 extracted `tests/support/native-codex.sh`; later Codex native leaves
+  should reuse that protected invocation/transcript seam instead of duplicating
+  sandbox setup.

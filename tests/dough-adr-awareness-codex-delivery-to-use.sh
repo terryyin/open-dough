@@ -5,6 +5,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/dough-adr-awareness-delivery-to-use.sh
 source "${source_dir}/tests/support/dough-adr-awareness-delivery-to-use.sh"
+# shellcheck source=tests/support/native-codex.sh
+source "${source_dir}/tests/support/native-codex.sh"
 delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/tests/fixtures/adr-awareness/alternate-layout"
 delivery_host_name='Codex'
@@ -23,45 +25,12 @@ fi
 
 command -v codex > /dev/null
 delivery_prepare_fixture
-physical_temporary_dir=$(cd -- "${delivery_temporary_dir}" && pwd -P)
-physical_temporary_root=$(cd -- "${delivery_temporary_dir}/.." && pwd -P)
-codex_state_dir="${physical_temporary_dir}/codex-state"
-mkdir -p -- "${codex_state_dir}"
-codex_command=$(command -v codex)
-codex_executable=$(readlink "${codex_command}")
-codex_runtime_root=$(cd -- "$(dirname -- "${codex_executable}")/../../../.." && pwd -P)
-native_profile='(version 1)
-(allow default)
-(deny file-write*)
-(allow file-write* (subpath (param "PROOF_ROOT")))
-(allow file-write* (subpath (param "TEMP_ROOT")))
-(allow file-write* (subpath (param "CODEX_RUNTIME_ROOT")))
-(allow file-write* (literal "/dev/null"))
-(allow file-write* (literal "/dev/ptmx"))
-(allow file-write* (regex #"^/dev/ttys[0-9A-Za-z]+$"))
-(deny file-write* (subpath (param "PROTECTED_SKILLS")))
-(deny file-write* (subpath (param "PROTECTED_WORKTREES")))
-(deny file-write* (subpath (param "PROTECTED_PACKAGES")))
-(deny file-write* (subpath (param "PROTECTED_PLUGINS")))
-(deny file-write* (literal (param "PROTECTED_CONFIG")))'
+native_codex_prepare "${delivery_temporary_dir}"
 
 run_native_codex() {
   local output_file=$1
   local prompt=$2
-  sandbox-exec -D "PROOF_ROOT=${physical_temporary_dir}" \
-    -D "TEMP_ROOT=${physical_temporary_root}" \
-    -D "CODEX_RUNTIME_ROOT=${codex_runtime_root}" \
-    -D "PROTECTED_SKILLS=${codex_runtime_root}/skills" \
-    -D "PROTECTED_WORKTREES=${codex_runtime_root}/worktrees" \
-    -D "PROTECTED_PACKAGES=${codex_runtime_root}/packages" \
-    -D "PROTECTED_PLUGINS=${codex_runtime_root}/plugins" \
-    -D "PROTECTED_CONFIG=${codex_runtime_root}/config.toml" \
-    -p "${native_profile}" \
-    codex exec --ephemeral --ignore-user-config \
-    -c "sqlite_home=\"${codex_state_dir}\"" \
-    -c "log_dir=\"${codex_state_dir}\"" --skip-git-repo-check \
-    --sandbox danger-full-access -C "${delivery_target}" \
-    -o "${output_file}" "${prompt}"
+  native_codex_run "${delivery_target}" "${output_file}" "${prompt}"
 }
 
 delivery_capture_update_state
