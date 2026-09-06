@@ -241,8 +241,9 @@ conflict cannot be resolved.
 
 - **Status:** Refined 2026-09-06 in `codex/adopt-adr-awareness`, with a
   [slice plan](../quick/013-adopt-adr-awareness/PLAN.md) prepared using Donut's
-  `slice-planning` skill. The plan recommends refining slices 3 and 23 before
-  their execution. Implementation and native adoption verification are pending.
+  `slice-planning` skill and refined in place with `slice-plan-refinement`.
+  It is ready to start from slice 1, with safe-install and published-adoption
+  dependency gates intact. Implementation and native verification are pending.
 - **Value / learning:** Demonstrate the first useful replacement in a real
   adopter using the already-extracted `dough-adr-awareness` and recognition
   record. A reusable adoption journey must work without a maintainer manually
