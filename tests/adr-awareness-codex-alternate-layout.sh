@@ -3,8 +3,8 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 fixture="${source_dir}/tests/fixtures/adr-awareness/alternate-layout"
-candidate="${source_dir}/.planning/extracted-guidance/dough-adr-awareness/SKILL.md"
-recognition="${source_dir}/.planning/extracted-guidance/dough-adr-awareness/RECOGNITION.md"
+candidate="${source_dir}/src/skills/dough-adr-awareness/SKILL.md"
+recognition="${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md"
 
 required_fixture_files=(
   AGENTS.md

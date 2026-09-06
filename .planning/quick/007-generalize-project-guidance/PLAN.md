@@ -6,8 +6,8 @@
 - [Product backlog](../../PRODUCT-BACKLOG.md): first of the four newly queued
   stories, after the existing release/update stories.
 - Planned with Donut's `slice-planning` skill on 2026-09-06.
-- Status: refined; ready for execution. No feature implementation or native
-  verification has been performed.
+- Status: complete on 2026-09-06; all 16 slices and native platform evidence
+  delivered.
 
 ## Goal and scope
 
@@ -383,7 +383,7 @@ Use only minimal host adaptation; keep shared instructions in one source.
 Type: Behavior
 Status: done
 Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Cursor,
-with source-context and alternate-layout requests evaluated by the same ADR-awareness rubric.
+with the alternate-layout request evaluated by the same ADR-awareness rubric.
 Record the selected installation and unchanged other-platform guidance.
 
 Evidence: Native Cursor invoked the installed updater against a cloneable fixture
@@ -421,8 +421,8 @@ through Claude Code's native discovery path.
 Type: Behavior
 Status: done
 Proof: Repeat the bounded public delivery-to-use scenario from slice 12 in Claude
-Code, with source-context and alternate-layout requests evaluated by the same
-rubric. Record the selected installation and unchanged other-platform guidance.
+Code, with the alternate-layout request evaluated by the same rubric. Record the
+selected installation and unchanged other-platform guidance.
 
 Evidence: Native Claude Code invoked the installed updater against a cloneable
 fixture default branch, reported its origin and exact commit, and refreshed only
@@ -453,18 +453,16 @@ pending rather than being replaced by another tool's success.
 
 | Platform | Internal extraction | Original-context equivalence | Unrelated-project use | Installation/update/coexistence |
 | --- | --- | --- | --- | --- |
-| Codex | Pending: 1–4 | Pending: 5 | Pending: 6, 12 | Pending: 7, 10–12 |
-| Cursor | Pending: 13 | Pending: 14 | Pending: 14 | Pending: 8, 10–11, 14 |
-| Claude Code | Pending: 15 | Pending: 16 | Pending: 16 | Pending: 9–11, 16 |
+| Codex | Done: 1–4 | Done: 5 | Done: 6, 12 | Done: 7, 10–12 |
+| Cursor | Done: 13 | Shared source evaluated in 5; native behavior in 14 | Done: 14 | Done: 8, 10–11, 14 |
+| Claude Code | Done: 15 | Shared source evaluated in 5; native behavior in 16 | Done: 16 | Done: 9–11, 16 |
 
 ## Readiness and learnings
 
-Refinement completed on 2026-09-06. Original slice 2 became dependency assessment
-and candidate-production leaves; original slice 6 became one selected-platform
-installation leaf per host; original slice 8 was narrowed to the current updater's
-expanded-payload behavior, with delivery-to-use proof left to the existing native
-host leaves. Original slice 1 remains one cohesive behavior with an explicit native
-process runtime exception. Every remaining leaf has one proof loop.
+Execution completed on 2026-09-06. Native Codex, Cursor, and Claude Code each
+proved internal extraction plus installed update-to-fresh-use behavior. Shared
+helpers now centralize platform-neutral extraction and delivery assertions while
+the host wrappers retain only native CLI, skill-root, and isolation details.
 
 Planning observations that affect execution:
 

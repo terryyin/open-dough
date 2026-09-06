@@ -1,7 +1,7 @@
 # Recognition: dough-adr-awareness
 
-Status: evaluated public candidate — Codex substitution and installation
-verified; Cursor and Claude Code parity pending
+Status: evaluated public guidance — native discovery, installation, update,
+delivery-to-use behavior, and coexistence verified in Codex, Cursor, and Claude Code
 
 ## Original clues
 
@@ -84,8 +84,14 @@ handling. A separate native Codex run in an unrelated adopter established that
 the candidate uses adopter-supplied ADR paths and lifecycle conventions without
 imposing its source project's layout or identity.
 
-Codex installation includes this record and the behavioral skill alongside the
-public updater in its native skill root. Updating, delivery-to-use discovery or
-application, and coexistence still require their planned native evidence. Codex
-evidence does not establish Cursor or Claude Code parity; record those platforms
-as pending until their independent native checks pass.
+Codex, Cursor, and Claude Code each discovered the canonical internal extractor
+from `.agents/skills/` and produced a reusable candidate plus recognition record
+without modifying the supplied source. No Cursor or Claude-specific extractor
+adapter was required.
+
+Each platform installed this record and the same behavioral skill alongside the
+public updater in its native skill root. Independent native update-to-fresh-use
+proofs verified default-branch source identity, exact platform-local payloads,
+coexistence with unrelated guidance and other-platform copies, adopter-relative
+authority discovery, conflict stopping for human precedence, and no adopter
+changes during explicit ADR assessment.

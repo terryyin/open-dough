@@ -51,9 +51,9 @@ clues, not required matches or sufficient proof of equivalence.
 - Work in Codex, Cursor, and Claude Code with one shared behavioral source and
   minimal platform adaptation. The internal skill and repository acceptance guard
   must not become part of the public installation.
-- This seed records story understanding. Story 1 now has a linked slice plan;
-  no extraction is implemented, guidance published, or project migrated, and no
-  removal of another project's files is authorized.
+- Story 1 is complete with a linked evidence plan. Later replacement and
+  reconciliation stories remain dormant, and no removal of another project's
+  files is authorized by Story 1.
 
 ## Alternatives and Working Direction
 
@@ -75,8 +75,9 @@ concrete practice can become reusable without weakening it in its original use.
 
 ### 1. Turn a supplied project practice into usable public guidance
 
-- **Status:** Planned; not implemented. [Slice plan](../quick/007-generalize-project-guidance/PLAN.md)
-  recommends refinement for four leaves before execution.
+- **Status:** Completed 2026-09-06. The
+  [slice plan](../quick/007-generalize-project-guidance/PLAN.md) records all native
+  extraction, equivalence, installation, update, fresh-use, and coexistence evidence.
 - **For / why:** The Open Dough maintainer wants to share a proven practice
   without making every adopter inherit the source project's assumptions.
 - **Evaluation:** Use the internal skill on a supplied item, inspect the public
@@ -268,14 +269,13 @@ do not break another integration present in the same project.
 
 | Platform | Story 1 | Story 2 | Story 3 | Story 4 |
 | --- | --- | --- | --- | --- |
-| Codex | Pending native verification | Pending native verification | Pending native verification | Pending native verification |
-| Cursor | Pending native verification | Pending native verification | Pending native verification | Pending native verification |
-| Claude Code | Pending native verification | Pending native verification | Pending native verification | Pending native verification |
+| Codex | Complete: native extraction, equivalence, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification |
+| Cursor | Complete: native extraction, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification |
+| Claude Code | Complete: native extraction, alternate-project use, install/update, and coexistence | Pending native verification | Pending native verification | Pending native verification |
 
-This is refinement evidence only: the supplied seed, the owner's correction,
-and Donut's refinement/decomposition guidance were read. No native implementation
-claims are made. Prior installer evidence does not prove these new behaviors;
-copying files or passing in one tool does not establish another tool's support.
+Story 1 evidence is native and independent per platform; copying files or passing
+in one tool was not treated as proof for another. Later stories remain pending
+until their own installation or update interactions are verified natively.
 
 ## Ordering and Scope Reduction
 
@@ -304,10 +304,10 @@ points, not a reduction of the owner's complete intention.
 
 ## When to Surface
 
-All four stories are queued in the [product backlog](../PRODUCT-BACKLOG.md),
-after the existing stories and in the order shown here. The owner selected
-Story 1 for slice planning. Its linked plan does not authorize implementation
-or execution of the remaining three stories.
+Story 1 is recorded as recently done in the
+[product backlog](../PRODUCT-BACKLOG.md); the remaining three stories stay queued
+in the order shown here. Story 1's completed plan does not authorize
+implementation or execution of those remaining stories.
 
 ## Breadcrumbs
 

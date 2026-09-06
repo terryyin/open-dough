@@ -6,7 +6,7 @@ cd -- "${source_dir}"
 
 test_list=$(mktemp)
 trap 'rm -f -- "${test_list}"' EXIT
-find tests -type f -name '*.sh' -print0 > "${test_list}"
+find tests -type f -name '*.sh' ! -path 'tests/support/*' -print0 > "${test_list}"
 
 status=0
 while IFS= read -r -d '' test_file; do
