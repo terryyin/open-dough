@@ -1,10 +1,10 @@
 # Keep a recorded Open Dough installation current only when needed
 
 Status: unfinished. Shared update behavior is implemented, with Codex and
-Claude Code equal-version evidence recorded. Four retrospective corrections
-and the remaining native update decisions are planned below. Fresh installation,
-unversioned migration, release publication, and released self-use have moved to
-their own story plans.
+Claude Code equal-version evidence recorded. Retrospective corrections R1,
+R1b, R2, R3, and R4 plus remaining native update decisions are planned below.
+Fresh installation, unversioned migration, release publication, and released
+self-use have moved to their own story plans.
 
 Source: [SEED-001, Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Fresh installation: [Story 5a](../008-install-latest-release/PLAN.md).
@@ -69,7 +69,7 @@ those cases or the pinned-code execution boundary.
 
 | Promise | Owning leaves |
 | --- | --- |
-| Only inspected code from one pinned latest release can execute | R1–R2; native rows 20–25 and 29–31 rechecked when invalidated |
+| Only inspected code from one pinned latest release can execute | R1, R1b, R2; native rows 20–25 and 29–31 rechecked when invalidated |
 | Failed setup removes operation-owned temporary work | R3 |
 | Numeric comparison matches the accepted version domain | R4 |
 | Equal means no installer invocation or installed-file writes | delivered 8; native 20–22 |
@@ -82,29 +82,51 @@ those cases or the pinned-code execution boundary.
 Completed slice identifiers above remain unchanged. Corrective slices are
 inserted after the delivered implementation and before unfinished native proof.
 
-### R1. Separate release selection from update application
+### R1. Share platform destinations and requested-version refusal
 Type: Structure
 Status: planned
-Internal change: Split the 519-line `src/install/open-dough-release.sh` along
-release-resolution/validation and application seams while keeping its command
-interface and observable behavior unchanged. Give platform destinations and
-requested-version refusal one shared production representation instead of the
-copies in `install.sh` and the helper. This immediately enables slice R2 to
-establish a pin-and-inspect boundary without another competing resolver.
-Proof: Existing focused install/update shell tests remain green through the
-public command entry; every resulting helper module is at most 250 lines.
+Internal change: Move the Codex/Cursor/Claude write destinations and the
+latest-only requested-version refusal into one sourced module used by
+`install.sh` and `src/install/open-dough-release.sh`. Keep flags, messages, and
+write paths unchanged.
+Enables: R1b, which can split the helper without leaving a second copy of those
+rules in the installer.
+Proof: `bash tests/install.sh`, `bash tests/install-omits-internal.sh`,
+`bash tests/install-latest-release.sh`, and `bash tests/update-when-needed.sh`
+stay green; both production callers source the same module.
 
-### R2. Execute only the release the agent pinned and inspected
+### R1b. Split release resolution from update application
+Type: Structure
+Status: planned
+Internal change: Split the remaining helper so version validation, numeric
+compare, `resolve-url`, `fetch-release`, and `pin-latest` live in sourced
+module(s), while `apply` and the public command dispatcher stay in
+`src/install/open-dough-release.sh`. Keep the existing command names and flags.
+Every helper module is at most 250 lines.
+Enables: R2, which can verify an already-pinned checkout with the same
+resolver instead of a second algorithm.
+Proof: The same four focused tests still pass through the public commands;
+`wc -l` on each `src/install/open-dough-*.sh` module is ≤250.
+
+### R2. Execute only the inspected pinned release
 Type: Behavior
 Status: planned
-Behavior: A developer invokes update with a supplied URL → the agent resolves
-and checks out the exact latest tag using non-repository bootstrap operations,
-inspects that snapshot's helper, installer, and skill, then executes only that
-same commit → no default-branch or post-inspection replacement code can run.
-Proof: A real fixture gives default-branch helper/installer content a detectable
-side effect while the valid release is safe; the documented skill journey pins
-and inspects the safe release, performs the requested decision, and never
-executes branch or swapped content. Preserve target and other integrations.
+Behavior: A developer invokes `dough-update` with a supplied URL → the agent
+uses only Git to list tags and fetch the peeled commit of the highest numeric
+`vMAJOR.MINOR.PATCH` tag into a fresh work directory (no default-branch clone
+and no working-tree helper) → inspects that snapshot's helper, installer, and
+skill → runs
+`bash <snapshot>/src/install/open-dough-release.sh apply --url <url>
+--target <project> --platform <tool> --checkout <snapshot>` → apply resolves
+latest, requires `HEAD` to equal that commit, and does not fetch or check out
+replacement files after inspection → the recorded update decision runs from
+that same commit.
+Proof: A fixture whose default-branch helper and installer write a detectable
+side-effect file, while tagged latest is clean. A scripted copy of the skill
+bootstrap performs the requested decision, writes no side-effect file, and
+does not execute default-branch or post-inspection replacement content.
+Preserve the selected target and other integrations. README install's
+clone-then-`pin-latest` flow stays Story 5a.
 
 ### R3. Remove temporary release work after failed setup
 Type: Behavior
@@ -179,13 +201,18 @@ Proof: Independent Claude Code observation equivalent to 29.
 
 ## Readiness and learning
 
-Refinement recommended for R1–R2: the safe bootstrap seam and resulting file
-split need one concrete execution path before implementation. The other
-corrective and native leaves have one proof loop each. Do not execute R1–R2 as
-if their sizing were settled; run Donut's slice-plan-refinement on this plan
-first. After R1–R4, rerun only delivered focused/native proof invalidated by the
-changed seams, including the platform-specific native rows required by the
-repository acceptance guard.
+R1–R2 now have one execution path: share destinations/refusal, split
+resolve from apply, then Git-bootstrap the latest tag and refuse
+post-inspection checkout replacement. R3–R4 and native leaves each have one
+proof loop. After R2, equal-version native rows 20–22 are invalidated by the
+skill bootstrap change; rerun only proof whose covered seam moved, including
+the platform-specific native rows required by the repository acceptance guard.
+
+Refinement learning: `apply --checkout` currently calls `pin-latest`, which
+replaces the inspected tree. R2 must verify `HEAD` against `resolve-url` and
+leave the inspected files in place. Default-branch `git clone` plus helper
+execution is the leak to forbid in the skill, not in Story 5a's README install
+snippet.
 
 Retrospective learning from `178f1b0` plus `c26c503`: combining fresh install,
 recorded update, unversioned migration, release publication, and self-use hid a
