@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–3 done; next is slice 4 (refuse existing tag).
+Status: in progress — slices 1–4 done; next is slice 5 (refuse older unused version).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -167,7 +167,7 @@ the other tools. Finalization uses leaf 2's already-proven behavior.
 ### 4. Refuse to reuse an existing release tag
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an existing release tag, ask the skill to release that version
 again with different notes. It explains the conflict without changing the tag
@@ -265,7 +265,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Done — 1–3 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, CLI 0.153.4) | Done — 2–3 (fixture `v0.1.0` unchanged through 0.1.1 prepare; 0.1.0 notes byte-identical). Pending — 4–5 |
+| Codex | Done — 1–4 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, CLI 0.153.4) | Done — 2–4 (existing `v0.1.0` peel/object and VERSION/CHANGELOG bytes unchanged on re-prepare). Pending — 5 |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
@@ -327,3 +327,7 @@ story detail to goal/scope only after its enduring behavior is documented.
   wrote `VERSION` `0.1.1` and `## 0.1.1 - 2026-09-06`, left the 0.1.0 changelog
   entry bytes unchanged (sha256 `9fda157d…`), and did not move `v0.1.0` or
   create `v0.1.1` or a commit.
+- Leaf 4: `$release-version prepare 0.1.0` with different notes refused because
+  `v0.1.0` already existed. Tag peel `7df8e0a` / object `9e443c9` and
+  VERSION/CHANGELOG bytes were unchanged; trace had no force-tag, reset, or
+  metadata write.
