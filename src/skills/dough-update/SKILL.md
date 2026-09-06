@@ -13,15 +13,28 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
 3. Make a fresh temporary directory and shallow-clone the supplied URL with
    `git clone --depth 1`, using its default branch without selecting a branch or
    release. Do this on every invocation, even when upstream content is unchanged.
-4. Inspect the fetched `install.sh` and `src/skills/dough-update/SKILL.md` before
-   executing anything from the clone. Proceed only if installation writes solely
-   to `.agents/skills/dough-update/SKILL.md` in the captured target project,
-   preserving distributable source, unrelated project files, and home guidance.
-5. Run the fetched installer with `bash <clone>/install.sh --target <captured-project> --force`,
-   quoting both paths. Every update reapplies the fetched skill.
-6. Report success only after installation succeeds and the installed file
-   matches the fetched source. Say `Updated Open Dough guidance from <source-url>.`,
-   replacing `<source-url>` with the actual supplied URL. Report the installed
-   path and tell the user to start a fresh Codex session to use the updated
-   guidance. If fetching or installation fails, report that failure without
-   claiming an update succeeded.
+4. Identify the running tool from the current host. Do not infer it from which
+   skill directories exist, and do not use a compatibility directory that
+   another host also reads. Select that tool's installer platform and write
+   destination:
+
+   | Running tool | `--platform` | Installed file |
+   | --- | --- | --- |
+   | Codex | `codex` (omitting `--platform` is equivalent) | `.agents/skills/dough-update/SKILL.md` |
+   | Cursor | `cursor` | `.cursor/skills/dough-update/SKILL.md` |
+
+   Claude Code is not yet supported. Inspect the fetched `install.sh` and
+   `src/skills/dough-update/SKILL.md` before executing anything from the clone.
+   Proceed only if installation writes solely to the selected installed file in
+   the captured target project, preserving distributable source, unrelated
+   project files, other tools' separate installations, and home guidance.
+5. Run the fetched installer with
+   `bash <clone>/install.sh --target <captured-project> --platform <tool> --force`,
+   quoting both paths. Codex may omit `--platform`. Every update reapplies the
+   fetched skill to that running tool's copy only.
+6. Report success only after installation succeeds and the selected installed
+   file matches the fetched source. Say `Updated Open Dough guidance from
+   <source-url>.`, replacing `<source-url>` with the actual supplied URL. Report
+   the installed path and tell the user to start a fresh session in the same
+   tool to use the updated guidance. If fetching or installation fails, report
+   that failure without claiming an update succeeded.
