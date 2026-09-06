@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 --target <project> [--platform <codex|cursor>] [--force]" >&2
+  echo "Usage: $0 --target <project> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
 }
 
@@ -52,8 +52,11 @@ case "${platform}" in
   cursor)
     relative_destination=.cursor/skills/dough-update
     ;;
+  claude)
+    relative_destination=.claude/skills/dough-update
+    ;;
   *)
-    echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor." >&2
+    echo "Unsupported platform: ${platform}. Supported platforms: codex, cursor, claude." >&2
     exit 1
     ;;
 esac
