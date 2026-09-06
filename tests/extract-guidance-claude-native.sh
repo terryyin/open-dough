@@ -4,12 +4,12 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 extract_source_dir=${source_dir}
-extract_host_name='Cursor'
-extract_host_upper='CURSOR'
-extract_host_slug='cursor'
-extract_skill_root='.cursor/skills'
-extract_existing_name='existing-cursor'
-extract_command_name='cursor'
+extract_host_name='Claude Code'
+extract_host_upper='CLAUDE CODE'
+extract_host_slug='claude'
+extract_skill_root='.claude/skills'
+extract_existing_name='existing-claude'
+extract_command_name='claude'
 
 extract_run_native() {
   local session_root=$1
@@ -17,8 +17,8 @@ extract_run_native() {
   local output_file=$3
   (
     cd -- "${session_root}"
-    cursor agent --print --force --trust --sandbox enabled \
-      --workspace "${session_root}" "${prompt}"
+    claude --print --dangerously-skip-permissions --no-session-persistence \
+      "${prompt}"
   ) > "${output_file}"
 }
 

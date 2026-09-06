@@ -399,11 +399,19 @@ replacement → use the changed ADR-awareness behavior with local context intact
 
 ### 15. Extract guidance natively in Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Proof: Discover and invoke the shared internal skill in a fresh Claude Code
 checkout with existing guidance present; apply the focused extraction acceptance
 scenario using the selected ADR-awareness source and inspect its actual candidate,
 recognition record, and suitability assessment.
+
+Evidence: Fresh Claude Code discovered and invoked the canonical
+`.agents/skills/extract-guidance/SKILL.md` without a Claude-specific adapter. It
+produced the candidate and recognition record with the recognition status fixed at
+`draft — unverified substitute`, preserved the supplied source and unrelated Claude
+guidance byte-for-byte, and installed nothing publicly. After extracting the shared
+Cursor/Claude harness and fixing EXIT cleanup scope, the native proof exited 0 and
+recorded source plus generated-artifact digests.
 
 Behavior: A maintainer supplies a source in Claude Code → invokes the internal
 skill → receives the same reusable candidate and honest suitability assessment
