@@ -1,10 +1,11 @@
 # Keep a recorded Open Dough installation current only when needed
 
-Status: unfinished. Shared update behavior is implemented, with Codex and
-Claude Code equal-version evidence recorded. Retrospective corrections R1,
-R1b, R2, R3, and R4 plus remaining native update decisions are planned below.
-Fresh installation, unversioned migration, release publication, and released
-self-use have moved to their own story plans.
+Status: unfinished. Shared update behavior is implemented, with Codex, Cursor,
+and Claude Code older-to-latest and equal-version evidence recorded.
+Retrospective corrections R1, R1b, R2, R3, and R4 plus remaining native
+newer-preserved decisions are planned below. Fresh installation, unversioned
+migration, release publication, and released self-use have moved to their own
+story plans.
 
 Source: [SEED-001, Story 5b](../../seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed).
 Fresh installation: [Story 5a](../008-install-latest-release/PLAN.md).
@@ -210,10 +211,33 @@ verification; the named fixture remains available with its trace and hashes.
 
 ### 25. Advance Claude Code directly to latest
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Claude Code records an older release → native `/dough-update` →
 selected Claude installation advances once to latest.
-Proof: Independent Claude Code observation equivalent to 23.
+Proof: Claude Code 2.1.263 session `d499afb6-fdee-4b55-a359-ee9599be7c63` ran
+`claude -p` from `/tmp/open-dough-slice25-proof.SOsXTX/target project` with
+tool access limited to `Bash Edit Write Read` (no permission bypass). The
+running host identified as Claude Code and selected
+`.claude/skills/dough-update`, while Codex and Cursor copies were also
+present. Native `/dough-update <fixture-url>` listed fixture tags, chose
+peeled `v0.1.10` commit `ac929f41ff79c9d5284317712f7042fdcb2937d4`, inspected
+that detached snapshot's helper, installer, skill, sourced modules, and
+changelog, then ran `apply --checkout --platform claude`. Output reported
+source, tag, commit, previous version `0.1.2`, and outcome "Updated to
+0.1.10. Only `SKILL.md` and `VERSION` under that skill directory were
+modified," plus the fresh-session instruction. `OPEN_DOUGH_TRACE` contains
+exactly one `apply-upgrade` and one `install` line, both under
+`.claude/skills/dough-update`. Before/after `sha256sum` over every installed
+`SKILL.md`/`VERSION`/sentinel file shows only the Claude Code `SKILL.md` and
+`VERSION` changed; Git status in the target confirms the same two paths.
+Codex and Cursor remain at `0.1.2`; `.agents/skills/unrelated`,
+`.cursor/skills/other-cursor-skill`, `.claude/skills/other-skill`, and
+`keep this file.txt` are byte-identical before and after. No operation-owned
+bootstrap directory remained under `/tmp` or `/var/folders` after the run.
+Fixture built via `tests/helpers/release-fixture.bash`
+(`build_latest_fixture` + old-tag `install.sh` seeding at `0.1.2` for all
+three platforms); the named fixture, target, and traces remain available at
+`/tmp/open-dough-slice25-proof.SOsXTX`.
 
 ### 29. Preserve a newer Codex installation
 Type: Behavior
@@ -239,10 +263,18 @@ Proof: Independent Claude Code observation equivalent to 29.
 ## Readiness and learning
 
 R1–R4 are done. Slice 21 rechecked Cursor equal-version after the pin-and-inspect
-skill change, slice 23 proves the native Codex older-to-latest journey, and
-slice 24 now proves the matching Cursor upgrade. Codex and Claude equal-version
-rows 20 and 22 were not re-run; native upgrade row 25 and newer rows 29–31
-remain. Stopped after slice 24 as requested.
+skill change, slice 23 proves the native Codex older-to-latest journey, slice 24
+proves the matching Cursor upgrade, and slice 25 now proves the matching Claude
+Code upgrade. Codex and Claude equal-version rows 20 and 22 were not re-run;
+newer-preserved rows 29–31 remain.
+
+Slice 25 note: the native session ran via `claude -p` with
+`--allowedTools "Bash Edit Write Read"` rather than a permission-bypass mode —
+the auto-mode classifier blocks nested sessions started with
+`--dangerously-skip-permissions`/`bypassPermissions`. The scoped-tools form
+still exercises genuine native discovery and produced identical trace/hash
+evidence to the bypass-mode runs used for slices 23–24, so it is accepted as
+equivalent proof.
 
 Refinement learning: `apply --checkout` currently calls `pin-latest`, which
 replaces the inspected tree. R2 must verify `HEAD` against `resolve-url` and
