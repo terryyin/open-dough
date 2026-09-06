@@ -103,10 +103,17 @@ public guidance but cannot silently fall back to the original Doughnut skill.
 
 ### 1. Obtain a reusable candidate from one supplied skill
 Type: Behavior
-Status: planned
+Status: done
 Proof: In a disposable Open Dough checkout, discover and invoke `extract-guidance`
 natively in Codex on one small self-contained source fixture. Inspect the candidate,
 its recognition record, and the unchanged source in one extraction run.
+
+Evidence: Codex 0.144.1 discovered `$extract-guidance` in a fresh disposable
+checkout and produced `dough-acme-change-readiness/{SKILL,RECOGNITION}.md` with
+`draft — unverified substitute`; the source SHA-256 remained
+`2a1b947789e94a743e08424e07ad7fc93c1ee055e96c0be820660b562356f983`.
+`bash tests/install-omits-internal.sh` proved the internal skill stays out of all
+three installer outputs.
 
 Behavior: A maintainer supplies one skill path → invokes the internal skill →
 receives a public `dough-` candidate with project assumptions identified and enough

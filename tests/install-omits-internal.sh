@@ -2,11 +2,14 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+internal_skill_names=(release-version extract-guidance)
 
-[[ -f "${source_dir}/.agents/skills/release-version/SKILL.md" ]]
+for internal_skill_name in "${internal_skill_names[@]}"; do
+  [[ -f "${source_dir}/.agents/skills/${internal_skill_name}/SKILL.md" ]]
+  [[ ! -e "${source_dir}/src/skills/${internal_skill_name}" ]]
+done
 [[ -f "${source_dir}/AGENTS.md" ]]
 [[ -f "${source_dir}/CLAUDE.md" ]]
-[[ ! -e "${source_dir}/src/skills/release-version" ]]
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -33,9 +36,14 @@ list_files() {
 
 assert_internal_absent() {
   local root=$1
-  [[ ! -e "${root}/.agents/skills/release-version" ]]
-  [[ ! -e "${root}/.cursor/skills/release-version" ]]
-  [[ ! -e "${root}/.claude/skills/release-version" ]]
+  local internal_skill_name
+  local skill_root
+
+  for internal_skill_name in "${internal_skill_names[@]}"; do
+    for skill_root in .agents .cursor .claude; do
+      [[ ! -e "${root}/${skill_root}/skills/${internal_skill_name}" ]]
+    done
+  done
   [[ ! -e "${root}/AGENTS.md" ]]
   [[ ! -e "${root}/CLAUDE.md" ]]
 }
@@ -74,7 +82,7 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
+expected_files=$(
   cat << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
@@ -82,7 +90,8 @@ expect_files "$(
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
+)
+expect_files "${expected_files}"
 
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -91,7 +100,7 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
+expected_files=$(
   cat << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
@@ -100,7 +109,8 @@ expect_files "$(
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
+)
+expect_files "${expected_files}"
 
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
@@ -111,7 +121,7 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${target}/.agents/skills/dough-update/SKILL.md"
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files "$(
+expected_files=$(
   cat << 'EOF'
 ./.agents/skills/dough-update/SKILL.md
 ./.agents/skills/unrelated/SKILL.md
@@ -121,6 +131,7 @@ expect_files "$(
 ./.cursor/skills/other-cursor-skill/SKILL.md
 ./keep this file.txt
 EOF
-)"
+)
+expect_files "${expected_files}"
 
-echo "PASS: installer writes only managed dough-update SKILL.md for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only managed dough-update SKILL.md for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
