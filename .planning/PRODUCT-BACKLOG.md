@@ -11,6 +11,10 @@ itself, learning from real work before extending adoption to other projects.
 1. [Create an identifiable Open Dough release with the internal skill](seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version) — SEED-001
 2. [Update Open Dough to the latest release only when needed](seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed) — SEED-001
 3. [See the relevant changelog while updating Open Dough](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — SEED-001
+4. [Turn a supplied project practice into usable public guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#generalize-project-guidance) — SEED-004
+5. [Replace equivalent local guidance when updating Open Dough](seeds/SEED-004-extract-and-adopt-project-guidance.md#replace-equivalent-guidance-on-update) — SEED-004
+6. [Adopt shared guidance while preserving useful local differences](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-local-behavior-during-replacement) — SEED-004
+7. [Start using Open Dough without leaving overlapping local guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install) — SEED-004
 
 ## Recently done
 
