@@ -8,6 +8,36 @@ The aim is to define the lifecycle once, reuse it across projects, and make it u
 
 > **Status:** The first Codex installer provides a `dough-update` placeholder. Updating and the wider lifecycle content and platform integrations remain planned.
 
+## Install with an AI agent
+
+Open your target project in an AI agent with web and shell access, then ask:
+
+> Install https://github.com/terryyin/open-dough into this project.
+
+**For the installing agent:**
+
+1. Use the user's current project as the target, or their explicitly supplied
+   target path. Ask only if the target is unclear. Capture its absolute path
+   before cloning so the source checkout does not become the installation target.
+2. Explain that the available installation adds one Codex placeholder at
+   `.agents/skills/dough-update/SKILL.md`. It does not implement updating yet;
+   Cursor and Claude Code integrations remain planned.
+3. Follow the [clone/install instructions](#install-the-codex-placeholder), using
+   the URL the user supplied. Inspect that clone's `install.sh` and source skill
+   before running it with `--target` set to the captured project path. Bash and
+   Git are sufficient; installing package dependencies is unnecessary.
+4. Respect the user's authorization and your environment's permission controls.
+   An explicit installation request authorizes the described project-local
+   installation; do not ask for the same permission again. If required access
+   is unavailable, explain what is needed.
+5. If installation reports an existing skill, stop and explain that `--force`
+   replaces its contents, including local edits. Use it only when the user has
+   explicitly authorized that overwrite.
+6. Verify the installed file matches the cloned source and review the target
+   project's diff for unrelated changes. Report the installed path and tell the
+   user to invoke `$dough-update` in a fresh Codex session. Report invocation as
+   verified only if you actually observed it. Commit or push only when authorized.
+
 ## Inspiration and name
 
 Open Dough is inspired by the [Donut project](https://github.com/nerds-odd-e/doughnut) and the development practices behind it.
