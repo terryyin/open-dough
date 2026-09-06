@@ -1,6 +1,6 @@
 # Apply latest Open Dough guidance in Codex
 
-Status: planned — ready for direct execution.
+Status: executing — slice 1 delivered; GitHub self-use and repeat remain.
 Source: [SEED-001, Story 2](../../seeds/SEED-001-install-and-update-open-dough.md#update-after-source-change), the first unfinished [backlog item](../../PRODUCT-BACKLOG.md).
 
 ## Goal and scope
@@ -64,7 +64,7 @@ owning slice during execution.
 ### 1. Invoke the installed skill to apply the supplied source
 
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06
 Behavior: Given an unedited project installation bootstrapped with the real
 updater, invoking `$dough-update` with a supplied URL replaces its installed
 skill with that source's latest default-branch content.
@@ -83,6 +83,23 @@ performs the update and leaves the expected installed payload.
 - Run `bash tests/install.sh` for the reused installation contract. A failure
   leaves the slice unfinished; do not commit broken intermediate behavior.
 
+Evidence (2026-09-06; delivered in `261302e`):
+
+- Forced the real updater over a fixture placeholder with the existing installer.
+  Fresh bundled Codex CLI 0.153.4 session
+  `01a07473-f26f-7553-8df4-5636df99c24d` invoked
+  `$dough-update file:///tmp/open-dough-update-proof.mDDqwh/source`.
+- Trace showed `git clone --depth 1` and the fetched installer with `--force`.
+  Clone default branch was `guidance`, committed revision `2d11748`.
+  `cmp` matched installed bytes to committed source; the uncommitted marker
+  was absent. The source hash and both unrelated target sentinels were unchanged.
+- All 101 snapshotted home guidance files were unchanged. The separate Codex
+  runtime config changed during execution; no updater command wrote it.
+  Command trace wrote only the temporary clone and target skill.
+- `bash tests/install.sh`, `npm run lint`, and `npm test` passed. Independent
+  post-change-refactor returned clean with no edits; coordinator formatting
+  passed. Raw disposable proof: `/tmp/open-dough-update-proof.mDDqwh/fixture.jsonl`.
+
 Sizing: about five minutes of work, moderate confidence; the execution path is
 the existing clone/install flow. Fresh-session test runtime may add elapsed time.
 Safe stopping point: the updater is usable with an explicit source URL.
@@ -90,7 +107,7 @@ Safe stopping point: the updater is usable with an explicit source URL.
 ### 2. Bring a pushed improvement into Open Dough itself
 
 Type: Behavior
-Status: planned
+Status: executing — GitHub bootstrap obtained revision `261302e`; wording ready to push
 Behavior: Given the real updater installed in Open Dough and a further wording
 improvement pushed to `main`, invoking the installed updater brings that
 improvement into use in a fresh Codex session.
@@ -145,4 +162,7 @@ no feature code or installed guidance.
 
 ## Learnings
 
-None yet; record only findings that change assumptions or remaining work.
+The existing installer was sufficient. Native fixture invocation demonstrated
+default-branch selection without adding a scripted imitation of skill behavior.
+Home guidance remained unchanged; the running Codex host changed its separate
+runtime config, which is outside updater command writes.

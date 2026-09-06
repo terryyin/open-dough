@@ -20,6 +20,8 @@ description: Apply the latest Open Dough guidance from a supplied repository URL
 5. Run the fetched installer with `bash <clone>/install.sh --target <captured-project> --force`,
    quoting both paths. Every update reapplies the fetched skill.
 6. Report success only after installation succeeds and the installed file
-   matches the fetched source. Report the installed path and tell the user to
-   start a fresh Codex session to use the updated guidance. If fetching or
-   installation fails, report that failure without claiming an update succeeded.
+   matches the fetched source. Say `Updated Open Dough guidance from <source-url>.`,
+   replacing `<source-url>` with the actual supplied URL. Report the installed
+   path and tell the user to start a fresh Codex session to use the updated
+   guidance. If fetching or installation fails, report that failure without
+   claiming an update succeeded.
