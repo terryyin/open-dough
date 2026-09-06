@@ -13,6 +13,11 @@
 - All 40 remaining leaves have one bounded proof loop. Their five-minute sizing
   is a hypothesis, not a runtime guarantee. Current scope and story order remain
   unchanged; first-install and real-adoption gates still apply.
+- Execution CI observer: key
+  `ci-watch-execution:terryyin/open-dough:codex/adopt-adr-awareness-execution:/root`,
+  PTY session `23441`, PID `20830`, checkout
+  `/Users/terryyin/.codex/worktrees/d43a/open-dough`. It follows this repository's
+  feature-branch CI because Open Dough runs `ci.yml` on every push.
 
 ## Goal and scope
 
@@ -209,13 +214,20 @@ Keep interim cleanup pending; final completion still requires all mapped proof.
 
 ### 1. Prepare one disposable ADR assessment target
 Type: Structure
-Status: planned
+Status: done
 Proof: Validate one Donut-derived fixture with the original skill, minimum live
 callers/context, current tagged payload, and a file/symlink snapshot; run existing
 payload-install checks unchanged. No native adoption claim yet.
 
 Structure: Extend the existing fixture support only enough for slice 2's native
 read-only assessment. Keep Donut-specific data in tests and real projects untouched.
+
+Evidence (2026-09-06): `bash -n tests/helpers/release-fixture.bash
+tests/adr-adoption-fixture.sh && bash tests/adr-adoption-fixture.sh` passed for
+the exact current tagged payload, original skill/callers/context, coexistence,
+internal omissions, and file/directory/symlink snapshot. The unchanged Codex,
+Cursor, and Claude public-payload install checks passed. No native adoption claim
+was made.
 
 ### 2. Explain a proposed ADR replacement without changing the project
 Type: Behavior

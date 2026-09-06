@@ -1,0 +1,7 @@
+---
+description: Donut-derived general fixture guidance
+alwaysApply: true
+---
+
+Architectural decisions: humans approve via `docs/adrs/`; agents use
+`adr-awareness` (see `architecture-decisions.mdc`).
