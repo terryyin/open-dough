@@ -427,8 +427,8 @@ until their own installation or update interactions are verified natively.
 
 ## Ordering and Scope Reduction
 
-Current delivery order: SEED-001 safe installation, publication of the existing
-ADR-awareness payload, and Open Dough self-use; then Story 4 installs in Donut
+SEED-001 safe installation is complete. Remaining delivery order: publication of
+the existing ADR-awareness payload and Open Dough self-use; then Story 4 installs in Donut
 and replaces the redundant original. Both projects use the same installation
 flow. Story 4 adds assessment, reference repair, and removal only where equivalent
 local guidance exists; self-use needs no separate installer feature.

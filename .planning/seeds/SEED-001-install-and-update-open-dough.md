@@ -228,11 +228,11 @@ changes.
 
 ### 5a. Install the latest released Open Dough guidance safely
 
-- **Status:** Complete, 2026-09-06. The
-  [five-slice plan](../quick/008-install-latest-release/PLAN.md) records green
-  focused success/stale-selection proof and separate native installations in
-  Cursor, Codex, and Claude Code. Authorized retries resolved the initial launch
-  blockers; unchanged discovery/use/update and failure evidence is retained.
+- **Status:** Complete, 2026-09-06. All five slices passed: focused
+  success/stale-selection proof and separate native installations in Cursor,
+  Codex, and Claude Code. Authorized retries resolved the initial launch blockers;
+  unchanged discovery/use/update and failure evidence is retained below. The
+  spent plan was dropped after acceptance.
 - **Depends on:** A valid tagged source under
   [Accepted ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
   Controlled releases can prove this story before backlog item two publishes it.
@@ -322,18 +322,37 @@ updating, repeat/force, and containment remain retained.
 
 | Platform | Earlier native evidence retained | New installation observation |
 | --- | --- | --- |
-| Codex | Quick 007 slices 11–12: installed updater and fresh ADR use/coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed (plan slice 4): session `01a0768a-809c-7143-825d-4f7702370197`; inspected pinned direct installation, byte/record verification, preservation, and cleanup. |
-| Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Passed (plan slice 3): session `cdbdd351-db77-41d1-9e5f-a13ce5fc774f`; corrected-guide installation, full call-chain inspection, byte/record verification, preservation, and cleanup. |
-| Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed (plan slice 5): session `02b2fb98-25d5-48a5-b10d-e6078773cb13`; full persisted inspection read before direct installation, byte/record verification, preservation, and cleanup. |
+| Codex | Quick 007 slices 11–12: installed updater and fresh ADR use/coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed: Codex CLI 0.144.1, session `01a0768a-809c-7143-825d-4f7702370197`; inspected pinned direct installation, byte/record verification, preservation, and cleanup. |
+| Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Passed: Cursor Agent 2026.09.02-c22c1a3, session `cdbdd351-db77-41d1-9e5f-a13ce5fc774f`; corrected-guide installation, full call-chain inspection, byte/record verification, preservation, and cleanup. |
+| Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed: Claude Code 2.1.263, session `02b2fb98-25d5-48a5-b10d-e6078773cb13`; full persisted inspection read before direct installation, byte/record verification, preservation, and cleanup. |
 
 [Quick 007](../quick/007-generalize-project-guidance/PLAN.md)'s original native
 delivery used default-branch fixtures. Its unchanged discovery/ADR observations
 remain reusable; they do not establish the changed release-install route.
-[The plan](../quick/008-install-latest-release/PLAN.md) maps every promise to
-retained evidence or completed new observations and records specific invalidation
-triggers. No automatic expiry or full tool-version matrix is introduced. Each
-platform has its own native evidence; one tool's result does not substitute for
-another's behavior.
+The three new native runs used a disposable source with competing tags and a
+divergent branch. Each selected annotated `v0.1.10`, peeled commit
+`9d5050ea5efe1f65a941777dd2e9c39f74ee6f99`, and inspected the installer, its four
+helper/dependency files, and all three payload sources before executing code.
+Chronological traces recorded resolve/compare/validate followed by direct
+`install.sh`, without `apply`, force, or repinning. Independent checks found
+exactly four new files under each selected native root, matching all payload
+bytes and VERSION; original guidance/callers and other-platform sentinels were
+unchanged, branch-execution markers stayed empty, and each agent's checkout was
+absent before fixture teardown. Codex repaired a verification-wrapper shell error
+without reinstalling; Claude read the complete persisted inspection output before
+execution. All three launchers and final verification completed successfully.
+
+`bash tests/pin-and-inspect.sh`, ShellCheck, shfmt, and Markdown link/diff checks
+passed. The existing repeat/force, release validation, internal omission,
+containment, and truthful copy-failure evidence was retained because installer,
+helper, payload, skill content, and native mappings did not change. Reopen only
+claims affected by changed inputs or behavior; no automatic evidence expiry or
+full tool-version matrix is introduced. Each platform has its own native evidence.
+
+Detailed tool-event excerpts, transcript digests, and the retired plan remain in
+Git history at commit `38f6f36`, retrievable with
+`git show 38f6f36:.planning/quick/008-install-latest-release/PLAN.md`.
+The story is listed among the [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
 
 No unresolved product decision blocks execution. Donut's story-refinement and
 slice-planning guidance was borrowed in this session from checkout
@@ -481,7 +500,7 @@ combined outcome without reopening release production or version detection.
 
 ## Ordering and Scope Reduction
 
-Current delivery order: finish safe installation (5a), publish the accepted
+Safe installation (5a) is complete. Remaining delivery order: publish the accepted
 ADR-awareness payload and updater (5d), then install and use that release in
 Open Dough (5e). Self-adoption uses the same project-local flow as other targets;
 it is a real-use check, not another installation mechanism. After that, implement
@@ -493,7 +512,7 @@ The two new extraction stories and update-time replacement do not block
 first-install ADR-awareness replacement. This sequence replaces the earlier
 proposal to start replacement development ahead of installation and self-use.
 
-Story 4 and recorded updating (5b) are complete; retain their evidence for
+Story 4, safe installation (5a), and recorded updating (5b) are complete; retain their evidence for
 unchanged behavior. All affected behavior still requires separate native
 evidence in Codex, Cursor, and Claude Code.
 
@@ -506,15 +525,16 @@ containment defect linked from Story 5a already constitutes such evidence.
 
 ## Split-plan provenance
 
-Quick 005 retains original leaves 8–9, 11–15, 20–25, and 29–31 plus
-retrospective corrections. Quick 008 receives 1–7 and 17–19;
-Quick 010 receives 35–36; Quick 011 receives 37–42.
-Completed and partial status/evidence moved with their leaves. Quick 008's story
-and slices have now been refined again; the other unfinished split plans remain
-explicitly not executable until their stories and slices are refined again.
-Quick 005's plan file was dropped after all of its leaves and retrospective
-corrections completed; its evidence is summarized in Story 5b above and in the
+Quick 005 received original leaves 8–9, 11–15, 20–25, and 29–31 plus
+retrospective corrections. Quick 008 received 1–7 and 17–19;
+Quick 010 received 35–36; Quick 011 received 37–42.
+Completed and partial status/evidence moved with their leaves. Quick 008 was
+subsequently refined to five remaining slices, all now accepted. The spent
+Quick 005 and Quick 008 plans were dropped after completion; their evidence is
+summarized in Stories 5b and 5a above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
+The other unfinished split plans remain explicitly not executable until their
+stories and slices are refined again.
 
 ## Open Decisions
 
@@ -525,9 +545,9 @@ corrections completed; its evidence is summarized in Story 5b above and in the
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) orders Stories 5a, 5d, and 5e
+The [product backlog](../PRODUCT-BACKLOG.md) now starts with Stories 5d and 5e
 before SEED-004's first ADR-awareness replacement and places Story 6 later.
-[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4 and 5b. Execute only a selected story with a
+[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains Stories 1–4, 5a, and 5b. Execute only a selected story with a
 refined plan; do not chain the provisional plans as one delivery.
 
 ## Breadcrumbs
