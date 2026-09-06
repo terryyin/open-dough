@@ -313,11 +313,18 @@ the new skill as well as the updater so no early writes precede a later conflict
 
 ### 11. Let the updater refresh the expanded public payload
 Type: Behavior
-Status: planned
+Status: done
 Proof: A disposable source contains a bounded public-skill improvement → invoke
 the updated updater in Codex → observe allowed payload writes and verified source
 identity; existing source-selection and failure tests remain applicable, and the
 change does not claim version-aware selection.
+
+Evidence: Native Codex used the updated tracked skill to clone a disposable source,
+reported its origin and exact commit, validated the three-file allowlist, refreshed
+the selected payload, and byte-verified it. Source, unrelated project content, and
+Cursor/Claude copies retained their digests. The instructions and split installation
+guide explicitly retain default-branch selection, distinguish it from published
+`v0.1.0`, and document the truthful one-time bootstrap for older single-file updaters.
 
 Behavior: An adopter requests an update from a supplied source → the updater
 validates and installs eligible public guidance → the selected installed payload

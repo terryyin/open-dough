@@ -6,7 +6,9 @@ Open Dough defines how people and AI work together to develop software. It bring
 
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
-> **Status:** Codex, Cursor, and Claude Code can install and update the project-local `dough-update` skill from a supplied repository URL.
+> **Status:** Codex, Cursor, and Claude Code can install and update the
+> project-local public payload (`dough-update` plus `dough-adr-awareness` and
+> its recognition record) from a supplied repository URL.
 
 ## Install with an AI agent
 
@@ -20,17 +22,20 @@ Open your target project in an AI agent with web and shell access, then ask:
    target path. Ask only if the target is unclear. Capture its absolute path
    before cloning so the source checkout does not become the installation target.
 2. Explain that installation selects one tool. Codex (default, or
-   `--platform codex`) installs `.agents/skills/dough-update/SKILL.md`. Cursor
-   (`--platform cursor`) installs `.cursor/skills/dough-update/SKILL.md`. Claude
-   Code (`--platform claude`) installs `.claude/skills/dough-update/SKILL.md`.
-   Install only the running tool's copy.
+   `--platform codex`) installs under `.agents/skills/`, Cursor (`--platform
+   cursor`) under `.cursor/skills/`, and Claude Code (`--platform claude`)
+   under `.claude/skills/`. Each receives exactly
+   `dough-update/SKILL.md`, `dough-adr-awareness/SKILL.md`, and
+   `dough-adr-awareness/RECOGNITION.md`. Install only the running tool's copy.
 3. Follow the clone/install instructions for that tool
-   ([Codex](#install-the-codex-updater), [Cursor](#install-the-cursor-updater),
-   or [Claude Code](#install-the-claude-code-updater)), using the URL the user
-   supplied. Inspect that clone's `install.sh` and source skill before running
-   it with `--target` set to the captured project path, and `--platform cursor`
-   or `--platform claude` when installing for Cursor or Claude Code. Bash and
-   Git are sufficient; installing package dependencies is unnecessary.
+   ([Codex](docs/installation-and-updates.md#codex),
+   [Cursor](docs/installation-and-updates.md#cursor), or
+   [Claude Code](docs/installation-and-updates.md#claude-code)), using the URL
+   the user supplied. Inspect that clone's `install.sh` and all three declared
+   public source files before running it with `--target` set to the captured
+   project path, and `--platform cursor` or `--platform claude` when installing
+   for Cursor or Claude Code. Bash and Git are sufficient; installing package
+   dependencies is unnecessary.
 4. Respect the user's authorization and your environment's permission controls.
    An explicit installation request authorizes the described project-local
    installation; do not ask for the same permission again. If required access
@@ -38,10 +43,11 @@ Open your target project in an AI agent with web and shell access, then ask:
 5. If installation reports an existing skill, stop and explain that `--force`
    replaces its contents, including local edits. Use it only when the user has
    explicitly authorized that overwrite.
-6. Verify the installed file matches the cloned source and review the target
-   project's diff for unrelated changes. Report the installed path and tell the
-   user to invoke the updater with the source URL in a fresh session of the same
-   tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude Code).
+6. Verify all three installed files match the cloned sources and review the
+   target project's diff for unrelated changes. Report the installed paths and
+   tell the user to invoke the updater with the source URL in a fresh session of
+   the same tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude
+   Code).
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
@@ -90,232 +96,9 @@ The exact file mappings and capability differences will be documented as integra
 
 ## Installation and updates
 
-### Install the Codex updater
-
-With Bash and Git available, run this from the existing target project's root:
-
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project"
-)
-```
-
-Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
-install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
-
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.agents/skills/dough-update/SKILL.md` in the target project. Other project files
-are preserved. Start a fresh Codex session in that project and invoke
-`$dough-update https://github.com/terryyin/open-dough.git`, substituting the source
-URL you want to update from. See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
-
-To run all script tests from a source checkout, run `npm test` (requires npm)
-or `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
-discovers all `.sh` files under `tests/` and reports failure if any test fails.
-
-GitHub Actions runs `npm run lint` and `npm test` independently on every push
-and pull request, and can also be started manually. CI uses Node.js 24 and
-installs the locked npm dependencies and shell lint tools. New shell tests
-under `tests/` (including subdirectories) run automatically without workflow
-changes. When adding another test framework, include it in `npm test` so the
-same command continues to run the complete suite locally and in CI.
-
-For development checks, use Node.js 20.19+, 22.13+, or 24+ and install the
-locked npm dependencies with `npm ci`. Install ShellCheck 0.11+ and shfmt 3.14+
-on your PATH as well (`brew install shellcheck shfmt` on macOS).
-
-- `npm run lint` checks JavaScript/TypeScript with ESLint, code and JSON
-  formatting with Prettier, and shell scripts with ShellCheck and shfmt.
-- `npm run format` applies ESLint fixes, Prettier formatting, ShellCheck's
-  available patch fixes, and shfmt formatting, then runs all checks again.
-  It exits unsuccessfully and prints the remaining findings if anything cannot
-  be fixed automatically or a tool fails.
-
-JavaScript uses ESLint's recommended rules plus strict checks for equality,
-braces, unused arguments, mutation, and unsafe constructs. TypeScript also uses
-[typescript-eslint's strict type-checked and stylistic presets](https://typescript-eslint.io/users/configs/)
-with strict compiler settings. [ShellCheck](https://github.com/koalaman/shellcheck)
-enables every optional check and reports all severities, including info and
-style. ESLint allows zero warnings; any ShellCheck finding also fails the check.
-Shell discovery includes tracked and untracked files, honors Git ignores, and
-recognizes `.sh`, `.bash`, `.ksh`, `.bats`, and shell shebangs on extensionless files.
-JavaScript/TypeScript and JSON checks exclude dependencies, build output,
-coverage, and planning metadata.
-
-If `.agents/skills/dough-update` already exists, installation warns and stops
-without changing it. To reinstall, add `--force` to the installer line in the
-clone command above:
-
-```bash
-bash "$install_dir/open-dough/install.sh" --target "$target_project" --force
-```
-
-This replaces the installed `SKILL.md`, including any local edits, with the
-supplied source. It does not merge changes or replace other skills. Review and
-commit the installed file in the target project. Open Dough's own installed
-copy lives at the same destination, separately from the distributable source.
-
-### Update the installed Codex skill
-
-In a fresh Codex session in the target project, ask:
-
-> $dough-update https://github.com/terryyin/open-dough.git
-
-Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with `--force`.
-`--platform` may be omitted for Codex, which is equivalent to `--platform codex`.
-It replaces only `.agents/skills/dough-update/SKILL.md` in the target project.
-Distributable source, unrelated project files, other tools' separate
-installations, and home-level guidance are preserved.
-
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Codex session to use the updated guidance.
-
-If your installed skill still reports that updating is not implemented, first
-run the clone/install flow above once with the explicit `--force` override.
-That bootstrap installs the real updater; the placeholder cannot update itself.
-Then start a fresh Codex session and invoke the updater with your source URL.
-
-This update flow assumes the installed skill has no local edits. Additional
-guidance, remaining platforms, and handling of project-specific edits remain
-future work.
-
-### Install the Cursor updater
-
-With Bash and Git available, run this from the existing target project's root:
-
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor
-)
-```
-
-Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
-install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
-Quote both paths.
-
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.cursor/skills/dough-update/SKILL.md` in the target project. Other project files
-and any separate Codex installation are preserved. Start a fresh Cursor session
-in that project and invoke `/dough-update https://github.com/terryyin/open-dough.git`,
-substituting the source URL you want to update from. See
-[Cursor skills](https://cursor.com/docs/skills).
-
-If `.cursor/skills/dough-update` already exists, installation warns and stops
-without changing it. To reinstall, add `--force` to the installer line in the
-clone command above:
-
-```bash
-bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform cursor --force
-```
-
-This replaces only the Cursor `SKILL.md`, including any local edits, with the
-supplied source. It does not merge changes, replace other skills, or update a
-Codex copy in `.agents/skills`. Review and commit the installed file in the
-target project.
-
-### Update the installed Cursor skill
-
-In a fresh Cursor session in the target project, ask:
-
-> /dough-update https://github.com/terryyin/open-dough.git
-
-Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with
-`--platform cursor --force`. It replaces only `.cursor/skills/dough-update/SKILL.md`
-in the target project. Distributable source, unrelated project files, other
-tools' separate installations, and home-level guidance are preserved.
-
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Cursor session to use the updated guidance.
-
-This update flow assumes the installed skill has no local edits. Handling of
-project-specific edits remains future work.
-
-### Install the Claude Code updater
-
-With Bash and Git available, run this from the existing target project's root:
-
-```bash
-(
-  set -e
-  target_project=$PWD
-  source_url=https://github.com/terryyin/open-dough.git
-  install_dir=$(mktemp -d)
-  trap 'rm -rf "$install_dir"' EXIT
-  git clone --depth 1 "$source_url" "$install_dir/open-dough"
-  bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude
-)
-```
-
-Set `source_url` to the cloneable repository URL you want to install from. The
-command obtains that repository's default branch and runs its installer. To
-install into another existing project, set `target_project` to its absolute path.
-Inspect the cloned `install.sh` and source skill before running the installer.
-Quote both paths.
-
-Installation copies `src/skills/dough-update/SKILL.md` from the source checkout to
-`.claude/skills/dough-update/SKILL.md` in the target project. Other project files
-and any separate Codex or Cursor installation are preserved. Start a fresh
-Claude Code session in that project and invoke
-`/dough-update https://github.com/terryyin/open-dough.git`, substituting the
-source URL you want to update from. See
-[Claude Code skills](https://code.claude.com/docs/en/skills).
-
-If `.claude/skills/dough-update` already exists, installation warns and stops
-without changing it. To reinstall, add `--force` to the installer line in the
-clone command above:
-
-```bash
-bash "$install_dir/open-dough/install.sh" --target "$target_project" --platform claude --force
-```
-
-This replaces only the Claude Code `SKILL.md`, including any local edits, with
-the supplied source. It does not merge changes, replace other skills, or update
-a Codex or Cursor copy. Review and commit the installed file in the target
-project.
-
-### Update the installed Claude Code skill
-
-In a fresh Claude Code session in the target project, ask:
-
-> /dough-update https://github.com/terryyin/open-dough.git
-
-Supply a cloneable repository URL on every invocation. The updater captures the
-target project, fetches a fresh shallow clone of that URL's default branch,
-inspects its installer and source skill, and runs that installer with
-`--platform claude --force`. It replaces only
-`.claude/skills/dough-update/SKILL.md` in the target project. Distributable
-source, unrelated project files, other tools' separate installations, and
-home-level guidance are preserved.
-
-Every invocation fetches and reapplies latest, including when the source content
-is unchanged. No installed-version record or published release is needed. Review
-the resulting diff and start a fresh Claude Code session to use the updated
-guidance.
-
-This update flow assumes the installed skill has no local edits. Handling of
-project-specific edits remains future work.
+See [Installation and updates](docs/installation-and-updates.md) for the exact
+three-file payload, per-platform commands, updater safety contract, legacy
+bootstrap path, and contributor checks.
 
 ## Distribution
 
