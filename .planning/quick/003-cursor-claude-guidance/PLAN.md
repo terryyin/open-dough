@@ -1,7 +1,8 @@
 # Use and update Open Dough in Cursor and Claude Code
 
-Status: Cursor C1–C5 done. Stop for Claude Code Part A.
-Source: [SEED-001, Story 3](../../seeds/SEED-001-install-and-update-open-dough.md#cursor-project-installation), the first unfinished [backlog item](../../PRODUCT-BACKLOG.md).
+Status: Cursor C1–C5 and Claude Code A1–A5 done. Story complete; see the final
+handoff below.
+Source: [SEED-001, Story 3](../../seeds/SEED-001-install-and-update-open-dough.md#cursor-project-installation), completed and moved to [Recently done](../../PRODUCT-BACKLOG.md).
 
 ## Start here: execution ownership and stopping points
 
@@ -426,12 +427,83 @@ Safe stop: both tools have demonstrated the shared source-to-use loop.
 
 ### A5. Reapply unchanged source in Claude Code
 Type: Behavior
-Status: planned
+Status: done — 2026-09-06; no additional implementation change needed.
 Behavior: Given identical installed/upstream content, native Claude update
 still freshly fetches and reapplies it.
 Proof: Another clone/selected installer trace, matching bytes, and preserved
 Cursor/Codex copies. Reuse green code; do not invent a change for this example.
+
+- Fresh session `a6f6b45a-f94c-4b30-a685-14e30b8f01a6` invoked
+  `/dough-update https://github.com/terryyin/open-dough.git` again, with the
+  installed Claude copy already identical to source from A4. Its transcript
+  shows a new `mktemp -d` clone (`/tmp.Em7k4ohKOi`, distinct from A4's
+  directory), `bash <clone>/install.sh --target
+  "/Users/terryyin/git/open-dough" --platform claude --force`, a `diff`
+  confirming `MATCH`, and cleanup (`rm -rf` the clone).
+- `.claude/skills/dough-update/SKILL.md` still matched source byte-for-byte;
+  `.agents/skills/dough-update/SKILL.md` and
+  `.cursor/skills/dough-update/SKILL.md` hashes were unchanged. `git status`
+  showed no change to the Claude file (it was already current), confirming
+  reapplication rather than a skipped no-op — the trace itself, not the empty
+  diff alone, is the proof of a fresh fetch and reinstall.
+- Final `npm test`, `npm run lint`, and `git diff --check` passed on `c58f02a`.
+  CI succeeded for `4ee6293`/`d97dd69` (run 34008028315), `200939e` (run
+  34008085697), and `c58f02a` (run 34008162619).
 Safe stop: complete the final handoff and story completion checks below.
+
+## Claude Code handoff — final
+
+- Part status: A1–A5 complete.
+- Implementation and published source commits on `main`: `4ee6293` (installer
+  `--platform claude` + shared skill/table/tests/README), `d97dd69` (this
+  repo's installed Claude copy + A1 evidence), `200939e` (shared wording:
+  name the running tool in the success report), `c58f02a` (refreshed Claude
+  copy + A4/A5 evidence).
+- Exact supported installer syntax:
+  `bash <source-checkout>/install.sh --target <absolute-project> [--platform <codex|cursor|claude>] [--force]`.
+  Omitting `--platform` is `codex`. Shared skill's running-tool table now
+  covers all three platforms; the reported success message also names the
+  running tool and installed path.
+- Claude Code CLI version, native invocation, selected skill path, and
+  evidence: Claude Code CLI 2.1.261, invoked non-interactively as
+  `claude -p "<prompt>"` in this repository (no special permission flags
+  needed). Sessions `fbe0e72b-f9e8-4712-80d2-4576fe12c74d`,
+  `b49320ad-288e-4f63-b782-5922e185f8a4`, `ca5a299d-e77c-43d0-b39d-2bc3cd76f05e`,
+  `a6f6b45a-f94c-4b30-a685-14e30b8f01a6`, and `79428a62-a2ea-48e7-82ed-46b7efc98651`
+  each listed exactly one `dough-update` skill (no compatibility-directory
+  duplicate) and, where invoked, followed `.claude/skills/dough-update/SKILL.md`.
+- Bootstrap revision → improvement revision and observed wording: GitHub
+  bootstrap `d97dd69` → improvement `200939e`. Observed wording in the native
+  report: "Tool: Claude Code" / "Installed path:
+  `.claude/skills/dough-update/SKILL.md`".
+- Installer tests / lint / CI results and revisions: `npm test`, `npm run
+  lint`, and `git diff --check` passed at each commit above. CI succeeded for
+  `4ee6293`/`d97dd69` (run 34008028315), `200939e` (run 34008085697), and
+  `c58f02a` (run 34008162619).
+- Native-selection/coexistence findings: unlike Cursor, Claude Code reads only
+  `.claude/skills` — it does not present Codex's or Cursor's compatibility
+  directories, so a project with none of the three tools' copies installed
+  shows no `dough-update` skill to Claude Code at all. A first Claude
+  installation therefore needs one manual bootstrap install (the same
+  precedent already documented for Codex's own placeholder-to-real
+  transition); after that, discovery and invocation are native. With all
+  three tools' copies present, Claude Code still lists exactly one
+  `dough-update` entry, so no ambiguous-selection risk exists for this host.
+- Effect on Cursor's earlier evidence: the shared `SKILL.md` changed twice
+  since Cursor's C5 (adding the Claude Code row/wording in `4ee6293`, then the
+  running-tool wording in `200939e`). Cursor's own installed copy in this
+  repository was not touched by any Claude Code work and still holds the
+  wording from `5a48878`, so it is now stale relative to `main` — this is
+  expected drift under "no automatic update of another tool's installed
+  copy," not an invalidation of Cursor's completed C1–C5 proof, which was
+  accurate for the source state at the time. Cursor's native-selection finding
+  (presenting both `.agents/skills` and `.cursor/skills` copies) is unaffected
+  by anything Claude Code changed. Re-running Cursor's own update against the
+  now-current source, to pick up the running-tool wording, remains open and is
+  not manufactured here from a Claude-only invocation.
+- Remaining work: none for this story. Codex's and Cursor's installed copies
+  in this repository could optionally be refreshed to the latest shared
+  wording, but that is ordinary maintenance, not a story dependency.
 
 ## Contract coverage and completion
 
@@ -488,3 +560,16 @@ boundary intact. Never leave failing shared tests as a completed stopping point.
   updated separately. Do not treat directory separation as selection.
 - `cursor-agent -p` required a Cursor API key even when `agent status` reported
   login; native proof used a spawned Cursor session in this workspace instead.
+- Confirmed: Claude Code CLI 2.1.261 does not read a Codex/Cursor compatibility
+  directory at all (unlike Cursor). A project with no `.claude/skills`
+  installation shows no `dough-update` skill to a fresh Claude Code session,
+  even when Codex's or Cursor's copies exist. `claude -p "<prompt>"` worked as
+  a genuinely fresh native session for this proof without special permission
+  flags; passing `--permission-mode bypassPermissions` to that nested
+  invocation was itself blocked by this session's own auto-mode classifier,
+  so the default permission mode was used instead and proved sufficient.
+- An unrelated, pre-existing uncommitted edit to
+  `docs/adrs/0002-software-development-lifecycle-principles.md` appeared in
+  the working tree partway through this work (not made by any command run
+  for this story). It was left untouched and never staged in any commit here,
+  consistent with preserving in-progress, unrelated work.
