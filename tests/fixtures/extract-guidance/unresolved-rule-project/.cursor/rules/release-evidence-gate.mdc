@@ -1,0 +1,22 @@
+---
+description: Require project-defined evidence before any source release can proceed
+alwaysApply: true
+---
+
+# Release evidence gate
+
+Apply this rule automatically whenever an agent plans, prepares, approves, or
+publishes a source release. The developer must not need to invoke this rule by
+name.
+
+Before describing a release as ready, read `policy/release-evidence.yml`. Use its
+path classifications to select every required verification command for the files
+changed since the previous release, and require each selected command to pass.
+
+If `policy/release-evidence.yml` is absent, unreadable, or does not classify an
+affected path, stop the release-readiness decision. Name the missing policy
+context and leave suitability unresolved. Do not infer checks from other
+projects, silently skip unclassified paths, or weaken automatic application into
+an on-demand review.
+
+Only a human maintainer can approve an exception or authorize publication.
