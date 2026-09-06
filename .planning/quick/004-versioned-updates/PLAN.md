@@ -1,6 +1,6 @@
 # Create an identifiable Open Dough release with the internal skill
 
-Status: in progress — slices 1–4 done; next is slice 5 (refuse older unused version).
+Status: in progress — slices 1–5 done; next is slice 6 (Cursor native release).
 
 Source: [SEED-001, Story 4](../../seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version).
 Method: [Donut story-refinement](../../../../doughnut/.agents/skills/story-refinement/SKILL.md),
@@ -180,7 +180,7 @@ than a new release. No force-tag, reset, or unrelated write appears in the trace
 ### 5. Refuse an unused version below the latest release
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given latest released `0.2.0` but no `v0.1.9` tag, request `0.1.9`.
 The skill rejects the non-increasing release even though that tag is unused.
@@ -265,7 +265,7 @@ to move the tag. This leaf does not add GitHub Release objects or a pipeline.
 
 | Platform | Discovery and invocation | Release behavior and coexistence |
 | --- | --- | --- |
-| Codex | Done — 1–4 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, CLI 0.153.4) | Done — 2–4 (existing `v0.1.0` peel/object and VERSION/CHANGELOG bytes unchanged on re-prepare). Pending — 5 |
+| Codex | Done — 1–5 (`$release-version` loaded `.agents/skills/release-version/SKILL.md`; prepare 0.1.0 `01a074f8-f035-7752-b631-355e0401ee92`, finalize `01a07502-cbb1-7f21-a713-7e9d86de3613`, prepare 0.1.1 `01a07506-e535-7de3-9bfd-60838e5533f1`, refuse existing 0.1.0 `01a0750b-5dba-7e22-9c7c-9b8a4b686c88`, refuse unused 0.1.9 `01a0750f-d6a4-7911-a7e2-0ede4c930bc6`, CLI 0.153.4) | Done — 2–5 (later prepare, existing-tag refusal, unused-older refusal) |
 | Cursor | Pending — 6 | Pending — 6 |
 | Claude Code | Pending — 7 | Pending — 7 |
 
@@ -331,3 +331,6 @@ story detail to goal/scope only after its enduring behavior is documented.
   `v0.1.0` already existed. Tag peel `7df8e0a` / object `9e443c9` and
   VERSION/CHANGELOG bytes were unchanged; trace had no force-tag, reset, or
   metadata write.
+- Leaf 5: `$release-version prepare 0.1.9` with latest fixture `v0.2.0` and no
+  `v0.1.9` refused for numeric ordering (not an existing-tag conflict). HEAD
+  `b4855ab`, tag object `0460428`, and VERSION/CHANGELOG bytes unchanged.
