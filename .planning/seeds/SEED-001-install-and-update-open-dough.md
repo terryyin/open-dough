@@ -228,12 +228,11 @@ changes.
 
 ### 5a. Install the latest released Open Dough guidance safely
 
-- **Status:** Implementation and focused shell proof completed 2026-09-06;
-  native installation-path acceptance remains pending. The
-  [five-slice plan](../quick/008-install-latest-release/PLAN.md) records completed
-  slices 1–2 and one blocked launch for each native tool in slices 3–5. Current
-  sandbox access and Claude authentication visibility prevented installation;
-  unchanged-behavior evidence is explicitly retained.
+- **Status:** Complete, 2026-09-06. The
+  [five-slice plan](../quick/008-install-latest-release/PLAN.md) records green
+  focused success/stale-selection proof and separate native installations in
+  Cursor, Codex, and Claude Code. Authorized retries resolved the initial launch
+  blockers; unchanged discovery/use/update and failure evidence is retained.
 - **Depends on:** A valid tagged source under
   [Accepted ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
   Controlled releases can prove this story before backlog item two publishes it.
@@ -314,30 +313,34 @@ outcome without waiting for the separate update-time replacement story.
 The owner clarified that established tool experience should reduce repeated
 verification. The public installation examples now select and pin with Git,
 inspect the full call chain and payload, revalidate, and invoke the direct
-installer. Focused success and stale-selection checks pass. Native observation
-of that corrected journey remains pending: all three launches stopped before
-installation under current access constraints. Conclusions about unchanged
-skills, discovery/use, updating, repeat/force, and containment remain retained.
+installer. Focused success and stale-selection checks pass. Each native tool then
+independently followed that corrected journey in a fresh synthetic adopter,
+installed the exact pinned payload/record only under its own root, preserved
+existing guidance, and cleaned its checkout. Authorized retries resolved the
+initial launch blockers. Conclusions about unchanged skills, discovery/use,
+updating, repeat/force, and containment remain retained.
 
 | Platform | Earlier native evidence retained | New installation observation |
 | --- | --- | --- |
-| Codex | Quick 007 slices 11–12: installed updater and fresh ADR use/coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Pending (plan slice 4): existing isolated launcher denied by sandbox before Codex started. |
-| Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Pending (plan slice 3): Cursor session-directory creation denied; no installation tools ran. |
-| Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Pending (plan slice 5): startup writes denied and authentication unavailable to the launch; no installation tools ran. |
+| Codex | Quick 007 slices 11–12: installed updater and fresh ADR use/coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed (plan slice 4): session `01a0768a-809c-7143-825d-4f7702370197`; inspected pinned direct installation, byte/record verification, preservation, and cleanup. |
+| Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Passed (plan slice 3): session `cdbdd351-db77-41d1-9e5f-a13ce5fc774f`; corrected-guide installation, full call-chain inspection, byte/record verification, preservation, and cleanup. |
+| Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed (plan slice 5): session `02b2fb98-25d5-48a5-b10d-e6078773cb13`; full persisted inspection read before direct installation, byte/record verification, preservation, and cleanup. |
 
 [Quick 007](../quick/007-generalize-project-guidance/PLAN.md)'s original native
 delivery used default-branch fixtures. Its unchanged discovery/ADR observations
 remain reusable; they do not establish the changed release-install route.
 [The plan](../quick/008-install-latest-release/PLAN.md) maps every promise to
-retained evidence or remaining work and records specific invalidation triggers.
-No automatic expiry or full tool-version matrix is introduced. Missing native
-proof remains pending; one platform's success does not prove another's behavior.
+retained evidence or completed new observations and records specific invalidation
+triggers. No automatic expiry or full tool-version matrix is introduced. Each
+platform has its own native evidence; one tool's result does not substitute for
+another's behavior.
 
 No unresolved product decision blocks execution. Donut's story-refinement and
 slice-planning guidance was borrowed in this session from checkout
 `43f0dbe0d47840e31f4773723cfed2d663e56bc8`; no borrowed skill was installed or
-distributed. Only planning files changed; no product implementation, native
-verification, release, or Donut installation/removal occurred in these passes.
+distributed. Those refinement passes changed only planning files. Subsequent
+execution completed the guide correction, focused tests, and three native fixture
+installations recorded above; no release or Donut installation/removal occurred.
 
 <a id="detect-installed-version"></a>
 <a id="update-only-when-needed"></a>
@@ -515,9 +518,7 @@ corrections completed; its evidence is summarized in Story 5b above and in the
 
 ## Open Decisions
 
-- Story 5a's implementation and focused shell proof are complete. Its three
-  native installation observations need launcher access/authentication; the
-  five-slice plan records the blockers and retains earlier evidence.
+- Story 5a is complete with all five slices accepted and earlier evidence retained.
   Stories 5d–5e need refinement for released-guidance publication and self-use.
   Story 6 needs refinement when manual release-note reading becomes a pain.
   Local-edit conflict handling stays outside.

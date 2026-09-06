@@ -1,8 +1,9 @@
 # Install the latest released Open Dough guidance safely
 
-**Status: EXECUTING authorized native retries.** Slices 1–4 complete;
-Cursor and Codex retries passed 2026-09-06. Claude Code acceptance remains pending.
-The initial launch failures are retained below as history, not current results.
+**Status: COMPLETE — all five slices accepted 2026-09-06.** Focused shell
+proof and three native installation observations passed. Earlier E1–E4 evidence
+is retained within its stated boundaries. Initial launch failures and authorized
+retry results are recorded below; no acceptance blocker remains.
 Branch: `codex/safe-install`; source baseline: `92f30c5`.
 
 Source: [SEED-001, Story 5a](../../seeds/SEED-001-install-and-update-open-dough.md#install-latest-release).
@@ -48,11 +49,11 @@ native run. Keep the provenance limitations above when reporting acceptance.
 
 ### Per-platform acceptance
 
-| Platform | Native evidence retained | New evidence still pending |
+| Platform | Native evidence retained | New installation evidence |
 | --- | --- | --- |
 | Codex | E1 slices 11–12: installed updater and fresh ADR skill use; E2: version decisions/no-op. Original updater discovery: Codex 0.153.4 session `01a07569-9c9e-7412-bcae-87049e00f575`. | Slice 4 complete: authorized isolated native retry followed the revised guide, byte-verified all payload/record files, preserved guidance, and cleaned its checkout. |
 | Cursor | E1 slice 14: native updater, fresh ADR skill use, other-platform preservation; E2: version decisions/no-op. This later evidence covers stable discovery that original Quick 008 leaf 18's file read did not establish. | Slice 3 complete: authorized native retry followed the revised guide, delivered exactly the pinned payload/record, preserved guidance, and cleaned its checkout. |
-| Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5 pending: Claude startup writes denied and authentication unavailable to the launch; no installation events. |
+| Claude Code | E1 slice 16: native updater, fresh ADR skill use, coexistence; E2: version decisions/no-op. Original updater discovery: Claude Code 2.1.263 session `e2c8f582-0545-44b3-8037-b1f1b8a397d4`. | Slice 5 complete: authorized native retry inspected the full pinned call chain, installed and verified exactly the declared Claude payload/record, preserved guidance, and cleaned its checkout. |
 
 Reopen only evidence affected by a change to skill name/frontmatter/content,
 native destination/discovery configuration, relevant tool behavior, updater
@@ -404,7 +405,7 @@ stderr SHA-256:
 
 ### 5. Install safely from the corrected instructions in Claude Code
 Type: Behavior
-Status: pending — native launch blocked 2026-09-06
+Status: completed — authorized native retry 2026-09-06
 Proof: One native Claude Code installation under the same protocol, using
 `claude --print --output-format stream-json --verbose` with the established
 launch isolation and current environment permissions.
@@ -442,6 +443,62 @@ stream SHA-256:
 `c27fcd4e9d2b355d13f43972c373c0df1aafb669cd72fa89a7587b95495b4795`.
 Active launch/review was under five minutes; process wait was under one second.
 No authentication/settings changes or repeated launch were attempted.
+
+Successful retry (2026-09-06): the user explicitly authorized sending the
+same disposable public fixture and synthetic adopter to Claude Code's configured
+model service. The elevated run used the established print/no-session-persistence
+launcher with verbose stream events, without changing models, authentication,
+or shared settings. Darwin arm64, Claude Code `2.1.263`, session
+`02b2fb98-25d5-48a5-b10d-e6078773cb13`, launcher status **0**, empty stderr,
+terminal `is_error: false` / `terminal_reason: completed`. Native duration was
+82.971 seconds; active launch/audit/record work stayed within the leaf budget.
+Authentication worked in this launch; no login reset was needed.
+
+Same source `file:///private/tmp/open-dough-safe-retry.kAa5K5/source`, independently
+selected `v0.1.10`, peeled commit
+`9d5050ea5efe1f65a941777dd2e9c39f74ee6f99`; fresh sibling target `claude adopter`,
+selected native root `.claude/skills/`.
+
+Chronological `claude.events.jsonl` evidence:
+- Lines 15/17 and 21/22: README and linked installation guide read.
+- Lines 43/44: Git-only remote tag listing with competing numeric releases and
+  the selected annotated tag's peeled commit.
+- Lines 49/50: `git init`, exact-commit `fetch --depth 1`, detached checkout,
+  `head=9d5050ea5efe1f65a941777dd2e9c39f74ee6f99` and `OK pinned`. Owned
+  snapshot: `/tmp/open-dough-install.U8kRpH/release`.
+- Lines 53/54: command reads all eight pinned files; the host saved its 36 KB
+  output to a tool-result file rather than returning the whole body inline.
+  Lines 56/57 explicitly read that complete persisted result before execution.
+  Independent comparison after removing Read's line-number prefixes found all
+  eight entire tagged file contents in its 1,091 lines. The preview alone was
+  not used as inspection evidence.
+- Lines 63/64: `resolve-url`, captured tag/commit/version/HEAD comparisons,
+  `validate-checkout`, source-version comparison, then direct
+  `bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"`
+  with `platform=claude`; no `apply`, `--force`, or repin. Output:
+  `Installed Open Dough public guidance in .../claude adopter/.claude/skills`
+  and `Recorded version 0.1.10.`
+- Lines 67/69: three successful byte comparisons, VERSION `0.1.10`, and target
+  status showing only the new managed directories.
+- Lines 71/72: remove owned checkout and scratch record; subsequent `ls`
+  reports `No such file or directory` and `cleaned up successfully`.
+- Lines 77/78: source Git status remains clean. Lines 82/83: truthful final
+  source/tag/commit, tool, four paths, preservation, cleanup, and fresh-session
+  instruction, followed by successful terminal result. Two preliminary read-only
+  listing errors (absent optional CLAUDE.md and a mistyped find terminator) were
+  handled before pinned-code inspection; neither altered files or release choice.
+
+Independent checks matched all three installed files against the selected Git
+tree and VERSION against `0.1.10`. Full Git inventory showed exactly the four
+expected new `.claude/skills/` files and no tracked changes. The original ADR
+skill/caller, other-platform sentinels, unrelated files, and source were unchanged.
+Exactly one installer trace and an empty branch marker confirmed the intended
+execution path. The agent-owned checkout and scratch record were absent while
+the outer fixture remained. No home-guidance write appeared in tool events;
+normal Claude session/tool-output metadata is separate from installed guidance.
+E1–E4 continue to own unchanged discovery/invocation, updates, repeat/force, and
+fault behavior. Transcript SHA-256:
+`22a1c176b6294c516cce0548b1b92a0c31093aa741cde05dd2027e155dd78f12`.
 
 ### Shared native preparation and evidence for slices 3–5
 
@@ -490,7 +547,7 @@ identified changed input/behavior. An unavailable host or incomplete trace stays
 pending; copying files or another tool's result cannot close it. Continue other
 ready platform slices without repeatedly retrying an unchanged blocker.
 
-### Native attempt provenance and cleanup (2026-09-06)
+### Initial blocked-attempt provenance and cleanup (2026-09-06)
 
 Slice 3 prepared a disposable source with `tests/helpers/release-fixture.bash`:
 competing annotated tags `v0.1.1`, `v0.1.2`, and `v0.1.10`, where highest numeric
@@ -519,11 +576,13 @@ These were fixture commits only; immutable release tags were not moved.
   raw disposable logs, and temporary preparation/launcher scripts were removed.
   Source/tag paths above are provenance, not links to retained evidence.
 
-The sandbox access failures are a concrete blocker. Resuming slices 3–5 requires
-an environment that permits their existing native launchers' session state and
-isolation, with authentication available to Claude. Current permissions were not
-expanded for native execution. No native acceptance is inferred from shell tests;
-E1–E4 remain retained within the stated boundaries. The completed behavior commits are
+The initial sandbox access failures blocked those launches. On the user's
+request to try again, elevated retries were submitted without removing the
+established launcher isolation. Automatic approval review required explicit
+service-specific authorization for fixture transfer; the user authorized Cursor,
+then both Codex and Claude Code. All three approved retries passed as recorded
+in slices 3–5. No native acceptance is inferred from shell tests; E1–E4 remain
+retained within the stated boundaries. The completed behavior commits are
 `03bdc06` (guide and successful direct install) and `286c4df` (stale selection).
 Final document review restored the literal `$dough-update` invocation after shell
 formatting had added braces; no native installer ran against that typo. A focused
@@ -532,6 +591,35 @@ and exact equality of the guide/fixture post-inspection command sequence. No
 shipped skill or earlier retained behavior was changed by this correction.
 The supplied plan/story edits were preserved. No main-worktree edits, Donut
 installation/removal, push, or release publication was performed by this task.
+
+### Final acceptance and retry cleanup
+
+The same prepared immutable retry source was used by three separate fresh native
+installations, in Cursor → Codex → Claude Code order. Each tool selected the
+numeric `v0.1.10` release, inspected the exact commit before executing fetched
+code, revalidated without repinning, directly installed only its native payload,
+verified all bytes/record, preserved preexisting guidance, and cleaned its owned
+checkout. No shipped skill, helper, installer, platform mapping, or payload was
+changed; E1–E4 therefore remain valid with their original provenance limits.
+
+The native commands' source selection was observed independently of the fixture's
+expected commit. Codex's recovered verification-wrapper error and Claude's full
+persisted-output inspection are explicitly recorded, rather than replacing tool
+evidence with final summaries. Native response waits were about 55, 88, and 83
+seconds respectively, excluding launcher startup and permission review waits.
+No extra lifecycle, no-op, fault matrix, or broader test suite was run.
+
+After verifying each agent's cleanup while the outer fixture still existed,
+decisive event excerpts and full-log digests were recorded in the corresponding
+slices. The disposable retry root `/private/tmp/open-dough-safe-retry.kAa5K5`,
+its raw logs, and attempt-owned preparation/launcher/evidence scripts were then
+removed. These paths identify historical provenance; the evidence needed to
+review acceptance is retained above. Normal native session metadata was left to
+its host, and no home-level guidance was modified by installation.
+
+Story 5a is complete in its existing seed record. Publication, main-worktree
+self-installation, Donut adoption/removal, and next-backlog execution remain out
+of scope. The exact requested worktree and branch were used throughout.
 
 ## Execution controls and learnings
 
@@ -542,7 +630,7 @@ installation/removal, push, or release publication was performed by this task.
   for the updater; test-owned EXIT cleanup can mask workflow cleanup; and old
   native delivery wrappers prepare an existing installation and capture summaries.
   The leaves now address those within their original proof loops.
-- All remaining leaves are Ready after this pass: bounded edits, one success or
+- At refinement, all remaining leaves were Ready: bounded edits, one success or
   refusal outcome, and one focused proof loop each. No additional Structure or
   refinement gate is required before execution. Roughly 25 minutes active work
   plus native waits remains a hypothesis, not a guarantee.
@@ -557,7 +645,7 @@ installation/removal, push, or release publication was performed by this task.
   code changes or full-suite reruns. If a shared guide change invalidates an
   earlier platform observation, reopen that claim explicitly; independent later
   platform work does not invalidate it by itself.
-- The earlier refinement changed only this PLAN; execution results are now
-  recorded above. Slices 1–2 are green and committed. Native slices 3–5 remain
-  pending until launcher access/authentication permits their focused observations;
-  acceptance remains incomplete.
+- All five leaves are now complete: slices 1–2 have focused green product checks,
+  and slices 3–5 have separate successful native tool-event evidence plus cleanup.
+  The original refinement and failed-launch history remains intact; it does not
+  override these later accepted results. No product change was needed on retry.
