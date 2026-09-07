@@ -77,6 +77,14 @@ native_result_version_command_for() {
   esac
 }
 
+native_result_adapter_identity() {
+  case ${native_case_host} in
+    cursor) printf 'cursor-agent-stream-json\n' ;;
+    claude) printf 'claude-stream-json\n' ;;
+    *) printf 'tests/support/native-codex.sh\n' ;;
+  esac
+}
+
 native_result_write_if_set() {
   local dest_name=$1
   local is_set=$2
@@ -87,7 +95,7 @@ native_result_write_if_set() {
   fi
 }
 
-native_result_execution_fields() {
+native_result_execution_status_fields() {
   case ${native_run_outcome:-exited} in
     timeout)
       printf 'execution-status: timeout\n'
@@ -106,18 +114,47 @@ native_result_execution_fields() {
     *)
       printf 'execution-status: completed\n'
       printf 'execution-reason: native command exited 0\n'
-      printf 'assessment-status: pass\n'
-      printf 'assessment-interpretation: limited-wording\n'
-      return
       ;;
   esac
-  printf 'assessment-status: not-run\n'
-  printf 'assessment-interpretation: none\n'
+}
+
+native_result_execution_fields() {
+  native_result_execution_status_fields
+  case ${native_run_outcome:-exited} in
+    timeout | failed | incomplete)
+      printf 'assessment-status: not-run\n'
+      printf 'assessment-interpretation: none\n'
+      ;;
+    *)
+      printf 'assessment-status: pass\n'
+      printf 'assessment-interpretation: limited-wording\n'
+      ;;
+  esac
+}
+
+native_result_print_tool_identity() {
+  local version_command executable source_revision
+
+  version_command=$(native_result_version_command_for "${native_case_host}")
+  executable=$(command -v "${native_case_host}" 2> /dev/null) || executable=
+  if [[ -z ${executable} ]]; then
+    executable=unknown
+  fi
+  source_revision=$(git -C "${source_dir}" rev-parse HEAD)
+  printf 'native-executable: %s\n' "${executable}"
+  printf 'native-version-command: %s\n' "${version_command}"
+  printf 'native-version: %s\n' "${tool_version:-unknown}"
+  printf 'native-model: unknown\n'
+  printf 'native-runtime-settings: unknown\n'
+  printf 'source-revision: %s\n' "${source_revision}"
+}
+
+native_result_print_adapter_identity() {
+  printf 'adapter-identity: %s\n' "$(native_result_adapter_identity)"
 }
 
 native_result_finalize_context() {
-  local record_file version_command executable source_revision
-  local adapter_identity
+  local record_file
 
   if [[ -z ${native_case_results_dir} ]]; then
     return 0
@@ -156,35 +193,18 @@ native_result_finalize_context() {
       ;;
   esac
 
-  version_command=$(native_result_version_command_for "${native_case_host}")
-  executable=$(command -v "${native_case_host}" 2> /dev/null) || executable=
-  if [[ -z ${executable} ]]; then
-    executable=unknown
-  fi
-  source_revision=$(git -C "${source_dir}" rev-parse HEAD)
-  case ${native_case_host} in
-    cursor) adapter_identity='cursor-agent-stream-json' ;;
-    claude) adapter_identity='claude-stream-json' ;;
-    *) adapter_identity='tests/support/native-codex.sh' ;;
-  esac
-
   record_file="${native_result_attempt_dir}/record"
   {
     printf 'host: %s\n' "${native_case_host}"
     printf 'case: %s\n' "${native_case_id}"
     printf 'origin: fresh\n'
     native_result_execution_fields
-    printf 'native-executable: %s\n' "${executable}"
-    printf 'native-version-command: %s\n' "${version_command}"
-    printf 'native-version: %s\n' "${tool_version:-unknown}"
-    printf 'native-model: unknown\n'
-    printf 'native-runtime-settings: unknown\n'
-    printf 'source-revision: %s\n' "${source_revision}"
+    native_result_print_tool_identity
     printf 'fixture-tag: %s\n' "${tag}"
     printf 'fixture-commit: %s\n' "${source_commit}"
     printf 'prompt-identity: %s\n' "$(printf '%s' "${prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
     printf 'helper-identity: tests/support/dough-adr-awareness-use.sh\n'
-    printf 'adapter-identity: %s\n' "${adapter_identity}"
+    native_result_print_adapter_identity
     printf 'fixture-identity: tests/fixtures/adr-awareness/installed-use\n'
     printf 'assessor-identity: tests/dough-adr-awareness-context.sh wording-assertions\n'
     printf 'artifact-events: events.jsonl\n'

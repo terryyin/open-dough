@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2312 # Helpers are linted separately; pipefail covers listings.
+# shellcheck disable=SC1091,SC2034,SC2312 # Sourced asserts use work paths; pipefail covers listings.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -32,102 +32,9 @@ chmod a+x "${sentinel_bin}/codex" "${sentinel_bin}/cursor" "${sentinel_bin}/clau
 export PATH="${sentinel_bin}:${PATH}"
 export NATIVE_AGENT_SENTINEL_LOG="${sentinel_log}"
 
-assert_no_sentinel_calls() {
-  if [[ -s ${sentinel_log} ]]; then
-    echo 'FAIL: sentinel recorded native command invocations.' >&2
-    cat "${sentinel_log}" >&2
-    return 1
-  fi
-}
-
-assert_watched_empty() {
-  local leftover
-  leftover=$(find "${watched_dir}" -mindepth 1 -print)
-  if [[ -n ${leftover} ]]; then
-    echo 'FAIL: wrapper created files under the watched TMPDIR.' >&2
-    printf '%s\n' "${leftover}" >&2
-    return 1
-  fi
-}
-
-run_wrapper() {
-  env TMPDIR="${watched_dir}" PATH="${PATH}" \
-    NATIVE_AGENT_SENTINEL_LOG="${sentinel_log}" \
-    bash "$@"
-}
-
-record_for() {
-  local listing=$1
-  local host=$2
-  local case_id=$3
-  local record
-  record=$(awk -v h="${host}" -v c="${case_id}" '
-    BEGIN { RS = "" }
-    index($0, "host: " h "\n") == 1 && $0 ~ ("\ncase: " c "(\n|$)") {
-      print
-      found = 1
-      exit
-    }
-    END { if (!found) exit 1 }
-  ' <<< "${listing}") || {
-    printf 'FAIL: missing record host=%s case=%s\n' "${host}" "${case_id}" >&2
-    printf '%s\n' "${listing}" >&2
-    return 1
-  }
-  printf '%s\n' "${record}"
-}
-
-assert_record() {
-  local listing=$1
-  local host=$2
-  local case_id=$3
-  shift 3
-  local record snippet
-  record=$(record_for "${listing}" "${host}" "${case_id}")
-  grep -Fq 'purpose:' <<< "${record}"
-  grep -Fq 'setup:' <<< "${record}"
-  grep -Fq 'dependencies:' <<< "${record}"
-  grep -Fq 'prior-evidence:' <<< "${record}"
-  for snippet in "$@"; do
-    grep -Fq "${snippet}" <<< "${record}" || {
-      printf 'FAIL: %s %s omitted %s\n' "${host}" "${case_id}" "${snippet}" >&2
-      printf '%s\n' "${record}" >&2
-      return 1
-    }
-  done
-}
-
-assert_listing_quiet() {
-  local wrapper=$1
-  local listing
-  shift
-  listing=$(run_wrapper "${wrapper}" "$@")
-  assert_no_sentinel_calls
-  assert_watched_empty
-  grep -Fq 'usage:' <<< "${listing}"
-  printf '%s\n' "${listing}"
-}
-
-assert_invalid() {
-  local status
-  : > "${stderr_file}"
-  : > "${stdout_file}"
-  set +e
-  run_wrapper "$@" > "${stdout_file}" 2> "${stderr_file}"
-  status=$?
-  set -e
-  if [[ ${status} -eq 0 ]]; then
-    echo 'FAIL: expected a nonzero usage error.' >&2
-    printf 'command: %s\n' "$*" >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    return 1
-  fi
-  grep -Fq 'error:' "${stderr_file}"
-  grep -Fq 'usage:' "${stderr_file}"
-  assert_no_sentinel_calls
-  assert_watched_empty
-}
+# shellcheck source=tests/support/native-case-assert.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-case-assert.sh"
 
 context_listing=$(assert_listing_quiet "${context_wrapper}" --list)
 codex_listing=$(assert_listing_quiet "${codex_wrapper}" --list)
@@ -146,22 +53,46 @@ done
 [[ $(grep -c '^case: context/conflict$' <<< "${context_listing}" || true) -eq 3 ]]
 
 assert_record "${codex_listing}" codex delivery/legacy-refusal \
-  'v0.2.0' 'prior-evidence: none' 'dependencies: none'
+  'v0.2.0' 'prior-evidence: none' 'dependencies: none' 'unavailable'
 assert_record "${codex_listing}" codex delivery/ordinary-update \
   'inspected bootstrap' 'newer local tagged fixture' \
-  'not a native legacy-refusal'
+  'not a native legacy-refusal' 'unavailable'
 assert_record "${codex_listing}" codex delivery/updated-use \
-  'delivery/ordinary-update' 'same isolated target' 'attempt ID'
-assert_record "${cursor_listing}" cursor delivery/legacy-refusal 'v0.2.0'
+  'combined update then fresh use' 'one attempt' 'dependencies: none'
+assert_record "${cursor_listing}" cursor delivery/legacy-refusal \
+  'v0.2.0' 'unavailable'
 assert_record "${cursor_listing}" cursor delivery/ordinary-update \
-  'inspected bootstrap' 'not a native legacy-refusal'
+  'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${cursor_listing}" cursor delivery/updated-use \
-  'delivery/ordinary-update'
-assert_record "${claude_listing}" claude delivery/legacy-refusal 'v0.2.0'
+  'combined update then fresh use' 'one attempt'
+assert_record "${claude_listing}" claude delivery/legacy-refusal \
+  'v0.2.0' 'unavailable'
 assert_record "${claude_listing}" claude delivery/ordinary-update \
-  'inspected bootstrap' 'not a native legacy-refusal'
+  'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${claude_listing}" claude delivery/updated-use \
-  'delivery/ordinary-update' 'attempt ID'
+  'combined update then fresh use' 'one attempt' 'dependencies: none'
+
+for listing in "${codex_listing}" "${cursor_listing}" "${claude_listing}"; do
+  grep -Fq 'unavailable for selected launch' <<< "${listing}"
+  grep -Fq 'combined update then fresh use journey in one attempt' <<< "${listing}"
+done
+
+for host_listing in \
+  "codex:${codex_listing}" "cursor:${cursor_listing}" "claude:${claude_listing}"; do
+  host=${host_listing%%:*}
+  listing=${host_listing#*:}
+  updated_use_record=$(record_for "${listing}" "${host}" delivery/updated-use)
+  if grep -Fq 'attempt ID' <<< "${updated_use_record}"; then
+    echo "FAIL: ${host} delivery/updated-use listing still depends on an attempt ID." >&2
+    printf '%s\n' "${updated_use_record}" >&2
+    exit 1
+  fi
+  if grep -Fq 'delivery/ordinary-update' <<< "${updated_use_record}"; then
+    echo "FAIL: ${host} delivery/updated-use listing still depends on a separate ordinary-update case." >&2
+    printf '%s\n' "${updated_use_record}" >&2
+    exit 1
+  fi
+done
 
 if grep -Eiq 'certified|prior-evidence: pass|reuse accepted' \
   <<< "${context_listing}${codex_listing}${cursor_listing}${claude_listing}"; then
@@ -206,9 +137,17 @@ assert_invalid "${cursor_wrapper}" --native extra
 assert_invalid "${claude_wrapper}" --case delivery/legacy-refusal
 assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal --bogus
 
-# Recognized selected delivery --case must not set up or launch.
+# Recognized selected delivery --case: unavailable stages fail before setup;
+# Cursor and Claude Code combined journeys stay unlaunched this leaf.
 assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal
+grep -Fq 'unavailable for selected launch' "${stderr_file}"
+assert_invalid "${codex_wrapper}" --native --case delivery/ordinary-update
+grep -Fq 'unavailable for selected launch' "${stderr_file}"
+assert_invalid "${cursor_wrapper}" --native --case delivery/legacy-refusal
 assert_invalid "${cursor_wrapper}" --native --case delivery/ordinary-update
+assert_invalid "${cursor_wrapper}" --native --case delivery/updated-use
+assert_invalid "${claude_wrapper}" --native --case delivery/legacy-refusal
+assert_invalid "${claude_wrapper}" --native --case delivery/ordinary-update
 assert_invalid "${claude_wrapper}" --native --case delivery/updated-use
 
 printf 'Running existing default wrapper checks.\n'

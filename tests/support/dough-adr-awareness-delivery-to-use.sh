@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC2154 # Platform wrappers and sourced transition helpers consume these globals.
+# shellcheck disable=SC2034,SC2154,SC2312 # Platform wrappers and sourced helpers consume these globals.
 
 delivery_source_dir=
 delivery_fixture=
@@ -28,6 +28,15 @@ source "${source_dir}/tests/support/dough-adr-awareness-release-transition.sh"
 # shellcheck source=tests/support/native-cases.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-cases.sh"
+# shellcheck source=tests/support/native-result-retain.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-result-retain.sh"
+# shellcheck source=tests/support/native-run-supervise.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-run-supervise.sh"
+# shellcheck source=tests/support/dough-adr-awareness-updated-use.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/dough-adr-awareness-updated-use.sh"
 
 delivery_parse_native_case_args() {
   native_case_entry="tests/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
@@ -38,7 +47,19 @@ delivery_parse_native_case_args() {
       exit 0
       ;;
     native-selected)
-      native_case_reject_unlaunched_selected
+      case ${native_case_id} in
+        delivery/updated-use)
+          if [[ ${delivery_platform} != 'codex' ]]; then
+            native_case_reject_unlaunched_selected
+          fi
+          ;;
+        delivery/legacy-refusal | delivery/ordinary-update)
+          native_case_reject_unavailable_selected
+          ;;
+        *)
+          native_case_fail "unknown case '${native_case_id}'"
+          ;;
+      esac
       ;;
     default | native-full) ;;
     *)

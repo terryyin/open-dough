@@ -1,6 +1,6 @@
 # Retain evidence for a representative update and fresh use
 
-Status: in-progress; leaf 1 done, leaves 2–3 planned.
+Status: in-progress; leaves 1–2 done, leaf 3 planned.
 Order: **20 → 22 → 21**. Plan 20's checkpoint is complete.
 
 ## Scope
@@ -60,27 +60,32 @@ vendor event shapes to invent successful completion.
 ### 2. Retain the combined update and use journey
 
 Type: Behavior
-Status: planned
+Status: done
 
-Implement shared journey retention through the Codex wrapper using the existing
-`delivery/updated-use` selector. Reuse genuine bootstrap/update fixtures, verify
-the update, and start fresh use on that target. Keep both stages in one attempt.
-Update usage and selection tests in the same leaf.
+Recorded proof: `tests/native-delivery-updated-use.sh` runs Codex
+`--native --case delivery/updated-use` through the real wrapper. A PATH
+substitute applies the genuine local fixture installer, then emits recorded use
+evidence. Both stages remain under one `codex/delivery/updated-use/<attempt>/`
+directory after scratch cleanup. Failed update starts no use; failed use retains
+the successful update. The invocation log has no legacy refusal or retry.
+`--deadline`/`--grace` are accepted on both supervised stages.
+`tests/native-case-selection.sh` keeps `delivery/legacy-refusal` and
+`delivery/ordinary-update` unavailable, and Cursor/Claude selected
+`delivery/updated-use` unlaunched. `tests/README.md` documents the current
+wrapper interface, not plan-leaf history.
 
-Proof: Through the real wrapper, substitutes perform a real local fixture update
-and emit recorded use evidence. Verify retained stage artifacts and state after
-cleanup. Failed update starts no use; failed use retains the successful update
-and use failure. The invocation log contains no legacy refusal or retry. Confirm
-existing supervisor bounds are wired into both stages without a new failure matrix.
+Shared helpers for leaf 3: `tests/support/dough-adr-awareness-updated-use.sh`
+and `tests/support/native-result-retain-journey.sh`.
 
 ### 3. Connect Cursor and Claude Code to the same journey
 
 Type: Behavior
 Status: planned
 
-Use the shared journey with each host's command/event adapter. Record Cursor
-Agent identity and structured streams for both tools. Document the saved evidence
-needed for a manual applicability review; no reassessment command is required.
+Use the shared journey helpers with each host's command/event adapter. Record
+Cursor Agent identity and structured streams for both tools. Document the saved
+evidence needed for a manual applicability review; no reassessment command is
+required.
 
 Proof: One recorded successful journey per adapter verifies command routing,
 runtime identity, stream decoding, and retained artifacts. Use a small adapter
@@ -96,10 +101,15 @@ hand the retained context/journey evidence to
 
 | Platform | Existing cheap evidence | Remaining cheap proof | Native evidence |
 | --- | --- | --- | --- |
-| Codex | Context stream completeness, leaf 1. | Shared journey and retained stages, leaf 2. | Pending Story 3 review. |
+| Codex | Context stream completeness, leaf 1. Combined journey and retained stages, leaf 2. | — | Pending Story 3 review. |
 | Cursor | Context stream completeness and Agent identity. | Journey adapter, leaf 3. | Pending Story 3 review. |
 | Claude Code | Context stream completeness, leaf 1. | Journey adapter, leaf 3. | Pending Story 3 review. |
 
 Substitutes establish our harness contracts only. Story 3 records representative
 native discovery, activation, behavior, affected install/update/coexistence, and
 justified reuse per tool. Do not write `.planning/STATE.md` as resume state.
+
+## Learnings
+
+- `tests/README.md` documents the current wrapper interface and proof scripts.
+  Do not use it as plan-leaf history.

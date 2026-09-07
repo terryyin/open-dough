@@ -60,18 +60,21 @@ native_case_print_description() {
       printf 'setup: Genuine v0.2.0 three-file %s payload and a two-skill candidate with a smaller installed-payload contract.\n' \
         "${host}"
       printf 'dependencies: none\n'
+      printf 'selected-launch: unavailable\n'
       ;;
     delivery/ordinary-update)
       printf 'Perform an ordinary newer-release update of an inspected-bootstrap install.\n'
       printf 'setup: Inspected bootstrap of the current two-skill updater plus a newer local tagged fixture on %s.\n' \
         "${host}"
       printf 'dependencies: inspected bootstrap and newer local tagged fixture; not a native legacy-refusal result\n'
+      printf 'selected-launch: unavailable\n'
       ;;
     delivery/updated-use)
-      printf 'Use installed ADR awareness in a fresh session on the updated installation.\n'
-      printf 'setup: Fresh native session on the same isolated %s target after the verified native ordinary update.\n' \
+      printf 'Inspected bootstrap, real newer tagged fixture update, then a fresh use session on that same verified target.\n'
+      printf 'setup: Isolated %s target with inspected bootstrap and a newer local tagged fixture; update and use are stages of one attempt.\n' \
         "${host}"
-      printf 'dependencies: verified native delivery/ordinary-update in the same isolated target (record that update'\''s attempt ID); do not reconstruct from final bytes\n'
+      printf 'dependencies: none\n'
+      printf 'selected-launch: combined update then fresh use in one attempt\n'
       ;;
     *)
       native_case_fail "unknown case '${case_id}'"
