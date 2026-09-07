@@ -378,7 +378,7 @@ Size: high confidence; platform-local harness plus native runtime exception.
 ### 5. Remove unused version-inspection command wrappers
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Repeat the caller search; remove only `source-version` and `read-record`
 dispatch/help. Run `tests/compare-versions.sh`, `tests/install-latest-release.sh`,
 `tests/update-when-needed.sh`, and `tests/apply-temp-cleanup.sh`. Existing
@@ -487,7 +487,7 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a–4d proved retirement boundaries; 4e–4g passed all native legacy transitions. Execution resumes at 5. Reassess after five minutes and follow Learning
+  three tools; 4a–4g completed retirement; 5 removed only unused command wrappers. Execution resumes at 6. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `274`; rearmed before the 4g push.

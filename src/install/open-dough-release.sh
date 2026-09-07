@@ -16,8 +16,8 @@ source "${script_dir}/open-dough-release-resolve.sh"
 
 usage() {
   echo "Usage: $0 <command> [args]" >&2
-  echo "Commands: validate-checkout, source-version, read-record, compare," >&2
-  echo "          destination, resolve-url, fetch-release, pin-latest, apply" >&2
+  echo "Commands: validate-checkout, compare, destination, resolve-url," >&2
+  echo "          fetch-release, pin-latest, apply" >&2
   exit 1
 }
 
@@ -172,14 +172,6 @@ case "${command}" in
   validate-checkout)
     [[ $# -eq 1 ]] || usage
     validate_checkout "$1"
-    ;;
-  source-version)
-    [[ $# -eq 1 ]] || usage
-    read_version_file "$1/VERSION"
-    ;;
-  read-record)
-    [[ $# -eq 1 ]] || usage
-    read_record "$1"
     ;;
   compare)
     [[ $# -eq 2 ]] || usage
