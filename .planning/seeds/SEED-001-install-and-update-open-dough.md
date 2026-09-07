@@ -11,32 +11,130 @@ scope: large
 
 ## Why This Matters
 
-For the Open Dough maintainer and contributors, borrowing Donut's guidance
-should change to installing Open Dough's own skills and rules from a supplied
-URL into this repository, then updating that installation after changing the
-shared skill source. Real self-use should demonstrate that the distributed
-guidance is usable and that improvements reach the project using it.
+Clients should install complete Open Dough guidance, run `dough-update` to
+receive a newer release, and review and commit the resulting project changes.
+The first installation/versioning/self-use loop is complete. The next delivery
+must implement the simpler contract and make it available for a retained Donut
+adoption and a meaningful ordinary update.
 
-The owner chose this bootstrap loop as the near-future goal and identified
-OpenGSD (`../gsd-core`) as a source of inspiration and reusable code. The current
-repository now installs and updates its own skill from a supplied URL in
-Codex, Cursor, and Claude Code. Stories 4–6 add identifiable releases,
-version-aware updating, and changelog presentation as separate outcomes.
-
-Priority reconsidered 2026-09-06: finish safe installation, publish the already
-extracted ADR-awareness skill, and install/use it in Open Dough itself through
-the same flow as any other target project. Then add replacement of Donut's
-redundant local guidance under SEED-004 Story 4. More extraction and inline changelog display do not block that first
-replacement. Rare unversioned installations are handled manually; no migration
-feature is planned. The
-[product backlog](../PRODUCT-BACKLOG.md) records this delivery order.
-
-Current refinement direction, 2026-09-06: safe installation and publication are
-complete. Refine the first backlog item, Open Dough self-use, to the smallest
-useful outcome so we can reach the second item, Donut adoption with redundant
-ADR-awareness removal, as soon as possible. Other work can wait.
+The [product backlog](../PRODUCT-BACKLOG.md) places this client path ahead of
+further extraction. Historical completed scopes remain below; new Story 7 owns
+changes to the delivered contract.
 
 ## Decisions and Constraints
+
+<a id="client-installation-and-update"></a>
+
+### Architectural direction under review — client installation and update
+
+[ADR 0004 — Client installation and update](../../docs/adrs/0004-client-installation-and-update.md)
+is **Proposed**. Once Accepted, it governs future work under this seed alongside
+[Accepted ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+[ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md) governs decision ownership.
+This seed owns installation, updating, installation records, publication, and
+self-use. Completed story scopes and evidence below remain historical facts;
+their exact payload and earlier exclusions are not permanent architecture.
+
+The owner's clarified direction is to install and update the whole client
+payload, with no skill selection or draft public-guidance state. Every item in
+a release's client payload must be ready for public use. Ordinary use stands
+alone with all required scripts and supporting files installed. Maintenance
+information is fetched from the Open Dough source repository during
+`dough-update` and discarded. Record the version and source repository URL;
+the immutable release supplies comparison content without permanent commit or
+checksum records. Clients can force replacement of edited managed files, with
+no reconciliation or recovery guarantee for their edits. Offline replacement
+and a package distribution mechanism are not current requirements.
+
+Configuration is still speculative: reserve `open-dough.json` at the client
+project root, shared by all tools, but introduce no file, options, or configuration
+machinery until a real need exists. Keep that proposal distinct from delivered
+behavior. Future options must be minimal; the absence of a file uses the standard
+behavior.
+
+#### Differences from the delivered installation
+
+| Existing behavior or scope | Required direction if ADR 0004 is accepted |
+| --- | --- |
+| Stories [5a](#install-latest-release), [5d](#publish-version-aware-updater), and [5e](#adopt-version-aware-updater) distribute three files, including `RECOGNITION.md`. | Declare the whole client payload without maintenance material; change installer, updater references, documentation, and affected checks together. The current full-install behavior continues; no feature selector is needed. |
+| The updater reads recognition locally and promises no fetch for standalone assessment/replacement. | Move that support to a matching inspected source fetched during maintenance. Offline maintenance is not promised; unavailable support must not lead to an unsupported completion claim. |
+| `open-dough-release.sh` invokes forced copying for older or unknown recorded installations, without checking installed content against its previous release. | Ordinary updates compare against the recorded release and stop without writes for changed, missing, or unverifiable content. An explicitly forced update replaces the managed payload, including local edits, without merging or promising to recover those edits. |
+| The installed record contains only numeric `VERSION`, and the updater asks for a source URL on each invocation. | Remember the version and the Open Dough repository URL used during installation. Subsequent updates reuse that location without asking; the client project's Git remote is not the release source. Record no maintenance material. Additional permanent commit/checksum metadata is not required. |
+| There is no separate installed customization contract or demonstrated customization need. | Reserve the shared root `open-dough.json` location; defer creating the file, defining settings, and implementing configuration until needed. When introduced, preserve it through both ordinary and forced updates. |
+| Earlier scope excludes general migration automation and the current installer does not retire removed payload files. | Handle the concrete transition between Open Dough releases, including obsolete recognition and its references. Preserve completed releases; retirement of unchanged managed files does not require a general reconciliation framework. |
+
+For ordinary updates at equal versions, preserve the existing no-write property. The earlier
+observation that edited skill text still produces a successful "current" result
+does not establish the new integrity check: a modified installation should be
+reported as unsupported, even when its recorded version equals latest. Ordinary
+updates preserve newer installations without downgrade; an explicitly forced
+update replaces managed content with the selected latest release, even when
+ordinary comparison would have skipped it. No restore-before-update requirement
+or automatic edit recovery is introduced.
+
+SEED-004's existing local-practice adoption work is separate from the permanent
+update contract. Supporting arbitrary edited copies is not a future requirement
+of this seed, and deferred generic matching/reconciliation is not a prerequisite.
+SEED-006 consumes releases for Donut adoption; it does not own an installer
+redesign. These documentation changes do not change backlog order or authorize
+execution. Deferred changelog presentation can read source notes temporarily;
+it does not require installing release history.
+
+#### Delivery acceptance and evidence
+
+For each tool independently, require native discovery, explicit invocation and
+intended automatic application where applicable, correct guidance behavior,
+installation, updating, and coexistence. Observe at least:
+
+- a fresh complete installation containing only release-ready guidance, ordinary
+  use with Open Dough unavailable, and local supporting files; self-use must not
+  borrow missing files from the surrounding Open Dough source repository;
+- an update from a verifiable earlier release that updates all managed content,
+  retires obsolete files, and records the version/source only after verification;
+  ordinary equal and newer version outcomes make no writes;
+- invoking `dough-update` in the client project automatically uses the saved
+  Open Dough location and the appropriate Codex, Cursor, or Claude Code layout;
+  it leaves reviewable file changes without automatically committing or pushing;
+- changed or missing managed files and an unverifiable baseline stopping without
+  writes during ordinary updating, including when the recorded version is current;
+- explicit forced updating replaces managed content despite local edits or an
+  equal recorded version, with no merge or edit-recovery guarantee. It preserves
+  unrelated files and other tools' installations;
+- temporary maintenance retrieval, inspection, cleanup, and truthful handling
+  when its source is unavailable; and
+- preservation of unrelated project guidance and other tools' separate
+  installations throughout those operations. When configuration is introduced,
+  verify its shared use, preservation during ordinary/forced updates, and
+  rejection of incompatibility before writes separately in each tool.
+
+| Platform | Evidence for the revised contract |
+| --- | --- |
+| Codex | Pending. The existing ADR-awareness skill was discovered and applied in this drafting task; no revised installation or update was exercised. |
+| Cursor | Pending; no native session run for this revision. |
+| Claude Code | Pending; no native session run for this revision. |
+
+Source inspection confirms the gaps above but is not native delivery evidence.
+Reuse earlier observations only when their covered inputs and behavior remain
+unchanged. This revision changes architecture and planning documents only.
+
+#### Normal client workflow and remaining refinement
+
+1. The client runs `dough-update` in its project through Codex, Cursor, or
+   Claude Code. The application determines its installation layout automatically.
+2. The updater retrieves the latest release from the Open Dough location saved
+   during installation and updates the client project's installed files.
+3. The client reviews and commits the resulting changes in its own repository.
+
+The Open Dough repository supplies releases; the client repository receives and
+versions the installed files. Choosing an AI application layout or switching
+release repositories is not an additional user decision in this workflow.
+Do not introduce repository-switching functionality without a concrete need.
+
+No further architectural question from this discussion needs to block the
+proposal. Configuration settings and their schema await a concrete use case;
+delivery still needs refinement and the native evidence above.
+
+### Historical initial-loop constraints
 
 The owner clarified the following for the initial loop on 2026-09-06. These
 choices describe completed Stories 1–3. The accepted versioning contract and
@@ -640,10 +738,8 @@ Donut changes, or skill extraction was performed by either planning pass.
 - **Priority:** Deferred until manually reading release notes obstructs real
   updating. Maintaining the release changelog remains required; inline display
   does not block publication or adoption.
-- **Status:** Unfinished; candidate boundary only. The
-  [third plan](../quick/006-show-update-changelog/PLAN.md) is retained planning
-  material, **not for direct execution**. Refine this story, update that plan,
-  then refine its slices before execution.
+- **Status:** Deferred; no execution plan. Refine only when manual release-note
+  reading becomes an observed problem in the working client update path.
 - **For / why:** A developer wants to understand an update's changes without
   finding and interpreting the source changelog manually.
 - **Evaluation:** Native update shows actual applicable release-note content,
@@ -652,7 +748,7 @@ Donut changes, or skill extraction was performed by either planning pass.
   interaction; learn whether that output is sufficient for real use.
 - **Effort hypothesis:** S (30–60 minutes), low confidence; assumes Story 5b
   exposes truthful transitions from a recorded baseline.
-- **Depends on:** Stories 5b and 5d and released changelog entries.
+- **Depends on:** Story 7's working client updater and released changelog entries.
 
 #### Goal
 
@@ -681,28 +777,65 @@ entries before one installation of latest. The version remains truthful after
 success/failure and the other tools are untouched. This completes the original
 combined outcome without reopening release production or version detection.
 
+<a id="standalone-client-update"></a>
+
+### 7. Release the standalone client installation and update workflow
+
+- **Status:** New, 2026-09-07; next for refinement, not implemented. The owner's
+  current direction is recorded in Proposed ADR 0004; ADR status remains
+  human-owned. This is a bounded update to existing helpers and guidance.
+- **Goal:** A client installs the complete ready payload, uses its guidance
+  standalone, and runs `dough-update` without supplying a URL again to receive
+  a newer release as reviewable project changes.
+- **Scope:**
+  - Keep the existing whole-payload, project-local, native installation flow.
+    Install everyday guidance and required supporting files, not recognition.
+  - Reduce recognition to a concise descriptive source record with evidence
+    links. Remove one-time assessment/context-transfer/caller-cleanup procedures
+    from recognition and the installed updater; those are adopter work, not
+    permanent client features. Adjust obsolete procedure-specific tests as part
+    of the same change while retaining behavior and preservation coverage.
+  - Record installed version and Open Dough location. A plain updater invocation
+    reuses that location, pins and inspects the release, updates the whole
+    payload and required scripts, retires removed managed files, and verifies
+    before advancing the record. Do not retain maintenance checkouts in clients.
+  - Compare ordinary updates with the recorded released files; changed, missing,
+    or unverifiable managed content stops without writes. Explicit force replaces
+    it without merging or edit recovery. Preserve ordinary equal-version no-write
+    and newer-version no-downgrade outcomes.
+  - Provide only the documented inspected bootstrap needed for already-installed
+    updaters to reach this contract. Preserve unrelated guidance, project context,
+    other native installations, and any client-owned configuration.
+- **Acceptance:** Apply the per-platform delivery criteria above in Codex,
+  Cursor, and Claude Code. Native installation, discovery, invocation/application,
+  ordinary guidance behavior with Open Dough unavailable, an actual older-to-newer
+  payload update through the saved location, edit refusal, force, and coexistence
+  each need evidence. Fixture releases can prove transitions before publication;
+  they do not count as the later live Donut update.
+- **Release and self-use:** Publish the complete verified change under ADR 0003
+  using a maintainer-chosen version. Independently fetch the published snapshot,
+  then adopt it in Open Dough through the client flow. This gives Donut a real
+  release to install; ordinary updater runs leave changes for client review and
+  commit rather than committing or pushing themselves.
+- **Excluded:** Configuration files/options without a real need, per-skill
+  selection, a package registry, generic migration/matching, local-edit merging,
+  one-time Donut caller changes, and automatic release-note presentation.
+- **Readiness:** Refine against current source and focused failures before
+  creating an execution plan. Native delivery remains pending in all three tools.
+  Do not reopen completed history or add a broad infrastructure prerequisite.
+
 ## Ordering and Scope Reduction
 
-Safe installation (5a), publication (5d), and bounded self-adoption (5e) are
-complete. Main independently completed the authorized ADR replacement through
-its 4A cutoff. The first remaining outcome is the native Codex proof in
-[SEED-006](SEED-006-extend-adr-guidance-adoption.md#prove-codex-use-after-replacement),
-followed by the separately bounded Plans 015–017.
+Stories 1–5e retain completed results. Story 7 is the next useful delivery:
+make the smaller installation/update contract available, then complete Donut's
+one-time adoption in SEED-006 Story 3. A useful newer release should then be
+used in Donut through Story 4 at the first opportunity. Planning extraction can
+supply that improvement but must not postpone an already-available update.
 
-The two new extraction stories and update-time replacement do not block
-first-install ADR-awareness replacement. This sequence replaces the earlier
-proposal to start replacement development ahead of installation and self-use.
-
-Story 4, safe installation (5a), and recorded updating (5b) are complete; retain their evidence for
-unchanged behavior. All affected behavior still requires separate native
-evidence in Codex, Cursor, and Claude Code.
-
-Keep inline notes (6) lower in priority until manual reading becomes a pain.
-Handle the limited unversioned installations manually; no migration story or
-feature is planned. Neither blocks fresh-install and recorded-update behavior. Preserve pinning, truthful outcomes,
-project containment, and existing repeat protection on the main path. Broader
-recovery and conflict handling wait for a concrete need; the reproduced
-containment defect linked from Story 5a already constitutes such evidence.
+Story 6 stays deferred until manual note reading is a real obstacle. One-time
+client replacements are not an ongoing updater feature. Preserve the existing
+pinning, containment, truthful outcomes, and native coexistence behavior; no
+speculative configuration or reconciliation framework is needed.
 
 ## Split-plan provenance
 
@@ -715,28 +848,32 @@ Quick 005, Quick 008, and Quick 010 plans were dropped after completion; their
 evidence is summarized in Stories 5b, 5a, and 5d above and in the
 [recently completed stories](../PRODUCT-BACKLOG.md#recently-done).
 Quick 011 is aligned to Story 5e and retains its completed execution evidence.
-The other unfinished split plans remain explicitly not executable until their
-stories and slices are refined again.
+New delivery plans must be written from the currently selected story rather
+than resurrecting unfinished fragments from the earlier combined scope.
 
-## Open Decisions
+## Next refinement
 
-- Story 5a is complete with all five slices accepted and earlier evidence retained.
-  Story 5d is complete with independently verified public `v0.2.0`. Story 5e
-  and all nine native observations are complete; post-main repetitions also
-  proved current-version updates preserve newer project-local updater behavior.
-  Story 6 needs refinement when manual release-note reading becomes a pain;
-  local-edit conflict handling stays outside.
+Refine Story 7 against the explicit owner direction summarized in
+[ADR 0004's reconciliation](#client-installation-and-update). The ADR remains
+Proposed; committing this backlog does not change its status. Resolve only the
+implementation choices needed for the next client outcome. The configuration
+proposal stays unimplemented until a real setting is needed.
 
 ## When to Surface
 
-The [product backlog](../PRODUCT-BACKLOG.md) now starts with SEED-006's native
-Codex proof after the completed 4A replacement and places Story 6 later.
-[Recently completed stories](../PRODUCT-BACKLOG.md#recently-done) retains
-Stories 1–4, 5a, 5b, 5d, and 5e. Execute only a selected story with a
-refined plan; do not chain the provisional plans as one delivery.
+Story 7 is next in the [product backlog](../PRODUCT-BACKLOG.md). Story 6 surfaces
+only when its manual-notes trigger occurs. Completed Stories 1–5e remain evidence
+for unchanged behavior and are not unfinished delivery work.
 
 ## Breadcrumbs
 
+- Owner direction, 2026-09-07: make this seed subject to ADR 0004 once accepted.
+  Subsequent feedback broadened it to client installation and update: whole
+  payload, standalone supporting files, temporary maintenance support, proposed
+  shared configuration, version/source recording, and forced replacement without
+  edit-recovery guarantees. The ADR stays concise;
+  delivery differences, evidence requirements, and open questions live here.
+  Completed scopes and evidence remain unchanged.
 - Initial owner direction: project-local supplied-URL installation, an
   unconditional update loop, then versioning; Codex first, followed by Cursor
   and Claude Code. Completed Stories 1–3 preserve that history.

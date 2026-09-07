@@ -4,7 +4,7 @@
 
 Source: [SEED-006 Story 2](../../seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption).
 Status: completed 2026-09-07 against Donut SEED-009 Story 5 / Plan 045 using
-public `v0.2.1` in native Codex. [Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md)
+public `v0.2.1` in native Codex. [Plan 015](./PLAN.md)
 records release identity, installation, native use, and coexistence.
 
 The prior three-tool plan was reduced to a scope record; no completed slices
@@ -37,7 +37,8 @@ Exclude implementing, verifying, or replanning deletion, repairing Donut
 fixture deadlocks, later SEED-009 stories, other tasks/tools, caller repair,
 original removal, automatic-use proof, shared-source changes, generic
 migration/recovery, further publication, and new release or test
-infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
+infrastructure. Remaining other-tool adoption and cleanup are now owned together
+by SEED-006 Story 3; this completed assessment's evidence is unchanged.
 
 ## Execution context and current decisions
 
@@ -223,8 +224,8 @@ All final promises above have an owning slice; none is satisfied by this plan.
 | Platform | Reusable evidence where behavior/delivery is unchanged | New live evidence |
 | --- | --- | --- |
 | Codex | Story 1's explicit/automatic discovery/use and context checks; unchanged installation/update coverage linked from its evidence record | 2026-09-07 live Donut: public `v0.2.1` installed for Codex; explicit `$dough-adr-awareness` produced `## ADR CHECK COMPLETE`; Plan 045 records the reviewed conclusion. Original skill was not loaded. |
-| Cursor | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending Story 2b; not executed or inferred here |
-| Claude Code | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending Story 2b; not executed or inferred here |
+| Cursor | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending SEED-006 Story 3; not executed or inferred here |
+| Claude Code | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending SEED-006 Story 3; not executed or inferred here |
 
 Any shared rule/skill change invalidating reuse needs separately scoped native
 acceptance for discovery, invocation/application, behavior, affected delivery,

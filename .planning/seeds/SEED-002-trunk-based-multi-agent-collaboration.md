@@ -3,7 +3,7 @@ id: SEED-002
 status: dormant
 planted: 2026-09-06
 planted_during: unknown
-trigger_when: when relevant
+trigger_when: Real interdependent shared-branch work exposes a coordination problem
 scope: unknown
 ---
 
@@ -79,10 +79,10 @@ seek both cohesive results and a passing shared CI baseline.
 
 ## When to Surface
 
-**Trigger:** when relevant.
-
-Relevant context includes future exploration of multi-agent collaboration,
-shared-branch development, or continuous integration practices in Open Dough.
+**Trigger:** real interdependent shared-branch work exposes a coordination
+problem worth a bounded experiment, after the client installation/update path
+works. Existing communication is sufficient until the experiment demonstrates
+otherwise; no mailbox or new installed guidance is a prerequisite.
 
 ## Scope Estimate
 
@@ -101,6 +101,14 @@ implementation or an estimate of effort.
   processes, rules, and skills for people and AI working together.
 - [Existing product backlog](../PRODUCT-BACKLOG.md): context for the kinds of
   user-centric items agents could work on in a future experiment.
+
+## Review — 2026-09-07
+
+Still relevant as a future experiment, outside the active queue. It neither
+blocks Donut adoption nor justifies adding coordination machinery to clients.
+If it eventually produces distributable guidance, require separate native
+application/use, installation/update, and coexistence evidence in Codex, Cursor,
+and Claude Code. No native evidence is claimed for this idea.
 
 ## Notes
 

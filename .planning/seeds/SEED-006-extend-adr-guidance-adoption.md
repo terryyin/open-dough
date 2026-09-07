@@ -3,34 +3,40 @@ id: SEED-006
 status: dormant
 planted: 2026-09-06
 planted_during: Scope correction after first native Codex ADR replacement
-trigger_when: Continue beyond the first bounded ADR-guidance replacement
-scope: large
+trigger_when: Deliver the revised installation and update workflow in Donut
+scope: medium
 ---
 
-# SEED-006: Extend ADR-guidance adoption after the first successful replacement
+# SEED-006: Complete Donut's one-time adoption and ordinary update
 
 ## Why This Matters
 
-For the Open Dough maintainer, the first bounded Codex replacement now works,
-but the original plan mixed that learning with post-cleanup use, generic edge
-cases, fresh installation, release updates, and a live three-tool Donut
-migration. Those are independently valuable outcomes and should not be paid for
-before they are needed.
+A useful assessment was demonstrated in Donut, but a durable installation that
+survives a meaningful release update has not been established. The owner now
+prioritizes that complete client path over further extraction. Adoption is a
+one-time project change; it does not require a permanent migration capability.
 
-The near-term purpose is practical: make the released guidance usable in Open
-Dough through SEED-001 and in Donut through a few explicit follow-up stories.
-Manual repair is an acceptable fallback for failure and ambiguity cases.
+The earlier Codex installation was temporary and subsequently removed according
+to the adoption discussion. Its task conclusion remains useful evidence, but
+it does not prove the current installation exists. Reinspect the live state
+before planning writes; do not assume an integration is still ready.
 
-## Alternatives and Decision
+## Constraints
 
-| Option | Decision |
-| --- | --- |
-| Keep the original 40-slice plan | Rejected: it hides several outcomes and creates unsafe pressure to finish edge cases before the first useful adoption. |
-| Stop after the first native Codex cleanup and repair failures manually | Selected baseline: the completed result remains useful even if every follow-up is cancelled. |
-| Continue only the next real adopter journey | Revised 2026-09-07: one real Donut task first; story-refinement extraction before remaining readiness and separate cleanup. |
-| Generalize every install/update/error case now | Deferred until a concrete failure or another adopter makes it valuable. |
+- Use the simplified released contract from
+  [SEED-001 Story 7](SEED-001-install-and-update-open-dough.md#standalone-client-update),
+  consistent with the owner's direction and
+  [Proposed ADR 0004](../../docs/adrs/0004-client-installation-and-update.md).
+- The same shared guidance must work in Codex, Cursor, and Claude Code. Treat
+  each native observation independently and leave missing evidence pending.
+- Handle actual caller/context differences manually in Donut. Shared changes
+  belong in Open Dough before release; do not patch installed guidance or add
+  a reusable replacement procedure to `RECOGNITION.md` or `dough-update`.
+- Preserve human ADR authority, unrelated project work, and usable original
+  guidance until its affected integrations have a working replacement.
+- This backlog review authorizes no Donut edits or release publication.
 
-## Story Decomposition
+## Completed work
 
 <a id="prove-codex-use-after-replacement"></a>
 
@@ -104,8 +110,7 @@ investing in migration.
 repairing Donut fixture deadlocks; assessing later SEED-009 stories; auditing
 other Donut work; retargeting callers; removing the original; automatic-use
 proof; other-tool preparation; generic migration or recovery; new shared-skill
-behavior; further release publication or infrastructure. Remaining tools stay
-in Story 2b, cleanup in Story 3, and later-update preservation in Story 4.
+behavior; further release publication or infrastructure. The remaining one-time adoption is Story 3; a meaningful later update is Story 4.
 
 #### Key examples
 
@@ -136,9 +141,9 @@ in Story 2b, cleanup in Story 3, and later-update preservation in Story 4.
 
 | Platform | Prior evidence reusable only where unchanged | Pending live evidence |
 | --- | --- | --- |
-| Codex | Story 1's native discovery, explicit/automatic use, context behavior, coexistence, and linked unchanged delivery coverage | Selected-release installation/update, discovery, explicit use, useful deletion-plan assessment, and coexistence in this story |
-| Cursor | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut readiness in Story 2b; no inference from Codex |
-| Claude Code | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut readiness in Story 2b; no inference from Codex |
+| Codex | Story 1's native discovery, explicit/automatic use, context behavior, coexistence, and linked unchanged delivery coverage | Completed in Plan 015 for the selected release and task; current installation persistence must be rechecked |
+| Cursor | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut adoption in Story 3; no inference from Codex |
+| Claude Code | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut adoption in Story 3; no inference from Codex |
 
 See [Story 1's per-platform evidence](../quick/014-prove-codex-adr-use/EVIDENCE.md).
 Any later shared rule/skill change requires separate scope and independent
@@ -150,150 +155,76 @@ Open Dough constraints remain [ADR 0000 — Use ADRs](../../docs/adrs/0000-use-a
 (inspected public version, no branch/fixture substitute). This refinement makes
 no new architectural decision or exception.
 
-<a id="prepare-remaining-donut-adr-integrations"></a>
-
-### 2b. Prepare Donut's remaining ADR integrations
-
-- **Status:** Split from former Story 2 on 2026-09-07; not executed or planned.
-  Ordered after story-refinement extraction in the product backlog.
-- **Goal:** Make the shared ADR guidance independently usable in each remaining
-  affected Donut tool, using the first task's evidence and retained context.
-- **Scope:** Reassess drift and prepare only integrations not yet ready; normally
-  Cursor and Claude Code after a Codex first task. Install/update each selected
-  native root from the inspected release and demonstrate explicit native use
-  on the same real task or another existing relevant task. Reuse earlier proof
-  only where unchanged. Keep the original, its links, and all callers intact.
-- **Acceptance:** Each remaining tool discovers/invokes its own installed shared
-  skill, uses Donut's current ADR context without original fallback, and produces
-  applicable advice. Record per-tool release, paths, changes, and coexistence.
-  An unavailable or ineffective tool stays pending; another host cannot prove it.
-- **Excluded:** Caller repair, removal, automatic-use proof, update preservation,
-  generic conflict recovery, and new shared features. Those are separate work.
-- **Effort hypothesis:** M, low confidence until the remaining hosts are known.
-- **Depends on:** Story 2's useful real task result and a still-valid release.
-  Story-refinement extraction is a priority choice, not a technical dependency.
-  Reconsider whether further migration is valuable before starting.
+## Remaining stories
 
 <a id="finish-donut-adr-adoption"></a>
 
-### 3. Finish Donut's ADR-guidance replacement
+### 3. Adopt the simplified release once in Donut and use it
 
-- **Status:** Scope aligned 2026-09-07; not executed.
-  [Plan 016](../quick/016-finish-donut-adr-adoption/PLAN.md) needs planning review
-  against Stories 2 and 2b before execution.
-- **Goal:** As the Donut maintainer, remove the redundant original after all
-  three tools are ready, with every caller repaired and ADR behavior still
-  effective.
-- **Scope:** Reinspect the assessed paths, retarget callers, remove the original
-  and obsolete discovery link, then verify explicit and automatic use in each
-  tool. Do not add generic migration or failure recovery.
-- **Key examples:** All affected tools use their released skill after removal,
-  follow Donut's current authoritative ADR statuses and constraints, keep Proposed
-  decisions non-binding, and preserve unrelated work. Recheck live records; do
-  not substitute the historical fixture's ADR numbers or statuses.
-- **Effort hypothesis:** L, low confidence; six independent native observations
-  follow one bounded live cleanup.
-- **Depends on:** Stories 2 and 2b: every affected live tool is independently
-  ready and the first task demonstrated useful behavior. Revalidate readiness
-  and caller inventory before removal; cleanup remains separately authorized.
+- **Status:** Revised 2026-09-07; not executed. Refine from live state; old
+  platform-preparation and cleanup fragments are not execution plans.
+- **Goal:** Donut uses the released shared ADR guidance through its actual
+  native integrations, with required local context preserved and redundant
+  borrowed guidance removed in a reviewable project change.
+- **Scope:** Inspect the current installation, original, context, and callers.
+  Install the complete published payload in each affected native integration;
+  use explicit force for the known initial transition if necessary. Verify
+  readiness, repair the actual callers, and remove the unneeded original once.
+  Keep the shared behavior unchanged; handle this project's specifics directly.
+- **Useful outcome:** Apply the installed guidance to an existing live Donut
+  task. Reuse Plan 045's assessment where still valid, or select the current
+  relevant task rather than manufacturing work or repeating a stale question.
+  Leave changes and the concise useful conclusion for Donut's owner to review
+  and commit. A task assessment does not authorize implementation of that task.
+- **Acceptance:** Codex, Cursor, and Claude Code each independently discover and
+  explicitly invoke their installed skill; architecture-shaped work reaches it
+  automatically where required. Native behavior follows current Donut ADRs and
+  human authority without loading the removed original or borrowing source
+  files. Required context, all repaired callers, and unrelated guidance survive.
+  Record actual release, affected paths, useful result, and per-tool evidence.
+- **Completion boundary:** The resulting installation and context are retained
+  as project changes for review, rather than removed as temporary test files.
+  A plain updater invocation resolves its remembered source and reports current
+  without writes. This is not proof of a newer-release update.
+- **Dependencies:** SEED-001 Story 7's published, verified release. Readiness
+  work is part of this one adoption outcome; planning extraction is not required.
+- **Excluded:** Generic matching, local-edit merging, automated recovery,
+  configuration without an actual need, and migrating the other client projects.
 
 <a id="preserve-donut-adr-adoption-on-update"></a>
 
-### 4. Keep Donut's ADR adoption intact during a newer-release update
+### 4. Use a meaningful newer release through Donut's ordinary updater
 
-- **Status:** Conditional follow-up; not executed. The revised
-  [Plan 017 scope record](../quick/017-preserve-donut-adr-adoption/PLAN.md) needs
-  planning review when a real newer release is available and wanted.
-- **Goal:** As the Donut maintainer, receive a wanted shared-guidance improvement
-  without recreating the retired original or breaking repaired callers.
-- **Scope:** After completed replacement, perform one ordinary update to an
-  inspected, genuinely newer public release in each affected native tool. Verify
-  actual payload/version writes, continued ADR use, retained context/callers,
-  original/link absence, and preservation of unrelated and other-tool guidance.
-- **Acceptance:** Record the old/new release identities, intended improvement,
-  actual changes, and native update-to-use evidence per host. A current-version
-  no-op or a version-only fixture bump cannot establish preservation through
-  meaningful payload writes. Missing native evidence remains pending.
-- **Excluded:** Creating a release solely for this check, recurring discovery of
-  new matches, generic rollback or migration, and another cleanup pass. Reuse
-  existing no-op/update-contract evidence wherever unchanged.
-- **Effort hypothesis:** M, medium confidence once a suitable release exists.
-- **Depends on:** Story 3 and an actual wanted newer release. Until both hold,
-  this is conditional future work and does not delay planning-skill extraction.
+- **Status:** Revised 2026-09-07; unplanned. Highest next priority once Story 3
+  is done and a genuinely useful newer release exists.
+- **Goal:** Run `dough-update` in Donut, receive a wanted shared improvement,
+  use it successfully, and leave the changes for client review and commit.
+- **Scope:** Select an actual wanted release, normally the released
+  story-refinement skill from SEED-004 Story 6 if no earlier improvement exists.
+  Invoke the updater with no source URL, then use the newly installed or updated
+  guidance on an existing Donut task. Observe each affected native integration.
+- **Acceptance:** Record old/new release identities, actual complete payload and
+  record changes, native discovery/invocation or application, useful work, and
+  coexistence separately in Codex, Cursor, and Claude Code. The adopted ADR
+  context and callers remain valid; the retired original and recognition file
+  stay absent. Leave reviewable changes without automatic commit/push.
+- **Completion boundary:** This must include real payload writes and use of the
+  improvement. A same-version no-op, a fixture, or a version-only public release
+  cannot complete the story. If an appropriate release is already available,
+  do this before further extraction; otherwise the next useful extraction
+  supplies it. Do not wait on a monitoring service or invent a change.
+- **Dependencies:** Story 3 and a useful newer release under ADR 0003.
+- **Excluded:** Another cleanup pass, new-match discovery, patched client-skill
+  support, rollback machinery, or a generic migration system.
 
-<a id="generalize-fresh-adr-adoption"></a>
+## Evidence and next action
 
-### 5. Generalize fresh-install ADR adoption beyond Donut
+Completed Stories 1 and 2 remain historical evidence. The revised Stories 3 and
+4 are pending in Codex, Cursor, and Claude Code; file equality or another host's
+success is insufficient. Use existing native checks only where their inputs and
+behavior remain unchanged. Replan the next selected story against actual Donut
+state and the inspected release before execution.
 
-- **Status:** Candidate, unqueued, and unplanned.
-- **Goal:** Let a new adopter combine installation and optional ADR cleanup in
-  one successful journey across Codex, Cursor, and Claude Code.
-- **Scope:** The old generic fresh-install and post-install update cases. It does
-  not block Open Dough or Donut adoption.
-- **Effort hypothesis:** L, low confidence.
-- **Depends on:** A concrete third adopter or repeated manual cost.
-
-<a id="automate-adr-adoption-exceptions"></a>
-
-### 6. Handle ambiguous and failed ADR replacements automatically
-
-- **Status:** Candidate, unqueued, and unplanned.
-- **Goal:** Preserve effective guidance automatically when equivalence,
-  installation, shared-source readiness, or renamed mixed guidance is uncertain.
-- **Scope:** The old refusal, failed-install, shared-original, and renamed-match
-  cases. Manual diagnosis and repair remain the accepted current fallback.
-- **Effort hypothesis:** L, low confidence.
-- **Depends on:** A real failure whose repeated cost justifies automation.
-
-## Mapping from the former 40-slice plan
-
-| Former slices | New home |
-| --- | --- |
-| 1-4a | Completed Plan 013 / SEED-004 Story 4 |
-| 5-6 | Completed Story 1 / retained acceptance evidence (Plan 014 removed) |
-| 7-9 and 11-12 | Story 6, unplanned |
-| 10 and 13-21 | Story 5, unplanned |
-| 22-29 | Story 2 / revised Plan 015 for first-task use; Story 2b for remaining hosts, unplanned |
-| 30-37 | Story 3 / Plan 016 |
-| 38-40 | Story 4 / Plan 017 |
-
-## Ordering and Scope Reduction
-
-Story 1 closed the disposable post-cleanup-use uncertainty. Story 2 now seeks
-one real Donut task result in one tool, retaining the original. The next selected
-outcome is story-refinement extraction in SEED-004, followed by Story 2b's
-remaining readiness and Story 3's separately authorized cleanup. The backlog
-then places story decomposition ahead of the conditional newer-update Story 4.
-Stories 5 and 6 remain unqueued until concrete experience makes them valuable.
-
-Open Dough self-adoption stays in SEED-001. No story here duplicates or gates
-that work. Native Cursor and Claude Code behavior introduced by future changes
-must still be verified independently under the repository acceptance guard;
-missing evidence remains pending rather than inferred from Codex.
-
-## Open Decisions
-
-Ordering and scope were accepted on 2026-09-07. During Story 2 refinement, the
-owner selected Donut's login-recovery story in Codex, limited to its recovery
-response's fit with routing and failure-handling ADRs. The required public
-release identity remains unresolved and is supplied through the existing
-human-owned release process. This refinement authorizes no execution, release
-publication, or mutation of Donut.
-
-## When to Surface
-
-Story 1 is complete. Story 2 is refined around the selected login-recovery
-assessment; Plan 015 is slice-planned and refined. Execute live installation only
-after inspecting a published release with the verified replacement behavior
-and context fix.
-Surface Story 2b after first-task learning and when its backlog priority is
-reached; Story 3 after all live readiness evidence; Story 4 only for a wanted
-newer release. Surface candidate stories only after their named trigger.
-
-## Breadcrumbs
-
-- Completed source plan: `.planning/quick/013-adopt-adr-awareness/PLAN.md`.
-- Owner scope correction, 2026-09-06: prefer one or two practical adopter
-  successes; manually repair failure cases; split the 40-slice remainder.
-- Existing Open Dough self-adoption home:
-  `SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater`.
+The [product backlog](../PRODUCT-BACKLOG.md) controls priority. This seed ends
+with one retained adoption and one useful ordinary update in Donut. Other known
+projects use the separately scoped one-time adoption story in SEED-004.

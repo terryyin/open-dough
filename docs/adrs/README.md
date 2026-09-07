@@ -60,3 +60,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0001](./0001-ubiquitous-language.md) | Proposed | Ubiquitous language |
 | [0002](./0002-software-development-lifecycle-principles.md) | Proposed | Software development lifecycle principles |
 | [0003](./0003-tagged-release-versioning-accepted.md) | Accepted | Tagged release versioning |
+| [0004](./0004-client-installation-and-update.md) | Proposed | Client installation and update |

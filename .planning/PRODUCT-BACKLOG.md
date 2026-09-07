@@ -2,45 +2,71 @@
 
 ## Near-future direction
 
-Open Dough self-adoption and the first live Donut ADR assessment are complete.
-Next, extract story refinement and use it on one real backlog story, then let
-that actual use inform remaining Donut ADR adoption. Keep generic migration
-work tied to observed need.
+Make the revised Open Dough installation and update workflow work in a real
+client, beginning with Donut. A retained adoption followed by a useful newer
+release update is the highest-priority outcome. Clients run `dough-update`,
+then review and commit the changed files.
+
+Extract and improve shared guidance in Open Dough. Replace the few known
+borrowed copies once, handling their actual differences directly. Thereafter,
+maintain released Open Dough versions; do not build a permanent local-guidance
+matching, reconciliation, or recovery product.
 
 ## Queue
 
-1. [Refine one real backlog story with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004 Story 6
-2. [Prepare Donut's remaining ADR integrations](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-remaining-donut-adr-integrations) — SEED-006 Story 2b
-3. [Finish Donut's ADR-guidance replacement](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3
-4. [Decompose product work with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004
-5. [Keep Donut's ADR adoption intact during a newer-release update](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4
+1. [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001 Story 7. Deliver the smaller payload, descriptive source-only recognition, remembered source/version, ordinary updates and explicit forced replacement; publish the verified result.
+2. [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3. Prepare the actual integrations, retain context, replace the borrowed original once, and use the installed guidance on real work.
+3. [Use a meaningful newer release through Donut's ordinary updater](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4. Do this as soon as a useful newer release exists; it takes priority over further extraction.
+4. [Release story refinement and use it on a real backlog story](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004 Story 6. If item 3 has no useful release yet, do this next to supply one, then return immediately to item 3.
+5. [Release story decomposition and use it on real product work](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004 Story 7. Reuse oversized-plan feedback as part of this practice.
+6. [Replace borrowed guidance once in the remaining known client projects](seeds/SEED-004-extract-and-adopt-project-guidance.md#adopt-known-client-projects) — SEED-004 Story 8. After the Donut path works, handle the owner's roughly three or four other projects one at a time, with a named project and useful practice for each pass.
 
 ## Next-item readiness
 
-Story 2 is done: released `dough-adr-awareness` in Codex produced a reviewed
-conclusion on Donut SEED-009 Story 5 / Plan 045. Remaining Donut tools stay in
-Story 2b; cleanup stays in Story 3. The next queued story is extracting
-story-refinement and using it on one real Open Dough backlog story.
+Refine SEED-001 Story 7 against the actual installer/updater. The client contract
+is recorded in [Proposed ADR 0004](../docs/adrs/0004-client-installation-and-update.md)
+and follows the owner's explicit direction; ADR acceptance remains a separate
+human-owned decision. [Accepted ADR 0003](../docs/adrs/0003-tagged-release-versioning-accepted.md)
+continues to govern releases. Configuration has no real use case yet and is not
+part of the implementation queue.
+
+The earlier Donut task assessment is complete. Its temporary Codex installation
+was subsequently removed, so inspect current Donut state before planning writes.
+Do not count that assessment as a retained adoption or a successful new update.
+No current source simplification, new release, or revised native delivery is
+claimed by this backlog review. Codex, Cursor, and Claude Code each need their
+own affected discovery, invocation/application, behavior, install/update, and
+coexistence evidence. A native check in one application does not prove another.
 
 ## Deferred — promote on observed need
 
-These entries are outside the active queue until their named trigger appears.
+- [See the relevant changelog while updating](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — when manually reading release notes obstructs an actual update. Notes remain source material, not installed history.
+- [Extract plan execution with its required CI support](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — when a real execution task or repeated borrowing needs the complete script-supported flow.
 
-- [Replace equivalent local guidance when updating Open Dough](seeds/SEED-004-extract-and-adopt-project-guidance.md#replace-equivalent-guidance-on-update) — when another concrete match or recurring manual cleanup justifies one bounded replacement.
-- [Adopt shared guidance while preserving useful local differences](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-local-behavior-during-replacement) — when a real useful local difference blocks adoption; preserve it and report the gap meanwhile.
-- [See the relevant changelog while updating Open Dough](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — when manually reading release notes obstructs an actual update.
-- [Extract reusable plan execution with its CI monitor and supporting scripts](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — when repeated borrowing or a selected skill makes the complete execution/monitoring flow necessary.
+## Parked ideas
 
-## Ordering decision — accepted 2026-09-07
+- [Shared-branch collaboration experiment](seeds/SEED-002-trunk-based-multi-agent-collaboration.md) — when actual interdependent parallel work exposes a coordination problem. No agent mailbox or coordination infrastructure before that experiment.
+- [Learn from client retrospective feedback](seeds/SEED-005-dear-do-retrospective-feedback-mailbox.md) — when useful version-specific reports arise from installed client use. Begin with existing project records and voluntary reporting; no installed mailbox or listener by default.
 
-The owner selected the order above: first real Donut use, one practical planning
-extraction, then remaining readiness and separately authorized cleanup. Removal
-is not a prerequisite for learning. If the first task shows no benefit, revisit
-the remaining adoption priority rather than treating migration as inevitable.
+## Review coverage — 2026-09-07
 
-Plan 015 completed the first real Donut task in Codex. Story 2b has no
-execution plan yet. Plans 016–017 still need just-in-time planning review
-under their revised scopes.
+Reviewed every seed and every unfinished story, plus the three unexecuted
+changelog/adoption/update plans. Completed delivery evidence is retained.
+The surviving work is grouped below; removed scopes and obsolete plan fragments
+are deleted rather than retained as cancelled work.
+
+| Area | Result |
+| --- | --- |
+| Installation/update | New Story 7 closes the gap between the proposed contract and current delivery; changelog presentation stays deferred. |
+| Donut adoption | One-time preparation, caller repair, and useful native use form one outcome; a real newer-release update is prioritized immediately afterward. |
+| Extraction | Story refinement and decomposition remain useful; release and ordinary self-update are part of their outcomes. Complex execution support stays deferred. |
+| Other existing clients | A finite adoption story handles named projects individually, with shared changes made before release. |
+| Oversized plans | The useful feedback is included in story decomposition, without a separate seed or feature. |
+| Collaboration and feedback | Retained as parked ideas with concrete triggers and no new default client machinery. |
+
+This order follows the owner's latest direction: the successful real-client
+path takes priority over more extraction. This commit changes planning and ADR
+proposals, not releases, installed guidance, or client files.
 
 ## Recently done
 
