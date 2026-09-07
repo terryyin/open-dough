@@ -32,17 +32,29 @@ grep -qx "install ${cursor_dest}" "${trace_file}"
 grep -qx "apply-install ${cursor_dest}" "${trace_file}"
 
 printf '%s\n' 'harmless local skill edit' >> "${cursor_dest}/SKILL.md"
+cursor_skill_root=$(dirname -- "${cursor_dest}")
+obsolete_recognition="${cursor_skill_root}/dough-adr-awareness/RECOGNITION.md"
+printf '%s\n' 'obsolete recognition' > "${obsolete_recognition}"
 git -C "${fixture}" checkout --quiet main
 printf '%s\n' 'untagged-source-change' >> "${fixture}/BRANCH_HEAD"
 commit_all "${fixture}" 'untagged source change after install'
 
-skill_mtime=$(file_mtime "${cursor_dest}/SKILL.md")
-record_mtime=$(file_mtime "${cursor_dest}/VERSION")
-chmod a-w "${cursor_dest}/SKILL.md" "${cursor_dest}/VERSION"
+equal_version_paths=(
+  "${cursor_dest}/SKILL.md"
+  "${cursor_dest}/VERSION"
+  "${cursor_skill_root}/dough-adr-awareness/SKILL.md"
+  "${obsolete_recognition}"
+)
+equal_version_mtimes=()
+for selected_path in "${equal_version_paths[@]}"; do
+  equal_version_mtimes+=("$(file_mtime "${selected_path}")")
+done
+chmod a-w "${equal_version_paths[@]}"
+equal_version_before=$(snapshot_path_state "${cursor_skill_root}")
 : > "${trace_file}"
 output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
   --platform cursor)
-chmod u+w "${cursor_dest}/SKILL.md" "${cursor_dest}/VERSION"
+chmod u+w "${equal_version_paths[@]}"
 [[ "${output}" == *'already current'* ]]
 [[ "${output}" == *'no installer invocation or installed-file writes'* ]]
 [[ "${output}" == *'v0.1.10'* ]]
@@ -52,10 +64,14 @@ if grep -q '^install ' "${trace_file}"; then
   exit 1
 fi
 grep -Fq 'harmless local skill edit' "${cursor_dest}/SKILL.md"
-skill_mtime_after=$(file_mtime "${cursor_dest}/SKILL.md")
-record_mtime_after=$(file_mtime "${cursor_dest}/VERSION")
-[[ "${skill_mtime_after}" == "${skill_mtime}" ]]
-[[ "${record_mtime_after}" == "${record_mtime}" ]]
+grep -Fxq 'obsolete recognition' "${obsolete_recognition}"
+equal_version_after=$(snapshot_path_state "${cursor_skill_root}")
+[[ "${equal_version_after}" == "${equal_version_before}" ]]
+for index in "${!equal_version_paths[@]}"; do
+  selected_path=${equal_version_paths[${index}]}
+  selected_mtime_after=$(file_mtime "${selected_path}")
+  [[ "${selected_mtime_after}" == "${equal_version_mtimes[${index}]}" ]]
+done
 assert_sentinels "${target}"
 
 older_dest="${target}/.agents/skills/dough-update"
