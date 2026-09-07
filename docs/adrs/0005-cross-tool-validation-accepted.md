@@ -10,73 +10,93 @@
 
 ## Context
 
-Open Dough must work natively in Codex, Cursor, and Claude Code. Model-backed
-validation is expensive; preserve independent native evidence while minimizing
-execution through broad inexpensive tests and deliberate backlog planning.
+Open Dough must work in Codex, Cursor, and Claude Code. Use representative native
+checks and reusable evidence to limit validation cost.
 
 ## Decision
 
-### 1. Run broad inexpensive coverage in CI
+### 1. Test Open Dough's responsibilities
 
-Maintain one shared behavioral source with minimal platform adapters. Run real
-installer/update operations, policy/error matrices, payload/reference checks,
-and preservation/coexistence assertions in credential-free CI. Test runner
-failures, evidence selection, and assessors with substitute agent processes and
-recorded good/bad outputs. Keep the full cheap suite until measurements justify
-selection or sharding. Treat runtime-consumed Markdown as product content.
+- Test our installation, tool integration, and intended skill behavior. Do not
+  test general agent competence or build a conformance suite for vendor skill
+  systems.
+- Use representative skills to verify each shared integration mechanism on all
+  three tools. Cover discovery, invocation/application, and an intended outcome;
+  include installation, updating, and coexistence where affected.
+- Reuse each tool's integration evidence for skills using the same mechanism.
+  Add integration cases only for materially different mechanisms or invalidated
+  evidence, such as a new discovery path or activation mode. Do not create a
+  separate integration suite for every skill.
+- Test each skill's own behavioral requirements. Shared integration evidence
+  does not prove another skill's behavior. Define shared cases once; select
+  native runs by unresolved risks, without requiring every case on every tool.
+- Record evidence or justified reuse for each affected requirement on each tool.
+  Do not infer one tool's success from another's. Leave missing proof pending.
 
-Do not count static validation, file copying, transcript replay, or direct model
-API calls as native behavioral evidence.
+### 2. Keep deterministic checks in CI
 
-### 2. Plan native acceptance as dedicated backlog stories
+- Maintain one shared behavioral source with minimal platform adapters.
+- Run real installer/update operations, policy/error cases, payload/reference
+  checks, and preservation/coexistence checks without agent credentials.
+- Test maintained runner and assessment logic with substitute processes and
+  recorded good/bad outputs. Test shared logic once and adapter differences per
+  tool; do not repeat every scenario and counterexample across all tools.
+- Treat runtime-consumed Markdown as product content. Check intended behavior,
+  allow equivalent phrasing, and test prose assessors with paraphrases. Use exact
+  matching only for explicit contracts such as payload bytes or required markers.
+- Do not count static checks, file copying, transcript replay, or direct model
+  API calls as native behavioral evidence.
 
-Exclude native behavioral acceptance from most implementation stories' criteria.
-Let those stories finish when their stated functional and inexpensive automated
-criteria pass. Track outstanding native claims in linked, dedicated product
-backlog stories; implementation completion does not imply native acceptance.
+### 3. Track native acceptance separately
 
-Use native acceptance stories to validate several completed stories together,
-or to prove a specific feasibility question before detailed implementation.
-Give each one a named outcome, covered stories or hypothesis, required platforms,
-representative cases, applicable prior evidence, and explicit completion criteria.
-Prioritize feasibility stories before dependent implementation and consolidated
-acceptance stories before releasing the affected behavior.
+- Let implementation stories finish when their functional and inexpensive test
+  criteria pass. Track outstanding native requirements in linked acceptance
+  stories; do not mark them passed with implementation completion.
+- Give each acceptance story an outcome, covered work or feasibility question,
+  required tools, representative cases, reusable evidence, and completion criteria.
+- Resolve feasibility questions before dependent implementation. Combine native
+  acceptance for completed work where practical, and complete it before releasing
+  affected behavior.
+- Assign each affected requirement to an acceptance story or justified reusable
+  proof. Keep integration coverage separate from skill behavior coverage. Do not
+  require a full tool-by-skill-by-scenario matrix.
 
-Assign every affected native claim to an acceptance story or justified reusable
-proof. Cover discovery, invocation/application, and intended behavior separately
-in Codex, Cursor, and Claude Code; include installation, updating, and coexistence
-where affected. A limited proof of concept establishes only its stated scope.
-Choose cases by distinct unresolved risks, not every deterministic variation.
+### 4. Run and assess only the checks needed
 
-### 3. Automate execution and assessment with minimal human intervention
+- Automate repeatable setup, execution, cleanup, and reporting. Use isolated
+  fixtures and fresh sessions where prior context could hide discovery failures.
+- Use the native tool interface and prompts that do not supply expected answers.
+  Require loading/invocation evidence and the intended outcome. Do not accept
+  self-report or exit 0 as sufficient proof.
+- Automate reliable state and behavior checks; test assessors against
+  counterexamples. Where prose cannot be assessed reliably with a small check,
+  review it against explicit expectations and record the supporting evidence.
+  Leave unresolved outcomes inconclusive.
+- Bound execution and retries. Retain failures; do not rerun until green.
+- Keep update followed by fresh use as one journey unless separate execution
+  serves a concrete need. Add selection, dependency tracking, or review machinery
+  only when needed to run or maintain the chosen checks.
 
-Automate setup, native execution, assessment, cleanup, and reporting. Use isolated
-fixtures and fresh sessions where prior context could hide discovery failures.
-Test through the actual native interface with prompts that do not supply the
-expected answer. Require native loading/invocation evidence and the intended
-behavioral outcome; self-report or exit 0 alone is insufficient.
+### 5. Retain and reuse evidence
 
-Validate automated assessors against counterexamples. Use human judgment for
-unresolved outcomes; keep them inconclusive until resolved. Bound retries and
-retain failures rather than rerunning until green.
-
-### 4. Retain and reuse relevant evidence
-
-Record each claim's result, tested candidate, platform/runtime, relevant test
-inputs, and decisive evidence. Reuse proof when relevant guidance, adapters,
-helpers, fixtures, and runtime conditions remain applicable. Reassess saved
-artifacts before spending on new sessions. Revalidate affected claims when inputs
-change or evidence is insufficient; shared changes can affect all three hosts.
-Keep missing validation pending and distinguish reused proof from fresh execution.
+- Save the requirement, result, candidate, tool/runtime, relevant inputs, and
+  decisive evidence. For shared integration proof, identify the mechanism and
+  representative skill.
+- Review saved evidence before running new sessions. Record why reuse applies
+  to the current guidance, adapters, helpers, fixtures, and runtime conditions.
+  A documented review is sufficient; an automated reassessment interface is
+  optional.
+- Preserve original evidence and record later judgments with reasons.
+  Distinguish reused proof from fresh execution.
+- Revalidate requirements whose evidence is invalidated or insufficient. An
+  instruction edit may invalidate behavior proof while leaving installation
+  and discovery proof applicable. Check the effect on all three tools.
 
 ## Consequences
 
-- Implementation stories can finish before native validation; linked acceptance
-  stories keep the remaining obligations visible at backlog level.
-- Release affected behavior only after its required native claims pass or have
-  justified reusable evidence. Missing or skipped validation remains pending.
-- Maintain selection mappings and automated assessors as tested assets; retain
-  research and execution details outside this ADR.
+Release affected behavior only when required native checks pass or have justified
+reusable evidence. Keep missing validation pending. Store execution details and
+reuse decisions in acceptance stories or evidence records, not in this ADR.
 
 ## Related
 

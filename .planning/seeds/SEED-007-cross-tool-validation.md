@@ -4,34 +4,31 @@ status: active
 planted: 2026-09-07
 planted_during: Story 7 refinement follow-up on repeated native validation
 trigger_when: Improve existing tests under ADR 0005; reconsider stories before revisiting old plans
-scope: Existing test migration and minimal runner support
+scope: Representative integration checks, shared behavior checks, and minimal evidence retention
 ---
 
 # SEED-007: Deliver trustworthy cross-tool acceptance with fewer native runs
 
-## Outcome
+## Outcome and boundaries
 
-Maintainers can finish implementation stories with inexpensive feedback, then
-validate related changes through dedicated native acceptance stories. Each native
-result is trustworthy, retained, and reused where applicable across Codex,
-Cursor, and Claude Code.
+Follow [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Use representative skills to qualify shared integration mechanisms on Codex,
+Cursor, and Claude Code. Reuse that per-tool evidence for similar skills; add
+integration cases only for different mechanisms or invalidated evidence.
+Keep skill behavior checks separate. Do not test general vendor skill behavior
+or require every product scenario on every tool.
 
-Follow [Accepted ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
-The [migration assessment](../research/adr-0005-migration-assessment.md) confirms
-both plan/test changes and small runner improvements are needed. Preserve the
-existing cheap CI suite and real native interfaces. Research and alternatives
-remain in [the research report](../research/cross-tool-validation.md).
+Extend existing tests and keep useful deterministic coverage. Test shared logic
+once and adapter differences separately. Retain completed evidence with its
+original scope; do not certify it by copying or relabeling it. Keep missing
+native evidence pending per tool. Internal tooling is not installed in clients.
 
-## Boundaries
-
-- Extend the existing tests; no new test platform, provider service, approval
-  gate, paid schedule, evidence database, or general impact-analysis engine.
-- Keep all three platforms' native claims visible. Cheap test success and an
-  implementation story's completion do not close a native acceptance story.
-- Preserve completed historical evidence; assess its relevance without rewriting
-  earlier outcomes. Internal test infrastructure is not installed in clients.
-- Keep genuine client adoption/use in its own outcome stories. Moving general
-  validation must not remove the useful work promised to the client.
+Do not build an offline reassessment interface, dependency graph, review workflow,
+judge model, evidence database, or new test platform. Review saved artifacts and
+record applicability manually. Preserve genuine client adoption/use outcomes.
+The earlier [migration assessment](../research/adr-0005-migration-assessment.md)
+and [research](../research/cross-tool-validation.md) are background, not additional
+acceptance criteria.
 
 ## Stories
 
@@ -39,254 +36,157 @@ remain in [the research report](../research/cross-tool-validation.md).
 
 ### 1. Run one needed native check without replaying or losing the others
 
-**Status:** Refined; [slice plan written](../quick/020-select-and-retain-native-checks/PLAN.md), not implemented.
-**Type:** Test tooling. **Dependency:** Existing native cases; no slice-plan migration prerequisite.
+**Status:** In progress. Plan 20 leaves 1–5 and plan 22 leaf 1 are done.
+**Type:** Test tooling.
+**Plans:** [20](../quick/020-select-and-retain-native-checks/PLAN.md) then
+[22](../quick/022-retain-native-evidence-for-verdicts/PLAN.md).
 
-**Goal:** A maintainer can choose one existing native check, inspect what it
-would run, and keep enough evidence to revisit its result without paying for
-unrelated sessions. This readies the codebase for ADR 0005's deliberate native
-acceptance and evidence reuse; it does not establish native acceptance itself.
+**Scope:** Keep implemented context selection, retention, execution bounds,
+launch-failure handling, and stream completeness. Add one combined native
+update→fresh-use journey through each existing delivery wrapper. Use inspected
+bootstrap and a real newer tagged fixture, then a fresh session on that updated
+target. Keep both stages in one retained attempt. Use the existing
+`delivery/updated-use` selector; do not implement separate update/refusal selectors.
 
-**Scope:** Extend only the three existing ADR delivery wrappers and the
-clear/conflict context checks. Add a small shared case inventory, necessary
-fixture/dependency selection, bounded execution, and durable local per-attempt
-results. Preserve the current credential-free default tests and explicit native
-opt-in. Record candidate identity, actual platform/runtime, relevant inputs,
-execution outcome, assessment, and decisive artifacts outside disposable scratch.
-Retain failed attempts as well as successes, without automatic retries.
+**Acceptance:**
 
-Allow a saved attempt to be reassessed without starting an agent. Record the
-current assessor and an explicit applicability judgment; do not infer reuse from
-a matching case name or green exit. Missing observations or changed relevant
-inputs leave the current claim pending. Keep original evidence and earlier
-assessments intact. Manual impact judgment is enough; reuse is a recorded
-decision, not an automatic cache hit.
+- Listing and selection launch only the requested implemented check. Unsupported
+  selections fail before setup and remain clearly identified as unavailable.
+- Retain candidate, runtime, relevant inputs, raw output/events, responses,
+  execution status/reason, and decisive state observations after scratch cleanup.
+  Keep failures and earlier attempts; report the result path.
+- Keep completed timeout, launch-failure, and stream-completeness checks. Reuse
+  shared supervision for delivery; do not repeat its failure matrix per stage.
+- Run update then fresh use on the same verified installation, without native
+  legacy refusal. Failed update starts no use. Retain each stage's evidence and
+  preservation observations; a final payload alone does not prove the transition.
+- Prove shared journey behavior once with real local installer fixtures and
+  substitutes. Check routing, runtime identity, and stream differences per tool.
 
-**Key examples:**
+**Excluded:** Separate delivery-stage execution, dependency attempt IDs,
+automated reassessment/reuse, prompt/assessment repair, native runs, skill or
+installer changes, client adoption, and releases.
 
-- **E1 — Select:** Given existing cases and saved results, listing shows each
-  case's host, purpose, required setup/dependencies, and prior evidence with its
-  applicability status, without invoking any agent (including version probes).
-  Selecting `context/clear` for Cursor launches no Codex, Claude Code, conflict,
-  or delivery session. An unknown case fails before native execution.
-- **E2 — Preserve:** Given a completed selected attempt, scratch cleanup leaves
-  its result, raw output/events, decisive state observations, and input/runtime
-  identity readable at the reported result path. A later failed attempt cannot
-  overwrite it. Cursor's runtime is Cursor Agent, not the editor version.
-- **E3 — Bound failure:** Given a hung process, missing executable, denied
-  operation, or truncated stream, the selected attempt ends nonpassing with its
-  reason and available evidence retained. A hung process and its owned children
-  stop within the configured timeout plus cleanup grace; no retry starts and
-  previous attempts survive. Exercise these paths with substitutes in CI.
-- **E4 — Reassess:** Given complete saved evidence, applicable inputs/runtime,
-  an explicit reuse rationale, and a revised assessor, reassessment adds a
-  result without a native call. Changed relevant guidance, adapter, helper,
-  fixture, or runtime conditions, or missing required evidence, leave reuse
-  pending with a reason. Old wording-based success cannot acquire stronger
-  native claims merely by being retained.
-- **E5 — Keep the journey real:** Given selection of updated use, perform the
-  necessary verified update and start fresh use against that same resulting
-  installation. Do not run the unrelated legacy-refusal session. If the update
-  fails, retain that failure and mark dependent use unrun/pending. A copied final
-  payload or a saved transcript alone cannot stand in for the update transition.
-
-**Exclusions:** No prompt/semantic-assessor repair (Story 2), new native cases,
-native sessions or qualification (Story 3), old-plan reconciliation (Story 4),
-installer/updater changes, client adoption, guidance extraction/installation,
-or release. No evidence database, general cache/impact engine, archived-workspace
-restoration, scheduling service, broad harness migration, or new OS support.
-
-**Open questions:** None that block this scope. Exact result-file layout and
-command spelling are local implementation choices within the slice plan.
-
-**Completion evidence:** Selected-case and reassessment demonstrations plus
-passing credential-free failure/reuse tests for Codex, Cursor, and Claude Code
-adapters. Preserve the broad cheap CI suite. All affected native discovery,
-invocation/application, behavior, install/update, and coexistence claims remain
-pending in [Story 3](#accept-standalone-client-workflow), separately per platform.
-No earlier proof is newly certified by this refinement.
+**Completion:** Plans 20 and 22 pass their cheap checks. Story 3 owns outstanding
+native evidence per tool. Completing plan 20 alone does not complete this story.
 
 <a id="trust-native-verdicts"></a>
 
 ### 2. Detect native behavior failures instead of rewarding the expected words
 
-**Status:** Refined; [slice plan written](../quick/021-trust-native-verdicts/PLAN.md), not implemented.
-**Type:** Test migration. **Dependency:** Story 1's retained artifacts and offline assessment boundary; no old-plan reconciliation prerequisite.
+**Status:** Planned; scope reduced under ADR 0005.
+**Type:** Test migration.
+**Dependency:** Story 1's retained context and combined journey evidence.
+**Plan:** [21](../quick/021-trust-native-verdicts/PLAN.md), after 20 and 22.
 
-**Goal:** A maintainer can see the existing checks reject misleading evidence
-and identify uncertain outcomes using inexpensive tests, before spending on
-native acceptance. This readies the codebase for honest ADR 0005 validation;
-it does not certify the guidance or the native harnesses themselves.
+**Scope:** Remove coaching and incidental wording assertions from existing ADR
+context and delivery checks. Define shared expectations for clear ADR use,
+unresolved authority, legacy refusal, and update followed by fresh use. Keep
+small automated activation/state checks; document prose expectations for review
+when reliable automation would require a semantic parser.
 
-**Scope:** Migrate only the existing clear/conflict context checks and the three
-delivery wrappers' legacy-refusal, ordinary-update, and updated-use cases. Give
-agents ordinary task requests with the information needed to act, while keeping
-expected conclusions, discovered contract facts, and prescribed answer wording
-in test expectations. Keep skill names for these existing explicit invocations;
-they do not prove automatic discovery.
+**Acceptance:**
 
-Assess Story 1's retained execution events, response, and state observations
-together. Require evidence of the selected installed guidance's native activation
-and the case's intended outcome; neither self-report nor exit 0 is enough.
-Recognize evidenced native skill expansion without insisting on a separate shell
-read. Keep shared case assertions with only necessary host event adapters.
-Test positive, negative, and inconclusive evidence offline for each host, and
-use the same assessor for fresh attempts and saved attempts.
+- Clear/conflicting ADR fixtures receive the same ordinary task request. Update
+  and fresh-use prompts do not reveal expected conclusions or facts to repeat.
+- Require complete execution, supported activation of the installed copy,
+  intended behavior, and observed state for a pass. Self-report, an attempted
+  read/call, or a completion marker alone cannot establish activation.
+- Preserve exact payload/version and protected-state checks. Keep legacy refusal
+  as a shared product check, without a new refusal integration matrix.
+- Test shared behavior and counterexamples once. Test only decoding differences
+  per tool. Equivalent instruction/response phrasing must not fail incidental
+  text assertions; quotations, negations, and contradictory advice cannot pass
+  merely by containing expected words.
+- Keep definite failures nonpassing and uncertain prose/events inconclusive.
+  Record later review with reasons and evidence without overwriting the original
+  result. A documented review is sufficient.
 
-Keep definite execution/contract failures nonpassing. Leave insufficient or
-ambiguous evidence inconclusive with a reason; a human can record an
-evidence-linked resolution using Story 1's result trail. Preserve the original
-assessment and failures. Do not automatically retry, launch a judge model, or
-weaken the test to obtain a pass.
+**Excluded:** General language grading, per-case/per-tool counterexample
+matrices, offline assessment commands, reviewer workflow, runner redesign, new
+native mechanisms/cases, skill/installer changes, native runs, and releases.
 
-**Key examples:**
-
-- **E1 — Discover the answer:** Given the clear and conflicting context fixtures,
-  the same request asks how two backend instances should share login sessions.
-  It does not reveal status agreement, disagreement, Redis, or the required
-  conclusion. Reviewed evidence of following the accepted decision passes the
-  clear case; proceeding despite unresolved conflicting authority does not pass
-  the conflict case. A legitimate conditional explanation while stopping for
-  human resolution is not mistaken for proceeding.
-- **E2 — Prove activation:** Given complete evidence of the correct installed
-  skill's successful native loading/expansion and correct behavior, assessment
-  can pass without a redundant file-read command. A response saying it invoked
-  the skill, a requested/failed read, or loading another copy cannot establish
-  activation. Missing evidence remains inconclusive; it is never inferred from
-  a printed invocation/completion marker alone.
-- **E3 — Observe the delivery outcome:** Given the existing incompatible legacy
-  installation, an ordinary update request does not disclose the mismatch or
-  instruct refusal. Evidence must show the contract-based refusal and unchanged
-  target/source. Given the existing bootstrapped newer-release journey, a success
-  claim after a failed update or with wrong installed bytes cannot pass; the
-  verified update and fresh use must concern the same resulting installation.
-  The use prompt does not reveal the catalog disagreement or its status values.
-- **E4 — Reject misleading evidence:** Given responses containing expected words
-  in a quotation, negation, or contradictory recommendation, assessment does
-  not pass on those words. Missing terminal evidence or changed protected files
-  also prevents a pass despite a convincing final response. Positive variants
-  and counterexamples exercise Codex, Cursor, and Claude Code adapters in CI.
-- **E5 — Preserve uncertainty:** Given a potentially valid response or native
-  event form the assessor cannot establish, offline assessment reports
-  inconclusive and identifies the missing/ambiguous evidence. A later human
-  resolution references that attempt and records its reason without overwriting
-  the automated result, certifying stale evidence, or starting a native session.
-
-**Exclusions:** No additional native scenarios or automatic-activation cases,
-edited-equal/forced-update expansion, actual native sessions or qualification
-(Story 3), runner selection/retention/supervision redesign (Story 1), old-plan
-reconciliation (Story 4), updater/installer or skill changes, client adoption,
-guidance extraction/installation, or release. No general natural-language judge,
-evaluation service, review UI, evidence database, or broad harness migration.
-
-**Open questions:** None that block refinement or planning. Story 1 is still
-unimplemented; its delivered artifact interface must be used at execution time.
-Unknown native event forms are inconclusive, not a reason to broaden this story.
-
-**Completion evidence:** Revised prompts and passing credential-free positive,
-counterexample, and inconclusive tests through the existing selected-case and
-offline assessment entry points for all three adapters. Preserve the broad cheap
-CI suite. Native discovery, invocation/application, behavior, affected
-installation/update/coexistence, and qualification of the changed assessors stay
-pending separately for Codex, Cursor, and Claude Code in
-[Story 3](#accept-standalone-client-workflow). Historical observations remain
-historical; this refinement certifies no new or reused native proof.
+**Completion:** Plan 21's shared checks and small adapter tests pass. Actual
+native evidence remains with Story 3; coached historical results gain no new claim.
 
 <a id="accept-standalone-client-workflow"></a>
 
 ### 3. Establish that the standalone client candidate works in all three tools
 
-**Status:** Pending native acceptance; not selected for execution.
-**Type:** Native behavioral acceptance.
-**Dependencies:** Stories 1–2 and a relevant candidate from the reconsidered
-standalone updater story. Define its current native claims when refining this
-acceptance story; neither old slice-plan updates nor publication are dependencies.
+**Status:** Pending refinement and native acceptance; not selected for execution.
+**Type:** Native acceptance.
+**Dependencies:** Stories 1–2 and a named candidate from the reconsidered
+standalone updater story. Publication and old-plan reconciliation are not prerequisites.
 
-**Value:** The maintainer can release the changed client workflow on independent
-native evidence while qualifying the migrated tests in the same useful batch.
+**Scope:** Review prior per-tool evidence first. Select only unresolved checks:
+representative installed skill use and a combined update→fresh-use journey on
+each tool where applicable proof is missing. Record the integration mechanism
+and justify reuse for similar skills. Select additional skill behavior cases only
+for unresolved product risks; keep deterministic policy/error variants in CI.
+Quick 019 is historical input, not a required scenario list.
 
-**Scope:** Refine prepublication native claims from the reconsidered product
-story. Use Quick 019 leaves 9a–11d only as historical input, not fixed scope. Assess earlier standalone ADR-use evidence for valid reuse; execute
-only unresolved representative cases against one identified candidate. Keep the
-full helper-policy matrix in cheap tests. Local tagged fixtures may establish
-update transitions without manufacturing another public release.
+**Acceptance:**
 
-**Acceptance scenarios:**
+- Record native discovery, invocation/application, and intended behavior per
+  tool, with installation/update/coexistence where affected. Distinguish explicit
+  invocation from automatic application; test the latter only where promised
+  and unsupported by applicable evidence.
+- Verify a real update and fresh use on the resulting installation, preserving
+  unrelated guidance and other tool roots. Local tagged fixtures are sufficient;
+  do not publish a release solely to create the transition.
+- Review changed ADR behavior and updater decision boundaries against the actual
+  candidate. Add clear/conflict, edited-equal, force, or refusal native cases only
+  when an unresolved risk requires them, not as a mandatory matrix.
+- Save actual outcomes, loading evidence, candidate/runtime, and any review
+  judgment. Label reused evidence with its scope and applicability. Keep unknown
+  or failed requirements pending. Do not qualify the vendor's general skill system.
+- Before release, check that the candidate still matches the relevant tested
+  inputs and revalidate only affected requirements. Leave released self-adoption
+  and real client work with their product stories.
 
-- Given a fresh installation with its source unavailable, the installed guidance
-  is discovered and used correctly, with explicit and automatic activation where
-  promised. Include uncoached clear/conflict cases where Story 2's changed
-  assessments lack applicable evidence. Record separate evidence for Codex,
-  Cursor, and Claude Code.
-- Given a verifiable bootstrapped installation and a newer tagged fixture,
-  ordinary native update uses the saved source without a URL or force, installs
-  the correct payload/records, and makes the improvement usable in a fresh
-  session. Preserve unrelated guidance, other tool roots, and reviewable changes.
-- Given an edited-equal installation, ordinary native update refuses without
-  writes or automatic force. Given explicit force, it replaces only the selected
-  managed payload with verified latest content. Use each as a distinct decision
-  boundary; do not replay every cheap refusal variation natively.
-- Given all results, record actual loading, outcomes, runtime/candidate identity,
-  and any human resolution per platform. Unknown or failed claims keep this story
-  pending. Reused evidence is labeled with its applicability rationale.
-- Given publication preparation, check that the release candidate still matches
-  the relevant tested inputs. Reassess changes rather than replaying the whole
-  batch. Actual released self-adoption remains with the source client story.
+**Completion:** Resolve each required per-tool claim through evidence or justified
+reuse. Qualification covers the chosen mechanisms and behavior only.
 
-**Completion evidence:** The per-platform matrix below is resolved, with retained
-artifacts and measured run/exception information. This also supplies native
-qualification for Stories 1–2's changed adapters and assessments on the covered
-cases; it does not imply support for untested UI or operating-system surfaces.
-
-| Platform | Discovery / activation / behavior | Affected install / update / coexistence |
+| Platform | Integration evidence | Skill behavior evidence |
 | --- | --- | --- |
-| Codex | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
-| Cursor | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
-| Claude Code | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
+| Codex | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
+| Cursor | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
+| Claude Code | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
 
 <a id="separate-native-acceptance"></a>
 
 ### 4. Reconcile retained plans after reconsidering their stories
 
-**Status:** Deferred until underlying stories are reconsidered. **Type:** Planning migration.
+**Status:** Deferred until underlying stories are reconsidered.
+**Type:** Planning migration.
 
-**Value:** A maintainer can tell what can finish now, what still needs native
-proof, and what blocks publication without replaying checks in every story.
+**Scope:** Reconsider SEED-001 Story 7, SEED-004 Stories 5–8, and SEED-006
+Stories 3–4. Retire obsolete plans; update only retained plans. Keep useful client
+outcomes and completed evidence. Do not recreate a per-skill integration matrix.
+This story does not block Stories 1–3 or the current updates to plans 20, 22, and 21.
 
-**Scope:** Reconsider SEED-001 Story 7, upcoming SEED-004 Stories 5–8, and
-SEED-006 Stories 3–4 before deciding which plans remain relevant. Update only
-retained plans against the revised stories and native acceptance ownership;
-retire obsolete plans rather than polishing them. Keep useful client outcomes
-and completed evidence. This work comes last and does not block test tooling,
-assessor migration, or native-story refinement.
+**Acceptance:**
 
-**Acceptance scenarios:**
+- Separate implementation completion from pending native acceptance. Link each
+  retained requirement to an acceptance story or applicable reusable evidence.
+- Reuse integration proof for the same mechanism and tool. Give different
+  mechanisms and unresolved skill behavior their own bounded checks.
+- Preserve actual Donut/client adoption and postpublication use. Candidate
+  acceptance does not depend on a future released installation.
+- Do not credit future extracted guidance with another skill's behavioral proof.
+  Keep missing per-tool evidence visible without duplicating acceptance matrices
+  in every plan.
 
-- Given an existing slice plan, reconsider its story first. If the plan is
-  obsolete, retire it; if retained, align its native claims with the revised
-  story or reusable proof without duplicating the native acceptance matrix.
-- Given implementation work whose stated criteria pass, it can finish while its
-  linked native story remains pending. Publishing affected behavior still waits
-  for that native story; updating a status cannot silently remove the obligation.
-- Given postpublication self-adoption or Donut use, retain the actual useful
-  client outcome. The prepublication candidate check does not depend on that
-  future published installation.
-- Given a later extraction story with a different candidate, give its native
-  claims their own named follow-up at refinement; do not pretend Story 3 proves
-  guidance that does not exist yet. No orphaned pending claims remain in the
-  migrated planning scope.
-
-**Completion evidence:** Updated backlog, criteria, and claim-to-story map for
-all three platforms; no native execution needed for this planning change.
+**Completion:** Updated retained stories/plans and evidence links. No native run
+is required for this planning work.
 
 ## Order and completion
 
-Start with Stories 1–2 to improve tests and infrastructure. Refine Story 3
-against the current product outcome and candidate before native execution.
-Do Story 4 last, after reconsidering the underlying stories; update only plans
-that remain relevant. Existing slice plans are not being resumed. Backlog
-selection governs execution; this seed adds no separate native approval procedure.
+Execute **20 → 22 → 21**. Plans 20 and 22 deliver Story 1; plan 21 delivers
+Story 2. Plan 20's final checkpoint checks its own completed runner work and
+does not wait for plan 22. Preserve plan 22's completed leaf 1.
 
-Keep this seed until the migration stories and their native acceptance are
-complete. No test code, client installation, native run, or release is changed
-by this decomposition. Deferred research options are not additional criteria.
+Refine Story 3 against the actual candidate before native execution. Do Story 4
+last after reconsidering its underlying stories. Keep this seed until the scoped
+migration and native acceptance work is complete. Research options and removed
+plan leaves are not hidden completion requirements.

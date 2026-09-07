@@ -4,7 +4,9 @@
 
 Prioritize SEED-007's four test migration and native acceptance stories under
 [Accepted ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md). Improve
-the tests first; reconsider underlying stories before reconciling retained plans.
+the tests first in plan order **20 → 22 → 21**. Use representative per-tool
+integration evidence and shared skill behavior checks. Reconsider underlying
+stories before reconciling other retained plans.
 
 Then make the revised installation/update workflow work in a real client,
 beginning with Donut. Clients run `dough-update`, then review and commit changes.
@@ -16,10 +18,10 @@ matching, reconciliation, or recovery product.
 
 ## Queue
 
-1. [Run one needed native check without replaying or losing the others](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks) — SEED-007 Story 1. improve existing wrappers and failure/reuse coverage; no old-plan migration prerequisite.
-2. [Detect native behavior failures instead of rewarding the expected words](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts) — SEED-007 Story 2. neutral prompts and tested outcome assessors.
-3. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. refine against the reconsidered product story and actual candidate; also qualifies the migrated harnesses.
-4. [Reconcile retained plans after reconsidering their stories](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance) — SEED-007 Story 4. last; update only plans that remain relevant after story reconsideration. Existing plans will not be run as written.
+1. [Run one needed native check without replaying or losing the others](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks) — SEED-007 Story 1. Plans 20 then 22: keep completed runner safeguards and add one retained update→fresh-use journey; no offline reassessment interface.
+2. [Detect native behavior failures instead of rewarding the expected words](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts) — SEED-007 Story 2. Plan 21 after 22: neutral prompts, shared activation/state checks, and documented review for uncertain prose; no per-case/per-tool assessment matrix.
+3. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. review per-tool proof against the actual candidate; run only unresolved representative integration and skill behavior checks.
+4. [Reconcile retained plans after reconsidering their stories](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance) — SEED-007 Story 4. last; update only plans that remain relevant after story reconsideration. Other retained plans require revision before execution.
 5. [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001 Story 7. Finish remembered source/version and verified ordinary/forced updates; publish and self-use the smaller payload already implemented in source. Reconsider this story before planning execution; [Quick 019](quick/019-standalone-client-update/PLAN.md) will not be run as written. Reconcile any retained plan later in [SEED-007 Story 4](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance).
 6. [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3. Prepare the actual integrations, retain context, replace the borrowed original once, and use the installed guidance on real work.
 7. [Use a meaningful newer release through Donut's ordinary updater](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4. Do this as soon as a useful newer release exists; it takes priority over further extraction.
@@ -29,26 +31,27 @@ matching, reconciliation, or recovery product.
 
 Priority does not remove dependencies: item 3 needs a current candidate from
 the reconsidered product story. Item 4 stays last among the four migration
-stories and updates only plans retained after story reconsideration. See the
-[migration assessment](research/adr-0005-migration-assessment.md) for scope and
-pending evidence.
+stories and updates only plans retained after story reconsideration. Use [SEED-007](seeds/SEED-007-cross-tool-validation.md) for current scope and
+pending evidence. The earlier migration assessment is background only.
 
 ## Next-item readiness
 
-[SEED-007 Story 1](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks)
-is refined with no blocking product questions; its
-[slice plan](quick/020-select-and-retain-native-checks/PLAN.md) is written, not
-implemented. Leaf refinement is recommended for bounded supervision and delivery
-adapter integration. Scope is existing runner readiness only; native qualification
-remains in Story 3. Old-plan reconciliation is not a prerequisite.
+Execute these plans in order:
 
-[SEED-007 Story 2](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts)
-is also refined with no blocking product questions; its
-[slice plan](quick/021-trust-native-verdicts/PLAN.md) is written, not implemented.
-It prepares neutral prompts and evidence-backed assessors for the existing cases
-only, using Story 1's retained artifacts. Leaf refinement is recommended for
-the first activation integration and delivery verdict migrations. Native
-qualification remains in Story 3; no new native run or client work is included.
+1. [Plan 20](quick/020-select-and-retain-native-checks/PLAN.md): leaves 1–5 are
+   done. Finish its own runner checkpoint; it no longer waits for plan 22.
+2. [Plan 22](quick/022-retain-native-evidence-for-verdicts/PLAN.md): leaf 1 is
+   done. Add the shared update→fresh-use journey and small adapter checks. This
+   completes [Story 1](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks).
+3. [Plan 21](quick/021-trust-native-verdicts/PLAN.md): four planned leaves repair
+   shared activation, ADR behavior, combined update/use, and legacy-refusal
+   checks. Use the retained evidence; document review instead of building a prose
+   grading or reassessment system. This delivers
+   [Story 2](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts).
+
+Seven leaves remain across these plans, including plan 20's final checkpoint.
+Completed evidence is retained. Native acceptance stays in Story 3; no native
+run, client work, or release is part of these implementation plans.
 
 ### Later client-work readiness
 
@@ -69,9 +72,11 @@ The earlier Donut task assessment is complete. Its temporary Codex installation
 was subsequently removed, so inspect current Donut state before planning writes.
 Do not count that assessment as a retained adoption or a successful new update.
 Current source cleanup is recorded in Quick 018; this refinement claims no new
-release or revised version/source/integrity delivery. Codex, Cursor, and Claude Code each need their
-own affected discovery, invocation/application, behavior, install/update, and
-coexistence evidence. A native check in one application does not prove another.
+release or revised version/source/integrity delivery. Record fresh or justified
+reused evidence for affected discovery, invocation/application, behavior, and
+install/update/coexistence requirements per tool. Reuse representative integration
+proof for unchanged mechanisms; do not repeat it for every skill. One tool's
+success does not prove another's behavior.
 
 ## Deferred — promote on observed need
 

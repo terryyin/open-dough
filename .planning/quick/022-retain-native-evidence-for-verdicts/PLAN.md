@@ -1,237 +1,105 @@
-# Retain the native evidence needed for trustworthy verdicts
+# Retain evidence for a representative update and fresh use
 
-Status: in-progress. Extracted from Quick Plan 20 so its result boundary can be
-delivered independently. No native execution is part of this plan.
+Status: in-progress; leaf 1 done, leaves 2–3 planned.
+Order: **20 → 22 → 21**. Finish plan 20's checkpoint before continuing here.
 
-## Source
+## Scope
 
-- Extracted from the former leaves 6–16 of
-  [Quick Plan 20](../020-select-and-retain-native-checks/PLAN.md), within
-  [SEED-007 Story 1](../../seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks).
-- Direct prerequisite for
-  [Quick Plan 21](../021-trust-native-verdicts/PLAN.md), which must consume this
-  retained-artifact and reassessment interface rather than duplicate it.
-- Quick Plan 20 leaves 1–5 already provide the fixed case inventory, selected
-  context result layout, process ownership, timeout evidence, and retained
-  launch failures. Recheck those observable interfaces before implementation;
-  if absent or incompatible, stop and wait rather than rebuilding them.
-- [Accepted ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-  governs retained evidence, tested adapters, incomplete outcomes, and separate
-  native qualification. [Accepted ADR 0000 — Use ADRs](../../../docs/adrs/0000-use-adrs-accepted.md)
-  preserves human decision ownership. No conflict, exception, release, or ADR
-  status change is involved.
+Complete [SEED-007 Story 1](../../seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks)
+under [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Reuse [plan 20](../020-select-and-retain-native-checks/PLAN.md)'s runner and
+retention. Keep completed stream checks. Add one combined update→fresh-use
+journey, available through each tool's existing delivery wrapper.
 
-## Goal and scope
+Use `--case delivery/updated-use` for that journey: inspected bootstrap, real
+newer tagged fixture update, then a fresh session on the updated target. Omit
+the unrelated native legacy-refusal session. If update fails, retain its evidence
+and leave use unrun/pending. Keep legacy-refusal product checks in the existing
+cheap suite; plan 21 owns their assessment changes.
 
-Give Quick Plan 21 one stable, credential-free result boundary containing
-complete retained context and delivery evidence plus offline reassessment. A
-maintainer can run one existing selected case, preserve what execution and state
-actually showed, and reassess that saved attempt without another native call.
+Keep existing no-argument checks and full native journey entry points. Do not
+implement separate ordinary-update/refusal selectors; leave them explicitly
+unavailable and identify that in listing/usage. Reconcile selection tests with
+this reduced interface. Do not add dependency attempt IDs, saved-workspace
+restoration, offline reassessment, automatic reuse, or a review workflow.
 
-Implement only terminal-completeness classification for retained context
-attempts; selected legacy-refusal, ordinary-update, and updated-use delivery
-journeys for Codex, Cursor, and Claude Code; and append-only offline
-reassessment. Reuse Quick Plan 20's delivered inventory, context result layout,
-supervisor, fixtures, and exact update-to-use relationship.
+No installer/skill changes, new product cases, native runs, or releases.
 
-Exclude Quick Plan 20's missing/nonzero/denied launch matrix and timeout design,
-Quick Plan 21's activation and semantic verdict rules, new cases, native
-qualification, automatic retry/reuse, installer or skill changes, old-result
-migration, a review UI, and releases.
+## Evidence contract
 
-## Execution context and decisions
-
-- Use the fixed five cases per host: `context/clear`, `context/conflict`,
-  `delivery/legacy-refusal`, `delivery/ordinary-update`, and
-  `delivery/updated-use`.
-- Preserve distinct attempt paths, raw events/stdout/stderr, derived response,
-  execution status and reason, before/after state observations, input/runtime
-  identity, assessor identity, decisive artifact references, and dependency IDs.
-- Require a complete successful terminal stream before a fresh attempt can have
-  a behavioral assessment. Missing, truncated, or unknown completion evidence
-  is nonpassing and retained; this plan does not decide semantic correctness.
-- Ordinary update uses inspected bootstrap plus a real newer tagged fixture.
-  Updated use must consume that verified update's target and record its attempt
-  ID; a failed update leaves use pending and launches no use session.
-- Fresh and offline paths expose the same saved observations. Reassessment
-  appends a derived result with its assessor and applicability rationale without
-  changing the original attempt. Changed or missing relevant inputs remain
-  pending. Reassessment starts no agent, version probe, retry, or setup.
-- Keep host variation in native command/event adapters. Shared retention,
-  dependency, and reassessment behavior stays in one implementation.
-
-## Outside-in proof
-
-Drive the real selected-case and offline entry points with credential-free
-substitutes and reviewed recorded streams. Substitutes log every invocation.
-Use the real local installer and tagged fixtures for state/provenance proof;
-printing a success response is insufficient. Synthetic streams prove adapter
-contracts, not that native runtimes emit those forms.
-
-| Promise / observable proof | Owning leaves |
-| --- | --- |
-| Complete versus truncated/missing terminal evidence is retained and classified without semantic promotion | 1 |
-| Codex selected refusal, genuine update, and update-to-use dependency | 2–4 |
-| Cursor equivalents with Agent runtime and stream JSON | 5–7 |
-| Claude Code equivalents with success/failure stream retention | 8–10 |
-| Offline reassessment preserves originals, records applicability, and makes zero native calls | 11 |
-| Shared result boundary and unchanged default/full journeys | Every owning leaf; full cheap suite at completion |
-| Native discovery, invocation/application, intended behavior, install/update/coexistence | Pending independently in SEED-007 Story 3 |
+- Reuse distinct attempt directories. Save candidate and tool/runtime identity,
+  relevant inputs, raw streams/stdout/stderr, response, and execution status/reason.
+- Keep update and use artifacts as stages of one journey. Save enough observed
+  state to verify the real transition, the same target, and preserved source,
+  companion guidance, and other tool roots. Do not infer an update from final
+  bytes alone.
+- Apply existing bounds and failure retention to each native stage. Reuse the
+  supervisor; do not repeat its full failure matrix for every stage and tool.
+- Require complete successful execution before assessment. Retain missing,
+  truncated, or unknown completion evidence as nonpassing. Execution completion
+  alone does not establish behavior; plan 21 owns that decision.
+- Keep host differences in command/event adapters. Preserve failures through
+  cleanup and report the result path. Never retry automatically.
 
 ## Ordered slices
 
-Each leaf is a credential-free Behavior with one focused proof loop. The first
-delivery case establishes only shared mechanics needed by the immediately
-following cases; no preparatory framework slice is permitted.
-
 ### 1. Retain incomplete context execution without promoting it
+
 Type: Behavior
 Status: done
-Proof: Per-host complete, truncated, and missing-terminal recorded streams pass
-through the selected context entry point. Complete execution remains eligible
-for later assessment; incomplete evidence with exit 0 is retained as nonpassing
-with a reason and raw artifacts. Focused: `bash tests/native-stream-completeness.sh`.
 
-Behavior: Selected context command exits → inspect host terminal evidence →
-retain complete execution or an explicit incomplete result without deciding the
-case's semantic verdict.
+Recorded proof: `tests/native-stream-completeness.sh` exercises per-host complete,
+truncated, missing-terminal, and unknown streams through selected context runs.
+Incomplete exit-0 streams retain raw artifacts and remain nonpassing. Complete
+streams remain eligible only for the existing limited-wording assessment.
+Timeout and launch-failure statuses remain unchanged.
 
-Sizing: approximately five minutes, medium confidence; unknown event shapes
-stay incomplete rather than expanding the adapter contract.
+Keep `tests/support/native-run-stream.sh` and this evidence. Do not expand unknown
+vendor event shapes to invent successful completion.
 
-### 2. Retain only a selected Codex legacy refusal
+### 2. Retain the combined update and use journey
+
 Type: Behavior
 Status: planned
-Proof: The Codex wrapper runs only `delivery/legacy-refusal`, retains its attempt,
-and omits update/use calls. Default deterministic and full native journey entry
-points keep their behavior; shared setup cleanup does not delete the result.
 
-Behavior: Selected Codex legacy-refusal → set up its genuine legacy fixture and
-run the existing isolation path → retain that case alone.
+Implement shared journey retention through the Codex wrapper using the existing
+`delivery/updated-use` selector. Reuse genuine bootstrap/update fixtures, verify
+the update, and start fresh use on that target. Keep both stages in one attempt.
+Update usage and selection tests in the same leaf.
 
-Sizing: five–ten minutes, medium confidence; keep shared mechanics inside this
-first concrete delivery case.
+Proof: Through the real wrapper, substitutes perform a real local fixture update
+and emit recorded use evidence. Verify retained stage artifacts and state after
+cleanup. Failed update starts no use; failed use retains the successful update
+and use failure. The invocation log contains no legacy refusal or retry. Confirm
+existing supervisor bounds are wired into both stages without a new failure matrix.
 
-### 3. Retain a genuine selected Codex ordinary update
+### 3. Connect Cursor and Claude Code to the same journey
+
 Type: Behavior
 Status: planned
-Proof: The selected update runs inspected bootstrap and a real tagged fixture
-update, retains exact provenance/state, and omits refusal and use sessions.
 
-Behavior: Selected Codex ordinary-update → execute only its prerequisites and
-update → retain the verified transition.
+Use the shared journey with each host's command/event adapter. Record Cursor
+Agent identity and structured streams for both tools. Document the saved evidence
+needed for a manual applicability review; no reassessment command is required.
 
-Sizing: approximately five minutes, medium confidence; reuse leaf 2's path.
+Proof: One recorded successful journey per adapter verifies command routing,
+runtime identity, stream decoding, and retained artifacts. Use a small adapter
+failure/completeness check where decoding differs. Reuse shared transition and
+failure proofs from leaf 2; do not repeat all product scenarios per tool.
 
-### 4. Tie selected Codex updated use to its verified update
-Type: Behavior
-Status: planned
-Proof: Updated use runs after the verified update on the same target and records
-its dependency attempt ID. Failed update launches no use and retains pending use.
+## Completion and native evidence
 
-Behavior: Selected Codex updated-use → verified update then fresh use of that
-installation, or pending use when the update fails.
+Run focused cheap checks with each changed leaf, then `npm test` and
+`npm run lint` once at completion. Record results here. Complete Story 1 and
+hand the retained context/journey evidence to
+[plan 21](../021-trust-native-verdicts/PLAN.md).
 
-Sizing: approximately five minutes, medium confidence.
+| Platform | Existing cheap evidence | Remaining cheap proof | Native evidence |
+| --- | --- | --- | --- |
+| Codex | Context stream completeness, leaf 1. | Shared journey and retained stages, leaf 2. | Pending Story 3 review. |
+| Cursor | Context stream completeness and Agent identity. | Journey adapter, leaf 3. | Pending Story 3 review. |
+| Claude Code | Context stream completeness, leaf 1. | Journey adapter, leaf 3. | Pending Story 3 review. |
 
-### 5. Retain only a selected Cursor legacy refusal
-Type: Behavior
-Status: planned
-Proof: Cursor runs only the refusal case, retains stream JSON and response,
-records `cursor agent --version`, and leaves other tool roots unchanged.
-
-Behavior: Selected Cursor legacy-refusal → shared journey plus Cursor adapter →
-retain that attempt alone.
-
-Sizing: approximately five minutes, medium confidence; reuse context capture.
-
-### 6. Retain a genuine selected Cursor ordinary update
-Type: Behavior
-Status: planned
-Proof: Cursor runs only inspected bootstrap plus the genuine fixture update and
-retains Agent runtime, stream, exact state, and provenance.
-
-Behavior: Selected Cursor ordinary-update → verified update without a native
-refusal session → retain the transition.
-
-Sizing: approximately five minutes, medium confidence.
-
-### 7. Tie selected Cursor updated use to its verified update
-Type: Behavior
-Status: planned
-Proof: Cursor updated use records the verified update dependency and same target;
-failed update launches no use. Incomplete output uses leaf 1's gate.
-
-Behavior: Selected Cursor updated-use → verified update then fresh use on that
-target, or pending use after failure.
-
-Sizing: approximately five minutes, medium confidence.
-
-### 8. Retain only a selected Claude Code legacy refusal
-Type: Behavior
-Status: planned
-Proof: Claude Code runs only refusal, retains stream JSON and response on success
-and failure, and preserves existing deterministic refusal assertions.
-
-Behavior: Selected Claude Code legacy-refusal → shared journey plus Claude
-adapter → retain the attempt on either outcome.
-
-Sizing: approximately five minutes, medium confidence.
-
-### 9. Retain a genuine selected Claude Code ordinary update
-Type: Behavior
-Status: planned
-Proof: Claude Code runs only inspected bootstrap plus genuine fixture update and
-retains stream, exact state, and provenance on success and failure.
-
-Behavior: Selected Claude Code ordinary-update → verified update without a
-native refusal session → retain the transition.
-
-Sizing: approximately five minutes, medium confidence.
-
-### 10. Tie selected Claude Code updated use to its verified update
-Type: Behavior
-Status: planned
-Proof: Claude updated use records the verified update dependency and same target;
-failed update launches no use, and other tool roots remain unchanged.
-
-Behavior: Selected Claude Code updated-use → verified update then fresh use on
-that target, or pending use after failure.
-
-Sizing: approximately five minutes, medium confidence.
-
-### 11. Reassess a retained attempt without native execution
-Type: Behavior
-Status: planned
-Proof: Saved good/bad attempts, revised assessor fixtures, applicability records,
-changed inputs/runtime, and missing artifacts drive the offline entry point.
-Sentinels prove zero agent/version/setup calls. Original attempts remain
-byte-identical and the appended assessment names its inputs and reason.
-
-Behavior: Maintainer supplies a saved attempt and applicability judgment → run
-the current case assessment over retained observations → append a supported
-reassessment or a pending result identifying stale/missing evidence.
-
-Sizing: five–ten minutes, medium confidence; no cache policy or migration.
-
-## Completion and native evidence ownership
-
-Run each focused credential-free proof at its leaf boundary. At completion run
-`npm test` and `npm run lint` once. Record per-host selected-case, stream,
-dependency, and offline parity evidence in this plan. Do not run `--native` or
-claim native qualification. Quick Plan 21 may start only after every leaf here is
-done and the retained interface is still applicable.
-
-## Learnings and readiness
-
-- Host adapters recognize only the known complete/partial event forms; unknown
-  JSON stays `execution-status: incomplete` rather than growing the contract.
-- Completeness classification lives in `tests/support/native-run-stream.sh`;
-  retention records the supervisor's outcome. Codex truncated still writes
-  `response.md` and must not receive a wording pass.
-- Leaf 1 evidence: `bash tests/native-stream-completeness.sh` (complete stays
-  limited-wording; truncated/missing/unknown exit nonzero with raw artifacts).
-  Existing timeout and launch-failure statuses were unchanged.
-
-Remaining leaves 2–11 are still ready for direct execution. Do not write
-`.planning/STATE.md` as resume state.
+Substitutes establish our harness contracts only. Story 3 records representative
+native discovery, activation, behavior, affected install/update/coexistence, and
+justified reuse per tool. Do not write `.planning/STATE.md` as resume state.

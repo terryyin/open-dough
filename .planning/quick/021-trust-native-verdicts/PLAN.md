@@ -1,315 +1,128 @@
-# Detect native behavior failures instead of rewarding the expected words
+# Assess intended behavior without requiring expected wording
 
-Status: planned; refinement recommended for leaves 1 and 6–8. Depends on Quick
-Plan 22's delivered retained-artifact and reassessment interface. No native
-execution is part of this plan.
+Status: planned.
+Order: **20 → 22 → 21**. Start after plan 22's reduced evidence contract is delivered.
 
-## Source
+## Scope
 
-- [SEED-007 Story 2](../../seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts),
-  the second [product backlog](../../PRODUCT-BACKLOG.md) item; E1–E5 bound this plan.
-- [Quick Plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md) owns the
-  extracted Story 1 result boundary this plan consumes. Recheck it before
-  implementation and stop rather than duplicating missing dependency work.
-- Owner direction: system/codebase readiness for honest ADR 0005 validation only.
-  Refine first and write a slice plan if no open question remains.
-- Borrowed Donut's `story-refinement` and `slice-planning`, their `planning.mdc`
-  and `problem-decomposition.mdc` rules, and only the `slice-plan-refinement`
-  trigger gate. Read from Donut revision
-  `c764beb7ce41d41608938f59dbb7e57c7fd9beb8`; referenced files were clean.
-  Borrowing means applying the source guidance, not copying, installing, or
-  extracting a new Open Dough skill.
-- Open Dough inspected at `47e049c42274e444acdbed02f21865fa3df530b9`.
-- [Accepted ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-  governs neutral prompts, tested assessors, retained evidence, inconclusive
-  outcomes, and separate native acceptance. [Accepted ADR 0000 — Use ADRs](../../../docs/adrs/0000-use-adrs-accepted.md)
-  preserves human decision ownership. Index and relevant record statuses agree;
-  no supersession, conflict, exception, or metadata mismatch affects this plan.
-  No release or ADR status change is involved.
+Deliver [SEED-007 Story 2](../../seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts)
+under [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Repair prompts and assessment in the existing context and delivery checks.
+Consume [plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md)'s saved
+context and combined update→fresh-use artifacts; do not rebuild its runner.
 
-## Goal and scope
+Define shared behavior expectations once for clear ADR use, unresolved authority,
+legacy contract refusal, and a real update followed by fresh use. Test shared
+logic once. Test only command/event differences per tool; do not build a
+case-by-tool-by-counterexample matrix.
 
-Let the maintainer demonstrate cheaply that the existing checks distinguish
-supported outcomes from misleading or insufficient evidence. Completing this
-story establishes tested assessment behavior, not native product acceptance.
+Use small automated checks for supported activation and observable state. For
+prose that cannot be judged reliably, report inconclusive and document the case
+expectations for review. A reviewer records the result, reason, and evidence in
+the acceptance record. Do not build a semantic parser, judge model, offline
+reassessment interface, resolution workflow, or new test framework.
 
-Change only `tests/dough-adr-awareness-context.sh`, the three
-`tests/dough-adr-awareness-*-delivery-to-use.sh` wrappers, immediately needed
-shared support and fixtures, focused cheap tests, and brief test usage guidance.
-Use Quick Plan 22's selected cases, durable results, stream capture, execution
-status, and offline reassessment. Recheck that delivered interface before
-implementation; do not duplicate its runner, retention, timeout, or
-applicability work here.
+No skill/installer changes, new integration mechanisms, native runs, client
+adoption, old-plan migration, or releases. Story 3 owns native acceptance.
 
-Keep the five existing cases per host: context clear/conflict and delivery
-legacy-refusal/ordinary-update/updated-use. Keep explicit invocation hints and
-necessary task inputs such as the existing supplied source URL. No new automatic
-activation, edited-equal, forced-update, client, or release scenarios. No source
-skill/installer changes, general semantic judge, model-backed grading, review UI,
-new test platform, old-plan migration, or native runs. Story 3 owns qualification.
+## Assessment rules
 
-## Execution context and current decisions
-
-The context clear prompt currently announces status agreement and the desired
-completion. Its assertions search for Redis and completion/conflict words.
-Codex's marker uniqueness check is not an independent activation observation.
-Cursor context checks a successful skill read; Claude context checks a `Skill`
-request. A request alone does not establish successful activation.
-
-Delivery prompts currently disclose the two-versus-three-file contract,
-refusal, release/report facts, and catalog disagreement. Shared
-`delivery_assert_use` and transition assertions depend on output patterns;
-Claude duplicates refusal logic. Existing exact payload, source, and companion
-checks are valuable. Keep and use their observations in assessment, including
-other tool roots and the selected update-to-use dependency. Story 1 is planned
-to retain streams and state for delivery as well as context.
-
-Implementation choices within this scope:
-
-- One shared assessment path consumes case expectations plus retained events,
-  response, execution status, and state. Only event decoding varies by host.
-  Normalize the minimum facts needed by these cases, not a universal event API.
-  Fresh and offline paths call the same case assessor and report decisive
-  evidence references with `pass`, `fail`, or `inconclusive` and a reason.
-- Pass requires complete successful execution, supported native activation of
-  the identified installed copy, the intended case outcome, and required state
-  postconditions. Definite violations fail. Missing/unknown observations remain
-  inconclusive unless a definite failure is already established. An execution
-  failure from Story 1 can never be promoted by the behavioral assessor.
-- Successful native expansion is a valid activation route without a separate
-  shell read. Use host evidence that establishes it, tied to the selected
-  installation. A skill listing, attempted read/call, prompt text, response
-  marker, or unique marker source alone is insufficient. Failed/wrong-source
-  activation cannot pass. Unknown host event forms remain inconclusive.
-- [Retained Plan 014 evidence](../014-prove-codex-adr-use/EVIDENCE.md) explains
-  Codex expansion without shell reads and observed Cursor/Claude forms. It is
-  design input, not fresh qualification. Do not invent an expansion-success
-  event or claim that a historical summary supplies missing raw evidence.
-- Keep prompt wording ordinary: the same session-storage request for both
-  context fixtures; an update request for both delivery update/refusal fixtures;
-  a telemetry-history assessment for updated use. Do not inject expected status
-  values, candidate payload counts, release identities to repeat, conclusions,
-  invocation headers, or no-change answer templates. A task boundary such as
-  “Do not edit files” is legitimate; reporting unchanged state is not proof of it.
-- Expected contract facts stay in assessor fixtures. Assess the actual final
-  recommendation/refusal against those facts and observations, not occurrence
-  of tokens anywhere in the transcript. Use conservative case-specific checks;
-  quotations, negation, contradictory recommendations, and unresolved meaning
-  must not produce a pass. Do not attempt unrestricted language understanding.
-- Human resolution is an explicit addition to Story 1's evidence trail: attempt,
-  assessor, reviewer, decision, reason, and decisive evidence. Preserve the
-  automated result. It neither fabricates missing activation/state evidence nor
-  overrides failed execution or current applicability requirements. No new
-  approval gate, automatic retry, or automatic human-decision simulation.
-
-## Outside-in proof
-
-Drive the real selected-case and offline assessment entry points with substitute
-native commands and reviewed recorded/synthetic event-response-state fixtures.
-Assert verdict, reason, and decisive evidence, not just process exit status.
-Label fixture provenance and expected verdicts; synthetic streams test the
-adapter contract and cannot establish that a native runtime emits those events.
-Every migrated case has a positive, misleading/failed, and inconclusive example
-for each host. Include ordinary paraphrases so exact canned text is not the
-only passing output. Where meaning cannot be safely determined, test the
-inconclusive route rather than adding another keyword to make it green.
-
-Substitutes record received prompts and invocations. Check that expected answers
-are absent from the actual launch prompt and reassessment starts no agents or
-version probes. Use the real local installer for update-state proofs; printing
-or copying a final success response is insufficient. Test fixtures/helpers must
-not become accidental standalone shell tests under `scripts/test.sh`.
-
-| Promise / observable proof | Owning leaves |
-| --- | --- |
-| E2/E4: successful activation versus self-report, failed/wrong-copy activation, incomplete/unknown events, separate execution failure | 1–3, independently per host |
-| E1/E4: neutral context prompts, actual accepted decision versus negated/quoted words, clear and conflicting outcomes | 4–5 |
-| E3/E4: uncoached contract refusal and unchanged target/source | 6 |
-| E3/E4: ordinary update verified from execution and exact state, protected paths preserved | 7 |
-| E3/E4: fresh updated use follows the verified installation and discovers unresolved authority | 8 |
-| E5: same fresh/offline verdict, evidence-linked uncertainty/resolution, immutable history and applicability preserved, no native calls/retries | 9; fresh/offline parity also checked with leaves 1–8 |
-| Shared assertions, per-host fixtures, unchanged cheap/default paths and internal-only scope | Each owning leaf; completion checks below |
-| Native discovery, invocation/application, behavior, affected install/update/coexistence | Pending in Story 3 for each host; matrix below |
+- Use ordinary task prompts. Retain explicit skill invocation and necessary
+  inputs, but remove expected decisions, status values, payload counts, release
+  facts to repeat, and answer templates.
+- Require complete successful execution, supported activation of the installed
+  copy, the intended outcome, and required state observations for a pass.
+  Execution failure or a definite contract violation cannot pass. Missing or
+  ambiguous evidence remains inconclusive unless a definite failure is known.
+- Accept evidenced native expansion without requiring a redundant file read.
+  A requested read/call, marker, or self-report alone does not prove activation.
+  Keep unknown event forms inconclusive; do not invent vendor success events.
+- Remove checks tied to incidental instruction sentences. Preserve exact payload
+  comparisons and deliberately required output contracts. A completion marker
+  can be checked as an output contract but cannot prove activation or correctness.
+- Test equivalent prose, negation, quotation, and contradictory recommendations
+  wherever automated checks interpret language. If a small check cannot decide,
+  preserve uncertainty instead of extending a keyword parser.
+- Keep original evidence. Document any later review without overwriting the
+  automated result. Do not certify coached historical runs as independent proof.
 
 ## Ordered slices
 
-Each leaf integrates its behavior and focused proof together. No preparatory
-framework slice. Existing no-argument deterministic checks remain green at
-every stopping point; unmigrated assessments are not advertised as satisfying
-this story. Proposed focused test entry point: `tests/native-verdicts.sh`, with
-case/host selection for short proof loops and all fixtures by default in CI.
-Extend Story 1's tests where they already own the relevant entry point.
+### 1. Gate assessment on execution and installed activation
 
-### 1. Withhold a Codex verdict when activation is unsupported
 Type: Behavior
 Status: planned
-Proof: The Codex assessment entry point accepts supported installed loading or
-expansion with otherwise valid case evidence; self-report, marker-only evidence,
-failed/wrong-copy reads, and unknown forms do not pass. Missing terminal evidence
-and failed execution remain nonpassing even with a convincing response.
 
-Behavior: Retained Codex attempt → assess activation and prerequisite execution
-evidence → report a supported activation or a reasoned nonpass. Introduce only
-the shared verdict contract needed here, and wire it into Codex's existing cases
-and offline path. Activation alone does not grant behavioral acceptance.
+Add one shared prerequisite gate and the minimum host decoding it needs. Wire it
+into retained context and combined journey assessment. Report result, reason,
+and evidence references. Keep behavioral assessment separate from activation.
 
-Sizing: low confidence; refinement recommended. The first Story 1 integration
-and expansion-evidence boundary could exceed the ten-minute leaf limit. Missing
-native evidence stays inconclusive; do not solve it by launching a session.
+Proof: Test shared handling of successful prerequisites, execution failure,
+missing evidence, and wrong-copy activation once. For each tool, test a supported
+activation form and an unsupported/failed form at the decoder boundary. Use
+recorded evidence; if a supported form is unavailable, record that gap for Story
+3 and keep the result inconclusive. Do not launch a native session to fill it.
 
-### 2. Distinguish successful Cursor loading from a requested read
+### 2. Replace wording checks in clear and conflicting ADR use
+
 Type: Behavior
 Status: planned
-Proof: Cursor event fixtures through the same entry point distinguish successful
-installed content from failed/request-only reads, another skill root, self-report,
-and unknown forms; failed/incomplete execution cannot pass.
 
-Behavior: Retained Cursor attempt → decode its actual event evidence → apply
-leaf 1's shared activation requirement with evidence references. Accept supported
-native expansion if evidenced; require no redundant read for that route.
+Use the same ordinary session-storage request for both fixtures. Define clear
+expectations: follow and cite the Accepted decision when authority agrees;
+identify the conflicting authorities and stop dependent work when it does not.
+Keep read-only state checks. Remove incidental skill-sentence assertions,
+including content checks used only as loading evidence.
 
-Sizing: approximately five minutes, medium confidence; adapt existing context
-`readToolCall` handling. Reassess sizing if Story 1's boundary differs.
+Proof: Shared examples cover a valid recommendation, a valid stop, a conditional
+explanation with a stop, and misleading/ambiguous wording. A prose-dependent
+outcome may remain inconclusive for documented review. Rephrasing incidental
+skill instructions must not fail a static assertion; response paraphrases must
+not fail solely for wording. Test this shared logic once, not once per tool.
 
-### 3. Distinguish successful Claude activation from a Skill request
+### 3. Assess the combined update and fresh use from observed state
+
 Type: Behavior
 Status: planned
-Proof: Claude event fixtures distinguish supported successful installed activation
-from a bare/failed `Skill` request, wrong copy, self-report, and unknown events;
-failed/incomplete execution cannot pass.
 
-Behavior: Retained Claude attempt → decode invocation and its supporting result
-evidence → apply the same activation requirement without host-specific semantic
-rules or mandatory shell reads.
+Remove answer coaching from update and fresh-use prompts. Use plan 22's observed
+transition to check installed bytes/version, provenance, unchanged protected
+paths, and fresh activation on the same updated target. Reuse leaf 2's conflict
+expectations for the existing updated-use fixture.
 
-Sizing: approximately five minutes, medium confidence if the relevant result
-shape is available. Otherwise preserve inconclusive behavior and flag the precise
-qualification gap in Story 3; never synthesize native proof.
+Proof: A real fixture update has the expected state; wrong bytes/version,
+protected writes, stale-target use, and a failed update followed by a success
+claim cannot pass. Verify these shared cases once. Adapter routing is already
+covered by plan 22; do not repeat the state matrix through every tool.
 
-### 4. Assess a clear ADR decision without telling the agent the answer
+### 4. Keep legacy refusal as a shared product behavior check
+
 Type: Behavior
 Status: planned
-Proof: For each host, the captured clear prompt contains only the task/invocation
-and read-only boundary. Reviewed supported recommendations pass; a negated Redis
-mention, quoted completion marker, or contradictory recommendation does not.
-Unchanged target/source observations remain required.
 
-Behavior: Existing clear fixture → ordinary session-storage request and assessment
-→ determine whether the accepted decision was followed without coaching status
-agreement, demanding a canned response, or requiring irrelevant context policy.
+Keep existing deterministic refusal/preservation checks. Remove coaching and
+duplicate host-specific prose assertions from existing legacy-refusal paths.
+Use shared expectations: the actual incompatible contract prevents the update
+and target/source remain unchanged. No new selected refusal integration path.
 
-Sizing: approximately five minutes, medium confidence; use one shared clear-case
-assessor and fixture table, with uncertain language classified inconclusive.
+Proof: Shared examples distinguish supported refusal, unrelated execution
+failure, and a refusal claim accompanied by writes. Use documented review for
+unresolved prose. Update test usage to distinguish automatic checks from review
+and explain which representative native evidence Story 3 still needs.
 
-### 5. Detect proceeding despite unresolved ADR authority
-Type: Behavior
-Status: planned
-Proof: The conflict case receives the same prompt as leaf 4. Evidence naming
-both authorities and their actual values while stopping for human resolution
-passes; “no conflict,” quotations, or proceeding while mentioning a stop do not.
-A conditional explanation with a real stop remains a valid positive example.
+## Completion and native evidence
 
-Behavior: Existing conflict fixture → assess the response and unchanged state
-→ distinguish a supported stop from a recommendation that ignores the conflict.
-Do not infer resolution from the presence of “human” or “Accepted.”
+Run focused cheap checks for each leaf and the affected default wrappers. Run
+`npm test` and `npm run lint` once at completion. Record shared behavior coverage
+once and adapter evidence separately below. Do not claim native acceptance.
 
-Sizing: approximately five minutes, medium confidence; reuse leaf 4's evidence
-path. Keep ambiguous semantics inconclusive instead of broadening a parser.
+| Platform | Cheap adapter proof | Native acceptance |
+| --- | --- | --- |
+| Codex | Pending leaf 1; historical expansion evidence is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
+| Cursor | Pending leaf 1; distinguish successful installed loading from a request. | Pending Story 3 applicability review and unresolved representative checks. |
+| Claude Code | Pending leaf 1; a Skill request alone is insufficient. | Pending Story 3 applicability review and unresolved representative checks. |
 
-### 6. Detect a real legacy contract refusal from an ordinary update request
-Type: Behavior
-Status: planned
-Proof: Each delivery wrapper receives an uncoached update request. Fixtures with
-supported contract comparison and unchanged target/source pass refusal;
-unrelated launch failure, a claim to refuse while replacing files, or quoted
-contract words do not. Fresh/offline verdicts agree.
-
-Behavior: Existing legacy installation and candidate → ordinary update attempt
-→ assess refusal for the actual contract mismatch, using activation plus observed
-state. Replace Claude's divergent wording requirements with shared case facts.
-
-Sizing: low confidence; refinement recommended. Prompt, duplicated refusal logic,
-and retained state integration may require narrower green boundaries.
-
-### 7. Verify an ordinary update from its execution and resulting installation
-Type: Behavior
-Status: planned
-Proof: Substitute-driven real local updates pass with exact expected payload and
-version plus preserved source, companion, and other roots. A failed required
-update followed by a success claim, wrong version/bytes, unexpected protected
-changes, or unsupported provenance cannot pass. No expected release/report facts
-are supplied in the agent prompt.
-
-Behavior: Existing bootstrapped installation → ordinary newer-release update
-→ assess its actual transition and report against fixture expectations. Preserve
-deterministic delivery assertions and Story 1's verified dependency record;
-keep native report assessment separate from helper-only cheap checks.
-
-Sizing: low confidence; refinement recommended. Retained state/provenance and
-current transition assertions cross a boundary not yet implemented by Story 1.
-
-### 8. Assess the improved skill on the installation that was actually updated
-Type: Behavior
-Status: planned
-Proof: Updated-use fixtures show a fresh session activating the updated copy,
-identifying both actual status authorities/values, and stopping unchanged. A
-stale/different installation, missing verified update dependency, contradictory
-advice, or modified adopter fails or stays inconclusive as the evidence warrants.
-The captured prompt supplies no disagreement, status values, or answer template.
-
-Behavior: Verified update dependency and fresh use attempt → assess the ordinary
-telemetry-history request → establish the existing improved conflict behavior
-on that same installation. Reuse leaf 5's conflict checks with this fixture's
-authority facts; never pass updated use from a copied payload alone.
-
-Sizing: low confidence; refinement recommended for the dependency-to-activation
-link. Reuse Story 1's relationship record rather than reconstructing a workspace.
-
-### 9. Retain an inconclusive assessment and its evidence-linked resolution
-Type: Behavior
-Status: planned
-Proof: Across all three adapters, an ambiguous saved attempt reports inconclusive
-with reason/evidence. Supplying an explicit reviewer resolution appends its
-identity and rationale while the attempt and automated result remain unchanged.
-Missing evidence and stale applicability cannot become an unqualified pass;
-sentinel commands prove zero native calls, version probes, or retries.
-
-Behavior: Maintainer assesses uncertain saved evidence and later supplies a
-resolution → retain both judgments against the same evidence in Story 1's trail.
-Document this existing-result workflow briefly; build no review application.
-
-Sizing: approximately five minutes, medium confidence; use Story 1's append-only
-reassessment path. Split if that interface does not yet support explicit review.
-
-## Completion and native evidence ownership
-
-Run each leaf's focused cheap proof and affected default wrappers. At story
-completion run `npm test` and `npm run lint` once, preserving the broad cheap
-suite and checking shared-helper callers. Record observed per-case/host verdict
-coverage here. No `--native` execution or product/guidance installation is part
-of this story's acceptance; isolated deterministic fixture installation is.
-
-| Platform | Evidence at planning time | Story 2 functional acceptance | Native acceptance owner |
-| --- | --- | --- | --- |
-| Codex | Source inspection and historical expansion lesson; no new runtime observation | Pending: activation, all five case verdicts, positive/counterexample/inconclusive fixtures and offline parity | SEED-007 Story 3: discovery, invocation/application, intended behavior, affected install/update/coexistence and changed-assessor qualification |
-| Cursor | Source inspection of successful context reads and coached delivery prompts; no new runtime observation | Pending: same coverage through Cursor event adapter | Pending independently in Story 3 for the same claim categories |
-| Claude Code | Source inspection of Skill-request assertion and duplicate refusal checks; no new runtime observation | Pending: same coverage through Claude event adapter | Pending independently in Story 3 for the same claim categories |
-
-No prior proof is newly certified. Old coached results stay historical; offline
-reassessment cannot recover an independent conclusion from an answer supplied
-in the original prompt. Unknown native event semantics and changed inputs stay
-pending for Story 3 to resolve on a named candidate. Implementation completion
-does not close that story or authorize release of the affected behavior.
-
-## Learnings and readiness
-
-No implementation learning yet. No blocking product questions remain. Quick
-Plan 22 is the execution prerequisite and must be completed and consumed rather
-than specified again here.
-
-**Refinement recommended: leaves 1 and 6–8.** Those integration paths have low
-sizing confidence and could exceed the borrowed skill's ten-minute limit.
-Other leaves target about five minutes including focused verification, assuming
-Story 1's interface is available; these are hypotheses, not timing guarantees.
-Recheck the trigger gate against the delivered interface before execution.
-Refinement remains in this PLAN and must not expand the selected story.
+Story 3 must record per-tool discovery, invocation/application, intended behavior,
+and affected install/update/coexistence evidence or justified reuse. This plan's
+completion closes test migration only. Missing vendor observations do not justify
+expanding the harness before native qualification.

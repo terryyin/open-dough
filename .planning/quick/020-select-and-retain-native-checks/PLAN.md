@@ -1,142 +1,32 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slices 1–5 done. The retained stream, selected delivery, and
-reassessment boundary was extracted to Quick Plan 22; the final checkpoint must
-stop and wait if that plan is not implemented. No `--native` run is part of this
-plan's verification.
+Status: executing; leaves 1–5 done, final checkpoint pending.
+Order: **20 → 22 → 21**. This plan does not depend on plan 22.
 
-## Source
+## Scope
 
-- [SEED-007 Story 1](../../seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks),
-  the first [product backlog](../../PRODUCT-BACKLOG.md) item. E1–E5 define scope.
-- Owner direction: keep this to system/codebase readiness for ADR 0005. No open
-  product question remains; prepare the plan after refinement.
-- Borrowed Donut's `story-refinement` and `slice-planning` skills, plus their
-  `planning.mdc` and `problem-decomposition.mdc` rules, by reading them in the
-  Donut checkout at `cae5ed116fea947917ee8ffb31af7ad3602c5f1c` (these files clean).
-  Consulted only the `slice-plan-refinement` trigger gate. No skills are copied,
-  installed, generalized, or added to Open Dough's distributed payload.
-- Open Dough source inspected: `a5fdbc2a91c7253bf9af22209929cd7aeb7bfbf7`.
-- [Accepted ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-  governs cheap runner coverage, dedicated native acceptance, bounded execution,
-  and explicit evidence reuse. [ADR 0000 — Use ADRs](../../../docs/adrs/0000-use-adrs-accepted.md)
-  preserves human ownership. Index and relevant record statuses agree; no
-  supersession, conflict, or exception affects this plan. Release identity and
-  ADR statuses are unchanged; no release work is planned.
+Follow [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Deliver the context runner portion of
+[SEED-007 Story 1](../../seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks):
+selection, durable evidence, bounded execution, and retained failures.
+Keep completed safeguards and their focused tests. Do not rebuild them.
 
-## Goal and scope
+[Plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md) completes Story 1
+with stream completeness and a representative update→fresh-use journey.
+[Plan 21](../021-trust-native-verdicts/PLAN.md) then repairs assessment.
+Do not require selected execution of every delivery stage, dependency attempt
+IDs, or an offline reassessment interface to complete this plan.
 
-Give a maintainer a usable selected-check and saved-evidence workflow around
-existing wrappers. A later acceptance story can then spend native calls only
-where needed and report pending claims honestly. This story finishes with
-functional, inexpensive proof; it does not claim the current prompts or native
-verdicts are trustworthy under the stronger acceptance contract.
-
-Touch only the three `tests/dough-adr-awareness-*-delivery-to-use.sh` wrappers,
-`tests/dough-adr-awareness-context.sh`, immediately needed shared support and
-fixtures, credential-free regression tests, and brief test usage documentation.
-Keep shared mechanics in one implementation with minimal native CLI adapters.
-Keep existing no-argument deterministic checks and explicit native opt-in.
-
-Excluded: new cases, prompt/semantic-assessor redesign (Story 2), actual native
-qualification (Story 3), old-plan migration (Story 4), changes to source or
-installed skills, updater behavior, releases, Donut/client writes, general
-caching/impact analysis, arbitrary saved-workspace restoration, scheduling,
-databases, and new native operating-system support. No old plan is resumed.
-
-## Execution context and current decisions
-
-The context wrapper already selects host and clear/conflict scenario and captures
-structured events. Its exit trap deletes evidence. Delivery wrappers run all
-three sessions in sequence; shared fixture setup installs its own cleanup trap.
-Claude preserves failed scratch but removes successful evidence. Cursor delivery
-records `cursor --version` and only prose; context already uses
-`cursor agent --version` and stream JSON. `native-codex.sh` owns existing macOS
-isolation and is also used by other harnesses: keep its default callers working.
-
-Use these local implementation decisions; they add no product policy:
-
-- Inventory the existing five cases per host: `context/clear`,
-  `context/conflict`, `delivery/legacy-refusal`, `delivery/ordinary-update`, and
-  `delivery/updated-use`. This is a fixed inventory for these wrappers, not a
-  registration framework. Keep the existing full `--native` journey callable.
-- Add listing and selected-case options to the current entry points, with a
-  common result-directory option. Listing is read-only and never runs an agent
-  or probes its version. Invalid host/case/options fail before setup or launch.
-  Put exact implemented usage in `tests/README.md` with the owning leaves.
-- An ordinary update needs inspected bootstrap and the newer local tagged
-  fixture, not a native legacy refusal. Updated use additionally needs the
-  verified native update in the same isolated target and a fresh use session.
-  Record that dependency's attempt ID. Do not reconstruct a journey from final
-  bytes. Reassessment can reuse evidence; executing updated use in a new scratch
-  target reruns its required update rather than restoring archived workspaces.
-- Use a small local result directory outside scratch, with distinct attempt
-  paths and a compact machine-readable record. Report its path on every exit.
-  Require a writable destination before launching. Retain only case evidence,
-  not CLI account/configuration directories or entire temporary repositories.
-  Generated results must not enter the distributed payload or routine commits.
-- Record case/host, fresh versus reassessed origin, execution status/reason,
-  actual native executable/version and exposed model/runtime settings, source
-  revision plus relevant working-tree input hashes, fixture candidate tag/commit,
-  prompt/helper/adapter/fixture identities, assessor identity, dependency IDs,
-  and decisive artifact references. Store raw stdout/stderr/events, response,
-  and the state observations consumed by the existing assertions before cleanup.
-  An unavailable runtime value is unknown, not inferred from the editor.
-- Separate execution completion from assessment and current native acceptance.
-  Preserve the original outcome; a derived reassessment records its own assessor,
-  result, and explicit applicability rationale. Existing coached/wording-based
-  passes retain their limited interpretation. Story 2 can use the same saved
-  artifacts without this story strengthening its semantic assertions.
-- No automatic retry or auto-reuse. A timeout has a configurable deadline and
-  finite termination grace, including owned subprocess cleanup. Truncated or
-  missing terminal evidence is nonpassing even with exit 0. Test lifecycle and
-  stream completeness here; semantic activation/outcome counterexamples belong
-  to Story 2. Never turn a blocked prerequisite into a passing dependent case.
-- Reassessment runs existing case assertions against retained evidence, not a
-  whole wrapper with setup/launch side effects. Separate only what this requires.
-  Compare the named relevant inputs and require recorded runtime applicability;
-  a revised assessor is allowed, but missing observations or other changed
-  relevant inputs keep reuse pending. No inference from repository HEAD alone.
-  Listing may identify a prior result as unreviewed; it cannot silently certify it.
-
-## Outside-in proof
-
-Exercise the real wrapper entry points with substitute native commands and
-recorded outputs, without credentials or provider calls. Substitutes log every
-invocation so tests can prove both requested calls and absent calls, including
-version queries, retries, reassessment, and unrelated hosts/cases. Use the real
-installer and local tagged fixtures for deterministic setup. Substitutes must
-perform the fixture update where a test checks update-to-use provenance; merely
-printing success is insufficient.
-
-Keep new executable test entry points under `tests/` and helper/substitute
-processes under `tests/support/` or a non-`.sh` fixture path so `scripts/test.sh`
-does not accidentally run them as standalone tests. Capability-named focused
-tests may be `native-case-selection.sh`, `native-result-retention.sh`,
-`native-run-timeout.sh`, `native-runner-failures.sh`, and
-`native-result-reassessment.sh`; add these only with their behavior. Do not
-build a parallel test framework.
-
-| Contract / observation | Owning leaves |
-| --- | --- |
-| E1: inventory, dependency description, invalid selection, no native calls during listing | 1 |
-| E1/E2: selected context only, durable successful attempt and exact inputs/runtime | 2 |
-| E3: hung owned process tree terminates within bound, evidence survives, no retry | 3–4 |
-| E3: unavailable/denied launch remains nonpassing with evidence | 5 |
-| E3: truncated or absent terminal stream cannot pass on exit 0 | Quick Plan 22 leaf 1; verified at checkpoint 6 |
-| E1/E2/E5: selected delivery sessions, genuine update provenance, and failed-dependency pending behavior for all hosts | Quick Plan 22 leaves 2–10; verified at checkpoint 6 |
-| E2/E3: new success/failure never overwrites prior attempts; unwritable result destination prevents launch | 2–6 |
-| E4: offline reassessment, preserved original, applicability rationale, changed/missing evidence pending | Quick Plan 22 leaf 11; verified at checkpoint 6 |
-| Shared mechanics, existing default/legacy callers preserved, broad cheap CI, no installed infrastructure | Focused checks in each leaf; whole-story completion below |
-| Native discovery, invocation/application, behavior, affected install/update/coexistence | Pending in Story 3; matrix below |
+Keep native opt-in, existing default checks, platform isolation, and shared
+helpers. This plan changes internal test tooling only. Native acceptance remains
+in SEED-007 Story 3; do not run native agents or certify old evidence here.
 
 ## Ordered slices
 
-Leaves are one Behavior or one immediately enabling Structure. Add support
-inside the first leaf that uses it; no standalone framework. Each proof is
-credential-free. Completed slices 1–2 are unchanged.
+Completed leaves below retain their original proof scope.
 
 ### 1. Inspect the available check before spending a native call
+
 Type: Behavior
 Status: done
 Proof: Selection tests list the fixed inventory and dependencies for all three
@@ -150,6 +40,7 @@ without native execution. Add brief usage alongside the options.
 Sizing: approximately five minutes, medium confidence; keep inventory static.
 
 ### 2. Keep a selected context attempt after scratch cleanup
+
 Type: Behavior
 Status: done
 Proof: Invoke each existing host/scenario path with a successful substitute;
@@ -168,6 +59,7 @@ and snapshot functions. If record wiring needs separable beats, split at the
 first host's complete retained attempt before expanding adapters.
 
 ### 3. Bound an owned context command without changing successful runs
+
 Type: Structure
 Status: done
 Proof: `bash tests/native-result-retention.sh` and
@@ -184,6 +76,7 @@ Sizing: approximately five minutes, medium confidence after split; wire only
 what leaf 4 needs.
 
 ### 4. Stop a hung context attempt and keep partial evidence
+
 Type: Behavior
 Status: done
 Proof: A substitute starts a child, emits partial output, and ignores normal
@@ -199,6 +92,7 @@ Sizing: approximately five minutes, medium confidence; uses leaf 3's supervisor
 and leaf 2's result layout. Bound the proof to owned processes.
 
 ### 5. Preserve why a selected attempt could not execute
+
 Type: Behavior
 Status: done
 Proof: Missing executable, nonzero launch, and explicit denied-operation fixtures
@@ -211,236 +105,38 @@ an exit trap. Unknown runtime is recorded when no version can be obtained.
 
 Sizing: approximately five minutes, medium confidence; use leaf 2's finalizer.
 
-### 6. Verify the extracted retained-evidence dependency
-Type: Behavior
+### 6. Close the context runner checkpoint
+
+Type: Verification
 Status: planned
-Proof: Inspect Quick Plan 22 and its committed focused evidence. Require every
-leaf done, retained complete/incomplete context results, all three hosts' selected
-delivery cases with update-to-use relationship IDs, append-only offline
-reassessment, and current `npm test`/`npm run lint` success. If any requirement
-is absent or incomplete, stop and wait for Quick Plan 22; do not implement it
-inside this plan.
 
-Behavior: Quick Plan 20 reaches its extracted dependency checkpoint → verify
-Quick Plan 22's delivered interface and proof → finish this story only when the
-dependency is present, otherwise issue a Jidoka stop and wait.
+Verify the delivered selection, context retention, timeout, and launch-failure
+interfaces. Run `npm test` and `npm run lint` once and record their results.
+Check that test usage matches implemented options. Keep unimplemented delivery
+selectors explicitly unavailable; do not expand them to complete this checkpoint.
 
-Sizing: approximately five minutes, high confidence; verification only.
+Complete plan 20 when these checks pass. Continue to plan 22 for the remaining
+Story 1 work. Do not wait for plan 22 or mark all of Story 1 complete here.
 
-## Extracted dependency history (non-executable)
+## Retained implementation evidence
 
-The former leaves below were moved without scope change to
-[Quick Plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md). They remain
-here only as historical mapping and must not be selected for execution.
+These are prior recorded cheap checks, not newly executed or native proof.
 
-#### Former 6. Reject an incomplete native stream despite a successful process exit
-Status: moved to Quick Plan 22 leaf 1
+| Completed work | Recorded evidence |
+| --- | --- |
+| Listing and invalid selection | `tests/native-case-selection.sh`; listing makes no agent/version calls and labels saved attempts unreviewed. |
+| Context retention | `tests/native-result-retention.sh`; keeps record, events, response, and observations after scratch cleanup; rejects unwritable destinations before launch. |
+| Deadline and process ownership | Selection and retention tests; `--deadline` defaults to 3600, `--grace` to 15; owned groups use `setsid` or `perl setpgrp`. |
+| Hung execution | `tests/native-run-timeout.sh`; exit 124, owned processes stopped, partial evidence retained, no retry, prior attempt unchanged. |
+| Launch failures | `tests/native-runner-failures.sh`; missing/nonzero/denied execution retained with reason, `assessment-status: not-run`, and reported result path. |
 
-#### Former 7. Run just Codex delivery/legacy-refusal
-Type: Behavior
-Status: planned
-Proof: Through the Codex wrapper, a substitute runs only `delivery/legacy-refusal`.
-The call log omits update and use. The attempt is retained. Default
-deterministic and full `--native` (no `--case`) journeys keep their behavior.
-The shared setup trap does not delete the retained refusal.
+| Platform | Retained adapter observations | Native acceptance |
+| --- | --- | --- |
+| Codex | Recorded-command context checks; native symlink isolation retained, substitutes skip `sandbox-exec`. | Pending review in Story 3. |
+| Cursor | Recorded-command context checks; runtime uses `cursor agent --version`, unavailable values stay unknown. | Pending review in Story 3. |
+| Claude Code | Recorded-command context checks through its adapter. | Pending review in Story 3. |
 
-Behavior: Selected Codex `delivery/legacy-refusal` → set up only that
-prerequisite → run through existing isolation → retain that case.
-
-Sizing: approximately five–ten minutes, medium confidence; first delivery
-integration unwinds the shared trap. Use existing transition helpers; do not
-generalize to unrelated harnesses.
-
-#### Former 8. Run just Codex delivery/ordinary-update
-Type: Behavior
-Status: planned
-Proof: Selected ordinary-update runs inspected bootstrap plus a real fixture
-update, not a native legacy-refusal session. Call log omits refusal and use.
-Retained artifacts include the genuine update provenance.
-
-Behavior: Selected Codex `delivery/ordinary-update` → set up only its
-prerequisites → retain the update attempt.
-
-Sizing: approximately five minutes, medium confidence; reuses leaf 7's selected
-delivery path.
-
-#### Former 9. Run just Codex delivery/updated-use
-Type: Behavior
-Status: planned
-Proof: Updated use consumes the verified update's target and records that
-attempt ID. Failed update launches no use and leaves use pending. Call log
-omits refusal.
-
-Behavior: Selected Codex `delivery/updated-use` → run the required update then
-fresh use on that same installation, or retain the failed update and skip use.
-
-Sizing: approximately five minutes, medium confidence; reuses leaves 7–8.
-
-#### Former 10. Run just Cursor delivery/legacy-refusal
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 7's selected-refusal contract through the Cursor wrapper;
-retain stream JSON plus derived response; record `cursor agent --version`.
-Other tool roots stay unchanged. Existing prose assertions keep their meaning.
-
-Behavior: Selected Cursor `delivery/legacy-refusal` → shared journey plus
-Cursor adapter → retain that attempt.
-
-Sizing: approximately five minutes, medium confidence; reuse context Cursor
-stream capture.
-
-#### Former 11. Run just Cursor delivery/ordinary-update
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 8's update-only contract through the Cursor wrapper, with
-Cursor Agent runtime identity and retained stream JSON.
-
-Behavior: Selected Cursor `delivery/ordinary-update` → retain the genuine
-update without a native refusal session.
-
-Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 10.
-
-#### Former 12. Run just Cursor delivery/updated-use
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
-Cursor. Incomplete output still uses leaf 6's gate.
-
-Behavior: Selected Cursor `delivery/updated-use` → verified update then fresh
-use on that target, or pending use after failed update.
-
-Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 10.
-
-#### Former 13. Run just Claude Code delivery/legacy-refusal
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 7's selected-refusal contract through the Claude wrapper;
-retain stream JSON plus response on failure as well as success, replacing
-failure-only scratch preservation. Preserve existing refusal assertions.
-
-Behavior: Selected Claude Code `delivery/legacy-refusal` → shared journey plus
-Claude adapter → retain the attempt on either outcome.
-
-Sizing: approximately five minutes, medium confidence; reuse context structured
-capture.
-
-#### Former 14. Run just Claude Code delivery/ordinary-update
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 8's update-only contract through Claude, retaining stream
-JSON on success and failure.
-
-Behavior: Selected Claude Code `delivery/ordinary-update` → retain the genuine
-update without a native refusal session.
-
-Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 13.
-
-#### Former 15. Run just Claude Code delivery/updated-use
-Type: Behavior
-Status: planned
-Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
-Claude. Other tool roots and companion integration stay unchanged.
-
-Behavior: Selected Claude Code `delivery/updated-use` → verified update then
-fresh use on that target, or pending use after failed update.
-
-Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 13.
-
-#### Former 16. Reassess a saved attempt without another native session
-Type: Behavior
-Status: planned
-Proof: Saved good/bad attempts, revised assessor fixtures, explicit applicability
-records, changed relevant input/runtime conditions, and missing artifact cases
-exercise offline reassessment. All agent sentinels record zero calls. Original
-attempts stay byte-identical; a new assessment identifies its inputs and reason.
-Unreviewed/stale/insufficient evidence cannot become a reused pass.
-
-Behavior: Maintainer supplies a saved attempt and applicability judgment → run
-the current case assessment over its retained observations → append a supported
-reassessment or report pending with the missing/stale evidence identified.
-
-Sizing: five–ten minutes, medium confidence; extract only the existing assertions
-needed to run offline. No cache lookup policy or old-artifact migration.
-
-## Completion and native evidence ownership
-
-Run focused tests with each owned leaf. At story completion, checkpoint 6 verifies
-Quick Plan 22 and runs `npm test` and `npm run lint` once to check the full cheap
-suite and shared-caller regressions.
-No `--native` invocation is part of this plan's verification. These changes must
-remain internal test infrastructure; neither installed skill contents nor the
-installer's payload contract changes. Record actual cheap observations here
-when executed, without promoting substitute evidence to native proof.
-
-| Platform | Evidence at planning time | Story 1 functional acceptance | Native claims / owner |
-| --- | --- | --- | --- |
-| Codex | Source inspected: JSONL context/delivery, existing macOS isolation; no new runtime observation | Pending: selection, retention, failure bounds, reassessment via Codex adapter substitutes | Pending in SEED-007 Story 3: discovery, invocation/application, intended behavior, affected install/update/coexistence and changed harness qualification |
-| Cursor | Source inspected: structured context capture; delivery prose-only and editor-version defect | Pending: same substitute coverage plus Cursor Agent version and stream capture | Pending in Story 3 for the same claim categories, independently in Cursor |
-| Claude Code | Source inspected: structured context capture; delivery retains only failed scratch | Pending: same substitute coverage plus success/failure stream retention | Pending in Story 3 for the same claim categories, independently in Claude Code |
-
-Earlier native results remain historical. This plan does not declare any reused
-proof applicable. Story 3 reviews candidate/runtime applicability before native
-execution and independently qualifies the covered changed adapters alongside
-Story 2's assessments. Implementation completion cannot close that story or
-authorize release of affected behavior.
-
-## Learnings and readiness
-
-Slice 1: listing and invalid selection are shared in `tests/support/native-cases.sh`
-plus `tests/support/native-case-inventory.sh`. Exact flags are in `tests/README.md`
-(`--list`, `--results-dir DIR`, `--case CASE`). Listing is read-only, prints
-unreviewed prior-evidence under `DIR/<host>/<case>/<attempt-id>/` when present,
-and never certifies reuse. Focused proof: `bash tests/native-case-selection.sh`.
-Selected delivery `--case` is recognized and rejected before setup so it cannot
-fall through to the full `--native` journey; leaves 7–15 replace that interim.
-Open Dough has no Donut execute-plan CI mailbox; this execution does not promise
-CI observation.
-
-Slice 2: selected context `--native HOST SCENARIO --results-dir DIR` retains
-`DIR/<host>/<case>/<attempt-id>/` (record, events, response, observations) and
-prints `result-path:` after deleting scratch. Unwritable DIR fails before
-launch. Cursor runtime is `cursor agent --version`. Cheap substitutes use
-`tests/support/native-agent-recorded.sh`. `native-codex.sh` isolates only when
-`codex` is a symlink (real native); non-symlink substitutes skip `sandbox-exec`
-so Ubuntu CI can run selected context. Focused proof:
-`bash tests/native-result-retention.sh`. `--native` without `--results-dir`
-still uses disposable scratch. Failures still lose scratch evidence (leaf 5).
-
-Slice 3: selected context `--native` accepts `--deadline SECONDS` (>= 1, default
-3600) and `--grace SECONDS` (>= 0, default 15). Invalid values fail before
-setup. Process-group ownership lives in `tests/support/native-run-supervise.sh`
-(`setsid` when present, otherwise `perl setpgrp`). Codex still isolates only
-when `codex` is a symlink. Delivery wrappers parse the flags but do not
-supervise yet. `tests/support/native-cases.sh` is at the 250-line limit; do not
-grow it. Focused proof: `bash tests/native-case-selection.sh` and
-`bash tests/native-result-retention.sh`. Hung-attempt kill remains leaf 4.
-
-Slice 4: hang substitute `tests/support/native-agent-hang.sh` starts a child,
-emits partial output, and ignores SIGTERM. Selected context with short
-`--deadline`/`--grace` returns 124, kills the owned group (after waiting for
-`setsid`/`setpgrp` detach so the caller group is not signaled), retains partial
-evidence, prints `result-path:`, and does not retry. Timeout records
-`execution-status: timeout` / `assessment-status: not-run`, not a wording pass.
-A prior completed attempt stays byte-identical. Focused proof:
-`bash tests/native-run-timeout.sh`. Other launch failures still lose scratch
-(leaf 5). Delivery wrappers still parse deadline/grace without supervising.
-
-Slice 5: selected context launch/failure is retained instead of lost to `set -e`
-or scratch cleanup. Missing executable (127), nonzero exit, and permission
-denied (126) write `execution-status: failed` with stderr/reason,
-`assessment-status: not-run`, and `result-path:`. Unknown runtime stays
-`unknown` (Cursor Agent is not inferred from `cursor --version`). Finalize must
-not abort on missing `command -v`. Focused proof:
-`bash tests/native-runner-failures.sh`. Incomplete stream with exit 0 remains
-leaf 6.
-
-Remaining-leaf refinement (after slices 1–2): old leaf 3 split into Structure
-(deadline/grace ownership, defaults leave success unchanged) plus Behavior
-(hang, kill owned tree, retain partial evidence). Old delivery leaves 6–8 split
-into one case per host (Codex 7–9, Cursor 10–12, Claude 13–15) so each leaf has
-one proof loop. Reassessment is leaf 16. Leaf sizing remains a hypothesis.
-
-Dependency extraction: former leaves 6–16 moved to Quick Plan 22 because they
-form the retained-artifact and reassessment boundary required by Quick Plan 21.
-This plan keeps checkpoint 6. The checkpoint must stop and wait when Quick Plan
-22 is incomplete; it must not duplicate that work.
+Keep test helpers under `tests/support/` so the test runner does not execute
+them independently. Keep shared selection logic small; do not add a framework.
+The former delivery and reassessment leaf lists are replaced by the reduced
+plan 22. Completed evidence above remains applicable only to its recorded scope.
