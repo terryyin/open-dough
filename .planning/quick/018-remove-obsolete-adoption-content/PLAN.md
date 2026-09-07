@@ -267,7 +267,7 @@ only through external tool runtime.
 ### 4a. Retire the fixed recognition path during forced replacement
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: An explicit forced install over a fixed earlier payload removes exactly
 the selected platform's `dough-adr-awareness/RECOGNITION.md`, verifies the final
 two-skill payload, then records the new version. Missing recognition is a clean
@@ -487,7 +487,7 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools. Execution resumes at 4a. Reassess after five minutes and follow Learning
+  three tools; 4a added confined forced retirement. Execution resumes at 4b. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `158`; rearmed before the 3c push.

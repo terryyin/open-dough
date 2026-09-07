@@ -11,8 +11,10 @@ usage() {
   exit 1
 }
 
-report_copy_failure() {
-  echo "Copy failed after replacement started. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
+report_incomplete_install() {
+  local reason=$1
+
+  echo "${reason} Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
   exit 1
 }
 
@@ -72,6 +74,8 @@ managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
 )
+retired_file=dough-adr-awareness/RECOGNITION.md
+retired_path="${destination_skill_root}/${retired_file}"
 
 for managed_file in "${managed_files[@]}"; do
   if [[ ! -f "${source_dir}/src/skills/${managed_file}" ]]; then
@@ -108,6 +112,12 @@ for managed_path in "${managed_skill_paths[@]}"; do
   fi
 done
 
+if [[ -L "${retired_path}" ]] \
+  || [[ -e "${retired_path}" && ! -f "${retired_path}" ]]; then
+  echo "Unsafe retired-file collision: expected a regular file or absent path at ${retired_path}. Move or remove it before installing." >&2
+  exit 1
+fi
+
 if [[ ${force} -ne 1 ]]; then
   for managed_path in "${managed_skill_paths[@]}"; do
     if [[ -d "${managed_path}" ]]; then
@@ -125,15 +135,19 @@ fi
 mkdir -p -- "${managed_skill_paths[@]}"
 if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == copy ]]; then
   printf '%s\n' 'partial-install' > "${destination}/SKILL.md"
-  report_copy_failure
+  report_incomplete_install 'Copy failed after replacement started.'
 fi
 
 for managed_file in "${managed_files[@]}"; do
   if ! cp -- "${source_dir}/src/skills/${managed_file}" \
     "${destination_skill_root}/${managed_file}"; then
-    report_copy_failure
+    report_incomplete_install 'Copy failed after replacement started.'
   fi
 done
+
+if [[ -e "${retired_path}" ]] && ! rm -- "${retired_path}"; then
+  report_incomplete_install 'Retirement failed after replacement started.'
+fi
 
 verification_failed=0
 for managed_file in "${managed_files[@]}"; do
@@ -142,10 +156,12 @@ for managed_file in "${managed_files[@]}"; do
     verification_failed=1
   fi
 done
+if [[ -e "${retired_path}" ]] || [[ -L "${retired_path}" ]]; then
+  verification_failed=1
+fi
 if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == verify ]] \
   || [[ ${verification_failed} -eq 1 ]]; then
-  echo "Installed payload verification failed. Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
-  exit 1
+  report_incomplete_install 'Installed payload verification failed.'
 fi
 
 printf '%s\n' "${version}" > "${destination}/VERSION"

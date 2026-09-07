@@ -118,6 +118,7 @@ expected_changes=$(
     "${target}/.agents/skills/dough-update/VERSION"; then
     printf '%s\n' '.agents/skills/dough-update/VERSION'
   fi
+  printf '%s\n' '.agents/skills/dough-adr-awareness/RECOGNITION.md'
 )
 expected_changes=$(printf '%s\n' "${expected_changes}" | LC_ALL=C sort)
 
@@ -132,8 +133,6 @@ snapshot() {
 }
 
 source_before=$(snapshot "${fixture_source}")
-installed_recognition_before=$(shasum -a 256 \
-  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md")
 native_copies_before=$(snapshot "${source_dir}/.agents/skills")
 native_copies_before+=$(snapshot "${source_dir}/.cursor/skills")
 native_copies_before+=$(snapshot "${source_dir}/.claude/skills")
@@ -173,9 +172,7 @@ for managed_file in "${managed_files[@]}"; do
   cmp "${fixture_source}/src/skills/${managed_file}" \
     "${target}/.agents/skills/${managed_file}"
 done
-installed_recognition_after=$(shasum -a 256 \
-  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md")
-[[ "${installed_recognition_after}" == "${installed_recognition_before}" ]]
+[[ ! -e "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
 
 actual_changes=$(git -C "${target}" diff --name-only | LC_ALL=C sort)
 [[ "${actual_changes}" == "${expected_changes}" ]]
@@ -214,4 +211,4 @@ printf 'fixture source digest: %s\n' "${source_digest}"
 printf '%s\n' \
   'PASS: the installed updater selected the disposable candidate tag, reported its actual source and pinned commit, and left the cloneable fixture source byte-identical.'
 printf '%s\n' \
-  'PASS: the selected Codex two-skill payload byte-matches every candidate source; an older recognition record remains unchanged for later retirement; tracked native releases, Cursor, Claude Code, unrelated guidance, distributable source, and project files are unchanged.'
+  'PASS: the selected Codex two-skill payload byte-matches every candidate source; its older recognition record is retired; tracked native releases, Cursor, Claude Code, unrelated guidance, distributable source, and project files are unchanged.'
