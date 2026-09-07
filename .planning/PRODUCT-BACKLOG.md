@@ -38,18 +38,17 @@ pending evidence. The earlier migration assessment is background only.
 
 Execute these plans in order:
 
-1. [Plan 20](quick/020-select-and-retain-native-checks/PLAN.md): leaves 1–5 are
-   done. Finish its own runner checkpoint; it no longer waits for plan 22.
-2. [Plan 22](quick/022-retain-native-evidence-for-verdicts/PLAN.md): leaf 1 is
+1. [Plan 22](quick/022-retain-native-evidence-for-verdicts/PLAN.md): leaf 1 is
    done. Add the shared update→fresh-use journey and small adapter checks. This
    completes [Story 1](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks).
-3. [Plan 21](quick/021-trust-native-verdicts/PLAN.md): four planned leaves repair
+   [Plan 20](quick/020-select-and-retain-native-checks/PLAN.md) is complete.
+2. [Plan 21](quick/021-trust-native-verdicts/PLAN.md): four planned leaves repair
    shared activation, ADR behavior, combined update/use, and legacy-refusal
    checks. Use the retained evidence; document review instead of building a prose
    grading or reassessment system. This delivers
    [Story 2](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts).
 
-Seven leaves remain across these plans, including plan 20's final checkpoint.
+Six leaves remain across these plans.
 Completed evidence is retained. Native acceptance stays in Story 3; no native
 run, client work, or release is part of these implementation plans.
 

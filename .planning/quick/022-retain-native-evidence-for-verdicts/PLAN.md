@@ -1,7 +1,7 @@
 # Retain evidence for a representative update and fresh use
 
 Status: in-progress; leaf 1 done, leaves 2–3 planned.
-Order: **20 → 22 → 21**. Finish plan 20's checkpoint before continuing here.
+Order: **20 → 22 → 21**. Plan 20's checkpoint is complete.
 
 ## Scope
 

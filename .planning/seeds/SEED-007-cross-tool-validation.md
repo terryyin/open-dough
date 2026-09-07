@@ -36,7 +36,7 @@ acceptance criteria.
 
 ### 1. Run one needed native check without replaying or losing the others
 
-**Status:** In progress. Plan 20 leaves 1–5 and plan 22 leaf 1 are done.
+**Status:** In progress. Plan 20 is complete. Plan 22 leaf 1 is done.
 **Type:** Test tooling.
 **Plans:** [20](../quick/020-select-and-retain-native-checks/PLAN.md) then
 [22](../quick/022-retain-native-evidence-for-verdicts/PLAN.md).
