@@ -37,6 +37,8 @@ native_case_print_usage() {
   printf 'Listing is read-only and does not run an agent or probe its version.\n'
   printf '%s\n' \
     '--results-dir is optional for listing and need not be writable or exist.'
+  printf '%s\n' \
+    'Selected native launch with --results-dir requires a writable directory; without it the native path still uses disposable scratch.'
 }
 
 native_case_fail() {

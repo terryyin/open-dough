@@ -1,6 +1,6 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slice 1 done. Refinement remains recommended for leaves 3
+Status: executing; slices 1–2 done. Refinement remains recommended for leaves 3
 and 6–8 before those slices. No `--native` run is part of this plan's
 verification.
 
@@ -149,7 +149,7 @@ Sizing: approximately five minutes, medium confidence; keep inventory static.
 
 ### 2. Keep a selected context attempt after scratch cleanup
 Type: Behavior
-Status: planned
+Status: done
 Proof: Invoke each existing host/scenario path with a successful substitute;
 check only the selected session ran, scratch is gone, and record plus required
 artifacts remain readable under `DIR/<host>/<case>/<attempt-id>/` so listing
@@ -303,6 +303,16 @@ Selected delivery `--case` is recognized and rejected before setup so it cannot
 fall through to the full `--native` journey; leaves 6–8 replace that interim.
 Open Dough has no Donut execute-plan CI mailbox; this execution does not promise
 CI observation.
+
+Slice 2: selected context `--native HOST SCENARIO --results-dir DIR` retains
+`DIR/<host>/<case>/<attempt-id>/` (record, events, response, observations) and
+prints `result-path:` after deleting scratch. Unwritable DIR fails before
+launch. Cursor runtime is `cursor agent --version`. Cheap substitutes use
+`tests/support/native-agent-recorded.sh`. `native-codex.sh` isolates only when
+`codex` is a symlink (real native); non-symlink substitutes skip `sandbox-exec`
+so Ubuntu CI can run selected context. Focused proof:
+`bash tests/native-result-retention.sh`. `--native` without `--results-dir`
+still uses disposable scratch. Failures still lose scratch evidence (leaf 4).
 
 Refinement is complete at story level. **Refinement recommended: leaves 3 and
 6–8**, because process ownership and the first delivery integration/stream

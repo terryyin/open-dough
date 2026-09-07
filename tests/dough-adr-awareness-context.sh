@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091 # Shared helpers are linted separately.
-# shellcheck disable=SC2034,SC2154 # native_case_* globals are shared with native-cases.sh.
+# shellcheck disable=SC2034,SC2154 # native_case_* and native_result_* globals are shared.
 # shellcheck disable=SC2312 # pipefail protects snapshot/digest pipelines.
 set -Eeuo pipefail
 
@@ -13,12 +13,17 @@ source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
 # shellcheck source=tests/support/native-cases.sh
 source "${source_dir}/tests/support/native-cases.sh"
+# shellcheck source=tests/support/native-result-retain.sh
+source "${source_dir}/tests/support/native-result-retain.sh"
 
 native_case_entry='tests/dough-adr-awareness-context.sh'
 native_case_parse --wrapper context "$@"
 if [[ ${native_case_mode} == 'list' ]]; then
   native_case_print_listing
   exit 0
+fi
+if [[ ${native_case_mode} == 'native-context' && -n ${native_case_results_dir} ]]; then
+  native_result_require_writable "${native_case_results_dir}"
 fi
 
 skill_root_for() {
@@ -33,6 +38,8 @@ skill_root_for() {
 temporary_dir=$(mktemp -d)
 transcript="${temporary_dir}/native.jsonl"
 output_file="${temporary_dir}/response.md"
+native_stderr="${temporary_dir}/stderr.log"
+: > "${native_stderr}"
 finish() {
   local status=$?
   if ((status != 0)); then
@@ -106,25 +113,26 @@ fi
 case ${platform} in
   codex)
     native_codex_prepare "${temporary_dir}" "${candidate}"
-    tool_version=$(codex --version)
-    native_codex_run "${target}" "${output_file}" "${prompt}" "${transcript}"
+    tool_version=$(codex --version 2>> "${native_stderr}")
+    native_codex_run "${target}" "${output_file}" "${prompt}" "${transcript}" \
+      2>> "${native_stderr}"
     ;;
   cursor)
-    tool_version=$(cursor agent --version)
+    tool_version=$(cursor agent --version 2>> "${native_stderr}")
     (
       cd -- "${target}"
       cursor agent --print --force --trust --sandbox enabled \
         --output-format stream-json --workspace "${target}" "${prompt}"
-    ) > "${transcript}"
+    ) > "${transcript}" 2>> "${native_stderr}"
     jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
     ;;
   claude)
-    tool_version=$(claude --version)
+    tool_version=$(claude --version 2>> "${native_stderr}")
     (
       cd -- "${target}"
       claude --print --permission-mode default --allowedTools 'Read,Glob,Grep,Skill' \
         --no-session-persistence --output-format stream-json --verbose "${prompt}"
-    ) > "${transcript}"
+    ) > "${transcript}" 2>> "${native_stderr}"
     jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
     ;;
   *) exit 2 ;;
@@ -226,3 +234,7 @@ printf '\nNative transcript for loading and behavior review:\n'
 cat "${transcript}"
 printf '\nPASS: %s %s native assessment; candidate and complete target unchanged.\n' \
   "${platform}" "${scenario}"
+if [[ -n ${native_case_results_dir} ]]; then
+  native_result_finalize_context
+  printf 'result-path: %s\n' "${native_result_attempt_dir}"
+fi

@@ -6,15 +6,17 @@ checks. Native discovery, invocation, and behavior claims stay pending
 
 Leaf 1 of `.planning/quick/020-select-and-retain-native-checks/PLAN.md` owns
 `--list`, `--results-dir` for listing, invalid host/case/option rejection, and
-the usage text. It does not run selected delivery cases, retain attempts,
-enforce timeouts, check stream completeness, or reassess saved evidence.
+the usage text. Leaf 2 owns selected context launch with a **writable**
+`--results-dir` (durable attempt under `DIR/<host>/<case>/<attempt-id>/`).
+These leaves do not run selected delivery cases, enforce timeouts, check
+stream completeness, or reassess saved evidence.
 
 ## Shared options
 
 | Option | Meaning |
 | --- | --- |
 | `--list` | Print the wrapper's inventory (host, case, purpose, setup, dependencies, prior-evidence). Read-only: no agent, no version probe, no fixture creation. |
-| `--results-dir DIR` | Optional result directory. Listing may read `DIR/<host>/<case>/<attempt-id>/` as **unreviewed** prior-evidence; it never certifies reuse. DIR need not exist or be writable for listing. |
+| `--results-dir DIR` | Result directory. Listing may read `DIR/<host>/<case>/<attempt-id>/` as **unreviewed** prior-evidence; it never certifies reuse. DIR need not exist or be writable for listing. Selected native launch requires DIR to be a writable directory before fixture or agent launch; omit it to keep the disposable scratch path. |
 | `--case CASE` | Select one inventory case. Unknown values fail before setup. |
 | `--native` | Existing native opt-in. |
 
@@ -39,8 +41,11 @@ tests/dough-adr-awareness-context.sh --native HOST --case context/clear|context/
 ```
 
 `HOST` is `codex`, `cursor`, or `claude`. `SCENARIO` is `clear` or `conflict`.
-No arguments: current deterministic cheap check. `--native HOST SCENARIO` is
-the existing native launch path (leaf 2 owns result retention). `--list` prints
+No arguments: current deterministic cheap check. `--native HOST SCENARIO`
+without `--results-dir` is the existing scratch-and-delete launch. With a
+writable `--results-dir DIR`, leaf 2 retains the attempt at
+`DIR/<host>/context/<scenario>/<attempt-id>/`, reports `result-path:`, and
+deletes scratch. An unwritable DIR fails before launch. `--list` prints
 context cases for all three hosts.
 
 ## Delivery wrappers
@@ -67,6 +72,13 @@ parsed and not launched (leaves 6–8).
 Credential-free proof for leaf 1: listing prints the inventory and dependencies
 with zero sentinel agent calls; invalid input exits nonzero before fixtures;
 default no-argument checks still pass.
+
+## `tests/native-result-retention.sh`
+
+Credential-free proof for leaf 2: selected context runs with recorded PATH
+substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
+runtime identity comes from `cursor agent --version`. An unwritable
+`--results-dir` launches nothing.
 
 ## Later leaves (not this file's contract)
 
