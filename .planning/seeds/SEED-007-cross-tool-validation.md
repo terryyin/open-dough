@@ -36,7 +36,7 @@ acceptance criteria.
 
 ### 1. Run one needed native check without replaying or losing the others
 
-**Status:** In progress. Plan 20 is complete. Plan 22 leaves 1–2 are done.
+**Status:** Complete for cheap checks. Plans 20 and 22 are done. Story 3 owns outstanding native evidence per tool.
 **Type:** Test tooling.
 **Plans:** [20](../quick/020-select-and-retain-native-checks/PLAN.md) then
 [22](../quick/022-retain-native-evidence-for-verdicts/PLAN.md).
@@ -182,9 +182,8 @@ is required for this planning work.
 
 ## Order and completion
 
-Execute **20 → 22 → 21**. Plans 20 and 22 deliver Story 1; plan 21 delivers
-Story 2. Plan 20's final checkpoint checks its own completed runner work and
-does not wait for plan 22. Preserve plan 22's completed leaf 1.
+Execute **20 → 22 → 21**. Plans 20 and 22 delivered Story 1 cheap checks; plan 21
+delivers Story 2. Story 3 owns outstanding native evidence per tool.
 
 Refine Story 3 against the actual candidate before native execution. Do Story 4
 last after reconsidering its underlying stories. Keep this seed until the scoped

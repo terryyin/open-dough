@@ -3,6 +3,9 @@
 # Logs every invocation, including version probes. The update stage applies the
 # genuine local fixture installer against the target; the use stage emits
 # recorded evidence. Does not infer an update from final payload bytes.
+# Codex uses -C/-o plus a type:item complete event. Cursor and Claude Code emit
+# stream-json type:result complete events; workspace comes from --workspace or PWD.
+# NATIVE_AGENT_STREAM=truncated|missing|unknown skips apply and emits that shape.
 # shellcheck disable=SC2016,SC2249,SC2312 # Literal invocation marker; optional flag scan.
 set -euo pipefail
 
@@ -55,6 +58,10 @@ while [[ ${idx} -lt ${#args[@]} ]]; do
   idx=$((idx + 1))
 done
 prompt=${args[$((${#args[@]} - 1))]}
+if [[ -z ${workspace} ]]; then
+  workspace=${PWD}
+fi
+stream_kind=${NATIVE_AGENT_STREAM:-complete}
 
 stage=
 if [[ ${prompt} == *'dough-update'* ]]; then
@@ -75,8 +82,52 @@ write_codex_complete() {
   printf '%s\n' '{"type":"item"}'
 }
 
+write_stream_result() {
+  jq -n -c --arg result "$1" '{type:"result",result:$result}'
+}
+
+emit_incomplete_stream() {
+  case ${stream_kind} in
+    missing)
+      exit 0
+      ;;
+    unknown)
+      printf '%s\n' '{"unrecognized":true}'
+      exit 0
+      ;;
+    truncated)
+      case ${host} in
+        cursor)
+          printf '%s\n' '{"tool_call":{}}'
+          ;;
+        claude)
+          printf '%s\n' '{"message":{}}'
+          ;;
+        *)
+          printf '%s\n' '{"type":"thread.started"}'
+          ;;
+      esac
+      exit 0
+      ;;
+    *)
+      printf 'error: journey substitute does not implement stream %s\n' \
+        "${stream_kind}" >&2
+      exit 1
+      ;;
+  esac
+}
+
+if [[ ${stream_kind} != 'complete' ]]; then
+  emit_incomplete_stream
+fi
+
+use_response=$(printf '%s\n' \
+  'Invocation: $dough-adr-awareness' \
+  '' \
+  'Stopped: architecture/decisions/CATALOG.md reports Replaced for ARC-12, while architecture/decisions/retain-complete-telemetry-history.md is Adopted. This conflict is unresolved. Cannot proceed until a human who owns precedence resolves the disagreement. No decision or implementation was changed.')
+
 if [[ ${stage} == 'update' ]]; then
-  if [[ -z ${workspace} || -z ${output_file} ]]; then
+  if [[ ${host} == 'codex' && -z ${output_file} ]]; then
     printf 'error: journey substitute update requires -C and -o.\n' >&2
     exit 1
   fi
@@ -100,20 +151,28 @@ if [[ ${stage} == 'update' ]]; then
     codex | cursor | claude) ;;
     *) platform=codex ;;
   esac
-  bash "${installer}" apply \
-    --url "${url}" --target "${workspace}" --platform "${platform}" \
-    > "${output_file}"
-  write_codex_complete
+  if [[ ${host} == 'codex' ]]; then
+    bash "${installer}" apply \
+      --url "${url}" --target "${workspace}" --platform "${platform}" \
+      > "${output_file}"
+    write_codex_complete
+    exit 0
+  fi
+  report=$(
+    bash "${installer}" apply \
+      --url "${url}" --target "${workspace}" --platform "${platform}"
+  )
+  write_stream_result "${report}"
   exit 0
 fi
 
-if [[ -z ${output_file} ]]; then
-  printf 'error: journey substitute use requires -o.\n' >&2
-  exit 1
+if [[ ${host} == 'codex' ]]; then
+  if [[ -z ${output_file} ]]; then
+    printf 'error: journey substitute use requires -o.\n' >&2
+    exit 1
+  fi
+  printf '%s\n' "${use_response}" > "${output_file}"
+  write_codex_complete
+  exit 0
 fi
-printf '%s\n' \
-  'Invocation: $dough-adr-awareness' \
-  '' \
-  'Stopped: architecture/decisions/CATALOG.md reports Replaced for ARC-12, while architecture/decisions/retain-complete-telemetry-history.md is Adopted. This conflict is unresolved. Cannot proceed until a human who owns precedence resolves the disagreement. No decision or implementation was changed.' \
-  > "${output_file}"
-write_codex_complete
+write_stream_result "${use_response}"

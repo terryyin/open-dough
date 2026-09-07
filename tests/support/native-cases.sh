@@ -56,10 +56,6 @@ native_case_fail() {
   exit 2
 }
 
-native_case_reject_unlaunched_selected() {
-  native_case_fail "selected case '${native_case_id}' is recognized and not launched"
-}
-
 native_case_reject_unavailable_selected() {
   native_case_fail "selected case '${native_case_id}' is recognized and unavailable for selected launch"
 }

@@ -85,14 +85,43 @@ delivery cases. `--native` plus junk, or an unknown `--case`, fails before
 `delivery_prepare_fixture`. `delivery/legacy-refusal` and
 `delivery/ordinary-update` are recognized and unavailable for selected launch
 (fail before setup). `--native --case delivery/updated-use` is the combined
-update then fresh use journey in one attempt. Codex launches that selected
-journey. Cursor and Claude Code parse the selector and do not launch it.
-`--deadline` and `--grace` apply to the selected launch (defaults 3600 and 15).
-A writable `--results-dir DIR` retains both stages under
-`DIR/<host>/delivery/updated-use/<attempt-id>/`, prints `result-path:`, and
-deletes scratch. Failed update starts no use; failed use retains the
-successful update and the use failure. The selected path does not run native
-legacy refusal and does not retry.
+update then fresh use journey in one attempt. Codex, Cursor, and Claude Code
+each launch it through the shared journey helpers and that host's command/event
+adapter (`native_run_context_command`). `--deadline` and `--grace` apply to
+both supervised stages (defaults 3600 and 15). A writable `--results-dir DIR`
+retains both stages under `DIR/<host>/delivery/updated-use/<attempt-id>/`,
+prints `result-path:`, and deletes scratch. Failed update starts no use; failed
+use retains the successful update and the use failure. The selected path does
+not run native legacy refusal and does not retry.
+
+### Retained selected journey evidence
+
+A human reviewing whether a saved attempt still applies looks at that attempt
+directory, not at live workspace bytes. Current retained contents:
+
+| Path | What it is |
+| --- | --- |
+| `record` | Host, case, origin (`fresh`), execution-status/reason, assessment-status (`not-run`), native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
+| `update-events.jsonl` / `use-events.jsonl` | Raw supervised streams |
+| `update-response.md` / `use-response.md` | Decoded stage output |
+| `update-stderr.log` / `use-stderr.log` | Stage stderr |
+| `update-before-snapshot.txt` / `update-after-snapshot.txt` | Target file digests around update |
+| `use-before-snapshot.txt` / `use-after-snapshot.txt` | Target file digests around use |
+| `source-before-snapshot.txt` / `source-after-snapshot.txt` | Fixture source digests |
+| `observations.txt` | Stage outcomes, `same-target`, `real-transition`, preservation flags, versions |
+
+Record fields used for applicability: `host`, `case`, `native-version-command`,
+`native-version`, `adapter-identity`, `helper-identity`, `fixture-identity`,
+`fixture-tag`, `bootstrap-tag`, `update-prompt-identity`, `use-prompt-identity`,
+and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
+`cursor --version`. Adapter identities are `tests/support/native-codex.sh`,
+`cursor-agent-stream-json`, and `claude-stream-json`. Codex complete streams use
+`{"type":"item"}` with response bytes from `-o`. Cursor and Claude Code complete
+streams use `{"type":"result"}`; `update-response.md` / `use-response.md` are
+decoded from `.result`. Incomplete, truncated, or unknown streams stay
+`execution-status: incomplete` with `assessment-status: not-run`. Execution
+completion is not a behavior verdict. Native credentialed runs stay pending
+(SEED-007 Story 3).
 
 ## Focused proof scripts
 
@@ -102,8 +131,7 @@ native discovery, invocation, or behavior.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and
-  `delivery/ordinary-update` stay unavailable; Cursor and Claude Code selected
-  `delivery/updated-use` stay unlaunched.
+  `delivery/ordinary-update` stay unavailable.
 - `tests/native-result-retention.sh` — selected context runs with recorded PATH
   substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
   runtime identity comes from `cursor agent --version`. An unwritable
@@ -133,3 +161,9 @@ native discovery, invocation, or behavior.
   successful update and the use failure. The invocation log has no legacy
   refusal and no retry. Supervisor `--deadline`/`--grace` are accepted on the
   selected path.
+- `tests/native-delivery-updated-use-adapters.sh` — Cursor and Claude Code
+  `--native --case delivery/updated-use` through the same shared journey. Each
+  adapter records Agent/`claude --version` identity, `--output-format
+  stream-json` launches, decoded `type:result` responses, and retained stage
+  artifacts. A truncated stream-json stage stays incomplete and does not start
+  use. Does not repeat the Codex product-failure matrix.

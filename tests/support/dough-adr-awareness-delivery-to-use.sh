@@ -49,9 +49,8 @@ delivery_parse_native_case_args() {
     native-selected)
       case ${native_case_id} in
         delivery/updated-use)
-          if [[ ${delivery_platform} != 'codex' ]]; then
-            native_case_reject_unlaunched_selected
-          fi
+          delivery_run_selected_updated_use
+          exit 0
           ;;
         delivery/legacy-refusal | delivery/ordinary-update)
           native_case_reject_unavailable_selected

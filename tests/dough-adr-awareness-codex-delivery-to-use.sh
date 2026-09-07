@@ -37,11 +37,6 @@ if [[ ${native_case_mode} == 'default' ]]; then
   exit 0
 fi
 
-if [[ ${native_case_mode} == 'native-selected' ]]; then
-  delivery_run_selected_updated_use
-  exit 0
-fi
-
 command -v codex > /dev/null
 delivery_prepare_fixture
 delivery_assert_legacy_install

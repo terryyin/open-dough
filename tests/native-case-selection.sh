@@ -137,18 +137,16 @@ assert_invalid "${cursor_wrapper}" --native extra
 assert_invalid "${claude_wrapper}" --case delivery/legacy-refusal
 assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal --bogus
 
-# Recognized selected delivery --case: unavailable stages fail before setup;
-# Cursor and Claude Code combined journeys stay unlaunched this leaf.
+# Recognized selected delivery --case: unavailable stages fail before setup.
+# Selected delivery/updated-use launch is covered by the adapter proofs.
 assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal
 grep -Fq 'unavailable for selected launch' "${stderr_file}"
 assert_invalid "${codex_wrapper}" --native --case delivery/ordinary-update
 grep -Fq 'unavailable for selected launch' "${stderr_file}"
 assert_invalid "${cursor_wrapper}" --native --case delivery/legacy-refusal
 assert_invalid "${cursor_wrapper}" --native --case delivery/ordinary-update
-assert_invalid "${cursor_wrapper}" --native --case delivery/updated-use
 assert_invalid "${claude_wrapper}" --native --case delivery/legacy-refusal
 assert_invalid "${claude_wrapper}" --native --case delivery/ordinary-update
-assert_invalid "${claude_wrapper}" --native --case delivery/updated-use
 
 printf 'Running existing default wrapper checks.\n'
 bash "${context_wrapper}"

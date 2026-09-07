@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Combined delivery/updated-use journey: inspected bootstrap, real update, then
-# fresh use in one attempt. Host wrappers decide whether to launch; this helper
-# keeps stage retention and observations host-agnostic for later adapters.
+# fresh use in one attempt. Each host wrapper launches this helper; stage
+# files and observations stay host-agnostic via ${delivery_platform}.
 # shellcheck disable=SC2034,SC2154,SC2312 # Wrappers and retention consume these globals.
 
 delivery_update_outcome=unrun
