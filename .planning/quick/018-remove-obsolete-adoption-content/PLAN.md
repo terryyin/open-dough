@@ -393,7 +393,7 @@ Size: high confidence, one small dispatch cleanup.
 ### 6. Check the codebase without an unused TypeScript toolchain
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Regenerate the lockfile using the existing npm workflow, perform a clean
 `npm ci`, and run `npm run lint`. Review that JS strictness and shell discovery,
 formatting, warnings-as-errors, and CI entry points remain intact. Dependency
@@ -487,7 +487,7 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a–4g completed retirement; 5 removed only unused command wrappers. Execution resumes at 6. Reassess after five minutes and follow Learning
+  three tools; 4a–4g completed retirement; 5 removed unused wrappers; 6 removed the unused TypeScript toolchain with clean install/lint proof. Execution resumes at 7. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `274`; rearmed before the 4g push.

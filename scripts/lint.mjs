@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 process.chdir(fileURLToPath(new URL("..", import.meta.url)));
 
 const fix = process.argv.includes("--fix");
-const prettierFiles = "**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx,json,jsonc}";
+const prettierFiles = "**/*.{js,cjs,mjs,jsx,json,jsonc}";
 let failed = false;
 
 function run(command, args, options = {}) {
