@@ -145,7 +145,7 @@ because the focused external tools run serially.
 ### 2a. Prove unreleased candidates without equating them to released copies
 
 Type: Structure
-Status: planned
+Status: done
 Proof: The adjusted expanded-payload fixture installs and verifies the candidate
 source in a disposable tagged repository; existing installed-release identity
 checks still validate their recorded release. No tracked native skill copy or
@@ -484,8 +484,8 @@ messages as native verification. No checks have been executed for this plan.
   The only stated hard-limit exceptions are focused native-tool runtime; editing,
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
-  fixture; all named native use/context observations passed unchanged.
-  Execution resumes at 2a. Reassess after five minutes and follow Learning
+  fixture; 2a decoupled candidate proof from released-copy identity.
+  Execution resumes at 2b. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `17`; started before the first push.
