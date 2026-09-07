@@ -110,6 +110,7 @@ delivery_assert_update() {
   local update_output=$1
   local require_native_report=${2:-1}
   local source_after source_status companion_after actual_changes expected_changes
+  local recognition_install_claims recognition_unqualified_lines
 
   source_after=$(delivery_snapshot "${delivery_fixture_source}")
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
@@ -147,8 +148,21 @@ delivery_assert_update() {
       grep -Fq "${delivery_skill_root}/${managed_file}" "${update_output}"
     done
   fi
-  if grep -Fq 'RECOGNITION.md' "${update_output}"; then
-    echo 'FAIL: current updater reported recognition as installed payload.' >&2
+  if recognition_install_claims=$(
+    grep -Ei 'RECOGNITION\.md' "${update_output}" \
+      | grep -Ei 'install(ed|ing)?|cop(y|ied)|writ(e|ten)|wrote|creat(e|ed)|add(ed|ing)?' \
+      | grep -Eiv '(not ([^[:space:]]+ )*installed|did not .*install|retir|remov|exclud)'
+  ); then
+    echo 'FAIL: current updater claimed recognition was installed:' >&2
+    printf '%s\n' "${recognition_install_claims}" >&2
+    return 1
+  fi
+  if recognition_unqualified_lines=$(
+    grep -Ei 'RECOGNITION\.md' "${update_output}" \
+      | grep -Eiv '(RECOGNITION\.md.{0,160}(retir|remov|source[- ]only|not ([^[:space:]]+ )*installed|excluded from ([^[:space:]]+ )*installed))|((retir|remov|source[- ]only|not ([^[:space:]]+ )*installed|excluded from ([^[:space:]]+ )*installed).{0,160}RECOGNITION\.md)'
+  ); then
+    echo 'FAIL: current updater reported recognition without its retired/source-only boundary:' >&2
+    printf '%s\n' "${recognition_unqualified_lines}" >&2
     return 1
   fi
 }

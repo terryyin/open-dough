@@ -86,7 +86,7 @@ Retain deliberately:
 | A client with local ADR context can use installed guidance without a migration rehearsal | 1a: direct fixture retains explicit/automatic Codex use; 1b: the same direct context produces the required clear/conflict result in all three tools. |
 | Asking the updater to replace local guidance does not start an adoption workflow | 2b–2d: Codex, Cursor, and Claude Code each decline unsupported replacement without changing local guidance or fetching migration support; 2a first permits unreleased candidate proof without changing released copies. |
 | A fresh client contains working guidance and its version, with no recognition record | 3b: all three install entry points and byte/coexistence checks; 3c: native Codex 0.144.1, Cursor 2026.09.02-c22c1a3, and Claude Code 2.1.263 each loaded and applied the clean installed skill with unchanged source/target snapshots. 3a first makes the shared fixture boundary payload-size-neutral. |
-| Updating an earlier payload removes its obsolete recognition only in the selected installation | 4a: safe forced retirement; 4b: honest removal failure; 4c: ordinary newer-release retirement; 4d: equal-version no-write; 4e–4g: independent Codex, Cursor, and Claude Code legacy-to-new delivery/use transitions. |
+| Updating an earlier payload removes its obsolete recognition only in the selected installation | 4a: safe forced retirement; 4b: honest removal failure; 4c: ordinary newer-release retirement; 4d: equal-version no-write; 4e–4g: native Codex, Cursor, and Claude Code legacy-to-new delivery/use transitions independently passed with recognition absent and coexistence unchanged. |
 | Removing unused commands does not remove version-aware installation/update | 5: existing validation/version/update/cleanup checks pass; removed commands are absent from dispatch/help. |
 | Maintainers can install and run checks without the unused TypeScript toolchain | 6: clean locked dependency install and existing lint command succeed; active JS/shell checks remain configured. |
 | Current direction is discoverable without obsolete execution instructions | 7: historical procedure removed, current story/ADR links resolve, retained evidence remains accessible with its original scope/status. |
@@ -364,7 +364,7 @@ Size: high confidence; platform-local harness plus native runtime exception.
 ### 4g. Transition a legacy Claude Code installation to native use
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Apply the 4e transition boundary independently in the Claude Code
 delivery-to-use harness, including old-updater refusal, inspected bootstrap,
 fresh-session ordinary update, native skill improvement, absent recognition,
@@ -487,9 +487,9 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a–4d proved retirement boundaries; 4e–4f passed native Codex and Cursor legacy transitions. Execution resumes at 4g. Reassess after five minutes and follow Learning
+  three tools; 4a–4d proved retirement boundaries; 4e–4g passed all native legacy transitions. Execution resumes at 5. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `239`; rearmed before the 4f push.
+  `/Users/terryyin/git/open-dough`, Codex cell `274`; rearmed before the 4g push.
 - No client update, release, ADR status, tagged metadata, or tracked native-copy
   change has been performed.
