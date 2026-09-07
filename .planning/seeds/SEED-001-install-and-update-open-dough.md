@@ -147,7 +147,8 @@ Story 7 now contains the current refinement and planned native evidence.
 
 - **Status:** Complete, 2026-09-06. GitHub installation into Open Dough and
   fresh Codex invocation verified; repeat protection and forced replacement
-  passed the focused installer check. [Execution outcome](../quick/001-install-update-placeholder/PLAN.md).
+  passed the focused installer check. The spent plan was dropped after
+  acceptance.
 
 #### Goal
 
@@ -169,7 +170,7 @@ start using the installation flow and learn from it.
 
 - **Status:** Complete, 2026-09-06. Supplied-URL fixture, GitHub self-update,
   fresh-session wording, and unchanged-content reapplication verified.
-  [Execution evidence](../quick/002-update-installed-guidance/PLAN.md).
+  The spent plan was dropped after acceptance.
 
 #### Goal
 
@@ -264,7 +265,7 @@ tools; platforms are not separate product stories.
 ### 4. Create an identifiable Open Dough release with the internal skill
 
 - **Status:** Completed 2026-09-06. Published annotated `v0.1.0` on `53b6da2`.
-  Native proof is in the [story plan](../quick/004-versioned-updates/PLAN.md).
+  Native proof is in the [story evidence](../quick/004-versioned-updates/EVIDENCE.md).
 
 #### Goal
 
@@ -338,8 +339,9 @@ outcome without waiting for the separate update-time replacement story.
 - Preserve project containment, source files, local ADRs and their callers,
   unrelated guidance, other tools' installations, and home guidance. The internal
   skills and repository acceptance guard remain undistributed. Reuse the
-  [completed containment and copy-failure fixes](../quick/012-harden-public-guidance-installation/PLAN.md);
-  they are existing safeguards to retain, not unfinished implementation.
+  completed containment and copy-failure fixes now in `tests/`; they are
+  existing safeguards to retain, not unfinished implementation. The spent
+  hardening plan was dropped after acceptance.
 - Release/fetch/validation or unsafe-destination failures stop before target
   writes, without a lower-tag or branch fallback. A failure after copying begins
   reports possible incomplete files and leaves the last successful version
@@ -387,7 +389,7 @@ updating, repeat/force, and containment remain retained.
 | Cursor | Quick 007 slice 14: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op. These later runs establish stable discovery beyond Quick 008's earlier file read. | Passed: Cursor Agent 2026.09.02-c22c1a3, session `cdbdd351-db77-41d1-9e5f-a13ce5fc774f`; corrected-guide installation, full call-chain inspection, byte/record verification, preservation, and cleanup. |
 | Claude Code | Quick 007 slice 16: installed updater, fresh ADR use, and coexistence; Story 5b: version-aware decisions and no-op; original Quick 008 updater discovery. | Passed: Claude Code 2.1.263, session `02b2fb98-25d5-48a5-b10d-e6078773cb13`; full persisted inspection read before direct installation, byte/record verification, preservation, and cleanup. |
 
-[Quick 007](../quick/007-generalize-project-guidance/PLAN.md)'s original native
+[Quick 007 evidence](../quick/007-generalize-project-guidance/EVIDENCE.md)'s original native
 delivery used default-branch fixtures. Its unchanged discovery/ADR observations
 remain reusable; they do not establish the changed release-install route.
 The three new native runs used a disposable source with competing tags and a
@@ -552,13 +554,13 @@ a missing native observation.
 
 | Platform | Native evidence retained while unchanged | Publication evidence completed |
 | --- | --- | --- |
-| Codex | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Codex mapping were unchanged; the public `v0.2.0` complete tree matches the finalized tree. |
-| Cursor | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Cursor mapping were unchanged; the same independently fetched complete tree preserves it. |
-| Claude Code | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Claude Code mapping were unchanged; the same independently fetched complete tree preserves it. |
+| Codex | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/EVIDENCE.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Codex mapping were unchanged; the public `v0.2.0` complete tree matches the finalized tree. |
+| Cursor | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/EVIDENCE.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Cursor mapping were unchanged; the same independently fetched complete tree preserves it. |
+| Claude Code | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): older/equal/newer decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/EVIDENCE.md): updater invocation, fresh ADR discovery/use, and coexistence. | Done: covered source and Claude Code mapping were unchanged; the same independently fetched complete tree preserves it. |
 
 The unchanged internal release workflow has separate native discovery/invocation,
 prepare/finalize, and coexistence evidence for all three tools in
-[Quick 004](../quick/004-versioned-updates/PLAN.md#native-evidence). One new
+[Quick 004 evidence](../quick/004-versioned-updates/EVIDENCE.md). One new
 publication and fresh-fetch observation can establish release availability for
 the common source; it does not claim new native self-use or Donut replacement.
 
@@ -585,7 +587,7 @@ Story 5e owns adoption.
 - **Status:** Complete 2026-09-06. All nine independent native adoption,
   ADR-use, and no-write observations passed. The released installation is
   committed at `706af65`; detailed sessions and preservation evidence remain in
-  [Quick 011](../quick/011-adopt-version-aware-updater/PLAN.md).
+  [Quick 011 evidence](../quick/011-adopt-version-aware-updater/EVIDENCE.md).
 - **Depends on:** [Publication (5d)](#publish-version-aware-updater), complete.
 - **Effort hypothesis:** S–M, medium confidence; assumes the released flow works
   unchanged and fresh native sessions are available for all three tools.
@@ -667,9 +669,9 @@ static evidence, not a new native installation or update result.
 
 | Platform / native root | Earlier evidence retained while unchanged | New self-use evidence |
 | --- | --- | --- |
-| Codex / .agents/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Codex CLI 0.144.1 independently adopted v0.2.0, used installed ADR-awareness, and twice proved selected-root `apply-skip-equal` with no install or metadata write; the second proof preserved the newer post-main local updater. |
-| Cursor / .cursor/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Cursor 3.19.13 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
-| Claude Code / .claude/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/PLAN.md): native discovery, invocation, ADR use, and coexistence. | Complete: Claude Code 2.1.263 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
+| Codex / .agents/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slices 11–12](../quick/007-generalize-project-guidance/EVIDENCE.md): native discovery, invocation, ADR use, and coexistence. | Complete: Codex CLI 0.144.1 independently adopted v0.2.0, used installed ADR-awareness, and twice proved selected-root `apply-skip-equal` with no install or metadata write; the second proof preserved the newer post-main local updater. |
+| Cursor / .cursor/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 14](../quick/007-generalize-project-guidance/EVIDENCE.md): native discovery, invocation, ADR use, and coexistence. | Complete: Cursor 3.19.13 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
+| Claude Code / .claude/skills/ | [5a](#install-latest-release): native pinned installation; [5b](#update-only-when-needed): recorded update decisions; [Quick 007, slice 16](../quick/007-generalize-project-guidance/EVIDENCE.md): native discovery, invocation, ADR use, and coexistence. | Complete: Claude Code 2.1.263 independently adopted v0.2.0, used installed ADR-awareness, and twice proved the same selected-root no-write outcome, including after main integration. |
 
 Every native update resolved `https://github.com/terryyin/open-dough.git` to
 `v0.2.0` / `676188a66504f7dc751e03311f9be5245757b24a`, inspected the pinned
@@ -681,8 +683,9 @@ conflict, and changed no files. Fresh no-op sessions returned 0 with exactly one
 selected-root skip trace, no installer entry, and identical SHA-256,
 `mtime_ns`, and `ctime_ns` before/after. After main changed all three local
 updater copies, the no-op checks were repeated and proved the release record
-preserves that newer project-local behavior. Quick 011 records the exact session
-IDs, hashes, and timestamps.
+preserves that newer project-local behavior.
+[Quick 011 evidence](../quick/011-adopt-version-aware-updater/EVIDENCE.md)
+records the exact session IDs.
 
 No unresolved product decision was identified in story refinement. The follow-up
 slice-planning pass updated the existing plan and preserved its earlier mappings.
@@ -788,7 +791,7 @@ its subsequent meaningful newer-release update remain separate backlog stories.
 
 #### Current scope versus earlier work
 
-[Quick 018](../quick/018-remove-obsolete-adoption-content/PLAN.md) already records
+Quick 018 already records
 the reusable adoption-procedure removal, two-file payload, fixed recognition
 retirement, and native candidate-use/legacy-transition leaves as done. Source
 inspection confirms those implementations. Retain that evidence with its tested

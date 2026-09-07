@@ -36,10 +36,10 @@ acceptance criteria.
 
 ### 1. Run one needed native check without replaying or losing the others
 
-**Status:** Complete for cheap checks. Plans 20 and 22 are done. Story 3 owns outstanding native evidence per tool.
+**Status:** Complete for cheap checks. Spent plans 20 and 22 were dropped after
+acceptance. Story 3 owns outstanding native evidence per tool.
 **Type:** Test tooling.
-**Plans:** [20](../quick/020-select-and-retain-native-checks/PLAN.md) then
-[22](../quick/022-retain-native-evidence-for-verdicts/PLAN.md).
+Cheap checks live in `tests/` and `tests/README.md`.
 
 **Scope:** Keep implemented context selection, retention, execution bounds,
 launch-failure handling, and stream completeness. Add one combined native
@@ -67,17 +67,17 @@ target. Keep both stages in one retained attempt. Use the existing
 automated reassessment/reuse, prompt/assessment repair, native runs, skill or
 installer changes, client adoption, and releases.
 
-**Completion:** Plans 20 and 22 pass their cheap checks. Story 3 owns outstanding
-native evidence per tool. Completing plan 20 alone does not complete this story.
+**Completion:** Spent plans 20 and 22 pass their cheap checks in `tests/`.
+Story 3 owns outstanding native evidence per tool.
 
 <a id="trust-native-verdicts"></a>
 
 ### 2. Detect native behavior failures instead of rewarding the expected words
 
-**Status:** Complete for cheap checks. Plan 21 is done. Story 3 owns outstanding native evidence per tool.
+**Status:** Complete for cheap checks. Spent plan 21 was dropped after
+acceptance. Story 3 owns outstanding native evidence per tool.
 **Type:** Test migration.
 **Dependency:** Story 1's retained context and combined journey evidence.
-**Plan:** [21](../quick/021-trust-native-verdicts/PLAN.md), after 20 and 22.
 
 **Scope:** Remove coaching and incidental wording assertions from existing ADR
 context and delivery checks. Define shared expectations for clear ADR use,
@@ -106,52 +106,87 @@ when reliable automation would require a semantic parser.
 matrices, offline assessment commands, reviewer workflow, runner redesign, new
 native mechanisms/cases, skill/installer changes, native runs, and releases.
 
-**Completion:** Plan 21's shared checks and small adapter tests pass. Actual
+**Completion:** Shared checks and small adapter tests pass. Actual
 native evidence remains with Story 3; coached historical results gain no new claim.
 
 <a id="accept-standalone-client-workflow"></a>
 
 ### 3. Establish that the standalone client candidate works in all three tools
 
-**Status:** Pending refinement and native acceptance; not selected for execution.
+**Status:** Refined 2026-09-08; native acceptance pending. Not selected for execution.
 **Type:** Native acceptance.
-**Dependencies:** Stories 1–2 and a named candidate from the reconsidered
-standalone updater story. Publication and old-plan reconciliation are not prerequisites.
+**Dependencies:** Stories 1–2's completed cheap checks and one named candidate
+from the reconsidered [standalone updater story](SEED-001-install-and-update-open-dough.md#standalone-client-update).
+Publication and old-plan reconciliation are not prerequisites.
 
-**Scope:** Review prior per-tool evidence first. Select only unresolved checks:
-representative installed skill use and a combined update→fresh-use journey on
-each tool where applicable proof is missing. Record the integration mechanism
-and justify reuse for similar skills. Select additional skill behavior cases only
-for unresolved product risks; keep deterministic policy/error variants in CI.
-Quick 019 is historical input, not a required scenario list.
+**Goal:** The maintainer can decide whether that candidate's standalone client
+workflow is ready for release on Codex, Cursor, and Claude Code, using the
+smallest sufficient set of native observations and justified reused evidence.
 
-**Acceptance:**
+**Scope:**
 
-- Record native discovery, invocation/application, and intended behavior per
-  tool, with installation/update/coexistence where affected. Distinguish explicit
-  invocation from automatic application; test the latter only where promised
-  and unsupported by applicable evidence.
-- Verify a real update and fresh use on the resulting installation, preserving
-  unrelated guidance and other tool roots. Local tagged fixtures are sufficient;
-  do not publish a release solely to create the transition.
-- Review changed ADR behavior and updater decision boundaries against the actual
-  candidate. Add clear/conflict, edited-equal, force, or refusal native cases only
-  when an unresolved risk requires them, not as a mandatory matrix.
-- Save actual outcomes, loading evidence, candidate/runtime, and any review
-  judgment. Label reused evidence with its scope and applicability. Keep unknown
-  or failed requirements pending. Do not qualify the vendor's general skill system.
-- Before release, check that the candidate still matches the relevant tested
-  inputs and revalidate only affected requirements. Leave released self-adoption
-  and real client work with their product stories.
+- Review saved evidence against the named candidate first. Record which
+  requirements it still proves and why; run only the unresolved checks.
+- Use `dough-adr-awareness` as the representative installed skill for the
+  existing native skill destinations. Cover discovery, invocation/application,
+  and useful ADR-guided behavior with the Open Dough source unavailable.
+  Automatic application needs separate proof only where promised and not
+  already covered. Reuse integration proof for the same mechanism on that tool;
+  it does not prove another skill's behavior.
+- Where update evidence is missing, use one combined update→fresh-use journey
+  per affected tool: update from an identified older installation to the
+  candidate, then use the resulting skill in a fresh session. Include observed
+  installation integrity and preservation of unrelated guidance, project
+  context, and other tool roots. Let this journey also satisfy installed-use
+  requirements wherever it provides the necessary proof; do not add a duplicate
+  installed-use run by default. Local tagged fixtures are sufficient.
+- Check the candidate's skill behavior separately from integration coverage.
+  Define shared expectations once. Add a native behavior case only for a named
+  unresolved product risk; keep deterministic policy/error variants in CI.
+- Use existing runners and a short evidence/reuse record. Retain candidate,
+  tool/runtime, relevant inputs, loading evidence, decisive outcomes, and reasons
+  for later judgments. Failures and inconclusive results remain visible.
 
-**Completion:** Resolve each required per-tool claim through evidence or justified
-reuse. Qualification covers the chosen mechanisms and behavior only.
+**Key examples:**
+
+- A tool's saved installed-use proof still applies after candidate review →
+  record the unchanged mechanism and relevant inputs → reuse that proof without
+  repeating the native run; updater changes still need their own evidence.
+- A tool lacks applicable update proof → update an older fixture and start a
+  fresh session on the same target → the candidate is installed, the installed
+  ADR skill guides the task without the source checkout, and unrelated content
+  remains intact. This one journey can close several requirements.
+- An update fails, or the fresh session merely claims to have loaded the skill →
+  review the retained observations → acceptance stays pending for the affected
+  requirements; neither exit 0 nor expected words establish success.
+
+**Completion:** Each affected requirement has native evidence or justified reuse
+for Codex, Cursor, and Claude Code, covering discovery, invocation/application,
+intended behavior, and affected installation/update/coexistence. Shared behavior
+cases need not run on every tool. Before release, confirm the candidate still
+matches the relevant tested inputs; revalidate only invalidated requirements.
+
+**Evidence starting points — not candidate acceptance:**
+
+[Quick 014](../quick/014-prove-codex-adr-use/EVIDENCE.md) retains native loading,
+clear/conflicting ADR behavior, and preservation observations for all three
+tools, with candidate hashes and runtime versions. Review applicability rather
+than treating those historical results as fresh proof.
 
 | Platform | Integration evidence | Skill behavior evidence |
 | --- | --- | --- |
-| Codex | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
-| Cursor | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
-| Claude Code | Pending applicability review and unresolved representative checks. | Pending candidate-specific review. |
+| Codex | Quick 014 explicit/automatic use; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
+| Cursor | Quick 014 native installed-file reads; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
+| Claude Code | Quick 014 native Skill calls; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
+
+**Boundary / open dependency:** The reconsidered updater story must identify the
+candidate and its actual promised behavior before checks can be selected. This
+story does not implement that workflow, publish or self-adopt a release, change
+Donut, reconcile old plans, or add test infrastructure. Force, refusal, and other
+variants are not a default native matrix. Quick 019 and historical research add
+no hidden criteria. These limits follow [ADR 0005 — Cross-tool validation through
+native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md);
+no ADR change or exception is needed.
 
 <a id="separate-native-acceptance"></a>
 
@@ -163,7 +198,8 @@ reuse. Qualification covers the chosen mechanisms and behavior only.
 **Scope:** Reconsider SEED-001 Story 7, SEED-004 Stories 5–8, and SEED-006
 Stories 3–4. Retire obsolete plans; update only retained plans. Keep useful client
 outcomes and completed evidence. Do not recreate a per-skill integration matrix.
-This story does not block Stories 1–3 or the current updates to plans 20, 22, and 21.
+This story does not block Stories 1–3. Spent plans 20, 22, and 21 were dropped
+after their cheap checks landed in `tests/`.
 
 **Acceptance:**
 
@@ -182,8 +218,8 @@ is required for this planning work.
 
 ## Order and completion
 
-Execute **20 → 22 → 21**. Plans 20 and 22 delivered Story 1 cheap checks; plan 21
-delivered Story 2 cheap checks. Story 3 owns outstanding native evidence per tool.
+Spent plans 20, 22, and 21 delivered Stories 1–2 cheap checks and were dropped.
+Story 3 owns outstanding native evidence per tool.
 
 Refine Story 3 against the actual candidate before native execution. Do Story 4
 last after reconsidering its underlying stories. Keep this seed until the scoped

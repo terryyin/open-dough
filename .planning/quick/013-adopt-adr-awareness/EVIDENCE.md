@@ -1,12 +1,13 @@
-# Complete one authorized ADR-guidance replacement in Codex
-
-## Historical outcome
+# Plan 013 resolution evidence — 2026-09-06
 
 - Source: [SEED-004, Story 4](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install).
 - Status: complete at `2926cea`; CI run `34036359908` passed.
 - Outcome: one native Codex session assessed an already-installed Open Dough
   replacement, retained required adopter context, repaired every assessed
   caller, and removed only the redundant original after one authorization.
+
+The completed execution plan was removed after acceptance. This record retains
+the replacement evidence and the useful learning.
 
 ## Goal and scope
 

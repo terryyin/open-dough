@@ -50,7 +50,7 @@ and story decomposition; both must produce useful work, not merely skill files.
 ### 1. Turn a supplied project practice into usable public guidance
 
 - **Status:** Completed 2026-09-06. The
-  [slice plan](../quick/007-generalize-project-guidance/PLAN.md) records all native
+  [evidence record](../quick/007-generalize-project-guidance/EVIDENCE.md) records all native
   extraction, equivalence, installation, update, fresh-use, and coexistence evidence.
 - **For / why:** The Open Dough maintainer wants to share a proven practice
   without making every adopter inherit the source project's assumptions.
@@ -102,7 +102,7 @@ an effective substitute in the original context.
 ### 4. Complete one authorized ADR-guidance replacement in Codex
 
 - **Status:** Completed 2026-09-06 through slice 4a in
-  [Plan 013](../quick/013-adopt-adr-awareness/PLAN.md). Native Codex
+  [Plan 013 evidence](../quick/013-adopt-adr-awareness/EVIDENCE.md). Native Codex
   assessment, context retention, caller repair, and redundant-original removal
   passed on a protected disposable Donut-derived target. Cursor, Claude Code,
   fresh-install, later-update, and live Donut outcomes were not claimed.

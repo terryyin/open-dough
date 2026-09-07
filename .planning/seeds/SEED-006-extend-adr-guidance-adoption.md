@@ -83,7 +83,7 @@ investing in migration.
 
 #### Evidence pointers
 
-[Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md) records the inspected
+[Plan 015 evidence](../quick/015-prepare-donut-adr-adoption/EVIDENCE.md) records the inspected
 release identity, native Codex discovery/invocation, exact writes, and
 preservation. It observed that Accepted ADR 0004 and ADR 0006 support the
 isolated-deletion approach, ADR 0002 remains Proposed, and Plan 045's existing

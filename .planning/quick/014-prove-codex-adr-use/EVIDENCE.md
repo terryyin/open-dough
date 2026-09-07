@@ -25,7 +25,7 @@ than repeatedly prompting the agent to produce a preferred loading trace.
 
 Accepted ADR 0000 preserved human decision ownership. ADR 0003's tagged-release
 contract was unchanged. Prior native installation/update evidence from
-[Plan 007](../007-generalize-project-guidance/PLAN.md) remains applicable where
+[Plan 007 evidence](../007-generalize-project-guidance/EVIDENCE.md) remains applicable where
 source selection, payload paths, and delivery behavior are unchanged; the new
 candidate's selected-host installation, native use, and coexistence are verified
 below. Live Donut readiness and replacement remain separate, unverified work.
