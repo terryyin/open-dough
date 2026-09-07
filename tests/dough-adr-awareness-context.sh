@@ -109,9 +109,6 @@ before=$(snapshot_path_state "${target}")
 
 # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
 prompt='Use $dough-adr-awareness. Assess how two backend instances should share login sessions. Do not edit files.'
-if [[ ${scenario} == 'clear' ]]; then
-  prompt+=' The index and record statuses agree; demonstrate the installed improvement by completing without requiring a disagreement policy that this request does not need.'
-fi
 # shellcheck disable=SC2310 # Timeout and launch failure must be observed, not lost to set -e.
 native_run_context_command || {
   run_status=$?
@@ -172,25 +169,15 @@ printf 'Installed paths:\n- %s\n- %s\n- %s\n' \
 printf 'Before snapshot: %s\nAfter snapshot: %s\n' "${before_digest}" "${after_digest}"
 printf 'Before source snapshot: %s\nAfter source snapshot: %s\n' \
   "${source_before_digest}" "${source_after_digest}"
-printf 'Native loading evidence: %s\n' \
+printf 'Installed skill identity: %s\n' \
   "${skill_root}/dough-adr-awareness/SKILL.md"
 shasum -a 256 "${target}/${skill_root}/dough-adr-awareness/SKILL.md"
-grep -Fq '0001-session-state.md' "${output_file}"
-if [[ ${scenario} == 'clear' ]]; then
-  grep -Eiq 'Redis' "${output_file}"
-  grep -Fq '## ADR CHECK COMPLETE' "${output_file}"
-else
-  if grep -Fq '## ADR CHECK COMPLETE' "${output_file}"; then
-    echo 'FAIL: claimed completion despite conflicting authoritative statuses.' >&2
-    exit 1
-  fi
-  grep -Fq 'docs/adrs/README.md' "${output_file}"
-  grep -Eiq 'Accepted' "${output_file}"
-  grep -Eiq 'Proposed' "${output_file}"
-  grep -Eiq 'conflict|disagree|ambigu' "${output_file}"
-  grep -Eiq 'stop|stopped|blocked|cannot proceed|until .*resolv|pending .*resolv' \
-    "${output_file}"
-  grep -Eiq 'human|clarif|resolv|confirm' "${output_file}"
+native_adr_behavior_assess "${scenario}" "${output_file}"
+native_adr_behavior_print_fields
+if [[ ${native_adr_behavior_status} == 'fail' ]]; then
+  echo "FAIL: ${platform} ${scenario} ${native_adr_behavior_reason}." >&2
+  native_result_report_context
+  exit 1
 fi
 printf '\nNative application evidence:\n'
 cat "${output_file}"

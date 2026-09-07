@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Credential-free proof that selected context retains complete streams for
-# later assessment and keeps truncated, missing, or unknown terminal evidence
-# nonpassing without a wording pass. Recorded streams prove adapter contracts.
+# Credential-free proof that selected context retains complete streams with
+# shared behavior assessment, and keeps truncated, missing, or unknown terminal
+# evidence nonpassing without a wording pass. Recorded streams prove adapters.
 # shellcheck disable=SC2312 # pipefail covers listings, logs, and result-path parses.
 set -euo pipefail
 
@@ -114,13 +114,8 @@ assert_complete() {
   fi
   grep -Fq 'execution-status: completed' "${attempt}/record"
   grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-interpretation: none' "${attempt}/record"
-  if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
-    echo "FAIL: complete ${host} stream was recorded as a wording pass." >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
+  grep -Fq 'assessment-status: pass' "${attempt}/record"
+  grep -Fq 'assessment-reason:' "${attempt}/record"
   if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
     echo "FAIL: complete ${host} stream used the success wording interpretation." >&2
     cat "${attempt}/record" >&2
@@ -162,7 +157,7 @@ assert_incomplete() {
   grep -Fq 'execution-status: incomplete' "${attempt}/record"
   grep -Fq "execution-reason: ${reason}" "${attempt}/record"
   grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-interpretation: none' "${attempt}/record"
+  grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
   grep -Fq 'execution: incomplete' "${attempt}/observations.txt"
   assert_not_wording_pass "${attempt}"
   [[ -f ${attempt}/events.jsonl ]]
@@ -218,4 +213,4 @@ for host in codex cursor claude; do
     "${status}" "${attempt}"
 done
 
-echo 'PASS: selected context retains complete streams for later assessment and keeps truncated, missing, and unknown terminal evidence nonpassing without a wording pass.'
+echo 'PASS: selected context retains complete streams with shared behavior assessment and keeps truncated, missing, and unknown terminal evidence nonpassing without a wording pass.'

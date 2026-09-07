@@ -54,15 +54,19 @@ while [[ ${idx} -lt ${#args[@]} ]]; do
   esac
   idx=$((idx + 1))
 done
-prompt=${args[$((${#args[@]} - 1))]}
 stream_kind=${NATIVE_AGENT_STREAM:-complete}
+if [[ -z ${workspace} ]]; then
+  workspace=${PWD}
+fi
 
-if [[ ${prompt} == *'statuses agree'* ]]; then
-  response='Accepted ADR 0001-session-state.md keeps session state in Redis.
-
-## ADR CHECK COMPLETE'
-else
+index="${workspace}/docs/adrs/README.md"
+record="${workspace}/docs/adrs/0001-session-state.md"
+if [[ -f ${index} && -f ${record} ]] \
+  && grep -Eq '\| \[0001\][^|]*\| Proposed \|' "${index}" \
+  && grep -Eq '\*\*Status:\*\* Accepted' "${record}"; then
   response='Stopped: docs/adrs/README.md lists 0001 as Proposed, while 0001-session-state.md is Accepted. This conflict is unresolved. Cannot proceed until a human clarifies or resolves the disagreement.'
+else
+  response='Accepted ADR 0001-session-state.md keeps session state in Redis. Both backend instances should follow that decision for shared login sessions.'
 fi
 
 write_codex_response() {
@@ -72,9 +76,6 @@ write_codex_response() {
 }
 
 emit_cursor_partial() {
-  if [[ -z ${workspace} ]]; then
-    workspace=${PWD}
-  fi
   skill_path="${workspace}/.cursor/skills/dough-adr-awareness/SKILL.md"
   jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
     '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
@@ -86,9 +87,6 @@ emit_claude_partial() {
 }
 
 emit_codex_expansion() {
-  if [[ -z ${workspace} ]]; then
-    workspace=${PWD}
-  fi
   skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
   if [[ ! -f ${skill_path} ]]; then
     printf '%s\n' '{"type":"item"}'

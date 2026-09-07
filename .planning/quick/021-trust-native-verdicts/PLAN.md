@@ -1,6 +1,6 @@
 # Assess intended behavior without requiring expected wording
 
-Status: in-progress. Slice 1 done 2026-09-07.
+Status: in-progress. Slices 1–2 done 2026-09-07.
 Order: **20 → 22 → 21**. Plan 22's reduced evidence contract is delivered.
 
 ## Scope
@@ -68,19 +68,19 @@ session to invent a Claude success form.
 ### 2. Replace wording checks in clear and conflicting ADR use
 
 Type: Behavior
-Status: planned
+Status: done
 
-Use the same ordinary session-storage request for both fixtures. Define clear
-expectations: follow and cite the Accepted decision when authority agrees;
-identify the conflicting authorities and stop dependent work when it does not.
-Keep read-only state checks. Remove incidental skill-sentence assertions,
-including content checks used only as loading evidence.
+Recorded proof: `tests/native-adr-behavior.sh` covers a valid recommendation,
+a paraphrase without Redis, incidental skill-instruction rephrase, a valid
+stop, a conditional stop, and misleading negation/quotation/contradiction/
+word-salad that must not pass. Uncertain prose stays inconclusive. Clear and
+conflict share one ordinary session-storage prompt. Recorded substitutes choose
+the response from index-vs-record fixture state. Context retainers write
+`assessment-status` / `assessment-reason` from the shared helper. Read-only
+state checks remain.
 
-Proof: Shared examples cover a valid recommendation, a valid stop, a conditional
-explanation with a stop, and misleading/ambiguous wording. A prose-dependent
-outcome may remain inconclusive for documented review. Rephrasing incidental
-skill instructions must not fail a static assertion; response paraphrases must
-not fail solely for wording. Test this shared logic once, not once per tool.
+Keep journey `delivery_assert_use` for slice 3. Do not treat a completion marker
+as a behavior pass.
 
 ### 3. Assess the combined update and fresh use from observed state
 
@@ -120,9 +120,9 @@ once and adapter evidence separately below. Do not claim native acceptance.
 
 | Platform | Cheap adapter proof | Native acceptance |
 | --- | --- | --- |
-| Codex | Leaf 1: recorded installed expansion vs marker-only. Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
-| Cursor | Leaf 1: successful installed `readToolCall` vs requested read. | Pending Story 3 applicability review and unresolved representative checks. |
-| Claude Code | Leaf 1: Skill request is insufficient and stays inconclusive. No supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
+| Codex | Leaf 1 expansion vs marker. Leaf 2 shared clear/conflict assessor (host-independent). Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
+| Cursor | Leaf 1 successful installed `readToolCall` vs requested read. Leaf 2 shared assessor. | Pending Story 3 applicability review and unresolved representative checks. |
+| Claude Code | Leaf 1 Skill request inconclusive. Leaf 2 shared assessor. No supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
 
 Story 3 must record per-tool discovery, invocation/application, intended behavior,
 and affected install/update/coexistence evidence or justified reuse. This plan's
@@ -135,5 +135,9 @@ Do not write `.planning/STATE.md` as resume state.
 - Claude Code's only recorded activation form is a Skill request. That stays
   inconclusive; do not invent a vendor success event. Story 3 still needs a
   native activation observation.
-- Complete execution is a prerequisite, not a wording pass. Behavior remains
-  `assessment-status: not-run` until later leaves.
+- Complete execution is a prerequisite, not a wording pass. Context behavior
+  now records `assessment-status` / `assessment-reason` from the shared helper.
+  Journey assessment stays for slice 3.
+- Vague “ADR files look relevant” prose, and skill-instruction-only text, stay
+  inconclusive. Native replies that neither clearly follow nor clearly stop
+  should stay inconclusive for review.

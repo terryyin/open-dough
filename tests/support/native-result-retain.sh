@@ -8,6 +8,9 @@ native_result_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=tests/support/native-prerequisite-gate.sh
 # shellcheck disable=SC1091
 source "${native_result_support_dir}/native-prerequisite-gate.sh"
+# shellcheck source=tests/support/native-adr-behavior.sh
+# shellcheck disable=SC1091
+source "${native_result_support_dir}/native-adr-behavior.sh"
 
 native_result_attempt_dir=
 native_result_attempt_id=
@@ -144,8 +147,7 @@ native_result_execution_fields() {
   native_result_execution_status_fields
   native_result_fill_context_prerequisite
   native_prerequisite_print_fields
-  printf 'assessment-status: not-run\n'
-  printf 'assessment-interpretation: none\n'
+  native_adr_behavior_print_fields
 }
 
 native_result_print_tool_identity() {
@@ -222,7 +224,7 @@ native_result_finalize_context() {
     printf 'helper-identity: tests/support/dough-adr-awareness-use.sh\n'
     native_result_print_adapter_identity
     printf 'fixture-identity: tests/fixtures/adr-awareness/installed-use\n'
-    printf 'assessor-identity: tests/dough-adr-awareness-context.sh wording-assertions\n'
+    printf 'assessor-identity: tests/support/native-adr-behavior.sh\n'
     printf 'artifact-events: events.jsonl\n'
     printf 'artifact-response: response.md\n'
     printf 'artifact-stderr: stderr.log\n'
@@ -233,6 +235,7 @@ native_result_finalize_context() {
     native_result_input_hash_line tests/support/native-prerequisite-gate.sh
     native_result_input_hash_line tests/support/native-activation-decode.sh
     native_result_input_hash_line tests/support/native-activation-path.sh
+    native_result_input_hash_line tests/support/native-adr-behavior.sh
     native_result_input_hash_line tests/support/dough-adr-awareness-use.sh
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md

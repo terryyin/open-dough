@@ -57,10 +57,12 @@ wrapper records a nonpassing attempt with available stderr/reason, prints
 does not mask that failure. When no version can be obtained, `native-version`
 is `unknown` (Cursor Agent is not inferred from `cursor --version`).
 After a selected native command exits 0, the wrapper inspects the host
-terminal stream before wording assessment. A complete known stream records
-execution completion and a separate prerequisite/activation result; it does
-not treat process exit 0 as a wording pass (`assessment-status` stays
-`not-run`). Missing, truncated, or unknown completion evidence is retained as
+terminal stream, then the shared clear/conflict behavior assessor. Clear and
+conflict fixtures use the same ordinary session-storage request. A complete
+known stream records execution completion, a separate prerequisite/activation
+result, and `assessment-status` / `assessment-reason` from that assessor
+(`pass`, `fail`, or `inconclusive`). Process exit 0 is not a wording pass.
+Missing, truncated, or unknown completion evidence is retained as
 `execution-status: incomplete` with `assessment-status: not-run`, prints
 `result-path:`, deletes scratch, and does not treat process exit 0 as a
 wording pass. Unknown event shapes stay incomplete; adapters are not expanded
@@ -134,6 +136,9 @@ native discovery, invocation, or behavior.
   prerequisite cases once (success, execution failure, missing evidence,
   wrong-copy) plus per-host decoder boundary forms from recorded JSONL.
   Claude Skill request stays inconclusive. Does not launch a native session.
+- `tests/native-adr-behavior.sh` — shared clear/conflict behavior examples
+  once (valid recommendation, valid stop, conditional stop, misleading
+  wording, uncertain prose). Does not launch a native session.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and
@@ -157,10 +162,11 @@ native discovery, invocation, or behavior.
   `native-version: unknown` and does not call `cursor --version`.
 - `tests/native-stream-completeness.sh` — per-host complete, truncated, and
   missing-terminal recorded streams through the selected context entry point.
-  Complete execution remains eligible for later assessment. Incomplete evidence
-  with process exit 0 is retained as nonpassing with a reason and raw artifacts,
-  including unknown event shapes. Complete execution is not recorded as a
-  wording pass. Substitutes log every invocation.
+  Complete execution records shared behavior assessment separately from the
+  prerequisite. Incomplete evidence with process exit 0 is retained as
+  nonpassing with a reason and raw artifacts, including unknown event shapes.
+  Complete execution is not recorded as a wording pass. Substitutes log every
+  invocation.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   update, then emits recorded use evidence. Both stages stay in one attempt

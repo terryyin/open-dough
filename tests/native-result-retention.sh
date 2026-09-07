@@ -80,13 +80,20 @@ assert_attempt() {
   grep -Fq 'origin: fresh' "${attempt}/record"
   grep -Fq 'execution-status: completed' "${attempt}/record"
   grep -Fq "native-version-command: ${version_command}" "${attempt}/record"
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-interpretation: none' "${attempt}/record"
-  if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
-    echo 'FAIL: complete execution was recorded as a wording pass.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
+  grep -Fq 'assessment-status: pass' "${attempt}/record"
+  grep -Fq 'assessment-reason:' "${attempt}/record"
+  case ${case_id} in
+    context/clear)
+      grep -Fq 'followed and cited Accepted authority' "${attempt}/record"
+      ;;
+    context/conflict)
+      grep -Fq 'named conflicting authorities and stopped' "${attempt}/record"
+      ;;
+    *)
+      echo "FAIL: unexpected case ${case_id}." >&2
+      return 1
+      ;;
+  esac
   if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
     echo 'FAIL: complete execution used the success wording interpretation.' >&2
     cat "${attempt}/record" >&2
@@ -233,5 +240,13 @@ assert_unreviewed cursor context/clear "${cursor_clear}"
 assert_unreviewed cursor context/clear "${cursor_clear_again}"
 [[ -d ${codex_clear} && -d ${claude_clear} ]]
 [[ -d ${cursor_conflict} && -d ${codex_conflict} && -d ${claude_conflict} ]]
+clear_prompt=$(awk '/^prompt-identity: / { print; exit }' "${cursor_clear}/record")
+conflict_prompt=$(awk '/^prompt-identity: / { print; exit }' \
+  "${cursor_conflict}/record")
+if [[ ${clear_prompt} != "${conflict_prompt}" ]]; then
+  echo 'FAIL: clear and conflict fixtures used different prompts.' >&2
+  printf '%s\n%s\n' "${clear_prompt}" "${conflict_prompt}" >&2
+  exit 1
+fi
 
 echo 'PASS: selected context attempts stay readable after scratch cleanup, listing reports them unreviewed, a second attempt is distinct, and an unwritable destination launches nothing.'

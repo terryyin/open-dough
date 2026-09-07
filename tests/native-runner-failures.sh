@@ -68,7 +68,7 @@ assert_failed_attempt() {
   grep -Fq 'execution-status: failed' "${attempt}/record"
   grep -Fq "execution-reason: ${reason}" "${attempt}/record"
   grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  grep -Fq 'assessment-interpretation: none' "${attempt}/record"
+  grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
   grep -Fq 'prerequisite-result: fail' "${attempt}/record"
   if grep -Fq 'execution-status: completed' "${attempt}/record"; then
     echo 'FAIL: failure was recorded as completed.' >&2
