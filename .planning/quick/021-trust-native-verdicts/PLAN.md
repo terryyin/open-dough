@@ -1,6 +1,6 @@
 # Assess intended behavior without requiring expected wording
 
-Status: in-progress. Slices 1–2 done 2026-09-07.
+Status: in-progress. Slices 1–3 done 2026-09-07.
 Order: **20 → 22 → 21**. Plan 22's reduced evidence contract is delivered.
 
 ## Scope
@@ -85,17 +85,15 @@ as a behavior pass.
 ### 3. Assess the combined update and fresh use from observed state
 
 Type: Behavior
-Status: planned
+Status: done
 
-Remove answer coaching from update and fresh-use prompts. Use plan 22's observed
-transition to check installed bytes/version, provenance, unchanged protected
-paths, and fresh activation on the same updated target. Reuse leaf 2's conflict
-expectations for the existing updated-use fixture.
-
-Proof: A real fixture update has the expected state; wrong bytes/version,
-protected writes, stale-target use, and a failed update followed by a success
-claim cannot pass. Verify these shared cases once. Adapter routing is already
-covered by plan 22; do not repeat the state matrix through every tool.
+Recorded proof: `tests/native-journey-state.sh` accepts the expected real
+fixture update and a catalog/ARC-12 conflict stop, and rejects wrong
+bytes/version, protected writes, stale-target use, and a failed update with a
+success claim. Selected update/use prompts are ordinary.
+`tests/native-delivery-updated-use.sh` and the adapter proof consume that
+shared result. `delivery_assert_update_payload` keeps exact installed-byte
+checks. Do not repeat the state matrix per tool.
 
 ### 4. Keep legacy refusal as a shared product behavior check
 
@@ -120,9 +118,9 @@ once and adapter evidence separately below. Do not claim native acceptance.
 
 | Platform | Cheap adapter proof | Native acceptance |
 | --- | --- | --- |
-| Codex | Leaf 1 expansion vs marker. Leaf 2 shared clear/conflict assessor (host-independent). Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
-| Cursor | Leaf 1 successful installed `readToolCall` vs requested read. Leaf 2 shared assessor. | Pending Story 3 applicability review and unresolved representative checks. |
-| Claude Code | Leaf 1 Skill request inconclusive. Leaf 2 shared assessor. No supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
+| Codex | Leaves 1–3 cheap shared assessors plus recorded expansion vs marker. Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
+| Cursor | Leaves 1–3 cheap shared assessors plus successful installed `readToolCall` vs requested read. | Pending Story 3 applicability review and unresolved representative checks. |
+| Claude Code | Leaves 1–3 cheap shared assessors. Skill request stays inconclusive; no supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
 
 Story 3 must record per-tool discovery, invocation/application, intended behavior,
 and affected install/update/coexistence evidence or justified reuse. This plan's
@@ -136,8 +134,9 @@ Do not write `.planning/STATE.md` as resume state.
   inconclusive; do not invent a vendor success event. Story 3 still needs a
   native activation observation.
 - Complete execution is a prerequisite, not a wording pass. Context behavior
-  now records `assessment-status` / `assessment-reason` from the shared helper.
-  Journey assessment stays for slice 3.
+  records `assessment-status` / `assessment-reason` from the shared helper.
+  Selected journeys record the same fields from observed state plus the
+  conflict stop. Legacy-refusal wording remains for slice 4.
 - Vague “ADR files look relevant” prose, and skill-instruction-only text, stay
   inconclusive. Native replies that neither clearly follow nor clearly stop
   should stay inconclusive for review.

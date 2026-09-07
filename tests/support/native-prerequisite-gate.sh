@@ -39,18 +39,14 @@ native_prerequisite_assert_record_fields() {
   local record=$1
   local label=$2
 
-  grep -Fq 'assessment-status: not-run' "${record}"
+  grep -Fq 'assessment-status:' "${record}"
+  grep -Fq 'assessment-reason:' "${record}"
   grep -Fq 'assessment-interpretation: none' "${record}"
   grep -Fq 'prerequisite-result:' "${record}"
   grep -Fq 'prerequisite-reason:' "${record}"
   grep -Fq 'prerequisite-evidence:' "${record}"
   if grep -Fq 'assessment-interpretation: limited-wording' "${record}"; then
     echo "FAIL: ${label} used context wording assessment." >&2
-    cat "${record}" >&2
-    return 1
-  fi
-  if grep -Fq 'assessment-status: pass' "${record}"; then
-    echo "FAIL: ${label} treated execution as a wording pass." >&2
     cat "${record}" >&2
     return 1
   fi

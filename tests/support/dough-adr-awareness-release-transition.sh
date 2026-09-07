@@ -106,11 +106,8 @@ delivery_capture_update_state() {
     "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md")
 }
 
-delivery_assert_update() {
-  local update_output=$1
-  local require_native_report=${2:-1}
+delivery_assert_update_payload() {
   local source_after source_status companion_after actual_changes expected_changes
-  local recognition_install_claims recognition_unqualified_lines
 
   source_after=$(delivery_snapshot "${delivery_fixture_source}")
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
@@ -135,6 +132,14 @@ delivery_assert_update() {
     "${delivery_skill_root}/dough-update/SKILL.md" \
     "${delivery_skill_root}/dough-update/VERSION")
   [[ "${actual_changes}" == "${expected_changes}" ]]
+}
+
+delivery_assert_update() {
+  local update_output=$1
+  local require_native_report=${2:-1}
+  local recognition_install_claims recognition_unqualified_lines
+
+  delivery_assert_update_payload
   grep -Fq "${delivery_source_url}" "${update_output}"
   grep -Fq "${delivery_source_revision}" "${update_output}"
   if ! grep -Fqi "${delivery_host_name}" "${update_output}" \

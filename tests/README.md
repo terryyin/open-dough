@@ -104,7 +104,7 @@ directory, not at live workspace bytes. Current retained contents:
 
 | Path | What it is |
 | --- | --- |
-| `record` | Host, case, origin (`fresh`), execution-status/reason, prerequisite-result/reason/evidence, assessment-status (`not-run`), native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
+| `record` | Host, case, origin (`fresh`), execution-status/reason, prerequisite-result/reason/evidence, assessment-status/reason from shared journey-state assessment, native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
 | `update-events.jsonl` / `use-events.jsonl` | Raw supervised streams |
 | `update-response.md` / `use-response.md` | Decoded stage output |
 | `update-stderr.log` / `use-stderr.log` | Stage stderr |
@@ -139,6 +139,10 @@ native discovery, invocation, or behavior.
 - `tests/native-adr-behavior.sh` — shared clear/conflict behavior examples
   once (valid recommendation, valid stop, conditional stop, misleading
   wording, uncertain prose). Does not launch a native session.
+- `tests/native-journey-state.sh` — shared update-then-use observation cases
+  once (expected real transition, catalog/ARC-12 conflict stop, wrong
+  bytes/version, protected writes, stale-target use, failed update with a
+  success claim). Does not launch a native session.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and
@@ -170,8 +174,9 @@ native discovery, invocation, or behavior.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   update, then emits recorded use evidence. Both stages stay in one attempt
-  after scratch cleanup. Failed update starts no use; failed use retains the
-  successful update and the use failure. The invocation log has no legacy
+  after scratch cleanup. Ordinary prompts; assessment uses observed state and
+  the shared conflict stop. Failed update starts no use; failed use retains
+  the successful update and the use failure. The invocation log has no legacy
   refusal and no retry. Supervisor `--deadline`/`--grace` are accepted on the
   selected path.
 - `tests/native-delivery-updated-use-adapters.sh` — Cursor and Claude Code

@@ -190,9 +190,9 @@ delivery_run_selected_updated_use() {
   use_transcript="${stage_prefix}-use.jsonl"
   use_stderr="${stage_prefix}-use-stderr.log"
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
-  update_prompt="Use ${dollar}dough-update ${delivery_source_url} to perform an ordinary newer-release update of this inspected-bootstrap ${delivery_host_name} installation. Follow the installed updater exactly and do not force the update. Report release v${delivery_update_version}, its source and commit, ${delivery_host_name} as the running tool, and every installed path. Recognition is source-only and must not be reported as installed. Do not invoke ADR awareness yet."
+  update_prompt="Use ${dollar}dough-update ${delivery_source_url} for an ordinary newer-release update of this inspected-bootstrap installation. Follow the installed updater. Do not force. Do not invoke ADR awareness."
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
-  use_prompt="Use ${dollar}dough-adr-awareness for an explicit ADR check. Begin with Invocation: ${dollar}dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. Report whether you changed any decision or implementation. Use only this adopter repository, do not read source recognition, and keep the response concise."
+  use_prompt="Use ${dollar}dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. Do not edit files."
 
   delivery_version_before=$(cat \
     "${delivery_target}/${delivery_skill_root}/dough-update/VERSION")
@@ -211,7 +211,7 @@ delivery_run_selected_updated_use() {
   if [[ ${update_status} -ne 0 ]]; then
     delivery_selected_fail "${update_status}"
   fi
-  delivery_assert_update "${update_output}" 0
+  delivery_assert_update_payload
 
   delivery_use_before=$(delivery_snapshot "${delivery_target}")
   # shellcheck disable=SC2310 # Timeout and launch failure must be observed, not lost to set -e.
@@ -228,6 +228,13 @@ delivery_run_selected_updated_use() {
       "${delivery_host_name}" >&2
     native_result_report_journey
     exit 1
+  fi
+  native_journey_state_assess \
+    <(delivery_build_journey_observations) "${use_output}"
+  if [[ ${native_journey_state_status} == 'fail' ]]; then
+    printf 'FAIL: selected %s journey state/behavior: %s\n' \
+      "${delivery_host_name}" "${native_journey_state_reason}" >&2
+    delivery_selected_fail 1
   fi
 
   printf 'PASS: selected %s delivery/updated-use completed the combined update then fresh use journey.\n' \

@@ -168,7 +168,8 @@ if ! cmp -s "${success}/source-before-snapshot.txt" \
   exit 1
 fi
 grep -Fq 'Outcome: updated from 0.2.1 to 0.2.2.' "${success}/update-response.md"
-grep -Fq 'Invocation: $dough-adr-awareness' "${success}/use-response.md"
+grep -Fq 'assessment-status: pass' "${success}/record"
+grep -Fq 'named conflicting authorities and stopped' "${success}/record"
 if grep -Fq '{"type":"item"}' "${success}/update-events.jsonl"; then
   :
 else
@@ -204,6 +205,7 @@ grep -Fq 'update-execution: failed' "${fail_update}/observations.txt"
 grep -Fq 'use-execution: unrun' "${fail_update}/observations.txt"
 grep -Fq 'use-pending: true' "${fail_update}/observations.txt"
 grep -Fq 'real-transition: false' "${fail_update}/observations.txt"
+grep -Fq 'assessment-status: not-run' "${fail_update}/record"
 [[ -f ${fail_update}/update-stderr.log ]]
 [[ ! -e ${fail_update}/use-events.jsonl ]]
 [[ ! -e ${fail_update}/use-response.md ]]

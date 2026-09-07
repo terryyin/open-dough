@@ -143,8 +143,6 @@ if [[ ${stream_kind} != 'complete' ]]; then
 fi
 
 use_response=$(printf '%s\n' \
-  'Invocation: $dough-adr-awareness' \
-  '' \
   'Stopped: architecture/decisions/CATALOG.md reports Replaced for ARC-12, while architecture/decisions/retain-complete-telemetry-history.md is Adopted. This conflict is unresolved. Cannot proceed until a human who owns precedence resolves the disagreement. No decision or implementation was changed.')
 
 if [[ ${stage} == 'update' ]]; then

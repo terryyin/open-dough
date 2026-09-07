@@ -4,6 +4,11 @@
 # shellcheck disable=SC2034,SC2154 # Journey and prerequisite globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers prompt hashes.
 
+native_result_journey_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=tests/support/native-journey-state.sh
+# shellcheck disable=SC1091
+source "${native_result_journey_support_dir}/native-journey-state.sh"
+
 native_result_fill_journey_prerequisite() {
   native_prerequisite_host=${native_case_host}
   native_prerequisite_execution=${native_run_outcome:-exited}
@@ -23,7 +28,7 @@ native_result_journey_execution_fields() {
   native_result_execution_status_fields
   native_result_fill_journey_prerequisite
   native_prerequisite_print_fields
-  printf 'assessment-status: not-run\n'
+  native_journey_state_print_fields
   printf 'assessment-interpretation: none\n'
 }
 
@@ -75,7 +80,7 @@ native_result_finalize_journey() {
     printf 'helper-identity: tests/support/dough-adr-awareness-updated-use.sh\n'
     native_result_print_adapter_identity
     printf 'fixture-identity: tests/fixtures/adr-awareness/alternate-layout\n'
-    printf 'assessor-identity: tests/support/dough-adr-awareness-release-transition.sh delivery_assert_update\n'
+    printf 'assessor-identity: tests/support/native-journey-state.sh\n'
     printf 'artifact-update-events: update-events.jsonl\n'
     printf 'artifact-update-response: update-response.md\n'
     printf 'artifact-update-stderr: update-stderr.log\n'
@@ -89,6 +94,8 @@ native_result_finalize_journey() {
     native_result_input_hash_line tests/support/dough-adr-awareness-updated-use.sh
     native_result_input_hash_line tests/support/native-result-retain.sh
     native_result_input_hash_line tests/support/native-result-retain-journey.sh
+    native_result_input_hash_line tests/support/native-journey-state.sh
+    native_result_input_hash_line tests/support/native-adr-behavior.sh
     native_result_input_hash_line tests/support/native-prerequisite-gate.sh
     native_result_input_hash_line tests/support/native-activation-decode.sh
     native_result_input_hash_line tests/support/native-activation-path.sh
