@@ -41,7 +41,7 @@ run_codex_adr_adoption_cleanup() {
   jq -r \
     'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
     "${transcript}" > "${command_log}"
-  assert_no_adr_adoption_install_or_fetch \
+  assert_no_adr_install_or_fetch \
     "${command_log}" 'authorized current-version cleanup'
 
   [[ ! -e "${target}/.agents/skills/adr-awareness" ]]
@@ -70,7 +70,7 @@ run_codex_adr_adoption_cleanup() {
   grep -Fq 'PR/commit message or note' "${architecture_rule}"
   grep -Fq 'pointing at the ADR and the exception' "${architecture_rule}"
 
-  assert_tagged_adr_adoption_payload \
+  assert_tagged_adr_awareness_payload \
     "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
   for unchanged_file in \
     .agents/skills/unrelated-guidance/SKILL.md \

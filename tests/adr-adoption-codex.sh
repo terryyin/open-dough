@@ -9,8 +9,8 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 # shellcheck source=tests/support/native-codex.sh
 source "${source_dir}/tests/support/native-codex.sh"
 # shellcheck disable=SC1091
-# shellcheck source=tests/support/adr-adoption-codex-proof.sh
-source "${source_dir}/tests/support/adr-adoption-codex-proof.sh"
+# shellcheck source=tests/support/dough-adr-awareness-proof.sh
+source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 # shellcheck disable=SC1091
 # shellcheck source=tests/support/adr-adoption-codex-preparation.sh
 source "${source_dir}/tests/support/adr-adoption-codex-preparation.sh"
@@ -94,7 +94,7 @@ candidate_tag=$(git -C "${candidate}" describe --exact-match --tags HEAD)
 [[ ${candidate_tag} == "${tag}" ]]
 
 installed_version=$(cat "${target}/.agents/skills/dough-update/VERSION")
-assert_tagged_adr_adoption_payload \
+assert_tagged_adr_awareness_payload \
   "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
 
 before=$(snapshot_path_state "${target}")
@@ -173,7 +173,7 @@ command_log="${temporary_dir}/codex-assessment-commands.txt"
 jq -r \
   'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
   "${transcript}" > "${command_log}"
-assert_no_adr_adoption_install_or_fetch "${command_log}" assessment
+assert_no_adr_install_or_fetch "${command_log}" assessment
 
 grep -Fq "Invocation: \$dough-update" "${output_file}"
 grep -Eiq 'equivalent|behavioral(ly)? (match|coverage|plausible)|behavioral(ly)?.*replace|covers|^- Match:' \

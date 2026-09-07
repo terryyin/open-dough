@@ -103,7 +103,7 @@ do not commit a red test or leave documentation advertising a removed behavior.
 ### 1a. Use installed ADR guidance directly in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A rehomed installed-use test builds a direct fixture and passes its
 non-native snapshot check plus `--native explicit` and `--native automatic`.
 The candidate source and complete target stay unchanged, the Accepted session
@@ -450,7 +450,7 @@ Size: medium confidence; bounded document review, no broad archive rewrite.
 
 | Platform | Required evidence for changed boundaries | Current status |
 | --- | --- | --- |
-| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | Pending; plan only. |
+| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a passed natively; later leaves pending. |
 | Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | Pending; plan only. |
 | Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | Pending; plan only. |
 
@@ -483,7 +483,9 @@ messages as native verification. No checks have been executed for this plan.
   one conditional Behavior or one immediately enabling Structure proof loop.
   The only stated hard-limit exceptions are focused native-tool runtime; editing,
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
-- Execution can resume at 1a. Reassess after five minutes and follow Learning
+- Slice 1a replaced migration reconstruction with a byte-equivalent direct
+  fixture; explicit and automatic Codex use passed with unchanged snapshots.
+  Execution resumes at 1b. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `17`; started before the first push.

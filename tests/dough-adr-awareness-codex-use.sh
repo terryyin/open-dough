@@ -8,13 +8,13 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/release-fixture.bash"
 # shellcheck source=tests/support/native-codex.sh
 source "${source_dir}/tests/support/native-codex.sh"
-# shellcheck source=tests/support/adr-adoption-codex-proof.sh
-source "${source_dir}/tests/support/adr-adoption-codex-proof.sh"
-# shellcheck source=tests/support/adr-adoption-codex-use.sh
-source "${source_dir}/tests/support/adr-adoption-codex-use.sh"
+# shellcheck source=tests/support/dough-adr-awareness-proof.sh
+source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
+# shellcheck source=tests/support/dough-adr-awareness-use.sh
+source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
 
 if [[ $# != 0 && ! ($# == 2 && $1 == '--native' && $2 =~ ^(explicit|automatic)$) ]]; then
-  echo 'usage: tests/adr-adoption-codex-use.sh [--native explicit|automatic]' >&2
+  echo 'usage: tests/dough-adr-awareness-codex-use.sh [--native explicit|automatic]' >&2
   exit 2
 fi
 
@@ -32,20 +32,47 @@ finish() {
 }
 trap finish EXIT
 candidate="${temporary_dir}/exact tagged source"
-target="${temporary_dir}/post-cleanup target"
+target="${temporary_dir}/installed ADR-awareness target"
 build_current_tagged_release_fixture "${candidate}"
-prepare_donut_adr_codex_use_target "${target}" "${candidate}"
+prepare_installed_adr_awareness_codex_target "${target}" "${candidate}"
 version=$(cat "${source_dir}/VERSION")
 tag="v${version}"
 installed_version=$(cat "${target}/.agents/skills/dough-update/VERSION")
-assert_tagged_adr_adoption_payload \
+assert_tagged_adr_awareness_payload \
   "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
+[[ ! -e "${target}/.agents/skills/adr-awareness" ]]
+[[ ! -L "${target}/.claude/skills/adr-awareness" ]]
+for caller in \
+  .cursor/rules/general.mdc \
+  .cursor/rules/architecture-decisions.mdc \
+  .cursor/agent-map.md \
+  docs/adrs/README.md; do
+  grep -Fq 'dough-adr-awareness' "${target}/${caller}"
+  grep -Fq '.agents/skills/adr-awareness' "${target}/${caller}" && exit 1
+done
+grep -Fq 'Cross-cutting stack' \
+  "${target}/.cursor/rules/architecture-decisions.mdc"
+grep -Fq 'pointing at the ADR and the exception' \
+  "${target}/.cursor/rules/architecture-decisions.mdc"
+for protected_file in \
+  .agents/skills/unrelated-guidance/SKILL.md \
+  .cursor/skills/other-host-guidance/SKILL.md \
+  .claude/skills/other-host-guidance/SKILL.md \
+  AGENTS.md \
+  docs/adrs/0001-session-state.md \
+  docs/adrs/0002-package-sessions.md; do
+  cmp \
+    "${source_dir}/tests/fixtures/adr-awareness/installed-use/${protected_file}" \
+    "${target}/${protected_file}"
+done
 before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")
 
 if [[ $# == 0 ]]; then
-  echo 'PASS: reconstructed accepted cleanup changes only; original absent, callers repaired, retained context and protected files preserved, exact tagged payload present.'
-  echo 'PENDING: native Codex post-cleanup use; run --native explicit and --native automatic.'
+  [[ ${before} == "$(snapshot_path_state "${target}")" ]]
+  [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
+  echo 'PASS: direct installed-use fixture has repaired callers, retained context and protected files, no obsolete original, and the exact tagged payload.'
+  echo 'PENDING: native Codex installed-guidance use; run --native explicit and --native automatic.'
   exit 0
 fi
 
@@ -72,7 +99,7 @@ source_after=$(snapshot_path_state "${candidate}")
 command_log="${temporary_dir}/${mode}-commands.txt"
 jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
   "${transcript}" > "${command_log}"
-assert_no_adr_adoption_install_or_fetch "${command_log}" 'post-cleanup use'
+assert_no_adr_awareness_maintenance "${command_log}" 'installed guidance use'
 source_commit=$(git -C "${candidate}" rev-parse HEAD)
 before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
 after_digest=$(printf '%s\n' "${after}" | shasum -a 256 | cut -d ' ' -f 1)
@@ -111,5 +138,5 @@ cat "${output_file}"
 printf '\nSuccessful native command output (loading evidence):\n'
 jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and .item.exit_code == 0) | .item.aggregated_output' \
   "${transcript}"
-echo 'PASS: native skill-specific completion (explicit) or successful skill read (automatic), Accepted-ADR citation and Redis advice observed; complete target and source snapshots unchanged.'
+echo 'PASS: native skill-specific completion (explicit) or successful skill read (automatic), Accepted-ADR citation and Redis advice observed; complete installed target and source snapshots unchanged without maintenance machinery.'
 echo 'REVIEW: confirm actual skill loading, Accepted/Proposed treatment, human authority, and absence of fallback in the native evidence above.'

@@ -34,7 +34,7 @@ run_codex_adr_adoption_preparation() {
   jq -r \
     'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
     "${transcript}" > "${command_log}"
-  assert_no_adr_adoption_install_or_fetch \
+  assert_no_adr_install_or_fetch \
     "${command_log}" 'authorized current-version preparation'
 
   grep -Fq 'Cross-cutting stack' "${architecture_rule}"
@@ -64,7 +64,7 @@ run_codex_adr_adoption_preparation() {
   grep -Fq 'Humans own propose' \
     "${target}/.agents/skills/adr-awareness/SKILL.md"
 
-  assert_tagged_adr_adoption_payload \
+  assert_tagged_adr_awareness_payload \
     "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
   for unchanged_file in \
     .agents/skills/adr-awareness/SKILL.md \
