@@ -9,14 +9,15 @@ source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 
 if [[ $# != 0 && ! ($# == 1 && $1 == '--native') &&
-  ! ($# == 2 && $1 == '--native' && $2 =~ ^(codex|cursor)$) ]]; then
-  echo 'usage: tests/dough-update-local-guidance-rejection.sh [--native [codex|cursor]]' >&2
+  ! ($# == 2 && $1 == '--native' && $2 =~ ^(codex|cursor|claude)$) ]]; then
+  echo 'usage: tests/dough-update-local-guidance-rejection.sh [--native [codex|cursor|claude]]' >&2
   exit 2
 fi
 platform=${2:-codex}
 case ${platform} in
   codex) skill_root='.agents/skills' ;;
   cursor) skill_root='.cursor/skills' ;;
+  claude) skill_root='.claude/skills' ;;
   *) exit 2 ;;
 esac
 
@@ -68,7 +69,7 @@ before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")
 if [[ $# == 0 ]]; then
   echo 'PASS: candidate updater declares the unsupported local-guidance boundary while ordinary release update remains available.'
-  echo 'PENDING: native Codex and Cursor rejection; run --native codex and --native cursor.'
+  echo 'PENDING: native Codex, Cursor, and Claude Code rejection; run --native for each platform.'
   exit 0
 fi
 
@@ -91,6 +92,16 @@ case ${platform} in
     ) > "${transcript}"
     jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
     ;;
+  claude)
+    command -v claude > /dev/null
+    native_version=$(claude --version)
+    (
+      cd -- "${target}"
+      claude --print --permission-mode default --allowedTools 'Read,Glob,Grep,Skill' \
+        --no-session-persistence --output-format stream-json --verbose "${prompt}"
+    ) > "${transcript}"
+    jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
+    ;;
   *) exit 2 ;;
 esac
 
@@ -100,7 +111,11 @@ source_after=$(snapshot_path_state "${candidate}")
 [[ ${source_before} == "${source_after}" ]]
 grep -Fqi 'dough-update' "${output_file}"
 grep -Eiq 'assess|replace' "${output_file}"
-grep -Eiq 'cannot|not support|unsupported' "${output_file}"
+if [[ ${platform} == 'claude' ]]; then
+  grep -Eiq "cannot|not support|unsupported|out of scope|isn.t something" "${output_file}"
+else
+  grep -Eiq 'cannot|not support|unsupported' "${output_file}"
+fi
 grep -Eiq 'ordinary Open Dough release updat(e|ing).*(still )?available' \
   "${output_file}"
 grep -Eiq 'repository (URL|url)|source (URL|url)' "${output_file}"
@@ -117,10 +132,16 @@ case ${platform} in
       ((.result.success.content // "") | contains("Local-guidance replacement is not supported by dough-update.")))' \
       "${transcript}" > /dev/null
     ;;
+  claude)
+    jq -e -s 'any(.[] | .message.content[]?; .type == "tool_use" and
+      .name == "Skill" and .input.skill == "dough-update")' \
+      "${transcript}" > /dev/null
+    ;;
   *) exit 2 ;;
 esac
 
 command_log="${temporary_dir}/commands.txt"
+inspection_log="${temporary_dir}/inspection-targets.txt"
 case ${platform} in
   codex)
     jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
@@ -130,22 +151,30 @@ case ${platform} in
     jq -r '.. | objects |
       (.command? // .args.command? // .input.command? // empty) | strings' \
       "${transcript}" > "${command_log}"
-    if jq -e -s 'any(.[] | .. | objects | select(has("tool_call")) |
-      .tool_call | .. | objects | .args? // empty | .. | strings;
-      test("team-architecture-practice"))' "${transcript}" > /dev/null; then
-      echo 'FAIL: Cursor inspected the local practice after declining assessment.' >&2
-      exit 1
-    fi
-    if jq -e -s 'any(.[] | .. | objects | select(has("tool_call")) |
-      .tool_call | .. | objects | .args? // empty | .. | strings;
-      test("RECOGNITION\\.md|adr-adoption|migration"; "i"))' \
-      "${transcript}" > /dev/null; then
-      echo 'FAIL: Cursor read migration-support material.' >&2
-      exit 1
-    fi
+    jq -r '.. | objects | select(has("tool_call")) |
+      .tool_call | .. | objects | .args? // empty | .. | strings' \
+      "${transcript}" > "${inspection_log}"
+    ;;
+  claude)
+    jq -r '.. | objects |
+      (.command? // .args.command? // .input.command? // empty) | strings' \
+      "${transcript}" > "${command_log}"
+    jq -r '.message.content[]? |
+      select(.type == "tool_use" and (.name == "Read" or .name == "Glob" or .name == "Grep")) |
+      .input | .. | strings' "${transcript}" > "${inspection_log}"
     ;;
   *) exit 2 ;;
 esac
+if [[ -f ${inspection_log} ]] && grep -Fqi 'team-architecture-practice' \
+  "${inspection_log}"; then
+  echo "FAIL: ${platform} inspected the local practice after declining assessment." >&2
+  exit 1
+fi
+if [[ -f ${inspection_log} ]] && grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' \
+  "${inspection_log}"; then
+  echo "FAIL: ${platform} read migration-support material." >&2
+  exit 1
+fi
 assert_no_adr_install_or_fetch "${command_log}" \
   "${platform} local-guidance rejection"
 if grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' "${command_log}"; then
