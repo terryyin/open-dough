@@ -42,6 +42,14 @@ implemented. Leaf refinement is recommended for bounded supervision and delivery
 adapter integration. Scope is existing runner readiness only; native qualification
 remains in Story 3. Old-plan reconciliation is not a prerequisite.
 
+[SEED-007 Story 2](seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts)
+is also refined with no blocking product questions; its
+[slice plan](quick/021-trust-native-verdicts/PLAN.md) is written, not implemented.
+It prepares neutral prompts and evidence-backed assessors for the existing cases
+only, using Story 1's retained artifacts. Leaf refinement is recommended for
+the first activation integration and delivery verdict migrations. Native
+qualification remains in Story 3; no new native run or client work is included.
+
 ### Later client-work readiness
 
 Reconsider SEED-001 Story 7 before preparing any new execution plan.

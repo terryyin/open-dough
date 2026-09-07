@@ -110,34 +110,87 @@ No earlier proof is newly certified by this refinement.
 
 ### 2. Detect native behavior failures instead of rewarding the expected words
 
-**Status:** Unplanned. **Type:** Test migration. **Dependency:** Story 1's retained artifacts.
+**Status:** Refined; [slice plan written](../quick/021-trust-native-verdicts/PLAN.md), not implemented.
+**Type:** Test migration. **Dependency:** Story 1's retained artifacts and offline assessment boundary; no old-plan reconciliation prerequisite.
 
-**Value:** A green acceptance result means the installed guidance was used and
-behaved correctly, rather than the agent repeating answers supplied by the test.
+**Goal:** A maintainer can see the existing checks reject misleading evidence
+and identify uncertain outcomes using inexpensive tests, before spending on
+native acceptance. This readies the codebase for honest ADR 0005 validation;
+it does not certify the guidance or the native harnesses themselves.
 
-**Scope:** Migrate the current delivery/context prompts and assessments. Keep
-expected contract facts outside prompts, retain legitimate invocation hints for
-explicit cases, and capture host-native loading evidence plus observed state.
-Keep shared behavioral assertions with minimal event-format adapters.
+**Scope:** Migrate only the existing clear/conflict context checks and the three
+delivery wrappers' legacy-refusal, ordinary-update, and updated-use cases. Give
+agents ordinary task requests with the information needed to act, while keeping
+expected conclusions, discovered contract facts, and prescribed answer wording
+in test expectations. Keep skill names for these existing explicit invocations;
+they do not prove automatic discovery.
 
-**Acceptance scenarios:**
+Assess Story 1's retained execution events, response, and state observations
+together. Require evidence of the selected installed guidance's native activation
+and the case's intended outcome; neither self-report nor exit 0 is enough.
+Recognize evidenced native skill expansion without insisting on a separate shell
+read. Keep shared case assertions with only necessary host event adapters.
+Test positive, negative, and inconclusive evidence offline for each host, and
+use the same assessor for fresh attempts and saved attempts.
 
-- Given an undisclosed ADR disagreement or edited installation, the ordinary
-  task prompt supplies neither the expected conclusion nor the skill body.
-  Native evidence must show discovery/invocation and the expected response/state.
-- Given a real native skill expansion without a separate shell read, accept valid
-  activation evidence. Given self-report with no activation evidence, do not pass.
-- Given correct words in a negated answer, a failed command followed by a success
-  claim, missing terminal events, or modified protected files, automated grading
-  does not pass. Reviewed good/bad transcript and snapshot fixtures cover all
-  three adapters in CI.
-- Given ambiguous but potentially legitimate behavior, retain an inconclusive
-  result for human judgment. Record any resolution against its evidence rather
-  than silently weakening assertions or rerunning until green.
+Keep definite execution/contract failures nonpassing. Leave insufficient or
+ambiguous evidence inconclusive with a reason; a human can record an
+evidence-linked resolution using Story 1's result trail. Preserve the original
+assessment and failures. Do not automatically retry, launch a judge model, or
+weaken the test to obtain a pass.
 
-**Completion evidence:** Revised cases and passing positive/counterexample CI
-coverage. Existing coached observations stay historical; revised native
-interpretation claims remain pending in Story 3.
+**Key examples:**
+
+- **E1 — Discover the answer:** Given the clear and conflicting context fixtures,
+  the same request asks how two backend instances should share login sessions.
+  It does not reveal status agreement, disagreement, Redis, or the required
+  conclusion. Reviewed evidence of following the accepted decision passes the
+  clear case; proceeding despite unresolved conflicting authority does not pass
+  the conflict case. A legitimate conditional explanation while stopping for
+  human resolution is not mistaken for proceeding.
+- **E2 — Prove activation:** Given complete evidence of the correct installed
+  skill's successful native loading/expansion and correct behavior, assessment
+  can pass without a redundant file-read command. A response saying it invoked
+  the skill, a requested/failed read, or loading another copy cannot establish
+  activation. Missing evidence remains inconclusive; it is never inferred from
+  a printed invocation/completion marker alone.
+- **E3 — Observe the delivery outcome:** Given the existing incompatible legacy
+  installation, an ordinary update request does not disclose the mismatch or
+  instruct refusal. Evidence must show the contract-based refusal and unchanged
+  target/source. Given the existing bootstrapped newer-release journey, a success
+  claim after a failed update or with wrong installed bytes cannot pass; the
+  verified update and fresh use must concern the same resulting installation.
+  The use prompt does not reveal the catalog disagreement or its status values.
+- **E4 — Reject misleading evidence:** Given responses containing expected words
+  in a quotation, negation, or contradictory recommendation, assessment does
+  not pass on those words. Missing terminal evidence or changed protected files
+  also prevents a pass despite a convincing final response. Positive variants
+  and counterexamples exercise Codex, Cursor, and Claude Code adapters in CI.
+- **E5 — Preserve uncertainty:** Given a potentially valid response or native
+  event form the assessor cannot establish, offline assessment reports
+  inconclusive and identifies the missing/ambiguous evidence. A later human
+  resolution references that attempt and records its reason without overwriting
+  the automated result, certifying stale evidence, or starting a native session.
+
+**Exclusions:** No additional native scenarios or automatic-activation cases,
+edited-equal/forced-update expansion, actual native sessions or qualification
+(Story 3), runner selection/retention/supervision redesign (Story 1), old-plan
+reconciliation (Story 4), updater/installer or skill changes, client adoption,
+guidance extraction/installation, or release. No general natural-language judge,
+evaluation service, review UI, evidence database, or broad harness migration.
+
+**Open questions:** None that block refinement or planning. Story 1 is still
+unimplemented; its delivered artifact interface must be used at execution time.
+Unknown native event forms are inconclusive, not a reason to broaden this story.
+
+**Completion evidence:** Revised prompts and passing credential-free positive,
+counterexample, and inconclusive tests through the existing selected-case and
+offline assessment entry points for all three adapters. Preserve the broad cheap
+CI suite. Native discovery, invocation/application, behavior, affected
+installation/update/coexistence, and qualification of the changed assessors stay
+pending separately for Codex, Cursor, and Claude Code in
+[Story 3](#accept-standalone-client-workflow). Historical observations remain
+historical; this refinement certifies no new or reused native proof.
 
 <a id="accept-standalone-client-workflow"></a>
 
