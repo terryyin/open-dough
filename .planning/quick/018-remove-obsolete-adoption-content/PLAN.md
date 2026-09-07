@@ -124,7 +124,7 @@ not hidden editing work.
 ### 1b. Respect clear and conflicting ADR status from the direct fixture
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/dough-adr-awareness-context.sh` uses the direct fixture and passes
 its non-native check. For Codex, Cursor, and Claude Code, `clear` completes with
 the local decision while `conflict` names both authorities and stops for human
@@ -450,9 +450,9 @@ Size: medium confidence; bounded document review, no broad archive rewrite.
 
 | Platform | Required evidence for changed boundaries | Current status |
 | --- | --- | --- |
-| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a passed natively; later leaves pending. |
-| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | Pending; plan only. |
-| Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | Pending; plan only. |
+| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a/1b passed natively; later leaves pending. |
+| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
+| Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
 
 For each tool, capture tool version, candidate source revision, entry point,
 observed native loading/application, update/use result, and before/after
@@ -483,9 +483,9 @@ messages as native verification. No checks have been executed for this plan.
   one conditional Behavior or one immediately enabling Structure proof loop.
   The only stated hard-limit exceptions are focused native-tool runtime; editing,
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
-- Slice 1a replaced migration reconstruction with a byte-equivalent direct
-  fixture; explicit and automatic Codex use passed with unchanged snapshots.
-  Execution resumes at 1b. Reassess after five minutes and follow Learning
+- Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
+  fixture; all named native use/context observations passed unchanged.
+  Execution resumes at 2a. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `17`; started before the first push.

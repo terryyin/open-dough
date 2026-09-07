@@ -7,7 +7,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
-source "${source_dir}/tests/support/adr-adoption-codex-use.sh"
+source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
 
 if [[ $# != 0 && ! ($# == 3 && $1 == '--native' &&
   $2 =~ ^(codex|cursor|claude)$ && $3 =~ ^(clear|conflict)$) ]]; then
@@ -39,21 +39,7 @@ trap finish EXIT
 candidate="${temporary_dir}/candidate"
 target="${temporary_dir}/adopter"
 build_current_tagged_release_fixture "${candidate}"
-prepare_donut_adr_codex_use_target "${target}" "${candidate}"
-if [[ ${platform} != 'codex' ]]; then
-  bash "${candidate}/install.sh" --target "${target}" --platform "${platform}"
-  # Only the selected host's installed candidate is discoverable in this proof.
-  rm -r -- "${target}/.agents/skills/dough-adr-awareness" \
-    "${target}/.agents/skills/dough-update"
-  for caller in .cursor/agent-map.md .cursor/rules/architecture-decisions.mdc docs/adrs/README.md; do
-    sed "s|.agents/skills/dough-adr-awareness|${skill_root}/dough-adr-awareness|g" \
-      "${target}/${caller}" > "${temporary_dir}/caller"
-    cp -- "${temporary_dir}/caller" "${target}/${caller}"
-  done
-fi
-if [[ ${platform} == 'claude' ]]; then
-  printf '@AGENTS.md\n' > "${target}/CLAUDE.md"
-fi
+prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
 if [[ ${scenario} == 'conflict' ]]; then
   sed 's/| Accepted |/| Proposed |/' "${target}/docs/adrs/README.md" \
     > "${temporary_dir}/index"
@@ -65,7 +51,7 @@ before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")
 
 if [[ $# == 0 ]]; then
-  echo 'PASS: context proof uses the unchanged post-cleanup ADR context and installed shared source.'
+  echo 'PASS: context proof uses the direct installed-use fixture and unchanged installed shared source.'
   echo 'PENDING: native clear/conflicting-status observations in Codex, Cursor, and Claude Code.'
   exit 0
 fi
@@ -101,6 +87,12 @@ esac
 after=$(snapshot_path_state "${target}")
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]
+command_log="${temporary_dir}/${platform}-${scenario}-commands.txt"
+jq -r '.. | objects |
+  (.command? // .args.command? // .input.command? // empty) | strings' \
+  "${transcript}" > "${command_log}"
+assert_no_adr_awareness_maintenance \
+  "${command_log}" "${platform} ${scenario} ADR assessment"
 source_commit=$(git -C "${candidate}" rev-parse HEAD)
 version=$(cat "${candidate}/VERSION")
 before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
@@ -140,8 +132,12 @@ else
   grep -Eiq 'Accepted' "${output_file}"
   grep -Eiq 'Proposed' "${output_file}"
   grep -Eiq 'conflict|disagree|ambigu' "${output_file}"
+  grep -Eiq 'stop|stopped|blocked|cannot proceed|until .*resolv|pending .*resolv' \
+    "${output_file}"
   grep -Eiq 'human|clarif|resolv|confirm' "${output_file}"
 fi
+printf '\nNative command evidence:\n'
+cat "${command_log}"
 printf '\nNative transcript for loading and behavior review:\n'
 cat "${transcript}"
 printf '\nPASS: %s %s native assessment; candidate and complete target unchanged.\n' \
