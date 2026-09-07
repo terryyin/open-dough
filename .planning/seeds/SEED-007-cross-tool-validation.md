@@ -113,7 +113,9 @@ native evidence remains with Story 3; coached historical results gain no new cla
 
 ### 3. Establish that the standalone client candidate works in all three tools
 
-**Status:** Refined 2026-09-08; native acceptance pending. Not selected for execution.
+**Status:** Refined 2026-09-08; conditional slice plan written. Native acceptance
+pending; execution blocked on the named candidate.
+**Plan:** [Quick 023 — accept one standalone client candidate](../quick/023-accept-standalone-client/PLAN.md).
 **Type:** Native acceptance.
 **Dependencies:** Stories 1–2's completed cheap checks and one named candidate
 from the reconsidered [standalone updater story](SEED-001-install-and-update-open-dough.md#standalone-client-update).
