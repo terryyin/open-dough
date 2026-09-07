@@ -12,6 +12,10 @@ Leaf 3 owns `--deadline` and `--grace` on selected context launch (process-group
 ownership; defaults leave recorded-success substitutes unchanged).
 Leaf 4 owns hung selected-context timeout: terminate owned processes, retain
 partial evidence, print `result-path:`, and do not retry.
+Leaf 5 owns selected-context launch/failure retention: missing executable,
+nonzero launch, and denied operation stay nonpassing with available
+stderr/reason, print `result-path:`, do not retry, and record unknown runtime
+when no version can be obtained.
 These leaves do not run selected delivery cases, check stream completeness, or
 reassess saved evidence.
 
@@ -62,7 +66,12 @@ wrapper stops that process group (TERM, then KILL after `--grace`), records
 the attempt as an execution timeout (not a wording pass), keeps partial
 stdout/stderr under a new attempt directory, prints `result-path:`, and
 exits 124 without retrying. A previously completed sibling attempt is left
-unchanged. Bound: only processes in the owned group.
+unchanged. Bound: only processes in the owned group. If the selected command
+cannot run (missing executable, nonzero launch, or denied operation), the
+wrapper records a nonpassing attempt with available stderr/reason, prints
+`result-path:`, and returns the original failure without retrying. Cleanup
+does not mask that failure. When no version can be obtained, `native-version`
+is `unknown` (Cursor Agent is not inferred from `cursor --version`).
 
 ## Delivery wrappers
 
@@ -107,11 +116,19 @@ owned pids are gone; partial evidence remains under
 completed attempt stays byte-identical; the invocation log has one launch
 and no retry.
 
+## `tests/native-runner-failures.sh`
+
+Credential-free proof for leaf 5: missing executable, nonzero launch, and
+denied-operation fixtures return nonpassing selected-context records with
+available stderr/reason; `result-path:` is printed; scratch is gone; a
+previously completed attempt stays byte-identical; the invocation log has no
+retry. When Cursor Agent version cannot be obtained, the record stores
+`native-version: unknown` and does not call `cursor --version`.
+
 ## Later leaves (not this file's contract)
 
 | Behavior | Owner |
 | --- | --- |
-| Failed/denied launch records | Leaf 5 |
 | Incomplete stream rejection | Leaf 6 |
 | Selected Codex delivery cases | Leaves 7–9 |
 | Selected Cursor delivery cases | Leaves 10–12 |

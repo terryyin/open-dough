@@ -5,6 +5,7 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
 
 native_run_outcome=exited
+native_run_failure_reason=
 
 native_run_pgid_of() {
   ps -o pgid= -p "$1" 2> /dev/null | tr -d '[:space:]'
@@ -135,26 +136,73 @@ native_run_owned() {
   return "${status}"
 }
 
+native_run_mark_failed() {
+  native_run_outcome=failed
+  native_run_failure_reason=$1
+  tool_version=${tool_version:-unknown}
+}
+
+native_run_capture_version() {
+  local version status=0
+  version=$("$@" 2>> "${native_stderr}") || status=$?
+  if [[ ${status} -ne 0 || -z ${version} ]]; then
+    tool_version=unknown
+    return 0
+  fi
+  tool_version=${version}
+}
+
+native_run_require_host() {
+  if command -v "${platform}" > /dev/null 2>&1; then
+    return 0
+  fi
+  printf 'error: missing executable: %s\n' "${platform}" >> "${native_stderr}"
+  native_run_mark_failed 'missing executable'
+  return 127
+}
+
+native_run_owned_or_fail() {
+  local status=0
+  native_run_owned "$@" || status=$?
+  if ((status == 0)); then
+    return 0
+  fi
+  if [[ ${native_run_outcome} != timeout ]]; then
+    case ${status} in
+      126) native_run_mark_failed 'permission denied' ;;
+      127) native_run_mark_failed 'missing executable' ;;
+      *) native_run_mark_failed "native command exited ${status}" ;;
+    esac
+  fi
+  return "${status}"
+}
+
 native_run_context_command() {
+  tool_version=unknown
+  case ${platform} in
+    codex | cursor | claude) ;;
+    *) return 2 ;;
+  esac
+  native_run_require_host || return $?
   case ${platform} in
     codex)
       native_codex_prepare "${temporary_dir}" "${candidate}"
-      tool_version=$(codex --version 2>> "${native_stderr}")
+      native_run_capture_version codex --version
       native_codex_build_command "${target}" "${output_file}" "${prompt}" \
         "${transcript}"
-      native_run_owned "${transcript}" "${native_stderr}" '' \
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" '' \
         "${native_codex_command[@]}" || return $?
       ;;
     cursor)
-      tool_version=$(cursor agent --version 2>> "${native_stderr}")
-      native_run_owned "${transcript}" "${native_stderr}" "${target}" \
+      native_run_capture_version cursor agent --version
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" "${target}" \
         cursor agent --print --force --trust --sandbox enabled \
         --output-format stream-json --workspace "${target}" "${prompt}" \
         || return $?
       ;;
     claude)
-      tool_version=$(claude --version 2>> "${native_stderr}")
-      native_run_owned "${transcript}" "${native_stderr}" "${target}" \
+      native_run_capture_version claude --version
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" "${target}" \
         claude --print --permission-mode default \
         --allowedTools 'Read,Glob,Grep,Skill' --no-session-persistence \
         --output-format stream-json --verbose "${prompt}" || return $?

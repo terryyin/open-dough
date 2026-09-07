@@ -112,11 +112,11 @@ prompt='Use $dough-adr-awareness. Assess how two backend instances should share 
 if [[ ${scenario} == 'clear' ]]; then
   prompt+=' The index and record statuses agree; demonstrate the installed improvement by completing without requiring a disagreement policy that this request does not need.'
 fi
-# shellcheck disable=SC2310 # Timeout must be observed; other failures still exit.
+# shellcheck disable=SC2310 # Timeout and launch failure must be observed, not lost to set -e.
 native_run_context_command || {
   run_status=$?
+  native_result_report_context
   if [[ ${native_run_outcome} == timeout ]]; then
-    native_result_report_context
     exit 124
   fi
   exit "${run_status}"

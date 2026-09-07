@@ -88,17 +88,27 @@ native_result_write_if_set() {
 }
 
 native_result_execution_fields() {
-  if [[ ${native_run_outcome:-exited} == timeout ]]; then
-    printf 'execution-status: timeout\n'
-    printf 'execution-reason: deadline expired\n'
-    printf 'assessment-status: not-run\n'
-    printf 'assessment-interpretation: none\n'
-    return
-  fi
-  printf 'execution-status: completed\n'
-  printf 'execution-reason: native command exited 0\n'
-  printf 'assessment-status: pass\n'
-  printf 'assessment-interpretation: limited-wording\n'
+  case ${native_run_outcome:-exited} in
+    timeout)
+      printf 'execution-status: timeout\n'
+      printf 'execution-reason: deadline expired\n'
+      printf 'assessment-status: not-run\n'
+      printf 'assessment-interpretation: none\n'
+      ;;
+    failed)
+      printf 'execution-status: failed\n'
+      printf 'execution-reason: %s\n' \
+        "${native_run_failure_reason:-native command failed}"
+      printf 'assessment-status: not-run\n'
+      printf 'assessment-interpretation: none\n'
+      ;;
+    *)
+      printf 'execution-status: completed\n'
+      printf 'execution-reason: native command exited 0\n'
+      printf 'assessment-status: pass\n'
+      printf 'assessment-interpretation: limited-wording\n'
+      ;;
+  esac
 }
 
 native_result_finalize_context() {
@@ -123,21 +133,30 @@ native_result_finalize_context() {
     "${source_before+1}" "${source_before-}"
   native_result_write_if_set source-after-snapshot.txt \
     "${source_after+1}" "${source_after-}"
-  if [[ ${native_run_outcome:-exited} == timeout ]]; then
-    native_result_write_text observations.txt $'partial: true\nexecution: timeout'
-  else
-    native_result_write_text observations.txt "$(
-      printf 'before-digest: %s\n' "${before_digest}"
-      printf 'after-digest: %s\n' "${after_digest}"
-      printf 'source-before-digest: %s\n' "${source_before_digest}"
-      printf 'source-after-digest: %s\n' "${source_after_digest}"
-      printf 'target-unchanged: true\n'
-      printf 'source-unchanged: true\n'
-    )"
-  fi
+  case ${native_run_outcome:-exited} in
+    timeout | failed)
+      native_result_write_text observations.txt "$(
+        printf 'partial: true\n'
+        printf 'execution: %s\n' "${native_run_outcome}"
+      )"
+      ;;
+    *)
+      native_result_write_text observations.txt "$(
+        printf 'before-digest: %s\n' "${before_digest}"
+        printf 'after-digest: %s\n' "${after_digest}"
+        printf 'source-before-digest: %s\n' "${source_before_digest}"
+        printf 'source-after-digest: %s\n' "${source_after_digest}"
+        printf 'target-unchanged: true\n'
+        printf 'source-unchanged: true\n'
+      )"
+      ;;
+  esac
 
   version_command=$(native_result_version_command_for "${native_case_host}")
-  executable=$(command -v "${native_case_host}")
+  executable=$(command -v "${native_case_host}" 2> /dev/null) || executable=
+  if [[ -z ${executable} ]]; then
+    executable=unknown
+  fi
   source_revision=$(git -C "${source_dir}" rev-parse HEAD)
   case ${native_case_host} in
     cursor) adapter_identity='cursor-agent-stream-json' ;;
@@ -153,7 +172,7 @@ native_result_finalize_context() {
     native_result_execution_fields
     printf 'native-executable: %s\n' "${executable}"
     printf 'native-version-command: %s\n' "${version_command}"
-    printf 'native-version: %s\n' "${tool_version}"
+    printf 'native-version: %s\n' "${tool_version:-unknown}"
     printf 'native-model: unknown\n'
     printf 'native-runtime-settings: unknown\n'
     printf 'source-revision: %s\n' "${source_revision}"

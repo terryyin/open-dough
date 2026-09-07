@@ -1,6 +1,6 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slices 1–4 done. Remaining leaves were refined in place
+Status: executing; slices 1–5 done. Remaining leaves were refined in place
 (supervisor+timeout; one selected delivery case per host). No `--native` run is
 part of this plan's verification.
 
@@ -201,7 +201,7 @@ and leaf 2's result layout. Bound the proof to owned processes.
 
 ### 5. Preserve why a selected attempt could not execute
 Type: Behavior
-Status: planned
+Status: done
 Proof: Missing executable, nonzero launch, and explicit denied-operation fixtures
 produce nonpassing records with available stderr/reason and no retry. Previous
 success remains byte-identical; cleanup cannot mask the original failure.
@@ -412,6 +412,15 @@ evidence, prints `result-path:`, and does not retry. Timeout records
 A prior completed attempt stays byte-identical. Focused proof:
 `bash tests/native-run-timeout.sh`. Other launch failures still lose scratch
 (leaf 5). Delivery wrappers still parse deadline/grace without supervising.
+
+Slice 5: selected context launch/failure is retained instead of lost to `set -e`
+or scratch cleanup. Missing executable (127), nonzero exit, and permission
+denied (126) write `execution-status: failed` with stderr/reason,
+`assessment-status: not-run`, and `result-path:`. Unknown runtime stays
+`unknown` (Cursor Agent is not inferred from `cursor --version`). Finalize must
+not abort on missing `command -v`. Focused proof:
+`bash tests/native-runner-failures.sh`. Incomplete stream with exit 0 remains
+leaf 6.
 
 Remaining-leaf refinement (after slices 1–2): old leaf 3 split into Structure
 (deadline/grace ownership, defaults leave success unchanged) plus Behavior
