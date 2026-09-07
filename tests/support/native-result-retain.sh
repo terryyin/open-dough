@@ -92,23 +92,27 @@ native_result_execution_fields() {
     timeout)
       printf 'execution-status: timeout\n'
       printf 'execution-reason: deadline expired\n'
-      printf 'assessment-status: not-run\n'
-      printf 'assessment-interpretation: none\n'
       ;;
     failed)
       printf 'execution-status: failed\n'
       printf 'execution-reason: %s\n' \
         "${native_run_failure_reason:-native command failed}"
-      printf 'assessment-status: not-run\n'
-      printf 'assessment-interpretation: none\n'
+      ;;
+    incomplete)
+      printf 'execution-status: incomplete\n'
+      printf 'execution-reason: %s\n' \
+        "${native_run_failure_reason:-incomplete terminal stream}"
       ;;
     *)
       printf 'execution-status: completed\n'
       printf 'execution-reason: native command exited 0\n'
       printf 'assessment-status: pass\n'
       printf 'assessment-interpretation: limited-wording\n'
+      return
       ;;
   esac
+  printf 'assessment-status: not-run\n'
+  printf 'assessment-interpretation: none\n'
 }
 
 native_result_finalize_context() {
@@ -134,7 +138,7 @@ native_result_finalize_context() {
   native_result_write_if_set source-after-snapshot.txt \
     "${source_after+1}" "${source_after-}"
   case ${native_run_outcome:-exited} in
-    timeout | failed)
+    timeout | failed | incomplete)
       native_result_write_text observations.txt "$(
         printf 'partial: true\n'
         printf 'execution: %s\n' "${native_run_outcome}"

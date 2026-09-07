@@ -1,6 +1,6 @@
 # Retain the native evidence needed for trustworthy verdicts
 
-Status: planned. Extracted from Quick Plan 20 so its result boundary can be
+Status: in-progress. Extracted from Quick Plan 20 so its result boundary can be
 delivered independently. No native execution is part of this plan.
 
 ## Source
@@ -86,11 +86,11 @@ following cases; no preparatory framework slice is permitted.
 
 ### 1. Retain incomplete context execution without promoting it
 Type: Behavior
-Status: planned
+Status: done
 Proof: Per-host complete, truncated, and missing-terminal recorded streams pass
 through the selected context entry point. Complete execution remains eligible
 for later assessment; incomplete evidence with exit 0 is retained as nonpassing
-with a reason and raw artifacts.
+with a reason and raw artifacts. Focused: `bash tests/native-stream-completeness.sh`.
 
 Behavior: Selected context command exits → inspect host terminal evidence →
 retain complete execution or an explicit incomplete result without deciding the
@@ -224,7 +224,14 @@ done and the retained interface is still applicable.
 
 ## Learnings and readiness
 
-Extracted before implementation from Quick Plan 20's refined leaves 6–16. Quick
-Plan 20 leaves 1–5 were already committed at extraction time. No implementation
-learning yet. The leaves retain the prior refined proof loops and are ready for
-direct execution.
+- Host adapters recognize only the known complete/partial event forms; unknown
+  JSON stays `execution-status: incomplete` rather than growing the contract.
+- Completeness classification lives in `tests/support/native-run-stream.sh`;
+  retention records the supervisor's outcome. Codex truncated still writes
+  `response.md` and must not receive a wording pass.
+- Leaf 1 evidence: `bash tests/native-stream-completeness.sh` (complete stays
+  limited-wording; truncated/missing/unknown exit nonzero with raw artifacts).
+  Existing timeout and launch-failure statuses were unchanged.
+
+Remaining leaves 2–11 are still ready for direct execution. Do not write
+`.planning/STATE.md` as resume state.

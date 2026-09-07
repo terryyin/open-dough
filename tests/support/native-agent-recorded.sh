@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # PATH substitute for credential-free selected context runs.
 # Logs every invocation, including version probes, then emits recorded streams.
+# NATIVE_AGENT_STREAM selects complete (default), truncated, missing, or unknown.
+# Synthetic streams prove adapter contracts, not that native runtimes emit them.
 # shellcheck disable=SC2249,SC2312 # Optional flag scan; pipefail covers jq args.
 set -euo pipefail
 
@@ -53,6 +55,7 @@ while [[ ${idx} -lt ${#args[@]} ]]; do
   idx=$((idx + 1))
 done
 prompt=${args[$((${#args[@]} - 1))]}
+stream_kind=${NATIVE_AGENT_STREAM:-complete}
 
 if [[ ${prompt} == *'statuses agree'* ]]; then
   response='Accepted ADR 0001-session-state.md keeps session state in Redis.
@@ -62,23 +65,75 @@ else
   response='Stopped: docs/adrs/README.md lists 0001 as Proposed, while 0001-session-state.md is Accepted. This conflict is unresolved. Cannot proceed until a human clarifies or resolves the disagreement.'
 fi
 
+write_codex_response() {
+  if [[ -n ${output_file} ]]; then
+    printf '%s\n' "${response}" > "${output_file}"
+  fi
+}
+
+emit_cursor_partial() {
+  if [[ -z ${workspace} ]]; then
+    workspace=${PWD}
+  fi
+  skill_path="${workspace}/.cursor/skills/dough-adr-awareness/SKILL.md"
+  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
+    '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
+}
+
+emit_claude_partial() {
+  jq -n -c \
+    '{message:{content:[{type:"tool_use",name:"Skill",input:{skill:"dough-adr-awareness"}}]}}'
+}
+
+case ${stream_kind} in
+  missing)
+    write_codex_response
+    exit 0
+    ;;
+  unknown)
+    write_codex_response
+    printf '%s\n' '{"unrecognized":true}'
+    exit 0
+    ;;
+  truncated)
+    write_codex_response
+    case ${host} in
+      codex)
+        printf '%s\n' '{"type":"thread.started"}'
+        ;;
+      cursor)
+        emit_cursor_partial
+        ;;
+      claude)
+        emit_claude_partial
+        ;;
+      *)
+        printf 'error: recorded substitute does not implement host %s\n' \
+          "${host}" >&2
+        exit 1
+        ;;
+    esac
+    exit 0
+    ;;
+  complete) ;;
+  *)
+    printf 'error: recorded substitute does not implement stream %s\n' \
+      "${stream_kind}" >&2
+    exit 1
+    ;;
+esac
+
 case ${host} in
   codex)
-    printf '%s\n' "${response}" > "${output_file}"
+    write_codex_response
     printf '%s\n' '{"type":"item"}'
     ;;
   cursor)
-    if [[ -z ${workspace} ]]; then
-      workspace=${PWD}
-    fi
-    skill_path="${workspace}/.cursor/skills/dough-adr-awareness/SKILL.md"
-    jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
-      '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
+    emit_cursor_partial
     jq -n -c --arg result "${response}" '{type:"result",result:$result}'
     ;;
   claude)
-    jq -n -c \
-      '{message:{content:[{type:"tool_use",name:"Skill",input:{skill:"dough-adr-awareness"}}]}}'
+    emit_claude_partial
     jq -n -c --arg result "${response}" '{type:"result",result:$result}'
     ;;
   *)

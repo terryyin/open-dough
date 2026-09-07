@@ -2,7 +2,13 @@
 # Own a native command's process group and wait with deadline plus grace.
 # Defaults leave recorded-success substitutes unchanged. Timeout does not retry.
 # Bound: terminate only the owned group, never the caller's process group.
+# Stream completeness uses native_run_classify_stream from native-run-stream.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
+
+native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=tests/support/native-run-stream.sh
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/native-run-stream.sh"
 
 native_run_outcome=exited
 native_run_failure_reason=
@@ -209,6 +215,19 @@ native_run_context_command() {
       ;;
     *) return 2 ;;
   esac
+  native_run_classify_stream "${platform}" "${transcript}"
+  if [[ ${native_run_stream_status} != complete ]]; then
+    native_run_outcome=incomplete
+    native_run_failure_reason=${native_run_stream_reason}
+    case ${platform} in
+      cursor | claude)
+        jq -r 'select(.type == "result") | .result' "${transcript}" \
+          > "${output_file}" 2> /dev/null || : > "${output_file}"
+        ;;
+      *) ;;
+    esac
+    return 1
+  fi
   case ${platform} in
     cursor | claude)
       jq -r 'select(.type == "result") | .result' "${transcript}" \

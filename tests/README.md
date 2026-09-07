@@ -16,8 +16,9 @@ Leaf 5 owns selected-context launch/failure retention: missing executable,
 nonzero launch, and denied operation stay nonpassing with available
 stderr/reason, print `result-path:`, do not retry, and record unknown runtime
 when no version can be obtained.
-These leaves do not run selected delivery cases, check stream completeness, or
-reassess saved evidence.
+These launch, timeout, and failure leaves do not run selected delivery cases or
+reassess saved evidence. Selected-context stream completeness is documented
+below.
 
 ## Shared options
 
@@ -72,6 +73,15 @@ wrapper records a nonpassing attempt with available stderr/reason, prints
 `result-path:`, and returns the original failure without retrying. Cleanup
 does not mask that failure. When no version can be obtained, `native-version`
 is `unknown` (Cursor Agent is not inferred from `cursor --version`).
+After a selected native command exits 0, the wrapper inspects the host
+terminal stream before wording assessment. A complete known stream stays
+eligible for the existing limited-wording path (`execution-status: completed`).
+Missing, truncated, or unknown completion evidence is retained as
+`execution-status: incomplete` with `assessment-status: not-run`, prints
+`result-path:`, deletes scratch, and does not treat process exit 0 as a
+wording pass. Unknown event shapes stay incomplete; adapters are not expanded
+to invent extra complete forms. Recorded streams prove those contracts, not
+that native runtimes emit them.
 
 ## Delivery wrappers
 
@@ -90,7 +100,7 @@ No arguments: current deterministic cheap check. `--native` with no extra
 arguments is the existing full three-session journey. `--list` prints that
 host's three delivery cases. `--native` plus junk, or an unknown `--case`,
 fails before `delivery_prepare_fixture`. A recognized selected `--case` is
-parsed and not launched (leaves 6–8).
+parsed and not launched (selected delivery is not launched yet).
 
 ## `tests/native-case-selection.sh`
 
@@ -125,12 +135,15 @@ previously completed attempt stays byte-identical; the invocation log has no
 retry. When Cursor Agent version cannot be obtained, the record stores
 `native-version: unknown` and does not call `cursor --version`.
 
-## Later leaves (not this file's contract)
+## `tests/native-stream-completeness.sh`
 
-| Behavior | Owner |
-| --- | --- |
-| Incomplete stream rejection | Leaf 6 |
-| Selected Codex delivery cases | Leaves 7–9 |
-| Selected Cursor delivery cases | Leaves 10–12 |
-| Selected Claude Code delivery cases | Leaves 13–15 |
-| Offline reassessment | Leaf 16 |
+Credential-free proof that per-host complete, truncated, and missing-terminal
+recorded streams pass through the selected context entry point. Complete
+execution remains eligible for later assessment. Incomplete evidence with
+process exit 0 is retained as nonpassing with a reason and raw artifacts,
+including unknown event shapes. Substitutes log every invocation.
+
+## Later behavior (not this file's contract)
+
+- Selected Codex, Cursor, and Claude Code delivery cases
+- Offline reassessment
