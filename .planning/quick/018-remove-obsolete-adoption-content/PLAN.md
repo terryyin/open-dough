@@ -183,7 +183,7 @@ runtime is the only stated hard-limit exception.
 ### 2c. Decline local-guidance replacement in Cursor
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the bounded rejection harness only for Cursor. Native discovery
 and invocation show the same unsupported boundary, no migration-support fetch,
 and byte-identical target/source snapshots.
@@ -451,7 +451,7 @@ Size: medium confidence; bounded document review, no broad archive rewrite.
 | Platform | Required evidence for changed boundaries | Current status |
 | --- | --- | --- |
 | Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a/1b/2b passed natively; later leaves pending. |
-| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
+| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | 1b/2c passed natively; later leaves pending. |
 | Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
 
 For each tool, capture tool version, candidate source revision, entry point,
@@ -485,10 +485,10 @@ messages as native verification. Integrated checks remain pending.
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
-  reusable adoption and passed native Codex rejection. Execution resumes at 2c.
+  reusable adoption; 2b–2c passed Codex/Cursor rejection. Execution resumes at 2d.
   Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `66`; rearmed after the 2b stop.
+  `/Users/terryyin/git/open-dough`, Codex cell `85`; rearmed after the 2c stop.
 - No client update, release, ADR status, tagged metadata, or tracked native-copy
   change has been performed.
