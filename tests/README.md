@@ -10,8 +10,10 @@ the usage text. Leaf 2 owns selected context launch with a **writable**
 `--results-dir` (durable attempt under `DIR/<host>/<case>/<attempt-id>/`).
 Leaf 3 owns `--deadline` and `--grace` on selected context launch (process-group
 ownership; defaults leave recorded-success substitutes unchanged).
-These leaves do not run selected delivery cases, enforce hung-attempt timeout,
-check stream completeness, or reassess saved evidence.
+Leaf 4 owns hung selected-context timeout: terminate owned processes, retain
+partial evidence, print `result-path:`, and do not retry.
+These leaves do not run selected delivery cases, check stream completeness, or
+reassess saved evidence.
 
 ## Shared options
 
@@ -55,6 +57,12 @@ selected native launch only (not `--list` or the no-argument check). Defaults
 (3600 and 15) are high enough that recorded-success substitutes finish without
 callers passing the flags. Missing or non-integer values, `--deadline 0`,
 `--list --deadline`, and `--deadline` without `--native` fail before setup.
+If the owned native command is still running when the deadline expires, the
+wrapper stops that process group (TERM, then KILL after `--grace`), records
+the attempt as an execution timeout (not a wording pass), keeps partial
+stdout/stderr under a new attempt directory, prints `result-path:`, and
+exits 124 without retrying. A previously completed sibling attempt is left
+unchanged. Bound: only processes in the owned group.
 
 ## Delivery wrappers
 
@@ -89,13 +97,20 @@ runtime identity comes from `cursor agent --version`. An unwritable
 `--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
 path are accepted; omitted flags use the high defaults.
 
+## `tests/native-run-timeout.sh`
+
+Credential-free proof for leaf 4: a hang substitute starts a child, emits
+partial output, and ignores SIGTERM. Selected context with a short
+`--deadline`/`--grace` returns 124 within that bound plus cleanup slack;
+owned pids are gone; partial evidence remains under
+`DIR/<host>/<case>/<attempt-id>/`; `result-path:` is printed; a previously
+completed attempt stays byte-identical; the invocation log has one launch
+and no retry.
+
 ## Later leaves (not this file's contract)
 
 | Behavior | Owner |
 | --- | --- |
-| Selected context attempt + durable results | Leaf 2 |
-| Deadline/grace process ownership | Leaf 3 |
-| Hung process timeout | Leaf 4 |
 | Failed/denied launch records | Leaf 5 |
 | Incomplete stream rejection | Leaf 6 |
 | Selected Codex delivery cases | Leaves 7–9 |

@@ -77,6 +77,30 @@ native_result_version_command_for() {
   esac
 }
 
+native_result_write_if_set() {
+  local dest_name=$1
+  local is_set=$2
+  local text=$3
+
+  if [[ ${is_set} == 1 ]]; then
+    native_result_write_text "${dest_name}" "${text}"
+  fi
+}
+
+native_result_execution_fields() {
+  if [[ ${native_run_outcome:-exited} == timeout ]]; then
+    printf 'execution-status: timeout\n'
+    printf 'execution-reason: deadline expired\n'
+    printf 'assessment-status: not-run\n'
+    printf 'assessment-interpretation: none\n'
+    return
+  fi
+  printf 'execution-status: completed\n'
+  printf 'execution-reason: native command exited 0\n'
+  printf 'assessment-status: pass\n'
+  printf 'assessment-interpretation: limited-wording\n'
+}
+
 native_result_finalize_context() {
   local record_file version_command executable source_revision
   local adapter_identity
@@ -91,20 +115,26 @@ native_result_finalize_context() {
   native_result_copy_if_present "${transcript}" events.jsonl
   native_result_copy_if_present "${output_file}" response.md
   native_result_copy_if_present "${native_stderr}" stderr.log
-  native_result_copy_if_present "${command_log}" commands.txt
-  native_result_copy_if_present "${inspection_log:-}" inspection-targets.txt
-  native_result_write_text before-snapshot.txt "${before}"
-  native_result_write_text after-snapshot.txt "${after}"
-  native_result_write_text source-before-snapshot.txt "${source_before}"
-  native_result_write_text source-after-snapshot.txt "${source_after}"
-  native_result_write_text observations.txt "$(
-    printf 'before-digest: %s\n' "${before_digest}"
-    printf 'after-digest: %s\n' "${after_digest}"
-    printf 'source-before-digest: %s\n' "${source_before_digest}"
-    printf 'source-after-digest: %s\n' "${source_after_digest}"
-    printf 'target-unchanged: true\n'
-    printf 'source-unchanged: true\n'
-  )"
+  native_result_copy_if_present "${command_log-}" commands.txt
+  native_result_copy_if_present "${inspection_log-}" inspection-targets.txt
+  native_result_write_if_set before-snapshot.txt "${before+1}" "${before-}"
+  native_result_write_if_set after-snapshot.txt "${after+1}" "${after-}"
+  native_result_write_if_set source-before-snapshot.txt \
+    "${source_before+1}" "${source_before-}"
+  native_result_write_if_set source-after-snapshot.txt \
+    "${source_after+1}" "${source_after-}"
+  if [[ ${native_run_outcome:-exited} == timeout ]]; then
+    native_result_write_text observations.txt $'partial: true\nexecution: timeout'
+  else
+    native_result_write_text observations.txt "$(
+      printf 'before-digest: %s\n' "${before_digest}"
+      printf 'after-digest: %s\n' "${after_digest}"
+      printf 'source-before-digest: %s\n' "${source_before_digest}"
+      printf 'source-after-digest: %s\n' "${source_after_digest}"
+      printf 'target-unchanged: true\n'
+      printf 'source-unchanged: true\n'
+    )"
+  fi
 
   version_command=$(native_result_version_command_for "${native_case_host}")
   executable=$(command -v "${native_case_host}")
@@ -120,10 +150,7 @@ native_result_finalize_context() {
     printf 'host: %s\n' "${native_case_host}"
     printf 'case: %s\n' "${native_case_id}"
     printf 'origin: fresh\n'
-    printf 'execution-status: completed\n'
-    printf 'execution-reason: native command exited 0\n'
-    printf 'assessment-status: pass\n'
-    printf 'assessment-interpretation: limited-wording\n'
+    native_result_execution_fields
     printf 'native-executable: %s\n' "${executable}"
     printf 'native-version-command: %s\n' "${version_command}"
     printf 'native-version: %s\n' "${tool_version}"
@@ -148,4 +175,11 @@ native_result_finalize_context() {
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
   } > "${record_file}"
+}
+
+native_result_report_context() {
+  native_result_finalize_context
+  if [[ -n ${native_case_results_dir} ]]; then
+    printf 'result-path: %s\n' "${native_result_attempt_dir}"
+  fi
 }

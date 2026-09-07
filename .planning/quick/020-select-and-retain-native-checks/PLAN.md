@@ -1,6 +1,6 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slices 1–3 done. Remaining leaves were refined in place
+Status: executing; slices 1–4 done. Remaining leaves were refined in place
 (supervisor+timeout; one selected delivery case per host). No `--native` run is
 part of this plan's verification.
 
@@ -186,7 +186,7 @@ what leaf 4 needs.
 
 ### 4. Stop a hung context attempt and keep partial evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: A substitute starts a child, emits partial output, and ignores normal
 termination. With a short deadline, the wrapper returns nonpassing within
 deadline plus grace; neither owned process remains alive; partial evidence is
@@ -402,6 +402,16 @@ when `codex` is a symlink. Delivery wrappers parse the flags but do not
 supervise yet. `tests/support/native-cases.sh` is at the 250-line limit; do not
 grow it. Focused proof: `bash tests/native-case-selection.sh` and
 `bash tests/native-result-retention.sh`. Hung-attempt kill remains leaf 4.
+
+Slice 4: hang substitute `tests/support/native-agent-hang.sh` starts a child,
+emits partial output, and ignores SIGTERM. Selected context with short
+`--deadline`/`--grace` returns 124, kills the owned group (after waiting for
+`setsid`/`setpgrp` detach so the caller group is not signaled), retains partial
+evidence, prints `result-path:`, and does not retry. Timeout records
+`execution-status: timeout` / `assessment-status: not-run`, not a wording pass.
+A prior completed attempt stays byte-identical. Focused proof:
+`bash tests/native-run-timeout.sh`. Other launch failures still lose scratch
+(leaf 5). Delivery wrappers still parse deadline/grace without supervising.
 
 Remaining-leaf refinement (after slices 1–2): old leaf 3 split into Structure
 (deadline/grace ownership, defaults leave success unchanged) plus Behavior

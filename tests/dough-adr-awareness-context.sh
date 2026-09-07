@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091 # Shared helpers are linted separately.
-# shellcheck disable=SC2034,SC2154 # native_case_* and native_result_* globals are shared.
+# shellcheck disable=SC2034,SC2154 # native_case_*, native_result_*, native_run_* globals are shared.
 # shellcheck disable=SC2312 # pipefail protects snapshot/digest pipelines.
 set -Eeuo pipefail
 
@@ -112,7 +112,15 @@ prompt='Use $dough-adr-awareness. Assess how two backend instances should share 
 if [[ ${scenario} == 'clear' ]]; then
   prompt+=' The index and record statuses agree; demonstrate the installed improvement by completing without requiring a disagreement policy that this request does not need.'
 fi
-native_run_context_command
+# shellcheck disable=SC2310 # Timeout must be observed; other failures still exit.
+native_run_context_command || {
+  run_status=$?
+  if [[ ${native_run_outcome} == timeout ]]; then
+    native_result_report_context
+    exit 124
+  fi
+  exit "${run_status}"
+}
 after=$(snapshot_path_state "${target}")
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]
@@ -210,7 +218,4 @@ printf '\nNative transcript for loading and behavior review:\n'
 cat "${transcript}"
 printf '\nPASS: %s %s native assessment; candidate and complete target unchanged.\n' \
   "${platform}" "${scenario}"
-if [[ -n ${native_case_results_dir} ]]; then
-  native_result_finalize_context
-  printf 'result-path: %s\n' "${native_result_attempt_dir}"
-fi
+native_result_report_context
