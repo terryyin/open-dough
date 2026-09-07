@@ -82,10 +82,16 @@ tests/dough-adr-awareness-<host>-delivery-to-use.sh --native
 tests/dough-adr-awareness-<host>-delivery-to-use.sh --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
-No arguments: current deterministic cheap check. `--native` with no extra
-arguments is the full three-session journey. `--list` prints that host's three
-delivery cases. `--native` plus junk, or an unknown `--case`, fails before
-`delivery_prepare_fixture`. `delivery/legacy-refusal` and
+No arguments: current deterministic cheap check (fixture mismatch, bootstrap,
+ordinary update, preservation). It does not run native refusal and does not
+certify native refusal. `--native` with no extra arguments is the full
+three-session journey. Legacy-refusal prompts keep `$dough-update` and the
+source URL; they do not coach contracts, refusal, or facts to repeat.
+Assessment is the shared automatic check: the incompatible contract prevents
+the update and target/source stay unchanged. Unresolved refusal prose stays
+inconclusive for documented review (SEED-007 Story 3). `--list` prints that
+host's three delivery cases. `--native` plus junk, or an unknown `--case`,
+fails before `delivery_prepare_fixture`. `delivery/legacy-refusal` and
 `delivery/ordinary-update` are recognized and unavailable for selected launch
 (fail before setup). `--native --case delivery/updated-use` is the combined
 update then fresh use journey in one attempt. Codex, Cursor, and Claude Code
@@ -143,6 +149,15 @@ native discovery, invocation, or behavior.
   once (expected real transition, catalog/ARC-12 conflict stop, wrong
   bytes/version, protected writes, stale-target use, failed update with a
   success claim). Does not launch a native session.
+- `tests/native-legacy-refusal.sh` — shared refusal examples once (unchanged
+  trees plus a genuine refusal; unrelated execution failure; a refusal claim
+  accompanied by writes). Automatic checks cover those cases; unresolved
+  prose stays inconclusive for documented review. Does not launch a native
+  session and does not add a selected `delivery/legacy-refusal` path. Cheap
+  wrappers and these examples do not certify native refusal. Story 3 still
+  needs representative native refusal evidence per tool: discovery,
+  invocation or application, intended behavior, and affected
+  install/update/coexistence or justified reuse.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and

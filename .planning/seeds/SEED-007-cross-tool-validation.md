@@ -74,7 +74,7 @@ native evidence per tool. Completing plan 20 alone does not complete this story.
 
 ### 2. Detect native behavior failures instead of rewarding the expected words
 
-**Status:** Planned; scope reduced under ADR 0005.
+**Status:** Complete for cheap checks. Plan 21 is done. Story 3 owns outstanding native evidence per tool.
 **Type:** Test migration.
 **Dependency:** Story 1's retained context and combined journey evidence.
 **Plan:** [21](../quick/021-trust-native-verdicts/PLAN.md), after 20 and 22.
@@ -183,7 +183,7 @@ is required for this planning work.
 ## Order and completion
 
 Execute **20 → 22 → 21**. Plans 20 and 22 delivered Story 1 cheap checks; plan 21
-delivers Story 2. Story 3 owns outstanding native evidence per tool.
+delivered Story 2 cheap checks. Story 3 owns outstanding native evidence per tool.
 
 Refine Story 3 against the actual candidate before native execution. Do Story 4
 last after reconsidering its underlying stories. Keep this seed until the scoped

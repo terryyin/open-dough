@@ -1,50 +1,20 @@
 # Assess intended behavior without requiring expected wording
 
-Status: in-progress. Slices 1–3 done 2026-09-07.
-Order: **20 → 22 → 21**. Plan 22's reduced evidence contract is delivered.
+Status: complete — 2026-09-07. Leaves 1–4 remain applicable.
+`npm test` and `npm run lint` ran once at completion. This plan closes
+[SEED-007 Story 2](../../seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts)
+cheap checks. Story 3 owns outstanding native evidence.
+
+Order: **20 → 22 → 21**. Plans 20 and 22 delivered Story 1 cheap checks.
 
 ## Scope
 
-Deliver [SEED-007 Story 2](../../seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts)
-under [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
-Repair prompts and assessment in the existing context and delivery checks.
-Consume [plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md)'s saved
-context and combined update→fresh-use artifacts; do not rebuild its runner.
-
-Define shared behavior expectations once for clear ADR use, unresolved authority,
-legacy contract refusal, and a real update followed by fresh use. Test shared
-logic once. Test only command/event differences per tool; do not build a
-case-by-tool-by-counterexample matrix.
-
-Use small automated checks for supported activation and observable state. For
-prose that cannot be judged reliably, report inconclusive and document the case
-expectations for review. A reviewer records the result, reason, and evidence in
-the acceptance record. Do not build a semantic parser, judge model, offline
-reassessment interface, resolution workflow, or new test framework.
-
-No skill/installer changes, new integration mechanisms, native runs, client
-adoption, old-plan migration, or releases. Story 3 owns native acceptance.
-
-## Assessment rules
-
-- Use ordinary task prompts. Retain explicit skill invocation and necessary
-  inputs, but remove expected decisions, status values, payload counts, release
-  facts to repeat, and answer templates.
-- Require complete successful execution, supported activation of the installed
-  copy, the intended outcome, and required state observations for a pass.
-  Execution failure or a definite contract violation cannot pass. Missing or
-  ambiguous evidence remains inconclusive unless a definite failure is known.
-- Accept evidenced native expansion without requiring a redundant file read.
-  A requested read/call, marker, or self-report alone does not prove activation.
-  Keep unknown event forms inconclusive; do not invent vendor success events.
-- Remove checks tied to incidental instruction sentences. Preserve exact payload
-  comparisons and deliberately required output contracts. A completion marker
-  can be checked as an output contract but cannot prove activation or correctness.
-- Test equivalent prose, negation, quotation, and contradictory recommendations
-  wherever automated checks interpret language. If a small check cannot decide,
-  preserve uncertainty instead of extending a keyword parser.
-- Keep original evidence. Document any later review without overwriting the
-  automated result. Do not certify coached historical runs as independent proof.
+Repair prompts and assessment in the existing context and delivery checks under
+[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md). Consume
+[plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md)'s retained
+context and combined update→fresh-use artifacts. Shared behavior is tested once;
+only command/event differences are per tool. No skill/installer changes, native
+runs, or native-acceptance claims.
 
 ## Ordered slices
 
@@ -53,90 +23,56 @@ adoption, old-plan migration, or releases. Story 3 owns native acceptance.
 Type: Behavior
 Status: done
 
-Recorded proof: `tests/native-prerequisite-gate.sh` exercises shared success,
-execution failure, missing evidence, and wrong-copy once, plus per-host decoder
-forms from recorded JSONL. Context and journey retainers write
-`prerequisite-result` / `reason` / `evidence` and keep `assessment-status:
-not-run`. Complete execution is no longer a wording pass. Cursor successful
-`readToolCall` of the installed skill passes; a requested read does not. Codex
-recorded expansion of installed identity passes; a completion marker does not.
-Claude Skill request stays inconclusive.
-
-Keep behavioral assessment separate from activation. Do not launch a native
-session to invent a Claude success form.
+Recorded proof: `tests/native-prerequisite-gate.sh`. Shared success, execution
+failure, missing evidence, and wrong-copy once. Cursor successful installed
+`readToolCall` vs requested read. Codex recorded expansion vs completion
+marker. Claude Skill request stays inconclusive.
 
 ### 2. Replace wording checks in clear and conflicting ADR use
 
 Type: Behavior
 Status: done
 
-Recorded proof: `tests/native-adr-behavior.sh` covers a valid recommendation,
-a paraphrase without Redis, incidental skill-instruction rephrase, a valid
-stop, a conditional stop, and misleading negation/quotation/contradiction/
-word-salad that must not pass. Uncertain prose stays inconclusive. Clear and
-conflict share one ordinary session-storage prompt. Recorded substitutes choose
-the response from index-vs-record fixture state. Context retainers write
-`assessment-status` / `assessment-reason` from the shared helper. Read-only
-state checks remain.
-
-Keep journey `delivery_assert_use` for slice 3. Do not treat a completion marker
-as a behavior pass.
+Recorded proof: `tests/native-adr-behavior.sh`. Same ordinary session-storage
+prompt for clear and conflict. Valid recommendation, valid stop, conditional
+stop, misleading wording, uncertain prose inconclusive.
 
 ### 3. Assess the combined update and fresh use from observed state
 
 Type: Behavior
 Status: done
 
-Recorded proof: `tests/native-journey-state.sh` accepts the expected real
-fixture update and a catalog/ARC-12 conflict stop, and rejects wrong
-bytes/version, protected writes, stale-target use, and a failed update with a
-success claim. Selected update/use prompts are ordinary.
-`tests/native-delivery-updated-use.sh` and the adapter proof consume that
-shared result. `delivery_assert_update_payload` keeps exact installed-byte
-checks. Do not repeat the state matrix per tool.
+Recorded proof: `tests/native-journey-state.sh` plus
+`tests/native-delivery-updated-use.sh` and adapter proof. Ordinary update/use
+prompts. Observed bytes/version/preservation plus the shared conflict stop.
 
 ### 4. Keep legacy refusal as a shared product behavior check
 
 Type: Behavior
-Status: planned
+Status: done
 
-Keep existing deterministic refusal/preservation checks. Remove coaching and
-duplicate host-specific prose assertions from existing legacy-refusal paths.
-Use shared expectations: the actual incompatible contract prevents the update
-and target/source remain unchanged. No new selected refusal integration path.
-
-Proof: Shared examples distinguish supported refusal, unrelated execution
-failure, and a refusal claim accompanied by writes. Use documented review for
-unresolved prose. Update test usage to distinguish automatic checks from review
-and explain which representative native evidence Story 3 still needs.
+Recorded proof: `tests/native-legacy-refusal.sh`. Unchanged trees plus a genuine
+refusal pass; unrelated execution failure and a refusal claim with writes
+cannot pass. Unresolved prose stays inconclusive. Selected
+`delivery/legacy-refusal` remains unavailable. Cheap wrappers do not certify
+native refusal.
 
 ## Completion and native evidence
 
-Run focused cheap checks for each leaf and the affected default wrappers. Run
-`npm test` and `npm run lint` once at completion. Record shared behavior coverage
-once and adapter evidence separately below. Do not claim native acceptance.
-
 | Platform | Cheap adapter proof | Native acceptance |
 | --- | --- | --- |
-| Codex | Leaves 1–3 cheap shared assessors plus recorded expansion vs marker. Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
-| Cursor | Leaves 1–3 cheap shared assessors plus successful installed `readToolCall` vs requested read. | Pending Story 3 applicability review and unresolved representative checks. |
-| Claude Code | Leaves 1–3 cheap shared assessors. Skill request stays inconclusive; no supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
+| Codex | Shared assessors; recorded expansion vs marker. Historical live expansion is input, not new proof. | Pending Story 3: discovery, invocation/application, intended behavior, install/update/coexistence or justified reuse, including representative refusal. |
+| Cursor | Shared assessors; successful installed `readToolCall` vs requested read. | Pending Story 3 as above. |
+| Claude Code | Shared assessors. Skill request stays inconclusive; no supported recorded activation form. | Pending Story 3 native activation observation and representative refusal; a Skill request is not activation evidence. |
 
-Story 3 must record per-tool discovery, invocation/application, intended behavior,
-and affected install/update/coexistence evidence or justified reuse. This plan's
-completion closes test migration only. Missing vendor observations do not justify
-expanding the harness before native qualification.
-Do not write `.planning/STATE.md` as resume state.
+This plan's completion closes test migration only. Coached historical runs gain
+no new claim. Do not write `.planning/STATE.md` as resume state.
 
 ## Learnings
 
 - Claude Code's only recorded activation form is a Skill request. That stays
-  inconclusive; do not invent a vendor success event. Story 3 still needs a
-  native activation observation.
-- Complete execution is a prerequisite, not a wording pass. Context behavior
-  records `assessment-status` / `assessment-reason` from the shared helper.
-  Selected journeys record the same fields from observed state plus the
-  conflict stop. Legacy-refusal wording remains for slice 4.
-- Vague “ADR files look relevant” prose, and skill-instruction-only text, stay
-  inconclusive. Native replies that neither clearly follow nor clearly stop
-  should stay inconclusive for review.
+  inconclusive; do not invent a vendor success event.
+- Complete execution is a prerequisite, not a wording pass. Vague prose stays
+  inconclusive for review.
+- `tests/README.md` documents automatic vs review checks and which native
+  refusal evidence Story 3 still needs.

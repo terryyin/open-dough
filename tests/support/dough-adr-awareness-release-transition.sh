@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016,SC2154,SC2312 # Calling wrappers supply globals and pipefail semantics; backticks are literal fixture text.
 
+delivery_release_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=tests/support/native-legacy-refusal.sh
+# shellcheck disable=SC1091
+source "${delivery_release_support_dir}/native-legacy-refusal.sh"
+
 delivery_assert_legacy_install() {
   local managed_file
 
@@ -24,16 +29,26 @@ delivery_capture_legacy_state() {
 
 delivery_assert_legacy_refusal() {
   local refusal_output=$1
+  local observations
+  local target_preserved=false
+  local source_preserved=false
 
-  [[ ${delivery_legacy_before} == "$(delivery_snapshot "${delivery_target}")" ]]
-  [[ ${delivery_bootstrap_source_before} == "$(delivery_snapshot "${delivery_fixture_source}")" ]]
-  delivery_require_output 'the legacy three-file contract' \
-    'three[- ]file|three .*payload|three .*installed|all three' "${refusal_output}"
-  delivery_require_output 'the candidate two-file contract' \
-    'two[- ]file|two .*payload|two .*installed|both .*payload' "${refusal_output}"
-  delivery_require_output 'refusal without replacement' \
-    'refus|declin|did not (install|update|change)|no .*change|unchanged' \
-    "${refusal_output}"
+  observations="${delivery_temporary_dir}/legacy-refusal-observations.txt"
+  if [[ ${delivery_legacy_before} == "$(delivery_snapshot "${delivery_target}")" ]]; then
+    target_preserved=true
+  fi
+  if [[ ${delivery_bootstrap_source_before} == "$(delivery_snapshot "${delivery_fixture_source}")" ]]; then
+    source_preserved=true
+  fi
+  printf 'execution: completed\n' > "${observations}"
+  printf 'target-preserved: %s\n' "${target_preserved}" >> "${observations}"
+  printf 'source-preserved: %s\n' "${source_preserved}" >> "${observations}"
+  native_legacy_refusal_assess "${observations}" "${refusal_output}"
+  if [[ ${native_legacy_refusal_status} == 'fail' ]]; then
+    printf 'FAIL: native %s legacy refusal: %s\n' \
+      "${delivery_host_name}" "${native_legacy_refusal_reason}" >&2
+    return 1
+  fi
 }
 
 delivery_bootstrap_candidate() {

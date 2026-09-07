@@ -70,33 +70,11 @@ run_native_claude() {
   ) > "${output_file}" 2>&1
 }
 
-assert_claude_legacy_refusal() {
-  local refusal_output=$1
-  local legacy_after bootstrap_source_after
-
-  legacy_after=$(delivery_snapshot "${delivery_target}")
-  bootstrap_source_after=$(delivery_snapshot "${delivery_fixture_source}")
-  [[ ${delivery_legacy_before} == "${legacy_after}" ]]
-  [[ ${delivery_bootstrap_source_before} == "${bootstrap_source_after}" ]]
-  delivery_require_output 'the legacy three-file contract' \
-    'three[- ]file|three .*payload|three .*installed|all three' \
-    "${refusal_output}"
-  delivery_require_output 'the candidate updater managed-file entry' \
-    '(^|[^/[:alnum:]_.-])dough-update/SKILL\.md' "${refusal_output}"
-  delivery_require_output 'the candidate ADR-awareness managed-file entry' \
-    '(^|[^/[:alnum:]_.-])dough-adr-awareness/SKILL\.md' "${refusal_output}"
-  delivery_require_output 'the candidate recognition source-only/retired boundary' \
-    '(RECOGNITION\.md.{0,160}(source[- ]only|retir|not installed|excluded from .*installed))|((source[- ]only|retir|not installed|excluded from .*installed).{0,160}RECOGNITION\.md)' \
-    "${refusal_output}"
-  delivery_require_output 'refusal without replacement' \
-    'refus|declin|did not (install|update|change)|no .*change|unchanged' \
-    "${refusal_output}"
-}
-
 refusal_output="${delivery_temporary_dir}/claude-legacy-refusal-output.md"
+refusal_prompt=$(native_legacy_refusal_prompt "${delivery_source_url}")
 run_native_claude "${refusal_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this genuine v${delivery_legacy_version} three-file Claude Code installation. Follow the installed updater exactly. Inspect the pinned candidate's declared installed payload before running anything. State the candidate contract facts explicitly: it would install .claude/skills/dough-update/SKILL.md and .claude/skills/dough-adr-awareness/SKILL.md, while dough-adr-awareness/RECOGNITION.md is source-only and retired from the installed payload. Your installed updater requires the genuine legacy three-file installed payload. Refuse this incompatible smaller candidate without changing any file. Report both contracts, source, Claude Code as the running tool, and that no replacement occurred."
-assert_claude_legacy_refusal "${refusal_output}"
+  "${refusal_prompt}"
+delivery_assert_legacy_refusal "${refusal_output}"
 
 delivery_bootstrap_candidate
 delivery_publish_improved_release

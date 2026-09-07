@@ -50,8 +50,9 @@ run_native_cursor() {
 }
 
 refusal_output="${delivery_temporary_dir}/cursor-legacy-refusal-output.md"
+refusal_prompt=$(native_legacy_refusal_prompt "${delivery_source_url}")
 run_native_cursor "${refusal_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this genuine v${delivery_legacy_version} three-file Cursor installation. Follow the installed updater exactly. Inspect the pinned candidate's declared installed payload before running anything. The candidate declares two installed skill files and source-only recognition, while your installed updater requires all three as installed payload. Refuse this incompatible smaller candidate without changing any file. Report the two contracts, source, Cursor as the running tool, and that no replacement occurred."
+  "${refusal_prompt}"
 delivery_assert_legacy_refusal "${refusal_output}"
 
 delivery_bootstrap_candidate

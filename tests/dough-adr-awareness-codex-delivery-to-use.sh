@@ -53,8 +53,9 @@ run_native_codex() {
 
 refusal_output="${delivery_temporary_dir}/codex-legacy-refusal-output.md"
 refusal_transcript="${delivery_temporary_dir}/codex-legacy-refusal.jsonl"
+refusal_prompt=$(native_legacy_refusal_prompt "${delivery_source_url}")
 run_native_codex "${refusal_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this genuine v${delivery_legacy_version} three-file Codex installation. Follow the installed updater exactly. Inspect the pinned candidate's declared installed payload before running anything. The candidate declares two installed skill files and source-only recognition, while your installed updater requires all three as installed payload. Refuse this incompatible smaller candidate without changing any file. Report the two contracts, source, Codex as the running tool, and that no replacement occurred." \
+  "${refusal_prompt}" \
   "${refusal_transcript}"
 delivery_assert_legacy_refusal "${refusal_output}"
 
