@@ -132,54 +132,7 @@ Do not introduce repository-switching functionality without a concrete need.
 
 No further architectural question from this discussion needs to block the
 proposal. Configuration settings and their schema await a concrete use case;
-delivery still needs refinement and the native evidence above.
-
-### Historical initial-loop constraints
-
-The owner clarified the following for the initial loop on 2026-09-06. These
-choices describe completed Stories 1–3. The accepted versioning contract and
-Stories 4–6 supersede the initial version deferrals as each outcome is delivered.
-
-- Install directly into each target project, including Open Dough itself.
-  Global installation and shared home-level agent configuration are unsupported.
-- Installation uses whatever source URL is supplied. The usual source is the
-  latest default-branch content (`main` in Open Dough), not a published release.
-  Do not silently substitute a different source for an explicitly supplied URL.
-- Routine updates fetch and apply the latest content from the source
-  repository's default branch. No installed-version detection, newer-version
-  comparison, release publication, or version metadata is required initially.
-- Version tracking and detecting whether an update is available are a separate
-  later story. They are not prerequisites for installation or a simple update.
-- Start with Codex. Group Cursor and Claude Code support into one follow-up.
-- For installation, warn or stop when Open Dough is already present and allow
-  an explicit override to overwrite its installed files, including local edits.
-  No migration or version comparison is needed. Update conflict policy remains
-  separate and deferred.
-- Shape and queue the work now; this seed does not implement an installer or
-  introduce agent instruction files into this repository.
-
-## Alternatives and Decision
-
-- **Defer:** continue reading Donut's guidance. This keeps development moving
-  but does not test the requested distribution and update loop.
-- **Smaller behavior, selected:** first install a discoverable update placeholder
-  in Codex, with explicit reinstall support. Implement the real update behavior
-  next. Defer version detection and the remaining platforms.
-- **Manual or existing-tool workflow:** copy files by hand or use GSD's local
-  installer. Manual copying does not provide the requested repeatable update;
-  GSD installs its own lifecycle and its local mode can still write shared
-  machine defaults. Neither meets the complete stated outcome unchanged.
-- **Release-based, version-aware updates:** useful as an inspiration, but impose
-  release and detection work that the owner has excluded from the first loop.
-
-The first learning question is whether guidance installed from a URL can be
-discovered and used in the producing project without relying on sibling
-repositories. The next is whether pushing a source improvement and running
-update brings that improvement into use in the same project.
-
-The first installed skill is an update placeholder, as requested by the owner.
-The [exploration note](../research/installation-and-updates.md) records GSD
-evidence and implementation possibilities separately from stories.
+Story 7 now contains the current refinement and planned native evidence.
 
 ## Story Decomposition
 

@@ -94,7 +94,7 @@ Retain deliberately:
 
 ## Ordered slices
 
-All leaves are unexecuted. Aim for about five minutes of editing plus focused
+All leaves are executed. During execution, aim for about five minutes of editing plus focused
 verification; reassess after five and stop/refine after ten minutes unless the
 remaining time is one recorded native-test or external-wait exception. These
 are sizing hypotheses. Each stopping point must retain green applicable checks;
@@ -410,7 +410,7 @@ Size: high confidence; dependency installation may be an external wait.
 ### 7. Remove superseded planning instructions without losing evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Read SEED-001's current contract and completed-story summaries; all
 remaining links resolve and no initial-loop proposal reads as current guidance.
 Retained Plan 013/SEED-006 evidence still identifies what was observed, in which
@@ -450,9 +450,9 @@ Size: medium confidence; bounded document review, no broad archive rewrite.
 
 | Platform | Required evidence for changed boundaries | Current status |
 | --- | --- | --- |
-| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a/1b/2b passed natively; later leaves pending. |
-| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | 1b/2c passed natively; later leaves pending. |
-| Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | 1b/2d passed natively; later leaves pending. |
+| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | All required native observations passed. |
+| Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | All required native observations passed. |
+| Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | All required native observations passed. |
 
 For each tool, capture tool version, candidate source revision, entry point,
 observed native loading/application, update/use result, and before/after
@@ -464,32 +464,18 @@ test framework. Native failures stay pending; static fixture success is not
 native acceptance. Reuse evidence only for unchanged boundaries; old
 three-file delivery and adoption results do not prove these changes.
 
-Keep focused checks at each slice boundary. Once integrated, run `npm test`
-and `npm run lint` once because shared fixture removal affects test discovery
-and several consumers; do not interpret optional native tests' default skip
-messages as native verification. Integrated checks remain pending.
+Focused checks passed at every slice boundary. Integrated `npm test` and
+`npm run lint` passed; native acceptance is recorded separately above rather
+than inferred from optional native tests' default skip messages.
 
-## Learnings and readiness
+## Enduring learnings
 
-- The main dead content is still reachable: adoption prose, harnesses, and
-  installed recognition reinforce one another. This needs capability removal,
-  not deletion based solely on file names or reference counts.
-- Active ADR context/use tests depend on historical migration simulation;
-  deleting the whole adoption tree first would erase useful regression proof.
-- Source/native-copy equality checks prevent legitimate unreleased source work.
-  Candidate install proof and actual installed-release identity are distinct.
-- Slices 1–4 were refined into direct-fixture, source-boundary, platform-proof,
-  payload-contract, retirement-policy, and native-transition leaves. Each has
-  one conditional Behavior or one immediately enabling Structure proof loop.
-  The only stated hard-limit exceptions are focused native-tool runtime; editing,
-  cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
-- Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
-  fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
-  reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
-  the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a–4g completed retirement; 5 removed unused wrappers; 6 removed the unused TypeScript toolchain with clean install/lint proof. Execution resumes at 7. Reassess after five minutes and follow Learning
-  escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
-- Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `274`; rearmed before the 4g push.
-- No client update, release, ADR status, tagged metadata, or tracked native-copy
-  change has been performed.
+- Direct installed-use fixtures preserve ADR context/use coverage without
+  retaining a reusable local-guidance replacement capability.
+- Candidate proof must not require unreleased source to equal tracked native
+  copies; candidate behavior and published-release identity are distinct.
+- The public payload is the two skills plus updater VERSION. Recognition remains
+  source-only, and its one fixed installed legacy path retires safely on update.
+- This cleanup performed no client update, release, ADR status, tag, or tracked
+  native-copy change. Remaining standalone update/release work belongs to Story 7
+  and Quick 019.

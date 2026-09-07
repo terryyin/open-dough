@@ -75,13 +75,19 @@ and stopped for human resolution rather than selecting a precedence rule.
 Codex described Redis only conditionally on human confirmation of Accepted
 status. Cursor and Claude withheld a definite architecture recommendation.
 
-## Reproduce
+## Current regression checks
+
+The original adoption fixture and `adr-adoption-codex-use.sh` harness were
+retired with the reusable replacement procedure. The historical identities and
+observations above remain evidence for that run; the current direct-fixture
+checks below cover post-cleanup use and context behavior without reproducing the
+retired procedure.
 
 From the repository root:
 
 ```sh
-bash tests/adr-adoption-codex-use.sh --native explicit
-bash tests/adr-adoption-codex-use.sh --native automatic
+bash tests/dough-adr-awareness-codex-use.sh --native explicit
+bash tests/dough-adr-awareness-codex-use.sh --native automatic
 bash tests/dough-adr-awareness-context.sh --native codex conflict
 bash tests/dough-adr-awareness-context.sh --native cursor clear
 bash tests/dough-adr-awareness-context.sh --native cursor conflict

@@ -59,12 +59,8 @@ before planning writes; do not assume an integration is still ready.
 
 ### 2. Use released ADR guidance on one real Donut task
 
-**Status:** Completed 2026-09-07. Public `v0.2.1` was installed for Codex on
-live Donut. Native `$dough-adr-awareness` assessed Plan 045: Accepted ADR 0004
-and ADR 0006 confirm the isolated-deletion approach; ADR 0002 stays Proposed;
-Plan 045's next step remains the existing fixture-deadlock scope decision.
-[Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md) records release
-identity, native use, exact Codex writes, and preservation.
+- **Status:** Completed 2026-09-07. Public `v0.2.1` was installed for Codex on
+  live Donut and used on its current note-deletion plan.
 
 #### Goal
 
@@ -76,84 +72,28 @@ investing in migration.
 
 #### Scope
 
-- **Selected task:** Donut [SEED-009 Story 5 — Delete a note locally without
-  transferring its private data](../../../doughnut/.planning/seeds/SEED-009-git-backed-local-notebook-workflow.md#story-5),
-  currently #1 on Donut's product backlog. Its existing
-  [Plan 045](../../../doughnut/.planning/quick/045-publish-local-note-deletion/PLAN.md)
-  is assessment input and the destination for the useful conclusion.
-- **One question:** Does the planned isolated single-note deletion — complete-diff
-  isolation before mutation, soft-delete that leaves authored links, keeping the
-  notebook or folder container without manufacturing a README, and rolling back
-  on publication failure — respect current notebook-format and failure-handling
-  guidance? Which relevant constraint confirms the approach, calls for a
-  correction, or requires a human decision before deletion work proceeds?
-- Reassess only the live task, relevant ADRs, required local context, and paths
-  affected by the selected Codex integration. Install/update that integration
-  from an independently inspected public release, then explicitly invoke its
-  installed shared skill in a fresh native Codex session. Retain only context
-  needed for this question without creating architectural policy.
-- Plan 045 already cites Donut's Accepted ADR 0004, **OKF-compatible notebook
-  Markdown**, and ADR 0006, **Failure handling**, and treats ADR 0002 as
-  Proposed. Recheck current status and relevant decisions at execution. A
-  supported confirmation is useful; a design change is not required to
-  demonstrate value.
-- Record a concise, reviewed conclusion in Plan 045: what is confirmed or needs
-  correction, why, and its concrete effect on the next deletion step. Record
-  release/tag/commit, native discovery and invocation, exact changed paths,
-  and preservation evidence in Open Dough's Plan 015.
-- Preserve the original skill, discovery links, callers, other-tool integrations,
-  ADR policies/statuses, and unrelated concurrent work. Assessment must use the
-  shared skill without loading the original alongside it. A small assessment
-  entry is the only deletion-task change in this story.
+- Use independently inspected public release `v0.2.1` through the installed
+  Codex skill on Donut's then-current isolated note-deletion Plan 045.
+- Check the plan against current Accepted ADR 0004 and ADR 0006 while keeping
+  ADR 0002 non-binding, then record the supported approach and concrete next
+  step without implementing or replanning the deletion.
+- Preserve the original skill, callers, other native integrations, ADR policy,
+  and unrelated work. Exclude cleanup, other-tool preparation, automatic-use
+  proof, generic migration/recovery, new shared behavior, and publication.
 
-**Excluded:** Implementing, verifying, or replanning the deletion story;
-repairing Donut fixture deadlocks; assessing later SEED-009 stories; auditing
-other Donut work; retargeting callers; removing the original; automatic-use
-proof; other-tool preparation; generic migration or recovery; new shared-skill
-behavior; further release publication or infrastructure. The remaining one-time adoption is Story 3; a meaningful later update is Story 4.
+#### Evidence pointers
 
-#### Key examples
+[Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md) records the inspected
+release identity, native Codex discovery/invocation, exact writes, and
+preservation. It observed that Accepted ADR 0004 and ADR 0006 support the
+isolated-deletion approach, ADR 0002 remains Proposed, and Plan 045's existing
+fixture-deadlock scope decision remains next.
 
-| Pre-condition | Trigger | Observable result |
-| --- | --- | --- |
-| The inspected release is installed for Codex and the deletion plan is current | Explicitly use its shared ADR skill on the selected question | Advice cites current relevant decisions and explains whether isolation, soft-delete, container preservation, and failure rollback fit them. Plan 045 records the supported approach and next step; an ADR list or invocation marker alone is insufficient. |
-| The existing deletion approach already fits the ADRs | Review the assessment against the plan and records | Record why it can proceed and which constraints the next step must preserve. No unnecessary design change or implementation is added to prove usefulness. |
-| A real task choice conflicts with an unambiguous Accepted ADR | Assess that choice | Cite the incompatible choice and record the specific human decision needed before dependent deletion work. Do not resolve the decision or change the ADR on the human's behalf. |
-| The release is unavailable, required context/status is unresolved, or the shared skill cannot work independently | Attempt the affected preparation or assessment | Preserve effective guidance, record the precise gap, and leave acceptance pending. Do not substitute a fixture, load the original to obtain success, invent policy, or expand into a repair project. |
-
-#### Readiness and acceptance
-
-- **Prerequisite:** Completed Story 1 and inspected public `v0.2.1`, which
-  contains Plan 013's verified replacement behavior and Story 1's
-  request-scoped context fix. Local fixture tags still do not count.
-- **Done:** Independent native Codex use produces a reviewed answer to the
-  selected question in Plan 045; Plan 015 records release identity, native
-  discovery/invocation, exact changes, and coexistence. A concrete task/ADR
-  decision can be a useful result; an unresolved delivery or skill/context gap
-  cannot.
-- **Stop / learn:** Record ineffective advice or a blocking gap and reconsider
-  remaining adoption priority. Do not add a second task, another tool, or a
-  shared-source fix to make this story pass. If the task has moved on, revisit
-  selection with Donut's product backlog before dependent planning rather than
-  assess a stale plan.
-- **Effort hypothesis:** S–M, medium confidence for one installation-to-assessment
-  pass against the published release; gap repairs excluded.
-
-| Platform | Prior evidence reusable only where unchanged | Pending live evidence |
-| --- | --- | --- |
-| Codex | Story 1's native discovery, explicit/automatic use, context behavior, coexistence, and linked unchanged delivery coverage | Completed in Plan 015 for the selected release and task; current installation persistence must be rechecked |
-| Cursor | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut adoption in Story 3; no inference from Codex |
-| Claude Code | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut adoption in Story 3; no inference from Codex |
-
-See [Story 1's per-platform evidence](../quick/014-prove-codex-adr-use/EVIDENCE.md).
-Any later shared rule/skill change requires separate scope and independent
-native discovery, invocation/application, intended behavior, affected
-installation/update, and coexistence acceptance in all three tools.
-
-Open Dough constraints remain [ADR 0000 — Use ADRs](../../docs/adrs/0000-use-adrs-accepted.md)
-(human decision ownership) and [ADR 0003 — Tagged release versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-(inspected public version, no branch/fixture substitute). This refinement makes
-no new architectural decision or exception.
+[Story 1's evidence](../quick/014-prove-codex-adr-use/EVIDENCE.md) covers the
+unchanged request-scoped context behavior in Codex, Cursor, and Claude Code.
+Story 2 itself proved only the live Codex release/task use; it did not prove a
+retained current installation, Cursor or Claude Code adoption, replacement
+cleanup, or a newer-release update. Those remain in Stories 3 and 4.
 
 ## Remaining stories
 
