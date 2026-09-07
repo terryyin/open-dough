@@ -58,21 +58,34 @@ record_mtime_after=$(file_mtime "${cursor_dest}/VERSION")
 [[ "${record_mtime_after}" == "${record_mtime}" ]]
 assert_sentinels "${target}"
 
-older="${target}/.agents/skills/dough-update"
-mkdir -p -- "${older}"
-write_candidate_payload "${temporary_dir}/older-payload" 0.1.0 payload-0.1.0
-cp -- "${temporary_dir}/older-payload/src/skills/dough-update/SKILL.md" \
-  "${older}/SKILL.md"
-printf '%s\n' '0.1.0' > "${older}/VERSION"
+older_dest="${target}/.agents/skills/dough-update"
+older_payload="${temporary_dir}/older-payload"
+write_candidate_payload "${older_payload}" 0.1.0 payload-0.1.0
+# shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
+for managed_file in "${managed_files[@]}"; do
+  mkdir -p -- "${target}/.agents/skills/$(dirname -- "${managed_file}")"
+  cp -- "${older_payload}/src/skills/${managed_file}" \
+    "${target}/.agents/skills/${managed_file}"
+done
+printf '%s\n' 'fixed earlier recognition record' > \
+  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
+printf '%s\n' '0.1.0' > "${older_dest}/VERSION"
+before_cursor=$(snapshot_path_state "${target}/.cursor/skills")
+before_claude=$(snapshot_path_state "${target}/.claude/skills")
 : > "${trace_file}"
 output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
   --platform codex)
 [[ "${output}" == *'updated from 0.1.0 to 0.1.10'* ]]
-assert_payload "${older}" 0.1.10 payload-0.1.10
+assert_payload "${older_dest}" 0.1.10 payload-0.1.10
+[[ ! -e "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
+after_cursor=$(snapshot_path_state "${target}/.cursor/skills")
+after_claude=$(snapshot_path_state "${target}/.claude/skills")
+[[ "${after_cursor}" == "${before_cursor}" ]]
+[[ "${after_claude}" == "${before_claude}" ]]
 grep -Fq 'harmless local skill edit' "${cursor_dest}/SKILL.md"
 install_count=$(grep -c '^install ' "${trace_file}")
 [[ "${install_count}" -eq 1 ]]
-grep -qx "apply-upgrade ${older}" "${trace_file}"
+grep -qx "apply-upgrade ${older_dest}" "${trace_file}"
 assert_sentinels "${target}"
 
 unknown="${target}/.claude/skills/dough-update"
@@ -88,7 +101,7 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
 assert_payload "${unknown}" 0.1.10 payload-0.1.10
 contents=$(cat "${cursor_dest}/VERSION")
 [[ "${contents}" == 0.0.9 ]]
-assert_payload "${older}" 0.1.10 payload-0.1.10
+assert_payload "${older_dest}" 0.1.10 payload-0.1.10
 assert_sentinels "${target}"
 
 newer="${temporary_dir}/newer project"
@@ -217,4 +230,4 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${legacy}" \
 assert_payload "${legacy_dest}" 0.1.10 payload-0.1.10
 assert_sentinels "${legacy}"
 
-echo "PASS: update compares before writes, refuses malformed and requested versions, reports failed replacement, and bootstraps a genuine v0.1.0 install with explicit force."
+echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update, refuses malformed and requested versions, reports failed replacement, and bootstraps a genuine v0.1.0 install with explicit force."

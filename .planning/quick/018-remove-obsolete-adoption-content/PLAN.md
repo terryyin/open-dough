@@ -305,7 +305,7 @@ Size: high confidence; one error path and focused test.
 ### 4c. Retire recognition on an ordinary newer-release update
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `tests/update-when-needed.sh` with a fixed earlier two-skill-plus-
 recognition payload. Applying a newer candidate removes recognition only from
 the selected installation, verifies the final payload, records the new version,
@@ -487,7 +487,7 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a added confined forced retirement; 4b proved honest unlink failure. Execution resumes at 4c. Reassess after five minutes and follow Learning
+  three tools; 4a added confined forced retirement; 4b proved honest unlink failure; 4c covered ordinary newer-release retirement. Execution resumes at 4d. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `158`; rearmed before the 3c push.
