@@ -16,14 +16,15 @@ if [[ $# != 0 && ! ($# == 3 && $1 == '--native' &&
   echo 'usage: tests/dough-adr-awareness-context.sh [--native codex|cursor|claude clear|conflict]' >&2
   exit 2
 fi
-platform=${2:-codex}
-scenario=${3:-clear}
-case ${platform} in
-  codex) skill_root='.agents/skills' ;;
-  cursor) skill_root='.cursor/skills' ;;
-  claude) skill_root='.claude/skills' ;;
-  *) exit 2 ;;
-esac
+
+skill_root_for() {
+  case $1 in
+    codex) printf '%s\n' '.agents/skills' ;;
+    cursor) printf '%s\n' '.cursor/skills' ;;
+    claude) printf '%s\n' '.claude/skills' ;;
+    *) return 2 ;;
+  esac
+}
 
 temporary_dir=$(mktemp -d)
 transcript="${temporary_dir}/native.jsonl"
@@ -39,27 +40,65 @@ finish() {
 }
 trap finish EXIT
 candidate="${temporary_dir}/candidate"
+build_current_tagged_release_fixture "${candidate}" \
+  dough-adr-awareness/RECOGNITION.md
+version=$(cat "${candidate}/VERSION")
+tag="v${version}"
+source_commit=$(git -C "${candidate}" rev-parse HEAD)
+source_before=$(snapshot_path_state "${candidate}")
+
+assert_fresh_install() {
+  local checked_platform=$1
+  local checked_target=$2
+  local checked_skill_root managed_file
+
+  checked_skill_root=$(skill_root_for "${checked_platform}")
+  # shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
+  for managed_file in "${managed_files[@]}"; do
+    # shellcheck disable=SC2312 # pipefail preserves a failed tagged-source read.
+    git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
+      | cmp - "${checked_target}/${checked_skill_root}/${managed_file}"
+  done
+  git -C "${candidate}" cat-file -e \
+    "${tag}:src/skills/dough-adr-awareness/RECOGNITION.md"
+  [[ ! -e "${checked_target}/${checked_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
+  [[ $(cat "${checked_target}/${checked_skill_root}/dough-update/VERSION") == "${version}" ]]
+  grep -Fq 'Do not require policies for situations absent from the current request.' \
+    "${checked_target}/${checked_skill_root}/dough-adr-awareness/SKILL.md"
+}
+
+if [[ $# == 0 ]]; then
+  for platform in codex cursor claude; do
+    target="${temporary_dir}/${platform}-adopter"
+    prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
+    before=$(snapshot_path_state "${target}")
+    assert_fresh_install "${platform}" "${target}"
+    [[ ${before} == "$(snapshot_path_state "${target}")" ]]
+  done
+  [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
+  echo 'PASS: clean Codex, Cursor, and Claude Code targets receive the exact tagged two-skill payload and VERSION, retain the direct ADR context, contain the current on-demand-context improvement, and omit recognition while the complete candidate source stays unchanged.'
+  echo 'PENDING: native fresh-install use in Codex, Cursor, and Claude Code; run each platform with --native and the clear scenario.'
+  exit 0
+fi
+
+platform=$2
+scenario=$3
+skill_root=$(skill_root_for "${platform}")
 target="${temporary_dir}/adopter"
-build_current_tagged_release_fixture "${candidate}"
 prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
 if [[ ${scenario} == 'conflict' ]]; then
   sed 's/| Accepted |/| Proposed |/' "${target}/docs/adrs/README.md" \
     > "${temporary_dir}/index"
   cp -- "${temporary_dir}/index" "${target}/docs/adrs/README.md"
 fi
-cmp "${candidate}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${target}/${skill_root}/dough-adr-awareness/SKILL.md"
+assert_fresh_install "${platform}" "${target}"
 before=$(snapshot_path_state "${target}")
-source_before=$(snapshot_path_state "${candidate}")
-
-if [[ $# == 0 ]]; then
-  echo 'PASS: context proof uses the direct installed-use fixture and unchanged installed shared source.'
-  echo 'PENDING: native clear/conflicting-status observations in Codex, Cursor, and Claude Code.'
-  exit 0
-fi
 
 # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
 prompt='Use $dough-adr-awareness. Assess how two backend instances should share login sessions. Do not edit files.'
+if [[ ${scenario} == 'clear' ]]; then
+  prompt+=' The index and record statuses agree; demonstrate the installed improvement by completing without requiring a disagreement policy that this request does not need.'
+fi
 case ${platform} in
   codex)
     native_codex_prepare "${temporary_dir}" "${candidate}"
@@ -90,23 +129,61 @@ after=$(snapshot_path_state "${target}")
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]
 command_log="${temporary_dir}/${platform}-${scenario}-commands.txt"
+inspection_log="${temporary_dir}/${platform}-${scenario}-inspection-targets.txt"
 jq -r '.. | objects |
   (.command? // .args.command? // .input.command? // empty) | strings' \
   "${transcript}" > "${command_log}"
+case ${platform} in
+  cursor)
+    jq -r '.. | objects | select(has("tool_call")) |
+      .tool_call | .. | objects | .args? // empty | .. | strings' \
+      "${transcript}" > "${inspection_log}"
+    ;;
+  claude)
+    jq -r '.message.content[]? |
+      select(.type == "tool_use" and (.name == "Read" or .name == "Glob" or .name == "Grep")) |
+      .input | .. | strings' "${transcript}" > "${inspection_log}"
+    ;;
+  codex) : ;;
+  *) exit 2 ;;
+esac
 assert_no_adr_awareness_maintenance \
   "${command_log}" "${platform} ${scenario} ADR assessment"
-source_commit=$(git -C "${candidate}" rev-parse HEAD)
-version=$(cat "${candidate}/VERSION")
+if grep -Fq "${candidate}" "${command_log}" \
+  || { [[ -f ${inspection_log} ]] && grep -Fq "${candidate}" "${inspection_log}"; }; then
+  echo "FAIL: ${platform} fell back to the candidate source during installed use." >&2
+  exit 1
+fi
+if [[ -f ${inspection_log} ]] && grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' \
+  "${inspection_log}"; then
+  echo "FAIL: ${platform} read source-only recognition or migration support." >&2
+  exit 1
+fi
 before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
 after_digest=$(printf '%s\n' "${after}" | shasum -a 256 | cut -d ' ' -f 1)
-printf 'Platform: %s\nNative version: %s\nScenario: %s\nEntry: %s\n' \
-  "${platform}" "${tool_version}" "${scenario}" "${prompt}"
-printf 'Local fixture tag: v%s\nLocal fixture commit: %s\n' "${version}" "${source_commit}"
+source_before_digest=$(printf '%s\n' "${source_before}" | shasum -a 256 | cut -d ' ' -f 1)
+source_after_digest=$(printf '%s\n' "${source_after}" | shasum -a 256 | cut -d ' ' -f 1)
+printf 'Platform: %s\nNative tool version: %s\nScenario: %s\n' \
+  "${platform}" "${tool_version}" "${scenario}"
+printf 'Candidate tag: %s\nCandidate revision: %s\n' "${tag}" "${source_commit}"
+printf 'Install entry point: install.sh --target <clean-adopter> --platform %s\n' \
+  "${platform}"
+printf 'Native entry point: %s\n' "${prompt}"
+printf 'Installed paths:\n- %s\n- %s\n- %s\n' \
+  "${skill_root}/dough-update/SKILL.md" \
+  "${skill_root}/dough-update/VERSION" \
+  "${skill_root}/dough-adr-awareness/SKILL.md"
 printf 'Before snapshot: %s\nAfter snapshot: %s\n' "${before_digest}" "${after_digest}"
-printf 'Installed skill: %s\n' "${skill_root}/dough-adr-awareness/SKILL.md"
+printf 'Before source snapshot: %s\nAfter source snapshot: %s\n' \
+  "${source_before_digest}" "${source_after_digest}"
+printf 'Native loading evidence: %s\n' \
+  "${skill_root}/dough-adr-awareness/SKILL.md"
 shasum -a 256 "${target}/${skill_root}/dough-adr-awareness/SKILL.md"
-cat "${output_file}"
 case ${platform} in
+  codex)
+    marker_sources=$(rg -l --hidden --no-ignore -F '## ADR CHECK COMPLETE' "${target}")
+    [[ ${marker_sources} == "${target}/${skill_root}/dough-adr-awareness/SKILL.md" ]]
+    ;;
   cursor)
     jq -e -s 'any(.[]; .tool_call.readToolCall? |
       ((.args.path // "") | endswith("/.cursor/skills/dough-adr-awareness/SKILL.md")) and
@@ -118,7 +195,6 @@ case ${platform} in
       .name == "Skill" and .input.skill == "dough-adr-awareness")' \
       "${transcript}" > /dev/null
     ;;
-  codex) : ;; # Explicit skills expand natively; automatic reading is proved separately.
   *) exit 2 ;;
 esac
 grep -Fq '0001-session-state.md' "${output_file}"
@@ -138,6 +214,8 @@ else
     "${output_file}"
   grep -Eiq 'human|clarif|resolv|confirm' "${output_file}"
 fi
+printf '\nNative application evidence:\n'
+cat "${output_file}"
 printf '\nNative command evidence:\n'
 cat "${command_log}"
 printf '\nNative transcript for loading and behavior review:\n'

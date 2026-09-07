@@ -85,7 +85,7 @@ Retain deliberately:
 | --- | --- |
 | A client with local ADR context can use installed guidance without a migration rehearsal | 1a: direct fixture retains explicit/automatic Codex use; 1b: the same direct context produces the required clear/conflict result in all three tools. |
 | Asking the updater to replace local guidance does not start an adoption workflow | 2b–2d: Codex, Cursor, and Claude Code each decline unsupported replacement without changing local guidance or fetching migration support; 2a first permits unreleased candidate proof without changing released copies. |
-| A fresh client contains working guidance and its version, with no recognition record | 3b: all three install entry points and byte/coexistence checks; 3c: native discovery/use in all three tools. 3a first makes the shared fixture boundary payload-size-neutral. |
+| A fresh client contains working guidance and its version, with no recognition record | 3b: all three install entry points and byte/coexistence checks; 3c: native Codex 0.144.1, Cursor 2026.09.02-c22c1a3, and Claude Code 2.1.263 each loaded and applied the clean installed skill with unchanged source/target snapshots. 3a first makes the shared fixture boundary payload-size-neutral. |
 | Updating an earlier payload removes its obsolete recognition only in the selected installation | 4a: safe forced retirement; 4b: honest removal failure; 4c: ordinary newer-release retirement; 4d: equal-version no-write; 4e–4g: independent Codex, Cursor, and Claude Code legacy-to-new delivery/use transitions. |
 | Removing unused commands does not remove version-aware installation/update | 5: existing validation/version/update/cleanup checks pass; removed commands are absent from dispatch/help. |
 | Maintainers can install and run checks without the unused TypeScript toolchain | 6: clean locked dependency install and existing lint command succeed; active JS/shell checks remain configured. |
@@ -247,7 +247,7 @@ Size: medium confidence after 3a; one shared payload contract and focused matrix
 ### 3c. Use a fresh two-skill installation natively
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Against clean disposable targets installed by 3b, Codex, Cursor, and
 Claude Code each discover and invoke `dough-adr-awareness`, demonstrate the
 existing skill improvement, and leave source/target snapshots unchanged.
@@ -486,10 +486,10 @@ messages as native verification. Integrated checks remain pending.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
-  the fixture list; 3b installed only the two skills. Execution resumes at 3c. Reassess after five minutes
-  and follow Learning
+  the fixture list; 3b installed only the two skills; 3c passed native use on all
+  three tools. Execution resumes at 4a. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `100`; rearmed after the 2d stop.
+  `/Users/terryyin/git/open-dough`, Codex cell `158`; rearmed before the 3c push.
 - No client update, release, ADR status, tagged metadata, or tracked native-copy
   change has been performed.
