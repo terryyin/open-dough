@@ -288,7 +288,7 @@ Size: medium confidence; one installer success path plus topology boundaries.
 ### 4b. Report recognition retirement failure without false success
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Inject a real unlink failure at the fixed retired file. The installer
 reports partial replacement, records neither success nor a new VERSION, and
 preserves unrelated/other-platform snapshots. Existing copy and verification
@@ -487,7 +487,7 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a added confined forced retirement. Execution resumes at 4b. Reassess after five minutes and follow Learning
+  three tools; 4a added confined forced retirement; 4b proved honest unlink failure. Execution resumes at 4c. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `158`; rearmed before the 3c push.
