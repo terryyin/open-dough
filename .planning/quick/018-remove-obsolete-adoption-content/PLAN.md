@@ -161,7 +161,7 @@ Size: high confidence; one focused harness boundary.
 ### 2b. Decline local-guidance replacement in Codex
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded native Codex request discovers and invokes the candidate
 `dough-update`, reports replacement as unsupported, performs no adoption fetch,
 and leaves the arbitrary local practice and all snapshots unchanged. Ordinary
@@ -450,7 +450,7 @@ Size: medium confidence; bounded document review, no broad archive rewrite.
 
 | Platform | Required evidence for changed boundaries | Current status |
 | --- | --- | --- |
-| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a/1b passed natively; later leaves pending. |
+| Codex | 1a explicit/automatic installed use; 1b clear/conflict context; 2b candidate updater rejection; 3c fresh two-skill use; 4e `tests/dough-adr-awareness-codex-delivery-to-use.sh --native` legacy transition. | 1a/1b/2b passed natively; later leaves pending. |
 | Cursor | 1b clear/conflict context; 2c candidate updater rejection; 3c fresh two-skill use; 4f `tests/dough-adr-awareness-cursor-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
 | Claude Code | 1b clear/conflict context; 2d candidate updater rejection; 3c fresh two-skill use; 4g `tests/dough-adr-awareness-claude-delivery-to-use.sh --native` legacy transition. | 1b passed natively; later leaves pending. |
 
@@ -467,7 +467,7 @@ three-file delivery and adoption results do not prove these changes.
 Keep focused checks at each slice boundary. Once integrated, run `npm test`
 and `npm run lint` once because shared fixture removal affects test discovery
 and several consumers; do not interpret optional native tests' default skip
-messages as native verification. No checks have been executed for this plan.
+messages as native verification. Integrated checks remain pending.
 
 ## Learnings and readiness
 
@@ -484,10 +484,11 @@ messages as native verification. No checks have been executed for this plan.
   The only stated hard-limit exceptions are focused native-tool runtime; editing,
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
-  fixture; 2a decoupled candidate proof from released-copy identity.
-  Execution resumes at 2b. Reassess after five minutes and follow Learning
+  fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
+  reusable adoption and passed native Codex rejection. Execution resumes at 2c.
+  Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `17`; started before the first push.
-- No implementation, deletion, dependency change, or client update has been
-  performed. Every slice remains planned.
+  `/Users/terryyin/git/open-dough`, Codex cell `66`; rearmed after the 2b stop.
+- No client update, release, ADR status, tagged metadata, or tracked native-copy
+  change has been performed.

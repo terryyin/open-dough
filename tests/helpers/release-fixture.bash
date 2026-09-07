@@ -92,45 +92,6 @@ snapshot_path_state() {
   )
 }
 
-prepare_donut_adr_assessment_target() {
-  local target=$1
-  local candidate=$2
-  local fixture_source="${source_dir}/tests/fixtures/adr-adoption/donut-assessment"
-
-  mkdir -p -- "${target}"
-  cp -R -- "${fixture_source}/." "${target}/"
-  mkdir -p -- "${target}/.claude/skills"
-  ln -s ../../.agents/skills/adr-awareness \
-    "${target}/.claude/skills/adr-awareness"
-  bash "${candidate}/install.sh" --target "${target}" --platform codex
-}
-
-prepare_donut_adr_codex_adoption_target() {
-  local target=$1
-  local candidate=$2
-
-  prepare_donut_adr_assessment_target "${target}" "${candidate}"
-
-  # Bound native mutation scenarios to the one Codex integration under test.
-  # The full assessment fixture still covers the shared Claude discovery link.
-  rm -- "${target}/.claude/skills/adr-awareness"
-}
-
-prepare_donut_adr_codex_cleanup_target() {
-  local target=$1
-  local candidate=$2
-  local architecture_rule
-
-  prepare_donut_adr_codex_adoption_target "${target}" "${candidate}"
-  architecture_rule="${target}/.cursor/rules/architecture-decisions.mdc"
-  printf '\n%s\n' \
-    '## Retained adopter context' \
-    '' \
-    '- Architecture-shaped work includes Cross-cutting stack, persistence, API contracts, auth, packaging/monorepo layout, and shared conventions across backend/frontend/cli/mcp/e2e.' \
-    '- A human-owned exception may be recorded in a PR/commit message or note pointing at the ADR and the exception.' \
-    >> "${architecture_rule}"
-}
-
 build_latest_fixture() {
   local repo=$1
 

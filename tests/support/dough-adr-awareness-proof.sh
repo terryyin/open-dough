@@ -46,20 +46,3 @@ assert_no_adr_awareness_maintenance() {
     return 1
   fi
 }
-
-changed_paths_between_snapshots() {
-  local before_snapshot=$1
-  local after_snapshot=$2
-
-  # shellcheck disable=SC2312 # The caller's pipefail preserves snapshot-diff failures.
-  awk -F '\t' '
-    NR == FNR { before[$2] = $0; next }
-    { after[$2] = $0 }
-    END {
-      for (path in before)
-        if (!(path in after) || before[path] != after[path]) print path
-      for (path in after)
-        if (!(path in before)) print path
-    }
-  ' "${before_snapshot}" "${after_snapshot}" | LC_ALL=C sort
-}
