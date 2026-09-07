@@ -39,39 +39,72 @@ remain in [the research report](../research/cross-tool-validation.md).
 
 ### 1. Run one needed native check without replaying or losing the others
 
-**Status:** Unplanned. **Type:** Test tooling. **Dependency:** Existing native cases; no slice-plan migration prerequisite.
+**Status:** Refined; [slice plan written](../quick/020-select-and-retain-native-checks/PLAN.md), not implemented.
+**Type:** Test tooling. **Dependency:** Existing native cases; no slice-plan migration prerequisite.
 
-**Value:** A failed case or new assessment no longer forces a maintainer to pay
-for unrelated successful sessions.
+**Goal:** A maintainer can choose one existing native check, inspect what it
+would run, and keep enough evidence to revisit its result without paying for
+unrelated sessions. This readies the codebase for ADR 0005's deliberate native
+acceptance and evidence reuse; it does not establish native acceptance itself.
 
-**Scope:** Extend the existing native wrappers with shared case selection,
-required fixture setup, bounded execution, and retained per-case results. Apply
-the interface to the three delivery wrappers and context checks. Store a compact
-local result with candidate, platform/runtime, relevant inputs and decisive
-artifacts. Support reassessment of retained results without launching a model;
-manual impact judgment is sufficient when recorded explicitly.
+**Scope:** Extend only the three existing ADR delivery wrappers and the
+clear/conflict context checks. Add a small shared case inventory, necessary
+fixture/dependency selection, bounded execution, and durable local per-attempt
+results. Preserve the current credential-free default tests and explicit native
+opt-in. Record candidate identity, actual platform/runtime, relevant inputs,
+execution outcome, assessment, and decisive artifacts outside disposable scratch.
+Retain failed attempts as well as successes, without automatic retries.
 
-**Acceptance scenarios:**
+Allow a saved attempt to be reassessed without starting an agent. Record the
+current assessor and an explicit applicability judgment; do not infer reuse from
+a matching case name or green exit. Missing observations or changed relevant
+inputs leave the current claim pending. Keep original evidence and earlier
+assessments intact. Manual impact judgment is enough; reuse is a recorded
+decision, not an automatic cache hit.
 
-- Given selected cases for a native story, list their host, purpose, required
-  setup, and usable prior evidence without starting an agent. Running a single
-  case launches only that case and its necessary journey dependencies.
-- Given a timeout, missing executable, denied operation, or truncated stream,
-  return a nonpassing result, stop the process within its configured bound, and
-  preserve evidence. Previous successful results remain available. Test these
-  paths using substitute processes in CI, without provider access.
-- Given successful execution, scratch cleanup preserves a usable result and
-  artifacts. Cursor evidence identifies Cursor Agent, not the editor version.
-- Given sufficient saved evidence and a revised assessor, reassess without a
-  native call. Changed relevant inputs or missing observations remain pending
-  rather than being labeled a reused pass. Exercise both outcomes in cheap tests.
-- Given an update-to-use claim, fresh use consumes the verified real update's
-  resulting installation. Independent case selection never fabricates a missing
-  transition by seeding only its final state.
+**Key examples:**
 
-**Completion evidence:** Working selected-case/reassessment paths and passing
-substitute-process CI tests for each adapter. Native qualification remains
-explicitly assigned to Story 3; no cross-OS runner or generic cache is required.
+- **E1 — Select:** Given existing cases and saved results, listing shows each
+  case's host, purpose, required setup/dependencies, and prior evidence with its
+  applicability status, without invoking any agent (including version probes).
+  Selecting `context/clear` for Cursor launches no Codex, Claude Code, conflict,
+  or delivery session. An unknown case fails before native execution.
+- **E2 — Preserve:** Given a completed selected attempt, scratch cleanup leaves
+  its result, raw output/events, decisive state observations, and input/runtime
+  identity readable at the reported result path. A later failed attempt cannot
+  overwrite it. Cursor's runtime is Cursor Agent, not the editor version.
+- **E3 — Bound failure:** Given a hung process, missing executable, denied
+  operation, or truncated stream, the selected attempt ends nonpassing with its
+  reason and available evidence retained. A hung process and its owned children
+  stop within the configured timeout plus cleanup grace; no retry starts and
+  previous attempts survive. Exercise these paths with substitutes in CI.
+- **E4 — Reassess:** Given complete saved evidence, applicable inputs/runtime,
+  an explicit reuse rationale, and a revised assessor, reassessment adds a
+  result without a native call. Changed relevant guidance, adapter, helper,
+  fixture, or runtime conditions, or missing required evidence, leave reuse
+  pending with a reason. Old wording-based success cannot acquire stronger
+  native claims merely by being retained.
+- **E5 — Keep the journey real:** Given selection of updated use, perform the
+  necessary verified update and start fresh use against that same resulting
+  installation. Do not run the unrelated legacy-refusal session. If the update
+  fails, retain that failure and mark dependent use unrun/pending. A copied final
+  payload or a saved transcript alone cannot stand in for the update transition.
+
+**Exclusions:** No prompt/semantic-assessor repair (Story 2), new native cases,
+native sessions or qualification (Story 3), old-plan reconciliation (Story 4),
+installer/updater changes, client adoption, guidance extraction/installation,
+or release. No evidence database, general cache/impact engine, archived-workspace
+restoration, scheduling service, broad harness migration, or new OS support.
+
+**Open questions:** None that block this scope. Exact result-file layout and
+command spelling are local implementation choices within the slice plan.
+
+**Completion evidence:** Selected-case and reassessment demonstrations plus
+passing credential-free failure/reuse tests for Codex, Cursor, and Claude Code
+adapters. Preserve the broad cheap CI suite. All affected native discovery,
+invocation/application, behavior, install/update, and coexistence claims remain
+pending in [Story 3](#accept-standalone-client-workflow), separately per platform.
+No earlier proof is newly certified by this refinement.
 
 <a id="trust-native-verdicts"></a>
 

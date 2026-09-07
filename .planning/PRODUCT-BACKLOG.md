@@ -35,9 +35,12 @@ pending evidence.
 
 ## Next-item readiness
 
-Refine [SEED-007 Story 1](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks)
-next. Existing native cases supply its scope; old-plan reconciliation is not a
-prerequisite.
+[SEED-007 Story 1](seeds/SEED-007-cross-tool-validation.md#select-and-retain-native-checks)
+is refined with no blocking product questions; its
+[slice plan](quick/020-select-and-retain-native-checks/PLAN.md) is written, not
+implemented. Leaf refinement is recommended for bounded supervision and delivery
+adapter integration. Scope is existing runner readiness only; native qualification
+remains in Story 3. Old-plan reconciliation is not a prerequisite.
 
 ### Later client-work readiness
 
