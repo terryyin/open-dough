@@ -35,10 +35,11 @@ Ordinary Open Dough release updates remain available from a supplied repository 
    | Cursor | `cursor` | `.cursor/skills/` |
    | Claude Code | `claude` | `.claude/skills/` |
 
-   The complete public payload is `dough-update/SKILL.md`,
-   `dough-adr-awareness/SKILL.md`, and
-   `dough-adr-awareness/RECOGNITION.md`. The numeric `VERSION` record lives
-   beside the selected `dough-update/SKILL.md`.
+   The complete public payload is `dough-update/SKILL.md` and
+   `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record lives beside
+   the selected `dough-update/SKILL.md`. Source recognition records are
+   maintainer material and are not installed. An obsolete recognition file
+   from an earlier installation may remain until a later update retires it.
 
 5. Make a fresh temporary directory. Using only Git, pin the highest numeric
    release before any repository script runs. Do not clone the default
@@ -53,14 +54,14 @@ Ordinary Open Dough release updates remain available from a supplied repository 
       <commit>`, and check out that commit detached. Confirm
       `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`, `install.sh`,
-      and all three public payload sources under `src/skills/`.
+      and both public payload sources under `src/skills/`.
    d. Run `bash <snapshot>/src/install/open-dough-release.sh apply --url
       <source-url> --target <captured-project> --platform <tool>
       --checkout <snapshot>`, quoting both paths. Codex may omit
       `--platform`. Pass `--force` only when the user explicitly authorized a
       forced reinstall. If apply reports that HEAD is not the pinned latest,
       stop. Do not fetch or check out replacement files after inspection.
-      Proceed only if the inspected files write solely to the three declared
+      Proceed only if the inspected files write solely to the two declared
       public payload paths under the selected native skill root and the selected
       updater's `VERSION` record in the captured target project, preserving
       distributable source, unrelated project files, other tools' separate
@@ -75,7 +76,7 @@ Ordinary Open Dough release updates remain available from a supplied repository 
    may be incomplete, that the last successful record was left unchanged, and
    that explicit `--force` reinstall is the recovery path.
 7. Report the helper's source URL, release tag and commit, running tool and
-   native skill root, all three installed payload paths, previous version or
+   native skill root, both installed payload paths, previous version or
    unknown, and actual outcome. After a replacement,
    tell the user to start a fresh session in the same tool, then invoke
    `/dough-update` in Cursor or Claude Code, or `$dough-update` in Codex, to

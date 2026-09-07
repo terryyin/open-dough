@@ -165,6 +165,7 @@ assert_payload() {
     cmp "${source_dir}/src/skills/${managed_file}" \
       "${skill_root}/${managed_file}"
   done
+  [[ ! -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   contents=$(cat "${destination}/VERSION")
   [[ "${contents}" == "${version}" ]]
 }

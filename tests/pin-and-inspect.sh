@@ -98,10 +98,14 @@ install_inspected_release() (
   [[ "${head}" == "${selected_commit}" ]]
   for inspected_file in install.sh src/install/open-dough-release.sh \
     src/install/open-dough-platform.sh src/install/open-dough-release-version.sh \
-    src/install/open-dough-release-resolve.sh src/skills/dough-update/SKILL.md \
-    src/skills/dough-adr-awareness/SKILL.md src/skills/dough-adr-awareness/RECOGNITION.md; do
+    src/install/open-dough-release-resolve.sh; do
     cat "${snapshot}/${inspected_file}" > /dev/null
     printf '%s\n' "${inspected_file}" >> "${install_dir}.inspection"
+  done
+  # shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
+  for managed_file in "${managed_files[@]}"; do
+    cat "${snapshot}/src/skills/${managed_file}" > /dev/null
+    printf 'src/skills/%s\n' "${managed_file}" >> "${install_dir}.inspection"
   done
 
   if [[ ${3:-} == stale ]]; then
@@ -132,10 +136,10 @@ install_inspected_release() (
   fi
   bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"
 
-  for managed_file in dough-update/SKILL.md dough-adr-awareness/SKILL.md \
-    dough-adr-awareness/RECOGNITION.md; do
+  for managed_file in "${managed_files[@]}"; do
     cmp "${snapshot}/src/skills/${managed_file}" "${target_project}/.cursor/skills/${managed_file}"
   done
+  [[ ! -e "${target_project}/.cursor/skills/dough-adr-awareness/RECOGNITION.md" ]]
   cmp "${snapshot}/VERSION" "${target_project}/.cursor/skills/dough-update/VERSION"
 )
 
@@ -146,7 +150,7 @@ output=$(install_inspected_release "${direct_target}" "${direct_checkout}")
 [[ "${output}" == *'Recorded version 0.1.10.'* ]]
 [[ ! -e "${direct_checkout}" && -d "${temporary_dir}" ]]
 inspection_count=$(wc -l < "${direct_checkout}.inspection")
-[[ "${inspection_count}" -eq 8 ]]
+[[ "${inspection_count}" -eq $((5 + ${#managed_files[@]})) ]]
 assert_payload "${direct_target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
 assert_sentinels "${direct_target}"
 [[ ! -s "${leak}" ]]

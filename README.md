@@ -7,9 +7,9 @@ Open Dough defines how people and AI work together to develop software. It bring
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
 > **Status:** Codex, Cursor, and Claude Code can install and update the
-> project-local public payload (`dough-update` plus `dough-adr-awareness` and
-> its recognition record) from the latest numeric release of a supplied
-> repository URL.
+> project-local two-skill public payload (`dough-update` plus
+> `dough-adr-awareness`) from the latest numeric release of a supplied
+> repository URL. Recognition records remain source-only maintainer material.
 
 ## Install with an AI agent
 
@@ -26,15 +26,15 @@ Open your target project in an AI agent with web and shell access, then ask:
    `--platform codex`) installs under `.agents/skills/`, Cursor (`--platform
    cursor`) under `.cursor/skills/`, and Claude Code (`--platform claude`)
    under `.claude/skills/`. Each receives exactly
-   `dough-update/SKILL.md`, `dough-adr-awareness/SKILL.md`, and
-   `dough-adr-awareness/RECOGNITION.md`. Install only the running tool's copy.
+   `dough-update/SKILL.md` and `dough-adr-awareness/SKILL.md`. Install only the
+   running tool's copy; do not install the source recognition record.
 3. Follow the shared [safe installation procedure](docs/installation-and-updates.md#common-installation-flow)
    with the supplied URL and running tool
    ([Codex](docs/installation-and-updates.md#codex),
    [Cursor](docs/installation-and-updates.md#cursor), or
    [Claude Code](docs/installation-and-updates.md#claude-code)). Select and pin
    the highest numeric release using Git before any fetched script runs. Inspect
-   that snapshot's installer, helper and dependencies, and three public sources;
+   that snapshot's installer, helper and dependencies, and two public sources;
    then revalidate the selection and invoke its installer directly. Keep ownership
    of the temporary checkout through inspection and clean it on success or failure.
    Bash and Git are sufficient; installing package dependencies is unnecessary.
@@ -45,7 +45,7 @@ Open your target project in an AI agent with web and shell access, then ask:
 5. If installation reports an existing skill, stop and explain that `--force`
    replaces its contents, including local edits. Use it only when the user has
    explicitly authorized that overwrite.
-6. Verify all three installed files match the pinned sources, the updater's
+6. Verify both installed files match the pinned sources, the updater's
    `VERSION` record matches the selected release, and the target project's diff
    contains no unrelated changes. Report the installed paths, source tag and
    commit, and tell the user to invoke the updater with the source URL in a
@@ -100,8 +100,8 @@ The exact file mappings and capability differences will be documented as integra
 ## Installation and updates
 
 See [Installation and updates](docs/installation-and-updates.md) for the exact
-three-file payload, shared installation procedure, updater safety contract, legacy
-bootstrap path, and contributor checks.
+two-skill payload, shared installation procedure, updater safety contract,
+legacy bootstrap path, and contributor checks.
 
 ## Distribution
 

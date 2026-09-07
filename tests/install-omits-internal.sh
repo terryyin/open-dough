@@ -13,6 +13,7 @@ for internal_skill_name in "${internal_skill_names[@]}"; do
 done
 [[ -f "${source_dir}/AGENTS.md" ]]
 [[ -f "${source_dir}/CLAUDE.md" ]]
+[[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -49,6 +50,9 @@ assert_internal_absent() {
   done
   [[ ! -e "${root}/AGENTS.md" ]]
   [[ ! -e "${root}/CLAUDE.md" ]]
+  for skill_root in .agents .cursor .claude; do
+    [[ ! -e "${root}/${skill_root}/skills/dough-adr-awareness/RECOGNITION.md" ]]
+  done
 }
 
 assert_sentinels() {
@@ -127,4 +131,4 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .cursor/skills .claude/skills
 
-echo "PASS: installer writes only the public payload and updater VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the two-skill public payload and updater VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

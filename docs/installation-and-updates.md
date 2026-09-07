@@ -5,10 +5,12 @@ root. The payload is exactly:
 
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
-- `dough-adr-awareness/RECOGNITION.md`
 
-The source files live under `src/skills/`. Installation preserves unrelated
-project files, home-level guidance, and any other tool's separate installation.
+The source files live under `src/skills/`. The ADR-awareness recognition record
+is source-only maintainer material and is not installed. Installation preserves
+unrelated project files, home-level guidance, and any other tool's separate
+installation. During this interim release boundary, an obsolete recognition
+file from an earlier installation may remain until a later update retires it.
 
 ## Common installation flow
 
@@ -59,9 +61,8 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-release-resolve.sh`
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
-   - `src/skills/dough-adr-awareness/RECOGNITION.md`
 
-   Check that this executable call chain writes only the three declared public
+   Check that this executable call chain writes only the two declared public
    files and the selected updater's `VERSION` record under the captured target's
    native root. Preserve source, unrelated guidance, other tools' installations,
    and home guidance. Stop if the payload is incomplete or the inspected behavior
@@ -99,10 +100,10 @@ inspection and execution into an unattended one-shot command.
    when the user explicitly authorized that overwrite. The installer does not
    merge changes or replace other skills.
 
-6. Verify all three installed files byte-for-byte against this same snapshot and
+6. Verify both installed files byte-for-byte against this same snapshot and
    the installed `dough-update/VERSION` against `selected_version`; review the
    target diff for unrelated changes. Report the source URL, tag, exact commit,
-   running tool, all three installed paths, version record, and actual installer
+   running tool, both installed paths, version record, and actual installer
    outcome. A failed install is not success: if replacement started, report any
    incomplete files and the unchanged last successful record (or absent fresh
    record), with explicit `--force` reinstall as recovery. Do not promise rollback.
@@ -114,7 +115,7 @@ inspection and execution into an unattended one-shot command.
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
-writes the three payload files under `.agents/skills/` and records the release
+writes the two payload files under `.agents/skills/` and records the release
 in `.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
 installation lives there too, separately from the distributable source.
 See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
@@ -127,7 +128,7 @@ Start a fresh Codex session in the target project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Installation writes the three payload files under `.cursor/skills/` and records
+Installation writes the two payload files under `.cursor/skills/` and records
 the release in `.cursor/skills/dough-update/VERSION`. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
@@ -138,7 +139,7 @@ the target project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Installation writes the three payload files under `.claude/skills/` and records
+Installation writes the two payload files under `.claude/skills/` and records
 the release in `.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
 Claude Code session in the target project and invoke:
@@ -156,10 +157,10 @@ Supply a cloneable repository URL on every updater invocation. The updater:
 3. Records the actual source URL, tag, and exact commit.
 4. Selects the running tool's native skill root without inferring the tool from
    directories that happen to exist.
-5. Validates the fetched installer against the exact three-file public payload.
+5. Validates the fetched installer against the exact two-skill public payload.
 6. Compares the selected updater's `VERSION` record and runs the pinned
    installer with `--force` only when replacement is required.
-7. Verifies that all three installed files byte-match the fetched sources and
+7. Verifies that both installed files byte-match the fetched sources and
    that distributable source, unrelated project files, other tools' separate
    installations, and home guidance remain unchanged.
 
@@ -173,7 +174,7 @@ remains future work.
 ## Legacy bootstrap
 
 An older installed updater may authorize only replacement of its own `SKILL.md`
-and must refuse the expanded three-file installer. Do not bypass or reinterpret
+and must refuse the expanded multi-skill installer. Do not bypass or reinterpret
 that refusal as success. Bootstrap with explicit overwrite authorization using the
 [same safe installation procedure](#common-installation-flow), adding `--force`
 only to its final direct installer command for the selected platform.

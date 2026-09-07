@@ -224,7 +224,7 @@ Size: medium confidence; test-only preparation bounded to current consumers.
 ### 3b. Install the two-skill public payload on every platform
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The three public-payload entry points, `tests/install-omits-internal.sh`,
 and affected repeat/copy/verification-failure checks show that clean Codex,
 Cursor, and Claude Code targets receive the two skills and VERSION, but no
@@ -486,7 +486,7 @@ messages as native verification. Integrated checks remain pending.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
-  the fixture payload list. Execution resumes at 3b. Reassess after five minutes
+  the fixture list; 3b installed only the two skills. Execution resumes at 3c. Reassess after five minutes
   and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout

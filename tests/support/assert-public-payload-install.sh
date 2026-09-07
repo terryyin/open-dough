@@ -61,6 +61,8 @@ for managed_file in "${managed_files[@]}"; do
   cmp "${source_dir}/src/skills/${managed_file}" \
     "${target}/${relative_skill_root}/${managed_file}"
 done
+[[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
+[[ ! -e "${target}/${relative_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 for internal_skill in extract-guidance release-version; do
   for skill_root in "${skill_roots[@]}"; do

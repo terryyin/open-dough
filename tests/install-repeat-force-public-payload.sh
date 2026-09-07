@@ -85,8 +85,8 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${selected_root}/dough-update/SKILL.md"
 cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${selected_root}/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-  "${selected_root}/dough-adr-awareness/RECOGNITION.md"
+assert_contents "${selected_root}/dough-adr-awareness/RECOGNITION.md" \
+  'Keep my local recognition edit.'
 
 assert_contents "${selected_root}/dough-update/LOCAL.md" 'Keep this updater-side file.'
 assert_contents "${selected_root}/dough-adr-awareness/LOCAL.md" 'Keep this ADR-side file.'
@@ -100,4 +100,4 @@ assert_contents "${claude_root}/dough-update/SKILL.md" 'Keep the Claude updater.
 assert_contents "${claude_root}/dough-adr-awareness/SKILL.md" 'Keep the Claude ADR skill.'
 assert_contents "${claude_root}/dough-adr-awareness/RECOGNITION.md" 'Keep the Claude ADR record.'
 
-echo 'PASS: ordinary repeat preserves the complete edited payload, and explicit force replaces only declared Cursor payload files.'
+echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces only the two declared Cursor payload files, and an older recognition record remains for later retirement.'

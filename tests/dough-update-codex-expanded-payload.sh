@@ -3,11 +3,9 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 updater="${source_dir}/src/skills/dough-update/SKILL.md"
-managed_files=(
-  dough-update/SKILL.md
-  dough-adr-awareness/SKILL.md
-  dough-adr-awareness/RECOGNITION.md
-)
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 
 for native_root in .agents/skills .cursor/skills .claude/skills; do
   recorded_version=$(cat \
@@ -17,6 +15,7 @@ for native_root in .agents/skills .cursor/skills .claude/skills; do
   [[ "${recorded_version}" == "${released_version}" ]]
 done
 
+# shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
 for managed_file in "${managed_files[@]}"; do
   grep -Fq -- "\`${managed_file}\`" "${updater}"
 done
@@ -42,6 +41,8 @@ for managed_file in "${managed_files[@]}"; do
   cp -- "${source_dir}/src/skills/${managed_file}" \
     "${fixture_source}/src/skills/${managed_file}"
 done
+cp -- "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
+  "${fixture_source}/src/skills/dough-adr-awareness/RECOGNITION.md"
 
 printf '\n%s\n' \
   'Fixture improvement: when several status authorities disagree, identify each conflicting repository-relative source before asking the human to resolve precedence.' \
@@ -79,6 +80,8 @@ for managed_file in "${managed_files[@]}"; do
   cp -- "${source_dir}/.agents/skills/${managed_file}" \
     "${target}/.agents/skills/${managed_file}"
 done
+cp -- "${source_dir}/.agents/skills/dough-adr-awareness/RECOGNITION.md" \
+  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
 cp -- "${source_dir}/.agents/skills/dough-update/VERSION" \
   "${target}/.agents/skills/dough-update/VERSION"
 printf '%s\n' 'Keep the Cursor installation.' > \
@@ -129,6 +132,8 @@ snapshot() {
 }
 
 source_before=$(snapshot "${fixture_source}")
+installed_recognition_before=$(shasum -a 256 \
+  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md")
 native_copies_before=$(snapshot "${source_dir}/.agents/skills")
 native_copies_before+=$(snapshot "${source_dir}/.cursor/skills")
 native_copies_before+=$(snapshot "${source_dir}/.claude/skills")
@@ -168,6 +173,9 @@ for managed_file in "${managed_files[@]}"; do
   cmp "${fixture_source}/src/skills/${managed_file}" \
     "${target}/.agents/skills/${managed_file}"
 done
+installed_recognition_after=$(shasum -a 256 \
+  "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md")
+[[ "${installed_recognition_after}" == "${installed_recognition_before}" ]]
 
 actual_changes=$(git -C "${target}" diff --name-only | LC_ALL=C sort)
 [[ "${actual_changes}" == "${expected_changes}" ]]
@@ -206,4 +214,4 @@ printf 'fixture source digest: %s\n' "${source_digest}"
 printf '%s\n' \
   'PASS: the installed updater selected the disposable candidate tag, reported its actual source and pinned commit, and left the cloneable fixture source byte-identical.'
 printf '%s\n' \
-  'PASS: the selected Codex payload byte-matches every candidate source; tracked native releases, Cursor, Claude Code, unrelated guidance, distributable source, and project files are unchanged.'
+  'PASS: the selected Codex two-skill payload byte-matches every candidate source; an older recognition record remains unchanged for later retirement; tracked native releases, Cursor, Claude Code, unrelated guidance, distributable source, and project files are unchanged.'

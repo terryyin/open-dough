@@ -22,8 +22,7 @@ assert_verified_install() {
   cmp "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md"
   cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
     "${skill_root}/dough-adr-awareness/SKILL.md"
-  cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-    "${skill_root}/dough-adr-awareness/RECOGNITION.md"
+  [[ ! -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   cmp "${source_dir}/VERSION" "${destination}/VERSION"
 }
 
@@ -145,8 +144,6 @@ cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${bad_source}/src/skills/dough-update/SKILL.md"
 cp -- "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${bad_source}/src/skills/dough-adr-awareness/SKILL.md"
-cp -- "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-  "${bad_source}/src/skills/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' '0.1.0' > "${bad_source}/VERSION"
 printf '%s\n' '## 9.9.9 - 2026-01-01' > "${bad_source}/CHANGELOG.md"
 untouched_target="${temporary_dir}/untouched project"

@@ -71,7 +71,6 @@ managed_skill_paths=(
 managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
-  dough-adr-awareness/RECOGNITION.md
 )
 
 for managed_file in "${managed_files[@]}"; do
