@@ -8,8 +8,10 @@ Leaf 1 of `.planning/quick/020-select-and-retain-native-checks/PLAN.md` owns
 `--list`, `--results-dir` for listing, invalid host/case/option rejection, and
 the usage text. Leaf 2 owns selected context launch with a **writable**
 `--results-dir` (durable attempt under `DIR/<host>/<case>/<attempt-id>/`).
-These leaves do not run selected delivery cases, enforce timeouts, check
-stream completeness, or reassess saved evidence.
+Leaf 3 owns `--deadline` and `--grace` on selected context launch (process-group
+ownership; defaults leave recorded-success substitutes unchanged).
+These leaves do not run selected delivery cases, enforce hung-attempt timeout,
+check stream completeness, or reassess saved evidence.
 
 ## Shared options
 
@@ -19,6 +21,8 @@ stream completeness, or reassess saved evidence.
 | `--results-dir DIR` | Result directory. Listing may read `DIR/<host>/<case>/<attempt-id>/` as **unreviewed** prior-evidence; it never certifies reuse. DIR need not exist or be writable for listing. Selected native launch requires DIR to be a writable directory before fixture or agent launch; omit it to keep the disposable scratch path. |
 | `--case CASE` | Select one inventory case. Unknown values fail before setup. |
 | `--native` | Existing native opt-in. |
+| `--deadline SECONDS` | Selected native launch only. Integer >= 1. Default **3600**. Invalid values fail before setup or launch. |
+| `--grace SECONDS` | Selected native launch only. Integer >= 0. Default **15**. Finite termination grace after a deadline. Invalid values fail before setup or launch. |
 
 Prior-evidence values are `none` or `unreviewed <path>`. Listing cannot print a
 certified/passing reuse verdict.
@@ -36,8 +40,8 @@ Fixed inventory (five cases per host `codex`, `cursor`, `claude`):
 ```
 tests/dough-adr-awareness-context.sh
 tests/dough-adr-awareness-context.sh --list [--results-dir DIR]
-tests/dough-adr-awareness-context.sh --native HOST SCENARIO [--results-dir DIR]
-tests/dough-adr-awareness-context.sh --native HOST --case context/clear|context/conflict [--results-dir DIR]
+tests/dough-adr-awareness-context.sh --native HOST SCENARIO [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
+tests/dough-adr-awareness-context.sh --native HOST --case context/clear|context/conflict [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
 `HOST` is `codex`, `cursor`, or `claude`. `SCENARIO` is `clear` or `conflict`.
@@ -46,7 +50,11 @@ without `--results-dir` is the existing scratch-and-delete launch. With a
 writable `--results-dir DIR`, leaf 2 retains the attempt at
 `DIR/<host>/context/<scenario>/<attempt-id>/`, reports `result-path:`, and
 deletes scratch. An unwritable DIR fails before launch. `--list` prints
-context cases for all three hosts.
+context cases for all three hosts. `--deadline` and `--grace` are accepted on
+selected native launch only (not `--list` or the no-argument check). Defaults
+(3600 and 15) are high enough that recorded-success substitutes finish without
+callers passing the flags. Missing or non-integer values, `--deadline 0`,
+`--list --deadline`, and `--deadline` without `--native` fail before setup.
 
 ## Delivery wrappers
 
@@ -78,7 +86,8 @@ default no-argument checks still pass.
 Credential-free proof for leaf 2: selected context runs with recorded PATH
 substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
 runtime identity comes from `cursor agent --version`. An unwritable
-`--results-dir` launches nothing.
+`--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
+path are accepted; omitted flags use the high defaults.
 
 ## Later leaves (not this file's contract)
 

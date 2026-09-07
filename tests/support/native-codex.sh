@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034 # native_codex_command is consumed by native_codex_run and the supervisor.
+
+native_codex_command=()
 
 native_codex_prepare() {
   local temporary_dir=$1
@@ -40,7 +43,7 @@ native_codex_prepare() {
   fi
 }
 
-native_codex_run() {
+native_codex_build_command() {
   local target=$1
   local output_file=$2
   local prompt=$3
@@ -51,7 +54,7 @@ native_codex_run() {
     -c "log_dir=\"${native_codex_state_dir}\"" --skip-git-repo-check
     --sandbox danger-full-access
   )
-  local command sandbox_arguments
+  local sandbox_arguments
 
   if [[ -n ${transcript} ]]; then
     inner+=(--json)
@@ -76,18 +79,22 @@ native_codex_run() {
       -D "PROTECTED_PLUGINS=${native_codex_runtime_root}/plugins"
       -D "PROTECTED_CONFIG=${native_codex_runtime_root}/config.toml"
     )
-    command=(
+    native_codex_command=(
       sandbox-exec "${sandbox_arguments[@]}"
       -p "${native_codex_profile}"
       "${inner[@]}"
     )
   else
-    command=("${inner[@]}")
+    native_codex_command=("${inner[@]}")
   fi
+}
 
+native_codex_run() {
+  local transcript=${4:-}
+  native_codex_build_command "$@"
   if [[ -n ${transcript} ]]; then
-    "${command[@]}" > "${transcript}"
+    "${native_codex_command[@]}" > "${transcript}"
     return
   fi
-  "${command[@]}"
+  "${native_codex_command[@]}"
 }

@@ -189,7 +189,8 @@ if [[ -n $(find "${unwritable_dir}" -mindepth 1 -print) ]]; then
 fi
 
 cursor_clear=$(run_selected cursor context/clear \
-  --native cursor clear --results-dir "${results_dir}")
+  --native cursor clear --results-dir "${results_dir}" \
+  --deadline 3600 --grace 15)
 codex_clear=$(run_selected codex context/clear \
   --native codex clear --results-dir "${results_dir}")
 claude_clear=$(run_selected claude context/clear \

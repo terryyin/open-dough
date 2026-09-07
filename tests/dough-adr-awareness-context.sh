@@ -15,6 +15,8 @@ source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
 source "${source_dir}/tests/support/native-cases.sh"
 # shellcheck source=tests/support/native-result-retain.sh
 source "${source_dir}/tests/support/native-result-retain.sh"
+# shellcheck source=tests/support/native-run-supervise.sh
+source "${source_dir}/tests/support/native-run-supervise.sh"
 
 native_case_entry='tests/dough-adr-awareness-context.sh'
 native_case_parse --wrapper context "$@"
@@ -110,33 +112,7 @@ prompt='Use $dough-adr-awareness. Assess how two backend instances should share 
 if [[ ${scenario} == 'clear' ]]; then
   prompt+=' The index and record statuses agree; demonstrate the installed improvement by completing without requiring a disagreement policy that this request does not need.'
 fi
-case ${platform} in
-  codex)
-    native_codex_prepare "${temporary_dir}" "${candidate}"
-    tool_version=$(codex --version 2>> "${native_stderr}")
-    native_codex_run "${target}" "${output_file}" "${prompt}" "${transcript}" \
-      2>> "${native_stderr}"
-    ;;
-  cursor)
-    tool_version=$(cursor agent --version 2>> "${native_stderr}")
-    (
-      cd -- "${target}"
-      cursor agent --print --force --trust --sandbox enabled \
-        --output-format stream-json --workspace "${target}" "${prompt}"
-    ) > "${transcript}" 2>> "${native_stderr}"
-    jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
-    ;;
-  claude)
-    tool_version=$(claude --version 2>> "${native_stderr}")
-    (
-      cd -- "${target}"
-      claude --print --permission-mode default --allowedTools 'Read,Glob,Grep,Skill' \
-        --no-session-persistence --output-format stream-json --verbose "${prompt}"
-    ) > "${transcript}" 2>> "${native_stderr}"
-    jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
-    ;;
-  *) exit 2 ;;
-esac
+native_run_context_command
 after=$(snapshot_path_state "${target}")
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]

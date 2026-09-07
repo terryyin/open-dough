@@ -10,17 +10,20 @@ native_case_mode=
 native_case_host=
 native_case_id=
 native_case_results_dir=
+native_case_deadline=
+native_case_grace=
 
 native_case_print_usage() {
   printf 'usage: %s\n' "${native_case_entry}"
   printf '   or: %s --list [--results-dir DIR]\n' "${native_case_entry}"
   case ${native_case_wrapper} in
     context)
-      printf '   or: %s --native HOST SCENARIO [--results-dir DIR]\n' \
+      printf '   or: %s --native HOST SCENARIO [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]\n' \
         "${native_case_entry}"
-      printf '   or: %s --native HOST --case context/clear|context/conflict [--results-dir DIR]\n' \
+      printf '   or: %s --native HOST --case context/clear|context/conflict [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]\n' \
         "${native_case_entry}"
       printf 'HOST is codex, cursor, or claude. SCENARIO is clear or conflict.\n'
+      printf 'Default --deadline is 3600 seconds; default --grace is 15 seconds.\n'
       ;;
     delivery)
       printf '   or: %s --native\n' "${native_case_entry}"
@@ -39,6 +42,8 @@ native_case_print_usage() {
     '--results-dir is optional for listing and need not be writable or exist.'
   printf '%s\n' \
     'Selected native launch with --results-dir requires a writable directory; without it the native path still uses disposable scratch.'
+  printf '%s\n' \
+    '--deadline and --grace apply to selected native launch. --deadline is an integer >= 1; --grace is an integer >= 0.'
 }
 
 native_case_fail() {
@@ -69,6 +74,8 @@ native_case_parse() {
   native_case_host=
   native_case_id=
   native_case_results_dir=
+  native_case_deadline=
+  native_case_grace=
   native_case_entry=${native_case_entry:-$0}
 
   while [[ $# -gt 0 ]]; do
@@ -126,6 +133,23 @@ native_case_parse() {
         native_flag=1
         shift
         ;;
+      --deadline | --grace)
+        if [[ $# -lt 2 || $2 == --* ]]; then
+          native_case_fail "missing $1 value"
+        fi
+        if [[ ! $2 =~ ^[0-9]+$ ]]; then
+          native_case_fail "$1 must be a non-negative integer: $2"
+        fi
+        if [[ $1 == '--deadline' && $2 -lt 1 ]]; then
+          native_case_fail '--deadline must be an integer >= 1'
+        fi
+        if [[ $1 == '--deadline' ]]; then
+          native_case_deadline=$2
+        else
+          native_case_grace=$2
+        fi
+        shift 2
+        ;;
       --*)
         native_case_fail "unknown option $1"
         ;;
@@ -148,8 +172,9 @@ native_case_parse() {
   fi
 
   if [[ ${list_flag} -eq 1 ]]; then
-    if [[ ${native_flag} -eq 1 || -n ${native_case_id} || -n ${host_arg} ]]; then
-      native_case_fail '--list does not accept --native, --case, or extra arguments'
+    if [[ ${native_flag} -eq 1 || -n ${native_case_id} || -n ${host_arg} ||
+      -n ${native_case_deadline} || -n ${native_case_grace} ]]; then
+      native_case_fail '--list does not accept --native, --case, --deadline, --grace, or extra arguments'
     fi
     native_case_mode=list
     if [[ ${native_case_wrapper} == 'delivery' ]]; then
@@ -162,6 +187,9 @@ native_case_parse() {
     if [[ ${native_flag} -eq 0 && -z ${native_case_id} && -z ${host_arg} ]]; then
       if [[ -n ${native_case_results_dir} ]]; then
         native_case_fail '--results-dir requires --list or --native'
+      fi
+      if [[ -n ${native_case_deadline} || -n ${native_case_grace} ]]; then
+        native_case_fail '--deadline and --grace require --native'
       fi
       native_case_mode=default
       return
@@ -201,7 +229,8 @@ native_case_parse() {
     native_case_fail "unexpected argument '${host_arg}'"
   fi
   if [[ ${native_flag} -eq 0 ]]; then
-    if [[ -n ${native_case_id} || -n ${native_case_results_dir} ]]; then
+    if [[ -n ${native_case_id} || -n ${native_case_results_dir} ||
+      -n ${native_case_deadline} || -n ${native_case_grace} ]]; then
       native_case_fail 'selected checks require --native or --list'
     fi
     native_case_mode=default

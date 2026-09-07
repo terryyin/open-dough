@@ -191,6 +191,13 @@ assert_invalid "${context_wrapper}" --native cursor --case not-a-case
 assert_invalid "${context_wrapper}" --native cursor --case delivery/legacy-refusal
 assert_invalid "${context_wrapper}" --bogus
 assert_invalid "${context_wrapper}" --list --native cursor clear
+assert_invalid "${context_wrapper}" --list --deadline 3600
+assert_invalid "${context_wrapper}" --deadline 3600
+assert_invalid "${context_wrapper}" --native cursor clear --deadline
+assert_invalid "${context_wrapper}" --native cursor clear --deadline 0
+assert_invalid "${context_wrapper}" --native cursor clear --deadline -1
+assert_invalid "${context_wrapper}" --native cursor clear --grace nope
+assert_invalid "${context_wrapper}" --native cursor clear --grace
 assert_invalid "${codex_wrapper}" --native junk
 assert_invalid "${codex_wrapper}" --native --case not-a-case
 assert_invalid "${codex_wrapper}" --native --case context/clear
