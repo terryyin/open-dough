@@ -175,24 +175,6 @@ printf 'Before source snapshot: %s\nAfter source snapshot: %s\n' \
 printf 'Native loading evidence: %s\n' \
   "${skill_root}/dough-adr-awareness/SKILL.md"
 shasum -a 256 "${target}/${skill_root}/dough-adr-awareness/SKILL.md"
-case ${platform} in
-  codex)
-    marker_sources=$(rg -l --hidden --no-ignore -F '## ADR CHECK COMPLETE' "${target}")
-    [[ ${marker_sources} == "${target}/${skill_root}/dough-adr-awareness/SKILL.md" ]]
-    ;;
-  cursor)
-    jq -e -s 'any(.[]; .tool_call.readToolCall? |
-      ((.args.path // "") | endswith("/.cursor/skills/dough-adr-awareness/SKILL.md")) and
-      ((.result.success.content // "") | contains("Do not require policies for situations absent from the current request.")))' \
-      "${transcript}" > /dev/null
-    ;;
-  claude)
-    jq -e -s 'any(.[] | .message.content[]?; .type == "tool_use" and
-      .name == "Skill" and .input.skill == "dough-adr-awareness")' \
-      "${transcript}" > /dev/null
-    ;;
-  *) exit 2 ;;
-esac
 grep -Fq '0001-session-state.md' "${output_file}"
 if [[ ${scenario} == 'clear' ]]; then
   grep -Eiq 'Redis' "${output_file}"

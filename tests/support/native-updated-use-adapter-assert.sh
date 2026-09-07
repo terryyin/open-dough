@@ -3,6 +3,10 @@
 # adapter proofs. The proof script assigns source_dir, work paths, and PATH first.
 # shellcheck disable=SC2016,SC2154,SC2249,SC2310,SC2311,SC2312 # Proof globals; pipefail covers logs.
 
+# shellcheck source=tests/support/native-prerequisite-gate.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-prerequisite-gate.sh"
+
 native_updated_use_adapter_require_host() {
   case $1 in
     cursor | claude) ;;
@@ -152,12 +156,8 @@ assert_record_identity() {
     "${attempt}/record"
   grep -Fq "adapter-identity: $(adapter_identity_for "${host}")" \
     "${attempt}/record"
-  grep -Fq 'assessment-status: not-run' "${attempt}/record"
-  if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
-    echo "FAIL: ${host} journey record used context wording assessment." >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
+  native_prerequisite_assert_record_fields \
+    "${attempt}/record" "${host} journey record"
 }
 
 assert_adapter_success() {
@@ -174,6 +174,14 @@ assert_adapter_success() {
     grep -Fq -- '--workspace' "${run_log}"
   fi
   grep -Fq 'execution-status: completed' "${success}/record"
+  case ${host} in
+    claude)
+      grep -Fq 'prerequisite-result: inconclusive' "${success}/record"
+      ;;
+    *)
+      grep -Fq 'prerequisite-result: pass' "${success}/record"
+      ;;
+  esac
   [[ -f ${success}/update-events.jsonl ]]
   [[ -f ${success}/update-response.md ]]
   [[ -f ${success}/update-stderr.log ]]
@@ -209,6 +217,7 @@ assert_adapter_truncated() {
   grep -Fq 'execution-status: incomplete' "${truncated}/record"
   grep -Fq 'execution-reason: truncated terminal stream' "${truncated}/record"
   grep -Fq 'assessment-status: not-run' "${truncated}/record"
+  grep -Fq 'prerequisite-result: fail' "${truncated}/record"
   grep -Fq 'update-execution: incomplete' "${truncated}/observations.txt"
   grep -Fq 'use-execution: unrun' "${truncated}/observations.txt"
   grep -Fq 'use-pending: true' "${truncated}/observations.txt"

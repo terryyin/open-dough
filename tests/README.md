@@ -57,9 +57,10 @@ wrapper records a nonpassing attempt with available stderr/reason, prints
 does not mask that failure. When no version can be obtained, `native-version`
 is `unknown` (Cursor Agent is not inferred from `cursor --version`).
 After a selected native command exits 0, the wrapper inspects the host
-terminal stream before wording assessment. A complete known stream stays
-eligible for the existing limited-wording path (`execution-status: completed`).
-Missing, truncated, or unknown completion evidence is retained as
+terminal stream before wording assessment. A complete known stream records
+execution completion and a separate prerequisite/activation result; it does
+not treat process exit 0 as a wording pass (`assessment-status` stays
+`not-run`). Missing, truncated, or unknown completion evidence is retained as
 `execution-status: incomplete` with `assessment-status: not-run`, prints
 `result-path:`, deletes scratch, and does not treat process exit 0 as a
 wording pass. Unknown event shapes stay incomplete; adapters are not expanded
@@ -101,7 +102,7 @@ directory, not at live workspace bytes. Current retained contents:
 
 | Path | What it is |
 | --- | --- |
-| `record` | Host, case, origin (`fresh`), execution-status/reason, assessment-status (`not-run`), native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
+| `record` | Host, case, origin (`fresh`), execution-status/reason, prerequisite-result/reason/evidence, assessment-status (`not-run`), native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
 | `update-events.jsonl` / `use-events.jsonl` | Raw supervised streams |
 | `update-response.md` / `use-response.md` | Decoded stage output |
 | `update-stderr.log` / `use-stderr.log` | Stage stderr |
@@ -119,8 +120,9 @@ and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 `{"type":"item"}` with response bytes from `-o`. Cursor and Claude Code complete
 streams use `{"type":"result"}`; `update-response.md` / `use-response.md` are
 decoded from `.result`. Incomplete, truncated, or unknown streams stay
-`execution-status: incomplete` with `assessment-status: not-run`. Execution
-completion is not a behavior verdict. Native credentialed runs stay pending
+`execution-status: incomplete` with `assessment-status: not-run` and
+`prerequisite-result: fail`. Execution completion is not a behavior verdict;
+the prerequisite gate records activation separately. Native credentialed runs stay pending
 (SEED-007 Story 3).
 
 ## Focused proof scripts
@@ -128,6 +130,10 @@ completion is not a behavior verdict. Native credentialed runs stay pending
 These are credential-free checks of the wrappers above. They do not certify
 native discovery, invocation, or behavior.
 
+- `tests/native-prerequisite-gate.sh` — shared execution-and-activation
+  prerequisite cases once (success, execution failure, missing evidence,
+  wrong-copy) plus per-host decoder boundary forms from recorded JSONL.
+  Claude Skill request stays inconclusive. Does not launch a native session.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and
@@ -153,7 +159,8 @@ native discovery, invocation, or behavior.
   missing-terminal recorded streams through the selected context entry point.
   Complete execution remains eligible for later assessment. Incomplete evidence
   with process exit 0 is retained as nonpassing with a reason and raw artifacts,
-  including unknown event shapes. Substitutes log every invocation.
+  including unknown event shapes. Complete execution is not recorded as a
+  wording pass. Substitutes log every invocation.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   update, then emits recorded use evidence. Both stages stay in one attempt

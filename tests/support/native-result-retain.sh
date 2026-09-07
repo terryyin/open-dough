@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Durable per-attempt retention for selected native checks.
 # Listing may read these paths as unreviewed prior-evidence; it never certifies reuse.
-# shellcheck disable=SC2154 # Wrapper globals are assigned before finalize.
+# shellcheck disable=SC2034,SC2154 # Wrapper and prerequisite globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers attempt IDs and prompt hashes.
+
+native_result_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=tests/support/native-prerequisite-gate.sh
+# shellcheck disable=SC1091
+source "${native_result_support_dir}/native-prerequisite-gate.sh"
 
 native_result_attempt_dir=
 native_result_attempt_id=
@@ -118,18 +123,29 @@ native_result_execution_status_fields() {
   esac
 }
 
+native_result_fill_context_prerequisite() {
+  native_prerequisite_host=${native_case_host}
+  native_prerequisite_execution=${native_run_outcome:-exited}
+  native_prerequisite_stream=${transcript-}
+  native_prerequisite_response=${output_file-}
+  native_prerequisite_stream_artifact=events.jsonl
+  native_prerequisite_candidate=${candidate-}
+  native_prerequisite_installed_skill_path=
+  if [[ -n ${target-} && -n ${skill_root-} ]]; then
+    native_prerequisite_installed_skill_path="${target}/${skill_root}/dough-adr-awareness/SKILL.md"
+  fi
+  if [[ -z ${native_prerequisite_installed_identity-} ]]; then
+    native_prerequisite_installed_identity='Do not require policies for situations absent from the current request.'
+  fi
+  native_prerequisite_assess
+}
+
 native_result_execution_fields() {
   native_result_execution_status_fields
-  case ${native_run_outcome:-exited} in
-    timeout | failed | incomplete)
-      printf 'assessment-status: not-run\n'
-      printf 'assessment-interpretation: none\n'
-      ;;
-    *)
-      printf 'assessment-status: pass\n'
-      printf 'assessment-interpretation: limited-wording\n'
-      ;;
-  esac
+  native_result_fill_context_prerequisite
+  native_prerequisite_print_fields
+  printf 'assessment-status: not-run\n'
+  printf 'assessment-interpretation: none\n'
 }
 
 native_result_print_tool_identity() {
@@ -214,6 +230,9 @@ native_result_finalize_context() {
     printf 'artifact-observations: observations.txt\n'
     native_result_input_hash_line tests/dough-adr-awareness-context.sh
     native_result_input_hash_line tests/support/native-result-retain.sh
+    native_result_input_hash_line tests/support/native-prerequisite-gate.sh
+    native_result_input_hash_line tests/support/native-activation-decode.sh
+    native_result_input_hash_line tests/support/native-activation-path.sh
     native_result_input_hash_line tests/support/dough-adr-awareness-use.sh
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md

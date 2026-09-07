@@ -148,6 +148,7 @@ attempt=$(awk '/^result-path: / { sub(/^result-path: /, ""); path=$0 } END { if 
 grep -Fq 'execution-status: timeout' "${attempt}/record"
 grep -Fq 'execution-reason: deadline expired' "${attempt}/record"
 grep -Fq 'assessment-status: not-run' "${attempt}/record"
+grep -Fq 'prerequisite-result: fail' "${attempt}/record"
 if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
   echo 'FAIL: timeout was recorded as a wording pass.' >&2
   cat "${attempt}/record" >&2

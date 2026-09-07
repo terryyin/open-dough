@@ -85,6 +85,19 @@ emit_claude_partial() {
     '{message:{content:[{type:"tool_use",name:"Skill",input:{skill:"dough-adr-awareness"}}]}}'
 }
 
+emit_codex_expansion() {
+  if [[ -z ${workspace} ]]; then
+    workspace=${PWD}
+  fi
+  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
+  if [[ ! -f ${skill_path} ]]; then
+    printf '%s\n' '{"type":"item"}'
+    return 0
+  fi
+  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
+    '{type:"item",item:{path:$path,content:$content}}'
+}
+
 case ${stream_kind} in
   missing)
     write_codex_response
@@ -126,7 +139,7 @@ esac
 case ${host} in
   codex)
     write_codex_response
-    printf '%s\n' '{"type":"item"}'
+    emit_codex_expansion
     ;;
   cursor)
     emit_cursor_partial

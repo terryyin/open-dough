@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 # Retain combined delivery/updated-use stages as one unreviewed attempt.
 # Sourced by the selected journey helper after native-result-retain.sh.
-# shellcheck disable=SC2154 # Journey globals are assigned before finalize.
+# shellcheck disable=SC2034,SC2154 # Journey and prerequisite globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers prompt hashes.
+
+native_result_fill_journey_prerequisite() {
+  native_prerequisite_host=${native_case_host}
+  native_prerequisite_execution=${native_run_outcome:-exited}
+  native_prerequisite_stream=${use_transcript-}
+  native_prerequisite_response=${use_output-}
+  native_prerequisite_stream_artifact=use-events.jsonl
+  native_prerequisite_candidate=${delivery_fixture_source-}
+  native_prerequisite_installed_skill_path=
+  if [[ -n ${delivery_target-} && -n ${delivery_skill_root-} ]]; then
+    native_prerequisite_installed_skill_path="${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"
+  fi
+  native_prerequisite_installed_identity=${delivery_improvement-}
+  native_prerequisite_assess
+}
 
 native_result_journey_execution_fields() {
   native_result_execution_status_fields
+  native_result_fill_journey_prerequisite
+  native_prerequisite_print_fields
   printf 'assessment-status: not-run\n'
   printf 'assessment-interpretation: none\n'
 }
@@ -72,6 +89,9 @@ native_result_finalize_journey() {
     native_result_input_hash_line tests/support/dough-adr-awareness-updated-use.sh
     native_result_input_hash_line tests/support/native-result-retain.sh
     native_result_input_hash_line tests/support/native-result-retain-journey.sh
+    native_result_input_hash_line tests/support/native-prerequisite-gate.sh
+    native_result_input_hash_line tests/support/native-activation-decode.sh
+    native_result_input_hash_line tests/support/native-activation-path.sh
     native_result_input_hash_line tests/support/native-run-supervise.sh
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-update/SKILL.md

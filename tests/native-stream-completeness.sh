@@ -61,6 +61,8 @@ assert_not_wording_pass() {
     cat "${attempt}/record" >&2
     return 1
   fi
+  grep -Fq 'prerequisite-result: fail' "${attempt}/record"
+  grep -Fq 'assessment-status: not-run' "${attempt}/record"
 }
 
 run_selected_stream() {
@@ -112,8 +114,28 @@ assert_complete() {
   fi
   grep -Fq 'execution-status: completed' "${attempt}/record"
   grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
-  grep -Fq 'assessment-status: pass' "${attempt}/record"
-  grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"
+  grep -Fq 'assessment-status: not-run' "${attempt}/record"
+  grep -Fq 'assessment-interpretation: none' "${attempt}/record"
+  if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
+    echo "FAIL: complete ${host} stream was recorded as a wording pass." >&2
+    cat "${attempt}/record" >&2
+    return 1
+  fi
+  if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
+    echo "FAIL: complete ${host} stream used the success wording interpretation." >&2
+    cat "${attempt}/record" >&2
+    return 1
+  fi
+  grep -Fq 'prerequisite-reason:' "${attempt}/record"
+  grep -Fq 'prerequisite-evidence:' "${attempt}/record"
+  case ${host} in
+    claude)
+      grep -Fq 'prerequisite-result: inconclusive' "${attempt}/record"
+      ;;
+    *)
+      grep -Fq 'prerequisite-result: pass' "${attempt}/record"
+      ;;
+  esac
   [[ -s ${attempt}/events.jsonl ]]
   [[ -s ${attempt}/response.md ]]
 }

@@ -1,7 +1,7 @@
 # Assess intended behavior without requiring expected wording
 
-Status: planned.
-Order: **20 → 22 → 21**. Start after plan 22's reduced evidence contract is delivered.
+Status: in-progress. Slice 1 done 2026-09-07.
+Order: **20 → 22 → 21**. Plan 22's reduced evidence contract is delivered.
 
 ## Scope
 
@@ -51,17 +51,19 @@ adoption, old-plan migration, or releases. Story 3 owns native acceptance.
 ### 1. Gate assessment on execution and installed activation
 
 Type: Behavior
-Status: planned
+Status: done
 
-Add one shared prerequisite gate and the minimum host decoding it needs. Wire it
-into retained context and combined journey assessment. Report result, reason,
-and evidence references. Keep behavioral assessment separate from activation.
+Recorded proof: `tests/native-prerequisite-gate.sh` exercises shared success,
+execution failure, missing evidence, and wrong-copy once, plus per-host decoder
+forms from recorded JSONL. Context and journey retainers write
+`prerequisite-result` / `reason` / `evidence` and keep `assessment-status:
+not-run`. Complete execution is no longer a wording pass. Cursor successful
+`readToolCall` of the installed skill passes; a requested read does not. Codex
+recorded expansion of installed identity passes; a completion marker does not.
+Claude Skill request stays inconclusive.
 
-Proof: Test shared handling of successful prerequisites, execution failure,
-missing evidence, and wrong-copy activation once. For each tool, test a supported
-activation form and an unsupported/failed form at the decoder boundary. Use
-recorded evidence; if a supported form is unavailable, record that gap for Story
-3 and keep the result inconclusive. Do not launch a native session to fill it.
+Keep behavioral assessment separate from activation. Do not launch a native
+session to invent a Claude success form.
 
 ### 2. Replace wording checks in clear and conflicting ADR use
 
@@ -118,11 +120,20 @@ once and adapter evidence separately below. Do not claim native acceptance.
 
 | Platform | Cheap adapter proof | Native acceptance |
 | --- | --- | --- |
-| Codex | Pending leaf 1; historical expansion evidence is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
-| Cursor | Pending leaf 1; distinguish successful installed loading from a request. | Pending Story 3 applicability review and unresolved representative checks. |
-| Claude Code | Pending leaf 1; a Skill request alone is insufficient. | Pending Story 3 applicability review and unresolved representative checks. |
+| Codex | Leaf 1: recorded installed expansion vs marker-only. Historical live expansion is input, not new proof. | Pending Story 3 applicability review and unresolved representative checks. |
+| Cursor | Leaf 1: successful installed `readToolCall` vs requested read. | Pending Story 3 applicability review and unresolved representative checks. |
+| Claude Code | Leaf 1: Skill request is insufficient and stays inconclusive. No supported recorded activation form. | Pending Story 3 native activation observation; a Skill request is not that evidence. |
 
 Story 3 must record per-tool discovery, invocation/application, intended behavior,
 and affected install/update/coexistence evidence or justified reuse. This plan's
 completion closes test migration only. Missing vendor observations do not justify
 expanding the harness before native qualification.
+Do not write `.planning/STATE.md` as resume state.
+
+## Learnings
+
+- Claude Code's only recorded activation form is a Skill request. That stays
+  inconclusive; do not invent a vendor success event. Story 3 still needs a
+  native activation observation.
+- Complete execution is a prerequisite, not a wording pass. Behavior remains
+  `assessment-status: not-run` until later leaves.
