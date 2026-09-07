@@ -2,33 +2,25 @@
 
 ## Near-future direction
 
-Open Dough self-adoption and the disposable post-cleanup proof are complete.
-Next, use released ADR guidance on one real Donut task in one tool, then extract
-story refinement before finishing the wider migration. Let that actual use
-inform further adoption; keep generic migration work tied to observed need.
+Open Dough self-adoption and the first live Donut ADR assessment are complete.
+Next, extract story refinement and use it on one real backlog story, then let
+that actual use inform remaining Donut ADR adoption. Keep generic migration
+work tied to observed need.
 
 ## Queue
 
-1. [Use released ADR guidance on one real Donut task](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption) — SEED-006 Story 2; one tool, original retained; awaiting story review (ineligible public `v0.2.0` and selected Donut login task gone)
-2. [Refine one real backlog story with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004 Story 6
-3. [Prepare Donut's remaining ADR integrations](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-remaining-donut-adr-integrations) — SEED-006 Story 2b; use first-task learning, original retained
-4. [Finish Donut's ADR-guidance replacement](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3; only after all affected tools are ready
-5. [Decompose product work with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004
-6. [Keep Donut's ADR adoption intact during a newer-release update](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4; pull only when a real newer release is available and wanted
+1. [Refine one real backlog story with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004 Story 6
+2. [Prepare Donut's remaining ADR integrations](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-remaining-donut-adr-integrations) — SEED-006 Story 2b
+3. [Finish Donut's ADR-guidance replacement](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3
+4. [Decompose product work with an extracted Open Dough skill](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004
+5. [Keep Donut's ADR adoption intact during a newer-release update](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4
 
 ## Next-item readiness
 
-The missing proof is useful application to an existing real Donut task; neither
-the disposable fixture nor Open Dough self-use establishes it. Story 2 execution
-stopped for review on 2026-09-07: public latest remains `v0.2.0` without the
-required replacement and context-fix behavior, and Donut's selected
-login-recovery plan/seed are gone. Do not install into live Donut or substitute
-another task from this plan. The owner still needs to supply the next release
-version through the existing process and select a replacement real task before
-slices 2-3 can start. Local `v0.2.0` fixture tags and uncommitted working source
-do not count. Completion still requires a useful task assessment and its
-concrete effect on the task's next step, not installation or an invocation
-marker alone.
+Story 2 is done: released `dough-adr-awareness` in Codex produced a reviewed
+conclusion on Donut SEED-009 Story 5 / Plan 045. Remaining Donut tools stay in
+Story 2b; cleanup stays in Story 3. The next queued story is extracting
+story-refinement and using it on one real Open Dough backlog story.
 
 ## Deferred — promote on observed need
 
@@ -46,15 +38,13 @@ extraction, then remaining readiness and separately authorized cleanup. Removal
 is not a prerequisite for learning. If the first task shows no benefit, revisit
 the remaining adoption priority rather than treating migration as inevitable.
 
-Plan 015 now covers only the first real task and has completed its planning
-review; Story 2b has no execution plan yet. Plans 016–017 still need just-in-time
-planning review under their revised scopes.
-No-op updates remain valid behavior but cannot complete the newer-update story.
-These backlog changes authorize no release or live Donut work in this pass.
+Plan 015 completed the first real Donut task in Codex. Story 2b has no
+execution plan yet. Plans 016–017 still need just-in-time planning review
+under their revised scopes.
 
 ## Recently done
 
-- [Prove a completed Codex ADR replacement is usable](seeds/SEED-006-extend-adr-guidance-adoption.md#prove-codex-use-after-replacement) — completed 2026-09-07; explicit and automatic use work after cleanup. The narrow shared-skill context clarification passed native positive/real-disagreement checks in all three tools; source fix verified but not released. Spent Plan 014 removed; [acceptance evidence and learning](quick/014-prove-codex-adr-use/EVIDENCE.md) retained. No Donut migration began.
+- [Use released ADR guidance on one real Donut task](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption) — SEED-006 Story 2
 
 - [Adopt and reuse released guidance in Open Dough](seeds/SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater) — completed 2026-09-06; Codex, Cursor, and Claude Code independently adopted public v0.2.0, used the installed ADR-awareness against Open Dough's current Accepted decisions, and proved current-version updates make no writes; the no-op checks were repeated after main advanced the local updater and preserved that newer project-local behavior.
 

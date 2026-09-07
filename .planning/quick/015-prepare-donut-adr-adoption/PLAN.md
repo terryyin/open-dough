@@ -3,16 +3,9 @@
 ## Source and readiness
 
 Source: [SEED-006 Story 2](../../seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption).
-Status: execution resumed 2026-09-07 under borrowed Doughnut execute-plan;
-slice 1's eligibility decision remains done and ineligible. The story remains
-awaiting review because the selected Donut task was completed and removed.
-Slices 2-3 were not started.
-Readiness: blocked independently by the missing qualifying public release and
-the stale selected-task boundary. A same-day resume recheck found the same
-public identity and a still-absent Plan 047/SEED-014. The owner has not
-supplied the next release version or selected a replacement real task.
-Publication and task reselection are separate decisions outside this execution
-attempt.
+Status: completed 2026-09-07 against Donut SEED-009 Story 5 / Plan 045 using
+public `v0.2.1` in native Codex. [Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md)
+records release identity, installation, native use, and coexistence.
 
 The prior three-tool plan was reduced to a scope record; no completed slices
 belong to this story. This replaces that record, retaining the one-task boundary.
@@ -22,26 +15,29 @@ belong to this story. This replaces that record, retaining the one-task boundary
 The Donut maintainer receives a supported answer from released
 `dough-adr-awareness` in native Codex to this question:
 
-> Does the planned self-contained server response for an oversized login
-> request, including its homepage link, respect the current routing boundary
-> and failure-handling guidance? Which constraint confirms the approach, calls
-> for a correction, or requires a human decision before recovery work proceeds?
+> Does the planned isolated single-note deletion — complete-diff isolation
+> before mutation, soft-delete that leaves authored links, keeping the
+> notebook or folder container without manufacturing a README, and rolling
+> back on publication failure — respect current notebook-format and
+> failure-handling guidance? Which constraint confirms the approach, calls
+> for a correction, or requires a human decision before deletion work proceeds?
 
-Selected task: Donut SEED-014 Story 1, “Return to Donut without browser history
-blocking login or an unexplained error.” Read its existing Plan 047 and record
-one concise reviewed conclusion there. A supported confirmation is useful;
-changing the design is not required. A real task/ADR conflict may produce a
-precise human decision as the result; an unresolved delivery or skill/context
-gap leaves this adoption incomplete.
+Selected task: Donut SEED-009 Story 5, “Delete a note locally without
+transferring its private data,” currently #1 on Donut's product backlog. Read
+its existing Plan 045 and record one concise reviewed conclusion there. A
+supported confirmation is useful; changing the design is not required. A real
+task/ADR conflict may produce a precise human decision as the result; an
+unresolved delivery or skill/context gap leaves this adoption incomplete.
 
 Include inspection of the latest public release, installation/update in the
 Codex root, only required existing adopter context, explicit fresh native use,
 and evidence of preserved guidance and unrelated work.
 
-Exclude implementing or replanning login, assessing the entire search-history
-migration, other tasks/tools, caller repair, original removal, automatic-use
-proof, shared-source changes, generic migration/recovery, publication, and new
-release or test infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
+Exclude implementing, verifying, or replanning deletion, repairing Donut
+fixture deadlocks, later SEED-009 stories, other tasks/tools, caller repair,
+original removal, automatic-use proof, shared-source changes, generic
+migration/recovery, further publication, and new release or test
+infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
 
 ## Execution context and current decisions
 
@@ -53,14 +49,13 @@ release or test infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
   through [the existing installation procedure](../../../docs/installation-and-updates.md).
   Reuse authorization for the bounded story; do not run the updater's optional
   equivalence/replacement/cleanup flows.
-- Read-only public tag check on 2026-09-07 found latest `v0.2.0`, annotated tag
-  `426acffe15d6227098d1282a3115690d7569cdf4`, peeled commit
-  `676188a66504f7dc751e03311f9be5245757b24a`. Inspection of those exact committed
-  objects found the old unconditional context-list preamble and no recognition
-  sections for retained context/caller replacement. This release does not meet
-  the story prerequisite. The local working source and local fixture tags are
-  not substitutes. A new independently fetched release must include Plan 013's
-  replacement behavior and [Story 1's context fix](../014-prove-codex-adr-use/EVIDENCE.md).
+- Read-only public tag check on 2026-09-07 originally found latest `v0.2.0`,
+  which lacked Plan 013 replacement sections and Plan 014 request-scoped
+  context behavior. Public `v0.2.1` is now published: annotated tag
+  `1ed5a78cdd748e75f2cb25a39e1c0efa7d46d60e`, peeled commit
+  `22b65e63090836b5441c8b4c9a4b3e8afd271d50`. Slice 1 must independently fetch
+  and inspect that identity before any installer run. Local working source and
+  fixture tags remain non-substitutes.
 - On inspection, Donut had neither `.agents/skills/dough-update/` nor
   `.agents/skills/dough-adr-awareness/`; the expected path is fresh installation.
   Its original `.agents/skills/adr-awareness/SKILL.md` remains present.
@@ -73,20 +68,21 @@ release or test infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
   no context edit is currently known to be needed. If one original-only fact
   is essential, retain only that existing fact in the local architecture rule,
   with provenance and no copied behavioral workflow or invented policy.
-- Donut inputs: `.planning/seeds/SEED-014-reliable-login-with-browser-history.md`,
-  `.planning/quick/047-reliable-login-with-browser-history/PLAN.md`, and
-  `docs/adrs/README.md`. ADR 0005, **Web routes**, and ADR 0006, **Failure handling**,
-  are current relevant starting points; let fresh use inspect status/successors
-  and choose any other actually relevant decision. Do not prescribe a verdict
-  or turn this into implementation feasibility testing.
-- Donut already has an unrelated edit to `e2e_test/step_definitions/user.ts`.
-  Open Dough has concurrent source, tests, and planning edits. Snapshot current
-  state, including relevant untracked paths and symlink targets, before writes;
-  preserve those edits. Compare changes with that baseline, not a clean HEAD.
-  If concurrent edits overlap, reconcile ownership; never reset either checkout.
+- Donut inputs: `.planning/seeds/SEED-009-git-backed-local-notebook-workflow.md`,
+  `.planning/quick/045-publish-local-note-deletion/PLAN.md`, and
+  `docs/adrs/README.md`. ADR 0004, **OKF-compatible notebook Markdown**, and
+  ADR 0006, **Failure handling**, are current relevant starting points; ADR 0002
+  remains Proposed. Let fresh use inspect status/successors and choose any other
+  actually relevant decision. Do not prescribe a verdict or turn this into
+  implementation or deadlock-repair testing.
+- Donut HEAD `151b81bd08` was clean at retarget. Open Dough may have concurrent
+  planning edits. Snapshot current state, including relevant untracked paths and
+  symlink targets, before writes; preserve those edits. Compare changes with
+  that baseline, not a clean HEAD. If concurrent edits overlap, reconcile
+  ownership; never reset either checkout.
 - Allowed Donut writes: the three public payload files and Codex updater
   `VERSION`; if actually needed, existing facts added to the architecture rule;
-  and one assessment entry in Plan 047. No other tool root, original skill,
+  and one assessment entry in Plan 045. No other tool root, original skill,
   caller/link, ADR, application code, or home guidance may change.
 - Open Dough [ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md) preserves
   human decision ownership. [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
@@ -102,7 +98,7 @@ release or test infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
 | Codex receives the declared release with usable request context | 2 | Three payload byte comparisons plus installed version; required facts reachable without original skill; exact allowed-path diff |
 | Original, links/callers, ADRs, other tools, unrelated and concurrent work survive | 1 baseline; 2 and 3 comparison | Relevant hashes/symlink targets and tracked/untracked state match except the named allowed writes; report concurrent changes separately |
 | Fresh native discovery/invocation uses the installed shared skill independently | 3 | Native catalog/expansion or successful skill read plus skill-specific behavior; transcript contains no load of original contents |
-| Useful response/route/failure assessment, including supported confirmation | 3 | Current ADR citations, reasoning against the actual recovery plan, reviewed conclusion and concrete next step in Plan 047 |
+| Useful deletion-plan assessment, including supported confirmation | 3 | Current ADR citations, reasoning against the actual deletion plan, reviewed conclusion and concrete next step in Plan 045 |
 | Real task/ADR conflict remains human-owned | 3, only if encountered | Specific incompatible choice and human decision recorded; no exception/status invented and no dependent implementation |
 | Missing context, ambiguous status, or ineffective skill leaves acceptance pending | 2 or 3 at observation | Exact gap recorded, no completion claim or original-skill fallback; no speculative repair |
 | Release identity, exact changes, evidence and temporary cleanup are recorded | Each owning slice | This plan contains durable observations; owned temporary files cleaned on success or stop, with evidence retained first |
@@ -111,7 +107,7 @@ release or test infrastructure. Story 2b owns other tools; Story 3 owns cleanup.
 
 ### 1. Establish whether the public release can support this live assessment
 Type: Behavior
-Status: done — 2026-09-07 eligibility decision was ineligible; no target writes
+Status: done — 2026-09-07; public `v0.2.1` eligible, Plan 045 still live, no Donut writes
 Proof: One read-only release-and-target eligibility decision, recorded here.
 
 Behavior: A newer public release is available and the selected task remains
@@ -123,9 +119,9 @@ Use Git to select latest, fetch its peeled commit into an owned temporary
 checkout, and inspect the installer/helper call chain, all three public sources,
 VERSION and changelog before any fetched code runs. Follow the existing staged
 procedure; record source/tag/commit and verify the two required behaviors.
-Do not assume a version number alone proves either behavior. Recheck Plan 047,
+Do not assume a version number alone proves either behavior. Recheck Plan 045,
 selected native roots and existing context; record the current preservation
-baseline. Do not modify Donut or manufacture the missing release.
+baseline. Do not modify Donut or manufacture a substitute release.
 
 Stop-safe: an unsuitable release or stale task leaves the target unchanged.
 On a gap, retain the finding here and remove the owned checkout. On success,
@@ -136,7 +132,7 @@ is an external-wait exception. Broad dependency repair is excluded.
 
 ### 2. Make the inspected guidance available for the next Codex assessment
 Type: Structure
-Status: planned — depends on slice 1 eligibility
+Status: done — 2026-09-07; Codex `v0.2.1` installed at live Donut; original preserved
 Proof: Installed-payload identity and preservation check at the live target.
 
 Internal change: Use the inspected installer for the fresh Codex installation,
@@ -153,21 +149,21 @@ Record exact changes and compare protected paths/state with slice 1's baseline.
 Clean the owned release checkout after comparisons on success or failure.
 
 Unchanged external behavior: the original remains effective for all existing
-callers/tools; ADR policy and login behavior are unchanged. An incomplete
+callers/tools; ADR policy and deletion publication behavior are unchanged. An incomplete
 installation remains explicitly incomplete; no success/rollback claim.
 Immediately enables: slice 3's independent explicit native use on the real task.
 Sizing: about five minutes including comparison, evidence, and cleanup. The
 inspected installer is reused; no product or harness implementation is needed.
 
-### 3. Obtain and apply the ADR assessment to the recovery task's next step
+### 3. Obtain and apply the ADR assessment to the deletion task's next step
 Type: Behavior
-Status: planned — depends on slice 2
+Status: done — 2026-09-07; native Codex assessment recorded in Plan 045
 Proof: One fresh native assessment, reviewed against current inputs and recorded
 in the real task's existing work record, with preservation verified.
 
 Behavior: The inspected shared skill is installed with sufficient request
 context → explicitly invoke it in fresh native Codex on the selected question
-→ Plan 047 contains a supported conclusion and actionable next recovery step.
+→ Plan 045 contains a supported conclusion and actionable next deletion step.
 
 Reuse `tests/support/native-codex.sh` from Open Dough as a temporary read-only
 native runner; do not run the disposable adoption scripts against the live repo.
@@ -181,14 +177,14 @@ The prompt explicitly invokes `$dough-adr-awareness`, gives the selected questio
 and Donut story/plan paths, asks for relevant current ADR citations and the
 concrete next step, and limits work to read-only assessment. Instruct it to use
 the installed shared skill, not load the original `adr-awareness` contents,
-implement login, or propose/approve policy. Do not paste the shared or original
-workflow or expected conclusion into the prompt. Existing links stay intact;
-explicit selection in this request supplies the skill choice.
+implement deletion, repair fixtures, or propose/approve policy. Do not paste the
+shared or original workflow or expected conclusion into the prompt. Existing
+links stay intact; explicit selection in this request supplies the skill choice.
 
 Review discovery/expansion and actual behavior, including absence of original
 loads; a separate shell read is not required if native expansion proves loading.
-Review the answer against Plan 047 and cited current records. If supported,
-append one concise assessment entry to Plan 047 with source release, citations,
+Review the answer against Plan 045 and cited current records. If supported,
+append one concise assessment entry to Plan 045 with source release, citations,
 conclusion and next step; preserve all existing leaves and readiness state.
 Record decisive native observations and release/preservation evidence here.
 A concrete human conflict decision is a valid assessment result; do not execute
@@ -198,7 +194,7 @@ pending and revisits further adoption priority, without repeat-until-pass prompt
 Check that native use made no Donut writes and the coordinator's final diff
 contains only the assessment entry beyond slice 2's writes. Preserve raw output
 until decisive evidence is durably recorded, then clean the owned proof directory
-on success or failure. No new test suite, app startup, or login implementation.
+on success or failure. No new test suite, app startup, or deletion implementation.
 Sizing: about five minutes of active assessment review, recording and cleanup;
 one native model invocation may take longer as an explicit external wait.
 Review/comparison work itself is not exempt from the active-work limit.
@@ -226,7 +222,7 @@ All final promises above have an owning slice; none is satisfied by this plan.
 
 | Platform | Reusable evidence where behavior/delivery is unchanged | New live evidence |
 | --- | --- | --- |
-| Codex | Story 1's explicit/automatic discovery/use and context checks; unchanged installation/update coverage linked from its evidence record | Pending slices 1–3 for this public release and real Donut task |
+| Codex | Story 1's explicit/automatic discovery/use and context checks; unchanged installation/update coverage linked from its evidence record | 2026-09-07 live Donut: public `v0.2.1` installed for Codex; explicit `$dough-adr-awareness` produced `## ADR CHECK COMPLETE`; Plan 045 records the reviewed conclusion. Original skill was not loaded. |
 | Cursor | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending Story 2b; not executed or inferred here |
 | Claude Code | Story 1's independent native discovery/invocation, context and coexistence proof; linked delivery evidence | Pending Story 2b; not executed or inferred here |
 
@@ -234,16 +230,9 @@ Any shared rule/skill change invalidating reuse needs separately scoped native
 acceptance for discovery, invocation/application, behavior, affected delivery,
 and coexistence in all three tools. This plan adds no such change.
 
-Open prerequisite: which maintainer-supplied next release will publish the
-verified replacement behavior and context fix? Latest public v0.2.0 lacks both.
-No scope or task-selection question remains. Do not launch the conditional
-execution task while that release prerequisite is unresolved.
-
-Once resolved, create a new task with this plan and its home-story links as
-context, not a fork of this conversation. Use the current Open Dough working
-state so the uncommitted plan and retained evidence are visible; keep the live
-Donut path explicit. Recheck release and target drift in slice 1. Execute only
-this plan, preserving both repositories' existing work and excluding publication.
+All slices done. Public `v0.2.1` and Donut SEED-009 Story 5 / Plan 045 were
+the selected release and live task. Native Codex assessment is recorded in
+Plan 045.
 
 ## Learnings
 
@@ -279,3 +268,38 @@ this plan, preserving both repositories' existing work and excluding publication
   login recovery remains in Donut's recently done backlog, and Codex Open Dough
   files remain uninstalled. Open Dough's current-host CI mailbox is unavailable
   in this checkout, so this resume promised no CI observation.
+- After that stop, `v0.2.1` was finalized and pushed (`22b65e63090836b5441c8b4c9a4b3e8afd271d50`).
+  Donut's product-backlog #1 is SEED-009 Story 5 / Plan 045; Story 2 and this
+  plan were retargeted to that live task. Slice 1 must inspect the new public
+  identity independently.
+- Slice 1 independently selected public `v0.2.1`, annotated tag
+  `1ed5a78cdd748e75f2cb25a39e1c0efa7d46d60e`, peeled commit
+  `22b65e63090836b5441c8b4c9a4b3e8afd271d50`. Owned checkout
+  `/private/tmp/open-dough-015.Ski5Bn/release` matches that HEAD. Inspected
+  installer/helper chain, three payloads, `VERSION` `0.2.1`, and changelog
+  `## 0.2.1 - 2026-09-07`. Skill SHA-256
+  `ff023b773bf9c5fc5f0f7cf09259df2b96044d28de93f24820820457cc62cd4e` has the
+  request-scoped preamble; recognition contains Assessment / Retain context /
+  Switch callers; updater defers to those sections. No fetched installer ran.
+  Live Donut remains clean `151b81bd08` with Plan 045 and SEED-009 present,
+  Codex Open Dough files absent, original skill
+  `3717b94b62a9bee2810805f910180e6bb648ef382c8e5c8557e81ce00e06cf75`,
+  architecture-rule link unchanged, ADR 0004/0006 Accepted and ADR 0002
+  Proposed. Checkout retained for slice 2.
+- Slice 2 rechecked `resolve-url` still returned `v0.2.1` /
+  `22b65e63090836b5441c8b4c9a4b3e8afd271d50` / `0.2.1`, then ran the inspected
+  `install.sh --platform codex` with no `--force`. Installed bytes match the
+  snapshot; recorded version `0.2.1`. Exact Donut writes are the four allowed
+  Codex files. Original skill and architecture-rule hashes are unchanged.
+  No architecture-rule edit was required. Owned release checkout will be
+  removed after this record.
+- Slice 3 ran `codex-cli 0.144.1` via `tests/support/native-codex.sh` against
+  live Donut with `$dough-adr-awareness`. The answer cited Accepted ADR 0004
+  and ADR 0006, treated ADR 0002 as Proposed, emitted `## ADR CHECK COMPLETE`,
+  and named the next Plan 045 step as the existing fixture-deadlock scope
+  decision rather than further deletion implementation. Commands read Plan 045,
+  Story 5, the ADR index, and relevant records; they did not read
+  `.agents/skills/adr-awareness/SKILL.md`. Donut status before and after native
+  use was identical (only the four Codex install files). The reviewed
+  conclusion was appended to Plan 045. Proof directory
+  `/tmp/open-dough-015-proof.KTBOGR` is removed after this record.

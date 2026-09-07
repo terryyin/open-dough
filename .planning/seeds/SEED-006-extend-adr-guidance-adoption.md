@@ -53,89 +53,90 @@ Manual repair is an acceptable fallback for failure and ambiguity cases.
 
 ### 2. Use released ADR guidance on one real Donut task
 
-**Status:** Awaiting story review after 2026-09-07 execution. Slice 1 of
-[Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md) completed an
-ineligible public-release decision; slices 2-3 did not start. The selected
-Donut login-recovery task (SEED-014 Story 1 / Plan 047) was completed and
-removed, so substituting another task would change this story's boundary.
-Public latest remains `v0.2.0`, which still lacks Plan 013 replacement
-behavior and Plan 014's request-scoped context fix. Execution stays stopped
-until the owner supplies the next release version and a replacement real task.
+**Status:** Completed 2026-09-07. Public `v0.2.1` was installed for Codex on
+live Donut. Native `$dough-adr-awareness` assessed Plan 045: Accepted ADR 0004
+and ADR 0006 confirm the isolated-deletion approach; ADR 0002 stays Proposed;
+Plan 045's next step remains the existing fixture-deadlock scope decision.
+[Plan 015](../quick/015-prepare-donut-adr-adoption/PLAN.md) records release
+identity, native use, exact Codex writes, and preservation.
 
 #### Goal
 
 As the Donut maintainer, use released `dough-adr-awareness` in Codex to establish
-whether the planned login-recovery response fits Donut's current ADRs, so the
-real task can proceed with a supported approach or a precise decision to resolve.
-Learn whether shared guidance helps ordinary work before investing in migration.
+whether the planned isolated note-deletion publication fits Donut's current
+ADRs, so the real task can proceed with a supported approach or a precise
+decision to resolve. Learn whether shared guidance helps ordinary work before
+investing in migration.
 
 #### Scope
 
-- **Selected task:** Donut [SEED-014 Story 1 — Return to Donut without browser
-  history blocking login or an unexplained error](../../../doughnut/.planning/seeds/SEED-014-reliable-login-with-browser-history.md#story-1).
-  Its existing [Plan 047](../../../doughnut/.planning/quick/047-reliable-login-with-browser-history/PLAN.md)
+- **Selected task:** Donut [SEED-009 Story 5 — Delete a note locally without
+  transferring its private data](../../../doughnut/.planning/seeds/SEED-009-git-backed-local-notebook-workflow.md#story-5),
+  currently #1 on Donut's product backlog. Its existing
+  [Plan 045](../../../doughnut/.planning/quick/045-publish-local-note-deletion/PLAN.md)
   is assessment input and the destination for the useful conclusion.
-- **One question:** Does the planned self-contained server response for an
-  oversized login request, including its homepage link, respect the current
-  routing boundary and failure-handling guidance? Which relevant constraint
-  confirms the approach, calls for a correction, or requires a human decision
-  before the recovery work proceeds?
+- **One question:** Does the planned isolated single-note deletion — complete-diff
+  isolation before mutation, soft-delete that leaves authored links, keeping the
+  notebook or folder container without manufacturing a README, and rolling back
+  on publication failure — respect current notebook-format and failure-handling
+  guidance? Which relevant constraint confirms the approach, calls for a
+  correction, or requires a human decision before deletion work proceeds?
 - Reassess only the live task, relevant ADRs, required local context, and paths
   affected by the selected Codex integration. Install/update that integration
   from an independently inspected public release, then explicitly invoke its
   installed shared skill in a fresh native Codex session. Retain only context
   needed for this question without creating architectural policy.
-- The existing plan already cites Donut's Accepted ADR 0005, **Web routes**,
-  and ADR 0006, **Failure handling**. Recheck current status and relevant
-  decisions at execution. A supported confirmation is useful; a design change
-  is not required to demonstrate value.
-- Record a concise, reviewed conclusion in Plan 047: what is confirmed or needs
-  correction, why, and its concrete effect on the next recovery step. Record
+- Plan 045 already cites Donut's Accepted ADR 0004, **OKF-compatible notebook
+  Markdown**, and ADR 0006, **Failure handling**, and treats ADR 0002 as
+  Proposed. Recheck current status and relevant decisions at execution. A
+  supported confirmation is useful; a design change is not required to
+  demonstrate value.
+- Record a concise, reviewed conclusion in Plan 045: what is confirmed or needs
+  correction, why, and its concrete effect on the next deletion step. Record
   release/tag/commit, native discovery and invocation, exact changed paths,
   and preservation evidence in Open Dough's Plan 015.
 - Preserve the original skill, discovery links, callers, other-tool integrations,
   ADR policies/statuses, and unrelated concurrent work. Assessment must use the
   shared skill without loading the original alongside it. A small assessment
-  entry is the only login-task change in this story.
+  entry is the only deletion-task change in this story.
 
-**Excluded:** Implementing or replanning the login story; assessing its entire
-search-history migration; auditing other Donut work; retargeting callers;
-removing the original; automatic-use proof; other-tool preparation; generic
-migration or recovery; new shared-skill behavior; release publication or
-infrastructure. Remaining tools stay in Story 2b, cleanup in Story 3, and
-later-update preservation in Story 4.
+**Excluded:** Implementing, verifying, or replanning the deletion story;
+repairing Donut fixture deadlocks; assessing later SEED-009 stories; auditing
+other Donut work; retargeting callers; removing the original; automatic-use
+proof; other-tool preparation; generic migration or recovery; new shared-skill
+behavior; further release publication or infrastructure. Remaining tools stay
+in Story 2b, cleanup in Story 3, and later-update preservation in Story 4.
 
 #### Key examples
 
 | Pre-condition | Trigger | Observable result |
 | --- | --- | --- |
-| The inspected release is installed for Codex and the recovery plan is current | Explicitly use its shared ADR skill on the selected question | Advice cites current relevant decisions and explains whether the response, homepage link, and failure visibility fit them. Plan 047 records the supported approach and next step; an ADR list or invocation marker alone is insufficient. |
-| The existing recovery approach already fits the ADRs | Review the assessment against the plan and records | Record why it can proceed and which constraints the next step must preserve. No unnecessary design change or implementation is added to prove usefulness. |
-| A real task choice conflicts with an unambiguous Accepted ADR | Assess that choice | Cite the incompatible choice and record the specific human decision needed before dependent recovery work. Do not resolve the decision or change the ADR on the human's behalf. |
+| The inspected release is installed for Codex and the deletion plan is current | Explicitly use its shared ADR skill on the selected question | Advice cites current relevant decisions and explains whether isolation, soft-delete, container preservation, and failure rollback fit them. Plan 045 records the supported approach and next step; an ADR list or invocation marker alone is insufficient. |
+| The existing deletion approach already fits the ADRs | Review the assessment against the plan and records | Record why it can proceed and which constraints the next step must preserve. No unnecessary design change or implementation is added to prove usefulness. |
+| A real task choice conflicts with an unambiguous Accepted ADR | Assess that choice | Cite the incompatible choice and record the specific human decision needed before dependent deletion work. Do not resolve the decision or change the ADR on the human's behalf. |
 | The release is unavailable, required context/status is unresolved, or the shared skill cannot work independently | Attempt the affected preparation or assessment | Preserve effective guidance, record the precise gap, and leave acceptance pending. Do not substitute a fixture, load the original to obtain success, invent policy, or expand into a repair project. |
 
 #### Readiness and acceptance
 
-- **Prerequisite:** Completed Story 1 and an inspected public release containing
-  Plan 013's verified replacement behavior and Story 1's request-scoped context
-  fix. Publication remains pending in the existing records; local fixture tags
-  do not count. The maintainer supplies the version through the existing release
-  process. Publication is a separate prerequisite, not an adoption deliverable.
+- **Prerequisite:** Completed Story 1 and inspected public `v0.2.1`, which
+  contains Plan 013's verified replacement behavior and Story 1's
+  request-scoped context fix. Local fixture tags still do not count.
 - **Done:** Independent native Codex use produces a reviewed answer to the
-  selected question in Plan 047; Plan 015 records release identity, native
+  selected question in Plan 045; Plan 015 records release identity, native
   discovery/invocation, exact changes, and coexistence. A concrete task/ADR
   decision can be a useful result; an unresolved delivery or skill/context gap
-  cannot. No live acceptance evidence was produced by this refinement.
+  cannot.
 - **Stop / learn:** Record ineffective advice or a blocking gap and reconsider
   remaining adoption priority. Do not add a second task, another tool, or a
   shared-source fix to make this story pass. If the task has moved on, revisit
-  selection before dependent planning rather than assess a stale plan.
+  selection with Donut's product backlog before dependent planning rather than
+  assess a stale plan.
 - **Effort hypothesis:** S–M, medium confidence for one installation-to-assessment
-  pass after release availability; publication waits and gap repairs excluded.
+  pass against the published release; gap repairs excluded.
 
 | Platform | Prior evidence reusable only where unchanged | Pending live evidence |
 | --- | --- | --- |
-| Codex | Story 1's native discovery, explicit/automatic use, context behavior, coexistence, and linked unchanged delivery coverage | Selected-release installation/update, discovery, explicit use, useful login assessment, and coexistence in this story |
+| Codex | Story 1's native discovery, explicit/automatic use, context behavior, coexistence, and linked unchanged delivery coverage | Selected-release installation/update, discovery, explicit use, useful deletion-plan assessment, and coexistence in this story |
 | Cursor | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut readiness in Story 2b; no inference from Codex |
 | Claude Code | Story 1's independent native discovery/invocation, context behavior, coexistence, and linked unchanged delivery coverage | Donut readiness in Story 2b; no inference from Codex |
 
