@@ -15,8 +15,9 @@ delivery_baseline_platforms=(codex cursor claude)
 
 delivery_check_fixture
 grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "$0"
+delivery_parse_native_case_args "$@"
 
-if [[ ${1:-} != '--native' ]]; then
+if [[ ${native_case_mode} == 'default' ]]; then
   delivery_prepare_fixture
   delivery_assert_legacy_install
   delivery_capture_legacy_state

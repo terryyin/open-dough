@@ -25,6 +25,27 @@ delivery_update_version=0.2.2
 # shellcheck source=tests/support/dough-adr-awareness-release-transition.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/dough-adr-awareness-release-transition.sh"
+# shellcheck source=tests/support/native-cases.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-cases.sh"
+
+delivery_parse_native_case_args() {
+  native_case_entry="tests/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
+  native_case_parse --wrapper delivery --host "${delivery_platform}" "$@"
+  case ${native_case_mode} in
+    list)
+      native_case_print_listing
+      exit 0
+      ;;
+    native-selected)
+      native_case_reject_unlaunched_selected
+      ;;
+    default | native-full) ;;
+    *)
+      native_case_fail "internal error: unexpected mode ${native_case_mode}"
+      ;;
+  esac
+}
 
 delivery_snapshot() {
   local root=$1

@@ -1,7 +1,8 @@
 # Run one needed native check without replaying or losing the others
 
-Status: planned; refinement recommended for leaves 3 and 6–8. No implementation
-or native execution is authorized by this planning artifact.
+Status: executing; slice 1 done. Refinement remains recommended for leaves 3
+and 6–8 before those slices. No `--native` run is part of this plan's
+verification.
 
 ## Source
 
@@ -135,7 +136,7 @@ or speculative Structure slice. Each proof is credential-free.
 
 ### 1. Inspect the available check before spending a native call
 Type: Behavior
-Status: planned
+Status: done
 Proof: Selection tests list the fixed inventory and dependencies for all three
 hosts; installed sentinel agent commands record zero calls. Invalid input exits
 nonzero before fixture creation. Existing default checks still pass.
@@ -151,8 +152,10 @@ Type: Behavior
 Status: planned
 Proof: Invoke each existing host/scenario path with a successful substitute;
 check only the selected session ran, scratch is gone, and record plus required
-artifacts remain readable. A second attempt gets a distinct path. An unwritable
-result destination launches nothing. Check Cursor Agent runtime identification.
+artifacts remain readable under `DIR/<host>/<case>/<attempt-id>/` so listing
+reports them as unreviewed prior-evidence. A second attempt gets a distinct
+path. An unwritable result destination launches nothing. Check Cursor Agent
+runtime identification.
 
 Behavior: Selected context case and writable result destination → run the case
 → receive a durable, identified attempt usable after cleanup. Listing can now
@@ -291,9 +294,19 @@ authorize release of affected behavior.
 
 ## Learnings and readiness
 
-No implementation learning yet. Refinement is complete at story level.
-**Refinement recommended: leaves 3 and 6–8**, because process ownership and the
-first delivery integration/stream migrations have plausible paths beyond the
-borrowed skill's ten-minute limit. Leaf sizing is an estimate, not an execution
-guarantee. No extra native feasibility run is justified by current source
-inspection. A later leaf refinement stays inside this story and this PLAN.
+Slice 1: listing and invalid selection are shared in `tests/support/native-cases.sh`
+plus `tests/support/native-case-inventory.sh`. Exact flags are in `tests/README.md`
+(`--list`, `--results-dir DIR`, `--case CASE`). Listing is read-only, prints
+unreviewed prior-evidence under `DIR/<host>/<case>/<attempt-id>/` when present,
+and never certifies reuse. Focused proof: `bash tests/native-case-selection.sh`.
+Selected delivery `--case` is recognized and rejected before setup so it cannot
+fall through to the full `--native` journey; leaves 6–8 replace that interim.
+Open Dough has no Donut execute-plan CI mailbox; this execution does not promise
+CI observation.
+
+Refinement is complete at story level. **Refinement recommended: leaves 3 and
+6–8**, because process ownership and the first delivery integration/stream
+migrations have plausible paths beyond the borrowed skill's ten-minute limit.
+Leaf sizing is an estimate, not an execution guarantee. No extra native
+feasibility run is justified by current source inspection. A later leaf
+refinement stays inside this story and this PLAN.

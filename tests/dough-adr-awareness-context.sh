@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091 # Shared helpers are linted separately.
+# shellcheck disable=SC2034,SC2154 # native_case_* globals are shared with native-cases.sh.
 # shellcheck disable=SC2312 # pipefail protects snapshot/digest pipelines.
 set -Eeuo pipefail
 
@@ -10,11 +11,14 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
+# shellcheck source=tests/support/native-cases.sh
+source "${source_dir}/tests/support/native-cases.sh"
 
-if [[ $# != 0 && ! ($# == 3 && $1 == '--native' &&
-  $2 =~ ^(codex|cursor|claude)$ && $3 =~ ^(clear|conflict)$) ]]; then
-  echo 'usage: tests/dough-adr-awareness-context.sh [--native codex|cursor|claude clear|conflict]' >&2
-  exit 2
+native_case_entry='tests/dough-adr-awareness-context.sh'
+native_case_parse --wrapper context "$@"
+if [[ ${native_case_mode} == 'list' ]]; then
+  native_case_print_listing
+  exit 0
 fi
 
 skill_root_for() {
@@ -67,7 +71,7 @@ assert_fresh_install() {
     "${checked_target}/${checked_skill_root}/dough-adr-awareness/SKILL.md"
 }
 
-if [[ $# == 0 ]]; then
+if [[ ${native_case_mode} == 'default' ]]; then
   for platform in codex cursor claude; do
     target="${temporary_dir}/${platform}-adopter"
     prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
@@ -81,8 +85,8 @@ if [[ $# == 0 ]]; then
   exit 0
 fi
 
-platform=$2
-scenario=$3
+platform=${native_case_host}
+scenario=${native_case_id#context/}
 skill_root=$(skill_root_for "${platform}")
 target="${temporary_dir}/adopter"
 prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
