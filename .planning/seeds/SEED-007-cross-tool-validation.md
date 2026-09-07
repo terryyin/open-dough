@@ -1,185 +1,206 @@
 ---
 id: SEED-007
-status: dormant
+status: active
 planted: 2026-09-07
 planted_during: Story 7 refinement follow-up on repeated native validation
-trigger_when: Owner resumes this exploration in a separate conversation before returning to Quick 019
-scope: unknown
+trigger_when: Improve existing tests under ADR 0005; reconsider stories before revisiting old plans
+scope: Existing test migration and minimal runner support
 ---
 
-# SEED-007: Cross-tool validation without repeated delay and permission stops
+# SEED-007: Deliver trustworthy cross-tool acceptance with fewer native runs
 
-## Why This Matters
+## Outcome
 
-Open Dough guidance must work in Codex, Cursor, and Claude Code. During the
-refinement of SEED-001 Story 7, the owner noticed many native verification
-slices resembling checks repeatedly performed in earlier story executions.
-Launching real agent sessions takes substantial time. Permission interruptions
-can stop delegated work even after the owner has authorized the whole task.
+Maintainers can finish implementation stories with inexpensive feedback, then
+validate related changes through dedicated native acceptance stories. Each native
+result is trustworthy, retained, and reused where applicable across Codex,
+Cursor, and Claude Code.
 
-The owner wants to understand what really needs live validation, what is already
-automated, how earlier evidence can be reused, and whether CI can take on more
-of the work without requiring model credentials. This is one exploration topic;
-its outcome and implementation scope have not been chosen.
+Follow [Accepted ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+The [migration assessment](../research/adr-0005-migration-assessment.md) confirms
+both plan/test changes and small runner improvements are needed. Preserve the
+existing cheap CI suite and real native interfaces. Research and alternatives
+remain in [the research report](../research/cross-tool-validation.md).
 
-## Owner direction and conversation context
+## Boundaries
 
-- First refine the current installation/update story conservatively; do not
-  expand it beyond the near-term release and retained Donut adoption goal.
-- Repeated Codex/Cursor/Claude checks are costly. Investigate automation and
-  lessons from past executions rather than replaying everything in each story.
-- Routine verification should not repeatedly ask for permission after execution
-  has already been authorized, including delegated work.
-- Clarify whether native tests run in CI, whether they need login/credentials,
-  and how the sibling `../gsd-core` project handles similar testing.
-- Latest correction: move this whole discussion out of Quick 019 into a new seed
-  with context, exploration, and possibilities. **Do not split it into stories,
-  create a slice plan, or implement it yet.** The owner will investigate it in
-  another conversation first, then return to the installation/update plan.
+- Extend the existing tests; no new test platform, provider service, approval
+  gate, paid schedule, evidence database, or general impact-analysis engine.
+- Keep all three platforms' native claims visible. Cheap test success and an
+  implementation story's completion do not close a native acceptance story.
+- Preserve completed historical evidence; assess its relevance without rewriting
+  earlier outcomes. Internal test infrastructure is not installed in clients.
+- Keep genuine client adoption/use in its own outcome stories. Moving general
+  validation must not remove the useful work promised to the client.
 
-The assistant had started adding runner stage selection, permission preflight,
-durable result capture, and GSD findings to Quick 019. That was scope expansion.
-Those additions have been moved here as exploration material, not decisions or
-commitments. The smaller representative test selection can remain in the story
-plan; it does not authorize a general validation-system project.
+## Stories
 
-## What was observed in Open Dough
+<a id="select-and-retain-native-checks"></a>
 
-The inspected [CI workflow](../../.github/workflows/ci.yml) runs lint and
-`npm test`. The [test runner](../../scripts/test.sh) invokes shell tests without
-`--native`. Those paths test real installer/updater operations against disposable
-fixtures and print pending native checks; green CI is not live-agent acceptance.
+### 1. Run one needed native check without replaying or losing the others
 
-The native paths are already automated once launched. They create fixtures,
-launch agent CLIs, capture responses/transcripts, assert installed state and
-behavior, and clean up. They use command-line agents, not desktop UI automation:
+**Status:** Unplanned. **Type:** Test tooling. **Dependency:** Existing native cases; no slice-plan migration prerequisite.
 
-- [Codex delivery-to-use](../../tests/dough-adr-awareness-codex-delivery-to-use.sh)
-  and its [native runner](../../tests/support/native-codex.sh).
-- [Cursor delivery-to-use](../../tests/dough-adr-awareness-cursor-delivery-to-use.sh).
-- [Claude Code delivery-to-use](../../tests/dough-adr-awareness-claude-delivery-to-use.sh).
-- [Installed ADR context checks](../../tests/dough-adr-awareness-context.sh).
+**Value:** A failed case or new assessment no longer forces a maintainer to pay
+for unrelated successful sessions.
 
-Automation does not eliminate the model runtime cost. Some scripts combine
-legacy refusal, bootstrap, update, and fresh use, so rerunning one failed part
-can replay earlier work. Evidence retention differs: some successful runs remove
-their temporary transcripts; the Claude transition wrapper preserves failure
-evidence. No full timing study was performed, so these are opportunities to
-investigate, not a measured ranking of bottlenecks.
+**Scope:** Extend the existing native wrappers with shared case selection,
+required fixture setup, bounded execution, and retained per-case results. Apply
+the interface to the three delivery wrappers and context checks. Store a compact
+local result with candidate, platform/runtime, relevant inputs and decisive
+artifacts. Support reassessment of retained results without launching a model;
+manual impact judgment is sufficient when recorded explicitly.
 
-The proposed Story 7 native refusal matrix was narrowed from five cases per host
-to one representative edited-equal refusal per host (15 proposed cases to 3).
-The shell tests still own the full helper-policy matrix. That is a planning
-reduction, not a measured speedup or executed new proof.
+**Acceptance scenarios:**
 
-## Permissions and authentication are separate
+- Given selected cases for a native story, list their host, purpose, required
+  setup, and usable prior evidence without starting an agent. Running a single
+  case launches only that case and its necessary journey dependencies.
+- Given a timeout, missing executable, denied operation, or truncated stream,
+  return a nonpassing result, stop the process within its configured bound, and
+  preserve evidence. Previous successful results remain available. Test these
+  paths using substitute processes in CI, without provider access.
+- Given successful execution, scratch cleanup preserves a usable result and
+  artifacts. Cursor evidence identifies Cursor Agent, not the editor version.
+- Given sufficient saved evidence and a revised assessor, reassess without a
+  native call. Changed relevant inputs or missing observations remain pending
+  rather than being labeled a reused pass. Exercise both outcomes in cheap tests.
+- Given an update-to-use claim, fresh use consumes the verified real update's
+  resulting installation. Independent case selection never fabricates a missing
+  transition by seeding only its final state.
 
-There are at least three boundaries:
+**Completion evidence:** Working selected-case/reassessment paths and passing
+substitute-process CI tests for each adapter. Native qualification remains
+explicitly assigned to Story 3; no cross-OS runner or generic cache is required.
 
-| Boundary | Question |
-| --- | --- |
-| Outer executing host | May it launch this test process and access its required paths/network? |
-| Child agent process | May it perform the authorized operations inside its disposable fixture? |
-| Model/provider access | Is the process authenticated to an account/provider able to serve model requests? |
+<a id="trust-native-verdicts"></a>
 
-Existing wrappers use headless flags, sandbox settings, or explicit tool grants.
-Some use broad permission-skip flags. These do not prove that the outer host will
-allow the launch without a separate prompt. No transcript of the owner's earlier
-permission stops was examined; the precise failing boundary remains unknown.
+### 2. Detect native behavior failures instead of rewarding the expected words
 
-A fresh CI runner needs an authorized session, API key, or provider identity for
-the model-backed conversations performed by Open Dough's current native tests.
-Non-interactive execution does not make those model requests unauthenticated.
-An existing local login may supply access without entering credentials every run.
-Permission to execute a test is not authentication to its model provider.
+**Status:** Unplanned. **Type:** Test migration. **Dependency:** Story 1's retained artifacts.
 
-Official documentation consulted on 2026-09-07:
-[Codex authentication](https://learn.chatgpt.com/docs/auth),
-[Cursor headless CLI](https://cursor.com/docs/cli/headless), and
-[Claude Code authentication](https://code.claude.com/docs/en/authentication).
-These distinguish existing login/provider access from API-key-based automation;
-recheck supported methods when choosing an approach.
+**Value:** A green acceptance result means the installed guidance was used and
+behaved correctly, rather than the agent repeating answers supplied by the test.
 
-## Exploration of GSD Core
+**Scope:** Migrate the current delivery/context prompts and assessments. Keep
+expected contract facts outside prompts, retain legitimate invocation hints for
+explicit cases, and capture host-native loading evidence plus observed state.
+Keep shared behavioral assertions with minimal event-format adapters.
 
-Read-only inspection of `../gsd-core` at
-`0be5bf865a6ca8ca6cee5fa9344c35b19d8623ee` found:
+**Acceptance scenarios:**
 
-| Mechanism | Evidence and what it proves |
-| --- | --- |
-| Real installation, without a model conversation | [Codex install smoke test](../../../gsd-core/tests/codex-inherit-smoke.test.cjs) runs the real GSD installer, then GSD's own validators over emitted TOML. It does not invoke Codex to follow guidance. |
-| Generated artifact coverage | [Install-tree tests](../../../gsd-core/tests/golden-install-tree.test.cjs) compare actual emitted paths across supported runtimes; companion parity checks compare contents. These need no model credentials. |
-| Process integration using a substitute executable | [Windows reviewer process test](../../../gsd-core/tests/review-lane-windows-spawn-resolution.test.cjs) stages a fake Codex executable and exercises GSD's real launch/output handling. It proves that integration boundary, not live model behavior. |
-| Real native CLI validation without model requests | The dedicated `plugin-validate` job in [test.yml](../../../gsd-core/.github/workflows/test.yml) installs Claude Code and runs [plugin-manifest tests](../../../gsd-core/tests/plugin-manifest.test.cjs), including `claude plugin validate ... --strict`, in a temporary CLI home. The workflow provisions no model credential for that job. |
-| Reduced repeated CI work | [Test-scope selection](../../../gsd-core/scripts/ci-test-scope.cjs) selects affected tests; the workflow shards larger suites and avoids repeating auxiliary suites on every shard. |
+- Given an undisclosed ADR disagreement or edited installation, the ordinary
+  task prompt supplies neither the expected conclusion nor the skill body.
+  Native evidence must show discovery/invocation and the expected response/state.
+- Given a real native skill expansion without a separate shell read, accept valid
+  activation evidence. Given self-report with no activation evidence, do not pass.
+- Given correct words in a negated answer, a failed command followed by a success
+  claim, missing terminal events, or modified protected files, automated grading
+  does not pass. Reviewed good/bad transcript and snapshot fixtures cover all
+  three adapters in CI.
+- Given ambiguous but potentially legitimate behavior, retain an inconclusive
+  result for human judgment. Record any resolution against its evidence rather
+  than silently weakening assertions or rerunning until green.
 
-Some older comments in the plugin test still describe native validation as
-local-only. The current workflow and later test sections explicitly provision
-Claude CLI in CI; those were inspected rather than relying on the stale comments.
+**Completion evidence:** Revised cases and passing positive/counterexample CI
+coverage. Existing coached observations stay historical; revised native
+interpretation claims remain pending in Story 3.
 
-No model-backed agent-conversation CI job was found in the inspected workflows.
-This is a statement about the checked source, not proof that every GSD test or
-external automation has been audited. No GSD tests or live CI runs were executed.
-GSD's use of a real CLI for structural validation must not be confused with a
-model discovering, interpreting, and applying guidance.
+<a id="accept-standalone-client-workflow"></a>
 
-## Possibilities to explore together
+### 3. Establish that the standalone client candidate works in all three tools
 
-These are alternatives or compatible techniques, not ordered work or stories:
+**Status:** Pending native acceptance; not selected for execution.
+**Type:** Native behavioral acceptance.
+**Dependencies:** Stories 1–2 and a relevant candidate from the reconsidered
+standalone updater story. Define its current native claims when refining this
+acceptance story; neither old slice-plan updates nor publication are dependencies.
 
-- Keep exhaustive logic/error variations in fast deterministic tests, with a
-  small representative live check for each affected native integration.
-- Reuse per-platform evidence when its covered behavior, installed entry point,
-  adapters, supporting files, relevant fixture, and runtime remain applicable.
-  Make invalidation explicit rather than treating every commit as a full reset.
-- Use credential-free native format/configuration validators where an actual
-  supported command fits Open Dough's artifacts. Do not assume all hosts have
-  equivalent validators or introduce plugin packaging just to gain one.
-- Keep model-backed tests in the existing authenticated local environment, or
-  explore a deliberately provisioned trusted CI environment if its cost and
-  benefit justify it. No CI credentials, secret copying, runner service, or
-  global configuration changes have been authorized or implemented here.
-- Allow affected-stage selection and reusable setup in existing native scripts,
-  while keeping fresh sessions where installation changes require them. Capture
-  results before cleanup so failures do not force unrelated cases to replay.
-- Preserve compact evidence with case, host/runtime, tested revision, elapsed
-  time, result, and transcript/snapshot references. Decide how much is sufficient
-  before building an evidence store or automatic cache.
-- Make authorized fixture tests unattended using supported bounded permissions,
-  task-owned paths, and an upfront environment check. Avoid blanket unrestricted
-  access. A genuine host restriction must fail clearly, not hang awaiting input,
-  silently pass, or repeatedly restart the same approval request.
-- Consider affected-test selection or isolated concurrent execution only if
-  measured costs justify it; avoid importing GSD's large CI system wholesale.
+**Value:** The maintainer can release the changed client workflow on independent
+native evidence while qualifying the migrated tests in the same useful batch.
 
-## Open questions for the next conversation
+**Scope:** Refine prepublication native claims from the reconsidered product
+story. Use Quick 019 leaves 9a–11d only as historical input, not fixed scope. Assess earlier standalone ADR-use evidence for valid reuse; execute
+only unresolved representative cases against one identified candidate. Keep the
+full helper-policy matrix in cheap tests. Local tagged fixtures may establish
+update transitions without manufacturing another public release.
 
-- What evidence is necessary for native discovery, application, and semantic
-  behavior, versus installation format or helper correctness?
-- Which prior proofs remain valid, and what exactly should invalidate them?
-- What caused the actual permission interruptions: outer launch policy, child
-  operation permissions, authentication, or something else?
-- Which supported credential-free validators apply to today's Open Dough
-  artifacts? What coverage do they leave unproved?
-- Where should the few model-backed checks run, and what existing authentication
-  can they legitimately use without repetitive human intervention?
-- Which improvement first removes the most observed time or interruption with
-  the least new machinery?
+**Acceptance scenarios:**
 
-## Boundaries and handoff
+- Given a fresh installation with its source unavailable, the installed guidance
+  is discovered and used correctly, with explicit and automatic activation where
+  promised. Include uncoached clear/conflict cases where Story 2's changed
+  assessments lack applicable evidence. Record separate evidence for Codex,
+  Cursor, and Claude Code.
+- Given a verifiable bootstrapped installation and a newer tagged fixture,
+  ordinary native update uses the saved source without a URL or force, installs
+  the correct payload/records, and makes the improvement usable in a fresh
+  session. Preserve unrelated guidance, other tool roots, and reviewable changes.
+- Given an edited-equal installation, ordinary native update refuses without
+  writes or automatic force. Given explicit force, it replaces only the selected
+  managed payload with verified latest content. Use each as a distinct decision
+  boundary; do not replay every cheap refusal variation natively.
+- Given all results, record actual loading, outcomes, runtime/candidate identity,
+  and any human resolution per platform. Unknown or failed claims keep this story
+  pending. Reused evidence is labeled with its applicability rationale.
+- Given publication preparation, check that the release candidate still matches
+  the relevant tested inputs. Reassess changes rather than replaying the whole
+  batch. Actual released self-adoption remains with the source client story.
 
-Keep this as one unsplit exploration until the owner chooses an outcome. No
-stories, execution leaves, accepted architecture, new test platform, credential
-provisioning, or implementation is established by this capture.
+**Completion evidence:** The per-platform matrix below is resolved, with retained
+artifacts and measured run/exception information. This also supplies native
+qualification for Stories 1–2's changed adapters and assessments on the covered
+cases; it does not imply support for untested UI or operating-system surfaces.
 
-The repository's [acceptance guard](../../AGENTS.md) still requires independent
-Codex, Cursor, and Claude Code evidence for affected discovery, invocation/use,
-behavior, installation/updating, and coexistence. Reuse is allowed only where
-the change does not invalidate the earlier proof. Missing native proof remains
-pending. This capture neither changes that guard nor distributes it to clients.
+| Platform | Discovery / activation / behavior | Affected install / update / coexistence |
+| --- | --- | --- |
+| Codex | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
+| Cursor | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
+| Claude Code | Pending — review prior proof and fill changed claims | Pending — standalone candidate |
 
-Resume here in a separate conversation; after resolving the exploration, return
-to [Quick 019](../quick/019-standalone-client-update/PLAN.md) and
-[SEED-001 Story 7](SEED-001-install-and-update-open-dough.md#standalone-client-update).
-The installation/update goal and product queue remain intact. Scope and effort
-for this exploration are deliberately unknown until a direction is selected.
+<a id="separate-native-acceptance"></a>
+
+### 4. Reconcile retained plans after reconsidering their stories
+
+**Status:** Deferred until underlying stories are reconsidered. **Type:** Planning migration.
+
+**Value:** A maintainer can tell what can finish now, what still needs native
+proof, and what blocks publication without replaying checks in every story.
+
+**Scope:** Reconsider SEED-001 Story 7, upcoming SEED-004 Stories 5–8, and
+SEED-006 Stories 3–4 before deciding which plans remain relevant. Update only
+retained plans against the revised stories and native acceptance ownership;
+retire obsolete plans rather than polishing them. Keep useful client outcomes
+and completed evidence. This work comes last and does not block test tooling,
+assessor migration, or native-story refinement.
+
+**Acceptance scenarios:**
+
+- Given an existing slice plan, reconsider its story first. If the plan is
+  obsolete, retire it; if retained, align its native claims with the revised
+  story or reusable proof without duplicating the native acceptance matrix.
+- Given implementation work whose stated criteria pass, it can finish while its
+  linked native story remains pending. Publishing affected behavior still waits
+  for that native story; updating a status cannot silently remove the obligation.
+- Given postpublication self-adoption or Donut use, retain the actual useful
+  client outcome. The prepublication candidate check does not depend on that
+  future published installation.
+- Given a later extraction story with a different candidate, give its native
+  claims their own named follow-up at refinement; do not pretend Story 3 proves
+  guidance that does not exist yet. No orphaned pending claims remain in the
+  migrated planning scope.
+
+**Completion evidence:** Updated backlog, criteria, and claim-to-story map for
+all three platforms; no native execution needed for this planning change.
+
+## Order and completion
+
+Start with Stories 1–2 to improve tests and infrastructure. Refine Story 3
+against the current product outcome and candidate before native execution.
+Do Story 4 last, after reconsidering the underlying stories; update only plans
+that remain relevant. Existing slice plans are not being resumed. Backlog
+selection governs execution; this seed adds no separate native approval procedure.
+
+Keep this seed until the migration stories and their native acceptance are
+complete. No test code, client installation, native run, or release is changed
+by this decomposition. Deferred research options are not additional criteria.
