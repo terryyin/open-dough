@@ -333,7 +333,7 @@ Size: high confidence; one no-write policy branch.
 ### 4e. Transition a legacy Codex installation to native use
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The Codex delivery-to-use harness starts from a genuine earlier
 three-file payload. Its old updater refuses the smaller candidate without
 mutation; the explicit inspected bootstrap installs the candidate; a fresh
@@ -487,9 +487,9 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a added confined forced retirement; 4b proved honest unlink failure; 4c covered ordinary retirement; 4d proved equal-version no-write. Execution resumes at 4e. Reassess after five minutes and follow Learning
+  three tools; 4a–4d proved retirement and no-write boundaries; 4e passed the native Codex legacy transition. Execution resumes at 4f. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `158`; rearmed before the 3c push.
+  `/Users/terryyin/git/open-dough`, Codex cell `223`; rearmed before the 4e push.
 - No client update, release, ADR status, tagged metadata, or tracked native-copy
   change has been performed.

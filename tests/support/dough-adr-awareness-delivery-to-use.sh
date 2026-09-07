@@ -1,17 +1,30 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154 # Platform wrappers and sourced transition helpers consume these globals.
 
 delivery_source_dir=
 delivery_fixture=
 delivery_host_name=
 delivery_host_upper=
+delivery_platform=
 delivery_skill_root=
 delivery_baseline_platforms=()
 delivery_improvement='When authoritative status sources disagree, enumerate each conflicting repository-relative source and the value it reports before asking a human to resolve precedence.'
-delivery_managed_files=(
+delivery_current_managed_files=(
+  dough-update/SKILL.md
+  dough-adr-awareness/SKILL.md
+)
+delivery_legacy_managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-adr-awareness/RECOGNITION.md
 )
+delivery_legacy_version=0.2.0
+delivery_bootstrap_version=0.2.1
+delivery_update_version=0.2.2
+
+# shellcheck source=tests/support/dough-adr-awareness-release-transition.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/dough-adr-awareness-release-transition.sh"
 
 delivery_snapshot() {
   local root=$1
@@ -64,36 +77,45 @@ delivery_prepare_fixture() {
     "${delivery_fixture_source}/install.sh"
   cp -- "${delivery_source_dir}/src/install/"*.sh \
     "${delivery_fixture_source}/src/install/"
-  for managed_file in "${delivery_managed_files[@]}"; do
+  for managed_file in "${delivery_current_managed_files[@]}"; do
     cp -- "${delivery_source_dir}/src/skills/${managed_file}" \
       "${delivery_fixture_source}/src/skills/${managed_file}"
   done
-
-  printf '\n%s\n' '## Improved conflict evidence' \
-    "${delivery_improvement}" >> \
-    "${delivery_fixture_source}/src/skills/dough-adr-awareness/SKILL.md"
-  printf '\n%s\n' \
-    '- Improvement evidence: names every conflicting repository-relative status authority and its reported value before requesting human precedence.' >> \
+  cp -- "${delivery_source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
     "${delivery_fixture_source}/src/skills/dough-adr-awareness/RECOGNITION.md"
-  printf '%s\n' '0.1.1' > "${delivery_fixture_source}/VERSION"
-  printf '%s\n' '## 0.1.1 - 2026-09-06' > \
+  printf '%s\n' "${delivery_bootstrap_version}" > \
+    "${delivery_fixture_source}/VERSION"
+  printf '## %s - 2026-09-07\n' "${delivery_bootstrap_version}" > \
     "${delivery_fixture_source}/CHANGELOG.md"
   git -C "${delivery_fixture_source}" init -q --initial-branch=main
   git -C "${delivery_fixture_source}" add install.sh src VERSION CHANGELOG.md
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \
-    commit -qm 'fixture: enumerate conflicting ADR status sources'
+    commit -qm 'fixture: bootstrap two-skill public payload'
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \
-    tag -am 'v0.1.1' v0.1.1
-  delivery_source_revision=$(git -C "${delivery_fixture_source}" rev-parse HEAD)
+    tag -am "v${delivery_bootstrap_version}" "v${delivery_bootstrap_version}"
+  delivery_bootstrap_revision=$(git -C "${delivery_fixture_source}" rev-parse HEAD)
   delivery_source_url="file://${delivery_fixture_source}"
 
   for platform in "${delivery_baseline_platforms[@]}"; do
-    bash "${delivery_source_dir}/install.sh" \
-      --target "${delivery_target}" --platform "${platform}"
+    local skill_root managed_file
+    case ${platform} in
+      codex) skill_root='.agents/skills' ;;
+      cursor) skill_root='.cursor/skills' ;;
+      claude) skill_root='.claude/skills' ;;
+      *) return 2 ;;
+    esac
+    for managed_file in "${delivery_legacy_managed_files[@]}"; do
+      mkdir -p -- "${delivery_target}/${skill_root}/$(dirname -- "${managed_file}")"
+      git -C "${delivery_source_dir}" show \
+        "v${delivery_legacy_version}:src/skills/${managed_file}" > \
+        "${delivery_target}/${skill_root}/${managed_file}"
+    done
+    printf '%s\n' "${delivery_legacy_version}" > \
+      "${delivery_target}/${skill_root}/dough-update/VERSION"
   done
   if grep -Fq "${delivery_improvement}" \
     "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"; then
@@ -123,46 +145,6 @@ delivery_prepare_fixture() {
     -c user.name='Adopter fixture' \
     -c user.email='fixture@example.invalid' \
     commit -qm 'fixture: install previous public guidance'
-}
-
-delivery_capture_update_state() {
-  delivery_source_before=$(delivery_snapshot "${delivery_fixture_source}")
-  delivery_companion_before=$(shasum -a 256 \
-    "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md")
-}
-
-delivery_assert_update() {
-  local update_output=$1
-  local source_after source_status companion_after actual_changes expected_changes
-
-  source_after=$(delivery_snapshot "${delivery_fixture_source}")
-  source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
-  [[ "${delivery_source_before}" == "${source_after}" ]]
-  [[ -z ${source_status} ]]
-  for managed_file in "${delivery_managed_files[@]}"; do
-    cmp "${delivery_fixture_source}/src/skills/${managed_file}" \
-      "${delivery_target}/${delivery_skill_root}/${managed_file}"
-  done
-  grep -Fq "${delivery_improvement}" \
-    "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"
-  companion_after=$(shasum -a 256 \
-    "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md")
-  [[ "${delivery_companion_before}" == "${companion_after}" ]]
-  [[ ! -e "${delivery_target}/${delivery_skill_root}/adr-awareness" ]]
-
-  actual_changes=$(git -C "${delivery_target}" diff --name-only)
-  expected_changes=$(printf '%s\n' \
-    "${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" \
-    "${delivery_skill_root}/dough-adr-awareness/SKILL.md" \
-    "${delivery_skill_root}/dough-update/VERSION")
-  [[ "${actual_changes}" == "${expected_changes}" ]]
-  grep -Fq "${delivery_source_url}" "${update_output}"
-  grep -Fq "${delivery_source_revision}" "${update_output}"
-  grep -Fqi "${delivery_host_name}" "${update_output}"
-  grep -Eiq 'v0\.1\.1|release' "${update_output}"
-  for managed_file in "${delivery_managed_files[@]}"; do
-    grep -Fq "${delivery_skill_root}/${managed_file}" "${update_output}"
-  done
 }
 
 delivery_assert_use() {
@@ -196,25 +178,4 @@ delivery_assert_use() {
     echo 'FAIL: native use fell back to source-project layout or identity.' >&2
     return 1
   fi
-}
-
-delivery_print_proof() {
-  local update_output=$1
-  local use_output=$2
-  local recognition_digest recognition_line companion_digest
-  recognition_line=$(shasum -a 256 \
-    "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md")
-  recognition_digest=${recognition_line%% *}
-  companion_digest=${delivery_companion_before%% *}
-
-  printf '%s\n' "--- ${delivery_host_upper} INSTALLED-IMPROVEMENT UPDATE PROOF ---"
-  cat "${update_output}"
-  printf '\n%s\n' "--- ${delivery_host_upper} INSTALLED-IMPROVEMENT USE PROOF ---"
-  cat "${use_output}"
-  printf '\n%s\n' "--- ${delivery_host_upper} DELIVERY-TO-USE INTEGRITY PROOF ---"
-  printf 'fixture source: %s\n' "${delivery_source_url}"
-  printf 'fixture release: v0.1.1\n'
-  printf 'fixture release commit: %s\n' "${delivery_source_revision}"
-  printf 'installed recognition SHA-256: %s\n' "${recognition_digest}"
-  printf 'preserved companion SHA-256: %s\n' "${companion_digest}"
 }

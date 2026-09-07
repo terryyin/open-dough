@@ -11,6 +11,7 @@ delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/tests/fixtures/adr-awareness/alternate-layout"
 delivery_host_name='Codex'
 delivery_host_upper='CODEX'
+delivery_platform='codex'
 delivery_skill_root='.agents/skills'
 delivery_baseline_platforms=(codex)
 
@@ -19,30 +20,59 @@ grep -Fq 'danger-full-access' "$0"
 grep -Fq 'PROTECTED_WORKTREES' "$0"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the Codex delivery-to-use fixture covers a previous public skill, a pinned-release improvement, a fresh native invocation, conflicting alternate-layout authorities, recognition support, and coexistence.'
+  delivery_prepare_fixture
+  delivery_assert_legacy_install
+  delivery_capture_legacy_state
+  delivery_bootstrap_candidate
+  delivery_publish_improved_release
+  delivery_capture_update_state
+  deterministic_update_output="${delivery_temporary_dir}/deterministic-update-output.txt"
+  bash "${delivery_fixture_source}/src/install/open-dough-release.sh" apply \
+    --url "${delivery_source_url}" --target "${delivery_target}" \
+    --platform codex > "${deterministic_update_output}"
+  delivery_assert_update "${deterministic_update_output}" 0
+  echo 'PASS: the Codex delivery-to-use fixture starts from the genuine v0.2.0 three-file payload, exposes its contract mismatch with the two-file candidate, bootstraps the inspected v0.2.1 candidate, ordinarily updates to v0.2.2, retires recognition, and preserves coexistence.'
+  echo 'PENDING: native Codex legacy refusal, ordinary update, and improved ADR use; run --native.'
   exit 0
 fi
 
 command -v codex > /dev/null
 delivery_prepare_fixture
-native_codex_prepare "${delivery_temporary_dir}"
+delivery_assert_legacy_install
+delivery_capture_legacy_state
+native_codex_prepare "${delivery_temporary_dir}" "${delivery_fixture_source}"
 
 run_native_codex() {
   local output_file=$1
   local prompt=$2
-  native_codex_run "${delivery_target}" "${output_file}" "${prompt}"
+  local transcript=${3:-}
+  native_codex_run \
+    "${delivery_target}" "${output_file}" "${prompt}" "${transcript}"
 }
 
+refusal_output="${delivery_temporary_dir}/codex-legacy-refusal-output.md"
+refusal_transcript="${delivery_temporary_dir}/codex-legacy-refusal.jsonl"
+run_native_codex "${refusal_output}" \
+  "Use \$dough-update ${delivery_source_url} to update this genuine v${delivery_legacy_version} three-file Codex installation. Follow the installed updater exactly. Inspect the pinned candidate's declared installed payload before running anything. The candidate declares two installed skill files and source-only recognition, while your installed updater requires all three as installed payload. Refuse this incompatible smaller candidate without changing any file. Report the two contracts, source, Codex as the running tool, and that no replacement occurred." \
+  "${refusal_transcript}"
+delivery_assert_legacy_refusal "${refusal_output}"
+
+delivery_bootstrap_candidate
+delivery_publish_improved_release
 delivery_capture_update_state
 update_output="${delivery_temporary_dir}/codex-update-output.md"
+update_transcript="${delivery_temporary_dir}/codex-update.jsonl"
 run_native_codex "${update_output}" \
-  "Use \$dough-update ${delivery_source_url} to update this adopter from the supplied cloneable fixture source. Follow the installed updater exactly. Report release v0.1.1, its source and commit, Codex as the running tool, and every installed path. Do not invoke ADR awareness yet."
+  "Use \$dough-update ${delivery_source_url} to perform an ordinary newer-release update of this inspected-bootstrap Codex installation. Follow the installed updater exactly and do not force the update. Report release v${delivery_update_version}, its source and commit, Codex as the running tool, and every installed path. Recognition is source-only and must not be reported as installed. Do not invoke ADR awareness yet." \
+  "${update_transcript}"
 delivery_assert_update "${update_output}"
 
 use_before=$(delivery_snapshot "${delivery_target}")
 use_output="${delivery_temporary_dir}/codex-use-output.md"
+use_transcript="${delivery_temporary_dir}/codex-use.jsonl"
 run_native_codex "${use_output}" \
-  "Use \$dough-adr-awareness for an explicit ADR check. Begin with Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. Report whether you changed any decision or implementation. Use only this adopter repository and keep the response concise."
+  "Use \$dough-adr-awareness for an explicit ADR check. Begin with Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. Report whether you changed any decision or implementation. Use only this adopter repository, do not read source recognition, and keep the response concise." \
+  "${use_transcript}"
 use_after=$(delivery_snapshot "${delivery_target}")
 if [[ "${use_before}" != "${use_after}" ]]; then
   echo 'FAIL: native Codex changed adopter files during ADR use.' >&2
@@ -50,8 +80,11 @@ if [[ "${use_before}" != "${use_after}" ]]; then
 fi
 delivery_assert_use "${use_output}"
 
-delivery_print_proof "${update_output}" "${use_output}"
+native_tool_version=$(codex --version)
+printf 'Native tool version: %s\n' "${native_tool_version}"
+delivery_print_proof "${update_output}" "${use_output}" "${refusal_output}"
 printf '%s\n' \
-  'PASS: fresh native Codex discovered and invoked only the installed dough-adr-awareness replacement; no original adr-awareness skill was present.' \
+  'PASS: legacy Codex refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
+  'PASS: fresh native Codex discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
   'PASS: Codex enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
-  'PASS: the recognition record byte-matches the improved pinned release, and the companion integration remained byte-identical.'
+  'PASS: final recognition is absent, and the companion integration remained byte-identical.'
