@@ -85,8 +85,11 @@ runtime identity comes from `cursor agent --version`. An unwritable
 | Behavior | Owner |
 | --- | --- |
 | Selected context attempt + durable results | Leaf 2 |
-| Hung process timeout | Leaf 3 |
-| Failed/denied launch records | Leaf 4 |
-| Incomplete stream rejection | Leaf 5 |
-| Selected delivery journeys | Leaves 6–8 |
-| Offline reassessment | Leaf 9 |
+| Deadline/grace process ownership | Leaf 3 |
+| Hung process timeout | Leaf 4 |
+| Failed/denied launch records | Leaf 5 |
+| Incomplete stream rejection | Leaf 6 |
+| Selected Codex delivery cases | Leaves 7–9 |
+| Selected Cursor delivery cases | Leaves 10–12 |
+| Selected Claude Code delivery cases | Leaves 13–15 |
+| Offline reassessment | Leaf 16 |

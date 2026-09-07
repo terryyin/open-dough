@@ -1,8 +1,8 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slices 1–2 done. Refinement remains recommended for leaves 3
-and 6–8 before those slices. No `--native` run is part of this plan's
-verification.
+Status: executing; slices 1–2 done. Remaining leaves were refined in place
+(supervisor+timeout; one selected delivery case per host). No `--native` run is
+part of this plan's verification.
 
 ## Source
 
@@ -112,27 +112,30 @@ Keep new executable test entry points under `tests/` and helper/substitute
 processes under `tests/support/` or a non-`.sh` fixture path so `scripts/test.sh`
 does not accidentally run them as standalone tests. Capability-named focused
 tests may be `native-case-selection.sh`, `native-result-retention.sh`,
-`native-runner-failures.sh`, and `native-result-reassessment.sh`; add these only
-with their behavior. Do not build a parallel test framework.
+`native-run-timeout.sh`, `native-runner-failures.sh`, and
+`native-result-reassessment.sh`; add these only with their behavior. Do not
+build a parallel test framework.
 
 | Contract / observation | Owning leaves |
 | --- | --- |
 | E1: inventory, dependency description, invalid selection, no native calls during listing | 1 |
 | E1/E2: selected context only, durable successful attempt and exact inputs/runtime | 2 |
-| E3: hung owned process tree terminates within bound, evidence survives, no retry | 3 |
-| E3: unavailable/denied launch remains nonpassing with evidence | 4 |
-| E3: truncated or absent terminal stream cannot pass on exit 0 | 5 |
-| E1/E2/E5: selected delivery sessions and genuine update provenance per adapter; failed dependency leaves use pending | 6–8, separately per host |
-| E2/E3: new success/failure never overwrites prior attempts; unwritable result destination prevents launch | 2–5 |
-| E4: offline reassessment, preserved original, applicability rationale, changed/missing evidence pending | 9 |
+| E3: hung owned process tree terminates within bound, evidence survives, no retry | 3–4 |
+| E3: unavailable/denied launch remains nonpassing with evidence | 5 |
+| E3: truncated or absent terminal stream cannot pass on exit 0 | 6 |
+| E1/E2/E5: selected Codex delivery sessions and genuine update provenance; failed dependency leaves use pending | 7–9 |
+| E1/E2/E5: same selected delivery contract through the Cursor adapter | 10–12 |
+| E1/E2/E5: same selected delivery contract through the Claude Code adapter | 13–15 |
+| E2/E3: new success/failure never overwrites prior attempts; unwritable result destination prevents launch | 2–6 |
+| E4: offline reassessment, preserved original, applicability rationale, changed/missing evidence pending | 16 |
 | Shared mechanics, existing default/legacy callers preserved, broad cheap CI, no installed infrastructure | Focused checks in each leaf; whole-story completion below |
 | Native discovery, invocation/application, behavior, affected install/update/coexistence | Pending in Story 3; matrix below |
 
 ## Ordered slices
 
-All leaves are Behavior slices with an observable wrapper result. Add the
-necessary support inside the first behavior that uses it; no standalone framework
-or speculative Structure slice. Each proof is credential-free.
+Leaves are one Behavior or one immediately enabling Structure. Add support
+inside the first leaf that uses it; no standalone framework. Each proof is
+credential-free. Completed slices 1–2 are unchanged.
 
 ### 1. Inspect the available check before spending a native call
 Type: Behavior
@@ -165,22 +168,38 @@ Sizing: five–ten minutes, medium confidence; reuse existing structured streams
 and snapshot functions. If record wiring needs separable beats, split at the
 first host's complete retained attempt before expanding adapters.
 
-### 3. Stop a hung attempt and its owned subprocesses
+### 3. Bound an owned context command without changing successful runs
+Type: Structure
+Status: planned
+Proof: `bash tests/native-result-retention.sh` and
+`bash tests/native-case-selection.sh` still pass. Selected context runs accept
+a deadline and termination grace, defaulting high enough that recorded-success
+substitutes are unchanged. No hang fixture yet.
+
+Internal change: the selected context runner owns the native command's process
+group and can enforce a deadline plus finite grace, including on Ubuntu without
+`sandbox-exec`. Do not replace Codex symlink isolation or add new OS support.
+Immediate next Behavior: leaf 4's hung-attempt timeout.
+
+Sizing: approximately five minutes, medium confidence after split; wire only
+what leaf 4 needs.
+
+### 4. Stop a hung context attempt and keep partial evidence
 Type: Behavior
 Status: planned
 Proof: A substitute starts a child, emits partial output, and ignores normal
-termination. The wrapper returns nonpassing within deadline plus grace; neither
-owned process remains alive and partial evidence persists. A previously completed
-attempt is unchanged. Invocation log proves no retry.
+termination. With a short deadline, the wrapper returns nonpassing within
+deadline plus grace; neither owned process remains alive; partial evidence is
+retained; a previously completed attempt is byte-identical; the invocation log
+shows no retry. Focused test: `tests/native-run-timeout.sh`.
 
-Behavior: Running context attempt hangs → configured deadline expires → runner
-terminates its owned work, reports timeout, and finalizes retained evidence.
+Behavior: Running selected context attempt hangs → configured deadline expires →
+runner terminates owned work, reports timeout, and finalizes retained evidence.
 
-Sizing: low confidence; refinement recommended. Supervision must fit both local
-native wrapping and credential-free CI. Bound the proof to owned processes;
-do not enlarge it into cross-OS native support or replace Codex isolation.
+Sizing: approximately five minutes, medium confidence; uses leaf 3's supervisor
+and leaf 2's result layout. Bound the proof to owned processes.
 
-### 4. Preserve why a selected attempt could not execute
+### 5. Preserve why a selected attempt could not execute
 Type: Behavior
 Status: planned
 Proof: Missing executable, nonzero launch, and explicit denied-operation fixtures
@@ -193,7 +212,7 @@ an exit trap. Unknown runtime is recorded when no version can be obtained.
 
 Sizing: approximately five minutes, medium confidence; use leaf 2's finalizer.
 
-### 5. Reject an incomplete native stream despite a successful process exit
+### 6. Reject an incomplete native stream despite a successful process exit
 Type: Behavior
 Status: planned
 Proof: Per-host recorded complete, truncated, and missing-terminal streams drive
@@ -206,56 +225,117 @@ an incomplete attempt as nonpassing, separate from its later behavioral verdict.
 Sizing: approximately five minutes, medium confidence; use the existing context
 event formats. Unknown event shapes stay inconclusive for later native review.
 
-### 6. Run just the required Codex delivery journey
+### 7. Run just Codex delivery/legacy-refusal
 Type: Behavior
 Status: planned
-Proof: Through the Codex wrapper, substitutes demonstrate refusal alone, ordinary
-update without refusal, and updated use consuming the verified update's target.
-The call log omits unrelated cases; failed update launches no use. Each required
-attempt has retained artifacts and relationship IDs. Default deterministic and
-existing full-journey entry points retain their behavior.
+Proof: Through the Codex wrapper, a substitute runs only `delivery/legacy-refusal`.
+The call log omits update and use. The attempt is retained. Default
+deterministic and full `--native` (no `--case`) journeys keep their behavior.
+The shared setup trap does not delete the retained refusal.
 
-Behavior: Selected Codex delivery case → set up only its prerequisites and run
-through existing isolation → retain the requested case and necessary dependency
-results, with a real update-to-use chain where claimed.
+Behavior: Selected Codex `delivery/legacy-refusal` → set up only that
+prerequisite → run through existing isolation → retain that case.
 
-Sizing: low confidence; refinement recommended. First delivery integration must
-unwind the shared setup trap and sequence without losing state assertions. Use
-the existing transition helpers; do not generalize to unrelated harnesses.
+Sizing: approximately five–ten minutes, medium confidence; first delivery
+integration unwinds the shared trap. Use existing transition helpers; do not
+generalize to unrelated harnesses.
 
-### 7. Run just the required Cursor delivery journey
+### 8. Run just Codex delivery/ordinary-update
 Type: Behavior
 Status: planned
-Proof: Repeat leaf 6's selection/dependency contract through the Cursor wrapper;
-retain stream JSON plus derived response, record `cursor agent --version`, and
-exercise incomplete output through leaf 5's gate. Other tool roots and companion
-integration remain unchanged in the real fixture update.
+Proof: Selected ordinary-update runs inspected bootstrap plus a real fixture
+update, not a native legacy-refusal session. Call log omits refusal and use.
+Retained artifacts include the genuine update provenance.
 
-Behavior: Selected Cursor delivery case → use the shared journey mechanics and
-Cursor's native command adapter → retain that journey with correct runtime and
-raw evidence. Existing prose assertions retain their present interpretation.
+Behavior: Selected Codex `delivery/ordinary-update` → set up only its
+prerequisites → retain the update attempt.
 
-Sizing: medium-low confidence; refinement recommended if stream-output adaptation
-and journey migration cannot close one focused proof loop. Reuse the context
-wrapper's Cursor stream capture rather than inventing a new event parser.
+Sizing: approximately five minutes, medium confidence; reuses leaf 7's selected
+delivery path.
 
-### 8. Run just the required Claude Code delivery journey
+### 9. Run just Codex delivery/updated-use
 Type: Behavior
 Status: planned
-Proof: Repeat leaf 6's selection/dependency contract through the Claude wrapper;
-retain stream JSON plus response on success and failure, replacing its special
-failure-only cleanup. Exercise terminal completeness and unchanged other tool
-roots/companion integration. Preserve existing refusal assertions.
+Proof: Updated use consumes the verified update's target and records that
+attempt ID. Failed update launches no use and leaves use pending. Call log
+omits refusal.
 
-Behavior: Selected Claude Code delivery case → use the shared journey mechanics
-and its native command adapter → retain the selected attempt and genuine
-dependencies on either outcome.
+Behavior: Selected Codex `delivery/updated-use` → run the required update then
+fresh use on that same installation, or retain the failed update and skip use.
 
-Sizing: medium-low confidence; refinement recommended for the same integration
-boundary as leaf 7. Reuse context's structured capture; leave semantic repair
-and proof of native activation to Stories 2–3.
+Sizing: approximately five minutes, medium confidence; reuses leaves 7–8.
 
-### 9. Reassess a saved attempt without another native session
+### 10. Run just Cursor delivery/legacy-refusal
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 7's selected-refusal contract through the Cursor wrapper;
+retain stream JSON plus derived response; record `cursor agent --version`.
+Other tool roots stay unchanged. Existing prose assertions keep their meaning.
+
+Behavior: Selected Cursor `delivery/legacy-refusal` → shared journey plus
+Cursor adapter → retain that attempt.
+
+Sizing: approximately five minutes, medium confidence; reuse context Cursor
+stream capture.
+
+### 11. Run just Cursor delivery/ordinary-update
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 8's update-only contract through the Cursor wrapper, with
+Cursor Agent runtime identity and retained stream JSON.
+
+Behavior: Selected Cursor `delivery/ordinary-update` → retain the genuine
+update without a native refusal session.
+
+Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 10.
+
+### 12. Run just Cursor delivery/updated-use
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
+Cursor. Incomplete output still uses leaf 6's gate.
+
+Behavior: Selected Cursor `delivery/updated-use` → verified update then fresh
+use on that target, or pending use after failed update.
+
+Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 10.
+
+### 13. Run just Claude Code delivery/legacy-refusal
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 7's selected-refusal contract through the Claude wrapper;
+retain stream JSON plus response on failure as well as success, replacing
+failure-only scratch preservation. Preserve existing refusal assertions.
+
+Behavior: Selected Claude Code `delivery/legacy-refusal` → shared journey plus
+Claude adapter → retain the attempt on either outcome.
+
+Sizing: approximately five minutes, medium confidence; reuse context structured
+capture.
+
+### 14. Run just Claude Code delivery/ordinary-update
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 8's update-only contract through Claude, retaining stream
+JSON on success and failure.
+
+Behavior: Selected Claude Code `delivery/ordinary-update` → retain the genuine
+update without a native refusal session.
+
+Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 13.
+
+### 15. Run just Claude Code delivery/updated-use
+Type: Behavior
+Status: planned
+Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
+Claude. Other tool roots and companion integration stay unchanged.
+
+Behavior: Selected Claude Code `delivery/updated-use` → verified update then
+fresh use on that target, or pending use after failed update.
+
+Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 13.
+
+### 16. Reassess a saved attempt without another native session
 Type: Behavior
 Status: planned
 Proof: Saved good/bad attempts, revised assessor fixtures, explicit applicability
@@ -300,7 +380,7 @@ plus `tests/support/native-case-inventory.sh`. Exact flags are in `tests/README.
 unreviewed prior-evidence under `DIR/<host>/<case>/<attempt-id>/` when present,
 and never certifies reuse. Focused proof: `bash tests/native-case-selection.sh`.
 Selected delivery `--case` is recognized and rejected before setup so it cannot
-fall through to the full `--native` journey; leaves 6–8 replace that interim.
+fall through to the full `--native` journey; leaves 7–15 replace that interim.
 Open Dough has no Donut execute-plan CI mailbox; this execution does not promise
 CI observation.
 
@@ -312,11 +392,10 @@ launch. Cursor runtime is `cursor agent --version`. Cheap substitutes use
 `codex` is a symlink (real native); non-symlink substitutes skip `sandbox-exec`
 so Ubuntu CI can run selected context. Focused proof:
 `bash tests/native-result-retention.sh`. `--native` without `--results-dir`
-still uses disposable scratch. Failures still lose scratch evidence (leaf 4).
+still uses disposable scratch. Failures still lose scratch evidence (leaf 5).
 
-Refinement is complete at story level. **Refinement recommended: leaves 3 and
-6–8**, because process ownership and the first delivery integration/stream
-migrations have plausible paths beyond the borrowed skill's ten-minute limit.
-Leaf sizing is an estimate, not an execution guarantee. No extra native
-feasibility run is justified by current source inspection. A later leaf
-refinement stays inside this story and this PLAN.
+Remaining-leaf refinement (after slices 1–2): old leaf 3 split into Structure
+(deadline/grace ownership, defaults leave success unchanged) plus Behavior
+(hang, kill owned tree, retain partial evidence). Old delivery leaves 6–8 split
+into one case per host (Codex 7–9, Cursor 10–12, Claude 13–15) so each leaf has
+one proof loop. Reassessment is leaf 16. Leaf sizing remains a hypothesis.
