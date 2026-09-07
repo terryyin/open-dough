@@ -1,13 +1,16 @@
 # Detect native behavior failures instead of rewarding the expected words
 
-Status: planned; refinement recommended for leaves 1 and 6–8. Depends on Story
-1's delivered retained-artifact and reassessment interface. No implementation
-or native execution is performed by this planning task.
+Status: planned; refinement recommended for leaves 1 and 6–8. Depends on Quick
+Plan 22's delivered retained-artifact and reassessment interface. No native
+execution is part of this plan.
 
 ## Source
 
 - [SEED-007 Story 2](../../seeds/SEED-007-cross-tool-validation.md#trust-native-verdicts),
   the second [product backlog](../../PRODUCT-BACKLOG.md) item; E1–E5 bound this plan.
+- [Quick Plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md) owns the
+  extracted Story 1 result boundary this plan consumes. Recheck it before
+  implementation and stop rather than duplicating missing dependency work.
 - Owner direction: system/codebase readiness for honest ADR 0005 validation only.
   Refine first and write a slice plan if no open question remains.
 - Borrowed Donut's `story-refinement` and `slice-planning`, their `planning.mdc`
@@ -33,9 +36,10 @@ story establishes tested assessment behavior, not native product acceptance.
 Change only `tests/dough-adr-awareness-context.sh`, the three
 `tests/dough-adr-awareness-*-delivery-to-use.sh` wrappers, immediately needed
 shared support and fixtures, focused cheap tests, and brief test usage guidance.
-Use Story 1's selected cases, durable results, stream capture, execution status,
-and offline reassessment. Recheck that delivered interface before implementation;
-do not duplicate its runner, retention, timeout, or applicability work here.
+Use Quick Plan 22's selected cases, durable results, stream capture, execution
+status, and offline reassessment. Recheck that delivered interface before
+implementation; do not duplicate its runner, retention, timeout, or
+applicability work here.
 
 Keep the five existing cases per host: context clear/conflict and delivery
 legacy-refusal/ordinary-update/updated-use. Keep explicit invocation hints and
@@ -299,9 +303,9 @@ does not close that story or authorize release of the affected behavior.
 
 ## Learnings and readiness
 
-No implementation learning yet. No blocking product questions remain. Story 1
-is a real execution prerequisite; its exact result schema/commands are not yet
-implemented and must be consumed rather than specified again here.
+No implementation learning yet. No blocking product questions remain. Quick
+Plan 22 is the execution prerequisite and must be completed and consumed rather
+than specified again here.
 
 **Refinement recommended: leaves 1 and 6–8.** Those integration paths have low
 sizing confidence and could exceed the borrowed skill's ten-minute limit.

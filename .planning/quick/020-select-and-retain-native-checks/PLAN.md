@@ -1,8 +1,9 @@
 # Run one needed native check without replaying or losing the others
 
-Status: executing; slices 1–5 done. Remaining leaves were refined in place
-(supervisor+timeout; one selected delivery case per host). No `--native` run is
-part of this plan's verification.
+Status: executing; slices 1–5 done. The retained stream, selected delivery, and
+reassessment boundary was extracted to Quick Plan 22; the final checkpoint must
+stop and wait if that plan is not implemented. No `--native` run is part of this
+plan's verification.
 
 ## Source
 
@@ -122,12 +123,10 @@ build a parallel test framework.
 | E1/E2: selected context only, durable successful attempt and exact inputs/runtime | 2 |
 | E3: hung owned process tree terminates within bound, evidence survives, no retry | 3–4 |
 | E3: unavailable/denied launch remains nonpassing with evidence | 5 |
-| E3: truncated or absent terminal stream cannot pass on exit 0 | 6 |
-| E1/E2/E5: selected Codex delivery sessions and genuine update provenance; failed dependency leaves use pending | 7–9 |
-| E1/E2/E5: same selected delivery contract through the Cursor adapter | 10–12 |
-| E1/E2/E5: same selected delivery contract through the Claude Code adapter | 13–15 |
+| E3: truncated or absent terminal stream cannot pass on exit 0 | Quick Plan 22 leaf 1; verified at checkpoint 6 |
+| E1/E2/E5: selected delivery sessions, genuine update provenance, and failed-dependency pending behavior for all hosts | Quick Plan 22 leaves 2–10; verified at checkpoint 6 |
 | E2/E3: new success/failure never overwrites prior attempts; unwritable result destination prevents launch | 2–6 |
-| E4: offline reassessment, preserved original, applicability rationale, changed/missing evidence pending | 16 |
+| E4: offline reassessment, preserved original, applicability rationale, changed/missing evidence pending | Quick Plan 22 leaf 11; verified at checkpoint 6 |
 | Shared mechanics, existing default/legacy callers preserved, broad cheap CI, no installed infrastructure | Focused checks in each leaf; whole-story completion below |
 | Native discovery, invocation/application, behavior, affected install/update/coexistence | Pending in Story 3; matrix below |
 
@@ -212,20 +211,32 @@ an exit trap. Unknown runtime is recorded when no version can be obtained.
 
 Sizing: approximately five minutes, medium confidence; use leaf 2's finalizer.
 
-### 6. Reject an incomplete native stream despite a successful process exit
+### 6. Verify the extracted retained-evidence dependency
 Type: Behavior
 Status: planned
-Proof: Per-host recorded complete, truncated, and missing-terminal streams drive
-the same completion checks. Incomplete evidence with exit 0 remains nonpassing;
-raw evidence survives. No semantic expected-answer changes enter the assertions.
+Proof: Inspect Quick Plan 22 and its committed focused evidence. Require every
+leaf done, retained complete/incomplete context results, all three hosts' selected
+delivery cases with update-to-use relationship IDs, append-only offline
+reassessment, and current `npm test`/`npm run lint` success. If any requirement
+is absent or incomplete, stop and wait for Quick Plan 22; do not implement it
+inside this plan.
 
-Behavior: Native command exits → inspect required stream completion → classify
-an incomplete attempt as nonpassing, separate from its later behavioral verdict.
+Behavior: Quick Plan 20 reaches its extracted dependency checkpoint → verify
+Quick Plan 22's delivered interface and proof → finish this story only when the
+dependency is present, otherwise issue a Jidoka stop and wait.
 
-Sizing: approximately five minutes, medium confidence; use the existing context
-event formats. Unknown event shapes stay inconclusive for later native review.
+Sizing: approximately five minutes, high confidence; verification only.
 
-### 7. Run just Codex delivery/legacy-refusal
+## Extracted dependency history (non-executable)
+
+The former leaves below were moved without scope change to
+[Quick Plan 22](../022-retain-native-evidence-for-verdicts/PLAN.md). They remain
+here only as historical mapping and must not be selected for execution.
+
+#### Former 6. Reject an incomplete native stream despite a successful process exit
+Status: moved to Quick Plan 22 leaf 1
+
+#### Former 7. Run just Codex delivery/legacy-refusal
 Type: Behavior
 Status: planned
 Proof: Through the Codex wrapper, a substitute runs only `delivery/legacy-refusal`.
@@ -240,7 +251,7 @@ Sizing: approximately five–ten minutes, medium confidence; first delivery
 integration unwinds the shared trap. Use existing transition helpers; do not
 generalize to unrelated harnesses.
 
-### 8. Run just Codex delivery/ordinary-update
+#### Former 8. Run just Codex delivery/ordinary-update
 Type: Behavior
 Status: planned
 Proof: Selected ordinary-update runs inspected bootstrap plus a real fixture
@@ -253,7 +264,7 @@ prerequisites → retain the update attempt.
 Sizing: approximately five minutes, medium confidence; reuses leaf 7's selected
 delivery path.
 
-### 9. Run just Codex delivery/updated-use
+#### Former 9. Run just Codex delivery/updated-use
 Type: Behavior
 Status: planned
 Proof: Updated use consumes the verified update's target and records that
@@ -265,7 +276,7 @@ fresh use on that same installation, or retain the failed update and skip use.
 
 Sizing: approximately five minutes, medium confidence; reuses leaves 7–8.
 
-### 10. Run just Cursor delivery/legacy-refusal
+#### Former 10. Run just Cursor delivery/legacy-refusal
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 7's selected-refusal contract through the Cursor wrapper;
@@ -278,7 +289,7 @@ Cursor adapter → retain that attempt.
 Sizing: approximately five minutes, medium confidence; reuse context Cursor
 stream capture.
 
-### 11. Run just Cursor delivery/ordinary-update
+#### Former 11. Run just Cursor delivery/ordinary-update
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 8's update-only contract through the Cursor wrapper, with
@@ -289,7 +300,7 @@ update without a native refusal session.
 
 Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 10.
 
-### 12. Run just Cursor delivery/updated-use
+#### Former 12. Run just Cursor delivery/updated-use
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
@@ -300,7 +311,7 @@ use on that target, or pending use after failed update.
 
 Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 10.
 
-### 13. Run just Claude Code delivery/legacy-refusal
+#### Former 13. Run just Claude Code delivery/legacy-refusal
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 7's selected-refusal contract through the Claude wrapper;
@@ -313,7 +324,7 @@ Claude adapter → retain the attempt on either outcome.
 Sizing: approximately five minutes, medium confidence; reuse context structured
 capture.
 
-### 14. Run just Claude Code delivery/ordinary-update
+#### Former 14. Run just Claude Code delivery/ordinary-update
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 8's update-only contract through Claude, retaining stream
@@ -324,7 +335,7 @@ update without a native refusal session.
 
 Sizing: approximately five minutes, medium confidence; reuses leaves 8 and 13.
 
-### 15. Run just Claude Code delivery/updated-use
+#### Former 15. Run just Claude Code delivery/updated-use
 Type: Behavior
 Status: planned
 Proof: Repeat leaf 9's update-to-use and failed-update-pending contract through
@@ -335,7 +346,7 @@ fresh use on that target, or pending use after failed update.
 
 Sizing: approximately five minutes, medium confidence; reuses leaves 9 and 13.
 
-### 16. Reassess a saved attempt without another native session
+#### Former 16. Reassess a saved attempt without another native session
 Type: Behavior
 Status: planned
 Proof: Saved good/bad attempts, revised assessor fixtures, explicit applicability
@@ -353,8 +364,9 @@ needed to run offline. No cache lookup policy or old-artifact migration.
 
 ## Completion and native evidence ownership
 
-Run focused tests with each leaf. At story completion, run `npm test` and
-`npm run lint` once to check the full cheap suite and shared-caller regressions.
+Run focused tests with each owned leaf. At story completion, checkpoint 6 verifies
+Quick Plan 22 and runs `npm test` and `npm run lint` once to check the full cheap
+suite and shared-caller regressions.
 No `--native` invocation is part of this plan's verification. These changes must
 remain internal test infrastructure; neither installed skill contents nor the
 installer's payload contract changes. Record actual cheap observations here
@@ -427,3 +439,8 @@ Remaining-leaf refinement (after slices 1–2): old leaf 3 split into Structure
 (hang, kill owned tree, retain partial evidence). Old delivery leaves 6–8 split
 into one case per host (Codex 7–9, Cursor 10–12, Claude 13–15) so each leaf has
 one proof loop. Reassessment is leaf 16. Leaf sizing remains a hypothesis.
+
+Dependency extraction: former leaves 6–16 moved to Quick Plan 22 because they
+form the retained-artifact and reassessment boundary required by Quick Plan 21.
+This plan keeps checkpoint 6. The checkpoint must stop and wait when Quick Plan
+22 is incomplete; it must not duplicate that work.
