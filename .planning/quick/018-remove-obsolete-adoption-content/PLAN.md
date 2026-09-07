@@ -350,7 +350,7 @@ exception and may exceed ten minutes.
 ### 4f. Transition a legacy Cursor installation to native use
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Apply the 4e transition boundary independently in the Cursor
 delivery-to-use harness, including old-updater refusal, inspected bootstrap,
 fresh-session ordinary update, native skill improvement, absent recognition,
@@ -487,9 +487,9 @@ messages as native verification. Integrated checks remain pending.
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
   reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
   the fixture list; 3b installed only the two skills; 3c passed native use on all
-  three tools; 4a–4d proved retirement and no-write boundaries; 4e passed the native Codex legacy transition. Execution resumes at 4f. Reassess after five minutes and follow Learning
+  three tools; 4a–4d proved retirement boundaries; 4e–4f passed native Codex and Cursor legacy transitions. Execution resumes at 4g. Reassess after five minutes and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
-  `/Users/terryyin/git/open-dough`, Codex cell `223`; rearmed before the 4e push.
+  `/Users/terryyin/git/open-dough`, Codex cell `239`; rearmed before the 4f push.
 - No client update, release, ADR status, tagged metadata, or tracked native-copy
   change has been performed.
