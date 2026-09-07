@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091,SC2154 # The sourced fixture supplies managed_files.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 internal_skill_names=(release-version extract-guidance)
-managed_files=(
-  dough-update/SKILL.md
-  dough-adr-awareness/SKILL.md
-  dough-adr-awareness/RECOGNITION.md
-)
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 
 for internal_skill_name in "${internal_skill_names[@]}"; do
   [[ -f "${source_dir}/.agents/skills/${internal_skill_name}/SKILL.md" ]]
@@ -66,8 +64,22 @@ assert_sentinels() {
 }
 
 expect_files() {
-  local expected actual
-  expected=$(cat || true)
+  local expected actual relative_skill_root managed_file
+  expected=$(
+    {
+      printf '%s\n' \
+        './.agents/skills/unrelated/SKILL.md' \
+        './.claude/skills/other-skill/SKILL.md' \
+        './.cursor/skills/other-cursor-skill/SKILL.md' \
+        './keep this file.txt'
+      for relative_skill_root in "$@"; do
+        for managed_file in "${managed_files[@]}"; do
+          printf './%s/%s\n' "${relative_skill_root}" "${managed_file}"
+        done
+        printf './%s/dough-update/VERSION\n' "${relative_skill_root}"
+      done
+    } | LC_ALL=C sort
+  )
   actual=$(list_files "${target}")
   if [[ "${actual}" != "${expected}" ]]; then
     echo "FAIL: installed outputs did not match the expected enumeration." >&2
@@ -98,36 +110,14 @@ bash "${source_dir}/install.sh" --target "${target}" --platform codex
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files << 'EOF'
-./.agents/skills/dough-adr-awareness/RECOGNITION.md
-./.agents/skills/dough-adr-awareness/SKILL.md
-./.agents/skills/dough-update/SKILL.md
-./.agents/skills/dough-update/VERSION
-./.agents/skills/unrelated/SKILL.md
-./.claude/skills/other-skill/SKILL.md
-./.cursor/skills/other-cursor-skill/SKILL.md
-./keep this file.txt
-EOF
+expect_files .agents/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --platform cursor
 assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files << 'EOF'
-./.agents/skills/dough-adr-awareness/RECOGNITION.md
-./.agents/skills/dough-adr-awareness/SKILL.md
-./.agents/skills/dough-update/SKILL.md
-./.agents/skills/dough-update/VERSION
-./.agents/skills/unrelated/SKILL.md
-./.claude/skills/other-skill/SKILL.md
-./.cursor/skills/dough-adr-awareness/RECOGNITION.md
-./.cursor/skills/dough-adr-awareness/SKILL.md
-./.cursor/skills/dough-update/SKILL.md
-./.cursor/skills/dough-update/VERSION
-./.cursor/skills/other-cursor-skill/SKILL.md
-./keep this file.txt
-EOF
+expect_files .agents/skills .cursor/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --platform claude
 assert_public_payload .claude/skills
@@ -135,23 +125,6 @@ assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files << 'EOF'
-./.agents/skills/dough-adr-awareness/RECOGNITION.md
-./.agents/skills/dough-adr-awareness/SKILL.md
-./.agents/skills/dough-update/SKILL.md
-./.agents/skills/dough-update/VERSION
-./.agents/skills/unrelated/SKILL.md
-./.claude/skills/dough-adr-awareness/RECOGNITION.md
-./.claude/skills/dough-adr-awareness/SKILL.md
-./.claude/skills/dough-update/SKILL.md
-./.claude/skills/dough-update/VERSION
-./.claude/skills/other-skill/SKILL.md
-./.cursor/skills/dough-adr-awareness/RECOGNITION.md
-./.cursor/skills/dough-adr-awareness/SKILL.md
-./.cursor/skills/dough-update/SKILL.md
-./.cursor/skills/dough-update/VERSION
-./.cursor/skills/other-cursor-skill/SKILL.md
-./keep this file.txt
-EOF
+expect_files .agents/skills .cursor/skills .claude/skills
 
 echo "PASS: installer writes only the public payload and updater VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

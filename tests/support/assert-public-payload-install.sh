@@ -2,7 +2,14 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
-platform=${1:-}
+
+if (($# < 2)); then
+  echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
+  exit 1
+fi
+platform=$1
+shift
+managed_files=("$@")
 
 case "${platform}" in
   codex)
@@ -18,16 +25,11 @@ case "${platform}" in
     platform_label='Claude Code'
     ;;
   *)
-    echo "Usage: $0 <codex|cursor|claude>" >&2
+    echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
     exit 1
     ;;
 esac
 
-managed_files=(
-  dough-update/SKILL.md
-  dough-adr-awareness/SKILL.md
-  dough-adr-awareness/RECOGNITION.md
-)
 skill_roots=(.agents/skills .cursor/skills .claude/skills)
 
 temporary_dir=$(mktemp -d)
@@ -94,16 +96,21 @@ actual_files=$(list_files "${target}")
 [[ "${actual_files}" == "${expected_files}" ]]
 
 incomplete_source="${temporary_dir}/incomplete source"
-mkdir -p -- "${incomplete_source}/src/skills/dough-update" \
-  "${incomplete_source}/src/skills/dough-adr-awareness"
+missing_index=$((${#managed_files[@]} - 1))
+missing_managed_file=${managed_files[missing_index]}
+mkdir -p -- "${incomplete_source}/src/skills"
 cp -- "${source_dir}/install.sh" "${incomplete_source}/install.sh"
 cp -- "${source_dir}/VERSION" "${incomplete_source}/VERSION"
 cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
 cp -R -- "${source_dir}/src/install" "${incomplete_source}/src/install"
-cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${incomplete_source}/src/skills/dough-update/SKILL.md"
-cp -- "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${incomplete_source}/src/skills/dough-adr-awareness/SKILL.md"
+for managed_file in "${managed_files[@]}"; do
+  if [[ "${managed_file}" == "${missing_managed_file}" ]]; then
+    continue
+  fi
+  mkdir -p -- "${incomplete_source}/src/skills/$(dirname -- "${managed_file}")"
+  cp -- "${source_dir}/src/skills/${managed_file}" \
+    "${incomplete_source}/src/skills/${managed_file}"
+done
 
 incomplete_target="${temporary_dir}/incomplete target"
 mkdir -p -- "${incomplete_target}"
@@ -115,7 +122,7 @@ if output=$(bash "${incomplete_source}/install.sh" \
   exit 1
 fi
 [[ "${output}" == *'Public payload is incomplete:'* ]]
-[[ "${output}" == *'dough-adr-awareness/RECOGNITION.md'* ]]
+[[ "${output}" == *"${missing_managed_file}"* ]]
 after=$(list_files "${incomplete_target}")
 [[ "${after}" == "${before}" ]]
 [[ ! -e "${incomplete_target}/${relative_skill_root%%/*}" ]]

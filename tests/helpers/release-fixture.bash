@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Shared fixture builders for version-aware install/update tests.
-# Sourced by tests; callers set source_dir and have set -euo pipefail.
+# Sourced by tests; callers set source_dir and managed_files, and enable pipefail.
 
 : "${source_dir:?source_dir must be set before sourcing this helper}"
+: "${managed_files:?managed_files must be set before sourcing this helper}"
+if ((${#managed_files[@]} == 0)); then
+  echo 'managed_files must contain at least one public payload file' >&2
+  return 1
+fi
 
 git_identity() {
   git -C "$1" config user.email 'fixture@example.com'
@@ -11,17 +16,16 @@ git_identity() {
 
 copy_current_release_files() {
   local dest=$1
+  local managed_file
 
-  mkdir -p -- "${dest}/src/install" "${dest}/src/skills/dough-update" \
-    "${dest}/src/skills/dough-adr-awareness"
+  mkdir -p -- "${dest}/src/install" "${dest}/src/skills"
   cp -- "${source_dir}/install.sh" "${dest}/install.sh"
   cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
-  cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
-    "${dest}/src/skills/dough-update/SKILL.md"
-  cp -- "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-    "${dest}/src/skills/dough-adr-awareness/SKILL.md"
-  cp -- "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-    "${dest}/src/skills/dough-adr-awareness/RECOGNITION.md"
+  for managed_file in "${managed_files[@]}"; do
+    mkdir -p -- "${dest}/src/skills/$(dirname -- "${managed_file}")"
+    cp -- "${source_dir}/src/skills/${managed_file}" \
+      "${dest}/src/skills/${managed_file}"
+  done
   cp -- "${source_dir}/VERSION" "${dest}/VERSION"
   cp -- "${source_dir}/CHANGELOG.md" "${dest}/CHANGELOG.md"
 }
@@ -150,14 +154,17 @@ assert_payload() {
   local version=$2
   local marker=$3
   local contents
-  local skill_root
+  local skill_root managed_file
 
   grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"
   skill_root=$(dirname -- "${destination}")
-  cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-    "${skill_root}/dough-adr-awareness/SKILL.md"
-  cmp "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" \
-    "${skill_root}/dough-adr-awareness/RECOGNITION.md"
+  for managed_file in "${managed_files[@]}"; do
+    if [[ "${managed_file}" == 'dough-update/SKILL.md' ]]; then
+      continue
+    fi
+    cmp "${source_dir}/src/skills/${managed_file}" \
+      "${skill_root}/${managed_file}"
+  done
   contents=$(cat "${destination}/VERSION")
   [[ "${contents}" == "${version}" ]]
 }

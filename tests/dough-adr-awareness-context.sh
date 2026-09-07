@@ -4,6 +4,8 @@
 set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"

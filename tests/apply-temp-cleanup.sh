@@ -3,6 +3,9 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
+# shellcheck disable=SC1091
 # shellcheck source=tests/helpers/release-fixture.bash
 source "${source_dir}/tests/helpers/release-fixture.bash"
 

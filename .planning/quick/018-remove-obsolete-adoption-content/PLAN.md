@@ -209,7 +209,7 @@ Size: high confidence; platform evidence only, with native runtime exempt.
 ### 3a. Make shared payload fixtures independent of payload width
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Current three-file public installs remain green in the three
 `tests/install-*-public-payload.sh` entry points, `tests/install-omits-internal.sh`,
 and affected release/repeat/failure fixture checks.
@@ -485,8 +485,9 @@ messages as native verification. Integrated checks remain pending.
   cleanup, and deterministic checks remain within each leaf's sizing hypothesis.
 - Slices 1a–1b replaced migration reconstruction with a byte-equivalent direct
   fixture; 2a decoupled candidate proof from released-copy identity; 2b removed
-  reusable adoption; 2b–2d passed all native rejection proofs. Execution resumes at 3a.
-  Reassess after five minutes and follow Learning
+  reusable adoption; 2b–2d passed all native rejection proofs; 3a centralized
+  the fixture payload list. Execution resumes at 3b. Reassess after five minutes
+  and follow Learning
   escalation for any non-exempt ten-minute overrun; do not add a new plan layer.
 - Execution observer: `terryyin/open-dough` `main`, coordinator `/root`, checkout
   `/Users/terryyin/git/open-dough`, Codex cell `100`; rearmed after the 2d stop.
