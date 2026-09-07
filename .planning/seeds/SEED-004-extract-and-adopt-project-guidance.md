@@ -136,15 +136,19 @@ an effective substitute in the original context.
 
 ### 2. Replace equivalent local guidance when updating Open Dough
 
-- **Status:** Refined; not implemented or planned for execution.
+- **Priority:** Deferred and unqueued until another concrete equivalent match
+  or recurring manual cleanup demonstrates the need. One successful Donut use
+  does not itself justify a generic replacement capability.
+- **Status:** Candidate scope; re-refine around the triggering case before
+  planning or implementation.
 - **For / why:** An adopting developer wants to use shared guidance without
   maintaining a redundant local equivalent.
 - **Evaluation:** Update a project with matching local guidance, review the
   explained suggestion, and use the shared replacement after authorized cleanup.
 - **Value / learning:** Removes duplication for clear matches even if handling
   local differences and first-install migration are deferred.
-- **Effort hypothesis:** L (2–4 hours), low confidence; assumes a bounded set of
-  matches with equivalent behavior and available native verification contexts.
+- **Effort hypothesis:** Re-estimate when triggered; assumes one concrete
+  equivalent match and available native verification contexts.
 - **Depends on:** Released public guidance with identifying characteristics
   and an installed target. Reuse the clear-equivalent assessment and cleanup
   demonstrated by Story 4; local-difference merging in Story 3 is not required.
@@ -166,7 +170,10 @@ unrelated project.
   authorization already given; a request for assessment alone produces suggestions.
 - Remove redundant material and repair affected references so the shared guidance
   takes over. Preserve unrelated text, files, and other tools' working guidance.
-- In this story, replace clear behavioral equivalents. If meaningful differences
+- Bound the selected case to one clear behavioral equivalent and its actual
+  callers; no bulk matching or cross-project migration framework. The examples
+  below illustrate possible cases, not a mandatory matrix for the first case.
+  If meaningful differences
   or ambiguous matches prevent a sound decision, explain and stop the affected
   replacement before deleting anything needed. Story 3 handles useful differences.
 - A repeated update must not recreate a removed original or propose the same
@@ -328,40 +335,53 @@ working execution-to-monitoring flow in an adopting project.
 
 <a id="extract-story-refinement"></a>
 
-### 6. Refine stories with an extracted Open Dough skill
+### 6. Refine one real backlog story with an extracted Open Dough skill
 
-- **Status:** Candidate; follows the first ADR-awareness adoption loop, not
-  implemented or planned.
+- **Status:** Scope revised 2026-09-07; not implemented or planned. Ordered
+  immediately after the first useful real Donut task, before remaining Donut
+  readiness and cleanup; full migration is not a dependency.
 - **For / why:** The Open Dough maintainer repeatedly borrows Donut's
   `story-refinement`; use a shared skill for everyday story clarification.
 - **Evaluation:** Extract `dough-story-refinement`, install it in a controlled
-  context, and use it to refine a selected story's goal, scope, and key examples
-  without reading the Donut checkout. Preserve the source practice's behavior.
+  context, and use it to refine one selected existing Open Dough backlog story's
+  goal, smallest useful scope, exclusions, and observable examples without reading
+  the Donut checkout during use. Preserve the source practice's behavior and put
+  the useful result in that story's existing home; do not invent a sample story
+  solely to demonstrate invocation.
 - **Value / learning:** Directly removes one recurring borrowing dependency and
   tests reuse beyond ADR-awareness without taking on CI scripts.
 - **Effort hypothesis:** M, low confidence; the source has no accompanying scripts
   but references `planning.mdc`, ADR-awareness, and other lifecycle skills.
 - **Depends on:** Story 1's extraction capability and the supplied source skill.
-  Resolve required planning conventions and use the existing shared ADR skill;
-  do not assume deleting references makes the result equivalent.
+  Resolve planning conventions needed for the selected case and reuse the
+  existing shared ADR skill. Broader hypothetical lifecycle context must not
+  block this case, but essential source behavior must not be silently dropped.
 - **Scope:** One usable public skill and its necessary context, recognition
   record, installation/update delivery, and native use. Preserve one story home
   and the distinction between refinement and execution. Extract only necessary
   shared behavior or accept suitable adopting-project context; if an essential
   dependency requires a broader extraction, expose the gap before claiming done.
-  Publishing, real self-adoption, and Donut cleanup follow in their existing stories.
+  Demonstrate source-context equivalence and independent native discovery,
+  invocation, intended behavior, installation/update delivery, and coexistence
+  in Codex, Cursor, and Claude Code; preserve missing evidence as pending.
+  Exclude sibling-skill extraction, executing the refined story, release
+  publication, and replacing local Donut guidance. A useful refinement of the
+  real story is required; generating a skill file or a marker alone is not done.
 
 <a id="extract-story-decomposition"></a>
 
 ### 7. Decompose product work with an extracted Open Dough skill
 
-- **Status:** Candidate; follows story-refinement in priority, not implemented
-  or planned. Priority is not a technical dependency on Story 6.
+- **Status:** Scope revised 2026-09-07; not implemented or planned. Ordered
+  after remaining Donut readiness and cleanup, before the conditional update
+  observation. Priority is not a technical dependency on those stories.
 - **For / why:** The maintainer wants to shape and reorder useful stories without
   repeatedly borrowing Donut's `story-decomposition`.
 - **Evaluation:** Extract `dough-story-decomposition`, install it in a controlled
-  context, and use it to turn a real product problem into bounded, ordered
-  stories and stable backlog links without access to the Donut checkout.
+  context, and use it to turn one existing oversized Open Dough product problem
+  into bounded, ordered stories and stable backlog links without access to the
+  Donut checkout during use. Identify the first independently useful outcome
+  and what can be deferred; record the result in the existing backlog/seed home.
 - **Value / learning:** Makes another frequently borrowed planning practice
   reusable and tests preservation of its decision and scope discipline.
 - **Effort hypothesis:** M, low confidence; no accompanying scripts, but required
@@ -371,8 +391,12 @@ working execution-to-monitoring flow in an adopting project.
 - **Scope:** One public skill, required context and recognition record, and
   installation/update delivery with native use. Preserve valuable, observable
   story outcomes and separation from executable plans. Backlog position conveys
-  priority through unnumbered links; stable seed anchors survive reordering.
-  Wider lifecycle extraction and CI monitoring remain separate.
+  priority; stable seed anchors survive reordering.
+  Resolve only context required by the chosen problem. Prove source-context
+  equivalence and native discovery/invocation, intended behavior, affected
+  installation/update delivery, and coexistence in all three tools. Exclude
+  decomposing the whole backlog, writing execution plans for every resulting
+  story, executing those stories, and extracting lifecycle/CI infrastructure.
 
 ## Cross-platform Acceptance and Evidence
 
@@ -387,15 +411,17 @@ success does not prove those outcomes; their native evidence remains pending.
 
 ## Ordering and Scope Reduction
 
-SEED-001 safe installation and publication are complete. The first bounded
-Codex replacement is also complete. Open Dough self-adoption remains in
-SEED-001. The next practical adoption work is decomposed in SEED-006: prove
-post-cleanup Codex use, prepare Donut while retaining the original, finish
-Donut cleanup only after three-tool readiness, then optionally verify updates.
+SEED-001 safe installation, publication, and Open Dough self-adoption are
+complete. Codex replacement and disposable post-cleanup use are complete.
+The selected order is one real Donut task (SEED-006 Story 2), this seed's
+story-refinement extraction, remaining live-tool readiness (SEED-006 Story 2b),
+then separate Donut cleanup. Story decomposition follows; update preservation
+waits for a real wanted newer release. The product backlog is authoritative.
 
-Stories 2, 3, and 5-7 in this seed remain independent. Preserve local guidance
-when equivalence is unresolved; defer difference reconciliation and additional
-skill extraction until their own triggers.
+Stories 2, 3, and 5 stay deferred until their named observed needs. Preserve local
+guidance when equivalence is unresolved. Neither full Donut migration nor a
+new generic migration capability is a prerequisite for extracting the selected
+planning skill. All new shared guidance still needs three-platform acceptance.
 
 ## Selection and Open Decisions
 
@@ -407,8 +433,8 @@ skill extraction until their own triggers.
 ## When to Surface
 
 The product backlog records completed Stories 1 and 4 and the selected
-follow-ups from SEED-006. Surface other candidates only when their stated pain
-or dependency appears.
+planning extractions interleaved with SEED-006 adoption outcomes. Surface
+deferred candidates only when their stated pain or dependency appears.
 
 ## Breadcrumbs
 

@@ -3,11 +3,13 @@
 ## Source
 
 [SEED-006, Story 3](../../seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption).
-Status: planned, not executed.
+Status: scope aligned 2026-09-07; not executed. The retained slices require
+planning review after the new readiness split; not ready for direct execution.
 
 ## Goal and scope
 
-After Plan 015 proves all three Donut integrations ready, repair the live caller
+After SEED-006 Stories 2 and 2b prove every affected live integration ready
+and the first task demonstrates useful behavior, repair the live caller
 graph, remove the redundant original and obsolete link, and show that explicit
 and automatic ADR behavior still works independently in Codex, Cursor, and
 Claude Code.
@@ -40,7 +42,7 @@ Structure: Repair only the verified caller checklist immediately enabling slice
 ### 2. Retire Donut's redundant original
 Type: Behavior
 Status: planned
-Proof: Recheck Plan 015 readiness and the repaired graph, then remove only the
+Proof: Recheck Stories 2 and 2b readiness and the repaired graph, then remove only the
 original skill and obsolete discovery link. Remaining graph/context/payload and
 unrelated working changes are unchanged.
 
@@ -100,8 +102,10 @@ ADR guidance applies automatically.
 
 ## Decisions
 
-- ADR 0001 remains Accepted despite its filename; Proposed ADR 0002 is not
-  binding. No ADR content or status is rewritten.
+- Reinspect live ADR authorities, statuses, and constraints; do not freeze
+  historical fixture values into acceptance. Proposed records remain non-binding,
+  and filenames do not override resolved authority. No ADR policy is invented
+  and no content/status is rewritten by cleanup.
 - Any drift, failed readiness claim, or new caller stops deletion and preserves
   working guidance.
 - Native runs are independent evidence; one tool's success cannot prove another.

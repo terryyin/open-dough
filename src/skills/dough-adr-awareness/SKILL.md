@@ -15,8 +15,8 @@ Accepted ADRs without taking decision authority from humans.
 
 ## Required adopter context
 
-Before applying this skill, resolve these values from the repository's own
-guidance or ask the human to supply them:
+Resolve the following context from the repository's own guidance as needed for
+the current request; ask the human only for a missing value that affects it:
 
 - the repository-relative ADR store and index or catalog path;
 - the fields that authoritatively classify an ADR as Proposed, Accepted,
@@ -36,6 +36,13 @@ another project.
 
 If context needed for the current request cannot be resolved, name the missing
 context and stop the affected work. Do not claim that an ADR check completed.
+
+Do not require policies for situations absent from the current request. When
+the index and record statuses agree, no disagreement-resolution rule is needed.
+When no relevant record indicates supersession and no lifecycle change is
+requested, a supersession-maintenance convention is not needed. Do not invent
+either policy. An actual status disagreement or unclear successor still blocks
+dependent work as described below.
 
 ## When to apply
 
@@ -145,8 +152,8 @@ invocation with:
 
 `## ADR CHECK COMPLETE`
 
-Do not emit that marker when required context, status authority, supersession,
-or a human-owned conflict decision remains unresolved.
+Do not emit that marker when context, status authority, supersession, or a
+human-owned conflict decision needed for the current request remains unresolved.
 
 ## Delivery invariant
 

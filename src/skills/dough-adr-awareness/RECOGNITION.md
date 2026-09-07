@@ -45,11 +45,14 @@ contextual exceptions.
 - Keeps all decision and terminal-status authority with humans. It performs only
   directed mechanical hygiene and uses an adopter template for proposal drafting
   only when that drafting was requested.
-- Reports missing stores, empty current sets, unavailable adopter context, and
-  unavailable human decisions without claiming completion.
+- Reports missing stores, empty current sets, and unavailable adopter context
+  or human decisions needed for the current request without claiming completion.
 - Ends successful explicit invocations with `## ADR CHECK COMPLETE`.
 
 ## Adopter-provided context
+
+Resolve these values when needed for the current request; absent hypothetical
+status disagreements or lifecycle changes do not require invented policies.
 
 - Repository-relative ADR store and index or catalog.
 - Authoritative status fields, filename conventions, inconsistency-resolution
@@ -69,7 +72,7 @@ treats filenames as the sole status authority, fails to follow supersession,
 cannot cite the constraining record, applies Proposed or historical ADRs as
 current, invents exceptions, lets the agent approve lifecycle changes, requires
 one project's ADR layout or decisions, or claims completion despite unresolved
-status or context.
+status or context needed for the current request.
 
 An on-demand skill is also not a proven replacement for source guidance whose
 automatic application is material unless the target host supplies and verifies

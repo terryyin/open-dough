@@ -1,60 +1,33 @@
-# Keep Donut's ADR adoption intact during updates
+# Keep Donut's ADR adoption intact during a newer-release update
 
-## Source
+## Source and readiness
 
 [SEED-006, Story 4](../../seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update).
-Status: planned, not executed.
+Status: conditional follow-up; scope revised 2026-09-07, not executed. Replan
+when replacement is complete and a real newer public release is available and
+wanted. The former current-or-newer slice list is superseded.
 
-## Goal and scope
+## Intended outcome
 
-Show that an ordinary Open Dough update after completed Donut migration preserves
-retained context and repaired callers and never recreates the retired original.
-Reuse existing updater evidence where unchanged.
+Receive a wanted shared-guidance improvement in migrated Donut through the
+ordinary updater while preserving retained ADR context, repaired callers,
+original/link absence, and unrelated guidance.
 
-Exclude discovery of new matches, another cleanup pass, rollback machinery, and
-generic adopters.
+## Boundaries for replanning
 
-## Outside-in proof
-
-| Promise | Slice |
-| --- | --- |
-| Codex update preserves adoption | 1 |
-| Cursor update preserves adoption | 2 |
-| Claude Code update preserves adoption and old link absence | 3 |
-
-## Ordered slices
-
-### 1. Preserve Donut adoption through a Codex update
-Type: Behavior
-Status: planned
-Proof: Native `$dough-update` reports current without writes or applies one
-inspected newer release only to the Codex payload/record. Context/callers remain
-unchanged and the original is not recreated.
-
-Behavior: Migrated Donut -> ordinary Codex update -> truthful update outcome with
-adoption preserved.
-
-### 2. Preserve Donut adoption through a Cursor update
-Type: Behavior
-Status: planned
-Proof: Native Cursor repeats the same observation for its selected root while
-all other roots and repaired local guidance remain unchanged.
-
-Behavior: Migrated Donut -> ordinary Cursor update -> adoption preserved.
-
-### 3. Preserve Donut adoption through a Claude Code update
-Type: Behavior
-Status: planned
-Proof: Native Claude Code repeats the update observation and confirms the retired
-original link remains absent.
-
-Behavior: Migrated Donut -> ordinary Claude update -> adoption preserved.
-
-## Decisions
-
-- Current-version behavior must remain no-write; a newer release uses only the
-  existing inspected pinned-release workflow.
-- Record source/tag/commit, tool version, selected paths, and exact local
-  preservation evidence per platform.
-- This plan is ready for direct execution after Plan 016 but is intentionally
-  not executed.
+- Select one actual newer public release with a wanted payload improvement.
+  Do not manufacture a release or a version-only fixture bump to run this story.
+- Observe an ordinary native update with actual payload/version writes in each
+  affected tool. Record old/new release identities, the wanted improvement,
+  actual selected-root changes, and preservation of other tools and local work.
+- Follow each update with fresh native ADR use to show that the installed
+  improvement and adopted guidance work with the current live context.
+  Missing host evidence stays pending; one host cannot prove another.
+- Verify the retired original/link does not reappear and retained context and
+  callers remain valid. Exclude new-match discovery, another cleanup pass,
+  rollback machinery, generic migration, and new updater features.
+- Reuse earlier no-op and release-contract evidence where unchanged. A
+  current-version no-op is valid behavior but cannot complete this story's
+  preservation-through-payload-writes promise.
+- Preserve the first real adoption and planning-skill work independently;
+  waiting for this release must not block their useful outcomes.
