@@ -67,6 +67,22 @@ delivery_parse_native_case_args() {
   esac
 }
 
+delivery_run_deterministic_transition() {
+  local output
+
+  delivery_prepare_fixture
+  delivery_assert_legacy_install
+  delivery_capture_legacy_state
+  delivery_bootstrap_candidate
+  delivery_publish_improved_release
+  delivery_capture_update_state
+  output="${delivery_temporary_dir}/deterministic-update-output.txt"
+  delivery_apply_ordinary_from_recorded_source "${output}"
+  delivery_assert_update "${output}" 0
+  echo "PASS: the ${delivery_host_name} delivery-to-use fixture starts from the genuine v0.2.0 three-file payload, exposes its contract mismatch with the two-file candidate, bootstraps the inspected v0.2.1 candidate with supplied-source force, ordinarily updates to v0.2.2 from the recorded SOURCE without a URL, retires recognition, and preserves coexistence."
+  echo "PENDING: native ${delivery_host_name} legacy refusal, ordinary update, and improved ADR use; run --native."
+}
+
 delivery_snapshot() {
   local root=$1
   (

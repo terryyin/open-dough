@@ -18,19 +18,7 @@ grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "$0"
 delivery_parse_native_case_args "$@"
 
 if [[ ${native_case_mode} == 'default' ]]; then
-  delivery_prepare_fixture
-  delivery_assert_legacy_install
-  delivery_capture_legacy_state
-  delivery_bootstrap_candidate
-  delivery_publish_improved_release
-  delivery_capture_update_state
-  deterministic_update_output="${delivery_temporary_dir}/deterministic-update-output.txt"
-  bash "${delivery_fixture_source}/src/install/open-dough-release.sh" apply \
-    --url "${delivery_source_url}" --target "${delivery_target}" \
-    --platform cursor > "${deterministic_update_output}"
-  delivery_assert_update "${deterministic_update_output}" 0
-  echo 'PASS: the Cursor delivery-to-use fixture starts from the genuine v0.2.0 three-file payload, exposes its contract mismatch with the two-file candidate, bootstraps the inspected v0.2.1 candidate, ordinarily updates to v0.2.2, retires recognition, and preserves coexistence.'
-  echo 'PENDING: native Cursor legacy refusal, ordinary update, and improved ADR use; run --native.'
+  delivery_run_deterministic_transition
   exit 0
 fi
 

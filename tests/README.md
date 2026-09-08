@@ -82,9 +82,10 @@ tests/dough-adr-awareness-<host>-delivery-to-use.sh --native
 tests/dough-adr-awareness-<host>-delivery-to-use.sh --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
-No arguments: current deterministic cheap check (fixture mismatch, bootstrap,
-ordinary update, preservation). It does not run native refusal and does not
-certify native refusal. `--native` with no extra arguments is the full
+No arguments: current deterministic cheap check (fixture mismatch, supplied-source
+`--force` bootstrap that writes `SOURCE`, ordinary no-URL helper update from that
+record, preservation). It does not run native refusal and does not
+certify native refusal. Native loading and no-URL skill behavior stay pending. `--native` with no extra arguments is the full
 three-session journey. Legacy-refusal prompts keep `$dough-update` and the
 source URL; they do not coach contracts, refusal, or facts to repeat.
 Assessment is the shared automatic check: the incompatible contract prevents

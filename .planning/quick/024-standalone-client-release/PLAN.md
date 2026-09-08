@@ -172,11 +172,12 @@ automatic commit.
 
 ### 6. A known legacy installation reaches the remembered-source contract
 Type: Behavior
-Status: planned — depends on 5
-Proof: Extend the deterministic transition in
-`tests/support/dough-adr-awareness-release-transition.sh` using an actual old
-payload: inspected supplied-source force establishes the revised payload/records.
-Check subsequent ordinary helper resolution from the recorded source.
+Status: done
+Proof: Genuine `v0.2.0` three-file payload in
+`tests/support/dough-adr-awareness-release-transition.sh`: inspected
+supplied-source `--force` writes SOURCE then VERSION; the delivery cheap
+checks then run ordinary `apply` with no `--url`. README describes that
+bootstrap.
 
 Behavior: Known old installation lacks the contract → documented one-time
 supplied-source `--force` bootstrap → installation ready for a later ordinary
@@ -336,3 +337,10 @@ present, otherwise requires `--url`. Edited, incomplete, equal, and newer
 inputs become exact latest payload plus SOURCE then VERSION
 (`tests/update-force-restores-latest.sh`). Replacement and copy/record failures
 were reused, not rebuilt.
+
+**Slice 6:** Genuine v0.2.0 three-file payload has VERSION and no SOURCE.
+Inspected supplied-source `--force` writes payload plus SOURCE then VERSION.
+The cheap delivery wrappers then call ordinary `apply` with no `--url`; the
+helper resolves that recorded SOURCE. README and installation docs describe
+that one-time bootstrap. Native loading and no-URL skill behavior stay with
+the acceptance story.

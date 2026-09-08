@@ -44,7 +44,8 @@ Open your target project in an AI agent with web and shell access, then ask:
    is unavailable, explain what is needed.
 5. If installation reports an existing skill, stop and explain that `--force`
    replaces its contents, including local edits. Use it only when the user has
-   explicitly authorized that overwrite.
+   explicitly authorized that overwrite. A known older installation that lacks
+   `SOURCE` needs that one-time supplied-source `--force` bootstrap.
 6. Verify both installed files match the pinned sources, the updater's
    `SOURCE` record matches the supplied source, the `VERSION` record matches
    the selected release, and the target project's diff contains no unrelated
@@ -125,9 +126,9 @@ Open Dough maintainers prepare and tag source releases with the internal
 acceptance guard are not installed into adopting projects.
 
 Installation and `dough-update` use the highest numeric release of the recorded
-or supplied repository. Existing unversioned copies require one explicit
-`--force` bootstrap; afterward an installation already at the selected version
-is left untouched.
+or supplied repository. A known older installation that lacks `SOURCE` needs
+one explicit supplied-source `--force` bootstrap; afterward ordinary updates
+use that recorded `SOURCE` without repeating the URL.
 
 ## License
 

@@ -202,11 +202,15 @@ tool to use replaced guidance.
 
 An older installed updater may authorize only replacement of its own `SKILL.md`
 and must refuse the expanded multi-skill installer. Do not bypass or reinterpret
-that refusal as success. Bootstrap with explicit overwrite authorization using the
-[same safe installation procedure](#common-installation-flow), adding `--force`
-only to its final direct installer command for the selected platform.
-The old updater cannot perform a migration it correctly refuses. Start a fresh
-session before invoking the newly installed updater.
+that refusal as success. A known older installation that lacks `SOURCE` needs
+one inspected supplied-source `--force` bootstrap. Follow the
+[same safe installation procedure](#common-installation-flow), then run the
+inspected helper `apply --url <source-url> --target <project> --platform
+<tool> --checkout <snapshot> --force` for the selected platform. That writes
+the payload plus `SOURCE` then `VERSION`. Afterward ordinary helper calls omit
+`--url` and resolve the release from the `SOURCE` that force wrote. The old
+updater cannot perform a migration it correctly refuses. Start a fresh session
+before invoking the newly installed updater.
 
 ## Contributor checks
 

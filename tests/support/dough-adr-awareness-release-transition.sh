@@ -15,6 +15,7 @@ delivery_assert_legacy_install() {
       | cmp - "${delivery_target}/${delivery_skill_root}/${managed_file}"
   done
   [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_legacy_version}" ]]
+  [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE" ]]
   grep -Fq 'all three public payload sources' \
     "${delivery_target}/${delivery_skill_root}/dough-update/SKILL.md"
   grep -Fq 'The complete public payload is `dough-update/SKILL.md` and' \
@@ -88,11 +89,24 @@ EOF
   done
   [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_bootstrap_version}" ]]
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]]
   if grep -Fq "${delivery_improvement}" \
     "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"; then
     echo 'FAIL: inspected bootstrap already contains the later improvement.' >&2
     return 1
   fi
+}
+
+delivery_apply_ordinary_from_recorded_source() {
+  local output=$1
+  local recorded
+
+  recorded=$(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE")
+  [[ ${recorded} == "${delivery_source_url}" ]]
+  bash "${delivery_fixture_source}/src/install/open-dough-release.sh" apply \
+    --target "${delivery_target}" --platform "${delivery_platform}" > "${output}"
+  grep -Fq "Source: ${recorded}" "${output}"
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${recorded}" ]]
 }
 
 delivery_publish_improved_release() {
@@ -139,6 +153,8 @@ delivery_assert_update_payload() {
   [[ "${delivery_companion_before}" == "${companion_after}" ]]
   [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   [[ ! -e "${delivery_target}/${delivery_skill_root}/adr-awareness" ]]
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]]
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]]
 
   actual_changes=$(git -C "${delivery_target}" diff --name-only)
   expected_changes=$(printf '%s\n' \
