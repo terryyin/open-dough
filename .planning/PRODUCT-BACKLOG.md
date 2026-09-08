@@ -23,10 +23,6 @@ slices need refinement. Other queued stories are inputs for focused planning.
 A useful newer release moves Donut's update ahead of further extraction.
 The maintainer selects the version when the client release is ready.
 
-The stories follow the owner's simplification direction. The durable policy
-proposal is [ADR 0006](../docs/adrs/0006-minimal-guidance-workflow.md), awaiting
-the owner's decision.
-
 ## Deferred until useful
 
 - [See the relevant changelog while updating Open Dough](seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog) — repeated difficulty reading notes manually.

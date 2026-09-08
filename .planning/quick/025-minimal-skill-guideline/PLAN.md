@@ -52,14 +52,18 @@ Status: planned
 Behavior: An ADR-awareness example is evaluated → inspect the recommendation or
 conflict handling → return the appropriate behavior result.
 
-Simplify the context-use path and its immediate callers in `tests/support/`.
-Keep the existing behavior assessor and meaningful examples. Delete discovery
-assessment and dedicated tests as their consumers are simplified. Update shared
-callers together so the remaining checks form a working path.
+Gut prerequisite/discovery fill and assertions from the context retention path
+(`native-result-retain.sh` context helpers) and update credential-free context
+callers (`native-result-retention`, `native-stream-completeness`,
+`native-run-timeout`, `native-runner-failures`, `dough-adr-awareness-context` as
+affected). Keep `native_adr_behavior_*` and its examples. Leave the shared
+activation/prerequisite modules in place while journey callers still need them;
+do not delete `tests/native-prerequisite-gate.sh` until slice 3 removes those
+callers.
 
-Proof: Run `bash tests/native-adr-behavior.sh` and the affected credential-free
-context wrapper checks. Use their existing concrete recommendation and conflict
-examples. Review touched tests for their current functional purpose.
+Proof: `bash tests/native-adr-behavior.sh` plus the affected context wrapper
+checks above. Positive signal is recommendation/conflict behavior, not
+`prerequisite-*` fields.
 
 ### 3. Judge an update check by the resulting installation and use
 
@@ -68,15 +72,17 @@ Status: planned
 Behavior: A fixture receives an update and uses the resulting skill → evaluate
 the observed state and response → report the functional outcome.
 
-Simplify discovery-related fields and assertions in the updated-use path and
-its shared reporting helpers. Keep the real update transition and behavior
-checks. Delete helpers, fixtures, and tests dedicated to the removed process
-once their remaining callers are handled.
+Remove discovery fields and `native_prerequisite_assert_record_fields` from the
+journey retention path and updated-use assert helpers. Keep
+`native_journey_state_*`, the real update transition, and conflict use. Once no
+callers remain, delete `native-activation-*.sh`, `native-prerequisite-gate.sh`
+(support + dedicated test), and leftover `prerequisite-*` /
+`assessment-interpretation` wiring.
 
-Proof: Run `bash tests/native-journey-state.sh`,
+Proof: `bash tests/native-journey-state.sh`,
 `bash tests/native-delivery-updated-use.sh`, and
-`bash tests/native-delivery-updated-use-adapters.sh` as applicable to the retained
-checks. Their positive signal is the expected updated state and useful response.
+`bash tests/native-delivery-updated-use-adapters.sh`. Positive signal is
+expected updated state and useful response.
 
 ### 4. Start the next skill task from concise current guidance
 
@@ -89,6 +95,8 @@ Delete obsolete discovery acceptance tasks, evidence, research, and explanatory
 history from the affected planning and documentation. Simplify mixed documents
 around their remaining functional purpose. Update incoming links and backlog
 entries together. Reduce this story to its enduring goal and scope on completion.
+Reconcile any concurrent uncommitted planning/ADR cleanup already in the tree
+with this slice's ownership before staging.
 
 Proof: Manually follow the next skill task's links and read the resulting
 workflow. Run `npm run lint` and `npm test` once after cleanup to verify the
@@ -97,19 +105,15 @@ about the delivered workflow.
 
 ## Execution readiness
 
-Slices 1 and 4 use manual review of the complete maintainer interaction.
-Slices 2 and 3 touch shared context/update reporting and several test consumers;
-refinement is recommended for those two slices before execution. Resolve their
-shared edits into one green check at a time. Aim for about five minutes per leaf;
-reassess a leaf when its work exceeds that scale.
-
-Slices 2–4 remain. Each remaining slice owns its cleanup and proof; positive
-behavior examples supply acceptance. The plan uses the existing checks and
-manual review.
+Slice 2 leaves shared activation/prerequisite modules for slice 3. Slice 3
+deletes them after journey callers are gone. One green focused check at a time;
+~5 minutes per leaf, reassess past that. Concurrent uncommitted planning WIP
+outside this PLAN stays unstaged until slice 4 ownership is clear.
 
 ## Learnings
 
 2026-09-08 execute-plan: borrowed Donut execute-plan in Open Dough. No local CI
 mailbox / nix wrap-up tools (`pendingCi: unobserved`). Slice 1 delivered the
-shared authoring guideline; discovery assessment deletion stays in slices 2–3
-and still needs refinement before execution.
+shared authoring guideline. Refined slices 2–3 so context drops discovery first
+while journey still uses the shared gate; slice 3 deletes the gate after.
+Concurrent uncommitted seed/backlog/ADR-0006 cleanup left unstaged for slice 4.
