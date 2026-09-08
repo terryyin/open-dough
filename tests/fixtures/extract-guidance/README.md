@@ -1,25 +1,25 @@
-# Extract-guidance native fixture
+# Extract-guidance manual example
 
-`project/` is a controlled, self-contained source project for successful native
-extraction proof. Its source skill contains one reusable workflow, one
-deliberately local project convention, and an explicit human decision boundary.
+`project/` is a small, self-contained Acme source for a manual extraction
+demonstration. Its skill has one reusable readiness workflow, one deliberately
+local work-item convention (`ACME-NNN`), and an explicit human decision boundary.
 
-Copy this directory and `.agents/skills/extract-guidance/SKILL.md` into a
-disposable checkout before invoking `$extract-guidance`. Write generated output
-outside `project/.agents/skills/acme-change-readiness/`, then compare source
-checksums before and after the run. Generated candidates are evidence, not test
-fixtures, and must not be committed as evaluated public payload.
+## How to use it
 
-`unresolved-rule-project/` is the rejection fixture. Its only supplied guidance
-is a Cursor rule that applies automatically to every release request and requires
-an authoritative `policy/release-evidence.yml` file. That policy file is
-deliberately absent. A native extractor run must report both unresolved facts:
+1. Work in a disposable Open Dough checkout that includes the revised
+   `.agents/skills/extract-guidance/SKILL.md` and `AGENTS.md`.
+2. Follow the extraction instructions on
+   `project/.agents/skills/acme-change-readiness/SKILL.md`.
+3. Expect direct output at `src/skills/dough-acme-change-readiness/SKILL.md`
+   plus a concise `RECOGNITION.md` beside it (maintainer recognition; the
+   installer does not ship recognition).
+4. Compare the Acme source contents before and after; they must be unchanged.
+5. For behavior review, supply adopter convention `TASK-NNN` and a proposal
+   carrying `TASK-123` (for example: add CSV export for report users; risk is
+   excessive export time; rollback when an export exceeds the agreed
+   response-time threshold). Confirm the readiness brief names user, outcome,
+   risk, rollback, and missing context, and leaves approval with a human.
 
-- an on-demand public skill would not preserve automatic application; and
-- the missing policy prevents preserving the rule's release-specific checks.
-
-Run rejection proof from a disposable copy with a caller-supplied output under
-`.planning/extracted-guidance/`. The source rule's checksum must remain unchanged.
-The extractor must leave only `ASSESSMENT.md` there. It must not create
-`SKILL.md` or `RECOGNITION.md`, write anything under `src/`, or call the result
-suitable public guidance.
+Generated skills under `src/skills/` from this demo are proof artifacts for the
+active extraction story; keep or discard them as the maintainer decides. Do not
+treat the fixture itself as installable public payload.

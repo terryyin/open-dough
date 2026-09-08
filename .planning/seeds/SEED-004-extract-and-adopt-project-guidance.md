@@ -17,47 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="extract-directly-with-guidelines"></a>
-
-### 9. Extract a project skill directly into unreleased source
-
-**Status:** Refined; first in the product backlog.
-**Effort:** S (30–60 minutes), medium confidence; one ordinary on-demand skill
-and a manual behavior review.
-
-#### Goal
-
-The maintainer makes one extraction request and receives the reusable skill
-in Open Dough's source tree, ready to review and improve.
-
-#### Scope
-
-- Update the internal `extract-guidance` workflow for one supplied, self-contained
-  on-demand skill. Read its necessary context and preserve the source contents.
-- Write `src/skills/dough-<name>/SKILL.md` and a short `RECOGNITION.md` directly.
-  Follow the existing naming convention and shared authoring guideline.
-- Preserve the useful workflow, trigger, output, and human decisions. Turn local
-  conventions into explicit adopter context. Keep recognition focused on purpose,
-  source-relative clues, and required context.
-- Review one representative use manually. Handle incomplete context and unusual
-  source guidance through a brief explanation and manual follow-up.
-- Delete the displaced draft/assessment workflow and its dedicated checks and
-  support material. Keep instructions focused on the current operation.
-
-Extraction ends with the source skill and concise review result. Publication,
-client installation, and extraction of a particular Donut practice belong to
-their selected tasks. The existing Acme readiness fixture supplies this story's
-small demonstration.
-
-#### Key example
-
-Given the Acme readiness skill and an adopter whose work-item convention is
-`TASK-NNN`, invoke extraction in a disposable Open Dough checkout. The result is
-`src/skills/dough-acme-change-readiness/` with the skill and recognition record.
-Apply it to a concrete proposal carrying `TASK-123`: the brief identifies the
-user, outcome, risk, rollback signal, and required context; the human owns approval.
-Compare the source contents before and after extraction to confirm preservation.
-
 <a id="extract-story-refinement"></a>
 
 ### 6. Extract story refinement and improve one real story
@@ -116,12 +75,20 @@ an actionable CI result.
 
 ## Ordering
 
-Story 9 supplies direct extraction using the shared maintenance guideline.
-Story 6 is the next concrete reuse opportunity. Story 7 surfaces for a real
-oversized problem; Stories 8 and 5 surface for their named client/task needs.
-Manual copying is a useful fallback if Story 9 is deferred.
+Story 9 is complete. Story 6 is the next concrete reuse opportunity. Story 7
+surfaces for a real oversized problem; Stories 8 and 5 surface for their named
+client/task needs.
 
 ## Delivered capabilities
+
+<a id="extract-directly-with-guidelines"></a>
+
+### 9. Extract a project skill directly into unreleased source
+
+**Status:** Complete.
+**Goal and scope:** One extraction request yields a reviewable shared skill under
+`src/skills/` with concise recognition; generalization and review stay manual.
+Publication, client delivery, and particular Donut extractions remain separate.
 
 <a id="generalize-project-guidance"></a>
 

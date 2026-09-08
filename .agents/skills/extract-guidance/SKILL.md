@@ -11,10 +11,9 @@ one source skill or rule per invocation. This skill is internal to Open Dough;
 do not add it or its support files to the public installer payload.
 
 1. Capture the supplied source path before reading it. If no source was
-   supplied, ask for one and stop. Accept a caller-supplied output directory;
-   otherwise use
-   `.planning/extracted-guidance/<dough-candidate-name>/` in the current Open
-   Dough checkout. Never use the source directory as the output directory.
+   supplied, ask for one and stop. Write output under
+   `src/skills/<dough-name>/` in the current Open Dough checkout. Never use the
+   source directory as the output directory.
 
 2. Read the complete source file. Identify whether it is an on-demand skill or
    a rule, including the rule's scope and application conditions. Inspect only
@@ -32,35 +31,31 @@ do not add it or its support files to the public installer payload.
      irrelevant local-machine paths;
    - do not invent a broader framework or extract sibling guidance.
 
-   For a rule, compare its application conditions with the proposed public
-   delivery before drafting anything. A manually invoked or on-demand skill
-   does not preserve an automatic or `alwaysApply` rule. Record that as a
-   distinct delivery gap even when missing required context independently
-   blocks extraction.
+   For a rule, note when automatic or `alwaysApply` application would not be
+   preserved by an on-demand public skill. That delivery gap needs manual
+   follow-up; do not silently present the result as an equivalent substitute.
 
-   If required context is unavailable, or a rule's automatic application
-   cannot be preserved by the proposed delivery, stop candidate creation. In
-   the requested output directory, write only `ASSESSMENT.md` with the source
-   type and scope, reusable behavior, required context, every unresolved gap,
-   and what would be needed to resume. Do not create `SKILL.md` or
-   `RECOGNITION.md`, even as drafts. Label the outcome
-   `suitability unresolved — no candidate produced`; do not present or place it
-   as installable public guidance.
+   If required context is unavailable, or a rule's automatic application cannot
+   be preserved without further design, stop without writing under `src/skills/`.
+   Briefly explain what is missing or unusual and what manual follow-up is
+   needed. Do not invent ASSESSMENT.md, draft-candidate staging under
+   `.planning/extracted-guidance/`, or other displaced intermediate workflows.
 
-4. Name a skill candidate `dough-<source-name>`, normalizing the source name to
+4. Name the public skill `dough-<source-name>`, normalizing the source name to
    lowercase kebab-case and avoiding a second `dough-` prefix, consistent with
-   `AGENTS.md`. Write a self-contained candidate directory containing:
+   `AGENTS.md`. Write directly to `src/skills/<dough-name>/`:
 
    - `SKILL.md`, with valid `name` and `description` frontmatter, explicit
      triggers, the preserved workflow and boundaries, and the adopter context
      it needs; and
-   - `RECOGNITION.md`, using the headings below. Keep recognition descriptive;
-     do not add matching, replacement, or migration automation.
+   - `RECOGNITION.md`, using the headings below. Keep recognition concise and
+     descriptive for maintainers; the installer does not ship it. Do not add
+     matching, replacement, or migration automation.
 
    ```markdown
-   # Recognition: <candidate name>
+   # Recognition: <skill name>
 
-   Status: draft — unverified substitute
+   Status: ready for maintainer review
 
    ## Original clues
    ## Purpose
@@ -76,14 +71,11 @@ do not add it or its support files to the public installer payload.
    provenance and must never be a recognition requirement. `Validation needed`
    must name the representative behavior review still required under
    `AGENTS.md` (invocation context, required adopter context, and useful
-   outcome) before distribution.
+   outcome) before treating the skill as ready to release.
 
-5. Recompute the inspected-source checksums and compare them with step 2. For a
-   completed candidate draft, report the candidate directory, the generalized
-   assumptions, and the unchanged-source result, labeled
-   `draft — unverified substitute`. For an unresolved assessment, report the
-   assessment path, both the missing-context and delivery gaps when applicable,
-   and the unchanged-source result, labeled
-   `suitability unresolved — no candidate produced`. Do not move either result
-   into `src/`, describe it as suitable, or claim successful extraction when
-   checksums changed or an unresolved gap remains.
+5. Recompute the inspected-source checksums and compare them with step 2. Report
+   the `src/skills/<dough-name>/` paths, the generalized assumptions, and the
+   unchanged-source result. Walk one representative use per `AGENTS.md` behavior
+   review when the extraction itself is the demonstration. Do not claim a
+   successful extraction when checksums changed. Publication, client delivery,
+   and particular project extractions remain separate work.
