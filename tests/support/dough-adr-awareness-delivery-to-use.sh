@@ -12,6 +12,7 @@ delivery_improvement='When authoritative status sources disagree, enumerate each
 delivery_current_managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
+  dough-product-backlog/SKILL.md
 )
 delivery_legacy_managed_files=(
   dough-update/SKILL.md
@@ -128,7 +129,8 @@ delivery_prepare_fixture() {
   delivery_target="${delivery_temporary_dir}/atlas adopter"
   mkdir -p -- "${delivery_fixture_source}/src/install" \
     "${delivery_fixture_source}/src/skills/dough-update" \
-    "${delivery_fixture_source}/src/skills/dough-adr-awareness"
+    "${delivery_fixture_source}/src/skills/dough-adr-awareness" \
+    "${delivery_fixture_source}/src/skills/dough-product-backlog"
   cp -R -- "${delivery_fixture}" "${delivery_target}"
   cp -- "${delivery_source_dir}/install.sh" \
     "${delivery_fixture_source}/install.sh"
@@ -149,7 +151,7 @@ delivery_prepare_fixture() {
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \
-    commit -qm 'fixture: bootstrap two-skill public payload'
+    commit -qm 'fixture: bootstrap three-skill public payload'
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \

@@ -135,4 +135,4 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-echo "PASS: installer writes only the two-skill public payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the three-skill public payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

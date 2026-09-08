@@ -9,6 +9,7 @@ managed_payload_unchanged() {
   local -a files=(
     dough-update/SKILL.md
     dough-adr-awareness/SKILL.md
+    dough-product-backlog/SKILL.md
   )
 
   skill_root=$(dirname -- "${dest}")

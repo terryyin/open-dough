@@ -84,7 +84,11 @@ elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd --
   exit 1
 }
 target=$(cd -- "${target}" && pwd -P)
-managed_files=(dough-update/SKILL.md dough-adr-awareness/SKILL.md)
+managed_files=(
+  dough-update/SKILL.md
+  dough-adr-awareness/SKILL.md
+  dough-product-backlog/SKILL.md
+)
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
   echo "Public payload is incomplete: missing ${managed_file}" >&2
   exit 1
@@ -112,7 +116,7 @@ while IFS=$'\t' read -r selected_platform destination; do
       exit 1
     }
   done
-  for skill in dough-update dough-adr-awareness; do
+  for skill in dough-update dough-adr-awareness dough-product-backlog; do
     path="${root}/${skill}"
     [[ ! -L "${path}" && (! -e "${path}" || -d "${path}") ]] || {
       echo "Unsafe destination collision: expected a managed skill directory at ${path}." >&2
@@ -125,9 +129,10 @@ while IFS=$'\t' read -r selected_platform destination; do
     exit 1
   }
   current=0
-  if [[ -f "${destination}/SKILL.md" && -f "${destination}/SOURCE" && -f "${destination}/VERSION" && -f "${root}/dough-adr-awareness/SKILL.md" ]] \
+  if [[ -f "${destination}/SKILL.md" && -f "${destination}/SOURCE" && -f "${destination}/VERSION" && -f "${root}/dough-adr-awareness/SKILL.md" && -f "${root}/dough-product-backlog/SKILL.md" ]] \
     && cmp -s "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md" \
     && cmp -s "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" "${root}/dough-adr-awareness/SKILL.md" \
+    && cmp -s "${source_dir}/src/skills/dough-product-backlog/SKILL.md" "${root}/dough-product-backlog/SKILL.md" \
     && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then current=1; fi
   if [[ ${force} -eq 1 ]]; then
     actions+=(replace)
@@ -135,7 +140,7 @@ while IFS=$'\t' read -r selected_platform destination; do
     actions+=(skip)
   elif [[ ${replace_verified} -eq 1 ]]; then
     actions+=(replace)
-  elif [[ ! -e "${destination}" && ! -e "${root}/dough-adr-awareness" ]]; then
+  elif [[ ! -e "${destination}" && ! -e "${root}/dough-adr-awareness" && ! -e "${root}/dough-product-backlog" ]]; then
     actions+=(install)
   elif [[ ${current} -eq 1 ]]; then
     actions+=(skip)
@@ -153,7 +158,7 @@ for index in "${!platforms[@]}"; do
   destination=${destinations[index]}
   root=${roots[index]}
   [[ -z "${OPEN_DOUGH_TRACE:-}" ]] || printf 'install %s\n' "${destination}" >> "${OPEN_DOUGH_TRACE}"
-  mkdir -p -- "${destination}" "${root}/dough-adr-awareness"
+  mkdir -p -- "${destination}" "${root}/dough-adr-awareness" "${root}/dough-product-backlog"
   [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != copy ]] || {
     printf '%s\n' partial-install > "${destination}/SKILL.md"
     report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'

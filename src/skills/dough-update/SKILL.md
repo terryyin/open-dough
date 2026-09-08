@@ -34,8 +34,9 @@ Ordinary Open Dough release updates remain available from the recorded source.
    | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
-   The complete public payload is `dough-update/SKILL.md` and
-   `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record and the
+   The complete public payload is `dough-update/SKILL.md`,
+   `dough-adr-awareness/SKILL.md`, and
+   `dough-product-backlog/SKILL.md`. The numeric `VERSION` record and the
    recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
    writes the same `SOURCE` from the supplied repository URL or local path,
    then `VERSION`, in both physical roots. Ordinary no-URL updates reuse the

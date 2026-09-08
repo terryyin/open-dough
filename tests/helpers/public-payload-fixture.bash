@@ -5,4 +5,5 @@
 managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
+  dough-product-backlog/SKILL.md
 )

@@ -21,6 +21,8 @@ assert_all_roots() {
       cmp "${source_dir}/src/skills/dough-update/SKILL.md" "${dest}/SKILL.md"
       cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
         "$(dirname -- "${dest}")/dough-adr-awareness/SKILL.md"
+      cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
+        "$(dirname -- "${dest}")/dough-product-backlog/SKILL.md"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]
@@ -63,4 +65,4 @@ bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${update_
 fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 
-echo 'PASS: each entry context installs the two shared roots; ordinary conflicts stop before writes; force repairs them; and one-root update restores missing integrations.'
+echo 'PASS: each entry context installs the complete public payload in two shared roots; ordinary conflicts stop before writes; force repairs them; and one-root update restores missing integrations.'
