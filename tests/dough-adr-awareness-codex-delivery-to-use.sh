@@ -61,11 +61,11 @@ use_before=$(delivery_snapshot "${delivery_target}")
 use_output="${delivery_temporary_dir}/codex-use-output.md"
 use_transcript="${delivery_temporary_dir}/codex-use.jsonl"
 run_native_codex "${use_output}" \
-  "Use \$dough-adr-awareness for an explicit ADR check. Begin with Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. Report whether you changed any decision or implementation. Use only this adopter repository, do not read source recognition, and keep the response concise." \
+  "Use \$dough-adr-awareness for an explicit ADR check. Begin with Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. Report whether you changed any decision or implementation. Use only this client project, do not read source recognition, and keep the response concise." \
   "${use_transcript}"
 use_after=$(delivery_snapshot "${delivery_target}")
 if [[ "${use_before}" != "${use_after}" ]]; then
-  echo 'FAIL: native Codex changed adopter files during ADR use.' >&2
+  echo 'FAIL: native Codex changed client project files during ADR use.' >&2
   exit 1
 fi
 delivery_assert_use "${use_output}"
@@ -76,5 +76,5 @@ delivery_print_proof "${update_output}" "${use_output}" "${refusal_output}"
 printf '%s\n' \
   'PASS: legacy Codex refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
   'PASS: fresh native Codex discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
-  'PASS: Codex enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
+  'PASS: Codex enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no client project files.' \
   'PASS: final recognition is absent, and the companion integration remained byte-identical.'

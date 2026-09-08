@@ -17,7 +17,7 @@ Use the following concepts for client installation and updating:
 
 | Term | Meaning |
 | --- | --- |
-| Client project | A project using installed Open Dough guidance; Open Dough itself can be a client. |
+| Client project | A project using installed Open Dough guidance; Open Dough itself is a client project. |
 | Release | An immutable, versioned Open Dough source snapshot, as defined by ADR 0003, whose entire client payload is ready for public use. |
 | Guidance | Rules, skills, and supporting instructions that direct development work. |
 | Client payload | The complete guidance, supporting files, and update entry point supplied by a release for installation in clients. |

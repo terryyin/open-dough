@@ -15,7 +15,7 @@ directory, or exact filename scheme is not required for recognition.
 
 ## Purpose
 
-Keep agent work consistent with an adopter's current Accepted ADRs while humans
+Keep agent work consistent with a client project's current Accepted ADRs while humans
 retain authority over decisions, lifecycle transitions, supersession, and
 contextual exceptions.
 
@@ -23,15 +23,15 @@ contextual exceptions.
 
 - Explicit mention of an ADR, architectural decision or constraint, ADR checks,
   conflict with a decision, or supersession.
-- Work that crosses the adopter's declared architecture areas or may reverse or
+- Work that crosses the client project's declared architecture areas or may reverse or
   bypass a current Accepted ADR.
 - Directed cleanup after a human has decided an ADR lifecycle change.
 - Proposal drafting only when the human explicitly asks for draft help.
 
 ## Distinguishing behavior
 
-- Explicitly loads the adopter's ADR index or catalog and classifies current
-  records using adopter-declared authoritative status fields.
+- Explicitly loads the client project's ADR index or catalog and classifies current
+  records using the client project's authoritative status fields.
 - Does not treat a filename convention as sole authority; it separates filename
   hygiene mismatches from unresolved authoritative metadata.
 - Treats Proposed as non-binding and Rejected or Superseded as history, follows
@@ -43,13 +43,13 @@ contextual exceptions.
   a human to follow the ADR, own an update or supersession, or explicitly approve
   a contextual exception with a durable trail.
 - Keeps all decision and terminal-status authority with humans. It performs only
-  directed mechanical hygiene and uses an adopter template for proposal drafting
+  directed mechanical hygiene and uses a client project template for proposal drafting
   only when that drafting was requested.
-- Reports missing stores, empty current sets, and unavailable adopter context
+- Reports missing stores, empty current sets, and unavailable client project context
   or human decisions needed for the current request without claiming completion.
 - Ends successful explicit invocations with `## ADR CHECK COMPLETE`.
 
-## Adopter-provided context
+## Client project context
 
 Resolve these values when needed for the current request; absent hypothetical
 status disagreements or lifecycle changes do not require invented policies.
@@ -78,16 +78,16 @@ native application mechanism.
 
 ## Adoption boundary
 
-This record helps maintainers recognize the behavior and adopter context; it is
+This record helps maintainers recognize the behavior and client project context; it is
 not a reusable migration procedure. Assessing or replacing local guidance is
 one-time project work. Public installation and update guidance must not inspect,
-rewrite, repair callers for, or remove an adopter's local practice.
+rewrite, repair callers for, or remove a client project's local practice.
 
 ## Evaluation status
 
 Controlled native Codex comparisons established the distinguishing behavior
-above and showed that the candidate uses adopter-supplied ADR paths and lifecycle
-conventions without imposing its source project's layout or identity.
+above and showed that the candidate uses ADR paths and lifecycle conventions
+supplied by the client project without imposing its source project's layout or identity.
 
 Codex, Cursor, and Claude Code each used the canonical internal extractor from
 `.agents/skills/` and produced a reusable candidate plus recognition record
@@ -96,10 +96,10 @@ adapter was required.
 
 Each platform installed this record and the same behavioral skill alongside the
 public updater in its native skill root. Independent update-to-fresh-use proofs
-verified exact platform-local payloads, coexistence, adopter-relative authority
-resolution, conflict stopping for human precedence, and no adopter changes
+verified exact platform-local payloads, coexistence, authority resolution within
+the client project, conflict stopping for human precedence, and no client project changes
 during explicit ADR checks.
 
 Maintain further edits with the shared skill-authoring guideline in
-[`AGENTS.md`](../../../AGENTS.md): review invocation context, required adopter
+[`AGENTS.md`](../../../AGENTS.md): review invocation context, required client project
 context, and the conflict-handling outcome on a representative use.

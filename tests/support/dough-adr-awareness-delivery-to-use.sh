@@ -194,7 +194,7 @@ delivery_prepare_fixture() {
   printf '%s\n' \
     '---' \
     'name: companion-integration' \
-    'description: Existing adopter integration preserved by updates.' \
+    'description: Existing client project integration preserved by updates.' \
     '---' \
     '' \
     '# Companion integration' \

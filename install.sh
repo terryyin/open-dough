@@ -80,7 +80,7 @@ if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
   recorded_source=$(cd -- "${recorded_source}" && pwd -P)
 elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P); fi
 [[ -d "${target}" ]] || {
-  echo "Target project directory does not exist: ${target}" >&2
+  echo "Client project directory does not exist: ${target}" >&2
   exit 1
 }
 target=$(cd -- "${target}" && pwd -P)

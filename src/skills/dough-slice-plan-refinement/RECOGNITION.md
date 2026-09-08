@@ -25,7 +25,7 @@ Ready/Refine/Escalate classification; same-plan replacement; completed-evidence
 preservation; attempt-owned work safety; repeated-overrun escalation; proof
 ownership reconciled before execution resumes.
 
-## Adopter-provided context
+## Client project context
 
 Existing plan and selected story; slice target, hard limit, exceptions,
 and repeated-overrun policy; plan lifecycle and delivery gates; ownership of
@@ -45,7 +45,7 @@ repository-wide application; client installation owns that delivery.
 
 ## Validation needed
 
-Before release, maintainers must review invocation context, required adopter
+Before release, maintainers must review invocation context, required client project
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md). Representative
 walkthrough: given an existing weekly-export plan with one slice combining CSV
 generation and scheduling, preserve completed export evidence, replace only the

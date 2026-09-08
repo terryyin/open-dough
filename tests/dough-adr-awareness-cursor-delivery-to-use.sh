@@ -55,10 +55,10 @@ delivery_assert_update "${update_output}"
 use_before=$(delivery_snapshot "${delivery_target}")
 use_output="${delivery_temporary_dir}/cursor-use-output.md"
 run_native_cursor "${use_output}" \
-  "Use \$dough-adr-awareness for an explicit ADR check. Your final response must begin exactly with the line Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. End with exactly: No decision or implementation was changed. Use only this adopter repository, do not read source recognition, and keep the response concise."
+  "Use \$dough-adr-awareness for an explicit ADR check. Your final response must begin exactly with the line Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. End with exactly: No decision or implementation was changed. Use only this client project, do not read source recognition, and keep the response concise."
 use_after=$(delivery_snapshot "${delivery_target}")
 if [[ "${use_before}" != "${use_after}" ]]; then
-  echo 'FAIL: native Cursor changed adopter files during ADR use.' >&2
+  echo 'FAIL: native Cursor changed client project files during ADR use.' >&2
   exit 1
 fi
 delivery_assert_use "${use_output}"
@@ -69,5 +69,5 @@ delivery_print_proof "${update_output}" "${use_output}" "${refusal_output}"
 printf '%s\n' \
   'PASS: Cursor refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
   'PASS: fresh native Cursor discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
-  'PASS: Cursor enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
+  'PASS: Cursor enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no client project files.' \
   'PASS: final recognition is absent, all platform installations advanced together, and the companion integration remained byte-identical.'

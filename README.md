@@ -14,7 +14,7 @@ The aim is to define the lifecycle once, reuse it across projects, and make it u
 
 ## Install with an AI agent
 
-Open your target project in an AI agent with web and shell access, then ask:
+Open your client project in an AI agent with web and shell access, then ask:
 
 > Install https://github.com/terryyin/open-dough into this project.
 
@@ -48,7 +48,7 @@ Open your target project in an AI agent with web and shell access, then ask:
    `SOURCE` needs that one-time supplied-source `--force` bootstrap.
 6. Verify both installed files match the pinned sources, the updater's
    `SOURCE` record matches the supplied source, the `VERSION` record matches
-   the selected release, and the target project's diff contains no unrelated
+   the selected release, and the client project's diff contains no unrelated
    changes. Report the installed paths, source tag and commit, and tell the
    user to invoke the updater in a fresh session of the same tool
    (`$dough-update` in Codex, `/dough-update` in Cursor or Claude Code). Later
@@ -66,7 +66,7 @@ Dough is a flexible raw material: you can shape it into many things, and a donut
 
 ## What Open Dough shares
 
-Open Dough is the source of the shared lifecycle definition. Each adopting project receives the parts it needs to put that definition into practice.
+Open Dough is the source of the shared lifecycle definition. Each client project receives the parts it needs to put that definition into practice.
 
 | Layer | Purpose |
 | --- | --- |
@@ -83,7 +83,7 @@ These layers should reinforce each other: philosophy explains why, principles gu
 The following principles translate the project vision into an initial design direction:
 
 - **Keep the lifecycle portable.** Share the underlying meaning across platforms, with platform-specific files adapting how each tool discovers and uses it.
-- **Make guidance part of the project.** Install files into the target repository so the team and its AI tools can inspect them, version them, and review changes together.
+- **Make guidance part of the project.** Install files into the client project so the team and its AI tools can inspect them, version them, and review changes together.
 - **Keep the shared definition coherent.** Maintain common lifecycle content in Open Dough and derive platform integrations from it, reducing drift between tools.
 - **Allow project context to matter.** Give projects a clear way to add their own context and conventions while retaining a shared foundation.
 - **Make updates visible.** Updating Open Dough changes installed repository files. Those changes should be understandable as ordinary diffs and reversible through version control.
@@ -123,7 +123,7 @@ Open Dough maintainers prepare and tag source releases with the internal
 `release-version` skill in this repository (`$release-version` in Codex,
 `/release-version` in Cursor or Claude Code). It writes `VERSION` and
 `CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
-maintainer guidance (`AGENTS.md`) are not installed into adopting projects.
+maintainer guidance (`AGENTS.md`) are not installed into client projects.
 
 Installation and `dough-update` use the highest numeric release of the recorded
 or supplied repository. A known older installation that lacks `SOURCE` needs

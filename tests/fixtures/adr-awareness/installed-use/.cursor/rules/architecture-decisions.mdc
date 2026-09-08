@@ -11,7 +11,7 @@ alwaysApply: true
 - On architecture-shaped work, load relevant Accepted ADRs and follow them. Do not silently conflict. Do not approve ADRs; humans own the advice process.
 - Deviations require an explicit human-owned exception (trail it) or a human superseding ADR.
 
-## Retained adopter context
+## Retained client project context
 
 
 

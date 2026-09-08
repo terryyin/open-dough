@@ -25,7 +25,7 @@ The installing agent follows this procedure in stages, keeping the same captured
 values and owned temporary directory across inspection and execution. Do not put
 inspection and execution into an unattended one-shot command.
 
-1. Capture `target_project` as the existing target project's absolute path before
+1. Capture `target_project` as the existing client project's absolute path before
    fetching. Use the user's supplied `source_url`. If a specific version, tag, or
    branch was requested, stop before fetching or writing: Open Dough installs the
    latest numeric release only; requested-version installation is unsupported.
@@ -140,7 +140,7 @@ source and release in `.agents/skills/dough-update/SOURCE` then
 installation lives there too, separately from the distributable source.
 See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
-Start a fresh Codex session in the target project and invoke:
+Start a fresh Codex session in the client project and invoke:
 
 > $dough-update https://github.com/terryyin/open-dough.git
 
@@ -151,7 +151,7 @@ Follow the [shared installation procedure](#common-installation-flow) above.
 Cursor shares the public payload and records under `.agents/skills/` with
 Codex. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
-the target project and invoke:
+the client project and invoke:
 
 > /dough-update https://github.com/terryyin/open-dough.git
 
@@ -163,7 +163,7 @@ Installation writes the public payload under `.claude/skills/` and records
 the supplied source and release in `.claude/skills/dough-update/SOURCE` then
 `.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
-Claude Code session in the target project and invoke:
+Claude Code session in the client project and invoke:
 
 > /dough-update https://github.com/terryyin/open-dough.git
 
@@ -175,7 +175,7 @@ URL. Explicit `--force` uses the recorded SOURCE when present; otherwise it
 takes a supplied `--url`. Never infer the client's Git remote or use a
 working-tree helper. The updater:
 
-1. Captures the target project before fetching.
+1. Captures the client project before fetching.
 2. Resolves the recorded or supplied source's highest numeric release tag,
    fetches its exact commit into a fresh temporary checkout, and validates
    matching `VERSION` and changelog metadata without falling back to a branch

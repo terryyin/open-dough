@@ -30,7 +30,7 @@ preserving across Open Dough skills.
    behavior in focused references; specify when to load them. Do not add reference
    files when a simple skill is already self-contained.
 5. Preserve non-obvious invariants, user intent, authorization boundaries, and
-   adopter-supplied conventions. Specify choices precisely when correctness
+   conventions supplied by the client project. Specify choices precisely when correctness
    requires it; leave judgment where multiple approaches are valid.
 
 ## Consequences

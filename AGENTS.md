@@ -40,7 +40,7 @@ copy per tool.
 
 - Link here from skills that author or review guidance (for example
   `extract-guidance`).
-- Prefer repository-relative links. Point at adopter-supplied paths from skill
+- Prefer repository-relative links. Point at paths supplied by the client project from skill
   prose; do not hard-code another project's layout or decisions into a reusable
   skill.
 
@@ -50,7 +50,7 @@ Before treating a skill change as ready, walk one representative use and confirm
 
 1. **Invocation context** — the `description` and body make clear when the skill
    applies (and when it does not).
-2. **Required context** — any adopter- or repo-supplied inputs are explicit; the
+2. **Required context** — inputs supplied by the client project or repository are explicit; the
    skill stops usefully when they are missing.
 3. **Useful outcome** — a concrete example produces the intended result (for
    conflict-aware skills: cite the conflict, stop the conflicting path, and leave

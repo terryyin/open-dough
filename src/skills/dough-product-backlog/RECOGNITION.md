@@ -34,7 +34,7 @@ Completed items whose seeds were removed retain only their plain-text titles;
 definitions remain recoverable through Git history.
 Maintenance does not authorize execution, commit, or push.
 
-## Adopter-provided context
+## Client project context
 
 Repository root, backlog path, seed locations and IDs, stable link
 conventions, relevant decomposition/refinement/slice-planning workflows, and
@@ -57,7 +57,7 @@ original extraction, not equivalence with these updated behaviors.
 ## Validation needed
 
 Before release, perform the representative behavior review in
-[`AGENTS.md`](../../../AGENTS.md): confirm invocation context, required adopter
+[`AGENTS.md`](../../../AGENTS.md): confirm invocation context, required client project
 context (including a useful stop when missing), and a useful outcome.
 Use a backlog with an unfinished prerequisite and ten recent
 completions. Verify prerequisite ordering or a human-visible conflict,
@@ -71,4 +71,4 @@ focuses on onboarding and carries that direction into refinement without
 rewriting the direction or treating scope review as execution authorization.
 Check bullet formatting and title-only retention when a completed story's seed
 is removed, including recovery from Git history when needed.
-Publication and adopter delivery remain separate work.
+Publication and client project delivery remain separate work.

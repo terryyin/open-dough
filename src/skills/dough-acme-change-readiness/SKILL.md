@@ -8,7 +8,7 @@ description: Review a change proposal before implementation. Use when someone as
 1. Read the supplied change proposal. Do not implement it.
 2. Identify the affected user, the intended outcome, the main failure risk, and
    a rollback signal.
-3. Require a work-item reference that matches the adopter's declared convention
+3. Require a work-item reference that matches the client project's declared convention
    (for example `TASK-NNN`). If it is missing, report that the intake convention
    is not satisfied rather than inventing an identifier.
 4. Return a compact readiness brief with `User`, `Outcome`, `Risk`, `Rollback`,
@@ -17,6 +17,6 @@ description: Review a change proposal before implementation. Use when someone as
    concrete content and the required work-item reference is present. The human
    maintainer owns the final approval and any exception.
 
-## Required adopter context
+## Required client project context
 
-- The work-item identifier convention used by the adopting project.
+- The work-item identifier convention used by the client project.

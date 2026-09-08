@@ -22,7 +22,7 @@ candidate selection or slice sizing.
 Conversation reuses prior answers; smallest useful outcome; conditional UI and
 ADR checks; stable story anchors; implemented-story cleanup.
 
-## Adopter-provided context
+## Client project context
 
 Selected stories and prior decisions; seed conventions if creating one;
 conditional ADR context and requested execution workflow.
@@ -41,13 +41,13 @@ workflow. They do not replace automatic repository-wide application; client
 installation owns that delivery.
 
 Source-specific paths, exact timers, test tooling, and GSD artifact management
-remain adopter-provided context rather than public defaults.
+remain client project context rather than public defaults.
 
 ## Validation needed
 
-Before release, maintainers must review invocation context, required adopter
+Before release, maintainers must review invocation context, required client project
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md), including a
-representative use in the intended adopter. Extraction-time manual walkthrough:
+representative use in the intended client project. Extraction-time manual walkthrough:
 
 For a selected totals-export story in an existing seed: retain its anchor and
 sibling scheduling story, state the beneficiary and export goal, bound scope to

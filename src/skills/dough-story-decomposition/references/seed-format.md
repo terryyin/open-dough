@@ -16,11 +16,11 @@ context before writing.
 ```yaml
 ---
 id: <seed ID>
-status: <adopter's dormant status>
+status: <client project's dormant status>
 planted: <creation date>
 planted_during: <milestone, phase, or context>
 trigger_when: <when this problem should surface>
-scope: <whole-set size under adopter conventions>
+scope: <whole-set size under client project conventions>
 ---
 ```
 

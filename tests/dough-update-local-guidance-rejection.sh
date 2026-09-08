@@ -61,7 +61,7 @@ printf '%s\n' \
   'Follow the team-owned review and never replace this file automatically.' > \
   "${target}/${skill_root}/team-architecture-practice/SKILL.md"
 printf '%s\n' \
-  '# Adopter instructions' \
+  '# Client project instructions' \
   '' \
   'Preserve project-owned files and guidance.' > \
   "${target}/AGENTS.md"

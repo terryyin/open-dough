@@ -14,7 +14,7 @@ local work-item convention (`ACME-NNN`), and an explicit human decision boundary
    plus a concise `RECOGNITION.md` beside it (maintainer recognition; the
    installer does not ship recognition).
 4. Compare the Acme source contents before and after; they must be unchanged.
-5. For behavior review, supply adopter convention `TASK-NNN` and a proposal
+5. For behavior review, supply client project convention `TASK-NNN` and a proposal
    carrying `TASK-123` (for example: add CSV export for report users; risk is
    excessive export time; rollback when an export exceeds the agreed
    response-time threshold). Confirm the readiness brief names user, outcome,

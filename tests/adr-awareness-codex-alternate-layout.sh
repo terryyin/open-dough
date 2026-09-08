@@ -104,6 +104,6 @@ printf '\n%s\n' '--- UNRELATED-PROJECT INTEGRITY PROOF ---'
 printf 'alternate-layout session tree digest: %s\n' "${session_tree_digest}"
 printf 'candidate-and-recognition digest: %s\n' "${source_digest}"
 printf '%s\n' \
-  'PASS: the fresh Codex session contained exactly one generalized ADR-awareness skill; the disposable adopter tree, candidate, and recognition record are byte-identical before and after.'
+  'PASS: the fresh Codex session contained exactly one generalized ADR-awareness skill; the disposable client project tree, candidate, and recognition record are byte-identical before and after.'
 printf '%s\n' \
-  'PASS: Codex used architecture/decisions and the adopter-owned Adopted/Replaced convention, followed ARC-07 to ARC-12, cited the current local decision, stopped the conflict, preserved human ownership, and imposed neither docs/adrs nor source-project identity.'
+  'PASS: Codex used architecture/decisions and the client project convention Adopted/Replaced, followed ARC-07 to ARC-12, cited the current local decision, stopped the conflict, preserved human ownership, and imposed neither docs/adrs nor source-project identity.'

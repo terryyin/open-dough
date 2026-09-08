@@ -54,7 +54,7 @@ SEED-004 Story 6 can supply the improvement when needed.
 ### 1. Prove a completed Codex ADR replacement is usable
 
 **Status:** Complete.
-**Goal and scope:** Apply shared ADR guidance with the adopter's own decision context.
+**Goal and scope:** Apply shared ADR guidance with the client project's own decision context.
 
 <a id="prepare-donut-adr-adoption"></a>
 

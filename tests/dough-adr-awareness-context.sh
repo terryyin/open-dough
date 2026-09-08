@@ -159,7 +159,7 @@ source_after_digest=$(printf '%s\n' "${source_after}" | shasum -a 256 | cut -d '
 printf 'Platform: %s\nNative tool version: %s\nScenario: %s\n' \
   "${platform}" "${tool_version}" "${scenario}"
 printf 'Candidate tag: %s\nCandidate revision: %s\n' "${tag}" "${source_commit}"
-printf 'Install entry point: install.sh --target <clean-adopter> --platform %s\n' \
+printf 'Install entry point: install.sh --target <clean-client-project> --platform %s\n' \
   "${platform}"
 printf 'Native entry point: %s\n' "${prompt}"
 printf 'Installed paths:\n- %s\n- %s\n- %s\n' \

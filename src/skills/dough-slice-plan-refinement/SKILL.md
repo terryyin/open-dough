@@ -14,7 +14,7 @@ implement product code, or change the selected story outcome.
 
 ## Require a refinable plan
 
-Require an existing executable plan and the adopter context required by
+Require an existing executable plan and the client project context required by
 [dough-slice-planning](../dough-slice-planning/SKILL.md), especially its target,
 hard limit, exceptions, overrun policy, and plan lifecycle.
 

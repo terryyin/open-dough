@@ -26,7 +26,7 @@ do not add it or its support files to the public installer payload.
    - preserve the purpose, trigger, decisive workflow, expected output,
      safeguards, negative boundaries, and human decision ownership;
    - turn required project locations, naming schemes, technologies, and local
-     conventions into explicit adopter-provided context;
+     conventions into explicit client project context;
    - omit source-project decisions, secrets, credentials, personal data, and
      irrelevant local-machine paths;
    - do not invent a broader framework or extract sibling guidance.
@@ -46,7 +46,7 @@ do not add it or its support files to the public installer payload.
    `AGENTS.md`. Write directly to `src/skills/<dough-name>/`:
 
    - `SKILL.md`, with valid `name` and `description` frontmatter, explicit
-     triggers, the preserved workflow and boundaries, and the adopter context
+     triggers, the preserved workflow and boundaries, and the client project context
      it needs; and
    - `RECOGNITION.md`, using the headings below. Keep recognition concise and
      descriptive for maintainers; the installer does not ship it. Do not add
@@ -61,7 +61,7 @@ do not add it or its support files to the public installer payload.
    ## Purpose
    ## Triggers
    ## Distinguishing behavior
-   ## Adopter-provided context
+   ## Client project context
    ## Differences that rule out replacement
    ## Validation needed
    ```
@@ -70,7 +70,7 @@ do not add it or its support files to the public installer payload.
    but not an absolute local-machine path. Project identity is optional
    provenance and must never be a recognition condition. `Validation needed`
    must name the representative behavior review still required under
-   `AGENTS.md` (invocation context, required adopter context, and useful
+   `AGENTS.md` (invocation context, required client project context, and useful
    outcome) before treating the skill as ready to release.
 
 5. Recompute the inspected-source checksums and compare them with step 2. Report

@@ -24,7 +24,7 @@ Human-owned framing decisions; strongest simpler alternative; 3V rejection;
 effort hypotheses without code inspection; safe stopping points and
 first-to-drop order.
 
-## Adopter-provided context
+## Client project context
 
 Seed location, IDs, metadata and anchors; S/M/L definitions; backlog path and
 execution workflow only when requested.
@@ -42,16 +42,16 @@ workflow. They do not replace automatic repository-wide application; client
 installation owns that delivery.
 
 Source-specific paths, exact timers, test tooling, and GSD artifact management
-remain adopter-provided context rather than public defaults.
+remain client project context rather than public defaults.
 
 ## Validation needed
 
-Before release, maintainers must review invocation context, required adopter
+Before release, maintainers must review invocation context, required client project
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md), including a
-representative use in the intended adopter. Extraction-time manual walkthrough:
+representative use in the intended client project. Extraction-time manual walkthrough:
 
 For a supplied problem where staff retype weekly totals, with all seven framing
-decisions answered and adopter paths and effort bands supplied: evaluate
+decisions answered and client project paths and effort bands supplied: evaluate
 defer/manual/existing-tool options, retain a one-team end-to-end totals export,
 reject a database-only candidate, and defer automatic scheduling. Write one seed
 with an observable export check, effort confidence and assumptions, safe

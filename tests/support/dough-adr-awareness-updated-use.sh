@@ -233,7 +233,7 @@ delivery_run_selected_updated_use() {
     delivery_selected_fail "${use_status}"
   fi
   if [[ ${delivery_use_before} != "${delivery_use_after}" ]]; then
-    printf 'FAIL: native %s changed adopter files during ADR use.\n' \
+    printf 'FAIL: native %s changed client project files during ADR use.\n' \
       "${delivery_host_name}" >&2
     native_result_report_journey
     exit 1

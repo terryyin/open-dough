@@ -26,12 +26,12 @@ and leave approval with a human.
 
 - Reads the proposal only; does not implement.
 - Extracts user, outcome, main failure risk, and a rollback signal.
-- Requires an adopter-declared work-item reference and refuses to invent one.
+- Requires a client project-declared work-item reference and refuses to invent one.
 - Returns a brief with fixed headings, including `Missing context`.
 - Labels `ready for human review` only when headings are concrete and the
   work-item reference is present; humans own approval and exceptions.
 
-## Adopter-provided context
+## Client project context
 
 - Work-item identifier convention (for example `TASK-NNN`).
 
@@ -44,4 +44,4 @@ approval authority for the agent.
 ## Validation needed
 
 Walk one representative proposal under `AGENTS.md`: confirm invocation context,
-required adopter convention, useful brief fields, and human-owned decision.
+required client project convention, useful brief fields, and human-owned decision.

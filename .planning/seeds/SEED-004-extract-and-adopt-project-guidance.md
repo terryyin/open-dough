@@ -102,7 +102,7 @@ Publication, client delivery, and particular Donut extractions remain separate.
 ### 4. Complete one authorized ADR-guidance replacement in Codex
 
 **Status:** Complete.
-**Goal and scope:** Replace a borrowed practice while retaining required adopter context.
+**Goal and scope:** Replace a borrowed practice while retaining required client project context.
 
 <a id="maintain-skills-without-discovery-rechecks"></a>
 

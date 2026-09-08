@@ -40,7 +40,7 @@ Terry Yin explicitly accepted the versioning proposal on 2026-09-06:
 ## Consequences
 
 - A release's identity, content, and description can be matched. A branch edit
-  becomes available to adopters when a new version is tagged and published
+  becomes available to client projects when a new version is tagged and published
   through Git.
 - The default-branch behavior delivered in Stories 1–3 remains historical;
   Story 4 establishes release production; Story 5 migrates installation and

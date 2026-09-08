@@ -24,7 +24,7 @@ Behavior/Structure gate; outside-in promise ownership; safe stopping points;
 value-and-learning ordering; isolated proof for concrete uncertain assumptions;
 direct-execution readiness unless explicit refinement triggers remain.
 
-## Adopter-provided context
+## Client project context
 
 Story and seed; executable-plan path and lifecycle; slice target, hard
 limit, exceptions, and repeated-overrun policy; verification and delivery gates;
@@ -46,7 +46,7 @@ delivery.
 
 ## Validation needed
 
-Before release, maintainers must review invocation context, required adopter
+Before release, maintainers must review invocation context, required client project
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md). Representative
 walkthrough: given one bounded weekly-totals export story, a supplied plan path,
 a five-minute target and ten-minute hard limit, and a stable export test entry
