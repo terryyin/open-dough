@@ -1,3 +1,7 @@
+## 0.3.2 - 2026-09-08
+
+Publish three story-refinement workflow skills in the installable client payload: `dough-resplit-story`, `dough-slice-planning`, and `dough-slice-plan-refinement`.
+
 ## 0.3.1 - 2026-09-08
 
 Add story-related skills: `dough-story-decomposition` and `dough-story-refinement`, including their supporting references, to installation and updates for Codex, Cursor, and Claude Code.
