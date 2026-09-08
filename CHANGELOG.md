@@ -1,3 +1,7 @@
+## 0.2.3 - 2026-09-08
+
+Install and update Open Dough across Codex, Cursor, and Claude Code together.
+
 ## 0.2.2 - 2026-09-08
 
 Standalone installations remember their release source and version. Ordinary updates use that source without a URL and verify the installed baseline before replacement; unverifiable installations refuse without writes, and verified current versions remain unchanged. Explicit force restores the complete latest payload, including a one-time supplied-source bootstrap for legacy installations. Client changes remain reviewable and uncommitted.
