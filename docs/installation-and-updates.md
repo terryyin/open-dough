@@ -208,9 +208,9 @@ one inspected supplied-source `--force` bootstrap. Follow the
 inspected helper `apply --url <source-url> --target <project> --platform
 <tool> --checkout <snapshot> --force` for the selected platform. That writes
 the payload plus `SOURCE` then `VERSION`. Afterward ordinary helper calls omit
-`--url` and resolve the release from the `SOURCE` that force wrote. The old
-updater cannot perform a migration it correctly refuses. Start a fresh session
-before invoking the newly installed updater.
+`--url` and resolve the release from the `SOURCE` that force wrote.
+The old updater cannot perform a migration it correctly refuses. Start a fresh
+session before invoking the newly installed updater.
 
 ## Contributor checks
 
