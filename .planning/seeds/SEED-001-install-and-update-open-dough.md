@@ -742,110 +742,118 @@ combined outcome without reopening release production or version detection.
 
 ### 7. Release the standalone client installation and update workflow
 
-- **Status:** Re-refined and slice plan refined, 2026-09-07; remaining delivery
-  planned, not executed. Current-source inspection:
-  `d32a9c5a3c788a1ae23d871173a6eff5fed9a32f`.
-- **Plan:** [Quick 019 — standalone client update](../quick/019-standalone-client-update/PLAN.md).
+**Status:** Reconsidered and refined 2026-09-08 under ADR 0005. Selected next
+on 2026-09-08 to plan and implement remaining functional and cheap-check work
+and hand off a named candidate. No implementation or native acceptance claimed.
+**Historical plan:** [Quick 019](../quick/019-standalone-client-update/PLAN.md)
+is not executable as written. Plan from this story; reconcile retained old plans
+later in [SEED-007 Story 4](SEED-007-cross-tool-validation.md#separate-native-acceptance).
 
 #### Goal
 
-A client developer can install the complete released guidance, use it without
-access to Open Dough, and later run `dough-update` with no repeated source URL
-to obtain a verified newer release as reviewable project changes. Publish and
-self-use this outcome so Donut can retain an adoption next. Donut adoption and
-its subsequent meaningful newer-release update remain separate backlog stories.
+A client developer can install released guidance, use it without the Open Dough
+checkout, and later run `dough-update` without repeating the source URL to receive
+a verified update as reviewable, uncommitted changes. Release and self-use this
+workflow so Donut can adopt it in its separate story.
 
 #### Scope
 
-- Finish the existing installer/updater contract, using one shared behavioral
-  source and the existing Codex, Cursor, and Claude Code native destinations.
-  The current everyday payload is the two skill files; neither requires a local
-  helper script. Keep recognition descriptive and source-only. Do not add
-  hypothetical support files or move maintenance helpers into client projects.
-- Save the installed version and supplied Open Dough repository location in the
-  selected installation. Subsequent ordinary invocations use that location,
-  never the client's Git remote. Select and inspect the highest numeric tagged
-  release, preserving existing pinning and latest-only behavior.
-- Before an ordinary replacement or successful current-version report, compare
-  managed files with their recorded release from the saved source. Changed or
-  missing managed files, missing/malformed records, or an unavailable/unverifiable
-  baseline mean an actionable refusal without target writes. A clean equal
-  version remains unwritten; a newer recorded version is never downgraded or
-  silently certified if its baseline cannot be verified.
-- Explicit force replaces the complete selected payload with the selected latest
-  release, including edits or equal/newer recorded versions, without a merge or
-  edit-recovery promise. Keep the already-implemented fixed recognition-file
-  retirement. Verify installed content before advancing installation metadata;
-  report partial replacement truthfully. Preserve unrelated guidance, retained
-  project context, client-owned files, and other native installations.
-- Existing released updaters have no saved source and a different payload
-  contract. Use the documented, inspected, explicitly forced bootstrap with a
-  supplied URL once, then a fresh native session. No automatic reconstruction of
-  old installation history or arbitrary old payload layouts is required.
-- Fetch maintenance/comparison content temporarily and clean it on success and
-  failure. Ordinary ADR use must work with that source unavailable. Updater runs
-  leave changes for client review and commit; they do not commit or push.
-- Publish the verified result with a maintainer-chosen version under Accepted
-  ADR 0003, independently fetch and verify it, and self-adopt through the same
-  client flow in Open Dough's three native installations.
-
-#### Current scope versus earlier work
-
-Quick 018 already records
-the reusable adoption-procedure removal, two-file payload, fixed recognition
-retirement, and native candidate-use/legacy-transition leaves as done. Source
-inspection confirms those implementations. Retain that evidence with its tested
-revision; do not schedule their implementation again. Its remaining tooling and
-historical-document cleanup are not prerequisites for this story.
-
-The updater still asks for a URL, the installer writes only `VERSION`, and
-`apply` overwrites older/unknown installations without checking their content.
-The equal-version test deliberately accepts an edited file as current. Those
-are the remaining changes, together with the new contract's delivery proof,
-publication, and self-use. Existing documentation about interim retirement must
-be aligned when these paths change. Local tag `v0.2.1` still carries recognition
-and reusable adoption procedures; source cleanup is not a published release.
+- Finish remembered source/version and verified ordinary/forced updates for the
+  existing two-skill payload and native destinations. Keep one shared behavioral
+  source with minimal platform adaptation. Retain completed payload cleanup and
+  fixed recognition-file retirement; do not implement them again.
+- Record the supplied Open Dough repository and installed version. Ordinary
+  updates use that source, never the client's Git remote, and inspect the highest
+  numeric tagged release before executing its pinned content.
+- Before ordinary replacement or a current-version success, verify managed files
+  against their recorded release. Edited/missing content, invalid records, or an
+  unverifiable baseline mean actionable refusal without target writes. A clean
+  equal version is unwritten; a newer recorded version is preserved without
+  downgrade or an unsupported success claim.
+- Explicit force replaces the complete payload with the selected latest release,
+  including edited, equal, or newer installations. Verify installed content before
+  advancing metadata; report incomplete replacement truthfully. Preserve unrelated
+  guidance, adopter context, client-owned files, and other native roots.
+- Retain the one-time inspected forced bootstrap with a supplied URL for known
+  old installations lacking the new contract/source record. Use temporary
+  maintenance content and clean it on success and failure. Ordinary skill use
+  needs no source checkout or installed maintenance helper.
+- After candidate acceptance, publish a maintainer-chosen version, independently
+  verify the fetched release, and self-adopt in Open Dough. Donut adoption and a
+  later meaningful Donut update remain separate outcomes.
 
 #### Key examples
 
-| ID | Pre-condition → trigger → observable result |
+| Pre-condition → trigger | Observable result |
 | --- | --- |
-| E1 | Clean client with unrelated guidance and other native roots → install from a supplied Open Dough URL → complete two-skill payload plus version/source record in the running tool's root, no recognition or maintenance checkout; fresh native discovery and ADR use work while Open Dough is unavailable. |
-| E2 | Unedited recorded release A, meaningful newer release B at its saved source, and a different client Git remote → invoke `dough-update` without a URL → B's complete payload and verified record replace A in only the selected root; the client has a reviewable, uncommitted diff. |
-| E3 | Unedited installation equals latest → ordinary update → successful current report with no target writes. A newer installation is preserved without downgrade; unavailable comparison content produces an unsupported-baseline report, not a success claim. |
-| E4 | Managed content is edited/missing, or the record/baseline cannot be verified → ordinary update, including at equal version → refusal and unchanged target. No automatic force, restoration, merge, or guessing a source. |
-| E5 | Edited, incomplete, equal, or newer installation → explicitly force latest from the known source → complete verified replacement, fixed obsolete recognition removed, unrelated files retained. Fetch/validation failure writes nothing; replacement failure reports incomplete state without claiming success. |
-| E6 | A known old updater cannot accept the revised contract or has no saved URL → follow the inspected forced bootstrap with a supplied source, then start a fresh session → the revised updater uses its saved source. This does not replace a local non-Open-Dough practice. |
-| E7 | Candidate behavior verified separately in three tools → publish, independently fetch, and self-adopt the release → Donut has an actual release to adopt next; no Donut changes or synthetic second public release are included. |
+| Clean client → install from a supplied repository | Complete payload and truthful source/version record in the selected native root; unrelated content preserved; fresh skill use works without the source checkout. |
+| Clean release A; newer B at the saved source; different client Git remote → ordinary `dough-update` | Verified B is installed from the remembered source as uncommitted changes. Clean equal/newer installations remain unwritten; newer is never downgraded. |
+| Edited/missing managed content or unverifiable record/baseline → ordinary update | Actionable refusal with no target writes, including at equal version. No guessed source or automatic force. |
+| Edited/incomplete installation → explicit force, supplying the source for a known legacy installation | Complete selected latest payload and verified metadata, with unrelated files retained. Fetch/validation failure writes nothing; partial replacement is reported as incomplete. |
+| Accepted candidate → publish and self-adopt | Verified immutable release and retained Open Dough installation; an actual release is available for Donut's separate adoption story. |
+
+#### Small acceptance boundary
+
+[Accepted ADR 0005 — Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+separates implementation proof from native acceptance:
+
+- **Implementation handoff:** Finish functional behavior and focused inexpensive
+  checks using real installer/update operations. Keep deterministic comparison,
+  refusal, force, payload, cleanup, and preservation cases in CI; test shared logic
+  once and actual adapter differences separately. Record one candidate revision,
+  its promised behavior, changed inputs, and cheap-check results. This work does
+  not depend on a native acceptance verdict.
+- **Candidate acceptance owner:** [SEED-007 Story 3](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
+  owns affected discovery, invocation/application, install/update/coexistence, and
+  intended behavior evidence. Review saved proof first. Use `dough-adr-awareness`
+  as the representative installed skill; a combined update→fresh-use journey can
+  cover several requirements. The chosen journey must exercise the promised
+  ordinary updater where that proof is missing; bootstrap alone is insufficient.
+  Keep updater-specific behavior distinct from shared integration evidence.
+- Define behavioral expectations once and select native checks only for unresolved
+  risks. No per-skill integration suite, full tool-by-scenario matrix, duplicate
+  installed-use run by default, or new test infrastructure is required. Reuse
+  evidence only with a recorded reason; another tool's success supplies no proof.
+- **Release/self-use owner:** This story publishes only after linked acceptance
+  covers the actual release inputs. Reopen only invalidated requirements. Record
+  the real release installation and useful self-use per tool, reusing applicable
+  candidate proof rather than repeating the candidate suite. Fixture transitions
+  do not count as a live Donut update.
+
+| Platform | Candidate integration and skill behavior | Release/self-use |
+| --- | --- | --- |
+| Codex | Pending candidate-specific evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
+| Cursor | Pending its own evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
+| Claude Code | Pending its own evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
+
+Implementation can finish at the candidate handoff while native acceptance stays
+pending. This release story remains unfinished until publication and self-use.
+Completed cleanup evidence is retained subject to applicability review; this
+refinement produces no new native proof.
 
 #### Exclusions and readiness
 
-No configuration file/options, per-skill selection, registry/package mechanism,
-generic payload discovery or migration engine, local-practice reconciliation,
-merge/rollback/recovery product, automatic changelog presentation, new extraction,
-Donut caller edits, or extra public release just to simulate Donut updating.
-Preserving client-owned files introduces no configuration feature.
+No configuration feature, per-skill selection, generic migration/reconciliation,
+merge/recovery product, changelog presentation, new extraction, Donut changes,
+synthetic second public release, or historical tooling cleanup. Align only docs
+and checks affected by the included behavior.
 
-No unresolved story-scope decision blocks planning. Record placement and the
-fixed baseline comparison are implementation choices in Quick 019. The actual
-release number is a maintainer-supplied input at release preparation, not an
-automatically selected bump. This request authorizes refinement and planning;
-implementation/publication are future execution work. ADR 0004 remains Proposed;
-the owner's recorded direction defines this story, with no Accepted-ADR conflict.
-
-Native proof for the revised version/source/integrity contract remains **pending
-separately in Codex, Cursor, and Claude Code**. Prior native cleanup proof does
-not establish it. Fixture release transitions are candidate evidence only and
-do not count as the later live Donut update. Per-platform acceptance and evidence
-ownership are in Quick 019.
+No unresolved scope question blocks subsequent planning. The candidate revision
+is supplied by implementation, not assumed to be current HEAD. The maintainer
+supplies the release number before preparation under
+[Accepted ADR 0003 — Tagged release versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+ADR 0004 remains Proposed; existing owner direction defines the client contract.
+No Accepted-ADR conflict or exception is needed. This task refines the story;
+it does not create an execution plan or implement/publish the workflow.
 
 ## Ordering and Scope Reduction
 
 Stories 1–5e retain completed results. Story 7 is the next useful delivery:
-make the smaller installation/update contract available, then complete Donut's
-one-time adoption in SEED-006 Story 3. A useful newer release should then be
-used in Donut through Story 4 at the first opportunity. Planning extraction can
-supply that improvement but must not postpone an already-available update.
+plan and implement the smaller installation/update contract, hand off one named
+candidate to SEED-007 Story 3, then publish only after that acceptance. Donut's
+one-time adoption in SEED-006 Story 3 follows. A useful newer release should then
+be used in Donut through Story 4 at the first opportunity. Planning extraction
+can supply that improvement but must not postpone an already-available update.
 
 Story 6 stays deferred until manual note reading is a real obstacle. One-time
 client replacements are not an ongoing updater feature. Preserve the existing
@@ -868,16 +876,18 @@ than resurrecting unfinished fragments from the earlier combined scope.
 
 ## Next refinement
 
-Story 7 has been re-refined against current source and the owner's direction;
-[Quick 019](../quick/019-standalone-client-update/PLAN.md) contains its refined
-remaining slices. Revisit the story only if execution evidence changes its goal,
-examples, or boundary. ADR 0004 remains Proposed. Configuration stays deferred.
+Story 7 was reconsidered on 2026-09-08 with a candidate handoff to SEED-007
+Story 3. Owner decision the same day: it is first in the product backlog;
+Quick 023 stays parked until this story names a candidate. Plan remaining work
+from its current scope; Quick 019 is historical input and will not be run as
+written. ADR 0004 remains Proposed. Configuration stays deferred.
 
 ## When to Surface
 
-Story 7 is next in the [product backlog](../PRODUCT-BACKLOG.md). Story 6 surfaces
-only when its manual-notes trigger occurs. Completed Stories 1–5e remain evidence
-for unchanged behavior and are not unfinished delivery work.
+Story 7 is item 1 in the [product backlog](../PRODUCT-BACKLOG.md). After it
+hands off a named candidate, SEED-007 Story 3 (Quick 023) resumes as item 2.
+Story 6 surfaces only when its manual-notes trigger occurs. Completed Stories
+1–5e remain evidence for unchanged behavior and are not unfinished delivery work.
 
 ## Breadcrumbs
 

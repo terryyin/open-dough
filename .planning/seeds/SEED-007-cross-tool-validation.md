@@ -113,8 +113,9 @@ native evidence remains with Story 3; coached historical results gain no new cla
 
 ### 3. Establish that the standalone client candidate works in all three tools
 
-**Status:** Refined 2026-09-08; conditional slice plan written. Native acceptance
-pending; execution blocked on the named candidate.
+**Status:** Refined 2026-09-08; Quick 023 written. Parked 2026-09-08 after
+execute-plan Jidoka: no named candidate. Native acceptance pending. Do not use
+current HEAD or public `v0.2.1`.
 **Plan:** [Quick 023 — accept one standalone client candidate](../quick/023-accept-standalone-client/PLAN.md).
 **Type:** Native acceptance.
 **Dependencies:** Stories 1–2's completed cheap checks and one named candidate
@@ -181,13 +182,14 @@ than treating those historical results as fresh proof.
 | Cursor | Quick 014 native installed-file reads; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
 | Claude Code | Quick 014 native Skill calls; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
 
-**Boundary / open dependency:** The reconsidered updater story must identify the
-candidate and its actual promised behavior before checks can be selected. This
-story does not implement that workflow, publish or self-adopt a release, change
-Donut, reconcile old plans, or add test infrastructure. Force, refusal, and other
-variants are not a default native matrix. Quick 019 and historical research add
-no hidden criteria. These limits follow [ADR 0005 — Cross-tool validation through
-native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md);
+**Boundary / open dependency:** The updater story must identify the candidate
+and its actual promised behavior before checks can be selected. Owner decision
+2026-09-08: keep this story parked and implement SEED-001 Story 7 first; resume
+Quick 023 only after that handoff. This story does not implement that workflow,
+publish or self-adopt a release, change Donut, reconcile old plans, or add test
+infrastructure. Force, refusal, and other variants are not a default native
+matrix. Quick 019 and historical research add no hidden criteria. These limits
+follow [ADR 0005 — Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md);
 no ADR change or exception is needed.
 
 <a id="separate-native-acceptance"></a>
@@ -223,7 +225,8 @@ is required for this planning work.
 Spent plans 20, 22, and 21 delivered Stories 1–2 cheap checks and were dropped.
 Story 3 owns outstanding native evidence per tool.
 
-Refine Story 3 against the actual candidate before native execution. Do Story 4
-last after reconsidering its underlying stories. Keep this seed until the scoped
-migration and native acceptance work is complete. Research options and removed
-plan leaves are not hidden completion requirements.
+SEED-001 Story 7 precedes Story 3 so it can name the candidate. Refine Story 3
+against that candidate before native execution. Do Story 4 last after
+reconsidering its underlying stories. Keep this seed until the scoped migration
+and native acceptance work is complete. Research options and removed plan leaves
+are not hidden completion requirements.

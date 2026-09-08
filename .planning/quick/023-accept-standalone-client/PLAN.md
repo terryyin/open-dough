@@ -1,8 +1,9 @@
 # Accept one standalone client candidate
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
-**Status:** Planned; candidate dependency unresolved. No native execution authorized
-by this planning task and no acceptance claimed.
+**Status:** Parked 2026-09-08. Execute-plan stopped at Jidoka: no named candidate.
+Resume after [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
+hands off a revision. No native execution or acceptance claimed.
 
 ## Goal and scope
 
@@ -24,6 +25,11 @@ No Structure slice is needed: existing runners and evidence records suffice.
 
 ## Entry condition and current decisions
 
+- **2026-09-08 owner decision:** Park this plan. Implement SEED-001 Story 7 next
+  from its current scope; do not run [Quick 019](../019-standalone-client-update/PLAN.md)
+  as written. Do not name current HEAD or public `v0.2.1` as the candidate.
+  After Story 7 functional behavior and cheap checks land, resume execute-plan
+  here against that named revision. Publication waits for this plan's acceptance.
 - The reconsidered [updater story](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
   must supply the candidate revision, promised behavior, and completed cheap
   checks. Do not infer that current HEAD or Quick 019's old plan is that contract.
@@ -148,3 +154,8 @@ claim of readiness for native execution.
 The combined runner already exists. Its inspected-bootstrap fixture is not
 blanket proof of the reconsidered ordinary updater contract. No product or
 runner change, native run, or new evidence was produced during planning.
+
+2026-09-08 execute-plan: slice 1 remains blocked. Current `dough-update` still
+requires a supplied URL and records only `VERSION`. HEAD `9857d85` / `VERSION`
+`0.2.1` is not the Story 7 contract. Doughnut CI observation is unavailable in
+this repo (`pendingCi: unobserved`).
