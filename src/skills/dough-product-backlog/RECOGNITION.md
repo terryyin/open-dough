@@ -12,7 +12,7 @@ Project identity is not a recognition requirement.
 
 ## Purpose
 
-Maintain a selected, ordered product queue without duplicating story details
+Maintain a selected, ordered backlog list without duplicating story details
 from their canonical homes.
 
 ## Triggers
@@ -22,11 +22,14 @@ Exclude classroom and workshop exercise backlog preparation.
 
 ## Distinguishing behavior
 
-Near-future direction precedes a numbered unfinished queue. Entries contain
-only exact linked story titles and home IDs. Owner priorities, direction,
+Human-controlled near-future direction precedes a bulleted backlog list.
+Add or change direction only on explicit human instruction; leave it absent
+if missing. Entries contain exact linked story titles and home IDs. Human priorities, direction,
 value, learning, and prerequisites guide ordering, with urgent exceptions.
 One outcome has one canonical home. Evidence-backed completions move to a
 newest-first history capped at ten; deferrals retain their source stories.
+Completed items whose homes were removed retain only their plain-text titles;
+definitions remain recoverable through Git history.
 Maintenance does not authorize execution, commit, or push.
 
 ## Adopter-provided context
@@ -43,6 +46,10 @@ serves as an execution plan, uses different completion retention semantics, or
 represents a classroom exercise needs manual comparison. This on-demand skill
 does not replace automatically applied rules. Missing home/link conventions or
 required related workflows must be resolved before the affected work proceeds.
+Maintainer changes after extraction replace numbered items with bullets,
+restrict direction edits to explicit human instructions, and permit title-only
+history entries for removed story homes. The source checksum records the
+original extraction, not equivalence with these updated behaviors.
 
 ## Validation needed
 
@@ -50,7 +57,11 @@ Before release, perform the representative behavior review in
 [`AGENTS.md`](../../../AGENTS.md): confirm invocation context, required adopter
 context (including a useful stop when missing), and a useful outcome.
 Use a backlog with an unfinished prerequisite, a deferred story, and ten recent
-completions. Verify prerequisite ordering or an owner-visible conflict,
+completions. Verify prerequisite ordering or a human-visible conflict,
 retention of the deferred story, evidence in the completed story's home, and
 eviction of only the oldest history reference. Check exact titles, links, and
-unrelated order. Publication and adopter delivery remain separate work.
+unrelated order. Verify routine maintenance preserves direction exactly,
+leaves absent direction absent, and changes it only on explicit human instruction.
+Check bullet formatting and title-only retention when a completed story home
+is removed, including recovery from Git history when needed.
+Publication and adopter delivery remain separate work.
