@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=src/install/open-dough-platform.sh
 source "${source_dir}/src/install/open-dough-platform.sh"
 
 usage() {
-  echo "Usage: $0 --target <project> [--platform <codex|cursor|claude>] [--force]" >&2
+  echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
 }
 
@@ -19,6 +20,7 @@ report_incomplete_install() {
 }
 
 target=""
+recorded_source=""
 platform=codex
 force=0
 
@@ -29,6 +31,13 @@ while [[ $# -gt 0 ]]; do
         usage
       fi
       target=$2
+      shift 2
+      ;;
+    --source)
+      if [[ $# -lt 2 ]]; then
+        usage
+      fi
+      recorded_source=$2
       shift 2
       ;;
     --platform)
@@ -54,8 +63,16 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "${target}" ]]; then
+if [[ -z "${target}" || -z "${recorded_source}" ]]; then
   usage
+fi
+
+if [[ "${recorded_source}" == /* ]]; then
+  if [[ -d "${recorded_source}" ]]; then
+    recorded_source=$(cd -- "${recorded_source}" && pwd -P)
+  fi
+elif [[ -d "${original_pwd}/${recorded_source}" ]]; then
+  recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P)
 fi
 
 if [[ ! -d "${target}" ]]; then
@@ -164,6 +181,7 @@ if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == verify ]] \
   report_incomplete_install 'Installed payload verification failed.'
 fi
 
+printf '%s\n' "${recorded_source}" > "${destination}/SOURCE"
 printf '%s\n' "${version}" > "${destination}/VERSION"
 echo "Installed Open Dough public guidance in ${destination_skill_root}"
 echo "Recorded version ${version}."

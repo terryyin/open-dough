@@ -55,7 +55,8 @@ printf '%s\n' 'Keep this Claude guidance.' > \
 printf '%s\n' 'Keep this project file.' > "${target}/keep.txt"
 
 cd -- "${temporary_dir}"
-bash "${source_dir}/install.sh" --target "${target}" --platform "${platform}"
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
+  --platform "${platform}"
 
 for managed_file in "${managed_files[@]}"; do
   cmp "${source_dir}/src/skills/${managed_file}" \
@@ -91,11 +92,15 @@ expected_files=$(
     for managed_file in "${managed_files[@]}"; do
       printf './%s/%s\n' "${relative_skill_root}" "${managed_file}"
     done
+    printf './%s/dough-update/SOURCE\n' "${relative_skill_root}"
     printf './%s/dough-update/VERSION\n' "${relative_skill_root}"
   } | LC_ALL=C sort
 )
 actual_files=$(list_files "${target}")
 [[ "${actual_files}" == "${expected_files}" ]]
+expected_source=$(cd -- "${source_dir}" && pwd -P)
+recorded_source=$(cat "${target}/${relative_skill_root}/dough-update/SOURCE")
+[[ "${recorded_source}" == "${expected_source}" ]]
 
 incomplete_source="${temporary_dir}/incomplete source"
 missing_index=$((${#managed_files[@]} - 1))
@@ -119,7 +124,8 @@ mkdir -p -- "${incomplete_target}"
 printf '%s\n' 'Do not change me.' > "${incomplete_target}/sentinel.txt"
 before=$(list_files "${incomplete_target}")
 if output=$(bash "${incomplete_source}/install.sh" \
-  --target "${incomplete_target}" --platform "${platform}" 2>&1); then
+  --target "${incomplete_target}" --source "${incomplete_source}" \
+  --platform "${platform}" 2>&1); then
   echo "FAIL: an incomplete public payload must be rejected." >&2
   exit 1
 fi

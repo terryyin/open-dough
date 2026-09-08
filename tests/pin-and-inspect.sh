@@ -72,6 +72,9 @@ output=$(bash "${snapshot}/src/install/open-dough-release.sh" apply \
 [[ "${output}" == *"Release: v0.1.10 (commit ${commit})"* ]]
 [[ "${output}" == *'Outcome: installed 0.1.10.'* ]]
 assert_payload "${target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${target}/.cursor/skills/dough-update/SOURCE")
+expected_source=$(cd -- "${fixture}" && pwd -P)
+[[ "${recorded_source}" == "${expected_source}" ]]
 assert_sentinels "${target}"
 [[ ! -s "${leak}" ]]
 
@@ -134,13 +137,16 @@ install_inspected_release() (
     echo 'Pinned source version does not match the selected release; refusing installation.' >&2
     exit 1
   fi
-  bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"
+  bash "${snapshot}/install.sh" --target "${target_project}" --source "${source_url}" \
+    --platform "${platform}"
 
   for managed_file in "${managed_files[@]}"; do
     cmp "${snapshot}/src/skills/${managed_file}" "${target_project}/.cursor/skills/${managed_file}"
   done
   [[ ! -e "${target_project}/.cursor/skills/dough-adr-awareness/RECOGNITION.md" ]]
   cmp "${snapshot}/VERSION" "${target_project}/.cursor/skills/dough-update/VERSION"
+  recorded_source=$(cat "${target_project}/.cursor/skills/dough-update/SOURCE")
+  [[ "${recorded_source}" == "${source_url}" ]]
 )
 
 direct_target="${temporary_dir}/direct project"

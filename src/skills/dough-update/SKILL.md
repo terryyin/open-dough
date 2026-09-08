@@ -36,10 +36,12 @@ Ordinary Open Dough release updates remain available from a supplied repository 
    | Claude Code | `claude` | `.claude/skills/` |
 
    The complete public payload is `dough-update/SKILL.md` and
-   `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record lives beside
-   the selected `dough-update/SKILL.md`. Source recognition records are
-   maintainer material and are not installed. An obsolete recognition file
-   from an earlier installation may remain until a later update retires it.
+   `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record and the
+   recorded `SOURCE` live beside the selected `dough-update/SKILL.md`.
+   Installation writes `SOURCE` from the supplied repository URL or local
+   path, then `VERSION`. Source recognition records are maintainer material
+   and are not installed. An obsolete recognition file from an earlier
+   installation may remain until a later update retires it.
 
 5. Make a fresh temporary directory. Using only Git, pin the highest numeric
    release before any repository script runs. Do not clone the default
@@ -63,9 +65,9 @@ Ordinary Open Dough release updates remain available from a supplied repository 
       stop. Do not fetch or check out replacement files after inspection.
       Proceed only if the inspected files write solely to the two declared
       public payload paths under the selected native skill root and the selected
-      updater's `VERSION` record in the captured target project, preserving
-      distributable source, unrelated project files, other tools' separate
-      installations and records, and home guidance.
+      updater's `SOURCE` and `VERSION` records in the captured target project,
+      preserving distributable source, unrelated project files, other tools'
+      separate installations and records, and home guidance.
 6. Trust the helper's comparison. Equal recorded versions must not invoke
    `install.sh` or write the selected files, even when untagged source or local
    skill text differs. An older or missing selected record advances directly to

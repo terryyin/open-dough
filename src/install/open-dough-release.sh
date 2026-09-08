@@ -32,9 +32,10 @@ run_installer() {
   local target=$2
   local platform=$3
   local force=$4
+  local source=$5
   local -a args
 
-  args=(--target "${target}" --platform "${platform}")
+  args=(--target "${target}" --platform "${platform}" --source "${source}")
   if [[ "${force}" -eq 1 ]]; then
     args+=(--force)
   fi
@@ -110,7 +111,7 @@ EOF
 
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 1
+    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
     printf 'Outcome: installed %s by explicit force.\n' "${version}"
     printf 'Start a fresh session in this tool before invoking dough-update again.\n'
     return 0
@@ -118,7 +119,7 @@ EOF
 
   if [[ ! -d "${dest}" ]]; then
     trace_line "apply-install ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 0
+    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
     printf 'Installed: unknown\n'
     printf 'Outcome: installed %s.\n' "${version}"
     printf 'Start a fresh session in this tool before invoking dough-update again.\n'
@@ -136,7 +137,7 @@ EOF
   if [[ -z "${installed}" ]]; then
     trace_line "apply-unknown ${dest}"
     printf 'Installed: unknown\n'
-    run_installer "${work}" "${target}" "${platform}" 1
+    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
     printf 'Outcome: recorded %s for the previously unknown installation.\n' "${version}"
     printf 'Start a fresh session in this tool before invoking dough-update again.\n'
     return 0
@@ -151,7 +152,7 @@ EOF
       ;;
     older)
       trace_line "apply-upgrade ${dest}"
-      run_installer "${work}" "${target}" "${platform}" 1
+      run_installer "${work}" "${target}" "${platform}" 1 "${url}"
       printf 'Outcome: updated from %s to %s.\n' "${installed}" "${version}"
       printf 'Start a fresh session in this tool before invoking dough-update again.\n'
       ;;

@@ -92,7 +92,7 @@ without replaying every policy on each tool. Static checks are not native proof.
 
 ### 1. A fresh installation remembers its release source
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `tests/install-latest-release.sh`: supplied-source `apply` and
 direct `install.sh --source` produce the exact payload plus `SOURCE` then
 `VERSION` in the selected root. Capture a local source as an absolute path
@@ -278,8 +278,14 @@ before execution. Integrated tests, Git/network waits, and one bounded native
 adoption→use journey can exceed active-work targets; keep that runtime separate
 rather than splitting update from fresh use.
 
-Source inspection, not test execution, informed this plan. Existing tests encode
-edited-equal success and unknown-install overwrite, so those expectations must
-change with behavior. The installed local updater is not the candidate source.
-Quick 019's native matrix and repeated post-adoption no-op checks add no hidden
-requirements. No product changes or acceptance results were produced here.
+**Slice 1:** `install.sh --source` is required at parse. Local directory sources
+are stored as `pwd -P` using the original working directory before later `cd`.
+`apply` threads its existing `--url` into that write. SOURCE is written after
+payload verification and before VERSION. Direct install and apply both record
+the same absolute local fixture path. Updater still requires a URL until slice 2.
+
+Slice 1 delivered remembered SOURCE/VERSION on successful install. Remaining
+leaves still inherit the inspected gaps: edited-equal success and unknown-install
+overwrite must change with later behavior. The installed local updater is not
+the candidate source. Quick 019's native matrix and repeated post-adoption no-op
+checks add no hidden requirements.

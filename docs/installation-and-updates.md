@@ -63,10 +63,11 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-adr-awareness/SKILL.md`
 
    Check that this executable call chain writes only the two declared public
-   files and the selected updater's `VERSION` record under the captured target's
-   native root. Preserve source, unrelated guidance, other tools' installations,
-   and home guidance. Stop if the payload is incomplete or the inspected behavior
-   exceeds this scope. Bash and Git suffice; no package installation is needed.
+   files and the selected updater's `SOURCE` then `VERSION` records under the
+   captured target's native root. Preserve source, unrelated guidance, other
+   tools' installations, and home guidance. Stop if the payload is incomplete
+   or the inspected behavior exceeds this scope. Bash and Git suffice; no
+   package installation is needed.
 
 5. After inspection, run the following in a Bash subshell with the captured
    values available. Propagate any nonzero status; stop on a changed selection,
@@ -89,7 +90,7 @@ inspection and execution into an unattended one-shot command.
        echo 'Pinned source version does not match the selected release; refusing installation.' >&2
        exit 1
      fi
-     bash "${snapshot}/install.sh" --target "${target_project}" --platform "${platform}"
+     bash "${snapshot}/install.sh" --target "${target_project}" --source "${source_url}" --platform "${platform}"
    )
    ```
 
@@ -100,10 +101,11 @@ inspection and execution into an unattended one-shot command.
    when the user explicitly authorized that overwrite. The installer does not
    merge changes or replace other skills.
 
-6. Verify both installed files byte-for-byte against this same snapshot and
-   the installed `dough-update/VERSION` against `selected_version`; review the
-   target diff for unrelated changes. Report the source URL, tag, exact commit,
-   running tool, both installed paths, version record, and actual installer
+6. Verify both installed files byte-for-byte against this same snapshot, the
+   installed `dough-update/SOURCE` against the supplied source, and
+   `dough-update/VERSION` against `selected_version`; review the target diff
+   for unrelated changes. Report the source URL, tag, exact commit, running
+   tool, both installed paths, source and version records, and actual installer
    outcome. A failed install is not success: if replacement started, report any
    incomplete files and the unchanged last successful record (or absent fresh
    record), with explicit `--force` reinstall as recovery. Do not promise rollback.
@@ -115,8 +117,9 @@ inspection and execution into an unattended one-shot command.
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
-writes the two payload files under `.agents/skills/` and records the release
-in `.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
+writes the two payload files under `.agents/skills/` and records the supplied
+source and release in `.agents/skills/dough-update/SOURCE` then
+`.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
 installation lives there too, separately from the distributable source.
 See [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills).
 
@@ -129,7 +132,8 @@ Start a fresh Codex session in the target project and invoke:
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 Installation writes the two payload files under `.cursor/skills/` and records
-the release in `.cursor/skills/dough-update/VERSION`. See
+the supplied source and release in `.cursor/skills/dough-update/SOURCE` then
+`.cursor/skills/dough-update/VERSION`. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
 
@@ -140,7 +144,8 @@ the target project and invoke:
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 Installation writes the two payload files under `.claude/skills/` and records
-the release in `.claude/skills/dough-update/VERSION`. See
+the supplied source and release in `.claude/skills/dough-update/SOURCE` then
+`.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
 Claude Code session in the target project and invoke:
 

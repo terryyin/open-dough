@@ -58,9 +58,13 @@ EOF
   [[ "${pin_tag}" == v0.1.10 ]]
   [[ "${pin_commit}" == "${commit}" ]]
   [[ "${pin_version}" == 0.1.10 ]]
-  bash "${clone_dir}/install.sh" --target "${platform_target}" --platform "${platform}"
+  bash "${clone_dir}/install.sh" --target "${platform_target}" --source "${fixture}" \
+    --platform "${platform}"
   dest=$(bash "${helper}" destination "${platform_target}" "${platform}")
   assert_payload "${dest}" 0.1.10 payload-0.1.10
+  recorded_source=$(cat "${dest}/SOURCE")
+  expected_source=$(cd -- "${fixture}" && pwd -P)
+  [[ "${recorded_source}" == "${expected_source}" ]]
   assert_sentinels "${platform_target}"
   [[ ! -e "${platform_target}/.agents/skills/dough-update" ]] \
     || [[ "${platform}" == codex ]]
@@ -75,6 +79,17 @@ EOF
   fi
 done
 
+relative_target="${temporary_dir}/relative source project"
+prepare_target "${relative_target}"
+bash "${temporary_dir}/cursor clone/install.sh" --target "${relative_target}" \
+  --source fixture.git --platform cursor
+relative_dest=$(bash "${helper}" destination "${relative_target}" cursor)
+assert_payload "${relative_dest}" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${relative_dest}/SOURCE")
+expected_source=$(cd -- "${fixture}" && pwd -P)
+[[ "${recorded_source}" == "${expected_source}" ]]
+assert_sentinels "${relative_target}"
+
 apply_target="${temporary_dir}/apply project"
 prepare_target "${apply_target}"
 output=$(bash "${helper}" apply --url "${fixture}" --target "${apply_target}" \
@@ -83,6 +98,9 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${apply_target}" \
 [[ "${output}" == *'Release: v0.1.10 (commit '* ]]
 [[ "${output}" == *"Outcome: installed 0.1.10."* ]]
 assert_payload "${apply_target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${apply_target}/.cursor/skills/dough-update/SOURCE")
+expected_source=$(cd -- "${fixture}" && pwd -P)
+[[ "${recorded_source}" == "${expected_source}" ]]
 assert_sentinels "${apply_target}"
 
 missing_url="${temporary_dir}/missing.git"

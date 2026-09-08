@@ -80,6 +80,7 @@ expect_files() {
         for managed_file in "${managed_files[@]}"; do
           printf './%s/%s\n' "${relative_skill_root}" "${managed_file}"
         done
+        printf './%s/dough-update/SOURCE\n' "${relative_skill_root}"
         printf './%s/dough-update/VERSION\n' "${relative_skill_root}"
       done
     } | LC_ALL=C sort
@@ -97,7 +98,7 @@ expect_files() {
 
 assert_public_payload() {
   local relative_skill_root=$1
-  local managed_file
+  local managed_file expected_source recorded_source
 
   for managed_file in "${managed_files[@]}"; do
     cmp "${source_dir}/src/skills/${managed_file}" \
@@ -105,25 +106,28 @@ assert_public_payload() {
   done
   cmp "${source_dir}/VERSION" \
     "${target}/${relative_skill_root}/dough-update/VERSION"
+  expected_source=$(cd -- "${source_dir}" && pwd -P)
+  recorded_source=$(cat "${target}/${relative_skill_root}/dough-update/SOURCE")
+  [[ "${recorded_source}" == "${expected_source}" ]]
 }
 
 # Run outside the checkout so the installer must locate its own source.
 cd -- "${temporary_dir}"
 
-bash "${source_dir}/install.sh" --target "${target}" --platform codex
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills
 
-bash "${source_dir}/install.sh" --target "${target}" --platform cursor
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
 assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .cursor/skills
 
-bash "${source_dir}/install.sh" --target "${target}" --platform claude
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
 assert_public_payload .claude/skills
 assert_public_payload .cursor/skills
 assert_public_payload .agents/skills

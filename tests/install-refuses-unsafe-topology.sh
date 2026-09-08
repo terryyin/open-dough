@@ -46,7 +46,8 @@ assert_refused_unchanged() {
   local accepted=0
   local before_target output after_target
   local -a install_command=(
-    bash "${source_dir}/install.sh" --target "${target}" --platform "${platform}"
+    bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}"
+    --platform "${platform}"
   )
 
   before_target=$(snapshot_tree "${target}")

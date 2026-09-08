@@ -27,7 +27,8 @@ export -f cp
 for platform in codex cursor claude; do
   target="${temporary_dir}/${platform} target"
   mkdir -p -- "${target}"
-  bash "${source_dir}/install.sh" --target "${target}" --platform "${platform}"
+  bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
+    --platform "${platform}"
 
   destination=$(destination_for "${target}" "${platform}")
   skill_root=$(dirname -- "${destination}")
@@ -42,7 +43,7 @@ for platform in codex cursor claude; do
   export OPEN_DOUGH_COPY_CALLS=0
   export OPEN_DOUGH_COPY_FAILURE_ACTIVE=1
   if output=$(bash "${source_dir}/install.sh" \
-    --target "${target}" --platform "${platform}" --force 2>&1); then
+    --target "${target}" --source "${source_dir}" --platform "${platform}" --force 2>&1); then
     echo "FAIL: ${platform} installation reported success after a real copy failure." >&2
     exit 1
   fi

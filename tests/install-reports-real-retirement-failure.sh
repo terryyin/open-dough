@@ -76,7 +76,7 @@ for platform in codex cursor claude; do
   export OPEN_DOUGH_RETIRE_FAILURE_PATH="${retired_path}"
   export OPEN_DOUGH_RETIRE_FAILURE_ACTIVE=1
   if output=$(bash "${source_dir}/install.sh" \
-    --target "${target}" --platform "${platform}" --force 2>&1); then
+    --target "${target}" --source "${source_dir}" --platform "${platform}" --force 2>&1); then
     echo "FAIL: ${platform} installation reported success after recognition retirement failed." >&2
     exit 1
   fi

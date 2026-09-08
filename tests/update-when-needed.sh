@@ -179,7 +179,7 @@ if output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
 fi
 [[ "${output}" == *'latest numeric release only'* ]]
 if output=$(bash "${source_dir}/install.sh" --target "${target}" \
-  --platform cursor --version 0.1.2 2>&1); then
+  --source "${source_dir}" --platform cursor --version 0.1.2 2>&1); then
   echo "FAIL: requested-version install must be refused." >&2
   exit 1
 fi

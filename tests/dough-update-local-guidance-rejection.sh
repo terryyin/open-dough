@@ -65,7 +65,8 @@ printf '%s\n' \
   '' \
   'Preserve project-owned files and guidance.' > \
   "${target}/AGENTS.md"
-bash "${candidate}/install.sh" --target "${target}" --platform "${platform}" > /dev/null
+bash "${candidate}/install.sh" --target "${target}" --source "${candidate}" \
+  --platform "${platform}" > /dev/null
 
 before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")

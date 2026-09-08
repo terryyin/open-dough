@@ -46,11 +46,12 @@ Open your target project in an AI agent with web and shell access, then ask:
    replaces its contents, including local edits. Use it only when the user has
    explicitly authorized that overwrite.
 6. Verify both installed files match the pinned sources, the updater's
-   `VERSION` record matches the selected release, and the target project's diff
-   contains no unrelated changes. Report the installed paths, source tag and
-   commit, and tell the user to invoke the updater with the source URL in a
-   fresh session of the same tool (`$dough-update` in Codex, `/dough-update` in
-   Cursor or Claude Code).
+   `SOURCE` record matches the supplied source, the `VERSION` record matches
+   the selected release, and the target project's diff contains no unrelated
+   changes. Report the installed paths, source tag and commit, and tell the
+   user to invoke the updater with the source URL in a fresh session of the
+   same tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude
+   Code).
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
