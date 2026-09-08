@@ -1,0 +1,44 @@
+Review 2026-09-08 of retained Cursor delivery/updated-use attempt
+20260908T030715-5dbe. Original record/observations/streams are unchanged.
+
+Harness original: execution-status completed; prerequisite-result pass
+(complete execution and supported installed activation); assessment-status pass
+(named conflicting authorities and stopped); real-transition true. Process
+exit 0 is not the native verdict.
+
+Review judgment: pass.
+
+Native command: cursor agent --version → 2026.09.02-c22c1a3 (same as Quick
+014 Cursor). Adapter cursor-agent-stream-json. Both stages ended with
+{"type":"result"} subtype success. Distinct sessions
+38be8719-de0a-4b7f-9786-2b8119c2cb1c (update) and
+67682144-b54d-4399-a89b-9f2a80483dc5 (use). Scratch tmp.MOcayjbQtG deleted.
+
+Ordinary no-URL update: installed updater and recorded SOURCE were read;
+apply was
+  bash <snapshot>/src/install/open-dough-release.sh apply
+    --target <adopter> --platform cursor --checkout <snapshot>
+with no --url and no --force. Snapshots: only
+.cursor/skills/dough-adr-awareness/SKILL.md and
+.cursor/skills/dough-update/VERSION changed (0.2.1 → 0.2.2;
+improvement-after-update true). SOURCE record unchanged.
+
+Fresh-session installed load: use readToolCall of
+.cursor/skills/dough-adr-awareness/SKILL.md whose content includes the
+fixture improvement sentence. No fixture-source, RECOGNITION.md, .agents,
+or .claude skill reads.
+
+ADR use with source unused: named
+architecture/decisions/CATALOG.md (Replaced) vs
+architecture/decisions/retain-complete-telemetry-history.md (Adopted),
+stopped for human precedence, no file edits. Use snapshots identical.
+Source, companion, .agents, .claude, AGENTS.md, and ADR store unchanged
+across update; other-tool-root-cursor-preserved false is the selected
+Cursor root changing, not a coexistence failure.
+
+Quick 014 Cursor 2026.09.02-c22c1a3 reads of product SHA ff023b77… remain
+historical loading evidence for unchanged product bytes. They do not prove
+this remembered-source update. This journey covers the missing update and
+the resulting installed-use; no duplicate installed-use run. No extra
+clear/conflict/force/refusal leaf: no new unresolved product risk named.
+Codex incomplete attempt supplies no Cursor proof.

@@ -2,9 +2,8 @@
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
 **Status:** In progress 2026-09-08 against candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–2 done. Codex native
-verdict is pending (incomplete stream; use unrun). Cursor and Claude Code
-remain. No acceptance claimed.
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–3 done. Codex pending;
+Cursor pass. Claude Code remains. No overall acceptance claimed.
 
 ## Goal and scope
 
@@ -127,9 +126,14 @@ installed-use run when the journey already proves it.
 
 ### 3. Establish the Cursor candidate verdict
 Type: Behavior
-Status: planned — after slice 1
-Proof: Cursor evidence row links its own native observations or justified reuse;
-Codex success supplies no Cursor proof.
+Status: done
+Proof: Retained
+`.planning/quick/023-accept-standalone-client/evidence/cursor/delivery/updated-use/20260908T030715-5dbe`.
+`execution-status: completed`; `prerequisite-result: pass`;
+`assessment-status: pass` (named conflicting authorities and stopped);
+`real-transition: true`. Native version `2026.09.02-c22c1a3`. Ordinary no-URL
+update from recorded SOURCE, then fresh installed-skill conflict stop.
+Cursor candidate verdict: **pass**.
 
 Behavior: Given the same candidate and saved Cursor evidence → apply the shared
 expectations and run only uncovered Cursor checks → the maintainer has a supported
@@ -168,7 +172,7 @@ this slice does not publish or claim future release acceptance.
 | --- | --- | --- | --- | --- |
 | Slice 1 | Shared selected fixture | Cheap proof that native updated-use invokes ordinary no-URL update. | n/a | Done |
 | Slice 2 | Codex | Combined journey incomplete; ordinary no-URL update not credited. Quick 014 loading/ADR use of unchanged skill SHA remains a starting point only. | Use unrun; Quick 014 historical clear/conflict not reused as this journey's behavior. | Pending |
-| Slice 3 | Cursor | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
+| Slice 3 | Cursor | Combined ordinary no-URL update→fresh-use proved discovery, invocation, install/update/coexistence on this journey. | Catalog vs ARC-12 conflict stop with no file edits. | Pass |
 | Slice 4 | Claude Code | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
 | Slice 5 | Overall | Confirm coverage and candidate identity from the three rows. | Confirm shared cases resolve the candidate's behavioral risks. | Pending |
 
@@ -216,3 +220,10 @@ without `--url`, but that is not a native pass. Use was not started. Not
 retried. Adapter not widened (not this plan's test-infrastructure work).
 Checkout `source-revision` is slice-1 `a5779a2`; product skill hashes match
 candidate `6682816`.
+
+2026-09-08 Cursor native: one `delivery/updated-use` attempt at
+`.planning/quick/023-accept-standalone-client/evidence/cursor/delivery/updated-use/20260908T030715-5dbe`
+on Cursor Agent `2026.09.02-c22c1a3`. Complete `{"type":"result"}` streams;
+ordinary apply omitted `--url`; use loaded installed
+`.cursor/skills/dough-adr-awareness/SKILL.md` and stopped on catalog/ARC-12
+disagreement. Codex pending is not Cursor proof.
