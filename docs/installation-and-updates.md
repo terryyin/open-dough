@@ -1,7 +1,8 @@
 # Installation and updates
 
-Open Dough installs a project-local public payload into one tool's native skill
-root. The payload is exactly:
+Open Dough installs one project-local public payload into all three native skill
+roots: `.agents/skills/`, `.cursor/skills/`, and `.claude/skills/`. The payload
+in each root is exactly:
 
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
@@ -22,7 +23,9 @@ inspection and execution into an unattended one-shot command.
    fetching. Use the user's supplied `source_url`. If a specific version, tag, or
    branch was requested, stop before fetching or writing: Open Dough installs the
    latest numeric release only; requested-version installation is unsupported.
-   Identify the running tool from the host, not from existing skill directories:
+   Identify the running tool from the host, not from existing skill directories.
+   It is an entry-context hint only; each successful install/update writes all
+   three native roots:
 
    | Running tool | `platform` | Native skill root |
    | --- | --- | --- |
@@ -64,9 +67,8 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-adr-awareness/SKILL.md`
 
    Check that this executable call chain writes only the two declared public
-   files and the selected updater's `SOURCE` then `VERSION` records under the
-   captured target's native root. Preserve source, unrelated guidance, other
-   tools' installations, and home guidance. Stop if the payload is incomplete
+   files and their `SOURCE` then `VERSION` records under all three captured
+   target native roots. Preserve source, unrelated guidance, and home guidance. Stop if the payload is incomplete
    or the inspected behavior exceeds this scope. Bash and Git suffice; no
    package installation is needed.
 
@@ -166,22 +168,19 @@ working-tree helper. The updater:
    matching `VERSION` and changelog metadata without falling back to a branch
    or lower release.
 3. Records the actual source URL, tag, and exact commit.
-4. Selects the running tool's native skill root without inferring the tool from
-   directories that happen to exist.
+4. Uses the running tool only as an entry-context hint, then verifies every
+   existing native root and adds missing roots.
 5. Validates the fetched installer against the exact two-skill public payload.
-6. Compares the selected updater's `VERSION` record. An ordinary update
-   without a supplied URL fetches that tagged baseline as data without
+6. Compares every existing updater's `VERSION` record. An ordinary update
+   without a supplied URL fetches each tagged baseline as data without
    executing it and compares the two managed files before skipping, preserving,
-   or replacing. For an older record, run the pinned installer with `--force`
-   only when they still match and replacement is required. An ordinary update
-   without a supplied URL refuses without writing when SOURCE or VERSION is
-   missing or unusable, the recorded tag or source is unavailable, fetched
-   baseline metadata does not match, or managed files differ from that
-   baseline. It does not infer the client remote or treat that destination as a
-   clean first install.
-7. Verifies that both installed files byte-match the fetched sources and
-   that distributable source, unrelated project files, other tools' separate
-   installations, and home guidance remain unchanged.
+   or replacing. Missing siblings are added; a conflicting source, newer root,
+   or missing/edited/unverifiable managed root refuses the whole operation
+   before writing. It does not infer the client remote or treat an existing
+   destination as a clean first install.
+7. Verifies that both installed files byte-match the fetched sources in every
+   native root and that distributable source, unrelated project files, and home
+   guidance remain unchanged.
 
 An equal recorded version that still matches its recorded release produces no
 installed-file writes. An older unchanged installation advances to the selected
@@ -206,8 +205,8 @@ that refusal as success. A known older installation that lacks `SOURCE` needs
 one inspected supplied-source `--force` bootstrap. Follow the
 [same safe installation procedure](#common-installation-flow), then run the
 inspected helper `apply --url <source-url> --target <project> --platform
-<tool> --checkout <snapshot> --force` for the selected platform. That writes
-the payload plus `SOURCE` then `VERSION`. Afterward ordinary helper calls omit
+<tool> --checkout <snapshot> --force` with the invoking-tool hint. That writes
+the payload plus `SOURCE` then `VERSION` in all roots. Afterward ordinary helper calls omit
 `--url` and resolve the release from the `SOURCE` that force wrote.
 The old updater cannot perform a migration it correctly refuses. Start a fresh
 session before invoking the newly installed updater.

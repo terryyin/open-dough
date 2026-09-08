@@ -22,12 +22,12 @@ Open your target project in an AI agent with web and shell access, then ask:
 1. Use the user's current project as the target, or their explicitly supplied
    target path. Ask only if the target is unclear. Capture its absolute path
    before cloning so the source checkout does not become the installation target.
-2. Explain that installation selects one tool. Codex (default, or
-   `--platform codex`) installs under `.agents/skills/`, Cursor (`--platform
-   cursor`) under `.cursor/skills/`, and Claude Code (`--platform claude`)
-   under `.claude/skills/`. Each receives exactly
-   `dough-update/SKILL.md` and `dough-adr-awareness/SKILL.md`. Install only the
-   running tool's copy; do not install the source recognition record.
+2. Explain that one installation supplies all three tools. Codex (default, or
+   `--platform codex`), Cursor (`--platform cursor`), and Claude Code
+   (`--platform claude`) are entry-context hints; every successful operation
+   writes the identical two-skill payload under `.agents/skills/`,
+   `.cursor/skills/`, and `.claude/skills/`. Do not install the source
+   recognition record.
 3. Follow the shared [safe installation procedure](docs/installation-and-updates.md#common-installation-flow)
    with the supplied URL and running tool
    ([Codex](docs/installation-and-updates.md#codex),

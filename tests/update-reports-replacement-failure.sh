@@ -30,7 +30,7 @@ prepare_apply_with_previous_records() {
   local name=$1
 
   apply_target="${temporary_dir}/${name} project"
-  apply_dest="${apply_target}/.cursor/skills/dough-update"
+  apply_dest="${apply_target}/.agents/skills/dough-update"
   prepare_target "${apply_target}"
   bash "${helper}" apply --url "${fixture}" --target "${apply_target}" --platform cursor
   printf '%s\n' "${previous_source}" > "${apply_dest}/SOURCE"
@@ -42,7 +42,7 @@ prepare_apply_with_previous_records copy-fail
 copy_fail=${apply_target}
 copy_dest=${apply_dest}
 if output=$(OPEN_DOUGH_INSTALL_FAULT=copy bash "${helper}" apply --url "${fixture}" \
-  --target "${copy_fail}" --platform cursor 2>&1); then
+  --target "${copy_fail}" --platform cursor --force 2>&1); then
   echo "FAIL: copy failure must not report success." >&2
   exit 1
 fi
@@ -58,7 +58,7 @@ prepare_apply_with_previous_records verify-fail
 verify_fail=${apply_target}
 verify_dest=${apply_dest}
 if output=$(OPEN_DOUGH_INSTALL_FAULT=verify bash "${helper}" apply --url "${fixture}" \
-  --target "${verify_fail}" --platform cursor 2>&1); then
+  --target "${verify_fail}" --platform cursor --force 2>&1); then
   echo "FAIL: verification failure must not report success." >&2
   exit 1
 fi
@@ -71,7 +71,7 @@ prepare_apply_with_previous_records record-fail
 record_fail=${apply_target}
 record_dest=${apply_dest}
 if output=$(OPEN_DOUGH_INSTALL_FAULT=record bash "${helper}" apply --url "${fixture}" \
-  --target "${record_fail}" --platform cursor 2>&1); then
+  --target "${record_fail}" --platform cursor --force 2>&1); then
   echo "FAIL: record-write fault must not report success." >&2
   exit 1
 fi
@@ -86,7 +86,7 @@ real_record_fail=${apply_target}
 real_record_dest=${apply_dest}
 chmod a-w "${real_record_dest}/VERSION"
 if output=$(bash "${helper}" apply --url "${fixture}" --target "${real_record_fail}" \
-  --platform cursor 2>&1); then
+  --platform cursor --force 2>&1); then
   echo "FAIL: real VERSION write failure must not report success." >&2
   chmod u+w "${real_record_dest}/VERSION"
   exit 1

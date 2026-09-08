@@ -116,16 +116,18 @@ cd -- "${temporary_dir}"
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex
 assert_public_payload .agents/skills
+assert_public_payload .cursor/skills
+assert_public_payload .claude/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files .agents/skills
+expect_files .agents/skills .cursor/skills .claude/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
 assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files .agents/skills .cursor/skills
+expect_files .agents/skills .cursor/skills .claude/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
 assert_public_payload .claude/skills

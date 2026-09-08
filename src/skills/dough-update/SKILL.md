@@ -5,7 +5,9 @@ description: Apply the latest released Open Dough guidance from this project's r
 
 # Update Open Dough
 
-Install and update the latest numeric Open Dough release for the running tool.
+Install and update the latest numeric Open Dough release for Codex, Cursor, and
+Claude Code together. The running tool is only the entry context used to find
+the recorded source for a no-URL update.
 Pin that release with Git before any repository script runs, then call the
 inspected snapshot's helper. Do not reimplement the helper's comparison or
 installation decisions.
@@ -22,9 +24,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
    stop. Say `Open Dough installs and updates the latest numeric release only.
    Requested-version updates are not supported.` Do not fetch or write.
 3. Identify the running tool from the current host. Do not infer it from which
-   skill directories exist, and do not use a compatibility directory that
-   another host also reads. Select that tool's installer platform and write
-   destination:
+   skill directories exist. Pass it as the installer platform hint, then
+   install the same released payload into every native root:
 
    | Running tool | `--platform` | Installed files |
    | --- | --- | --- |
@@ -34,15 +35,16 @@ Ordinary Open Dough release updates remain available from the recorded source.
 
    The complete public payload is `dough-update/SKILL.md` and
    `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record and the
-   recorded `SOURCE` live beside the selected `dough-update/SKILL.md`.
-   Installation writes `SOURCE` from the supplied repository URL or local
-   path, then `VERSION`. Ordinary updates reuse that recorded `SOURCE`. Source
+   recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
+   writes the same `SOURCE` from the supplied repository URL or local path,
+   then `VERSION`, in all three roots. Ordinary no-URL updates reuse the
+   invoking root's recorded `SOURCE`. Source
    recognition records are maintainer material and are not installed. An
    obsolete recognition file from an earlier installation may remain until a
    later update retires it.
 
-4. Resolve the Open Dough source from the selected root. If the selected
-   updater destination already exists and has a usable recorded
+4. Resolve the Open Dough source from the invoking root. If that updater
+   destination already exists and has a usable recorded
    `dough-update/SOURCE`, use that source. For an ordinary update, if that
    record is missing or unusable, stop and report that ordinary update cannot
    establish the recorded baseline. Do not ask for a URL, do not treat the
@@ -73,15 +75,14 @@ Ordinary Open Dough release updates remain available from the recorded source.
       <captured-project> --platform <tool> --checkout <snapshot>` and do not
       pass `--url`; the helper reads `SOURCE`. For a first installation, also
       pass `--url <source-url>`. Pass `--force` only when the user explicitly
-      authorized a forced reinstall. When the selected root has a usable
+      authorized a forced reinstall. When the invoking root has a usable
       SOURCE, omit `--url`; otherwise include `--url <source-url>`.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
       inspected files write solely to the two declared public payload paths
-      under the selected native skill root and the selected updater's `SOURCE`
-      and `VERSION` records in the captured target project, preserving
-      distributable source, unrelated project files, other tools' separate
-      installations and records, and home guidance.
+      under all three native skill roots and each updater's `SOURCE` and
+      `VERSION` records in the captured target project, preserving
+      distributable source, unrelated project files, and home guidance.
 6. Trust the helper's comparison. An ordinary update without a supplied URL
    fetches the recorded VERSION tag as data and compares the two managed files
    before any skip or replacement. Equal recorded versions that still match

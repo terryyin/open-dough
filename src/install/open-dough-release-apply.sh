@@ -3,7 +3,7 @@
 # compare unless forced, then install.
 # Sourced by open-dough-release.sh after platform, version, and resolve modules.
 # Predicate functions are used in if/! conditions by design.
-# shellcheck disable=SC2310,SC2249
+# shellcheck disable=SC2310,SC2312,SC2249
 
 trace_line() {
   if [[ -n "${OPEN_DOUGH_TRACE:-}" ]]; then
@@ -62,13 +62,52 @@ run_installer() {
   local platform=$3
   local force=$4
   local source=$5
+  local replace_verified=${6:-0}
   local -a args
 
   args=(--target "${target}" --platform "${platform}" --source "${source}")
   if [[ "${force}" -eq 1 ]]; then
     args+=(--force)
+  elif [[ "${replace_verified}" -eq 1 ]]; then
+    args+=(--replace-verified)
   fi
   bash "${checkout}/install.sh" "${args[@]}"
+}
+
+all_roots_verified_for_release() {
+  local target=$1 url=$2 work_root=$3 latest_version=$4 selected_platform=$5
+  local selected_dest current_platform current_dest installed relation
+
+  selected_dest=$(destination_for "${target}" "${selected_platform}")
+  if [[ ! -d "${selected_dest}" ]]; then
+    echo "Missing invoking-tool installation: ${selected_dest}; supply --url to bootstrap." >&2
+    return 1
+  fi
+  if ! url=$(read_source_record "${selected_dest}/SOURCE"); then
+    return 1
+  fi
+  for current_platform in $(all_platforms); do
+    current_dest=$(destination_for "${target}" "${current_platform}")
+    if [[ ! -d "${current_dest}" ]]; then
+      continue
+    fi
+    if [[ $(read_source_record "${current_dest}/SOURCE" 2> /dev/null || true) != "${url}" ]]; then
+      echo "${current_platform}: SOURCE conflicts with ${selected_platform}; ordinary all-tool update refuses without writes." >&2
+      return 1
+    fi
+    installed=$(read_record "${current_dest}/VERSION") || {
+      echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
+      return 1
+    }
+    if ! recorded_baseline_unchanged "${current_dest}" "${url}" "${work_root}/baseline-${current_platform}" "${installed}"; then
+      return 1
+    fi
+    relation=$(compare_versions "${installed}" "${latest_version}")
+    if [[ "${relation}" == newer ]]; then
+      echo "${current_platform}: installed ${installed} is newer than source ${latest_version}; ordinary all-tool update refuses without a downgrade." >&2
+      return 1
+    fi
+  done
 }
 
 apply_release() {
@@ -80,7 +119,6 @@ apply_release() {
   local supplied_url=0
   local work resolved tag commit version work_root
   local dest installed relation
-  local record_status=0
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -157,71 +195,53 @@ EOF
   printf 'Release: %s (commit %s)\n' "${tag}" "${commit}"
   printf 'Tool path: %s\n' "${dest}"
 
-  # Skip baseline compare and equal/newer preservation; replace latest.
+  # Explicit force deliberately replaces every safe managed root.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
     run_installer "${work}" "${target}" "${platform}" 1 "${url}"
-    printf 'Outcome: installed %s by explicit force.\n' "${version}"
-    printf 'Start a fresh session in this tool before invoking dough-update again.\n'
+    printf 'Outcome: installed %s in Codex, Cursor, and Claude Code by explicit force.\n' "${version}"
+    printf 'Start fresh sessions before invoking dough-update again.\n'
+    return 0
+  fi
+
+  # A supplied source is the fresh-install bootstrap only. Existing managed
+  # roots still need the ordinary baseline proof or an explicit force.
+  if [[ ! -d "${dest}" && "${supplied_url}" -eq 1 ]]; then
+    trace_line "apply-install ${dest}"
+    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
+    printf 'Installed: unknown\n'
+    printf 'Outcome: installed %s in Codex, Cursor, and Claude Code.\n' "${version}"
+    printf 'Start fresh sessions before invoking dough-update again.\n'
     return 0
   fi
 
   if [[ ! -d "${dest}" ]]; then
-    trace_line "apply-install ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
-    printf 'Installed: unknown\n'
-    printf 'Outcome: installed %s.\n' "${version}"
-    printf 'Start a fresh session in this tool before invoking dough-update again.\n'
-    return 0
-  fi
-
-  installed=$(read_record "${dest}/VERSION") || record_status=$?
-  if [[ "${record_status}" -eq 2 ]]; then
-    trace_line "apply-malformed ${dest}"
-    printf 'Outcome: refused; preserved the selected installation.\n'
+    report_unverifiable_installation "${dest}"
     return 1
   fi
 
-  if [[ -z "${installed}" ]]; then
-    if [[ "${supplied_url}" -eq 0 ]]; then
-      echo "Missing installed version record: ${dest}/VERSION" >&2
-      report_unverifiable_installation "${dest}"
-      return 1
-    fi
-    trace_line "apply-unknown ${dest}"
-    printf 'Installed: unknown\n'
-    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
-    printf 'Outcome: recorded %s for the previously unknown installation.\n' "${version}"
-    printf 'Start a fresh session in this tool before invoking dough-update again.\n'
-    return 0
+  if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}" "${platform}"; then
+    report_unverifiable_installation "${dest}"
+    return 1
   fi
 
-  printf 'Installed: %s\n' "${installed}"
-  relation=$(compare_versions "${installed}" "${version}")
-  if ! require_ordinary_recorded_baseline "${dest}" "${supplied_url}" "${url}" \
-    "${work_root}" "${installed}"; then
-    if [[ "${relation}" == newer ]]; then
-      report_unverifiable_installation "${dest}" \
-        'unsupported; preserved the selected installation without a downgrade.'
+  needs_replacement=0
+  while IFS=$'\t' read -r current_platform current_dest; do
+    if [[ ! -d "${current_dest}" ]]; then
+      needs_replacement=1
     else
-      report_unverifiable_installation "${dest}"
+      installed=$(read_record "${current_dest}/VERSION")
+      relation=$(compare_versions "${installed}" "${version}")
+      [[ "${relation}" == equal ]] || needs_replacement=1
     fi
-    return 1
+  done < <(all_destinations_for "${target}")
+  if [[ ${needs_replacement} -eq 0 ]]; then
+    trace_line "apply-skip-equal ${dest}"
+    printf 'Outcome: all three installations are current; no installer invocation or installed-file writes.\n'
+    return 0
   fi
-  case "${relation}" in
-    equal)
-      trace_line "apply-skip-equal ${dest}"
-      printf 'Outcome: already current; no installer invocation or installed-file writes.\n'
-      ;;
-    older)
-      trace_line "apply-upgrade ${dest}"
-      run_installer "${work}" "${target}" "${platform}" 1 "${url}"
-      printf 'Outcome: updated from %s to %s.\n' "${installed}" "${version}"
-      printf 'Start a fresh session in this tool before invoking dough-update again.\n'
-      ;;
-    newer)
-      trace_line "apply-newer ${dest}"
-      printf 'Outcome: installed %s is newer than source %s; no downgrade or target writes.\n' "${installed}" "${version}"
-      ;;
-  esac
+  trace_line "apply-reconcile ${dest}"
+  run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
+  printf 'Outcome: installed or updated all three integrations to %s.\n' "${version}"
+  printf 'Start fresh sessions before invoking dough-update again.\n'
 }

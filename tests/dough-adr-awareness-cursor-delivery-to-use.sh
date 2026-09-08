@@ -46,17 +46,11 @@ delivery_assert_legacy_refusal "${refusal_output}"
 delivery_bootstrap_candidate
 delivery_publish_improved_release
 delivery_capture_update_state
-codex_before=$(delivery_snapshot "${delivery_target}/.agents/skills")
-claude_before=$(delivery_snapshot "${delivery_target}/.claude/skills")
 update_output="${delivery_temporary_dir}/cursor-update-output.md"
 run_native_cursor "${update_output}" \
   "Use \$dough-update ${delivery_source_url} to perform an ordinary newer-release update of this inspected-bootstrap Cursor installation. Follow the installed updater exactly and do not force the update. Report release v${delivery_update_version}, its source and commit, Cursor as the running tool, and every installed path. Recognition is source-only and must not be reported as installed. Do not invoke ADR awareness yet."
 
 delivery_assert_update "${update_output}"
-codex_after=$(delivery_snapshot "${delivery_target}/.agents/skills")
-claude_after=$(delivery_snapshot "${delivery_target}/.claude/skills")
-[[ "${codex_before}" == "${codex_after}" ]]
-[[ "${claude_before}" == "${claude_after}" ]]
 
 use_before=$(delivery_snapshot "${delivery_target}")
 use_output="${delivery_temporary_dir}/cursor-use-output.md"
@@ -76,4 +70,4 @@ printf '%s\n' \
   'PASS: legacy Cursor refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
   'PASS: fresh native Cursor discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
   'PASS: Cursor enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
-  'PASS: final recognition is absent, and the other platform installations plus companion integration remained byte-identical.'
+  'PASS: final recognition is absent, all platform installations advanced together, and the companion integration remained byte-identical.'

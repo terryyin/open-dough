@@ -66,10 +66,10 @@ that purpose.
 
 6. **Preserve native integration and project boundaries.** Maintain one shared
    behavioral source with minimal adaptation for Codex, Cursor, and Claude Code.
-   Automatically use the installation layout for the AI application making the
-   request. Each installation must coexist with unrelated guidance and
-   other tools' installations. Open Dough's own client installations follow the
-   same contract as every other client's.
+   Use one installation operation to populate every supported native layout;
+   the application making the request supplies only the entry context. Each
+   installation must coexist with unrelated guidance. Open Dough's own client
+   installations follow the same contract as every other client's.
 
 ## Consequences
 

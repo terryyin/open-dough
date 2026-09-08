@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2312
 # Shared platform destinations and requested-version refusal.
 # Sourced by install.sh and open-dough-release.sh.
 
@@ -38,4 +39,19 @@ destination_for() {
       return 1
       ;;
   esac
+}
+
+all_platforms() {
+  printf '%s\n' codex cursor claude
+}
+
+# The selected platform is only the invoking-tool hint. Successful operations
+# always use the complete native topology below.
+all_destinations_for() {
+  local target=$1
+  local platform
+
+  for platform in $(all_platforms); do
+    printf '%s\t%s\n' "${platform}" "$(destination_for "${target}" "${platform}")"
+  done
 }

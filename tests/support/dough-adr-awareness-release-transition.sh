@@ -137,31 +137,51 @@ delivery_capture_update_state() {
 
 delivery_assert_update_payload() {
   local source_after source_status companion_after actual_changes expected_changes
+  local platform skill_root managed_file
 
   source_after=$(delivery_snapshot "${delivery_fixture_source}")
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
   [[ "${delivery_source_before}" == "${source_after}" ]] || return 1
   [[ -z ${source_status} ]] || return 1
-  for managed_file in "${delivery_current_managed_files[@]}"; do
-    cmp "${delivery_fixture_source}/src/skills/${managed_file}" \
-      "${delivery_target}/${delivery_skill_root}/${managed_file}" || return 1
+  for platform in "${delivery_baseline_platforms[@]}"; do
+    case ${platform} in
+      codex) skill_root='.agents/skills' ;;
+      cursor) skill_root='.cursor/skills' ;;
+      claude) skill_root='.claude/skills' ;;
+      *) return 2 ;;
+    esac
+    for managed_file in "${delivery_current_managed_files[@]}"; do
+      cmp "${delivery_fixture_source}/src/skills/${managed_file}" \
+        "${delivery_target}/${skill_root}/${managed_file}" || return 1
+    done
+    [[ ! -e "${delivery_target}/${skill_root}/dough-adr-awareness/RECOGNITION.md" ]] || return 1
+    [[ $(cat "${delivery_target}/${skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]] || return 1
+    [[ $(cat "${delivery_target}/${skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]] || return 1
   done
   grep -Fq "${delivery_improvement}" \
     "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md" || return 1
   companion_after=$(shasum -a 256 \
     "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md")
   [[ "${delivery_companion_before}" == "${companion_after}" ]] || return 1
-  [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" ]] || return 1
   [[ ! -e "${delivery_target}/${delivery_skill_root}/adr-awareness" ]] || return 1
-  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]] || return 1
-  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]] || return 1
 
   actual_changes=$(git -C "${delivery_target}" diff --name-only)
-  expected_changes=$(printf '%s\n' \
-    "${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" \
-    "${delivery_skill_root}/dough-adr-awareness/SKILL.md" \
-    "${delivery_skill_root}/dough-update/SKILL.md" \
-    "${delivery_skill_root}/dough-update/VERSION")
+  expected_changes=''
+  for platform in "${delivery_baseline_platforms[@]}"; do
+    case ${platform} in
+      codex) skill_root='.agents/skills' ;;
+      cursor) skill_root='.cursor/skills' ;;
+      claude) skill_root='.claude/skills' ;;
+      *) return 2 ;;
+    esac
+    expected_changes+=$(printf '%s\n' \
+      "${skill_root}/dough-adr-awareness/RECOGNITION.md" \
+      "${skill_root}/dough-adr-awareness/SKILL.md" \
+      "${skill_root}/dough-update/SKILL.md" \
+      "${skill_root}/dough-update/VERSION")
+    expected_changes+=$'\n'
+  done
+  expected_changes=$(printf '%s' "${expected_changes}" | LC_ALL=C sort)
   [[ "${actual_changes}" == "${expected_changes}" ]] || return 1
 }
 
