@@ -62,3 +62,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0003](./0003-tagged-release-versioning-accepted.md) | Accepted | Tagged release versioning |
 | [0004](./0004-client-installation-and-update.md) | Proposed | Client installation and update |
 | [0005](./0005-cross-tool-validation-accepted.md) | Accepted | Cross-tool validation through native acceptance stories |
+| [0006](./0006-minimal-guidance-workflow.md) | Proposed | Minimal guidance and useful outcomes |
