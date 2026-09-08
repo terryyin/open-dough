@@ -1,8 +1,8 @@
 # Installation and updates
 
-Open Dough installs one project-local public payload into all three native skill
-roots: `.agents/skills/`, `.cursor/skills/`, and `.claude/skills/`. The payload
-in each root is exactly:
+Open Dough installs one project-local public payload into two physical skill
+roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
+The payload in each root is exactly:
 
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
@@ -24,13 +24,13 @@ inspection and execution into an unattended one-shot command.
    branch was requested, stop before fetching or writing: Open Dough installs the
    latest numeric release only; requested-version installation is unsupported.
    Identify the running tool from the host, not from existing skill directories.
-   It is an entry-context hint only; each successful install/update writes all
-   three native roots:
+   It is an entry-context hint only; each successful install/update writes both
+   physical roots:
 
    | Running tool | `platform` | Native skill root |
    | --- | --- | --- |
    | Codex | `codex` | `.agents/skills/` |
-   | Cursor | `cursor` | `.cursor/skills/` |
+   | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
 2. Create a fresh temporary `install_dir` and use `snapshot="${install_dir}/release"`.
@@ -67,7 +67,7 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-adr-awareness/SKILL.md`
 
    Check that this executable call chain writes only the two declared public
-   files and their `SOURCE` then `VERSION` records under all three captured
+   files and their `SOURCE` then `VERSION` records under both captured
    target native roots. Preserve source, unrelated guidance, and home guidance. Stop if the payload is incomplete
    or the inspected behavior exceeds this scope. Bash and Git suffice; no
    package installation is needed.
@@ -134,9 +134,11 @@ Start a fresh Codex session in the target project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Installation writes the two payload files under `.cursor/skills/` and records
-the supplied source and release in `.cursor/skills/dough-update/SOURCE` then
-`.cursor/skills/dough-update/VERSION`. See
+Cursor shares the two payload files and records under `.agents/skills/` with
+Codex. An ordinary update can migrate a verified legacy
+`.cursor/skills/dough-update` record when the shared root is absent, then
+retires only the release-owned legacy files while preserving unrelated Cursor
+skills. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
 

@@ -63,6 +63,7 @@ run_installer() {
   local force=$4
   local source=$5
   local replace_verified=${6:-0}
+  local retire_legacy_cursor=${7:-0}
   local -a args
 
   args=(--target "${target}" --platform "${platform}" --source "${source}")
@@ -71,28 +72,46 @@ run_installer() {
   elif [[ "${replace_verified}" -eq 1 ]]; then
     args+=(--replace-verified)
   fi
+  if [[ "${retire_legacy_cursor}" -eq 1 ]]; then
+    args+=(--retire-legacy-cursor)
+  fi
   bash "${checkout}/install.sh" "${args[@]}"
 }
 
-all_roots_verified_for_release() {
-  local target=$1 url=$2 work_root=$3 latest_version=$4 selected_platform=$5
-  local selected_dest current_platform current_dest installed relation
+legacy_cursor_topology_is_safe() {
+  local target=$1 legacy_root path
 
-  selected_dest=$(destination_for "${target}" "${selected_platform}")
-  if [[ ! -d "${selected_dest}" ]]; then
-    echo "Missing invoking-tool installation: ${selected_dest}; supply --url to bootstrap." >&2
-    return 1
-  fi
-  if ! url=$(read_source_record "${selected_dest}/SOURCE"); then
-    return 1
-  fi
-  for current_platform in $(all_platforms); do
-    current_dest=$(destination_for "${target}" "${current_platform}")
+  legacy_root="${target}/.cursor/skills"
+  for path in "${target}/.cursor" "${legacy_root}" \
+    "${legacy_root}/dough-update" "${legacy_root}/dough-adr-awareness"; do
+    [[ ! -L "${path}" && (! -e "${path}" || -d "${path}") ]] || {
+      echo "Unsafe legacy Cursor destination: ${path}." >&2
+      return 1
+    }
+  done
+  for path in \
+    "${legacy_root}/dough-update/SKILL.md" \
+    "${legacy_root}/dough-update/SOURCE" \
+    "${legacy_root}/dough-update/VERSION" \
+    "${legacy_root}/dough-adr-awareness/SKILL.md" \
+    "${legacy_root}/dough-adr-awareness/RECOGNITION.md"; do
+    [[ ! -L "${path}" && (! -e "${path}" || -f "${path}") ]] || {
+      echo "Unsafe legacy Cursor destination: ${path}." >&2
+      return 1
+    }
+  done
+}
+
+all_roots_verified_for_release() {
+  local target=$1 url=$2 work_root=$3 latest_version=$4
+  local current_platform current_dest legacy_dest installed relation
+
+  while IFS=$'\t' read -r current_platform current_dest; do
     if [[ ! -d "${current_dest}" ]]; then
       continue
     fi
     if [[ $(read_source_record "${current_dest}/SOURCE" 2> /dev/null || true) != "${url}" ]]; then
-      echo "${current_platform}: SOURCE conflicts with ${selected_platform}; ordinary all-tool update refuses without writes." >&2
+      echo "${current_platform}: SOURCE conflicts with the shared installation; ordinary update refuses without writes." >&2
       return 1
     fi
     installed=$(read_record "${current_dest}/VERSION") || {
@@ -107,7 +126,27 @@ all_roots_verified_for_release() {
       echo "${current_platform}: installed ${installed} is newer than source ${latest_version}; ordinary all-tool update refuses without a downgrade." >&2
       return 1
     fi
-  done
+  done < <(all_destinations_for "${target}")
+
+  legacy_dest=$(legacy_cursor_destination_for "${target}")
+  if [[ -d "${legacy_dest}" ]]; then
+    if [[ $(read_source_record "${legacy_dest}/SOURCE" 2> /dev/null || true) != "${url}" ]]; then
+      echo "legacy Cursor: SOURCE conflicts with the shared installation; ordinary migration refuses without writes." >&2
+      return 1
+    fi
+    installed=$(read_record "${legacy_dest}/VERSION") || {
+      echo "legacy Cursor: missing or malformed VERSION; ordinary migration refuses without writes." >&2
+      return 1
+    }
+    if ! recorded_baseline_unchanged "${legacy_dest}" "${url}" "${work_root}/baseline-legacy-cursor" "${installed}"; then
+      return 1
+    fi
+    relation=$(compare_versions "${installed}" "${latest_version}")
+    if [[ "${relation}" == newer ]]; then
+      echo "legacy Cursor: installed ${installed} is newer than source ${latest_version}; ordinary migration refuses without a downgrade." >&2
+      return 1
+    fi
+  fi
 }
 
 apply_release() {
@@ -118,7 +157,7 @@ apply_release() {
   local checkout=''
   local supplied_url=0
   local work resolved tag commit version work_root
-  local dest installed relation
+  local dest legacy_dest installed relation retire_legacy_cursor=0
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -160,11 +199,22 @@ apply_release() {
     usage
   fi
   dest=$(destination_for "${target}" "${platform}")
+  legacy_dest=$(legacy_cursor_destination_for "${target}")
+  if [[ -e "${target}/.cursor" ]] && ! legacy_cursor_topology_is_safe "${target}"; then
+    report_unverifiable_installation "${legacy_dest}"
+    return 1
+  fi
+  [[ -d "${legacy_dest}" ]] && retire_legacy_cursor=1
 
   if [[ "${supplied_url}" -eq 0 ]]; then
     if [[ -d "${dest}" ]]; then
       if ! url=$(read_source_record "${dest}/SOURCE"); then
         report_unverifiable_installation "${dest}"
+        return 1
+      fi
+    elif [[ -d "${legacy_dest}" ]]; then
+      if ! url=$(read_source_record "${legacy_dest}/SOURCE"); then
+        report_unverifiable_installation "${legacy_dest}"
         return 1
       fi
     else
@@ -198,8 +248,8 @@ EOF
   # Explicit force deliberately replaces every safe managed root.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
-    printf 'Outcome: installed %s in Codex, Cursor, and Claude Code by explicit force.\n' "${version}"
+    run_installer "${work}" "${target}" "${platform}" 1 "${url}" 0 "${retire_legacy_cursor}"
+    printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code by explicit force.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
     return 0
   fi
@@ -208,19 +258,19 @@ EOF
   # roots still need the ordinary baseline proof or an explicit force.
   if [[ ! -d "${dest}" && "${supplied_url}" -eq 1 ]]; then
     trace_line "apply-install ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
+    run_installer "${work}" "${target}" "${platform}" 0 "${url}" 0 "${retire_legacy_cursor}"
     printf 'Installed: unknown\n'
     printf 'Outcome: installed %s in Codex, Cursor, and Claude Code.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
     return 0
   fi
 
-  if [[ ! -d "${dest}" ]]; then
+  if [[ ! -d "${dest}" && ! -d "${legacy_dest}" ]]; then
     report_unverifiable_installation "${dest}"
     return 1
   fi
 
-  if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}" "${platform}"; then
+  if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}"; then
     report_unverifiable_installation "${dest}"
     return 1
   fi
@@ -235,13 +285,14 @@ EOF
       [[ "${relation}" == equal ]] || needs_replacement=1
     fi
   done < <(all_destinations_for "${target}")
+  [[ ${retire_legacy_cursor} -eq 0 ]] || needs_replacement=1
   if [[ ${needs_replacement} -eq 0 ]]; then
     trace_line "apply-skip-equal ${dest}"
-    printf 'Outcome: all three installations are current; no installer invocation or installed-file writes.\n'
+    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
     return 0
   fi
   trace_line "apply-reconcile ${dest}"
-  run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
-  printf 'Outcome: installed or updated all three integrations to %s.\n' "${version}"
+  run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1 "${retire_legacy_cursor}"
+  printf 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to %s.\n' "${version}"
   printf 'Start fresh sessions before invoking dough-update again.\n'
 }

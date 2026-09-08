@@ -29,7 +29,9 @@ destination_for() {
       printf '%s\n' "${target}/.agents/skills/dough-update"
       ;;
     cursor)
-      printf '%s\n' "${target}/.cursor/skills/dough-update"
+      # Cursor also discovers the shared .agents root. Keep cursor as a
+      # supported invoking-tool hint without creating a duplicate payload.
+      printf '%s\n' "${target}/.agents/skills/dough-update"
       ;;
     claude)
       printf '%s\n' "${target}/.claude/skills/dough-update"
@@ -49,9 +51,21 @@ all_platforms() {
 # always use the complete native topology below.
 all_destinations_for() {
   local target=$1
-  local platform
+  local platform destination
+  local seen=''
 
   for platform in $(all_platforms); do
-    printf '%s\t%s\n' "${platform}" "$(destination_for "${target}" "${platform}")"
+    destination=$(destination_for "${target}" "${platform}")
+    if [[ " ${seen} " == *" ${destination} "* ]]; then
+      continue
+    fi
+    seen="${seen} ${destination}"
+    printf '%s\t%s\n' "${platform}" "${destination}"
   done
+}
+
+legacy_cursor_destination_for() {
+  local target=$1
+
+  printf '%s\n' "${target}/.cursor/skills/dough-update"
 }

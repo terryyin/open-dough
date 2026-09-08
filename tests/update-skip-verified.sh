@@ -20,8 +20,8 @@ before=$(snapshot_path_state "${target}")
 trace="${temporary_dir}/trace"
 OPEN_DOUGH_TRACE="${trace}" bash "${helper}" apply --target "${target}" --platform cursor > "${temporary_dir}/output"
 [[ $(snapshot_path_state "${target}") == "${before}" ]]
-grep -Fq 'all three installations are current' "${temporary_dir}/output"
-grep -qx "apply-skip-equal ${target}/.cursor/skills/dough-update" "${trace}"
+grep -Fq 'both physical installations are current' "${temporary_dir}/output"
+grep -qx "apply-skip-equal ${target}/.agents/skills/dough-update" "${trace}"
 if grep -q '^install ' "${trace}"; then
   echo 'FAIL: fully current roots must remain unwritten.' >&2
   exit 1

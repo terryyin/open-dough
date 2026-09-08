@@ -77,7 +77,7 @@ assert_force_success() {
 
 edited_target="${temporary_dir}/edited project"
 prepare_recorded_latest "${edited_target}"
-edited_dest="${edited_target}/.cursor/skills/dough-update"
+edited_dest="${edited_target}/.agents/skills/dough-update"
 edited_root=$(dirname -- "${edited_dest}")
 printf '%s\n' 'local managed edit' >> "${edited_dest}/SKILL.md"
 printf '%s\n' 'obsolete recognition' > \
@@ -96,7 +96,7 @@ fi
 
 incomplete_target="${temporary_dir}/incomplete project"
 prepare_recorded_latest "${incomplete_target}"
-incomplete_dest="${incomplete_target}/.cursor/skills/dough-update"
+incomplete_dest="${incomplete_target}/.agents/skills/dough-update"
 incomplete_root=$(dirname -- "${incomplete_dest}")
 rm -f -- "${incomplete_dest}/VERSION" \
   "${incomplete_root}/dough-adr-awareness/SKILL.md"
@@ -107,7 +107,7 @@ assert_force_success "${output}" "${incomplete_dest}" "${incomplete_target}" \
 
 equal_target="${temporary_dir}/equal project"
 prepare_recorded_latest "${equal_target}"
-equal_dest="${equal_target}/.cursor/skills/dough-update"
+equal_dest="${equal_target}/.agents/skills/dough-update"
 equal_tmp="${temporary_dir}/equal-tmp"
 output=$(run_force_apply "${equal_target}" "${equal_tmp}")
 assert_force_success "${output}" "${equal_dest}" "${equal_target}" \
@@ -116,7 +116,7 @@ assert_force_success "${output}" "${equal_dest}" "${equal_target}" \
 
 newer_target="${temporary_dir}/newer project"
 prepare_recorded_latest "${newer_target}"
-newer_dest="${newer_target}/.cursor/skills/dough-update"
+newer_dest="${newer_target}/.agents/skills/dough-update"
 printf '%s\n' '0.2.0' > "${newer_dest}/VERSION"
 newer_tmp="${temporary_dir}/newer-tmp"
 output=$(run_force_apply "${newer_target}" "${newer_tmp}")
@@ -126,7 +126,7 @@ assert_force_success "${output}" "${newer_dest}" "${newer_target}" \
 
 supplied_target="${temporary_dir}/supplied project"
 prepare_recorded_latest "${supplied_target}"
-supplied_dest="${supplied_target}/.cursor/skills/dough-update"
+supplied_dest="${supplied_target}/.agents/skills/dough-update"
 rm -f -- "${supplied_dest}/SOURCE" "${supplied_dest}/VERSION"
 supplied_tmp="${temporary_dir}/supplied-tmp"
 output=$(run_force_apply "${supplied_target}" "${supplied_tmp}" \

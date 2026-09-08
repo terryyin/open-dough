@@ -17,7 +17,7 @@ case "${platform}" in
     platform_label=Codex
     ;;
   cursor)
-    relative_skill_root=.cursor/skills
+    relative_skill_root=.agents/skills
     platform_label=Cursor
     ;;
   claude)
@@ -30,7 +30,7 @@ case "${platform}" in
     ;;
 esac
 
-skill_roots=(.agents/skills .cursor/skills .claude/skills)
+skill_roots=(.agents/skills .claude/skills)
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -74,12 +74,12 @@ done
 [[ ! -e "${target}/CLAUDE.md" ]]
 
 for skill_root in "${skill_roots[@]}"; do
-  if [[ "${skill_root}" == "${relative_skill_root}" ]]; then
-    continue
-  fi
   for managed_file in "${managed_files[@]}"; do
-    [[ ! -e "${target}/${skill_root}/${managed_file}" ]]
+    [[ -f "${target}/${skill_root}/${managed_file}" ]]
   done
+done
+for managed_file in "${managed_files[@]}"; do
+  [[ ! -e "${target}/.cursor/skills/${managed_file}" ]]
 done
 
 expected_files=$(
@@ -89,11 +89,13 @@ expected_files=$(
       './.claude/skills/existing-claude/SKILL.md' \
       './.cursor/skills/existing-cursor/SKILL.md' \
       './keep.txt'
-    for managed_file in "${managed_files[@]}"; do
-      printf './%s/%s\n' "${relative_skill_root}" "${managed_file}"
+    for skill_root in "${skill_roots[@]}"; do
+      for managed_file in "${managed_files[@]}"; do
+        printf './%s/%s\n' "${skill_root}" "${managed_file}"
+      done
+      printf './%s/dough-update/SOURCE\n' "${skill_root}"
+      printf './%s/dough-update/VERSION\n' "${skill_root}"
     done
-    printf './%s/dough-update/SOURCE\n' "${relative_skill_root}"
-    printf './%s/dough-update/VERSION\n' "${relative_skill_root}"
   } | LC_ALL=C sort
 )
 actual_files=$(list_files "${target}")

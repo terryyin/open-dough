@@ -6,7 +6,8 @@ description: Apply the latest released Open Dough guidance from this project's r
 # Update Open Dough
 
 Install and update the latest numeric Open Dough release for Codex, Cursor, and
-Claude Code together. The running tool is only the entry context used to find
+Claude Code together. Codex and Cursor share `.agents/skills/`; Claude Code
+uses `.claude/skills/`. The running tool is only the entry context used to find
 the recorded source for a no-URL update.
 Pin that release with Git before any repository script runs, then call the
 inspected snapshot's helper. Do not reimplement the helper's comparison or
@@ -30,18 +31,18 @@ Ordinary Open Dough release updates remain available from the recorded source.
    | Running tool | `--platform` | Installed files |
    | --- | --- | --- |
    | Codex | `codex` (omitting `--platform` is equivalent) | `.agents/skills/` |
-   | Cursor | `cursor` | `.cursor/skills/` |
+   | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
    The complete public payload is `dough-update/SKILL.md` and
    `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record and the
    recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
    writes the same `SOURCE` from the supplied repository URL or local path,
-   then `VERSION`, in all three roots. Ordinary no-URL updates reuse the
-   invoking root's recorded `SOURCE`. Source
-   recognition records are maintainer material and are not installed. An
-   obsolete recognition file from an earlier installation may remain until a
-   later update retires it.
+   then `VERSION`, in both physical roots. Ordinary no-URL updates reuse the
+   invoking root's recorded `SOURCE`. If a legacy Cursor-only installation is
+   the only record, its verified `SOURCE` can bootstrap this migration; a
+   conflicting or edited legacy payload refuses before writes. Source
+   recognition records are maintainer material and are not installed.
 
 4. Resolve the Open Dough source from the invoking root. If that updater
    destination already exists and has a usable recorded
@@ -80,7 +81,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
       inspected files write solely to the two declared public payload paths
-      under all three native skill roots and each updater's `SOURCE` and
+      under both native skill roots and each updater's `SOURCE` and
       `VERSION` records in the captured target project, preserving
       distributable source, unrelated project files, and home guidance.
 6. Trust the helper's comparison. An ordinary update without a supplied URL

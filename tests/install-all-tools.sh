@@ -13,7 +13,7 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 assert_all_roots() {
   local target=$1 version=$2 marker=$3 source=$4 platform dest
-  for platform in codex cursor claude; do
+  for platform in codex claude; do
     dest=$(bash "${source_dir}/src/install/open-dough-release.sh" destination "${target}" "${platform}")
     if [[ -n "${marker}" ]]; then
       assert_payload "${dest}" "${version}" "${marker}"
@@ -25,10 +25,14 @@ assert_all_roots() {
     fi
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]
   done
+  [[ ! -e "${target}/.cursor/skills/dough-update/SKILL.md" ]]
+  [[ ! -e "${target}/.cursor/skills/dough-update/SOURCE" ]]
+  [[ ! -e "${target}/.cursor/skills/dough-update/VERSION" ]]
+  [[ ! -e "${target}/.cursor/skills/dough-adr-awareness/SKILL.md" ]]
   assert_sentinels "${target}"
 }
 
-# Any entry context gives a clean project the same three records and bytes.
+# Any entry context gives a clean project the same two physical roots and bytes.
 for entry in codex cursor claude; do
   target="${temporary_dir}/fresh-${entry}"
   prepare_target "${target}"
@@ -51,7 +55,7 @@ fi
 bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" --force > /dev/null
 assert_all_roots "${conflict_target}" "$(cat "${source_dir}/VERSION")" '' "$(cd "${source_dir}" && pwd -P)"
 
-# A no-URL update from one old root advances it and recreates the missing roots.
+# A no-URL update from an old three-root installation converges on two roots.
 fixture="${temporary_dir}/fixture.git"
 build_latest_fixture "${fixture}"
 old_checkout="${temporary_dir}/release-0.1.1"
@@ -59,10 +63,24 @@ checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.1
 update_target="${temporary_dir}/update"
 prepare_target "${update_target}"
 bash "${old_checkout}/install.sh" --target "${update_target}" --source "${fixture}" --platform codex > /dev/null
-rm -rf -- "${update_target}/.cursor/skills/dough-update" "${update_target}/.cursor/skills/dough-adr-awareness" \
-  "${update_target}/.claude/skills/dough-update" "${update_target}/.claude/skills/dough-adr-awareness"
 bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${update_target}" --platform codex > /dev/null
 fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 
-echo 'PASS: each entry context installs all native roots; ordinary conflicts stop before writes; force repairs all roots; and one-root update restores missing integrations.'
+# A Cursor-only legacy installation supplies the remembered source when the
+# canonical shared root is absent.
+cursor_only_target="${temporary_dir}/cursor-only"
+prepare_target "${cursor_only_target}"
+bash "${old_checkout}/install.sh" --target "${cursor_only_target}" --source "${fixture}" --platform cursor > /dev/null
+mkdir -p -- "${cursor_only_target}/.cursor/skills"
+cp -R -- "${cursor_only_target}/.agents/skills/dough-update" \
+  "${cursor_only_target}/.agents/skills/dough-adr-awareness" \
+  "${cursor_only_target}/.cursor/skills/"
+rm -rf -- "${cursor_only_target}/.agents/skills/dough-update" \
+  "${cursor_only_target}/.agents/skills/dough-adr-awareness" \
+  "${cursor_only_target}/.claude/skills/dough-update" \
+  "${cursor_only_target}/.claude/skills/dough-adr-awareness"
+bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${cursor_only_target}" --platform cursor > /dev/null
+assert_all_roots "${cursor_only_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
+
+echo 'PASS: each entry context installs the two shared roots; ordinary conflicts stop before writes; force repairs them; and old three-root or Cursor-only updates converge safely.'
