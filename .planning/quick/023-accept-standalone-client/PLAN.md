@@ -2,8 +2,9 @@
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
 **Status:** In progress 2026-09-08 against candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slice 1 done. Native Codex,
-Cursor, and Claude Code verdicts remain. No acceptance claimed.
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–2 done. Codex native
+verdict is pending (incomplete stream; use unrun). Cursor and Claude Code
+remain. No acceptance claimed.
 
 ## Goal and scope
 
@@ -106,9 +107,14 @@ stay unchanged. Enables slice 2.
 
 ### 2. Establish the Codex candidate verdict
 Type: Behavior
-Status: planned — after slice 1
-Proof: Codex evidence row below links decisive observations or justified reuse
-for each affected claim, with remaining gaps explicitly pending.
+Status: done
+Proof: Retained
+`.planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T030033-43e0`.
+`execution-status: incomplete` (truncated terminal stream vs adapter
+`{"type":"item"}`); `prerequisite-result: fail`; `assessment-status: not-run`;
+`real-transition: false`; use unrun. Native version `codex-cli 0.144.1`.
+Quick 014 still applies to unchanged skill bytes, not this update contract.
+Codex candidate verdict: **pending**.
 
 Behavior: Given the named candidate and saved Codex evidence → review
 applicability and run only uncovered checks → the maintainer has a supported
@@ -161,7 +167,7 @@ this slice does not publish or claim future release acceptance.
 | Owner | Platform | Integration: discovery, invocation/application, install/update/coexistence | Skill behavior | Verdict |
 | --- | --- | --- | --- | --- |
 | Slice 1 | Shared selected fixture | Cheap proof that native updated-use invokes ordinary no-URL update. | n/a | Done |
-| Slice 2 | Codex | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
+| Slice 2 | Codex | Combined journey incomplete; ordinary no-URL update not credited. Quick 014 loading/ADR use of unchanged skill SHA remains a starting point only. | Use unrun; Quick 014 historical clear/conflict not reused as this journey's behavior. | Pending |
 | Slice 3 | Cursor | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
 | Slice 4 | Claude Code | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
 | Slice 5 | Overall | Confirm coverage and candidate identity from the three rows. | Confirm shared cases resolve the candidate's behavioral risks. | Pending |
@@ -196,8 +202,12 @@ this repo (`pendingCi: unobserved`).
 `6682816a2385d96066883b5e4dc073b28e4b3d4f` named by Quick 024. Fixture
 suitability and ordinary update→fresh-use remain this plan's job.
 
-2026-09-08 resume: execute-plan refined slices 1–5 in place. Selected native
-update still supplied a URL, so it could not prove ordinary no-URL update.
-Slice 1 retargeted that selected prompt and the cheap journey substitute to
-apply from recorded SOURCE. Quick 014 skill SHA still matches; it does not
-prove the updater contract.
+2026-09-08 Codex native: one `delivery/updated-use` attempt at
+`.planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T030033-43e0`
+on `codex-cli 0.144.1`. Adapter requires `{"type":"item"}` complete events;
+the stream ended in `turn.completed` / `item.completed` and was classified
+truncated. Payload snapshots moved `0.2.1` → `0.2.2` and `-o` showed apply
+without `--url`, but that is not a native pass. Use was not started. Not
+retried. Adapter not widened (not this plan's test-infrastructure work).
+Checkout `source-revision` is slice-1 `a5779a2`; product skill hashes match
+candidate `6682816`.
