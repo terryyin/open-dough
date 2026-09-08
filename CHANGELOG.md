@@ -1,3 +1,7 @@
+## 0.2.4 - 2026-09-08
+
+Codex and Cursor now share the same `.agents/skills/` folder, avoiding a duplicate installed payload while Claude Code continues to use `.claude/skills/`. Installation and updates still serve all three tools together through the two physical skill roots.
+
 ## 0.2.3 - 2026-09-08
 
 Install and update Open Dough across Codex, Cursor, and Claude Code together.
