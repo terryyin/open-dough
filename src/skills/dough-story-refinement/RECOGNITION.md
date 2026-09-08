@@ -1,0 +1,77 @@
+# Recognition: dough-story-refinement
+
+Status: ready for maintainer review
+
+## Original clues
+
+Source on-demand skill: `.agents/skills/story-refinement/SKILL.md` in the
+supplied doughnut repository. Project identity is provenance, not a recognition
+requirement.
+
+## Purpose
+
+Clarify selected stories in their existing homes before execution planning.
+
+## Triggers
+
+Selected-story goal, scope, and examples need shared understanding; not broad
+candidate selection or execution-leaf sizing.
+
+## Distinguishing behavior
+
+Conversation reuses prior answers; smallest useful outcome; conditional UI and
+ADR checks; stable home anchors; implemented-story cleanup.
+
+## Adopter-provided context
+
+Selected stories and prior decisions; home conventions if creating one;
+conditional ADR context and requested execution workflow.
+
+## Differences that rule out replacement
+
+A workflow that requires separate refinement documents, exhaustive test suites,
+unconditional architecture sections, or execution on selection is not
+equivalent.
+
+The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
+Cursor `alwaysApply: true` rules. The extracted Markdown references preserve
+relevant story behavior only during skill use. They do not replace automatic
+repository-wide application. Equivalent automatic delivery needs separate human
+design and cross-tool validation; no replacement claim is made here.
+
+Execution-only dependency sections (leaf timers, execution gates, test-specific
+rules, and GSD artifact management) remain outside these story skills. Handoffs
+use adopter-provided workflows rather than copying sibling execution skills.
+
+## Validation needed
+
+Before release, maintainers must review invocation context, required adopter
+context, and useful outcome under [AGENTS.md](../../../AGENTS.md), including a
+representative use in the intended adopter. Extraction-time manual walkthrough:
+
+For a selected totals-export story in an existing seed: retain its anchor and
+sibling scheduling story, state the beneficiary and export goal, bound scope to
+one team and week, and add a pre-condition → export trigger → totals result
+example. Exclude scheduling explicitly; do not create a plan. If excluding
+access control would expose another team’s records, leave that boundary
+unresolved and stop dependent planning. For a consequential ADR conflict, cite
+the relevant Accepted record and stop the conflicting path for human direction
+using the linked ADR skill. After implementation, remove spent examples only
+once enduring knowledge is captured.
+
+Dependency review: decomposition owns the shared 3V/sizing reference and seed
+format; refinement owns the planning scope/lifecycle reference and links the
+shared files. Refinement links the existing public `dough-adr-awareness` skill,
+whose inspected source is byte-identical to the current public copy. Client
+installation and automatic rule delivery remain separate validation work.
+
+Inspected source SHA-256 values (paths relative to the supplied repository):
+
+- `.agents/skills/story-refinement/SKILL.md`:
+  `3415d2fa370ad78a8354029efacf8dc9b13a0dd76d5ace7e850bac18c62e4174`
+- `.cursor/rules/planning.mdc`:
+  `7a61fd6fa556906d9ee0316899b1cb1718ab98a88bc8e6c6f93bc40ea37c6d5b`
+- `.cursor/rules/problem-decomposition.mdc`:
+  `744f1099dcd3c3280402eacc38b0a5a22a0d871bae8b9f511f8389ee01a16b33`
+- `.agents/skills/dough-adr-awareness/SKILL.md`:
+  `6c0f29ceec252eeda4a0c3bb3a0fcc0260a6d0f907ca8467a96dbd39cb43cd25`
