@@ -59,7 +59,7 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0000](./0000-use-adrs-accepted.md) | Accepted | Use Architectural Decision Records (ADRs) |
 | [0001](./0001-ubiquitous-language.md) | Proposed | Ubiquitous language |
 | [0002](./0002-software-development-lifecycle-principles.md) | Proposed | Software development lifecycle principles |
-| [0003](./0003-tagged-release-versioning-accepted.md) | Accepted | Tagged release versioning |
+| [0003](./0003-tagged-release-versioning-accepted.md) | Accepted | Release lifecycle and versioning |
 | [0004](./0004-client-installation-and-update.md) | Proposed | Client installation and update |
 | [0005](./0005-cross-tool-validation-accepted.md) | Accepted | Cross-tool validation through native acceptance stories |
 | [0006](./0006-write-skills-for-executing-agents-accepted.md) | Accepted | Write skills for executing agents |

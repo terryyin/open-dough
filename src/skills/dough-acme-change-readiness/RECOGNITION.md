@@ -1,6 +1,6 @@
 # Recognition: dough-acme-change-readiness
 
-Status: ready for maintainer review
+Review: ready for maintainer review
 
 ## Original clues
 

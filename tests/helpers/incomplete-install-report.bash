@@ -16,7 +16,7 @@ assert_incomplete_install_report() {
 
 assert_direct_incomplete_install_report() {
   assert_incomplete_install_report "$1" "$2" \
-    'Installed Open Dough public guidance'
+    'Installed Open Dough guidance'
 }
 
 assert_apply_incomplete_install_report() {

@@ -64,7 +64,7 @@ printf '%s\n' 'Keep my local updater edit.' > \
 before_repeat=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
 if output=$(bash "${source_dir}/install.sh" \
   --target "${target}" --source "${source_dir}" --platform cursor 2>&1); then
-  echo 'FAIL: repeat installation must stop before changing the public payload.' >&2
+  echo 'FAIL: repeat installation must stop before changing the client payload.' >&2
   exit 1
 fi
 [[ "${output}" == *'Warning:'* ]]
@@ -81,7 +81,7 @@ before_project_file=$(shasum -a 256 "${target}/keep.txt")
 
 output=$(bash "${source_dir}/install.sh" \
   --target "${target}" --source "${source_dir}" --platform cursor --force)
-[[ "${output}" == *"Installed Open Dough public guidance in ${selected_root}"* ]]
+[[ "${output}" == *"Installed Open Dough guidance in ${selected_root}"* ]]
 
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${selected_root}/dough-update/SKILL.md"

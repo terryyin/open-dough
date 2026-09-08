@@ -89,7 +89,7 @@ if [[ ${native_case_mode} == 'default' ]]; then
     [[ ${before} == "$(snapshot_path_state "${target}")" ]]
   done
   [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
-  echo 'PASS: clean Codex, Cursor, and Claude Code targets receive the exact tagged public payload and VERSION, retain the direct ADR context, contain the current on-demand-context improvement, and omit recognition while the complete candidate source stays unchanged.'
+  echo 'PASS: clean Codex, Cursor, and Claude Code targets receive the exact tagged client payload and VERSION, retain the direct ADR context, contain the current on-demand-context improvement, and omit recognition while the complete candidate source stays unchanged.'
   echo 'PENDING: native fresh-install use in Codex, Cursor, and Claude Code; run each platform with --native and the clear scenario.'
   exit 0
 fi

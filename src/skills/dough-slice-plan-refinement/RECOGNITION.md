@@ -1,6 +1,6 @@
 # Recognition: dough-slice-plan-refinement
 
-Status: ready for maintainer review
+Review: ready for maintainer review
 
 ## Original clues
 
@@ -38,7 +38,7 @@ behavior, restarts an overrun by renaming slices, discards completed evidence,
 or edits work of unclear ownership is not equivalent.
 
 The source depends on Cursor `alwaysApply: true` planning and decomposition
-rules. Their public references now preserve the generalized execution-level
+rules. Their shared references now preserve the generalized execution-level
 invariants recovered from the rules' pre-redirection history, while this skill
 remains a concise entrypoint under ADR 0006. It does not recreate automatic
 repository-wide application; client installation owns that delivery.
@@ -55,7 +55,7 @@ assumption and touch later slices only when it applies to them. If work ownershi
 is unclear or the evidence changes story scope, stop for human review.
 
 Dependency review: the source routing targets supplied the story-level base;
-their public copies were extended with ADR-0006-style execution sections for the
+their source copies were extended with ADR-0006-style execution sections for the
 slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 This skill links those authoritative sections and introduces no competing copy.
 Client installation remains separate validation.

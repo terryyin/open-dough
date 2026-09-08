@@ -1,7 +1,7 @@
 # Recognition: dough-resplit-story
 
 Source: Terry Yin's maintainer request, 2026-09-08.
-Status: representative behavior review complete; native behavior unverified.
+Review: representative behavior review complete; native behavior unverified.
 
 ## Behavior review
 

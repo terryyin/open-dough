@@ -22,8 +22,8 @@ that purpose.
    Run `dough-update` in the client project to fetch the latest Open Dough release
    and update its installed files, with no partial selection or updates. Leave
    the resulting changes for the client to review and commit.
-   Release only when the entire payload is ready for public use; there is no
-   draft public-guidance state. Follow
+   Release only the complete Promoted payload; Proposed guidance stays outside
+   the client payload. Follow
    [ADR 0003](./0003-tagged-release-versioning-accepted.md) for release identity
    and latest-version selection.
 

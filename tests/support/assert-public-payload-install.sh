@@ -124,10 +124,10 @@ before=$(list_files "${incomplete_target}")
 if output=$(bash "${incomplete_source}/install.sh" \
   --target "${incomplete_target}" --source "${incomplete_source}" \
   --platform "${platform}" 2>&1); then
-  echo "FAIL: an incomplete public payload must be rejected." >&2
+  echo "FAIL: an incomplete client payload must be rejected." >&2
   exit 1
 fi
-[[ "${output}" == *'Public payload is incomplete:'* ]]
+[[ "${output}" == *'Client payload is incomplete:'* ]]
 [[ "${output}" == *"${missing_managed_file}"* ]]
 after=$(list_files "${incomplete_target}")
 [[ "${after}" == "${before}" ]]
@@ -135,4 +135,4 @@ after=$(list_files "${incomplete_target}")
 sentinel_contents=$(cat "${incomplete_target}/sentinel.txt")
 [[ "${sentinel_contents}" == 'Do not change me.' ]]
 
-echo "PASS: ${platform_label} receives the complete declared public payload, incomplete source is rejected before writes, and other platform, internal, and unrelated material is preserved."
+echo "PASS: ${platform_label} receives the complete declared client payload, incomplete source is rejected before writes, and other platform, internal, and unrelated material is preserved."

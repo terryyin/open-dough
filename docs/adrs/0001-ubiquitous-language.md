@@ -18,7 +18,7 @@ Use the following concepts for client installation and updating:
 | Term | Meaning |
 | --- | --- |
 | Client project | A project using installed Open Dough guidance; Open Dough itself is a client project. |
-| Release | An immutable, versioned Open Dough source snapshot, as defined by ADR 0003, whose entire client payload is ready for public use. |
+| Release | An immutable, versioned Open Dough source snapshot, as defined by ADR 0003, whose entire client payload is available for client installation. |
 | Guidance | Rules, skills, and supporting instructions that direct development work. |
 | Client payload | The complete guidance, supporting files, and update entry point supplied by a release for installation in clients. |
 | Client installation | An instance of the client payload in a client project, laid out for Codex, Cursor, or Claude Code, with an installation record. Its release-supplied files are its managed content. |
@@ -55,12 +55,18 @@ release; the client project's repository holds the resulting installation.
   enabling the next Behavior slice. Use the same term throughout planning,
   refinement, and execution; splitting a slice produces smaller slices.
 
+- **Open Dough skill lifecycle:** Proposed guidance is drafted or extracted;
+  Promoted guidance is reviewed and selected for the next release; Released
+  guidance is included in a tagged release's client payload. These stages apply
+  to a revision of the guidance. Installed describes a copy in a client project.
+  Locations and transitions are defined in [ADR 0003](./0003-tagged-release-versioning-accepted.md).
+
 ### Skill naming
 
 | Term | Meaning | Skill naming |
 | --- | --- | --- |
 | Internal skills | Agent skills used only within Open Dough itself | No required prefix |
-| Open-Dough skills | Agent skills exposed for installation into other projects | Names must start with `dough-` |
+| Open Dough skills | Agent skills intended for installation into client projects, across all lifecycle stages | Names must start with `dough-` |
 
 Rule naming remains undecided.
 
@@ -75,5 +81,5 @@ ADR 0004's managed-content policy and preserve client configuration when present
 
 ## Related
 
-- [ADR 0003 — Tagged release versioning](./0003-tagged-release-versioning-accepted.md)
+- [ADR 0003 — Release lifecycle and versioning](./0003-tagged-release-versioning-accepted.md)
 - [ADR 0004 — Client installation and update (Proposed)](./0004-client-installation-and-update.md)

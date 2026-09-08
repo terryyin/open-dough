@@ -22,4 +22,4 @@ local work-item convention (`ACME-NNN`), and an explicit human decision boundary
 
 Generated skills under `src/skills/` from this demo are proof artifacts for the
 active extraction story; keep or discard them as the maintainer decides. Do not
-treat the fixture itself as installable public payload.
+treat the fixture itself as installable client payload.

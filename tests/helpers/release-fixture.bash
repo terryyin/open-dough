@@ -5,7 +5,7 @@
 : "${source_dir:?source_dir must be set before sourcing this helper}"
 : "${managed_files:?managed_files must be set before sourcing this helper}"
 if ((${#managed_files[@]} == 0)); then
-  echo 'managed_files must contain at least one public payload file' >&2
+  echo 'managed_files must contain at least one client payload file' >&2
   return 1
 fi
 

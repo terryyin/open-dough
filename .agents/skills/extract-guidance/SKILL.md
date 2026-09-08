@@ -1,6 +1,6 @@
 ---
 name: extract-guidance
-description: Turn one supplied project skill or rule into a source-selectable, reusable dough- candidate and recognition record without changing the source. Use when an Open Dough maintainer asks to extract, generalize, or make a project practice reusable.
+description: Turn one supplied project skill or rule into a Proposed, reusable Open Dough skill and recognition record without changing the source. Use when an Open Dough maintainer asks to extract, generalize, or make a project practice reusable.
 ---
 
 # Extract reusable project guidance
@@ -8,12 +8,17 @@ description: Turn one supplied project skill or rule into a source-selectable, r
 Follow the shared skill-authoring guideline in [`AGENTS.md`](../../../AGENTS.md)
 for naming, frontmatter, layout, references, and behavior review. Work on exactly
 one source skill or rule per invocation. This skill is internal to Open Dough;
-do not add it or its support files to the public installer payload.
+do not add it or its support files to the client payload.
 
 1. Capture the supplied source path before reading it. If no source was
    supplied, ask for one and stop. Write output under
    `src/skills/<dough-name>/` in the current Open Dough checkout. Never use the
    source directory as the output directory.
+
+   The result is Proposed guidance under
+   [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+   Keep its runtime files outside the declared client payload until a maintainer
+   promotes them after review. Extraction does not authorize promotion.
 
 2. Read the complete source file. Identify whether it is an on-demand skill or
    a rule, including the rule's scope and application conditions. Inspect only
@@ -32,16 +37,16 @@ do not add it or its support files to the public installer payload.
    - do not invent a broader framework or extract sibling guidance.
 
    For a rule, note when automatic or `alwaysApply` application would not be
-   preserved by an on-demand public skill. That delivery gap needs manual
+   preserved by an on-demand Open Dough skill. That delivery gap needs manual
    follow-up; do not silently present the result as an equivalent substitute.
 
    If required context is unavailable, or a rule's automatic application cannot
    be preserved without further design, stop without writing under `src/skills/`.
    Briefly explain what is missing or unusual and what manual follow-up is
-   needed. Do not invent ASSESSMENT.md, draft-candidate staging under
+   needed. Do not invent ASSESSMENT.md, separate proposal staging under
    `.planning/extracted-guidance/`, or other displaced intermediate workflows.
 
-4. Name the public skill `dough-<source-name>`, normalizing the source name to
+4. Name the Open Dough skill `dough-<source-name>`, normalizing the source name to
    lowercase kebab-case and avoiding a second `dough-` prefix, consistent with
    `AGENTS.md`. Write directly to `src/skills/<dough-name>/`:
 
@@ -55,7 +60,7 @@ do not add it or its support files to the public installer payload.
    ```markdown
    # Recognition: <skill name>
 
-   Status: ready for maintainer review
+   Review: ready for maintainer review
 
    ## Original clues
    ## Purpose
@@ -71,11 +76,11 @@ do not add it or its support files to the public installer payload.
    provenance and must never be a recognition condition. `Validation needed`
    must name the representative behavior review still required under
    `AGENTS.md` (invocation context, required client project context, and useful
-   outcome) before treating the skill as ready to release.
+   outcome) before promoting the skill.
 
 5. Recompute the inspected-source checksums and compare them with step 2. Report
    the `src/skills/<dough-name>/` paths, the generalized assumptions, and the
    unchanged-source result. Walk one representative use per `AGENTS.md` behavior
    review when the extraction itself is the demonstration. Do not claim a
-   successful extraction when checksums changed. Publication, client delivery,
+   successful extraction when checksums changed. Promotion, release, client installation,
    and particular project extractions remain separate work.

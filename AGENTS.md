@@ -9,7 +9,7 @@ useful behavior; keep the surrounding process small.
 
 ### Naming
 
-- Public skills use `dough-<purpose>` in lowercase kebab-case. Do not add a
+- Open Dough skills use `dough-<purpose>` in lowercase kebab-case. Do not add a
   second `dough-` prefix when the source name already has one.
 - Internal maintainer skills use a clear kebab-case `name` without requiring the
   `dough-` prefix.
@@ -29,12 +29,16 @@ Keep shared behavior in one source with only the smallest platform adaptation.
 
 | Kind | Source of truth | Platform roots |
 | --- | --- | --- |
-| Public payload | `src/skills/<name>/` | Installed to `.agents/skills/` (Codex and Cursor share this root) and `.claude/skills/` |
+| Open Dough skills | `src/skills/<name>/` | Released client payload installs to `.agents/skills/` (Codex and Cursor share this root) and `.claude/skills/` |
 | Internal skill | `.agents/skills/<name>/SKILL.md` | Claude Code may use a thin discovery pointer under `.claude/skills/<name>/` that defers to the shared source |
 
-Public recognition records live beside the public skill under `src/skills/` for
+Recognition records live beside the Open Dough skill under `src/skills/` for
 maintainers; the installer does not ship them. Do not invent a separate behavior
 copy per tool.
+
+Follow [ADR 0003](docs/adrs/0003-tagged-release-versioning-accepted.md) for
+Proposed, Promoted, and Released guidance. Promotion changes payload
+declarations, not source locations. Installed describes a client project copy.
 
 ### References
 

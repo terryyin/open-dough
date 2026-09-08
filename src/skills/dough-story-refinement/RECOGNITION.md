@@ -1,6 +1,6 @@
 # Recognition: dough-story-refinement
 
-Status: ready for maintainer review
+Review: ready for maintainer review
 
 ## Original clues
 
@@ -34,14 +34,14 @@ unconditional architecture sections, or execution on selection is not
 equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
-Cursor `alwaysApply: true` rules. The published references preserve the shared
+Cursor `alwaysApply: true` rules. The shared references preserve the shared
 fractal behavior at story and slice resolutions; this skill invokes
 the story-level workflow, while the slice skills invoke the execution-level
 workflow. They do not replace automatic repository-wide application; client
 installation owns that delivery.
 
 Source-specific paths, exact timers, test tooling, and GSD artifact management
-remain client project context rather than public defaults.
+remain client project context rather than Open Dough defaults.
 
 ## Validation needed
 
@@ -62,9 +62,9 @@ once enduring knowledge is captured.
 Dependency review: decomposition owns the shared fractal decomposition
 reference and seed format; refinement owns the shared story/executable planning
 reference. The story and slice skills select the relevant resolution without
-copying those rules. Refinement links the existing public
+copying those rules. Refinement links the existing Open Dough
 `dough-adr-awareness` skill, whose inspected source is byte-identical to the
-current public copy. Client installation remains separate validation work.
+current source copy. Client installation remains separate validation work.
 
 Inspected source SHA-256 values (paths relative to the supplied repository):
 

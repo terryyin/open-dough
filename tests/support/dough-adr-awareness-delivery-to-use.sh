@@ -160,7 +160,7 @@ delivery_prepare_fixture() {
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \
-    commit -qm 'fixture: bootstrap three-skill public payload'
+    commit -qm 'fixture: bootstrap three-skill client payload'
   git -C "${delivery_fixture_source}" \
     -c user.name='Open Dough fixture' \
     -c user.email='fixture@example.invalid' \

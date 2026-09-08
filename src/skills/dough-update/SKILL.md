@@ -34,7 +34,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
-   The public payload includes skill entrypoints and supporting files declared by the
+   The client payload includes skill entrypoints and supporting files declared by the
    pinned release's installer and baseline-comparison helper. Treat that
    release as authoritative: payload skills may be added between releases, so
    a path absent from the installed release is not by itself a reason to stop.
@@ -70,7 +70,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
       `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`,
       `src/install/open-dough-release-apply.sh`, `install.sh`, the helpers they
-      source, and every public payload source they declare under `src/skills/`.
+      source, and every client payload source they declare under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <snapshot>/src/install/open-dough-release.sh apply --target
@@ -81,14 +81,14 @@ Ordinary Open Dough release updates remain available from the recorded source.
       SOURCE, omit `--url`; otherwise include `--url <source-url>`.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
-      inspected files write solely to the release-declared public payload paths
+      inspected files write solely to the release-declared client payload paths
       under both native skill roots and each updater's `SOURCE` and
       `VERSION` records in the captured client project, preserving
       distributable source, unrelated project files, and home guidance.
 6. Trust the helper's comparison. An ordinary update without a supplied URL
    fetches the recorded VERSION tag as data and compares the installation with
    the payload declared by that recorded release before any skip or
-   replacement. Candidate-only payload paths must be absent before the helper
+   replacement. Payload paths newly added by the release must be absent before the helper
    may add them; a pre-existing collision refuses without writes. Equal
    recorded versions that still match that baseline must not invoke
    `install.sh` or write the selected files;

@@ -1,6 +1,6 @@
 # Recognition: dough-slice-planning
 
-Status: ready for maintainer review
+Review: ready for maintainer review
 
 ## Original clues
 
@@ -57,7 +57,7 @@ slice has separable beats or a plausible hard-limit path. With no plan destinati
 or sizing policy, stop before writing instead of inventing conventions.
 
 Dependency review: the source routing targets supplied the story-level base;
-their public copies were extended with ADR-0006-style execution sections for the
+their source copies were extended with ADR-0006-style execution sections for the
 slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 Both slice skills link those authoritative sections rather than copying them.
 Client installation remains separate validation.

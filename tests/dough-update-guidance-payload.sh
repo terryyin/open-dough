@@ -13,16 +13,16 @@ for managed_file in "${managed_files[@]}"; do
   grep -Fq -- "\`${managed_file}\`" "${guide}"
 done
 
-grep -Fq 'every public payload source they declare' "${skill}"
-grep -Fq 'release-declared public payload paths' "${skill}"
+grep -Fq 'every client payload source they declare' "${skill}"
+grep -Fq 'release-declared client payload paths' "${skill}"
 grep -Fq 'payload skills may be added between releases' "${skill}"
 grep -Fq 'payload declared by that recorded release' "${skill}"
-grep -Fq 'Candidate-only payload paths must be absent' "${skill}"
+grep -Fq 'Payload paths newly added by the release must be absent' "${skill}"
 grep -Fq 'all installed payload paths' "${skill}"
 
-if grep -Eq '(two|both) (declared public payload|managed files|installed payload)' \
+if grep -Eq '(two|both) (declared client payload|managed files|installed payload)' \
   "${skill}" "${guide}"; then
-  echo 'FAIL: public-payload guidance contains a stale fixed-cardinality boundary.' >&2
+  echo 'FAIL: client-payload guidance contains a stale fixed-cardinality boundary.' >&2
   exit 1
 fi
 

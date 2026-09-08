@@ -1,6 +1,6 @@
 # Recognition: dough-adr-awareness
 
-Status: evaluated public guidance — useful ADR behavior, installation, update,
+Review: evaluated guidance — useful ADR behavior, installation, update,
 and coexistence verified for Codex, Cursor, and Claude Code
 
 ## Original clues
@@ -80,22 +80,22 @@ native application mechanism.
 
 This record helps maintainers recognize the behavior and client project context; it is
 not a reusable migration procedure. Assessing or replacing local guidance is
-one-time project work. Public installation and update guidance must not inspect,
+one-time project work. Client installation and update guidance must not inspect,
 rewrite, repair callers for, or remove a client project's local practice.
 
 ## Evaluation status
 
 Controlled native Codex comparisons established the distinguishing behavior
-above and showed that the candidate uses ADR paths and lifecycle conventions
+above and showed that the evaluated skill uses ADR paths and lifecycle conventions
 supplied by the client project without imposing its source project's layout or identity.
 
 Codex, Cursor, and Claude Code each used the canonical internal extractor from
-`.agents/skills/` and produced a reusable candidate plus recognition record
+`.agents/skills/` and produced a Proposed skill plus recognition record
 without modifying the supplied source. No Cursor or Claude-specific extractor
 adapter was required.
 
 Each platform installed this record and the same behavioral skill alongside the
-public updater in its native skill root. Independent update-to-fresh-use proofs
+released updater in its native skill root. Independent update-to-fresh-use proofs
 verified exact platform-local payloads, coexistence, authority resolution within
 the client project, conflict stopping for human precedence, and no client project changes
 during explicit ADR checks.

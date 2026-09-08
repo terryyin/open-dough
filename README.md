@@ -7,7 +7,7 @@ Open Dough defines how people and AI work together to develop software. It bring
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
 > **Status:** Codex, Cursor, and Claude Code can install and update the
-> project-local public skill payload from the latest numeric release of a supplied
+> project-local client payload from the latest numeric release of a supplied
 > repository URL. Codex and Cursor share `.agents/skills/`; Claude Code uses
 > `.claude/skills/`. Recognition records remain source-only maintainer material.
 
@@ -33,7 +33,7 @@ Open your client project in an AI agent with web and shell access, then ask:
    [Cursor](docs/installation-and-updates.md#cursor), or
    [Claude Code](docs/installation-and-updates.md#claude-code)). Select and pin
    the highest numeric release using Git before any fetched script runs. Inspect
-   that snapshot's installer, helper and dependencies, and every declared public
+   that snapshot's installer, helper and dependencies, and every declared client
    source;
    then revalidate the selection and invoke its installer directly. Keep ownership
    of the temporary checkout through inspection and clean it on success or failure.
@@ -104,7 +104,7 @@ The exact file mappings and capability differences will be documented as integra
 ## Installation and updates
 
 See [Installation and updates](docs/installation-and-updates.md) for the exact
-public payload, shared installation procedure, updater safety contract,
+client payload, shared installation procedure, updater safety contract,
 legacy bootstrap path, and contributor checks.
 
 ## Distribution

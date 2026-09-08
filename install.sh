@@ -98,7 +98,7 @@ managed_files=(
   dough-slice-plan-refinement/SKILL.md
 )
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
-  echo "Public payload is incomplete: missing ${managed_file}" >&2
+  echo "Client payload is incomplete: missing ${managed_file}" >&2
   exit 1
 }; done
 release_helper="${source_dir}/src/install/open-dough-release.sh"
@@ -193,5 +193,5 @@ for index in "${!platforms[@]}"; do
   for managed_file in "${managed_files[@]}"; do cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || verification_failed=1; done
   [[ ! -e "${root}/dough-adr-awareness/RECOGNITION.md" && "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
   write_certified_records "${destination}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
-  echo "${platforms[index]}: installed Open Dough public guidance in ${root} (version ${version})."
+  echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
 done

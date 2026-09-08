@@ -65,4 +65,4 @@ bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${update_
 fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 
-echo 'PASS: each entry context installs the complete public payload in two shared roots; ordinary conflicts stop before writes; force repairs them; and one-root update restores missing integrations.'
+echo 'PASS: each entry context installs the complete client payload in two shared roots; ordinary conflicts stop before writes; force repairs them; and one-root update restores missing integrations.'

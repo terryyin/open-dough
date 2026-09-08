@@ -1,6 +1,6 @@
 # Recognition: dough-product-backlog
 
-Status: ready for maintainer review
+Review: ready for maintainer review
 
 ## Original clues
 
@@ -71,4 +71,4 @@ focuses on onboarding and carries that direction into refinement without
 rewriting the direction or treating scope review as execution authorization.
 Check bullet formatting and title-only retention when a completed story's seed
 is removed, including recovery from Git history when needed.
-Publication and client project delivery remain separate work.
+Promotion, release, and client installation remain separate work.

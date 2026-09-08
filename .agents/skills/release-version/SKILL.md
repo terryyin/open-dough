@@ -8,6 +8,13 @@ description: Prepare or finalize an Open Dough source release with VERSION, CHAN
 Use Git and Markdown only. Do not add helper scripts, dependencies, registries,
 or CI jobs. This skill is internal to the Open Dough repository.
 
+Follow [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+for the Proposed → Promoted → Released lifecycle. Release the Promoted client
+payload declared by `install.sh` and `src/install/open-dough-release-version.sh`;
+check that those declarations agree and include required runtime dependencies.
+Confirm the applicable behavior and delivery reviews cover the intended changes.
+Do not add Proposed guidance to the payload as an incidental release step.
+
 1. Capture the requested numeric `MAJOR.MINOR.PATCH` and the human-readable
    change description. Ask for any missing piece before writing files. Treat
    `prepare` as metadata-only review. Treat `finalize` as commit-plus-tag of
@@ -21,7 +28,7 @@ or CI jobs. This skill is internal to the Open Dough repository.
 
 3. Compare the requested version to the prior tagged release before writing
    any new release metadata:
-   - If `vMAJOR.MINOR.PATCH` already exists, refuse. Published tags are
+   - If `vMAJOR.MINOR.PATCH` already exists, refuse. Release tags are
      immutable. Do not force-tag, move a tag, or rewrite that version's notes.
    - If a prior tagged release exists and the requested version is not
      numerically greater, refuse and explain the ordering problem. An unused
@@ -39,7 +46,7 @@ or CI jobs. This skill is internal to the Open Dough repository.
    not commit unless the user also asked to finalize. Do not stage, commit,
    reset, or otherwise alter unrelated working-tree changes.
 
-5. For finalization, the intended product payload must already be committed.
+5. For finalization, the Promoted client payload must already be committed.
    Stage and commit only `VERSION` and `CHANGELOG.md` when those files differ
    from HEAD. Create an annotated tag `vMAJOR.MINOR.PATCH` on that metadata
    commit, or on HEAD if the metadata is already committed. Never use
@@ -49,5 +56,6 @@ or CI jobs. This skill is internal to the Open Dough repository.
 6. Report the actual local result. For preparation, name the written `VERSION`
    and changelog heading and say the notes are ready for review; do not claim
    a tag or a release. For finalization, name the commit and local tag; do not
-   claim remote publication. Do not claim version-aware updates or automatic
+   claim it is Released from a remote source until the tag is available there.
+   Do not claim version-aware updates or automatic
    changelog presentation during install or update.

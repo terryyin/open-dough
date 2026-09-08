@@ -45,7 +45,7 @@ native_case_print_description() {
   case ${case_id} in
     context/clear)
       printf 'Assess ADRs on a fresh install when index and record statuses agree.\n'
-      printf 'setup: Current tagged public payload installed into a clean %s client project.\n' \
+      printf 'setup: Current tagged client payload installed into a clean %s client project.\n' \
         "${host}"
       printf 'dependencies: none\n'
       ;;

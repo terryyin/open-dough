@@ -22,7 +22,7 @@ managed_payload_unchanged() {
 
   skill_root=$(dirname -- "${dest}")
   for managed_file in "${files[@]}"; do
-    # A clean older release may not contain a skill added by the candidate.
+    # A clean older release may not contain a skill added by the new release.
     # The new path must still be absent so replace-verified cannot overwrite an
     # unrelated local skill that happens to use the same name.
     if [[ ! -e "${checkout}/src/skills/${managed_file}" ]]; then

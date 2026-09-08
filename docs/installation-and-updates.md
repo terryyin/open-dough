@@ -1,6 +1,6 @@
 # Installation and updates
 
-Open Dough installs one project-local public payload into two physical skill
+Open Dough installs one project-local client payload into two physical skill
 roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
 The payload in each root is exactly:
 
@@ -84,7 +84,7 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-slice-planning/SKILL.md`
    - `src/skills/dough-slice-plan-refinement/SKILL.md`
 
-   Check that this executable call chain writes only the declared public
+   Check that this executable call chain writes only the declared client
    payload files and their `SOURCE` then `VERSION` records under both captured
    target native roots. Preserve source, unrelated guidance, and home guidance.
    Stop if the payload is incomplete or the inspected behavior exceeds this
@@ -140,7 +140,7 @@ inspection and execution into an unattended one-shot command.
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
-writes the public payload under `.agents/skills/` and records the supplied
+writes the client payload under `.agents/skills/` and records the supplied
 source and release in `.agents/skills/dough-update/SOURCE` then
 `.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
 installation lives there too, separately from the distributable source.
@@ -154,7 +154,7 @@ Start a fresh Codex session in the client project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Cursor shares the public payload and records under `.agents/skills/` with
+Cursor shares the client payload and records under `.agents/skills/` with
 Codex. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the client project and invoke:
@@ -165,7 +165,7 @@ the client project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Installation writes the public payload under `.claude/skills/` and records
+Installation writes the client payload under `.claude/skills/` and records
 the supplied source and release in `.claude/skills/dough-update/SOURCE` then
 `.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
@@ -189,7 +189,7 @@ working-tree helper. The updater:
 3. Records the actual source URL, tag, and exact commit.
 4. Uses the running tool only as an entry-context hint, then verifies every
    existing native root and adds missing roots.
-5. Validates the fetched installer against the release-declared public payload.
+5. Validates the fetched installer against the release-declared client payload.
 6. Compares every existing updater's `VERSION` record. An ordinary update
    without a supplied URL fetches each tagged baseline as data without
    executing it and compares the complete managed payload before skipping,
