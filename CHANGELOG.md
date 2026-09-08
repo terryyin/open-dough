@@ -1,3 +1,9 @@
+## 0.2.2 - 2026-09-08
+
+Standalone installations remember their release source and version. Ordinary updates use that source without a URL and verify the installed baseline before replacement; unverifiable installations refuse without writes, and verified current versions remain unchanged. Explicit force restores the complete latest payload, including a one-time supplied-source bootstrap for legacy installations. Client changes remain reviewable and uncommitted.
+
+Released for maintainer manual trials under an explicit acceptance exception: Cursor's candidate update and fresh-use journey passed; Codex installed-skill loading remains inconclusive, and Claude Code verification remains pending after test-launcher permission failures. Cross-platform native acceptance is not complete.
+
 ## 0.2.1 - 2026-09-07
 
 ADR-awareness now requires only context needed for the current request and does not invent disagreement or supersession policies when those situations are absent. dough-update can assess whether installed ADR guidance could replace a local practice, retain required adopter context, and switch callers after authorized replacement. Automatic changelog presentation during install or update remains future work.
