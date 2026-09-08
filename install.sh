@@ -19,6 +19,35 @@ report_incomplete_install() {
   exit 1
 }
 
+write_certified_records() {
+  local restore_source=""
+  local source_path="${destination}/SOURCE"
+  local version_path="${destination}/VERSION"
+  local status=0
+
+  if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == record ]]; then
+    return 1
+  fi
+
+  if [[ -f "${source_path}" ]]; then
+    restore_source=$(mktemp)
+    cp -- "${source_path}" "${restore_source}"
+  fi
+
+  if ! printf '%s\n' "${recorded_source}" > "${source_path}" \
+    || ! printf '%s\n' "${version}" > "${version_path}"; then
+    if [[ -n "${restore_source}" ]]; then
+      cp -- "${restore_source}" "${source_path}" || true
+    else
+      rm -f -- "${source_path}"
+    fi
+    status=1
+  fi
+
+  [[ -n "${restore_source}" ]] && rm -f -- "${restore_source}"
+  return "${status}"
+}
+
 target=""
 recorded_source=""
 platform=codex
@@ -181,7 +210,10 @@ if [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" == verify ]] \
   report_incomplete_install 'Installed payload verification failed.'
 fi
 
-printf '%s\n' "${recorded_source}" > "${destination}/SOURCE"
-printf '%s\n' "${version}" > "${destination}/VERSION"
+# Function used in ! so set -e stays off; failure must report incomplete, not abort.
+# shellcheck disable=SC2310
+if ! write_certified_records; then
+  report_incomplete_install 'Failed to write installation records after replacement started.'
+fi
 echo "Installed Open Dough public guidance in ${destination_skill_root}"
 echo "Recorded version ${version}."

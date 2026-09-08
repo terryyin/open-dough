@@ -107,7 +107,7 @@ then `VERSION` (VERSION last). Preserve containment and unrelated roots.
 
 ### 1b. Failed installation records are not certified as remembered
 Type: Behavior
-Status: planned — depends on 1
+Status: done
 Proof: Extend `tests/install-reports-real-copy-failure.sh` and the existing
 verify-fault installer path: copy, payload-verification, and record-write
 failures report incomplete state, leave no certified SOURCE/VERSION pair, and
@@ -283,6 +283,11 @@ are stored as `pwd -P` using the original working directory before later `cd`.
 `apply` threads its existing `--url` into that write. SOURCE is written after
 payload verification and before VERSION. Direct install and apply both record
 the same absolute local fixture path. Updater still requires a URL until slice 2.
+
+**Slice 1b:** VERSION write is the success certificate. A failed VERSION write
+restores the previous SOURCE or removes SOURCE on a fresh install. Synthetic
+`record` faults are not enough; prove with a real `chmod a-w` on VERSION.
+Replacement-failure apply cases live in `tests/update-reports-replacement-failure.sh`.
 
 Slice 1 delivered remembered SOURCE/VERSION on successful install. Remaining
 leaves still inherit the inspected gaps: edited-equal success and unknown-install

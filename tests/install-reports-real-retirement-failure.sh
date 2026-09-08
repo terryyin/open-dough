@@ -11,6 +11,9 @@ source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/release-fixture.bash
 source "${source_dir}/tests/helpers/release-fixture.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/incomplete-install-report.bash
+source "${source_dir}/tests/helpers/incomplete-install-report.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
@@ -43,6 +46,8 @@ for platform in codex cursor claude; do
       "${platform_root}/dough-adr-awareness/SKILL.md"
     printf '%s\n' "Keep ${relative_root} recognition." > \
       "${platform_root}/dough-adr-awareness/RECOGNITION.md"
+    printf '%s\n' "${relative_root}-last-successful-source" > \
+      "${platform_root}/dough-update/SOURCE"
     printf '%s\n' "${relative_root}-last-successful-version" > \
       "${platform_root}/dough-update/VERSION"
   done
@@ -70,7 +75,6 @@ for platform in codex cursor claude; do
     done
   )
   before_project=$(shasum -a 256 "${target}/keep.txt")
-  before_version=$(shasum -a 256 "${destination}/VERSION")
   recognition_contents=$(cat "${retired_path}")
 
   export OPEN_DOUGH_RETIRE_FAILURE_PATH="${retired_path}"
@@ -82,21 +86,18 @@ for platform in codex cursor claude; do
   fi
   unset OPEN_DOUGH_RETIRE_FAILURE_ACTIVE OPEN_DOUGH_RETIRE_FAILURE_PATH
 
-  [[ "${output}" == *'Retirement failed after replacement started.'* ]]
-  [[ "${output}" == *'Installed files may be incomplete.'* ]]
-  [[ "${output}" == *'last successful record was left unchanged.'* ]]
-  [[ "${output}" == *'explicit --force reinstall.'* ]]
-  [[ "${output}" != *'Installed Open Dough public guidance'* ]]
-  [[ "${output}" != *'Recorded version'* ]]
+  assert_direct_incomplete_install_report "${output}" \
+    'Retirement failed after replacement started.'
 
   cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
     "${selected_root}/dough-update/SKILL.md"
   cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
     "${selected_root}/dough-adr-awareness/SKILL.md"
   after_recognition=$(cat "${retired_path}")
-  after_version=$(shasum -a 256 "${destination}/VERSION")
   [[ "${after_recognition}" == "${recognition_contents}" ]]
-  [[ "${after_version}" == "${before_version}" ]]
+  assert_preserved_install_records "${destination}" \
+    "${selected_relative_root}-last-successful-source" \
+    "${selected_relative_root}-last-successful-version"
 
   after_selected_unrelated=$(snapshot_path_state \
     "${selected_root}/unrelated-guidance")
@@ -116,4 +117,4 @@ for platform in codex cursor claude; do
   [[ "${after_project}" == "${before_project}" ]]
 done
 
-echo 'PASS: Codex, Cursor, and Claude report a real recognition unlink failure as a partial replacement, preserve the last successful version and all unrelated or other-platform content, and record no false success.'
+echo 'PASS: Codex, Cursor, and Claude report a real recognition unlink failure as a partial replacement, preserve the last successful SOURCE/VERSION pair and all unrelated or other-platform content, and record no false success.'

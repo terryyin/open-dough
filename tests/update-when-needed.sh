@@ -185,44 +185,6 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" \
 fi
 [[ "${output}" == *'latest numeric release only'* ]]
 
-copy_fail="${temporary_dir}/copy-fail project"
-prepare_target "${copy_fail}"
-bash "${helper}" apply --url "${fixture}" --target "${copy_fail}" --platform cursor
-copy_dest="${copy_fail}/.cursor/skills/dough-update"
-printf '%s\n' '0.1.0' > "${copy_dest}/VERSION"
-: > "${trace_file}"
-if output=$(OPEN_DOUGH_INSTALL_FAULT=copy bash "${helper}" apply --url "${fixture}" \
-  --target "${copy_fail}" --platform cursor 2>&1); then
-  echo "FAIL: copy failure must not report success." >&2
-  exit 1
-fi
-[[ "${output}" == *'Copy failed after replacement started'* ]]
-[[ "${output}" == *'may be incomplete'* ]]
-[[ "${output}" == *'--force'* ]]
-[[ "${output}" != *'Outcome: updated'* ]]
-contents=$(cat "${copy_dest}/VERSION")
-[[ "${contents}" == 0.1.0 ]]
-contents=$(cat "${copy_dest}/SKILL.md")
-[[ "${contents}" == 'partial-install' ]]
-grep -q '^install ' "${trace_file}"
-
-verify_fail="${temporary_dir}/verify-fail project"
-prepare_target "${verify_fail}"
-bash "${helper}" apply --url "${fixture}" --target "${verify_fail}" --platform cursor
-verify_dest="${verify_fail}/.cursor/skills/dough-update"
-printf '%s\n' '0.1.0' > "${verify_dest}/VERSION"
-: > "${trace_file}"
-if output=$(OPEN_DOUGH_INSTALL_FAULT=verify bash "${helper}" apply --url "${fixture}" \
-  --target "${verify_fail}" --platform cursor 2>&1); then
-  echo "FAIL: verification failure must not report success." >&2
-  exit 1
-fi
-[[ "${output}" == *'verification failed'* ]]
-[[ "${output}" == *'may be incomplete'* ]]
-[[ "${output}" == *'--force'* ]]
-contents=$(cat "${verify_dest}/VERSION")
-[[ "${contents}" == 0.1.0 ]]
-
 legacy="${temporary_dir}/legacy project"
 prepare_target "${legacy}"
 legacy_source="${temporary_dir}/legacy-v0.1.0"
@@ -246,4 +208,4 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${legacy}" \
 assert_payload "${legacy_dest}" 0.1.10 payload-0.1.10
 assert_sentinels "${legacy}"
 
-echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update, refuses malformed and requested versions, reports failed replacement, and bootstraps a genuine v0.1.0 install with explicit force."
+echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update, refuses malformed and requested versions, and bootstraps a genuine v0.1.0 install with explicit force."
