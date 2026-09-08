@@ -123,7 +123,7 @@ Open Dough maintainers prepare and tag source releases with the internal
 `release-version` skill in this repository (`$release-version` in Codex,
 `/release-version` in Cursor or Claude Code). It writes `VERSION` and
 `CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
-acceptance guard are not installed into adopting projects.
+maintainer guidance (`AGENTS.md`) are not installed into adopting projects.
 
 Installation and `dough-update` use the highest numeric release of the recorded
 or supplied repository. A known older installation that lacks `SOURCE` needs

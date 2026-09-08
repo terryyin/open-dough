@@ -21,12 +21,12 @@ checks and reusable evidence to limit validation cost.
   test general agent competence or build a conformance suite for vendor skill
   systems.
 - Use representative skills to verify each shared integration mechanism on all
-  three tools. Cover discovery, invocation/application, and an intended outcome;
-  include installation, updating, and coexistence where affected.
+  three tools. Cover intended skill behavior and a useful outcome; include
+  installation, updating, and coexistence where those stories require it.
 - Reuse each tool's integration evidence for skills using the same mechanism.
   Add integration cases only for materially different mechanisms or invalidated
-  evidence, such as a new discovery path or activation mode. Do not create a
-  separate integration suite for every skill.
+  evidence, such as a new activation mode. Do not create a separate integration
+  suite for every skill.
 - Test each skill's own behavioral requirements. Shared integration evidence
   does not prove another skill's behavior. Define shared cases once; select
   native runs by unresolved risks, without requiring every case on every tool.
@@ -64,10 +64,10 @@ checks and reusable evidence to limit validation cost.
 ### 4. Run and assess only the checks needed
 
 - Automate repeatable setup, execution, cleanup, and reporting. Use isolated
-  fixtures and fresh sessions where prior context could hide discovery failures.
+  fixtures and fresh sessions where prior context could hide failures.
 - Use the native tool interface and prompts that do not supply expected answers.
-  Require loading/invocation evidence and the intended outcome. Do not accept
-  self-report or exit 0 as sufficient proof.
+  Require evidence the skill was used and produced the intended outcome. Do not
+  accept self-report or exit 0 as sufficient proof.
 - Automate reliable state and behavior checks; test assessors against
   counterexamples. Where prose cannot be assessed reliably with a small check,
   review it against explicit expectations and record the supporting evidence.
@@ -76,6 +76,9 @@ checks and reusable evidence to limit validation cost.
 - Keep update followed by fresh use as one journey unless separate execution
   serves a concrete need. Add selection, dependency tracking, or review machinery
   only when needed to run or maintain the chosen checks.
+- Everyday skill authoring follows the shared guideline in `AGENTS.md`. Review a
+  conventional skill change by its useful behavior; do not treat a routine
+  per-tool discovery recheck as the default maintenance gate.
 
 ### 5. Retain and reuse evidence
 
@@ -90,18 +93,23 @@ checks and reusable evidence to limit validation cost.
   Distinguish reused proof from fresh execution.
 - Revalidate requirements whose evidence is invalidated or insufficient. An
   instruction edit may invalidate behavior proof while leaving installation
-  and discovery proof applicable. Check the effect on all three tools.
+  proof applicable. Check the effect on all three tools when those requirements
+  remain in scope.
+- Delete obsolete process instructions and commentary about removed maintenance
+  gates from current guidance. Do not archive removed process as enduring
+  policy history.
 
 ## Consequences
 
 Release affected behavior only when required native checks pass or have justified
 reusable evidence. Keep missing validation pending. Store execution details and
 reuse decisions in acceptance stories or evidence records, not in this ADR.
+Author conventional skills with the shared `AGENTS.md` guideline and a
+representative behavior review.
 
 ## Related
 
-- [Acceptance guard](../../AGENTS.md)
+- [Maintainer guidance](../../AGENTS.md)
 - [ADR 0000 — Human decision ownership](./0000-use-adrs-accepted.md)
 - [ADR 0003 — Immutable release identity](./0003-tagged-release-versioning-accepted.md)
-- [Research and sources](../../.planning/research/cross-tool-validation.md)
-- [SEED-007 — Test migration and native acceptance stories](../../.planning/seeds/SEED-007-cross-tool-validation.md)
+- [SEED-007 — Standalone update in Claude Code](../../.planning/seeds/SEED-007-cross-tool-validation.md)

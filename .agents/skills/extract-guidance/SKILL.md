@@ -5,9 +5,10 @@ description: Turn one supplied project skill or rule into a source-selectable, r
 
 # Extract reusable project guidance
 
-Work on exactly one source skill or rule per invocation. This skill is internal
-to Open Dough; do not add it or its support files to the public installer
-payload.
+Follow the shared skill-authoring guideline in [`AGENTS.md`](../../../AGENTS.md)
+for naming, frontmatter, layout, references, and behavior review. Work on exactly
+one source skill or rule per invocation. This skill is internal to Open Dough;
+do not add it or its support files to the public installer payload.
 
 1. Capture the supplied source path before reading it. If no source was
    supplied, ask for one and stop. Accept a caller-supplied output directory;
@@ -47,8 +48,8 @@ payload.
    as installable public guidance.
 
 4. Name a skill candidate `dough-<source-name>`, normalizing the source name to
-   lowercase kebab-case and avoiding a second `dough-` prefix. Write a
-   self-contained candidate directory containing:
+   lowercase kebab-case and avoiding a second `dough-` prefix, consistent with
+   `AGENTS.md`. Write a self-contained candidate directory containing:
 
    - `SKILL.md`, with valid `name` and `description` frontmatter, explicit
      triggers, the preserved workflow and boundaries, and the adopter context
@@ -73,7 +74,9 @@ payload.
    Original clues may include the original name and a repository-relative path,
    but not an absolute local-machine path. Project identity is optional
    provenance and must never be a recognition requirement. `Validation needed`
-   must name the behavioral comparison still required before distribution.
+   must name the representative behavior review still required under
+   `AGENTS.md` (invocation context, required adopter context, and useful
+   outcome) before distribution.
 
 5. Recompute the inspected-source checksums and compare them with step 2. For a
    completed candidate draft, report the candidate directory, the generalized

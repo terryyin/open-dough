@@ -1,7 +1,7 @@
 # Recognition: dough-adr-awareness
 
-Status: evaluated public guidance — native discovery, installation, update,
-delivery-to-use behavior, and coexistence verified in Codex, Cursor, and Claude Code
+Status: evaluated public guidance — useful ADR behavior, installation, update,
+and coexistence verified for Codex, Cursor, and Claude Code
 
 ## Original clues
 
@@ -62,8 +62,6 @@ status disagreements or lifecycle changes do not require invented policies.
   announcement, and status-change process.
 - Precedence relative to local planning and delivery workflows.
 - Proposal template only when proposal drafting is requested.
-- Native discovery and any automatic-application adapters required by Codex,
-  Cursor, and Claude Code.
 
 ## Differences that rule out replacement
 
@@ -75,8 +73,8 @@ one project's ADR layout or decisions, or claims completion despite unresolved
 status or context needed for the current request.
 
 An on-demand skill is also not a proven replacement for source guidance whose
-automatic application is material unless the target host supplies and verifies
-an equivalent native application mechanism.
+automatic application is material unless the target host supplies an equivalent
+native application mechanism.
 
 ## Adoption boundary
 
@@ -91,13 +89,17 @@ Controlled native Codex comparisons established the distinguishing behavior
 above and showed that the candidate uses adopter-supplied ADR paths and lifecycle
 conventions without imposing its source project's layout or identity.
 
-Codex, Cursor, and Claude Code each discovered the canonical internal extractor
-from `.agents/skills/` and produced a reusable candidate plus recognition record
+Codex, Cursor, and Claude Code each used the canonical internal extractor from
+`.agents/skills/` and produced a reusable candidate plus recognition record
 without modifying the supplied source. No Cursor or Claude-specific extractor
 adapter was required.
 
 Each platform installed this record and the same behavioral skill alongside the
-public updater in its native skill root. Independent native update-to-fresh-use
-proofs verified exact platform-local payloads, coexistence, adopter-relative
-authority discovery, conflict stopping for human precedence, and no adopter
-changes during explicit ADR checks.
+public updater in its native skill root. Independent update-to-fresh-use proofs
+verified exact platform-local payloads, coexistence, adopter-relative authority
+resolution, conflict stopping for human precedence, and no adopter changes
+during explicit ADR checks.
+
+Maintain further edits with the shared skill-authoring guideline in
+[`AGENTS.md`](../../../AGENTS.md): review invocation context, required adopter
+context, and the conflict-handling outcome on a representative use.

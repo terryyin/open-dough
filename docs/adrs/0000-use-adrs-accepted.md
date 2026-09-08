@@ -30,6 +30,8 @@ in Doughnut. Delivery plans serve a different purpose from lasting decisions.
    human-owned exception or a superseding ADR.
 5. Preserve rejected and superseded decisions as history, maintain the index,
    and keep delivery prioritization separate from architectural acceptance.
+   Remove obsolete process instructions from current guidance rather than
+   retaining them as explanatory archive; decision records stay.
 
 ## Consequences
 
