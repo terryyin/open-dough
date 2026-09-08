@@ -1,10 +1,9 @@
 # Deliver the standalone client update workflow
 
 **Source:** [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update).
-**Status:** Slices 1–7 done. Resume
-[Quick 023](../023-accept-standalone-client/PLAN.md) against
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 8–12 wait for its
-acceptance. No native execution or publication performed by this slice.
+**Status:** Slices 1–7 done. Quick 023 did **not** accept candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 8–12 stay blocked. No
+publication.
 
 ## Goal and scope
 

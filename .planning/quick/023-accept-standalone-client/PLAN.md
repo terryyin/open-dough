@@ -1,9 +1,10 @@
 # Accept one standalone client candidate
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
-**Status:** In progress 2026-09-08 against candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–4 done. Codex pending;
-Cursor pass; Claude Code fail. Overall acceptance not yet recorded.
+**Status:** Execution complete 2026-09-08 against candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Overall verdict: **not accepted**.
+Codex pending; Cursor pass; Claude Code fail. Plan and evidence retained.
+No publication.
 
 ## Goal and scope
 
@@ -159,9 +160,11 @@ options. Retain and review the attempt and its cleanup within this proof loop.
 
 ### 5. Record whether the candidate is accepted
 Type: Behavior
-Status: planned — depends on the three tool reviews
-Proof: Story status and the evidence table agree; every affected requirement has
-proof or is visibly pending, and the acceptance identifies the tested candidate.
+Status: done
+Proof: Candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f` is **not
+accepted**. Codex pending; Cursor pass; Claude Code fail. Story 3 and this
+table agree. Integration vs skill behavior kept distinct. Publication must
+not proceed on this verdict.
 
 Behavior: Given the three tool verdicts → review their coverage and candidate
 identity → the maintainer receives one accepted-or-pending decision with reasons.
@@ -178,7 +181,7 @@ this slice does not publish or claim future release acceptance.
 | Slice 2 | Codex | Combined journey incomplete; ordinary no-URL update not credited. Quick 014 loading/ADR use of unchanged skill SHA remains a starting point only. | Use unrun; Quick 014 historical clear/conflict not reused as this journey's behavior. | Pending |
 | Slice 3 | Cursor | Combined ordinary no-URL update→fresh-use proved discovery, invocation, install/update/coexistence on this journey. | Catalog vs ARC-12 conflict stop with no file edits. | Pass |
 | Slice 4 | Claude Code | One native launch failed payload compare; no-URL update, preservation, and install/update/coexistence not credited. Streams not retained. | Use unrun. | Fail |
-| Slice 5 | Overall | Confirm coverage and candidate identity from the three rows. | Confirm shared cases resolve the candidate's behavioral risks. | Pending |
+| Slice 5 | Overall | Candidate `6682816` identified. Codex update/use pending; Cursor update/use proved; Claude Code update/use failed and streams lost. | Cursor conflict-stop proved on the updated skill. Codex and Claude Code behavior unrun on this journey. | Not accepted |
 
 ## Sizing and readiness
 
@@ -237,3 +240,8 @@ disagreement. Codex pending is not Cursor proof.
 on `2.1.263`. Installed skill shorter than fixture source (`cmp` EOF).
 Scratch deleted before retain; use unrun. Not retried. Cursor pass and Codex
 pending are not Claude Code proof.
+
+2026-09-08 overall: candidate `6682816` is not accepted. Cursor proved the
+ordinary no-URL update→fresh-use journey. Codex and Claude Code did not.
+Quick 024 release slices stay blocked. This plan is kept with its evidence;
+it is not spent-diary cleanup.

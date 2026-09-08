@@ -113,11 +113,10 @@ native evidence remains with Story 3; coached historical results gain no new cla
 
 ### 3. Establish that the standalone client candidate works in all three tools
 
-**Status:** Candidate named 2026-09-08:
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Native acceptance pending.
-[Quick 023](../quick/023-accept-standalone-client/PLAN.md) may resume against
-this named revision. Do not claim Codex, Cursor, or Claude Code discovery,
-invocation, or behavior. Public `v0.2.1` is not this candidate.
+**Status:** Quick 023 executed 2026-09-08 against candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Native acceptance **not accepted**:
+Codex pending, Cursor pass, Claude Code fail. Public `v0.2.1` is not this
+candidate.
 **Plan:** [Quick 023 — accept one standalone client candidate](../quick/023-accept-standalone-client/PLAN.md).
 **Type:** Native acceptance.
 **Dependencies:** Stories 1–2's completed cheap checks and one named candidate
@@ -180,20 +179,19 @@ than treating those historical results as fresh proof.
 
 | Platform | Integration evidence | Skill behavior evidence |
 | --- | --- | --- |
-| Codex | Quick 014 explicit/automatic use; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
-| Cursor | Quick 014 native installed-file reads; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
-| Claude Code | Quick 014 native Skill calls; candidate applicability and update journey pending. | Quick 014 clear/conflict observations; candidate applicability pending. |
+| Codex | Quick 023 `delivery/updated-use` incomplete (`20260908T030033-43e0`); ordinary no-URL update not credited. Quick 014 explicit/automatic use is historical for unchanged skill SHA only. | Use unrun on this journey. Quick 014 clear/conflict remains historical. |
+| Cursor | Quick 023 `delivery/updated-use` pass (`20260908T030715-5dbe`): ordinary no-URL update, real transition, preservation. | Same journey: catalog vs ARC-12 conflict stop; installed skill loaded in a fresh session. |
+| Claude Code | Quick 023 `delivery/updated-use` fail (`20260908T031111-5393`): payload compare failed; streams not retained. Quick 014 Skill calls are historical for unchanged skill SHA only. | Use unrun on this journey. |
 
-**Boundary / open dependency:** SEED-001 Story 7 named candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`; Quick 023 may resume against that
-revision. Native acceptance remains pending; this story does not claim Codex,
-Cursor, or Claude Code discovery, invocation, or behavior.
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) lets
-implementation finish at handoff while native stays here. This story does not
-implement that workflow, publish or self-adopt a release, change Donut,
-reconcile old plans, or add test infrastructure. Force, refusal, and other
-variants are not a default native matrix. Quick 019 and historical research add
-no hidden criteria. [ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md)
+**Boundary / open dependency:** Quick 023 executed against candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f` and did **not** accept it. Codex
+pending, Cursor pass, Claude Code fail. This story does not claim overall
+native acceptance or authorize publication.
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps native
+proof here. This story does not implement the updater, publish or self-adopt a
+release, change Donut, reconcile old plans, or add test infrastructure. Force,
+refusal, and other variants are not a default native matrix. Quick 019 and
+historical research add no hidden criteria. [ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md)
 preserves human decision ownership; [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 forbids automatic version choice; [ADR 0004](../../docs/adrs/0004-client-installation-and-update.md)
 remains Proposed. No ADR change or exception is needed.
@@ -231,8 +229,9 @@ is required for this planning work.
 Spent plans 20, 22, and 21 delivered Stories 1–2 cheap checks and were dropped.
 Story 3 owns outstanding native evidence per tool.
 
-SEED-001 Story 7 named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`.
-Refine Story 3 against that candidate before native execution. Do Story 4 last after
+Quick 023 executed against candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`
+and did not accept it. Keep Story 3 until Codex and Claude Code have credited
+native update→use or a later named candidate replaces it. Do Story 4 last after
 reconsidering its underlying stories. Keep this seed until the scoped migration
 and native acceptance work is complete. Research options and removed plan leaves
 are not hidden completion requirements.

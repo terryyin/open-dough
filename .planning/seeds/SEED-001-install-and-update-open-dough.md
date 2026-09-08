@@ -743,10 +743,9 @@ combined outcome without reopening release production or version detection.
 ### 7. Release the standalone client installation and update workflow
 
 **Status:** Implementation handoff complete 2026-09-08 at
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Native acceptance remains pending
-in [SEED-007 Story 3](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
-/ [Quick 023](../quick/023-accept-standalone-client/PLAN.md). Release and
-self-use are not finished.
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Quick 023 did **not** accept that
+candidate (Codex pending, Cursor pass, Claude Code fail). Release and self-use
+stay blocked.
 **Historical plan:** [Quick 019](../quick/019-standalone-client-update/PLAN.md)
 is not executable as written. Plan from this story; reconcile retained old plans
 later in [SEED-007 Story 4](SEED-007-cross-tool-validation.md#separate-native-acceptance).
@@ -824,9 +823,9 @@ separates implementation proof from native acceptance:
 
 | Platform | Candidate integration and skill behavior | Release/self-use |
 | --- | --- | --- |
-| Codex | Pending candidate-specific evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
-| Cursor | Pending its own evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
-| Claude Code | Pending its own evidence or justified reuse in SEED-007 Story 3. | Pending publication and retained self-use evidence here. |
+| Codex | Quick 023 pending: incomplete `delivery/updated-use` stream; use unrun. | Pending publication and retained self-use evidence here. |
+| Cursor | Quick 023 pass: ordinary no-URL update then fresh conflict-stop use. | Pending publication and retained self-use evidence here. |
+| Claude Code | Quick 023 fail: payload compare after native launch; streams not retained. | Pending publication and retained self-use evidence here. |
 
 Implementation can finish at the candidate handoff while native acceptance stays
 pending. This release story remains unfinished until publication and self-use.
