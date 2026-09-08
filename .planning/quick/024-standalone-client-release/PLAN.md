@@ -158,14 +158,17 @@ with no downgrade. Reuse the same preflight rather than a second comparison path
 ### 5. Explicit force restores the complete latest installation
 Type: Behavior
 Status: planned — depends on 1–4
-Proof: Existing force/failure tests observe exact latest payload and records for
-edited/incomplete/equal/newer inputs; selection/validation failure writes nothing,
-and replacement failure cannot report success or advance successful records.
+Proof: Extend existing force tests so edited, incomplete, equal, and newer
+inputs produce the exact latest payload plus `SOURCE` then `VERSION`.
+Selection/validation failure still writes nothing, and replacement failure still
+cannot report success or advance records — reuse
+`tests/update-reports-replacement-failure.sh` and the real copy/record-failure
+tests; do not rebuild them. Align skill allowed write paths with SOURCE.
 
-Behavior: Explicit force with known or supplied bootstrap source → inspected
-latest replacement → verified complete selected installation, fixed recognition
-retirement, unrelated guidance preserved, no merge or automatic commit. Align
-allowed write paths in the shared updater with SOURCE and existing retirement.
+Behavior: Explicit `--force` with recorded SOURCE when present, otherwise a
+supplied `--url` → inspected latest replacement → complete selected
+installation, recognition retirement, unrelated guidance preserved, no merge or
+automatic commit.
 
 ### 6. A known legacy installation reaches the remembered-source contract
 Type: Behavior
@@ -176,9 +179,10 @@ payload: inspected supplied-source force establishes the revised payload/records
 Check subsequent ordinary helper resolution from the recorded source.
 
 Behavior: Known old installation lacks the contract → documented one-time
-bootstrap → installation ready for a fresh native session using its saved source.
-Align README bootstrap instructions. Native loading and no-URL skill behavior
-remain with the acceptance story; a deterministic transition does not prove them.
+supplied-source `--force` bootstrap → installation ready for a later ordinary
+no-URL helper call from the SOURCE that force wrote. Align README bootstrap
+instructions. Native loading and no-URL skill behavior remain with the
+acceptance story; a deterministic transition does not prove them.
 
 ### 7. The acceptance task receives one testable candidate
 Type: Behavior
@@ -273,9 +277,13 @@ reassessment; renaming leaves does not reset that threshold.
 
 **Refined 2026-09-08 before execution:** split remembered-source success (1)
 from uncertified failure records (1b), and moved the edited-A refusal control
-into slice 3 so slice 2 is one clean A→B proof loop. **Refinement still
-recommended: slices 5–6.** Force write paths and legacy fixture integration
-remain coupled; reassess those leaves immediately before implementing them.
+into slice 3 so slice 2 is one clean A→B proof loop. **Refined 2026-09-08
+before slices 5–6:** keep force success as one leaf (complete latest payload
+plus SOURCE/VERSION for edited/incomplete/equal/newer; known SOURCE when
+present, else supplied `--url`). Do not rebuild selection or replacement-failure
+coverage already owned by slice 1b tests. Keep slice 6 as the genuine
+old-payload bootstrap plus a following ordinary no-URL apply from the SOURCE
+that force wrote.
 Slices 8–12 remain conditional; inspect actual release and installation state
 before execution. Integrated tests, Git/network waits, and one bounded native
 adoption→use journey can exceed active-work targets; keep that runtime separate
