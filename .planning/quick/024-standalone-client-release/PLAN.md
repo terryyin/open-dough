@@ -1,10 +1,33 @@
 # Deliver the standalone client update workflow
 
 **Source:** [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update).
-**Status:** Slices 1–7 done. Quick 023 did **not** accept candidate
+**Status:** Slices 1–7 done. Local v0.2.2 finalization authorized under the
+manual-trial exception below; publication and released self-use remain pending.
+Quick 023 did **not** accept candidate
 `6682816a2385d96066883b5e4dc073b28e4b3d4f` (Codex inconclusive, Cursor pass,
-Claude Code pending). Slices 8–12 stay blocked. No
-publication.
+Claude Code pending). No publication.
+
+## Manual-trial release exception — 2026-09-08
+
+Terry Yin explicitly chose to set aside the Codex and Claude Code confirmation
+checks to try the workflow manually, requested a new release tag, and approved
+version 0.2.2. This is a human-owned exception to ADR 0005's pre-release native
+acceptance requirement for this local tag. It does not change that ADR or mark
+Quick 023 accepted. ADR 0003's maintainer-chosen version and immutable tag
+requirements still apply. Publication and slices 10–12 are not completed here.
+
+Release payload comparison: `git diff 6682816 HEAD -- src install.sh` was empty
+before release preparation. Reuse the candidate's implementation checks and
+native evidence because its product guidance, helpers, and installation paths
+are unchanged; VERSION and CHANGELOG are release metadata changes. Cursor's
+ordinary update → fresh installed-skill use remains a reused pass. Codex's update
+and conflict-stop observations remain inconclusive because installed loading
+was unobserved. Claude Code remains pending because launcher permissions denied
+Bash before the update. No fresh native verification is claimed for 0.2.2.
+
+Release scope: remembered SOURCE/VERSION, verified ordinary no-URL updates,
+unverifiable-baseline refusal, verified skips, explicit force recovery, and legacy
+bootstrap. Retain the existing failed attempts and pending manual verification.
 
 ## Goal and scope
 
