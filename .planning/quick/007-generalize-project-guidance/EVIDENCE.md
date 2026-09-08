@@ -19,8 +19,8 @@ the per-platform evidence map for
 Shared helpers centralize platform-neutral extraction and delivery assertions;
 host wrappers retain only native CLI, skill-root, and isolation details.
 
-The original native delivery used default-branch fixtures. Those discovery and
-ADR observations remain reusable where source selection, payload paths, and
+The original native delivery used default-branch fixtures. Those installation
+and ADR observations remain reusable where source selection, payload paths, and
 delivery behavior are unchanged. They do not establish later pinned-release
 installation routes proved in later stories.
 

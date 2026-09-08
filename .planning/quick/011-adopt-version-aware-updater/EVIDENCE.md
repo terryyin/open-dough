@@ -21,6 +21,6 @@ session identities for
 Every adoption independently resolved `v0.2.0` to peeled commit
 `676188a66504f7dc751e03311f9be5245757b24a`, inspected the complete helper and
 payload chain, and used no `--force`. Prior native installation, version-decision,
-and discovery/use evidence from Stories 5a, 5b, and
+and use evidence from Stories 5a, 5b, and
 [Plan 007 evidence](../007-generalize-project-guidance/EVIDENCE.md) remains
 applicable where those inputs are unchanged.

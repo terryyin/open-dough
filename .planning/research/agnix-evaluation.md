@@ -71,10 +71,10 @@ its 19 skill directories are symlinks. Scanning `.agents/skills` checked 35
 files. The full scan reaches canonical content, but the zero-file success does
 not establish coverage of Claude-specific checks through symlinked paths.
 
-Native discovery, invocation/application, and intended behavior remain
-**unverified in each of Codex, Cursor, and Claude Code**, as do installation,
-updating, and coexistence of an integration. Static lint cannot replace those
-acceptance checks.
+Native invocation/application and intended behavior remain **unverified in
+each of Codex, Cursor, and Claude Code**, as do installation, updating, and
+coexistence of an integration. Static lint cannot replace those acceptance
+checks.
 
 Earlier market review: agnix had about 404 GitHub stars; no general linter
 demonstrated industry-default adoption. Shared formats are more established
@@ -88,10 +88,10 @@ Require useful findings to dominate triage on both projects before making
 selected rules blocking; keep writing checks advisory.
 
 If failures recur, consider a small shared validator for YAML/frontmatter,
-resource references, installation drift, and discovery coverage. It should
-understand placeholders and symlinks, deduplicate installed copies, and separate
-format requirements from preferences. Compare a narrow agnix configuration or
-upstream fixes first. No scheduled monitor or implementation was started.
+resource references, and installation drift. It should understand placeholders
+and symlinks, deduplicate installed copies, and separate format requirements
+from preferences. Compare a narrow agnix configuration or upstream fixes first.
+No scheduled monitor or implementation was started.
 
 ## Reproduction context
 

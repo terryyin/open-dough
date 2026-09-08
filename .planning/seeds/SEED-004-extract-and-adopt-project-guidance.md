@@ -17,60 +17,23 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="maintain-skills-without-discovery-rechecks"></a>
-
-### 10. Maintain skills with a minimal shared guideline
-
-**Status:** Refined; first in the product backlog.
-**Effort hypothesis:** S (30–60 minutes), low confidence; assumes manual cleanup
-of the discovery process and reuse of existing skill conventions.
-
-#### Goal
-
-The Open Dough maintainer can add or edit a skill by following a short shared
-guideline and manually reviewing its useful behavior. Spend time improving the
-skill itself; keep the surrounding process small.
-
-#### Scope
-
-- Keep one concise description of the naming, frontmatter, layout, and reference
-  conventions used by Codex, Cursor, and Claude Code. Review a representative
-  skill change against those conventions and its intended outcome.
-- Delete routine native discovery verification and the machinery dedicated to it:
-  runners, fixtures, tests, evidence records, checklists, and acceptance tasks.
-  Retain shared pieces according to their current functional use.
-- Make affected instructions, acceptance wording, and policy documents describe
-  the resulting workflow directly. Delete obsolete text, historical explanations,
-  archival copies, and commentary about removed behavior. Apply this cleanup to
-  the discovery process and its supporting material throughout the repository.
-- Use positive examples of useful behavior for acceptance. Retain tests that
-  exercise current functionality; delete tests whose purpose is policing removed
-  process. Manual review is sufficient for the guideline and prose cleanup.
-- Handle unusual cases manually when they arise. Story 9 owns the extraction
-  destination change; installation and update functionality retain their own
-  stories and functional checks.
-
-#### Key examples
-
-| Situation | Action | Useful result |
-| --- | --- | --- |
-| The maintainer adds a conventional skill | Follow the shared guideline and review a representative use | The skill has clear invocation context and produces its intended result. |
-| The maintainer edits an existing skill | Review the changed behavior using a concrete example | The owner can judge the improvement directly. |
-| An agent reads the project's skill-maintenance instructions | Apply the concise current workflow | The agent produces a reviewable skill change using the same conventions across the three tools. |
-
 <a id="extract-directly-with-guidelines"></a>
 
 ### 9. Extract a project skill directly into unreleased source
 
-**Status:** Unplanned.
+**Status:** Unplanned; first in the product backlog.
 **Goal:** One extraction request produces the reusable skill in the source tree.
 **Scope:** Adapt one ordinary project skill into `src/skills/dough-<name>/` with a
 concise recognition record. Preserve its useful behavior, make adopter context
-explicit, and keep the source intact. Handle unusual cases manually.
+explicit, and keep the source intact. Handle unusual cases manually. Follow the
+shared skill-authoring guideline in [`AGENTS.md`](../../AGENTS.md) and the
+internal [`extract-guidance`](../../.agents/skills/extract-guidance/SKILL.md)
+skill.
 **Evaluation:** The maintainer reviews the actual source skill against the
 original and can use it on a representative task. Release is a separate action.
 **Effort:** M, medium confidence; assumes one self-contained on-demand skill.
-**Depends on:** An accessible source practice. Story 10 simplifies the common workflow.
+**Depends on:** An accessible source practice. Story 10's shared maintenance
+workflow is available.
 
 <a id="extract-story-refinement"></a>
 
@@ -130,7 +93,7 @@ an actionable CI result.
 
 ## Ordering
 
-Story 10 first simplifies maintenance; Story 9 supplies direct extraction.
+Story 9 supplies direct extraction using the shared maintenance guideline.
 Story 6 is the next concrete reuse opportunity. Story 7 surfaces for a real
 oversized problem; Stories 8 and 5 surface for their named client/task needs.
 Manual copying is a useful fallback if Story 9 is deferred.
@@ -150,3 +113,11 @@ Manual copying is a useful fallback if Story 9 is deferred.
 
 **Status:** Complete.
 **Goal and scope:** Replace a borrowed practice while retaining required adopter context.
+
+<a id="maintain-skills-without-discovery-rechecks"></a>
+
+### 10. Maintain skills with a minimal shared guideline
+
+**Status:** Complete.
+**Goal and scope:** Add or edit skills with a short shared guideline and manual
+behavior review; keep surrounding process small.

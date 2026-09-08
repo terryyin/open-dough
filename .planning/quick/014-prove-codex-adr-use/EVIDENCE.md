@@ -30,7 +30,7 @@ source selection, payload paths, and delivery behavior are unchanged; the new
 candidate's selected-host installation, native use, and coexistence are verified
 below. Live Donut readiness and replacement remain separate, unverified work.
 
-## Shared candidate and native discovery
+## Shared candidate and native use
 
 All seven observations used the same skill SHA-256:
 `ff023b773bf9c5fc5f0f7cf09259df2b96044d28de93f24820820457cc62cd4e`.
@@ -40,7 +40,7 @@ complete adopter snapshots matched before/after every native assessment,
 including installed payload/version, ADRs, retained context, unrelated guidance,
 and other-tool sentinels. The selected native installation matched the candidate.
 
-| Host | Native version | Discovery / invocation evidence |
+| Host | Native version | Invocation / behavior evidence |
 | --- | --- | --- |
 | Codex | `codex-cli 0.144.1` | Explicit `$dough-adr-awareness` native expansion performed the installed skill's unique completion instruction. Automatic use successfully read `.agents/skills/dough-adr-awareness/SKILL.md` and retained rules with no ADR/skill hint. Commands read only fixture ADR context, not the removed original. |
 | Cursor | `2026.09.02-c22c1a3` | Both transcripts contain successful `readToolCall` results for `.cursor/skills/dough-adr-awareness/SKILL.md`, including the changed context paragraph. No Codex candidate was left discoverable in these targets. |

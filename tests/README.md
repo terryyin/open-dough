@@ -1,7 +1,7 @@
 # Native ADR-awareness check wrappers
 
 Exact flags implemented for selecting and inspecting the existing native
-checks. Native discovery, invocation, and behavior claims stay pending
+checks. Native invocation and behavior claims stay pending
 (SEED-007 Story 3). This file is internal test documentation.
 
 ## Shared options
@@ -59,15 +59,14 @@ is `unknown` (Cursor Agent is not inferred from `cursor --version`).
 After a selected native command exits 0, the wrapper inspects the host
 terminal stream, then the shared clear/conflict behavior assessor. Clear and
 conflict fixtures use the same ordinary session-storage request. A complete
-known stream records execution completion, a separate prerequisite/activation
-result, and `assessment-status` / `assessment-reason` from that assessor
-(`pass`, `fail`, or `inconclusive`). Process exit 0 is not a wording pass.
-Missing, truncated, or unknown completion evidence is retained as
-`execution-status: incomplete` with `assessment-status: not-run`, prints
-`result-path:`, deletes scratch, and does not treat process exit 0 as a
-wording pass. Unknown event shapes stay incomplete; adapters are not expanded
-to invent extra complete forms. Recorded streams prove those contracts, not
-that native runtimes emit them.
+known stream records execution completion and `assessment-status` /
+`assessment-reason` from that assessor (`pass`, `fail`, or `inconclusive`).
+Process exit 0 is not a wording pass. Missing, truncated, or unknown
+completion evidence is retained as `execution-status: incomplete` with
+`assessment-status: not-run`, prints `result-path:`, deletes scratch, and does
+not treat process exit 0 as a wording pass. Unknown event shapes stay
+incomplete; adapters are not expanded to invent extra complete forms.
+Recorded streams prove those contracts, not that native runtimes emit them.
 
 ## Delivery wrappers
 
@@ -113,7 +112,7 @@ directory, not at live workspace bytes. Current retained contents:
 
 | Path | What it is |
 | --- | --- |
-| `record` | Host, case, origin (`fresh`), execution-status/reason, prerequisite-result/reason/evidence, assessment-status/reason from shared journey-state assessment, native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
+| `record` | Host, case, origin (`fresh`), execution-status/reason, assessment-status/reason from shared journey-state assessment, native executable/version-command/version, adapter-identity, helper/fixture/assessor identities, prompt hashes, input-hashes, artifact names |
 | `update-events.jsonl` / `use-events.jsonl` | Raw supervised streams |
 | `update-response.md` / `use-response.md` | Decoded stage output |
 | `update-stderr.log` / `use-stderr.log` | Stage stderr |
@@ -132,20 +131,15 @@ and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 bytes still come from `-o` and are not themselves completeness proof. Cursor and
 Claude Code complete streams use `{"type":"result"}`; `update-response.md` /
 `use-response.md` are decoded from `.result`. Incomplete, truncated, or unknown streams stay
-`execution-status: incomplete` with `assessment-status: not-run` and
-`prerequisite-result: fail`. Execution completion is not a behavior verdict;
-the prerequisite gate records activation separately. Native credentialed runs stay pending
-(SEED-007 Story 3).
+`execution-status: incomplete` with `assessment-status: not-run`. Execution
+completion is not a behavior verdict; assessment uses observed state and
+response. Native credentialed runs stay pending (SEED-007 Story 3).
 
 ## Focused proof scripts
 
 These are credential-free checks of the wrappers above. They do not certify
-native discovery, invocation, or behavior.
+native invocation or behavior.
 
-- `tests/native-prerequisite-gate.sh` — shared execution-and-activation
-  prerequisite cases once (success, execution failure, missing evidence,
-  wrong-copy) plus per-host decoder boundary forms from recorded JSONL.
-  Claude Skill request stays inconclusive. Does not launch a native session.
 - `tests/native-adr-behavior.sh` — shared clear/conflict behavior examples
   once (valid recommendation, valid stop, conditional stop, misleading
   wording, uncertain prose). Does not launch a native session.
@@ -159,9 +153,9 @@ native discovery, invocation, or behavior.
   prose stays inconclusive for documented review. Does not launch a native
   session and does not add a selected `delivery/legacy-refusal` path. Cheap
   wrappers and these examples do not certify native refusal. Story 3 still
-  needs representative native refusal evidence per tool: discovery,
-  invocation or application, intended behavior, and affected
-  install/update/coexistence or justified reuse.
+  needs representative native refusal evidence per tool: invocation or
+  application, intended behavior, and affected install/update/coexistence or
+  justified reuse.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument checks still pass; selected `delivery/legacy-refusal` and
@@ -185,11 +179,10 @@ native discovery, invocation, or behavior.
   `native-version: unknown` and does not call `cursor --version`.
 - `tests/native-stream-completeness.sh` — per-host complete, truncated, and
   missing-terminal recorded streams through the selected context entry point.
-  Complete execution records shared behavior assessment separately from the
-  prerequisite. Incomplete evidence with process exit 0 is retained as
-  nonpassing with a reason and raw artifacts, including unknown event shapes.
-  Complete execution is not recorded as a wording pass. Substitutes log every
-  invocation.
+  Complete execution records shared behavior assessment. Incomplete evidence
+  with process exit 0 is retained as nonpassing with a reason and raw
+  artifacts, including unknown event shapes. Complete execution is not
+  recorded as a wording pass. Substitutes log every invocation.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   ordinary no-URL update from recorded `SOURCE`, then emits recorded use
