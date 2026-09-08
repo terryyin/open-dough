@@ -153,24 +153,31 @@ Claude Code session in the target project and invoke:
 
 ## Updater safety contract
 
-Supply a cloneable repository URL on every updater invocation. The updater:
+Ordinary updates of a recorded installation read that root's `SOURCE` and do
+not require a URL. First installation and explicit force still take a supplied
+cloneable repository URL. Never infer the client's Git remote or use a
+working-tree helper. The updater:
 
 1. Captures the target project before fetching.
-2. Resolves the URL's highest numeric release tag, fetches its exact commit into
-   a fresh temporary checkout, and validates matching `VERSION` and changelog
-   metadata without falling back to a branch or lower release.
+2. Resolves the recorded or supplied source's highest numeric release tag,
+   fetches its exact commit into a fresh temporary checkout, and validates
+   matching `VERSION` and changelog metadata without falling back to a branch
+   or lower release.
 3. Records the actual source URL, tag, and exact commit.
 4. Selects the running tool's native skill root without inferring the tool from
    directories that happen to exist.
 5. Validates the fetched installer against the exact two-skill public payload.
-6. Compares the selected updater's `VERSION` record and runs the pinned
-   installer with `--force` only when replacement is required.
+6. Compares the selected updater's `VERSION` record. For an older record, fetch
+   that tagged baseline as data without executing it, compare the two managed
+   files, and run the pinned installer with `--force` only when they still
+   match and replacement is required.
 7. Verifies that both installed files byte-match the fetched sources and
    that distributable source, unrelated project files, other tools' separate
    installations, and home guidance remain unchanged.
 
-An equal recorded version produces no installed-file writes. An older or missing
-record advances to the selected release, a newer record is preserved without a
+An equal recorded version produces no installed-file writes. An older
+unchanged installation advances to the selected release, a missing record
+advances to the selected release, a newer record is preserved without a
 downgrade, and a malformed record is refused. Review a resulting diff and start
 a fresh session in the same tool to use replaced guidance. The update flow
 assumes the installed skill has no local edits; project-specific edit handling

@@ -75,24 +75,43 @@ done
 assert_sentinels "${target}"
 
 older_dest="${target}/.agents/skills/dough-update"
-older_payload="${temporary_dir}/older-payload"
-write_candidate_payload "${older_payload}" 0.1.0 payload-0.1.0
-# shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
-for managed_file in "${managed_files[@]}"; do
-  mkdir -p -- "${target}/.agents/skills/$(dirname -- "${managed_file}")"
-  cp -- "${older_payload}/src/skills/${managed_file}" \
-    "${target}/.agents/skills/${managed_file}"
-done
+older_checkout="${temporary_dir}/release-0.1.1"
+checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
+bash "${older_checkout}/install.sh" --target "${target}" --source "${fixture}" \
+  --platform codex
+assert_payload "${older_dest}" 0.1.1 payload-0.1.1
+expected_source=$(cd -- "${fixture}" && pwd -P)
+recorded_source=$(cat "${older_dest}/SOURCE")
+[[ "${recorded_source}" == "${expected_source}" ]]
 printf '%s\n' 'fixed earlier recognition record' > \
   "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
-printf '%s\n' '0.1.0' > "${older_dest}/VERSION"
+decoy="${temporary_dir}/client-origin.git"
+mkdir -p -- "${decoy}"
+git -C "${decoy}" init --quiet -b main
+git_identity "${decoy}"
+write_candidate_payload "${decoy}" 9.9.9 payload-client-remote
+commit_all "${decoy}" 'client remote decoy'
+tag_release "${decoy}" 9.9.9 '2026-09-08T00:00:00'
+git -C "${target}" init --quiet
+git -C "${target}" remote add origin "${decoy}"
 before_cursor=$(snapshot_path_state "${target}/.cursor/skills")
 before_claude=$(snapshot_path_state "${target}/.claude/skills")
 : > "${trace_file}"
-output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
+upgrade_tmp="${temporary_dir}/apply-tmp"
+mkdir -p -- "${upgrade_tmp}"
+output=$(TMPDIR="${upgrade_tmp}" bash "${helper}" apply --target "${target}" \
   --platform codex)
-[[ "${output}" == *'updated from 0.1.0 to 0.1.10'* ]]
+leftover=$(find "${upgrade_tmp}" -mindepth 1 ! -name xcrun_db -print -quit)
+if [[ -n "${leftover}" ]]; then
+  echo "FAIL: ordinary upgrade left temporary work under ${upgrade_tmp}: ${leftover}" >&2
+  exit 1
+fi
+[[ "${output}" == *"Source: ${expected_source}"* ]]
+[[ "${output}" != *"${decoy}"* ]]
+[[ "${output}" == *'updated from 0.1.1 to 0.1.10'* ]]
 assert_payload "${older_dest}" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${older_dest}/SOURCE")
+[[ "${recorded_source}" == "${expected_source}" ]]
 [[ ! -e "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
 after_cursor=$(snapshot_path_state "${target}/.cursor/skills")
 after_claude=$(snapshot_path_state "${target}/.claude/skills")
@@ -208,4 +227,4 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${legacy}" \
 assert_payload "${legacy_dest}" 0.1.10 payload-0.1.10
 assert_sentinels "${legacy}"
 
-echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update, refuses malformed and requested versions, and bootstraps a genuine v0.1.0 install with explicit force."
+echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update from recorded SOURCE without a URL, refuses malformed and requested versions, and bootstraps a genuine v0.1.0 install with explicit force."

@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
-# Version records, changelog validation, and numeric compare.
-# Sourced by open-dough-release.sh.
+# Version records, changelog validation, numeric compare, and managed-payload
+# baseline comparison. Sourced by open-dough-release.sh.
+
+managed_payload_unchanged() {
+  local dest=$1
+  local checkout=$2
+  local skill_root managed_file
+  local -a files=(
+    dough-update/SKILL.md
+    dough-adr-awareness/SKILL.md
+  )
+
+  skill_root=$(dirname -- "${dest}")
+  for managed_file in "${files[@]}"; do
+    if [[ ! -f "${skill_root}/${managed_file}" ]] \
+      || [[ ! -f "${checkout}/src/skills/${managed_file}" ]]; then
+      return 1
+    fi
+    cmp -s -- "${skill_root}/${managed_file}" \
+      "${checkout}/src/skills/${managed_file}" || return 1
+  done
+}
 
 read_version_file() {
   local file=$1

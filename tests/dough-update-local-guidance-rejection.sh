@@ -25,7 +25,7 @@ esac
 
 updater="${source_dir}/src/skills/dough-update/SKILL.md"
 unsupported='Local-guidance replacement is not supported by dough-update.'
-ordinary_update='Ordinary Open Dough release updates remain available from a supplied repository URL.'
+ordinary_update='Ordinary Open Dough release updates remain available from the recorded source.'
 grep -Fxq "${unsupported}" "${updater}"
 grep -Fxq "${ordinary_update}" "${updater}"
 if grep -Eq 'Assessment before replacement|Retain adopter context before cleanup|Switch callers and remove the redundant original' \

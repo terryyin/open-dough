@@ -118,7 +118,7 @@ Never certify a mismatched SOURCE/VERSION pair.
 
 ### 2. An ordinary update verifies and replaces a clean older release
 Type: Behavior
-Status: planned — depends on 1b
+Status: done
 Proof: Extend `tests/update-when-needed.sh` using genuine tagged A and B from
 `tests/helpers/release-fixture.bash`: clean A advances to B from saved SOURCE
 with no URL on the ordinary helper invocation.
@@ -282,7 +282,7 @@ rather than splitting update from fresh use.
 are stored as `pwd -P` using the original working directory before later `cd`.
 `apply` threads its existing `--url` into that write. SOURCE is written after
 payload verification and before VERSION. Direct install and apply both record
-the same absolute local fixture path. Updater still requires a URL until slice 2.
+the same absolute local fixture path.
 
 **Slice 1b:** VERSION write is the success certificate. A failed VERSION write
 restores the previous SOURCE or removes SOURCE on a fresh install. Synthetic
@@ -294,3 +294,12 @@ leaves still inherit the inspected gaps: edited-equal success and unknown-instal
 overwrite must change with later behavior. The installed local updater is not
 the candidate source. Quick 019's native matrix and repeated post-adoption no-op
 checks add no hidden requirements.
+
+**Slice 2:** Ordinary `apply` without `--url` reads `dough-update/SOURCE`, pins
+latest from that source, fetches tagged A as data (never executing A's helper),
+compares the two managed files, then installs inspected B only when they match.
+`--url` callers skip that baseline preflight so existing supplied-URL tests stay
+green; slice 3 extends the no-URL preflight only. Genuine A is fixture tag
+`v0.1.1` via `checkout_tagged_release`; B is `v0.1.10`. A decoy client `origin`
+is ignored. Git fixture construction exceeded the five-minute target; focused
+tests themselves were short. One proof loop; not a second overrun.

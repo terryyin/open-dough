@@ -49,9 +49,10 @@ Open your target project in an AI agent with web and shell access, then ask:
    `SOURCE` record matches the supplied source, the `VERSION` record matches
    the selected release, and the target project's diff contains no unrelated
    changes. Report the installed paths, source tag and commit, and tell the
-   user to invoke the updater with the source URL in a fresh session of the
-   same tool (`$dough-update` in Codex, `/dough-update` in Cursor or Claude
-   Code).
+   user to invoke the updater in a fresh session of the same tool
+   (`$dough-update` in Codex, `/dough-update` in Cursor or Claude Code). Later
+   ordinary updates use the recorded `SOURCE` and do not need the URL
+   repeated.
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
@@ -122,9 +123,10 @@ Open Dough maintainers prepare and tag source releases with the internal
 `CHANGELOG.md`, then tags `vMAJOR.MINOR.PATCH`. The skill and the repository
 acceptance guard are not installed into adopting projects.
 
-Installation and `dough-update` use the supplied repository's highest numeric
-release. Existing unversioned copies require one explicit `--force` bootstrap;
-afterward an installation already at the selected version is left untouched.
+Installation and `dough-update` use the highest numeric release of the recorded
+or supplied repository. Existing unversioned copies require one explicit
+`--force` bootstrap; afterward an installation already at the selected version
+is left untouched.
 
 ## License
 

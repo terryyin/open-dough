@@ -136,20 +136,78 @@ EOF
   fi
 }
 
-fetch_release() {
+# Resolve one recorded numeric tag from the source. Prefer a peeled commit.
+resolve_tagged_release() {
+  local url=$1
+  local version=$2
+  local listing sha ref found_sha='' peeled=0
+
+  if ! is_release_version "${version}"; then
+    echo "Malformed installed record: ${version}" >&2
+    return 1
+  fi
+  if ! listing=$(git ls-remote --tags -- "${url}" 2> /dev/null); then
+    echo "Failed to fetch tags from ${url}" >&2
+    return 1
+  fi
+
+  while IFS=$'\t' read -r sha ref; do
+    [[ -n "${sha}" && -n "${ref}" ]] || continue
+    case "${ref}" in
+      "refs/tags/v${version}^{}")
+        found_sha=${sha}
+        peeled=1
+        ;;
+      "refs/tags/v${version}")
+        if [[ "${peeled}" -ne 1 ]]; then
+          found_sha=${sha}
+        fi
+        ;;
+    esac
+  done << EOF
+${listing}
+EOF
+
+  if [[ -z "${found_sha}" ]]; then
+    echo "No numeric release tag v${version} in ${url}" >&2
+    return 1
+  fi
+  printf 'v%s\t%s\t%s\n' "${version}" "${found_sha}" "${version}"
+}
+
+fetch_resolved_release() {
   local url=$1
   local dest=$2
-  local resolved
+  local resolved=$3
 
   if [[ -e "${dest}" ]]; then
     echo "Fetch destination already exists: ${dest}" >&2
     return 1
   fi
-  resolved=$(resolve_url "${url}")
   mkdir -p -- "${dest}"
   git -C "${dest}" init --quiet
   checkout_resolved_release "${dest}" "${url}" "${resolved}" Fetched "${dest}"
   printf '%s\n' "${resolved}"
+}
+
+fetch_release() {
+  local url=$1
+  local dest=$2
+  local resolved
+
+  resolved=$(resolve_url "${url}") || return 1
+  fetch_resolved_release "${url}" "${dest}" "${resolved}"
+}
+
+# Fetch a recorded tag as data. Callers must not execute that checkout.
+fetch_tagged_release() {
+  local url=$1
+  local dest=$2
+  local version=$3
+  local resolved
+
+  resolved=$(resolve_tagged_release "${url}" "${version}") || return 1
+  fetch_resolved_release "${url}" "${dest}" "${resolved}"
 }
 
 pin_latest() {

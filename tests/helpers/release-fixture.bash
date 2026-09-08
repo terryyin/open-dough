@@ -110,6 +110,7 @@ build_latest_fixture() {
   git -C "${repo}" init --quiet -b main
   git_identity "${repo}"
 
+  # Tagged A is 0.1.1; tagged B / numeric latest is 0.1.10.
   write_candidate_payload "${repo}" 0.1.1 payload-0.1.1
   commit_all "${repo}" 'release 0.1.1'
   tag_release "${repo}" 0.1.1 '2026-06-01T00:00:00'
@@ -125,6 +126,28 @@ build_latest_fixture() {
   write_candidate_payload "${repo}" 0.9.9 payload-branch
   printf '%s\n' 'divergent-branch' > "${repo}/BRANCH_HEAD"
   commit_all "${repo}" 'divergent branch head'
+}
+
+# Check out tagged A (or any numeric tag) from a fixture as data. Do not run
+# that tree's helper; tests install A with this snapshot's install.sh.
+checkout_tagged_release() {
+  local repo=$1
+  local dest=$2
+  local version=$3
+  local commit fetch_url head
+
+  commit=$(git -C "${repo}" rev-parse "v${version}^{commit}")
+  fetch_url=$(cd -- "${repo}" && pwd -P)
+  if [[ -e "${dest}" ]]; then
+    echo "Checkout destination already exists: ${dest}" >&2
+    return 1
+  fi
+  mkdir -p -- "${dest}"
+  git -C "${dest}" init --quiet
+  git -C "${dest}" fetch --quiet --depth 1 "file://${fetch_url}" "${commit}"
+  git -C "${dest}" -c advice.detachedHead=false checkout --quiet --detach FETCH_HEAD
+  head=$(git -C "${dest}" rev-parse HEAD)
+  [[ "${head}" == "${commit}" ]]
 }
 
 prepare_target() {

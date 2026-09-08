@@ -1,6 +1,6 @@
 ---
 name: dough-update
-description: Apply the latest released Open Dough guidance from a supplied repository URL to this project. Use when the user asks to update Open Dough or invokes dough-update.
+description: Apply the latest released Open Dough guidance from this project's recorded source, or from a supplied repository URL on first install. Use when the user asks to update Open Dough or invokes dough-update.
 ---
 
 # Update Open Dough
@@ -14,17 +14,14 @@ Local-guidance replacement is not supported by dough-update.
 Do not inspect, assess, prepare, repair callers for, or remove an adopter's
 local guidance. Do not fetch a source or run an installer for such a request. A
 one-time adoption is project-specific work outside this reusable updater.
-Ordinary Open Dough release updates remain available from a supplied repository URL.
+Ordinary Open Dough release updates remain available from the recorded source.
 
 1. Capture the target project's absolute path before fetching anything. Use the
    current project unless the user supplied another target.
-2. Use the repository URL supplied by the user. If none was supplied, ask for
-   it before proceeding. Do not substitute the target project's remote or local
-   working-tree content.
-3. If the user asked to install or update a specific version, tag, or branch,
+2. If the user asked to install or update a specific version, tag, or branch,
    stop. Say `Open Dough installs and updates the latest numeric release only.
    Requested-version updates are not supported.` Do not fetch or write.
-4. Identify the running tool from the current host. Do not infer it from which
+3. Identify the running tool from the current host. Do not infer it from which
    skill directories exist, and do not use a compatibility directory that
    another host also reads. Select that tool's installer platform and write
    destination:
@@ -39,10 +36,17 @@ Ordinary Open Dough release updates remain available from a supplied repository 
    `dough-adr-awareness/SKILL.md`. The numeric `VERSION` record and the
    recorded `SOURCE` live beside the selected `dough-update/SKILL.md`.
    Installation writes `SOURCE` from the supplied repository URL or local
-   path, then `VERSION`. Source recognition records are maintainer material
-   and are not installed. An obsolete recognition file from an earlier
-   installation may remain until a later update retires it.
+   path, then `VERSION`. Ordinary updates reuse that recorded `SOURCE`. Source
+   recognition records are maintainer material and are not installed. An
+   obsolete recognition file from an earlier installation may remain until a
+   later update retires it.
 
+4. Resolve the Open Dough source from the selected root. If that root's
+   `dough-update/SOURCE` exists, use that recorded value. If none is recorded,
+   use the repository URL supplied by the user; if none was supplied, ask for
+   it before proceeding. First installation and explicit force take a supplied
+   source. Do not substitute the target project's remote or local working-tree
+   content.
 5. Make a fresh temporary directory. Using only Git, pin the highest numeric
    release before any repository script runs. Do not clone the default
    branch, and do not execute `install.sh` or `open-dough-release.sh` from
@@ -57,22 +61,27 @@ Ordinary Open Dough release updates remain available from a supplied repository 
       `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`, `install.sh`,
       and both public payload sources under `src/skills/`.
-   d. Run `bash <snapshot>/src/install/open-dough-release.sh apply --url
-      <source-url> --target <captured-project> --platform <tool>
-      --checkout <snapshot>`, quoting both paths. Codex may omit
-      `--platform`. Pass `--force` only when the user explicitly authorized a
-      forced reinstall. If apply reports that HEAD is not the pinned latest,
-      stop. Do not fetch or check out replacement files after inspection.
-      Proceed only if the inspected files write solely to the two declared
-      public payload paths under the selected native skill root and the selected
-      updater's `SOURCE` and `VERSION` records in the captured target project,
-      preserving distributable source, unrelated project files, other tools'
-      separate installations and records, and home guidance.
+   d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
+      For an ordinary update of a recorded installation, run
+      `bash <snapshot>/src/install/open-dough-release.sh apply --target
+      <captured-project> --platform <tool> --checkout <snapshot>` and do not
+      pass `--url`; the helper reads `SOURCE`. For a first installation, also
+      pass `--url <source-url>`. Pass `--force` only when the user explicitly
+      authorized a forced reinstall, and include `--url <source-url>` then.
+      If apply reports that HEAD is not the pinned latest, stop. Do not fetch
+      or check out replacement files after inspection. Proceed only if the
+      inspected files write solely to the two declared public payload paths
+      under the selected native skill root and the selected updater's `SOURCE`
+      and `VERSION` records in the captured target project, preserving
+      distributable source, unrelated project files, other tools' separate
+      installations and records, and home guidance.
 6. Trust the helper's comparison. Equal recorded versions must not invoke
    `install.sh` or write the selected files, even when untagged source or local
-   skill text differs. An older or missing selected record advances directly to
-   latest. A newer selected record is preserved with no downgrade. A malformed
-   selected `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
+   skill text differs. An older recorded installation is compared to its saved
+   release's managed files, then replaced with latest only when those files are
+   unchanged. A missing selected record advances directly to latest. A newer
+   selected record is preserved with no downgrade. A malformed selected
+   `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
    release failures must not write the target or fall back to a lower release
    or branch. If replacement starts and then fails, report that installed files
    may be incomplete, that the last successful record was left unchanged, and

@@ -48,6 +48,7 @@ apply_release() {
   local platform=codex
   local force=0
   local checkout=''
+  local supplied_url=0
   local work resolved tag commit version work_root
   local dest installed relation
   local record_status=0
@@ -57,6 +58,7 @@ apply_release() {
       --url)
         [[ $# -ge 2 ]] || usage
         url=$2
+        supplied_url=1
         shift 2
         ;;
       --target)
@@ -87,17 +89,26 @@ apply_release() {
     esac
   done
 
-  if [[ -z "${url}" || -z "${target}" ]]; then
+  if [[ -z "${target}" ]]; then
     usage
   fi
   dest=$(destination_for "${target}" "${platform}")
 
+  if [[ -z "${url}" ]]; then
+    if [[ -f "${dest}/SOURCE" ]]; then
+      IFS= read -r url < "${dest}/SOURCE" || true
+    fi
+    if [[ -z "${url}" ]]; then
+      usage
+    fi
+  fi
+
+  work_root=$(mktemp -d)
+  trap 'rm -rf -- '"${work_root}" EXIT
   if [[ -n "${checkout}" ]]; then
     work=${checkout}
     resolved=$(require_pinned_checkout "${work}" "${url}")
   else
-    work_root=$(mktemp -d)
-    trap 'rm -rf -- '"${work_root}" EXIT
     work="${work_root}/release"
     resolved=$(fetch_release "${url}" "${work}")
   fi
@@ -151,6 +162,16 @@ EOF
       printf 'Outcome: already current; no installer invocation or installed-file writes.\n'
       ;;
     older)
+      if [[ "${supplied_url}" -eq 0 ]]; then
+        if ! fetch_tagged_release "${url}" "${work_root}/baseline" "${installed}" \
+          > /dev/null; then
+          return 1
+        fi
+        if ! managed_payload_unchanged "${dest}" "${work_root}/baseline"; then
+          echo "Installed files do not match recorded release ${installed}; ordinary update requires an unchanged installation." >&2
+          return 1
+        fi
+      fi
       trace_line "apply-upgrade ${dest}"
       run_installer "${work}" "${target}" "${platform}" 1 "${url}"
       printf 'Outcome: updated from %s to %s.\n' "${installed}" "${version}"
