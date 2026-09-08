@@ -67,7 +67,7 @@ native_tool_version=$(cursor --version)
 printf 'Native tool version: %s\n' "${native_tool_version}"
 delivery_print_proof "${update_output}" "${use_output}" "${refusal_output}"
 printf '%s\n' \
-  'PASS: legacy Cursor refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
+  'PASS: Cursor refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
   'PASS: fresh native Cursor discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
   'PASS: Cursor enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no adopter files.' \
   'PASS: final recognition is absent, all platform installations advanced together, and the companion integration remained byte-identical.'

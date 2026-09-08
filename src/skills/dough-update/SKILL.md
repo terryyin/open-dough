@@ -39,10 +39,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
    recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
    writes the same `SOURCE` from the supplied repository URL or local path,
    then `VERSION`, in both physical roots. Ordinary no-URL updates reuse the
-   invoking root's recorded `SOURCE`. If a legacy Cursor-only installation is
-   the only record, its verified `SOURCE` can bootstrap this migration; a
-   conflicting or edited legacy payload refuses before writes. Source
-   recognition records are maintainer material and are not installed.
+   invoking root's recorded `SOURCE`. Source recognition records are maintainer
+   material and are not installed.
 
 4. Resolve the Open Dough source from the invoking root. If that updater
    destination already exists and has a usable recorded

@@ -55,7 +55,7 @@ fi
 bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" --force > /dev/null
 assert_all_roots "${conflict_target}" "$(cat "${source_dir}/VERSION")" '' "$(cd "${source_dir}" && pwd -P)"
 
-# A no-URL update from an old three-root installation converges on two roots.
+# A no-URL update from one old root restores missing shared integrations.
 fixture="${temporary_dir}/fixture.git"
 build_latest_fixture "${fixture}"
 old_checkout="${temporary_dir}/release-0.1.1"
@@ -67,20 +67,4 @@ bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${update_
 fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 
-# A Cursor-only legacy installation supplies the remembered source when the
-# canonical shared root is absent.
-cursor_only_target="${temporary_dir}/cursor-only"
-prepare_target "${cursor_only_target}"
-bash "${old_checkout}/install.sh" --target "${cursor_only_target}" --source "${fixture}" --platform cursor > /dev/null
-mkdir -p -- "${cursor_only_target}/.cursor/skills"
-cp -R -- "${cursor_only_target}/.agents/skills/dough-update" \
-  "${cursor_only_target}/.agents/skills/dough-adr-awareness" \
-  "${cursor_only_target}/.cursor/skills/"
-rm -rf -- "${cursor_only_target}/.agents/skills/dough-update" \
-  "${cursor_only_target}/.agents/skills/dough-adr-awareness" \
-  "${cursor_only_target}/.claude/skills/dough-update" \
-  "${cursor_only_target}/.claude/skills/dough-adr-awareness"
-bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${cursor_only_target}" --platform cursor > /dev/null
-assert_all_roots "${cursor_only_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
-
-echo 'PASS: each entry context installs the two shared roots; ordinary conflicts stop before writes; force repairs them; and old three-root or Cursor-only updates converge safely.'
+echo 'PASS: each entry context installs the two shared roots; ordinary conflicts stop before writes; force repairs them; and one-root update restores missing integrations.'

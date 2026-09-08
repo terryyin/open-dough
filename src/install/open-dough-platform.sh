@@ -63,9 +63,3 @@ all_destinations_for() {
     printf '%s\t%s\n' "${platform}" "${destination}"
   done
 }
-
-legacy_cursor_destination_for() {
-  local target=$1
-
-  printf '%s\n' "${target}/.cursor/skills/dough-update"
-}

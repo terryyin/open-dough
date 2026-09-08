@@ -40,7 +40,6 @@ recorded_source=''
 platform=codex
 force=0
 replace_verified=0
-retire_legacy_cursor=0
 while [[ $# -gt 0 ]]; do
   case $1 in
     --target)
@@ -65,10 +64,6 @@ while [[ $# -gt 0 ]]; do
     # Internal apply handoff: its caller verified every managed baseline first.
     --replace-verified)
       replace_verified=1
-      shift
-      ;;
-    --retire-legacy-cursor)
-      retire_legacy_cursor=1
       shift
       ;;
     --version | --tag | --release) refuse_requested_version ;;
@@ -171,20 +166,3 @@ for index in "${!platforms[@]}"; do
   write_certified_records "${destination}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
   echo "${platforms[index]}: installed Open Dough public guidance in ${root} (version ${version})."
 done
-
-if [[ ${retire_legacy_cursor} -eq 1 ]]; then
-  legacy_root="${target}/.cursor/skills"
-  for legacy_path in \
-    "${legacy_root}/dough-update/SKILL.md" \
-    "${legacy_root}/dough-update/SOURCE" \
-    "${legacy_root}/dough-update/VERSION" \
-    "${legacy_root}/dough-adr-awareness/SKILL.md" \
-    "${legacy_root}/dough-adr-awareness/RECOGNITION.md"; do
-    [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != legacy-retire ]] \
-      || report_incomplete_install cursor 'Legacy Cursor retirement failed after verified replacement.'
-    [[ ! -e "${legacy_path}" ]] || rm -- "${legacy_path}" \
-      || report_incomplete_install cursor 'Legacy Cursor retirement failed after verified replacement.'
-  done
-  rmdir -- "${legacy_root}/dough-update" 2> /dev/null || true
-  rmdir -- "${legacy_root}/dough-adr-awareness" 2> /dev/null || true
-fi

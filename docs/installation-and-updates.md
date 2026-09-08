@@ -135,10 +135,7 @@ Start a fresh Codex session in the target project and invoke:
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 Cursor shares the two payload files and records under `.agents/skills/` with
-Codex. An ordinary update can migrate a verified legacy
-`.cursor/skills/dough-update` record when the shared root is absent, then
-retires only the release-owned legacy files while preserving unrelated Cursor
-skills. See
+Codex. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
 
