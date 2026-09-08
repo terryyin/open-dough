@@ -14,8 +14,15 @@ managed_payload_unchanged() {
 
   skill_root=$(dirname -- "${dest}")
   for managed_file in "${files[@]}"; do
-    if [[ ! -f "${skill_root}/${managed_file}" ]] \
-      || [[ ! -f "${checkout}/src/skills/${managed_file}" ]]; then
+    # A clean older release may not contain a skill added by the candidate.
+    # The new path must still be absent so replace-verified cannot overwrite an
+    # unrelated local skill that happens to use the same name.
+    if [[ ! -e "${checkout}/src/skills/${managed_file}" ]]; then
+      [[ ! -e "${skill_root}/${managed_file}" ]] || return 1
+      continue
+    fi
+    if [[ ! -f "${checkout}/src/skills/${managed_file}" ]] \
+      || [[ ! -f "${skill_root}/${managed_file}" ]]; then
       return 1
     fi
     cmp -s -- "${skill_root}/${managed_file}" \

@@ -18,7 +18,7 @@ delivery_assert_legacy_install() {
   [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE" ]]
   grep -Fq 'all three public payload sources' \
     "${delivery_target}/${delivery_skill_root}/dough-update/SKILL.md"
-  grep -Fq 'The complete public payload is `dough-update/SKILL.md`,' \
+  grep -Fq 'payload skills may be added between releases' \
     "${delivery_fixture_source}/src/skills/dough-update/SKILL.md"
   [[ -f "${delivery_fixture_source}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
 }
@@ -76,7 +76,7 @@ EOF
       "${checkout}/${managed_file}"
   done
   grep -Fq 'managed_files=(' "${checkout}/install.sh"
-  grep -Fq 'The complete public payload is `dough-update/SKILL.md`,' \
+  grep -Fq 'payload skills may be added between releases' \
     "${checkout}/src/skills/dough-update/SKILL.md"
   delivery_bootstrap_output="${delivery_temporary_dir}/bootstrap-output.txt"
   bash "${checkout}/src/install/open-dough-release.sh" apply \

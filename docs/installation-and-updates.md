@@ -6,6 +6,7 @@ The payload in each root is exactly:
 
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
+- `dough-product-backlog/SKILL.md`
 
 The source files live under `src/skills/`. The ADR-awareness recognition record
 is source-only maintainer material and is not installed. Installation preserves
@@ -65,12 +66,13 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-release-resolve.sh`
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
+   - `src/skills/dough-product-backlog/SKILL.md`
 
-   Check that this executable call chain writes only the two declared public
-   files and their `SOURCE` then `VERSION` records under both captured
-   target native roots. Preserve source, unrelated guidance, and home guidance. Stop if the payload is incomplete
-   or the inspected behavior exceeds this scope. Bash and Git suffice; no
-   package installation is needed.
+   Check that this executable call chain writes only the declared public
+   payload files and their `SOURCE` then `VERSION` records under both captured
+   target native roots. Preserve source, unrelated guidance, and home guidance.
+   Stop if the payload is incomplete or the inspected behavior exceeds this
+   scope. Bash and Git suffice; no package installation is needed.
 
 5. After inspection, run the following in a Bash subshell with the captured
    values available. Propagate any nonzero status; stop on a changed selection,
@@ -88,12 +90,14 @@ inspection and execution into an unattended one-shot command.
        echo 'Release selection changed after inspection; not replacing inspected files or installing.' >&2
        exit 1
      fi
-     source_version=$(bash "${snapshot}/src/install/open-dough-release.sh" validate-checkout "${snapshot}")
+     source_version=$(bash "${snapshot}/src/install/open-dough-release.sh" \
+       validate-checkout "${snapshot}")
      if [[ "${source_version}" != "${selected_version}" ]]; then
        echo 'Pinned source version does not match the selected release; refusing installation.' >&2
        exit 1
      fi
-     bash "${snapshot}/install.sh" --target "${target_project}" --source "${source_url}" --platform "${platform}"
+     bash "${snapshot}/install.sh" --target "${target_project}" \
+       --source "${source_url}" --platform "${platform}"
    )
    ```
 
@@ -104,7 +108,7 @@ inspection and execution into an unattended one-shot command.
    when the user explicitly authorized that overwrite. The installer does not
    merge changes or replace other skills.
 
-6. Verify both installed files byte-for-byte against this same snapshot, the
+6. Verify all installed payload files byte-for-byte against this same snapshot, the
    installed `dough-update/SOURCE` against the supplied source, and
    `dough-update/VERSION` against `selected_version`; review the target diff
    for unrelated changes. Report the source URL, tag, exact commit, running
@@ -120,7 +124,7 @@ inspection and execution into an unattended one-shot command.
 Follow the [shared installation procedure](#common-installation-flow) above.
 
 The default platform is Codex; `--platform codex` is equivalent. Installation
-writes the two payload files under `.agents/skills/` and records the supplied
+writes the public payload under `.agents/skills/` and records the supplied
 source and release in `.agents/skills/dough-update/SOURCE` then
 `.agents/skills/dough-update/VERSION`. Open Dough's own tracked Codex
 installation lives there too, separately from the distributable source.
@@ -134,7 +138,7 @@ Start a fresh Codex session in the target project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Cursor shares the two payload files and records under `.agents/skills/` with
+Cursor shares the public payload and records under `.agents/skills/` with
 Codex. See
 [Cursor skills](https://cursor.com/docs/skills). Start a fresh Cursor session in
 the target project and invoke:
@@ -145,7 +149,7 @@ the target project and invoke:
 
 Follow the [shared installation procedure](#common-installation-flow) above.
 
-Installation writes the two payload files under `.claude/skills/` and records
+Installation writes the public payload under `.claude/skills/` and records
 the supplied source and release in `.claude/skills/dough-update/SOURCE` then
 `.claude/skills/dough-update/VERSION`. See
 [Claude Code skills](https://code.claude.com/docs/en/skills). Start a fresh
@@ -169,15 +173,15 @@ working-tree helper. The updater:
 3. Records the actual source URL, tag, and exact commit.
 4. Uses the running tool only as an entry-context hint, then verifies every
    existing native root and adds missing roots.
-5. Validates the fetched installer against the exact two-skill public payload.
+5. Validates the fetched installer against the release-declared public payload.
 6. Compares every existing updater's `VERSION` record. An ordinary update
    without a supplied URL fetches each tagged baseline as data without
-   executing it and compares the two managed files before skipping, preserving,
-   or replacing. Missing siblings are added; a conflicting source, newer root,
-   or missing/edited/unverifiable managed root refuses the whole operation
-   before writing. It does not infer the client remote or treat an existing
-   destination as a clean first install.
-7. Verifies that both installed files byte-match the fetched sources in every
+   executing it and compares the complete managed payload before skipping,
+   preserving, or replacing. Missing siblings are added; a conflicting source,
+   newer root, or missing/edited/unverifiable managed root refuses the whole
+   operation before writing. It does not infer the client remote or treat an
+   existing destination as a clean first install.
+7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
    guidance remain unchanged.
 
