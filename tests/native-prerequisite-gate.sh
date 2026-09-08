@@ -105,12 +105,13 @@ write_jsonl "${cursor_wrong}" "$(
 
 codex_expansion="${work_dir}/codex-expansion.jsonl"
 write_jsonl "${codex_expansion}" "$(
-  jq -n -c --arg path "${codex_installed}" --arg content "${identity}" \
-    '{type:"item",item:{path:$path,content:$content}}'
-)"
+  jq -n -c --arg command "sed -n '1,260p' '${codex_installed}'" \
+    --arg content "${identity}" \
+    '{type:"item.completed",item:{id:"item_0",type:"command_execution",command:$command,aggregated_output:$content,exit_code:0,status:"completed"}}'
+)" '{"type":"turn.completed"}'
 
 codex_marker="${work_dir}/codex-marker.jsonl"
-write_jsonl "${codex_marker}" '{"type":"item"}'
+write_jsonl "${codex_marker}" '{"type":"turn.completed"}'
 
 claude_skill="${work_dir}/claude-skill.jsonl"
 write_jsonl "${claude_skill}" \

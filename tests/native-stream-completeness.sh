@@ -133,6 +133,10 @@ assert_complete() {
   esac
   [[ -s ${attempt}/events.jsonl ]]
   [[ -s ${attempt}/response.md ]]
+  if [[ ${host} == codex ]]; then
+    grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
+    grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"
+  fi
 }
 
 assert_incomplete() {
@@ -176,10 +180,13 @@ assert_incomplete() {
         cat "${attempt}/events.jsonl" >&2
         return 1
       fi
-      if [[ ${host} == codex ]] && grep -Fq '"type":"item"' "${attempt}/events.jsonl"; then
-        echo 'FAIL: truncated Codex stream retained the complete item form.' >&2
-        cat "${attempt}/events.jsonl" >&2
-        return 1
+      if [[ ${host} == codex ]]; then
+        grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
+        if grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"; then
+          echo 'FAIL: truncated Codex stream retained terminal turn completion.' >&2
+          cat "${attempt}/events.jsonl" >&2
+          return 1
+        fi
       fi
       ;;
     unknown)

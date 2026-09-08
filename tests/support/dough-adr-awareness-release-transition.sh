@@ -140,21 +140,21 @@ delivery_assert_update_payload() {
 
   source_after=$(delivery_snapshot "${delivery_fixture_source}")
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
-  [[ "${delivery_source_before}" == "${source_after}" ]]
-  [[ -z ${source_status} ]]
+  [[ "${delivery_source_before}" == "${source_after}" ]] || return 1
+  [[ -z ${source_status} ]] || return 1
   for managed_file in "${delivery_current_managed_files[@]}"; do
     cmp "${delivery_fixture_source}/src/skills/${managed_file}" \
-      "${delivery_target}/${delivery_skill_root}/${managed_file}"
+      "${delivery_target}/${delivery_skill_root}/${managed_file}" || return 1
   done
   grep -Fq "${delivery_improvement}" \
-    "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"
+    "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md" || return 1
   companion_after=$(shasum -a 256 \
     "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md")
-  [[ "${delivery_companion_before}" == "${companion_after}" ]]
-  [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
-  [[ ! -e "${delivery_target}/${delivery_skill_root}/adr-awareness" ]]
-  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]]
-  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]]
+  [[ "${delivery_companion_before}" == "${companion_after}" ]] || return 1
+  [[ ! -e "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/RECOGNITION.md" ]] || return 1
+  [[ ! -e "${delivery_target}/${delivery_skill_root}/adr-awareness" ]] || return 1
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]] || return 1
+  [[ $(cat "${delivery_target}/${delivery_skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]] || return 1
 
   actual_changes=$(git -C "${delivery_target}" diff --name-only)
   expected_changes=$(printf '%s\n' \
@@ -162,7 +162,7 @@ delivery_assert_update_payload() {
     "${delivery_skill_root}/dough-adr-awareness/SKILL.md" \
     "${delivery_skill_root}/dough-update/SKILL.md" \
     "${delivery_skill_root}/dough-update/VERSION")
-  [[ "${actual_changes}" == "${expected_changes}" ]]
+  [[ "${actual_changes}" == "${expected_changes}" ]] || return 1
 }
 
 delivery_assert_update() {

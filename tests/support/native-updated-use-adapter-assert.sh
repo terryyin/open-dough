@@ -210,6 +210,34 @@ assert_adapter_success() {
   fi
 }
 
+assert_adapter_payload_abort() {
+  local host=$1
+  local aborted=$2
+  local success=$3
+
+  assert_attempt_layout "${host}" "${aborted}"
+  assert_record_identity "${host}" "${aborted}"
+  assert_no_legacy_or_retry "${run_log}" "${host}" 1
+  [[ ${aborted} != "${success}" ]]
+  grep -Fq 'execution-status: completed' "${aborted}/record"
+  grep -Fq 'update-execution: completed' "${aborted}/observations.txt"
+  grep -Fq 'use-execution: unrun' "${aborted}/observations.txt"
+  grep -Fq 'use-pending: true' "${aborted}/observations.txt"
+  [[ -f ${aborted}/update-events.jsonl ]]
+  [[ -f ${aborted}/update-response.md ]]
+  [[ -f ${aborted}/update-stderr.log ]]
+  [[ -f ${aborted}/update-before-snapshot.txt ]]
+  [[ -f ${aborted}/update-after-snapshot.txt ]]
+  [[ -f ${aborted}/observations.txt ]]
+  [[ ! -e ${aborted}/use-events.jsonl ]]
+  [[ ! -e ${aborted}/use-response.md ]]
+  if grep -Fq 'dough-adr-awareness' "${run_log}"; then
+    echo "FAIL: ${host} payload-abort case started a use session." >&2
+    cat "${run_log}" >&2
+    return 1
+  fi
+}
+
 assert_adapter_truncated() {
   local host=$1
   local truncated=$2

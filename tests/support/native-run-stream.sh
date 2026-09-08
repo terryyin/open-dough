@@ -23,7 +23,7 @@ native_run_stream_is_complete() {
       native_run_stream_jq 'any(.[]; .type == "result")' "${stream}"
       ;;
     codex)
-      native_run_stream_jq 'any(.[]; .type == "item")' "${stream}"
+      native_run_stream_jq 'any(.[]; .type == "turn.completed")' "${stream}"
       ;;
     *)
       return 1

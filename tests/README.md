@@ -127,10 +127,11 @@ Record fields used for applicability: `host`, `case`, `native-version-command`,
 `fixture-tag`, `bootstrap-tag`, `update-prompt-identity`, `use-prompt-identity`,
 and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 `cursor --version`. Adapter identities are `tests/support/native-codex.sh`,
-`cursor-agent-stream-json`, and `claude-stream-json`. Codex complete streams use
-`{"type":"item"}` with response bytes from `-o`. Cursor and Claude Code complete
-streams use `{"type":"result"}`; `update-response.md` / `use-response.md` are
-decoded from `.result`. Incomplete, truncated, or unknown streams stay
+`cursor-agent-stream-json`, and `claude-stream-json`. Codex activity uses
+`item.completed` events and complete streams end with `turn.completed`; response
+bytes still come from `-o` and are not themselves completeness proof. Cursor and
+Claude Code complete streams use `{"type":"result"}`; `update-response.md` /
+`use-response.md` are decoded from `.result`. Incomplete, truncated, or unknown streams stay
 `execution-status: incomplete` with `assessment-status: not-run` and
 `prerequisite-result: fail`. Execution completion is not a behavior verdict;
 the prerequisite gate records activation separately. Native credentialed runs stay pending

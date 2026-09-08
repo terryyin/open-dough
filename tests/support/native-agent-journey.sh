@@ -4,9 +4,13 @@
 # no-URL prompt and applies the genuine local fixture installer from recorded
 # SOURCE; the use stage emits recorded evidence. Does not infer an update from
 # final payload bytes.
-# Codex uses -C/-o plus a type:item complete event. Cursor and Claude Code emit
-# stream-json type:result complete events; workspace comes from --workspace or PWD.
+# Codex uses -C/-o plus item.completed activity and a terminal turn.completed
+# event. Cursor and Claude Code emit stream-json type:result complete events;
+# workspace comes from --workspace or PWD.
 # NATIVE_AGENT_STREAM=truncated|missing|unknown skips apply and emits that shape.
+# NATIVE_AGENT_TRUNCATE_INSTALLED_SKILL=1 applies for real, then drops the
+# installed dough-adr-awareness/SKILL.md's last line, so the update stream
+# still completes while the payload compare fails afterward.
 # shellcheck disable=SC2016,SC2249,SC2312 # Literal invocation marker; optional flag scan.
 set -euo pipefail
 
@@ -85,17 +89,21 @@ if [[ ${NATIVE_AGENT_FAIL_STAGE:-} == "${stage}" ]]; then
 fi
 
 write_codex_complete() {
-  printf '%s\n' '{"type":"item"}'
+  jq -n -c \
+    '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Recorded journey stage completed."}}'
+  printf '%s\n' '{"type":"turn.completed"}'
 }
 
 emit_codex_use_expansion() {
   skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
   if [[ ! -f ${skill_path} ]]; then
-    write_codex_complete
+    jq -n -c \
+      '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Installed skill was not found."}}'
     return 0
   fi
-  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
-    '{type:"item",item:{path:$path,content:$content}}'
+  jq -n -c --arg command "sed -n '1,260p' '${skill_path}'" \
+    --arg content "$(cat "${skill_path}")" \
+    '{type:"item.completed",item:{id:"item_0",type:"command_execution",command:$command,aggregated_output:$content,exit_code:0,status:"completed"}}'
 }
 
 emit_cursor_use_activation() {
@@ -131,7 +139,8 @@ emit_incomplete_stream() {
           printf '%s\n' '{"message":{}}'
           ;;
         *)
-          printf '%s\n' '{"type":"thread.started"}'
+          jq -n -c \
+            '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Partial response before terminal completion."}}'
           ;;
       esac
       exit 0
@@ -183,10 +192,21 @@ if [[ ${stage} == 'update' ]]; then
       "${installer}" >&2
     exit 1
   fi
+  truncate_installed_skill() {
+    local skill_dir installed
+    skill_dir=$(dirname -- "${dest}")
+    installed="${skill_dir}/dough-adr-awareness/SKILL.md"
+    [[ -f ${installed} ]] || return 0
+    sed -e '$d' -- "${installed}" > "${installed}.short"
+    mv -- "${installed}.short" "${installed}"
+  }
   if [[ ${host} == 'codex' ]]; then
     bash "${installer}" apply \
       --target "${workspace}" --platform "${platform}" \
       > "${output_file}"
+    if [[ -n ${NATIVE_AGENT_TRUNCATE_INSTALLED_SKILL:-} ]]; then
+      truncate_installed_skill
+    fi
     write_codex_complete
     exit 0
   fi
@@ -194,6 +214,9 @@ if [[ ${stage} == 'update' ]]; then
     bash "${installer}" apply \
       --target "${workspace}" --platform "${platform}"
   )
+  if [[ -n ${NATIVE_AGENT_TRUNCATE_INSTALLED_SKILL:-} ]]; then
+    truncate_installed_skill
+  fi
   write_stream_result "${report}"
   exit 0
 fi
@@ -205,6 +228,7 @@ if [[ ${host} == 'codex' ]]; then
   fi
   printf '%s\n' "${use_response}" > "${output_file}"
   emit_codex_use_expansion
+  printf '%s\n' '{"type":"turn.completed"}'
   exit 0
 fi
 if [[ ${host} == 'cursor' ]]; then

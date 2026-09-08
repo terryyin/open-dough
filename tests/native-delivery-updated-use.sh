@@ -87,10 +87,11 @@ fi
 grep -Fq 'Outcome: updated from 0.2.1 to 0.2.2.' "${success}/update-response.md"
 grep -Fq 'assessment-status: pass' "${success}/record"
 grep -Fq 'named conflicting authorities and stopped' "${success}/record"
-if grep -Fq '{"type":"item"}' "${success}/update-events.jsonl"; then
+if grep -Fq '"type":"item.completed"' "${success}/update-events.jsonl" \
+  && grep -Fq '"type":"turn.completed"' "${success}/update-events.jsonl"; then
   :
 else
-  echo 'FAIL: update stream omitted the Codex complete marker.' >&2
+  echo 'FAIL: update stream omitted Codex completed activity or terminal turn completion.' >&2
   cat "${success}/update-events.jsonl" >&2
   exit 1
 fi

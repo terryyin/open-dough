@@ -89,11 +89,17 @@ emit_claude_partial() {
 emit_codex_expansion() {
   skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
   if [[ ! -f ${skill_path} ]]; then
-    printf '%s\n' '{"type":"item"}'
+    jq -n -c \
+      '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Installed skill was not found."}}'
     return 0
   fi
-  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
-    '{type:"item",item:{path:$path,content:$content}}'
+  jq -n -c --arg command "sed -n '1,260p' '${skill_path}'" \
+    --arg content "$(cat "${skill_path}")" \
+    '{type:"item.completed",item:{id:"item_0",type:"command_execution",command:$command,aggregated_output:$content,exit_code:0,status:"completed"}}'
+}
+
+emit_codex_turn_completed() {
+  printf '%s\n' '{"type":"turn.completed"}'
 }
 
 case ${stream_kind} in
@@ -110,7 +116,8 @@ case ${stream_kind} in
     write_codex_response
     case ${host} in
       codex)
-        printf '%s\n' '{"type":"thread.started"}'
+        jq -n -c \
+          '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Partial response before terminal completion."}}'
         ;;
       cursor)
         emit_cursor_partial
@@ -138,6 +145,7 @@ case ${host} in
   codex)
     write_codex_response
     emit_codex_expansion
+    emit_codex_turn_completed
     ;;
   cursor)
     emit_cursor_partial

@@ -166,6 +166,7 @@ delivery_selected_fail() {
 delivery_run_selected_updated_use() {
   local update_status=0
   local use_status=0
+  local payload_status=0
   local dollar='$'
   local stage_prefix
 
@@ -213,7 +214,13 @@ delivery_run_selected_updated_use() {
   if [[ ${update_status} -ne 0 ]]; then
     delivery_selected_fail "${update_status}"
   fi
-  delivery_assert_update_payload
+  # shellcheck disable=SC2310 # A failed payload compare must be retained, not lost to set -e.
+  delivery_assert_update_payload || payload_status=$?
+  if [[ ${payload_status} -ne 0 ]]; then
+    printf 'FAIL: %s update payload compare failed after a completed native run.\n' \
+      "${delivery_host_name}" >&2
+    delivery_selected_fail "${payload_status}"
+  fi
 
   delivery_use_before=$(delivery_snapshot "${delivery_target}")
   # shellcheck disable=SC2310 # Timeout and launch failure must be observed, not lost to set -e.

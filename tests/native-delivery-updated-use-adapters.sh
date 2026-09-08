@@ -43,4 +43,12 @@ for host in cursor claude; do
   assert_adapter_truncated "${host}" "${truncated}" "${success}"
 done
 
-echo 'PASS: Cursor and Claude Code delivery/updated-use launch the shared journey through each adapter, retain decoded stream-json artifacts, and keep truncated streams incomplete.'
+# Claude Code: a completed native update whose installed payload does not match
+# the fixture source must still retain result-path, record, observations,
+# events, responses, snapshots, and stderr, and must not start the use stage.
+payload_aborted=$(
+  NATIVE_AGENT_TRUNCATE_INSTALLED_SKILL=1 run_selected claude 1
+)
+assert_adapter_payload_abort claude "${payload_aborted}" "${success}"
+
+echo 'PASS: Cursor and Claude Code delivery/updated-use launch the shared journey through each adapter, retain decoded stream-json artifacts, keep truncated streams incomplete, and retain a completed run whose installed payload fails compare.'
