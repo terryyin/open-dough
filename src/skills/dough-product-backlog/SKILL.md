@@ -1,6 +1,6 @@
 ---
 name: dough-product-backlog
-description: Maintains and reprioritizes a product backlog list of story references. Use to add, reorder, defer, or complete backlog items. Excludes classroom and workshop exercise backlogs.
+description: Maintains and reprioritizes a product backlog list of story references. Use to add, reorder, or complete backlog items. Excludes classroom and workshop exercise backlogs.
 ---
 
 # Product backlog
@@ -36,6 +36,10 @@ done entries as described below.
 
 ## Near-future direction
 
+- Treat the direction as the short-term vision: focus effort on one customer
+  value or goal.
+- Use it as the most important input when deciding story scope. Include the
+  outcomes needed to advance that value or goal; exclude unrelated expansion.
 - Add or change the direction only on an explicit human instruction to do so.
 - Otherwise preserve it exactly. If absent, leave it absent; do not infer or
   generate a direction during backlog maintenance.
@@ -54,22 +58,21 @@ done entries as described below.
 - Preserve stable anchors when renaming or moving stories. Update incoming links.
 - Add only stories with a named beneficiary and evaluable outcome. If either
   is unresolved, use the adopter's decomposition workflow. Route selected-story
-  detail to refinement, then slice planning.
+  detail to refinement, then slice planning. Carry the direction into these
+  workflows as the primary input for scope decisions.
 - Place unfinished prerequisites before dependent stories. If this conflicts
   with explicit human ordering, cite the stories and ask the human to resolve
   the conflict before changing their order. Do not invent technical preparation
   stories.
 - Reprioritizing does not authorize execution or cancel other candidates.
 
-## Complete or defer items
+## Complete items
 
 - On completion, verify evidence, record completion in the story home, and move
   the entry to the top of Recently done. If this creates eleven entries, remove
   only the oldest history entry. Retain the completion record in the story home.
 - If a completed story's home is later removed, retain its title in Recently done
   without the link or home ID. Do not remove it before it ages out of the last ten.
-- On deferral, remove the backlog entry and retain the story in its home. Do not
-  add deferred items to Recently done.
 
 ## Check and report
 

@@ -17,17 +17,19 @@ from their canonical homes.
 
 ## Triggers
 
-Add, reorder, defer, complete, or otherwise maintain product backlog references.
+Add, reorder, complete, or otherwise maintain product backlog references.
 Exclude classroom and workshop exercise backlog preparation.
 
 ## Distinguishing behavior
 
 Human-controlled near-future direction precedes a bulleted backlog list.
+It expresses a short-term vision focused on one customer value or goal and is
+the most important input for story scope, including decomposition and refinement.
 Add or change direction only on explicit human instruction; leave it absent
 if missing. Entries contain exact linked story titles and home IDs. Human priorities, direction,
 value, learning, and prerequisites guide ordering, with urgent exceptions.
 One outcome has one canonical home. Evidence-backed completions move to a
-newest-first history capped at ten; deferrals retain their source stories.
+newest-first history capped at ten.
 Completed items whose homes were removed retain only their plain-text titles;
 definitions remain recoverable through Git history.
 Maintenance does not authorize execution, commit, or push.
@@ -48,7 +50,8 @@ does not replace automatically applied rules. Missing home/link conventions or
 required related workflows must be resolved before the affected work proceeds.
 Maintainer changes after extraction replace numbered items with bullets,
 restrict direction edits to explicit human instructions, and permit title-only
-history entries for removed story homes. The source checksum records the
+history entries for removed story homes. Direction also governs story scope.
+The source checksum records the
 original extraction, not equivalence with these updated behaviors.
 
 ## Validation needed
@@ -56,12 +59,16 @@ original extraction, not equivalence with these updated behaviors.
 Before release, perform the representative behavior review in
 [`AGENTS.md`](../../../AGENTS.md): confirm invocation context, required adopter
 context (including a useful stop when missing), and a useful outcome.
-Use a backlog with an unfinished prerequisite, a deferred story, and ten recent
+Use a backlog with an unfinished prerequisite and ten recent
 completions. Verify prerequisite ordering or a human-visible conflict,
-retention of the deferred story, evidence in the completed story's home, and
+evidence in the completed story's home, and
 eviction of only the oldest history reference. Check exact titles, links, and
 unrelated order. Verify routine maintenance preserves direction exactly,
 leaves absent direction absent, and changes it only on explicit human instruction.
+For a direction of helping new users reach their first useful result, review a
+story proposing onboarding help plus unrelated reporting. Verify the scope
+focuses on onboarding and carries that direction into refinement without
+rewriting the direction or treating scope review as execution authorization.
 Check bullet formatting and title-only retention when a completed story home
 is removed, including recovery from Git history when needed.
 Publication and adopter delivery remain separate work.
