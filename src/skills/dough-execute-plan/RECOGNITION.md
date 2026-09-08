@@ -9,11 +9,13 @@ Provenance does not determine replacement suitability.
 
 ## Purpose
 
-Executes a bounded plan with coordinator-owned delivery and asynchronous CI repair.
+Executes slices in a plan for one selected story, with coordinator-owned
+delivery and asynchronous CI repair.
 
 ## Triggers
 
-Execute plan, run plan, execute slices; requires an executable plan, not a seed.
+Execute plan, run plan, execute slices; requires a plan for one selected story.
+The story lives in its seed; the seed is not executable.
 
 ## Distinguishing behavior
 
@@ -21,7 +23,7 @@ Fresh implementers and independent refactor; proof reuse; owned staging; one obs
 
 ## Client project context
 
-Selected executable PLAN, budgets, proof and formatting commands, Git authorization, client hooks, generation triggers, subsystem policy, Node/gh, workflow selection, and current host bridge.
+Selected executable plan, budgets, proof and formatting commands, Git authorization, client hooks, generation triggers, subsystem policy, Node/gh, workflow selection, and current host bridge.
 
 ## Differences that rule out replacement
 

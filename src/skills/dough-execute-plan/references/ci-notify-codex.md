@@ -5,7 +5,7 @@ Follow [ci-monitor.md](ci-monitor.md) for CI selection and failure recovery.
 With `functions.exec`, `yield_control`, `notify`, `tools.exec_command`, and
 `tools.write_stdin`, start one yielded observer cell when execution begins,
 before the first push. Reuse `watching` and terminal `finished` entries on
-reentry. If volatile handles are lost, recover the active PLAN's observer note
+reentry. If volatile handles are lost, recover the active plan's observer note
 before considering replacement. Substitute verified repository, checkout, and
 coordinator below:
 
@@ -99,7 +99,7 @@ try {
 ```
 
 After startup, save receipt directory/PID, coordinator, and checkout in the
-active PLAN before the first push; retain cell/session handles too. The parser
+active plan before the first push; retain cell/session handles too. The parser
 retains chunk tails, consumes initial output before yielding, then notifies
 queued events. Subsequent reads notify immediately; awaited work keeps the cell
 alive. Continue delegation after yielding. `notify` delivers at the coordinator's
@@ -111,7 +111,8 @@ never substitute recurring AI polling or claim notifications from a background
 shell or file alone. Use another native bridge only when its delivery contract
 has been independently supplied and verified for the installed host.
 
-Stop at completion, Jidoka, or cancellation:
+When the shared [observer lifecycle](ci-monitor.md#own-one-observer) calls
+for shutdown:
 
 - With handles, retain the session, mark saved status `stopped`, and send
   Ctrl-C (`chars: '\u0003'`) through `tools.write_stdin` to that exact PTY;
@@ -119,7 +120,7 @@ Stop at completion, Jidoka, or cancellation:
   mailbox stop and uses the shared finite terminal-result wait. Confirm process
   exit, let the bridge finish, and reap its cell. Cell termination alone proves
   no subprocess exit.
-- Without handles, recover the PLAN note. Match coordinator/checkout and validate
+- Without handles, recover the plan note. Match coordinator/checkout and validate
   the saved directory's `request.json` root, repository, branch, and execution
   mode. Run `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop DIRECTORY`
   from that checkout. Read its terminal receipt and `result.json`; confirm the

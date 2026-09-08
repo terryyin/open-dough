@@ -21,7 +21,7 @@ Concept-bounded scope may include untouched representations; current/immediate-n
 
 ## Client project context
 
-Current diff, client subsystem map, domain vocabulary, size policy, environment and focused proof commands; optional active PLAN and implementer proof.
+Current diff, client subsystem map, domain vocabulary, size policy, environment and focused proof commands; optional active plan and implementer proof.
 
 ## Differences that rule out replacement
 

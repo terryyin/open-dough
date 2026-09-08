@@ -1,30 +1,26 @@
 # Asynchronous CI observation and repair
 
-During dough-execute-plan, start one local observer before the first push and let it
-discover every relevant configured-branch revision throughout the execution. Resolve CI configuration using [runtime setup](runtime-setup.md); CD is excluded. A successful push
-closes routine wrap-up; the existing observer continues through normal and
-repair pushes. Never wait for green CI or CD.
+Read [runtime setup](runtime-setup.md) to resolve the client project's CI
+repository, branch, workflow, runtime, and host registration before launching.
 
-## Start a token-free observer
+## Own one observer
 
-Resolve the GitHub repository from the actual push remote. Verify the selected branch triggers push CI. Do not guess a default branch
-or discover nonexistent runs for branches without that trigger.
-The Codex, Cursor, and Claude Code adapters each start one observer per
+Start one observer per
 repository/branch/coordinator before the first push and reuse it across normal
-and repair pushes.
+and repair pushes. The observer discovers later pushes; a changed SHA does not
+require new setup. Push success closes routine delivery without waiting for CI
+or deployment.
 
-The bundled `scripts/watch-ci.mjs` polls GitHub every 30 seconds, limits each
-request to 20 seconds, has one finite eight-hour default execution budget, and
-tolerates two consecutive observation errors. It inspects the newest completed
-startup run plus all unfinished startup runs, requests up to 100 startup runs and 20 on later polls,
-retains unfinished run identities, and discovers later pushes. The startup
-snapshot's run/attempt identities define history: a run absent from that
-snapshot, or a later attempt, remains eligible even when GitHub's
-second-precision `createdAt` equals the observer's startup second. It emits
-failure, incomplete, and lost-coverage records incrementally until stopped or
-its budget expires. It never dispatches, retries a workflow, inspects CD,
-invokes AI, or changes the checkout. Failed-job names are included when
-available; classify the cause from evidence after notification.
+The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
+records incrementally. It never dispatches or retries a workflow, observes
+deployment, or changes the checkout. Use the bounds in runtime setup when
+assessing coverage.
+
+Within the startup snapshot, inspect the newest completed run and unfinished
+runs. Preserve run and attempt identities: a run absent from that snapshot, or
+a later attempt, remains eligible even when GitHub's second-precision
+`createdAt` equals the startup second. Retain unfinished run identities across
+later discovery requests. Failed-job names support classification after delivery.
 
 Select the **non-model notification bridge for the current host**:
 
@@ -35,23 +31,16 @@ Select the **non-model notification bridge for the current host**:
   yielded-cell adapter when those tools are exposed. Otherwise report the bridge unavailable as
   described there.
 
-Polling is token-free; observer setup and responding to an actionable event
-still use model tokens. A notification is delivered at the host's next safe
-boundary, not by forcibly interrupting a running command. If the host's worker
-tool runs in the foreground, act when it returns. Never stash under a live
-writer to simulate immediate preemption. Cursor and Claude Code select durable
-mailbox events without advancing delivery progress; their hook process
-acknowledges the selection only after writing its host output successfully. An
-interrupted output leaves the event eligible at the next owning boundary.
+Notifications arrive at the current host's next safe boundary. Act after a
+foreground agent or command returns; do not assume a notification interrupts it.
+Without a working bridge, report missing coverage once and continue without AI
+polling or promised notifications.
 
-At execution shutdown, stop the observer through its exact saved handle without
-waiting for pending CI. Terminal publication has a finite local wait and reads
-the authoritative result even if its file notification was missed. If a native
-detached mailbox worker does not publish a terminal result, validate that its
-recorded PID still runs the exact worker command for that mailbox before each
-targeted termination signal; never use a broad process-name kill. Preserve
-unread mailbox evidence, report lost coverage when terminal publication is
-missing, and report `pendingCi: unobserved` rather than implying green CI.
+At completion, a stop requiring human judgment, cancellation, or coordinator
+replacement, use the host adapter to stop the exact observer and confirm local
+shutdown. Preserve unread evidence and report `pendingCi: unobserved`; missing
+terminal evidence means lost coverage. Handle delivered failures before claiming
+completion. Never kill by a broad process-name pattern.
 
 ## Handle a notification
 
@@ -84,14 +73,11 @@ until that missing history is accounted for.
    `CI_INCOMPLETE` needs a bounded inspection of cancellation/skipping; ignore
    proven supersession, not an unexplained missing result. If a failed run's
    cause is uncertain, enter the analysis/repair path below.
-2. **Pause all writers sharing this checkout.** Send each ongoing implementer
-   and refactor agent a pause request. Require a `## PAUSED FOR CI` handoff
-   containing current slice, changed/untracked paths, exact proof already run,
-   incomplete commands, and next action. They must stop edits and terminate or
-   finish their write-capable commands, then remain idle until resumed. A sent
-   message or agent interrupt is not evidence that its subprocesses stopped.
-   Use an interrupt only when necessary, then verify processes are quiescent.
-   Hold new delegation and coordinator formatting/commits during this handoff.
+2. **Pause all writers sharing this checkout.** Hold new delegation, formatting,
+   and commits. Require every implementation and refactor agent to satisfy
+   [the pause contract](#pause-and-resume-writers) before stashing. A sent message
+   or interrupt does not prove subprocesses stopped; verify quiescence after
+   an interrupt. Never stash under a live writer.
 3. **Preserve the checkout.** Record branch, HEAD, staged/unstaged/untracked
    paths, and the previous stash OID. Once all writers are quiescent, if the
    tree is dirty use `git stash push --include-untracked -m
@@ -104,22 +90,20 @@ until that missing history is accounted for.
    Store pause/recovery metadata outside the stashed tree (a private temporary
    file), and retain its path in coordinator resume context. Submodule dirt or
    concurrent human edits that prevent a clean repair boundary require a stop.
-4. **Delegate analysis and repair to a fresh work agent.** Pass run URL/ID,
+4. **Delegate analysis and repair to a fresh implementation agent.** Pass run URL/ID,
    attempt, failed SHA, bounded failure evidence, current HEAD, and the paused
    workers' ownership boundaries. Assign only the diagnosed CI failure; the
    agent is not alone in the repository and must preserve other work. It reads
    relevant client rules, investigates at current HEAD, proves
    the defect with a minimal observable test failing for the right reason, then
-   applies the smallest fix and confirms focused green proof. It returns a fix with compact `proof:` blocks
+   applies the smallest fix and confirms focused green proof. It returns the fix
+   with [implementation proof](delegation.md)
    and uncommitted changes. If deeper analysis proves all failures were CI
    infrastructure, record the evidence and ignore the attempt without a repair
    commit. If HEAD already contains a demonstrated repair, accept the focused
-   proof without manufacturing another commit. Keep normal
-   coordinator ownership: fresh dough-post-change-refactor, needed client artifact generation,
-   one client selective formatting pass, review, commit, and push. The
-   original slice stays in progress. The repair agent does not commit or push.
-   Keep the execution observer running so it discovers the repair push, and
-   **do not wait for its CI**.
+   proof without manufacturing another commit. For a new repair, the coordinator
+   runs [wrap-up](wrap-up.md); the interrupted slice stays in progress. Preserve
+   the same observer through the repair push.
 5. **Restore and resume after repair or a justified no-change disposition.**
    Push a new repair first; otherwise proceed as soon as focused proof shows
    HEAD is already fixed or analysis proves all failures were infrastructure.
@@ -131,14 +115,24 @@ until that missing history is accounted for.
    it. Resolve straightforward overlaps preserving both changes; if meaning
    is ambiguous, leave the stash intact and report the conflict. Resume the
    same agents with the repair commit or no-change finding, affected files, and
-   saved handoff. They
-   reread affected files and rerun only proof invalidated by the repair or
-   conflict resolution. Resume their slice budget excluding the repair pause.
+   saved handoff under the pause contract.
 
-On a repair/Jidoka or push failure, keep the saved stash OID and recovery note
+On an unresolved repair, decision stop, or push failure, keep the saved stash OID and recovery note
 and report the exact state. Restore original work when it can be done without
 mixing or losing unfinished repair edits; otherwise keep agents paused with
 both sets of work preserved. Do not silently resume with missing changes or
 pretend the failure was repaired. Ordinary CI defects, including flaky tests,
 use this recovery flow; only unresolved value/design/credential decisions need
 the developer.
+
+## Pause and resume writers
+
+When the coordinator requests a CI pause, stop editing and finish or terminate
+write-capable commands. Return `## PAUSED FOR CI` with the current slice,
+changed and untracked paths, exact completed proof, incomplete commands, and
+next action. Remain idle until explicitly resumed. If the host cannot pause an
+agent until its command returns, the coordinator waits for that safe handoff.
+
+On resume, reread files affected by the repair or conflict resolution and rerun
+only invalidated proof. Continue the same slice with its elapsed budget excluding
+the repair pause. Preserve the other agents' work in the shared checkout.

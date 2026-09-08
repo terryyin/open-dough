@@ -1,25 +1,21 @@
 # Cursor and Claude Code notification adapters
 
-Use this adapter only on Cursor or Claude Code. Both use the same detached
-Node watcher and private temporary mailbox; only their hook JSON differs.
-Follow [ci-monitor.md](ci-monitor.md) for CI selection and failure recovery.
-The coordinator, not a work agent, starts and stops observers. Cursor and
-Claude Code each own one execution observer for the whole dough-execute-plan run,
-reused across repeated setup, normal pushes, and repair pushes.
+Use this adapter on Cursor or Claude Code after [runtime setup](runtime-setup.md).
+Both use the same detached Node observer and private mailbox, with host-specific
+hook JSON. Apply [CI observation and repair](ci-monitor.md) for shared lifecycle
+and failure decisions.
 
 ## Verify the host bridge once per execution
 
-Configure the fragments in [runtime setup](runtime-setup.md) in the client
-project's `.cursor/hooks.json` or `.claude/settings.json`. Their
-post-tool hooks inspect local mailbox files only: no network requests, model
-calls, or waiting for CI. Their stop hooks deliver only already-ready events;
-pending or successful CI never extends an agent turn.
+The hooks inspect local mailbox files only, without network calls, AI calls,
+or waiting for CI. Stop hooks deliver only ready events; pending or successful
+CI does not extend the agent turn.
 
 Run this harmless probe from the checkout root using the normal Shell/Bash
-tool, not a work agent or a tool that hides its stdout:
+tool, not an implementation agent or a tool that hides its stdout:
 
 ```sh
-node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs probe
+node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' probe
 ```
 
 The command prints a `CI_OBSERVER` receipt, **not** `CI_MONITOR_READY`. Proceed
@@ -34,19 +30,12 @@ the project's hook configuration through the host's supported UI or start a
 new approved session if needed. Report an unavailable bridge once and continue
 the plan without promising monitoring; do not replace it with AI polling.
 
-The hook commands intentionally use an installed `node` directly (Node 20+,
-standard library only). Keep these local boundary hooks lightweight; they need no project build
-environment. Observer launch and test commands use the client runtime wrapper
-when needed. Resolve and quote the absolute skill path before running examples.
-
 ## Start once and continue immediately
 
-After readiness succeeds, start observation when dough-execute-plan begins, before
-the first push. Use the repository resolved from the actual selected branch push
-remote:
+After readiness succeeds, launch with the verified runtime setup values:
 
 ```sh
-node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs start --execution OWNER/REPO BRANCH
+node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' start --execution OWNER/REPO BRANCH
 ```
 
 This starts a detached non-AI process and returns immediately. Retain the one
@@ -74,24 +63,17 @@ the coordinator's session cannot consume its notification. Keep the same
 coordinator session when resuming; if replacing it, stop the old observers
 using their recorded directories and register new ones in the new session.
 
-Mailboxes live outside the checkout under `/tmp/dough-ci-$UID`, not under the
-process `TMPDIR`, so a Nix-wrapped launcher and a native hook share the same
-observer directory. Stashing untracked work does not remove them. The watcher
-never modifies Git state, pauses workers, or fixes code. On a delivered
-failure, the coordinator follows the shared protocol: classify, obtain
-quiescent handoffs from all writers, stash, delegate repair, wrap up and
-push, restore, then resume. Use the host's available worker message/resume
-handles. If a worker cannot be paused until its current command returns, wait
-for that safe handoff before touching its working tree.
+Use the same shared mailbox directory for launcher and hooks as specified in
+runtime setup. Mailboxes survive stashing. Use the host's agent message and
+resume handles to follow the shared [pause contract](ci-monitor.md#pause-and-resume-writers).
 
 ## Stop without waiting for CI
 
-On completion, Jidoka, cancellation, or coordinator replacement, Cursor and
-Claude Code each stop their one execution observer using the exact saved
+When the shared lifecycle calls for shutdown, stop using the exact saved
 directory:
 
 ```sh
-node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop /EXACT/RECORDED/MAILBOX
+node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' stop '/EXACT/RECORDED/MAILBOX'
 ```
 
 This signals cancellation, including an outstanding GitHub request or polling
@@ -106,8 +88,7 @@ CI. The hook drains an already-finished event even if stop was requested. Unread
 records remain in the mailbox, and shutdown reports pending CI as unobserved.
 Handle delivered failures before claiming completion. Retain these small
 recovery records for interrupted sessions; never kill by a broad process-name
-pattern. A watcher also has the bounded lifetime in the shared contract if its
-coordinator disappears without stopping it.
+pattern. The runtime budget also bounds an observer whose coordinator disappears.
 
 ## Host contracts
 

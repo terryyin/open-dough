@@ -1,66 +1,64 @@
-# Slice Wrap-up
+# Slice wrap-up
 
-Apply [planning](../../dough-story-refinement/references/planning.md)'s Proof decisions, including replacement/lifecycle coverage.
-Compare each promise with its assertion and enough setup to identify the boundary;
-test names, passing commands, and `proof:` summaries alone are insufficient.
-Return contradictory or incomplete observations to implementation before refactor or
-acceptance, naming the promise and gap. Refactor may report gaps, not supply missing
-behavior. Require CI-safe uncommitted work: no deliberate red; unfinished
-end-to-end proof remains explicitly unfinished under the client convention.
-Do not run full CI before commit.
+The coordinator runs this sequence after implementation. For a CI repair, apply
+the same proof and delivery gates while keeping the interrupted slice in progress.
 
-Accept adequate inspected `proof:` without new handoff fields; reuse inspections
-while promises and boundaries remain unchanged. Rerun only for missing or ambiguous
-handoffs, wrap-up-changed boundaries, or omitted broader integration proof the
-slice closes. Recover literal commands from original handoffs when available:
-placeholders, abbreviations, and paraphrases are ambiguous. Reuse adequate/recovered
-proof; never randomly sample.
+## Accept proof
 
-1. Spawn a fresh general-purpose sub-agent to read and run
-   [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md) end-to-end. Pass only the slice
-   text, plan path, implementer's compact `proof:` block(s), client tooling wrapper,
-   no-commit constraint, required completion markers, and this clause: decide
-   whether to edit before tests; with no refactor edits, run no tests and report
-   `skipped — no refactor edits`; with edits, rerun only the handed-off proof
-   commands invalidated, or name, explain, and run a focused replacement for a
-   moved boundary.
-   Correct contradictory additions before dispatch. Explicit developer verification
-   requests remain authoritative. Forbid the selective formatting command and standalone
-   the hook-owned lint command.
-2. Check the existing edit/test report against that clause and require
-   `## REFACTOR COMPLETE`; stop without committing for Jidoka or a missing marker.
-   Apply the evidence gate above to gaps. Report unnecessary prior runs as process
-   deviations, reuse valid proof, and correct delegation; never repeat tests/review
-   to manufacture compliance. A pass cannot erase an actual failure; retain
-   `dough-execute-plan`'s failure diagnosis and routing.
-3. Run the client generator when its contract/signature triggers changed; fix
-   generation at source and validate affected consumers. Do not hand-edit output.
-4. Run the client selective formatting command directly once after refactor/API
-   generation; require success before staging/committing. Let it select components
-   (planning-only may be a no-op); no pre-filtering or formatting agent. Repair
-   mechanical failures; repeat only when repair invalidates preparation. Stop for
-   semantic/design judgment.
-5. Update the plan (and SUMMARY if present), never a separate project-state index: record
-   brief learnings, mark done, prune obsolete detail, and adjust future leaves.
-   If linked story understanding became stale, add an
-   `awaiting story review` note naming the seed/story and affected field; route
-   via [slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md) without altering sibling stories. This PLAN
-   edit triggers no second formatting pass.
-6. If post-slice learning needs developer judgment, commit and push safe work,
-   then return a Jidoka stop with the required decision.
-7. Commit only CI-safe work. Stage only owned files or separable owned hunks;
-   inspect the staged diff. Stage everything only when all content is owned.
-   Unrelated unstaged files need no approval. For unrelated staged content or
-   ambiguous hunk ownership, resolve the boundary
-   with that owner first; do not co-commit or silently unstage, reset, or revert
-   another task's index or worktree. Use the client commit hook: require check-only
-   lint on staged components,
-   without formatting or index mutation. If its contract differs, resolve the
-   workflow mismatch before committing. Resolve
-   mechanical findings; stop for semantic/design judgment. Do not independently run
-   the hook-owned lint command. If a hook repair invalidates preparation, rerun the direct
-   formatting command before restaging and retrying.
-8. `git push` success completes routine wrap-up. Keep the nonblocking observer
-   per [ci-monitor.md](ci-monitor.md); it discovers pushes without new setup.
-   Continue, handling delivered CI failures through pause/stash/repair/resume;
-   never wait for CI or CD, including after pushing a CI repair.
+Apply [proof ownership](../../dough-story-refinement/references/planning.md#own-executable-proof).
+Compare each promise with its assertion and enough setup to identify the tested
+boundary. Passing commands, test names, and `proof:` summaries alone are
+insufficient. Return incomplete or contradictory evidence to implementation,
+naming the promise and gap; refactoring cannot supply missing behavior.
+
+Reuse inspected proof while promises and boundaries remain unchanged. Recover
+literal commands from the original handoff when possible. Rerun only for missing
+or ambiguous proof, boundaries changed during wrap-up, or omitted integration
+proof required by the slice. Do not sample randomly or repeat valid proof to
+manufacture process compliance. Preserve failures under
+[execution decisions](execution-decisions.md#diagnose-failed-proof).
+
+Require CI-safe work before delivery: no deliberate failing tests or unfinished
+end-to-end proof represented as complete. Use the client convention to mark
+unfinished proof. Do not run full CI before commit unless explicitly required.
+
+## Deliver the change
+
+1. Spawn a fresh agent to run
+   [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
+   Supply the slice, plan path, implementation proof, client context, and ownership
+   boundaries. Keep formatting and hook-owned lint with the coordinator. Do not
+   add instructions contradicting that skill's decide-before-testing contract;
+   explicit human verification requests remain authoritative.
+2. Inspect its report, require `## REFACTOR COMPLETE`, and recheck
+   [execution decisions](execution-decisions.md). A refactor stop, missing marker,
+   or unresolved proof gap prevents commit. Report unnecessary test runs as
+   deviations; reuse valid evidence instead of repeating work.
+3. Run the client generator if its trigger changed and the required output was
+   not already regenerated and verified during refactoring. Fix generation at
+   source and validate affected consumers.
+4. Run the client selective formatting command directly once; let it select
+   affected components, including a planning-only no-op. Require success before
+   staging. Repair mechanical failures and repeat only when the repair
+   invalidates preparation. Stop for semantic or design judgment.
+5. Update the active plan and any client-required summary with learnings, slice
+   status, and revised remaining slices under
+   [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan).
+   For stale story understanding, record `awaiting story review`, identify the
+   selected story in its seed and the affected field, and stop at the safe
+   delivery boundary without changing other stories. This plan update alone
+   does not trigger another formatting pass. A CI repair records its result
+   without marking the interrupted slice done.
+6. Stage only owned files or separable owned changes and inspect the staged diff.
+   Stage all content only when all of it is owned. Unrelated unstaged work does
+   not block delivery. Resolve unrelated staged content or ambiguous ownership
+   with its owner; never silently unstage, reset, or revert another task's work.
+7. Commit CI-safe work using the client's check-only lint hook on staged
+   components, with no formatting or index mutation. Resolve a different hook
+   contract before committing. Fix mechanical findings; stop for semantic or
+   design judgment. Do not run hook-owned lint independently. If hook repairs
+   invalidate preparation, rerun formatting before restaging and retrying.
+8. Push to the authorized destination. Success completes routine delivery; a
+   post-slice decision stop occurs after safe work is delivered. Keep the
+   [CI observer](ci-monitor.md) running and handle delivered failures through its
+   repair protocol. Never wait for CI or deployment after a normal or repair push.

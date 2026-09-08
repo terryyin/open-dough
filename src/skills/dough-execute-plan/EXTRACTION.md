@@ -41,8 +41,8 @@ application's end-to-end timing logs or unrelated tooling.
 | `.claude/settings.json` CI entries | `assets/claude-hooks.json`, uses Claude's `.claude/skills` delivery root |
 | Planning/proof/lifecycle rule pointer | `../dough-story-refinement/references/planning.md` |
 | Decomposition/sizing/escalation rule pointer | `../dough-story-decomposition/references/problem-decomposition.md` |
-| Leaf refinement | `../dough-slice-plan-refinement/SKILL.md` and its existing transitive guidance |
-| GSD coexistence rule | Client workflow precedence; explicit execution keeps coordinator ownership and PLAN state. No new always-applied rule |
+| Slice refinement | `../dough-slice-plan-refinement/SKILL.md` and its existing transitive guidance |
+| GSD coexistence rule | Client workflow precedence; explicit execution keeps coordinator ownership and plan state. No new always-applied rule |
 | Agent map and stack test rules | Client navigation, subsystem map, focused commands, domain language |
 | `scripts/run.sh` / Nix / Cloud VM | Client runtime wrapper; not a portable dependency on a Nix flake |
 | `format-changed` skill | Not invoked by source routine wrap-up; client selective formatter command owns component selection |
@@ -183,3 +183,60 @@ running checks. Preserve failures rather than interpreting a retry as a repair.
   resolve. Both frontmatter names match their directory names.
 - Recomputed SHA-256 hashes match all **50 inspected source files** in
   `SOURCE-CHECKSUMS.json`; the extraction did not change the source files.
+
+## Agent-facing revision, 2026-09-09
+
+Applied [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+and the maintainer's explicit instruction to use
+[ADR 0001 terminology](../../../docs/adrs/0001-ubiquitous-language.md).
+ADR 0001 remains Proposed; its status was not changed. The skills remain Proposed
+under ADR 0003, with the delivery evidence requirements of ADR 0005 unchanged.
+
+The entrypoints now identify the required context, execution order, and return
+conditions. Detailed decisions have these authoritative homes:
+
+| Decision | Runtime home |
+| --- | --- |
+| Story home, plan lifecycle, proof ownership | Existing shared planning reference |
+| Slice definition, sizing, learning escalation | Existing shared decomposition reference |
+| Human decision stops, failure diagnosis, oversized-slice recovery, premature implementation commits | `references/execution-decisions.md` |
+| Implementation assignment and proof handoff | `references/delegation.md` |
+| Proof acceptance and coordinator delivery | `references/wrap-up.md` |
+| Refactor scope, subsystem authorization, testing, and return markers | `../dough-post-change-refactor/SKILL.md` |
+| Refactor candidate checks | `../dough-post-change-refactor/references/refactor-checks.md` |
+| Observer ownership, failure repair, and writer pause/resume | `references/ci-monitor.md` |
+| CI parameters, runtime prerequisites, and hook registration | `references/runtime-setup.md` |
+| Host readiness, delivery identity, and concrete shutdown operations | Current host adapter |
+
+A seed supplies context and is the canonical home of a story. Execution uses a
+plan for one selected story and works through its slices. GSD names identify
+external tools only. Runtime entrypoints no longer repeat success checklists,
+XML workflow labels, refactor testing instructions in delegation, or the full
+CI repair sequence in each adapter. The existing stop and completion markers
+remain protocol strings. All references remain part of the future runtime
+inventory, including the new execution-decisions reference.
+
+Manual behavior review against the revised instructions confirmed:
+
+- A seed without executable slices stops before implementation. A plan with
+  missing slice limits reports the missing context. A valid plan delegates the
+  next eligible slice and preserves coordinator delivery.
+- A destructive slice conflicting with a later named outcome stops for human
+  judgment; an unambiguously stale instruction restarts all slice decisions.
+- An oversized slice preserves others' work, records elapsed time and the failed
+  assumption, and follows story-level escalation before more slice refinement.
+- A clean refactor pass runs no tests. A refactor edit reruns only invalidated
+  proof. A cross-subsystem candidate without specific authorization returns the
+  existing stop marker before cross-subsystem edits or commit.
+- A CI repair pauses writers before stashing, keeps the interrupted slice in
+  progress, applies coordinator delivery, restores the exact saved stash, and
+  resumes only invalidated proof. Normal and repair pushes retain the observer;
+  shutdown never implies green pending CI.
+
+The existing supported-host contract test passed after revision. Local Markdown
+file and anchor checks, frontmatter checks, terminology review of both extracted
+trees, and `git diff --check` passed. Scripts, tests, and hook assets are byte
+unchanged from the previously validated extraction, so its 63-test serial result
+is reused for runtime behavior; the full process suite was not rerun for prose
+changes. That reuse does not establish native agent acceptance of the revised
+instructions. The earlier concurrent timeout remains recorded above.

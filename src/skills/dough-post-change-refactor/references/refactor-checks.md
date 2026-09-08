@@ -1,6 +1,7 @@
 # Refactor Checks
 
-Apply these checks in order after the preflight gates record an edit candidate.
+Inspect these checks in order during the skill's read-only decision pass.
+Edit only after its scope and subsystem gates permit the candidates.
 
 ## Duplication
 
@@ -23,8 +24,8 @@ Apply these checks in order after the preflight gates record an edit candidate.
 - Ask: does the name match what a domain reader expects? Does it match the client
   project's domain vocabulary?
 - **Action:** rename when intent is unclear, misleading, mixes layers, or leaks
-  GSD phase numbers / sequence info. Names describe **capability**, not
-  development history. Development sequence numbers belong only in planning artifacts.
+  development sequence numbers. Name product code by capability; keep sequence
+  numbers in planning artifacts.
 
 ## Shotgun surgery
 
@@ -40,8 +41,8 @@ Apply these checks in order after the preflight gates record an edit candidate.
 
 ## Dead or redundant code
 
-Remove aggressively whatever the change introduced or exposed that is not
-justified by the current change or the immediate next slice:
+Apply the [scope and justification boundary](../SKILL.md#discover-scope)
+to code the current change introduced or exposed. Remove:
 
 - Code with no caller.
 - Unreachable branches.
@@ -55,7 +56,8 @@ justified by the current change or the immediate next slice:
   the test that drives a stable boundary (controller, mounted component,
   end-to-end scenario).
 
-When in doubt, **delete**. The next slice will reintroduce only what it needs.
+Remove speculative code within that boundary; do not retain it for an
+unspecified future need.
 
 ## File size
 
