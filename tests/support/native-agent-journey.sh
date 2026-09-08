@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # PATH substitute for credential-free selected delivery/updated-use runs.
-# Logs every invocation, including version probes. The update stage applies the
-# genuine local fixture installer against the target; the use stage emits
-# recorded evidence. Does not infer an update from final payload bytes.
+# Logs every invocation, including version probes. The update stage requires a
+# no-URL prompt and applies the genuine local fixture installer from recorded
+# SOURCE; the use stage emits recorded evidence. Does not infer an update from
+# final payload bytes.
 # Codex uses -C/-o plus a type:item complete event. Cursor and Claude Code emit
 # stream-json type:result complete events; workspace comes from --workspace or PWD.
 # NATIVE_AGENT_STREAM=truncated|missing|unknown skips apply and emits that shape.
@@ -70,6 +71,11 @@ elif [[ ${prompt} == *'dough-adr-awareness'* ]]; then
   stage=use
 else
   printf 'error: journey substitute could not classify the native prompt.\n' >&2
+  exit 1
+fi
+
+if [[ ${stage} == 'update' ]] && [[ ${prompt} =~ file://|https?:// ]]; then
+  printf 'error: journey substitute update prompt must omit a source URL.\n' >&2
   exit 1
 fi
 
@@ -150,36 +156,43 @@ if [[ ${stage} == 'update' ]]; then
     printf 'error: journey substitute update requires -C and -o.\n' >&2
     exit 1
   fi
-  url=
-  if [[ ${prompt} =~ file://[^[:space:]]+ ]]; then
-    url=${BASH_REMATCH[0]}
-  fi
-  if [[ -z ${url} ]]; then
-    printf 'error: journey substitute could not find a file:// source URL.\n' >&2
-    exit 1
-  fi
-  source_root=${url#file://}
-  installer="${source_root}/src/install/open-dough-release.sh"
-  if [[ ! -f ${installer} ]]; then
-    printf 'error: journey substitute could not find installer at %s\n' \
-      "${installer}" >&2
-    exit 1
-  fi
   platform=${host}
   case ${platform} in
     codex | cursor | claude) ;;
     *) platform=codex ;;
   esac
+  dest="${workspace}/.agents/skills/dough-update"
+  case ${platform} in
+    cursor) dest="${workspace}/.cursor/skills/dough-update" ;;
+    claude) dest="${workspace}/.claude/skills/dough-update" ;;
+  esac
+  if [[ ! -f "${dest}/SOURCE" ]]; then
+    printf 'error: journey substitute could not find recorded SOURCE at %s\n' \
+      "${dest}/SOURCE" >&2
+    exit 1
+  fi
+  recorded=$(cat "${dest}/SOURCE")
+  source_root=${recorded#file://}
+  if [[ ${recorded} == "${source_root}" ]]; then
+    printf 'error: journey substitute recorded SOURCE is not a file URL.\n' >&2
+    exit 1
+  fi
+  installer="${source_root}/src/install/open-dough-release.sh"
+  if [[ ! -f "${installer}" ]]; then
+    printf 'error: journey substitute could not find installer at %s\n' \
+      "${installer}" >&2
+    exit 1
+  fi
   if [[ ${host} == 'codex' ]]; then
     bash "${installer}" apply \
-      --url "${url}" --target "${workspace}" --platform "${platform}" \
+      --target "${workspace}" --platform "${platform}" \
       > "${output_file}"
     write_codex_complete
     exit 0
   fi
   report=$(
     bash "${installer}" apply \
-      --url "${url}" --target "${workspace}" --platform "${platform}"
+      --target "${workspace}" --platform "${platform}"
   )
   write_stream_result "${report}"
   exit 0

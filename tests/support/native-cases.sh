@@ -33,7 +33,7 @@ native_case_print_usage() {
       printf '%s\n' \
         'delivery/legacy-refusal and delivery/ordinary-update are recognized and unavailable for selected launch.'
       printf '%s\n' \
-        'delivery/updated-use is the combined update then fresh use journey in one attempt.'
+        'delivery/updated-use is the combined ordinary no-URL update then fresh use journey in one attempt.'
       printf 'Selected --case does not launch the full three-session --native journey.\n'
       ;;
     *)

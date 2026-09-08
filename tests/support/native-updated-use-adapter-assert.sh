@@ -6,6 +6,9 @@
 # shellcheck source=tests/support/native-prerequisite-gate.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-prerequisite-gate.sh"
+# shellcheck source=tests/support/native-updated-use-prompt-assert.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-updated-use-prompt-assert.sh"
 
 native_updated_use_adapter_require_host() {
   case $1 in
@@ -82,6 +85,7 @@ assert_no_legacy_or_retry() {
     cat "${log}" >&2
     return 1
   fi
+  assert_selected_update_omits_source_url "${log}" "${host}"
 }
 
 assert_cursor_agent_identity() {

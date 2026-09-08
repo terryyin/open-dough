@@ -70,11 +70,11 @@ native_case_print_description() {
       printf 'selected-launch: unavailable\n'
       ;;
     delivery/updated-use)
-      printf 'Inspected bootstrap, real newer tagged fixture update, then a fresh use session on that same verified target.\n'
-      printf 'setup: Isolated %s target with inspected bootstrap and a newer local tagged fixture; update and use are stages of one attempt.\n' \
+      printf 'After inspected bootstrap, ordinary no-URL newer-release update from recorded SOURCE, then a fresh use session on that same verified target.\n'
+      printf 'setup: Isolated %s target with supplied-source --force inspected bootstrap and a newer local tagged fixture; ordinary no-URL update from recorded SOURCE and use are stages of one attempt.\n' \
         "${host}"
       printf 'dependencies: none\n'
-      printf 'selected-launch: combined update then fresh use in one attempt\n'
+      printf 'selected-launch: combined ordinary no-URL update then fresh use in one attempt\n'
       ;;
     *)
       native_case_fail "unknown case '${case_id}'"

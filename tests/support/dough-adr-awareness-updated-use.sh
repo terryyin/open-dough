@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Combined delivery/updated-use journey: inspected bootstrap, real update, then
-# fresh use in one attempt. Each host wrapper launches this helper; stage
-# files and observations stay host-agnostic via ${delivery_platform}.
+# Combined delivery/updated-use journey: inspected bootstrap, then ordinary
+# no-URL update from recorded SOURCE, then fresh use in one attempt. Each host
+# wrapper launches this helper; stage files and observations stay host-agnostic
+# via ${delivery_platform}. Inspected bootstrap is supplied-source --force and
+# is not the ordinary update.
 # shellcheck disable=SC2034,SC2154,SC2312 # Wrappers and retention consume these globals.
 
 delivery_update_outcome=unrun
@@ -190,7 +192,7 @@ delivery_run_selected_updated_use() {
   use_transcript="${stage_prefix}-use.jsonl"
   use_stderr="${stage_prefix}-use-stderr.log"
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
-  update_prompt="Use ${dollar}dough-update ${delivery_source_url} for an ordinary newer-release update of this inspected-bootstrap installation. Follow the installed updater. Do not force. Do not invoke ADR awareness."
+  update_prompt="Use ${dollar}dough-update for an ordinary newer-release update of this inspected-bootstrap installation. Follow the installed updater. Do not force. Do not invoke ADR awareness."
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
   use_prompt="Use ${dollar}dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. Do not edit files."
 

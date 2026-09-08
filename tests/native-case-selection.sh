@@ -58,23 +58,23 @@ assert_record "${codex_listing}" codex delivery/ordinary-update \
   'inspected bootstrap' 'newer local tagged fixture' \
   'not a native legacy-refusal' 'unavailable'
 assert_record "${codex_listing}" codex delivery/updated-use \
-  'combined update then fresh use' 'one attempt' 'dependencies: none'
+  'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
 assert_record "${cursor_listing}" cursor delivery/legacy-refusal \
   'v0.2.0' 'unavailable'
 assert_record "${cursor_listing}" cursor delivery/ordinary-update \
   'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${cursor_listing}" cursor delivery/updated-use \
-  'combined update then fresh use' 'one attempt'
+  'ordinary no-URL' 'recorded SOURCE' 'one attempt'
 assert_record "${claude_listing}" claude delivery/legacy-refusal \
   'v0.2.0' 'unavailable'
 assert_record "${claude_listing}" claude delivery/ordinary-update \
   'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${claude_listing}" claude delivery/updated-use \
-  'combined update then fresh use' 'one attempt' 'dependencies: none'
+  'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
 
 for listing in "${codex_listing}" "${cursor_listing}" "${claude_listing}"; do
   grep -Fq 'unavailable for selected launch' <<< "${listing}"
-  grep -Fq 'combined update then fresh use journey in one attempt' <<< "${listing}"
+  grep -Fq 'combined ordinary no-URL update then fresh use journey in one attempt' <<< "${listing}"
 done
 
 for host_listing in \

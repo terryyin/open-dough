@@ -24,7 +24,7 @@ Fixed inventory (five cases per host `codex`, `cursor`, `claude`):
 - `context/conflict`
 - `delivery/legacy-refusal` — recognized; **unavailable** for selected launch
 - `delivery/ordinary-update` — recognized; **unavailable** for selected launch
-- `delivery/updated-use` — combined inspected-bootstrap update then fresh use on the same verified target; both stages share one attempt
+- `delivery/updated-use` — after inspected bootstrap, ordinary no-URL update from recorded `SOURCE` then fresh use on the same verified target; both stages share one attempt
 
 ## `tests/dough-adr-awareness-context.sh`
 
@@ -95,8 +95,10 @@ host's three delivery cases. `--native` plus junk, or an unknown `--case`,
 fails before `delivery_prepare_fixture`. `delivery/legacy-refusal` and
 `delivery/ordinary-update` are recognized and unavailable for selected launch
 (fail before setup). `--native --case delivery/updated-use` is the combined
-update then fresh use journey in one attempt. Codex, Cursor, and Claude Code
-each launch it through the shared journey helpers and that host's command/event
+ordinary no-URL update from recorded `SOURCE` then fresh use journey in one
+attempt. Inspected bootstrap remains supplied-source `--force` and is not the
+ordinary update. Codex, Cursor, and Claude Code each launch it through the
+shared journey helpers and that host's command/event
 adapter (`native_run_context_command`). `--deadline` and `--grace` apply to
 both supervised stages (defaults 3600 and 15). A writable `--results-dir DIR`
 retains both stages under `DIR/<host>/delivery/updated-use/<attempt-id>/`,
@@ -189,8 +191,9 @@ native discovery, invocation, or behavior.
   invocation.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
-  update, then emits recorded use evidence. Both stages stay in one attempt
-  after scratch cleanup. Ordinary prompts; assessment uses observed state and
+  ordinary no-URL update from recorded `SOURCE`, then emits recorded use
+  evidence. Both stages stay in one attempt after scratch cleanup. Ordinary
+  prompts; assessment uses observed state and
   the shared conflict stop. Failed update starts no use; failed use retains
   the successful update and the use failure. The invocation log has no legacy
   refusal and no retry. Supervisor `--deadline`/`--grace` are accepted on the
