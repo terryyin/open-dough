@@ -74,7 +74,7 @@ acceptance suite or added implementation scope is needed.
 
 | Story promise | Owner and observable proof |
 | --- | --- |
-| Complete install with remembered source/version | 1: actual install, exact records/payload, preserved native roots. |
+| Complete install with remembered source/version | 1–1b: actual install, exact records/payload, preserved native roots; failed records uncertified. |
 | Verified ordinary update from remembered source | 2: real A→B tagged transition; different client remote ignored; edited A refused. |
 | Unverifiable installation refuses unwritten | 3: record/baseline failure snapshots and temporary cleanup. |
 | Equal/newer versions remain truthful and unwritten | 4: clean/edited/version-boundary observations. |
@@ -93,35 +93,50 @@ without replaying every policy on each tool. Static checks are not native proof.
 ### 1. A fresh installation remembers its release source
 Type: Behavior
 Status: planned
-Proof: Extend `tests/install-latest-release.sh` and relevant installer failure
-checks: supplied-source install produces exact payload and SOURCE/VERSION in the
-selected root; failed payload verification does not advance successful records.
+Proof: Extend `tests/install-latest-release.sh`: supplied-source `apply` and
+direct `install.sh --source` produce the exact payload plus `SOURCE` then
+`VERSION` in the selected root. Capture a local source as an absolute path
+before changing directory. Align README and `docs/installation-and-updates.md`.
+Existing successful `install.sh` callers pass an explicit source so a green
+install is never VERSION-only.
 
 Behavior: Clean client → inspected tagged installation from supplied source →
-complete verified installation records where its release came from. Pass source
-through the existing helper/installer boundary, validate before writes, preserve
-containment and unrelated roots, and align the documented install entry point.
-Record-write failure must report incomplete state; never certify a mismatched pair.
+complete verified records of where that release came from. Pass `--source`
+through `apply` into `install.sh`. After payload verification, write `SOURCE`
+then `VERSION` (VERSION last). Preserve containment and unrelated roots.
+
+### 1b. Failed installation records are not certified as remembered
+Type: Behavior
+Status: planned — depends on 1
+Proof: Extend `tests/install-reports-real-copy-failure.sh` and the existing
+verify-fault installer path: copy, payload-verification, and record-write
+failures report incomplete state, leave no certified SOURCE/VERSION pair, and
+do not advance a previous successful record.
+
+Behavior: Replacement starts or records cannot be completed → refuse success.
+Never certify a mismatched SOURCE/VERSION pair.
 
 ### 2. An ordinary update verifies and replaces a clean older release
 Type: Behavior
-Status: planned — depends on 1
+Status: planned — depends on 1b
 Proof: Extend `tests/update-when-needed.sh` using genuine tagged A and B from
-`tests/helpers/release-fixture.bash`: clean A advances to B from saved SOURCE;
-an edited-A control refuses with identical target snapshots.
+`tests/helpers/release-fixture.bash`: clean A advances to B from saved SOURCE
+with no URL on the ordinary helper invocation.
 
 Behavior: Recorded older installation → ordinary update without a URL → compare
-fixed managed files against recorded A, then install inspected latest B only when
-unchanged. Update the shared skill to read the saved source and obey the helper.
-Do not substitute the client remote or a working-tree helper. Replace synthetic
-older fixture assumptions only where this proof needs an actual baseline.
+fixed managed files against recorded A, then install inspected latest B only
+when unchanged. Update the shared skill to read the saved source and obey the
+helper. Do not substitute the client remote or a working-tree helper. Replace
+synthetic older fixture assumptions only where this proof needs an actual
+baseline.
 
 ### 3. An unverifiable installation refuses ordinary replacement
 Type: Behavior
 Status: planned — depends on 2
-Proof: Focused data variations in the same refusal check: missing managed file,
-missing/malformed record, unavailable tag/source, or baseline metadata mismatch.
-Target contents/mtimes remain unchanged and owned temporary content is removed.
+Proof: Focused data variations in the same refusal check: edited managed file,
+missing managed file, missing/malformed record, unavailable tag/source, or
+baseline metadata mismatch. Target contents/mtimes remain unchanged and owned
+temporary content is removed.
 
 Behavior: Existing installation cannot establish its recorded baseline → ordinary
 update → actionable refusal without guessing a source, forcing, or treating it
@@ -253,13 +268,15 @@ exception explains the duration. Preserve attempt-owned WIP and evidence safely.
 A second non-exempt overrun requires the borrowed decomposition rule's story-level
 reassessment; renaming leaves does not reset that threshold.
 
-**Refinement recommended: slices 1–2 and 5–6.** Record persistence/failure,
-baseline resolution, and legacy fixture integration touch existing coupled paths;
-their target-sized execution is not yet certain. Other deterministic leaves use
-those same proof boundaries. Slices 8–12 remain conditional; inspect actual release
-and installation state before execution. Integrated tests, Git/network waits,
-and one bounded native adoption→use journey can exceed active-work targets; keep
-that runtime separate rather than splitting update from fresh use.
+**Refined 2026-09-08 before execution:** split remembered-source success (1)
+from uncertified failure records (1b), and moved the edited-A refusal control
+into slice 3 so slice 2 is one clean A→B proof loop. **Refinement still
+recommended: slices 5–6.** Force write paths and legacy fixture integration
+remain coupled; reassess those leaves immediately before implementing them.
+Slices 8–12 remain conditional; inspect actual release and installation state
+before execution. Integrated tests, Git/network waits, and one bounded native
+adoption→use journey can exceed active-work targets; keep that runtime separate
+rather than splitting update from fresh use.
 
 Source inspection, not test execution, informed this plan. Existing tests encode
 edited-equal success and unknown-install overwrite, so those expectations must
