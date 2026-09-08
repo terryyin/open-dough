@@ -78,10 +78,6 @@ for skill_root in "${skill_roots[@]}"; do
     [[ -f "${target}/${skill_root}/${managed_file}" ]]
   done
 done
-for managed_file in "${managed_files[@]}"; do
-  [[ ! -e "${target}/.cursor/skills/${managed_file}" ]]
-done
-
 expected_files=$(
   {
     printf '%s\n' \

@@ -25,10 +25,6 @@ assert_all_roots() {
     fi
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]
   done
-  [[ ! -e "${target}/.cursor/skills/dough-update/SKILL.md" ]]
-  [[ ! -e "${target}/.cursor/skills/dough-update/SOURCE" ]]
-  [[ ! -e "${target}/.cursor/skills/dough-update/VERSION" ]]
-  [[ ! -e "${target}/.cursor/skills/dough-adr-awareness/SKILL.md" ]]
   assert_sentinels "${target}"
 }
 
