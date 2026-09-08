@@ -1,0 +1,11 @@
+62513dd33eddd636e2e8f7932cc373ea16a9c9e571e0a86a09bc29cabb1615df  ./.agents/skills/companion-integration/SKILL.md
+e0d1efc7af6dd8db817074002f865c3a10e4fe2a54065c2e92a86a262680cba9  ./.agents/skills/dough-adr-awareness/SKILL.md
+01a3fce3249ddd52383b288f7583e609ab3aae5368ca23d4812646df5200af9a  ./.agents/skills/dough-update/SKILL.md
+12021a86b7eab3f366357352ba883489c09fdbaa89f777c5aca1031254c84d4c  ./.agents/skills/dough-update/SOURCE
+998f6b887ed7a6ef44e84210d0237b715bed42ea7254f48dc418afec0a484103  ./.agents/skills/dough-update/VERSION
+3ff1281797d84c7e9d69b4791acb7e9af1cdec0d04536ff08289c328d9186c20  ./AGENTS.md
+dde90e63f74628d5fe53aad045c7e787e1c31830943c4125925b169ff9cab4ce  ./architecture/decisions/CATALOG.md
+ed15117b1085bed5f73b7630c0a30d085e5947daf507b4bced3a7c14ae33c150  ./architecture/decisions/retain-complete-telemetry-history.md
+2c707f1d38e123d7e2f4c5c777fe201176a6b588a2d9cdf2f42a78c7c940a4e8  ./architecture/decisions/store-readings-on-each-node.md
+960e25c72a64e9fde56855324a6c2002d86bc612571faecf1f811745d813fd01  ./governance/architecture-exceptions.md
+6b9acdecdcfc7cd47537d559e9c28d02173c486016bd4355b6221fb610999e95  ./services/telemetry-retention.txt

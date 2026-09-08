@@ -1,0 +1,71 @@
+Review 2026-09-08 of retained Codex delivery/updated-use attempt
+20260908T034417-3228. The original attempt 20260908T030033-43e0 remains
+unchanged. Command:
+  bash tests/dough-adr-awareness-codex-delivery-to-use.sh --native \
+    --case delivery/updated-use \
+    --results-dir .planning/quick/023-accept-standalone-client/evidence \
+    --deadline 300 --grace 15
+Wrapper exit 0. Native version codex-cli 0.144.1, adapter
+tests/support/native-codex.sh. Deadline/grace were not hit and no retry ran.
+
+Harness record: execution-status completed; prerequisite-result inconclusive
+(unsupported activation form); assessment-status pass (named conflicting
+authorities and stopped); real-transition true. Process exit 0, installed
+payload bytes, and the agent's self-report are not the native verdict.
+
+Review judgment: inconclusive.
+
+Stream completeness: update session
+01a07f1c-0d3f-7270-8c7c-aadbab478427 and fresh use session
+01a07f1d-5172-7110-af26-77dbf9687d8d are distinct. Both raw JSONL streams
+contain actual Codex item.completed activity followed by terminal
+turn.completed, with no turn.failed event. This confirms the original
+20260908T030033-43e0 incomplete classification was a runner classifier defect:
+that original stream had the same terminal event form, while the former
+classifier required a top-level type "item" event that Codex did not emit.
+
+Ordinary no-URL transition: the update read the installed SOURCE and VERSION
+0.2.1, resolved and pinned v0.2.2, inspected the pinned helper and payload,
+then ran:
+  bash <snapshot>/src/install/open-dough-release.sh apply \
+    --target <adopter> --platform codex --checkout <snapshot>
+The apply command had no --url and no --force. It returned the real helper
+outcome "updated from 0.2.1 to 0.2.2." Update snapshots changed only
+.agents/skills/dough-adr-awareness/SKILL.md and
+.agents/skills/dough-update/VERSION; SOURCE stayed unchanged. The source
+before/after snapshots are identical.
+
+Fresh-session installed load: not proven. The use prompt invoked
+$dough-adr-awareness and the fresh session reported using it, but
+use-events.jsonl contains no supported activation event and no successful
+item.completed command whose output loads the installed
+.agents/skills/dough-adr-awareness/SKILL.md identity. The prerequisite decoder
+therefore retained only item.command attempts and returned inconclusive. The
+verified installed bytes and behavior consistent with the v0.2.2 improvement
+cannot substitute for native load evidence under ADR 0005.
+
+ADR-guided behavior without source use: the use session read only the adopter's
+architecture/decisions/CATALOG.md, ARC-07, ARC-12, and
+governance/architecture-exceptions.md. It did not read fixture-source,
+src/skills, or RECOGNITION.md. It named the two repository-relative lifecycle
+authorities and their conflicting values (CATALOG.md: Replaced; ARC-12 record:
+Adopted), stopped for human resolution, treated ARC-07 as historical, explained
+the exception/replacement path conditionally, and made no edits. This is useful
+ADR-guided behavior and does not depend on reading Open Dough source, but it
+does not repair the missing installed-load proof.
+
+Preservation: update-after equals use-before and use-before equals use-after.
+AGENTS.md, the adopter decision catalog and records, architecture exception
+trail, telemetry context, companion-integration skill, source checkout, and
+the absent Cursor/Claude roots were preserved. Runtime stderr contains isolated
+Codex cache/config warnings, but both streams completed and no observed product
+or preservation assertion failed.
+
+Codex verdict: inconclusive. The stream-classifier defect is fixed and the
+single new attempt proves the ordinary no-URL transition, fresh separate use,
+source-independent useful ADR behavior, and preservation. It does not prove
+fresh-session loading of the installed skill, so this attempt cannot pass.
+Do not retry this native leaf merely to seek a different transcript.
+
+6682816 status: unchanged. No dough-update source or candidate change was made,
+and no new candidate was named.

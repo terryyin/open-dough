@@ -3,7 +3,8 @@
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
 **Status:** Execution complete 2026-09-08 against candidate
 `6682816a2385d96066883b5e4dc073b28e4b3d4f`. Overall verdict: **not accepted**.
-Codex pending; Cursor pass; Claude Code fail. Plan and evidence retained.
+Codex inconclusive (installed load unobserved); Cursor pass; Claude Code
+pending (selected launch denied Bash). Plan and evidence retained.
 No publication.
 
 ## Goal and scope
@@ -108,13 +109,14 @@ stay unchanged. Enables slice 2.
 ### 2. Establish the Codex candidate verdict
 Type: Behavior
 Status: done
-Proof: Retained
-`.planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T030033-43e0`.
-`execution-status: incomplete` (truncated terminal stream vs adapter
-`{"type":"item"}`); `prerequisite-result: fail`; `assessment-status: not-run`;
-`real-transition: false`; use unrun. Native version `codex-cli 0.144.1`.
-Quick 014 still applies to unchanged skill bytes, not this update contract.
-Codex candidate verdict: **pending**.
+Proof: Original attempt
+`.planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T030033-43e0`
+stays as the classifier-defect record. Follow-up
+`20260908T034417-3228` on `codex-cli 0.144.1`: complete `item.completed` /
+`turn.completed` streams; ordinary no-URL `0.2.1` → `0.2.2`; fresh use stopped
+on catalog vs ARC-12 with no edits. Installed-skill load was not observed
+(`prerequisite-result: inconclusive`). Codex candidate verdict:
+**inconclusive**. Not retried.
 
 Behavior: Given the named candidate and saved Codex evidence → review
 applicability and run only uncovered checks → the maintainer has a supported
@@ -145,12 +147,13 @@ Retain and review the attempt and its cleanup within this proof loop.
 ### 4. Establish the Claude Code candidate verdict
 Type: Behavior
 Status: done
-Proof: Salvage
-`.planning/quick/023-accept-standalone-client/evidence/claude/delivery/updated-use/20260908T031111-5393`.
-Wrapper exit 1; `cmp` EOF on installed
-`.claude/skills/dough-adr-awareness/SKILL.md`; no `result-path`, record, or
-streams (scratch deleted before retain). Use unrun. Native version
-`2.1.263 (Claude Code)`. Not retried. Claude Code candidate verdict: **fail**.
+Proof: Original salvage
+`.planning/quick/023-accept-standalone-client/evidence/claude/delivery/updated-use/20260908T031111-5393`
+stays as the lost-evidence failure. Follow-up
+`20260908T033706-419d` on `2.1.263`: retain-on-abort kept record and streams;
+Claude started ordinary update then `git ls-remote` was denied because the
+selected launcher allows only `Read,Glob,Grep,Skill`. Candidate unexercised.
+Claude Code candidate verdict: **pending**. Not retried.
 
 Behavior: Given the same candidate and saved Claude Code evidence → apply the
 shared expectations and run only uncovered Claude Code checks → the maintainer
@@ -162,9 +165,8 @@ options. Retain and review the attempt and its cleanup within this proof loop.
 Type: Behavior
 Status: done
 Proof: Candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f` is **not
-accepted**. Codex pending; Cursor pass; Claude Code fail. Story 3 and this
-table agree. Integration vs skill behavior kept distinct. Publication must
-not proceed on this verdict.
+accepted**. Codex inconclusive; Cursor pass; Claude Code pending. Story 3
+and this table agree. Publication must not proceed on this verdict.
 
 Behavior: Given the three tool verdicts → review their coverage and candidate
 identity → the maintainer receives one accepted-or-pending decision with reasons.
@@ -178,10 +180,10 @@ this slice does not publish or claim future release acceptance.
 | Owner | Platform | Integration: discovery, invocation/application, install/update/coexistence | Skill behavior | Verdict |
 | --- | --- | --- | --- | --- |
 | Slice 1 | Shared selected fixture | Cheap proof that native updated-use invokes ordinary no-URL update. | n/a | Done |
-| Slice 2 | Codex | Combined journey incomplete; ordinary no-URL update not credited. Quick 014 loading/ADR use of unchanged skill SHA remains a starting point only. | Use unrun; Quick 014 historical clear/conflict not reused as this journey's behavior. | Pending |
+| Slice 2 | Codex | Follow-up proved ordinary no-URL update, preservation, and a complete stream. Installed-skill load was not observed. | Fresh use named catalog vs ARC-12 and stopped; that does not repair missing load proof. | Inconclusive |
 | Slice 3 | Cursor | Combined ordinary no-URL update→fresh-use proved discovery, invocation, install/update/coexistence on this journey. | Catalog vs ARC-12 conflict stop with no file edits. | Pass |
-| Slice 4 | Claude Code | One native launch failed payload compare; no-URL update, preservation, and install/update/coexistence not credited. Streams not retained. | Use unrun. | Fail |
-| Slice 5 | Overall | Candidate `6682816` identified. Codex update/use pending; Cursor update/use proved; Claude Code update/use failed and streams lost. | Cursor conflict-stop proved on the updated skill. Codex and Claude Code behavior unrun on this journey. | Not accepted |
+| Slice 4 | Claude Code | Retain-on-abort proved. Selected launch denied Bash, so ordinary update never ran. | Use unrun. | Pending |
+| Slice 5 | Overall | Candidate `6682816` identified. Cursor proved the journey. Codex load unobserved. Claude Code still blocked by harness permissions. | Cursor conflict-stop proved on the updated skill. | Not accepted |
 
 ## Sizing and readiness
 
@@ -241,7 +243,15 @@ on `2.1.263`. Installed skill shorter than fixture source (`cmp` EOF).
 Scratch deleted before retain; use unrun. Not retried. Cursor pass and Codex
 pending are not Claude Code proof.
 
+2026-09-08 Codex follow-up `20260908T034417-3228`: stream classifier now
+matches live `turn.completed`. Ordinary no-URL update and ADR conflict-stop
+were observed. Installed load was not. Original `20260908T030033-43e0` kept.
+
+2026-09-08 Claude Code follow-up `20260908T033706-419d`: retain-on-abort
+worked. Selected `--allowedTools` omitted Bash, so `git ls-remote` never ran.
+Original `20260908T031111-5393` kept. `dough-update` unchanged.
+
 2026-09-08 overall: candidate `6682816` is not accepted. Cursor proved the
-ordinary no-URL update→fresh-use journey. Codex and Claude Code did not.
-Quick 024 release slices stay blocked. This plan is kept with its evidence;
-it is not spent-diary cleanup.
+ordinary no-URL update→fresh-use journey. Codex load and Claude Code update
+remain open. Quick 024 release slices stay blocked. This plan is kept with
+its evidence; it is not spent-diary cleanup.

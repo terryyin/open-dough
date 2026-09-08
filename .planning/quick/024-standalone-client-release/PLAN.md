@@ -2,7 +2,8 @@
 
 **Source:** [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update).
 **Status:** Slices 1–7 done. Quick 023 did **not** accept candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 8–12 stay blocked. No
+`6682816a2385d96066883b5e4dc073b28e4b3d4f` (Codex inconclusive, Cursor pass,
+Claude Code pending). Slices 8–12 stay blocked. No
 publication.
 
 ## Goal and scope

@@ -6,7 +6,8 @@ Accept the named standalone updater candidate natively under
 [Accepted ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md). Cheap
 checks for SEED-007 Stories 1–2 are done. Quick 023 ran against candidate
 `6682816a2385d96066883b5e4dc073b28e4b3d4f` and did **not** accept it (Codex
-pending, Cursor pass, Claude Code fail). Public `v0.2.1` is not the candidate.
+inconclusive, Cursor pass, Claude Code pending). Public `v0.2.1` is not the
+candidate.
 Publication stays blocked. Reconsider underlying stories before reconciling
 other retained plans.
 
@@ -21,7 +22,7 @@ matching, reconciliation, or recovery product.
 ## Queue
 
 1. [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001 Story 7. Implementation handed off named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`; publish after item 2 accepts it. Native acceptance and release/self-use are not finished. [Quick 019](quick/019-standalone-client-update/PLAN.md) will not be run as written.
-2. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. Quick 023 against `6682816a2385d96066883b5e4dc073b28e4b3d4f` is **not accepted** (Codex pending, Cursor pass, Claude Code fail). Publication still waits.
+2. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. Quick 023 against `6682816a2385d96066883b5e4dc073b28e4b3d4f` is **not accepted** (Codex inconclusive, Cursor pass, Claude Code pending). Publication still waits.
 3. [Reconcile retained plans after reconsidering their stories](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance) — SEED-007 Story 4. Last among remaining migration stories; update only plans that remain relevant after story reconsideration. Other retained plans require revision before execution.
 4. [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3. Prepare the actual integrations, retain context, replace the borrowed original once, and use the installed guidance on real work.
 5. [Use a meaningful newer release through Donut's ordinary updater](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4. Do this as soon as a useful newer release exists; it takes priority over further extraction.
@@ -40,9 +41,9 @@ assessment is background only.
 
 **Decision, 2026-09-08:** [Quick 023](quick/023-accept-standalone-client/PLAN.md)
 executed against `6682816a2385d96066883b5e4dc073b28e4b3d4f` and did not accept
-it. Codex pending (incomplete stream); Cursor pass; Claude Code fail (payload
-mismatch, streams lost). Do not publish. Quick 024 slices 8–12 stay blocked.
-Public `v0.2.1` is not the candidate.
+it. Codex inconclusive (installed load unobserved); Cursor pass; Claude Code
+pending (selected launch denied Bash). Do not publish. Quick 024 slices 8–12
+stay blocked. Public `v0.2.1` is not the candidate.
 
 Do not plan Story 7 release/self-use on this verdict. [Quick 019](quick/019-standalone-client-update/PLAN.md)
 is historical and will not be run as written; reconcile it later in

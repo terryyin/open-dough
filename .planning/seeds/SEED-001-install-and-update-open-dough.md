@@ -823,9 +823,9 @@ separates implementation proof from native acceptance:
 
 | Platform | Candidate integration and skill behavior | Release/self-use |
 | --- | --- | --- |
-| Codex | Quick 023 pending: incomplete `delivery/updated-use` stream; use unrun. | Pending publication and retained self-use evidence here. |
+| Codex | Quick 023 inconclusive: ordinary update and conflict-stop observed; installed load unobserved. | Pending publication and retained self-use evidence here. |
 | Cursor | Quick 023 pass: ordinary no-URL update then fresh conflict-stop use. | Pending publication and retained self-use evidence here. |
-| Claude Code | Quick 023 fail: payload compare after native launch; streams not retained. | Pending publication and retained self-use evidence here. |
+| Claude Code | Quick 023 pending: selected launch denied Bash; candidate unexercised. | Pending publication and retained self-use evidence here. |
 
 Implementation can finish at the candidate handoff while native acceptance stays
 pending. This release story remains unfinished until publication and self-use.

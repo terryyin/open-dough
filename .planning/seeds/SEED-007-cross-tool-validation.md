@@ -115,8 +115,8 @@ native evidence remains with Story 3; coached historical results gain no new cla
 
 **Status:** Quick 023 executed 2026-09-08 against candidate
 `6682816a2385d96066883b5e4dc073b28e4b3d4f`. Native acceptance **not accepted**:
-Codex pending, Cursor pass, Claude Code fail. Public `v0.2.1` is not this
-candidate.
+Codex inconclusive (installed load unobserved), Cursor pass, Claude Code
+pending (selected launch denied Bash). Public `v0.2.1` is not this candidate.
 **Plan:** [Quick 023 — accept one standalone client candidate](../quick/023-accept-standalone-client/PLAN.md).
 **Type:** Native acceptance.
 **Dependencies:** Stories 1–2's completed cheap checks and one named candidate
@@ -179,14 +179,14 @@ than treating those historical results as fresh proof.
 
 | Platform | Integration evidence | Skill behavior evidence |
 | --- | --- | --- |
-| Codex | Quick 023 `delivery/updated-use` incomplete (`20260908T030033-43e0`); ordinary no-URL update not credited. Quick 014 explicit/automatic use is historical for unchanged skill SHA only. | Use unrun on this journey. Quick 014 clear/conflict remains historical. |
+| Codex | Quick 023 follow-up `20260908T034417-3228`: ordinary no-URL update and complete stream. Installed load unobserved. Original `20260908T030033-43e0` kept. | Same follow-up: catalog vs ARC-12 stop. Does not repair missing load proof. |
 | Cursor | Quick 023 `delivery/updated-use` pass (`20260908T030715-5dbe`): ordinary no-URL update, real transition, preservation. | Same journey: catalog vs ARC-12 conflict stop; installed skill loaded in a fresh session. |
-| Claude Code | Quick 023 `delivery/updated-use` fail (`20260908T031111-5393`): payload compare failed; streams not retained. Quick 014 Skill calls are historical for unchanged skill SHA only. | Use unrun on this journey. |
+| Claude Code | Quick 023 follow-up `20260908T033706-419d`: retain-on-abort worked; selected launch denied Bash. Original `20260908T031111-5393` kept. | Use unrun on this journey. |
 
 **Boundary / open dependency:** Quick 023 executed against candidate
 `6682816a2385d96066883b5e4dc073b28e4b3d4f` and did **not** accept it. Codex
-pending, Cursor pass, Claude Code fail. This story does not claim overall
-native acceptance or authorize publication.
+inconclusive, Cursor pass, Claude Code pending. This story does not claim
+overall native acceptance or authorize publication.
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps native
 proof here. This story does not implement the updater, publish or self-adopt a
 release, change Donut, reconcile old plans, or add test infrastructure. Force,
@@ -230,8 +230,8 @@ Spent plans 20, 22, and 21 delivered Stories 1–2 cheap checks and were dropped
 Story 3 owns outstanding native evidence per tool.
 
 Quick 023 executed against candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`
-and did not accept it. Keep Story 3 until Codex and Claude Code have credited
-native update→use or a later named candidate replaces it. Do Story 4 last after
-reconsidering its underlying stories. Keep this seed until the scoped migration
-and native acceptance work is complete. Research options and removed plan leaves
-are not hidden completion requirements.
+and did not accept it. Keep Story 3 until Claude Code can run ordinary update
+and Codex installed-load is resolved (native event or a human-owned ADR 0005
+exception). Do Story 4 last after reconsidering its underlying stories. Keep
+this seed until the scoped migration and native acceptance work is complete.
+Research options and removed plan leaves are not hidden completion requirements.
