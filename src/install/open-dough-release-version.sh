@@ -91,6 +91,29 @@ read_record() {
   printf '%s\n' "${version}"
 }
 
+read_source_record() {
+  local file=$1
+  local source='' extra=''
+
+  if [[ ! -e "${file}" ]]; then
+    echo "Missing installed source record: ${file}" >&2
+    return 1
+  fi
+  if [[ ! -f "${file}" ]]; then
+    echo "Malformed installed source record: ${file}" >&2
+    return 2
+  fi
+  {
+    IFS= read -r source || true
+    IFS= read -r extra || true
+  } < "${file}"
+  if [[ -z "${source}" || -n "${extra}" ]]; then
+    echo "Malformed installed source record: ${file}" >&2
+    return 2
+  fi
+  printf '%s\n' "${source}"
+}
+
 strip_leading_zeros() {
   local digits=$1
 

@@ -132,11 +132,12 @@ baseline.
 
 ### 3. An unverifiable installation refuses ordinary replacement
 Type: Behavior
-Status: planned — depends on 2
-Proof: Focused data variations in the same refusal check: edited managed file,
-missing managed file, missing/malformed record, unavailable tag/source, or
-baseline metadata mismatch. Target contents/mtimes remain unchanged and owned
-temporary content is removed.
+Status: done
+Proof: `tests/update-refuses-unverifiable.sh` covers the same ordinary no-URL
+refusal for edited/missing managed files, missing/malformed SOURCE or VERSION,
+unavailable tag/source, and baseline metadata mismatch. Target contents/mtimes
+remain unchanged and owned temporary content is removed. Clean A→B remains in
+`tests/update-when-needed.sh`.
 
 Behavior: Existing installation cannot establish its recorded baseline → ordinary
 update → actionable refusal without guessing a source, forcing, or treating it
@@ -303,3 +304,11 @@ green; slice 3 extends the no-URL preflight only. Genuine A is fixture tag
 `v0.1.1` via `checkout_tagged_release`; B is `v0.1.10`. A decoy client `origin`
 is ignored. Git fixture construction exceeded the five-minute target; focused
 tests themselves were short. One proof loop; not a second overrun.
+
+**Slice 3:** Ordinary no-URL apply refuses when SOURCE/VERSION/baseline cannot
+be established: missing SOURCE is not `Usage`, missing VERSION is not unknown
+overwrite, and edited/missing payload, unavailable tag/source, and mismatched
+tagged metadata share one preserved-installation Outcome. `--url` still skips
+that preflight. Apply lives in `src/install/open-dough-release-apply.sh` and is
+on the inspect list. Git-fixture data variations exceeded the five-minute
+target; focused tests were short. Not a second non-exempt overrun.

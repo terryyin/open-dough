@@ -207,3 +207,17 @@ file_mtime() {
     stat -c '%Y' "$1"
   fi
 }
+
+assert_owned_tmp_empty() {
+  local tmp=$1
+  local context=$2
+  local leftover
+
+  # Apple's developer-tool launcher may create xcrun_db in TMPDIR.
+  leftover=$(find "${tmp}" -mindepth 1 ! -name xcrun_db -print -quit)
+  if [[ -n "${leftover}" ]]; then
+    echo "FAIL: ${context} left temporary work under ${tmp}: ${leftover}" >&2
+    find "${tmp}" -mindepth 1 ! -name xcrun_db -print >&2
+    exit 1
+  fi
+}

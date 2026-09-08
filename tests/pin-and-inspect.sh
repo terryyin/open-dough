@@ -100,7 +100,8 @@ install_inspected_release() (
   head=$(git -C "${snapshot}" rev-parse HEAD)
   [[ "${head}" == "${selected_commit}" ]]
   for inspected_file in install.sh src/install/open-dough-release.sh \
-    src/install/open-dough-platform.sh src/install/open-dough-release-version.sh \
+    src/install/open-dough-release-apply.sh src/install/open-dough-platform.sh \
+    src/install/open-dough-release-version.sh \
     src/install/open-dough-release-resolve.sh; do
     cat "${snapshot}/${inspected_file}" > /dev/null
     printf '%s\n' "${inspected_file}" >> "${install_dir}.inspection"

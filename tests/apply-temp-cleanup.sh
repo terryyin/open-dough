@@ -20,15 +20,7 @@ target="${temporary_dir}/target project"
 prepare_target "${target}"
 
 assert_apply_tmp_empty() {
-  local leftover
-  # Apple's developer-tool launcher may create its own cache in TMPDIR. It is
-  # not operation-owned release-helper state.
-  leftover=$(find "${apply_tmp}" -mindepth 1 ! -name xcrun_db -print -quit)
-  if [[ -n "${leftover}" ]]; then
-    echo "FAIL: apply left temporary work under ${apply_tmp}: ${leftover}" >&2
-    find "${apply_tmp}" -mindepth 1 ! -name xcrun_db -print >&2
-    exit 1
-  fi
+  assert_owned_tmp_empty "${apply_tmp}" 'apply'
 }
 
 export TMPDIR="${apply_tmp}"

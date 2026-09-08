@@ -56,6 +56,7 @@ inspection and execution into an unattended one-shot command.
 4. Read and inspect these files from that snapshot before executing any of them:
    - `install.sh`
    - `src/install/open-dough-release.sh`
+   - `src/install/open-dough-release-apply.sh`
    - `src/install/open-dough-platform.sh`
    - `src/install/open-dough-release-version.sh`
    - `src/install/open-dough-release-resolve.sh`
@@ -170,18 +171,24 @@ working-tree helper. The updater:
 6. Compares the selected updater's `VERSION` record. For an older record, fetch
    that tagged baseline as data without executing it, compare the two managed
    files, and run the pinned installer with `--force` only when they still
-   match and replacement is required.
+   match and replacement is required. An ordinary update without a supplied URL
+   refuses without writing when SOURCE or VERSION is missing or unusable, the
+   recorded tag or source is unavailable, fetched baseline metadata does not
+   match, or managed files differ from that baseline. It does not infer the
+   client remote or treat that destination as a clean first install.
 7. Verifies that both installed files byte-match the fetched sources and
    that distributable source, unrelated project files, other tools' separate
    installations, and home guidance remain unchanged.
 
 An equal recorded version produces no installed-file writes. An older
-unchanged installation advances to the selected release, a missing record
-advances to the selected release, a newer record is preserved without a
-downgrade, and a malformed record is refused. Review a resulting diff and start
-a fresh session in the same tool to use replaced guidance. The update flow
-assumes the installed skill has no local edits; project-specific edit handling
-remains future work.
+unchanged installation advances to the selected release. Ordinary update
+without a supplied URL refuses when the recorded baseline cannot be
+established, including missing or malformed SOURCE or VERSION, an unavailable
+tag or source, baseline metadata mismatch, and changed or missing managed
+files. A supplied-URL missing record still advances to the selected release, a
+newer record is preserved without a downgrade, and a malformed VERSION is
+refused. Review a resulting diff and start a fresh session in the same tool to
+use replaced guidance.
 
 ## Legacy bootstrap
 

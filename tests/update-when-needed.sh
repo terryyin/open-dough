@@ -101,11 +101,7 @@ upgrade_tmp="${temporary_dir}/apply-tmp"
 mkdir -p -- "${upgrade_tmp}"
 output=$(TMPDIR="${upgrade_tmp}" bash "${helper}" apply --target "${target}" \
   --platform codex)
-leftover=$(find "${upgrade_tmp}" -mindepth 1 ! -name xcrun_db -print -quit)
-if [[ -n "${leftover}" ]]; then
-  echo "FAIL: ordinary upgrade left temporary work under ${upgrade_tmp}: ${leftover}" >&2
-  exit 1
-fi
+assert_owned_tmp_empty "${upgrade_tmp}" 'ordinary upgrade'
 [[ "${output}" == *"Source: ${expected_source}"* ]]
 [[ "${output}" != *"${decoy}"* ]]
 [[ "${output}" == *'updated from 0.1.1 to 0.1.10'* ]]

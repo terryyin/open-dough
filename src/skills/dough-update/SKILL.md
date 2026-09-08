@@ -41,12 +41,15 @@ Ordinary Open Dough release updates remain available from the recorded source.
    obsolete recognition file from an earlier installation may remain until a
    later update retires it.
 
-4. Resolve the Open Dough source from the selected root. If that root's
-   `dough-update/SOURCE` exists, use that recorded value. If none is recorded,
-   use the repository URL supplied by the user; if none was supplied, ask for
-   it before proceeding. First installation and explicit force take a supplied
-   source. Do not substitute the target project's remote or local working-tree
-   content.
+4. Resolve the Open Dough source from the selected root. If the selected
+   updater destination already exists, use that root's recorded
+   `dough-update/SOURCE`. If that record is missing or unusable, stop and
+   report that ordinary update cannot establish the recorded baseline. Do not
+   ask for a URL, do not treat the destination as a first install, and do
+   not substitute the target project's remote or local working-tree content.
+   If the destination does not exist, use the repository URL supplied by the
+   user; if none was supplied, ask for it before proceeding. First
+   installation and explicit force take a supplied source.
 5. Make a fresh temporary directory. Using only Git, pin the highest numeric
    release before any repository script runs. Do not clone the default
    branch, and do not execute `install.sh` or `open-dough-release.sh` from
@@ -59,8 +62,9 @@ Ordinary Open Dough release updates remain available from the recorded source.
    b. `git init` the work directory, `git fetch --depth 1 <source-url>
       <commit>`, and check out that commit detached. Confirm
       `git rev-parse HEAD` equals the peeled commit.
-   c. Inspect that snapshot's `src/install/open-dough-release.sh`, `install.sh`,
-      and both public payload sources under `src/skills/`.
+   c. Inspect that snapshot's `src/install/open-dough-release.sh`,
+      `src/install/open-dough-release-apply.sh`, `install.sh`, and both
+      public payload sources under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <snapshot>/src/install/open-dough-release.sh apply --target
@@ -79,7 +83,11 @@ Ordinary Open Dough release updates remain available from the recorded source.
    `install.sh` or write the selected files, even when untagged source or local
    skill text differs. An older recorded installation is compared to its saved
    release's managed files, then replaced with latest only when those files are
-   unchanged. A missing selected record advances directly to latest. A newer
+   unchanged. If ordinary update cannot establish that baseline — missing or
+   unusable SOURCE or VERSION, an unavailable recorded tag or source, baseline
+   metadata mismatch, or changed or missing managed files — refuse without
+   writing, forcing, or treating the destination as a first install. A
+   supplied-URL missing selected record advances directly to latest. A newer
    selected record is preserved with no downgrade. A malformed selected
    `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
    release failures must not write the target or fall back to a lower release
