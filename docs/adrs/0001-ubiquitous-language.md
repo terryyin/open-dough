@@ -6,11 +6,6 @@
 
 **Decision makers:** Terry Yin
 
-**Consulted:** Terry Yin; installation and update terminology proposed following
-the ADR 0004 discussion on 2026-09-07. Terry Yin chose consistent slice
-terminology across planning, refinement, and execution and supplied the story
-definition on 2026-09-08. Further advice open.
-
 ## Context
 
 Open Dough needs consistent names for the guidance it produces, what clients
@@ -45,6 +40,10 @@ The client runs `dough-update`, receives changes to its installed project files,
 then reviews and commits those changes. The Open Dough repository supplies the
 release; the client project's repository holds the resulting installation.
 
+- **Seed:** A captured product idea or concern, with its purpose and related
+  stories. A seed provides context for exploring and refining those stories;
+  each story has one canonical home within a seed and may cross concerns
+  described by other seeds.
 - **Story (user story):** A romantic, speculative account of a possibility worth
   pursuing for its user or learning value. It invites interest and discussion,
   may be fuzzy or incomplete, and may cross features and system boundaries.

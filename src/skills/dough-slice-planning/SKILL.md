@@ -27,7 +27,7 @@ turn a decomposition seed directly into an execution plan.
 
 Before writing, identify from the user's instructions and adopting repository:
 
-- the selected story and its home, when one exists;
+- the selected story and its seed, when one exists;
 - the executable-plan path, format additions, status vocabulary, and lifecycle;
 - the project's slice target and hard limit, including permitted
   exceptions and overrun escalation;

@@ -30,7 +30,7 @@ authorize execution.
 
 Read the user's instructions and repository guidance to identify:
 
-- The repository root, supplied seed or canonical seed directory, home ID
+- The repository root, supplied seed or canonical seed directory, seed ID
   allocation and filename conventions, and stable story-anchor convention.
 - Required seed metadata and lifecycle vocabulary.
 - The project's definitions of S, M, and L effort bands.
@@ -47,7 +47,7 @@ before writing.
 Read and follow [problem decomposition](references/problem-decomposition.md)
 to establish human-owned framing decisions, challenge alternatives, and select,
 size, and order stories. Then use [seed format](references/seed-format.md) to
-update the supplied seed or create its home. Leave the seed uncommitted for
+update the supplied seed or create a new seed. Leave the seed uncommitted for
 review unless the user explicitly requests a commit.
 
 Report the seed path, recommended first story, rejected simpler alternative,

@@ -2,7 +2,7 @@
 
 ## Choose the planning level
 
-Refine an unresolved selected story in its home. Once its goal, scope, and key
+Refine an unresolved selected story in its seed. Once its goal, scope, and key
 examples are understood and executable planning is authorized, write or refine
 one active executable plan. Do not use an execution plan to decide story scope,
 and do not turn a story seed directly into executable work.
@@ -36,23 +36,23 @@ agreement. Add **Architecture** only for a new consequential concern; consult
 ADRs. Inspect existing behavior or code only to resolve a concrete question,
 without turning refinement into technical planning. Omit unused optional sections.
 
-## Update the story's home
+## Update the story in its seed
 
 Follow the shared
 [seed format](../../dough-story-decomposition/references/seed-format.md) for
-home ownership, metadata, anchors, and backlog boundaries. Expand each selected
+seed ownership, metadata, anchors, and backlog boundaries. Expand each selected
 story section with the understanding above, replacing overlapping detail.
 Record only open questions that affect that story. When refining several
 stories, keep each outcome and boundary separate; do not merge them into one
 delivery by implication.
 
-If no home exists, create one using that format. Do not invent parent-problem
+If no seed exists, create one using that format. Do not invent parent-problem
 decisions to fill it; route unresolved framing or candidate selection to
 [dough-story-decomposition](../../dough-story-decomposition/SKILL.md).
 Do not create a separate refinement file.
 
-Discuss goal or scope changes with the human and keep the home story and any
-active plan aligned; discovery alone does not authorize expansion. Do not
+Discuss goal or scope changes with the human and keep the story in its seed and
+any active plan aligned; discovery alone does not authorize expansion. Do not
 silently cancel remaining scope or change siblings. Preserve compatible work
 and evidence when revising boundaries. Use the project's own locations and
 workflows for executable plans, phase artifacts, and project memory. Keep

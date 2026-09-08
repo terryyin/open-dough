@@ -10,7 +10,7 @@ condition.
 
 ## Purpose
 
-Clarify selected stories in their existing homes before execution planning.
+Clarify selected stories in their existing seeds before execution planning.
 
 ## Triggers
 
@@ -20,11 +20,11 @@ candidate selection or slice sizing.
 ## Distinguishing behavior
 
 Conversation reuses prior answers; smallest useful outcome; conditional UI and
-ADR checks; stable home anchors; implemented-story cleanup.
+ADR checks; stable story anchors; implemented-story cleanup.
 
 ## Adopter-provided context
 
-Selected stories and prior decisions; home conventions if creating one;
+Selected stories and prior decisions; seed conventions if creating one;
 conditional ADR context and requested execution workflow.
 
 ## Differences that rule out replacement

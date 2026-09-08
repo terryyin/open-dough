@@ -39,7 +39,7 @@ with its directly referenced guidance.
 **Goal:** Split one oversized Open Dough problem into useful, ordered stories.
 **Scope:** Extract Donut's decomposition practice and its needed guidance, then
 use it on one actual problem. Keep the smallest worthwhile outcomes in their
-home seed and queue the useful next story.
+seed and queue the useful next story.
 **Evaluation:** Each selected story delivers something the owner can judge and
 has a rough effort estimate. Manual work is considered when choosing scope.
 Include the skill in the next useful release.

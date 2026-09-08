@@ -2,7 +2,7 @@
 name: dough-story-refinement
 description: >-
   Clarifies selected stories before execution planning by establishing goal,
-  scope, and key examples in each story's home seed. Adds UI or architectural
+  scope, and key examples in each story's seed. Adds UI or architectural
   detail only when needed. Use for selected-story refinement, not broad problem
   decomposition, candidate selection, or slice sizing.
 ---
@@ -11,7 +11,7 @@ description: >-
 
 Build shared understanding of one selected story, or several related stories
 whose boundaries need discussion. Record Goal, Scope, and Key examples in each
-story's home seed.
+story's seed.
 
 ## Choose the workflow
 
@@ -27,8 +27,8 @@ project's planning workflow and continue without repeating answered questions.
 
 ## Resolve required context
 
-Identify the adopting repository root, selected story links and home seeds,
-and relevant prior decisions. When a home is missing, resolve the canonical
+Identify the adopting repository root, selected story links and seeds,
+and relevant prior decisions. When a seed is missing, resolve the canonical
 seed directory, ID and filename conventions, required metadata, and stable
 story-anchor convention. Resolve project paths from that repository, not this
 skill's location.
@@ -41,7 +41,7 @@ missing and stop the affected activity. Do not invent project paths or decisions
 ## Refine and report
 
 Read and follow [planning scope and lifecycle](references/planning.md) for the
-conversation, scope decisions, optional UI and architecture detail, home updates,
+conversation, scope decisions, optional UI and architecture detail, seed updates,
 and cleanup after implementation.
 
 Report the story links, material exclusions, and unresolved decisions.

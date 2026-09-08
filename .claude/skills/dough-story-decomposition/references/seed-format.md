@@ -1,19 +1,21 @@
 # Seed format
 
-Update the supplied seed or allocate a new home ID and filename in the project's
+Update the supplied seed or allocate a new seed ID and filename in the project's
 canonical seed directory. Keep one parent problem and its candidate stories in
-one seed, with one home section per story. A seed is non-executable planning input.
-Keep cross-feature journeys in one home and link related seeds instead of
-duplicating story details. Preserve sibling stories, existing metadata, and anchors.
+one seed, with one canonical section per story. A seed is non-executable
+planning input.
+Keep each story in one seed, even when its journey crosses concerns in other
+seeds, and link related seeds instead of duplicating story details. Preserve
+sibling stories, existing metadata, and anchors.
 
 Map the metadata below to the project's field names and lifecycle vocabulary:
-home identity, dormant status, creation date, creation context, resurfacing
+seed identity, dormant status, creation date, creation context, resurfacing
 trigger, and whole-set size. Do not invent values; resolve required missing
 context before writing.
 
 ```yaml
 ---
-id: <home ID>
+id: <seed ID>
 status: <adopter's dormant status>
 planted: <creation date>
 planted_during: <milestone, phase, or context>
@@ -23,7 +25,7 @@ scope: <whole-set size under adopter conventions>
 ```
 
 ```markdown
-# <home ID>: <parent problem or desired effect>
+# <seed ID>: <parent problem or desired effect>
 
 ## Why This Matters
 
@@ -65,7 +67,7 @@ scope: <whole-set size under adopter conventions>
 ## Backlog boundaries
 
 Only when the user asks to queue or reprioritize stories, update the canonical
-product backlog as a global ordered list of story titles linked to their home
-sections, with home IDs. Keep story details in the seeds. Use the project's
+product backlog as a global ordered list of story titles linked to their
+sections in seeds, with seed IDs. Keep story details in the seeds. Use the project's
 stable-anchor convention for new queued stories; local numbering is not global
 priority. Leave unqueued candidates in their seeds.

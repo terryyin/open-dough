@@ -26,7 +26,7 @@ direct-execution readiness unless explicit refinement triggers remain.
 
 ## Adopter-provided context
 
-Story and home; executable-plan path and lifecycle; slice target, hard
+Story and seed; executable-plan path and lifecycle; slice target, hard
 limit, exceptions, and repeated-overrun policy; verification and delivery gates;
 relevant stack rules and Accepted ADRs.
 
