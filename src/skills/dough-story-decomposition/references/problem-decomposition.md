@@ -1,36 +1,50 @@
 # Problem decomposition
 
-Read for problem framing, story splitting, ordering, and rough sizing. These are
-the story-level decisions extracted from the source rule. They apply during
-skill use; this reference is not an automatically applied host rule and does not
-supply execution planning or implementation instructions.
+## Establish the human-owned decisions
 
-## Choose the resolution
+Before writing the seed, use an explicit answer the human already gave or ask
+them to accept or revise your proposed answer for each decision:
 
-- If the beneficiary, problem, desired effect, constraints, or direction is
-  unclear, frame an evaluable decision, assumption, or outcome first.
-- If the problem is clear but several increments are possible, use
-  [dough-story-decomposition](../SKILL.md) for ordered stories.
-- If selected stories need goal, scope, or examples clarified, use
-  [dough-story-refinement](../../dough-story-refinement/SKILL.md).
-- Only after one story is understood, and execution planning is requested, hand
-  off to the adopter's planning workflow. A seed is not executable.
+| Decision | Required answer |
+| --- | --- |
+| Beneficiary | Who experiences the problem or evaluates the outcome? |
+| Current problem | What happens now, including the workaround? |
+| Desired effect | What observable change would be worth having? |
+| Value now | Why act now rather than defer or do nothing? |
+| Simpler alternative | What is the strongest smaller, manual, or existing-tool option, and why is it insufficient? |
+| Highest learning | Which assumption should the first story test? |
+| Constraints | Which boundaries are problem facts rather than proposed design? |
 
-## Rules for every story split
+Reuse answered questions. Ask only questions that can change story selection
+or order, at most three closely related questions per turn. State the current
+hypothesis and recommended answer with each question. If competing answers
+materially change the decomposition, wait for the human instead of choosing
+silently. Mark unresolved decisions explicitly; do not record proposals as
+human decisions.
 
-| Judgment                                                                 | Action                                                                |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| A child contains two independently useful outcomes or acceptance signals | Split it                                                              |
-| A child has no named evaluator or observable evidence                    | Refine it before keeping it                                           |
-| Stopping after a child leaves only unused preparation                    | Merge preparation into the behavior it enables                        |
-| A later child has higher value or tests a more consequential assumption  | Move it earlier unless a genuine product prerequisite prevents it     |
-| A child exists only to build a layer, component, activity, or framework  | Put that work inside a vertical story                                 |
-| A general solution is proposed before a concrete case requires it        | Start with the concrete case                                          |
-| Evidence invalidates the parent outcome, boundary, or order              | Stop at a safe boundary and revisit that decomposition with the human |
+## Frame and challenge the problem
 
-## Story gate: Valuable, Visible, Vertical
+Write the parent problem as:
 
-Keep a candidate only when all answers are yes:
+```text
+For <beneficiary>, <current problem> should change to <desired effect>, within
+<genuine constraints>.
+```
+
+Explicitly evaluate doing nothing or deferring, a smaller behavior change, a
+manual or existing-tool workflow, and the requested direction. Recommend one.
+Record the evidence, assumptions, and why the strongest rejected alternative
+is insufficient.
+
+## Select candidate stories
+
+Frame each candidate as one user or stakeholder journey with an observable
+outcome, crossing related features when necessary. Cut around behavior, a
+product decision, risk, or learning question. Decompose only enough candidates
+to answer the current value or learning question; do not exhaust a feature for
+completeness.
+
+Keep a candidate only when all three answers are yes:
 
 1. **Valuable:** Does it change an outcome for a named user or stakeholder?
    “Needed for later work” is insufficient.
@@ -38,58 +52,54 @@ Keep a candidate only when all answers are yes:
    implementation?
 3. **Vertical:** Does it work end to end across every required layer?
 
-Revise failures. Necessary non-3V work belongs inside another story, not in a
-separate story. Name an evaluable outcome and boundaries distinguishing
-siblings; exhaustive acceptance scenarios are unnecessary.
+Revise failures. Put necessary non-3V work inside the story it enables. Do not
+create stories around technical layers, components, activities, specialists,
+or teams, or add file-level tasks, APIs, or implementation design.
 
-## Decomposition procedure
+For each retained candidate, name its evaluator and evaluation signal, user
+value or consequential assumption tested, genuine product prerequisites, and
+boundaries distinguishing it from siblings. State the value retained if later
+stories are cancelled and the safety conditions it must satisfy on its own.
+Merge unused preparation into the behavior it enables.
 
-1. Restate the solution as beneficiary → current problem → desired effect →
-   genuine constraints.
-2. Use a representative example, counterexample, boundary, or relevant exception
-   when it changes the story boundary. Describe behavior as pre-condition →
-   trigger → result.
-3. Cut around user behavior, a product decision, risk, or learning question;
-   reject cuts around technical layers or roles.
-4. Apply the 3V gate.
-5. Order by user value, then learning value, then genuine product prerequisites.
-6. Check stopping points. Remove or move preparation that becomes waste if later
-   children are cancelled.
-7. When evidence arrives, revisit the highest resolution it invalidates. Changes
-   to goals, scope, examples, or sibling order need human story review; do not
-   silently cancel remaining scope or rewrite siblings.
+Include an acceptance example, counterexample, boundary, or exception only when
+it changes the story boundary. Use pre-condition → trigger → result for behavior;
+do not enumerate an exhaustive acceptance suite.
 
-## Permitted splitting moves
+## Split and size
+
+Split a candidate with two independently useful outcomes or acceptance signals.
+Use these splitting moves:
 
 - Narrow the beneficiary, pre-condition, or data variation.
 - Deliver one independently usable, observable workflow step.
 - Separate common behavior from a later special policy or exception.
 - Separate a cheap assumption test from the broader outcome it may justify.
-- Use interim behavior when it delivers usable value or earlier end-to-end
-  evidence; name the later replacement that removes it.
+- Use interim behavior for usable value or earlier end-to-end evidence; name
+  the later replacement that removes it.
 
-Choose breadth-first or depth-first based on earlier value or learning. Retain
-an externally evaluable result either way.
+Choose breadth-first or depth-first cuts by earlier value or learning while
+retaining an externally evaluable result. Start with a concrete case before a
+general solution; extract abstractions after repetition. Keep a prototype
+bounded to the cheapest evidence needed for its question.
 
-## Story effort hypotheses
+Estimate comparatively using the project's S/M/L definitions, without code
+inspection or implementation design. Record the band, confidence, and
+assumptions. Resolve missing band definitions before writing estimates. Split
+a likely larger-than-L story using the moves above; do not equalize estimates
+by making cuts that fail the 3V gate.
 
-Use the adopter's definitions of S, M, and L, estimating comparatively without
-implementation design or code inspection. Record the band, confidence, and
-assumptions. If those definitions are unavailable, resolve them before writing
-estimates; do not silently import the source project's hours.
+## Order and reassess
 
-Split a likely larger-than-L story by behavior, policy, risk, or learning. Do
-not split merely to equalize estimates if the result fails the 3V gate.
+Order stories by user value, then learning value, then genuine product
+prerequisites. Move a later story earlier when it delivers more value or tests
+a more consequential assumption sooner, unless a genuine prerequisite prevents
+it. Record the rationale, safe stopping points, and first-to-drop order for
+scope reduction.
 
-## Correct these smells
-
-- Backend first, frontend later: reassemble one end-to-end behavior.
-- A requirement per component, specialist, or team: coordinate the work inside
-  one vertical story.
-- Abstraction first: start with a concrete case, extracting after repetition.
-- A large story as permanent specification: keep it as planning input; enduring
-  behavior belongs in executable examples and product documentation.
-- A prototype growing past its question: limit it to the cheapest needed
-  evidence.
-- One giant implementation task: hand off to the adopter's bounded execution
-  workflow after story understanding and authorization are established.
+When evidence invalidates the parent outcome, story boundary, or ordering, stop
+at a safe boundary and revisit the highest affected resolution with the human.
+Use [dough-story-refinement](../../dough-story-refinement/SKILL.md) for changes
+to selected-story goal, scope, or examples. Do not silently cancel remaining
+scope or rewrite siblings. Keep stories as planning input; enduring behavior
+belongs in executable examples and product documentation.

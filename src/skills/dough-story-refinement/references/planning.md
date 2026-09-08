@@ -1,54 +1,61 @@
 # Planning scope and lifecycle
 
-Read during story refinement and when cleaning up an implemented story. This
-extract preserves the source planning rule's story-level scope and lifecycle. It
-is not an automatically applied host rule or an execution-planning workflow.
+## Refine through conversation
 
-## Route the work
+Read the selected stories and relevant prior discussion. Reuse answers already
+given; ask only questions that change understanding, with a concise proposed
+answer. Do not turn refinement into a questionnaire or mandatory approval
+ceremony. Mark unresolved decisions explicitly; do not present proposals as
+human decisions.
 
-Read
-[problem decomposition](../../dough-story-decomposition/references/problem-decomposition.md)
-when parent framing, splitting, or story ordering needs reconsideration.
+For each story, establish:
 
-- Unresolved parent problem or candidate selection: use
-  [dough-story-decomposition](../../dough-story-decomposition/SKILL.md).
-- Selected stories needing goal, scope, or examples: refine in their home seeds.
-- One understood story and an explicit request for planning: use the adopter's
-  execution-planning workflow. Pass along existing answers.
-- An existing plan needing smaller or clearer execution leaves: use the
-  adopter's execution-plan refinement workflow on that plan, not story
-  refinement.
-- A seed alone does not select a story or authorize execution.
+- **Goal:** beneficiary, desired change, and contribution to the business goal.
+  Keep the story's observable outcome distinct from the broader ambition.
+- **Scope:** included behavior, material exclusions, and boundary assumptions.
+- **Key examples:** concrete pre-condition → trigger → result situations that
+  explain the scope. Include boundaries or exceptions when they resolve
+  ambiguity; do not enumerate a complete test suite.
 
-## Scope discipline
+Prefer the smallest useful outcome. Clarify uncertain additions when possible;
+otherwise exclude them and report what was considered. If exclusion prevents
+the stated goal or examples from working, resolve the question before dependent
+planning or implementation. Necessary implementation details are not extra
+product scope; speculative generality is.
 
-Deliver the understood story conservatively. Unexpected extras add complexity.
-Clarify uncertain behavior when possible; otherwise exclude it and tell the
-human what was considered. If exclusion prevents the stated goal or examples,
-resolve the question before dependent planning or implementation. Necessary
-implementation details are not extra product scope; speculative generality is.
+Add **UI** descriptions or sketches only when interaction or presentation needs
+agreement. Add **Architecture** only for a new consequential concern; consult
+[dough-adr-awareness](../../dough-adr-awareness/SKILL.md) and relevant Accepted
+ADRs. Inspect existing behavior or code only to resolve a concrete question,
+without turning refinement into technical planning. Omit unused optional sections.
 
-Refinement is revisable understanding. Discuss goal or scope changes with the
-human and keep the home story and any active plan aligned; discovery alone does
-not authorize expansion. Do not silently cancel remaining scope or change
-sibling stories. Preserve compatible work and evidence when revising boundaries.
+## Update the story's home
 
-## Artifact ownership
+Follow the shared
+[seed format](../../dough-story-decomposition/references/seed-format.md) for
+home ownership, metadata, anchors, and backlog boundaries. Expand each selected
+story section with the understanding above, replacing overlapping detail.
+Record only open questions that affect that story. When refining several
+stories, keep each outcome and boundary separate; do not merge them into one
+delivery by implication.
 
-Use the adopter's canonical seed directory, home IDs, metadata, and stable story
-anchors. Keep the parent problem, candidates, and each story's refinement in its
-home seed. The product backlog contains ordered story links, not duplicate story
-details. Do not create a separate refinement file.
+If no home exists, create one using that format. Do not invent parent-problem
+decisions to fill it; route unresolved framing or candidate selection to
+[dough-story-decomposition](../../dough-story-decomposition/SKILL.md).
+Do not create a separate refinement file.
 
-Executable plans, phase artifacts, and project memory use the adopter's own
-locations and workflows; do not infer them from the source project's layout.
-Keep planning-only numbering out of product code, tests, and permanent docs.
+Discuss goal or scope changes with the human and keep the home story and any
+active plan aligned; discovery alone does not authorize expansion. Do not
+silently cancel remaining scope or change siblings. Preserve compatible work
+and evidence when revising boundaries. Use the project's own locations and
+workflows for executable plans, phase artifacts, and project memory. Keep
+planning-only numbering out of product code, tests, and permanent documentation.
 
-## Cleanup after implementation
+## Clean up after implementation
 
 Keep enduring behavior in tests and product documentation, and enduring design
 in code and ADRs. Once that knowledge is captured, reduce each implemented
 story's refinement detail to Goal and Scope, including exclusions. Remove spent
 examples, UI sketches, and architectural discussion; preserve its anchor,
-completion status, and unfinished siblings. Do not discard still-needed detail
-before the enduring knowledge has a home.
+completion status, and unfinished siblings. Retain still-needed detail until
+the enduring knowledge has a home.

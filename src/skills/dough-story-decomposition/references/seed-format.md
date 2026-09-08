@@ -1,14 +1,15 @@
 # Seed format
 
-Read when creating a story home or updating its structure. One seed contains one
-parent problem and its candidate stories; each story has one home section. This
-is non-executable planning input.
+Update the supplied seed or allocate a new home ID and filename in the project's
+canonical seed directory. Keep one parent problem and its candidate stories in
+one seed, with one home section per story. A seed is non-executable planning input.
+Keep cross-feature journeys in one home and link related seeds instead of
+duplicating requirements. Preserve sibling stories, existing metadata, and anchors.
 
-Use the adopter's home ID, filename, metadata fields, and lifecycle vocabulary.
-Preserve existing metadata and anchors. The following metadata illustrates the
-source format's meanings, not a required GSD dependency: home identity, dormant
-status, creation date, creation context, resurfacing trigger, and whole-set
-size. Do not invent values; resolve required missing context before writing.
+Map the metadata below to the project's field names and lifecycle vocabulary:
+home identity, dormant status, creation date, creation context, resurfacing
+trigger, and whole-set size. Do not invent values; resolve required missing
+context before writing.
 
 ```yaml
 ---
@@ -61,7 +62,10 @@ scope: <whole-set size under adopter conventions>
 <supplied requirements or references; no code audit>
 ```
 
-Use the adopter's stable-anchor convention for new queued stories. Local story
-numbering is not global priority. During refinement, expand the selected story
-section with Goal, Scope, and Key examples; include UI or Architecture only when
-needed. Preserve sibling stories. Link related seeds instead of copying detail.
+## Backlog boundaries
+
+Only when the user asks to queue or reprioritize stories, update the canonical
+product backlog as a global ordered list of story titles linked to their home
+sections, with home IDs. Keep story details in the seeds. Use the project's
+stable-anchor convention for new queued stories; local numbering is not global
+priority. Leave unqueued candidates in their seeds.
