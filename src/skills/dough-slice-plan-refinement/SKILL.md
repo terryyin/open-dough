@@ -19,6 +19,9 @@ Require an existing executable plan and the client project context required by
 hard limit, exceptions, overrun policy, and plan lifecycle.
 
 - If no plan exists, use `dough-slice-planning`.
+- If a plan is marked as awaiting story refinement after resplitting, use
+  [dough-story-refinement](../dough-story-refinement/SKILL.md) on its mapped
+  story and realign the plan before treating it as refinable or executable.
 - If the selected story's goal, scope, or examples must change, use
   [dough-story-refinement](../dough-story-refinement/SKILL.md).
 - If the parent problem, candidate selection, or sibling ordering must change,
@@ -55,7 +58,14 @@ editing the plan. Stop for human judgment when ownership is unclear. Do not
 commit, push, implement, or verify product behavior unless the invoking workflow
 separately authorizes it.
 
-Report the plan path, replaced slices, resulting slices, sizing exceptions, and
-whether execution can resume. End with:
+Count the resulting plan's slices, including completed slices but excluding
+obsolete replaced slices. If the count is greater than 15, report
+`story resplit recommended: <count> slices; use dough-resplit-story` and link to
+[dough-resplit-story](../dough-resplit-story/SKILL.md). This is a recommendation,
+not an automatic invocation or a new execution-readiness gate. Do not resplit
+the story or change its backlog placement during slice-plan refinement.
+
+Report the plan path, replaced slices, resulting slice count, sizing exceptions,
+any resplit recommendation, and whether execution can resume. End with:
 
 `## SLICE PLAN REFINED`
