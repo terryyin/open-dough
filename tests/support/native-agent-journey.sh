@@ -94,29 +94,6 @@ write_codex_complete() {
   printf '%s\n' '{"type":"turn.completed"}'
 }
 
-emit_codex_use_expansion() {
-  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
-  if [[ ! -f ${skill_path} ]]; then
-    jq -n -c \
-      '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Installed skill was not found."}}'
-    return 0
-  fi
-  jq -n -c --arg command "sed -n '1,260p' '${skill_path}'" \
-    --arg content "$(cat "${skill_path}")" \
-    '{type:"item.completed",item:{id:"item_0",type:"command_execution",command:$command,aggregated_output:$content,exit_code:0,status:"completed"}}'
-}
-
-emit_cursor_use_activation() {
-  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
-  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
-    '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
-}
-
-emit_claude_use_skill_request() {
-  jq -n -c \
-    '{message:{content:[{type:"tool_use",name:"Skill",input:{skill:"dough-adr-awareness"}}]}}'
-}
-
 write_stream_result() {
   jq -n -c --arg result "$1" '{type:"result",result:$result}'
 }
@@ -226,14 +203,7 @@ if [[ ${host} == 'codex' ]]; then
     exit 1
   fi
   printf '%s\n' "${use_response}" > "${output_file}"
-  emit_codex_use_expansion
-  printf '%s\n' '{"type":"turn.completed"}'
+  write_codex_complete
   exit 0
-fi
-if [[ ${host} == 'cursor' ]]; then
-  emit_cursor_use_activation
-fi
-if [[ ${host} == 'claude' ]]; then
-  emit_claude_use_skill_request
 fi
 write_stream_result "${use_response}"

@@ -3,60 +3,15 @@
 # adapter proofs. The proof script assigns source_dir, work paths, and PATH first.
 # shellcheck disable=SC2016,SC2154,SC2249,SC2310,SC2311,SC2312 # Proof globals; pipefail covers logs.
 
-# shellcheck source=tests/support/native-prerequisite-gate.sh
+# shellcheck source=tests/support/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/tests/support/native-prerequisite-gate.sh"
+source "${source_dir}/tests/support/native-result-retain.sh"
 # shellcheck source=tests/support/native-updated-use-prompt-assert.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-updated-use-prompt-assert.sh"
-
-native_updated_use_adapter_require_host() {
-  case $1 in
-    cursor | claude) ;;
-    *)
-      echo "FAIL: unexpected host $1." >&2
-      return 1
-      ;;
-  esac
-}
-
-wrapper_for() {
-  native_updated_use_adapter_require_host "$1" || return
-  printf '%s\n' \
-    "${source_dir}/tests/dough-adr-awareness-$1-delivery-to-use.sh"
-}
-
-print_launch() {
-  native_updated_use_adapter_require_host "$1" || return
-  case $1 in
-    cursor) printf 'cursor agent --print\n' ;;
-    claude) printf 'claude --print\n' ;;
-  esac
-}
-
-version_command_for() {
-  native_updated_use_adapter_require_host "$1" || return
-  case $1 in
-    cursor) printf 'cursor agent --version\n' ;;
-    claude) printf 'claude --version\n' ;;
-  esac
-}
-
-adapter_identity_for() {
-  native_updated_use_adapter_require_host "$1" || return
-  case $1 in
-    cursor) printf 'cursor-agent-stream-json\n' ;;
-    claude) printf 'claude-stream-json\n' ;;
-  esac
-}
-
-native_version_for() {
-  native_updated_use_adapter_require_host "$1" || return
-  case $1 in
-    cursor) printf 'cursor-agent journey-1\n' ;;
-    claude) printf 'claude journey-1\n' ;;
-  esac
-}
+# shellcheck source=tests/support/native-updated-use-adapter-host.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-updated-use-adapter-host.sh"
 
 assert_watched_empty() {
   local leftover
@@ -160,7 +115,7 @@ assert_record_identity() {
     "${attempt}/record"
   grep -Fq "adapter-identity: $(adapter_identity_for "${host}")" \
     "${attempt}/record"
-  native_prerequisite_assert_record_fields \
+  native_result_assert_no_discovery_fields \
     "${attempt}/record" "${host} journey record"
 }
 
@@ -178,14 +133,6 @@ assert_adapter_success() {
     grep -Fq -- '--workspace' "${run_log}"
   fi
   grep -Fq 'execution-status: completed' "${success}/record"
-  case ${host} in
-    claude)
-      grep -Fq 'prerequisite-result: inconclusive' "${success}/record"
-      ;;
-    *)
-      grep -Fq 'prerequisite-result: pass' "${success}/record"
-      ;;
-  esac
   [[ -f ${success}/update-events.jsonl ]]
   [[ -f ${success}/update-response.md ]]
   [[ -f ${success}/update-stderr.log ]]
@@ -250,7 +197,6 @@ assert_adapter_truncated() {
   grep -Fq 'execution-status: incomplete' "${truncated}/record"
   grep -Fq 'execution-reason: truncated terminal stream' "${truncated}/record"
   grep -Fq 'assessment-status: not-run' "${truncated}/record"
-  grep -Fq 'prerequisite-result: fail' "${truncated}/record"
   grep -Fq 'update-execution: incomplete' "${truncated}/observations.txt"
   grep -Fq 'use-execution: unrun' "${truncated}/observations.txt"
   grep -Fq 'use-pending: true' "${truncated}/observations.txt"

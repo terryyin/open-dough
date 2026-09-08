@@ -39,7 +39,6 @@ assert_single_attempt "${success}"
 assert_record_identity "${success}"
 assert_no_legacy_or_retry "${run_log}" 2
 grep -Fq 'execution-status: completed' "${success}/record"
-grep -Fq 'prerequisite-result: pass' "${success}/record"
 grep -Fq 'native-version: codex journey-1' "${success}/record"
 [[ -f ${success}/update-events.jsonl ]]
 [[ -f ${success}/update-response.md ]]
@@ -116,7 +115,6 @@ assert_record_identity "${fail_update}"
 assert_no_legacy_or_retry "${run_log}" 1
 [[ ${fail_update} != "${success}" ]]
 grep -Fq 'execution-status: failed' "${fail_update}/record"
-grep -Fq 'prerequisite-result: fail' "${fail_update}/record"
 grep -Fq 'update-execution: failed' "${fail_update}/observations.txt"
 grep -Fq 'use-execution: unrun' "${fail_update}/observations.txt"
 grep -Fq 'use-pending: true' "${fail_update}/observations.txt"
@@ -142,7 +140,6 @@ assert_record_identity "${fail_use}"
 assert_no_legacy_or_retry "${run_log}" 2
 [[ ${fail_use} != "${success}" && ${fail_use} != "${fail_update}" ]]
 grep -Fq 'execution-status: failed' "${fail_use}/record"
-grep -Fq 'prerequisite-result: fail' "${fail_use}/record"
 grep -Fq 'update-execution: completed' "${fail_use}/observations.txt"
 grep -Fq 'use-execution: failed' "${fail_use}/observations.txt"
 grep -Fq 'real-transition: true' "${fail_use}/observations.txt"

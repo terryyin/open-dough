@@ -75,31 +75,14 @@ write_codex_response() {
   fi
 }
 
-emit_cursor_partial() {
-  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
-  jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
-    '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
-}
-
-emit_claude_partial() {
+write_codex_complete() {
   jq -n -c \
-    '{message:{content:[{type:"tool_use",name:"Skill",input:{skill:"dough-adr-awareness"}}]}}'
-}
-
-emit_codex_expansion() {
-  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
-  if [[ ! -f ${skill_path} ]]; then
-    jq -n -c \
-      '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Installed skill was not found."}}'
-    return 0
-  fi
-  jq -n -c --arg command "sed -n '1,260p' '${skill_path}'" \
-    --arg content "$(cat "${skill_path}")" \
-    '{type:"item.completed",item:{id:"item_0",type:"command_execution",command:$command,aggregated_output:$content,exit_code:0,status:"completed"}}'
-}
-
-emit_codex_turn_completed() {
+    '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Recorded context stage completed."}}'
   printf '%s\n' '{"type":"turn.completed"}'
+}
+
+write_stream_result() {
+  jq -n -c --arg result "$1" '{type:"result",result:$result}'
 }
 
 case ${stream_kind} in
@@ -120,10 +103,10 @@ case ${stream_kind} in
           '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Partial response before terminal completion."}}'
         ;;
       cursor)
-        emit_cursor_partial
+        printf '%s\n' '{"tool_call":{}}'
         ;;
       claude)
-        emit_claude_partial
+        printf '%s\n' '{"message":{}}'
         ;;
       *)
         printf 'error: recorded substitute does not implement host %s\n' \
@@ -144,16 +127,10 @@ esac
 case ${host} in
   codex)
     write_codex_response
-    emit_codex_expansion
-    emit_codex_turn_completed
+    write_codex_complete
     ;;
-  cursor)
-    emit_cursor_partial
-    jq -n -c --arg result "${response}" '{type:"result",result:$result}'
-    ;;
-  claude)
-    emit_claude_partial
-    jq -n -c --arg result "${response}" '{type:"result",result:$result}'
+  cursor | claude)
+    write_stream_result "${response}"
     ;;
   *)
     printf 'error: recorded substitute does not implement host %s\n' "${host}" >&2

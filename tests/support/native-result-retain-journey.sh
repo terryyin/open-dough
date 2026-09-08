@@ -1,39 +1,17 @@
 #!/usr/bin/env bash
 # Retain combined delivery/updated-use stages as one unreviewed attempt.
 # Sourced by the selected journey helper after native-result-retain.sh.
-# Prerequisite gate stays here until slice 3 drops journey discovery fields.
-# shellcheck disable=SC2034,SC2154 # Journey and prerequisite globals are assigned for sourced helpers.
+# shellcheck disable=SC2034,SC2154 # Journey globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers prompt hashes.
 
 native_result_journey_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=tests/support/native-prerequisite-gate.sh
-# shellcheck disable=SC1091
-source "${native_result_journey_support_dir}/native-prerequisite-gate.sh"
 # shellcheck source=tests/support/native-journey-state.sh
 # shellcheck disable=SC1091
 source "${native_result_journey_support_dir}/native-journey-state.sh"
 
-native_result_fill_journey_prerequisite() {
-  native_prerequisite_host=${native_case_host}
-  native_prerequisite_execution=${native_run_outcome:-exited}
-  native_prerequisite_stream=${use_transcript-}
-  native_prerequisite_response=${use_output-}
-  native_prerequisite_stream_artifact=use-events.jsonl
-  native_prerequisite_candidate=${delivery_fixture_source-}
-  native_prerequisite_installed_skill_path=
-  if [[ -n ${delivery_target-} && -n ${delivery_skill_root-} ]]; then
-    native_prerequisite_installed_skill_path="${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"
-  fi
-  native_prerequisite_installed_identity=${delivery_improvement-}
-  native_prerequisite_assess
-}
-
 native_result_journey_execution_fields() {
   native_result_execution_status_fields
-  native_result_fill_journey_prerequisite
-  native_prerequisite_print_fields
   native_journey_state_print_fields
-  printf 'assessment-interpretation: none\n'
 }
 
 native_result_finalize_journey() {
@@ -100,9 +78,6 @@ native_result_finalize_journey() {
     native_result_input_hash_line tests/support/native-result-retain-journey.sh
     native_result_input_hash_line tests/support/native-journey-state.sh
     native_result_input_hash_line tests/support/native-adr-behavior.sh
-    native_result_input_hash_line tests/support/native-prerequisite-gate.sh
-    native_result_input_hash_line tests/support/native-activation-decode.sh
-    native_result_input_hash_line tests/support/native-activation-path.sh
     native_result_input_hash_line tests/support/native-run-supervise.sh
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-update/SKILL.md

@@ -64,21 +64,20 @@ Proof: `bash tests/native-adr-behavior.sh`; `bash tests/native-result-retention.
 ### 3. Judge an update check by the resulting installation and use
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A fixture receives an update and uses the resulting skill → evaluate
 the observed state and response → report the functional outcome.
 
-Remove discovery fields and `native_prerequisite_assert_record_fields` from the
-journey retention path and updated-use assert helpers. Keep
-`native_journey_state_*`, the real update transition, and conflict use. Once no
-callers remain, delete `native-activation-*.sh`, `native-prerequisite-gate.sh`
-(support + dedicated test), and leftover `prerequisite-*` /
-`assessment-interpretation` wiring.
+Journey retention and updated-use asserts no longer record or check
+`prerequisite-*` / `assessment-interpretation`. Activation/prerequisite
+modules and their dedicated test are deleted. Update state and conflict use
+remain.
 
-Proof: `bash tests/native-journey-state.sh`,
-`bash tests/native-delivery-updated-use.sh`, and
-`bash tests/native-delivery-updated-use-adapters.sh`. Positive signal is
-expected updated state and useful response.
+Proof: `bash tests/native-journey-state.sh`;
+`bash tests/native-delivery-updated-use.sh`;
+`bash tests/native-delivery-updated-use-adapters.sh`;
+`bash tests/native-result-retention.sh`;
+`bash tests/native-stream-completeness.sh`.
 
 ### 4. Start the next skill task from concise current guidance
 
@@ -101,14 +100,11 @@ about the delivered workflow.
 
 ## Execution readiness
 
-Slice 3 deletes shared activation/prerequisite modules after journey callers
-are gone. Slice 4 owns planning/doc cleanup. One green focused check at a time.
+Slice 4 owns planning/doc cleanup (including leftover README gate mentions).
 
 ## Learnings
 
 2026-09-08 execute-plan: borrowed Donut execute-plan in Open Dough. No local CI
-mailbox / nix wrap-up tools (`pendingCi: unobserved`). Slice 1 delivered the
-shared authoring guideline. Slices 2–3 refined so context drops discovery first
-while journey still uses the shared gate. Concurrent planning commits
-`4238a6f`/`2e7d775` absorbed backlog/ADR-0006 churn. Slice 2: context retention
-judges useful behavior only; journey gate retained for slice 3.
+mailbox / nix wrap-up tools (`pendingCi: unobserved`). Slice 1: shared authoring
+guideline. Slice 2: context retention judges useful behavior only. Slice 3:
+journey path drops discovery fields; activation/prerequisite stack deleted.
