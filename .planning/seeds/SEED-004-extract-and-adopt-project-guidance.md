@@ -21,19 +21,42 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 9. Extract a project skill directly into unreleased source
 
-**Status:** Unplanned; first in the product backlog.
-**Goal:** One extraction request produces the reusable skill in the source tree.
-**Scope:** Adapt one ordinary project skill into `src/skills/dough-<name>/` with a
-concise recognition record. Preserve its useful behavior, make adopter context
-explicit, and keep the source intact. Handle unusual cases manually. Follow the
-shared skill-authoring guideline in [`AGENTS.md`](../../AGENTS.md) and the
-internal [`extract-guidance`](../../.agents/skills/extract-guidance/SKILL.md)
-skill.
-**Evaluation:** The maintainer reviews the actual source skill against the
-original and can use it on a representative task. Release is a separate action.
-**Effort:** M, medium confidence; assumes one self-contained on-demand skill.
-**Depends on:** An accessible source practice. Story 10's shared maintenance
-workflow is available.
+**Status:** Refined; first in the product backlog.
+**Effort:** S (30–60 minutes), medium confidence; one ordinary on-demand skill
+and a manual behavior review.
+
+#### Goal
+
+The maintainer makes one extraction request and receives the reusable skill
+in Open Dough's source tree, ready to review and improve.
+
+#### Scope
+
+- Update the internal `extract-guidance` workflow for one supplied, self-contained
+  on-demand skill. Read its necessary context and preserve the source contents.
+- Write `src/skills/dough-<name>/SKILL.md` and a short `RECOGNITION.md` directly.
+  Follow the existing naming convention and shared authoring guideline.
+- Preserve the useful workflow, trigger, output, and human decisions. Turn local
+  conventions into explicit adopter context. Keep recognition focused on purpose,
+  source-relative clues, and required context.
+- Review one representative use manually. Handle incomplete context and unusual
+  source guidance through a brief explanation and manual follow-up.
+- Delete the displaced draft/assessment workflow and its dedicated checks and
+  support material. Keep instructions focused on the current operation.
+
+Extraction ends with the source skill and concise review result. Publication,
+client installation, and extraction of a particular Donut practice belong to
+their selected tasks. The existing Acme readiness fixture supplies this story's
+small demonstration.
+
+#### Key example
+
+Given the Acme readiness skill and an adopter whose work-item convention is
+`TASK-NNN`, invoke extraction in a disposable Open Dough checkout. The result is
+`src/skills/dough-acme-change-readiness/` with the skill and recognition record.
+Apply it to a concrete proposal carrying `TASK-123`: the brief identifies the
+user, outcome, risk, rollback signal, and required context; the human owns approval.
+Compare the source contents before and after extraction to confirm preservation.
 
 <a id="extract-story-refinement"></a>
 

@@ -17,7 +17,8 @@ and use it in Donut. Let real work select further guidance improvements.
 
 ## Readiness
 
-Queued stories are inputs for focused planning. A useful newer release moves
+Story 9 is refined with [Quick 026](quick/026-direct-skill-extraction/PLAN.md),
+ready for direct execution. Other queued stories are inputs for focused planning. A useful newer release moves
 Donut's update ahead of further extraction. The maintainer selects the version
 when the client release is ready.
 
