@@ -1,3 +1,7 @@
+## 0.3.1 - 2026-09-08
+
+Add story-related skills: `dough-story-decomposition` and `dough-story-refinement`, including their supporting references, to installation and updates for Codex, Cursor, and Claude Code.
+
 ## 0.3.0 - 2026-09-08
 
 Fix update.
