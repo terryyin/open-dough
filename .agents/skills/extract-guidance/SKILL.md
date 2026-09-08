@@ -68,7 +68,7 @@ do not add it or its support files to the public installer payload.
 
    Original clues may include the original name and a repository-relative path,
    but not an absolute local-machine path. Project identity is optional
-   provenance and must never be a recognition requirement. `Validation needed`
+   provenance and must never be a recognition condition. `Validation needed`
    must name the representative behavior review still required under
    `AGENTS.md` (invocation context, required adopter context, and useful
    outcome) before treating the skill as ready to release.

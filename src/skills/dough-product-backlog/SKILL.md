@@ -25,7 +25,7 @@ done entries as described below.
   list** next, and **Recently done** last.
 - Use bullet lists. Do not number items. Put the highest-priority backlog item first.
 - In the backlog list, include only each exact story title linked to its heading
-  or stable anchor, plus its home ID. Keep requirements, estimates, dependencies,
+  or stable anchor, plus its home ID. Keep story details, estimates, dependencies,
   and status in the story home.
 - Select stories for the backlog list; do not inventory every candidate or turn
   the list into a roadmap or execution plan.
@@ -54,7 +54,7 @@ done entries as described below.
   user value, learning value, and genuine product prerequisites. Preserve
   unrelated order. Do not derive priority from home IDs or order within a home.
 - Keep one canonical home per story. Link from related documents; do not
-  duplicate requirements or list the same outcome twice.
+  duplicate story details or list the same story twice.
 - Preserve stable anchors when renaming or moving stories. Update incoming links.
 - Add only stories with a named beneficiary and evaluable outcome. If either
   is unresolved, use the adopter's decomposition workflow. Route selected-story

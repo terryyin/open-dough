@@ -4,7 +4,7 @@ Update the supplied seed or allocate a new home ID and filename in the project's
 canonical seed directory. Keep one parent problem and its candidate stories in
 one seed, with one home section per story. A seed is non-executable planning input.
 Keep cross-feature journeys in one home and link related seeds instead of
-duplicating requirements. Preserve sibling stories, existing metadata, and anchors.
+duplicating story details. Preserve sibling stories, existing metadata, and anchors.
 
 Map the metadata below to the project's field names and lifecycle vocabulary:
 home identity, dormant status, creation date, creation context, resurfacing
@@ -59,7 +59,7 @@ scope: <whole-set size under adopter conventions>
 
 ## Breadcrumbs
 
-<supplied requirements or references; no code audit>
+<supplied stories, explicit system requirements, or references; no code audit>
 ```
 
 ## Backlog boundaries

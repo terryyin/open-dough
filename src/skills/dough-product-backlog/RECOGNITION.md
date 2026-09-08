@@ -8,7 +8,7 @@ Extracted from the on-demand `product-backlog` skill at
 `.agents/skills/product-backlog/SKILL.md` in the supplied source repository.
 Source SHA-256: `928e4579d3bed0411704f09d4e958d2229f01d88648e583950b526e97e4fae46`.
 The original uses a planning backlog and numbered seed documents as story homes.
-Project identity is not a recognition requirement.
+Project identity is not a recognition condition.
 
 ## Purpose
 
@@ -43,7 +43,7 @@ The ordered-reference format and ten-item history remain part of the behavior.
 
 ## Differences that rule out replacement
 
-A backlog that owns story requirements inline, inventories every candidate,
+A backlog that owns story details inline, inventories every candidate,
 serves as an execution plan, uses different completion retention semantics, or
 represents a classroom exercise needs manual comparison. This on-demand skill
 does not replace automatically applied rules. Missing home/link conventions or

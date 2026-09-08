@@ -8,8 +8,8 @@
 
 **Consulted:** Terry Yin; installation and update terminology proposed following
 the ADR 0004 discussion on 2026-09-07. Terry Yin chose consistent slice
-terminology across planning, refinement, and execution on 2026-09-08. Further
-advice open.
+terminology across planning, refinement, and execution and supplied the story
+definition on 2026-09-08. Further advice open.
 
 ## Context
 
@@ -45,6 +45,12 @@ The client runs `dough-update`, receives changes to its installed project files,
 then reviews and commits those changes. The Open Dough repository supplies the
 release; the client project's repository holds the resulting installation.
 
+- **Story (user story):** A romantic, speculative account of a possibility worth
+  pursuing for its user or learning value. It invites interest and discussion,
+  may be fuzzy or incomplete, and may cross features and system boundaries.
+  A story helps people imagine and plan a valuable outcome; it evolves through
+  conversation and learning. It is planning input, not an enduring description
+  of what the system does.
 - **Slice:** A bounded unit of executable work within a selected story that
   delivers one observable Behavior or makes a Structure change immediately
   enabling the next Behavior slice. Use the same term throughout planning,

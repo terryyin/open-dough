@@ -6,7 +6,7 @@ Status: ready for maintainer review
 
 Source on-demand skill: `.agents/skills/story-refinement/SKILL.md` in the
 supplied doughnut repository. Project identity is provenance, not a recognition
-requirement.
+condition.
 
 ## Purpose
 

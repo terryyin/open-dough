@@ -7,7 +7,7 @@ Do not plan a lower level while a higher-level decision remains unresolved.
 | Level | Use when | Result |
 | --- | --- | --- |
 | **Problem or capability** | The beneficiary, problem, desired effect, constraint, or direction is unclear | One evaluable decision, assumption, or outcome |
-| **Story or requirement** | The problem is understood but several useful outcomes are possible | Ordered Valuable, Visible, Vertical stories |
+| **Story** | The problem is understood but several useful outcomes are possible | Ordered Valuable, Visible, Vertical stories |
 | **Slice** | One story's goal, scope, and key examples are understood | Behavior slices and only immediately enabling Structure slices |
 
 The levels are fractal: name the evaluator and observable result, split
@@ -53,13 +53,15 @@ is insufficient.
 
 ## Select candidate stories
 
-Frame each candidate as one user or stakeholder journey with an observable
-outcome, crossing related features when necessary. Cut around behavior, a
+Frame each candidate story as a possibility worth pursuing for user or learning
+value. Invite imagination and discussion; allow incomplete understanding to
+evolve. Let the journey cross features and system boundaries. When selecting
+stories for planning, clarify an observable outcome. Cut around behavior, a
 product decision, risk, or learning question. Decompose only enough candidates
 to answer the current value or learning question; do not exhaust a feature for
 completeness.
 
-Keep a candidate only when all three answers are yes:
+Select a candidate story for planning when all three answers are yes:
 
 1. **Valuable:** Does it change an outcome for a named user or stakeholder?
    “Needed for later work” is insufficient.

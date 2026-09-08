@@ -3,7 +3,7 @@ name: dough-story-decomposition
 description: >-
   Challenges and decomposes a broad product problem into ordered
   Valuable/Visible/Vertical stories with rough effort hypotheses. Use when the
-  parent problem, candidate outcomes, or learning priority are unresolved.
+  parent problem, candidate stories, or learning priority are unresolved.
   Writes one non-executable seed.
 ---
 
