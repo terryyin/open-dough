@@ -38,9 +38,10 @@ behavior, restarts an overrun by renaming leaves, discards completed evidence,
 or edits work of unclear ownership is not equivalent.
 
 The source depends on Cursor `alwaysApply: true` planning and decomposition
-rules. The linked execution references preserve required behavior during skill
-use but do not recreate automatic repository-wide application. Equivalent
-automatic delivery needs separate human design and cross-tool validation.
+rules. Their public references now preserve the generalized execution-level
+invariants recovered from the rules' pre-redirection history, while this skill
+remains a concise entrypoint under ADR 0006. It does not recreate automatic
+repository-wide application; client installation owns that delivery.
 
 ## Validation needed
 
@@ -53,10 +54,11 @@ its promises. Given a prior overrun, record elapsed time and the disproved
 assumption and touch later leaves only when it applies to them. If work ownership
 is unclear or the evidence changes story scope, stop for human review.
 
-Dependency review: this skill links the existing public problem-decomposition
-and planning references, which are byte-identical to the source skill's routed
-dependency targets. It introduces no competing copies. Client installation and
-automatic rule delivery remain separate validation.
+Dependency review: the source routing targets supplied the story-level base;
+their public copies were extended with ADR-0006-style execution sections for the
+leaf gate, sizing/escalation, executable-plan contract, and proof ownership.
+This skill links those authoritative sections and introduces no competing copy.
+Client installation remains separate validation.
 
 Inspected source SHA-256 values (paths relative to the supplied repository):
 

@@ -1,6 +1,13 @@
 # Planning scope and lifecycle
 
-## Refine through conversation
+## Choose the planning level
+
+Refine an unresolved selected story in its home. Once its goal, scope, and key
+examples are understood and executable planning is authorized, write or refine
+one active executable plan. Do not use an execution plan to decide story scope,
+and do not turn a story seed directly into executable work.
+
+## Refine story understanding
 
 Read the selected stories and relevant prior discussion. Reuse answers already
 given; ask only questions that change understanding, with a concise proposed
@@ -51,6 +58,83 @@ and evidence when revising boundaries. Use the project's own locations and
 workflows for executable plans, phase artifacts, and project memory. Keep
 planning-only numbering out of product code, tests, and permanent documentation.
 
+## Write an executable plan
+
+Resolve the adopting project's executable-plan location, format additions,
+status vocabulary, and lifecycle. Do not infer a deprecated location or create a
+second plan for the same work.
+
+Keep only information needed for execution, proof, review, or resume:
+
+1. **Source** — selected story or decision link when applicable.
+2. **Goal and scope** — one selected outcome, material exclusions, and
+   assumptions.
+3. **Outside-in proof** — key examples and their observable test or
+   demonstration signals.
+4. **Ordered leaves** — capability-named heading, Behavior or Structure type,
+   status, and proof.
+5. **Current decisions** — only choices constraining remaining work.
+6. **Learnings** — only discoveries changing assumptions or remaining leaves.
+
+Use the adopter's equivalent leaf format when supplied; otherwise use:
+
+```markdown
+### N. Capability outcome
+Type: Behavior | Structure
+Status: planned | in-progress | done
+Proof: <observable signal and focused verification>
+
+Behavior: <pre-condition → trigger → externally observable postcondition>
+```
+
+For Structure, replace `Behavior` with the internal change and the immediate
+next Behavior it enables. Planning numbers stay in planning artifacts; product
+code, tests, and enduring documentation remain capability-named.
+
+## Own executable proof
+
+Map every checkable final-state promise in the selected story and current
+decisions to an owning leaf and observable proof. Inline links or a compact table
+are sufficient. Include applicable promises, not broader aspirations. Passing
+commands without the promised observation does not establish completion.
+
+Preserve mappings through refinement, replacement, and resume. Repoint promises
+before declaring replacement leaves ready; orphaned promises leave the plan
+incomplete. Preserve completed evidence unless a changed boundary invalidates
+what it covers. For interim replacements, align affected callers, fixtures,
+assertions, and documentation with the final success and rejection behavior.
+
+Choose proof at the stable boundary of the promise:
+
+| Situation | Proof |
+| --- | --- |
+| Main user behavior | Targeted end-to-end check or another real high-level boundary |
+| Edge, error, or pure contract | Focused unit proof |
+| Existing untested behavior | Regression proof before changing it |
+| Structure leaf | Existing external behavior remains green |
+| Interim behavior | Name the later leaf that removes or replaces it |
+
+Run focused relevant checks at leaf boundaries. Require broader suites only when
+the adopting workflow or user requires them. When asynchronous ownership
+changes, prove that the named lifecycle owner observes background failure in
+time and performs applicable cleanup after failure or shutdown; an awaited
+exception alone proves neither. Derive timing from the selected lifecycle
+contract rather than an arbitrary timeout.
+
+## Refine the active plan
+
+Edit the same plan in place. Preserve completed leaves and resume-useful history,
+replace obsolete planned detail rather than appending a competing breakdown,
+and record only learnings that affect remaining work. Apply
+[execution-leaf decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-execution-leaves)
+and its sizing and escalation rules before declaring execution ready.
+
+After an execution overrun, record elapsed time, completed evidence, the failure
+or thrash point, and the sizing assumption that proved false. Replace leaves
+only when learning escalation permits, and change later leaves only when the
+same disproved assumption applies. Preserve a stated focused-test or
+external-wait exception that decomposition cannot reduce.
+
 ## Clean up after implementation
 
 Keep enduring behavior in tests and product documentation, and enduring design
@@ -59,3 +143,7 @@ story's refinement detail to Goal and Scope, including exclusions. Remove spent
 examples, UI sketches, and architectural discussion; preserve its anchor,
 completion status, and unfinished siblings. Retain still-needed detail until
 the enduring knowledge has a home.
+
+When the executable plan completes, remove spent diary and obsolete summary
+detail according to the adopter's lifecycle. Preserve unfinished scope and any
+evidence still needed for resume or review.

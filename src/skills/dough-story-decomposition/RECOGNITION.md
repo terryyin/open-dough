@@ -35,14 +35,14 @@ A workflow that permits technical-layer stories, code-based estimation, or
 automatic implementation is not equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
-Cursor `alwaysApply: true` rules. The extracted Markdown references preserve
-relevant story behavior only during skill use. They do not replace automatic
-repository-wide application. Equivalent automatic delivery needs separate human
-design and cross-tool validation; no replacement claim is made here.
+Cursor `alwaysApply: true` rules. The published references preserve the shared
+fractal behavior at story and execution-leaf resolutions; this skill invokes
+the story-level workflow, while the slice skills invoke the execution-level
+workflow. They do not replace automatic repository-wide application; client
+installation owns that delivery.
 
-Execution-only dependency sections (leaf timers, execution gates, test-specific
-rules, and GSD artifact management) remain outside these story skills. Handoffs
-use adopter-provided workflows rather than copying sibling execution skills.
+Source-specific paths, exact timers, test tooling, and GSD artifact management
+remain adopter-provided context rather than public defaults.
 
 ## Validation needed
 
@@ -59,11 +59,12 @@ stopping value, and scheduling first to drop. With missing effort bands or
 competing human framing answers, stop before seed writing rather than fabricate
 them.
 
-Dependency review: decomposition owns the shared 3V/sizing reference and seed
-format; refinement owns the planning scope/lifecycle reference and links the
-shared files. Refinement links the existing public `dough-adr-awareness` skill,
-whose inspected source is byte-identical to the current public copy. Client
-installation and automatic rule delivery remain separate validation work.
+Dependency review: decomposition owns the shared fractal decomposition
+reference and seed format; refinement owns the shared story/executable planning
+reference. The story and slice skills select the relevant resolution without
+copying those rules. Refinement links the existing public
+`dough-adr-awareness` skill, whose inspected source is byte-identical to the
+current public copy. Client installation remains separate validation work.
 
 Inspected source SHA-256 values (paths relative to the supplied repository):
 

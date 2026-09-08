@@ -10,10 +10,10 @@ description: >-
 
 # Slice planning
 
-Write one sufficient executable plan for one understood story. Keep every leaf
-bounded, proof-owned, and safe to stop after. Do not implement product code.
+Write one sufficient executable plan for one understood story. Do not implement
+product code.
 
-## Route unresolved work
+## Require an understood story
 
 Require one user or stakeholder outcome, its value, evaluable key examples, and
 boundaries from later stories. Use
@@ -23,7 +23,7 @@ story's goal, scope, or examples are unresolved. Use
 parent problem, candidate selection, or story ordering is unresolved. Never
 turn a decomposition seed directly into an execution plan.
 
-## Resolve adopter context
+## Resolve execution context
 
 Before writing, identify from the user's instructions and adopting repository:
 
@@ -40,13 +40,19 @@ plan destination or execution-leaf budget is unavailable, name the missing
 context and stop before writing or claiming sizing readiness. Do not create a
 new plan under a deprecated or merely inferred location.
 
-## Inspect the execution context
+## Write the plan
 
 Record the source, goal, included scope, material exclusions, assumptions, and
-key examples without enlarging the story. Inspect only the code and tests needed
-to find the stable outside-in proof entry point, behavior to extend, genuine
-dependencies, and any Structure needed immediately before the first Behavior.
-Do not slice by file, component, layer, specialist, or activity.
+key examples without enlarging the story. Read and apply:
+
+- [execution-leaf decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-execution-leaves),
+  including its sizing and escalation rules; and
+- [executable-plan decisions](../dough-story-refinement/references/planning.md#write-an-executable-plan),
+  including executable proof ownership.
+
+Inspect only the code and tests needed to find the stable outside-in proof entry
+point, behavior to extend, genuine dependencies, and any Structure needed
+immediately before the first Behavior.
 
 For a concrete uncertain infrastructure or storage assumption, reuse matching
 evidence or require one isolated representative proof against the relevant
@@ -54,21 +60,8 @@ engine and version. Record the assumption, literal command, critical
 postcondition, and result in the plan. Failed proof changes the plan before
 broad implementation. Keep experiments off shared and production systems.
 
-## Cut, order, and write leaves
-
-Follow the published
-[problem-decomposition reference](../dough-story-decomposition/references/problem-decomposition.md)
-for splitting, ordering, safe stopping points, and learning escalation. Follow
-the published
-[planning reference](../dough-story-refinement/references/planning.md) for scope
-discipline, story ownership, lifecycle, and cleanup. Map every checkable promise
-to an owning leaf and observable proof. Split independent postconditions,
-multi-beat paths, and plausible hard-limit overruns. Put a Structure leaf
-immediately before the Behavior it enables, and order Behavior leaves by user
-value, learning value, then genuine prerequisites.
-
-Compare every leaf with the refinement triggers in
-[dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md):
+Use [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md) only
+when the reference's refinement conditions apply:
 
 - If all leaves are cohesive, have one proof loop, meet the adopter's target,
   and have no unexplained hard-limit path, report `ready for direct execution`.

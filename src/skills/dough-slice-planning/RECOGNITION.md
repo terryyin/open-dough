@@ -37,10 +37,12 @@ observable proof ownership, prepares beyond the next Behavior, guarantees
 duration, or implements without separate authorization is not equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
-Cursor `alwaysApply: true` routing rules. Their targets are already published as
-the shared Open Dough problem-decomposition and planning references, and the new
-skill links those documents directly. It does not recreate automatic
-repository-wide application; client installation owns that delivery.
+Cursor `alwaysApply: true` routing rules. Their targets became the shared Open
+Dough references. Those references now also preserve the generalized
+execution-level invariants recovered from the rules' pre-redirection history,
+while this skill remains a concise entrypoint under ADR 0006. It does not
+recreate automatic repository-wide application; client installation owns that
+delivery.
 
 ## Validation needed
 
@@ -54,10 +56,11 @@ every included promise to observable proof, and recommend refinement only if a
 leaf has separable beats or a plausible hard-limit path. With no plan destination
 or sizing policy, stop before writing instead of inventing conventions.
 
-Dependency review: the existing public problem-decomposition and planning
-references are byte-identical to the source skill's routed dependency targets.
-Both new skills link them rather than creating competing copies. Client
-installation and automatic rule delivery remain separate validation.
+Dependency review: the source routing targets supplied the story-level base;
+their public copies were extended with ADR-0006-style execution sections for the
+leaf gate, sizing/escalation, executable-plan contract, and proof ownership.
+Both slice skills link those authoritative sections rather than copying them.
+Client installation remains separate validation.
 
 Inspected source SHA-256 values (paths relative to the supplied repository):
 
