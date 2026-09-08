@@ -145,10 +145,12 @@ as a clean first install. Extend slice 2's preflight; no fallback machinery.
 
 ### 4. A version skip reports only verified state
 Type: Behavior
-Status: planned — depends on 3
-Proof: Replace edited-equal success in `tests/update-when-needed.sh`: clean equal
-is current and unwritten, edited equal refuses, valid newer is preserved, and
-unverifiable newer is unsupported. Assert no installer invocation or target writes.
+Status: done
+Proof: `tests/update-skip-verified.sh`: clean equal is current and unwritten,
+edited equal refuses, `--url` newer is preserved without downgrade, and
+ordinary unverifiable newer is unsupported. Assert no installer invocation or
+target writes. Remaining A→B / `--url` coverage stays in
+`tests/update-when-needed.sh`.
 
 Behavior: Equal/newer installation → ordinary update → truthful verified result
 with no downgrade. Reuse the same preflight rather than a second comparison path.
@@ -312,3 +314,11 @@ tagged metadata share one preserved-installation Outcome. `--url` still skips
 that preflight. Apply lives in `src/install/open-dough-release-apply.sh` and is
 on the inspect list. Git-fixture data variations exceeded the five-minute
 target; focused tests were short. Not a second non-exempt overrun.
+
+**Slice 4:** Ordinary equal/newer reuse the same recorded-tag preflight. Clean
+equal is current and unwritten; edited equal refuses; a VERSION newer than
+source whose tag is absent is unsupported with no downgrade. `--url` still
+skips preflight, which is how a supplied-URL newer remains preserved. Edited-equal
+success was removed from `tests/update-when-needed.sh`. A true newer tag cannot
+exist in the same SOURCE as a lower latest (ADR 0003), so ordinary newer is
+unverifiable rather than a second comparison path.

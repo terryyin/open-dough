@@ -79,21 +79,26 @@ Ordinary Open Dough release updates remain available from the recorded source.
       and `VERSION` records in the captured target project, preserving
       distributable source, unrelated project files, other tools' separate
       installations and records, and home guidance.
-6. Trust the helper's comparison. Equal recorded versions must not invoke
-   `install.sh` or write the selected files, even when untagged source or local
-   skill text differs. An older recorded installation is compared to its saved
-   release's managed files, then replaced with latest only when those files are
-   unchanged. If ordinary update cannot establish that baseline — missing or
-   unusable SOURCE or VERSION, an unavailable recorded tag or source, baseline
-   metadata mismatch, or changed or missing managed files — refuse without
-   writing, forcing, or treating the destination as a first install. A
-   supplied-URL missing selected record advances directly to latest. A newer
-   selected record is preserved with no downgrade. A malformed selected
-   `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
-   release failures must not write the target or fall back to a lower release
-   or branch. If replacement starts and then fails, report that installed files
-   may be incomplete, that the last successful record was left unchanged, and
-   that explicit `--force` reinstall is the recovery path.
+6. Trust the helper's comparison. An ordinary update without a supplied URL
+   fetches the recorded VERSION tag as data and compares the two managed files
+   before any skip or replacement. Equal recorded versions that still match
+   that baseline must not invoke `install.sh` or write the selected files;
+   untagged source changes alone do not require writes. Changed or missing
+   managed files, or an unavailable recorded tag, refuse without writing even
+   when the recorded version equals latest. An older recorded installation is
+   replaced with latest only when those files are unchanged. If ordinary
+   update cannot establish that baseline — missing or unusable SOURCE or
+   VERSION, an unavailable recorded tag or source, baseline metadata mismatch,
+   or changed or missing managed files — refuse without writing, forcing, or
+   treating the destination as a first install. A supplied-URL missing
+   selected record advances directly to latest. A verified newer selected
+   record is preserved with no downgrade; an unverifiable newer record is
+   unsupported without writes. A malformed selected `VERSION` is an error, not
+   unknown. Fetch, tag, and invalid-highest release failures must not write
+   the target or fall back to a lower release or branch. If replacement starts
+   and then fails, report that installed files may be incomplete, that the last
+   successful record was left unchanged, and that explicit `--force` reinstall
+   is the recovery path.
 7. Report the helper's source URL, release tag and commit, running tool and
    native skill root, both installed payload paths, previous version or
    unknown, and actual outcome. After a replacement,

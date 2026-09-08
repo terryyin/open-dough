@@ -12,9 +12,10 @@ trace_line() {
 
 report_unverifiable_installation() {
   local dest=$1
+  local outcome=${2:-'refused; preserved the selected installation.'}
 
   trace_line "apply-unverifiable ${dest}"
-  printf 'Outcome: refused; preserved the selected installation.\n'
+  printf 'Outcome: %s\n' "${outcome}"
 }
 
 refuse_if_ordinary_unverifiable() {
@@ -24,6 +25,34 @@ refuse_if_ordinary_unverifiable() {
   if [[ "${supplied_url}" -eq 0 ]]; then
     report_unverifiable_installation "${dest}"
   fi
+}
+
+recorded_baseline_unchanged() {
+  local dest=$1
+  local url=$2
+  local baseline=$3
+  local installed=$4
+
+  if ! fetch_tagged_release "${url}" "${baseline}" "${installed}" > /dev/null; then
+    return 1
+  fi
+  if ! managed_payload_unchanged "${dest}" "${baseline}"; then
+    echo "Installed files do not match recorded release ${installed}; ordinary update requires an unchanged installation." >&2
+    return 1
+  fi
+}
+
+require_ordinary_recorded_baseline() {
+  local dest=$1
+  local supplied_url=$2
+  local url=$3
+  local work_root=$4
+  local installed=$5
+
+  if [[ "${supplied_url}" -ne 0 ]]; then
+    return 0
+  fi
+  recorded_baseline_unchanged "${dest}" "${url}" "${work_root}/baseline" "${installed}"
 }
 
 run_installer() {
@@ -167,24 +196,22 @@ EOF
 
   printf 'Installed: %s\n' "${installed}"
   relation=$(compare_versions "${installed}" "${version}")
+  if ! require_ordinary_recorded_baseline "${dest}" "${supplied_url}" "${url}" \
+    "${work_root}" "${installed}"; then
+    if [[ "${relation}" == newer ]]; then
+      report_unverifiable_installation "${dest}" \
+        'unsupported; preserved the selected installation without a downgrade.'
+    else
+      report_unverifiable_installation "${dest}"
+    fi
+    return 1
+  fi
   case "${relation}" in
     equal)
       trace_line "apply-skip-equal ${dest}"
       printf 'Outcome: already current; no installer invocation or installed-file writes.\n'
       ;;
     older)
-      if [[ "${supplied_url}" -eq 0 ]]; then
-        if ! fetch_tagged_release "${url}" "${work_root}/baseline" "${installed}" \
-          > /dev/null; then
-          report_unverifiable_installation "${dest}"
-          return 1
-        fi
-        if ! managed_payload_unchanged "${dest}" "${work_root}/baseline"; then
-          echo "Installed files do not match recorded release ${installed}; ordinary update requires an unchanged installation." >&2
-          report_unverifiable_installation "${dest}"
-          return 1
-        fi
-      fi
       trace_line "apply-upgrade ${dest}"
       run_installer "${work}" "${target}" "${platform}" 1 "${url}"
       printf 'Outcome: updated from %s to %s.\n' "${installed}" "${version}"

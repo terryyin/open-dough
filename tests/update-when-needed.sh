@@ -39,41 +39,6 @@ git -C "${fixture}" checkout --quiet main
 printf '%s\n' 'untagged-source-change' >> "${fixture}/BRANCH_HEAD"
 commit_all "${fixture}" 'untagged source change after install'
 
-equal_version_paths=(
-  "${cursor_dest}/SKILL.md"
-  "${cursor_dest}/VERSION"
-  "${cursor_skill_root}/dough-adr-awareness/SKILL.md"
-  "${obsolete_recognition}"
-)
-equal_version_mtimes=()
-for selected_path in "${equal_version_paths[@]}"; do
-  equal_version_mtimes+=("$(file_mtime "${selected_path}")")
-done
-chmod a-w "${equal_version_paths[@]}"
-equal_version_before=$(snapshot_path_state "${cursor_skill_root}")
-: > "${trace_file}"
-output=$(bash "${helper}" apply --url "${fixture}" --target "${target}" \
-  --platform cursor)
-chmod u+w "${equal_version_paths[@]}"
-[[ "${output}" == *'already current'* ]]
-[[ "${output}" == *'no installer invocation or installed-file writes'* ]]
-[[ "${output}" == *'v0.1.10'* ]]
-grep -qx "apply-skip-equal ${cursor_dest}" "${trace_file}"
-if grep -q '^install ' "${trace_file}"; then
-  echo "FAIL: equal-version update must not invoke the installer." >&2
-  exit 1
-fi
-grep -Fq 'harmless local skill edit' "${cursor_dest}/SKILL.md"
-grep -Fxq 'obsolete recognition' "${obsolete_recognition}"
-equal_version_after=$(snapshot_path_state "${cursor_skill_root}")
-[[ "${equal_version_after}" == "${equal_version_before}" ]]
-for index in "${!equal_version_paths[@]}"; do
-  selected_path=${equal_version_paths[${index}]}
-  selected_mtime_after=$(file_mtime "${selected_path}")
-  [[ "${selected_mtime_after}" == "${equal_version_mtimes[${index}]}" ]]
-done
-assert_sentinels "${target}"
-
 older_dest="${target}/.agents/skills/dough-update"
 older_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
@@ -134,32 +99,6 @@ contents=$(cat "${cursor_dest}/VERSION")
 [[ "${contents}" == 0.0.9 ]]
 assert_payload "${older_dest}" 0.1.10 payload-0.1.10
 assert_sentinels "${target}"
-
-newer="${temporary_dir}/newer project"
-prepare_target "${newer}"
-bash "${helper}" apply --url "${fixture}" --target "${newer}" --platform cursor
-newer_dest="${newer}/.cursor/skills/dough-update"
-printf '%s\n' '0.2.0' > "${newer_dest}/VERSION"
-skill_mtime=$(file_mtime "${newer_dest}/SKILL.md")
-record_mtime=$(file_mtime "${newer_dest}/VERSION")
-chmod a-w "${newer_dest}/SKILL.md" "${newer_dest}/VERSION"
-: > "${trace_file}"
-output=$(bash "${helper}" apply --url "${fixture}" --target "${newer}" \
-  --platform cursor)
-chmod u+w "${newer_dest}/SKILL.md" "${newer_dest}/VERSION"
-[[ "${output}" == *'installed 0.2.0 is newer than source 0.1.10'* ]]
-[[ "${output}" == *'no downgrade'* ]]
-contents=$(cat "${newer_dest}/VERSION")
-[[ "${contents}" == 0.2.0 ]]
-grep -qx "apply-newer ${newer_dest}" "${trace_file}"
-if grep -q '^install ' "${trace_file}"; then
-  echo "FAIL: newer installed version must not invoke the installer." >&2
-  exit 1
-fi
-skill_mtime_after=$(file_mtime "${newer_dest}/SKILL.md")
-record_mtime_after=$(file_mtime "${newer_dest}/VERSION")
-[[ "${skill_mtime_after}" == "${skill_mtime}" ]]
-[[ "${record_mtime_after}" == "${record_mtime}" ]]
 
 malformed="${temporary_dir}/malformed project"
 prepare_target "${malformed}"
