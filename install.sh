@@ -93,6 +93,9 @@ managed_files=(
   dough-story-decomposition/references/seed-format.md
   dough-story-refinement/SKILL.md
   dough-story-refinement/references/planning.md
+  dough-resplit-story/SKILL.md
+  dough-slice-planning/SKILL.md
+  dough-slice-plan-refinement/SKILL.md
 )
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
   echo "Public payload is incomplete: missing ${managed_file}" >&2

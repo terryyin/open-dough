@@ -10,22 +10,36 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
+new_managed_files=(
+  dough-resplit-story/SKILL.md
+  dough-slice-planning/SKILL.md
+  dough-slice-plan-refinement/SKILL.md
+)
 
 fixture="${temporary_dir}/fixture.git"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
 git_identity "${fixture}"
 
-write_candidate_payload "${fixture}" 0.1.1 payload-before-backlog
-rm -- "${fixture}/src/skills/dough-product-backlog/SKILL.md"
-commit_all "${fixture}" 'release before backlog skill'
+write_candidate_payload "${fixture}" 0.1.1 payload-before-story-planning
+for managed_file in "${new_managed_files[@]}"; do
+  rm -- "${fixture}/src/skills/${managed_file}"
+done
+for script in install.sh src/install/open-dough-release-version.sh; do
+  for managed_file in "${new_managed_files[@]}"; do
+    skill=${managed_file%%/*}
+    sed "/${skill}\/SKILL.md/d" "${fixture}/${script}" > "${fixture}/filtered"
+    mv -- "${fixture}/filtered" "${fixture}/${script}"
+  done
+done
+commit_all "${fixture}" 'release before story planning skills'
 tag_release "${fixture}" 0.1.1 '2026-06-01T00:00:00'
 
 older_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 
-write_candidate_payload "${fixture}" 0.1.2 payload-with-backlog
-commit_all "${fixture}" 'release with backlog skill'
+write_candidate_payload "${fixture}" 0.1.2 payload-with-story-planning
+commit_all "${fixture}" 'release with story planning skills'
 tag_release "${fixture}" 0.1.2 '2026-06-02T00:00:00'
 
 target="${temporary_dir}/target"
@@ -34,7 +48,7 @@ agents_root="${target}/.agents/skills"
 actual_version=''
 mkdir -p -- "${agents_root}/dough-update" "${agents_root}/dough-adr-awareness"
 for managed_file in "${managed_files[@]}"; do
-  [[ "${managed_file}" != dough-product-backlog/SKILL.md ]] || continue
+  [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
   mkdir -p -- "${agents_root}/${managed_file%/*}"
   cp -- "${older_checkout}/src/skills/${managed_file}" "${agents_root}/${managed_file}"
 done
@@ -59,14 +73,14 @@ prepare_target "${collision_target}"
 collision_root="${collision_target}/.agents/skills"
 mkdir -p -- "${collision_root}/dough-update" \
   "${collision_root}/dough-adr-awareness" \
-  "${collision_root}/dough-product-backlog"
+  "${collision_root}/dough-slice-planning"
 for managed_file in "${managed_files[@]}"; do
-  [[ "${managed_file}" != dough-product-backlog/SKILL.md ]] || continue
+  [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
   mkdir -p -- "${collision_root}/${managed_file%/*}"
   cp -- "${older_checkout}/src/skills/${managed_file}" "${collision_root}/${managed_file}"
 done
-printf '%s\n' 'Keep this unrelated local backlog skill.' > \
-  "${collision_root}/dough-product-backlog/SKILL.md"
+printf '%s\n' 'Keep this unrelated local slice-planning skill.' > \
+  "${collision_root}/dough-slice-planning/SKILL.md"
 printf '%s\n' "${fixture}" > "${collision_root}/dough-update/SOURCE"
 printf '%s\n' '0.1.1' > "${collision_root}/dough-update/VERSION"
 
@@ -79,4 +93,4 @@ fi
 after=$(snapshot_path_state "${collision_target}")
 [[ "${after}" == "${before}" ]]
 
-echo 'PASS: ordinary update adds a newly released payload skill and refuses a pre-existing path collision.'
+echo 'PASS: ordinary update adds newly released story-planning skills and refuses a pre-existing path collision.'

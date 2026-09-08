@@ -12,6 +12,9 @@ The payload in each root is exactly:
 - `dough-story-decomposition/references/seed-format.md`
 - `dough-story-refinement/SKILL.md`
 - `dough-story-refinement/references/planning.md`
+- `dough-resplit-story/SKILL.md`
+- `dough-slice-planning/SKILL.md`
+- `dough-slice-plan-refinement/SKILL.md`
 
 The source files live under `src/skills/`. Recognition records are source-only
 maintainer material and are not installed. Installation preserves
@@ -77,6 +80,9 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-story-decomposition/references/seed-format.md`
    - `src/skills/dough-story-refinement/SKILL.md`
    - `src/skills/dough-story-refinement/references/planning.md`
+   - `src/skills/dough-resplit-story/SKILL.md`
+   - `src/skills/dough-slice-planning/SKILL.md`
+   - `src/skills/dough-slice-plan-refinement/SKILL.md`
 
    Check that this executable call chain writes only the declared public
    payload files and their `SOURCE` then `VERSION` records under both captured

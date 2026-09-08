@@ -15,6 +15,9 @@ managed_payload_unchanged() {
     dough-story-decomposition/references/seed-format.md
     dough-story-refinement/SKILL.md
     dough-story-refinement/references/planning.md
+    dough-resplit-story/SKILL.md
+    dough-slice-planning/SKILL.md
+    dough-slice-plan-refinement/SKILL.md
   )
 
   skill_root=$(dirname -- "${dest}")

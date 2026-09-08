@@ -7,8 +7,7 @@ Open Dough defines how people and AI work together to develop software. It bring
 The aim is to define the lifecycle once, reuse it across projects, and make it usable across AI development platforms. The initial platform scope is **Codex, Cursor, and Claude Code**.
 
 > **Status:** Codex, Cursor, and Claude Code can install and update the
-> project-local two-skill public payload (`dough-update` plus
-> `dough-adr-awareness`) from the latest numeric release of a supplied
+> project-local public skill payload from the latest numeric release of a supplied
 > repository URL. Codex and Cursor share `.agents/skills/`; Claude Code uses
 > `.claude/skills/`. Recognition records remain source-only maintainer material.
 
@@ -34,7 +33,8 @@ Open your client project in an AI agent with web and shell access, then ask:
    [Cursor](docs/installation-and-updates.md#cursor), or
    [Claude Code](docs/installation-and-updates.md#claude-code)). Select and pin
    the highest numeric release using Git before any fetched script runs. Inspect
-   that snapshot's installer, helper and dependencies, and two public sources;
+   that snapshot's installer, helper and dependencies, and every declared public
+   source;
    then revalidate the selection and invoke its installer directly. Keep ownership
    of the temporary checkout through inspection and clean it on success or failure.
    Bash and Git are sufficient; installing package dependencies is unnecessary.
@@ -46,7 +46,7 @@ Open your client project in an AI agent with web and shell access, then ask:
    replaces its contents, including local edits. Use it only when the user has
    explicitly authorized that overwrite. A known older installation that lacks
    `SOURCE` needs that one-time supplied-source `--force` bootstrap.
-6. Verify both installed files match the pinned sources, the updater's
+6. Verify all installed files match the pinned sources, the updater's
    `SOURCE` record matches the supplied source, the `VERSION` record matches
    the selected release, and the client project's diff contains no unrelated
    changes. Report the installed paths, source tag and commit, and tell the
@@ -104,7 +104,7 @@ The exact file mappings and capability differences will be documented as integra
 ## Installation and updates
 
 See [Installation and updates](docs/installation-and-updates.md) for the exact
-two-skill payload, shared installation procedure, updater safety contract,
+public payload, shared installation procedure, updater safety contract,
 legacy bootstrap path, and contributor checks.
 
 ## Distribution
