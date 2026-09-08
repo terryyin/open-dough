@@ -1,9 +1,10 @@
 # Deliver the standalone client update workflow
 
 **Source:** [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update).
-**Status:** Planned; implement slices 1–7 first, then hand off to parked Quick 023.
-Slices 8–12 wait for its acceptance. No implementation, native execution, or
-publication performed by this planning task.
+**Status:** Slices 1–7 done. Resume
+[Quick 023](../023-accept-standalone-client/PLAN.md) against
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 8–12 wait for its
+acceptance. No native execution or publication performed by this slice.
 
 ## Goal and scope
 
@@ -187,17 +188,80 @@ acceptance story; a deterministic transition does not prove them.
 
 ### 7. The acceptance task receives one testable candidate
 Type: Behavior
-Status: planned — depends on 1–6
-Proof: `npm test` and `npm run lint` pass for the integrated candidate; record its
-revision, changed inputs, exact contract, focused results, and evidence references
-in this plan and link the handoff from SEED-007 Story 3.
+Status: done
+Proof: `npm test` and `npm run lint` passed on committed
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. That full SHA is the named
+candidate. Native proof stays pending with
+[SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
+and [Quick 023](../023-accept-standalone-client/PLAN.md).
+
+Changed product inputs from Quick 024 implementation
+(`git diff --name-only 40ac10c..6682816`) plus the docs freeze: `install.sh`,
+`src/install/open-dough-release.sh`, `src/install/open-dough-release-apply.sh`,
+`src/install/open-dough-release-resolve.sh`,
+`src/install/open-dough-release-version.sh`,
+`src/skills/dough-update/SKILL.md`, `README.md`, and
+`docs/installation-and-updates.md`. Tests and helpers in that range:
+`tests/README.md`, `tests/apply-temp-cleanup.sh`,
+`tests/dough-adr-awareness-claude-delivery-to-use.sh`,
+`tests/dough-adr-awareness-codex-delivery-to-use.sh`,
+`tests/dough-adr-awareness-cursor-delivery-to-use.sh`,
+`tests/dough-update-local-guidance-rejection.sh`,
+`tests/helpers/incomplete-install-report.bash`,
+`tests/helpers/release-fixture.bash`, `tests/install-latest-release.sh`,
+`tests/install-omits-internal.sh`, `tests/install-refuses-unsafe-topology.sh`,
+`tests/install-repeat-force-public-payload.sh`,
+`tests/install-reports-real-copy-failure.sh`,
+`tests/install-reports-real-retirement-failure.sh`, `tests/install.sh`,
+`tests/pin-and-inspect.sh`, `tests/support/assert-public-payload-install.sh`,
+`tests/support/dough-adr-awareness-delivery-to-use.sh`,
+`tests/support/dough-adr-awareness-release-transition.sh`,
+`tests/support/dough-adr-awareness-use.sh`,
+`tests/update-force-restores-latest.sh`, `tests/update-refuses-unverifiable.sh`,
+`tests/update-reports-replacement-failure.sh`, `tests/update-skip-verified.sh`,
+and `tests/update-when-needed.sh`.
+
+Remembered-source contract from Current decisions and slices 1–6: store one
+`dough-update/SOURCE` beside `VERSION` in the selected native root; capture
+supplied local paths as absolute before changing directory. Ordinary
+invocation reads that recorded source before pinning latest, never infers the
+client remote, and fetches the recorded baseline as data without executing its
+helper. Missing or unusable records on an existing installation refuse; clean
+first installation and explicit legacy bootstrap take a supplied source. Write
+`SOURCE` then `VERSION` only after payload verification; `VERSION` last is the
+success certificate. Ordinary no-URL apply compares the fixed managed files to
+recorded A and installs inspected B only when unchanged. Unverifiable
+installations refuse without writes. Clean equal is current and unwritten;
+edited equal refuses; equal or newer stay truthful with no downgrade. Explicit
+`--force` uses recorded `SOURCE` when present, otherwise a supplied `--url`,
+and restores the complete latest payload plus `SOURCE` then `VERSION`. A known
+legacy installation (VERSION, no SOURCE) uses one inspected supplied-source
+`--force` bootstrap, then ordinary no-URL apply from the `SOURCE` that force
+wrote. Latest-only selection, inspect-before-execute, fixed managed paths,
+temporary cleanup, and uncommitted client changes remain in force.
+[ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md) keeps human decision
+ownership; [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+forbids automatic version choice; [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
+lets implementation finish at this handoff while native stays in Story 3;
+[ADR 0004](../../../docs/adrs/0004-client-installation-and-update.md) remains
+Proposed. No exception.
+
+Focused cheap-check evidence already named in this plan: slice 1
+`tests/install-latest-release.sh`; slice 1b
+`tests/install-reports-real-copy-failure.sh`; slice 2
+`tests/update-when-needed.sh`; slice 3
+`tests/update-refuses-unverifiable.sh`; slice 4
+`tests/update-skip-verified.sh`; slice 5
+`tests/update-force-restores-latest.sh` and
+`tests/update-reports-replacement-failure.sh`; slice 6
+`tests/support/dough-adr-awareness-release-transition.sh`.
 
 Behavior: Functional work and cheap checks complete → freeze and identify the
-candidate → Quick 023 can select its unresolved native checks. Do not assume HEAD
-is a candidate before this handoff. Record implementation complete separately from
-native pending. The acceptance task owns fixture suitability and any required
-ordinary update→fresh-use proof. Pause here and resume parked Quick 023; keep
-release slices blocked until its verdict. Coordinate candidate changes so the
+candidate → Quick 023 can select its unresolved native checks. Record
+implementation complete separately from native pending. The acceptance task
+owns fixture suitability and any required ordinary update→fresh-use proof.
+Pause here and resume Quick 023 against this named revision; keep release
+slices blocked until its verdict. Coordinate candidate changes so the
 acceptance task tests named inputs rather than a moving checkout.
 
 ### 8. The accepted candidate has reviewable release metadata
@@ -344,3 +408,8 @@ The cheap delivery wrappers then call ordinary `apply` with no `--url`; the
 helper resolves that recorded SOURCE. README and installation docs describe
 that one-time bootstrap. Native loading and no-URL skill behavior stay with
 the acceptance story.
+
+**Slice 7:** Candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`. Wrapping
+the old-updater sentence broke the expanded-payload docs grep in
+`tests/dough-update-codex-expanded-payload.sh`; rejoining it was required
+before freeze. Native proof stays pending with Quick 023.

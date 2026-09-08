@@ -742,9 +742,11 @@ combined outcome without reopening release production or version detection.
 
 ### 7. Release the standalone client installation and update workflow
 
-**Status:** Reconsidered and refined 2026-09-08 under ADR 0005. Selected next
-on 2026-09-08 to plan and implement remaining functional and cheap-check work
-and hand off a named candidate. No implementation or native acceptance claimed.
+**Status:** Implementation handoff complete 2026-09-08 at
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Native acceptance remains pending
+in [SEED-007 Story 3](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
+/ [Quick 023](../quick/023-accept-standalone-client/PLAN.md). Release and
+self-use are not finished.
 **Historical plan:** [Quick 019](../quick/019-standalone-client-update/PLAN.md)
 is not executable as written. Plan from this story; reconcile retained old plans
 later in [SEED-007 Story 4](SEED-007-cross-tool-validation.md#separate-native-acceptance).
@@ -829,7 +831,12 @@ separates implementation proof from native acceptance:
 Implementation can finish at the candidate handoff while native acceptance stays
 pending. This release story remains unfinished until publication and self-use.
 Completed cleanup evidence is retained subject to applicability review; this
-refinement produces no new native proof.
+handoff produces no Codex, Cursor, or Claude Code discovery, invocation, or
+behavior claim. [ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md) preserves
+human decision ownership; [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+forbids automatic version choice; [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+keeps native proof in Story 3; [ADR 0004](../../docs/adrs/0004-client-installation-and-update.md)
+remains Proposed. No exception.
 
 #### Exclusions and readiness
 
@@ -839,18 +846,18 @@ synthetic second public release, or historical tooling cleanup. Align only docs
 and checks affected by the included behavior.
 
 No unresolved scope question blocks subsequent planning. The candidate revision
-is supplied by implementation, not assumed to be current HEAD. The maintainer
+is `6682816a2385d96066883b5e4dc073b28e4b3d4f`. The maintainer
 supplies the release number before preparation under
 [Accepted ADR 0003 — Tagged release versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
 ADR 0004 remains Proposed; existing owner direction defines the client contract.
-No Accepted-ADR conflict or exception is needed. This task refines the story;
-it does not create an execution plan or implement/publish the workflow.
+No Accepted-ADR conflict or exception is needed. Native acceptance and
+release/self-use remain unfinished.
 
 ## Ordering and Scope Reduction
 
-Stories 1–5e retain completed results. Story 7 is the next useful delivery:
-plan and implement the smaller installation/update contract, hand off one named
-candidate to SEED-007 Story 3, then publish only after that acceptance. Donut's
+Stories 1–5e retain completed results. Story 7 handed off named candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f` to SEED-007 Story 3. Publish only
+after that acceptance. Donut's
 one-time adoption in SEED-006 Story 3 follows. A useful newer release should then
 be used in Donut through Story 4 at the first opportunity. Planning extraction
 can supply that improvement but must not postpone an already-available update.
@@ -876,16 +883,18 @@ than resurrecting unfinished fragments from the earlier combined scope.
 
 ## Next refinement
 
-Story 7 was reconsidered on 2026-09-08 with a candidate handoff to SEED-007
-Story 3. Owner decision the same day: it is first in the product backlog;
-Quick 023 stays parked until this story names a candidate. Plan remaining work
-from its current scope; Quick 019 is historical input and will not be run as
+Story 7 handed off named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`
+to SEED-007 Story 3 on 2026-09-08. Native acceptance remains pending; Quick 023
+may resume against that revision. Plan remaining release/self-use from this
+story after that verdict. Quick 019 is historical input and will not be run as
 written. ADR 0004 remains Proposed. Configuration stays deferred.
 
 ## When to Surface
 
-Story 7 is item 1 in the [product backlog](../PRODUCT-BACKLOG.md). After it
-hands off a named candidate, SEED-007 Story 3 (Quick 023) resumes as item 2.
+Story 7 remains item 1 until publication and self-use. After the
+2026-09-08 handoff of named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`,
+SEED-007 Story 3 (Quick 023) resumes as item 2. Native acceptance is not
+claimed by this handoff.
 Story 6 surfaces only when its manual-notes trigger occurs. Completed Stories
 1–5e remain evidence for unchanged behavior and are not unfinished delivery work.
 

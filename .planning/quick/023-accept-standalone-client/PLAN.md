@@ -1,9 +1,10 @@
 # Accept one standalone client candidate
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
-**Status:** Parked 2026-09-08. Execute-plan stopped at Jidoka: no named candidate.
-Resume after [SEED-001 Story 7](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
-hands off a revision. No native execution or acceptance claimed.
+**Status:** Candidate named 2026-09-08:
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Resume against that revision. No
+native execution or acceptance claimed. Fixture suitability and ordinary
+update→fresh-use remain this plan's job.
 
 ## Goal and scope
 
@@ -17,7 +18,10 @@ rules. Keep this plan in Open Dough; do not install or distribute the borrowed s
 [Accepted ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
 requires per-tool proof or justified reuse, shared behavior cases, and bounded
 native runs. [ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md) preserves
-human decision ownership. No conflict or ADR exception is needed.
+human decision ownership. [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+forbids automatic version choice; this plan does not publish.
+[ADR 0004](../../../docs/adrs/0004-client-installation-and-update.md) remains
+Proposed. No conflict or ADR exception is needed.
 
 Excluded: updater implementation, new test infrastructure, a full scenario
 matrix, release/self-adoption, Donut changes, and reconciliation of old plans.
@@ -25,16 +29,20 @@ No Structure slice is needed: existing runners and evidence records suffice.
 
 ## Entry condition and current decisions
 
-- **2026-09-08 owner decision:** Park this plan. Implement SEED-001 Story 7 next
-  from its current scope; do not run [Quick 019](../019-standalone-client-update/PLAN.md)
-  as written. Do not name current HEAD or public `v0.2.1` as the candidate.
-  After Story 7 functional behavior and cheap checks land, resume execute-plan
-  here against that named revision. Publication waits for this plan's acceptance.
+- **2026-09-08 owner decision:** Parking ended when SEED-001 Story 7 named the
+  candidate below. Do not run [Quick 019](../019-standalone-client-update/PLAN.md)
+  as written. Public `v0.2.1` is not the candidate. Publication waits for this
+  plan's acceptance.
 - The reconsidered [updater story](../../seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
-  must supply the candidate revision, promised behavior, and completed cheap
-  checks. Do not infer that current HEAD or Quick 019's old plan is that contract.
-- Candidate: **pending**. All native leaves below remain blocked until supplied.
-  Naming a candidate does not authorize implementing missing updater behavior here.
+  supplied the candidate revision, promised behavior, and completed cheap
+  checks. Do not infer that Quick 019's old plan is that contract.
+- Candidate: **`6682816a2385d96066883b5e4dc073b28e4b3d4f`**. Promised contract:
+  remembered `SOURCE`/`VERSION`; ordinary no-URL update from the recorded
+  source with baseline compare; unverifiable refusal; equal/newer verified
+  skip; force complete latest; legacy supplied-source `--force` bootstrap.
+  Naming this candidate does not authorize implementing missing updater
+  behavior here. Fixture suitability and ordinary update→fresh-use remain this
+  plan's job. Native leaves stay unexecuted.
 - Before launch, compare the chosen runner's actual setup and prompts with that
   contract. The existing `delivery/updated-use` path uses inspected bootstrap and
   a newer tagged fixture. It must not be credited as proof of a different ordinary
@@ -74,7 +82,7 @@ in [tests/README.md](../../../tests/README.md); leave unresolved results inconcl
 
 ### 1. Establish the Codex candidate verdict
 Type: Behavior
-Status: blocked — candidate required
+Status: planned — named candidate; fixture review before native run
 Proof: Codex evidence row below links decisive observations or justified reuse
 for each affected claim, with remaining gaps explicitly pending.
 
@@ -87,7 +95,7 @@ the journey already proves it.
 
 ### 2. Establish the Cursor candidate verdict
 Type: Behavior
-Status: blocked — candidate required
+Status: planned — named candidate; fixture review before native run
 Proof: Cursor evidence row links its own native observations or justified reuse;
 Codex success supplies no Cursor proof.
 
@@ -99,7 +107,7 @@ attempt and its cleanup within this proof loop.
 
 ### 3. Establish the Claude Code candidate verdict
 Type: Behavior
-Status: blocked — candidate required
+Status: planned — named candidate; fixture review before native run
 Proof: Claude Code evidence row links its own native observations or justified
 reuse; another tool's success supplies no Claude Code proof.
 
@@ -155,7 +163,12 @@ The combined runner already exists. Its inspected-bootstrap fixture is not
 blanket proof of the reconsidered ordinary updater contract. No product or
 runner change, native run, or new evidence was produced during planning.
 
-2026-09-08 execute-plan: slice 1 remains blocked. Current `dough-update` still
-requires a supplied URL and records only `VERSION`. HEAD `9857d85` / `VERSION`
-`0.2.1` is not the Story 7 contract. Doughnut CI observation is unavailable in
+2026-09-08 execute-plan: slice 1 was blocked. At that stop, `dough-update` still
+required a supplied URL and recorded only `VERSION`. HEAD `9857d85` / `VERSION`
+`0.2.1` was not the Story 7 contract. Doughnut CI observation is unavailable in
 this repo (`pendingCi: unobserved`).
+
+2026-09-08 implementation handoff: candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f` named by Quick 024. Fixture
+suitability and ordinary update→fresh-use remain this plan's job. No native
+run.

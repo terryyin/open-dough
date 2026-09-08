@@ -2,12 +2,12 @@
 
 ## Near-future direction
 
-Finish the revised standalone updater enough to name one candidate, then accept
-that candidate natively under
+Accept the named standalone updater candidate natively under
 [Accepted ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md). Cheap
-checks for SEED-007 Stories 1–2 are done. Story 3 stays parked until the updater
-story hands off a named revision; do not treat current HEAD or public `v0.2.1`
-as that candidate. Reconsider underlying stories before reconciling other
+checks for SEED-007 Stories 1–2 are done. Story 7 named candidate
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`; Story 3 / Quick 023 may resume
+against that revision. This is not native acceptance. Public `v0.2.1` is not
+the candidate. Reconsider underlying stories before reconciling other
 retained plans.
 
 Then make the revised installation/update workflow work in a real client,
@@ -20,8 +20,8 @@ matching, reconciliation, or recovery product.
 
 ## Queue
 
-1. [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001 Story 7. Plan remaining remembered-source and verified ordinary/forced-update work from the current story; [Quick 019](quick/019-standalone-client-update/PLAN.md) will not be run as written. Hand off one named candidate, then publish after item 2 accepts it.
-2. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. Parked until item 1 names the candidate; then resume [Quick 023](quick/023-accept-standalone-client/PLAN.md).
+1. [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001 Story 7. Implementation handed off named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`; publish after item 2 accepts it. Native acceptance and release/self-use are not finished. [Quick 019](quick/019-standalone-client-update/PLAN.md) will not be run as written.
+2. [Establish that the standalone client candidate works in all three tools](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 Story 3. Candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`; resume [Quick 023](quick/023-accept-standalone-client/PLAN.md). No longer parked for a missing candidate. This is not native acceptance. Publication still waits for this item.
 3. [Reconcile retained plans after reconsidering their stories](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance) — SEED-007 Story 4. Last among remaining migration stories; update only plans that remain relevant after story reconsideration. Other retained plans require revision before execution.
 4. [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006 Story 3. Prepare the actual integrations, retain context, replace the borrowed original once, and use the installed guidance on real work.
 5. [Use a meaningful newer release through Donut's ordinary updater](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006 Story 4. Do this as soon as a useful newer release exists; it takes priority over further extraction.
@@ -29,22 +29,22 @@ matching, reconciliation, or recovery product.
 7. [Release story decomposition and use it on real product work](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-decomposition) — SEED-004 Story 7. Reuse oversized-plan feedback as part of this practice.
 8. [Replace borrowed guidance once in the remaining known client projects](seeds/SEED-004-extract-and-adopt-project-guidance.md#adopt-known-client-projects) — SEED-004 Story 8. After the Donut path works, handle the owner's roughly three or four other projects one at a time, with a named project and useful practice for each pass.
 
-Priority does not remove dependencies: item 2 waits for item 1's named
-candidate. Item 3 stays last among the remaining migration stories and updates
+Priority does not remove dependencies: item 2 may resume Quick 023 against
+item 1's named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`. That is
+not native acceptance. Item 3 stays last among the remaining migration stories and updates
 only plans retained after story reconsideration. Use [SEED-007](seeds/SEED-007-cross-tool-validation.md)
 for current native-acceptance scope and pending evidence. The earlier migration
 assessment is background only.
 
 ## Next-item readiness
 
-**Decision, 2026-09-08:** Park [Quick 023](quick/023-accept-standalone-client/PLAN.md).
-Execute-plan stopped at Jidoka because no candidate exists. Implement
-[SEED-001 Story 7](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
-next; do not name current HEAD or public `v0.2.1` as the candidate. After
-functional behavior and cheap checks land, that revision is the candidate for
-item 2. Resume Quick 023 then. Publication waits for that native acceptance.
+**Decision, 2026-09-08:** [SEED-001 Story 7](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update)
+named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`. Resume
+[Quick 023](quick/023-accept-standalone-client/PLAN.md) against that revision.
+Public `v0.2.1` is not the candidate. This is not native acceptance.
+Publication waits for Quick 023.
 
-Plan Story 7 from its current scope. [Quick 019](quick/019-standalone-client-update/PLAN.md)
+Plan remaining Story 7 release/self-use after that verdict. [Quick 019](quick/019-standalone-client-update/PLAN.md)
 is historical and will not be run as written; reconcile it later in
 [SEED-007 Story 4](seeds/SEED-007-cross-tool-validation.md#separate-native-acceptance).
 Quick 018's completed overlapping cleanup is retained, not planned again; its
@@ -56,8 +56,8 @@ governs releases, including the maintainer's version choice before preparation.
 Configuration remains outside the queue. This note does not execute the plan.
 
 Cheap checks for SEED-007 Stories 1–2 live in `tests/` and `tests/README.md`.
-Do not claim native acceptance from those cheap checks. After the candidate is
-named, review prior per-tool evidence; a combined update→fresh-use journey can
+Do not claim native acceptance from those cheap checks. Review prior per-tool
+evidence against the named candidate; a combined update→fresh-use journey can
 also prove installed use. Select separate runs only for remaining gaps.
 
 ### Later client-work readiness
@@ -98,9 +98,9 @@ are deleted rather than retained as cancelled work.
 | Oversized plans | The useful feedback is included in story decomposition, without a separate seed or feature. |
 | Collaboration and feedback | Retained as parked ideas with concrete triggers and no new default client machinery. |
 
-SEED-001 Story 7 now leads so it can name a candidate; SEED-007 Story 3
-follows, with Story 4 last among remaining migration work. The real-client path
-retains its priority over further extraction.
+SEED-001 Story 7 named candidate `6682816a2385d96066883b5e4dc073b28e4b3d4f`;
+SEED-007 Story 3 follows for native acceptance, with Story 4 last among remaining
+migration work. The real-client path retains its priority over further extraction.
 
 ## Recently done
 
