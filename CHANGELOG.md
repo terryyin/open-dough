@@ -1,3 +1,7 @@
+## 0.3.0 - 2026-09-08
+
+Fix update.
+
 ## 0.2.5 - 2026-09-08
 
 Promote `dough-product-backlog` into the installable public payload for Codex, Cursor, and Claude Code. Install and update verification now includes the product-backlog skill alongside the updater and ADR-awareness guidance.
