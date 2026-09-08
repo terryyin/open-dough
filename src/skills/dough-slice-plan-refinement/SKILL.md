@@ -2,7 +2,7 @@
 name: dough-slice-plan-refinement
 description: >-
   Refines an existing executable plan in place into smaller, proof-owned
-  Behavior/Structure leaves. Use after dough-slice-planning when leaves are
+  Behavior/Structure slices. Use after dough-slice-planning when slices are
   complex, sizing confidence is low, or execution overruns. Creates no new plan
   and does not change the selected story outcome.
 ---
@@ -23,7 +23,7 @@ hard limit, exceptions, overrun policy, and plan lifecycle.
   [dough-story-refinement](../dough-story-refinement/SKILL.md).
 - If the parent problem, candidate selection, or sibling ordering must change,
   use [dough-story-decomposition](../dough-story-decomposition/SKILL.md).
-- If all remaining leaves are already cohesive, single-proof-loop,
+- If all remaining slices are already cohesive, single-proof-loop,
   target-sized, and free of unexplained hard-limit paths, execute directly;
   refinement is optional.
 
@@ -32,30 +32,30 @@ hard limit, exceptions, overrun policy, and plan lifecycle.
 Read the plan and only the code and tests needed to judge execution boundaries.
 Read and apply:
 
-- [execution-leaf decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-execution-leaves),
+- [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices),
   including its sizing and escalation rules; and
 - [active-plan refinement](../dough-story-refinement/references/planning.md#refine-the-active-plan),
   including executable proof ownership.
 
-Preserve completed leaves, applicable evidence, and the selected story's goal
+Preserve completed slices, applicable evidence, and the selected story's goal
 and scope.
 
-Classify each remaining leaf:
+Classify each remaining slice:
 
 | Result | Decision |
 | --- | --- |
 | **Ready** | One Behavior/Structure gate, one proof loop, cohesive path, and a plausible target-sized hypothesis |
-| **Refine** | Same story, but the leaf has multiple beats, low confidence, or a target or hard-limit concern |
+| **Refine** | Same story, but the slice has multiple beats, low confidence, or a target or hard-limit concern |
 | **Escalate** | Learning requires selected-story or parent-story review |
 
-Route Escalate through the input gate. Refine every Refine leaf.
+Route Escalate through the input gate. Refine every Refine slice.
 
 After an overrun, confirm attempt-owned work is safely parked or reverted before
 editing the plan. Stop for human judgment when ownership is unclear. Do not
 commit, push, implement, or verify product behavior unless the invoking workflow
 separately authorizes it.
 
-Report the plan path, replaced leaves, resulting leaves, sizing exceptions, and
+Report the plan path, replaced slices, resulting slices, sizing exceptions, and
 whether execution can resume. End with:
 
 `## SLICE PLAN REFINED`

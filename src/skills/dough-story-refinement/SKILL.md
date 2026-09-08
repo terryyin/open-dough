@@ -4,7 +4,7 @@ description: >-
   Clarifies selected stories before execution planning by establishing goal,
   scope, and key examples in each story's home seed. Adds UI or architectural
   detail only when needed. Use for selected-story refinement, not broad problem
-  decomposition, candidate selection, or execution-leaf sizing.
+  decomposition, candidate selection, or slice sizing.
 ---
 
 # Story refinement
@@ -18,7 +18,7 @@ story's home seed.
 If the parent problem, candidate selection, or story ordering needs
 reconsideration, use
 [dough-story-decomposition](../dough-story-decomposition/SKILL.md).
-For smaller or clearer execution leaves, use the project's execution-plan
+For smaller or clearer slices, use the project's execution-plan
 refinement workflow on the existing plan.
 
 Refinement alone does not authorize planning or implementation. When the user

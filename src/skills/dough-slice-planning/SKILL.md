@@ -2,10 +2,10 @@
 name: dough-slice-planning
 description: >-
   Plans one understood, bounded story as an executable sequence of
-  Behavior/Structure leaves with outside-in proof and safe stopping points. Use
+  Behavior/Structure slices with outside-in proof and safe stopping points. Use
   when a selected story is ready for implementation planning. Recommends
   dough-slice-plan-refinement only for complex, low-confidence, or over-budget
-  leaves; does not implement the plan.
+  slices; does not implement the plan.
 ---
 
 # Slice planning
@@ -29,14 +29,14 @@ Before writing, identify from the user's instructions and adopting repository:
 
 - the selected story and its home, when one exists;
 - the executable-plan path, format additions, status vocabulary, and lifecycle;
-- the project's execution-leaf target and hard limit, including permitted
+- the project's slice target and hard limit, including permitted
   exceptions and overrun escalation;
 - required verification, refactoring, commit, and review gates;
 - relevant code, tests, stack rules, and Accepted ADRs; and
 - any phase or quick-task conventions that own the plan.
 
 Resolve these from the adopting repository, not this skill's location. If the
-plan destination or execution-leaf budget is unavailable, name the missing
+plan destination or slice budget is unavailable, name the missing
 context and stop before writing or claiming sizing readiness. Do not create a
 new plan under a deprecated or merely inferred location.
 
@@ -45,7 +45,7 @@ new plan under a deprecated or merely inferred location.
 Record the source, goal, included scope, material exclusions, assumptions, and
 key examples without enlarging the story. Read and apply:
 
-- [execution-leaf decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-execution-leaves),
+- [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices),
   including its sizing and escalation rules; and
 - [executable-plan decisions](../dough-story-refinement/references/planning.md#write-an-executable-plan),
   including executable proof ownership.
@@ -63,13 +63,13 @@ broad implementation. Keep experiments off shared and production systems.
 Use [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md) only
 when the reference's refinement conditions apply:
 
-- If all leaves are cohesive, have one proof loop, meet the adopter's target,
+- If all slices are cohesive, have one proof loop, meet the adopter's target,
   and have no unexplained hard-limit path, report `ready for direct execution`.
 - If any trigger remains, report
-  `refinement recommended: <affected leaves>`. Do not claim an execution-time
+  `refinement recommended: <affected slices>`. Do not claim an execution-time
   guarantee.
 
-Report the plan path, ordered leaves, considered-but-excluded additions, and the
+Report the plan path, ordered slices, considered-but-excluded additions, and the
 readiness result. End with:
 
 `## SLICE PLAN WRITTEN`

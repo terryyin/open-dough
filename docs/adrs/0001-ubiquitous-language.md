@@ -7,12 +7,14 @@
 **Decision makers:** Terry Yin
 
 **Consulted:** Terry Yin; installation and update terminology proposed following
-the ADR 0004 discussion on 2026-09-07. Further advice open.
+the ADR 0004 discussion on 2026-09-07. Terry Yin chose consistent slice
+terminology across planning, refinement, and execution on 2026-09-08. Further
+advice open.
 
 ## Context
 
 Open Dough needs consistent names for the guidance it produces, what clients
-install, and what clients can customize.
+install, what clients can customize, and the units of work the guidance uses.
 
 ## Decision
 
@@ -42,6 +44,11 @@ record describes guidance; ordinary use does not need that record.
 The client runs `dough-update`, receives changes to its installed project files,
 then reviews and commits those changes. The Open Dough repository supplies the
 release; the client project's repository holds the resulting installation.
+
+- **Slice:** A bounded unit of executable work within a selected story that
+  delivers one observable Behavior or makes a Structure change immediately
+  enabling the next Behavior slice. Use the same term throughout planning,
+  refinement, and execution; splitting a slice produces smaller slices.
 
 ### Skill naming
 

@@ -11,7 +11,7 @@ requirement.
 ## Purpose
 
 Turn one understood story into an ordered executable plan of bounded,
-proof-owned Behavior/Structure leaves.
+proof-owned Behavior/Structure slices.
 
 ## Triggers
 
@@ -26,7 +26,7 @@ direct-execution readiness unless explicit refinement triggers remain.
 
 ## Adopter-provided context
 
-Story and home; executable-plan path and lifecycle; execution-leaf target, hard
+Story and home; executable-plan path and lifecycle; slice target, hard
 limit, exceptions, and repeated-overrun policy; verification and delivery gates;
 relevant stack rules and Accepted ADRs.
 
@@ -50,15 +50,15 @@ Before release, maintainers must review invocation context, required adopter
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md). Representative
 walkthrough: given one bounded weekly-totals export story, a supplied plan path,
 a five-minute target and ten-minute hard limit, and a stable export test entry
-point, write one Behavior leaf for a single-team export before later policy
+point, write one Behavior slice for a single-team export before later policy
 exceptions. Put any necessary Structure immediately before that Behavior, map
 every included promise to observable proof, and recommend refinement only if a
-leaf has separable beats or a plausible hard-limit path. With no plan destination
+slice has separable beats or a plausible hard-limit path. With no plan destination
 or sizing policy, stop before writing instead of inventing conventions.
 
 Dependency review: the source routing targets supplied the story-level base;
 their public copies were extended with ADR-0006-style execution sections for the
-leaf gate, sizing/escalation, executable-plan contract, and proof ownership.
+slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 Both slice skills link those authoritative sections rather than copying them.
 Client installation remains separate validation.
 

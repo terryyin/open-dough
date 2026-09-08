@@ -10,8 +10,8 @@ requirement.
 
 ## Purpose
 
-Replace complex, low-confidence, or overrun leaves in one existing executable
-plan with smaller proof-owned Behavior/Structure leaves.
+Replace complex, low-confidence, or overrun slices in one existing executable
+plan with smaller proof-owned Behavior/Structure slices.
 
 ## Triggers
 
@@ -27,14 +27,14 @@ ownership reconciled before execution resumes.
 
 ## Adopter-provided context
 
-Existing plan and selected story; execution-leaf target, hard limit, exceptions,
+Existing plan and selected story; slice target, hard limit, exceptions,
 and repeated-overrun policy; plan lifecycle and delivery gates; ownership of
 work in progress after an execution attempt.
 
 ## Differences that rule out replacement
 
 A workflow that creates a second plan, changes story scope, splits tests from
-behavior, restarts an overrun by renaming leaves, discards completed evidence,
+behavior, restarts an overrun by renaming slices, discards completed evidence,
 or edits work of unclear ownership is not equivalent.
 
 The source depends on Cursor `alwaysApply: true` planning and decomposition
@@ -47,16 +47,16 @@ repository-wide application; client installation owns that delivery.
 
 Before release, maintainers must review invocation context, required adopter
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md). Representative
-walkthrough: given an existing weekly-export plan with one leaf combining CSV
+walkthrough: given an existing weekly-export plan with one slice combining CSV
 generation and scheduling, preserve completed export evidence, replace only the
-remaining combined leaf with one proof loop per observable behavior, and repoint
+remaining combined slice with one proof loop per observable behavior, and repoint
 its promises. Given a prior overrun, record elapsed time and the disproved
-assumption and touch later leaves only when it applies to them. If work ownership
+assumption and touch later slices only when it applies to them. If work ownership
 is unclear or the evidence changes story scope, stop for human review.
 
 Dependency review: the source routing targets supplied the story-level base;
 their public copies were extended with ADR-0006-style execution sections for the
-leaf gate, sizing/escalation, executable-plan contract, and proof ownership.
+slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 This skill links those authoritative sections and introduces no competing copy.
 Client installation remains separate validation.
 

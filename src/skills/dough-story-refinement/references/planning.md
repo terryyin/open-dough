@@ -71,12 +71,12 @@ Keep only information needed for execution, proof, review, or resume:
    assumptions.
 3. **Outside-in proof** — key examples and their observable test or
    demonstration signals.
-4. **Ordered leaves** — capability-named heading, Behavior or Structure type,
+4. **Ordered slices** — capability-named heading, Behavior or Structure type,
    status, and proof.
 5. **Current decisions** — only choices constraining remaining work.
-6. **Learnings** — only discoveries changing assumptions or remaining leaves.
+6. **Learnings** — only discoveries changing assumptions or remaining slices.
 
-Use the adopter's equivalent leaf format when supplied; otherwise use:
+Use the adopter's equivalent slice format when supplied; otherwise use:
 
 ```markdown
 ### N. Capability outcome
@@ -94,12 +94,12 @@ code, tests, and enduring documentation remain capability-named.
 ## Own executable proof
 
 Map every checkable final-state promise in the selected story and current
-decisions to an owning leaf and observable proof. Inline links or a compact table
+decisions to an owning slice and observable proof. Inline links or a compact table
 are sufficient. Include applicable promises, not broader aspirations. Passing
 commands without the promised observation does not establish completion.
 
 Preserve mappings through refinement, replacement, and resume. Repoint promises
-before declaring replacement leaves ready; orphaned promises leave the plan
+before declaring replacement slices ready; orphaned promises leave the plan
 incomplete. Preserve completed evidence unless a changed boundary invalidates
 what it covers. For interim replacements, align affected callers, fixtures,
 assertions, and documentation with the final success and rejection behavior.
@@ -111,10 +111,10 @@ Choose proof at the stable boundary of the promise:
 | Main user behavior | Targeted end-to-end check or another real high-level boundary |
 | Edge, error, or pure contract | Focused unit proof |
 | Existing untested behavior | Regression proof before changing it |
-| Structure leaf | Existing external behavior remains green |
-| Interim behavior | Name the later leaf that removes or replaces it |
+| Structure slice | Existing external behavior remains green |
+| Interim behavior | Name the later slice that removes or replaces it |
 
-Run focused relevant checks at leaf boundaries. Require broader suites only when
+Run focused relevant checks at slice boundaries. Require broader suites only when
 the adopting workflow or user requires them. When asynchronous ownership
 changes, prove that the named lifecycle owner observes background failure in
 time and performs applicable cleanup after failure or shutdown; an awaited
@@ -123,15 +123,15 @@ contract rather than an arbitrary timeout.
 
 ## Refine the active plan
 
-Edit the same plan in place. Preserve completed leaves and resume-useful history,
+Edit the same plan in place. Preserve completed slices and resume-useful history,
 replace obsolete planned detail rather than appending a competing breakdown,
 and record only learnings that affect remaining work. Apply
-[execution-leaf decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-execution-leaves)
+[slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
 and its sizing and escalation rules before declaring execution ready.
 
 After an execution overrun, record elapsed time, completed evidence, the failure
-or thrash point, and the sizing assumption that proved false. Replace leaves
-only when learning escalation permits, and change later leaves only when the
+or thrash point, and the sizing assumption that proved false. Replace slices
+only when learning escalation permits, and change later slices only when the
 same disproved assumption applies. Preserve a stated focused-test or
 external-wait exception that decomposition cannot reduce.
 

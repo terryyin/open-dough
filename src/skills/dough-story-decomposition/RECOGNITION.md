@@ -36,7 +36,7 @@ automatic implementation is not equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
 Cursor `alwaysApply: true` rules. The published references preserve the shared
-fractal behavior at story and execution-leaf resolutions; this skill invokes
+fractal behavior at story and slice resolutions; this skill invokes
 the story-level workflow, while the slice skills invoke the execution-level
 workflow. They do not replace automatic repository-wide application; client
 installation owns that delivery.

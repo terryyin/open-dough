@@ -15,7 +15,7 @@ Clarify selected stories in their existing homes before execution planning.
 ## Triggers
 
 Selected-story goal, scope, and examples need shared understanding; not broad
-candidate selection or execution-leaf sizing.
+candidate selection or slice sizing.
 
 ## Distinguishing behavior
 
@@ -35,7 +35,7 @@ equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
 Cursor `alwaysApply: true` rules. The published references preserve the shared
-fractal behavior at story and execution-leaf resolutions; this skill invokes
+fractal behavior at story and slice resolutions; this skill invokes
 the story-level workflow, while the slice skills invoke the execution-level
 workflow. They do not replace automatic repository-wide application; client
 installation owns that delivery.
