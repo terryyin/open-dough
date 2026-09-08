@@ -1,0 +1,37 @@
+Review 2026-09-08 of Claude Code delivery/updated-use attempt
+20260908T031111-5393. Wrapper printed no result-path. Scratch
+tmp.vUkZ8q4RKJ and stage streams were deleted before retain. This
+salvage is not a substitute harness record.
+
+Harness original: process exit 1; sole stderr was
+  cmp: EOF on …/atlas adopter/.claude/skills/dough-adr-awareness/SKILL.md
+No execution-status, prerequisite-result, assessment-status, or
+observations.txt. Use was not started.
+
+Review judgment: fail.
+
+Native command: claude --version → 2.1.263 (Claude Code) (same as
+Quick 014 Claude Code). Adapter claude-stream-json. Claude launched
+against the fixture: project dir for tmp.vUkZ8q4RKJ/atlas adopter
+and session-env 5393c009-694b-4f4e-b750-c3a820cd0f27 exist, both
+empty because --no-session-persistence. Deadline 300 / grace 15
+were not hit (elapsed ~42s).
+
+Payload after that session: delivery_assert_update_payload compared
+fixture-source skill bytes to the installed Claude skill; the
+installed SKILL.md was shorter. That is a failed real transition, not
+a wording pass. Exit 0 was not claimed. Because set -e aborted before
+native_result_report_journey, update-events.jsonl / snapshots were not
+kept, so no-URL apply, VERSION 0.2.1→0.2.2, and preservation flags
+cannot be independently re-read. Adapter not widened.
+
+Fresh-session installed load: unrun. ADR use with source unavailable:
+unrun. Unrelated guidance/context/other roots: not observed after the
+abort. Quick 014 Claude 2.1.263 native Skill calls of product SHA
+ff023b77… remain historical loading evidence for unchanged product
+bytes. They do not prove this remembered-source update. This journey
+does not cover the missing update or the resulting installed-use.
+No duplicate installed-use run. No extra clear/conflict/force/refusal
+leaf: no new unresolved product risk named beyond this failed update
+payload. Cursor pass and Codex incomplete attempt supply no Claude
+Code proof.

@@ -2,8 +2,8 @@
 
 **Source:** [SEED-007 Story 3](../../seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow).
 **Status:** In progress 2026-09-08 against candidate
-`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–3 done. Codex pending;
-Cursor pass. Claude Code remains. No overall acceptance claimed.
+`6682816a2385d96066883b5e4dc073b28e4b3d4f`. Slices 1–4 done. Codex pending;
+Cursor pass; Claude Code fail. Overall acceptance not yet recorded.
 
 ## Goal and scope
 
@@ -143,9 +143,13 @@ Retain and review the attempt and its cleanup within this proof loop.
 
 ### 4. Establish the Claude Code candidate verdict
 Type: Behavior
-Status: planned — after slice 1
-Proof: Claude Code evidence row links its own native observations or justified
-reuse; another tool's success supplies no Claude Code proof.
+Status: done
+Proof: Salvage
+`.planning/quick/023-accept-standalone-client/evidence/claude/delivery/updated-use/20260908T031111-5393`.
+Wrapper exit 1; `cmp` EOF on installed
+`.claude/skills/dough-adr-awareness/SKILL.md`; no `result-path`, record, or
+streams (scratch deleted before retain). Use unrun. Native version
+`2.1.263 (Claude Code)`. Not retried. Claude Code candidate verdict: **fail**.
 
 Behavior: Given the same candidate and saved Claude Code evidence → apply the
 shared expectations and run only uncovered Claude Code checks → the maintainer
@@ -173,7 +177,7 @@ this slice does not publish or claim future release acceptance.
 | Slice 1 | Shared selected fixture | Cheap proof that native updated-use invokes ordinary no-URL update. | n/a | Done |
 | Slice 2 | Codex | Combined journey incomplete; ordinary no-URL update not credited. Quick 014 loading/ADR use of unchanged skill SHA remains a starting point only. | Use unrun; Quick 014 historical clear/conflict not reused as this journey's behavior. | Pending |
 | Slice 3 | Cursor | Combined ordinary no-URL update→fresh-use proved discovery, invocation, install/update/coexistence on this journey. | Catalog vs ARC-12 conflict stop with no file edits. | Pass |
-| Slice 4 | Claude Code | Pending candidate-specific review; Quick 014 is a starting point. Update journey required. | Pending candidate-specific review. | Pending |
+| Slice 4 | Claude Code | One native launch failed payload compare; no-URL update, preservation, and install/update/coexistence not credited. Streams not retained. | Use unrun. | Fail |
 | Slice 5 | Overall | Confirm coverage and candidate identity from the three rows. | Confirm shared cases resolve the candidate's behavioral risks. | Pending |
 
 ## Sizing and readiness
@@ -227,3 +231,9 @@ on Cursor Agent `2026.09.02-c22c1a3`. Complete `{"type":"result"}` streams;
 ordinary apply omitted `--url`; use loaded installed
 `.cursor/skills/dough-adr-awareness/SKILL.md` and stopped on catalog/ARC-12
 disagreement. Codex pending is not Cursor proof.
+
+2026-09-08 Claude Code native: one `delivery/updated-use` launch salvage at
+`.planning/quick/023-accept-standalone-client/evidence/claude/delivery/updated-use/20260908T031111-5393`
+on `2.1.263`. Installed skill shorter than fixture source (`cmp` EOF).
+Scratch deleted before retain; use unrun. Not retried. Cursor pass and Codex
+pending are not Claude Code proof.
