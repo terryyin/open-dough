@@ -5,6 +5,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/support/native-result-retain.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-result-retain.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 fail_fixture="${source_dir}/tests/support/native-agent-fail.sh"
 
@@ -69,7 +72,6 @@ assert_failed_attempt() {
   grep -Fq "execution-reason: ${reason}" "${attempt}/record"
   grep -Fq 'assessment-status: not-run' "${attempt}/record"
   grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
-  grep -Fq 'prerequisite-result: fail' "${attempt}/record"
   if grep -Fq 'execution-status: completed' "${attempt}/record"; then
     echo 'FAIL: failure was recorded as completed.' >&2
     cat "${attempt}/record" >&2
@@ -80,6 +82,7 @@ assert_failed_attempt() {
     cat "${attempt}/record" >&2
     return 1
   fi
+  native_result_assert_no_discovery_fields "${attempt}/record"
   [[ ! -e ${attempt}/adopter ]]
   [[ ! -e ${attempt}/candidate ]]
   [[ ! -e ${attempt}/codex-state ]]

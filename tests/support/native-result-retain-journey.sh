@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Retain combined delivery/updated-use stages as one unreviewed attempt.
 # Sourced by the selected journey helper after native-result-retain.sh.
+# Prerequisite gate stays here until slice 3 drops journey discovery fields.
 # shellcheck disable=SC2034,SC2154 # Journey and prerequisite globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers prompt hashes.
 
 native_result_journey_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=tests/support/native-prerequisite-gate.sh
+# shellcheck disable=SC1091
+source "${native_result_journey_support_dir}/native-prerequisite-gate.sh"
 # shellcheck source=tests/support/native-journey-state.sh
 # shellcheck disable=SC1091
 source "${native_result_journey_support_dir}/native-journey-state.sh"

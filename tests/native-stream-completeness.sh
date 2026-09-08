@@ -6,6 +6,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/support/native-result-retain.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-result-retain.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 
 work_dir=$(mktemp -d)
@@ -46,11 +49,6 @@ assert_not_wording_pass() {
     cat "${attempt}/record" >&2
     return 1
   fi
-  if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
-    echo 'FAIL: incomplete evidence used the success wording interpretation.' >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
   if grep -Fq 'execution-status: completed' "${attempt}/record"; then
     echo 'FAIL: incomplete evidence was recorded as completed.' >&2
     cat "${attempt}/record" >&2
@@ -61,8 +59,8 @@ assert_not_wording_pass() {
     cat "${attempt}/record" >&2
     return 1
   fi
-  grep -Fq 'prerequisite-result: fail' "${attempt}/record"
   grep -Fq 'assessment-status: not-run' "${attempt}/record"
+  native_result_assert_no_discovery_fields "${attempt}/record"
 }
 
 run_selected_stream() {
@@ -116,21 +114,9 @@ assert_complete() {
   grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
   grep -Fq 'assessment-status: pass' "${attempt}/record"
   grep -Fq 'assessment-reason:' "${attempt}/record"
-  if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
-    echo "FAIL: complete ${host} stream used the success wording interpretation." >&2
-    cat "${attempt}/record" >&2
-    return 1
-  fi
-  grep -Fq 'prerequisite-reason:' "${attempt}/record"
-  grep -Fq 'prerequisite-evidence:' "${attempt}/record"
-  case ${host} in
-    claude)
-      grep -Fq 'prerequisite-result: inconclusive' "${attempt}/record"
-      ;;
-    *)
-      grep -Fq 'prerequisite-result: pass' "${attempt}/record"
-      ;;
-  esac
+  grep -Fq 'followed and cited Accepted authority' "${attempt}/record"
+  native_result_assert_no_discovery_fields \
+    "${attempt}/record" "complete ${host} stream"
   [[ -s ${attempt}/events.jsonl ]]
   [[ -s ${attempt}/response.md ]]
   if [[ ${host} == codex ]]; then

@@ -5,6 +5,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/support/native-result-retain.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-result-retain.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 deadline=1
 grace=1
@@ -149,17 +152,12 @@ grep -Fq 'execution-status: timeout' "${attempt}/record"
 grep -Fq 'execution-reason: deadline expired' "${attempt}/record"
 grep -Fq 'assessment-status: not-run' "${attempt}/record"
 grep -Fq 'assessment-reason: behavior not assessed' "${attempt}/record"
-grep -Fq 'prerequisite-result: fail' "${attempt}/record"
 if grep -Fq 'assessment-status: pass' "${attempt}/record"; then
   echo 'FAIL: timeout was recorded as a wording pass.' >&2
   cat "${attempt}/record" >&2
   exit 1
 fi
-if grep -Fq 'assessment-interpretation: limited-wording' "${attempt}/record"; then
-  echo 'FAIL: timeout used the success wording interpretation.' >&2
-  cat "${attempt}/record" >&2
-  exit 1
-fi
+native_result_assert_no_discovery_fields "${attempt}/record"
 grep -Fq '{"type":"item","partial":true}' "${attempt}/events.jsonl"
 grep -Fq 'partial hang output' "${attempt}/response.md"
 [[ ! -e ${attempt}/adopter ]]

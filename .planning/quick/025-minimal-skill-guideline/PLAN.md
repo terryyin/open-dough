@@ -48,22 +48,18 @@ stop). `npm run lint`; `bash tests/install-omits-internal.sh`.
 ### 2. Judge a skill-use check by its useful result
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: An ADR-awareness example is evaluated → inspect the recommendation or
 conflict handling → return the appropriate behavior result.
 
-Gut prerequisite/discovery fill and assertions from the context retention path
-(`native-result-retain.sh` context helpers) and update credential-free context
-callers (`native-result-retention`, `native-stream-completeness`,
-`native-run-timeout`, `native-runner-failures`, `dough-adr-awareness-context` as
-affected). Keep `native_adr_behavior_*` and its examples. Leave the shared
-activation/prerequisite modules in place while journey callers still need them;
-do not delete `tests/native-prerequisite-gate.sh` until slice 3 removes those
-callers.
+Context retention no longer fills or asserts `prerequisite-*` /
+`assessment-interpretation`. Records judge clear/conflict via behavior
+`assessment-*` fields. Shared activation/prerequisite modules remain for
+journey callers (slice 3).
 
-Proof: `bash tests/native-adr-behavior.sh` plus the affected context wrapper
-checks above. Positive signal is recommendation/conflict behavior, not
-`prerequisite-*` fields.
+Proof: `bash tests/native-adr-behavior.sh`; `bash tests/native-result-retention.sh`;
+`bash tests/native-stream-completeness.sh`; `bash tests/native-run-timeout.sh`;
+`bash tests/native-runner-failures.sh`.
 
 ### 3. Judge an update check by the resulting installation and use
 
@@ -105,15 +101,14 @@ about the delivered workflow.
 
 ## Execution readiness
 
-Slice 2 leaves shared activation/prerequisite modules for slice 3. Slice 3
-deletes them after journey callers are gone. One green focused check at a time;
-~5 minutes per leaf, reassess past that. Concurrent uncommitted planning WIP
-outside this PLAN stays unstaged until slice 4 ownership is clear.
+Slice 3 deletes shared activation/prerequisite modules after journey callers
+are gone. Slice 4 owns planning/doc cleanup. One green focused check at a time.
 
 ## Learnings
 
 2026-09-08 execute-plan: borrowed Donut execute-plan in Open Dough. No local CI
 mailbox / nix wrap-up tools (`pendingCi: unobserved`). Slice 1 delivered the
-shared authoring guideline. Refined slices 2–3 so context drops discovery first
-while journey still uses the shared gate; slice 3 deletes the gate after.
-Concurrent uncommitted seed/backlog/ADR-0006 cleanup left unstaged for slice 4.
+shared authoring guideline. Slices 2–3 refined so context drops discovery first
+while journey still uses the shared gate. Concurrent planning commits
+`4238a6f`/`2e7d775` absorbed backlog/ADR-0006 churn. Slice 2: context retention
+judges useful behavior only; journey gate retained for slice 3.
