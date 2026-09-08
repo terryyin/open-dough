@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Ordinary and supplied-URL apply: resolve source, pin, compare, install.
+# Ordinary, supplied-URL, and explicit-force apply: resolve source, pin,
+# compare unless forced, then install.
 # Sourced by open-dough-release.sh after platform, version, and resolve modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2249
@@ -156,6 +157,7 @@ EOF
   printf 'Release: %s (commit %s)\n' "${tag}" "${commit}"
   printf 'Tool path: %s\n' "${dest}"
 
+  # Skip baseline compare and equal/newer preservation; replace latest.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
     run_installer "${work}" "${target}" "${platform}" 1 "${url}"

@@ -42,14 +42,16 @@ Ordinary Open Dough release updates remain available from the recorded source.
    later update retires it.
 
 4. Resolve the Open Dough source from the selected root. If the selected
-   updater destination already exists, use that root's recorded
-   `dough-update/SOURCE`. If that record is missing or unusable, stop and
-   report that ordinary update cannot establish the recorded baseline. Do not
-   ask for a URL, do not treat the destination as a first install, and do
-   not substitute the target project's remote or local working-tree content.
-   If the destination does not exist, use the repository URL supplied by the
-   user; if none was supplied, ask for it before proceeding. First
-   installation and explicit force take a supplied source.
+   updater destination already exists and has a usable recorded
+   `dough-update/SOURCE`, use that source. For an ordinary update, if that
+   record is missing or unusable, stop and report that ordinary update cannot
+   establish the recorded baseline. Do not ask for a URL, do not treat the
+   destination as a first install, and do not substitute the target project's
+   remote or local working-tree content. If the destination does not exist,
+   use the repository URL supplied by the user; if none was supplied, ask for
+   it before proceeding. First installation takes a supplied source. Explicit
+   force uses the recorded SOURCE when present; otherwise it takes a supplied
+   `--url`.
 5. Make a fresh temporary directory. Using only Git, pin the highest numeric
    release before any repository script runs. Do not clone the default
    branch, and do not execute `install.sh` or `open-dough-release.sh` from
@@ -71,7 +73,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
       <captured-project> --platform <tool> --checkout <snapshot>` and do not
       pass `--url`; the helper reads `SOURCE`. For a first installation, also
       pass `--url <source-url>`. Pass `--force` only when the user explicitly
-      authorized a forced reinstall, and include `--url <source-url>` then.
+      authorized a forced reinstall. When the selected root has a usable
+      SOURCE, omit `--url`; otherwise include `--url <source-url>`.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
       inspected files write solely to the two declared public payload paths
@@ -90,15 +93,17 @@ Ordinary Open Dough release updates remain available from the recorded source.
    update cannot establish that baseline — missing or unusable SOURCE or
    VERSION, an unavailable recorded tag or source, baseline metadata mismatch,
    or changed or missing managed files — refuse without writing, forcing, or
-   treating the destination as a first install. A supplied-URL missing
-   selected record advances directly to latest. A verified newer selected
-   record is preserved with no downgrade; an unverifiable newer record is
-   unsupported without writes. A malformed selected `VERSION` is an error, not
-   unknown. Fetch, tag, and invalid-highest release failures must not write
-   the target or fall back to a lower release or branch. If replacement starts
-   and then fails, report that installed files may be incomplete, that the last
-   successful record was left unchanged, and that explicit `--force` reinstall
-   is the recovery path.
+   treating the destination as a first install. Explicit `--force` skips that
+   comparison and replaces the selected installation with latest, including
+   edited, incomplete, equal, or newer files, writing the payload then SOURCE
+   then VERSION. A supplied-URL missing selected record advances directly to
+   latest. A verified newer selected record is preserved with no downgrade; an
+   unverifiable newer record is unsupported without writes. A malformed
+   selected `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest
+   release failures must not write the target or fall back to a lower release
+   or branch. If replacement starts and then fails, report that installed files
+   may be incomplete, that the last successful record was left unchanged, and
+   that explicit `--force` reinstall is the recovery path.
 7. Report the helper's source URL, release tag and commit, running tool and
    native skill root, both installed payload paths, previous version or
    unknown, and actual outcome. After a replacement,

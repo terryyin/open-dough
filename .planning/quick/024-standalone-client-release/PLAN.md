@@ -157,7 +157,7 @@ with no downgrade. Reuse the same preflight rather than a second comparison path
 
 ### 5. Explicit force restores the complete latest installation
 Type: Behavior
-Status: planned — depends on 1–4
+Status: done
 Proof: Extend existing force tests so edited, incomplete, equal, and newer
 inputs produce the exact latest payload plus `SOURCE` then `VERSION`.
 Selection/validation failure still writes nothing, and replacement failure still
@@ -330,3 +330,9 @@ skips preflight, which is how a supplied-URL newer remains preserved. Edited-equ
 success was removed from `tests/update-when-needed.sh`. A true newer tag cannot
 exist in the same SOURCE as a lower latest (ADR 0003), so ordinary newer is
 unverifiable rather than a second comparison path.
+
+**Slice 5:** `--force` skips ordinary compare. It reads recorded SOURCE when
+present, otherwise requires `--url`. Edited, incomplete, equal, and newer
+inputs become exact latest payload plus SOURCE then VERSION
+(`tests/update-force-restores-latest.sh`). Replacement and copy/record failures
+were reused, not rebuilt.

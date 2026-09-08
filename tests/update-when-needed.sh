@@ -158,8 +158,10 @@ legacy_dest="${legacy}/.cursor/skills/dough-update"
 : > "${trace_file}"
 output=$(bash "${helper}" apply --url "${fixture}" --target "${legacy}" \
   --platform cursor --force)
-[[ "${output}" == *'Installed: unknown'* || "${output}" == *'explicit force'* ]]
+[[ "${output}" == *'explicit force'* ]]
 assert_payload "${legacy_dest}" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${legacy_dest}/SOURCE")
+[[ "${recorded_source}" == "${expected_source}" ]]
 assert_sentinels "${legacy}"
 
 echo "PASS: update compares before writes, retires recognition during an ordinary newer-release update from recorded SOURCE without a URL, refuses malformed and requested versions, and bootstraps a genuine v0.1.0 install with explicit force."

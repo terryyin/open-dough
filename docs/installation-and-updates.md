@@ -155,8 +155,9 @@ Claude Code session in the target project and invoke:
 ## Updater safety contract
 
 Ordinary updates of a recorded installation read that root's `SOURCE` and do
-not require a URL. First installation and explicit force still take a supplied
-cloneable repository URL. Never infer the client's Git remote or use a
+not require a URL. First installation takes a supplied cloneable repository
+URL. Explicit `--force` uses the recorded SOURCE when present; otherwise it
+takes a supplied `--url`. Never infer the client's Git remote or use a
 working-tree helper. The updater:
 
 1. Captures the target project before fetching.
@@ -190,8 +191,12 @@ VERSION, an unavailable tag or source, baseline metadata mismatch, and changed
 or missing managed files, even when the recorded version equals latest. A
 supplied-URL missing record still advances to the selected release. A verified
 newer record is preserved without a downgrade; an unverifiable newer record is
-unsupported without writes. A malformed VERSION is refused. Review a resulting
-diff and start a fresh session in the same tool to use replaced guidance.
+unsupported without writes. A malformed VERSION is refused. Explicit `--force`
+skips that comparison and replaces the selected installation with the
+inspected latest payload, then `SOURCE` and `VERSION`, including edited,
+incomplete, equal, or newer files. It does not merge changes or commit
+automatically. Review a resulting diff and start a fresh session in the same
+tool to use replaced guidance.
 
 ## Legacy bootstrap
 

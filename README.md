@@ -52,7 +52,8 @@ Open your target project in an AI agent with web and shell access, then ask:
    user to invoke the updater in a fresh session of the same tool
    (`$dough-update` in Codex, `/dough-update` in Cursor or Claude Code). Later
    ordinary updates use the recorded `SOURCE` and do not need the URL
-   repeated.
+   repeated. Explicit `--force` of a recorded installation also uses that
+   `SOURCE` when present; otherwise supply `--url`.
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
