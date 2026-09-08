@@ -202,6 +202,11 @@ this repo (`pendingCi: unobserved`).
 `6682816a2385d96066883b5e4dc073b28e4b3d4f` named by Quick 024. Fixture
 suitability and ordinary update→fresh-use remain this plan's job.
 
+2026-09-08 resume: selected native update still supplied a URL, so it could
+not prove ordinary no-URL update. Slice 1 retargeted that selected prompt and
+the cheap journey substitute to apply from recorded SOURCE. Quick 014 skill
+SHA still matches; it does not prove the updater contract.
+
 2026-09-08 Codex native: one `delivery/updated-use` attempt at
 `.planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T030033-43e0`
 on `codex-cli 0.144.1`. Adapter requires `{"type":"item"}` complete events;
