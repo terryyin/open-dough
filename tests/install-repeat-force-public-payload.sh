@@ -12,8 +12,7 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 target="${temporary_dir}/target project"
 mkdir -p -- "${target}"
 target=$(cd -- "${target}" && pwd -P)
-selected_root="${target}/.cursor/skills"
-codex_root="${target}/.agents/skills"
+selected_root="${target}/.agents/skills"
 claude_root="${target}/.claude/skills"
 
 assert_contents() {
@@ -27,8 +26,6 @@ assert_contents() {
 mkdir -p -- \
   "${selected_root}/dough-adr-awareness" \
   "${selected_root}/unrelated-guidance" \
-  "${codex_root}/dough-update" \
-  "${codex_root}/dough-adr-awareness" \
   "${claude_root}/dough-update" \
   "${claude_root}/dough-adr-awareness"
 
@@ -40,12 +37,6 @@ printf '%s\n' 'Keep this ADR-side file.' > \
   "${selected_root}/dough-adr-awareness/LOCAL.md"
 printf '%s\n' 'Keep unrelated Cursor guidance.' > \
   "${selected_root}/unrelated-guidance/SKILL.md"
-printf '%s\n' 'Keep the Codex updater.' > \
-  "${codex_root}/dough-update/SKILL.md"
-printf '%s\n' 'Keep the Codex ADR skill.' > \
-  "${codex_root}/dough-adr-awareness/SKILL.md"
-printf '%s\n' 'Keep the Codex ADR record.' > \
-  "${codex_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep the Claude updater.' > \
   "${claude_root}/dough-update/SKILL.md"
 printf '%s\n' 'Keep the Claude ADR skill.' > \
@@ -86,8 +77,6 @@ before_selected_sidecars=$(shasum -a 256 \
   "${selected_root}/dough-adr-awareness/LOCAL.md")
 before_selected_unrelated=$(snapshot_path_state \
   "${selected_root}/unrelated-guidance")
-before_codex=$(snapshot_path_state "${codex_root}")
-before_claude=$(snapshot_path_state "${claude_root}")
 before_project_file=$(shasum -a 256 "${target}/keep.txt")
 
 output=$(bash "${source_dir}/install.sh" \
@@ -109,25 +98,20 @@ assert_contents "${selected_root}/dough-adr-awareness/LOCAL.md" 'Keep this ADR-s
 assert_contents "${selected_root}/unrelated-guidance/SKILL.md" 'Keep unrelated Cursor guidance.'
 assert_contents "${target}/keep.txt" 'Keep this project file.'
 
-assert_contents "${codex_root}/dough-update/SKILL.md" 'Keep the Codex updater.'
-assert_contents "${codex_root}/dough-adr-awareness/SKILL.md" 'Keep the Codex ADR skill.'
-assert_contents "${codex_root}/dough-adr-awareness/RECOGNITION.md" 'Keep the Codex ADR record.'
-assert_contents "${claude_root}/dough-update/SKILL.md" 'Keep the Claude updater.'
-assert_contents "${claude_root}/dough-adr-awareness/SKILL.md" 'Keep the Claude ADR skill.'
-assert_contents "${claude_root}/dough-adr-awareness/RECOGNITION.md" 'Keep the Claude ADR record.'
+cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
+  "${claude_root}/dough-update/SKILL.md"
+cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
+  "${claude_root}/dough-adr-awareness/SKILL.md"
+[[ ! -e "${claude_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 after_selected_sidecars=$(shasum -a 256 \
   "${selected_root}/dough-update/LOCAL.md" \
   "${selected_root}/dough-adr-awareness/LOCAL.md")
 after_selected_unrelated=$(snapshot_path_state \
   "${selected_root}/unrelated-guidance")
-after_codex=$(snapshot_path_state "${codex_root}")
-after_claude=$(snapshot_path_state "${claude_root}")
 after_project_file=$(shasum -a 256 "${target}/keep.txt")
 [[ "${after_selected_sidecars}" == "${before_selected_sidecars}" ]]
 [[ "${after_selected_unrelated}" == "${before_selected_unrelated}" ]]
-[[ "${after_codex}" == "${before_codex}" ]]
-[[ "${after_claude}" == "${before_claude}" ]]
 [[ "${after_project_file}" == "${before_project_file}" ]]
 
 output=$(bash "${source_dir}/install.sh" \
@@ -138,7 +122,7 @@ output=$(bash "${source_dir}/install.sh" \
 assert_unsafe_retired_object() {
   local object_kind=$1
   local unsafe_target="${temporary_dir}/unsafe-${object_kind}"
-  local unsafe_path="${unsafe_target}/.cursor/skills/dough-adr-awareness/RECOGNITION.md"
+  local unsafe_path="${unsafe_target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
   local outside_file="${temporary_dir}/outside-${object_kind}"
   local before after failure_output
 

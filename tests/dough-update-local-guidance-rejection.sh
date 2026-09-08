@@ -18,7 +18,7 @@ fi
 platform=${2:-codex}
 case ${platform} in
   codex) skill_root='.agents/skills' ;;
-  cursor) skill_root='.cursor/skills' ;;
+  cursor) skill_root='.agents/skills' ;;
   claude) skill_root='.claude/skills' ;;
   *) exit 2 ;;
 esac
@@ -131,7 +131,7 @@ case ${platform} in
     ;;
   cursor)
     jq -e -s 'any(.[]; .tool_call.readToolCall? |
-      ((.args.path // "") | endswith("/.cursor/skills/dough-update/SKILL.md")) and
+      ((.args.path // "") | endswith("/.agents/skills/dough-update/SKILL.md")) and
       ((.result.success.content // "") | contains("Local-guidance replacement is not supported by dough-update.")))' \
       "${transcript}" > /dev/null
     ;;

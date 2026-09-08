@@ -71,8 +71,8 @@ output=$(bash "${snapshot}/src/install/open-dough-release.sh" apply \
 [[ "${output}" == *"Source: ${fixture}"* ]]
 [[ "${output}" == *"Release: v0.1.10 (commit ${commit})"* ]]
 [[ "${output}" == *'Outcome: installed 0.1.10.'* ]]
-assert_payload "${target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
-recorded_source=$(cat "${target}/.cursor/skills/dough-update/SOURCE")
+assert_payload "${target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${target}/.agents/skills/dough-update/SOURCE")
 expected_source=$(cd -- "${fixture}" && pwd -P)
 [[ "${recorded_source}" == "${expected_source}" ]]
 assert_sentinels "${target}"
@@ -142,11 +142,11 @@ install_inspected_release() (
     --platform "${platform}"
 
   for managed_file in "${managed_files[@]}"; do
-    cmp "${snapshot}/src/skills/${managed_file}" "${target_project}/.cursor/skills/${managed_file}"
+    cmp "${snapshot}/src/skills/${managed_file}" "${target_project}/.agents/skills/${managed_file}"
   done
-  [[ ! -e "${target_project}/.cursor/skills/dough-adr-awareness/RECOGNITION.md" ]]
-  cmp "${snapshot}/VERSION" "${target_project}/.cursor/skills/dough-update/VERSION"
-  recorded_source=$(cat "${target_project}/.cursor/skills/dough-update/SOURCE")
+  [[ ! -e "${target_project}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
+  cmp "${snapshot}/VERSION" "${target_project}/.agents/skills/dough-update/VERSION"
+  recorded_source=$(cat "${target_project}/.agents/skills/dough-update/SOURCE")
   [[ "${recorded_source}" == "${source_url}" ]]
 )
 
@@ -158,7 +158,7 @@ output=$(install_inspected_release "${direct_target}" "${direct_checkout}")
 [[ ! -e "${direct_checkout}" && -d "${temporary_dir}" ]]
 inspection_count=$(wc -l < "${direct_checkout}.inspection")
 [[ "${inspection_count}" -eq $((5 + ${#managed_files[@]})) ]]
-assert_payload "${direct_target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
+assert_payload "${direct_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 assert_sentinels "${direct_target}"
 [[ ! -s "${leak}" ]]
 
@@ -186,7 +186,7 @@ if output=$(bash "${poisoned}/src/install/open-dough-release.sh" apply \
   exit 1
 fi
 [[ "${output}" == *'not replacing inspected files'* ]]
-[[ ! -e "${mismatch_target}/.cursor/skills/dough-update" ]]
+[[ ! -e "${mismatch_target}/.agents/skills/dough-update" ]]
 assert_sentinels "${mismatch_target}"
 grep -qx helper "${leak}"
 head_after=$(git -C "${poisoned}" rev-parse HEAD)

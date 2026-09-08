@@ -90,6 +90,11 @@ all_roots_verified_for_release() {
       echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
       return 1
     }
+    if [[ -z "${installed}" ]]; then
+      echo "Missing installed version record: ${current_dest}/VERSION" >&2
+      echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
+      return 1
+    fi
     if ! recorded_baseline_unchanged "${current_dest}" "${url}" "${work_root}/baseline-${current_platform}" "${installed}"; then
       return 1
     fi
@@ -201,7 +206,7 @@ EOF
     trace_line "apply-install ${dest}"
     run_installer "${work}" "${target}" "${platform}" 0 "${url}"
     printf 'Installed: unknown\n'
-    printf 'Outcome: installed %s in Codex, Cursor, and Claude Code.\n' "${version}"
+    printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
     return 0
   fi

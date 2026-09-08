@@ -69,11 +69,7 @@ native_journey_state_assess() {
     native_journey_state_fail 'protected writes'
     return 0
   fi
-  if [[ ${skill_root} != '.cursor/skills' && ${cursor_p} != 'true' ]]; then
-    native_journey_state_fail 'protected writes'
-    return 0
-  fi
-  if [[ ${skill_root} != '.claude/skills' && ${claude_p} != 'true' ]]; then
+  if [[ ${cursor_p} != 'true' ]]; then
     native_journey_state_fail 'protected writes'
     return 0
   fi

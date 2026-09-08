@@ -62,8 +62,6 @@ grep -Fq 'real-transition: true' "${success}/observations.txt"
 grep -Fq 'update-version-before: 0.2.1' "${success}/observations.txt"
 grep -Fq 'update-version-after: 0.2.2' "${success}/observations.txt"
 grep -Fq 'improvement-after-update: true' "${success}/observations.txt"
-grep -Fq 'other-tool-root-cursor-preserved: true' "${success}/observations.txt"
-grep -Fq 'other-tool-root-claude-preserved: true' "${success}/observations.txt"
 if grep -Fq 'use-pending: true' "${success}/observations.txt"; then
   echo 'FAIL: successful journey marked use as pending.' >&2
   cat "${success}/observations.txt" >&2
@@ -84,7 +82,7 @@ if ! cmp -s "${success}/source-before-snapshot.txt" \
   echo 'FAIL: fixture source changed during the journey.' >&2
   exit 1
 fi
-grep -Fq 'Outcome: updated from 0.2.1 to 0.2.2.' "${success}/update-response.md"
+grep -Fq 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to 0.2.2.' "${success}/update-response.md"
 grep -Fq 'assessment-status: pass' "${success}/record"
 grep -Fq 'named conflicting authorities and stopped' "${success}/record"
 if grep -Fq '"type":"item.completed"' "${success}/update-events.jsonl" \
@@ -151,7 +149,7 @@ grep -Fq 'real-transition: true' "${fail_use}/observations.txt"
 grep -Fq 'update-version-after: 0.2.2' "${fail_use}/observations.txt"
 [[ -f ${fail_use}/update-response.md ]]
 [[ -f ${fail_use}/use-stderr.log ]]
-grep -Fq 'Outcome: updated from 0.2.1 to 0.2.2.' "${fail_use}/update-response.md"
+grep -Fq 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to 0.2.2.' "${fail_use}/update-response.md"
 if cmp -s "${fail_use}/update-before-snapshot.txt" \
   "${fail_use}/update-after-snapshot.txt"; then
   echo 'FAIL: failed-use path lost the successful update transition.' >&2

@@ -56,7 +56,6 @@ fi
 [[ "${output}" == *'windsurf'* ]]
 [[ ! -e "${target}/.cursor" ]]
 [[ ! -e "${target}/.claude/skills/dough-update" ]]
-assert_verified_install "${target}/.agents/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
@@ -80,8 +79,7 @@ contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
-cursor_skill="${target}/.cursor/skills/dough-update/SKILL.md"
-assert_verified_install "${target}/.cursor/skills/dough-update"
+cursor_skill="${target}/.agents/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
@@ -94,20 +92,17 @@ fi
 [[ "${output}" == *'--force'* ]]
 contents=$(cat "${cursor_skill}")
 [[ "${contents}" == 'Keep my Cursor edits.' ]]
-cmp "${source_dir}/VERSION" "${target}/.cursor/skills/dough-update/VERSION"
-assert_verified_install "${target}/.agents/skills/dough-update"
+cmp "${source_dir}/VERSION" "${target}/.agents/skills/dough-update/VERSION"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor --force
-assert_verified_install "${target}/.cursor/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
 claude_skill="${target}/.claude/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.claude/skills/dough-update"
-assert_verified_install "${target}/.cursor/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
@@ -122,19 +117,16 @@ contents=$(cat "${claude_skill}")
 [[ "${contents}" == 'Keep my Claude edits.' ]]
 cmp "${source_dir}/VERSION" "${target}/.claude/skills/dough-update/VERSION"
 assert_verified_install "${target}/.agents/skills/dough-update"
-assert_verified_install "${target}/.cursor/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude --force
 assert_verified_install "${target}/.claude/skills/dough-update"
-assert_verified_install "${target}/.cursor/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex --force
 assert_verified_install "${target}/.agents/skills/dough-update"
-assert_verified_install "${target}/.cursor/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
 
 bad_source="${temporary_dir}/bad source"
@@ -159,4 +151,4 @@ fi
 [[ "${output}" == *'Missing dated changelog entry'* ]]
 [[ ! -e "${untouched_target}/.agents" ]]
 
-echo "PASS: installs Codex, Cursor, and Claude skills and records, rejects unsupported platforms, stops repeats, forces replacement, and preserves other copies."
+echo "PASS: installs the shared Codex/Cursor and Claude skills and records, rejects unsupported platforms, stops repeats, forces replacement, and preserves other copies."

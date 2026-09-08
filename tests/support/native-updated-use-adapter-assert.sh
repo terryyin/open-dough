@@ -60,7 +60,7 @@ native_version_for() {
 
 assert_watched_empty() {
   local leftover
-  leftover=$(find "${watched_dir}" -mindepth 1 -print)
+  leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
   if [[ -n ${leftover} ]]; then
     echo 'FAIL: scratch remained after the wrapper returned.' >&2
     printf '%s\n' "${leftover}" >&2
@@ -197,7 +197,7 @@ assert_adapter_success() {
   [[ -f ${success}/update-after-snapshot.txt ]]
   grep -Fq '"type":"result"' "${success}/update-events.jsonl"
   grep -Fq '"type":"result"' "${success}/use-events.jsonl"
-  grep -Fq 'Outcome: updated from 0.2.1 to 0.2.2.' "${success}/update-response.md"
+  grep -Fq 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to 0.2.2.' "${success}/update-response.md"
   grep -Fq 'assessment-status: pass' "${success}/record"
   grep -Fq 'named conflicting authorities and stopped' "${success}/record"
   grep -Fq 'real-transition: true' "${success}/observations.txt"

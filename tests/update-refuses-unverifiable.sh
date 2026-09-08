@@ -103,7 +103,7 @@ unverifiable="${temporary_dir}/unverifiable project"
 prepare_target "${unverifiable}"
 git -C "${unverifiable}" init --quiet
 git -C "${unverifiable}" remote add origin "${decoy}"
-unverifiable_dest="${unverifiable}/.cursor/skills/dough-update"
+unverifiable_dest="${unverifiable}/.agents/skills/dough-update"
 unverifiable_tmp="${temporary_dir}/unverifiable-tmp"
 restore_clean_older_cursor
 

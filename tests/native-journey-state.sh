@@ -86,10 +86,6 @@ assert_status expected.txt pass 'named conflicting authorities and stopped' \
   valid-conflict.md
 
 write_obs "${work_dir}/cursor-target.txt"
-sed -i '' \
-  -e 's|target-skill-root: \.agents/skills|target-skill-root: .cursor/skills|' \
-  -e 's/other-tool-root-cursor-preserved: true/other-tool-root-cursor-preserved: false/' \
-  "${work_dir}/cursor-target.txt"
 assert_status cursor-target.txt pass 'expected real fixture update state'
 
 write_obs "${work_dir}/wrong-version.txt"

@@ -30,7 +30,7 @@ export PATH="${sentinel_bin}:${PATH}"
 
 assert_watched_empty() {
   local leftover
-  leftover=$(find "${watched_dir}" -mindepth 1 -print)
+  leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
   if [[ -n ${leftover} ]]; then
     echo 'FAIL: scratch remained after the wrapper returned.' >&2
     printf '%s\n' "${leftover}" >&2

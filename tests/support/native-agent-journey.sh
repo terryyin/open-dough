@@ -107,7 +107,7 @@ emit_codex_use_expansion() {
 }
 
 emit_cursor_use_activation() {
-  skill_path="${workspace}/.cursor/skills/dough-adr-awareness/SKILL.md"
+  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
   jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
     '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
 }
@@ -172,7 +172,6 @@ if [[ ${stage} == 'update' ]]; then
   esac
   dest="${workspace}/.agents/skills/dough-update"
   case ${platform} in
-    cursor) dest="${workspace}/.cursor/skills/dough-update" ;;
     claude) dest="${workspace}/.claude/skills/dough-update" ;;
   esac
   if [[ ! -f "${dest}/SOURCE" ]]; then

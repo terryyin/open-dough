@@ -76,7 +76,7 @@ write_codex_response() {
 }
 
 emit_cursor_partial() {
-  skill_path="${workspace}/.cursor/skills/dough-adr-awareness/SKILL.md"
+  skill_path="${workspace}/.agents/skills/dough-adr-awareness/SKILL.md"
   jq -n -c --arg path "${skill_path}" --arg content "$(cat "${skill_path}")" \
     '{tool_call:{readToolCall:{args:{path:$path},result:{success:{content:$content}}}}}'
 }

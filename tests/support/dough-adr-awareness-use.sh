@@ -10,7 +10,7 @@ prepare_installed_adr_awareness_target() {
 
   case ${platform} in
     codex) skill_root='.agents/skills' ;;
-    cursor) skill_root='.cursor/skills' ;;
+    cursor) skill_root='.agents/skills' ;;
     claude) skill_root='.claude/skills' ;;
     *) return 2 ;;
   esac

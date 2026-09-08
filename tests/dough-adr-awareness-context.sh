@@ -31,7 +31,7 @@ fi
 skill_root_for() {
   case $1 in
     codex) printf '%s\n' '.agents/skills' ;;
-    cursor) printf '%s\n' '.cursor/skills' ;;
+    cursor) printf '%s\n' '.agents/skills' ;;
     claude) printf '%s\n' '.claude/skills' ;;
     *) return 2 ;;
   esac

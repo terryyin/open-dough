@@ -13,7 +13,7 @@ delivery_host_name='Codex'
 delivery_host_upper='CODEX'
 delivery_platform='codex'
 delivery_skill_root='.agents/skills'
-delivery_baseline_platforms=(codex)
+delivery_baseline_platforms=(codex claude)
 
 delivery_check_fixture
 grep -Fq 'danger-full-access' "$0"

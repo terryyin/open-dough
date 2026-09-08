@@ -143,10 +143,9 @@ delivery_assert_update_payload() {
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
   [[ "${delivery_source_before}" == "${source_after}" ]] || return 1
   [[ -z ${source_status} ]] || return 1
-  for platform in "${delivery_baseline_platforms[@]}"; do
+  for platform in codex claude; do
     case ${platform} in
       codex) skill_root='.agents/skills' ;;
-      cursor) skill_root='.cursor/skills' ;;
       claude) skill_root='.claude/skills' ;;
       *) return 2 ;;
     esac
@@ -167,10 +166,9 @@ delivery_assert_update_payload() {
 
   actual_changes=$(git -C "${delivery_target}" diff --name-only)
   expected_changes=''
-  for platform in "${delivery_baseline_platforms[@]}"; do
+  for platform in codex claude; do
     case ${platform} in
       codex) skill_root='.agents/skills' ;;
-      cursor) skill_root='.cursor/skills' ;;
       claude) skill_root='.claude/skills' ;;
       *) return 2 ;;
     esac

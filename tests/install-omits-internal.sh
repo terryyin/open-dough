@@ -116,25 +116,23 @@ cd -- "${temporary_dir}"
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex
 assert_public_payload .agents/skills
-assert_public_payload .cursor/skills
 assert_public_payload .claude/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files .agents/skills .cursor/skills .claude/skills
+expect_files .agents/skills .claude/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
-assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
+assert_public_payload .claude/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files .agents/skills .cursor/skills .claude/skills
+expect_files .agents/skills .claude/skills
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
 assert_public_payload .claude/skills
-assert_public_payload .cursor/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
-expect_files .agents/skills .cursor/skills .claude/skills
+expect_files .agents/skills .claude/skills
 
-echo "PASS: installer writes only the two-skill public payload and updater VERSION for Codex, Cursor, and Claude, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the two-skill public payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."

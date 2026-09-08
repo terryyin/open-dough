@@ -19,17 +19,14 @@ identity='Do not require policies for situations absent from the current request
 adopter="${work_dir}/adopter"
 candidate="${work_dir}/candidate"
 mkdir -p -- \
-  "${adopter}/.cursor/skills/dough-adr-awareness" \
   "${adopter}/.agents/skills/dough-adr-awareness" \
   "${candidate}/src/skills/dough-adr-awareness"
-printf '%s\n' "${identity}" > \
-  "${adopter}/.cursor/skills/dough-adr-awareness/SKILL.md"
 printf '%s\n' "${identity}" > \
   "${adopter}/.agents/skills/dough-adr-awareness/SKILL.md"
 printf '%s\n' "${identity}" > \
   "${candidate}/src/skills/dough-adr-awareness/SKILL.md"
 
-cursor_installed="${adopter}/.cursor/skills/dough-adr-awareness/SKILL.md"
+cursor_installed="${adopter}/.agents/skills/dough-adr-awareness/SKILL.md"
 codex_installed="${adopter}/.agents/skills/dough-adr-awareness/SKILL.md"
 claude_installed="${adopter}/.claude/skills/dough-adr-awareness/SKILL.md"
 response="${work_dir}/response.md"

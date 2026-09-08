@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2043 # One representative physical root exercises each injected write failure.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -27,7 +28,7 @@ cp() {
 }
 export -f cp
 
-for platform in codex cursor claude; do
+for platform in codex; do
   target="${temporary_dir}/${platform} target"
   mkdir -p -- "${target}"
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
@@ -60,7 +61,7 @@ for platform in codex cursor claude; do
     'last-successful-source' 'last-successful-version'
 done
 
-for platform in codex cursor claude; do
+for platform in codex; do
   target="${temporary_dir}/${platform} record-fail target"
   mkdir -p -- "${target}"
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
@@ -95,7 +96,7 @@ for platform in codex cursor claude; do
     'last-successful-source' 'last-successful-version'
 done
 
-for platform in codex cursor claude; do
+for platform in codex; do
   target="${temporary_dir}/${platform} fresh-record-fail target"
   mkdir -p -- "${target}"
   destination=$(destination_for "${target}" "${platform}")

@@ -19,7 +19,7 @@ native_activation_append() {
 native_activation_skill_relpath() {
   case $1 in
     codex) printf '%s\n' '.agents/skills/dough-adr-awareness/SKILL.md' ;;
-    cursor) printf '%s\n' '.cursor/skills/dough-adr-awareness/SKILL.md' ;;
+    cursor) printf '%s\n' '.agents/skills/dough-adr-awareness/SKILL.md' ;;
     claude) printf '%s\n' '.claude/skills/dough-adr-awareness/SKILL.md' ;;
     *) return 2 ;;
   esac
@@ -32,7 +32,7 @@ native_activation_other_relpaths() {
       printf '%s\n' '.claude/skills/dough-adr-awareness/SKILL.md'
       ;;
     cursor)
-      printf '%s\n' '.agents/skills/dough-adr-awareness/SKILL.md'
+      printf '%s\n' '.cursor/skills/dough-adr-awareness/SKILL.md'
       printf '%s\n' '.claude/skills/dough-adr-awareness/SKILL.md'
       ;;
     claude)

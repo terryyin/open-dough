@@ -10,7 +10,7 @@ delivery_fixture="${source_dir}/tests/fixtures/adr-awareness/alternate-layout"
 delivery_host_name='Cursor'
 delivery_host_upper='CURSOR'
 delivery_platform='cursor'
-delivery_skill_root='.cursor/skills'
+delivery_skill_root='.agents/skills'
 delivery_baseline_platforms=(codex cursor claude)
 
 delivery_check_fixture

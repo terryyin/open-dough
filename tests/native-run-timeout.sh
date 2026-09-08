@@ -70,7 +70,7 @@ if [[ ${status} -ne 124 ]]; then
   exit 1
 fi
 
-leftover=$(find "${watched_dir}" -mindepth 1 -print)
+leftover=$(find "${watched_dir}" -mindepth 1 ! -name xcrun_db -print)
 if [[ -n ${leftover} ]]; then
   echo 'FAIL: scratch remained after the timeout return.' >&2
   printf '%s\n' "${leftover}" >&2

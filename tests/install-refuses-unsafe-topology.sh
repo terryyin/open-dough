@@ -32,7 +32,7 @@ platform_skill_root() {
 
   case "${platform}" in
     codex) printf '%s\n' "${target}/.agents/skills" ;;
-    cursor) printf '%s\n' "${target}/.cursor/skills" ;;
+    cursor) printf '%s\n' "${target}/.agents/skills" ;;
     claude) printf '%s\n' "${target}/.claude/skills" ;;
     *) return 1 ;;
   esac
@@ -99,4 +99,4 @@ for platform in codex cursor claude; do
   done
 done
 
-echo 'PASS: Codex, Cursor, and Claude refuse symlinked skill roots and managed-path collisions before writes, with or without force.'
+echo 'PASS: Codex and Cursor through their shared root, and Claude through its root, refuse symlinked skill roots and managed-path collisions before writes, with or without force.'

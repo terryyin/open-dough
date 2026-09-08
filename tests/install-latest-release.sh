@@ -66,17 +66,9 @@ EOF
   expected_source=$(cd -- "${fixture}" && pwd -P)
   [[ "${recorded_source}" == "${expected_source}" ]]
   assert_sentinels "${platform_target}"
-  [[ ! -e "${platform_target}/.agents/skills/dough-update" ]] \
-    || [[ "${platform}" == codex ]]
-  if [[ "${platform}" != cursor ]]; then
-    [[ ! -e "${platform_target}/.cursor/skills/dough-update" ]]
-  fi
-  if [[ "${platform}" != claude ]]; then
-    [[ ! -e "${platform_target}/.claude/skills/dough-update" ]]
-  fi
-  if [[ "${platform}" != codex ]]; then
-    [[ ! -e "${platform_target}/.agents/skills/dough-update" ]]
-  fi
+  [[ -e "${platform_target}/.agents/skills/dough-update" ]]
+  [[ ! -e "${platform_target}/.cursor/skills/dough-update" ]]
+  [[ -e "${platform_target}/.claude/skills/dough-update" ]]
 done
 
 relative_target="${temporary_dir}/relative source project"
@@ -97,8 +89,8 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${apply_target}" \
 [[ "${output}" == *"Source: ${fixture}"* ]]
 [[ "${output}" == *'Release: v0.1.10 (commit '* ]]
 [[ "${output}" == *"Outcome: installed 0.1.10."* ]]
-assert_payload "${apply_target}/.cursor/skills/dough-update" 0.1.10 payload-0.1.10
-recorded_source=$(cat "${apply_target}/.cursor/skills/dough-update/SOURCE")
+assert_payload "${apply_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
+recorded_source=$(cat "${apply_target}/.agents/skills/dough-update/SOURCE")
 expected_source=$(cd -- "${fixture}" && pwd -P)
 [[ "${recorded_source}" == "${expected_source}" ]]
 assert_sentinels "${apply_target}"
@@ -110,7 +102,7 @@ if output=$(bash "${helper}" apply --url "${missing_url}" --target "${target}" \
   exit 1
 fi
 [[ "${output}" == *'Failed to fetch tags'* || "${output}" == *'Failed to fetch'* ]]
-[[ ! -e "${target}/.cursor/skills/dough-update" ]]
+[[ ! -e "${target}/.agents/skills/dough-update" ]]
 assert_sentinels "${target}"
 
 branch_only="${temporary_dir}/branch-only.git"
@@ -127,7 +119,7 @@ if output=$(bash "${helper}" apply --url "${branch_only}" --target "${target}" \
   exit 1
 fi
 [[ "${output}" == *'No numeric release tags'* ]]
-[[ ! -e "${target}/.cursor/skills/dough-update" ]]
+[[ ! -e "${target}/.agents/skills/dough-update" ]]
 
 invalid_highest="${temporary_dir}/invalid-highest.git"
 mkdir -p -- "${invalid_highest}"
@@ -147,7 +139,7 @@ if output=$(bash "${helper}" apply --url "${invalid_highest}" --target "${target
 fi
 [[ "${output}" == *'invalid'* ]]
 [[ "${output}" != *'installed 0.1.2'* ]]
-[[ ! -e "${target}/.cursor/skills/dough-update" ]]
+[[ ! -e "${target}/.agents/skills/dough-update" ]]
 assert_sentinels "${target}"
 
 echo "PASS: numeric latest from the supplied URL is pinned, fetched, and installed; fetch/tag/metadata failures leave the target untouched."
