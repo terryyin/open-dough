@@ -155,8 +155,10 @@ invocation with:
 Do not emit that marker when context, status authority, supersession, or a
 human-owned conflict decision needed for the current request remains unresolved.
 
-## Delivery
+## Delivery invariant
 
-Keep this behavioral source shared across Codex, Cursor, and Claude Code with
-only the smallest platform adaptation each host needs. Do not maintain a
-separate behavior copy per tool.
+Distribute this behavioral source unchanged across Codex, Cursor, and Claude
+Code, with only the smallest native discovery or automatic-application adapter
+each host requires. Each host must independently demonstrate discovery,
+invocation or application for architecture-shaped work, and the behavior above;
+success in one host does not establish parity in another.
