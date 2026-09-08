@@ -87,6 +87,8 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${selected_root}/dough-update/SKILL.md"
 cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${selected_root}/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
+  "${selected_root}/dough-product-backlog/SKILL.md"
 [[ ! -e "${selected_root}/dough-adr-awareness/RECOGNITION.md" ]]
 expected_version=$(cat "${source_dir}/VERSION")
 assert_contents "${selected_root}/dough-update/VERSION" "${expected_version}"
@@ -102,6 +104,8 @@ cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${claude_root}/dough-update/SKILL.md"
 cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${claude_root}/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
+  "${claude_root}/dough-product-backlog/SKILL.md"
 [[ ! -e "${claude_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 after_selected_sidecars=$(shasum -a 256 \
@@ -148,4 +152,4 @@ assert_unsafe_retired_object() {
 assert_unsafe_retired_object directory
 assert_unsafe_retired_object symlink
 
-echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces the two declared Cursor payload files, retires only the fixed recognition file, preserves all other content, treats absence as a no-op, and refuses unsafe retired-path objects before writes.'
+echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces the three declared Cursor payload files, retires only the fixed recognition file, preserves all other content, treats absence as a no-op, and refuses unsafe retired-path objects before writes.'
