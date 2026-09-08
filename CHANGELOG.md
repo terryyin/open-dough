@@ -1,3 +1,7 @@
+## 0.2.5 - 2026-09-08
+
+Promote `dough-product-backlog` into the installable public payload for Codex, Cursor, and Claude Code. Install and update verification now includes the product-backlog skill alongside the updater and ADR-awareness guidance.
+
 ## 0.2.4 - 2026-09-08
 
 Codex and Cursor now share the same `.agents/skills/` folder, avoiding a duplicate installed payload while Claude Code continues to use `.claude/skills/`. Installation and updates still serve all three tools together through the two physical skill roots.
