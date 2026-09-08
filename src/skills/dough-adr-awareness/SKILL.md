@@ -154,9 +154,3 @@ invocation with:
 
 Do not emit that marker when context, status authority, supersession, or a
 human-owned conflict decision needed for the current request remains unresolved.
-
-## Delivery
-
-Keep this behavioral source shared across Codex, Cursor, and Claude Code with
-only the smallest platform adaptation each host needs. Do not maintain a
-separate behavior copy per tool.
