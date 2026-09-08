@@ -33,10 +33,11 @@ prepare_target "${target}"
 agents_root="${target}/.agents/skills"
 actual_version=''
 mkdir -p -- "${agents_root}/dough-update" "${agents_root}/dough-adr-awareness"
-cp -- "${older_checkout}/src/skills/dough-update/SKILL.md" \
-  "${agents_root}/dough-update/SKILL.md"
-cp -- "${older_checkout}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${agents_root}/dough-adr-awareness/SKILL.md"
+for managed_file in "${managed_files[@]}"; do
+  [[ "${managed_file}" != dough-product-backlog/SKILL.md ]] || continue
+  mkdir -p -- "${agents_root}/${managed_file%/*}"
+  cp -- "${older_checkout}/src/skills/${managed_file}" "${agents_root}/${managed_file}"
+done
 printf '%s\n' "${fixture}" > "${agents_root}/dough-update/SOURCE"
 printf '%s\n' '0.1.1' > "${agents_root}/dough-update/VERSION"
 
@@ -59,10 +60,11 @@ collision_root="${collision_target}/.agents/skills"
 mkdir -p -- "${collision_root}/dough-update" \
   "${collision_root}/dough-adr-awareness" \
   "${collision_root}/dough-product-backlog"
-cp -- "${older_checkout}/src/skills/dough-update/SKILL.md" \
-  "${collision_root}/dough-update/SKILL.md"
-cp -- "${older_checkout}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${collision_root}/dough-adr-awareness/SKILL.md"
+for managed_file in "${managed_files[@]}"; do
+  [[ "${managed_file}" != dough-product-backlog/SKILL.md ]] || continue
+  mkdir -p -- "${collision_root}/${managed_file%/*}"
+  cp -- "${older_checkout}/src/skills/${managed_file}" "${collision_root}/${managed_file}"
+done
 printf '%s\n' 'Keep this unrelated local backlog skill.' > \
   "${collision_root}/dough-product-backlog/SKILL.md"
 printf '%s\n' "${fixture}" > "${collision_root}/dough-update/SOURCE"

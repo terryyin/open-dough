@@ -13,6 +13,11 @@ delivery_current_managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
+  dough-story-decomposition/SKILL.md
+  dough-story-decomposition/references/problem-decomposition.md
+  dough-story-decomposition/references/seed-format.md
+  dough-story-refinement/SKILL.md
+  dough-story-refinement/references/planning.md
 )
 delivery_legacy_managed_files=(
   dough-update/SKILL.md
@@ -137,6 +142,7 @@ delivery_prepare_fixture() {
   cp -- "${delivery_source_dir}/src/install/"*.sh \
     "${delivery_fixture_source}/src/install/"
   for managed_file in "${delivery_current_managed_files[@]}"; do
+    mkdir -p -- "${delivery_fixture_source}/src/skills/$(dirname -- "${managed_file}")"
     cp -- "${delivery_source_dir}/src/skills/${managed_file}" \
       "${delivery_fixture_source}/src/skills/${managed_file}"
   done

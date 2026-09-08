@@ -7,9 +7,14 @@ The payload in each root is exactly:
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
 - `dough-product-backlog/SKILL.md`
+- `dough-story-decomposition/SKILL.md`
+- `dough-story-decomposition/references/problem-decomposition.md`
+- `dough-story-decomposition/references/seed-format.md`
+- `dough-story-refinement/SKILL.md`
+- `dough-story-refinement/references/planning.md`
 
-The source files live under `src/skills/`. The ADR-awareness recognition record
-is source-only maintainer material and is not installed. Installation preserves
+The source files live under `src/skills/`. Recognition records are source-only
+maintainer material and are not installed. Installation preserves
 unrelated project files, home-level guidance, and any other tool's separate
 installation. During this interim release boundary, an obsolete recognition
 file from an earlier installation may remain until a later update retires it.
@@ -67,6 +72,11 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
    - `src/skills/dough-product-backlog/SKILL.md`
+   - `src/skills/dough-story-decomposition/SKILL.md`
+   - `src/skills/dough-story-decomposition/references/problem-decomposition.md`
+   - `src/skills/dough-story-decomposition/references/seed-format.md`
+   - `src/skills/dough-story-refinement/SKILL.md`
+   - `src/skills/dough-story-refinement/references/planning.md`
 
    Check that this executable call chain writes only the declared public
    payload files and their `SOURCE` then `VERSION` records under both captured

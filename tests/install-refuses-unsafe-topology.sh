@@ -83,7 +83,7 @@ for platform in codex cursor claude; do
     [[ "${after_outside}" == "${before_outside}" ]]
   done
 
-  for managed_skill in dough-update dough-adr-awareness; do
+  for managed_skill in dough-update dough-adr-awareness dough-story-decomposition dough-story-refinement; do
     for force_arg in '' --force; do
       target="${temporary_dir}/${platform}-${managed_skill}-${force_arg:-ordinary}-collision"
       skill_root=$(platform_skill_root "${target}" "${platform}")
@@ -95,6 +95,18 @@ for platform in codex cursor claude; do
       if [[ "${managed_skill}" == dough-adr-awareness ]]; then
         [[ ! -e "${skill_root}/dough-update" ]]
       fi
+    done
+  done
+  for collision_path in dough-story-decomposition/references dough-story-refinement/references/planning.md; do
+    for force_arg in '' --force; do
+      target="${temporary_dir}/${platform}-${force_arg:-ordinary}-${collision_path//\//-}"
+      skill_root=$(platform_skill_root "${target}" "${platform}")
+      collision="${skill_root}/${collision_path}"
+      outside="${target}/outside"
+      mkdir -p -- "$(dirname -- "${collision}")" "${outside}"
+      printf '%s\n' 'Preserve outside content.' > "${outside}/sentinel"
+      ln -s -- "${outside}" "${collision}"
+      assert_refused_unchanged "${target}" "${platform}" "${collision}" "${force_arg}"
     done
   done
 done

@@ -88,6 +88,11 @@ managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
+  dough-story-decomposition/SKILL.md
+  dough-story-decomposition/references/problem-decomposition.md
+  dough-story-decomposition/references/seed-format.md
+  dough-story-refinement/SKILL.md
+  dough-story-refinement/references/planning.md
 )
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
   echo "Public payload is incomplete: missing ${managed_file}" >&2
@@ -116,10 +121,24 @@ while IFS=$'\t' read -r selected_platform destination; do
       exit 1
     }
   done
-  for skill in dough-update dough-adr-awareness dough-product-backlog; do
-    path="${root}/${skill}"
-    [[ ! -L "${path}" && (! -e "${path}" || -d "${path}") ]] || {
-      echo "Unsafe destination collision: expected a managed skill directory at ${path}." >&2
+  existing=0
+  for managed_file in "${managed_files[@]}"; do
+    skill=${managed_file%%/*}
+    [[ ! -e "${root}/${skill}" ]] || existing=1
+    path="${root}"
+    directory=${managed_file%/*}
+    while [[ -n "${directory}" ]]; do
+      component=${directory%%/*}
+      path="${path}/${component}"
+      [[ ! -L "${path}" && (! -e "${path}" || -d "${path}") ]] || {
+        echo "Unsafe destination collision: expected a managed directory at ${path}." >&2
+        exit 1
+      }
+      if [[ "${directory}" == */* ]]; then directory=${directory#*/}; else directory=''; fi
+    done
+    path="${root}/${managed_file}"
+    [[ ! -L "${path}" && (! -e "${path}" || -f "${path}") ]] || {
+      echo "Unsafe destination collision: expected a managed file at ${path}." >&2
       exit 1
     }
   done
@@ -129,18 +148,18 @@ while IFS=$'\t' read -r selected_platform destination; do
     exit 1
   }
   current=0
-  if [[ -f "${destination}/SKILL.md" && -f "${destination}/SOURCE" && -f "${destination}/VERSION" && -f "${root}/dough-adr-awareness/SKILL.md" && -f "${root}/dough-product-backlog/SKILL.md" ]] \
-    && cmp -s "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md" \
-    && cmp -s "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" "${root}/dough-adr-awareness/SKILL.md" \
-    && cmp -s "${source_dir}/src/skills/dough-product-backlog/SKILL.md" "${root}/dough-product-backlog/SKILL.md" \
+  if [[ -f "${destination}/SOURCE" && -f "${destination}/VERSION" ]] \
     && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then current=1; fi
+  for managed_file in "${managed_files[@]}"; do
+    cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || current=0
+  done
   if [[ ${force} -eq 1 ]]; then
     actions+=(replace)
   elif [[ ${replace_verified} -eq 1 && ${current} -eq 1 ]]; then
     actions+=(skip)
   elif [[ ${replace_verified} -eq 1 ]]; then
     actions+=(replace)
-  elif [[ ! -e "${destination}" && ! -e "${root}/dough-adr-awareness" && ! -e "${root}/dough-product-backlog" ]]; then
+  elif [[ ${existing} -eq 0 ]]; then
     actions+=(install)
   elif [[ ${current} -eq 1 ]]; then
     actions+=(skip)
@@ -158,7 +177,9 @@ for index in "${!platforms[@]}"; do
   destination=${destinations[index]}
   root=${roots[index]}
   [[ -z "${OPEN_DOUGH_TRACE:-}" ]] || printf 'install %s\n' "${destination}" >> "${OPEN_DOUGH_TRACE}"
-  mkdir -p -- "${destination}" "${root}/dough-adr-awareness" "${root}/dough-product-backlog"
+  for managed_file in "${managed_files[@]}"; do
+    mkdir -p -- "${root}/${managed_file%/*}"
+  done
   [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != copy ]] || {
     printf '%s\n' partial-install > "${destination}/SKILL.md"
     report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'

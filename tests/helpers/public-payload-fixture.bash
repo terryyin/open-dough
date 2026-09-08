@@ -6,4 +6,9 @@ managed_files=(
   dough-update/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
+  dough-story-decomposition/SKILL.md
+  dough-story-decomposition/references/problem-decomposition.md
+  dough-story-decomposition/references/seed-format.md
+  dough-story-refinement/SKILL.md
+  dough-story-refinement/references/planning.md
 )
