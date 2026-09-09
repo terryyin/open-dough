@@ -54,6 +54,9 @@ delivery_legacy_version=0.2.0
 delivery_bootstrap_version=0.2.1
 delivery_update_version=0.2.2
 
+# shellcheck source=tests/helpers/rewrite-file.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/rewrite-file.bash"
 # shellcheck source=tests/support/dough-adr-awareness-release-transition.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/dough-adr-awareness-release-transition.sh"
@@ -227,9 +230,8 @@ delivery_prepare_fixture() {
     '' \
     'Keep this installed integration unchanged.' > \
     "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md"
-  sed -i '' \
-    's/| \[ARC-12\](\.\/retain-complete-telemetry-history\.md) | Adopted |/| [ARC-12](.\/retain-complete-telemetry-history.md) | Replaced |/' \
-    "${delivery_target}/architecture/decisions/CATALOG.md"
+  rewrite_file "${delivery_target}/architecture/decisions/CATALOG.md" \
+    's/| \[ARC-12\](\.\/retain-complete-telemetry-history\.md) | Adopted |/| [ARC-12](.\/retain-complete-telemetry-history.md) | Replaced |/'
   git -C "${delivery_target}" init -q --initial-branch=main
   git -C "${delivery_target}" add .
   git -C "${delivery_target}" \

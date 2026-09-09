@@ -51,7 +51,8 @@ if output=$(bash "${source_dir}/install.sh" \
   echo 'FAIL: an ADR skill collision must stop before an earlier payload write.' >&2
   exit 1
 fi
-[[ "${output}" == *'dough-adr-awareness is already installed'* ]]
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
+[[ "${output}" == *'--force'* ]]
 after_later_collision=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
 [[ "${after_later_collision}" == "${before_later_collision}" ]]
 [[ ! -e "${selected_root}/dough-update/SKILL.md" ]]
@@ -67,7 +68,7 @@ if output=$(bash "${source_dir}/install.sh" \
   echo 'FAIL: repeat installation must stop before changing the client payload.' >&2
   exit 1
 fi
-[[ "${output}" == *'Warning:'* ]]
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
 [[ "${output}" == *'--force'* ]]
 after_repeat=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
 [[ "${after_repeat}" == "${before_repeat}" ]]
@@ -81,7 +82,7 @@ before_project_file=$(shasum -a 256 "${target}/keep.txt")
 
 output=$(bash "${source_dir}/install.sh" \
   --target "${target}" --source "${source_dir}" --platform cursor --force)
-[[ "${output}" == *"Installed Open Dough guidance in ${selected_root}"* ]]
+[[ "${output}" == *"installed Open Dough guidance in ${selected_root}"* ]]
 
 cmp "${source_dir}/src/skills/dough-update/SKILL.md" \
   "${selected_root}/dough-update/SKILL.md"
@@ -120,7 +121,7 @@ after_project_file=$(shasum -a 256 "${target}/keep.txt")
 
 output=$(bash "${source_dir}/install.sh" \
   --target "${target}" --source "${source_dir}" --platform cursor --force)
-[[ "${output}" == *"Recorded version "* ]]
+[[ "${output}" == *"installed Open Dough guidance"* ]]
 [[ ! -e "${selected_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 assert_unsafe_retired_object() {

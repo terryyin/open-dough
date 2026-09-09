@@ -35,9 +35,9 @@ native_result_finalize_journey() {
   native_result_write_if_set update-after-snapshot.txt \
     "${delivery_update_after+1}" "${delivery_update_after-}"
   native_result_write_if_set use-before-snapshot.txt \
-    "${delivery_use_before+1}" "${delivery_use_before-}"
+    "${delivery_use_before:+1}" "${delivery_use_before-}"
   native_result_write_if_set use-after-snapshot.txt \
-    "${delivery_use_after+1}" "${delivery_use_after-}"
+    "${delivery_use_after:+1}" "${delivery_use_after-}"
   native_result_write_if_set source-before-snapshot.txt \
     "${delivery_source_before+1}" "${delivery_source_before-}"
   native_result_write_if_set source-after-snapshot.txt \

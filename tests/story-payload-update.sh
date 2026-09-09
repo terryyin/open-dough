@@ -55,6 +55,7 @@ for platform in codex cursor claude; do
       [[ "${managed_file}" == dough-story-* ]] || continue
       sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${target}/${root}/${managed_file}" > "${temporary_dir}/links"
       while IFS= read -r link; do
+        link=${link%%#*}
         [[ -f "${target}/${root}/${managed_file%/*}/${link}" ]]
       done < "${temporary_dir}/links"
     done

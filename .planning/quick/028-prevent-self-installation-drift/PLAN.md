@@ -80,13 +80,17 @@ Excluded:
   matching `origin/main`. Host is Cursor, so CI observation uses the installed
   Cursor mailbox adapter rather than the Codex yielded-cell stream. Coordinator
   owns local `.cursor/hooks.json` as host registration, not product scope.
-- CI observer: Cursor probe printed a `CI_OBSERVER` receipt
-  (`/tmp/dough-ci-501/watch-3IyZf9`, probe-only, `status: finished`). After
-  merging the installed hook fragment into `.cursor/hooks.json`, this
-  coordinator session has not received `CI_MONITOR_READY` or `CI observer
-  attached to this coordinator`. Observation is unavailable in this session;
-  do not promise notifications or substitute AI polling. Slice 5 remains
-  pending unless a later turn attaches a ready observer before a push.
+- CI observer (Cursor mailbox, reused for this execution):
+  directory `/tmp/dough-ci-501/watch-GkolPd`, PID 70716, owner
+  `b5bb6a1f19e1ef568559e5397f4a78d0b2d8f1724d502809bbc4b1023809e404`,
+  coordinator this Cursor session, checkout `/Users/terryyin/git/open-dough`,
+  branch `main`, workflow `ci.yml` / `CI`, mode `execution`. Host hook attached
+  this coordinator after `CI_MONITOR_READY`.
+- Delivered failure (startup snapshot, still this execution's pushed ancestor):
+  repo `terryyin/open-dough`, run `34305517953`, attempt 1, SHA `57f3ac2`,
+  job `test` (`102321279513`), lint passed. Repair HEAD `c080df5`. Stash
+  `b7f4523c548e5325fcc38a8e1d520f6369d665cb` holds `.cursor/hooks.json`;
+  previous stash `214e6a19cfbed3cc2ee3b4a0be1c330f3ac61b25` is unrelated.
 
 ## CI observation and repair contract
 
@@ -211,7 +215,7 @@ the last release.
 ### 5. Deliver the prevention through a real observed CI repair
 
 Type: Behavior
-Status: planned
+Status: in-progress
 Proof: Plan-recorded observer receipt with repository/run/attempt/SHA/job
 identity; focused repair proof; repair commit and push; exact observer terminal
 receipt with delivery/unread counts. If no real failure arrives, record this
@@ -251,3 +255,7 @@ pre-implemented as part of this plan.
   send client-payload edits to `src/skills/<name>/`, keep internal skills in
   `.agents/skills/`, and update this repository's installed copies only from a
   released payload.
+- Observed CI `test` on Ubuntu failed for two repository defects: GNU sed
+  treats `sed -i ''` as a filename, and bash 5 honors failed `[[ ]]` checks
+  that Darwin bash 3.2 ignores. Repair is test-only; installer product
+  behavior is unchanged.

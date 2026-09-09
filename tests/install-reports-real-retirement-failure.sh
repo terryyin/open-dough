@@ -67,13 +67,10 @@ for platform in codex cursor claude; do
     "${selected_root}/unrelated-guidance")
   before_selected_sidecar=$(shasum -a 256 \
     "${selected_root}/dough-update/LOCAL.md")
-  before_other_platforms=$(
-    for relative_root in .agents/skills .cursor/skills .claude/skills; do
-      if [[ "${relative_root}" != "${selected_relative_root}" ]]; then
-        snapshot_path_state "${target}/${relative_root}"
-      fi
-    done
-  )
+  # .cursor is not a native write destination. Both unique managed roots are
+  # in scope for a complete-topology install, so a later-root retirement
+  # failure may follow an earlier-root write.
+  before_other_platforms=$(snapshot_path_state "${target}/.cursor/skills")
   before_project=$(shasum -a 256 "${target}/keep.txt")
   recognition_contents=$(cat "${retired_path}")
 
@@ -103,13 +100,7 @@ for platform in codex cursor claude; do
     "${selected_root}/unrelated-guidance")
   after_selected_sidecar=$(shasum -a 256 \
     "${selected_root}/dough-update/LOCAL.md")
-  after_other_platforms=$(
-    for relative_root in .agents/skills .cursor/skills .claude/skills; do
-      if [[ "${relative_root}" != "${selected_relative_root}" ]]; then
-        snapshot_path_state "${target}/${relative_root}"
-      fi
-    done
-  )
+  after_other_platforms=$(snapshot_path_state "${target}/.cursor/skills")
   after_project=$(shasum -a 256 "${target}/keep.txt")
   [[ "${after_selected_unrelated}" == "${before_selected_unrelated}" ]]
   [[ "${after_selected_sidecar}" == "${before_selected_sidecar}" ]]

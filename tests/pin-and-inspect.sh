@@ -70,7 +70,7 @@ output=$(bash "${snapshot}/src/install/open-dough-release.sh" apply \
   --checkout "${snapshot}")
 [[ "${output}" == *"Source: ${fixture}"* ]]
 [[ "${output}" == *"Release: v0.1.10 (commit ${commit})"* ]]
-[[ "${output}" == *'Outcome: installed 0.1.10.'* ]]
+[[ "${output}" == *'Outcome: installed 0.1.10'* ]]
 assert_payload "${target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 recorded_source=$(cat "${target}/.agents/skills/dough-update/SOURCE")
 expected_source=$(cd -- "${fixture}" && pwd -P)
@@ -154,10 +154,11 @@ direct_target="${temporary_dir}/direct project"
 prepare_target "${direct_target}"
 direct_checkout="${temporary_dir}/direct checkout"
 output=$(install_inspected_release "${direct_target}" "${direct_checkout}")
-[[ "${output}" == *'Recorded version 0.1.10.'* ]]
+[[ "${output}" == *'installed Open Dough guidance'* ]]
+[[ "${output}" == *'(version 0.1.10).'* ]]
 [[ ! -e "${direct_checkout}" && -d "${temporary_dir}" ]]
 inspection_count=$(wc -l < "${direct_checkout}.inspection")
-[[ "${inspection_count}" -eq $((5 + ${#managed_files[@]})) ]]
+[[ "${inspection_count}" -eq $((6 + ${#managed_files[@]})) ]]
 assert_payload "${direct_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 assert_sentinels "${direct_target}"
 [[ ! -s "${leak}" ]]
@@ -169,7 +170,7 @@ prepare_target "${poison_target}"
 : > "${leak}"
 output=$(bash "${poisoned}/src/install/open-dough-release.sh" apply \
   --url "${fixture}" --target "${poison_target}" --platform cursor)
-[[ "${output}" == *'Outcome: installed 0.1.10.'* ]]
+[[ "${output}" == *'Outcome: installed 0.1.10'* ]]
 grep -qx helper "${leak}"
 if grep -qx installer "${leak}"; then
   echo "FAIL: default-branch installer must not run after apply fetches the release." >&2
@@ -208,7 +209,7 @@ stale_status=$?
 set -e
 [[ "${stale_status}" -ne 0 ]]
 [[ "${output}" == *'Release selection changed after inspection; not replacing inspected files or installing.'* ]]
-[[ "${output}" != *'Installed Open Dough'* && "${output}" != *'Recorded version'* ]]
+[[ "${output}" != *'installed Open Dough'* && "${output}" != *'Recorded version'* ]]
 [[ ! -s "${trace}" && ! -s "${leak}" ]]
 diff -r "${temporary_dir}/stale before" "${stale_target}"
 assert_sentinels "${stale_target}"

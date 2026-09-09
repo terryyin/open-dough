@@ -7,6 +7,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-journey-state.sh
 source "${source_dir}/tests/support/native-journey-state.sh"
+# shellcheck source=tests/helpers/rewrite-file.bash
+source "${source_dir}/tests/helpers/rewrite-file.bash"
 
 work_dir=$(mktemp -d)
 finish() {
@@ -89,28 +91,26 @@ write_obs "${work_dir}/cursor-target.txt"
 assert_status cursor-target.txt pass 'expected real fixture update state'
 
 write_obs "${work_dir}/wrong-version.txt"
-sed -i '' \
+rewrite_file "${work_dir}/wrong-version.txt" \
   -e 's/update-version-after: 0.2.2/update-version-after: 0.2.9/' \
   -e 's/improvement-after-update: true/improvement-after-update: false/' \
-  -e 's/real-transition: true/real-transition: false/' \
-  "${work_dir}/wrong-version.txt"
+  -e 's/real-transition: true/real-transition: false/'
 assert_not_pass wrong-version.txt 'wrong installed bytes or version'
 
 write_obs "${work_dir}/protected-writes.txt"
-sed -i '' 's/companion-preserved: true/companion-preserved: false/' \
-  "${work_dir}/protected-writes.txt"
+rewrite_file "${work_dir}/protected-writes.txt" \
+  's/companion-preserved: true/companion-preserved: false/'
 assert_not_pass protected-writes.txt 'protected writes'
 
 write_obs "${work_dir}/stale-target.txt"
-sed -i '' 's/same-target: true/same-target: false/' \
-  "${work_dir}/stale-target.txt"
+rewrite_file "${work_dir}/stale-target.txt" \
+  's/same-target: true/same-target: false/'
 assert_not_pass stale-target.txt 'stale-target use'
 
 write_obs "${work_dir}/failed-update.txt"
-sed -i '' \
+rewrite_file "${work_dir}/failed-update.txt" \
   -e 's/update-execution: completed/update-execution: failed/' \
-  -e 's/real-transition: true/real-transition: false/' \
-  "${work_dir}/failed-update.txt"
+  -e 's/real-transition: true/real-transition: false/'
 assert_not_pass failed-update.txt \
   'failed update cannot pass as a successful journey' valid-conflict.md
 

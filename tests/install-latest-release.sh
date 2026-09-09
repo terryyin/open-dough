@@ -88,7 +88,7 @@ output=$(bash "${helper}" apply --url "${fixture}" --target "${apply_target}" \
   --platform cursor)
 [[ "${output}" == *"Source: ${fixture}"* ]]
 [[ "${output}" == *'Release: v0.1.10 (commit '* ]]
-[[ "${output}" == *"Outcome: installed 0.1.10."* ]]
+[[ "${output}" == *"Outcome: installed 0.1.10"* ]]
 assert_payload "${apply_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 recorded_source=$(cat "${apply_target}/.agents/skills/dough-update/SOURCE")
 expected_source=$(cd -- "${fixture}" && pwd -P)

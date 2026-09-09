@@ -44,8 +44,8 @@ cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}"
 
 assert_verified_install "${target}/.agents/skills/dough-update"
+assert_verified_install "${target}/.claude/skills/dough-update"
 [[ ! -e "${target}/.cursor" ]]
-[[ ! -e "${target}/.claude/skills/dough-update" ]]
 assert_sentinels
 
 if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform windsurf 2>&1); then
@@ -55,7 +55,7 @@ fi
 [[ "${output}" == *'Unsupported platform:'* ]]
 [[ "${output}" == *'windsurf'* ]]
 [[ ! -e "${target}/.cursor" ]]
-[[ ! -e "${target}/.claude/skills/dough-update" ]]
+assert_verified_install "${target}/.claude/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
@@ -66,7 +66,7 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${sou
   echo "FAIL: repeat installation must stop." >&2
   exit 1
 fi
-[[ "${output}" == *'Warning:'* ]]
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
 [[ "${output}" == *'--force'* ]]
 contents=$(cat "${installed_skill}")
 [[ "${contents}" == 'Keep my local changes.' ]]
@@ -88,7 +88,7 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${sou
   echo "FAIL: Cursor repeat installation must stop." >&2
   exit 1
 fi
-[[ "${output}" == *'Warning:'* ]]
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
 [[ "${output}" == *'--force'* ]]
 contents=$(cat "${cursor_skill}")
 [[ "${contents}" == 'Keep my Cursor edits.' ]]
@@ -111,7 +111,7 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${sou
   echo "FAIL: Claude repeat installation must stop." >&2
   exit 1
 fi
-[[ "${output}" == *'Warning:'* ]]
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
 [[ "${output}" == *'--force'* ]]
 contents=$(cat "${claude_skill}")
 [[ "${contents}" == 'Keep my Claude edits.' ]]
@@ -130,15 +130,10 @@ assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
 
 bad_source="${temporary_dir}/bad source"
-mkdir -p -- "${bad_source}/src/install" \
-  "${bad_source}/src/skills/dough-update" \
-  "${bad_source}/src/skills/dough-adr-awareness"
+mkdir -p -- "${bad_source}/src/install" "${bad_source}/src/skills"
 cp -- "${source_dir}/install.sh" "${bad_source}/install.sh"
 cp -- "${source_dir}/src/install/"*.sh "${bad_source}/src/install/"
-cp -- "${source_dir}/src/skills/dough-update/SKILL.md" \
-  "${bad_source}/src/skills/dough-update/SKILL.md"
-cp -- "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-  "${bad_source}/src/skills/dough-adr-awareness/SKILL.md"
+cp -R -- "${source_dir}/src/skills/." "${bad_source}/src/skills/"
 printf '%s\n' '0.1.0' > "${bad_source}/VERSION"
 printf '%s\n' '## 9.9.9 - 2026-01-01' > "${bad_source}/CHANGELOG.md"
 untouched_target="${temporary_dir}/untouched project"
