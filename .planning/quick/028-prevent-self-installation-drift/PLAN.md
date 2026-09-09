@@ -178,7 +178,7 @@ candidate-only collision behavior already used by ordinary updates.
 ### 3. Fail CI when Open Dough's self-installation drifts
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/self-installation-baseline.sh`; run the new checker directly
 against the repository; `npm test` owns complete deterministic integration.
 
@@ -262,3 +262,6 @@ pre-implemented as part of this plan.
 - Slice 2 seam: `compare-payload DEST CHECKOUT` reuses `managed_payload_unchanged`
   against a local tagged tree, prints `Managed payload mismatch: <root> <path>`,
   and does not add a third managed-file list.
+- Slice 3: `scripts/check-self-installation.sh` archives local `v${VERSION}`
+  and compares both native roots; `scripts/test.sh` runs it after the shell
+  tests. Source-only `src/skills/` edits stay green when installations match.

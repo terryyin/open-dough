@@ -8,13 +8,22 @@ test_list=$(mktemp)
 trap 'rm -f -- "${test_list}"' EXIT
 find tests -type f -name '*.sh' ! -path 'tests/support/*' -print0 > "${test_list}"
 
-status=0
-while IFS= read -r -d '' test_file; do
-  printf '\nRunning %s\n' "${test_file}"
-  if ! bash "${test_file}"; then
-    printf 'FAIL: %s\n' "${test_file}" >&2
+run_check() {
+  local label=$1
+  shift
+  printf '\nRunning %s\n' "${label}"
+  if ! "$@"; then
+    printf 'FAIL: %s\n' "${label}" >&2
     status=1
   fi
+}
+
+status=0
+while IFS= read -r -d '' test_file; do
+  run_check "${test_file}" bash "${test_file}"
 done < "${test_list}"
+
+run_check 'scripts/check-self-installation.sh' \
+  bash "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
 
 exit "${status}"

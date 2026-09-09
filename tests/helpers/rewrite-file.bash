@@ -6,6 +6,7 @@ rewrite_file() {
   local staged
   shift
   staged=$(mktemp)
-  sed "$@" -- "${file}" > "${staged}"
+  # BSD sed has no GNU -- end-of-options token. Keep the file last.
+  sed "$@" "${file}" > "${staged}"
   mv -- "${staged}" "${file}"
 }
