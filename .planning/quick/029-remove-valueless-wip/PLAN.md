@@ -139,7 +139,7 @@ commentary. Do not rewrite retained evidence as if it were current instruction.
 ### 3. Remove proposed concepts without a current client outcome
 
 Type: Behavior
-Status: planned
+Status: in-progress
 Proof: Search confirms every remaining undeclared source skill, research note,
 and Proposed ADR names a current client outcome and story; `npm run lint`; run
 focused payload tests if any maintained declaration or fixture changes.
@@ -191,3 +191,8 @@ top of Recently done, and remove this spent plan during delivery.
 - Completed Quick 004/007/011/013/014/015/025/026 had no path-string callers;
   023/027 retained as original ADR 0005 decisive native evidence (027 still
   cited from execute-plan and post-change-refactor recognition records).
+- CI repair (run 34313218443 / attempt 1 / SHA ac4519b): `native-result-retention`
+  failed because stream artifacts lived under `dirname(--workspace)` and vanished
+  before incomplete decode wrote `response.md`. Fixed by isolating fixture /
+  agent-workspace / artifact roots and mkdir -p before writing output. Slice 3
+  remains in progress; stashed Proposed-cleanup restored after this repair push.

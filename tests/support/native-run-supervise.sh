@@ -183,7 +183,19 @@ native_run_owned_or_fail() {
   return "${status}"
 }
 
+native_run_write_output() {
+  local allow_empty=${1:-0}
+  mkdir -p -- "$(dirname -- "${output_file}")"
+  if [[ ${allow_empty} -eq 1 ]]; then
+    jq -r 'select(.type == "result") | .result' "${transcript}" \
+      > "${output_file}" 2> /dev/null || : > "${output_file}"
+    return 0
+  fi
+  jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
+}
+
 native_run_context_command() {
+  local run_target=${native_run_workspace:-${target}}
   tool_version=unknown
   case ${platform} in
     codex | cursor | claude) ;;
@@ -194,21 +206,23 @@ native_run_context_command() {
     codex)
       native_codex_prepare "${temporary_dir}" "${candidate}"
       native_run_capture_version codex --version
-      native_codex_build_command "${target}" "${output_file}" "${prompt}" \
+      native_codex_build_command "${run_target}" "${output_file}" "${prompt}" \
         "${transcript}"
       native_run_owned_or_fail "${transcript}" "${native_stderr}" '' \
         "${native_codex_command[@]}" || return $?
       ;;
     cursor)
       native_run_capture_version cursor agent --version
-      native_run_owned_or_fail "${transcript}" "${native_stderr}" "${target}" \
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" \
+        "${run_target}" \
         cursor agent --print --force --trust --sandbox enabled \
-        --output-format stream-json --workspace "${target}" "${prompt}" \
+        --output-format stream-json --workspace "${run_target}" "${prompt}" \
         || return $?
       ;;
     claude)
       native_run_capture_version claude --version
-      native_run_owned_or_fail "${transcript}" "${native_stderr}" "${target}" \
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" \
+        "${run_target}" \
         claude --print --permission-mode default \
         --allowedTools 'Read,Glob,Grep,Skill' --no-session-persistence \
         --output-format stream-json --verbose "${prompt}" || return $?
@@ -221,8 +235,7 @@ native_run_context_command() {
     native_run_failure_reason=${native_run_stream_reason}
     case ${platform} in
       cursor | claude)
-        jq -r 'select(.type == "result") | .result' "${transcript}" \
-          > "${output_file}" 2> /dev/null || : > "${output_file}"
+        native_run_write_output 1
         ;;
       *) ;;
     esac
@@ -230,8 +243,7 @@ native_run_context_command() {
   fi
   case ${platform} in
     cursor | claude)
-      jq -r 'select(.type == "result") | .result' "${transcript}" \
-        > "${output_file}"
+      native_run_write_output 0
       ;;
     *) ;;
   esac
