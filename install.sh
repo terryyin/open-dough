@@ -201,7 +201,7 @@ needs_payload_writes=0
 for action in "${actions[@]}"; do
   [[ "${action}" == skip ]] || needs_payload_writes=1
 done
-if [[ ${needs_payload_writes} -eq 1 ]]; then
+if [[ ${needs_payload_writes} -eq 1 ]] && host_hook_fragments_present "${source_dir}"; then
   preflight_host_hooks "${source_dir}" "${target}" || exit 1
 fi
 
@@ -229,7 +229,7 @@ for index in "${!platforms[@]}"; do
   echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
 done
 
-if [[ ${needs_payload_writes} -eq 1 ]]; then
+if [[ ${needs_payload_writes} -eq 1 ]] && host_hook_fragments_present "${source_dir}"; then
   apply_host_hooks "${source_dir}" "${target}" || {
     echo "Hook registration failed after managed payload writes. Installed files may be incomplete. Recover with an explicit --force reinstall." >&2
     exit 1

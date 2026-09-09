@@ -60,10 +60,22 @@ fs.writeFileSync(`${target}/.claude/settings.json`, `${JSON.stringify(claude, nu
 EOF
 }
 
+# Sets cursor_fragment and claude_fragment from a release checkout or source root
+# (default: current source_dir). Prefer an older tagged checkout when modeling a
+# release that changes managed entries; do not invent arbitrary local variants.
+resolve_host_hook_fragments() {
+  local fragment_root=$1
+  if [[ $# -lt 1 || -z "${fragment_root}" ]]; then
+    fragment_root=${source_dir}
+  fi
+  cursor_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
+  claude_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/claude-hooks.json"
+}
+
 seed_exact_manual_registration() {
   local target=$1
-  local cursor_fragment="${source_dir}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
-  local claude_fragment="${source_dir}/src/skills/dough-execute-plan/assets/claude-hooks.json"
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
   seed_mergeable_host_settings "${target}"
   node - "${target}" "${cursor_fragment}" "${claude_fragment}" << 'EOF'
 const fs = require("node:fs");
@@ -96,8 +108,9 @@ EOF
 
 seed_edited_managed_timeout() {
   local target=$1
-  local cursor_fragment="${source_dir}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
-  seed_exact_manual_registration "${target}"
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  seed_exact_manual_registration "${target}" "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
 const fs = require("node:fs");
 const [target, cursorFragmentPath] = process.argv.slice(2);
@@ -158,10 +171,12 @@ if (!Array.isArray(stop) || !stop.some((wrapper) => wrapper.hooks?.some((hook) =
 EOF
 }
 
+# Optional second argument selects which release's fragments define the expected
+# managed entries (default: current source_dir / latest under test).
 assert_managed_host_hooks() {
   local target=$1
-  local cursor_fragment="${source_dir}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
-  local claude_fragment="${source_dir}/src/skills/dough-execute-plan/assets/claude-hooks.json"
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
   node - "${target}" "${cursor_fragment}" "${claude_fragment}" << 'EOF'
 const fs = require("node:fs");
 const [target, cursorFragmentPath, claudeFragmentPath] = process.argv.slice(2);

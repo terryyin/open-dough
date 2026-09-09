@@ -9,6 +9,14 @@ open_dough_register_hooks_helper() {
   printf '%s\n' "${source_root}/src/install/open-dough-register-hooks.mjs"
 }
 
+# True when this release still ships the authoritative Cursor and Claude fragments.
+# Older tagged fixtures may strip execution assets from managed_files.
+host_hook_fragments_present() {
+  local source_root=$1
+  local assets="${source_root}/src/skills/dough-execute-plan/assets"
+  [[ -f "${assets}/cursor-hooks.json" && -f "${assets}/claude-hooks.json" ]]
+}
+
 require_node_for_hooks() {
   if ! command -v node > /dev/null 2>&1; then
     echo "Node.js is required to register CI host hooks before installation can continue." >&2

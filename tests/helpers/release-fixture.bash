@@ -17,11 +17,18 @@ git_identity() {
 copy_installer_modules() {
   local dest=$1
   local modules_root=${2:-${source_dir}}
+  local mjs_file
+  local -a mjs_files=()
+
   mkdir -p -- "${dest}/src/install"
   cp -- "${modules_root}/src/install/"*.sh "${dest}/src/install/"
-  # Hook registration helper travels with the installer (Node merge logic).
-  if compgen -G "${modules_root}/src/install/"*.mjs > /dev/null; then
-    cp -- "${modules_root}/src/install/"*.mjs "${dest}/src/install/"
+  # Hook registration helpers travel with the installer (Node merge logic).
+  for mjs_file in "${modules_root}/src/install/"*.mjs; do
+    [[ -f "${mjs_file}" ]] || continue
+    mjs_files+=("${mjs_file}")
+  done
+  if ((${#mjs_files[@]} > 0)); then
+    cp -- "${mjs_files[@]}" "${dest}/src/install/"
   fi
 }
 

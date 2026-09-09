@@ -142,7 +142,7 @@ small merge/preflight path; no generalized ownership registry or JSON schema sui
 
 ### 3. Acquire registrations through an ordinary release update
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a verified older release with no registered hooks or with exact
 manually registered fragments, ordinary no-URL update installs the new release
@@ -154,6 +154,13 @@ new version, hook entries and unrelated settings. Keep existing payload-conflict
 refusal and force-restore checks green; add a host-conflict case before replacement.
 Use the previous tagged fragments as data if a release changes managed entries;
 accept only unmodified known entries, not arbitrary local variants.
+
+Evidence (2026-09-09):
+- Hook registration gated on fragment presence so older fixtures without
+  dough-execute-plan still install; upgrades register/adopt hooks.
+- `proof: command: bash tests/execution-payload-update.sh` — pass.
+- Public-payload and omit-internal enumerations include host settings files.
+- Portable installer-module copy avoids `compgen` for `*.mjs`.
 
 Boundary: All helper/fixture inventories and updater inspection guidance needed
 for this journey ship in this slice. No hand-copy bootstrap represented as ordinary
@@ -333,3 +340,19 @@ Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass
 ### Slice 2
 Merge-aware registration; focused proofs
 `bash tests/install-ci-host-hooks.sh` and `bash tests/install-all-tools.sh` pass.
+Delivered commit `34c59f4`.
+
+### CI repair (after Slice 1/2)
+Failure on `7e11605` run 34319873573 (test job): Node missing from
+restricted-PATH native-runner fixture; delivery fixture omitted install `*.mjs`.
+Repair at HEAD keeps Node required for real installs; fixtures updated.
+Focused proofs: `bash tests/native-runner-failures.sh`,
+`bash tests/native-delivery-updated-use-adapters.sh`, `bash tests/install.sh`.
+
+Failure on `a56e7ab` run 34320901077: public-payload/omit enumerations omitted
+host settings; older execution-payload fixtures lacked hook fragments; installer
+`*.mjs` copy used non-portable `compgen`. Fixed with Slice 3 delivery.
+
+### Slice 3
+Ordinary remembered-SOURCE upgrade registers/adopts hooks; host-conflict refusal
+before replacement. Focused proof `bash tests/execution-payload-update.sh` pass.
