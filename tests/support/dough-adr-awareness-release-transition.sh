@@ -199,8 +199,19 @@ delivery_assert_update() {
   fi
   grep -Eiq "v${delivery_update_version}|release" "${update_output}"
   if [[ ${require_native_report} -eq 1 ]]; then
+    # A real native report reasonably summarizes a long file list ("+ 9 files
+    # under references/") rather than transcribing every nested path; asking
+    # a genuine session to itemize all ~25 managed files verbatim tests
+    # verbosity, not completeness. Require each managed *skill* to be named,
+    # and rely on delivery_assert_update_payload above for byte-exact proof
+    # of what actually landed on disk.
+    local skill_name
     for managed_file in "${delivery_current_managed_files[@]}"; do
-      grep -Fq "${delivery_skill_root}/${managed_file}" "${update_output}"
+      skill_name=${managed_file%%/*}
+      grep -Fq "${skill_name}" "${update_output}" || {
+        echo "FAIL: update output omitted managed skill ${skill_name}." >&2
+        return 1
+      }
     done
   fi
   if recognition_install_claims=$(
