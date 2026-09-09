@@ -105,6 +105,37 @@ printf '%s\n' 'v0.1.10' > \
 assert_checker_fail "${malformed_version}" 'malformed VERSION' \
   "Malformed installed record: ${malformed_version}/.agents/skills/dough-update/VERSION"
 
+trailing_version="${temporary_dir}/trailing-version"
+clone_matching "${trailing_version}"
+printf '%s\n\n%s\n' '0.1.10' 'unexpected trailing record data' > \
+  "${trailing_version}/.agents/skills/dough-update/VERSION"
+assert_checker_fail "${trailing_version}" 'VERSION trailing data with newline' \
+  "Malformed installed record: ${trailing_version}/.agents/skills/dough-update/VERSION"
+
+trailing_version_no_nl="${temporary_dir}/trailing-version-no-nl"
+clone_matching "${trailing_version_no_nl}"
+printf '%s\n\n%s' '0.1.10' 'unexpected trailing record data' > \
+  "${trailing_version_no_nl}/.claude/skills/dough-update/VERSION"
+assert_checker_fail "${trailing_version_no_nl}" \
+  'VERSION trailing data without final newline in other root' \
+  "Malformed installed record: ${trailing_version_no_nl}/.claude/skills/dough-update/VERSION"
+
+recorded_source=$(cat "${success}/.agents/skills/dough-update/SOURCE")
+trailing_source="${temporary_dir}/trailing-source"
+clone_matching "${trailing_source}"
+printf '%s\n\n%s\n' "${recorded_source}" 'unexpected trailing source data' > \
+  "${trailing_source}/.agents/skills/dough-update/SOURCE"
+assert_checker_fail "${trailing_source}" 'SOURCE trailing data with newline' \
+  "Malformed installed source record: ${trailing_source}/.agents/skills/dough-update/SOURCE"
+
+trailing_source_no_nl="${temporary_dir}/trailing-source-no-nl"
+clone_matching "${trailing_source_no_nl}"
+printf '%s\n\n%s' "${recorded_source}" 'unexpected trailing source data' > \
+  "${trailing_source_no_nl}/.claude/skills/dough-update/SOURCE"
+assert_checker_fail "${trailing_source_no_nl}" \
+  'SOURCE trailing data without final newline in other root' \
+  "Malformed installed source record: ${trailing_source_no_nl}/.claude/skills/dough-update/SOURCE"
+
 missing_tag="${temporary_dir}/missing-tag"
 clone_matching "${missing_tag}"
 printf '%s\n' '9.9.9' > "${missing_tag}/.agents/skills/dough-update/VERSION"
@@ -146,4 +177,4 @@ printf '%s\n' 'Keep this unrelated local slice-planning skill.' > \
 assert_checker_fail "${collision}" 'candidate-path collision' \
   "Managed payload mismatch: ${collision}/.agents/skills dough-slice-planning/SKILL.md"
 
-echo 'PASS: self-installation check accepts matching local tags, ignores source-only development, and names drifted, disagreeing, malformed, missing-tag, SOURCE-conflicting, and colliding native paths without writes.'
+echo 'PASS: self-installation check accepts matching local tags, ignores source-only development, and names drifted, disagreeing, malformed, trailing-record, missing-tag, SOURCE-conflicting, and colliding native paths without writes.'

@@ -128,7 +128,7 @@ validate_checkout() {
 
 read_record() {
   local file=$1
-  local version='' extra=''
+  local version='' extra='' remainder=''
 
   if [[ ! -e "${file}" ]]; then
     return 0
@@ -140,8 +140,9 @@ read_record() {
   {
     IFS= read -r version || true
     IFS= read -r extra || true
+    remainder=$(cat)
   } < "${file}"
-  if [[ -n "${extra}" ]] || ! is_release_version "${version}"; then
+  if [[ -n "${extra}" || -n "${remainder}" ]] || ! is_release_version "${version}"; then
     echo "Malformed installed record: ${file}" >&2
     return 2
   fi
@@ -150,7 +151,7 @@ read_record() {
 
 read_source_record() {
   local file=$1
-  local source='' extra=''
+  local source='' extra='' remainder=''
 
   if [[ ! -e "${file}" ]]; then
     echo "Missing installed source record: ${file}" >&2
@@ -163,8 +164,9 @@ read_source_record() {
   {
     IFS= read -r source || true
     IFS= read -r extra || true
+    remainder=$(cat)
   } < "${file}"
-  if [[ -z "${source}" || -n "${extra}" ]]; then
+  if [[ -z "${source}" || -n "${extra}" || -n "${remainder}" ]]; then
     echo "Malformed installed source record: ${file}" >&2
     return 2
   fi
