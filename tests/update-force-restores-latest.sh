@@ -65,12 +65,27 @@ assert_complete_latest() {
 run_force_apply() {
   local target=$1
   local apply_tmp=$2
+  local status
   shift 2
   rm -rf -- "${apply_tmp}"
   mkdir -p -- "${apply_tmp}"
   : > "${trace_file}"
+  set +e
   TMPDIR="${apply_tmp}" bash "${helper}" apply --target "${target}" \
-    --platform cursor --force "$@"
+    --platform cursor --force "$@" 2> "${apply_tmp}/apply.stderr"
+  status=$?
+  set -e
+  if [[ ${status} -ne 0 ]]; then
+    echo "FAIL: force apply exited ${status} for ${target}" >&2
+    cat "${apply_tmp}/apply.stderr" >&2 || true
+    cat "${trace_file}" >&2 || true
+    return "${status}"
+  fi
+  if [[ -s "${apply_tmp}/apply.stderr" ]]; then
+    cat "${apply_tmp}/apply.stderr" >&2
+  fi
+  # Diagnostic stderr must not count as leftover installer temp work.
+  rm -f -- "${apply_tmp}/apply.stderr"
 }
 
 assert_force_success() {
