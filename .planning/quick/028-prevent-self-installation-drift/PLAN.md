@@ -91,6 +91,13 @@ Excluded:
   job `test` (`102321279513`), lint passed. Repair HEAD `c080df5`. Stash
   `b7f4523c548e5325fcc38a8e1d520f6369d665cb` holds `.cursor/hooks.json`;
   previous stash `214e6a19cfbed3cc2ee3b4a0be1c330f3ac61b25` is unrelated.
+  Repair commit `bd9e0e8` (portable GNU sed / bash 5 tests), later `e46ef16`
+  dropped GNU-only `sed --`.
+- Observer shutdown: `ci-mailbox.mjs stop /tmp/dough-ci-501/watch-GkolPd`
+  returned `status: stopped`, `coverage.state: ended`,
+  `pendingCi: unobserved`, `recordedThrough: 1`, `deliveredThrough: 1`,
+  `unread: 0`. Worker PID 70716 absent. Later pushes after the handled
+  failure were not waited on.
 
 ## CI observation and repair contract
 
@@ -215,7 +222,7 @@ the last release.
 ### 5. Deliver the prevention through a real observed CI repair
 
 Type: Behavior
-Status: in-progress
+Status: done
 Proof: Plan-recorded observer receipt with repository/run/attempt/SHA/job
 identity; focused repair proof; repair commit and push; exact observer terminal
 receipt with delivery/unread counts. If no real failure arrives, record this

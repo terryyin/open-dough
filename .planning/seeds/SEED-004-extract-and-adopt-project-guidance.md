@@ -137,8 +137,7 @@ owner can review the resulting project changes.
 
 ### 5. Extract plan execution for one real task through CI
 
-**Status:** Planned in
-[Quick 028](../quick/028-prevent-self-installation-drift/PLAN.md).
+**Status:** Complete.
 **Goal:** Finish the self-installation drift prevention plan using shared
 execution guidance and obtain actionable evidence from Open Dough's real CI.
 **Scope:** Make `src/skills/` the explicit source for client-payload edits, add a
@@ -146,21 +145,13 @@ deterministic self-installation baseline check, and gate release finalization on
 that check. Execute with one CI observer and repair a delivered legacy CI defect.
 Manual post-release self-update/commit and the separate historical regression
 fixture remain maintainer-owned follow-ups.
-**Evaluation:** Open Dough CI rejects managed installation drift, release
-finalization stops before mutation when drift exists, and execution records a
-real actionable CI notification plus safe repair/shutdown evidence; if no real
-failure is delivered, that observer proof remains explicitly pending.
-**Effort:** M–L, medium confidence; four target-sized implementation slices plus
-one live CI evidence slice, with external wait as the only expected exception.
-**Depends on:** The released execution skill, an executable plan, authenticated
-`gh`, and push-triggered `ci.yml` on `main`.
 
 ## Ordering
 
-Story 9 is complete. Story 11 is the selected guidance repair after the backlog's
-WIP cleanup. Story 6 remains the next extraction reuse opportunity. Story 7
-surfaces for a real oversized problem; Stories 8 and 5 surface for their named
-client/task needs.
+Story 9 is complete. Story 5 is complete. Story 11 is the selected guidance
+repair after the backlog's WIP cleanup. Story 6 remains the next extraction
+reuse opportunity. Story 7 surfaces for a real oversized problem; Story 8
+surfaces for its named client/task needs.
 
 ## Delivered capabilities
 
