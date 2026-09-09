@@ -60,6 +60,13 @@ slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 This skill links those authoritative sections and introduces no competing copy.
 Client installation remains separate validation.
 
+Readiness wording review, 2026-09-09 (manual instruction review): given a
+refinement-only request and a plan whose remaining slices already meet the
+readiness conditions, report `ready for direct execution` without implementing
+or verifying product behavior. Execution requires separate authorization from
+the invoking workflow. A missing plan or required client sizing context still
+routes through the existing input gate. No native execution is claimed.
+
 Inspected source SHA-256 values (paths relative to the supplied repository):
 
 - `.agents/skills/slice-plan-refinement/SKILL.md`:

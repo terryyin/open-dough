@@ -3,7 +3,7 @@ name: dough-resplit-story
 description: >-
   Resplits a large story after slice-plan refinement into smaller stories and
   mapped slice plans. Use when resplitting is requested, including after a
-  more-than-13-slices recommendation. Leaves the first story and plan refined;
+  more-than-15-slices recommendation. Leaves the first story and plan refined;
   later plans await story refinement and backlog priorities are reconsidered.
 ---
 

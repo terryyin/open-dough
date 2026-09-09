@@ -26,8 +26,8 @@ start resplitting. Missing story, refined plan, client lifecycle, or required
 dependency stops affected writes. An unresolved first-story boundary prevents
 claiming a completed resplit or inherited readiness.
 
-Threshold review for slice-plan refinement: 13 current slices produces no
-count-based recommendation; 14 does, without invoking resplit or changing the
+Threshold review updated 2026-09-09 after Terry Yin selected 15 as the threshold:
+15 current slices produces no count-based recommendation; 16 does, without invoking resplit or changing the
 backlog. Completed slices count; obsolete replaced slices do not. Later held
 plans route to story refinement before slice-plan refinement.
 

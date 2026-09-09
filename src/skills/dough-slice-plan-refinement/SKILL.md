@@ -27,8 +27,9 @@ hard limit, exceptions, overrun policy, and plan lifecycle.
 - If the parent problem, candidate selection, or sibling ordering must change,
   use [dough-story-decomposition](../dough-story-decomposition/SKILL.md).
 - If all remaining slices are already cohesive, single-proof-loop,
-  target-sized, and free of unexplained hard-limit paths, execute directly;
-  refinement is optional.
+  target-sized, and free of unexplained hard-limit paths, report
+  `ready for direct execution`; no further refinement is required. Execution
+  still requires separate authorization from the invoking workflow.
 
 ## Refine the plan
 

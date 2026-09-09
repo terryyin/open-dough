@@ -2,6 +2,16 @@
 
 Date: 2026-09-09. Discussion input; not an ADR, approved glossary, or execution plan.
 
+Resolution update, 2026-09-09: **C01 and C03 are resolved in source guidance**.
+Terry Yin selected 15 as the resplit threshold: a count greater than 15 recommends
+resplitting (15 does not; 16 does). The resplit description and recognition
+review now agree with slice-plan refinement. An already-ready plan now produces
+a readiness report; execution still requires separate authorization from the
+invoking workflow. Installed release copies remain at their recorded version.
+The inventory and findings below describe the original audit snapshot; C01 and
+C03 are retained as the record of the resolved issues. The remaining 21 findings
+are open.
+
 The skills already express a substantial domain model. ADR 0001 describes only part of it. The main problems are overloaded names, implicit relationships and readiness states, and a few actual contradictions. Unification should preserve useful distinctions rather than replace every related word with one term.
 
 ## Scope and authority
@@ -251,13 +261,13 @@ Harmless aliases can stay where context is clear: user story/story, ADR index/ca
 
 ## Suggested order for unification
 
-1. Resolve C01 and C03, which can directly change the agent's next action.
+1. Completed in source: resolve C01 and C03, which can directly change the agent's next action.
 2. Agree the planning relationships and readiness distinctions in C02–C11, C16–C17 and C20. These are the largest missing area in ADR 0001.
 3. Agree installation identity and source terminology in C12–C15, then qualify the lifecycle/authority terms in C18–C19.
 4. Add the agreed concepts and relationships to the proposed glossary, retaining concrete procedures in their authoritative skill references. Use client-owned terms through explicit mappings rather than inventing universal phase/status/path conventions.
 5. Align descriptions, runtime instructions and recognition evidence. Review one representative story-to-plan-to-resplit journey and one installation/update journey for consistent terms. Correct glossary prose alone will not resolve divergent executable instructions.
 
-No runtime skill, installed copy, ADR, or lifecycle status was changed. This is a repository-reading and terminology review, not a claim of native behavioral validation.
+The original audit changed no runtime skill, installed copy, ADR, or lifecycle status. The subsequent C01/C03 source edits are recorded above. Neither the audit nor the manual resolution review claims native behavioral validation.
 
 ## Source references
 
