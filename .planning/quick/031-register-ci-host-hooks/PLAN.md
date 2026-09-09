@@ -329,3 +329,7 @@ notification coverage. Check mailbox/gh for failures after pushes.
 
 ### Slice 1
 Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.
+
+### Slice 2
+Merge-aware registration; focused proofs
+`bash tests/install-ci-host-hooks.sh` and `bash tests/install-all-tools.sh` pass.

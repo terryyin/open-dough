@@ -36,7 +36,9 @@ printf '%s\n' 'execution-status: completed' 'payload: prior' > "${prior}/record"
 printf '%s\n' 'prior events' > "${prior}/events.jsonl"
 cp -R -- "${prior}" "${prior_copy}"
 
-for cmd in git jq rg shasum; do
+# Keep Node available so fixture install can register CI host hooks; still hide
+# native host executables for the missing-executable case.
+for cmd in git jq rg shasum node; do
   src=$(command -v "${cmd}") || continue
   ln -s "${src}" "${safe_bin}/${cmd}"
 done

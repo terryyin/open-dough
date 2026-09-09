@@ -54,6 +54,10 @@ delivery_legacy_version=0.2.0
 delivery_bootstrap_version=0.2.1
 delivery_update_version=0.2.2
 
+managed_files=("${delivery_current_managed_files[@]}")
+# shellcheck source=tests/helpers/release-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/release-fixture.bash"
 # shellcheck source=tests/helpers/rewrite-file.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/rewrite-file.bash"
@@ -168,8 +172,7 @@ delivery_prepare_fixture() {
   cp -R -- "${delivery_fixture}" "${delivery_target}"
   cp -- "${delivery_source_dir}/install.sh" \
     "${delivery_fixture_source}/install.sh"
-  cp -- "${delivery_source_dir}/src/install/"*.sh \
-    "${delivery_fixture_source}/src/install/"
+  copy_installer_modules "${delivery_fixture_source}" "${delivery_source_dir}"
   for managed_file in "${delivery_current_managed_files[@]}"; do
     mkdir -p -- "${delivery_fixture_source}/src/skills/$(dirname -- "${managed_file}")"
     cp -- "${delivery_source_dir}/src/skills/${managed_file}" \

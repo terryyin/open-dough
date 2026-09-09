@@ -16,11 +16,12 @@ git_identity() {
 
 copy_installer_modules() {
   local dest=$1
+  local modules_root=${2:-${source_dir}}
   mkdir -p -- "${dest}/src/install"
-  cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
+  cp -- "${modules_root}/src/install/"*.sh "${dest}/src/install/"
   # Hook registration helper travels with the installer (Node merge logic).
-  if compgen -G "${source_dir}/src/install/"*.mjs > /dev/null; then
-    cp -- "${source_dir}/src/install/"*.mjs "${dest}/src/install/"
+  if compgen -G "${modules_root}/src/install/"*.mjs > /dev/null; then
+    cp -- "${modules_root}/src/install/"*.mjs "${dest}/src/install/"
   fi
 }
 
