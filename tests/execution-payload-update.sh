@@ -4,6 +4,7 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
+source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
@@ -25,9 +26,7 @@ commit_all "${fixture}" 'release execution skills and runtime dependencies'
 tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 target="${temporary_dir}/client project"
 prepare_target "${target}"
-mkdir -p -- "${target}/.cursor" "${target}/.claude"
-printf '%s\n' '{"hooks":{},"sentinel":"keep Cursor settings"}' > "${target}/.cursor/hooks.json"
-printf '%s\n' '{"hooks":{},"sentinel":"keep Claude settings"}' > "${target}/.claude/settings.json"
+seed_empty_host_settings "${target}"
 bash "${older}/install.sh" --target "${target}" --source "${fixture}" > /dev/null
 helper="${source_dir}/src/install/open-dough-release.sh"
 collision="${target}/.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs"
@@ -68,9 +67,6 @@ for dependency in dough-execute-plan/scripts/ci-mailbox.mjs \
   [[ "${before}" == "${after}" ]]
   bash "${helper}" apply --target "${target}" --force > /dev/null
 done
-cursor_settings=$(cat "${target}/.cursor/hooks.json")
-[[ "${cursor_settings}" == '{"hooks":{},"sentinel":"keep Cursor settings"}' ]]
-claude_settings=$(cat "${target}/.claude/settings.json")
-[[ "${claude_settings}" == '{"hooks":{},"sentinel":"keep Claude settings"}' ]]
+assert_managed_host_hooks "${target}"
 assert_sentinels "${target}"
-echo 'PASS: execution payload upgrades both roots, runs relocated entrypoints, protects runtime collisions/edits, restores by force, and preserves host settings.'
+echo 'PASS: execution payload upgrades both roots, runs relocated entrypoints, protects runtime collisions/edits, restores by force, preserves unrelated host settings, and registers managed hook entries.'

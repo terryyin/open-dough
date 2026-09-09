@@ -45,7 +45,8 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}"
 
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
-[[ ! -e "${target}/.cursor" ]]
+[[ -f "${target}/.cursor/hooks.json" ]]
+[[ -f "${target}/.claude/settings.json" ]]
 assert_sentinels
 
 if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform windsurf 2>&1); then
@@ -54,7 +55,7 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${sou
 fi
 [[ "${output}" == *'Unsupported platform:'* ]]
 [[ "${output}" == *'windsurf'* ]]
-[[ ! -e "${target}/.cursor" ]]
+[[ -f "${target}/.cursor/hooks.json" ]]
 assert_verified_install "${target}/.claude/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
@@ -133,6 +134,9 @@ bad_source="${temporary_dir}/bad source"
 mkdir -p -- "${bad_source}/src/install" "${bad_source}/src/skills"
 cp -- "${source_dir}/install.sh" "${bad_source}/install.sh"
 cp -- "${source_dir}/src/install/"*.sh "${bad_source}/src/install/"
+if compgen -G "${source_dir}/src/install/"*.mjs > /dev/null; then
+  cp -- "${source_dir}/src/install/"*.mjs "${bad_source}/src/install/"
+fi
 cp -R -- "${source_dir}/src/skills/." "${bad_source}/src/skills/"
 printf '%s\n' '0.1.0' > "${bad_source}/VERSION"
 printf '%s\n' '## 9.9.9 - 2026-01-01' > "${bad_source}/CHANGELOG.md"

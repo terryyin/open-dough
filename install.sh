@@ -6,6 +6,8 @@ original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${source_dir}/src/install/open-dough-platform.sh"
+# shellcheck disable=SC1091
+source "${source_dir}/src/install/open-dough-register-hooks.sh"
 
 usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
@@ -195,6 +197,14 @@ while IFS=$'\t' read -r selected_platform destination; do
   fi
 done < <(all_destinations_for "${target}")
 
+needs_payload_writes=0
+for action in "${actions[@]}"; do
+  [[ "${action}" == skip ]] || needs_payload_writes=1
+done
+if [[ ${needs_payload_writes} -eq 1 ]]; then
+  preflight_host_hooks "${source_dir}" "${target}" || exit 1
+fi
+
 for index in "${!platforms[@]}"; do
   [[ ${actions[index]} == skip ]] && {
     echo "${platforms[index]}: already current; left unwritten."
@@ -218,3 +228,10 @@ for index in "${!platforms[@]}"; do
   write_certified_records "${destination}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
   echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
 done
+
+if [[ ${needs_payload_writes} -eq 1 ]]; then
+  apply_host_hooks "${source_dir}" "${target}" || {
+    echo "Hook registration failed after managed payload writes. Installed files may be incomplete. Recover with an explicit --force reinstall." >&2
+    exit 1
+  }
+fi

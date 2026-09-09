@@ -14,13 +14,23 @@ git_identity() {
   git -C "$1" config user.name 'Open Dough Fixture'
 }
 
+copy_installer_modules() {
+  local dest=$1
+  mkdir -p -- "${dest}/src/install"
+  cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
+  # Hook registration helper travels with the installer (Node merge logic).
+  if compgen -G "${source_dir}/src/install/"*.mjs > /dev/null; then
+    cp -- "${source_dir}/src/install/"*.mjs "${dest}/src/install/"
+  fi
+}
+
 copy_current_release_files() {
   local dest=$1
   local managed_file
 
   mkdir -p -- "${dest}/src/install" "${dest}/src/skills"
   cp -- "${source_dir}/install.sh" "${dest}/install.sh"
-  cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
+  copy_installer_modules "${dest}"
   for managed_file in "${managed_files[@]}"; do
     mkdir -p -- "${dest}/src/skills/$(dirname -- "${managed_file}")"
     cp -- "${source_dir}/src/skills/${managed_file}" \

@@ -16,22 +16,25 @@ Do not pull those stories into this plan merely because they share source files.
 
 ## Execution context
 
-- Planning only is authorized now. Every slice is `planned`; no implementation,
-  test execution, commit, push, native session, or release has been performed.
+- Execution authorized 2026-09-09 in worktree
+  `/Users/terryyin/git/open-dough-wt-031-ci-hooks` on branch
+  `execute/031-register-ci-host-hooks` (from `main` @ `b63b9da`). Merge to
+  `main` and drop the worktree/branch after all slices complete.
 - Use `planned`, `in-progress`, `done`. Keep this one plan updated during execution;
   retain unfinished proof and relevant evidence. At completion, update the seed
   and backlog and remove spent planning detail under the existing lifecycle.
 - Per the human's explicit direction, numeric slice budgets and changes to timing
   policy are outside scope. Assess cohesion, independent outcomes, and proof loops;
   do not claim an execution-time guarantee or import fixture timing limits.
-- Future execution follows dough-execute-plan's proof, independent refactor,
-  selective formatting, owned-file commit/push, and CI repair workflow. Resolve
-  actual branch/destination and hook configuration when execution is authorized;
-  do not presume this planning request authorizes delivery. Focused commands below
-  are intended execution checks, not results. Use `npm run format` selectively;
-  `npm test` and `npm run lint` remain repository checks/CI, not repeated per slice.
-- Preserve existing working changes, including the removed Quick 030 plan, seed
-  edits and backlog changes. Do not restore or stage them incidentally.
+- Follow dough-execute-plan's proof, independent refactor, selective formatting,
+  owned-file commit/push, and CI repair workflow. Authorized push destination:
+  `origin/execute/031-register-ci-host-hooks` until final merge to `main`.
+  Focused commands below are intended execution checks. Use `npm run format`
+  selectively; `npm test` and `npm run lint` remain repository checks/CI, not
+  repeated per slice.
+- Main checkout retains unrelated dirty work (Quick 030 removal, seed/backlog
+  edits, skill perspective edits). Do not restore or stage those incidentally
+  from this worktree.
 - [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md): new
   maintainer-selected numeric version, matching metadata and immutable remote tag.
   [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md): focused
@@ -89,7 +92,7 @@ Do not pull those stories into this plan merely because they share source files.
 
 ### 1. Install hooks into an unconfigured project
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given valid installation inputs and absent/empty hook maps, installation
 from any supported invoking tool leaves both native hook registrations alongside
@@ -100,6 +103,14 @@ three invoking hints, including a path with spaces. Assert exact required entrie
 existing unrelated top-level values, payload bytes, and no Git commit. Align
 existing fixture expectations that necessarily change. Repeat installation must
 not duplicate entries. Preflight malformed/unsafe inputs before any writes.
+
+Evidence (2026-09-09):
+- Helper: `src/install/open-dough-register-hooks.{mjs,sh}` preflight/apply from
+  authoritative fragments; interim nonempty-map `unsupported-existing-hooks`.
+- `proof: command: bash tests/install-all-tools.sh` — pass (platforms + spaces
+  path, idempotent repeat, refuse malformed/unsafe/nonempty before writes).
+- Fixture copy includes `src/install/*.mjs`; `execution-payload-update.sh`
+  asserts managed entries + sentinel preservation.
 
 Boundary: Until Slice 2 supports nonempty maps, refuse them before mutation with a
 clear unsupported-existing-hooks diagnostic. Do not silently omit registration,
