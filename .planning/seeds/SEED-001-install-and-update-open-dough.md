@@ -30,6 +30,62 @@ also described in [Proposed ADR 0004](../../docs/adrs/0004-client-installation-a
 
 ## Stories
 
+<a id="register-ci-host-hooks-consistently"></a>
+
+### 8. Register CI observation host hooks without environment-local drift
+
+**Status:** Planned.
+**Goal:** The Open Dough maintainer can use execute-plan CI observation in
+Cursor and Claude Code without leaving untracked, environment-only host
+settings, and without creating an unexplained behavior difference from Codex.
+**Scope:** Decide and deliver one consistent way to register the Cursor
+`.cursor/hooks.json` entries and Claude Code `.claude/settings.json` entries
+that execute-plan CI observation needs. Keep Codex on its yielded-cell
+adapter, which does not use those hook fragments. Preserve unrelated host
+hooks, permissions, settings, and local preferences. Do not treat this
+discussion as a chosen design: whether hooks are written at install/update,
+merged only when execute-plan starts observation, left registered after
+shutdown, or cleaned up, remains open.
+**Key examples:**
+
+- Given execute-plan needs CI observation in Cursor, when observation starts,
+  then the host can deliver readiness and failure notifications. Quick 028
+  created an untracked `.cursor/hooks.json` from the installed fragment and
+  left it after the observer stopped.
+- Given the installer already ships
+  `dough-execute-plan/assets/cursor-hooks.json` and
+  `claude-hooks.json`, when a client is installed or updated, then today it
+  does not write host settings. Docs say fragments are included without
+  overwriting host settings, and execute-plan may merge them later.
+- Given host settings are sensitive, when arguing against writing them at
+  install, then that argument does not by itself justify writing the same
+  files during execute-plan: same file, same merge, same clobber risk.
+  Execute-plan writing them is more surprising because the skill is about
+  executing a plan, not configuring the host.
+- Given hooks are lightweight when no observer is running, when observation
+  stops, then current execute-plan stops the watcher process and does not
+  remove hook entries. Automatic removal would risk deleting unrelated merged
+  hooks.
+- Given Codex uses the yielded-cell adapter, when Cursor or Claude host hooks
+  are registered in a project, then Codex observation must still work without
+  those files, and Cursor/Claude must not depend on a Codex-only path. Whether
+  install should write unused host files into a Codex-driven checkout is an
+  open cross-tool question, not a settled difference.
+- Given the maintainer wants environments to stay consistent, when comparing
+  checkouts, then untracked host files created only in the session that ran
+  execute-plan are an unwanted local change.
+
+**Evaluation:** After a chosen design is implemented, a fresh install or
+update plus execute-plan CI observation in Cursor and Claude Code does not
+require a one-off untracked host file; Codex observation still uses its
+adapter; unrelated host settings remain; and the three tools' required
+registration is explicit rather than implied by whichever environment last
+ran execute-plan.
+**Effort:** M, low confidence; the delivery moment, merge vs create, Codex
+unused-file question, and shutdown cleanup are unresolved.
+**Depends on:** The released execute-plan skill and its host adapters. Does
+not depend on finishing another queued story first.
+
 <a id="standalone-client-update"></a>
 
 ### 7. Release the standalone client installation and update workflow
