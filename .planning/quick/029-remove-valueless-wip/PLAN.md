@@ -56,10 +56,13 @@ Excluded:
 - Starting point: `main` after refinement commit `acea6bd`. Recheck HEAD and the
   full ownership inventory before execution because Quick 028 is concurrently
   changing the working tree and may commit or restore files.
-- Active ownership observed during planning: Quick 028 owns its PLAN,
-  `src/install/open-dough-release-version.sh`, `src/install/open-dough-release.sh`,
-  `tests/compare-payload.sh`, and `.cursor/hooks.json`. Treat this as a snapshot,
-  not permission to absorb or delete those paths.
+- Active ownership observed during planning: Quick 028 owned its PLAN and related
+  paths. Reconfirmed at Slice 1 start: Quick 028 plan slices are all `done`,
+  SEED-004 Story 5 is Complete, and those product paths are on `main`. Slice 4
+  may reconcile spent 028 planning residue; do not reopen its product decisions.
+- CI observer for this execution: terryyin/open-dough branch
+  `execute/029-remove-valueless-wip`, workflow `ci.yml` / `CI`, mailbox
+  `/tmp/dough-ci-501/watch-ZaLF6B`.
 - Verification: use bounded link/title/status checks for planning changes,
   `npm run lint` for repository policy, and `npm test` only after deletions that
   can affect maintained behavior or payload checks.
@@ -93,10 +96,13 @@ Excluded:
 ### 1. Present only current externally valuable stories
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Bounded script verifies backlog section order, exact linked titles,
 unique entries, resolvable anchors, prerequisite order, and at most ten newest
 completions; manual comparison to the near-future direction.
+`bash .planning/quick/029-remove-valueless-wip/evidence/verify-slice-1-backlog.sh` PASS.
+Dormant SEED-002/005/008 deleted; Quick 028 Story 5 recorded in Recently done;
+first priority (CI host hooks) preserved.
 
 Behavior: Given the old backlog and seed set contains completed, dormant, or
 speculative outcomes → the maintainer opens the product backlog after cleanup →
@@ -174,3 +180,9 @@ top of Recently done, and remove this spent plan during delivery.
 | Unused Proposed guidance, research, and decisions are absent | Slice 3, undeclared/proposed artifact scan and lint |
 | Concurrent work is preserved until ownership resolves | Slice 4, final ownership inventory and clean status classification |
 | The cleanup itself leaves no WIP residue | Slice 4, story completion plus spent-plan removal |
+
+## Learnings
+
+- Quick 028 reached a terminal boundary before Slice 1 delivery: all plan slices
+  `done`, SEED-004 Story 5 Complete, product prevention already on `main`.
+- Dormant SEED-002/005/008 had no live callers outside this plan's candidate text.

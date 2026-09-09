@@ -23,6 +23,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Recently done
 
+- [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028
 - [Extract a project skill directly into unreleased source](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-directly-with-guidelines) — SEED-004 / Quick 026
 - [Maintain skills with a minimal shared guideline](seeds/SEED-004-extract-and-adopt-project-guidance.md#maintain-skills-without-discovery-rechecks) — SEED-004
 - [Use released ADR guidance on one real Donut task](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption) — SEED-006
@@ -32,4 +33,3 @@ trunk-based development, with each agent working in its own Git worktree.
 - [Install the latest released Open Dough guidance safely](seeds/SEED-001-install-and-update-open-dough.md#install-latest-release) — SEED-001
 - [Turn a supplied project practice into usable public guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#generalize-project-guidance) — SEED-004
 - [Keep a recorded installation current only when needed](seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed) — SEED-001
-- [Create an identifiable Open Dough release with the internal skill](seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version) — SEED-001
