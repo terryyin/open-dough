@@ -1,0 +1,5 @@
+Third-party Claude hooks: user ~/.claude/settings.json GSD commands fire in this desktop session.
+Project .claude/settings.json ci-host-hook.mjs claude: not observed.
+Cursor Settings control was recorded ON in Quick 031 on 2026-09-09 (same machine/account).
+Official requirement: Cursor Settings → Rules, Skills, Subagents → Include third-party Plugins, Skills, and other configs.
+Docs: https://cursor.com/docs/reference/third-party-hooks

@@ -215,7 +215,9 @@ create disposable local git fixtures and use `--dangerously-skip-permissions`
 for throwaway native sessions; see Slice 2 for what that unblocked. Slices 3–4
 still likely need capabilities beyond one coordinator session (real GitHub
 Actions CI watch tuning; a real Cursor desktop session, which has no available
-automation tool here) and remain `planned`.
+automation tool here) and remain `planned`. Slice 4 was later executed from
+Cursor 3.19.13; native delivery passed and the project Claude adapter still
+did not run, so R5 stays pending.
 
 ### 2. Complete an ordinary Claude Code update and installed ADR use
 Type: Behavior
@@ -375,6 +377,23 @@ Resolve only a reproduced integration defect; a change to the supported host
 contract needs an explicit human decision. Save evidence under
 `evidence/cursor-claude-compatibility/`.
 
+Outcome: bounded run complete; R5 still pending. Reviewed Quick 031's three
+negative diagnostics. One new native run used current Cursor 3.19.13 and
+`--sandbox disabled` (031 used `2026.09.08-6caf4ff` and `--sandbox enabled`)
+against an installer-created disposable fixture from source `fc36853`, then
+instrumented only disposable `PostToolUse`. Native delivery passed: job
+`acceptance-323a51f0d4ede0d4` (absent from the prompt) reached the session
+once; mailbox `/tmp/dough-ci-501/watch-EHDQhY` stopped with
+`recordedThrough:1, deliveredThrough:1, unread:0`; both settings files were
+byte-identical before/after. The instrumented Claude handler did not run
+(no trace files). This desktop coordinator session independently shows
+third-party loading is active for user `~/.claude/settings.json` (1154 log
+hits) while project `ci-host-hook.mjs claude` has 0 hits against 770 native
+cursor adapter runs. No product/adapter defect was demonstrated. Changing
+registration so Cursor's loader would invoke project `.claude/settings.json`
+is a host-contract decision, not an authorized integration fix. Evidence:
+`evidence/cursor-claude-compatibility/`.
+
 ## Proof ownership and completion
 
 | Promise | Owner | Verdict |
@@ -382,7 +401,7 @@ contract needs an explicit human decision. Save evidence under
 | Edited managed command refuses without duplicate hooks or writes | Slice 1 | Done — `876ea9d` |
 | Deferred remembered-source Claude update and installed ADR use | Slice 2; SEED-007 | Done — `d8ff5b5`, `1db2817` |
 | Native Claude CI watch, targeted fixes, and exact shutdown | Slice 3 | Done — `353311e` |
-| Deferred real Cursor-to-Claude compatibility invocation and guard | Slice 4; Quick 031 R5 | Pending — no Cursor GUI automation available to this coordinator |
+| Deferred real Cursor-to-Claude compatibility invocation and guard | Slice 4; Quick 031 R5 | Pending — Cursor 3.19.13 native delivery passed; project Claude adapter never invoked (see `evidence/cursor-claude-compatibility/`) |
 
 Slices 2–4 may share fixture setup and applicable evidence, but each retains its
 own verdict. At completion, summarize exact candidate identities and each verdict
@@ -396,6 +415,9 @@ One unresolved repository finding plus the human-requested Claude acceptance and
 tuning scope, organized as four planned Behaviors. Learning: a normal-space
 argument fixture does not prove recognition at other shell token boundaries;
 native Claude delivery does not prove installed ADR use or Cursor compatibility.
+Cursor third-party loading of user `~/.claude/settings.json` does not prove
+project `.claude/settings.json` PostToolUse runs; native `.cursor/hooks.json`
+delivery also does not prove the Claude adapter fired.
 
 Updated in place, not executed. Process retrospective explicitly skipped. The external
 execution-retrospective skill's `.cursor/agent-map.md` and Cursor planning rules
