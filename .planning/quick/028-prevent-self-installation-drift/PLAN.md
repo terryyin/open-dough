@@ -76,6 +76,17 @@ Excluded:
   records the maintainer's manual 0.3.3 self-installation update. Recheck and
   synchronize safely before execution; do not absorb concurrent or user-owned
   changes.
+- Execution start: clean `main` at `57f3ac2` (planning commit after `7ecf24e`),
+  matching `origin/main`. Host is Cursor, so CI observation uses the installed
+  Cursor mailbox adapter rather than the Codex yielded-cell stream. Coordinator
+  owns local `.cursor/hooks.json` as host registration, not product scope.
+- CI observer: Cursor probe printed a `CI_OBSERVER` receipt
+  (`/tmp/dough-ci-501/watch-3IyZf9`, probe-only, `status: finished`). After
+  merging the installed hook fragment into `.cursor/hooks.json`, this
+  coordinator session has not received `CI_MONITOR_READY` or `CI observer
+  attached to this coordinator`. Observation is unavailable in this session;
+  do not promise notifications or substitute AI polling. Slice 5 remains
+  pending unless a later turn attaches a ready observer before a push.
 
 ## CI observation and repair contract
 
@@ -133,7 +144,7 @@ event or remains explicitly pending.
 ### 1. Direct client-payload edits to their canonical source
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Manual representative maintainer walk through `AGENTS.md`; `npm run lint`.
 
 Behavior: Given an Open Dough client-payload skill needs a change → a maintainer
@@ -236,3 +247,7 @@ pre-implemented as part of this plan.
   update semantics.
 - The forced 0.3.3 installation was committed separately as `7ecf24e`, restoring
   a clean starting boundary before this plan was written.
+- Slice 1 representative walk: Layout table plus the new operating sentences
+  send client-payload edits to `src/skills/<name>/`, keep internal skills in
+  `.agents/skills/`, and update this repository's installed copies only from a
+  released payload.

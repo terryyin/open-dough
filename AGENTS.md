@@ -32,6 +32,11 @@ Keep shared behavior in one source with only the smallest platform adaptation.
 | Open Dough skills | `src/skills/<name>/` | Released client payload installs to `.agents/skills/` (Codex and Cursor share this root) and `.claude/skills/` |
 | Internal skill | `.agents/skills/<name>/SKILL.md` | Claude Code may use a thin discovery pointer under `.claude/skills/<name>/` that defers to the shared source |
 
+When changing Open Dough client-payload guidance, edit `src/skills/<name>/`.
+Do not hand-synchronize this repository's installed managed copies under
+`.agents/skills/` or `.claude/skills/`; update those only from a released
+payload. Internal maintainer skills remain authored in `.agents/skills/`.
+
 Recognition records live beside the Open Dough skill under `src/skills/` for
 maintainers; the installer does not ship them. Do not invent a separate behavior
 copy per tool.
