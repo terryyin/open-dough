@@ -45,6 +45,31 @@ assert_no_git_commit() {
   [[ "${after}" == "${before}" ]]
 }
 
+snapshot_payload_mtimes() {
+  local target=$1 root path relative
+  for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
+    while IFS= read -r -d '' path; do
+      relative=${path#"${target}/"}
+      printf '%s\t%s\n' "${relative}" "$(file_mtime "${path}")"
+    done < <(find "${root}" -type f -print0 | LC_ALL=C sort -z)
+  done
+}
+
+assert_payload_unchanged() {
+  local target=$1 agents_state_before=$2 claude_state_before=$3
+  local mtimes_before=$4 label=$5 mtimes_after
+  if [[ $(snapshot_path_state "${target}/.agents/skills") != "${agents_state_before}" ]] \
+    || [[ $(snapshot_path_state "${target}/.claude/skills") != "${claude_state_before}" ]]; then
+    echo "FAIL: ${label}: managed payload bytes changed." >&2
+    exit 1
+  fi
+  mtimes_after=$(snapshot_payload_mtimes "${target}")
+  if [[ "${mtimes_after}" != "${mtimes_before}" ]]; then
+    echo "FAIL: ${label}: managed payload mtimes changed." >&2
+    exit 1
+  fi
+}
+
 # Any entry context gives a clean project the same two physical roots, bytes,
 # and both native hook registrations (including a path with spaces).
 for entry in codex cursor claude; do
@@ -64,10 +89,45 @@ for entry in codex cursor claude; do
   assert_managed_host_hooks "${target}"
   assert_no_git_commit "${target}" "${head_before}"
 
-  # Repeat installation must not duplicate managed entries.
+  agents_payload_state=$(snapshot_path_state "${target}/.agents/skills")
+  claude_payload_state=$(snapshot_path_state "${target}/.claude/skills")
+  payload_mtimes=$(snapshot_payload_mtimes "${target}")
+  if [[ "${entry}" == claude ]]; then
+    rm -- "${target}/.cursor/hooks.json"
+  else
+    remove_one_cursor_managed_entry "${target}"
+  fi
+
+  # Repeat installation repairs missing registration without rewriting payload.
   repeat_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
   [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
-  assert_managed_host_hooks "${target}"
+  [[ "${repeat_output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
+  assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
+    "${payload_mtimes}" \
+    "${entry} repeat-install hook repair"
+  if [[ "${entry}" == claude ]]; then
+    [[ $(node "${source_dir}/src/install/open-dough-register-hooks.mjs" status \
+      "${target}" "${source_dir}") == complete ]]
+    assert_cursor_managed_commands "${target}"
+  else
+    assert_managed_host_hooks "${target}"
+  fi
+  assert_no_git_commit "${target}" "${head_before}"
+
+  # Once repaired, another installation is a full no-op, including mtimes.
+  target_before=$(snapshot_path_state "${target}")
+  payload_mtimes=$(snapshot_payload_mtimes "${target}")
+  cursor_mtime=$(file_mtime "${target}/.cursor/hooks.json")
+  claude_mtime=$(file_mtime "${target}/.claude/settings.json")
+  final_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
+  [[ "${final_output}" == *'already current; left unwritten.'* ]]
+  [[ "${final_output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
+  [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
+  assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
+    "${payload_mtimes}" \
+    "${entry} final repeat-install no-op"
+  [[ $(file_mtime "${target}/.cursor/hooks.json") == "${cursor_mtime}" ]]
+  [[ $(file_mtime "${target}/.claude/settings.json") == "${claude_mtime}" ]]
   assert_no_git_commit "${target}" "${head_before}"
 done
 
@@ -103,6 +163,48 @@ fi
 [[ ! -e "${malformed_target}/.agents/skills/dough-update" ]]
 [[ ! -e "${malformed_target}/.claude/skills/dough-update" ]]
 
+# Current payload roots do not bypass malformed settings preflight.
+current_malformed_target="${temporary_dir}/current-malformed"
+prepare_target "${current_malformed_target}"
+seed_empty_host_settings "${current_malformed_target}"
+bash "${source_dir}/install.sh" --target "${current_malformed_target}" \
+  --source "${source_dir}" > /dev/null
+printf '%s\n' 'not-json' > "${current_malformed_target}/.cursor/hooks.json"
+current_malformed_before=$(snapshot_path_state "${current_malformed_target}")
+current_malformed_mtimes=$(snapshot_payload_mtimes "${current_malformed_target}")
+current_malformed_settings_mtime=$(file_mtime "${current_malformed_target}/.cursor/hooks.json")
+if output=$(bash "${source_dir}/install.sh" --target "${current_malformed_target}" \
+  --source "${source_dir}" 2>&1); then
+  echo 'FAIL: current roots must not skip malformed hooks preflight.' >&2
+  exit 1
+fi
+[[ "${output}" == *'malformed-hooks-settings'* ]]
+[[ $(snapshot_path_state "${current_malformed_target}") == "${current_malformed_before}" ]]
+[[ $(snapshot_payload_mtimes "${current_malformed_target}") == "${current_malformed_mtimes}" ]]
+[[ $(file_mtime "${current_malformed_target}/.cursor/hooks.json") == "${current_malformed_settings_mtime}" ]]
+
+# Current payload roots also retain the managed-registration conflict policy.
+current_conflict_target="${temporary_dir}/current-conflict"
+prepare_target "${current_conflict_target}"
+seed_empty_host_settings "${current_conflict_target}"
+bash "${source_dir}/install.sh" --target "${current_conflict_target}" \
+  --source "${source_dir}" > /dev/null
+seed_edited_managed_timeout "${current_conflict_target}"
+current_conflict_before=$(snapshot_path_state "${current_conflict_target}")
+current_conflict_mtimes=$(snapshot_payload_mtimes "${current_conflict_target}")
+current_conflict_cursor_mtime=$(file_mtime "${current_conflict_target}/.cursor/hooks.json")
+current_conflict_claude_mtime=$(file_mtime "${current_conflict_target}/.claude/settings.json")
+if output=$(bash "${source_dir}/install.sh" --target "${current_conflict_target}" \
+  --source "${source_dir}" 2>&1); then
+  echo 'FAIL: current roots must not skip conflicting hooks preflight.' >&2
+  exit 1
+fi
+[[ "${output}" == *'conflicting-managed-hooks'* ]]
+[[ $(snapshot_path_state "${current_conflict_target}") == "${current_conflict_before}" ]]
+[[ $(snapshot_payload_mtimes "${current_conflict_target}") == "${current_conflict_mtimes}" ]]
+[[ $(file_mtime "${current_conflict_target}/.cursor/hooks.json") == "${current_conflict_cursor_mtime}" ]]
+[[ $(file_mtime "${current_conflict_target}/.claude/settings.json") == "${current_conflict_claude_mtime}" ]]
+
 unsafe_target="${temporary_dir}/unsafe"
 prepare_target "${unsafe_target}"
 outside="${temporary_dir}/unsafe-outside"
@@ -135,4 +237,4 @@ fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 assert_managed_host_hooks "${update_target}"
 
-echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; ordinary conflicts stop before writes; force repairs them; malformed/unsafe hooks refuse before mutation; and one-root update restores missing integrations.'
+echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; repeat installation repairs missing registrations without payload writes and then becomes a full no-op; current-root malformed/conflicting settings still refuse; force repairs payload conflicts; unsafe hooks refuse before mutation; and one-root update restores missing integrations.'

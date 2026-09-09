@@ -406,7 +406,7 @@ Evidence (2026-09-09):
 
 ### 11. Reconcile hook completeness on repeat installation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given current payload roots, repeating ordinary installation repairs
 missing host registration without rewriting payload files, or refuses conflicting
@@ -421,6 +421,18 @@ Slice 9's detailed policy cases rather than duplicating them (retrospective R4).
 Boundary: Decouple host completeness from payload replacement in `install.sh`;
 retain source/baseline checks and fragment-free historical release behavior.
 Reuse the existing registration helper rather than adding another merge policy.
+
+Evidence (2026-09-09):
+- Installer hook preflight/application now runs whenever authoritative fragments
+  exist, independently of whether verified payload roots need replacement.
+- Repeat installation repairs a removed entry or missing settings file without
+  changing payload bytes/mtimes; the next repeat is wholly unwritten.
+- Current-root malformed/conflicting settings still refuse before writes;
+  fragment-free historical release fixtures remain supported.
+- `proof: command: bash tests/install-all-tools.sh` — pass.
+- `proof: command: bash tests/install.sh` — pass regression.
+- Independent refactor clarified payload-state naming and durable conflict-policy
+  wording. Coordinator formatting passed and focused proof remained green.
 
 ### 12. Publish a fetchable release containing hook registration
 Type: Behavior
@@ -676,3 +688,15 @@ proof `bash tests/install-ci-host-hooks.sh` passed.
 ### Slice 10
 Semantically complete settings remain byte- and mtime-stable regardless of JSON
 whitespace or object-key order. Focused update proof and installer regression passed.
+
+### CI repair (after Slice 10)
+Run 34332289188 attempt 1 failed `tests/update-skip-verified.sh` on Bash 5 after
+the semantic-no-op case. The test incorrectly required repair to restore the
+earlier compact serialization bytes; macOS Bash 3 had continued past that false
+top-level assertion. Repair commit `3674645` asserts damage and subsequent repair,
+then retains semantic managed-hook and unrelated-settings checks. Bash 5.2 and
+local focused proofs passed; the preserved Slice 11 work was restored exactly.
+
+### Slice 11
+Repeat installation now repairs missing hook completeness independently of payload
+replacement and becomes a full no-op once complete. Focused installer proofs passed.
