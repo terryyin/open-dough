@@ -1,167 +1,137 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Audits one completed or in-progress plan execution by recovering its story and
-  related commits, then reviewing the aggregate change for bugs, story drift,
-  refactoring residue, and consequential improvements. Use for an execution
+  Reviews one completed or in-progress plan execution against its original story,
+  aggregate commit set, and current project truth. Use for an execution
   retrospective even when cleanup removed the plan or the user supplies only a
-  partial reference. Plans unresolved repository findings but never executes them.
+  partial reference. May plan unresolved findings; never implements them.
 ---
 
-# Review a plan execution
+# Review an execution
 
-Produce an evidence-backed retrospective of one completed or in-progress plan
-execution. Recover the original story and exact execution commit set, review
-their combined effect, and plan only meaningful repository findings that remain
-unresolved. Never implement, commit, or push the planned work.
+Recover what one plan intended, identify the commits that executed it, and
+review their combined outcome. Leave the project with evidence and, only when
+needed, a plan for bounded corrections. Do not implement, commit, or push those
+corrections.
 
-## Resolve project context
+## Work from these principles
 
-Require a clue that identifies one execution, such as a capability name, story
-phrase, old plan path, commit, or the current conversation. Resolve from this
-project's guidance:
+- **Original intent is the contract.** Recover the story, boundaries, approved
+  changes, and promised proof before judging implementation.
+- **Commit membership needs evidence.** A nearby commit is not part of the
+  execution merely because it is in the same range.
+- **Judge the aggregate result.** Review what the execution left behind, not the
+  temporary state of an individual slice.
+- **Current truth decides remediation.** Report later fixes and do not plan work
+  that is already resolved.
+- **Plan state decides the destination.** Amend an unfinished plan; create a
+  follow-up plan only for a completed execution.
+- **The user owns disputed scope.** Stop when evidence cannot distinguish two
+  plans or when a finding would change the story rather than correct it.
 
-- plan and story locations, plan format, status vocabulary, and cleanup lifecycle;
-- repository navigation, domain vocabulary, subsystem boundaries, and generated
-  artifact rules;
-- focused verification and history-inspection commands; and
-- any task assignment that designates a writer and a read-only reviewer.
+## Resolve this project's context
+
+Require one useful clue: a capability or story phrase, plan path, commit, or the
+current execution conversation. Resolve this project's plan and story locations,
+status vocabulary, cleanup lifecycle, repository navigation, and focused test
+commands. Preserve existing working-tree changes.
+
+If context needed for a review decision is missing, name it and stop that path.
+Do not invent a plan location, completion rule, or project convention.
+Return retrospective evidence in the response; do not create a separate artifact
+unless the user asks. Keep the repository read-only except for an allowed plan
+update described below.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
-refactor checks in full, but apply only its smell definitions to the aggregate
-execution result; do not run its editing workflow. Read
-[dough-slice-planning](../dough-slice-planning/SKILL.md) before changing planned
-work and follow its story, proof, slice, sizing, and destination gates.
+refactor checks before assessing refactoring residue; apply its smell definitions
+to the aggregate result without running its editing workflow. Read
+[dough-slice-planning](../dough-slice-planning/SKILL.md) only when unresolved
+findings need planning, then follow its story, proof, sizing, and destination
+gates.
 
-If required project context is unavailable, identify the missing context and
-stop without writing. Preserve all working-tree changes. The review is read-only
-except for an allowed plan update through `dough-slice-planning`. Do not create a
-separate retrospective artifact unless the user asks.
+## Recover one execution
 
-## Recover the plan and story
+Search the current conversation, current planning material, and Git history in
+that order. A partial reference or a plan removed by normal cleanup is sufficient
+when history identifies it. Recover the earliest execution-ready plan, its story
+and intended outcome, and any later changes supported by user approval or new
+evidence.
 
-Use evidence in this order:
+Determine completion from the latest plan state and execution evidence, not file
+presence. Any planned or in-progress slice makes the plan unfinished. A deleted
+plan needs history evidence of completion. If two candidates remain equally
+plausible, ask the user to choose and do not combine them.
 
-1. The current conversation or execution transcript.
-2. Current project plan and story locations.
-3. Git history for renamed or deleted planning files.
-4. Commit messages and diffs containing distinctive story language.
+Build a manifest of related commits. Include each SHA with a reason grounded in
+the plan, commit message, diff, or execution transcript. Inspect intervening
+commits and exclude unrelated work. Treat planning-only commits as provenance,
+not product findings.
 
-Use focused `git log`, `git show`, path history, message search, and pickaxe
-searches as needed. A deleted plan is normal when the project's lifecycle cleans
-up completed work; do not require its exact former name.
+Use one net diff only when the implementation commits form an uncontaminated
+range. Otherwise review the selected patches together and inspect their files at
+the last related implementation commit. Never mutate the worktree to reconstruct
+history or mix later work into the historical boundary.
 
-Recover the earliest execution-ready plan revision, its story when present,
-beneficiary, intended outcome, boundaries, key examples, and outside-in proof.
-Record later plan changes that were explicitly approved or supported by new
-evidence so they are not misclassified as drift.
+## Review the outcome
 
-Determine completion from the latest plan state and execution evidence. Any
-planned or in-progress slice means the plan is unfinished. Record delivered and
-remaining slices separately. A deleted plan needs history evidence of
-completion. If two plans remain equally plausible, ask the user to choose; do
-not merge them.
+Compare the story contract and approved changes with the aggregate code, tests,
+documentation, and proof at the execution boundary. For an unfinished plan,
+judge only the completed slices; do not call unexecuted planned behavior missing
+or its explicitly temporary predecessor obsolete.
 
-## Build the execution commit set
+Keep only findings with concrete evidence and plausible impact:
 
-Include a commit only when evidence connects it to the execution, for example:
+1. bugs or regressions;
+2. story drift or an unresolved scope dispute;
+3. refactoring residue exposed by the aggregate change; and
+4. another consequential improvement specific to this execution.
 
-- it changes the plan's slice status or performs its lifecycle cleanup;
-- its message names the story, capability, or slice;
-- its diff implements, proves, refactors, or documents the recovered story; or
-- the execution transcript explicitly associates it with the plan.
+Look explicitly for additions later worked around or replaced: dead branches,
+flags, callers, fixtures, compatibility paths, overlapping tests, tests of
+obsolete internals, and documentation that preserves implementation history
+instead of product truth. An explicit user decision is not drift. Style
+preferences, speculative redesigns, duplicate symptoms, and unsupported claims
+are not findings. Do not retain a negative test or documentation merely to prove
+that temporary behavior is gone unless its absence is an enduring requirement.
 
-Record every included SHA and reason. Inspect intervening commits and exclude
-unrelated work; contiguity alone is not evidence. Treat planning-only commits as
-provenance rather than product-quality findings.
+Use focused read-only checks when they can confirm or dismiss a finding. Do not
+run broad suites.
 
-When the implementation commits form one uncontaminated range, review the net
-diff from the parent of the first implementation commit through the last related
-commit. Otherwise review the selected patches together and inspect their changed
-files at the last related implementation commit. Do not mutate the worktree to
-reconstruct history, and do not let later commits or current uncommitted changes
-contaminate the historical result.
+## Reconcile findings with current truth
 
-## Review the aggregate outcome
+Recheck every finding against the current revision and working tree. Report a
+later fix, deduplicate remaining findings by root cause, and keep corrections
+within the original story. If none remain, leave planning unchanged.
 
-Compare the original story contract, approved changes, aggregate diff, and the
-code, tests, and documentation at the execution boundary. For an unfinished
-plan, assess only the work its completed slices promise. Do not call planned
-delivery missing or interim code obsolete solely because a later planned slice
-has not run.
-
-Report only concrete findings with evidence and plausible impact:
-
-1. **Bugs** — incorrect behavior, regressions, unsafe edge cases, broken
-   contracts, or missing proof that makes a defect plausible.
-2. **Story drift or dispute** — missing promised outcomes, unapproved additions
-   or removals, or contradictions of the original boundary. An explicit user
-   decision is not drift.
-3. **Missed refactoring smells** — apply `dough-post-change-refactor` checks to
-   the whole execution result rather than one incremental commit.
-4. **Consequential improvements** — specific improvements tied to this execution
-   that do not fit the categories above.
-
-Explicitly inspect cumulative-execution residue: superseded implementations,
-callers, flags, branches, fixtures, compatibility paths, overlapping tests,
-tests that pin obsolete internals, and documentation or comments that preserve
-implementation history instead of current product truth. When a later slice
-replaced temporary behavior, remove its residue unless absence is an enduring
-product requirement.
-
-Use focused read-only checks or tests to verify suspected findings when useful.
-Do not run broad suites. Exclude style preferences, speculative redesigns,
-duplicate symptoms, and claims without plausible impact.
-
-## Plan unresolved repository findings
-
-Recheck each historical finding against the current revision and working tree.
-Report later fixes, but do not plan resolved work. Deduplicate remaining findings
-by root cause and keep the correction within the original story.
-
-If no meaningful findings remain, leave planning unchanged. If the findings
-change the story outcome or boundaries, cannot form one bounded outcome, or lack
-required planning context, stop at `dough-slice-planning`'s input gate and ask
-for the necessary user decision.
-
-For an unfinished plan, update that same plan in place. Preserve completed slice
-identifiers, statuses, proof, and resume history, plus any in-progress status and
-recorded work. Insert corrective slices after completed slices and before
-remaining work. Revise affected planned slices and dependencies without
-duplicating work or retaining obsolete detail; do not renumber completed slices.
-Record a concise learning citing the findings and reviewed commit set.
+For an unfinished plan, update that plan in place. Preserve completed and
+in-progress evidence and history; place corrective work before still-planned
+work and revise overlapping planned slices instead of duplicating them. Do not
+renumber completed slices. Record the finding and reviewed commit manifest as a
+concise learning when this project's plan format supports it.
 
 For a completed execution, use `dough-slice-planning` to create one follow-up
-plan in this project's normal plan location. Cite the original story and reviewed
-commit set as its source. When two authorized reviews cover the same plan, only
-the designated writer reconciles both sets of findings against current content;
-the other reviewer returns read-only evidence.
+plan in this project's established location and cite the original story and
+commit manifest. If correction would change the story outcome or boundaries,
+stop for the user's decision instead of creating a plan that bypasses the scope
+gate. Stop likewise when the findings cannot form one bounded correction.
 
-After a plan update, stop. Do not refine it unless the user separately requests
-refinement, and never execute its slices. State whether planning was updated in
-place, newly generated, read-only, or unchanged.
+When two authorized reviews cover the same plan, only the designated writer
+reconciles findings into it; the other reviewer returns read-only evidence.
+After any planning change, stop. Do not refine or execute it unless the user
+separately requests that work.
 
-## Review the execution process when evidence exists
+## Review process only from a real record
 
-Only review process when the current conversation or a sufficiently complete
-transcript contains the execution. Use actual waits, failures, corrections,
-reversals, tool use, and user responses. If the record is incomplete, state the
-limitation instead of inferring missing events.
+When the current conversation or a sufficiently complete transcript contains
+the execution, separately identify evidence-backed process improvements: wasted
+work, rule-induced churn, a missing stop condition, a disproved sizing or
+decomposition assumption, or a useful practice to learn. Distinguish necessary
+investigation from avoidable waste. Do not infer missing events, edit guidance,
+or put process proposals into the repository correction plan.
 
-Keep process proposals separate from repository findings. Propose only
-evidence-backed reductions in waste or churn, clearer rules or stop conditions,
-better decomposition or sizing assumptions, and concrete practices the user
-could learn. Do not edit guidance or plan process changes unless the user later
-selects one.
-
-## Surface overlooked user attention
-
-Look for a concrete unresolved request, decision, warning, failed verification,
-or Jidoka stop that required user attention and appears to have been overlooked.
-Do not infer neglect from an incomplete transcript or lack of ceremonial
-acknowledgement.
-
-When evidence is clear, put this banner at the absolute end of the response:
+Surface a concrete overlooked request, decision, warning, failed verification,
+or Jidoka stop only when the record clearly shows that it still needs user
+attention. Put this banner at the absolute end when that gate passes:
 
 ```text
 !!!!!!!!!! DEVELOPER ATTENTION REQUIRED !!!!!!!!!!
@@ -169,15 +139,15 @@ When evidence is clear, put this banner at the absolute end of the response:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ```
 
-Nothing follows the banner. Omit it without clear evidence.
+## Report
 
-## Report completion
-
-Report the resolved plan and completion state, provenance, included commit
-manifest and aggregate boundary, findings ordered by impact or `none`, planning
-result, process proposals when supported, and evidence limitations. End with:
+Report the resolved story and completion state, provenance, included commit
+manifest and review boundary, findings ordered by impact or `none`, planning
+result, supported process proposals, and evidence limitations. State whether
+planning was updated in place, newly generated, read-only, or unchanged. End
+with:
 
 `## EXECUTION RETROSPECTIVE COMPLETE`
 
-Append the developer-attention banner after that marker only when its evidence
-gate passes.
+Append the attention banner after that marker only when its evidence gate
+passes; otherwise nothing follows the marker.
