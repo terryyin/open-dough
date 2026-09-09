@@ -7,7 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Backlog list
 
-- [Register CI observation host hooks without environment-local drift](seeds/SEED-001-install-and-update-open-dough.md#register-ci-host-hooks-consistently) — SEED-001
 - [Keep slice planning within the requested workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded) — SEED-004
 - [Use the standalone updater in Claude Code](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
@@ -22,6 +21,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Recently done
 
+- [Register CI observation host hooks without environment-local drift](seeds/SEED-001-install-and-update-open-dough.md#register-ci-host-hooks-consistently) — SEED-001 / Quick 031 / v0.3.4
 - [Write installed skills from this project's perspective](seeds/SEED-004-extract-and-adopt-project-guidance.md#write-installed-skills-from-this-project) — SEED-004
 - [Remove WIP without external value and find a home for the rest](seeds/SEED-009-keep-only-externally-valuable-work.md#harden-direction-change) — SEED-009 / Quick 029
 - [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028 / Quick 030

@@ -33,7 +33,7 @@ release identity and the maintainer's version choice.
 
 ### 8. Register CI observation host hooks without environment-local drift
 
-**Status:** Slice-planned; not executed.
+**Status:** Complete in `v0.3.4`; released and adopted through the ordinary updater.
 **Plan:** [Register and release reproducible CI host hooks](../quick/031-register-ci-host-hooks/PLAN.md).
 **Goal:** A client installs or updates Open Dough and can use execute-plan CI
 observation across Codex, Cursor, and Claude Code with reproducible project
@@ -110,8 +110,9 @@ same release need not be performed twice. Its outstanding
 [Claude Code updater acceptance](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
 remains separately owned and must be resolved if the selected release includes
 that affected work.
-**Open decision:** The maintainer supplies the new numeric release version
-before release metadata is written; it does not block story planning.
+**Release decision:** The maintainer selected `0.3.4`. Cursor's Claude-
+compatibility invocation and SEED-007's native Claude updated-use check remain
+explicitly pending under the recorded one-release exception.
 
 <a id="standalone-client-update"></a>
 

@@ -436,7 +436,7 @@ Evidence (2026-09-09):
 
 ### 12. Publish a fetchable release containing hook registration
 Type: Behavior
-Status: in-progress
+Status: done
 
 Behavior: Given applicable acceptance and release checks pass, the maintainer's
 new numeric version is published as an immutable tag with matching metadata and
@@ -493,9 +493,18 @@ Acceptance stop (2026-09-09):
 - Release is not ready under ADR 0005. R5 and affected SEED-007 acceptance require
   host/runtime resolution or an explicit human-owned scope/acceptance decision.
 
+Human-owned release exception (2026-09-09): Terry Yin directed, “Let's compromise
+and skip Claude test this time.” For release `0.3.4` only, publication may proceed
+without closing the Cursor-to-Claude compatibility invocation gap or SEED-007's
+native Claude updated-use check. Neither result is relabeled as passing; the
+negative diagnostic remains retained and SEED-007 remains Pending. Deterministic
+installer/update proof and the already completed native Cursor, Claude hook-update,
+and Codex evidence remain the release basis. This records the explicit exception
+required by ADR 0005 and ADR 0000; it does not change either ADR.
+
 ### 13. Adopt the published release in Open Dough
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the new release is remotely available, Open Dough's ordinary update
 from remembered SOURCE installs it and its host registrations; committing those
@@ -524,7 +533,7 @@ incidental release step.
 | New-release update from remembered source | 3 |
 | Current-version repair and complete-install no-op | 4, 10, 11 |
 | Execute-plan verifies rather than configures; retained hooks and unavailable coverage | 5, 6, 7 |
-| Native Cursor delivery and compatibility coexistence | 6; unresolved compatibility evidence closed before publication in 12 |
+| Native Cursor delivery and compatibility coexistence | 6; compatibility gap retained under the one-release exception in 12 |
 | Native Claude delivery; unchanged Codex adapter evidence | 7 |
 | Published release | 12 |
 | Ordinary self-update and committed configuration | 13 |
@@ -654,6 +663,11 @@ Evidence-delivery observer: Codex yielded cell `105`, mailbox
 `/tmp/dough-ci-501/watch-UVccIG`, same workflow/branch/checkout. It exists only
 to cover the blocked-state evidence push and must then stop without waiting.
 
+Post-exception release observer: Codex yielded cell `120`, mailbox
+`/tmp/dough-ci-501/watch-hn5B9V`, workflow `ci.yml` / `CI`, branch `main`,
+coordinator `root`, checkout `/Users/terryyin/git/open-dough`. Reuse through
+release and adoption pushes, then stop without waiting for CI.
+
 ### Slice 1
 Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.
 
@@ -739,3 +753,27 @@ Native Cursor hook delivery remains green, but three bounded compatibility
 diagnostics produced no Claude-hook invocation or `cursor_version` payload despite
 third-party imports being enabled. SEED-007 is also affected and Pending. Evidence
 is retained; VERSION/CHANGELOG/tag/publish/adoption were not started.
+
+### Slice 12 release
+Terry Yin authorized the recorded `0.3.4` one-release exception without relabeling
+either pending Claude result as passing. Before metadata changed,
+`bash scripts/check-self-installation.sh`, payload-declaration comparison,
+`npm test`, and `npm run lint` passed; the full suite's native/manual cases remained
+reported as Pending. Release metadata was committed as `aedaa7a`, annotated tag
+`v0.3.4` was created without force, and both `main` and the tag were pushed.
+A full fresh clone (required because the self-installation verifier needs release
+history) confirmed VERSION, payload integrity, remote `main`, and peeled tag all at
+`aedaa7ad92fd7dee680f75c640de99c59b1bfcc6`. The earlier shallow-clone diagnostic
+failed only because it lacked the preceding numeric tag history.
+
+### Slice 13
+The installed `dough-update` workflow selected remote `v0.3.4` at peeled commit
+`aedaa7ad92fd7dee680f75c640de99c59b1bfcc6` from both roots' remembered
+`https://github.com/terryyin/open-dough` SOURCE. The inspected detached snapshot's
+ordinary apply (no `--url` or `--force`) updated both physical roots from `0.3.3`
+to `0.3.4` and created the tracked Cursor and Claude host settings. All 34 declared
+payload files in each root are byte-identical to the release, each managed hook
+occurs exactly once, and `bash scripts/check-self-installation.sh` passed. A second
+ordinary update produced only `apply-skip-equal`; payload hashes and Git status
+were unchanged. The post-change refactor found no edits, and coordinator formatting
+passed.

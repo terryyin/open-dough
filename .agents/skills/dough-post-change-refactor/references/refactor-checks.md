@@ -21,7 +21,7 @@ Edit only after its scope and subsystem gates permit the candidates.
 
 - Read every new or renamed identifier — files, modules, classes, functions,
   variables, tests, feature files, fixtures.
-- Ask: does the name match what a domain reader expects? Does it match the client
+- Ask: does the name match what a domain reader expects? Does it match this
   project's domain vocabulary?
 - **Action:** rename when intent is unclear, misleading, mixes layers, or leaks
   development sequence numbers. Name product code by capability; keep sequence
@@ -67,7 +67,7 @@ For every file in the current diff and every file proposed for editing:
 wc -l <path>
 ```
 
-Use the client file-size limits and exemptions for plans, generated artifacts,
+Use this project's file-size limits and exemptions for plans, generated artifacts,
 production code, and tests. Split files exceeding their applicable limit.
 Do not impose limits copied from another project's stack.
 

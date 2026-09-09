@@ -1,7 +1,7 @@
 # Delegate a slice
 
 Assign each slice to a fresh implementation agent. Use a general-purpose agent,
-or `gsd-executor` when the client uses `/gsd-execute-phase`. Implement locally
+or `gsd-executor` when this project uses `/gsd-execute-phase`. Implement locally
 only for a single interactive slice. The coordinator retains
 [wrap-up](wrap-up.md); an execution tool does not take over that responsibility.
 
@@ -9,9 +9,9 @@ Give the agent:
 
 - The plan path, current slice, and mapped promises and observations, including
   replacement and lifecycle obligations. Omit unrelated plan history.
-- [Execution decisions](execution-decisions.md), the client slice budget and
+- [Execution decisions](execution-decisions.md), this project's slice budget and
   exceptions, workflow precedence, and literal focused commands with the runtime
-  wrapper. Require relevant proof; broaden testing only when the slice, client
+  wrapper. Require relevant proof; broaden testing only when the slice, project
   workflow, or human requires it.
 - Ownership of the slice's changes. State that other agents share the checkout
   and their work must be preserved.

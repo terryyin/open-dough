@@ -21,7 +21,7 @@ for story ownership, proof, plan updates, and completion cleanup. Use
 [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
 for Behavior and Structure slices, sizing, and learning escalation.
 
-Resolve from the client project:
+Resolve from this project:
 
 - plan path, slice status vocabulary, slice target, hard limit, and exceptions;
 - navigation, focused test commands, runtime wrapper, and workflow precedence;

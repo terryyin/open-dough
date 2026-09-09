@@ -2,8 +2,10 @@
 
 Use this adapter on Cursor or Claude Code after [runtime setup](runtime-setup.md).
 Both use the same detached Node observer and private mailbox, with host-specific
-hook JSON. Apply [CI observation and repair](ci-monitor.md) for shared lifecycle
-and failure decisions.
+hook JSON already registered by install or update. Apply
+[CI observation and repair](ci-monitor.md) for shared lifecycle and failure
+decisions. This adapter verifies readiness and manages the observer; it does
+not write host settings.
 
 ## Verify the host bridge once per execution
 
@@ -23,12 +25,14 @@ with observation only if the host hook adds separate `CI_MONITOR_READY`
 context. A receipt alone proves neither hook registration nor notification
 delivery. Rerun the probe after a host/session change.
 
-If readiness is missing, inspect the current host's hook errors, Node PATH,
-project settings, workspace trust, and whether hooks are disabled. Preserve
-other hooks and settings; do not bypass user approval or trust checks. Reload
-the project's hook configuration through the host's supported UI or start a
-new approved session if needed. Report an unavailable bridge once and continue
-the plan without promising monitoring; do not replace it with AI polling.
+If readiness is missing, report an unavailable bridge once and continue the plan
+without promising monitoring and without rewriting host settings. Missing
+readiness is explicitly unavailable coverage, not a reason to merge fragments or
+edit `.cursor/hooks.json` / `.claude/settings.json` from execute-plan. You may
+note hook errors, Node PATH, workspace trust, or disabled hooks as diagnostics;
+do not bypass user approval or trust checks. A fresh approved session can retry
+the probe when registration is already present. Do not replace observation with
+AI polling.
 
 ## Start once and continue immediately
 
@@ -61,7 +65,7 @@ missing generation identity fails the readiness probe. Claude Code isolates
 instead by `session_id` plus `agent_id`/`subagent_id`, so a sub-agent sharing
 the coordinator's session cannot consume its notification. Keep the same
 coordinator session when resuming; if replacing it, stop the old observers
-using their recorded directories and register new ones in the new session.
+using their recorded directories and start new observers in the new session.
 
 Use the same shared mailbox directory for launcher and hooks as specified in
 runtime setup. Mailboxes survive stashing. Use the host's agent message and
@@ -89,6 +93,9 @@ records remain in the mailbox, and shutdown reports pending CI as unobserved.
 Handle delivered failures before claiming completion. Retain these small
 recovery records for interrupted sessions; never kill by a broad process-name
 pattern. The runtime budget also bounds an observer whose coordinator disappears.
+Stopping the observer ends only the detached process and mailbox coverage.
+Retain the installed hook registration; do not unregister or rewrite host
+settings on shutdown.
 
 ## Host contracts
 

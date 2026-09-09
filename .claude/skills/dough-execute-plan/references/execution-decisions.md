@@ -39,7 +39,7 @@ failure.
 
 ## Refine an oversized slice
 
-Use the client target, hard limit, exceptions, and repeated-overrun threshold
+Use this project's target, hard limit, exceptions, and repeated-overrun threshold
 under [slice sizing](../../dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices).
 Track elapsed implementation, focused testing, and slice-local cleanup with the
 host clock; exclude explicit CI repair pauses. Lack of one coherent behavior or

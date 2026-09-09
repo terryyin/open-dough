@@ -1,7 +1,8 @@
 # Asynchronous CI observation and repair
 
-Read [runtime setup](runtime-setup.md) to resolve the client project's CI
-repository, branch, workflow, runtime, and host registration before launching.
+Read [runtime setup](runtime-setup.md) to resolve this project's CI
+repository, branch, workflow, runtime, and host-bridge readiness before
+launching.
 
 ## Own one observer
 
@@ -40,7 +41,8 @@ At completion, a stop requiring human judgment, cancellation, or coordinator
 replacement, use the host adapter to stop the exact observer and confirm local
 shutdown. Preserve unread evidence and report `pendingCi: unobserved`; missing
 terminal evidence means lost coverage. Handle delivered failures before claiming
-completion. Never kill by a broad process-name pattern.
+completion. Never kill by a broad process-name pattern. Retain installed hook
+registration; shutdown does not unregister or rewrite host settings.
 
 ## Handle a notification
 
@@ -94,7 +96,7 @@ until that missing history is accounted for.
    attempt, failed SHA, bounded failure evidence, current HEAD, and the paused
    workers' ownership boundaries. Assign only the diagnosed CI failure; the
    agent is not alone in the repository and must preserve other work. It reads
-   relevant client rules, investigates at current HEAD, proves
+   relevant project rules, investigates at current HEAD, proves
    the defect with a minimal observable test failing for the right reason, then
    applies the smallest fix and confirms focused green proof. It returns the fix
    with [implementation proof](delegation.md)
