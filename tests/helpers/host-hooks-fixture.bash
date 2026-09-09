@@ -272,6 +272,7 @@ assert_managed_host_hooks() {
   resolve_host_hook_fragments "${2-}"
   node - "${target}" "${cursor_fragment}" "${claude_fragment}" << 'EOF'
 const fs = require("node:fs");
+const assert = require("node:assert/strict");
 const [target, cursorFragmentPath, claudeFragmentPath] = process.argv.slice(2);
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
@@ -296,6 +297,15 @@ function countExact(entries, predicate) {
   return count;
 }
 
+function requireDeepEqual(actual, expected, message) {
+  try {
+    assert.deepStrictEqual(actual, expected);
+  } catch {
+    console.error(message);
+    process.exit(1);
+  }
+}
+
 for (const [event, fragmentEntries] of Object.entries(cursorFragment.hooks)) {
   const managed = fragmentEntries[0];
   const handlers = cursor.hooks?.[event];
@@ -314,10 +324,11 @@ for (const [event, fragmentEntries] of Object.entries(cursorFragment.hooks)) {
     process.exit(1);
   }
   const exact = handlers.find((handler) => handler.command === managed.command);
-  if (JSON.stringify(exact) !== JSON.stringify(managed)) {
-    console.error(`FAIL: Cursor managed handler for ${event} does not match the fragment.`);
-    process.exit(1);
-  }
+  requireDeepEqual(
+    exact,
+    managed,
+    `FAIL: Cursor managed handler for ${event} does not match the fragment.`,
+  );
 }
 
 for (const [event, fragmentEntries] of Object.entries(claudeFragment.hooks)) {
@@ -346,10 +357,11 @@ for (const [event, fragmentEntries] of Object.entries(claudeFragment.hooks)) {
     );
     process.exit(1);
   }
-  if (JSON.stringify(exact) !== JSON.stringify(managedHook)) {
-    console.error(`FAIL: Claude managed handler for ${event} does not match the fragment.`);
-    process.exit(1);
-  }
+  requireDeepEqual(
+    exact,
+    managedHook,
+    `FAIL: Claude managed handler for ${event} does not match the fragment.`,
+  );
 }
 EOF
 }

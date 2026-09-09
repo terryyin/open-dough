@@ -75,6 +75,28 @@ assert_payload_unwritten() {
   done
 }
 
+capture_settings_baseline() {
+  cursor_settings_mtime=$(file_mtime "${target}/.cursor/hooks.json")
+  claude_settings_mtime=$(file_mtime "${target}/.claude/settings.json")
+  cursor_settings_bytes=$(shasum -a 256 "${target}/.cursor/hooks.json")
+  claude_settings_bytes=$(shasum -a 256 "${target}/.claude/settings.json")
+}
+
+assert_settings_unwritten() {
+  local label=$1
+
+  if [[ $(file_mtime "${target}/.cursor/hooks.json") != "${cursor_settings_mtime}" ]] \
+    || [[ $(shasum -a 256 "${target}/.cursor/hooks.json") != "${cursor_settings_bytes}" ]]; then
+    echo "FAIL: ${label}: Cursor settings bytes or mtime changed." >&2
+    exit 1
+  fi
+  if [[ $(file_mtime "${target}/.claude/settings.json") != "${claude_settings_mtime}" ]] \
+    || [[ $(shasum -a 256 "${target}/.claude/settings.json") != "${claude_settings_bytes}" ]]; then
+    echo "FAIL: ${label}: Claude settings bytes or mtime changed." >&2
+    exit 1
+  fi
+}
+
 assert_full_noop() {
   local label=$1
   local output_file=$2
@@ -82,12 +104,14 @@ assert_full_noop() {
   local before
 
   capture_payload_baseline
+  capture_settings_baseline
   before=$(snapshot_path_state "${target}")
   : > "${trace_file}"
   OPEN_DOUGH_TRACE="${trace_file}" bash "${helper}" apply --target "${target}" --platform cursor \
     > "${output_file}"
   [[ $(snapshot_path_state "${target}") == "${before}" ]]
   assert_payload_unwritten "${label}"
+  assert_settings_unwritten "${label}"
   grep -Fq 'both physical installations are current; no installer invocation or installed-file writes.' \
     "${output_file}"
   grep -qx "apply-skip-equal ${dest}" "${trace_file}"
@@ -116,6 +140,43 @@ assert_hooks_repaired_without_payload_writes() {
 trace="${temporary_dir}/trace-intact"
 assert_full_noop 'intact current install' "${temporary_dir}/output-intact" "${trace}"
 echo 'PASS: intact verified current install skips without target writes.'
+
+# Semantically identical registrations stay unwritten despite compact JSON and
+# reversed object-key order throughout managed handlers and unrelated settings.
+node - "${target}" << 'EOF'
+const fs = require("node:fs");
+const target = process.argv[2];
+
+function reverseObjectKeys(value) {
+  if (Array.isArray(value)) {
+    return value.map(reverseObjectKeys);
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .reverse()
+      .map(([key, nested]) => [key, reverseObjectKeys(nested)]),
+  );
+}
+
+for (const relativePath of [".cursor/hooks.json", ".claude/settings.json"]) {
+  const path = `${target}/${relativePath}`;
+  const document = JSON.parse(fs.readFileSync(path, "utf8"));
+  fs.writeFileSync(path, JSON.stringify(reverseObjectKeys(document)));
+}
+EOF
+assert_managed_host_hooks "${target}"
+assert_unrelated_preserved "${target}"
+# A canonicalizing write would now visibly change both bytes and mtimes.
+sleep 1
+trace="${temporary_dir}/trace-semantic-noop"
+assert_full_noop \
+  'semantically complete noncanonical settings' \
+  "${temporary_dir}/output-semantic-noop" \
+  "${trace}"
+echo 'PASS: semantically complete noncanonical settings remain wholly unwritten.'
 
 # Missing managed entry restores only settings; payload records stay unwritten.
 capture_payload_baseline

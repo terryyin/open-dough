@@ -123,11 +123,8 @@ function planHost(targetRoot, sourceDir, host) {
     return { host, error: merged.error, code: merged.code };
   }
   const nextDoc = merged.nextDoc;
-  const previousText = existsSync(absolutePath)
-    ? readFileSync(absolutePath, "utf8")
-    : null;
   const nextText = `${JSON.stringify(nextDoc, null, 2)}\n`;
-  if (previousText === nextText) {
+  if (!merged.changed) {
     return { host, absolutePath, action: "skip", nextDoc };
   }
   return {

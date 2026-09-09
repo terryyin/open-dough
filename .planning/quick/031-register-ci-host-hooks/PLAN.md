@@ -376,7 +376,7 @@ Evidence (2026-09-09):
 
 ### 10. Keep semantically complete registrations unwritten
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given complete hook registration with different JSON whitespace or
 object-key order, ordinary equal-version update reports a full no-op, preserving
@@ -392,6 +392,17 @@ pretty-printed document bytes (retrospective R3).
 
 Boundary: Settings are shared configuration, not canonicalized release payload.
 Do not impose formatter ownership on unrelated settings or add prose-exact tests.
+
+Evidence (2026-09-09):
+- Recursive JSON value equality ignores object-key order while preserving array
+  order; merge results expose semantic change independently of serialization.
+- Compact, recursively reordered complete host settings retain exact bytes and
+  mtimes, payload trees and records; trace proves no repair/installer invocation.
+- `proof: command: bash tests/update-skip-verified.sh` — pass, including retained
+  missing-registration repair, subsequent no-op, and conflict refusal.
+- `proof: command: bash tests/install-ci-host-hooks.sh` — pass regression.
+- Independent refactor named the JSON equality contract and centralized fixture
+  deep-equality assertions. `npm run format` passed without further edits.
 
 ### 11. Reconcile hook completeness on repeat installation
 Type: Behavior
@@ -661,3 +672,7 @@ Focused proof `bash tests/install-ci-host-hooks.sh` passed.
 Only one exact unscoped managed registration is adopted. Argument-extended,
 duplicate, or matcher-scoped variants refuse without writes. Focused real-installer
 proof `bash tests/install-ci-host-hooks.sh` passed.
+
+### Slice 10
+Semantically complete settings remain byte- and mtime-stable regardless of JSON
+whitespace or object-key order. Focused update proof and installer regression passed.

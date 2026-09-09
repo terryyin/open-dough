@@ -3,8 +3,29 @@
 // including locally argument-extended variants that require conflict review.
 // Preserves unrelated handlers and matcher siblings; refuses named conflicts.
 
-function deepEqual(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
+function jsonValuesEqual(a, b) {
+  if (Object.is(a, b)) {
+    return true;
+  }
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return (
+      Array.isArray(a) &&
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((value, index) => jsonValuesEqual(value, b[index]))
+    );
+  }
+  if (!isPlainObject(a) || !isPlainObject(b)) {
+    return false;
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  return (
+    aKeys.length === bKeys.length &&
+    aKeys.every(
+      (key) => Object.hasOwn(b, key) && jsonValuesEqual(a[key], b[key]),
+    )
+  );
 }
 
 function isPlainObject(value) {
@@ -64,7 +85,7 @@ function classifyManagedCommand(
   if (!isManagedCommandOrArgumentVariant(existing.command, managedCommand)) {
     return "continue";
   }
-  if (deepEqual(existing, managedExact)) {
+  if (jsonValuesEqual(existing, managedExact)) {
     return "exact";
   }
   return conflict(
@@ -172,7 +193,7 @@ function mergeClaudeEvent(existingWrappers, managedWrapper, relativePath) {
         continue;
       }
       if (match === "exact") {
-        if (!deepEqual(wrapper, managedWrapper)) {
+        if (!jsonValuesEqual(wrapper, managedWrapper)) {
           return conflict(
             "conflicting-managed-hooks",
             `conflicting-managed-hooks: ${relativePath} changes the matcher scope or wrapper shape for command ${managedCommand}.`,
@@ -258,5 +279,5 @@ export function mergeDocument(existingDoc, fragment, hostId, relativePath) {
   ) {
     base.version = fragment.version;
   }
-  return { nextDoc: base };
+  return { nextDoc: base, changed: !jsonValuesEqual(existingDoc, base) };
 }
