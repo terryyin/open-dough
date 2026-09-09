@@ -163,7 +163,7 @@ decision.
 ### 2. Reuse one recorded-release payload comparison
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash tests/update-refuses-unverifiable.sh`; `bash tests/update-adds-new-payload-skill.sh`.
 
 Structure: Expose the existing managed-payload comparison as a read-only seam
@@ -259,3 +259,6 @@ pre-implemented as part of this plan.
   treats `sed -i ''` as a filename, and bash 5 honors failed `[[ ]]` checks
   that Darwin bash 3.2 ignores. Repair is test-only; installer product
   behavior is unchanged.
+- Slice 2 seam: `compare-payload DEST CHECKOUT` reuses `managed_payload_unchanged`
+  against a local tagged tree, prints `Managed payload mismatch: <root> <path>`,
+  and does not add a third managed-file list.

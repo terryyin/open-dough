@@ -2,6 +2,17 @@
 # Version records, changelog validation, numeric compare, and managed-payload
 # baseline comparison. Sourced by open-dough-release.sh.
 
+report_managed_payload_mismatch() {
+  local skill_root=$1
+  local managed_file=$2
+
+  printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
+}
+
+# Read-only comparison of dest against a supplied local tagged checkout.
+# dest is the dough-update destination; skill_root is its native root.
+# Performs no fetches or writes. Callers that already have a tagged tree
+# pass it as checkout; ordinary update fetches first, then uses this.
 managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
@@ -49,15 +60,22 @@ managed_payload_unchanged() {
     # The new path must still be absent so replace-verified cannot overwrite an
     # unrelated local skill that happens to use the same name.
     if [[ ! -e "${checkout}/src/skills/${managed_file}" ]]; then
-      [[ ! -e "${skill_root}/${managed_file}" ]] || return 1
+      if [[ -e "${skill_root}/${managed_file}" ]]; then
+        report_managed_payload_mismatch "${skill_root}" "${managed_file}"
+        return 1
+      fi
       continue
     fi
     if [[ ! -f "${checkout}/src/skills/${managed_file}" ]] \
       || [[ ! -f "${skill_root}/${managed_file}" ]]; then
+      report_managed_payload_mismatch "${skill_root}" "${managed_file}"
       return 1
     fi
-    cmp -s -- "${skill_root}/${managed_file}" \
-      "${checkout}/src/skills/${managed_file}" || return 1
+    if ! cmp -s -- "${skill_root}/${managed_file}" \
+      "${checkout}/src/skills/${managed_file}"; then
+      report_managed_payload_mismatch "${skill_root}" "${managed_file}"
+      return 1
+    fi
   done
 }
 
