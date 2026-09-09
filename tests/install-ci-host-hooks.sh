@@ -150,6 +150,52 @@ seed_managed_command_with_local_argument "${local_argument_target}"
 assert_managed_conflict_refused "${local_argument_target}" \
   'managed command with a local argument'
 
+# A known managed command followed by a tab or a shell separator is still the
+# known command invoked with edited arguments, for both hosts and under both
+# ordinary and force installation. Recognizing these suffix delimiters is R6's
+# fix; a normal-space suffix alone (above) did not cover this boundary.
+for host in cursor claude; do
+  for variant in tab semicolon; do
+    if [[ "${variant}" == tab ]]; then
+      suffix=$'\t--local'
+    else
+      suffix='; true'
+    fi
+    suffix_target="${temporary_dir}/${host}-${variant}-suffix"
+    prepare_target "${suffix_target}"
+    seed_managed_command_with_suffix "${suffix_target}" "${host}" "${suffix}"
+    assert_managed_conflict_refused "${suffix_target}" \
+      "managed ${host} command with a ${variant} suffix"
+  done
+done
+
+# A distinct script that only shares the managed command as a name prefix
+# (no delimiter boundary, e.g. a genuinely different script name) is unrelated
+# and must not block installation or be treated as an edited managed variant.
+for host in cursor claude; do
+  similar_prefix_target="${temporary_dir}/${host}-similar-prefix"
+  prepare_target "${similar_prefix_target}"
+  seed_similarly_named_unmanaged_script "${similar_prefix_target}" "${host}"
+  output=$(bash "${source_dir}/install.sh" --target "${similar_prefix_target}" --source "${source_dir}")
+  [[ "${output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
+  [[ "${output}" == *'hooks: registered Open Dough entries in .claude/settings.json.'* ]]
+  assert_managed_host_hooks "${similar_prefix_target}"
+  assert_unrelated_preserved "${similar_prefix_target}"
+  node - "${similar_prefix_target}" "${host}" << 'EOF'
+const fs = require("node:fs");
+const [target, host] = process.argv.slice(2);
+const path = host === "cursor" ? `${target}/.cursor/hooks.json` : `${target}/.claude/settings.json`;
+const doc = JSON.parse(fs.readFileSync(path, "utf8"));
+const found = host === "cursor"
+  ? doc.hooks.stop?.some((entry) => entry.command?.endsWith("-extra"))
+  : doc.hooks.Stop?.some((wrapper) => wrapper.hooks?.some((hook) => hook.command?.endsWith("-extra")));
+if (!found) {
+  console.error(`FAIL: ${host} similarly-named unmanaged script was not preserved.`);
+  process.exit(1);
+}
+EOF
+done
+
 # Duplicate exact managed entries are ambiguous ownership, not adoption.
 duplicate_target="${temporary_dir}/duplicate"
 prepare_target "${duplicate_target}"
@@ -206,4 +252,4 @@ ln -s -- "${dangling_parent_outside}/missing-claude-directory" \
 assert_unsafe_destination_refused "${dangling_parent_target}" \
   "${dangling_parent_outside}" 'dangling host-settings parent symlink'
 
-echo 'PASS: installer adopts only one exact unscoped managed registration while preserving unrelated handlers and matcher siblings; creates missing settings files; refuses malformed, edited, argument-extended, duplicate, matcher-scoped, valid-symlink, and dangling-symlink settings without target or outside mutation; --force cannot clobber shared settings; a conflict in one host blocks both.'
+echo 'PASS: installer adopts only one exact unscoped managed registration while preserving unrelated handlers and matcher siblings; creates missing settings files; refuses malformed, edited, argument-extended, tab-suffixed, semicolon-suffixed, duplicate, matcher-scoped, valid-symlink, and dangling-symlink settings without target or outside mutation while leaving a genuinely different similarly-prefixed script unrelated; --force cannot clobber shared settings; a conflict in one host blocks both.'

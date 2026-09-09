@@ -167,7 +167,7 @@ file-size limit was found or imported from the external skill's project.
 
 ### 1. Refuse edited known commands across supported suffix delimiters
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an existing managed command with a tab-separated argument or a
 shell separator immediately after its known command, install/update refuses with
@@ -193,6 +193,27 @@ is needed. Include tests and local refactoring within this Behavior.
 Safe stopping point: all focused refusal/preservation proof is green, source
 correction is reviewable, and the old release remains unchanged. Any newly
 discovered requirement for general shell parsing returns for scope judgment.
+
+Outcome: done. Fixed `isManagedCommandOrArgumentVariant` in
+`src/install/open-dough-register-hooks-merge.mjs` to recognize a bounded set of
+boundary delimiters (space, tab, newline, `;`, `&`, `|`) immediately following
+the exact known command, refusing both reproduced R6 variants (tab-separated
+argument, `; true`) while still treating a suffix that merely continues a
+different script name (no delimiter, e.g. `-extra`) as unrelated. Both hosts
+share the fix through the existing `classifyManagedCommand`/
+`isManagedCommandOrArgumentVariant` seam; no new module or parser was added.
+Extended `tests/install-ci-host-hooks.sh` (tab and semicolon suffix conflicts
+for both hosts under ordinary and force install, plus the similarly-named
+counterexample) and `tests/update-skip-verified.sh` (one representative
+tab-suffix conflict at equal-version update). `npm run lint`,
+`bash tests/install-ci-host-hooks.sh`, `bash tests/update-skip-verified.sh`,
+and `bash tests/install-all-tools.sh` all pass. Delivered on branch
+`worktree-quick-032-hook-conflict-refusal`, merged to `main`, worktree/branch
+removed. Human direction (2026-09-09): stop after this slice; Slices 2–4 need
+capabilities this coordinator session does not have (a permitted native
+Claude Code update session against a disposable release source; real GitHub
+Actions CI via `gh`; and a real Cursor desktop session, which has no available
+automation tool here) and remain `planned` for a session with that access.
 
 ### 2. Complete an ordinary Claude Code update and installed ADR use
 Type: Behavior

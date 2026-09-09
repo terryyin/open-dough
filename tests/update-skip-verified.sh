@@ -246,4 +246,32 @@ assert_payload_unwritten 'conflicting managed hooks'
 [[ $(shasum -a 256 "${target}/.claude/settings.json") == "${claude_conflict_bytes}" ]]
 echo 'PASS: conflicting managed hooks refuse without writes.'
 
+# A known managed command followed by a tab-separated argument is the same
+# conflict, not an unrelated command, at equal-version update (R6).
+seed_managed_command_with_suffix "${target}" cursor $'\t--local'
+capture_payload_baseline
+before_suffix_conflict=$(snapshot_path_state "${target}")
+cursor_suffix_conflict_bytes=$(shasum -a 256 "${target}/.cursor/hooks.json")
+claude_suffix_conflict_bytes=$(shasum -a 256 "${target}/.claude/settings.json")
+trace="${temporary_dir}/trace-suffix-conflict"
+: > "${trace}"
+if output=$(OPEN_DOUGH_TRACE="${trace}" bash "${helper}" apply --target "${target}" \
+  --platform cursor 2>&1); then
+  echo 'FAIL: a tab-suffixed managed command must refuse ordinary equal-version update.' >&2
+  printf '%s\n' "${output}" >&2
+  exit 1
+fi
+[[ "${output}" == *'conflicting-managed-hooks'* ]]
+[[ "${output}" == *'Outcome: refused; preserved the selected installation.'* ]]
+grep -qx "apply-hooks-conflict ${dest}" "${trace}"
+if grep -qE '^(install |apply-hooks-repair )' "${trace}"; then
+  echo 'FAIL: tab-suffixed managed command conflict must not install or repair.' >&2
+  exit 1
+fi
+[[ $(snapshot_path_state "${target}") == "${before_suffix_conflict}" ]]
+assert_payload_unwritten 'tab-suffixed managed command conflict'
+[[ $(shasum -a 256 "${target}/.cursor/hooks.json") == "${cursor_suffix_conflict_bytes}" ]]
+[[ $(shasum -a 256 "${target}/.claude/settings.json") == "${claude_suffix_conflict_bytes}" ]]
+echo 'PASS: a tab-suffixed managed command conflict refuses without writes.'
+
 echo 'PASS: equal-version update skips complete installs, repairs missing registration only, and refuses conflicts without writes.'

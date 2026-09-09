@@ -69,10 +69,28 @@ function finishManagedEvent(existingEntries, managedEntry, foundExact) {
   };
 }
 
+// Delimiters a host may place immediately after the exact known command while
+// still invoking it: whitespace and shell command separators. A suffix that
+// starts with any other character (for example a hyphen continuing a longer,
+// genuinely different script name) is an unrelated command, not a variant.
+const KNOWN_COMMAND_BOUNDARY_DELIMITERS = new Set([
+  " ",
+  "\t",
+  "\n",
+  ";",
+  "&",
+  "|",
+]);
+
 function isManagedCommandOrArgumentVariant(existingCommand, managedCommand) {
-  return (
-    existingCommand === managedCommand ||
-    existingCommand.startsWith(`${managedCommand} `)
+  if (existingCommand === managedCommand) {
+    return true;
+  }
+  if (!existingCommand.startsWith(managedCommand)) {
+    return false;
+  }
+  return KNOWN_COMMAND_BOUNDARY_DELIMITERS.has(
+    existingCommand[managedCommand.length],
   );
 }
 
