@@ -436,7 +436,7 @@ Evidence (2026-09-09):
 
 ### 12. Publish a fetchable release containing hook registration
 Type: Behavior
-Status: planned
+Status: in-progress
 
 Behavior: Given applicable acceptance and release checks pass, the maintainer's
 new numeric version is published as an immutable tag with matching metadata and
@@ -470,6 +470,28 @@ reuse a prior release's version. The release skill does not push tags; this stor
 publication step must explicitly perform and verify the authorized push. Never
 force or move a tag. Existing installed copies remain at their valid earlier tag
 until Slice 13; do not hand-synchronize them to make the release gate pass.
+
+Acceptance stop (2026-09-09):
+- The maintainer selected `0.3.4`; local and remote tag checks show it unused and
+  higher than `v0.3.3`. No release metadata or tag was created.
+- Two fresh native Cursor runs with third-party imports visibly enabled repeated
+  native Cursor delivery and exact observer shutdown, but neither process tracing
+  nor a local Claude diagnostic handler observed a compatibility invocation.
+- One final bounded fresh-checkout diagnostic manually wrapped the disposable
+  Claude `PostToolUse` command to record raw stdin before invoking the byte-identical
+  installed adapter. Native Cursor delivered controlled failure
+  `acceptance-final-7c38b12e6da950f4`; mailbox `watch-ZZN0K8` stopped with
+  recorded/delivered/unread `1/1/0`; Cursor and Claude settings stayed unchanged.
+  No trace was created, so the compatibility handler did not fire and no
+  `cursor_version` payload exercised the guard. No retry was made.
+- Negative evidence and all attempts are retained under
+  `evidence/cursor-compatibility-diagnostic/`. It is explicitly diagnostic, not
+  represented as installer-created configuration.
+- Release-impact review found `dough-update` and `dough-adr-awareness` changed
+  from `v0.3.3`. Slice 7 proves hook-update integration only; SEED-007's standalone
+  Claude update plus installed ADR-guidance use remains Pending.
+- Release is not ready under ADR 0005. R5 and affected SEED-007 acceptance require
+  host/runtime resolution or an explicit human-owned scope/acceptance decision.
 
 ### 13. Adopt the published release in Open Dough
 Type: Behavior
@@ -621,6 +643,17 @@ Resumed observer: Codex yielded cell `14`, mailbox
 coordinator `root`, checkout `/Users/terryyin/git/open-dough`. Reuse through all
 remaining pushes and stop it at completion or a decision stop.
 
+Release observer after version decision: Codex yielded cell `87`, mailbox
+`/tmp/dough-ci-501/watch-09hMzZ`, workflow `ci.yml` / `CI`, branch `main`,
+coordinator `root-release`, same checkout. Requested release version `0.3.4`;
+local and remote tag checks confirmed it is unused and higher than `v0.3.3`.
+Stopped at the Slice 12 acceptance decision boundary with recorded/delivered/unread
+`0/0/0`; pending CI is unobserved.
+
+Evidence-delivery observer: Codex yielded cell `105`, mailbox
+`/tmp/dough-ci-501/watch-UVccIG`, same workflow/branch/checkout. It exists only
+to cover the blocked-state evidence push and must then stop without waiting.
+
 ### Slice 1
 Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.
 
@@ -700,3 +733,9 @@ local focused proofs passed; the preserved Slice 11 work was restored exactly.
 ### Slice 11
 Repeat installation now repairs missing hook completeness independently of payload
 replacement and becomes a full no-op once complete. Focused installer proofs passed.
+
+### Slice 12 acceptance stop
+Native Cursor hook delivery remains green, but three bounded compatibility
+diagnostics produced no Claude-hook invocation or `cursor_version` payload despite
+third-party imports being enabled. SEED-007 is also affected and Pending. Evidence
+is retained; VERSION/CHANGELOG/tag/publish/adoption were not started.

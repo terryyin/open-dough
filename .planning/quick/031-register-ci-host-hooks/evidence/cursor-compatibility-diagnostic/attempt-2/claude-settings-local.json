@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/private/tmp/dough-031-compat.z5UpNq/compat-hook.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/private/tmp/dough-031-compat.z5UpNq/compat-hook.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
