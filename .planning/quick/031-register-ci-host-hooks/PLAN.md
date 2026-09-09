@@ -345,7 +345,7 @@ storage layer or general filesystem-hardening project.
 
 ### 9. Adopt only unambiguous managed hook registrations
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given existing handlers for an Open Dough native event, installation
 adopts one matching effective registration or reports a named conflict without
@@ -362,6 +362,17 @@ reuse this merge-policy matrix for update (retrospective R2).
 Boundary: Recognize bounded variants of the known managed script commands; do
 not invent a general shell parser or silently rewrite user matcher scope. Treat
 ambiguous duplicate ownership as a conflict rather than silently deleting entries.
+
+Evidence (2026-09-09):
+- Merge policy recognizes only the exact managed command and its space-delimited
+  argument extension as managed; edited variants, duplicate exact entries, and
+  changed Claude matcher/wrapper scope refuse as `conflicting-managed-hooks`.
+- Exact manual registrations remain adopted, and unrelated handlers and matcher
+  siblings remain preserved.
+- `proof: command: bash tests/install-ci-host-hooks.sh` — pass under ordinary and
+  `--force` real-installer journeys with full target snapshots for refusals.
+- Independent refactor centralized duplicate conflicts and clarified managed
+  command-variant naming. `npm run format` passed without further edits.
 
 ### 10. Keep semantically complete registrations unwritten
 Type: Behavior
@@ -645,3 +656,8 @@ attempt 2 delivered). Codex Quick 027 proof reused as applicable.
 Dangling host settings files and parents now fail as
 `unsafe-hooks-destination` before installer writes, including with `--force`.
 Focused proof `bash tests/install-ci-host-hooks.sh` passed.
+
+### Slice 9
+Only one exact unscoped managed registration is adopted. Argument-extended,
+duplicate, or matcher-scoped variants refuse without writes. Focused real-installer
+proof `bash tests/install-ci-host-hooks.sh` passed.

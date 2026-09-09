@@ -144,6 +144,60 @@ fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
 EOF
 }
 
+seed_managed_command_with_local_argument() {
+  local target=$1
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  seed_exact_manual_registration "${target}" "${2-}"
+  node - "${target}" "${cursor_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, cursorFragmentPath] = process.argv.slice(2);
+const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
+const managedCommand = cursorFragment.hooks.stop[0].command;
+const cursorPath = `${target}/.cursor/hooks.json`;
+const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
+const handler = cursor.hooks.stop.find((entry) => entry.command === managedCommand);
+handler.command = `${handler.command} --local`;
+fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
+EOF
+}
+
+seed_duplicate_exact_managed_entry() {
+  local target=$1
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  seed_exact_manual_registration "${target}" "${2-}"
+  node - "${target}" "${cursor_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, cursorFragmentPath] = process.argv.slice(2);
+const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
+const cursorPath = `${target}/.cursor/hooks.json`;
+const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
+cursor.hooks.stop.push(structuredClone(cursorFragment.hooks.stop[0]));
+fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
+EOF
+}
+
+seed_claude_managed_read_matcher() {
+  local target=$1
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  seed_exact_manual_registration "${target}" "${2-}"
+  node - "${target}" "${claude_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, claudeFragmentPath] = process.argv.slice(2);
+const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
+const managedCommand = claudeFragment.hooks.PostToolUse[0].hooks[0].command;
+const claudePath = `${target}/.claude/settings.json`;
+const claude = JSON.parse(fs.readFileSync(claudePath, "utf8"));
+const wrapper = claude.hooks.PostToolUse.find((entry) =>
+  entry.hooks?.some((hook) => hook.command === managedCommand),
+);
+wrapper.matcher = "Read";
+fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
+EOF
+}
+
 assert_unrelated_preserved() {
   local target=$1
   node - "${target}" << 'EOF'

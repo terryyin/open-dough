@@ -38,6 +38,28 @@ assert_unsafe_destination_refused() {
   done
 }
 
+assert_managed_conflict_refused() {
+  local target=$1 description=$2 option output
+  local before succeeded
+
+  before=$(snapshot_path_state "${target}")
+  for option in ordinary force; do
+    if [[ "${option}" == ordinary ]]; then
+      output=$(bash "${source_dir}/install.sh" --target "${target}" \
+        --source "${source_dir}" 2>&1) && succeeded=1 || succeeded=0
+    else
+      output=$(bash "${source_dir}/install.sh" --target "${target}" \
+        --source "${source_dir}" --force 2>&1) && succeeded=1 || succeeded=0
+    fi
+    if [[ ${succeeded} -eq 1 ]]; then
+      echo "FAIL: ${description} must refuse ${option} installation before writes." >&2
+      exit 1
+    fi
+    [[ "${output}" == *'conflicting-managed-hooks'* ]]
+    [[ $(snapshot_path_state "${target}") == "${before}" ]]
+  done
+}
+
 # Unrelated event handlers and matcher siblings merge without duplicates.
 merge_target="${temporary_dir}/merge"
 prepare_target "${merge_target}"
@@ -121,6 +143,27 @@ fi
 [[ "${output}" == *'conflicting-managed-hooks'* ]]
 [[ $(snapshot_path_state "${conflict_target}") == "${before}" ]]
 
+# A known managed script with local arguments remains managed and conflicts.
+local_argument_target="${temporary_dir}/local-argument"
+prepare_target "${local_argument_target}"
+seed_managed_command_with_local_argument "${local_argument_target}"
+assert_managed_conflict_refused "${local_argument_target}" \
+  'managed command with a local argument'
+
+# Duplicate exact managed entries are ambiguous ownership, not adoption.
+duplicate_target="${temporary_dir}/duplicate"
+prepare_target "${duplicate_target}"
+seed_duplicate_exact_managed_entry "${duplicate_target}"
+assert_managed_conflict_refused "${duplicate_target}" \
+  'duplicate exact managed entries'
+
+# A managed Claude handler under a narrower matcher cannot be adopted.
+matcher_target="${temporary_dir}/managed-read-matcher"
+prepare_target "${matcher_target}"
+seed_claude_managed_read_matcher "${matcher_target}"
+assert_managed_conflict_refused "${matcher_target}" \
+  'managed Claude handler under matcher Read'
+
 # A valid settings-file symlink remains unsafe and refuses before writes.
 unsafe_target="${temporary_dir}/unsafe"
 prepare_target "${unsafe_target}"
@@ -163,4 +206,4 @@ ln -s -- "${dangling_parent_outside}/missing-claude-directory" \
 assert_unsafe_destination_refused "${dangling_parent_target}" \
   "${dangling_parent_outside}" 'dangling host-settings parent symlink'
 
-echo 'PASS: installer merges unrelated host hooks and exact manual registrations without duplicates; creates missing settings files; refuses malformed, conflicting, valid-symlink, and dangling-symlink settings without target or outside mutation; --force cannot clobber shared settings; a conflict in one host blocks both.'
+echo 'PASS: installer adopts only one exact unscoped managed registration while preserving unrelated handlers and matcher siblings; creates missing settings files; refuses malformed, edited, argument-extended, duplicate, matcher-scoped, valid-symlink, and dangling-symlink settings without target or outside mutation; --force cannot clobber shared settings; a conflict in one host blocks both.'

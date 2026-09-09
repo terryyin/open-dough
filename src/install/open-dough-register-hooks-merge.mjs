@@ -1,5 +1,6 @@
 // Host-hook merge policy for Open Dough CI registration.
-// Identifies managed entries by native event and exact fragment command.
+// Identifies managed entries by native event and the known fragment command,
+// including locally argument-extended variants that require conflict review.
 // Preserves unrelated handlers and matcher siblings; refuses named conflicts.
 
 function deepEqual(a, b) {
@@ -16,6 +17,13 @@ function cloneEntries(entries) {
 
 function conflict(code, message) {
   return { error: message, code };
+}
+
+function duplicateManagedCommandConflict(relativePath, managedCommand) {
+  return conflict(
+    "conflicting-managed-hooks",
+    `conflicting-managed-hooks: ${relativePath} has duplicate Open Dough handlers for command ${managedCommand}.`,
+  );
 }
 
 function eventArrayOrConflict(existingEntries, relativePath) {
@@ -40,13 +48,20 @@ function finishManagedEvent(existingEntries, managedEntry, foundExact) {
   };
 }
 
+function isManagedCommandOrArgumentVariant(existingCommand, managedCommand) {
+  return (
+    existingCommand === managedCommand ||
+    existingCommand.startsWith(`${managedCommand} `)
+  );
+}
+
 function classifyManagedCommand(
   existing,
   managedCommand,
   managedExact,
   relativePath,
 ) {
-  if (existing.command !== managedCommand) {
+  if (!isManagedCommandOrArgumentVariant(existing.command, managedCommand)) {
     return "continue";
   }
   if (deepEqual(existing, managedExact)) {
@@ -85,6 +100,9 @@ function mergeCursorEvent(existingHandlers, managedEntry, relativePath) {
       continue;
     }
     if (match === "exact") {
+      if (foundExact) {
+        return duplicateManagedCommandConflict(relativePath, managedCommand);
+      }
       foundExact = true;
       continue;
     }
@@ -154,6 +172,15 @@ function mergeClaudeEvent(existingWrappers, managedWrapper, relativePath) {
         continue;
       }
       if (match === "exact") {
+        if (!deepEqual(wrapper, managedWrapper)) {
+          return conflict(
+            "conflicting-managed-hooks",
+            `conflicting-managed-hooks: ${relativePath} changes the matcher scope or wrapper shape for command ${managedCommand}.`,
+          );
+        }
+        if (foundExact) {
+          return duplicateManagedCommandConflict(relativePath, managedCommand);
+        }
         foundExact = true;
         continue;
       }
