@@ -188,10 +188,11 @@ running checks. Preserve failures rather than interpreting a retry as a repair.
 ## Agent-facing revision, 2026-09-09
 
 Applied [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-and the maintainer's explicit instruction to use
-[ADR 0001 terminology](../../../docs/adrs/0001-ubiquitous-language.md).
-ADR 0001 remains Proposed; its status was not changed. The skills remain Proposed
-under ADR 0003, with the delivery evidence requirements of ADR 0005 unchanged.
+and the maintainer's explicit instruction to use the then-Proposed ADR 0001
+terminology (a story lives in its seed; an executable plan contains slices).
+That draft was not Accepted; recovering it later is a Git history concern.
+The skills remain Proposed under ADR 0003, with the delivery evidence
+requirements of ADR 0005 unchanged.
 
 The entrypoints now identify the required context, execution order, and return
 conditions. Detailed decisions have these authoritative homes:

@@ -139,10 +139,14 @@ commentary. Do not rewrite retained evidence as if it were current instruction.
 ### 3. Remove proposed concepts without a current client outcome
 
 Type: Behavior
-Status: in-progress
+Status: done
 Proof: Search confirms every remaining undeclared source skill, research note,
 and Proposed ADR names a current client outcome and story; `npm run lint`; run
 focused payload tests if any maintained declaration or fixture changes.
+Deleted undeclared `dough-acme-change-readiness`, both research notes, and
+Proposed ADRs 0001/0002/0004; repaired ADR index and live callers. Kept
+extract-guidance Acme fixture. No remaining Proposed ADRs/research/undeclared
+skills. `npm run lint` PASS; focused payload tests skipped.
 
 Behavior: Given proposed guidance and decision/research drafts predate the new
 direction → the maintainer inspects unreleased work after cleanup → only concepts
@@ -196,3 +200,5 @@ top of Recently done, and remove this spent plan during delivery.
   before incomplete decode wrote `response.md`. Fixed by isolating fixture /
   agent-workspace / artifact roots and mkdir -p before writing output. Slice 3
   remains in progress; stashed Proposed-cleanup restored after this repair push.
+- Slice 3: Accepted ADRs had no links to deleted Proposed ADRs 0001/0002/0004;
+  extract-guidance fixture retained as general extraction demo.

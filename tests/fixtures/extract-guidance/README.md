@@ -10,9 +10,10 @@ local work-item convention (`ACME-NNN`), and an explicit human decision boundary
    `.agents/skills/extract-guidance/SKILL.md` and `AGENTS.md`.
 2. Follow the extraction instructions on
    `project/.agents/skills/acme-change-readiness/SKILL.md`.
-3. Expect direct output at `src/skills/dough-acme-change-readiness/SKILL.md`
-   plus a concise `RECOGNITION.md` beside it (maintainer recognition; the
-   installer does not ship recognition).
+3. Expect extraction to write a Proposed skill under `src/skills/` (historically
+   `dough-acme-change-readiness`) plus a concise `RECOGNITION.md` beside it
+   (maintainer recognition; the installer does not ship recognition). Discard
+   that demo output unless a current client outcome keeps it.
 4. Compare the Acme source contents before and after; they must be unchanged.
 5. For behavior review, supply client project convention `TASK-NNN` and a proposal
    carrying `TASK-123` (for example: add CSV export for report users; risk is
