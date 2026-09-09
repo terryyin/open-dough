@@ -37,18 +37,24 @@ skill_root_for() {
   esac
 }
 
+# Fixture (temporary_dir), agent workspace, and stream artifacts use separate
+# roots so a native command that removes dirname(--workspace) cannot unlink the
+# transcript or the verify fixture before classify/decode/snapshots.
 temporary_dir=$(mktemp -d)
-transcript="${temporary_dir}/native.jsonl"
-output_file="${temporary_dir}/response.md"
-native_stderr="${temporary_dir}/stderr.log"
-: > "${native_stderr}"
+agent_root=
+artifact_root=
+transcript=
+output_file=
+native_stderr=
 finish() {
   local status=$?
   if ((status != 0)); then
-    [[ ! -f ${transcript} ]] || cat "${transcript}" >&2
-    [[ ! -f ${output_file} ]] || cat "${output_file}" >&2
+    [[ -z ${transcript} || ! -f ${transcript} ]] || cat "${transcript}" >&2
+    [[ -z ${output_file} || ! -f ${output_file} ]] || cat "${output_file}" >&2
   fi
   rm -rf -- "${temporary_dir}"
+  [[ -z ${agent_root} ]] || rm -rf -- "${agent_root}"
+  [[ -z ${artifact_root} ]] || rm -rf -- "${artifact_root}"
   exit "${status}"
 }
 trap finish EXIT
@@ -97,6 +103,12 @@ fi
 platform=${native_case_host}
 scenario=${native_case_id#context/}
 skill_root=$(skill_root_for "${platform}")
+agent_root=$(mktemp -d)
+artifact_root=$(mktemp -d)
+transcript="${artifact_root}/native.jsonl"
+output_file="${artifact_root}/response.md"
+native_stderr="${artifact_root}/stderr.log"
+: > "${native_stderr}"
 target="${temporary_dir}/adopter"
 prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
 if [[ ${scenario} == 'conflict' ]]; then
@@ -106,6 +118,8 @@ if [[ ${scenario} == 'conflict' ]]; then
 fi
 assert_fresh_install "${platform}" "${target}"
 before=$(snapshot_path_state "${target}")
+cp -R -- "${target}" "${agent_root}/adopter"
+native_run_workspace="${agent_root}/adopter"
 
 # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
 prompt='Use $dough-adr-awareness. Assess how two backend instances should share login sessions. Do not edit files.'
@@ -121,8 +135,8 @@ native_run_context_command || {
 after=$(snapshot_path_state "${target}")
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]
-command_log="${temporary_dir}/${platform}-${scenario}-commands.txt"
-inspection_log="${temporary_dir}/${platform}-${scenario}-inspection-targets.txt"
+command_log="${artifact_root}/${platform}-${scenario}-commands.txt"
+inspection_log="${artifact_root}/${platform}-${scenario}-inspection-targets.txt"
 jq -r '.. | objects |
   (.command? // .args.command? // .input.command? // empty) | strings' \
   "${transcript}" > "${command_log}"

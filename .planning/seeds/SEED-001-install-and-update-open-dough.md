@@ -25,8 +25,7 @@ recorded release. Handle local edits through an explicit, manually chosen force
 replacement. Keep unrelated project content intact. Report the actual result.
 
 [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) governs
-release identity and the maintainer's version choice. The client contract is
-also described in [Proposed ADR 0004](../../docs/adrs/0004-client-installation-and-update.md).
+release identity and the maintainer's version choice.
 
 ## Stories
 

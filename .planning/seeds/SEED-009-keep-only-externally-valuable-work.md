@@ -22,7 +22,7 @@ returns.
 
 ### 1. Remove WIP without external value and find a home for the rest
 
-**Status:** Refined.
+**Status:** Complete.
 
 **Goal:** The Open Dough maintainer sees a minimal, coherent working set in
 which every remaining WIP has a named beneficiary, an evaluable external
@@ -77,5 +77,5 @@ must be resolved during execution.
 
 ## Ordering
 
-Complete Story 1 before selecting or extracting another SDLC skill. Stop after
-the cleanup; later demand, not preserved speculation, recreates deleted work.
+Story 1 is complete. Resume ordinary backlog selection; do not recreate deleted
+work unless current demand names a beneficiary and evaluable outcome.
