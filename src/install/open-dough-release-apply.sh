@@ -146,6 +146,12 @@ all_roots_verified_for_release() {
 
 }
 
+# Clear and remove the apply work root. Prefer this over relying on EXIT alone.
+clear_apply_work_root() {
+  [[ -n "${_open_dough_apply_work_root:-}" ]] && rm -rf -- "${_open_dough_apply_work_root}"
+  _open_dough_apply_work_root=
+}
+
 apply_release() {
   local url=''
   local target=''
@@ -153,8 +159,11 @@ apply_release() {
   local force=0
   local checkout=''
   local supplied_url=0
-  local work resolved tag commit version work_root
+  local work resolved tag commit version
   local dest installed relation
+  # Non-local: EXIT trap must still see the path if set -e aborts this function
+  # before an explicit clear (bash 5 drops locals when the function unwinds).
+  _open_dough_apply_work_root=
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -207,22 +216,20 @@ apply_release() {
     fi
   fi
 
-  work_root=$(mktemp -d)
-  trap '[[ -n "${work_root:-}" ]] && rm -rf -- "${work_root}"' EXIT
+  _open_dough_apply_work_root=$(mktemp -d)
+  trap 'clear_apply_work_root' EXIT
   if [[ -n "${checkout}" ]]; then
     work=${checkout}
     if ! resolved=$(require_pinned_checkout "${work}" "${url}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
-      rm -rf -- "${work_root}"
-      work_root=
+      clear_apply_work_root
       return 1
     fi
   else
-    work="${work_root}/release"
+    work="${_open_dough_apply_work_root}/release"
     if ! resolved=$(fetch_release "${url}" "${work}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
-      rm -rf -- "${work_root}"
-      work_root=
+      clear_apply_work_root
       return 1
     fi
   fi
@@ -237,11 +244,13 @@ EOF
   # Explicit force deliberately replaces every safe managed root.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
+    if ! run_installer "${work}" "${target}" "${platform}" 1 "${url}"; then
+      clear_apply_work_root
+      return 1
+    fi
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code by explicit force.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
-    rm -rf -- "${work_root}"
-    work_root=
+    clear_apply_work_root
     return 0
   fi
 
@@ -249,26 +258,26 @@ EOF
   # roots still need the ordinary baseline proof or an explicit force.
   if [[ ! -d "${dest}" && "${supplied_url}" -eq 1 ]]; then
     trace_line "apply-install ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
+    if ! run_installer "${work}" "${target}" "${platform}" 0 "${url}"; then
+      clear_apply_work_root
+      return 1
+    fi
     printf 'Installed: unknown\n'
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
-    rm -rf -- "${work_root}"
-    work_root=
+    clear_apply_work_root
     return 0
   fi
 
   if [[ ! -d "${dest}" ]]; then
     report_unverifiable_installation "${dest}"
-    rm -rf -- "${work_root}"
-    work_root=
+    clear_apply_work_root
     return 1
   fi
 
-  if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}"; then
+  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" "${version}"; then
     report_unverifiable_installation "${dest}"
-    rm -rf -- "${work_root}"
-    work_root=
+    clear_apply_work_root
     return 1
   fi
 
@@ -285,14 +294,15 @@ EOF
   if [[ ${needs_replacement} -eq 0 ]]; then
     finish_equal_version_host_hooks "${work}" "${target}" "${dest}"
     equal_status=$?
-    rm -rf -- "${work_root}"
-    work_root=
+    clear_apply_work_root
     return "${equal_status}"
   fi
   trace_line "apply-reconcile ${dest}"
-  run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
+  if ! run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1; then
+    clear_apply_work_root
+    return 1
+  fi
   printf 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to %s.\n' "${version}"
   printf 'Start fresh sessions before invoking dough-update again.\n'
-  rm -rf -- "${work_root}"
-  work_root=
+  clear_apply_work_root
 }
