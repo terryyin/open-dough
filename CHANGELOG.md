@@ -1,3 +1,9 @@
+## 0.3.4 - 2026-09-09
+
+CI host hooks: install and update portable Cursor and Claude Code observation hooks, merge them safely beside existing settings, repair missing registrations on repeat use, and preserve semantically complete configuration without rewrites.
+
+This release uses a maintainer-approved one-release exception: Cursor's Claude-compatibility invocation and SEED-007's native Claude updated-use check remain explicitly pending rather than being reported as passing.
+
 ## 0.3.3 - 2026-09-09
 
 Execution-related skills: add `dough-execute-plan` and `dough-post-change-refactor` to the client payload, including execution references, asynchronous CI observation scripts, and host hook fragments.
