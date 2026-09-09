@@ -4,14 +4,14 @@ Follow [ci-monitor.md](ci-monitor.md) for CI selection and failure recovery.
 
 With `functions.exec`, `yield_control`, `notify`, `tools.exec_command`, and
 `tools.write_stdin`, start one yielded observer cell when execution begins,
-before the first push. Reuse `watching` and terminal `finished` entries on
-reentry. If volatile handles are lost, recover the active plan's observer note
-before considering replacement. Substitute verified repository, checkout, and
-coordinator below:
+before the first push. On reentry, use the active plan's observer note to reuse
+a running cell and terminal `finished` entries to avoid restarting completed observation. Recover
+that note before considering replacement when volatile handles are lost.
+Substitute verified repository, checkout, and coordinator below:
 
 ```js
 const key = 'ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR'
-if (['watching', 'finished'].includes(load(key)?.status)) exit()
+if (load(key)?.status === 'finished') exit()
 try {
   let result = await tools.exec_command({
     cmd: 'node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stream --execution OWNER/REPO BRANCH',
@@ -46,7 +46,8 @@ try {
     for (const event of events.splice(0)) notify(event)
   }
   consume(result.output)
-  store(key, {
+  text({
+    key,
     status: result.session_id ? 'watching' : 'finished',
     sessionId: result.session_id,
     directory,
@@ -56,10 +57,7 @@ try {
   })
   await yield_control()
   deliver()
-  while (
-    result.session_id &&
-    ['watching', 'stopped'].includes(load(key)?.status)
-  ) {
+  while (result.session_id) {
     result = await tools.write_stdin({
       session_id: result.session_id,
       chars: '',
@@ -67,24 +65,10 @@ try {
       max_output_tokens: 2000,
     })
     consume(result.output)
-    const stopping = load(key)?.status === 'stopped'
-    store(key, {
-      status: stopping
-        ? 'stopped'
-        : result.session_id
-          ? 'watching'
-          : 'finished',
-      sessionId: result.session_id,
-      directory,
-      pid,
-      tail,
-      terminal,
-    })
     deliver()
   }
-  if (load(key)?.status === 'stopped') exit()
   store(key, {
-    status: 'finished',
+    status: terminal?.status === 'stopped' ? 'stopped' : 'finished',
     sessionId: undefined,
     directory,
     pid,
@@ -92,15 +76,17 @@ try {
     terminal,
   })
 } catch (error) {
-  if (load(key)?.status === 'stopped') exit()
-  store(key, { ...load(key), status: 'lost' })
+  store(key, { status: 'lost' })
   notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000) })
 }
 ```
 
-After startup, save receipt directory/PID, coordinator, and checkout in the
-active plan before the first push; retain cell/session handles too. The parser
-retains chunk tails, consumes initial output before yielding, then notifies
+The initial yielded output exposes the session, directory, and PID. Save them
+with the cell ID, coordinator, and checkout in the active plan before the first
+push. Treat that note as the live handle: writes to `store` in a running cell
+may remain invisible to other cells until it finishes. Do not use cross-cell
+`load`/`store` mutations to coordinate shutdown or detect a running observer.
+The parser retains chunk tails, consumes initial output before yielding, then notifies
 queued events. Subsequent reads notify immediately; awaited work keeps the cell
 alive. Continue delegation after yielding. `notify` delivers at the coordinator's
 next boundary without model polling. Do not repeatedly `wait`, assign a watching
@@ -114,12 +100,14 @@ has been independently supplied and verified for the installed host.
 When the shared [observer lifecycle](ci-monitor.md#own-one-observer) calls
 for shutdown:
 
-- With handles, retain the session, mark saved status `stopped`, and send
-  Ctrl-C (`chars: '\u0003'`) through `tools.write_stdin` to that exact PTY;
-  plain pipes do not support this. The stream converts SIGINT/SIGTERM into a
-  mailbox stop and uses the shared finite terminal-result wait. Confirm process
-  exit, let the bridge finish, and reap its cell. Cell termination alone proves
-  no subprocess exit.
+- With the receipt directory from the plan note, run
+  `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop DIRECTORY`
+  from the verified checkout. Let the existing reader consume the stream's
+  terminal result, then reap its cell with one bounded wait. Do not issue a
+  second `write_stdin` while that reader owns the PTY: concurrent reads can
+  consume each other's terminal output and invalidate the process handle.
+  Confirm the stop receipt, terminal result, and process exit before marking
+  the plan note stopped. Cell termination alone proves no subprocess exit.
 - Without handles, recover the plan note. Match coordinator/checkout and validate
   the saved directory's `request.json` root, repository, branch, and execution
   mode. Run `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop DIRECTORY`

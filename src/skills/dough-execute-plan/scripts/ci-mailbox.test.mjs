@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict'
+import assert from "node:assert/strict";
 import {
   existsSync,
   mkdtempSync,
@@ -6,11 +6,11 @@ import {
   rmSync,
   symlinkSync,
   writeFileSync,
-} from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
-import { test } from 'node:test'
-import { setImmediate } from 'node:timers/promises'
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { test } from "node:test";
+import { setImmediate } from "node:timers/promises";
 import {
   checkoutRoot,
   createMailbox,
@@ -22,130 +22,131 @@ import {
   recordWorkerIdentity,
   requestMailboxStop,
   runMailboxWorker,
-} from './ci-mailbox.mjs'
-import { waitForTerminalResult } from './ci-mailbox-store.mjs'
+} from "./ci-mailbox.mjs";
+import { waitForTerminalResult } from "./ci-mailbox-store.mjs";
 
 function createTestMailbox(t, request = {}) {
-  const storage = mkdtempSync(join(tmpdir(), 'ci-mailbox-test-'))
-  t.after(() => rmSync(storage, { recursive: true, force: true }))
-  const options = { root: '/test/example', storage }
-  return { directory: createMailbox(request, options), options }
+  const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-test-"));
+  t.after(() => rmSync(storage, { recursive: true, force: true }));
+  const options = { root: "/test/example", storage };
+  return { directory: createMailbox(request, options), options };
 }
 
-test('a mailbox under a process TMPDIR is outside the shared observer directory', (t) => {
-  const nixTmp = mkdtempSync(join(tmpdir(), 'nix-shell-'))
-  t.after(() => rmSync(nixTmp, { recursive: true, force: true }))
+test("a mailbox under a process TMPDIR is outside the shared observer directory", (t) => {
+  const nixTmp = mkdtempSync(join(tmpdir(), "nix-shell-"));
+  t.after(() => rmSync(nixTmp, { recursive: true, force: true }));
   const directory = createMailbox(
     { probe: true },
-    { root: checkoutRoot, storage: nixTmp }
-  )
-  assert.notEqual(resolve(directory, '..'), resolve(mailboxRoot))
+    { root: checkoutRoot, storage: nixTmp },
+  );
+  assert.notEqual(resolve(directory, ".."), resolve(mailboxRoot));
   assert.throws(
     () => readMailbox(directory),
-    /CI mailbox is outside the observer directory/
-  )
-})
+    /CI mailbox is outside the observer directory/,
+  );
+});
 
-test('event evidence is appendable and independent of worker status', (t) => {
-  const { directory } = createTestMailbox(t)
-  const failure = { type: 'CI_FAILURE', runId: 42, attempt: 1 }
-  publishMailboxEvent(directory, failure)
-  publishMailboxEvent(directory, { type: 'CI_INCOMPLETE', runId: 43 })
+test("event evidence is appendable and independent of worker status", (t) => {
+  const { directory } = createTestMailbox(t);
+  const failure = { type: "CI_FAILURE", runId: 42, attempt: 1 };
+  publishMailboxEvent(directory, failure);
+  publishMailboxEvent(directory, { type: "CI_INCOMPLETE", runId: 43 });
   assert.deepEqual(readMailboxEvents(directory), [
     { sequence: 1, event: failure },
-    { sequence: 2, event: { type: 'CI_INCOMPLETE', runId: 43 } },
-  ])
-  assert.equal(existsSync(join(directory, 'result.json')), false)
-})
+    { sequence: 2, event: { type: "CI_INCOMPLETE", runId: 43 } },
+  ]);
+  assert.equal(existsSync(join(directory, "result.json")), false);
+});
 
-test('worker identity is retained as one cohesive mailbox record', (t) => {
-  const { directory } = createTestMailbox(t)
-  recordWorkerIdentity(directory, { pid: 42 })
-  assert.deepEqual(readWorkerIdentity(directory), { pid: 42 })
-})
+test("worker identity is retained as one cohesive mailbox record", (t) => {
+  const { directory } = createTestMailbox(t);
+  recordWorkerIdentity(directory, { pid: 42 });
+  assert.deepEqual(readWorkerIdentity(directory), { pid: 42 });
+});
 
-test('terminal result remains observable when its file notification is missed', async (t) => {
-  const { directory, options } = createTestMailbox(t)
-  const terminal = { status: 'stopped' }
-  const terminalRecord = join(options.storage, 'terminal-record.json')
-  symlinkSync(terminalRecord, join(directory, 'result.json'))
-  const lifecycleDeadline = new AbortController()
-  let received
+test("terminal result remains observable when its file notification is missed", async (t) => {
+  const { directory, options } = createTestMailbox(t);
+  const terminal = { status: "stopped" };
+  const terminalRecord = join(options.storage, "terminal-record.json");
+  symlinkSync(terminalRecord, join(directory, "result.json"));
+  const lifecycleDeadline = new AbortController();
+  let received;
   const waiting = waitForTerminalResult(directory, {
     deadline: lifecycleDeadline.signal,
   }).then((result) => {
-    received = result
-    return result
-  })
+    received = result;
+    return result;
+  });
 
-  writeFileSync(terminalRecord, JSON.stringify(terminal))
-  lifecycleDeadline.abort()
-  await setImmediate()
+  writeFileSync(terminalRecord, JSON.stringify(terminal));
+  lifecycleDeadline.abort();
+  await setImmediate();
 
   if (!received) {
-    writeFileSync(join(directory, 'notification-wakeup'), '')
-    await waiting
+    writeFileSync(join(directory, "notification-wakeup"), "");
+    await waiting;
     assert.fail(
-      'terminal wait did not consult result.json at the lifecycle deadline'
-    )
+      "terminal wait did not consult result.json at the lifecycle deadline",
+    );
   }
-  assert.deepEqual(received, terminal)
-})
+  assert.deepEqual(received, terminal);
+});
 
-test('stopping an active watcher records no failure event', async (t) => {
-  const { directory, options } = createTestMailbox(t, { mode: 'execution' })
-  let started
+test("stopping an active watcher records no failure event", async (t) => {
+  const { directory, options } = createTestMailbox(t, { mode: "execution" });
+  let started;
   const ready = new Promise((resolve) => {
-    started = resolve
-  })
+    started = resolve;
+  });
   const running = runMailboxWorker(directory, {
     ...options,
     observe: ({ signal }) =>
+      // eslint-disable-next-line no-unused-vars -- Promise rejection is the cancellation signal.
       new Promise((resolve, reject) => {
-        signal.addEventListener('abort', () => reject(signal.reason), {
+        signal.addEventListener("abort", () => reject(signal.reason), {
           once: true,
-        })
-        started()
+        });
+        started();
       }),
-  })
-  await ready
-  requestMailboxStop(directory, options)
-  await running
-  assert.deepEqual(JSON.parse(readFileSync(join(directory, 'result.json'))), {
-    status: 'stopped',
-    coverage: { state: 'ended', pendingCi: 'unobserved' },
+  });
+  await ready;
+  requestMailboxStop(directory, options);
+  await running;
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
+    status: "stopped",
+    coverage: { state: "ended", pendingCi: "unobserved" },
     evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
-  })
-  assert.deepEqual(readMailboxEvents(directory), [])
-})
+  });
+  assert.deepEqual(readMailboxEvents(directory), []);
+});
 
-test('a stop requested before worker startup does not start observation', async (t) => {
-  const { directory, options } = createTestMailbox(t, { mode: 'execution' })
-  requestMailboxStop(directory, options)
+test("a stop requested before worker startup does not start observation", async (t) => {
+  const { directory, options } = createTestMailbox(t, { mode: "execution" });
+  requestMailboxStop(directory, options);
   await runMailboxWorker(directory, {
     ...options,
-    observe: async () => assert.fail('observation should not start'),
-  })
-  assert.deepEqual(JSON.parse(readFileSync(join(directory, 'result.json'))), {
-    status: 'stopped',
-    coverage: { state: 'ended', pendingCi: 'unobserved' },
+    observe: async () => assert.fail("observation should not start"),
+  });
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
+    status: "stopped",
+    coverage: { state: "ended", pendingCi: "unobserved" },
     evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
-  })
-})
+  });
+});
 
-test('a worker error records monitoring unavailability', async (t) => {
-  const { directory, options } = createTestMailbox(t)
+test("a worker error records monitoring unavailability", async (t) => {
+  const { directory, options } = createTestMailbox(t);
   await runMailboxWorker(directory, {
     ...options,
     observe: async () => {
-      throw new Error('broken observer')
+      throw new Error("broken observer");
     },
-  })
-  assert.deepEqual(JSON.parse(readFileSync(join(directory, 'result.json'))), {
-    status: 'finished',
-  })
+  });
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
+    status: "finished",
+  });
   assert.equal(
     readMailboxEvents(directory)[0].event.type,
-    'CI_MONITOR_UNAVAILABLE'
-  )
-})
+    "CI_MONITOR_UNAVAILABLE",
+  );
+});

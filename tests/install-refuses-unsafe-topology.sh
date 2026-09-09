@@ -83,7 +83,7 @@ for platform in codex cursor claude; do
     [[ "${after_outside}" == "${before_outside}" ]]
   done
 
-  for managed_skill in dough-update dough-adr-awareness dough-product-backlog dough-story-decomposition dough-story-refinement dough-resplit-story dough-slice-planning dough-slice-plan-refinement; do
+  for managed_skill in dough-update dough-adr-awareness dough-product-backlog dough-story-decomposition dough-story-refinement dough-resplit-story dough-slice-planning dough-slice-plan-refinement dough-execute-plan dough-post-change-refactor; do
     for force_arg in '' --force; do
       target="${temporary_dir}/${platform}-${managed_skill}-${force_arg:-ordinary}-collision"
       skill_root=$(platform_skill_root "${target}" "${platform}")

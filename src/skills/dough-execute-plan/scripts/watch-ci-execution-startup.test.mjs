@@ -1,205 +1,205 @@
-import assert from 'node:assert/strict'
-import { test } from 'node:test'
-import { run, scriptedGithub } from './watch-ci-test-fixtures.mjs'
-import { watchCiExecution } from './watch-ci.mjs'
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { run, scriptedGithub } from "./watch-ci-test-fixtures.mjs";
+import { watchCiExecution } from "./watch-ci.mjs";
 
-test('startup reports only the newest completed run and retained attempts', async () => {
-  const controller = new AbortController()
-  const calls = []
-  const events = []
+test("startup reports only the newest completed run and retained attempts", async () => {
+  const controller = new AbortController();
+  const calls = [];
+  const events = [];
   const responses = [
     [
       run({
         databaseId: 31,
         attempt: 2,
-        createdAt: '2026-09-05T10:00:00Z',
-        conclusion: 'failure',
+        createdAt: "2026-09-05T10:00:00Z",
+        conclusion: "failure",
       }),
       run({
         databaseId: 30,
-        createdAt: '2026-09-05T08:00:00Z',
-        conclusion: 'failure',
+        createdAt: "2026-09-05T08:00:00Z",
+        conclusion: "failure",
       }),
       run({
         databaseId: 32,
         attempt: 2,
-        createdAt: '2026-09-05T09:00:00Z',
-        status: 'in_progress',
+        createdAt: "2026-09-05T09:00:00Z",
+        status: "in_progress",
         conclusion: null,
       }),
     ],
-    { status: 'completed', conclusion: 'timed_out' },
-    { status: 'completed', conclusion: 'failure' },
-    { jobs: [{ name: 'Newest baseline', conclusion: 'failure' }] },
+    { status: "completed", conclusion: "timed_out" },
+    { status: "completed", conclusion: "failure" },
+    { jobs: [{ name: "Newest baseline", conclusion: "failure" }] },
     [
       run({
         databaseId: 30,
-        createdAt: '2026-09-05T08:00:00Z',
-        conclusion: 'failure',
+        createdAt: "2026-09-05T08:00:00Z",
+        conclusion: "failure",
       }),
       run({
         databaseId: 32,
         attempt: 2,
-        createdAt: '2026-09-05T09:00:00Z',
-        status: 'in_progress',
+        createdAt: "2026-09-05T09:00:00Z",
+        status: "in_progress",
         conclusion: null,
       }),
     ],
-  ]
-  let sleeps = 0
+  ];
+  let sleeps = 0;
 
   await watchCiExecution({
-    repo: 'example/example',
-    branch: 'main',
+    repo: "example/example",
+    branch: "main",
     signal: controller.signal,
-    now: () => Date.parse('2026-09-05T12:00:00Z'),
+    now: () => Date.parse("2026-09-05T12:00:00Z"),
     emit: (event) => events.push(event),
     sleep: async () => {
-      sleeps += 1
-      if (sleeps === 2) controller.abort()
+      sleeps += 1;
+      if (sleeps === 2) controller.abort();
     },
     gh: scriptedGithub(responses, calls),
-  })
+  });
 
   assert.deepEqual(events, [
     {
-      type: 'CI_FAILURE',
-      repo: 'example/example',
-      sha: 'a'.repeat(40),
-      branch: 'main',
-      workflow: 'ci.yml',
+      type: "CI_FAILURE",
+      repo: "example/example",
+      sha: "a".repeat(40),
+      branch: "main",
+      workflow: "ci.yml",
       runId: 31,
       attempt: 2,
-      conclusion: 'failure',
-      url: 'https://github.com/example/example/actions/runs/42',
+      conclusion: "failure",
+      url: "https://github.com/example/example/actions/runs/42",
       relatedFailures: [
         {
           runId: 31,
           attempt: 1,
-          conclusion: 'timed_out',
-          url: 'https://github.com/example/example/actions/runs/42',
+          conclusion: "timed_out",
+          url: "https://github.com/example/example/actions/runs/42",
         },
         {
           runId: 32,
           attempt: 1,
-          conclusion: 'failure',
-          url: 'https://github.com/example/example/actions/runs/42',
+          conclusion: "failure",
+          url: "https://github.com/example/example/actions/runs/42",
         },
       ],
-      failedJobs: [{ name: 'Newest baseline', conclusion: 'failure' }],
+      failedJobs: [{ name: "Newest baseline", conclusion: "failure" }],
     },
-  ])
+  ]);
   assert.equal(
-    calls.some((args) => args.includes('30')),
-    false
-  )
-  assert.equal(responses.length, 0)
-})
+    calls.some((args) => args.includes("30")),
+    false,
+  );
+  assert.equal(responses.length, 0);
+});
 
-test('startup keeps a run that completes while its snapshot is pending', async () => {
-  const controller = new AbortController()
-  const events = []
-  let releaseSnapshot
+test("startup keeps a run that completes while its snapshot is pending", async () => {
+  const controller = new AbortController();
+  const events = [];
+  let releaseSnapshot;
   const snapshot = new Promise((resolve) => {
-    releaseSnapshot = resolve
-  })
-  let listCalls = 0
+    releaseSnapshot = resolve;
+  });
+  let listCalls = 0;
 
   const observation = watchCiExecution({
-    repo: 'example/example',
-    branch: 'main',
+    repo: "example/example",
+    branch: "main",
     signal: controller.signal,
-    now: () => Date.parse('2026-09-05T12:00:00Z'),
+    now: () => Date.parse("2026-09-05T12:00:00Z"),
     emit: (event) => events.push(event),
     sleep: async () => {
-      if (events.length) controller.abort()
+      if (events.length) controller.abort();
     },
     gh: async (args) => {
-      if (args[1] === 'list') {
-        listCalls += 1
-        return listCalls === 1 ? snapshot : []
+      if (args[1] === "list") {
+        listCalls += 1;
+        return listCalls === 1 ? snapshot : [];
       }
-      if (args.includes('--attempt')) {
-        return { jobs: [{ name: 'Racing run', conclusion: 'failure' }] }
+      if (args.includes("--attempt")) {
+        return { jobs: [{ name: "Racing run", conclusion: "failure" }] };
       }
-      return { status: 'completed', conclusion: 'failure' }
+      return { status: "completed", conclusion: "failure" };
     },
-  })
+  });
 
-  await Promise.resolve()
-  assert.deepEqual(events, [])
+  await Promise.resolve();
+  assert.deepEqual(events, []);
   releaseSnapshot([
     run({
       databaseId: 41,
-      createdAt: '2026-09-05T11:59:00Z',
-      status: 'in_progress',
+      createdAt: "2026-09-05T11:59:00Z",
+      status: "in_progress",
       conclusion: null,
     }),
-  ])
-  await observation
+  ]);
+  await observation;
 
   assert.deepEqual(
     events.map(({ runId, conclusion }) => ({ runId, conclusion })),
-    [{ runId: 41, conclusion: null }]
-  )
-})
+    [{ runId: 41, conclusion: null }],
+  );
+});
 
-test('empty startup history is quiet', async () => {
-  const controller = new AbortController()
-  const events = []
+test("empty startup history is quiet", async () => {
+  const controller = new AbortController();
+  const events = [];
 
   await watchCiExecution({
-    repo: 'example/example',
-    branch: 'main',
+    repo: "example/example",
+    branch: "main",
     signal: controller.signal,
     emit: (event) => events.push(event),
     sleep: async () => controller.abort(),
     gh: async () => [],
-  })
+  });
 
-  assert.deepEqual(events, [])
-})
+  assert.deepEqual(events, []);
+});
 
-test('observes a run created after an empty snapshot in the startup second', async () => {
-  const controller = new AbortController()
-  const events = []
-  let listPoll = 0
-  let jobInspections = 0
+test("observes a run created after an empty snapshot in the startup second", async () => {
+  const controller = new AbortController();
+  const events = [];
+  let listPoll = 0;
+  let jobInspections = 0;
 
   await watchCiExecution({
-    repo: 'example/example',
-    branch: 'main',
+    repo: "example/example",
+    branch: "main",
     signal: controller.signal,
-    now: () => Date.parse('2026-09-05T12:00:00.900Z'),
+    now: () => Date.parse("2026-09-05T12:00:00.900Z"),
     emit: (event) => events.push(event),
     sleep: async () => {
-      if (listPoll === 3) controller.abort()
+      if (listPoll === 3) controller.abort();
     },
     gh: async (args) => {
-      if (args[1] === 'list') {
-        listPoll += 1
-        if (listPoll === 1) return []
+      if (args[1] === "list") {
+        listPoll += 1;
+        if (listPoll === 1) return [];
         return [
           run({
             databaseId: 42,
-            createdAt: '2026-09-05T12:00:00Z',
-            conclusion: 'failure',
+            createdAt: "2026-09-05T12:00:00Z",
+            conclusion: "failure",
           }),
-        ]
+        ];
       }
-      jobInspections += 1
-      return { jobs: [{ name: 'Backend', conclusion: 'failure' }] }
+      jobInspections += 1;
+      return { jobs: [{ name: "Backend", conclusion: "failure" }] };
     },
-  })
+  });
 
   assert.deepEqual(
     events.map(({ runId, failedJobs }) => ({ runId, failedJobs })),
     [
       {
         runId: 42,
-        failedJobs: [{ name: 'Backend', conclusion: 'failure' }],
+        failedJobs: [{ name: "Backend", conclusion: "failure" }],
       },
-    ]
-  )
-  assert.equal(jobInspections, 1)
-})
+    ],
+  );
+  assert.equal(jobInspections, 1);
+});

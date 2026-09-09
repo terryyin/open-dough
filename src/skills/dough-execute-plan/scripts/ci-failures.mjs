@@ -1,24 +1,24 @@
-import { ciWorkflowFile } from './ci-runs.mjs'
+import { ciWorkflowFile } from "./ci-runs.mjs";
 
-export const ciAttemptKey = (runId, attempt) => `${runId}:${attempt}`
+export const ciAttemptKey = (runId, attempt) => `${runId}:${attempt}`;
 
 const ciRunFallbackKey = (runId, attempt) =>
-  `${ciAttemptKey(runId, attempt)}:run`
+  `${ciAttemptKey(runId, attempt)}:run`;
 
 const ciJobKey = (runId, attempt, job) =>
-  `${ciAttemptKey(runId, attempt)}:job:${job.jobId ?? job.name}`
+  `${ciAttemptKey(runId, attempt)}:job:${job.jobId ?? job.name}`;
 
 export function reportedFailureEvidence(event) {
-  const evidence = []
+  const evidence = [];
   for (const failure of [event, ...(event.relatedFailures ?? [])]) {
     if (failure.failedJobs?.length) {
       for (const job of failure.failedJobs)
-        evidence.push(ciJobKey(failure.runId, failure.attempt, job))
+        evidence.push(ciJobKey(failure.runId, failure.attempt, job));
     } else {
-      evidence.push(ciRunFallbackKey(failure.runId, failure.attempt))
+      evidence.push(ciRunFallbackKey(failure.runId, failure.attempt));
     }
   }
-  return evidence
+  return evidence;
 }
 
 export async function inspectRunsForFailure({
@@ -30,76 +30,76 @@ export async function inspectRunsForFailure({
   reportedFailures = new Set(),
   completedAttempts = new Set(),
 }) {
-  const attempts = [...runs]
-  let historyError
-  let observationError
+  const attempts = [...runs];
+  let historyError;
+  let observationError;
   history: for (const run of runs) {
     for (let attempt = 1; attempt < run.attempt; attempt += 1) {
-      const key = ciAttemptKey(run.databaseId, attempt)
+      const key = ciAttemptKey(run.databaseId, attempt);
       if (!priorAttempts.has(key)) {
         try {
           const prior = await gh(
             [
-              'run',
-              'view',
+              "run",
+              "view",
               String(run.databaseId),
-              '--repo',
+              "--repo",
               repo,
-              '--attempt',
+              "--attempt",
               String(attempt),
-              '--json',
-              'status,conclusion',
+              "--json",
+              "status,conclusion",
             ],
-            signal
-          )
-          priorAttempts.set(key, { ...run, ...prior, attempt })
+            signal,
+          );
+          priorAttempts.set(key, { ...run, ...prior, attempt });
         } catch (error) {
-          historyError = `Could not inspect earlier CI attempts: ${String(error.message).slice(0, 600)}`
-          observationError = historyError
-          break history
+          historyError = `Could not inspect earlier CI attempts: ${String(error.message).slice(0, 600)}`;
+          observationError = historyError;
+          break history;
         }
       }
-      attempts.push(priorAttempts.get(key))
+      attempts.push(priorAttempts.get(key));
     }
   }
   const failures = attempts.filter(
     (run) =>
-      run.status === 'completed' &&
+      run.status === "completed" &&
       [
-        'failure',
-        'timed_out',
-        'startup_failure',
-        'action_required',
-        'stale',
+        "failure",
+        "timed_out",
+        "startup_failure",
+        "action_required",
+        "stale",
       ].includes(run.conclusion) &&
-      !completedAttempts.has(ciAttemptKey(run.databaseId, run.attempt))
-  )
+      !completedAttempts.has(ciAttemptKey(run.databaseId, run.attempt)),
+  );
   for (const [index, failed] of failures.entries()) {
-    let jobs
+    let jobs;
     try {
-      ;({ jobs } = await gh(
+      ({ jobs } = await gh(
         [
-          'run',
-          'view',
+          "run",
+          "view",
           String(failed.databaseId),
-          '--repo',
+          "--repo",
           repo,
-          '--attempt',
+          "--attempt",
           String(failed.attempt),
-          '--json',
-          'jobs',
+          "--json",
+          "jobs",
         ],
-        signal
-      ))
-      completedAttempts.add(ciAttemptKey(failed.databaseId, failed.attempt))
+        signal,
+      ));
+      completedAttempts.add(ciAttemptKey(failed.databaseId, failed.attempt));
     } catch (error) {
-      observationError = `Could not inspect CI jobs: ${String(error.message).slice(0, 600)}`
+      observationError = `Could not inspect CI jobs: ${String(error.message).slice(0, 600)}`;
       if (
         reportedFailures.has(
-          ciRunFallbackKey(failed.databaseId, failed.attempt)
+          ciRunFallbackKey(failed.databaseId, failed.attempt),
         )
       )
-        continue
+        continue;
       return {
         event: failureEvent({
           repo,
@@ -108,69 +108,73 @@ export async function inspectRunsForFailure({
           historyUnavailable: historyError,
         }),
         observationError,
-      }
+      };
     }
-    const failedJobs = jobs.filter(isFailedJob).map(failedJobEvidence)
+    const failedJobs = jobs.filter(isFailedJob).map(failedJobEvidence);
     const newFailedJobs = failedJobs.filter(
       (job) =>
-        !reportedFailures.has(ciJobKey(failed.databaseId, failed.attempt, job))
-    )
-    if (!newFailedJobs.length && failedJobs.length) continue
+        !reportedFailures.has(ciJobKey(failed.databaseId, failed.attempt, job)),
+    );
+    if (!newFailedJobs.length && failedJobs.length) continue;
     if (
       !newFailedJobs.length &&
       reportedFailures.has(ciRunFallbackKey(failed.databaseId, failed.attempt))
     )
-      continue
+      continue;
 
-    const event = failureEvent({ repo, run: failed, failedJobs: newFailedJobs })
-    if (historyError) event.historyUnavailable = historyError
+    const event = failureEvent({
+      repo,
+      run: failed,
+      failedJobs: newFailedJobs,
+    });
+    if (historyError) event.historyUnavailable = historyError;
     const relatedFailures = failures
       .slice(index + 1)
       .filter(
         (run) =>
-          !reportedFailures.has(ciRunFallbackKey(run.databaseId, run.attempt))
-      )
+          !reportedFailures.has(ciRunFallbackKey(run.databaseId, run.attempt)),
+      );
     if (relatedFailures.length) {
       event.relatedFailures = relatedFailures.map((run) => ({
         runId: run.databaseId,
         attempt: run.attempt,
         conclusion: run.conclusion,
         url: run.url,
-      }))
+      }));
     }
-    return { event, observationError }
+    return { event, observationError };
   }
 
   for (const run of attempts.filter(
-    (attempt) => attempt.status !== 'completed'
+    (attempt) => attempt.status !== "completed",
   )) {
-    let jobs
+    let jobs;
     try {
-      ;({ jobs } = await gh(
+      ({ jobs } = await gh(
         [
-          'run',
-          'view',
+          "run",
+          "view",
           String(run.databaseId),
-          '--repo',
+          "--repo",
           repo,
-          '--attempt',
+          "--attempt",
           String(run.attempt),
-          '--json',
-          'jobs',
+          "--json",
+          "jobs",
         ],
-        signal
-      ))
+        signal,
+      ));
     } catch (error) {
-      observationError ??= `Could not inspect CI jobs: ${String(error.message).slice(0, 600)}`
-      continue
+      observationError ??= `Could not inspect CI jobs: ${String(error.message).slice(0, 600)}`;
+      continue;
     }
     const failedJobs = jobs
       .filter(isFailedJob)
       .map(failedJobEvidence)
       .filter(
         (job) =>
-          !reportedFailures.has(ciJobKey(run.databaseId, run.attempt, job))
-      )
+          !reportedFailures.has(ciJobKey(run.databaseId, run.attempt, job)),
+      );
     if (failedJobs.length) {
       return {
         event: failureEvent({
@@ -179,11 +183,11 @@ export async function inspectRunsForFailure({
           failedJobs,
           historyUnavailable: historyError,
         }),
-      }
+      };
     }
   }
 
-  return { historyError, observationError }
+  return { historyError, observationError };
 }
 
 function failureEvent({
@@ -194,7 +198,7 @@ function failureEvent({
   historyUnavailable,
 }) {
   const event = {
-    type: 'CI_FAILURE',
+    type: "CI_FAILURE",
     repo,
     sha: run.headSha,
     branch: run.headBranch,
@@ -203,18 +207,18 @@ function failureEvent({
     attempt: run.attempt,
     conclusion: run.conclusion,
     url: run.url,
-  }
-  if (failedJobs) event.failedJobs = failedJobs
-  if (detailsUnavailable) event.detailsUnavailable = true
-  if (historyUnavailable) event.historyUnavailable = historyUnavailable
-  return event
+  };
+  if (failedJobs) event.failedJobs = failedJobs;
+  if (detailsUnavailable) event.detailsUnavailable = true;
+  if (historyUnavailable) event.historyUnavailable = historyUnavailable;
+  return event;
 }
 
 function isFailedJob(job) {
   return (
     job.conclusion &&
-    !['success', 'skipped', 'neutral', 'cancelled'].includes(job.conclusion)
-  )
+    !["success", "skipped", "neutral", "cancelled"].includes(job.conclusion)
+  );
 }
 
 function failedJobEvidence(job) {
@@ -222,5 +226,5 @@ function failedJobEvidence(job) {
     ...(job.databaseId === undefined ? {} : { jobId: job.databaseId }),
     name: job.name,
     conclusion: job.conclusion,
-  }
+  };
 }

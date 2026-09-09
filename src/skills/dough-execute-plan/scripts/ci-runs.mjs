@@ -1,18 +1,18 @@
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 
-const execFileAsync = promisify(execFile)
-export const ciWorkflowFile = process.env.DOUGH_CI_WORKFLOW ?? 'ci.yml'
-const workflowName = process.env.DOUGH_CI_WORKFLOW_NAME ?? 'CI'
+const execFileAsync = promisify(execFile);
+export const ciWorkflowFile = process.env.DOUGH_CI_WORKFLOW ?? "ci.yml";
+const workflowName = process.env.DOUGH_CI_WORKFLOW_NAME ?? "CI";
 
 export async function readGitHubActions(args, signal) {
-  const { stdout } = await execFileAsync('gh', args, {
+  const { stdout } = await execFileAsync("gh", args, {
     timeout: 20_000,
     signal,
     maxBuffer: 1024 * 1024,
-    env: { ...process.env, GH_PROMPT_DISABLED: '1' },
-  })
-  return JSON.parse(stdout)
+    env: { ...process.env, GH_PROMPT_DISABLED: "1" },
+  });
+  return JSON.parse(stdout);
 }
 
 export function matchingCiRuns(runs, { branch, sha }) {
@@ -21,26 +21,26 @@ export function matchingCiRuns(runs, { branch, sha }) {
       (!sha || run.headSha === sha) &&
       run.headBranch === branch &&
       run.workflowName === workflowName &&
-      run.event === 'push'
-  )
+      run.event === "push",
+  );
 }
 
 const runFields =
-  'databaseId,attempt,headSha,headBranch,workflowName,event,status,conclusion,url'
+  "databaseId,attempt,headSha,headBranch,workflowName,event,status,conclusion,url";
 
 export function startupCiRuns(runs) {
   const completedWithCreationTime = runs.filter(
     (run) =>
-      run.status === 'completed' && Number.isFinite(Date.parse(run.createdAt))
-  )
-  if (!completedWithCreationTime.length) return runs
+      run.status === "completed" && Number.isFinite(Date.parse(run.createdAt)),
+  );
+  if (!completedWithCreationTime.length) return runs;
 
   const newestCompleted = completedWithCreationTime.reduce((newest, run) =>
-    Date.parse(run.createdAt) > Date.parse(newest.createdAt) ? run : newest
-  )
+    Date.parse(run.createdAt) > Date.parse(newest.createdAt) ? run : newest,
+  );
   return runs.filter(
-    (run) => run.status !== 'completed' || run === newestCompleted
-  )
+    (run) => run.status !== "completed" || run === newestCompleted,
+  );
 }
 
 export function listRunsArguments({
@@ -52,36 +52,36 @@ export function listRunsArguments({
   includeCreatedAt = false,
 }) {
   const args = [
-    'run',
-    'list',
-    '--repo',
+    "run",
+    "list",
+    "--repo",
     repo,
-    '--workflow',
+    "--workflow",
     ciWorkflowFile,
-    '--branch',
+    "--branch",
     branch,
-  ]
-  if (sha) args.push('--commit', sha)
-  if (created) args.push('--created', created)
+  ];
+  if (sha) args.push("--commit", sha);
+  if (created) args.push("--created", created);
   return [
     ...args,
-    '--event',
-    'push',
-    '--limit',
+    "--event",
+    "push",
+    "--limit",
     String(limit),
-    '--json',
+    "--json",
     includeCreatedAt ? `${runFields},createdAt` : runFields,
-  ]
+  ];
 }
 
 export function viewRunArguments({ repo, runId }) {
   return [
-    'run',
-    'view',
+    "run",
+    "view",
     String(runId),
-    '--repo',
+    "--repo",
     repo,
-    '--json',
-    'attempt,status,conclusion,url',
-  ]
+    "--json",
+    "attempt,status,conclusion,url",
+  ];
 }

@@ -138,8 +138,9 @@ Manual instruction walkthroughs, not native agent acceptance:
    `REFACTOR JIDOKA STOP`; make no cross-boundary edit and do not commit.
 
 Invocation context, required context, and useful outcomes are covered in these
-walkthroughs. Repeat/assess against the selected client at promotion; native
-notification delivery remains pending, separate from instruction review.
+walkthroughs. Native notification delivery was pending at extraction; the
+[execution acceptance review](../../../.planning/quick/027-execution-native-acceptance/README.md)
+records the subsequent native cases and adapter corrections.
 
 ## Automated validation
 
@@ -213,7 +214,7 @@ plan for one selected story and works through its slices. GSD names identify
 external tools only. Runtime entrypoints no longer repeat success checklists,
 XML workflow labels, refactor testing instructions in delegation, or the full
 CI repair sequence in each adapter. The existing stop and completion markers
-remain protocol strings. All references remain part of the future runtime
+remain protocol strings. All references remain part of the selected runtime
 inventory, including the new execution-decisions reference.
 
 Manual behavior review against the revised instructions confirmed:
@@ -240,3 +241,18 @@ unchanged from the previously validated extraction, so its 63-test serial result
 is reused for runtime behavior; the full process suite was not rerun for prose
 changes. That reuse does not establish native agent acceptance of the revised
 instructions. The earlier concurrent timeout remains recorded above.
+
+## Promotion acceptance
+
+The execution acceptance review records actual installed skill use on Codex,
+Cursor, and Claude Code, including failure notification and shutdown, a complete
+local delivery, refactor edits with focused proof, no-edit refactoring, and a
+human-owned subsystem stop. Native Codex testing replaced cross-cell mutable
+state and simultaneous terminal reads with an exposed receipt, plan-owned live
+identity, and mailbox-based stop. Runtime scripts retain their original
+observation behavior; source formatting now satisfies repository lint.
+
+Both skill entrypoints, all required references, nine production scripts, and
+two host fragments are declared together in the client payload. Tests and
+maintainer records remain in this repository. The maintainer confirmed that v0.3.3 contains these two execution skills
+and authorized release after native acceptance.

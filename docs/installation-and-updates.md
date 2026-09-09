@@ -15,12 +15,40 @@ The payload in each root is exactly:
 - `dough-resplit-story/SKILL.md`
 - `dough-slice-planning/SKILL.md`
 - `dough-slice-plan-refinement/SKILL.md`
+- `dough-execute-plan/SKILL.md`
+- `dough-execute-plan/assets/claude-hooks.json`
+- `dough-execute-plan/assets/cursor-hooks.json`
+- `dough-execute-plan/references/ci-monitor.md`
+- `dough-execute-plan/references/ci-notify-codex.md`
+- `dough-execute-plan/references/ci-notify-hosts.md`
+- `dough-execute-plan/references/delegation.md`
+- `dough-execute-plan/references/destructive-later-outcome-check.md`
+- `dough-execute-plan/references/disposable-research.md`
+- `dough-execute-plan/references/execution-decisions.md`
+- `dough-execute-plan/references/runtime-setup.md`
+- `dough-execute-plan/references/wrap-up.md`
+- `dough-execute-plan/scripts/ci-failures.mjs`
+- `dough-execute-plan/scripts/ci-host-hook.mjs`
+- `dough-execute-plan/scripts/ci-mailbox-store.mjs`
+- `dough-execute-plan/scripts/ci-mailbox-worker-process.mjs`
+- `dough-execute-plan/scripts/ci-mailbox.mjs`
+- `dough-execute-plan/scripts/ci-observer-stream.mjs`
+- `dough-execute-plan/scripts/ci-runs.mjs`
+- `dough-execute-plan/scripts/watch-ci-execution.mjs`
+- `dough-execute-plan/scripts/watch-ci.mjs`
+- `dough-post-change-refactor/SKILL.md`
+- `dough-post-change-refactor/references/refactor-checks.md`
 
-The source files live under `src/skills/`. Recognition records are source-only
-maintainer material and are not installed. Installation preserves
+The source files live under `src/skills/`. Recognition records, extraction reviews, source checksums, and test fixtures
+are source-only maintenance material and are not installed. Installation preserves
 unrelated project files, home-level guidance, and any other tool's separate
 installation. During this interim release boundary, an obsolete recognition
 file from an earlier installation may remain until a later update retires it.
+
+Execution skills include hook fragments without overwriting host settings.
+Before using asynchronous CI observation, follow the installed
+`dough-execute-plan/references/runtime-setup.md` to select the client workflow
+and register the appropriate host hooks through its authorized settings workflow.
 
 ## Common installation flow
 
@@ -83,6 +111,10 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-resplit-story/SKILL.md`
    - `src/skills/dough-slice-planning/SKILL.md`
    - `src/skills/dough-slice-plan-refinement/SKILL.md`
+   - `src/skills/dough-execute-plan/SKILL.md`
+   - `src/skills/dough-post-change-refactor/SKILL.md`
+   - Every supporting reference, script, and hook fragment in the payload
+     enumeration above, resolved under `src/skills/`.
 
    Check that this executable call chain writes only the declared client
    payload files and their `SOURCE` then `VERSION` records under both captured

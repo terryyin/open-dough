@@ -1,12 +1,12 @@
-import assert from 'node:assert/strict'
-import { execFile } from 'node:child_process'
-import { test } from 'node:test'
-import { promisify } from 'node:util'
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { test } from "node:test";
+import { promisify } from "node:util";
 
-const exec = promisify(execFile)
-const observer = new URL('./watch-ci-execution.mjs', import.meta.url).href
+const exec = promisify(execFile);
+const observer = new URL("./watch-ci-execution.mjs", import.meta.url).href;
 
-test('client workflow and non-main branch select failures and exclude deployment', async () => {
+test("client workflow and non-main branch select failures and exclude deployment", async () => {
   const program = `
     import { watchCiExecution } from ${JSON.stringify(observer)};
     const controller = new AbortController();
@@ -27,15 +27,24 @@ test('client workflow and non-main branch select failures and exclude deployment
       }
     });
     console.log(JSON.stringify({ calls, events }));
-  `
-  const { stdout } = await exec(process.execPath, ['--input-type=module', '-e', program], {
-    env: { ...process.env, DOUGH_CI_WORKFLOW: 'checks.yaml', DOUGH_CI_WORKFLOW_NAME: 'Client checks' },
-    timeout: 5000,
-  })
-  const { calls, events } = JSON.parse(stdout)
-  assert.equal(calls[0][calls[0].indexOf('--workflow') + 1], 'checks.yaml')
-  assert.equal(calls[0][calls[0].indexOf('--branch') + 1], 'release/next')
-  assert.deepEqual(events.map(({ runId, workflow, branch }) => ({ runId, workflow, branch })), [
-    { runId: 1, workflow: 'checks.yaml', branch: 'release/next' },
-  ])
-})
+  `;
+  const { stdout } = await exec(
+    process.execPath,
+    ["--input-type=module", "-e", program],
+    {
+      env: {
+        ...process.env,
+        DOUGH_CI_WORKFLOW: "checks.yaml",
+        DOUGH_CI_WORKFLOW_NAME: "Client checks",
+      },
+      timeout: 5000,
+    },
+  );
+  const { calls, events } = JSON.parse(stdout);
+  assert.equal(calls[0][calls[0].indexOf("--workflow") + 1], "checks.yaml");
+  assert.equal(calls[0][calls[0].indexOf("--branch") + 1], "release/next");
+  assert.deepEqual(
+    events.map(({ runId, workflow, branch }) => ({ runId, workflow, branch })),
+    [{ runId: 1, workflow: "checks.yaml", branch: "release/next" }],
+  );
+});

@@ -1,0 +1,1 @@
+{"sequence":1,"event":{"type":"CI_FAILURE","repo":"fixture/example","sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","branch":"main","workflow":"ci.yml","runId":42,"attempt":1,"conclusion":null,"url":"https://github.com/fixture/example/actions/runs/42","failedJobs":[{"jobId":101,"name":"acceptance-c94110c543d7d58d","conclusion":"failure"}]}}
