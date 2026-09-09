@@ -208,17 +208,21 @@ apply_release() {
   fi
 
   work_root=$(mktemp -d)
-  trap 'rm -rf -- '"${work_root}" EXIT
+  trap '[[ -n "${work_root:-}" ]] && rm -rf -- "${work_root}"' EXIT
   if [[ -n "${checkout}" ]]; then
     work=${checkout}
     if ! resolved=$(require_pinned_checkout "${work}" "${url}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
+      rm -rf -- "${work_root}"
+      work_root=
       return 1
     fi
   else
     work="${work_root}/release"
     if ! resolved=$(fetch_release "${url}" "${work}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
+      rm -rf -- "${work_root}"
+      work_root=
       return 1
     fi
   fi
@@ -236,6 +240,8 @@ EOF
     run_installer "${work}" "${target}" "${platform}" 1 "${url}"
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code by explicit force.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
+    rm -rf -- "${work_root}"
+    work_root=
     return 0
   fi
 
@@ -247,16 +253,22 @@ EOF
     printf 'Installed: unknown\n'
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
+    rm -rf -- "${work_root}"
+    work_root=
     return 0
   fi
 
   if [[ ! -d "${dest}" ]]; then
     report_unverifiable_installation "${dest}"
+    rm -rf -- "${work_root}"
+    work_root=
     return 1
   fi
 
   if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}"; then
     report_unverifiable_installation "${dest}"
+    rm -rf -- "${work_root}"
+    work_root=
     return 1
   fi
 
@@ -272,10 +284,15 @@ EOF
   done < <(all_destinations_for "${target}")
   if [[ ${needs_replacement} -eq 0 ]]; then
     finish_equal_version_host_hooks "${work}" "${target}" "${dest}"
-    return
+    equal_status=$?
+    rm -rf -- "${work_root}"
+    work_root=
+    return "${equal_status}"
   fi
   trace_line "apply-reconcile ${dest}"
   run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
   printf 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to %s.\n' "${version}"
   printf 'Start fresh sessions before invoking dough-update again.\n'
+  rm -rf -- "${work_root}"
+  work_root=
 }

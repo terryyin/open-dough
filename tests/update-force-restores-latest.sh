@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "UF-TRACE start" >&2
-trap 'echo "UF-TRACE exit status=$? at line $LINENO" >&2' ERR
-
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/public-payload-fixture.bash
@@ -12,7 +9,7 @@ source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 
 temporary_dir=$(mktemp -d)
-trap 'ec=$?; echo "UF-TRACE cleanup exit=$ec" >&2; rm -rf -- "${temporary_dir}"; exit "$ec"' EXIT
+trap 'rm -rf -- "${temporary_dir}"' EXIT
 cd -- "${temporary_dir}"
 
 helper="${source_dir}/src/install/open-dough-release.sh"
@@ -38,13 +35,8 @@ prepare_recorded_latest() {
   prepare_target "${target}"
   git -C "${target}" init --quiet
   git -C "${target}" remote add origin "${decoy}"
-  echo "UF-TRACE prepare ${target}" >&2
-  if ! bash "${helper}" apply --url "${fixture}" --target "${target}" --platform cursor \
-    > "${temporary_dir}/prepare.stdout"; then
-    echo "FAIL: prepare_recorded_latest apply failed for ${target}" >&2
-    cat "${temporary_dir}/prepare.stdout" >&2 || true
-    return 1
-  fi
+  bash "${helper}" apply --url "${fixture}" --target "${target}" --platform cursor \
+    > /dev/null
 }
 
 assert_complete_latest() {
@@ -121,7 +113,6 @@ assert_force_success() {
 }
 
 edited_target="${temporary_dir}/edited project"
-echo "UF-TRACE case edited" >&2
 prepare_recorded_latest "${edited_target}"
 edited_dest="${edited_target}/.agents/skills/dough-update"
 edited_root=$(dirname -- "${edited_dest}")
@@ -130,9 +121,7 @@ printf '%s\n' 'obsolete recognition' > \
   "${edited_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep this updater-side file.' > "${edited_dest}/LOCAL.md"
 edited_tmp="${temporary_dir}/edited-tmp"
-echo "UF-TRACE force edited" >&2
 output=$(run_force_apply "${edited_target}" "${edited_tmp}")
-echo "UF-TRACE forced edited bytes=${#output}" >&2
 assert_force_success "${output}" "${edited_dest}" "${edited_target}" \
   "${edited_tmp}" "${expected_source}"
 contents=$(cat "${edited_dest}/LOCAL.md")
@@ -160,7 +149,12 @@ equal_tmp="${temporary_dir}/equal-tmp"
 output=$(run_force_apply "${equal_target}" "${equal_tmp}")
 assert_force_success "${output}" "${equal_dest}" "${equal_target}" \
   "${equal_tmp}" "${expected_source}"
-[[ "${output}" != *'already current'* ]]
+# Force must reinstall managed roots; do not confuse hook "already current" text.
+if [[ "${output}" == *': already current; left unwritten.'* ]]; then
+  echo 'FAIL: equal-version force must not skip managed roots as already current.' >&2
+  printf '%s\n' "${output}" >&2
+  exit 1
+fi
 
 newer_target="${temporary_dir}/newer project"
 prepare_recorded_latest "${newer_target}"
@@ -170,7 +164,11 @@ newer_tmp="${temporary_dir}/newer-tmp"
 output=$(run_force_apply "${newer_target}" "${newer_tmp}")
 assert_force_success "${output}" "${newer_dest}" "${newer_target}" \
   "${newer_tmp}" "${expected_source}"
-[[ "${output}" != *'no downgrade'* ]]
+if [[ "${output}" == *'no downgrade'* ]]; then
+  echo 'FAIL: force must not refuse newer installs as a downgrade.' >&2
+  printf '%s\n' "${output}" >&2
+  exit 1
+fi
 
 supplied_target="${temporary_dir}/supplied project"
 prepare_recorded_latest "${supplied_target}"
