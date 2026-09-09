@@ -1,0 +1,1 @@
+CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-fqD57E","terminal":{"status":"stopped","coverage":{"state":"ended","pendingCi":"unobserved"},"evidence":{"recordedThrough":1,"deliveredThrough":1,"unread":0}}}

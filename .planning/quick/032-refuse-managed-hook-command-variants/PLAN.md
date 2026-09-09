@@ -282,7 +282,7 @@ first push made after the plan's CI-observer setup was actually established
 
 ### 3. Verify and tune Claude Code's native CI watch
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the candidate's installer/update-created hooks in a fresh Claude
 Code session, the owning coordinator receives a controlled CI failure through
@@ -321,6 +321,31 @@ and rerun affected native proof; do not patch installed copies as final evidence
 Save transcripts, candidate identity, snapshots, mailbox results, and fixes under
 `evidence/claude-ci-watch/`. Do not add idle-session wakeups or change shared
 notification timing policy under the name of tuning.
+
+Outcome: done, on the coordinator's own native boundary (this session, in this
+real checkout), as the plan's execution-context notes require, separate from
+disposable acceptance sessions. Real, unplanned evidence came first: the
+observer set up for this slice's own use also delivered a genuine
+`CI_INCOMPLETE` for the Slice 1 push, leading to Slice 2's CI-timeout repair.
+For the controlled cases, Quick 031's `evidence/controlled-gh.py` only
+implemented the startup `run list` shape and returned a jobs-shaped body for
+any other call regardless of requested fields — insufficient for the real
+`run view --json attempt,status,conclusion,url` / `--json jobs` polling
+contract in `watch-ci-execution.mjs`/`ci-failures.mjs`. Wrote a complete
+replacement (`evidence/claude-ci-watch/controlled-gh.py`) that answers every
+shape the real, unmodified state machine actually requests. Verified: a
+controlled `CI_FAILURE` (fresh random token, absent from any prompt) was
+delivered at the next tool boundary exactly once, two further boundaries
+stayed quiet, `ci-mailbox.mjs stop` reported
+`{"recordedThrough":1,"deliveredThrough":1,"unread":0}`, and both host
+settings files were byte-identical before/after. Separately, a simulated
+broken `gh` produced `CI_MONITOR_UNAVAILABLE` after the real 3-consecutive-
+error threshold (~65s), also with unchanged settings and clean shutdown. No
+product/adapter/runtime defect was found — every proof point already held —
+so no source change was needed; the 20-test regression suite
+(`ci-host-hook.test.mjs`, `ci-host-hook-process.test.mjs`,
+`ci-claude-lifecycle.test.mjs`) was rerun to confirm, unaffected. Evidence:
+`evidence/claude-ci-watch/`.
 
 ### 4. Establish Cursor-to-Claude hook compatibility without duplicate delivery
 Type: Behavior
