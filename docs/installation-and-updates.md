@@ -45,10 +45,14 @@ unrelated project files, home-level guidance, and any other tool's separate
 installation. During this interim release boundary, an obsolete recognition
 file from an earlier installation may remain until a later update retires it.
 
-Execution skills include hook fragments without overwriting host settings.
-Before using asynchronous CI observation, follow the installed
-`dough-execute-plan/references/runtime-setup.md` to select the client workflow
-and register the appropriate host hooks through its authorized settings workflow.
+Installation and ordinary update register the managed host-hook entries from the
+execution skill fragments into `.cursor/hooks.json` and `.claude/settings.json`
+when those fragments ship, preserving unrelated settings. Before asynchronous
+CI observation, follow the installed
+`dough-execute-plan/references/runtime-setup.md` to select this project's
+workflow and verify host-bridge readiness; execute-plan starts and stops the
+observer without writing host settings. Missing readiness is reported as
+unavailable coverage and does not authorize settings changes.
 
 ## Common installation flow
 
@@ -100,6 +104,9 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-platform.sh`
    - `src/install/open-dough-release-version.sh`
    - `src/install/open-dough-release-resolve.sh`
+   - `src/install/open-dough-register-hooks.sh`
+   - `src/install/open-dough-register-hooks.mjs`
+   - `src/install/open-dough-register-hooks-merge.mjs`
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
    - `src/skills/dough-product-backlog/SKILL.md`
@@ -118,9 +125,12 @@ inspection and execution into an unattended one-shot command.
 
    Check that this executable call chain writes only the declared client
    payload files and their `SOURCE` then `VERSION` records under both captured
-   target native roots. Preserve source, unrelated guidance, and home guidance.
-   Stop if the payload is incomplete or the inspected behavior exceeds this
-   scope. Bash and Git suffice; no package installation is needed.
+   target native roots, plus the managed host-hook registrations in
+   `.cursor/hooks.json` and `.claude/settings.json` when those fragments ship
+   with the release. Preserve source, unrelated guidance, unrelated settings
+   entries, and home guidance. Stop if the payload is incomplete or the
+   inspected behavior exceeds this scope. Bash, Git, and Node (for hook merge)
+   suffice; no package installation is needed.
 
 5. After inspection, run the following in a Bash subshell with the captured
    values available. Propagate any nonzero status; stop on a changed selection,

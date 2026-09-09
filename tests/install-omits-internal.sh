@@ -73,7 +73,9 @@ expect_files() {
     {
       printf '%s\n' \
         './.agents/skills/unrelated/SKILL.md' \
+        './.claude/settings.json' \
         './.claude/skills/other-skill/SKILL.md' \
+        './.cursor/hooks.json' \
         './.cursor/skills/other-cursor-skill/SKILL.md' \
         './keep this file.txt'
       for relative_skill_root in "$@"; do

@@ -16,22 +16,25 @@ Do not pull those stories into this plan merely because they share source files.
 
 ## Execution context
 
-- Planning only is authorized now. Every slice is `planned`; no implementation,
-  test execution, commit, push, native session, or release has been performed.
+- Execution authorized 2026-09-09 in worktree
+  `/Users/terryyin/git/open-dough-wt-031-ci-hooks` on branch
+  `execute/031-register-ci-host-hooks` (from `main` @ `b63b9da`). Merge to
+  `main` and drop the worktree/branch after all slices complete.
 - Use `planned`, `in-progress`, `done`. Keep this one plan updated during execution;
   retain unfinished proof and relevant evidence. At completion, update the seed
   and backlog and remove spent planning detail under the existing lifecycle.
 - Per the human's explicit direction, numeric slice budgets and changes to timing
   policy are outside scope. Assess cohesion, independent outcomes, and proof loops;
   do not claim an execution-time guarantee or import fixture timing limits.
-- Future execution follows dough-execute-plan's proof, independent refactor,
-  selective formatting, owned-file commit/push, and CI repair workflow. Resolve
-  actual branch/destination and hook configuration when execution is authorized;
-  do not presume this planning request authorizes delivery. Focused commands below
-  are intended execution checks, not results. Use `npm run format` selectively;
-  `npm test` and `npm run lint` remain repository checks/CI, not repeated per slice.
-- Preserve existing working changes, including the removed Quick 030 plan, seed
-  edits and backlog changes. Do not restore or stage them incidentally.
+- Follow dough-execute-plan's proof, independent refactor, selective formatting,
+  owned-file commit/push, and CI repair workflow. Authorized push destination:
+  `origin/execute/031-register-ci-host-hooks` until final merge to `main`.
+  Focused commands below are intended execution checks. Use `npm run format`
+  selectively; `npm test` and `npm run lint` remain repository checks/CI, not
+  repeated per slice.
+- Main checkout retains unrelated dirty work (Quick 030 removal, seed/backlog
+  edits, skill perspective edits). Do not restore or stage those incidentally
+  from this worktree.
 - [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md): new
   maintainer-selected numeric version, matching metadata and immutable remote tag.
   [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md): focused
@@ -89,7 +92,7 @@ Do not pull those stories into this plan merely because they share source files.
 
 ### 1. Install hooks into an unconfigured project
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given valid installation inputs and absent/empty hook maps, installation
 from any supported invoking tool leaves both native hook registrations alongside
@@ -101,6 +104,14 @@ existing unrelated top-level values, payload bytes, and no Git commit. Align
 existing fixture expectations that necessarily change. Repeat installation must
 not duplicate entries. Preflight malformed/unsafe inputs before any writes.
 
+Evidence (2026-09-09):
+- Helper: `src/install/open-dough-register-hooks.{mjs,sh}` preflight/apply from
+  authoritative fragments; interim nonempty-map `unsupported-existing-hooks`.
+- `proof: command: bash tests/install-all-tools.sh` — pass (platforms + spaces
+  path, idempotent repeat, refuse malformed/unsafe/nonempty before writes).
+- Fixture copy includes `src/install/*.mjs`; `execution-payload-update.sh`
+  asserts managed entries + sentinel preservation.
+
 Boundary: Until Slice 2 supports nonempty maps, refuse them before mutation with a
 clear unsupported-existing-hooks diagnostic. Do not silently omit registration,
 replace settings, or label this interim restriction as the completed story.
@@ -108,7 +119,7 @@ This is an unreleased, CI-safe first result, not a separate public release.
 
 ### 2. Install beside existing project hooks safely
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given existing host hooks, installation produces one Open Dough
 registration per required event while preserving unrelated settings, or reports a
@@ -121,12 +132,17 @@ settings path. Compare full target state for refusals; verify unrelated values
 and absence of duplicate managed commands for success. A conflict in either host
 must prevent changes in both; include `--force` to prove it cannot clobber settings.
 
+Evidence (2026-09-09):
+- Merge policy in `open-dough-register-hooks-merge.mjs`; entrypoint unchanged contract.
+- `proof: command: bash tests/install-ci-host-hooks.sh` — pass.
+- `proof: command: bash tests/install-all-tools.sh` — pass after nonempty refusal removed.
+
 Boundary: Removes Slice 1's temporary nonempty-map refusal. Keep all policy in the
 small merge/preflight path; no generalized ownership registry or JSON schema suite.
 
 ### 3. Acquire registrations through an ordinary release update
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a verified older release with no registered hooks or with exact
 manually registered fragments, ordinary no-URL update installs the new release
@@ -139,13 +155,20 @@ refusal and force-restore checks green; add a host-conflict case before replacem
 Use the previous tagged fragments as data if a release changes managed entries;
 accept only unmodified known entries, not arbitrary local variants.
 
+Evidence (2026-09-09):
+- Hook registration gated on fragment presence so older fixtures without
+  dough-execute-plan still install; upgrades register/adopt hooks.
+- `proof: command: bash tests/execution-payload-update.sh` — pass.
+- Public-payload and omit-internal enumerations include host settings files.
+- Portable installer-module copy avoids `compgen` for `*.mjs`.
+
 Boundary: All helper/fixture inventories and updater inspection guidance needed
 for this journey ship in this slice. No hand-copy bootstrap represented as ordinary
 update. Existing release tags and historical fixture semantics stay immutable.
 
 ### 4. Repair missing registrations at the current version
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given verified current skill roots with a missing hook file or entry,
 ordinary update restores only missing registration; a complete current install
@@ -156,12 +179,19 @@ cases, checking payload/record timestamps and bytes, settings state and result
 messages. Re-run a repaired target to prove a full no-op. Retain
 `bash tests/update-refuses-unverifiable.sh` coverage for the managed baseline gate.
 
+Evidence (2026-09-09):
+- Equal-version path uses hook completeness (`status`/`repair`/`complete`).
+- Missing entry/file repairs settings only; intact install stays `apply-skip-equal`.
+- Conflict refuses without writes.
+- `proof: command: bash tests/update-skip-verified.sh` — pass.
+- `proof: command: bash tests/update-refuses-unverifiable.sh` — pass.
+
 Boundary: Replace the apply helper's roots-only early return with a completeness
 check; do not bypass source/version verification or invent a new repair command.
 
 ### 5. Use observation without changing host configuration
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given installed registration, execute-plan probes readiness and starts
 and stops its observer while leaving settings unchanged. Missing readiness is
@@ -174,12 +204,40 @@ updater instructions. Use the existing hook/lifecycle tests for empty-event outp
 and retained registration; do not write prose-exact tests. Native proof is owned
 by Slices 6 and 7. Record which walkthrough assertions require that live proof.
 
+Evidence (2026-09-09):
+- Guidance: execute-plan confirms install/update registration, probes readiness,
+  starts/stops the mailbox observer, and must not rewrite host settings.
+  Missing readiness is explicit unavailable coverage (continue without a
+  monitoring promise). Shutdown retains hook registration.
+- Aligned `docs/installation-and-updates.md` and `dough-update/SKILL.md` so
+  registration stays an install/update concern; observation verifies only.
+- Shared lifecycle wording in `ci-monitor.md` matches verify/retain semantics.
+- Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
+  `ci-cursor-lifecycle.test.mjs`, and `ci-claude-lifecycle.test.mjs` (empty-event
+  quiet output; readiness/start/reuse/stop without unregistering hooks).
+- Delivered in commit `4dfe340`.
+
+Boundary: No new event delivery semantics, polling, automatic unregistration or
+runtime redesign. Source edits only; installed copies change through release.
+
+Walkthrough assertions:
+
+| Case | Assertion from guidance | Slice 5 proof | Needs Slice 6/7 live |
+| --- | --- | --- | --- |
+| Ready | Probe yields `CI_OBSERVER` receipt; host hook adds separate `CI_MONITOR_READY` | Lifecycle + host-hook tests (scripted hook replay) | Yes — real Cursor/Claude session after installer/update registration |
+| Ready | After ready, `start` once; attachment context; reuse across pushes; no second launch | Lifecycle tests | Yes — native attachment after real hooks |
+| Ready | Observer start/stop leave `.cursor/hooks.json` / `.claude/settings.json` unchanged | Guidance only (no settings write path in observe) | Yes — settings snapshots before/after native run |
+| Ready | Shutdown retains installed hook registration (no unregister) | Guidance + stop stops mailbox only (lifecycle) | Yes — post-shutdown settings still contain managed entries |
+| Unavailable | Missing `CI_MONITOR_READY` → report once, continue without monitoring promise | Guidance walkthrough | Yes — unavailable-hook setup without trust/policy override |
+| Unavailable | Do not merge fragments or rewrite host settings to "fix" readiness | Guidance walkthrough | Yes — settings unchanged in unavailable case |
+| Empty event | Pending/success boundaries add no model context | `ci-host-hook` + lifecycle empty `{}` assertions | No (scripted) unless native delivery regression appears |
+
 Boundary: No new event delivery semantics, polling, automatic unregistration or
 runtime redesign. Source edits only; installed copies change through release.
 
 ### 6. Use installer-created hooks in Cursor
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a fresh candidate installation committed into a disposable project,
 a fresh Cursor checkout/session receives readiness and a controlled CI failure
@@ -194,6 +252,23 @@ Observe native delivery with third-party compatibility enabled to exercise the
 existing Claude adapter guard. Include an unavailable-hook setup without overriding
 host trust/policy: confirm the agent reports missing coverage and preserves settings.
 
+Evidence (2026-09-09):
+- Fixture root `/private/tmp/dough-031-native.95TOnc`; disposable candidate `0.3.4`
+  tagged only in that source repo. Literal install:
+  `bash …/source/install.sh --target <target> --source …/source --platform cursor`
+  registered both hosts; unrelated `unrelatedCursor`/`unrelatedClaude` preserved.
+  Fresh clone `cursor-checkout` used for native sessions (no manual fragment copy).
+- `cursor agent --version`: `2026.09.08-6caf4ff`.
+- Ready: probe receipt + separate `CI_MONITOR_READY`; both `.cursor/hooks.json` and
+  `.claude/settings.json` present (Claude entries retained for compatibility
+  coexistence). Settings unchanged after session.
+- Failure: controlled `gh` job `acceptance-4ed6fb00ed2a5823`; mailbox
+  `/tmp/dough-ci-501/watch-rD8VRq` stopped with `deliveredThrough: 1`, `unread: 0`.
+  Settings snapshots unchanged after shutdown.
+- Unavailable: skills present without managed hook entries; probe receipt only;
+  agent reported unavailable coverage once; settings unchanged (no merge/rewrite).
+- Retained under `.planning/quick/031-register-ci-host-hooks/evidence/`.
+
 Boundary: No new acceptance runner or notification implementation. Preserve failed
 attempts. If the actual compatibility payload invalidates the guard, fix only that
 registration/coexistence defect, rerun affected proof, and revise this plan if a
@@ -202,7 +277,7 @@ leave acceptance pending rather than passed.
 
 ### 7. Use update-created hooks in Claude Code
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a disposable project updated from a verified older release through
 its remembered source, a fresh Claude Code session receives readiness and a
@@ -217,6 +292,24 @@ controlled failure setup from Slice 6; do not repeat its merge/refusal matrix.
 Record applicability of Quick 027's Codex notification/shutdown proof to the current
 unchanged adapter and layout. If invalidated, run only the unresolved Codex case
 through its actual yielded-cell interface before release.
+
+Evidence (2026-09-09):
+- Disposable source imported published `v0.3.3` then tagged candidate `0.3.4` with
+  hook registration. Older install left empty hook maps; ordinary
+  `open-dough-release.sh apply --target … --platform claude` (no URL) upgraded to
+  0.3.4 and registered both hosts while preserving unrelated settings. Fresh clone
+  `claude-checkout` used for native sessions.
+- `claude --version`: `2.1.265 (Claude Code)`.
+- Ready: Bash probe receipt + separate PostToolUse `CI_MONITOR_READY`; settings
+  unchanged.
+- Failure attempt 1 (default permissions): readiness ok; observer `start` declined —
+  retained under `evidence/claude/failure-attempt1-*`.
+- Failure attempt 2 (`bypassPermissions`): job `acceptance-b8118306c1d27163`;
+  mailbox `/tmp/dough-ci-501/watch-f5gUCA` stopped with `deliveredThrough: 1`,
+  `unread: 0`; settings unchanged.
+- Codex: Quick 027 notification/shutdown remains applicable — no diff vs `v0.3.3`
+  for `ci-notify-codex.md`, `ci-mailbox.mjs`, `ci-observer-stream.mjs`
+  (`evidence/codex-applicability.md`). No SEED-007 ADR-guidance claim from this run.
 
 Boundary: This owns hook-update integration. Link separately owned SEED-007 updater
 acceptance when the same run supplies useful evidence; do not claim its distinct
@@ -306,5 +399,61 @@ release must not silently waive it. No other open product decision was identifie
 
 ## Execution evidence
 
-None yet. During execution, record commands, postconditions and results against
-the owning slices; distinguish reused proof, fresh proof, and pending outcomes.
+CI observer: mailbox `/tmp/dough-ci-501/watch-AMvjtz`, workflow `ci.yml` / `CI`,
+branch `execute/031-register-ci-host-hooks`. Host bridge readiness unavailable in
+this worktree (no `.cursor/hooks.json`); continuing without promised native
+notification coverage. Check mailbox/gh for failures after pushes.
+
+### Slice 1
+Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.
+
+### Slice 2
+Merge-aware registration; focused proofs
+`bash tests/install-ci-host-hooks.sh` and `bash tests/install-all-tools.sh` pass.
+Delivered commit `34c59f4`.
+
+### CI repair (after Slice 1/2)
+Failure on `7e11605` run 34319873573 (test job): Node missing from
+restricted-PATH native-runner fixture; delivery fixture omitted install `*.mjs`.
+Repair at HEAD keeps Node required for real installs; fixtures updated.
+Focused proofs: `bash tests/native-runner-failures.sh`,
+`bash tests/native-delivery-updated-use-adapters.sh`, `bash tests/install.sh`.
+
+Failure on `a56e7ab` run 34320901077: public-payload/omit enumerations omitted
+host settings; older execution-payload fixtures lacked hook fragments; installer
+`*.mjs` copy used non-portable `compgen`. Fixed with Slice 3 delivery.
+
+### Slice 3
+Ordinary remembered-SOURCE upgrade registers/adopts hooks; host-conflict refusal
+before replacement. Focused proof `bash tests/execution-payload-update.sh` pass.
+
+### Slice 4
+Equal-version repair for missing hook entries; intact install no-op; conflict
+refusal. Focused proofs `bash tests/update-skip-verified.sh` and
+`bash tests/update-refuses-unverifiable.sh` pass.
+
+### Slice 5
+Execute-plan verifies readiness and manages observer without writing settings;
+unavailable coverage continues without a monitoring promise. Source guidance
+updated; walkthrough assertions and Slice 6/7 live-proof ownership recorded in
+this slice. Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
+`ci-cursor-lifecycle.test.mjs`, `ci-claude-lifecycle.test.mjs` — 20 pass.
+Delivered in commit `4dfe340`.
+
+### CI repair (after Slice 5)
+Failure on `7318812` run 34325989974 (`tests/apply-temp-cleanup.sh`): invalid
+highest release could still surface resolved output after checkout cleanup, then
+`set -e` aborted before removing a `local` apply `work_root`, leaking TMPDIR on
+bash 5. Fixed fail-closed `fetch_resolved_release` and non-local apply work-root
+cleanup. Focused proof `bash tests/apply-temp-cleanup.sh` pass (also
+`update-force-restores-latest.sh`, `update-skip-verified.sh`).
+
+### Slice 6
+Installer-created Cursor hooks: native readiness, controlled failure delivery, and
+unavailable coverage without settings rewrite. Evidence retained under
+`.planning/quick/031-register-ci-host-hooks/evidence/cursor/`.
+
+### Slice 7
+Update-created Claude hooks: ordinary remembered-SOURCE upgrade registered hosts;
+native readiness and controlled failure delivery (attempt 1 permission stop retained;
+attempt 2 delivered). Codex Quick 027 proof reused as applicable.

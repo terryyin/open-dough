@@ -80,6 +80,19 @@ assert_sentinels "${target}"
 
 pinned_commit=${commit}
 
+# Installer helpers inspected before a direct install (keep in sync with guide/skill).
+inspected_helpers=(
+  install.sh
+  src/install/open-dough-release.sh
+  src/install/open-dough-release-apply.sh
+  src/install/open-dough-platform.sh
+  src/install/open-dough-release-version.sh
+  src/install/open-dough-release-resolve.sh
+  src/install/open-dough-register-hooks.sh
+  src/install/open-dough-register-hooks.mjs
+  src/install/open-dough-register-hooks-merge.mjs
+)
+
 # Direct installation follows the public guide after a separate inspection.
 # The fixture knows the peeled commit; native runs prove agent tag selection.
 install_inspected_release() (
@@ -99,10 +112,7 @@ install_inspected_release() (
   git -C "${snapshot}" -c advice.detachedHead=false checkout --quiet --detach FETCH_HEAD
   head=$(git -C "${snapshot}" rev-parse HEAD)
   [[ "${head}" == "${selected_commit}" ]]
-  for inspected_file in install.sh src/install/open-dough-release.sh \
-    src/install/open-dough-release-apply.sh src/install/open-dough-platform.sh \
-    src/install/open-dough-release-version.sh \
-    src/install/open-dough-release-resolve.sh; do
+  for inspected_file in "${inspected_helpers[@]}"; do
     cat "${snapshot}/${inspected_file}" > /dev/null
     printf '%s\n' "${inspected_file}" >> "${install_dir}.inspection"
   done
@@ -158,7 +168,7 @@ output=$(install_inspected_release "${direct_target}" "${direct_checkout}")
 [[ "${output}" == *'(version 0.1.10).'* ]]
 [[ ! -e "${direct_checkout}" && -d "${temporary_dir}" ]]
 inspection_count=$(wc -l < "${direct_checkout}.inspection")
-[[ "${inspection_count}" -eq $((6 + ${#managed_files[@]})) ]]
+[[ "${inspection_count}" -eq $((${#inspected_helpers[@]} + ${#managed_files[@]})) ]]
 assert_payload "${direct_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 assert_sentinels "${direct_target}"
 [[ ! -s "${leak}" ]]

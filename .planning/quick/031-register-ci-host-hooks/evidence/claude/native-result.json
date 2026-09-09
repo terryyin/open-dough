@@ -1,0 +1,19 @@
+{
+  "host": "claude",
+  "case": "ready",
+  "exit": 0,
+  "command": [
+    "claude",
+    "--print",
+    "--permission-mode",
+    "default",
+    "--allowedTools",
+    "Read,Glob,Grep,Skill,Bash(node *)",
+    "--no-session-persistence",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "Use the installed dough-execute-plan CI host adapter to verify whether the native notification bridge is ready in this checkout. Run its harmless readiness probe through your normal Bash tool. Do not start CI observation or modify files. Report the probe command output separately from any context the host hook delivered, and state whether notification readiness was established."
+  ],
+  "time": 1788941552.866574
+}

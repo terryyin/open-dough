@@ -8,6 +8,9 @@ script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=src/install/open-dough-platform.sh
 source "${script_dir}/open-dough-platform.sh"
 # shellcheck disable=SC1091
+# shellcheck source=src/install/open-dough-register-hooks.sh
+source "${script_dir}/open-dough-register-hooks.sh"
+# shellcheck disable=SC1091
 # shellcheck source=src/install/open-dough-release-version.sh
 source "${script_dir}/open-dough-release-version.sh"
 # shellcheck disable=SC1091

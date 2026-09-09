@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Ordinary, supplied-URL, and explicit-force apply: resolve source, pin,
 # compare unless forced, then install.
-# Sourced by open-dough-release.sh after platform, version, and resolve modules.
+# Sourced by open-dough-release.sh after platform, register-hooks, version, and
+# resolve modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2312,SC2249
 
@@ -9,6 +10,44 @@ trace_line() {
   if [[ -n "${OPEN_DOUGH_TRACE:-}" ]]; then
     printf '%s\n' "$1" >> "${OPEN_DOUGH_TRACE}"
   fi
+}
+
+# Equal-version roots stay verified; hook completeness is a separate check.
+# Restores only missing registration. Conflicts refuse without payload writes.
+finish_equal_version_host_hooks() {
+  local work=$1
+  local target=$2
+  local dest=$3
+  local hooks_status
+
+  if ! host_hook_fragments_present "${work}"; then
+    trace_line "apply-skip-equal ${dest}"
+    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
+    return 0
+  fi
+  if ! hooks_status=$(host_hooks_registration_status "${work}" "${target}"); then
+    trace_line "apply-hooks-conflict ${dest}"
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  if [[ "${hooks_status}" == complete ]]; then
+    trace_line "apply-skip-equal ${dest}"
+    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
+    return 0
+  fi
+  if [[ "${hooks_status}" != repair ]]; then
+    echo "Unexpected host hook registration status: ${hooks_status}" >&2
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  # Status already proved a mergeable write; apply re-plans and writes.
+  trace_line "apply-hooks-repair ${dest}"
+  if ! apply_host_hooks "${work}" "${target}"; then
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  printf 'Outcome: both physical installations are current; restored missing host hook registration without rewriting managed payload files.\n'
+  return 0
 }
 
 report_unverifiable_installation() {
@@ -107,6 +146,12 @@ all_roots_verified_for_release() {
 
 }
 
+# Clear and remove the apply work root. Prefer this over relying on EXIT alone.
+clear_apply_work_root() {
+  [[ -n "${_open_dough_apply_work_root:-}" ]] && rm -rf -- "${_open_dough_apply_work_root}"
+  _open_dough_apply_work_root=
+}
+
 apply_release() {
   local url=''
   local target=''
@@ -114,8 +159,11 @@ apply_release() {
   local force=0
   local checkout=''
   local supplied_url=0
-  local work resolved tag commit version work_root
+  local work resolved tag commit version
   local dest installed relation
+  # Non-local: EXIT trap must still see the path if set -e aborts this function
+  # before an explicit clear (bash 5 drops locals when the function unwinds).
+  _open_dough_apply_work_root=
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -168,18 +216,20 @@ apply_release() {
     fi
   fi
 
-  work_root=$(mktemp -d)
-  trap 'rm -rf -- '"${work_root}" EXIT
+  _open_dough_apply_work_root=$(mktemp -d)
+  trap 'clear_apply_work_root' EXIT
   if [[ -n "${checkout}" ]]; then
     work=${checkout}
     if ! resolved=$(require_pinned_checkout "${work}" "${url}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
+      clear_apply_work_root
       return 1
     fi
   else
-    work="${work_root}/release"
+    work="${_open_dough_apply_work_root}/release"
     if ! resolved=$(fetch_release "${url}" "${work}"); then
       refuse_if_ordinary_unverifiable "${dest}" "${supplied_url}"
+      clear_apply_work_root
       return 1
     fi
   fi
@@ -194,9 +244,13 @@ EOF
   # Explicit force deliberately replaces every safe managed root.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 1 "${url}"
+    if ! run_installer "${work}" "${target}" "${platform}" 1 "${url}"; then
+      clear_apply_work_root
+      return 1
+    fi
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code by explicit force.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
+    clear_apply_work_root
     return 0
   fi
 
@@ -204,20 +258,26 @@ EOF
   # roots still need the ordinary baseline proof or an explicit force.
   if [[ ! -d "${dest}" && "${supplied_url}" -eq 1 ]]; then
     trace_line "apply-install ${dest}"
-    run_installer "${work}" "${target}" "${platform}" 0 "${url}"
+    if ! run_installer "${work}" "${target}" "${platform}" 0 "${url}"; then
+      clear_apply_work_root
+      return 1
+    fi
     printf 'Installed: unknown\n'
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
+    clear_apply_work_root
     return 0
   fi
 
   if [[ ! -d "${dest}" ]]; then
     report_unverifiable_installation "${dest}"
+    clear_apply_work_root
     return 1
   fi
 
-  if ! all_roots_verified_for_release "${target}" "${url}" "${work_root}" "${version}"; then
+  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" "${version}"; then
     report_unverifiable_installation "${dest}"
+    clear_apply_work_root
     return 1
   fi
 
@@ -232,12 +292,17 @@ EOF
     fi
   done < <(all_destinations_for "${target}")
   if [[ ${needs_replacement} -eq 0 ]]; then
-    trace_line "apply-skip-equal ${dest}"
-    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
-    return 0
+    finish_equal_version_host_hooks "${work}" "${target}" "${dest}"
+    equal_status=$?
+    clear_apply_work_root
+    return "${equal_status}"
   fi
   trace_line "apply-reconcile ${dest}"
-  run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
+  if ! run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1; then
+    clear_apply_work_root
+    return 1
+  fi
   printf 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to %s.\n' "${version}"
   printf 'Start fresh sessions before invoking dough-update again.\n'
+  clear_apply_work_root
 }

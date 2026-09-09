@@ -14,13 +14,31 @@ git_identity() {
   git -C "$1" config user.name 'Open Dough Fixture'
 }
 
+copy_installer_modules() {
+  local dest=$1
+  local modules_root=${2:-${source_dir}}
+  local mjs_file
+  local -a mjs_files=()
+
+  mkdir -p -- "${dest}/src/install"
+  cp -- "${modules_root}/src/install/"*.sh "${dest}/src/install/"
+  # Hook registration helpers travel with the installer (Node merge logic).
+  for mjs_file in "${modules_root}/src/install/"*.mjs; do
+    [[ -f "${mjs_file}" ]] || continue
+    mjs_files+=("${mjs_file}")
+  done
+  if ((${#mjs_files[@]} > 0)); then
+    cp -- "${mjs_files[@]}" "${dest}/src/install/"
+  fi
+}
+
 copy_current_release_files() {
   local dest=$1
   local managed_file
 
   mkdir -p -- "${dest}/src/install" "${dest}/src/skills"
   cp -- "${source_dir}/install.sh" "${dest}/install.sh"
-  cp -- "${source_dir}/src/install/"*.sh "${dest}/src/install/"
+  copy_installer_modules "${dest}"
   for managed_file in "${managed_files[@]}"; do
     mkdir -p -- "${dest}/src/skills/$(dirname -- "${managed_file}")"
     cp -- "${source_dir}/src/skills/${managed_file}" \
@@ -170,13 +188,25 @@ assert_sentinels() {
   local contents
 
   contents=$(cat "${target}/.agents/skills/unrelated/SKILL.md")
-  [[ "${contents}" == 'Keep this unrelated skill.' ]]
+  if [[ "${contents}" != 'Keep this unrelated skill.' ]]; then
+    echo "FAIL: assert_sentinels lost unrelated agents skill" >&2
+    return 1
+  fi
   contents=$(cat "${target}/.cursor/skills/other-cursor-skill/SKILL.md")
-  [[ "${contents}" == 'Keep this Cursor sentinel.' ]]
+  if [[ "${contents}" != 'Keep this Cursor sentinel.' ]]; then
+    echo "FAIL: assert_sentinels lost Cursor sentinel" >&2
+    return 1
+  fi
   contents=$(cat "${target}/.claude/skills/other-skill/SKILL.md")
-  [[ "${contents}" == 'Keep this Claude sentinel.' ]]
+  if [[ "${contents}" != 'Keep this Claude sentinel.' ]]; then
+    echo "FAIL: assert_sentinels lost Claude sentinel" >&2
+    return 1
+  fi
   contents=$(cat "${target}/keep this file.txt")
-  [[ "${contents}" == 'Keep this project file.' ]]
+  if [[ "${contents}" != 'Keep this project file.' ]]; then
+    echo "FAIL: assert_sentinels lost project file" >&2
+    return 1
+  fi
 }
 
 assert_payload() {
@@ -186,18 +216,30 @@ assert_payload() {
   local contents
   local skill_root managed_file
 
-  grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"
+  if ! grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"; then
+    echo "FAIL: assert_payload missing marker ${marker} in ${destination}/SKILL.md" >&2
+    return 1
+  fi
   skill_root=$(dirname -- "${destination}")
   for managed_file in "${managed_files[@]}"; do
     if [[ "${managed_file}" == 'dough-update/SKILL.md' ]]; then
       continue
     fi
-    cmp "${source_dir}/src/skills/${managed_file}" \
-      "${skill_root}/${managed_file}"
+    if ! cmp "${source_dir}/src/skills/${managed_file}" \
+      "${skill_root}/${managed_file}"; then
+      echo "FAIL: assert_payload mismatch for ${managed_file} under ${skill_root}" >&2
+      return 1
+    fi
   done
-  [[ ! -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
+  if [[ -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]; then
+    echo "FAIL: assert_payload found retired RECOGNITION.md under ${skill_root}" >&2
+    return 1
+  fi
   contents=$(cat "${destination}/VERSION")
-  [[ "${contents}" == "${version}" ]]
+  if [[ "${contents}" != "${version}" ]]; then
+    echo "FAIL: assert_payload VERSION is ${contents}, expected ${version}" >&2
+    return 1
+  fi
 }
 
 file_mtime() {

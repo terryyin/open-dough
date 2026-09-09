@@ -186,7 +186,7 @@ fetch_resolved_release() {
   fi
   mkdir -p -- "${dest}"
   git -C "${dest}" init --quiet
-  checkout_resolved_release "${dest}" "${url}" "${resolved}" Fetched "${dest}"
+  checkout_resolved_release "${dest}" "${url}" "${resolved}" Fetched "${dest}" || return 1
   printf '%s\n' "${resolved}"
 }
 
@@ -218,8 +218,8 @@ pin_latest() {
   if [[ -z "${url}" ]]; then
     url=$(git -C "${checkout}" remote get-url origin)
   fi
-  resolved=$(resolve_url "${url}")
-  checkout_resolved_release "${checkout}" "${url}" "${resolved}" Pinned
+  resolved=$(resolve_url "${url}") || return 1
+  checkout_resolved_release "${checkout}" "${url}" "${resolved}" Pinned || return 1
   printf '%s\n' "${resolved}"
 }
 
@@ -228,7 +228,7 @@ require_pinned_checkout() {
   local url=$2
   local resolved tag commit head
 
-  resolved=$(resolve_url "${url}")
+  resolved=$(resolve_url "${url}") || return 1
   IFS=$'\t' read -r tag commit _ << EOF
 ${resolved}
 EOF

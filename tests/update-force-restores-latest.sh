@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/public-payload-fixture.bash
@@ -16,7 +15,8 @@ cd -- "${temporary_dir}"
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
 build_latest_fixture "${fixture}"
-expected_source=$(cd -- "${fixture}" && pwd -P)
+fixture=$(cd -- "${fixture}" && pwd -P)
+expected_source=${fixture}
 
 decoy="${temporary_dir}/client-origin.git"
 mkdir -p -- "${decoy}"
@@ -45,20 +45,46 @@ assert_complete_latest() {
   local recorded
   assert_payload "${dest}" 0.1.10 payload-0.1.10
   recorded=$(cat "${dest}/SOURCE")
-  [[ "${recorded}" == "${source}" ]]
-  grep -qx "apply-force ${dest}" "${trace_file}"
-  grep -q '^install ' "${trace_file}"
+  if [[ "${recorded}" != "${source}" ]]; then
+    echo "FAIL: SOURCE is ${recorded}, expected ${source}" >&2
+    exit 1
+  fi
+  if ! grep -qx "apply-force ${dest}" "${trace_file}"; then
+    echo "FAIL: trace missing apply-force ${dest}" >&2
+    cat "${trace_file}" >&2
+    exit 1
+  fi
+  if ! grep -q '^install ' "${trace_file}"; then
+    echo "FAIL: trace missing install line" >&2
+    cat "${trace_file}" >&2
+    exit 1
+  fi
 }
 
 run_force_apply() {
   local target=$1
   local apply_tmp=$2
+  local status
   shift 2
   rm -rf -- "${apply_tmp}"
   mkdir -p -- "${apply_tmp}"
   : > "${trace_file}"
+  set +e
   TMPDIR="${apply_tmp}" bash "${helper}" apply --target "${target}" \
-    --platform cursor --force "$@"
+    --platform cursor --force "$@" 2> "${apply_tmp}/apply.stderr"
+  status=$?
+  set -e
+  if [[ ${status} -ne 0 ]]; then
+    echo "FAIL: force apply exited ${status} for ${target}" >&2
+    cat "${apply_tmp}/apply.stderr" >&2 || true
+    cat "${trace_file}" >&2 || true
+    return "${status}"
+  fi
+  if [[ -s "${apply_tmp}/apply.stderr" ]]; then
+    cat "${apply_tmp}/apply.stderr" >&2
+  fi
+  # Diagnostic stderr must not count as leftover installer temp work.
+  rm -f -- "${apply_tmp}/apply.stderr"
 }
 
 assert_force_success() {
@@ -67,9 +93,20 @@ assert_force_success() {
   local target=$3
   local apply_tmp=$4
   local source=$5
-  [[ "${output}" == *"Source: ${source}"* ]]
-  [[ "${output}" != *"${decoy}"* ]]
-  [[ "${output}" == *'explicit force'* ]]
+  if [[ "${output}" != *"Source: ${source}"* ]]; then
+    echo "FAIL: force output missing Source: ${source}" >&2
+    printf '%s\n' "${output}" >&2
+    exit 1
+  fi
+  if [[ "${output}" == *"${decoy}"* ]]; then
+    echo "FAIL: force output mentions decoy remote ${decoy}" >&2
+    exit 1
+  fi
+  if [[ "${output}" != *'explicit force'* ]]; then
+    echo "FAIL: force output missing explicit-force outcome" >&2
+    printf '%s\n' "${output}" >&2
+    exit 1
+  fi
   assert_complete_latest "${dest}" "${source}"
   assert_sentinels "${target}"
   assert_owned_tmp_empty "${apply_tmp}" 'explicit force'
@@ -112,7 +149,12 @@ equal_tmp="${temporary_dir}/equal-tmp"
 output=$(run_force_apply "${equal_target}" "${equal_tmp}")
 assert_force_success "${output}" "${equal_dest}" "${equal_target}" \
   "${equal_tmp}" "${expected_source}"
-[[ "${output}" != *'already current'* ]]
+# Force must reinstall managed roots; do not confuse hook "already current" text.
+if [[ "${output}" == *': already current; left unwritten.'* ]]; then
+  echo 'FAIL: equal-version force must not skip managed roots as already current.' >&2
+  printf '%s\n' "${output}" >&2
+  exit 1
+fi
 
 newer_target="${temporary_dir}/newer project"
 prepare_recorded_latest "${newer_target}"
@@ -122,7 +164,11 @@ newer_tmp="${temporary_dir}/newer-tmp"
 output=$(run_force_apply "${newer_target}" "${newer_tmp}")
 assert_force_success "${output}" "${newer_dest}" "${newer_target}" \
   "${newer_tmp}" "${expected_source}"
-[[ "${output}" != *'no downgrade'* ]]
+if [[ "${output}" == *'no downgrade'* ]]; then
+  echo 'FAIL: force must not refuse newer installs as a downgrade.' >&2
+  printf '%s\n' "${output}" >&2
+  exit 1
+fi
 
 supplied_target="${temporary_dir}/supplied project"
 prepare_recorded_latest "${supplied_target}"

@@ -2,6 +2,12 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
+# shellcheck source=tests/helpers/release-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/release-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
@@ -45,7 +51,8 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}"
 
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
-[[ ! -e "${target}/.cursor" ]]
+[[ -f "${target}/.cursor/hooks.json" ]]
+[[ -f "${target}/.claude/settings.json" ]]
 assert_sentinels
 
 if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform windsurf 2>&1); then
@@ -54,7 +61,7 @@ if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${sou
 fi
 [[ "${output}" == *'Unsupported platform:'* ]]
 [[ "${output}" == *'windsurf'* ]]
-[[ ! -e "${target}/.cursor" ]]
+[[ -f "${target}/.cursor/hooks.json" ]]
 assert_verified_install "${target}/.claude/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
@@ -130,9 +137,9 @@ assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
 
 bad_source="${temporary_dir}/bad source"
-mkdir -p -- "${bad_source}/src/install" "${bad_source}/src/skills"
+mkdir -p -- "${bad_source}/src/skills"
 cp -- "${source_dir}/install.sh" "${bad_source}/install.sh"
-cp -- "${source_dir}/src/install/"*.sh "${bad_source}/src/install/"
+copy_installer_modules "${bad_source}"
 cp -R -- "${source_dir}/src/skills/." "${bad_source}/src/skills/"
 printf '%s\n' '0.1.0' > "${bad_source}/VERSION"
 printf '%s\n' '## 9.9.9 - 2026-01-01' > "${bad_source}/CHANGELOG.md"

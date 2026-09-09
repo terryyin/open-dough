@@ -82,7 +82,9 @@ expected_files=$(
   {
     printf '%s\n' \
       './.agents/skills/existing-codex/SKILL.md' \
+      './.claude/settings.json' \
       './.claude/skills/existing-claude/SKILL.md' \
+      './.cursor/hooks.json' \
       './.cursor/skills/existing-cursor/SKILL.md' \
       './keep.txt'
     for skill_root in "${skill_roots[@]}"; do

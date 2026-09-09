@@ -70,7 +70,10 @@ Ordinary Open Dough release updates remain available from the recorded source.
       `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`,
       `src/install/open-dough-release-apply.sh`, `install.sh`, the helpers they
-      source, and every release payload source they declare under `src/skills/`.
+      source (including `src/install/open-dough-register-hooks.sh`,
+      `src/install/open-dough-register-hooks.mjs`, and
+      `src/install/open-dough-register-hooks-merge.mjs` when present), and
+      every release payload source they declare under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <snapshot>/src/install/open-dough-release.sh apply --target
@@ -82,9 +85,13 @@ Ordinary Open Dough release updates remain available from the recorded source.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
       inspected files write solely to the release-declared payload paths
-      under both native skill roots and each updater's `SOURCE` and
-      `VERSION` records in the captured target project, preserving
-      distributable source, unrelated project files, and home guidance.
+      under both native skill roots, each updater's `SOURCE` and `VERSION`
+      records, and the managed host-hook settings they register
+      (`.cursor/hooks.json` and `.claude/settings.json`) in the captured
+      target project, preserving distributable source, unrelated project
+      files, unrelated settings entries, and home guidance. Registration is an
+      install/update concern; after apply, observation readiness and observer
+      start/stop belong to execute-plan and must not rewrite those settings.
 6. Trust the helper's comparison. An ordinary update without a supplied URL
    fetches the recorded VERSION tag as data and compares the installation with
    the payload declared by that recorded release before any skip or
