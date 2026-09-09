@@ -38,7 +38,14 @@ Do not add Proposed guidance to the payload as an incidental release step.
    Stop on refusal without creating, editing, or deleting `VERSION`,
    `CHANGELOG.md`, commits, or tags.
 
-4. For preparation, write `VERSION` containing only the requested version
+4. When the request includes finalization, run
+   `bash scripts/check-self-installation.sh` from the repository root (or
+   with the repository path) before writing `VERSION` or `CHANGELOG.md`,
+   staging, committing, or tagging. If the check fails, stop without
+   creating, editing, or deleting `VERSION`, `CHANGELOG.md`, commits, or
+   tags. Cite the check failure. Skip this check for preparation-only.
+
+5. For preparation, write `VERSION` containing only the requested version
    followed by a newline. In `CHANGELOG.md`, insert a newest-first heading
    `## MAJOR.MINOR.PATCH - YYYY-MM-DD` using today's date, then the supplied
    change description. Preserve every previous changelog entry unchanged.
@@ -46,14 +53,14 @@ Do not add Proposed guidance to the payload as an incidental release step.
    not commit unless the user also asked to finalize. Do not stage, commit,
    reset, or otherwise alter unrelated working-tree changes.
 
-5. For finalization, the Promoted client payload must already be committed.
+6. For finalization, the Promoted client payload must already be committed.
    Stage and commit only `VERSION` and `CHANGELOG.md` when those files differ
    from HEAD. Create an annotated tag `vMAJOR.MINOR.PATCH` on that metadata
    commit, or on HEAD if the metadata is already committed. Never use
    `--force` on tags. Never include unrelated staged or unstaged files. Never
    reset unrelated work. Do not push.
 
-6. Report the actual local result. For preparation, name the written `VERSION`
+7. Report the actual local result. For preparation, name the written `VERSION`
    and changelog heading and say the notes are ready for review; do not claim
    a tag or a release. For finalization, name the commit and local tag; do not
    claim it is Released from a remote source until the tag is available there.

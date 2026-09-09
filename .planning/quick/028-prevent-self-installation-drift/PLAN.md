@@ -197,7 +197,7 @@ fixture.
 ### 4. Refuse release finalization from an unverifiable self-installation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Focused deterministic guidance/ordering check for `release-version`;
 manual behavior review using the AGENTS.md checklist; `npm run lint`.
 
@@ -265,3 +265,5 @@ pre-implemented as part of this plan.
 - Slice 3: `scripts/check-self-installation.sh` archives local `v${VERSION}`
   and compares both native roots; `scripts/test.sh` runs it after the shell
   tests. Source-only `src/skills/` edits stay green when installations match.
+- Slice 4: `release-version` finalization runs that checker before VERSION,
+  CHANGELOG, commit, or tag writes; prepare stays metadata-only.
