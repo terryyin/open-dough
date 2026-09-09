@@ -16,7 +16,8 @@ cd -- "${temporary_dir}"
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
 build_latest_fixture "${fixture}"
-expected_source=$(cd -- "${fixture}" && pwd -P)
+fixture=$(cd -- "${fixture}" && pwd -P)
+expected_source=${fixture}
 
 decoy="${temporary_dir}/client-origin.git"
 mkdir -p -- "${decoy}"
@@ -45,9 +46,20 @@ assert_complete_latest() {
   local recorded
   assert_payload "${dest}" 0.1.10 payload-0.1.10
   recorded=$(cat "${dest}/SOURCE")
-  [[ "${recorded}" == "${source}" ]]
-  grep -qx "apply-force ${dest}" "${trace_file}"
-  grep -q '^install ' "${trace_file}"
+  if [[ "${recorded}" != "${source}" ]]; then
+    echo "FAIL: SOURCE is ${recorded}, expected ${source}" >&2
+    exit 1
+  fi
+  if ! grep -qx "apply-force ${dest}" "${trace_file}"; then
+    echo "FAIL: trace missing apply-force ${dest}" >&2
+    cat "${trace_file}" >&2
+    exit 1
+  fi
+  if ! grep -q '^install ' "${trace_file}"; then
+    echo "FAIL: trace missing install line" >&2
+    cat "${trace_file}" >&2
+    exit 1
+  fi
 }
 
 run_force_apply() {
@@ -67,9 +79,20 @@ assert_force_success() {
   local target=$3
   local apply_tmp=$4
   local source=$5
-  [[ "${output}" == *"Source: ${source}"* ]]
-  [[ "${output}" != *"${decoy}"* ]]
-  [[ "${output}" == *'explicit force'* ]]
+  if [[ "${output}" != *"Source: ${source}"* ]]; then
+    echo "FAIL: force output missing Source: ${source}" >&2
+    printf '%s\n' "${output}" >&2
+    exit 1
+  fi
+  if [[ "${output}" == *"${decoy}"* ]]; then
+    echo "FAIL: force output mentions decoy remote ${decoy}" >&2
+    exit 1
+  fi
+  if [[ "${output}" != *'explicit force'* ]]; then
+    echo "FAIL: force output missing explicit-force outcome" >&2
+    printf '%s\n' "${output}" >&2
+    exit 1
+  fi
   assert_complete_latest "${dest}" "${source}"
   assert_sentinels "${target}"
   assert_owned_tmp_empty "${apply_tmp}" 'explicit force'

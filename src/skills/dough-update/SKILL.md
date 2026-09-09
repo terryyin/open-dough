@@ -72,8 +72,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
       `src/install/open-dough-release-apply.sh`, `install.sh`, the helpers they
       source (including `src/install/open-dough-register-hooks.sh`,
       `src/install/open-dough-register-hooks.mjs`, and
-      `src/install/open-dough-register-hooks-merge.mjs` when present), and every
-      release payload source they declare under `src/skills/`.
+      `src/install/open-dough-register-hooks-merge.mjs` when present), and
+      every release payload source they declare under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <snapshot>/src/install/open-dough-release.sh apply --target
