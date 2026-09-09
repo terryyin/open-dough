@@ -146,20 +146,83 @@ EOF
 
 seed_managed_command_with_local_argument() {
   local target=$1
+  seed_managed_command_with_suffix "${target}" cursor ' --local' "${2-}"
+}
+
+seed_managed_command_with_suffix() {
+  local target=$1 host=$2 suffix=$3
   local cursor_fragment claude_fragment
-  resolve_host_hook_fragments "${2-}"
-  seed_exact_manual_registration "${target}" "${2-}"
-  node - "${target}" "${cursor_fragment}" << 'EOF'
+  resolve_host_hook_fragments "${4-}"
+  seed_exact_manual_registration "${target}" "${4-}"
+  if [[ "${host}" == cursor ]]; then
+    node - "${target}" "${cursor_fragment}" "${suffix}" << 'EOF'
+const fs = require("node:fs");
+const [target, cursorFragmentPath, suffix] = process.argv.slice(2);
+const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
+const managedCommand = cursorFragment.hooks.stop[0].command;
+const cursorPath = `${target}/.cursor/hooks.json`;
+const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
+const handler = cursor.hooks.stop.find((entry) => entry.command === managedCommand);
+handler.command = `${handler.command}${suffix}`;
+fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
+EOF
+  else
+    node - "${target}" "${claude_fragment}" "${suffix}" << 'EOF'
+const fs = require("node:fs");
+const [target, claudeFragmentPath, suffix] = process.argv.slice(2);
+const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
+const managedCommand = claudeFragment.hooks.Stop[0].hooks[0].command;
+const claudePath = `${target}/.claude/settings.json`;
+const claude = JSON.parse(fs.readFileSync(claudePath, "utf8"));
+const wrapper = claude.hooks.Stop.find((entry) =>
+  entry.hooks?.some((hook) => hook.command === managedCommand),
+);
+const hook = wrapper.hooks.find((entry) => entry.command === managedCommand);
+hook.command = `${hook.command}${suffix}`;
+fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
+EOF
+  fi
+}
+
+# A distinct script that merely shares the managed command as a name prefix
+# (no delimiter boundary) must stay unrelated, not be treated as an edited
+# managed variant.
+seed_similarly_named_unmanaged_script() {
+  local target=$1 host=$2
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${3-}"
+  seed_mergeable_host_settings "${target}"
+  if [[ "${host}" == cursor ]]; then
+    node - "${target}" "${cursor_fragment}" << 'EOF'
 const fs = require("node:fs");
 const [target, cursorFragmentPath] = process.argv.slice(2);
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const managedCommand = cursorFragment.hooks.stop[0].command;
 const cursorPath = `${target}/.cursor/hooks.json`;
 const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
-const handler = cursor.hooks.stop.find((entry) => entry.command === managedCommand);
-handler.command = `${handler.command} --local`;
+cursor.hooks.stop.push({ command: `${managedCommand}-extra`, timeout: 5 });
 fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
 EOF
+  else
+    node - "${target}" "${claude_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, claudeFragmentPath] = process.argv.slice(2);
+const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
+const managedCommand = claudeFragment.hooks.Stop[0].hooks[0].command;
+const claudePath = `${target}/.claude/settings.json`;
+const claude = JSON.parse(fs.readFileSync(claudePath, "utf8"));
+claude.hooks.Stop.push({
+  hooks: [
+    {
+      type: "command",
+      command: `${managedCommand}-extra`,
+      timeout: 5,
+    },
+  ],
+});
+fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
+EOF
+  fi
 }
 
 seed_duplicate_exact_managed_entry() {
