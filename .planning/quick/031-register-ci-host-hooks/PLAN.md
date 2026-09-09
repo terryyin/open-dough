@@ -277,7 +277,7 @@ leave acceptance pending rather than passed.
 
 ### 7. Use update-created hooks in Claude Code
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a disposable project updated from a verified older release through
 its remembered source, a fresh Claude Code session receives readiness and a
@@ -292,6 +292,24 @@ controlled failure setup from Slice 6; do not repeat its merge/refusal matrix.
 Record applicability of Quick 027's Codex notification/shutdown proof to the current
 unchanged adapter and layout. If invalidated, run only the unresolved Codex case
 through its actual yielded-cell interface before release.
+
+Evidence (2026-09-09):
+- Disposable source imported published `v0.3.3` then tagged candidate `0.3.4` with
+  hook registration. Older install left empty hook maps; ordinary
+  `open-dough-release.sh apply --target … --platform claude` (no URL) upgraded to
+  0.3.4 and registered both hosts while preserving unrelated settings. Fresh clone
+  `claude-checkout` used for native sessions.
+- `claude --version`: `2.1.265 (Claude Code)`.
+- Ready: Bash probe receipt + separate PostToolUse `CI_MONITOR_READY`; settings
+  unchanged.
+- Failure attempt 1 (default permissions): readiness ok; observer `start` declined —
+  retained under `evidence/claude/failure-attempt1-*`.
+- Failure attempt 2 (`bypassPermissions`): job `acceptance-b8118306c1d27163`;
+  mailbox `/tmp/dough-ci-501/watch-f5gUCA` stopped with `deliveredThrough: 1`,
+  `unread: 0`; settings unchanged.
+- Codex: Quick 027 notification/shutdown remains applicable — no diff vs `v0.3.3`
+  for `ci-notify-codex.md`, `ci-mailbox.mjs`, `ci-observer-stream.mjs`
+  (`evidence/codex-applicability.md`). No SEED-007 ADR-guidance claim from this run.
 
 Boundary: This owns hook-update integration. Link separately owned SEED-007 updater
 acceptance when the same run supplies useful evidence; do not claim its distinct
@@ -434,3 +452,8 @@ cleanup. Focused proof `bash tests/apply-temp-cleanup.sh` pass (also
 Installer-created Cursor hooks: native readiness, controlled failure delivery, and
 unavailable coverage without settings rewrite. Evidence retained under
 `.planning/quick/031-register-ci-host-hooks/evidence/cursor/`.
+
+### Slice 7
+Update-created Claude hooks: ordinary remembered-SOURCE upgrade registered hosts;
+native readiness and controlled failure delivery (attempt 1 permission stop retained;
+attempt 2 delivered). Codex Quick 027 proof reused as applicable.
