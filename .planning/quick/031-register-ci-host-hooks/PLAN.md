@@ -237,7 +237,7 @@ runtime redesign. Source edits only; installed copies change through release.
 
 ### 6. Use installer-created hooks in Cursor
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a fresh candidate installation committed into a disposable project,
 a fresh Cursor checkout/session receives readiness and a controlled CI failure
@@ -251,6 +251,23 @@ and settings snapshots. Use a fresh checkout of the fixture's committed install.
 Observe native delivery with third-party compatibility enabled to exercise the
 existing Claude adapter guard. Include an unavailable-hook setup without overriding
 host trust/policy: confirm the agent reports missing coverage and preserves settings.
+
+Evidence (2026-09-09):
+- Fixture root `/private/tmp/dough-031-native.95TOnc`; disposable candidate `0.3.4`
+  tagged only in that source repo. Literal install:
+  `bash …/source/install.sh --target <target> --source …/source --platform cursor`
+  registered both hosts; unrelated `unrelatedCursor`/`unrelatedClaude` preserved.
+  Fresh clone `cursor-checkout` used for native sessions (no manual fragment copy).
+- `cursor agent --version`: `2026.09.08-6caf4ff`.
+- Ready: probe receipt + separate `CI_MONITOR_READY`; both `.cursor/hooks.json` and
+  `.claude/settings.json` present (Claude entries retained for compatibility
+  coexistence). Settings unchanged after session.
+- Failure: controlled `gh` job `acceptance-4ed6fb00ed2a5823`; mailbox
+  `/tmp/dough-ci-501/watch-rD8VRq` stopped with `deliveredThrough: 1`, `unread: 0`.
+  Settings snapshots unchanged after shutdown.
+- Unavailable: skills present without managed hook entries; probe receipt only;
+  agent reported unavailable coverage once; settings unchanged (no merge/rewrite).
+- Retained under `.planning/quick/031-register-ci-host-hooks/evidence/`.
 
 Boundary: No new acceptance runner or notification implementation. Preserve failed
 attempts. If the actual compatibility payload invalidates the guard, fix only that
@@ -403,4 +420,17 @@ unavailable coverage continues without a monitoring promise. Source guidance
 updated; walkthrough assertions and Slice 6/7 live-proof ownership recorded in
 this slice. Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
 `ci-cursor-lifecycle.test.mjs`, `ci-claude-lifecycle.test.mjs` — 20 pass.
-Uncommitted; ready for coordinator wrap-up (do not mark done here).
+Delivered in commit `4dfe340`.
+
+### CI repair (after Slice 5)
+Failure on `7318812` run 34325989974 (`tests/apply-temp-cleanup.sh`): invalid
+highest release could still surface resolved output after checkout cleanup, then
+`set -e` aborted before removing a `local` apply `work_root`, leaking TMPDIR on
+bash 5. Fixed fail-closed `fetch_resolved_release` and non-local apply work-root
+cleanup. Focused proof `bash tests/apply-temp-cleanup.sh` pass (also
+`update-force-restores-latest.sh`, `update-skip-verified.sh`).
+
+### Slice 6
+Installer-created Cursor hooks: native readiness, controlled failure delivery, and
+unavailable coverage without settings rewrite. Evidence retained under
+`.planning/quick/031-register-ci-host-hooks/evidence/cursor/`.
