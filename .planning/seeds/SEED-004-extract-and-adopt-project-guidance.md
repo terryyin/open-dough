@@ -17,6 +17,81 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="write-installed-skills-from-this-project"></a>
+
+### 12. Write installed skills from this project's perspective
+
+**Status:** Complete in source, 2026-09-09; implemented directly at human direction. Not yet released.
+
+**Goal:** An agent using an installed Open Dough skill understands that its
+instructions apply to this project, without maintainer-facing language implying
+that it must locate or serve a separate client project.
+
+**Scope:** Review externally distributed skills and their runtime references
+under `src/skills/` for language written from Open Dough's internal maintainer
+perspective. Fix “client project” and similar audience or location mistakes to
+address the executing agent in this project. Check meaning in context rather
+than doing only a literal phrase replacement: project guidance, paths,
+decisions, and workflow context must resolve in the project where the skill is
+being used. Keep an explicit distinction between this project and the Open
+Dough source repository where the task actually needs both, such as updating.
+
+Preserve useful behavior and required context; this is an audience/perspective
+repair, not removal of checks for genuinely missing inputs or a redesign of
+planning and execution policy. Apply the same review to related headings,
+examples, and linked runtime instructions so the confusion does not survive
+outside `SKILL.md`. “Client project” remains appropriate in internal maintainer
+guidance and recognition records when describing Open Dough's consumers.
+
+Edit the shared distributable sources only. Do not hand-edit installed managed
+copies in `.agents/skills/` or `.claude/skills/`. Exclude a global repository
+terminology rewrite, automatic wording lint, new per-tool adapters, release,
+and installation/adoption work.
+
+**Key examples:**
+
+- Given an installed skill says “resolve context from the client project,”
+  when it is revised, the agent is directed to this project's guidance and
+  paths; it is not asked to identify another client repository.
+- Given a runtime reference describes project-owned ADRs or slice budgets,
+  when it is reviewed, its wording uses the executing project's perspective
+  while retaining any necessary missing-context behavior.
+- Given similar maintainer-facing wording appears without the exact phrase
+  “client project,” the review corrects the misleading audience or location
+  assumption as well.
+- Given the updater distinguishes the installed project from the Open Dough
+  source, the corrected instructions preserve both roles explicitly. Internal
+  maintainer records can still refer to client projects.
+
+**Evaluation:** Review the distributed runtime guidance for the perspective
+problem and walk representative corrected uses under the existing `AGENTS.md`
+behavior review and
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+The executing project is unambiguous, source/target distinctions remain correct,
+and required behavior survives. Reuse the established cross-tool delivery
+mechanism; no new discovery matrix is required for wording changes.
+
+**Depends on:** No new product prerequisite. This is separate from Story 11's
+planning authorization boundary and SEED-001's hook registration work.
+**Completion:** Clarified ADR 0006 and the maintainer authoring guideline;
+restored the historical ADR 0001 as a focused Proposed vocabulary draft. Reviewed
+all 23 runtime Markdown files and corrected perspective in all ten skills and
+affected references. Kept maintainer records and installed managed copies intact.
+
+Manual behavior walkthroughs confirmed that a selected story uses this project's
+plan destination and slice limits, ADR checking reads this project's catalog and
+still stops on a real conflict, and the updater captures this project (or an
+explicit target) separately from the fetched Open Dough release source. Runtime
+examples and references retain required missing-context checks. This is a manual
+content review, not a new native-host acceptance run; shared delivery mechanisms
+are unchanged under ADR 0005.
+
+Validation passed: skill frontmatter for all ten skills, relative file links in
+all 23 runtime Markdown files, `git diff --check`, and the existing
+`dough-update-guidance-payload.sh`, `story-payload-update.sh`, and
+`execution-payload-update.sh` checks. The updater wording check accepts equivalent
+payload phrasing. No slice plan, release, or installation/adoption was performed.
+
 <a id="keep-slice-planning-bounded"></a>
 
 ### 11. Keep slice planning within the requested workflow
@@ -148,9 +223,10 @@ fixture remain maintainer-owned follow-ups.
 
 ## Ordering
 
-Story 9 is complete. Story 5 is complete. Story 11 is the selected guidance
-repair after the backlog's WIP cleanup. Story 6 remains the next extraction
-reuse opportunity. Story 7 surfaces for a real oversized problem; Story 8
+Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
+Story 11 retains its separate outcome and
+backlog position relative to the other existing items. Story 6 remains the next
+extraction reuse opportunity. Story 7 surfaces for a real oversized problem; Story 8
 surfaces for its named client/task needs.
 
 ## Delivered capabilities

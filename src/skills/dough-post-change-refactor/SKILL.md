@@ -19,7 +19,7 @@ Run `git status`, `git diff`, and `git diff --cached`. If there is no uncommitte
 change, report empty scope and use the completion handoff below without edits
 or tests.
 
-For a nonempty change, resolve the client project's navigation, domain vocabulary,
+For a nonempty change, resolve this project's navigation, domain vocabulary,
 production subsystem boundaries, file-size limits and exemptions, tooling wrapper,
 whitespace check with generated-artifact exclusions, and focused test commands.
 Resolve generation triggers and commands only when affected. If necessary
@@ -45,8 +45,8 @@ Include untouched code when it represents the same concept, duplicates the same
 knowledge, or must change for coherence. Dependency adjacency alone does not
 establish scope. Do not initiate unrelated cleanup discovered during tracing.
 
-If a candidate needs coordinated production refactoring in more than one client
-subsystem, stop before editing unless the human has authorized that named concept
+If a candidate needs coordinated production refactoring in more than one
+production subsystem, stop before editing unless the human has authorized that named concept
 and those subsystems. Generic cleanup authorization is insufficient. Tests,
 fixtures, generated artifacts, and configuration following one production seam
 do not alone constitute a crossing; neither does the original behavior change
@@ -59,7 +59,7 @@ a partial refactor or proceed with other candidates while the gate is unresolved
 
 With no candidates, report `none — already clean` and complete without tests.
 Otherwise edit in refactor-check order, without repeating broad discovery.
-Use the client whitespace check. Regenerate affected artifacts through their
+Use this project's whitespace check. Regenerate affected artifacts through their
 source generator and validate consumers; never manually repair generated output.
 
 ## Verify edits
@@ -68,7 +68,7 @@ When the caller supplied `proof:` commands, rerun only those whose covered
 behavior or paths the refactor invalidated. If the covered boundary moved,
 explain why the original command no longer applies and run a focused replacement.
 Without supplied proof, run focused tests related to the refactor edits. Use
-literal client commands and observable stable boundaries, real lower layers,
+this project's literal commands and observable stable boundaries, real lower layers,
 and crafted data; mock external services rather than internal collaborators.
 Do not run the full suite. Fix failures caused by the refactor and require
 passing relevant proof before completion. Report other unresolved failures to

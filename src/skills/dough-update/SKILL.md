@@ -14,13 +14,14 @@ inspected snapshot's helper. Do not reimplement the helper's comparison or
 installation decisions.
 
 Local-guidance replacement is not supported by dough-update.
-Do not inspect, assess, prepare, repair callers for, or remove a client project's
+Do not inspect, assess, prepare, repair callers for, or remove the target project's
 local guidance. Do not fetch a source or run an installer for such a request. A
 one-time adoption is project-specific work outside this reusable updater.
 Ordinary Open Dough release updates remain available from the recorded source.
 
-1. Capture the client project's absolute path before fetching anything. Use the
-   current project unless the user supplied another target.
+1. Capture the target project's absolute path before fetching anything. Use this
+   project unless the user supplied another target. Keep this target distinct
+   from the Open Dough source fetched below.
 2. If the user asked to install or update a specific version, tag, or branch,
    stop. Say `Open Dough installs and updates the latest numeric release only.
    Requested-version updates are not supported.` Do not fetch or write.
@@ -34,7 +35,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
-   The client payload includes skill entrypoints and supporting files declared by the
+   The release payload includes skill entrypoints and supporting files declared by the
    pinned release's installer and baseline-comparison helper. Treat that
    release as authoritative: payload skills may be added between releases, so
    a path absent from the installed release is not by itself a reason to stop.
@@ -42,15 +43,14 @@ Ordinary Open Dough release updates remain available from the recorded source.
    recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
    writes the same `SOURCE` from the supplied repository URL or local path,
    then `VERSION`, in both physical roots. Ordinary no-URL updates reuse the
-   invoking root's recorded `SOURCE`. Source recognition records are maintainer
-   material and are not installed.
+   invoking root's recorded `SOURCE`.
 
 4. Resolve the Open Dough source from the invoking root. If that updater
    destination already exists and has a usable recorded
    `dough-update/SOURCE`, use that source. For an ordinary update, if that
    record is missing or unusable, stop and report that ordinary update cannot
    establish the recorded baseline. Do not ask for a URL, do not treat the
-   destination as a first install, and do not substitute the client project's
+   destination as a first install, and do not substitute the target project's
    remote or local working-tree content. If the destination does not exist,
    use the repository URL supplied by the user; if none was supplied, ask for
    it before proceeding. First installation takes a supplied source. Explicit
@@ -70,7 +70,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
       `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`,
       `src/install/open-dough-release-apply.sh`, `install.sh`, the helpers they
-      source, and every client payload source they declare under `src/skills/`.
+      source, and every release payload source they declare under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <snapshot>/src/install/open-dough-release.sh apply --target
@@ -81,9 +81,9 @@ Ordinary Open Dough release updates remain available from the recorded source.
       SOURCE, omit `--url`; otherwise include `--url <source-url>`.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
-      inspected files write solely to the release-declared client payload paths
+      inspected files write solely to the release-declared payload paths
       under both native skill roots and each updater's `SOURCE` and
-      `VERSION` records in the captured client project, preserving
+      `VERSION` records in the captured target project, preserving
       distributable source, unrelated project files, and home guidance.
 6. Trust the helper's comparison. An ordinary update without a supplied URL
    fetches the recorded VERSION tag as data and compares the installation with

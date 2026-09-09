@@ -13,8 +13,8 @@ for managed_file in "${managed_files[@]}"; do
   grep -Fq -- "\`${managed_file}\`" "${guide}"
 done
 
-grep -Fq 'every client payload source they declare' "${skill}"
-grep -Fq 'release-declared client payload paths' "${skill}"
+grep -Eq 'every (client |release )?payload source they declare' "${skill}"
+grep -Eq 'release-declared (client |release )?payload paths' "${skill}"
 grep -Fq 'payload skills may be added between releases' "${skill}"
 grep -Fq 'payload declared by that recorded release' "${skill}"
 grep -Fq 'Payload paths newly added by the release must be absent' "${skill}"

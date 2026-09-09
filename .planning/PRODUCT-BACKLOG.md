@@ -22,6 +22,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Recently done
 
+- [Write installed skills from this project's perspective](seeds/SEED-004-extract-and-adopt-project-guidance.md#write-installed-skills-from-this-project) — SEED-004
 - [Remove WIP without external value and find a home for the rest](seeds/SEED-009-keep-only-externally-valuable-work.md#harden-direction-change) — SEED-009 / Quick 029
 - [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028
 - [Extract a project skill directly into unreleased source](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-directly-with-guidelines) — SEED-004 / Quick 026
@@ -31,4 +32,3 @@ trunk-based development, with each agent working in its own Git worktree.
 - [Complete one authorized ADR-guidance replacement in Codex](seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install) — SEED-004
 - [Publish extracted guidance and the version-aware updater](seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater) — SEED-001
 - [Install the latest released Open Dough guidance safely](seeds/SEED-001-install-and-update-open-dough.md#install-latest-release) — SEED-001
-- [Turn a supplied project practice into usable public guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#generalize-project-guidance) — SEED-004

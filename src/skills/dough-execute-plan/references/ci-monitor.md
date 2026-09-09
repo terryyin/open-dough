@@ -1,6 +1,6 @@
 # Asynchronous CI observation and repair
 
-Read [runtime setup](runtime-setup.md) to resolve the client project's CI
+Read [runtime setup](runtime-setup.md) to resolve this project's CI
 repository, branch, workflow, runtime, and host registration before launching.
 
 ## Own one observer
@@ -94,7 +94,7 @@ until that missing history is accounted for.
    attempt, failed SHA, bounded failure evidence, current HEAD, and the paused
    workers' ownership boundaries. Assign only the diagnosed CI failure; the
    agent is not alone in the repository and must preserve other work. It reads
-   relevant client rules, investigates at current HEAD, proves
+   relevant project rules, investigates at current HEAD, proves
    the defect with a minimal observable test failing for the right reason, then
    applies the smallest fix and confirms focused green proof. It returns the fix
    with [implementation proof](delegation.md)
