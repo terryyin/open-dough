@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+echo "UF-TRACE start" >&2
+trap 'echo "UF-TRACE exit status=$? at line $LINENO" >&2' ERR
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
@@ -10,7 +12,7 @@ source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 
 temporary_dir=$(mktemp -d)
-trap 'rm -rf -- "${temporary_dir}"' EXIT
+trap 'ec=$?; echo "UF-TRACE cleanup exit=$ec" >&2; rm -rf -- "${temporary_dir}"; exit "$ec"' EXIT
 cd -- "${temporary_dir}"
 
 helper="${source_dir}/src/install/open-dough-release.sh"
@@ -36,8 +38,13 @@ prepare_recorded_latest() {
   prepare_target "${target}"
   git -C "${target}" init --quiet
   git -C "${target}" remote add origin "${decoy}"
-  bash "${helper}" apply --url "${fixture}" --target "${target}" --platform cursor \
-    > /dev/null
+  echo "UF-TRACE prepare ${target}" >&2
+  if ! bash "${helper}" apply --url "${fixture}" --target "${target}" --platform cursor \
+    > "${temporary_dir}/prepare.stdout"; then
+    echo "FAIL: prepare_recorded_latest apply failed for ${target}" >&2
+    cat "${temporary_dir}/prepare.stdout" >&2 || true
+    return 1
+  fi
 }
 
 assert_complete_latest() {
@@ -114,6 +121,7 @@ assert_force_success() {
 }
 
 edited_target="${temporary_dir}/edited project"
+echo "UF-TRACE case edited" >&2
 prepare_recorded_latest "${edited_target}"
 edited_dest="${edited_target}/.agents/skills/dough-update"
 edited_root=$(dirname -- "${edited_dest}")
@@ -122,7 +130,9 @@ printf '%s\n' 'obsolete recognition' > \
   "${edited_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep this updater-side file.' > "${edited_dest}/LOCAL.md"
 edited_tmp="${temporary_dir}/edited-tmp"
+echo "UF-TRACE force edited" >&2
 output=$(run_force_apply "${edited_target}" "${edited_tmp}")
+echo "UF-TRACE forced edited bytes=${#output}" >&2
 assert_force_success "${output}" "${edited_dest}" "${edited_target}" \
   "${edited_tmp}" "${expected_source}"
 contents=$(cat "${edited_dest}/LOCAL.md")
