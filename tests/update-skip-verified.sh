@@ -180,9 +180,10 @@ echo 'PASS: semantically complete noncanonical settings remain wholly unwritten.
 
 # Missing managed entry restores only settings; payload records stay unwritten.
 capture_payload_baseline
-cursor_complete=$(shasum -a 256 "${target}/.cursor/hooks.json")
+cursor_before_damage_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
 remove_one_cursor_managed_entry "${target}"
-[[ $(shasum -a 256 "${target}/.cursor/hooks.json") != "${cursor_complete}" ]]
+cursor_damaged_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
+[[ "${cursor_damaged_digest}" != "${cursor_before_damage_digest}" ]]
 # Ensure mtime can move on settings write without colliding with payload checks.
 sleep 1
 trace="${temporary_dir}/trace-missing-entry"
@@ -191,7 +192,8 @@ OPEN_DOUGH_TRACE="${trace}" bash "${helper}" apply --target "${target}" --platfo
   > "${temporary_dir}/output-missing-entry"
 assert_hooks_repaired_without_payload_writes \
   'missing managed entry' "${temporary_dir}/output-missing-entry" "${trace}"
-[[ $(shasum -a 256 "${target}/.cursor/hooks.json") == "${cursor_complete}" ]]
+cursor_repaired_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
+[[ "${cursor_repaired_digest}" != "${cursor_damaged_digest}" ]]
 assert_managed_host_hooks "${target}"
 assert_unrelated_preserved "${target}"
 echo 'PASS: missing managed entry restores only host registration.'
