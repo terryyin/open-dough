@@ -1,7 +1,8 @@
 # Asynchronous CI observation and repair
 
 Read [runtime setup](runtime-setup.md) to resolve this project's CI
-repository, branch, workflow, runtime, and host registration before launching.
+repository, branch, workflow, runtime, and host-bridge readiness before
+launching.
 
 ## Own one observer
 
@@ -40,7 +41,8 @@ At completion, a stop requiring human judgment, cancellation, or coordinator
 replacement, use the host adapter to stop the exact observer and confirm local
 shutdown. Preserve unread evidence and report `pendingCi: unobserved`; missing
 terminal evidence means lost coverage. Handle delivered failures before claiming
-completion. Never kill by a broad process-name pattern.
+completion. Never kill by a broad process-name pattern. Retain installed hook
+registration; shutdown does not unregister or rewrite host settings.
 
 ## Handle a notification
 

@@ -191,7 +191,7 @@ check; do not bypass source/version verification or invent a new repair command.
 
 ### 5. Use observation without changing host configuration
 Type: Behavior
-Status: planned
+Status: in-progress
 
 Behavior: Given installed registration, execute-plan probes readiness and starts
 and stops its observer while leaving settings unchanged. Missing readiness is
@@ -203,6 +203,30 @@ Proof: Representative skill walkthrough of ready and unavailable cases against
 updater instructions. Use the existing hook/lifecycle tests for empty-event output
 and retained registration; do not write prose-exact tests. Native proof is owned
 by Slices 6 and 7. Record which walkthrough assertions require that live proof.
+
+Evidence (2026-09-09):
+- Guidance: execute-plan confirms install/update registration, probes readiness,
+  starts/stops the mailbox observer, and must not rewrite host settings.
+  Missing readiness is explicit unavailable coverage (continue without a
+  monitoring promise). Shutdown retains hook registration.
+- Aligned `docs/installation-and-updates.md` and `dough-update/SKILL.md` so
+  registration stays an install/update concern; observation verifies only.
+- Shared lifecycle wording in `ci-monitor.md` matches verify/retain semantics.
+- Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
+  `ci-cursor-lifecycle.test.mjs`, and `ci-claude-lifecycle.test.mjs` (empty-event
+  quiet output; readiness/start/reuse/stop without unregistering hooks).
+
+Walkthrough assertions:
+
+| Case | Assertion from guidance | Slice 5 proof | Needs Slice 6/7 live |
+| --- | --- | --- | --- |
+| Ready | Probe yields `CI_OBSERVER` receipt; host hook adds separate `CI_MONITOR_READY` | Lifecycle + host-hook tests (scripted hook replay) | Yes — real Cursor/Claude session after installer/update registration |
+| Ready | After ready, `start` once; attachment context; reuse across pushes; no second launch | Lifecycle tests | Yes — native attachment after real hooks |
+| Ready | Observer start/stop leave `.cursor/hooks.json` / `.claude/settings.json` unchanged | Guidance only (no settings write path in observe) | Yes — settings snapshots before/after native run |
+| Ready | Shutdown retains installed hook registration (no unregister) | Guidance + stop stops mailbox only (lifecycle) | Yes — post-shutdown settings still contain managed entries |
+| Unavailable | Missing `CI_MONITOR_READY` → report once, continue without monitoring promise | Guidance walkthrough | Yes — unavailable-hook setup without trust/policy override |
+| Unavailable | Do not merge fragments or rewrite host settings to "fix" readiness | Guidance walkthrough | Yes — settings unchanged in unavailable case |
+| Empty event | Pending/success boundaries add no model context | `ci-host-hook` + lifecycle empty `{}` assertions | No (scripted) unless native delivery regression appears |
 
 Boundary: No new event delivery semantics, polling, automatic unregistration or
 runtime redesign. Source edits only; installed copies change through release.
@@ -363,3 +387,16 @@ host settings; older execution-payload fixtures lacked hook fragments; installer
 ### Slice 3
 Ordinary remembered-SOURCE upgrade registers/adopts hooks; host-conflict refusal
 before replacement. Focused proof `bash tests/execution-payload-update.sh` pass.
+
+### Slice 4
+Equal-version repair for missing hook entries; intact install no-op; conflict
+refusal. Focused proofs `bash tests/update-skip-verified.sh` and
+`bash tests/update-refuses-unverifiable.sh` pass.
+
+### Slice 5
+Execute-plan verifies readiness and manages observer without writing settings;
+unavailable coverage continues without a monitoring promise. Source guidance
+updated; walkthrough assertions and Slice 6/7 live-proof ownership recorded in
+this slice. Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
+`ci-cursor-lifecycle.test.mjs`, `ci-claude-lifecycle.test.mjs` — 20 pass.
+Uncommitted; ready for coordinator wrap-up (do not mark done here).

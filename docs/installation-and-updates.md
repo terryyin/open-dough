@@ -45,10 +45,14 @@ unrelated project files, home-level guidance, and any other tool's separate
 installation. During this interim release boundary, an obsolete recognition
 file from an earlier installation may remain until a later update retires it.
 
-Execution skills include hook fragments without overwriting host settings.
-Before using asynchronous CI observation, follow the installed
-`dough-execute-plan/references/runtime-setup.md` to select the client workflow
-and register the appropriate host hooks through its authorized settings workflow.
+Installation and ordinary update register the managed host-hook entries from the
+execution skill fragments into `.cursor/hooks.json` and `.claude/settings.json`
+when those fragments ship, preserving unrelated settings. Before asynchronous
+CI observation, follow the installed
+`dough-execute-plan/references/runtime-setup.md` to select this project's
+workflow and verify host-bridge readiness; execute-plan starts and stops the
+observer without writing host settings. Missing readiness is reported as
+unavailable coverage and does not authorize settings changes.
 
 ## Common installation flow
 
