@@ -7,7 +7,11 @@ complete set of skills covering the full software development lifecycle.
 
 ## Backlog list
 
+- [Turn execution learning into product backlog decisions](seeds/SEED-010-learn-from-execution-retrospectives.md#turn-execution-learning-into-product-backlog-decisions) — SEED-010
 - [Keep slice planning within the requested workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded) — SEED-004
+- [Preserve recurring retrospective findings in DearDough.md](seeds/SEED-010-learn-from-execution-retrospectives.md#turn-retrospectives-into-learning-loop) — SEED-010
+- [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
+- [Help the maintainer act on DearDough.md findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail) — SEED-010
 - [Use the standalone updater in Claude Code](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006
@@ -31,4 +35,3 @@ trunk-based development, with each agent working in its own Git worktree.
 - [Adopt and reuse released guidance in Open Dough](seeds/SEED-001-install-and-update-open-dough.md#adopt-version-aware-updater) — SEED-001
 - [Complete one authorized ADR-guidance replacement in Codex](seeds/SEED-004-extract-and-adopt-project-guidance.md#reconcile-guidance-on-install) — SEED-004
 - [Publish extracted guidance and the version-aware updater](seeds/SEED-001-install-and-update-open-dough.md#publish-version-aware-updater) — SEED-001
-- [Install the latest released Open Dough guidance safely](seeds/SEED-001-install-and-update-open-dough.md#install-latest-release) — SEED-001
