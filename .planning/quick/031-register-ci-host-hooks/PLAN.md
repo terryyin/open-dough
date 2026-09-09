@@ -168,7 +168,7 @@ update. Existing release tags and historical fixture semantics stay immutable.
 
 ### 4. Repair missing registrations at the current version
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given verified current skill roots with a missing hook file or entry,
 ordinary update restores only missing registration; a complete current install
@@ -178,6 +178,13 @@ Proof: Extend `bash tests/update-skip-verified.sh` with intact and missing-entry
 cases, checking payload/record timestamps and bytes, settings state and result
 messages. Re-run a repaired target to prove a full no-op. Retain
 `bash tests/update-refuses-unverifiable.sh` coverage for the managed baseline gate.
+
+Evidence (2026-09-09):
+- Equal-version path uses hook completeness (`status`/`repair`/`complete`).
+- Missing entry/file repairs settings only; intact install stays `apply-skip-equal`.
+- Conflict refuses without writes.
+- `proof: command: bash tests/update-skip-verified.sh` — pass.
+- `proof: command: bash tests/update-refuses-unverifiable.sh` — pass.
 
 Boundary: Replace the apply helper's roots-only early return with a completeness
 check; do not bypass source/version verification or invent a new repair command.

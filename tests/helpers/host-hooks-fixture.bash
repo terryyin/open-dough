@@ -106,6 +106,23 @@ fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
 EOF
 }
 
+# Removes one managed Cursor stop handler so equal-version update can repair it.
+remove_one_cursor_managed_entry() {
+  local target=$1
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  node - "${target}" "${cursor_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, fragmentPath] = process.argv.slice(2);
+const fragment = JSON.parse(fs.readFileSync(fragmentPath, "utf8"));
+const path = `${target}/.cursor/hooks.json`;
+const doc = JSON.parse(fs.readFileSync(path, "utf8"));
+const managed = fragment.hooks.stop[0].command;
+doc.hooks.stop = (doc.hooks.stop || []).filter((handler) => handler.command !== managed);
+fs.writeFileSync(path, `${JSON.stringify(doc, null, 2)}\n`);
+EOF
+}
+
 seed_edited_managed_timeout() {
   local target=$1
   local cursor_fragment claude_fragment
@@ -167,6 +184,28 @@ const stop = claude.hooks?.Stop;
 if (!Array.isArray(stop) || !stop.some((wrapper) => wrapper.hooks?.some((hook) => hook.command === "echo unrelated-claude-stop"))) {
   console.error("FAIL: Claude unrelated Stop sibling was not preserved.");
   process.exit(1);
+}
+EOF
+}
+
+# Managed Cursor commands only — for repair of an absent settings file that had
+# no unrelated values to preserve.
+assert_cursor_managed_commands() {
+  local target=$1
+  local cursor_fragment claude_fragment
+  resolve_host_hook_fragments "${2-}"
+  node - "${target}" "${cursor_fragment}" << 'EOF'
+const fs = require("node:fs");
+const [target, fragmentPath] = process.argv.slice(2);
+const fragment = JSON.parse(fs.readFileSync(fragmentPath, "utf8"));
+const cursor = JSON.parse(fs.readFileSync(`${target}/.cursor/hooks.json`, "utf8"));
+for (const [event, entries] of Object.entries(fragment.hooks)) {
+  const managed = entries[0];
+  const handlers = cursor.hooks?.[event];
+  if (!Array.isArray(handlers) || !handlers.some((handler) => handler.command === managed.command)) {
+    console.error(`FAIL: Cursor managed command missing for ${event}.`);
+    process.exit(1);
+  }
 }
 EOF
 }

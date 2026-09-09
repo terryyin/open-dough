@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Register Cursor and Claude Code CI host hooks from authoritative fragments.
-# Sourced by install.sh. Requires Node for JSON merge; checks availability
-# before the caller mutates the target.
+# Sourced by install.sh and open-dough-release.sh. Requires Node for JSON merge;
+# checks availability before the caller mutates the target.
 # shellcheck disable=SC2310,SC2312
 
 open_dough_register_hooks_helper() {
@@ -41,6 +41,11 @@ run_host_hooks() {
 
 preflight_host_hooks() {
   run_host_hooks preflight "$@"
+}
+
+# Prints complete or repair on stdout; conflicts fail like preflight.
+host_hooks_registration_status() {
+  run_host_hooks status "$@"
 }
 
 apply_host_hooks() {

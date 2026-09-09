@@ -28,7 +28,7 @@ const HOSTS = [
 
 function usage() {
   console.error(
-    "Usage: open-dough-register-hooks.mjs <preflight|apply> <target> <source-dir>",
+    "Usage: open-dough-register-hooks.mjs <preflight|apply|status> <target> <source-dir>",
   );
   process.exit(1);
 }
@@ -147,22 +147,31 @@ function planAll(targetRoot, sourceDir) {
   return { plans };
 }
 
-function preflight(targetRoot, sourceDir) {
+function requirePlans(targetRoot, sourceDir) {
   const result = planAll(targetRoot, sourceDir);
   if (result.error) {
     console.error(result.error);
     process.exit(1);
   }
+  return result.plans;
+}
+
+function preflight(targetRoot, sourceDir) {
+  requirePlans(targetRoot, sourceDir);
+}
+
+// complete = every host already matches; repair = missing entries are mergeable.
+// Conflicts exit non-zero like preflight so callers refuse without writes.
+function status(targetRoot, sourceDir) {
+  const plans = requirePlans(targetRoot, sourceDir);
+  const needsWrite = plans.some((plan) => plan.action === "write");
+  console.log(needsWrite ? "repair" : "complete");
 }
 
 function apply(targetRoot, sourceDir) {
-  const result = planAll(targetRoot, sourceDir);
-  if (result.error) {
-    console.error(result.error);
-    process.exit(1);
-  }
+  const plans = requirePlans(targetRoot, sourceDir);
   const written = [];
-  for (const plan of result.plans) {
+  for (const plan of plans) {
     if (plan.action === "skip") {
       continue;
     }
@@ -198,7 +207,7 @@ const sourceArg = process.argv[4];
 if (!command || !targetArg || !sourceArg) {
   usage();
 }
-if (command !== "preflight" && command !== "apply") {
+if (command !== "preflight" && command !== "apply" && command !== "status") {
   usage();
 }
 
@@ -207,6 +216,8 @@ const sourceDir = resolve(sourceArg);
 
 if (command === "preflight") {
   preflight(targetRoot, sourceDir);
+} else if (command === "status") {
+  status(targetRoot, sourceDir);
 } else {
   apply(targetRoot, sourceDir);
 }

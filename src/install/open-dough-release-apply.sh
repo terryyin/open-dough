@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Ordinary, supplied-URL, and explicit-force apply: resolve source, pin,
 # compare unless forced, then install.
-# Sourced by open-dough-release.sh after platform, version, and resolve modules.
+# Sourced by open-dough-release.sh after platform, register-hooks, version, and
+# resolve modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2312,SC2249
 
@@ -9,6 +10,44 @@ trace_line() {
   if [[ -n "${OPEN_DOUGH_TRACE:-}" ]]; then
     printf '%s\n' "$1" >> "${OPEN_DOUGH_TRACE}"
   fi
+}
+
+# Equal-version roots stay verified; hook completeness is a separate check.
+# Restores only missing registration. Conflicts refuse without payload writes.
+finish_equal_version_host_hooks() {
+  local work=$1
+  local target=$2
+  local dest=$3
+  local hooks_status
+
+  if ! host_hook_fragments_present "${work}"; then
+    trace_line "apply-skip-equal ${dest}"
+    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
+    return 0
+  fi
+  if ! hooks_status=$(host_hooks_registration_status "${work}" "${target}"); then
+    trace_line "apply-hooks-conflict ${dest}"
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  if [[ "${hooks_status}" == complete ]]; then
+    trace_line "apply-skip-equal ${dest}"
+    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
+    return 0
+  fi
+  if [[ "${hooks_status}" != repair ]]; then
+    echo "Unexpected host hook registration status: ${hooks_status}" >&2
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  # Status already proved a mergeable write; apply re-plans and writes.
+  trace_line "apply-hooks-repair ${dest}"
+  if ! apply_host_hooks "${work}" "${target}"; then
+    printf 'Outcome: refused; preserved the selected installation.\n'
+    return 1
+  fi
+  printf 'Outcome: both physical installations are current; restored missing host hook registration without rewriting managed payload files.\n'
+  return 0
 }
 
 report_unverifiable_installation() {
@@ -232,9 +271,8 @@ EOF
     fi
   done < <(all_destinations_for "${target}")
   if [[ ${needs_replacement} -eq 0 ]]; then
-    trace_line "apply-skip-equal ${dest}"
-    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
-    return 0
+    finish_equal_version_host_hooks "${work}" "${target}" "${dest}"
+    return
   fi
   trace_line "apply-reconcile ${dest}"
   run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1
