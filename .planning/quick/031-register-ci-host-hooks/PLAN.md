@@ -191,7 +191,7 @@ check; do not bypass source/version verification or invent a new repair command.
 
 ### 5. Use observation without changing host configuration
 Type: Behavior
-Status: in-progress
+Status: done
 
 Behavior: Given installed registration, execute-plan probes readiness and starts
 and stops its observer while leaving settings unchanged. Missing readiness is
@@ -215,6 +215,10 @@ Evidence (2026-09-09):
 - Focused reuse: `node --test` on `ci-host-hook.test.mjs`,
   `ci-cursor-lifecycle.test.mjs`, and `ci-claude-lifecycle.test.mjs` (empty-event
   quiet output; readiness/start/reuse/stop without unregistering hooks).
+- Delivered in commit `4dfe340`.
+
+Boundary: No new event delivery semantics, polling, automatic unregistration or
+runtime redesign. Source edits only; installed copies change through release.
 
 Walkthrough assertions:
 

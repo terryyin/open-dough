@@ -188,13 +188,25 @@ assert_sentinels() {
   local contents
 
   contents=$(cat "${target}/.agents/skills/unrelated/SKILL.md")
-  [[ "${contents}" == 'Keep this unrelated skill.' ]]
+  if [[ "${contents}" != 'Keep this unrelated skill.' ]]; then
+    echo "FAIL: assert_sentinels lost unrelated agents skill" >&2
+    return 1
+  fi
   contents=$(cat "${target}/.cursor/skills/other-cursor-skill/SKILL.md")
-  [[ "${contents}" == 'Keep this Cursor sentinel.' ]]
+  if [[ "${contents}" != 'Keep this Cursor sentinel.' ]]; then
+    echo "FAIL: assert_sentinels lost Cursor sentinel" >&2
+    return 1
+  fi
   contents=$(cat "${target}/.claude/skills/other-skill/SKILL.md")
-  [[ "${contents}" == 'Keep this Claude sentinel.' ]]
+  if [[ "${contents}" != 'Keep this Claude sentinel.' ]]; then
+    echo "FAIL: assert_sentinels lost Claude sentinel" >&2
+    return 1
+  fi
   contents=$(cat "${target}/keep this file.txt")
-  [[ "${contents}" == 'Keep this project file.' ]]
+  if [[ "${contents}" != 'Keep this project file.' ]]; then
+    echo "FAIL: assert_sentinels lost project file" >&2
+    return 1
+  fi
 }
 
 assert_payload() {
@@ -204,18 +216,30 @@ assert_payload() {
   local contents
   local skill_root managed_file
 
-  grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"
+  if ! grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"; then
+    echo "FAIL: assert_payload missing marker ${marker} in ${destination}/SKILL.md" >&2
+    return 1
+  fi
   skill_root=$(dirname -- "${destination}")
   for managed_file in "${managed_files[@]}"; do
     if [[ "${managed_file}" == 'dough-update/SKILL.md' ]]; then
       continue
     fi
-    cmp "${source_dir}/src/skills/${managed_file}" \
-      "${skill_root}/${managed_file}"
+    if ! cmp "${source_dir}/src/skills/${managed_file}" \
+      "${skill_root}/${managed_file}"; then
+      echo "FAIL: assert_payload mismatch for ${managed_file} under ${skill_root}" >&2
+      return 1
+    fi
   done
-  [[ ! -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
+  if [[ -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]; then
+    echo "FAIL: assert_payload found retired RECOGNITION.md under ${skill_root}" >&2
+    return 1
+  fi
   contents=$(cat "${destination}/VERSION")
-  [[ "${contents}" == "${version}" ]]
+  if [[ "${contents}" != "${version}" ]]; then
+    echo "FAIL: assert_payload VERSION is ${contents}, expected ${version}" >&2
+    return 1
+  fi
 }
 
 file_mtime() {
