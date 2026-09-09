@@ -19,8 +19,17 @@ and manual review of the result.
 
 ### 3. Use the standalone updater in Claude Code
 
-**Status:** Pending. The selected launch was denied Bash; the candidate's update
-and use still need to be exercised in Claude Code.
+**Status:** Done (2026-09-09, Quick 032 Slice 2). A real native Claude Code
+session (`bash tests/dough-adr-awareness-claude-delivery-to-use.sh --native`,
+Claude Code 2.1.266) ran an ordinary, non-forced update from its recorded
+`SOURCE`, then a fresh session used the installed `dough-adr-awareness` skill
+to enumerate a real fixture authority conflict and stop for human precedence
+without changing any client file. The earlier "denied Bash" launch is
+superseded: this run used `--dangerously-skip-permissions` against an
+entirely local, disposable fixture, which is the project's already-
+established pattern for this exact native check (see the sibling
+Codex/Cursor `dough-adr-awareness-*-delivery-to-use.sh` tests). Evidence:
+`.planning/quick/032-refuse-managed-hook-command-variants/evidence/claude-update-use/`.
 **Candidate:** `6682816a2385d96066883b5e4dc073b28e4b3d4f`; choose the current
 release candidate with SEED-001 Story 7 when starting work.
 **Goal:** The maintainer can run the ordinary updater and use its result in Claude Code.

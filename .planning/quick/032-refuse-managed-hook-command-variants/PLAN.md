@@ -209,15 +209,17 @@ tab-suffix conflict at equal-version update). `npm run lint`,
 `bash tests/install-ci-host-hooks.sh`, `bash tests/update-skip-verified.sh`,
 and `bash tests/install-all-tools.sh` all pass. Delivered on branch
 `worktree-quick-032-hook-conflict-refusal`, merged to `main`, worktree/branch
-removed. Human direction (2026-09-09): stop after this slice; Slices 2–4 need
-capabilities this coordinator session does not have (a permitted native
-Claude Code update session against a disposable release source; real GitHub
-Actions CI via `gh`; and a real Cursor desktop session, which has no available
-automation tool here) and remain `planned` for a session with that access.
+removed. Human direction (2026-09-09): stop after this slice initially, then
+(after clarifying what specifically blocked Slice 2) explicit authorization to
+create disposable local git fixtures and use `--dangerously-skip-permissions`
+for throwaway native sessions; see Slice 2 for what that unblocked. Slices 3–4
+still likely need capabilities beyond one coordinator session (real GitHub
+Actions CI watch tuning; a real Cursor desktop session, which has no available
+automation tool here) and remain `planned`.
 
 ### 2. Complete an ordinary Claude Code update and installed ADR use
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a disposable project with a verified older installation and
 remembered SOURCE, a permitted native Claude Code session updates through the
@@ -241,6 +243,42 @@ affected focused checks if changed; a deterministic pass does not replace native
 use. Save evidence under this plan's `evidence/claude-update-use/`, update SEED-007's
 status only when its full outcome passes, and retain the updated committed fixture
 for Slice 3. No successful hook-only run can close this slice.
+
+Outcome: done. Reused the project's existing native harness
+(`tests/dough-adr-awareness-claude-delivery-to-use.sh --native`), which already
+implemented exactly this scenario against an entirely local, disposable
+fixture (no GitHub tags needed — a synthetic `file://` release history) but
+had never been run for Claude. The prior SEED-007 "denied Bash" blocker was
+specific to an earlier launch attempt; this harness's own established pattern
+(`claude --print --dangerously-skip-permissions --no-session-persistence`,
+matching the sibling Codex/Cursor tests) resolved it, since the fixture is
+throwaway and never touches real credentials or the real repository. First
+attempt surfaced a real test-harness defect, not a product defect: `delivery_assert_update`
+demanded a literal verbatim match for all ~25 individual managed file paths
+in the native session's natural-language report; a genuine session
+reasonably summarized instead. Fixed in `tests/support/dough-adr-awareness-release-transition.sh`
+(commit `d8ff5b5`) to require each managed skill name instead, keeping the
+byte-exact `delivery_assert_update_payload` disk check unchanged as the real
+correctness proof. Reran clean: real native Claude Code 2.1.266 correctly
+refused an incompatible legacy update (payload contract mismatch), then a
+fresh session performed the ordinary non-forced update, then a third fresh
+session used the installed `dough-adr-awareness` skill to enumerate the
+fixture's actual CATALOG.md/ARC-12 conflict and stop for human precedence
+without changing any file. Evidence and full transcript:
+`evidence/claude-update-use/`. SEED-007 Story 3 updated to Done. Pushed as
+commits `9037a6a` (an unrelated but necessary CI-timeout repair discovered
+via the observer on Slice 1's push — see below) and `d8ff5b5`.
+
+A live CI notification during this slice (`CI_INCOMPLETE`, run `34348681817`,
+conclusion `cancelled`) was investigated per the CI-repair protocol before
+being dismissed: no later push superseded it, and every job step including
+final cleanup reported success, but the job ran 9m57s against a 10-minute
+timeout with the immediately preceding run already at 9m34s — a pre-existing,
+near-exhausted budget that Slice 1's added installer-invocation tests tipped
+over. Fixed by raising `timeout-minutes` to 20 in `.github/workflows/ci.yml`
+(commit `9037a6a`), pushed ahead of the Slice 2 evidence commit. This was the
+first push made after the plan's CI-observer setup was actually established
+(a process gap: it should have been running before Slice 1's push too).
 
 ### 3. Verify and tune Claude Code's native CI watch
 Type: Behavior
