@@ -119,7 +119,7 @@ This is an unreleased, CI-safe first result, not a separate public release.
 
 ### 2. Install beside existing project hooks safely
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given existing host hooks, installation produces one Open Dough
 registration per required event while preserving unrelated settings, or reports a
@@ -131,6 +131,11 @@ repeated invocation, malformed JSON, edited managed timeout/command, and an unsa
 settings path. Compare full target state for refusals; verify unrelated values
 and absence of duplicate managed commands for success. A conflict in either host
 must prevent changes in both; include `--force` to prove it cannot clobber settings.
+
+Evidence (2026-09-09):
+- Merge policy in `open-dough-register-hooks-merge.mjs`; entrypoint unchanged contract.
+- `proof: command: bash tests/install-ci-host-hooks.sh` — pass.
+- `proof: command: bash tests/install-all-tools.sh` — pass after nonempty refusal removed.
 
 Boundary: Removes Slice 1's temporary nonempty-map refusal. Keep all policy in the
 small merge/preflight path; no generalized ownership registry or JSON schema suite.
@@ -317,5 +322,10 @@ release must not silently waive it. No other open product decision was identifie
 
 ## Execution evidence
 
-None yet. During execution, record commands, postconditions and results against
-the owning slices; distinguish reused proof, fresh proof, and pending outcomes.
+CI observer: mailbox `/tmp/dough-ci-501/watch-AMvjtz`, workflow `ci.yml` / `CI`,
+branch `execute/031-register-ci-host-hooks`. Host bridge readiness unavailable in
+this worktree (no `.cursor/hooks.json`); continuing without promised native
+notification coverage. Check mailbox/gh for failures after pushes.
+
+### Slice 1
+Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.

@@ -88,7 +88,7 @@ bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source
 assert_all_roots "${conflict_target}" "$(cat "${source_dir}/VERSION")" '' "$(cd "${source_dir}" && pwd -P)"
 assert_managed_host_hooks "${conflict_target}"
 
-# Preflight malformed or unsafe settings and nonempty foreign hooks before writes.
+# Preflight malformed or unsafe settings before writes.
 malformed_target="${temporary_dir}/malformed"
 prepare_target "${malformed_target}"
 mkdir -p -- "${malformed_target}/.cursor"
@@ -119,22 +119,7 @@ fi
 [[ $(snapshot_path_state "${unsafe_target}") == "${before}" ]]
 [[ ! -e "${unsafe_target}/.agents/skills/dough-update" ]]
 
-nonempty_target="${temporary_dir}/nonempty"
-prepare_target "${nonempty_target}"
-mkdir -p -- "${nonempty_target}/.cursor" "${nonempty_target}/.claude"
-printf '%s\n' '{"hooks":{"stop":[{"command":"echo foreign"}]},"sentinel":"keep Cursor settings"}' \
-  > "${nonempty_target}/.cursor/hooks.json"
-printf '%s\n' '{"hooks":{},"sentinel":"keep Claude settings"}' \
-  > "${nonempty_target}/.claude/settings.json"
-before=$(snapshot_path_state "${nonempty_target}")
-if output=$(bash "${source_dir}/install.sh" --target "${nonempty_target}" --source "${source_dir}" 2>&1); then
-  echo 'FAIL: nonempty existing hooks must refuse before writes.' >&2
-  exit 1
-fi
-[[ "${output}" == *'unsupported-existing-hooks'* ]]
-[[ $(snapshot_path_state "${nonempty_target}") == "${before}" ]]
-[[ ! -e "${nonempty_target}/.agents/skills/dough-update" ]]
-[[ ! -e "${nonempty_target}/.claude/skills/dough-update" ]]
+# Nonempty unrelated hooks are owned by tests/install-ci-host-hooks.sh (Slice 2).
 
 # A no-URL update from one old root restores missing shared integrations.
 fixture="${temporary_dir}/fixture.git"
@@ -150,4 +135,4 @@ fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 assert_managed_host_hooks "${update_target}"
 
-echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; ordinary conflicts stop before writes; force repairs them; malformed/unsafe/nonempty hooks refuse before mutation; and one-root update restores missing integrations.'
+echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; ordinary conflicts stop before writes; force repairs them; malformed/unsafe hooks refuse before mutation; and one-root update restores missing integrations.'

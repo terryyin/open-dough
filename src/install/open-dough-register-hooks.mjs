@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Merge Open Dough CI host hook fragments into project settings.
 // Identifies managed entries by native event and exact command from the
-// authoritative fragments. Empty/absent maps and exact managed maps are
-// accepted; other nonempty maps refuse with unsupported-existing-hooks.
+// authoritative fragments. Preserves unrelated handlers and matcher siblings;
+// refuses named conflicts without writing when a safe merge is unavailable.
 import {
   readFileSync,
   writeFileSync,
@@ -11,6 +11,7 @@ import {
   mkdirSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { mergeDocument } from "./open-dough-register-hooks-merge.mjs";
 
 const HOSTS = [
   {
@@ -30,10 +31,6 @@ function usage() {
     "Usage: open-dough-register-hooks.mjs <preflight|apply> <target> <source-dir>",
   );
   process.exit(1);
-}
-
-function deepEqual(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function readJsonFile(path) {
@@ -94,65 +91,6 @@ function isSafePath(targetRoot, relativePath) {
   return { ok: true };
 }
 
-function handlerCount(hooks) {
-  if (hooks === null || hooks === undefined) {
-    return 0;
-  }
-  if (typeof hooks !== "object" || Array.isArray(hooks)) {
-    return -1;
-  }
-  let count = 0;
-  for (const value of Object.values(hooks)) {
-    if (!Array.isArray(value)) {
-      return -1;
-    }
-    count += value.length;
-  }
-  return count;
-}
-
-function classifyHooks(existingDoc, fragment) {
-  if (existingDoc === null || existingDoc === undefined) {
-    return "empty";
-  }
-  if (typeof existingDoc !== "object" || Array.isArray(existingDoc)) {
-    return "unsupported";
-  }
-  const existingHooks = existingDoc.hooks;
-  if (existingHooks === undefined) {
-    return "empty";
-  }
-  const count = handlerCount(existingHooks);
-  if (count < 0) {
-    return "unsupported";
-  }
-  if (count === 0) {
-    return "empty";
-  }
-  if (deepEqual(existingHooks, fragment.hooks)) {
-    return "exact";
-  }
-  return "unsupported";
-}
-
-function mergeDocument(existingDoc, fragment, hostId) {
-  const base =
-    existingDoc &&
-    typeof existingDoc === "object" &&
-    !Array.isArray(existingDoc)
-      ? { ...existingDoc }
-      : {};
-  base.hooks = structuredClone(fragment.hooks);
-  if (
-    hostId === "cursor" &&
-    fragment.version !== undefined &&
-    base.version === undefined
-  ) {
-    base.version = fragment.version;
-  }
-  return base;
-}
-
 function planHost(targetRoot, sourceDir, host) {
   const absolutePath = join(targetRoot, host.relativePath);
   const safety = isSafePath(targetRoot, host.relativePath);
@@ -164,23 +102,16 @@ function planHost(targetRoot, sourceDir, host) {
   if (existsSync(absolutePath)) {
     existingDoc = readJsonFile(absolutePath);
   }
-  const classification = classifyHooks(existingDoc, fragment);
-  if (classification === "unsupported") {
-    return {
-      host,
-      error: `unsupported-existing-hooks: ${host.relativePath} already has hook entries; automatic merge of nonempty maps is not supported yet.`,
-      code: "unsupported-existing-hooks",
-    };
+  const merged = mergeDocument(
+    existingDoc,
+    fragment,
+    host.id,
+    host.relativePath,
+  );
+  if (merged.error) {
+    return { host, error: merged.error, code: merged.code };
   }
-  if (classification === "exact") {
-    return {
-      host,
-      absolutePath,
-      action: "skip",
-      nextDoc: existingDoc,
-    };
-  }
-  const nextDoc = mergeDocument(existingDoc, fragment, host.id);
+  const nextDoc = merged.nextDoc;
   const previousText = existsSync(absolutePath)
     ? readFileSync(absolutePath, "utf8")
     : null;
