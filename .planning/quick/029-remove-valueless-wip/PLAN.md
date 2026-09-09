@@ -118,10 +118,12 @@ new extraction candidates merely to populate the list.
 ### 2. Retain decisive evidence without completed planning residue
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Reference scan plus manual ADR 0005 evidence walk; `npm run lint`; the
 repository contains no completed quick-plan/evidence directories except original
 decisive acceptance evidence with a live requirement or recognition reference.
+Deleted Quick 004/007/011/013/014/015/025/026. Kept 023 and 027 (ADR 0005;
+027 recognition-linked), plus active 028/029. `npm run lint` PASS.
 
 Behavior: Given completed planning and acceptance artifacts coexist → the
 maintainer inspects the repository after cleanup → outcomes already durable in
@@ -186,3 +188,6 @@ top of Recently done, and remove this spent plan during delivery.
 - Quick 028 reached a terminal boundary before Slice 1 delivery: all plan slices
   `done`, SEED-004 Story 5 Complete, product prevention already on `main`.
 - Dormant SEED-002/005/008 had no live callers outside this plan's candidate text.
+- Completed Quick 004/007/011/013/014/015/025/026 had no path-string callers;
+  023/027 retained as original ADR 0005 decisive native evidence (027 still
+  cited from execute-plan and post-change-refactor recognition records).
