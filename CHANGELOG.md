@@ -1,3 +1,7 @@
+## 0.3.3 - 2026-09-09
+
+Execution-related skills: add `dough-execute-plan` and `dough-post-change-refactor` to the client payload, including execution references, asynchronous CI observation scripts, and host hook fragments.
+
 ## 0.3.2 - 2026-09-08
 
 Publish three story-refinement workflow skills in the installable client payload: `dough-resplit-story`, `dough-slice-planning`, and `dough-slice-plan-refinement`.
