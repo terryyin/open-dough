@@ -377,12 +377,12 @@ contract needs an explicit human decision. Save evidence under
 
 ## Proof ownership and completion
 
-| Promise | Owner |
-| --- | --- |
-| Edited managed command refuses without duplicate hooks or writes | Slice 1 |
-| Deferred remembered-source Claude update and installed ADR use | Slice 2; SEED-007 |
-| Native Claude CI watch, targeted fixes, and exact shutdown | Slice 3 |
-| Deferred real Cursor-to-Claude compatibility invocation and guard | Slice 4; Quick 031 R5 |
+| Promise | Owner | Verdict |
+| --- | --- | --- |
+| Edited managed command refuses without duplicate hooks or writes | Slice 1 | Done — `876ea9d` |
+| Deferred remembered-source Claude update and installed ADR use | Slice 2; SEED-007 | Done — `d8ff5b5`, `1db2817` |
+| Native Claude CI watch, targeted fixes, and exact shutdown | Slice 3 | Done — `353311e` |
+| Deferred real Cursor-to-Claude compatibility invocation and guard | Slice 4; Quick 031 R5 | Pending — no Cursor GUI automation available to this coordinator |
 
 Slices 2–4 may share fixture setup and applicable evidence, but each retains its
 own verdict. At completion, summarize exact candidate identities and each verdict
