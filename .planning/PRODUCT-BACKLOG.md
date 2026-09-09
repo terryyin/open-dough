@@ -8,6 +8,7 @@ complete set of skills covering the full software development lifecycle.
 ## Backlog list
 
 - [Remove WIP without external value and find a home for the rest](seeds/SEED-009-keep-only-externally-valuable-work.md#harden-direction-change) — SEED-009
+- [Keep slice planning within the requested workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded) — SEED-004
 - [Use the standalone updater in Claude Code](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006

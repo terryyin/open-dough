@@ -30,34 +30,45 @@ outcome, and one canonical story home.
 
 **Scope:** Review active and dormant seeds, backlog entries, executable plans,
 unreleased skills and rules, retained acceptance evidence, and uncommitted work
-created before the direction change. Keep an item only when its external value
-is concrete. Give retained work one canonical story section and repair its
-links; delete everything else instead of archiving it for possible future use.
-Preserve immutable release history and the minimum enduring evidence required
-by a current contract or Accepted ADR. Do not execute retained stories, extract
-new guidance, or invent replacement work during this cleanup.
+created before the direction change. External value means a current outcome for
+a named user or client, or protection directly required to deliver that outcome;
+future optionality and historical interest are insufficient. Give retained work
+one canonical story section and repair its links. Delete everything else instead
+of archiving it for possible future use. Preserve immutable release history and
+original decisive evidence required by a current contract or Accepted ADR. Do
+not execute retained stories, extract new guidance, or invent replacement work
+during this cleanup.
 
 **Key examples:**
 
-- Given a plan, seed, draft, or uncommitted change has no named beneficiary and
-  observable outcome, when it is reviewed, then it is deleted rather than
-  retained as potentially useful.
+- Given the completed Quick 025 plan or earlier resolution evidence repeats an
+  outcome already durable in released guidance, tests, ADRs, or Git history,
+  when it is reviewed, then the redundant planning artifact is deleted.
+- Given dormant collaboration, feedback, or worktree seeds have no current
+  beneficiary or demand, when they are reviewed, then they are deleted rather
+  than retained for a possible future trigger.
+- Given the unreleased `dough-acme-change-readiness` example has no current
+  client outcome, when it is reviewed, then its source and recognition record
+  are deleted; a later real demand may extract the practice again.
 - Given WIP still manifests external value but has no canonical story, when it
   is reviewed, then the smallest corresponding story is placed in the seed that
   owns its outcome and all live references point there.
-- Given completed evidence only repeats behavior already durable in released
-  content, tests, or Git history, when it is reviewed, then the duplicate WIP
-  evidence is deleted while any evidence required by a current contract or
-  Accepted ADR remains.
-- Given an uncommitted change has another active owner or unresolved intent,
-  when cleanup reaches it, then ownership and external value are established
-  before deletion; uncertainty alone is not treated as permission to destroy
-  someone else's work.
+- Given Quick 028 and its uncommitted tests still protect clients from receiving
+  an invalid released payload and remain owned by their existing story, when
+  they are reviewed, then they are retained as current WIP without being
+  executed by this cleanup.
+- Given native acceptance evidence remains decisive and reusable under Accepted
+  ADR 0005, when evidence is reviewed, then the original evidence is retained
+  while obsolete process commentary is deleted.
+- Given an uncommitted change has another active owner, when cleanup reaches it,
+  then its ownership and value are established before any deletion; uncertainty
+  is not permission to destroy someone else's work.
 
 **Evaluation:** No retained WIP lacks a named beneficiary, evaluable external
-outcome, or canonical story home; the backlog contains only selected current
-stories; all surviving links resolve; and removed work is recoverable from Git
-history when it was previously committed.
+outcome, or canonical story home; completed or speculative planning residue is
+absent; the backlog contains only selected current stories; all surviving links
+resolve; ADR-required original evidence remains; and previously committed
+deletions are recoverable from Git history.
 
 **Effort:** M, medium confidence; the amount and ownership of uncommitted WIP
 must be resolved during execution.
