@@ -33,57 +33,85 @@ release identity and the maintainer's version choice.
 
 ### 8. Register CI observation host hooks without environment-local drift
 
-**Status:** Planned.
-**Goal:** The Open Dough maintainer can use execute-plan CI observation in
-Cursor and Claude Code without leaving untracked, environment-only host
-settings, and without creating an unexplained behavior difference from Codex.
-**Scope:** Decide and deliver one consistent way to register the Cursor
-`.cursor/hooks.json` entries and Claude Code `.claude/settings.json` entries
-that execute-plan CI observation needs. Keep Codex on its yielded-cell
-adapter, which does not use those hook fragments. Preserve unrelated host
-hooks, permissions, settings, and local preferences. Do not treat this
-discussion as a chosen design: whether hooks are written at install/update,
-merged only when execute-plan starts observation, left registered after
-shutdown, or cleaned up, remains open.
+**Status:** Slice-planned; not executed.
+**Plan:** [Register and release reproducible CI host hooks](../quick/031-register-ci-host-hooks/PLAN.md).
+**Goal:** A client installs or updates Open Dough and can use execute-plan CI
+observation across Codex, Cursor, and Claude Code with reproducible project
+configuration. Deliver this capability in a new tagged release.
+**Scope:**
+
+- Register the existing Cursor and Claude Code hook fragments during
+  install/update in `.cursor/hooks.json` and `.claude/settings.json`, regardless
+  of the invoking tool. Keep the current all-tool installation and Codex's
+  yielded-cell adapter.
+- Merge only Open Dough's entries, without duplicates. Preserve unrelated
+  hooks, permissions, settings, and local preferences. Report malformed
+  configuration or conflicting edits to managed entries before writing;
+  whole-file replacement of shared settings is outside this story.
+- Treat hook registration as part of installation completeness, including
+  when the installed skill version is already current. Keep configuration
+  portable and intended for version control; the installer reports the diff
+  and does not commit it automatically.
+- Leave hooks registered after observation stops. Execute-plan verifies the
+  existing bridge and starts/stops the observer; it no longer writes host
+  settings. Missing readiness reports unavailable monitoring without changing
+  trust or policy settings or substituting AI polling.
+- Update the directly affected installation/execution guidance and checks.
+  Publish a new maintainer-chosen version with matching `VERSION`, changelog,
+  and immutable tag, then adopt it in Open Dough through the ordinary updater
+  and commit the resulting project configuration.
+
+**Out of scope:** Plugins, skill-frontmatter hook delivery, user-global setup,
+new platform selection options, general settings-management machinery,
+automatic hook removal, CI observer/repair redesign, idle-session wakeups,
+and a new performance or cross-tool conformance suite. Retain the current
+notification timing and supported runtime boundaries. Other queued skill and
+Donut adoption work remains separate.
+
 **Key examples:**
 
-- Given execute-plan needs CI observation in Cursor, when observation starts,
-  then the host can deliver readiness and failure notifications. Quick 028
-  created an untracked `.cursor/hooks.json` from the installed fragment and
-  left it after the observer stopped.
-- Given the installer already ships
-  `dough-execute-plan/assets/cursor-hooks.json` and
-  `claude-hooks.json`, when a client is installed or updated, then today it
-  does not write host settings. Docs say fragments are included without
-  overwriting host settings, and execute-plan may merge them later.
-- Given host settings are sensitive, when arguing against writing them at
-  install, then that argument does not by itself justify writing the same
-  files during execute-plan: same file, same merge, same clobber risk.
-  Execute-plan writing them is more surprising because the skill is about
-  executing a plan, not configuring the host.
-- Given hooks are lightweight when no observer is running, when observation
-  stops, then current execute-plan stops the watcher process and does not
-  remove hook entries. Automatic removal would risk deleting unrelated merged
-  hooks.
-- Given Codex uses the yielded-cell adapter, when Cursor or Claude host hooks
-  are registered in a project, then Codex observation must still work without
-  those files, and Cursor/Claude must not depend on a Codex-only path. Whether
-  install should write unused host files into a Codex-driven checkout is an
-  open cross-tool question, not a settled difference.
-- Given the maintainer wants environments to stay consistent, when comparing
-  checkouts, then untracked host files created only in the session that ran
-  execute-plan are an unwanted local change.
+- Given a fresh client, when Open Dough is installed from Codex, Cursor, or
+  Claude Code, both native hook configurations are produced alongside the
+  existing skill roots. After those project files are committed, a fresh
+  checkout needs no session-created hook file.
+- Given existing unrelated hooks and preferences, when installation is
+  repeated or a release is updated, those values survive and Open Dough's
+  entries occur once. An already-current skill payload with missing entries
+  is repaired; malformed settings or conflicting managed edits are reported
+  without partial configuration changes.
+- Given a supported Cursor or Claude Code session, when execute-plan probes
+  and starts observation, readiness and a ready CI failure reach the owning
+  coordinator. Cursor also works with Claude compatibility enabled without
+  duplicate delivery. When hooks are disabled or unavailable, execution
+  reports missing monitoring and does not rewrite settings.
+- Given observation has stopped, the hook entries remain and an invocation
+  with no ready event adds no context or follow-up. Codex continues through its
+  existing adapter without depending on the hook files.
+- Given the scoped checks and applicable release evidence pass, when the
+  maintainer's new version is published and adopted, a fresh fetch resolves
+  the matching tag and Open Dough's ordinary update installs the registrations.
+  The installed version and committed configuration are reviewable.
 
-**Evaluation:** After a chosen design is implemented, a fresh install or
-update plus execute-plan CI observation in Cursor and Claude Code does not
-require a one-off untracked host file; Codex observation still uses its
-adapter; unrelated host settings remain; and the three tools' required
-registration is explicit rather than implied by whichever environment last
-ran execute-plan.
-**Effort:** M, low confidence; the delivery moment, merge vs create, Codex
-unused-file question, and shutdown cleanup are unresolved.
-**Depends on:** The released execute-plan skill and its host adapters. Does
-not depend on finishing another queued story first.
+**Evaluation:** Focus deterministic checks on installation, repeated/update
+merges, preservation, and refusal. Use representative native readiness/failure
+checks in Cursor and Claude Code, including coexistence; reuse still-valid
+Codex and observer behavior evidence under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Keep missing native proof pending until resolved before release. Completion
+includes the published tag and ordinary self-update, not just source changes
+or prepared release metadata.
+**Effort:** M, medium confidence; reuse existing fragments, adapters, and
+release workflow. Native session availability remains an execution risk.
+**Depends on:** Existing execute-plan adapters and runnable native sessions.
+Apply [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+and [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+Coordinate the publication with [Story 7](#standalone-client-update) so the
+same release need not be performed twice. Its outstanding
+[Claude Code updater acceptance](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)
+remains separately owned and must be resolved if the selected release includes
+that affected work.
+**Open decision:** The maintainer supplies the new numeric release version
+before release metadata is written; it does not block story planning.
 
 <a id="standalone-client-update"></a>
 

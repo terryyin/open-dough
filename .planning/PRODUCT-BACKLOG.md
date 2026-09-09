@@ -24,7 +24,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 - [Write installed skills from this project's perspective](seeds/SEED-004-extract-and-adopt-project-guidance.md#write-installed-skills-from-this-project) — SEED-004
 - [Remove WIP without external value and find a home for the rest](seeds/SEED-009-keep-only-externally-valuable-work.md#harden-direction-change) — SEED-009 / Quick 029
-- [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028
+- [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028 / Quick 030
 - [Extract a project skill directly into unreleased source](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-directly-with-guidelines) — SEED-004 / Quick 026
 - [Maintain skills with a minimal shared guideline](seeds/SEED-004-extract-and-adopt-project-guidance.md#maintain-skills-without-discovery-rechecks) — SEED-004
 - [Use released ADR guidance on one real Donut task](seeds/SEED-006-extend-adr-guidance-adoption.md#prepare-donut-adr-adoption) — SEED-006
