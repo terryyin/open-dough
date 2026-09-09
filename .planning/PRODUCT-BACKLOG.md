@@ -15,6 +15,11 @@ complete set of skills covering the full software development lifecycle.
 - [Extract story refinement and improve one real story](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004
 - [Use a meaningful newer release through Donut's ordinary updater](seeds/SEED-006-extend-adr-guidance-adoption.md#preserve-donut-adr-adoption-on-update) — SEED-006
 
+## Longer-term direction
+
+Enable agents to execute stories in parallel while collaborating through
+trunk-based development, with each agent working in its own Git worktree.
+
 ## Recently done
 
 - [Extract a project skill directly into unreleased source](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-directly-with-guidelines) — SEED-004 / Quick 026
