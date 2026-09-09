@@ -133,6 +133,10 @@ release_helper="${source_dir}/src/install/open-dough-release.sh"
 }
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
 
+if host_hook_fragments_present "${source_dir}"; then
+  preflight_host_hook_destinations "${source_dir}" "${target}" || exit 1
+fi
+
 platforms=() destinations=() roots=() actions=()
 while IFS=$'\t' read -r selected_platform destination; do
   root=$(dirname -- "${destination}")

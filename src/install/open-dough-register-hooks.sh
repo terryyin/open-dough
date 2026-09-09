@@ -43,6 +43,10 @@ preflight_host_hooks() {
   run_host_hooks preflight "$@"
 }
 
+preflight_host_hook_destinations() {
+  run_host_hooks preflight-destinations "$@"
+}
+
 # Prints complete or repair on stdout; conflicts fail like preflight.
 host_hooks_registration_status() {
   run_host_hooks status "$@"

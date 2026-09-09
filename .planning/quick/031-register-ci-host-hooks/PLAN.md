@@ -16,10 +16,9 @@ Do not pull those stories into this plan merely because they share source files.
 
 ## Execution context
 
-- Execution authorized 2026-09-09 in worktree
-  `/Users/terryyin/git/open-dough-wt-031-ci-hooks` on branch
-  `execute/031-register-ci-host-hooks` (from `main` @ `b63b9da`). Merge to
-  `main` and drop the worktree/branch after all slices complete.
+- Execution resumed 2026-09-09 at the human's direction directly in
+  `/Users/terryyin/git/open-dough` on `main`, without a worktree. This supersedes
+  the earlier execution location and push destination for remaining slices.
 - Use `planned`, `in-progress`, `done`. Keep this one plan updated during execution;
   retain unfinished proof and relevant evidence. At completion, update the seed
   and backlog and remove spent planning detail under the existing lifecycle.
@@ -316,7 +315,92 @@ acceptance when the same run supplies useful evidence; do not claim its distinct
 ADR-guidance use outcome passed merely because the hook worked. Unavailable sessions
 or failed delivery remain pending. There is no generic CLI claim for Codex.
 
-### 8. Publish a fetchable release containing hook registration
+### 8. Refuse dangling hook destinations before installation writes
+Type: Behavior
+Status: done
+
+Behavior: Given a dangling symlink at either host settings file or its parent,
+install/update reports `unsafe-hooks-destination` before changing either payload,
+either host settings file, or the symlink target.
+
+Proof: Extend `bash tests/install-ci-host-hooks.sh` through the real installer
+with a dangling file link in each host and a dangling parent link. Capture the
+whole target and outside destination before invocation, including `--force`;
+assert named refusal and no changes. Retain the existing valid-symlink refusal
+and normal missing-file success cases. The shared preflight must inspect the
+link itself even when its referent does not exist (retrospective R1).
+
+Evidence (2026-09-09):
+- Destination preflight uses link-aware `lstatSync`, including dangling links,
+  before payload-root inspection; no target or outside path is mutated.
+- Real-installer coverage includes dangling Cursor/Claude settings links,
+  dangling host parent, valid symlink, missing-file success, ordinary and
+  `--force` invocation, and full target/outside snapshots.
+- `proof: command: bash tests/install-ci-host-hooks.sh` — pass.
+- Independent refactor renamed the internal mode to `preflight-destinations`;
+  focused proof remained green. `npm run format` passed without further edits.
+
+Boundary: Correct destination inspection in the existing helper; no transactional
+storage layer or general filesystem-hardening project.
+
+### 9. Adopt only unambiguous managed hook registrations
+Type: Behavior
+Status: planned
+
+Behavior: Given existing handlers for an Open Dough native event, installation
+adopts one matching effective registration or reports a named conflict without
+writes when managed command edits, duplicate registrations, or changed Claude
+wrapper scope make adoption unsafe. Unrelated handlers and matcher siblings survive.
+
+Proof: Extend `bash tests/install-ci-host-hooks.sh` with a known managed script
+command plus a local argument, duplicate exact managed entries, and a Claude
+managed handler inside `matcher: "Read"`. Each must refuse without mutation,
+including explicit force; exact manual registration and unrelated matcher
+siblings must still succeed. Assert behavior through the real installer and
+reuse this merge-policy matrix for update (retrospective R2).
+
+Boundary: Recognize bounded variants of the known managed script commands; do
+not invent a general shell parser or silently rewrite user matcher scope. Treat
+ambiguous duplicate ownership as a conflict rather than silently deleting entries.
+
+### 10. Keep semantically complete registrations unwritten
+Type: Behavior
+Status: planned
+
+Behavior: Given complete hook registration with different JSON whitespace or
+object-key order, ordinary equal-version update reports a full no-op, preserving
+settings bytes and timestamps and all managed payload records.
+
+Proof: Extend `bash tests/update-skip-verified.sh` with compact JSON, reordered
+handler keys, and unrelated settings serialized differently. Capture settings
+bytes/mtimes as well as payload state. Assert the existing no-write outcome and
+absence of repair/installer invocation; missing registration still repairs.
+Use structural object equality with array order preserved for managed-entry
+comparison and decide completeness from the merge's semantic change, not from
+pretty-printed document bytes (retrospective R3).
+
+Boundary: Settings are shared configuration, not canonicalized release payload.
+Do not impose formatter ownership on unrelated settings or add prose-exact tests.
+
+### 11. Reconcile hook completeness on repeat installation
+Type: Behavior
+Status: planned
+
+Behavior: Given current payload roots, repeating ordinary installation repairs
+missing host registration without rewriting payload files, or refuses conflicting
+settings without writes; a complete installation remains wholly unwritten.
+
+Proof: Extend `bash tests/install-all-tools.sh` with install → remove a managed
+entry/file → repeat install → repeat again. Verify exact registration, untouched
+payload bytes/mtimes, and final full no-op. Include one malformed/conflicting
+settings case with current roots to prove the preflight is not skipped. Reuse
+Slice 9's detailed policy cases rather than duplicating them (retrospective R4).
+
+Boundary: Decouple host completeness from payload replacement in `install.sh`;
+retain source/baseline checks and fragment-free historical release behavior.
+Reuse the existing registration helper rather than adding another merge policy.
+
+### 12. Publish a fetchable release containing hook registration
 Type: Behavior
 Status: planned
 
@@ -324,7 +408,18 @@ Behavior: Given applicable acceptance and release checks pass, the maintainer's
 new numeric version is published as an immutable tag with matching metadata and
 complete intended payload, available to the ordinary release resolver.
 
-Proof: Follow the existing release-version workflow, including
+Proof: First close retrospective R5's unresolved Slice 6 compatibility condition:
+review retained native evidence for an explicit active Claude-compatibility
+setting and actual compatibility hook invocation/payload. File presence and
+one native Cursor delivery are insufficient. If retained evidence cannot establish
+this, run only the missing native Cursor coexistence case with compatibility
+explicitly active, record the actual compatibility boundary/guard evidence,
+one native failure delivery, exact shutdown, and unchanged settings. Preserve
+prior attempts; do not relabel them as proof of this condition. This remains a
+release prerequisite under ADR 0005, not an observer redesign.
+
+After Slices 8–11 and the compatibility condition pass, follow the existing
+release-version workflow, including
 `bash scripts/check-self-installation.sh` before finalization. Confirm payload
 review/declaration agreement and repository CI (`npm test`, `npm run lint`). Write
 the supplied VERSION and changelog, finalize the annotated tag, and publish the
@@ -340,9 +435,9 @@ other Proposed guidance. Ask for the new numeric version at release time; do not
 reuse a prior release's version. The release skill does not push tags; this story's
 publication step must explicitly perform and verify the authorized push. Never
 force or move a tag. Existing installed copies remain at their valid earlier tag
-until Slice 9; do not hand-synchronize them to make the release gate pass.
+until Slice 13; do not hand-synchronize them to make the release gate pass.
 
-### 9. Adopt the published release in Open Dough
+### 13. Adopt the published release in Open Dough
 Type: Behavior
 Status: planned
 
@@ -368,34 +463,117 @@ incidental release step.
 
 | Story promise | Owning slices |
 | --- | --- |
-| Both hosts registered regardless of invoking tool; portable tracked configuration | 1, 6, 7, 9 |
-| Existing settings preserved, duplicate-free merge and no-write conflict refusal | 2 |
+| Both hosts registered regardless of invoking tool; portable tracked configuration | 1, 6, 7, 11, 13 |
+| Existing settings preserved, duplicate-free merge and no-write conflict refusal | 2, 8, 9 |
 | New-release update from remembered source | 3 |
-| Current-version repair and complete-install no-op | 4 |
+| Current-version repair and complete-install no-op | 4, 10, 11 |
 | Execute-plan verifies rather than configures; retained hooks and unavailable coverage | 5, 6, 7 |
-| Native Cursor delivery and compatibility coexistence | 6 |
+| Native Cursor delivery and compatibility coexistence | 6; unresolved compatibility evidence closed before publication in 12 |
 | Native Claude delivery; unchanged Codex adapter evidence | 7 |
-| Published release | 8 |
-| Ordinary self-update and committed configuration | 9 |
+| Published release | 12 |
+| Ordinary self-update and committed configuration | 13 |
 
-## Refinement result and remaining concerns
+## Remaining work after execution retrospective
 
-The initial combined native-acceptance slice became Slices 6 and 7, each owning
-one host journey. The initial combined release/adoption slice became Slices 8
-and 9, separating a remotely fetchable release from a working self-installation.
-The result is nine Behavior slices, all planned. No Structure-only preparation
-or additional story is needed. Scope is unchanged; no resplit recommendation.
+Slices 1–7 retain their completed statuses and original evidence. The retrospective
+adds corrective Behavior Slices 8–11; release and adoption are now Slices 12–13.
+The source story and its exclusions are unchanged. Each correction owns one
+observable refusal, adoption, no-op, or repair outcome and a focused proof boundary.
+Numeric sizing and timing policy remain excluded by the recorded human direction;
+no execution-time guarantee or additional refinement pass is claimed.
 
-Each slice has one cohesive outside-in proof boundary. Numeric sizing and timing
-policy are explicitly excluded by human direction; no time guarantee is claimed.
-No remaining decomposition concern requires another refinement pass. Execution
-is still not authorized by this planning result.
+Slice 6's native Cursor delivery evidence remains useful, but compatibility
+activation/invocation is not established by the retained artifacts; Slice 12
+must close that specific acceptance gap before publication. Claude and Codex
+proof may be reused where unchanged. The separate standalone-updater acceptance
+remains a conditional release dependency. Release version selection stays deferred
+to Slice 12. Retrospective planning does not authorize executing the corrections.
 
-Release version selection remains deferred to Slice 8 and does not block planning.
-Native-session availability and source/runtime applicability of saved evidence
-remain acceptance risks, with explicit proof owners in Slices 6 and 7. The existing
-standalone-updater acceptance is a conditional release dependency, separately owned;
-release must not silently waive it. No other open product decision was identified.
+## Execution retrospective (2026-09-09)
+
+Reviewed SEED-001 Story 8 from the original plan at `b63b9da`, followed by the
+execution context recorded in `7e11605`. The delivered aggregate boundary is
+`git diff b63b9da 1e7ea5a`; its commits are contiguous and all relate to this
+execution. Current `HEAD` (`e1bb809`, merge only) has the same tree as `1e7ea5a`;
+there are no later fixes to the findings below. The pre-existing perspective
+change `3520b99` and backlog work `b63b9da` are excluded from the product diff.
+Planning edits and native evidence are provenance, not product-quality defects.
+
+| Included commit | Reason |
+| --- | --- |
+| `7e11605` | Slice 1 hook registration and installer proof |
+| `34c59f4` | Slice 2 shared-settings merge policy and proof |
+| `a56e7ab` | Repair installer fixture/module and Node dependencies |
+| `5ed978d` | Slice 3 ordinary release-update integration and proof |
+| `17470ce` | Slice 4 equal-version registration repair and proof |
+| `d545318` | Repair affected force-update proof and updater guidance |
+| `4dfe340` | Slice 5 readiness-only observation guidance and walkthrough |
+| `2b09e3f` | Force-update assertion diagnostics and execution evidence |
+| `672fc1a` | Capture force-apply failure diagnostics |
+| `f2c96bf` | Trace force-update proof failure |
+| `7318812` | Correct force-proof hook-message distinction and apply handling |
+| `dc6e1bb` | Repair invalid-release refusal and apply temporary cleanup |
+| `26a4eb7` | Slice 6 installer-created Cursor native acceptance evidence |
+| `1e7ea5a` | Slice 7 update-created Claude native acceptance and Codex reuse |
+
+### Findings and retained proof
+
+- **R1 — P1, unsafe destination writes.** In
+  `src/install/open-dough-register-hooks.mjs:isSafePath` (lines 62–80),
+  `existsSync` skips a dangling symlink before `lstatSync`. A disposable real
+  `bash install.sh --target <fixture> --source <repository>` returned 0 and
+  created a file outside its target through `.cursor/hooks.json` pointing to
+  a nonexistent sibling file. Preflight/apply independently reproduced this.
+  Slice 8 owns refusal before any target or outside write.
+- **R2 — P2, unsafe adoption of managed entries.** In
+  `open-dough-register-hooks-merge.mjs`, `classifyManagedCommand` treats an
+  edited command as unrelated, `foundExact` does not reject duplicates, and
+  `mergeClaudeEvent` ignores managed wrapper scope. Direct `mergeDocument`
+  checks showed a known Cursor command plus ` --local` retained alongside a
+  newly appended exact handler; two exact handlers retained; and a Claude
+  PostToolUse handler restricted to `matcher: "Read"` adopted unchanged.
+  The latter omits the required Bash readiness boundary. The existing test
+  comment says timeout/command conflict, but its fixture only changes timeout.
+  Slice 9 owns the complete adoption/refusal decision.
+- **R3 — P2, serialization mistaken for semantic change.** `deepEqual` compares
+  `JSON.stringify` output and `planHost` compares original bytes to pretty JSON.
+  Reordering only `timeout` and `command` produced `conflicting-managed-hooks`;
+  compact complete settings returned `repair` from the CLI status mode.
+  Equal-version apply therefore either refuses equivalent settings or rewrites
+  already complete shared files. Slice 10 owns semantic no-op proof.
+- **R4 — P2, repeat install skips missing registration.** `install.sh` lines
+  200–205 and 232 guard all hook work with `needs_payload_writes`. A disposable
+  real install → delete `.cursor/hooks.json` → repeat install returned 0 with
+  both roots “already current” and left the settings file missing. This breaks
+  the story's installation-completeness promise even though updater repair
+  exists. Slice 11 owns the direct installer journey.
+- **R5 — P2, compatibility acceptance is not established.** Cursor's retained
+  `native-result.json`/`failure-result.json`, prompts, settings snapshots, and
+  native result describe both settings files being present and successful
+  native delivery. They do not establish active Claude compatibility or an
+  actual invocation/payload exercising `ci-host-hook.mjs`'s `cursor_version`
+  guard. This is an evidence gap, not a demonstrated runtime failure. Under
+  ADR 0005 and original Slice 6 proof, close only that condition before release
+  in Slice 12; preserve the already demonstrated native outcomes.
+
+Focused review checks used Node imports/CLI and disposable real installer targets;
+all temporary fixtures were removed. No broad suite or native host session was
+run, and no implementation changed. Findings remain at current HEAD. Reviewed
+aggregate refactoring smells, interim nonempty-map refusal removal, fixture
+inventories, guidance, and CI-repair residue: no additional consequential
+standalone refactor or story-scope change is justified. Retained force-apply
+diagnostics still explain real failures; historical fragment-free fixture support
+has a caller. No repository file-size limit was found; none was imported.
+
+Learning: normal-shaped hook fixtures did not exercise effective wrapper scope,
+command edits, dangling links, serialization equivalence, or repeat-install
+completeness. Preserve these outside-in boundaries in the owning corrective
+slices instead of accepting successful happy-path registration as complete proof.
+The external skill's project-specific `.cursor/agent-map.md` and rules are absent
+here; this plan, AGENTS.md, and installed Dough planning/refactor guidance supplied
+the applicable repository context. Process retrospective was explicitly skipped.
+This is an in-place plan update; corrective changes have not been executed,
+committed, or pushed. Release/adoption being pending is not itself a finding.
 
 ## Execution evidence
 
@@ -403,6 +581,11 @@ CI observer: mailbox `/tmp/dough-ci-501/watch-AMvjtz`, workflow `ci.yml` / `CI`,
 branch `execute/031-register-ci-host-hooks`. Host bridge readiness unavailable in
 this worktree (no `.cursor/hooks.json`); continuing without promised native
 notification coverage. Check mailbox/gh for failures after pushes.
+
+Resumed observer: Codex yielded cell `14`, mailbox
+`/tmp/dough-ci-501/watch-96olSi`, workflow `ci.yml` / `CI`, branch `main`,
+coordinator `root`, checkout `/Users/terryyin/git/open-dough`. Reuse through all
+remaining pushes and stop it at completion or a decision stop.
 
 ### Slice 1
 Delivered commit `7e11605`. Focused proof `bash tests/install-all-tools.sh` pass.
@@ -457,3 +640,8 @@ unavailable coverage without settings rewrite. Evidence retained under
 Update-created Claude hooks: ordinary remembered-SOURCE upgrade registered hosts;
 native readiness and controlled failure delivery (attempt 1 permission stop retained;
 attempt 2 delivered). Codex Quick 027 proof reused as applicable.
+
+### Slice 8
+Dangling host settings files and parents now fail as
+`unsafe-hooks-destination` before installer writes, including with `--force`.
+Focused proof `bash tests/install-ci-host-hooks.sh` passed.

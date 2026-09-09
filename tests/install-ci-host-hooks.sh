@@ -14,6 +14,30 @@ source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
+assert_unsafe_destination_refused() {
+  local target=$1 outside=$2 description=$3 option output
+  local target_before outside_before succeeded
+
+  for option in ordinary force; do
+    target_before=$(snapshot_path_state "${target}")
+    outside_before=$(snapshot_path_state "${outside}")
+    if [[ "${option}" == ordinary ]]; then
+      output=$(bash "${source_dir}/install.sh" --target "${target}" \
+        --source "${source_dir}" 2>&1) && succeeded=1 || succeeded=0
+    else
+      output=$(bash "${source_dir}/install.sh" --target "${target}" \
+        --source "${source_dir}" --force 2>&1) && succeeded=1 || succeeded=0
+    fi
+    if [[ ${succeeded} -eq 1 ]]; then
+      echo "FAIL: ${description} must refuse ${option} installation before writes." >&2
+      exit 1
+    fi
+    [[ "${output}" == *'unsafe-hooks-destination'* ]]
+    [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
+    [[ $(snapshot_path_state "${outside}") == "${outside_before}" ]]
+  done
+}
+
 # Unrelated event handlers and matcher siblings merge without duplicates.
 merge_target="${temporary_dir}/merge"
 prepare_target "${merge_target}"
@@ -32,6 +56,24 @@ output=$(bash "${source_dir}/install.sh" --target "${manual_target}" --source "$
 [[ "${output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
 assert_managed_host_hooks "${manual_target}"
 assert_unrelated_preserved "${manual_target}"
+
+# An absent settings file is a safe destination and is created normally.
+missing_file_target="${temporary_dir}/missing-file"
+prepare_target "${missing_file_target}"
+seed_mergeable_host_settings "${missing_file_target}"
+rm -- "${missing_file_target}/.cursor/hooks.json"
+output=$(bash "${source_dir}/install.sh" --target "${missing_file_target}" --source "${source_dir}")
+[[ "${output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
+[[ "${output}" == *'hooks: registered Open Dough entries in .claude/settings.json.'* ]]
+assert_cursor_managed_commands "${missing_file_target}"
+node - "${missing_file_target}/.claude/settings.json" << 'EOF'
+const fs = require("node:fs");
+const settings = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+if (settings.sentinel !== "keep Claude settings") {
+  console.error("FAIL: Claude settings changed while repairing missing Cursor settings.");
+  process.exit(1);
+}
+EOF
 # Payload is new, so skill roots change; compare only settings files for no-op hooks.
 cursor_before=$(shasum -a 256 "${manual_target}/.cursor/hooks.json")
 claude_before=$(shasum -a 256 "${manual_target}/.claude/settings.json")
@@ -79,7 +121,7 @@ fi
 [[ "${output}" == *'conflicting-managed-hooks'* ]]
 [[ $(snapshot_path_state "${conflict_target}") == "${before}" ]]
 
-# Unsafe settings path refuses before writes.
+# A valid settings-file symlink remains unsafe and refuses before writes.
 unsafe_target="${temporary_dir}/unsafe"
 prepare_target "${unsafe_target}"
 seed_mergeable_host_settings "${unsafe_target}"
@@ -87,13 +129,38 @@ outside="${temporary_dir}/unsafe-outside"
 mkdir -p -- "${outside}"
 mv -- "${unsafe_target}/.claude/settings.json" "${outside}/settings.json"
 ln -s -- "${outside}/settings.json" "${unsafe_target}/.claude/settings.json"
-before=$(snapshot_path_state "${unsafe_target}")
-if output=$(bash "${source_dir}/install.sh" --target "${unsafe_target}" --source "${source_dir}" 2>&1); then
-  echo 'FAIL: unsafe hooks destination must refuse before writes.' >&2
-  exit 1
-fi
-[[ "${output}" == *'unsafe-hooks-destination'* ]]
-[[ $(snapshot_path_state "${unsafe_target}") == "${before}" ]]
-[[ ! -e "${unsafe_target}/.agents/skills/dough-update" ]]
+assert_unsafe_destination_refused "${unsafe_target}" "${outside}" 'valid settings-file symlink'
 
-echo 'PASS: installer merges unrelated host hooks and exact manual registrations without duplicates; refuses malformed, conflicting, and unsafe settings without mutation; --force cannot clobber shared settings; a conflict in one host blocks both.'
+# Dangling settings-file links for both hosts are inspected as links, not absences.
+for host in cursor claude; do
+  dangling_target="${temporary_dir}/dangling-${host}-file"
+  dangling_outside="${temporary_dir}/dangling-${host}-outside"
+  prepare_target "${dangling_target}"
+  seed_mergeable_host_settings "${dangling_target}"
+  mkdir -p -- "${dangling_outside}"
+  if [[ "${host}" == cursor ]]; then
+    rm -- "${dangling_target}/.cursor/hooks.json"
+    ln -s -- "${dangling_outside}/missing-hooks.json" \
+      "${dangling_target}/.cursor/hooks.json"
+  else
+    rm -- "${dangling_target}/.claude/settings.json"
+    ln -s -- "${dangling_outside}/missing-settings.json" \
+      "${dangling_target}/.claude/settings.json"
+  fi
+  assert_unsafe_destination_refused "${dangling_target}" "${dangling_outside}" \
+    "dangling ${host} settings-file symlink"
+done
+
+# A dangling host-settings parent is likewise refused before payload or outside writes.
+dangling_parent_target="${temporary_dir}/dangling-parent"
+dangling_parent_outside="${temporary_dir}/dangling-parent-outside"
+prepare_target "${dangling_parent_target}"
+mkdir -p -- "${dangling_parent_outside}"
+mv -- "${dangling_parent_target}/.claude" \
+  "${dangling_parent_target}/preserved-claude-directory"
+ln -s -- "${dangling_parent_outside}/missing-claude-directory" \
+  "${dangling_parent_target}/.claude"
+assert_unsafe_destination_refused "${dangling_parent_target}" \
+  "${dangling_parent_outside}" 'dangling host-settings parent symlink'
+
+echo 'PASS: installer merges unrelated host hooks and exact manual registrations without duplicates; creates missing settings files; refuses malformed, conflicting, valid-symlink, and dangling-symlink settings without target or outside mutation; --force cannot clobber shared settings; a conflict in one host blocks both.'

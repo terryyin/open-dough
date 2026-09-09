@@ -28,7 +28,7 @@ const HOSTS = [
 
 function usage() {
   console.error(
-    "Usage: open-dough-register-hooks.mjs <preflight|apply|status> <target> <source-dir>",
+    "Usage: open-dough-register-hooks.mjs <preflight-destinations|preflight|apply|status> <target> <source-dir>",
   );
   process.exit(1);
 }
@@ -58,15 +58,26 @@ function loadFragment(sourceDir, fragmentName) {
   return readJsonFile(path);
 }
 
+function lstatIfPresent(path) {
+  try {
+    return lstatSync(path);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
 function isSafePath(targetRoot, relativePath) {
   const parts = relativePath.split("/");
   let current = targetRoot;
   for (let index = 0; index < parts.length; index += 1) {
     current = join(current, parts[index]);
-    if (!existsSync(current)) {
+    const stat = lstatIfPresent(current);
+    if (stat === null) {
       continue;
     }
-    const stat = lstatSync(current);
     if (stat.isSymbolicLink()) {
       return {
         ok: false,
@@ -147,6 +158,16 @@ function planAll(targetRoot, sourceDir) {
   return { plans };
 }
 
+function requireSafeDestinations(targetRoot) {
+  for (const host of HOSTS) {
+    const safety = isSafePath(targetRoot, host.relativePath);
+    if (!safety.ok) {
+      console.error(safety.message);
+      process.exit(1);
+    }
+  }
+}
+
 function requirePlans(targetRoot, sourceDir) {
   const result = planAll(targetRoot, sourceDir);
   if (result.error) {
@@ -207,14 +228,21 @@ const sourceArg = process.argv[4];
 if (!command || !targetArg || !sourceArg) {
   usage();
 }
-if (command !== "preflight" && command !== "apply" && command !== "status") {
+if (
+  command !== "preflight-destinations" &&
+  command !== "preflight" &&
+  command !== "apply" &&
+  command !== "status"
+) {
   usage();
 }
 
 const targetRoot = resolve(targetArg);
 const sourceDir = resolve(sourceArg);
 
-if (command === "preflight") {
+if (command === "preflight-destinations") {
+  requireSafeDestinations(targetRoot);
+} else if (command === "preflight") {
   preflight(targetRoot, sourceDir);
 } else if (command === "status") {
   status(targetRoot, sourceDir);
