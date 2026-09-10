@@ -48,9 +48,10 @@ The human excluded cross-tool work from this story; no release waiver is inferre
 
 ### 1. Preserve a first supported process finding locally
 Type: Behavior
-Status: planned
+Status: done
 Proof: A local walkthrough creates a readable first issue; skipped, unsupported,
 or unsuccessful recording never appears as a successful log write.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md).
 
 Behavior: Given an identified execution, supported process evidence, and no log,
 enabled process review creates canonical DearDough.md and returns its concise

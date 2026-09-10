@@ -15,11 +15,13 @@ Review: ready for maintainer review
 Review one completed or in-progress plan execution against its original story,
 separate implementation findings from process improvements and product
 learning, route only unresolved bounded implementation work back into planning,
-and return product recommendations without unauthorized backlog writes.
+record supported process findings locally, and return product recommendations
+without unauthorized backlog writes.
 
 ## Triggers
 
 - "execution retrospective" or "review this execution"
+- Record a supported retrospective process finding in `DearDough.md`
 - Product review or backlog recommendation from an execution
 - `--skip-process` or `--skip-product` on a retrospective
 - Audit of a completed or unfinished plan's aggregate result
@@ -34,6 +36,10 @@ and return product recommendations without unauthorized backlog writes.
   place, and permits a follow-up plan only for a completed execution.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
+- Records supported process findings in one project-local `DearDough.md` with
+  stable issue and execution identities. Process skip, no findings, unresolved
+  identity or location, an existing-log interim refusal, and write failure do
+  not become successful writes or suppress independent reviews.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -46,7 +52,9 @@ lifecycle, status vocabulary, repository navigation, focused verification
 commands, and any writer/reviewer assignment. Git history or equivalent
 execution provenance must be available. Near-future direction is required to
 assess alignment in every enabled review. Backlog/story conventions are required
-only for product conclusions that depend on them. The Open Dough
+only for product conclusions that depend on them. Process recording also needs
+one unambiguous canonical `DearDough.md` location and a stable execution identity;
+missing evidence stops recording, not the remaining reviews. The Open Dough
 `dough-post-change-refactor` and `dough-slice-planning` skills supply the smell
 and planning gates.
 
@@ -144,3 +152,16 @@ Default, `--skip-process`, `--skip-product`, and both skips produced only the
 selected results. Skipped product did not suppress direction in implementation
 or process. Correction planning remained available. `DearDough.md` fixture
 unchanged. Quick 031 slice-1 product no-change still applies.
+
+## Quick 036 Slice 1 local behavior evidence
+
+Walked first-log recording and its refusal boundaries on 2026-09-10.
+[evidence/slice-1/WALKTHROUGH.md](../../../.planning/quick/036-record-retrospective-process-findings/evidence/slice-1/WALKTHROUGH.md).
+
+The default and explicitly overridden destinations each received a readable
+`DD-001` occurrence with stable execution identity, decisive evidence, observed
+effect, and a qualified inference. No-findings, process-skip, missing-identity,
+existing-log, and failed-write variants created no false success and preserved
+their destinations. Product skipping did not suppress the enabled process write.
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence.
