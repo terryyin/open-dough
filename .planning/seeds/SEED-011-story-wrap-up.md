@@ -24,8 +24,10 @@ development lifecycle coverage.
 
 ### 1. Story Wrap-Up
 
-**Status:** Native wrap-up acceptance on Codex, Cursor, and Claude Code remains
-pending. Not released.
+**Status:** Implementation delivered; `dough-story-wrap-up` shipped in v0.3.6
+under the recorded native-acceptance exception. Native acceptance on Codex,
+Cursor, and Claude Code remains open. Later source corrections are assessed
+against the candidate actually exercised, not assumed covered by that release.
 **Working skill name:** `dough-story-wrap-up` (public Open Dough skill).
 
 **Scope:** Deliver one manually invoked skill that closes one selected story
@@ -106,17 +108,34 @@ Git rewriting, or cross-project workflow. Preserve release metadata and
 current architectural decisions; removing story history is not erasing the
 product's version identity or governing decisions.
 
-**Smallest delivery and proof:** Author shared guidance under
-`src/skills/dough-story-wrap-up/` and change only directly affected sources;
-do not hand-synchronize installed skills. Use one representative lifecycle
-walkthrough covering cleanup and follow-up/product updates, with focused
-boundary variations for no output, shared content, and incomplete execution.
-Check the final snapshot and Git recovery, not just deletion commands. Reuse
-applicable delivery evidence and existing payload checks; add only proof needed
-for this behavior. Do not build a new cross-tool test framework or expand this
-into a general release/adoption project. Include this coherent increment in the
-next authorized release as soon as applicable checks pass, without waiting for
-unrelated backlog items; no version is selected by this refinement.
+**Remaining outcome:** The maintainer can judge whether the existing wrap-up
+skill closes completed work correctly through each supported native host.
+The implementation scope and examples above describe behavior to verify, not
+features to rebuild.
+
+**Smallest remaining scope:** Reuse applicable integration and behavioral proof
+before running fresh sessions. Exercise one representative closure journey per
+host, assigning boundary cases by unresolved risk rather than repeating every
+case on every host. Include the current seedless-correction lifecycle: queue an
+existing correction directly, preserve recoverable provenance, avoid duplicate
+queueing, and later close the completed correction by plan identity. Retain the
+existing-feature-story variant. Verify unfinished execution or retrospective
+prevents closure, shared content survives, and empty review output adds no
+ceremony. Assess actual filesystem and Git outcomes, not success claims alone.
+
+**Excluded from remaining work:** New wrap-up capabilities, redesign of the
+lifecycle, unrelated retrospective/CI/adapter acceptance, release or adoption,
+bulk repository cleanup, and a new test runner or acceptance framework. A
+failure may receive the smallest correction needed for these existing promises;
+a change to the promises requires story review. Missing host access leaves the
+specific proof pending; it does not expand this story into host setup work.
+
+**Completion:** Every included requirement has fresh native proof or justified
+reuse for each affected host under ADR 0005. Results are judged while this story
+is active. Retrospective and eventual wrap-up consume that evidence; this
+acceptance work does not prematurely delete it or manufacture closure.
+
+**Active plan:** [Native wrap-up acceptance](../quick/039-native-wrap-up-acceptance/PLAN.md).
 
 **Architectural alignment:**
 [ADR 0005, section 5](../../docs/adrs/0005-cross-tool-validation-accepted.md)
@@ -134,9 +153,10 @@ and [process recording](SEED-010-learn-from-execution-retrospectives.md#turn-ret
 provide existing inputs. Reconcile their source guidance at the handoff and
 cleanup boundaries; do not reopen their review or logging designs.
 
-**Readiness / open decision:** Native wrap-up acceptance on Codex, Cursor, and
-Claude Code remains unfinished and blocks release of this increment. No
-version is selected by this work.
+**Open decisions:** None for this bounded acceptance scope. Runtime availability
+and evidence applicability are execution checks. The v0.3.6 exception remains
+historical release context, not a claim that acceptance passed. No new release
+is part of this work.
 
 ## Human-Owned Decisions
 
