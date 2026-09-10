@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 
-**Date:** 2026-09-07
+**Date:** 2026-09-10
 
 **Decision makers:** Terry Yin
 
@@ -71,8 +71,10 @@ checks and reusable evidence to limit validation cost.
 - Automate reliable state and behavior checks; test assessors against
   counterexamples. Where prose cannot be assessed reliably with a small check,
   review it against explicit expectations and record the supporting evidence.
-  Leave unresolved outcomes inconclusive.
-- Bound execution and retries. Retain failures; do not rerun until green.
+  Judge the current result now. An inconclusive result does not satisfy
+  acceptance; resolve required proof before accepting the work.
+- Bound execution and retries. Keep failures available during current assessment;
+  do not rerun until green or retain failure records after story wrap-up.
 - Keep update followed by fresh use as one journey unless separate execution
   serves a concrete need. Add selection, dependency tracking, or review machinery
   only when needed to run or maintain the chosen checks.
@@ -80,21 +82,33 @@ checks and reusable evidence to limit validation cost.
   conventional skill change by its useful behavior; do not treat a routine
   per-tool discovery recheck as the default maintenance gate.
 
-### 5. Retain and reuse evidence
+### 5. Assess now and delete spent evidence
 
-- Save the requirement, result, candidate, tool/runtime, relevant inputs, and
-  decisive evidence. For shared integration proof, identify the mechanism and
-  representative skill.
-- Review saved evidence before running new sessions. Record why reuse applies
-  to the current guidance, adapters, helpers, fixtures, and runtime conditions.
-  A documented review is sufficient; an automated reassessment interface is
-  optional.
-- Preserve original evidence and record later judgments with reasons.
-  Distinguish reused proof from fresh execution.
+- During active work, collect the requirement, result, candidate, tool/runtime,
+  relevant inputs, and decisive evidence needed to judge that work. For shared
+  integration proof, identify the mechanism and representative skill.
+- Make the required judgment while the work is active. Decide whether the
+  evidence supports acceptance or what remains unresolved; do not postpone
+  judgment or keep a record for someone to judge later.
+- Before running new sessions, assess applicable evidence already available
+  during active work or recovered from Git. Establish why reuse applies to the
+  current guidance, adapters, helpers, fixtures, and runtime conditions.
+  Distinguish reused proof from fresh execution. Recovery and reuse are driven
+  by the current decision, not a requirement to maintain an evidence archive.
 - Revalidate requirements whose evidence is invalidated or insufficient. An
   instruction edit may invalidate behavior proof while leaving installation
   proof applicable. Check the effect on all three tools when those requirements
   remain in scope.
+- At story wrap-up, delete the spent plan, completed story, execution records,
+  original proof and evidence, assessment and reuse records, and impact history
+  from the current repository snapshot. Leave no archive, completion summary,
+  tombstone, or later-judgment record. Ensure history is recoverable in Git;
+  future contributors recover what they need and make their own judgments when
+  a real decision arises.
+- Assimilate lasting knowledge into maintained code, tests, and documentation
+  describing current behavior and decisions without execution history or
+  retrospective judgments. Keep maintained test fixtures that verify current
+  behavior; delete historical run artifacts.
 - Delete obsolete process instructions and commentary about removed maintenance
   gates from current guidance. Do not archive removed process as enduring
   policy history.
@@ -102,8 +116,11 @@ checks and reusable evidence to limit validation cost.
 ## Consequences
 
 Release affected behavior only when required native checks pass or have justified
-reusable evidence. Keep missing validation pending. Store execution details and
-reuse decisions in acceptance stories or evidence records, not in this ADR.
+reusable evidence. Missing validation remains active unfinished work, not an
+accepted result awaiting later judgment. Evidence and assessment records serve
+the current decision and are deleted at wrap-up; Git supplies historical
+recovery. The current repository contains the maintained product and its
+guidance, not an archive of execution or judgments.
 Author conventional skills with the shared `AGENTS.md` guideline and a
 representative behavior review.
 
