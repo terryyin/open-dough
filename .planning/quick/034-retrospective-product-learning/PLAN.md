@@ -89,7 +89,7 @@ cases; never infer developer experience from commit count alone.
 
 ### 1. Receive a grounded product recommendation from execution learning
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded execution example yields a traceable product recommendation or
 reasoned no-change result, without unauthorized file edits or unrelated reading.
 
@@ -114,6 +114,15 @@ traceable conclusion in the former, no unrelated queue investigation in the
 latter, and no direction proposal/edit in either. Check missing context and
 no-supported-change variations without inventing learning or validating unread
 backlog entries. An intermediate release is not claimed at this stopping point.
+
+Outcome: done. Skill purpose, flow, and report now include product review.
+Recommendations-only authority is explicit; backlog files stay read-only.
+Walked Quick 031 to a grounded no-change result (lifecycle registration already
+advances the direction; remaining Claude acceptance is already queued). Urgent-fix
+fixture: no SEED-A queue read. Missing-context fixture: no invented direction or
+backlog. Hypothesis fixture: exploration proposal, no decomposition. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-1/`.
+`git diff --check` pass. No `npm run format` (Markdown-only change).
 
 ### 2. Question direction alignment in every review
 Type: Behavior

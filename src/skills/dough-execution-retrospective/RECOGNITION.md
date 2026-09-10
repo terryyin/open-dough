@@ -13,35 +13,41 @@ Review: ready for maintainer review
 ## Purpose
 
 Review one completed or in-progress plan execution against its original story,
-separate repository findings from process improvements, and route only
-unresolved bounded work back into the project's established planning lifecycle.
+separate implementation findings from process improvements and product
+learning, route only unresolved bounded implementation work back into planning,
+and return product recommendations without unauthorized backlog writes.
 
 ## Triggers
 
 - "execution retrospective" or "review this execution"
+- Product review or backlog recommendation from an execution
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
 
 ## Distinguishing behavior
 
-- Uses six decision principles: original intent is the contract, commit
+- Uses seven decision principles: original intent is the contract, commit
   membership needs evidence, the aggregate result is the review boundary,
-  current truth decides remediation, plan state decides the destination, and
-  the user owns disputed scope.
+  current truth decides remediation, plan state decides the destination, the
+  user owns disputed scope, and product learning is not an implementation defect.
 - Rechecks findings at the current revision, updates an unfinished plan in
   place, and permits a follow-up plan only for a completed execution.
-- Keeps repository findings, process proposals, and overlooked user attention
-  distinct, and never executes planned corrections.
+- Keeps repository findings, process proposals, product recommendations, and
+  overlooked user attention distinct, and never executes planned corrections.
+- A retrospective authorizes product recommendations only; backlog writes require
+  separate authority. Missing direction or backlog conventions stop the product
+  path without inventing files.
 
 ## Client project context
 
 The executing project must supply its plan and story locations, plan format and
 lifecycle, status vocabulary, repository navigation, focused verification
 commands, and any writer/reviewer assignment. Git history or equivalent
-execution provenance must be available. The Open Dough
-`dough-post-change-refactor` and `dough-slice-planning` skills supply the smell
-and planning gates.
+execution provenance must be available. Near-future direction and
+backlog/story conventions are required only for product conclusions that depend
+on them. The Open Dough `dough-post-change-refactor` and `dough-slice-planning`
+skills supply the smell and planning gates.
 
 ## Differences that rule out replacement
 
@@ -65,3 +71,23 @@ aggregate finding is shown to remain unresolved. Confirm that a completed
 execution produces a bounded follow-up plan without executing it, while an
 unfinished execution updates its existing plan. Verify invocation context,
 required project context, and the useful outcome before promotion.
+
+## Slice 1 local behavior evidence
+
+Walked the updated skill on 2026-09-10 in worktree
+`worktree-quick-034-retrospective-product-learning`. Inputs, observations, and
+destination effects:
+[evidence/slice-1/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-1/WALKTHROUGH.md).
+
+1. **Invocation.** Description and body now name product review and backlog
+   recommendation alongside implementation retrospective. Recommendations-only
+   authority is explicit; correction planning remains the only listed write.
+2. **Required context.** Missing direction yields "alignment cannot be assessed";
+   missing backlog conventions yield provisional product conclusions without
+   invented files. Independent implementation review still proceeds.
+3. **Useful outcome.** Quick 031 produced a traceable no-change product result
+   with no backlog or direction edits. The urgent-fix fixture produced no
+   queue investigation. The hypothesis fixture stayed an exploration proposal.
+
+Existing implementation-review provenance and current-truth behavior were not
+re-audited in this slice. Cross-tool verification is skipped for this story.

@@ -3,16 +3,20 @@ name: dough-execution-retrospective
 description: >-
   Reviews one completed or in-progress plan execution against its original story,
   aggregate commit set, and current project truth. Use for an execution
-  retrospective even when cleanup removed the plan or the user supplies only a
-  partial reference. May plan unresolved findings; never implements them.
+  retrospective, product review, or backlog recommendation even when cleanup
+  removed the plan or the user supplies only a partial reference. May plan
+  unresolved implementation findings and recommend product work; never
+  implements them.
 ---
 
 # Review an execution
 
 Recover what one plan intended, identify the commits that executed it, and
-review their combined outcome. Leave the project with evidence and, only when
-needed, a plan for bounded corrections. Do not implement, commit, or push those
-corrections.
+review their combined outcome. Cover implementation, process, and product
+learning. Leave the project with evidence and, only when needed, a plan for
+bounded corrections. Do not implement, commit, or push those corrections. A
+retrospective authorizes product recommendations; it does not grant backlog-write
+authority.
 
 ## Work from these principles
 
@@ -28,6 +32,8 @@ corrections.
   follow-up plan only for a completed execution.
 - **The user owns disputed scope.** Stop when evidence cannot distinguish two
   plans or when a finding would change the story rather than correct it.
+- **Product learning is not an implementation defect.** Keep product
+  recommendations out of correction plans and process findings.
 
 ## Resolve this project's context
 
@@ -35,6 +41,10 @@ Require one useful clue: a capability or story phrase, plan path, commit, or the
 current execution conversation. Resolve this project's plan and story locations,
 status vocabulary, cleanup lifecycle, repository navigation, and focused test
 commands. Preserve existing working-tree changes.
+
+For product review, also resolve this project's established near-future
+direction when present. Resolve backlog and canonical-story conventions when
+that review needs them. Do not invent a direction, backlog, or seed location.
 
 If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
@@ -139,13 +149,34 @@ attention. Put this banner at the absolute end when that gate passes:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ```
 
+## Review product learning
+
+Read the established near-future direction, then inspect queue entries and
+canonical stories only when they are relevant to this execution or a supported
+finding. An isolated urgent fix with no connection to other queued work does not
+trigger queue investigation. Preserve existing priority instructions. Never
+propose or edit the direction text.
+
+Connect supported learning to a relevant priority or story recommendation, or
+state a reasoned no-change result. Do not claim to validate unread backlog
+entries. Do not invent learning. Label inspirations as hypotheses. When
+beneficiary or outcome is unresolved, return a concrete exploration proposal; do
+not launch discovery or decomposition.
+
+If direction is missing, say alignment cannot be assessed against an established
+direction and continue the independently supported reviews. If backlog or
+story conventions cannot be resolved, keep product conclusions provisional,
+identify that gap, and do not invent files. Independent supported implementation
+and process review still proceed.
+
 ## Report
 
 Report the resolved story and completion state, provenance, included commit
 manifest and review boundary, findings ordered by impact or `none`, planning
-result, supported process proposals, and evidence limitations. State whether
-planning was updated in place, newly generated, read-only, or unchanged. End
-with:
+result, supported process proposals, product recommendations or a reasoned
+no-change result, and evidence limitations. Distinguish evidence from
+hypotheses. State whether planning was updated in place, newly generated,
+read-only, or unchanged. End with:
 
 `## EXECUTION RETROSPECTIVE COMPLETE`
 
