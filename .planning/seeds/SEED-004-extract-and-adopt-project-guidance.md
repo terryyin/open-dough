@@ -17,6 +17,73 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="execute-simple-story-as-one-quick-slice"></a>
+
+### 15. Execute a simple story as one quick slice
+
+**Status:** Refined on 2026-09-11; selected for backlog.
+
+**Goal:** A developer can execute a simple, direct story without first writing a
+slice plan, using the ordinary execution procedure to produce a committed change.
+
+**Scope:** The entry point is execute-plan invoked for the canonical story with
+an explicit instruction to skip slice planning. Assume the coordinating human or
+agent has already made that decision; selecting quick execution and coordinator
+orchestration are outside this story. Treat the story as one slice and use the
+normal execute-plan procedure, including its existing refactoring and delivery
+rules, without duplicating that procedure or introducing a separate quick
+lifecycle. The normal successful example ends with a commit; this does not
+replace the existing push and CI rules.
+
+Create no plan or substitute execution-record artifact on the successful quick
+path. The same conversation, or execution chat history supplied to a later
+review, provides execution details. Include retrospective support for a plan
+that never existed: use the story, conversation, and related changes to establish
+intent, completion, and review scope without fabricating a historical plan.
+Missing substantive evidence still limits the affected review.
+
+If execution reveals that the story is no longer simple or the slice is taking
+too long, stop the quick path and use the established planning/refinement
+workflow for the remaining work. Continue ordinary plan execution while
+preserving completed work and proof, backlog state, and the connection to the
+original execution. Apply existing work-ownership and human-decision rules.
+
+**Boundaries:** No changes to story refinement, coordinator selection policy,
+automatic complexity classification, numeric time thresholds, concurrent quick
+slices, release, or adoption. Ordinary planned execution retains its executable
+plan requirement. Wrap-up behavior is owned by the linked dependency; this story
+does not add a closure workflow or require retrospective invocation by execution.
+
+**Key examples:**
+
+- Given an understood simple story and an explicit invocation to execute that
+  story without slice planning, execute-plan treats it as one slice, follows its
+  ordinary procedure, and produces a commit. No slice plan or substitute
+  execution-record artifact is created.
+- Given that completed execution in the current chat, or its chat history supplied
+  to retrospective, retrospective reviews the story and related implementation
+  using that evidence even though no plan file ever existed. It does not require
+  historical-plan recovery or manufacture one. A missing commit attribution or
+  missing proof is reported as that concrete evidence gap.
+- Given a quick execution that becomes too complex or takes too long, the agent
+  safely stops the quick attempt and plans/refines the remaining work through
+  the existing workflow. Execution resumes from that plan without repeating
+  completed work, losing proof, duplicating the Taken entry, or treating the
+  continuation as unrelated work.
+- Given ordinary execute-plan invocation without the explicit instruction to
+  skip slice planning, existing executable-plan requirements remain in force.
+
+**Value / learning:** Remove planning overhead for direct work while retaining
+ordinary execution quality and recovery when the initial simplicity judgment
+proves wrong.
+
+**Depends on:**
+[SEED-010 Story 7 — Wrap up work on the coordinator's retrospective decision](SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony)
+for closure from available execution context. That dependency owns wrap-up;
+coordinator sequencing is not part of this story's implementation.
+
+**Open decisions:** None for this refinement.
+
 <a id="show-stories-as-taken-during-execution"></a>
 
 ### 14. Show queued work as taken when plan execution starts
@@ -267,7 +334,8 @@ fixture remain maintainer-owned follow-ups.
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 11 retains its separate outcome and
 backlog position relative to the other existing items. Story 14 is done. Story
-6 remains the next extraction reuse opportunity. Story 7 surfaces
+15 is selected after its SEED-010 Story 7 prerequisite. Story 6 remains the next
+extraction reuse opportunity after higher-priority queued work. Story 7 surfaces
 for a real oversized problem; Story 8 surfaces for its named client/task needs.
 
 ## Delivered capabilities
