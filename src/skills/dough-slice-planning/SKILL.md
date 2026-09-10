@@ -3,15 +3,19 @@ name: dough-slice-planning
 description: >-
   Plans one understood, bounded story as an executable sequence of
   Behavior/Structure slices with outside-in proof and safe stopping points. Use
-  when a selected story is ready for implementation planning. Recommends
-  dough-slice-plan-refinement only for complex, low-confidence, or over-budget
-  slices; does not implement the plan.
+  when a selected story is ready for implementation planning. Stays within the
+  triggering instruction's execution authority: finish after writing and
+  reporting the plan unless that instruction explicitly also requests execution.
+  Recommends dough-slice-plan-refinement only for complex, low-confidence, or
+  over-budget slices. A readiness assessment does not authorize execution.
 ---
 
 # Slice planning
 
-Write one sufficient executable plan for one understood story. Do not implement
-product code.
+Write one sufficient executable plan for one understood story. Stay within the
+triggering human or parent-agent instruction's explicit execution authority.
+Do not implement product code or invoke execution unless that instruction
+explicitly also requests execution after planning.
 
 ## Require an understood story
 
@@ -80,6 +84,27 @@ when the reference's refinement conditions apply:
 - If any trigger remains, report
   `refinement recommended: <affected slices>`. Do not claim an execution-time
   guarantee.
+
+A readiness result is an assessment of the plan, not authorization to execute.
+It does not grant, expand, or replace the triggering instruction's execution
+authority.
+
+## Stay within the triggering instruction
+
+After writing and reporting the plan, the next action remains within the
+triggering human or parent-agent instruction:
+
+- Planning-only request: report the plan path, ordered slices,
+  considered-but-excluded additions, and the readiness result, then stop.
+  Do not implement and do not invoke execution.
+- Parent-agent delegation that asks only for slice planning: return the plan
+  and readiness result to the parent. The parent's broader implementation task
+  is not an explicit execution request to this planner.
+- Explicit plan-and-execute request: after reporting, the authorized workflow
+  may continue into execution without asking again for the same authorization,
+  subject to this project's gates and any unresolved concerns that still block
+  progress. Prefer the project's established execution path (for example
+  [dough-execute-plan](../dough-execute-plan/SKILL.md)) when that path applies.
 
 Report the plan path, ordered slices, considered-but-excluded additions, and the
 readiness result. End with:

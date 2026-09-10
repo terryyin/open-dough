@@ -11,32 +11,43 @@ condition.
 ## Purpose
 
 Turn one understood story into an ordered executable plan of bounded,
-proof-owned Behavior/Structure slices.
+proof-owned Behavior/Structure slices, then stop or continue only within the
+triggering instruction's explicit execution authority.
 
 ## Triggers
 
 A selected story has an agreed outcome, scope, and evaluable examples and the
-user requests implementation planning.
+user or parent agent requests implementation planning. Execution after planning
+requires that same triggering instruction to request it explicitly.
 
 ## Distinguishing behavior
 
 Behavior/Structure gate; outside-in promise ownership; safe stopping points;
 value-and-learning ordering; isolated proof for concrete uncertain assumptions;
-direct-execution readiness unless an explicit refinement trigger remains. Missing
-numeric limits alone do not block planning or create a timing policy.
+direct-execution readiness unless an explicit refinement trigger remains.
+Readiness assesses the plan and does not authorize execution. Planning-only and
+parent-delegated planning-only requests return the plan and stop; an explicit
+plan-and-execute request may continue into the authorized execution handoff
+without a duplicate confirmation, subject to project gates and unresolved
+concerns. A parent's broader implementation task does not authorize execution by
+a planner delegated only planning. Missing numeric limits alone do not block
+planning or create a timing policy.
 
 ## Client project context
 
 Story and seed; canonical executable-plan root, filename layout, lifecycle, and
 active-plan status vocabulary; any supplied slice target, hard limit, exceptions,
 and repeated-overrun policy; verification and delivery gates; relevant stack
-rules and Accepted ADRs.
+rules and Accepted ADRs; the triggering human or parent-agent instruction's
+execution authority.
 
 ## Differences that rule out replacement
 
 A workflow that plans unresolved stories, slices by technical layer, omits
 observable proof ownership, prepares beyond the next Behavior, guarantees
-duration, or implements without separate authorization is not equivalent.
+duration, treats readiness as authorization, inherits a parent's broader
+implementation task as planner execution authority, or implements without
+separate authorization from the triggering instruction is not equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
 Cursor `alwaysApply: true` routing rules. Their targets became the shared Open
@@ -135,3 +146,81 @@ stops planning.
 Limitations: this is a disposable source-guidance walkthrough, not native
 installed-host acceptance. It does not prove release publication or ordinary
 adoption; those remain owned by Quick 033 Slices 3–4.
+
+### Quick 035 Slice 1 authorization-boundary walkthrough — 2026-09-10
+
+Candidate: uncommitted source change in `src/skills/dough-slice-planning/` for
+Quick 035 Slice 1 on branch `worktree-quick-035-bounded-slice-planning`. Historical
+Quick 033 walkthroughs above remain prior evidence; this review covers only the
+execution-authority boundary.
+
+Shared story and context (held constant across variants): one understood
+single-team CSV export story with evaluable examples; established plan root
+`.planning/quick/` with layout `NNN-<slug>/PLAN.md`; no numeric slice target or
+hard limit supplied; stable export-check proof entry point. The planner would
+write one Behavior slice for the CSV export with that check as owning proof and
+report `ready for direct execution` from cohesion and a single proof loop.
+No product implementation was performed; each variant inspects only the
+authorized next action after the plan is written and reported.
+
+#### Variant A — planning-only human request
+
+Input: human asks only for a slice plan for the shared story.
+
+Resulting plan/report: plan path, ordered export Behavior slice, no
+considered-but-excluded additions that change the story, readiness
+`ready for direct execution`, ending `## SLICE PLAN WRITTEN`.
+
+Workflow stopping point: stop after reporting. Neither implement nor invoke
+execution. The readiness phrase does not authorize continuing into execution.
+
+#### Variant B — parent delegates only slice planning
+
+Input: a parent agent whose own broader task is implementing the export story
+delegates only slice planning to this skill.
+
+Resulting plan/report: same plan and readiness report as Variant A, returned to
+the parent.
+
+Workflow stopping point: return the plan to the parent and stop. The parent's
+broader implementation task is not an explicit execution request to the
+delegated planner and does not inherit execution authority into this turn.
+
+#### Variant C — explicit plan-and-execute request
+
+Input: triggering instruction explicitly asks to plan and then execute the
+shared story.
+
+Resulting plan/report: same plan and readiness report as Variant A.
+
+Workflow stopping point: after reporting, the authorized workflow may continue
+into execution (for example via `dough-execute-plan`) without asking again for
+the same plan-and-execute authorization. Continuation remains subject to
+project gates and any unresolved concerns that still block progress. This
+walkthrough did not run product changes; it inspected only that the handoff is
+permitted at the boundary.
+
+#### Candidate revision
+
+Entrypoint description, opening constraint, and final handoff section now name
+the triggering instruction's execution authority explicitly; readiness is stated
+as assessment only. Existing missing-context and understood-story checks,
+numbering, decomposition links, and sizing guidance are unchanged. Concern-report
+wording (`ready for direct execution` / `refinement recommended`) is left for
+Quick 035 Slice 2.
+
+#### Linked-reference inspection
+
+Direct links to slice decomposition, executable-plan decisions, story
+refinement, story decomposition, slice-plan refinement, and execute-plan were
+inspected for contradictory handoff wording. No edit required: those sources
+already separate planning from product implementation, and refinement already
+states that execution requires separate authorization from the invoking
+workflow.
+
+#### Limitations
+
+This is local source-guidance authoring evidence under AGENTS.md, not native
+installed-host acceptance or release readiness. It does not prove Slice 2's
+concern-evidence report contract. Installed managed copies under `.agents/` and
+`.claude/` were not hand-synchronized.

@@ -71,11 +71,15 @@ is supplied here; do not invent one. Each slice includes its review and cleanup.
 
 ### 1. Preserve the triggering instruction's execution authority
 Type: Behavior
-Status: planned
+Status: done
 Proof: One authorization-boundary walkthrough, varying only the triggering
 instruction. Planning-only human and parent-delegated requests end with the plan
 returned; an explicit plan-and-execute request permits the authorized handoff
 without a duplicate confirmation, subject to project gates and unresolved concerns.
+Evidence: RECOGNITION.md Quick 035 Slice 1 walkthrough (Variants A/B/C);
+`git diff --check`; frontmatter and relative-link check. Delivered on
+`worktree-quick-035-bounded-slice-planning`. CI observer:
+`/tmp/dough-ci-501/watch-lODs0J` (workflow `ci.yml` / `CI`).
 
 Behavior: Given an understood story and a triggering human or parent-agent
 instruction, when the plan is written, the next action remains within that
@@ -147,3 +151,7 @@ requires `ready for direct execution` / `refinement recommended` verdicts. Its
 linked decomposition and planning references already supply the desired proof
 and sizing checks. The change can stay concentrated in the entrypoint and
 maintainer record, with reference edits conditional on actual contradiction.
+
+Slice 1: Linked decomposition, planning, refinement, and execute-plan references
+needed no edits for the authorization boundary. Readiness phrases retained for
+Slice 2; readiness explicitly does not authorize execution.
