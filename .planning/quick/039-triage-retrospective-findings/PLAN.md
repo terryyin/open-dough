@@ -3,10 +3,12 @@
 ## Source and authority
 
 [SEED-010 Story 7](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings).
-Status: planned. The 2026-09-10 conversation selected the finding-response
-behavior for planning and authorized slice refinement if needed. This is
-planning authorization only. Story 2's release/adoption work and backlog order
-remain unchanged; do not move this story to Taken until execution starts.
+Status: slices complete; plan retained for retrospective and story wrap-up.
+The 2026-09-10 conversation authorized plan execution in worktree
+`/Users/terryyin/git/open-dough-quick-039` on branch
+`worktree-quick-039-triage-retrospective-findings`, then merge back to `main`.
+Story 7 remains under **Taken**. Story 2's release/adoption work and remaining
+queue order are unchanged.
 
 ## Goal and scope
 
@@ -76,7 +78,13 @@ skill text. No infrastructure experiment is needed for ordinary Markdown edits.
 
 ### 1. Receive a reasoned finding-priority proposal
 Type: Behavior
-Status: planned
+Status: done
+Proof: Isolated ranking walk placed severe one-off `ODF-901` first over
+recurring minor `ODF-902` (two distinct executions, not three rows); `ODF-903`
+surfaced as an evidence request. Missing path/empty/prose/unidentified-identity
+stops invented nothing. Real `DearDough.md` and `docs/maintainer/finding-names.md`
+stayed byte-identical.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md).
 
 Behavior: Given supplied reconciled fictional findings and product direction,
 a maintainer requests triage and receives an ordered, evidence-linked proposal
@@ -84,29 +92,25 @@ without queue or finding edits. The recommendation distinguishes observed impact
 from inference, uses distinct occurrences rather than repeated reports, and
 makes uncertainty or an evidence request visible.
 
-Proof: One walkthrough contrasts severe one-off harm, recurring minor cost, and
-insufficient evidence. Assess the explanation rather than demanding a universal
-ranking. Check all input bytes remain unchanged; missing input or identity is
-reported without invented codes, counts, or automatic reconciliation.
-
 Safe stop: The maintainer can manually act on a useful proposal. No persistent
 state changes or downstream commitment are implied.
 
 ### 2. Queue a selected response in an existing seed
 Type: Behavior
-Status: planned
+Status: done
+Proof: Isolated accepted walk recorded story 4 with stable anchor
+`prevent-wrap-up-from-overwriting-reviewed-commits`, canonical Backlog list
+entry, and `Follow-up: queued, not resolved` on `ODF-901`. Occurrences, notes,
+`ODF-902`, Taken order, unrelated queue order, and direction stayed intact.
+Missing writable finding location was a pre-edit stop (seed and queue unchanged).
+Recommendation-only still wrote nothing. Real log and catalog stayed
+byte-identical.
+Evidence: [evidence/slice-2/WALKTHROUGH.md](evidence/slice-2/WALKTHROUGH.md).
 
 Behavior: Given a developer-selected proposal, an appropriate existing seed,
 and supplied writable finding record, record one evaluable story, queue its
 canonical reference, and link the retained finding and story in both directions.
 Record the developer's selection as queued follow-up, not problem resolution.
-
-Proof: One isolated accepted-proposal walkthrough shows beneficiary/outcome in
-the seed, valid canonical backlog reference, finding code/location on the story,
-and story link on the finding. Compare snapshots to establish preservation of
-occurrences, unrelated notes, direction, and unrelated queue order. Proposal-only
-state from slice 1 remains read-only. Validate destinations before editing; report
-any partial failure truthfully instead of claiming all links were saved.
 
 Safe stop: Accepted work is discoverable and the original evidence is retained.
 The caller supplies an existing seed for this first increment; missing-seed
@@ -114,48 +118,52 @@ support is the next slice, not a permanent restriction.
 
 ### 3. Host a selected response when no suitable seed exists
 Type: Behavior
-Status: planned
+Status: done
+Proof: Absent-seed walk allocated `SEED-902` (`SEED-902-protect-reviewed-execution-commits.md`)
+with required metadata, evaluable story, canonical queue link, and reciprocal
+queued follow-up on `ODF-901`. Unsuitable `SEED-901` was not written.
+Reuse walk added story 4 to existing `SEED-901` and allocated no `SEED-902`.
+Missing conventions and missing writable finding location were pre-edit stops.
+Real log, catalog, and `.planning/seeds/` stayed unused/unchanged.
+Evidence: [evidence/slice-3/WALKTHROUGH.md](evidence/slice-3/WALKTHROUGH.md).
 
 Behavior: Given the same accepted-response journey without a suitable seed,
 create a minimal canonical seed using this project's identity and anchor
 conventions, then produce the same linked queued outcome as slice 2. Reuse a
 suitable existing seed whenever one exists; do not force unrelated work into it.
 
-Proof: One isolated absent-seed walkthrough checks the newly allocated seed's
-required metadata, beneficiary and evaluable story, canonical queue link, and
-reciprocal finding link. Missing canonical seed conventions stops the dependent
-write usefully rather than inventing a location. No slice plan or implementation
-is generated for the proposed fix.
-
 Safe stop: The selected work has a durable home without downstream refinement.
 
 ### 4. Recognize retained findings with existing follow-up
 Type: Behavior
-Status: planned
+Status: done
+Proof: Identical rereview of linked `ODF-901` surfaced queued Follow-up and the
+matching Backlog list line; findings, seed, and backlog stayed byte-identical.
+New evidence changed proposal text without a second queue, Follow-up, or
+occurrence row. Taken variant surfaced Taken follow-up and still refused a
+duplicate. Real log and catalog stayed byte-identical.
+Evidence: [evidence/slice-4/WALKTHROUGH.md](evidence/slice-4/WALKTHROUGH.md).
 
 Behavior: Given the linked result and a later triage request, surface existing
 queued or Taken follow-up and relevant new evidence without duplicating the
 story, seed, queue reference, or disposition. Retain the existing disposition and finding evidence.
 
-Proof: Revisit the accepted fixture in one follow-up-aware walkthrough. Check
-existing links remain usable, occurrence history remains intact, and rereview
-alone is byte-identical.
-New evidence may change the proposal, but does not authorize another queued fix.
-
 Safe stop: Repeated review surfaces existing work without duplicate commitments.
 
 ### 5. Retain a developer decision without queuing a fix
 Type: Behavior
-Status: planned
+Status: done
+Proof: Explicit evidence request on uncertain `ODF-903` recorded
+`Follow-up: evidence request, not resolved.` plus rationale. Deferral and
+no-change used the same Follow-up line shape. Isolated backlog unchanged;
+finding history retained; no story or queue entry. Missing writable location
+and existing queued follow-up were pre-edit stops. Real log and catalog stayed
+byte-identical.
+Evidence: [evidence/slice-5/WALKTHROUGH.md](evidence/slice-5/WALKTHROUGH.md).
 
 Behavior: Given a finding and the developer's explicit choice to defer, seek
 more evidence, or retain current behavior, record that disposition against the
 supplied finding identity without creating backlog work or deleting evidence.
-
-Proof: One disposition walkthrough uses a fictional finding with uncertain
-cause and an explicit developer evidence request. Check the recorded decision
-and rationale, retained finding/history, and unchanged backlog. Deferral and
-no-change use this same concise disposition rule, not separate workflows.
 
 Safe stop: A recoverable human decision remains useful without executing a fix,
 measuring effectiveness, or removing the finding.
@@ -191,8 +199,8 @@ combined rereview-and-new-disposition behavior with slices 4 and 5 above.
 Result: five slices, all classified Ready: one Behavior gate and one focused
 proof loop each, with the same finding/proposal/disposition model. No sizing
 exceptions or resplit recommendation. No remaining slice-specific concerns
-identified in this assessment. Planning is complete; execution is not started
-or authorized by this request. Delivery context checks below still apply.
+identified in this assessment. Execution started 2026-09-10; delivery gates
+below still apply.
 
 ## Execution and delivery gates
 
@@ -207,5 +215,35 @@ hooksPath was found during planning. Do not invent or bypass a missing hook.
 Use representative behavior review for this prose change, not a routine full
 native-discovery matrix or full-CI rerun before each commit.
 
-Retain plan and evidence for retrospective and story wrap-up. No product changes,
-real triage, commit, push, or execution occurred while constructing this plan.
+Retain plan and evidence for retrospective and story wrap-up.
+
+## Delivery
+
+- Slice 1 `57425ff`: recommendation-only skill, ranking evidence under
+  `evidence/slice-1/`.
+- Slice 2 `1d05077`: selected-proposal queue path; evidence under
+  `evidence/slice-2/`. Missing writable finding location is a pre-edit stop.
+- Slice 3 `3045f72`: allocate a minimal canonical seed when none is suitable;
+  evidence under `evidence/slice-3/`.
+- Slice 4 `217146d`: rereview surfaces existing queued or Taken follow-up
+  without duplication; evidence under `evidence/slice-4/`.
+- Slice 5 delivered in this wrap-up: one non-queue disposition rule (defer /
+  evidence request / no-change); evidence under `evidence/slice-5/`.
+- Branch: `worktree-quick-039-triage-retrospective-findings`.
+- CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
+  Started from the main-checkout skill scripts so Cursor hooks bind the
+  coordinator session; the observer watches this worktree branch.
+- CI event on `3045f72` (run 34476615807): `CI_INCOMPLETE` / cancelled after
+  `tests/native-delivery-updated-use-adapters.sh` exceeded the 20-minute job
+  timeout (watchdog `sleep` still running). That test and native supervisor
+  were not in the slice 3 diff. Slices 1–2 CI on this branch succeeded
+  (`34474336734`, `34475537144`). Classified as unrelated pre-existing native
+  fixture hang vs this plan's walkthrough proof; no native-supervisor repair
+  in this story. Pending later-SHA CI remains unobserved after observer
+  shutdown.
+
+## Learnings
+
+None that change remaining work; all five slices are done. Fictional
+`ODF-901`–`ODF-903` stay out of the naming catalog. Real `DearDough.md` was
+not used as a default path.
