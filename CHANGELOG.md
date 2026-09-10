@@ -1,3 +1,14 @@
+## 0.3.6 - 2026-09-10
+
+- Add `dough-execution-retrospective` to the installable payload: review implementation, product direction, and process efficiency; maintain process findings in `DearDough.md`; plan bounded corrections and apply authorized backlog changes. Product and process reviews can be skipped independently.
+- Add `dough-story-wrap-up` to the installable payload: close completed stories after retrospective, preserve recoverability in Git, assimilate lasting knowledge, remove spent history, and prioritize existing follow-up work. Execution now preserves completed plans and evidence for these later steps.
+- Keep slice planning within the triggering instruction's execution authority. Report concrete concerns without choosing the next workflow or certifying readiness, and support bounded retrospective corrections.
+- Strengthen cohesive design guidance across slices: distinguish delivery examples from real rejection constraints, assess whole concepts including untouched representations and orchestration, and surface disputed restrictions for human resolution.
+- Expand retrospective review to current whole-product architecture and the test suite as behavioral documentation, with bounded correction plans and preservation proof.
+- Refuse edited managed hook commands across shell suffix delimiters. Increase CI timeout margin and keep prior-release payload fixtures internally consistent.
+
+Native acceptance remains incomplete for retrospective and wrap-up behavior and for Cursor's project Claude-adapter compatibility invocation. Claude remembered-source update with fresh ADR use and native CI-watch acceptance are now recorded as passing. This release proceeds under an explicit maintainer-approved exception for those remaining native acceptance checks; they remain pending and are not reported as passing.
+
 ## 0.3.5 - 2026-09-10
 
 Planning guidance now infers plan numbers and treats numeric timing limits as optional.
