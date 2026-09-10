@@ -126,7 +126,7 @@ backlog. Hypothesis fixture: exploration proposal, no decomposition. Evidence:
 
 ### 2. Question direction alignment in every review
 Type: Behavior
-Status: planned
+Status: done
 Proof: One review identifies and routes supported digression separately across
 implementation, process, and product, while preserving the direction text.
 
@@ -143,6 +143,13 @@ with an unnecessary addition and avoidable process detour; inspect rationale and
 destinations, not repeated alignment labels. Include a later-changed-direction
 variation proving approved historical work is not retroactively called defective.
 Slice 6 owns verifying that alignment survives product-review skipping.
+
+Outcome: done. Shared section **Consider near-future direction** is the one
+routing home. Digression fixture: widget → correction planning, process detour →
+process recommendation, no direction edit. Later-changed-direction fixture:
+approved historical work not treated as a defect. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-2/`.
+`git diff --check` pass.
 
 ### 3. Receive useful process-efficiency observations
 Type: Behavior

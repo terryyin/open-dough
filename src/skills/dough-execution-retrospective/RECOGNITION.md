@@ -27,27 +27,27 @@ and return product recommendations without unauthorized backlog writes.
 
 ## Distinguishing behavior
 
-- Uses seven decision principles: original intent is the contract, commit
-  membership needs evidence, the aggregate result is the review boundary,
-  current truth decides remediation, plan state decides the destination, the
-  user owns disputed scope, and product learning is not an implementation defect.
+- Uses eight decision principles, including product learning is not an
+  implementation defect and direction is a criterion, not a deliverable.
 - Rechecks findings at the current revision, updates an unfinished plan in
   place, and permits a follow-up plan only for a completed execution.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
 - A retrospective authorizes product recommendations only; backlog writes require
-  separate authority. Missing direction or backlog conventions stop the product
-  path without inventing files.
+  separate authority. Missing direction means alignment cannot be assessed.
+  Missing backlog conventions keep product conclusions provisional. Neither
+  invents files.
 
 ## Client project context
 
 The executing project must supply its plan and story locations, plan format and
 lifecycle, status vocabulary, repository navigation, focused verification
 commands, and any writer/reviewer assignment. Git history or equivalent
-execution provenance must be available. Near-future direction and
-backlog/story conventions are required only for product conclusions that depend
-on them. The Open Dough `dough-post-change-refactor` and `dough-slice-planning`
-skills supply the smell and planning gates.
+execution provenance must be available. Near-future direction is required to
+assess alignment in every enabled review. Backlog/story conventions are required
+only for product conclusions that depend on them. The Open Dough
+`dough-post-change-refactor` and `dough-slice-planning` skills supply the smell
+and planning gates.
 
 ## Differences that rule out replacement
 
@@ -91,3 +91,14 @@ destination effects:
 
 Existing implementation-review provenance and current-truth behavior were not
 re-audited in this slice. Cross-tool verification is skipped for this story.
+
+## Slice 2 local behavior evidence
+
+Walked the shared direction-alignment home on 2026-09-10.
+[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-2/WALKTHROUGH.md).
+
+One authoritative skill section now applies to implementation, process, and
+product. The digression fixture routed a contract extra to correction planning
+and a process detour to a process recommendation, without editing direction. The
+later-changed-direction fixture did not treat approved historical work as a
+defect.

@@ -34,6 +34,9 @@ authority.
   plans or when a finding would change the story rather than correct it.
 - **Product learning is not an implementation defect.** Keep product
   recommendations out of correction plans and process findings.
+- **Direction is a criterion, not a deliverable.** Question alignment of
+  work and process with the established near-future direction; never propose
+  or edit that text.
 
 ## Resolve this project's context
 
@@ -42,9 +45,9 @@ current execution conversation. Resolve this project's plan and story locations,
 status vocabulary, cleanup lifecycle, repository navigation, and focused test
 commands. Preserve existing working-tree changes.
 
-For product review, also resolve this project's established near-future
-direction when present. Resolve backlog and canonical-story conventions when
-that review needs them. Do not invent a direction, backlog, or seed location.
+Resolve this project's established near-future direction when present. Resolve
+backlog and canonical-story conventions when product review needs them. Do not
+invent a direction, backlog, or seed location.
 
 If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
@@ -82,12 +85,38 @@ range. Otherwise review the selected patches together and inspect their files at
 the last related implementation commit. Never mutate the worktree to reconstruct
 history or mix later work into the historical boundary.
 
+## Consider near-future direction
+
+For every enabled review, treat the established near-future direction as a
+high-priority criterion. Read it once from the resolved project location. If it
+is missing, say alignment cannot be assessed against an established direction
+and continue the independently supported reviews. Otherwise question apparent
+alignment and digression. Explain justified exceptions such as urgent fixes. Do
+not merely assert that the work fits.
+
+Route a supported deviation through that review's existing authority:
+
+- Implementation: bounded defects of the original contract go to correction
+  planning. A needed scope change is the user's decision, not a rewritten
+  historical contract.
+- Process: produce a process recommendation; do not add it to an
+  implementation correction plan.
+- Product: recommend work or priorities. Do not treat a direction mismatch as
+  an implementation defect.
+
+A later change in direction does not retroactively make approved historical work
+a defect. Judge that work against its original approved contract; use today's
+direction only for remaining or proposed work.
+
+Never propose or apply a replacement or revision of the direction itself.
+
 ## Review the outcome
 
-Compare the story contract and approved changes with the aggregate code, tests,
-documentation, and proof at the execution boundary. For an unfinished plan,
-judge only the completed slices; do not call unexecuted planned behavior missing
-or its explicitly temporary predecessor obsolete.
+Apply the shared direction consideration. Then compare the story contract and
+approved changes with the aggregate code, tests, documentation, and proof at
+the execution boundary. For an unfinished plan, judge only the completed slices;
+do not call unexecuted planned behavior missing or its explicitly temporary
+predecessor obsolete.
 
 Keep only findings with concrete evidence and plausible impact:
 
@@ -132,12 +161,13 @@ separately requests that work.
 
 ## Review process only from a real record
 
-When the current conversation or a sufficiently complete transcript contains
-the execution, separately identify evidence-backed process improvements: wasted
-work, rule-induced churn, a missing stop condition, a disproved sizing or
-decomposition assumption, or a useful practice to learn. Distinguish necessary
-investigation from avoidable waste. Do not infer missing events, edit guidance,
-or put process proposals into the repository correction plan.
+Apply the shared direction consideration. When the current conversation or a
+sufficiently complete transcript contains the execution, separately identify
+evidence-backed process improvements: wasted work, rule-induced churn, a
+missing stop condition, a disproved sizing or decomposition assumption, avoidable
+digression from direction, or a useful practice to learn. Distinguish
+necessary investigation from avoidable waste. Do not infer missing events,
+edit guidance, or put process proposals into the repository correction plan.
 
 Surface a concrete overlooked request, decision, warning, failed verification,
 or Jidoka stop only when the record clearly shows that it still needs user
@@ -151,11 +181,10 @@ attention. Put this banner at the absolute end when that gate passes:
 
 ## Review product learning
 
-Read the established near-future direction, then inspect queue entries and
+Apply the shared direction consideration, then inspect queue entries and
 canonical stories only when they are relevant to this execution or a supported
 finding. An isolated urgent fix with no connection to other queued work does not
-trigger queue investigation. Preserve existing priority instructions. Never
-propose or edit the direction text.
+trigger queue investigation. Preserve existing priority instructions.
 
 Connect supported learning to a relevant priority or story recommendation, or
 state a reasoned no-change result. Do not claim to validate unread backlog
@@ -163,11 +192,9 @@ entries. Do not invent learning. Label inspirations as hypotheses. When
 beneficiary or outcome is unresolved, return a concrete exploration proposal; do
 not launch discovery or decomposition.
 
-If direction is missing, say alignment cannot be assessed against an established
-direction and continue the independently supported reviews. If backlog or
-story conventions cannot be resolved, keep product conclusions provisional,
-identify that gap, and do not invent files. Independent supported implementation
-and process review still proceed.
+If backlog or story conventions cannot be resolved, keep product conclusions
+provisional, identify that gap, and do not invent files. Independent supported
+implementation and process review still proceed.
 
 ## Report
 
