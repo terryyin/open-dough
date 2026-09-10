@@ -44,10 +44,10 @@ Resolve these independently before matching:
    catalog, unless the invocation supplies an isolated writable catalog. When an
    isolated catalog is supplied, write only that file; leave the maintained
    record unchanged.
-4. **Current revision assessed** — for a continuity or correction decision,
-   name the current guidance revision being assessed. Inspect only the
-   relevant local Git history for that revision range as described under
-   Inspect relevant history.
+4. **Current revision assessed** — for a continuity, correction, or
+   uncertain-relationship decision, name the current guidance revision
+   being assessed. Inspect only the relevant local Git history for that
+   revision range as described under Inspect relevant history.
 
 Checksum the source log or supplied feedback before any catalog work. After the
 invocation, the source bytes must be identical.
@@ -56,6 +56,8 @@ Stop usefully when input is missing:
 
 - Missing, empty, or uninterpretable feedback: report that there is nothing to
   match. Invent no finding and make no catalog write.
+- Missing source identity — an otherwise interpretable finding has no local
+  code to map: report that limitation and make no catalog write.
 - Uninterpretable or malformed naming record: leave it byte-identical, report
   a limitation, and make no unsafe write. Do not guess the next code.
 - Missing naming-record path with no default or isolated file: report that
@@ -86,13 +88,14 @@ Stop usefully when input is missing:
    First-use needs only the current catalog and the supplied finding; do not
    invent a history investigation.
 5. **Known match already recorded:** reuse that identity when the supplied
-   finding is the same recorded source issue. Recommend the same mapping.
-   Make no catalog edit: do not add counts, history rows, extra fields, or
-   duplicate mappings. Reprocessing the same source finding keeps the
-   recorded identity. If the supplied finding reports a later revision than
-   the catalog entry, inspect history (see Inspect relevant history) before
-   reuse; continuity and correction below decide whether this is still that
-   identity.
+   finding is the same recorded source issue, including a previously recorded
+   uncertain identity. Recommend the same mapping. Make no catalog edit: do
+   not add counts, history rows, extra fields, or duplicate mappings.
+   Reprocessing the same source finding keeps the recorded identity. If the
+   supplied finding reports a later revision than the catalog entry, inspect
+   history (see Inspect relevant history) before reuse; continuity,
+   correction, or uncertain relationship below decide whether this is still
+   that identity.
 6. **Source already uses that internal code:** if the source heading is already
    the matching `ODF-NNN`, report that no rename is needed. Still do not edit
    the source log or add catalog history.
@@ -104,7 +107,9 @@ Stop usefully when input is missing:
    `ODF-NNN` and append continuity locators on that entry (see Catalog entry).
    Recommend `source-project/code → ODF-NNN` with a brief reason that the same
    issue remains at the current revision. If inspection shows the issue is
-   gone, this is not continuity; follow demonstrated correction below.
+   gone, this is not continuity; follow demonstrated correction below. If
+   inspection cannot establish presence or removal, follow Uncertain
+   relationship.
 8. **Demonstrated correction, later finding:** when inspection shows an
    intervening correction (the issue is gone in that range), distinguish the
    supplied finding:
@@ -125,12 +130,26 @@ Stop usefully when input is missing:
      and invent no current issue. Explain that this report's revision limit is
      the earlier revision; it does not establish a finding at the current
      revision assessed.
-9. **Unsupported — uncertain similarity:** matching that would require a
-   qualified-uncertainty record when history or similarity is insufficient is
-   not supported. Report that limitation as pending without guessing a
-   correction, a later new identity, or a recurrence. Missing or unverifiable
-   history is not a demonstrated fix or recurrence. Unknown continuity stays
-   qualified.
+
+   If the claimed correction cannot be verified, this is not a demonstrated
+   correction; follow Uncertain relationship.
+9. **Uncertain relationship:** the same evidence rule as continuity and
+   correction, with uncertainty preserved. When a shared cause is not
+   established, or inspection cannot establish continuity or an intervening
+   correction, allocate the next unused `ODF-NNN` as a **separate**
+   interpretable identity. Write one minimal entry that states the matching
+   uncertainty (see Catalog entry). Recommend `source-project/code → ODF-NNN`
+   with that qualification. Do not assert continuity, an intervening
+   correction, or a current recurrence after a fix, and do not reuse the
+   earlier code as if those were proven.
+
+   Similar symptoms are not a shared cause. A transcript reread after losing an
+   observation locator is not the repeated plan-and-commit-boundary
+   reconstruction issue; keep that relationship explicit and uncertain under
+   the new code.
+
+   Replaying that same uncertain source finding reuses the recorded identity
+   (step 5). Make no extra catalog edit.
 
 Chat is the only recommendation channel. Format:
 `source-project/code → ODF-NNN`. Never edit source feedback, even when the source
@@ -151,6 +170,12 @@ files in a Git repository. This is not a new history engine.
   reintroduced. A changelog helps locate a change; it does not prove the
   change's effect. A release-number difference or a changelog keyword such as
   "fix" is not that evidence. Name the current revision assessed.
+- If the reported execution release is unknown, or relevant history is missing,
+  the history range cannot be bounded from that finding. Do not substitute the
+  current checkout or installation VERSION as the execution's release. If a
+  claimed correction's relevant files or revisions are not available to inspect,
+  the claim is unverified. In these cases, do not decide continuity or correction;
+  follow Uncertain relationship.
 
 ## Catalog entry
 
@@ -180,6 +205,12 @@ with compact **References** to the earlier `ODF-NNN` and the decisive
 correction change (revision, tag or SHA, and the guidance locator that shows
 the old issue is gone).
 
+When allocating a separate identity for an uncertain relationship, write
+the new heading with compact **References** that state the uncertainty (the
+similar existing code, the missing release, or the unverifiable claimed
+change). Do not write continuity locators or a demonstrated-correction
+relationship as if those were proven.
+
 Replace `_No findings allocated yet._` with the first entry. Append later
 entries after existing findings. Do not rewrite unrelated catalog text.
 
@@ -190,6 +221,11 @@ entries after existing findings. Do not rewrite unrelated catalog text.
 - Do not fetch other projects or scan unrelated logs.
 - Do not turn a matching limitation into a claim that a fix or recurrence
   occurred.
+- Do not treat similar symptoms as a shared cause.
+- Do not claim continuity or correction from an unknown execution release or
+  missing history.
+- Do not invent a fix or a current recurrence from an unverifiable claimed
+  change.
 - Do not allocate a new `ODF-NNN` from a release-number difference or a
   changelog claim alone.
 - Do not invent a current issue from historical feedback about an

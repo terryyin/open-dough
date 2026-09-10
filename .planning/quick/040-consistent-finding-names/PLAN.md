@@ -4,8 +4,8 @@
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
 including the release/history clarification. Status: executing on
-`worktree-quick-040-consistent-finding-names`. Slices 1–4 delivered; slices 5–6
-remain.
+`worktree-quick-040-consistent-finding-names`. Slices 1–5 delivered; slice 6
+remains.
 
 The Open Dough maintainer receives a stable internal finding identity and a
 chat-only rename recommendation justified by meaning and relevant revision
@@ -174,16 +174,17 @@ Safe stop: Supported continuity and breaks share one revision-aware naming rule.
 
 ### 5. Keep uncertain relationships explicit in naming recommendations
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given similar symptoms or insufficient release/history evidence, the
 skill records an interpretable finding separately with qualified uncertainty,
 without asserting continuity or correction; unsafe identity/record writes stop.
-Proof: One matching walkthrough varies decisive evidence: similar rereading
-symptoms with a different unresolved cause; unknown execution release; a claimed
-fix whose relevant change cannot be verified. Inspect separate identity and
-uncertainty, absence of an invented fix/current recurrence, and identical source
-bytes. Replaying uncertain input reuses its recorded identity. Missing source
-identity or malformed catalog produces a stated limitation and no unsafe edit.
+Proof: Similar-symptom `DD-003` allocated `ODF-002` without treating it as
+`ODF-001`. Unknown release and unverifiable claimed fix also allocated separate
+identities without inventing continuity, a fix, or a current recurrence.
+Uncertain replay catalog hash `2999c68f…` unchanged. Missing local code and
+malformed catalog stayed byte-identical. Source bytes unchanged on every
+invocation.
+Evidence: [evidence/slice-5/WALKTHROUGH.md](evidence/slice-5/WALKTHROUGH.md).
 Safe stop: Removes the history-dependent interim limitation from slices 2–3;
 all matching decisions use the same evidence rule, with uncertainty preserved.
 
@@ -261,3 +262,7 @@ effect. Correction and uncertainty stay pending.
 
 Slice 4: evidenced B correction then C reintroduction allocates `ODF-002`.
 Historical A replay does not invent C. Uncertainty stays pending.
+
+Slice 5: similar symptoms, unknown release, and unverifiable claimed fixes
+allocate separate ODF identities with qualified uncertainty. Matching is no
+longer pending.

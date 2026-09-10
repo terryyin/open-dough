@@ -1,0 +1,6 @@
+SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
+eb1cbe8c623c1e363c76d75a0c1abd831b8bc3ef9078b5e503991a2b91cbd1dd
+
+SHA-256 of catalog-before.md: 5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
+SHA-256 of catalog.md:      2999c68f5672f0e925866bbfae09a92c953939c9054d200151beb73ca25beb5b
+Catalog kept ODF-001 for DD-001 and allocated ODF-002 for DD-003 with matching uncertainty. No Occurrences section, count, extra field, or continuity/correction claim.
