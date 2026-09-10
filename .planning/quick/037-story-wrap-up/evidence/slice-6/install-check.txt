@@ -1,0 +1,4 @@
+installed-wrap-up=yes
+installed-retrospective=yes
+recognition-omitted=yes
+worktree-agents-untouched=yes

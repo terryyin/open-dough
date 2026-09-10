@@ -1,6 +1,6 @@
 # Recognition: dough-story-wrap-up
 
-Review: in progress for Quick 037 Slice 1
+Review: ready for maintainer review; native wrap-up acceptance pending
 
 ## Original clues
 
@@ -111,6 +111,11 @@ guess. Follow-up stayed first. Empty review asked nothing.
 Walked execution → retrospective → wrap-up handoffs on 2026-09-10.
 [evidence/slice-5/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-5/WALKTHROUGH.md).
 
-Execute-plan and planning cleanup keep the plan. Retrospective recommends
-without backlog writes. Wrap-up owns closure. Standalone backlog maintenance
-remains.
+## Slice 6 local behavior evidence
+
+Walked candidate install and installed-skill closure on 2026-09-10.
+[evidence/slice-6/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-6/WALKTHROUGH.md).
+
+Payload declarations and focused install checks include the two new runtime
+files. Recognition is omitted. This worktree's installed copies were not
+edited. Native wrap-up on Codex, Cursor, and Claude Code remains pending.

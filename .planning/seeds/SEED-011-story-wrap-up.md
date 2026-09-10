@@ -24,7 +24,8 @@ development lifecycle coverage.
 
 ### 1. Story Wrap-Up
 
-**Status:** Planned; highest-priority backlog item. Execution not started.
+**Status:** Source complete on Quick 037. Native wrap-up acceptance on Codex,
+Cursor, and Claude Code remains pending. Not released.
 **Plan:** [Quick 037 — Story Wrap-Up](../quick/037-story-wrap-up/PLAN.md).
 **Working skill name:** `dough-story-wrap-up` (public Open Dough skill).
 
@@ -134,11 +135,9 @@ and [process recording](SEED-010-learn-from-execution-retrospectives.md#turn-ret
 provide existing inputs. Reconcile their source guidance at the handoff and
 cleanup boundaries; do not reopen their review or logging designs.
 
-**Readiness / open decision:** Product scope and examples are resolved. The
-human-directed update to ADR 0005 resolves the retention conflict. No unresolved
-decision blocks planning, and no new UI or architecture mechanism is needed.
-Slice planning is authorized and recorded in Quick 037; implementation is not
-authorized by the current planning-only request.
+**Readiness / open decision:** Source implementation is complete on Quick 037.
+Native wrap-up acceptance on Codex, Cursor, and Claude Code remains unfinished
+and blocks release of this increment. No version is selected by this work.
 
 ## Human-Owned Decisions
 

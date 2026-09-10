@@ -3,7 +3,7 @@
 ## Source and outcome
 
 [SEED-011 — Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: in progress. Slices 1–5 are done.
+Status: source complete. Native wrap-up acceptance remains pending.
 
 A developer closes one completed story after retrospective: relevant product
 changes are applied, existing follow-up work is first in the queue, lasting
@@ -223,10 +223,12 @@ slice before implementing it; do not expand the story.
 
 ### Use the coherent candidate through ordinary installation
 Type: Behavior
-Status: planned
+Status: done
 Proof: One candidate-install → fresh native use journey with the preceding
 closure case; applicable Codex, Cursor, and Claude Code requirements have fresh
 proof or justified reuse judged against the candidate before release readiness.
+Evidence: [evidence/slice-6/WALKTHROUGH.md](evidence/slice-6/WALKTHROUGH.md).
+Native wrap-up sessions on Codex, Cursor, and Claude Code remain unfinished.
 
 Behavior: Given the reviewed candidate installed using existing mechanisms,
 a developer can invoke Story Wrap-Up and receive the same coherent closure
@@ -294,7 +296,8 @@ new-integration assumption requires an experiment. Native access and prior
 proof validity remain execution-time acceptance concerns, not passed checks.
 If implementation reveals multiple mechanisms or unbounded work, refine the
 affected slice in this same plan. Do not drop scope or waive checks to meet a
-deadline. Slices 1–5 are done. Remaining slices stay planned.
+deadline. All six slices are done in source. Native wrap-up acceptance on
+Codex, Cursor, and Claude Code remains pending and is not a waived check.
 
 ## Learnings
 

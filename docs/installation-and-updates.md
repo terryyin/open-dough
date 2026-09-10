@@ -38,6 +38,8 @@ The payload in each root is exactly:
 - `dough-execute-plan/scripts/watch-ci.mjs`
 - `dough-post-change-refactor/SKILL.md`
 - `dough-post-change-refactor/references/refactor-checks.md`
+- `dough-execution-retrospective/SKILL.md`
+- `dough-story-wrap-up/SKILL.md`
 
 The source files live under `src/skills/`. Recognition records, extraction reviews, source checksums, and test fixtures
 are source-only maintenance material and are not installed. Installation preserves

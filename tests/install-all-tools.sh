@@ -25,6 +25,10 @@ assert_all_roots() {
         "$(dirname -- "${dest}")/dough-adr-awareness/SKILL.md"
       cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
         "$(dirname -- "${dest}")/dough-product-backlog/SKILL.md"
+      cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
+        "$(dirname -- "${dest}")/dough-execution-retrospective/SKILL.md"
+      cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
+        "$(dirname -- "${dest}")/dough-story-wrap-up/SKILL.md"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]

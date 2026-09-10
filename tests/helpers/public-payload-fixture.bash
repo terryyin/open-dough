@@ -37,4 +37,6 @@ managed_files=(
   dough-execute-plan/scripts/watch-ci.mjs
   dough-post-change-refactor/SKILL.md
   dough-post-change-refactor/references/refactor-checks.md
+  dough-execution-retrospective/SKILL.md
+  dough-story-wrap-up/SKILL.md
 )

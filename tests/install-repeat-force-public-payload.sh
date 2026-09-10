@@ -90,6 +90,10 @@ cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${selected_root}/dough-adr-awareness/SKILL.md"
 cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
   "${selected_root}/dough-product-backlog/SKILL.md"
+cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
+  "${selected_root}/dough-execution-retrospective/SKILL.md"
+cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
+  "${selected_root}/dough-story-wrap-up/SKILL.md"
 [[ ! -e "${selected_root}/dough-adr-awareness/RECOGNITION.md" ]]
 expected_version=$(cat "${source_dir}/VERSION")
 assert_contents "${selected_root}/dough-update/VERSION" "${expected_version}"
@@ -107,6 +111,10 @@ cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
   "${claude_root}/dough-adr-awareness/SKILL.md"
 cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
   "${claude_root}/dough-product-backlog/SKILL.md"
+cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
+  "${claude_root}/dough-execution-retrospective/SKILL.md"
+cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
+  "${claude_root}/dough-story-wrap-up/SKILL.md"
 [[ ! -e "${claude_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 after_selected_sidecars=$(shasum -a 256 \

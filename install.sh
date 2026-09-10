@@ -121,6 +121,8 @@ managed_files=(
   dough-execute-plan/scripts/watch-ci.mjs
   dough-post-change-refactor/SKILL.md
   dough-post-change-refactor/references/refactor-checks.md
+  dough-execution-retrospective/SKILL.md
+  dough-story-wrap-up/SKILL.md
 )
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
   echo "Client payload is incomplete: missing ${managed_file}" >&2
