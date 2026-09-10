@@ -3,7 +3,9 @@
 ## Source and goal
 
 [SEED-010 Story 7](../../seeds/SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony).
-Status: planned, 2026-09-11.
+Status: source complete, 2026-09-11. Slice delivered on
+`worktree-quick-039-wrap-up-from-available-context`. Native acceptance remains
+pending in Story 2.
 
 Close completed planned or planless work using available execution context,
 lasting knowledge, and existing follow-ups. The coordinator owns lifecycle
@@ -53,7 +55,11 @@ Relevant Accepted decisions:
 
 ### 1. Close completed work using available execution context
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 039 walkthrough (Variants A–H);
+`git diff --check`; frontmatter and relative-link check. Delivered on
+`worktree-quick-039-wrap-up-from-available-context`. CI observer: unavailable
+(Cursor host hook did not add `CI_MONITOR_READY`; pendingCi unobserved).
 
 Behavior: Given selected completed work and the coordinator's wrap-up invocation,
 when wrap-up reads the available execution context and optional retrospective
@@ -114,13 +120,15 @@ edits to the backlog and both story seeds.
 
 The repository provides `npm run format` and `npm run lint`, backed by
 `scripts/lint.mjs`; formatting currently targets JavaScript/JSON and shell files,
-not Markdown. No configured core.hooksPath was returned. Resolve the applicable
-Markdown preparation/check-only hook contract and authorized push destination
-before delivery rather than running a broad formatter over unrelated files.
-The configured remote is `origin` at `git@github.com:terryyin/open-dough.git`.
-Guidance-only verification is the local behavior review plus focused Markdown
-checks above; installer/update suites and new test infrastructure are outside
-this change. CI continues under the existing workflow when execution is delivered.
+not Markdown. No `core.hooksPath` is configured; only sample Git hooks are
+present. Delivery uses `git diff --check` as the Markdown whitespace check and
+`npm run format` once (no-op on this Markdown-only change). There is no
+check-only commit hook to run independently. Authorized push destination is
+`origin` (`git@github.com:terryyin/open-dough.git`) branch
+`worktree-quick-039-wrap-up-from-available-context`. Workflow `ci.yml` / `CI`
+is push-triggered. Guidance-only verification is the local behavior review plus
+focused Markdown checks above; installer/update suites and new test
+infrastructure are outside this change.
 
 ## Cumulative design assessment
 
@@ -138,4 +146,9 @@ product slice.
 
 ## Learnings
 
-None from execution yet.
+- Wrap-up's linked lifecycle sources (retrospective, execute-plan, planning
+  cleanup, product-backlog) already separate review, delivery, and closure; they
+  did not restore the removed retrospective-completion gate, so they were left
+  unchanged.
+- Cursor CI host-bridge readiness was missing in this coordinator session
+  (`CI_MONITOR_READY` not added). Execution continued without promised observation.

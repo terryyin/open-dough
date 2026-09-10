@@ -7,9 +7,10 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
+- [Wrap up work on the coordinator's retrospective decision](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony) — SEED-010
+
 ## Backlog list
 
-- [Wrap up work on the coordinator's retrospective decision](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony) — SEED-010
 - [Execute a simple story as one quick slice](seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-simple-story-as-one-quick-slice) — SEED-004
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Respond when DearDough.md reaches 500 lines](seeds/SEED-010-learn-from-execution-retrospectives.md#respond-when-deardough-reaches-500-lines) — SEED-010

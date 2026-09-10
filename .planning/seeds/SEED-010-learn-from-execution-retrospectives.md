@@ -371,8 +371,12 @@ Cross-tool verification was skipped for this story at the human's direction.
 
 ### 7. Wrap up work on the coordinator's retrospective decision
 
-**Status:** Refined on 2026-09-11; selected for backlog. Slice plan written.
-**Plan:** [Quick 039](../quick/039-wrap-up-from-available-context/PLAN.md).
+**Status:** Source complete on 2026-09-11. Proposed skill in
+`src/skills/dough-story-wrap-up/`; not released. Story 2 owns native
+acceptance and release/adoption.
+**Plan:** [Quick 039](../quick/039-wrap-up-from-available-context/PLAN.md);
+the one Behavior slice is done. Local behavior evidence is in the skill's
+`RECOGNITION.md`.
 
 **Goal:** A developer can close completed planned or planless work through a
 simple wrap-up that uses the available execution context and preserves lasting
