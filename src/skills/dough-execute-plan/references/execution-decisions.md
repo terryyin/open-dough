@@ -23,20 +23,22 @@ change within the authorized scope.
 ## Resolve a disputed plan restriction
 
 Use [examples and constraints](../../dough-story-refinement/references/planning.md#examples-and-constraints)
-when a plan requires rejection that appears supported only by fixture counts or
-arrangements. Cite the exact plan contract and the conflicting story examples,
-deferred promises, or domain evidence. State what behavior the proposed change
-would alter and ask the human to resolve the restriction. Missing independent
-justification is grounds for this question, even when the error seems clear;
-it is not permission to remove the restriction.
+when a plan or quick story requires rejection that appears supported only by
+fixture counts or arrangements. Cite the exact source contract and the
+conflicting story examples, deferred promises, or domain evidence. State what
+behavior the proposed change would alter and ask the human to resolve the
+restriction. Missing independent justification is grounds for this question,
+even when the error seems clear; it is not permission to remove the restriction.
 
 Stop the conflicting implementation, refactor, or correction-planning path and
 leave disputed behavior unchanged. Return the evidence and decision needed in
-the existing handoff or active plan. A behavior-preserving refactor cannot remove
-a contractual rejection, and passing tests or plan compliance do not justify it.
+the execution conversation, existing handoff, or active plan. A
+behavior-preserving refactor cannot remove a contractual rejection, and passing
+tests or plan compliance do not justify it.
 Retain independently supported product constraints; a count limit is not
 accidental merely because examples also have counts. Resume the disputed path
-only under the human's decision, keeping the story and plan aligned.
+only under the human's decision, keeping the story and plan aligned when a plan
+exists.
 
 ## Diagnose failed proof
 
@@ -44,7 +46,8 @@ For CI events, first use [CI observation and repair](ci-monitor.md#handle-a-noti
 For other failures, use focused diagnosis. Discount a failure as pre-existing,
 unrelated, or environmental only with bounded evidence connecting its cause to
 the affected proof. Record the cause, supporting observation, affected proof,
-and remaining defect or disposition in the existing handoff or active plan.
+and remaining defect or disposition in the execution conversation, existing
+handoff, or active plan.
 Successful commands need no extra record.
 
 A passing retry, repeated test name, or successful cleanup does not establish
@@ -67,12 +70,18 @@ failure to converge also calls for refinement.
 Inventory tracked and untracked changes owned by the attempt. Safely park or
 revert only those changes; preserve pre-existing work. Never use broad
 `git checkout .` or `git clean -fd`. Unclear ownership requires human judgment.
-Record elapsed time, completed proof, and the failed sizing assumption in the
-same plan. Invoke
+For planned execution, record elapsed time, completed proof, and the failed
+sizing assumption in the same plan. Invoke
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) only
 when learning escalation permits slice refinement. The coordinator commits and
 pushes the updated plan. Report `reverted and refined`, elapsed time, and
 whether the hard limit applied, then restart from the plan on disk.
+
+For quick execution, record the same findings in the conversation and return a
+safe stop that identifies the canonical story, preserved completed work and
+proof, disposition of incomplete attempt-owned changes, elapsed time, and the
+reason ordinary planning is now needed. Do not create a plan or substitute
+execution record as part of this quick-path stop.
 
 ## Handle an implementation commit
 

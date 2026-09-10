@@ -240,6 +240,14 @@ active-work and recovery behavior. Select representative cases for Codex, Cursor
 and Claude Code by unresolved risk; earlier marker-required acceptance does not
 prove the revised flow. This acceptance remains pending until evaluated.
 
+Also own pending native acceptance for executing an explicitly selected
+canonical story as one quick slice without creating a plan or substitute record.
+Cover quick-entry authority and story-context stops, backlog **Taken** handling,
+ordinary refactoring and delivery through commit and push, and unchanged
+executable-plan requirements for ordinary invocation. Select representative
+Codex, Cursor, and Claude Code cases by unresolved risk; local authoring
+walkthroughs and earlier planned-execution evidence do not prove this quick path.
+
 Also own pending native acceptance for the lifecycle guidance:
 refinement/planning distinctions and cumulative design, refactoring and human
 plan-conflict handoffs, whole-product architecture correction planning, and

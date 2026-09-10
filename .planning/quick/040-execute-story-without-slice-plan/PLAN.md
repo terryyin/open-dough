@@ -57,7 +57,7 @@ Relevant Accepted decisions:
 
 ### 1. Execute an explicitly selected story without a plan
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an understood canonical story and an instruction to execute it
 without slice planning, execute-plan uses the story as one slice and produces
@@ -195,6 +195,10 @@ The repository's preparation/check entry points are `npm run format` and
 `npm run lint`; resolve the applicable hook contract and authorized push target
 at execution. This planning request does not authorize implementation or commit.
 
+CI observer for execution: workflow `ci.yml` / `CI`, branch
+`codex/quick-040-execute-story-without-plan`, coordinator `root`, Codex cell 21,
+session 25760, directory `/tmp/dough-ci-501/watch-JgtKOw`, PID 85380.
+
 ## Cumulative design assessment
 
 One model covers the sequence: the selected story and available execution
@@ -213,4 +217,7 @@ No separate slice-plan refinement pass was invoked.
 
 ## Learnings
 
-None from execution yet.
+- Slice 1's authoring walkthrough confirmed that quick execution can reuse the
+  ordinary proof, refactor, delivery, CI, and backlog rules when plan-dependent
+  reads and writes are conditioned explicitly. Native quick-entry behavior
+  remains pending for Codex, Cursor, and Claude Code under SEED-010 Story 2.

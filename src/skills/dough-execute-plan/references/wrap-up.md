@@ -26,8 +26,9 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
 
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
-   Supply the slice, plan path, implementation proof, project context, and ownership
-   boundaries. Keep formatting and hook-owned lint with the coordinator. Do not
+   Supply the execution source, slice, implementation proof, project context,
+   and ownership boundaries; supply the plan path only when one exists. Keep
+   formatting and hook-owned lint with the coordinator. Do not
    add instructions contradicting that skill's decide-before-testing contract;
    explicit human verification requests remain authoritative.
 2. Inspect its report, require `## REFACTOR COMPLETE`, and recheck
@@ -41,8 +42,8 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
    affected components, including a planning-only no-op. Require success before
    staging. Repair mechanical failures and repeat only when the repair
    invalidates preparation. Stop for semantic or design judgment.
-5. Update the active plan and any project-required summary with learnings, slice
-   status, and revised remaining slices under
+5. For planned execution, update the active plan and any project-required
+   summary with learnings, slice status, and revised remaining slices under
    [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan).
    For stale feature-story understanding, record `awaiting story review` and
    identify the selected story in its seed and the affected field. For stale
@@ -50,7 +51,11 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
    the correction plan and affected field. Stop at the safe delivery boundary
    without changing other stories or the correction outcome. This plan update
    alone does not trigger another formatting pass. Record a CI repair result
-   with the interrupted slice's existing status.
+   with the interrupted slice's existing status. For quick execution, do not
+   create or update a plan, completion note, project summary, or substitute
+   execution record; retain learnings and delivery progress in the conversation.
+   If the story understanding is stale, identify its canonical seed location and
+   affected field and stop for human review without changing its scope.
 6. Stage only owned files or separable owned changes and inspect the staged diff.
    Stage all content only when all of it is owned. Unrelated unstaged work does
    not block delivery. Resolve unrelated staged content or ambiguous ownership
