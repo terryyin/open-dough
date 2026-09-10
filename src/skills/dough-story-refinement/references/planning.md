@@ -19,7 +19,8 @@ For each story, establish:
 
 - **Goal:** beneficiary, desired change, and contribution to the business goal.
   Keep the story's observable outcome distinct from the broader ambition.
-- **Scope:** included behavior, material exclusions, and boundary assumptions.
+- **Scope:** required behavior, justified rejection constraints, deferred
+  promises, and boundary assumptions, using the distinction below.
 - **Key examples:** concrete pre-condition → trigger → result situations that
   explain the scope. Include boundaries or exceptions when they resolve
   ambiguity; do not enumerate a complete test suite.
@@ -28,13 +29,34 @@ Prefer the smallest useful outcome. Clarify uncertain additions when possible;
 otherwise exclude them and report what was considered. If exclusion prevents
 the stated goal or examples from working, resolve the question before dependent
 planning or implementation. Necessary implementation details are not extra
-product scope; speculative generality is.
+product scope. Naturally general behavior need not add delivery or verification
+commitments; speculative capabilities are extra scope.
 
 Add **UI** descriptions or sketches only when interaction or presentation needs
 agreement. Add **Architecture** only for a new consequential concern; consult
 [dough-adr-awareness](../../dough-adr-awareness/SKILL.md) and relevant Accepted
 ADRs. Inspect existing behavior or code only to resolve a concrete question,
 without turning refinement into technical planning. Omit unused optional sections.
+
+## Examples and constraints
+
+Examples demonstrate required behavior; their counts and arrangements do not
+forbid unlisted cases. Require an independent domain or product requirement to
+justify rejection, and cite it when recording negative acceptance. Do not invent
+that justification when it is missing; record any unresolved constraint decision.
+Deferred promises state what this delivery does not commit to build or verify,
+not what the product must reject.
+
+For example, README plus three Notes and README plus two Notes and one
+Relationship can both be required import examples. Deferring bulk performance
+or promises about future layouts does not require rejecting other mixtures.
+An explicit product limit on attachment count can still justify rejection above
+that limit; the example counts alone cannot.
+
+Story refinement sets delivery commitments, not product implementation
+boundaries. Implementation may change any product parts needed for the promised
+outcome while respecting genuine product constraints and architectural decisions.
+Story membership alone does not justify a structural boundary.
 
 ## Update the story in its seed
 

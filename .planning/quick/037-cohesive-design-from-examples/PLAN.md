@@ -3,7 +3,7 @@
 ## Source and outcome
 
 [SEED-012](../../seeds/SEED-012-cohesive-design-from-examples.md#cohesive-design-from-examples).
-Status: planned. Planning only; no implementation or proof has run.
+Status: in-progress. Execution authorized in an isolated worktree and branch.
 
 A developer delivers small evidenced increments while agents evolve a cohesive
 product design, challenge accidental plan restrictions, and review architecture
@@ -107,7 +107,7 @@ here neither performs nor declares that release work complete.
 
 ### Distinguish required examples from rejection constraints
 Type: Behavior
-Status: planned
+Status: done
 Proof: Refine the representative two-example story and its genuine-constraint
 variation; inspect the resulting Goal, Scope, and Key examples.
 
@@ -294,3 +294,31 @@ constraint ownership. Do not evade them by dropping the requested review scope.
 No product behavior has been verified during planning. Record only discoveries
 that change remaining work here. Native behavior evidence remains pending unless
 later judged reusable; a walkthrough alone cannot establish release acceptance.
+
+## Active execution evidence
+
+Execution uses `/private/tmp/open-dough-quick-037`, branch
+`codex/quick-037-cohesive-design`, based on `eba7472` from `main`.
+Source edits follow ADRs 0003, 0005, and 0006; no conflicts or exceptions found.
+The repository has no commit hook or selective Markdown formatter. For these
+Markdown-only slices, formatting is a no-op and `git diff --check` checks
+whitespace. Run the existing lint command explicitly before final delivery;
+no hook or formatting configuration change is warranted.
+
+CI: `terryyin/open-dough`, `ci.yml` / `CI`, push-triggered. Codex observer
+coordinator `root-canonical`, cell 12, session 65416, PID 20303, receipt
+`/tmp/dough-ci-501/watch-SDxjdK`, checkout as above; status watching.
+The initial noncanonical `/tmp` invocation exited without launching: its CLI
+entrypoint compares the invoked path with the canonical module URL. The
+canonical launch produced the receipt above.
+
+### Required examples — authoring observation
+
+Manual refinement yielded both README/three-Notes and README/two-Notes/one-
+Relationship imports as required examples; bulk performance and future-layout
+promises remained deferred, with no other-mixture rejection. A supplied maximum
+attachment count produced cited over-limit negative acceptance; without that
+requirement, no rejection was invented. Implementation reach remained independent
+of delivery grouping. Invocation and required project context remain explicit.
+Local links/frontmatter and `git diff --check` passed. Independent post-change
+review found no refactor needed. This is authoring evidence, not native acceptance.
