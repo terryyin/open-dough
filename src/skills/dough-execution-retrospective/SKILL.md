@@ -306,6 +306,7 @@ the order of supported findings:
 - Execution: <stable execution identity>
   - Tool: <Codex, Cursor, Claude Code, or another identified tool>
   - Model: <model identifier, when available>
+  - Open Dough release: <version | unknown | unreleased | modified>
   - Evidence: <decisive compact references or locators>
   - Observed effect: <what the record shows>
   - Inference: <qualified cause, cost, or uncertainty, only when needed>
@@ -323,6 +324,20 @@ Record the model identifier when the execution evidence supplies it; otherwise
 omit the Model line instead of guessing or performing a separate lookup. If the
 executing tool cannot be identified, report the finding without adding a
 countable occurrence. Do not backfill older rows without supporting evidence.
+
+On every new occurrence, record `Open Dough release:` as a released version,
+`unknown`, `unreleased`, or `modified`. This is the Open Dough guidance used
+while the work ran — not this project's product version, and not the release
+installed when the retrospective later runs. Resolve it from execution or
+installation provenance tied to the reviewed work. Do not use a current
+checkout `VERSION`, or today's `.agents/skills/dough-update/VERSION` or
+`.claude/skills/dough-update/VERSION`, unless that installation is tied to the
+work. If the release cannot be established, write `unknown`. For unreleased or
+modified guidance, mark that state and attach an available revision and, when
+known, the base released version — for example
+`modified; revision <rev>; base <version>` — rather than a clean released
+version. Do not guess or backfill a release on older rows; an identical
+rereview still makes no edit.
 
 When the canonical log exists, maintain it only when its issue headings,
 descriptions, and occurrence rows are interpretable enough to identify the

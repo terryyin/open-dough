@@ -267,7 +267,7 @@ access, or internal consumer is required.
 
 ### 3. Keep internal and external finding code names consistent
 
-**Status:** Slice-planned on 2026-09-10; implementation not authorized.
+**Status:** Executing on 2026-09-10 via Quick 040; slice 1 delivered.
 **Plan:** [Quick 040](../quick/040-consistent-finding-names/PLAN.md).
 
 **Goal:** The Open Dough maintainer can associate a project's finding with a

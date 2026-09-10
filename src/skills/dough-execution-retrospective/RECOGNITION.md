@@ -37,12 +37,13 @@ without unauthorized backlog writes.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
 - Records supported process findings in one project-local `DearDough.md` with
-  stable issue and execution identities. Interpretable logs retain IDs, notes,
-  evidence, and unrelated entries while same-execution rereview stays one row;
-  distinct proven recurrence adds a row and uncertain matching stays separate.
-  Process skip, no findings, unresolved identity or location, ambiguous content,
-  and write failure do not become successful writes or suppress independent
-  reviews.
+  stable issue and execution identities. New occurrences record the Open Dough
+  guidance release used during the reported execution. Interpretable logs retain
+  IDs, notes, evidence, and unrelated entries while same-execution rereview
+  stays one row; distinct proven recurrence adds a row and uncertain matching
+  stays separate. Process skip, no findings, unresolved identity or location,
+  ambiguous content, and write failure do not become successful writes or
+  suppress independent reviews.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -195,3 +196,29 @@ Behavior review: the occurrence-writing path clearly invokes the rule; required
 context distinguishes executing tool from reviewing tool and treats model as
 evidence-dependent; a representative Codex occurrence can record `Codex` and a
 known model while the same record without model evidence omits only that line.
+
+## Quick 040 Slice 1 local behavior evidence
+
+Walked occurrence guidance-release recording on 2026-09-10 in worktree
+`worktree-quick-040-consistent-finding-names`.
+[evidence/slice-1/WALKTHROUGH.md](../../../.planning/quick/040-consistent-finding-names/evidence/slice-1/WALKTHROUGH.md).
+
+New occurrences record the Open Dough guidance used during the reported
+execution as a released version, `unknown`, `unreleased`, or `modified`, with
+revision and base attached when applicable. Review-time installation and
+checkout VERSION are not substituted. Older Tool/Model-era rows without a
+release field stayed byte-identical on identical rereview. Skip, no-finding,
+and preservation rules were unchanged and reused from Quick 036.
+
+Under [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+this remains a source-only Proposed change in `src/skills/`; payload
+declarations are untouched. Under
+[ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+the runtime skill addresses the executing agent in this project; this record
+holds maintainer analysis. Under
+[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) this
+walkthrough is authoring proof, not native delivery evidence. Public native
+requirements for the release field belong to
+[Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log);
+do not treat Quick 036 proof or this walkthrough as covering them. Mixed-code
+compatibility is pending Slice 6, with the same Story 2 native owner.

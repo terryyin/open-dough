@@ -3,8 +3,9 @@
 ## Source and outcome
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
-including the release/history clarification. Status: planned. This request
-allows planning and refinement, not implementation, commit, push, or release.
+including the release/history clarification. Status: executing on
+`worktree-quick-040-consistent-finding-names`. Slice 1 delivered; slices 2–6
+remain.
 
 The Open Dough maintainer receives a stable internal finding identity and a
 chat-only rename recommendation justified by meaning and relevant revision
@@ -97,30 +98,31 @@ record, and run `bash tests/install-omits-internal.sh` in slice 2 to prove the
 unreleased boundary through an actual installation. Do not add a parallel
 installer suite or modify payload declarations to ship internal material.
 
-Future execution follows `dough-execute-plan`: proof, independent post-change
-refactor, slice delivery and CI observation when authorized. Use
-`git diff --check` for Markdown changes. `npm run format` currently invokes a
-repository-wide script for JS/JSON/shell, not a selective Markdown formatter;
-no configured `core.hooksPath` or repository `.githooks/pre-commit` was found.
-Resolve the actual selective-format/check-only-hook contract before an execution
-commit rather than inventing a hook, running broad auto-fixes, or bypassing the
-execution skill's gate. Resolve the authorized push destination at execution.
-Retain this plan through retrospective and wrap-up.
+Execution uses `dough-execute-plan`. Selective format for Markdown-only slices
+is `git diff --check`; `npm run format` is a repository-wide JS/JSON/shell
+fixer and is not used as a Markdown formatter. There is no `core.hooksPath` or
+repository pre-commit hook; do not invent one. The check-only gate is
+`git diff --check` on the staged diff. Authorized push destination during this
+execution is `origin worktree-quick-040-consistent-finding-names`. CI observer:
+`/tmp/dough-ci-501/watch-DCr7nh` (`ci.yml` / `CI`). Merge to `main` and drop
+the worktree after all slices. Retain this plan through retrospective and wrap-up.
 
 ## Ordered slices
 
 ### 1. Report the guidance release used by an execution
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given supported process feedback and execution provenance, invoking
 retrospective writes the occurrence with the actual guidance release or an
 explicit unknown/unreleased/modified state.
-Proof: Execute one log-writing walkthrough with provenance variants: work used
-A but review runs under B; no release evidence; modified/unreleased guidance
-with a known revision. Assert A is retained, unknown is explicit, and modified
-content is not called a clean release. Existing rows without releases are
-preserved without guessed backfill; rereview still does not add an occurrence.
-Reuse unaffected skip/no-finding/preservation evidence with a stated reason.
+Proof: Walked used-A-under-B (`0.3.4` retained, not review-time `0.3.6`),
+unknown, and modified with revision `4f8a1c2` / base `0.3.4`. Existing
+Tool/Model-era rows stayed byte-identical on identical rereview
+(`920da4b3947d84deecf08b02f64d4bf70d3798eb23f7174b31868957435914e4`). Skip /
+no-finding / preservation reused from Quick 036 as unchanged. Unreleased uses
+the same state-plus-revision rule as the modified case.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md);
+`git diff --check`. Delivered on `worktree-quick-040-consistent-finding-names`.
 Safe stop: Release-bearing logs are useful independently of internal matching.
 
 ### 2. Recommend a stable internal name for an unseen finding
@@ -235,6 +237,7 @@ not a reason to split the story or claim that execution has been authorized.
 
 ## Learnings
 
-Planning inspection only: the current public log has tool/model but no guidance
-release; installation records exist but do not establish historical provenance
-without execution evidence. No implementation or behavioral proof has run.
+Slice 1: occurrence template now records `Open Dough release`. Review-time
+updater VERSION files are decoys unless tied to the work. Unreleased and
+modified share one state-plus-revision form; the walkthrough used the modified
+case. Native acceptance of the field remains Story 2.
