@@ -373,7 +373,9 @@ Projects retain control of their evidence; no ongoing access is implied.
 ### 6. Turn execution learning into product backlog decisions
 
 **Status:** Refined on 2026-09-10; selected as the top-priority product backlog
-story. Scope and authority decisions are settled; slice planning is authorized.
+story. Scope and authority decisions are settled.
+**Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md); all
+slices planned, no implementation performed.
 
 **Goal:** The developer or product owner of the executing project can use
 what development revealed to decide what to build next and keep product direction,
@@ -532,7 +534,10 @@ Verify direction is considered in every enabled focus, including when product
 review is skipped, and the isolated urgent-fix case avoids unrelated queue
 investigation. Use representative cases for the four review-selection
 combinations; no skipped focus performs its review or writes its destination. Conduct the normal skill
-behavior review; Story 2 owns outstanding native acceptance for public release.
+behavior review. At the human's direction on 2026-09-10, cross-tool verification
+is skipped for this story: no per-host runs, coverage matrix, or evidence-reuse
+audit is a completion requirement. Keep the focused local behavior review.
+Story 2 retains release acceptance/adoption ownership.
 
 **Accepted naming and representative candidate:**
 
@@ -619,7 +624,7 @@ recovery during acceptance; that is not an unresolved product decision.
 
 ## When to Surface
 
-Story 6 is ready for execution planning when requested.
+Story 6 has an executable plan (Quick 034); execute when requested.
 Refine Story 1 before adding process logging;
 complete the applicable acceptance before promoting or releasing changes. Revisit internal
 consumption after local manual use; surface effectiveness tracking after a

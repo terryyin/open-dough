@@ -17,6 +17,46 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="plan-without-numbering-or-budget-prompts"></a>
+
+### 13. Receive a slice plan without numbering or budget prompts
+
+**Status:** Refined and execution-planned at human direction, 2026-09-10.
+**Plan:** [Quick 033](../quick/033-plan-without-numbering-prompts/PLAN.md).
+
+**Goal:** A developer requesting a plan receives it immediately when the story
+and project planning location are known, without supplying a plan number or
+inventing a numeric timing policy.
+
+**Scope:** Reuse an existing active plan for the selected story. For a new plan,
+use the next available number under the project's established numbering and
+location convention, preserving padding and avoiding overwrite. A missing numeric
+slice budget does not block planning: use cohesive slices with one observable
+outcome and proof loop, report concrete uncertainty without a timing guarantee,
+and honor any existing explicit limits. Align only directly contradictory shared
+planning guidance. Complete focused behavior review, existing payload checks,
+and applicable native evidence/reuse, then publish a new immutable release and
+update this repository through its ordinary recorded-source updater. Verify
+fresh installed use; release and adoption are required for story completion.
+
+**Key examples:** Existing quick plans through 032 yield 033 without a question;
+an existing story plan is updated in place; a newly occupied number is skipped.
+A project with no numeric timing policy receives a bounded plan without a budget
+question; a supplied policy still governs sizing. A genuinely unresolved planning
+root is reported rather than guessed.
+
+**Exclusions:** Automatic execution, the planner-handoff/readiness redesign in
+Story 11, retrospective changes, new allocation tooling, concurrent reservation
+infrastructure, new time defaults, unrelated feature promotion, and manual edits
+to installed copies. Release version selection follows ADR 0003. The human added
+release publication and ordinary adoption on 2026-09-10. This request updates
+the plan, not its execution. Completion requires the published and installed fix,
+not merely release-ready source.
+
+**Depends on:** None. The human selected this narrow detour before SEED-010
+Story 6; do not expand either story or reorder the backlog as a side effect.
+
+
 <a id="write-installed-skills-from-this-project"></a>
 
 ### 12. Write installed skills from this project's perspective
