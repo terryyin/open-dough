@@ -255,6 +255,15 @@ unrelated nearby commit, and unchanged recovery for a removed-but-recoverable
 planned execution. Select representative Codex, Cursor, and Claude Code cases by
 unresolved risk. Source authoring walkthroughs do not satisfy this acceptance.
 
+Also own pending native acceptance for converting an oversized quick attempt to
+ordinary planned execution. Cover preservation of completed compatible work and
+proof, safe disposition of attributable incomplete changes, one unchanged
+**Taken** entry, a remaining-work plan with no fabricated earlier slices,
+ordinary resume without repeated work, and retrospective attribution of both
+parts as one execution. Include unclear-ownership and changed-story-scope stops.
+Select representative Codex, Cursor, and Claude Code cases by unresolved risk;
+the Quick 040 local authoring walkthrough does not satisfy this acceptance.
+
 Also own pending native acceptance for the lifecycle guidance:
 refinement/planning distinctions and cumulative design, refactoring and human
 plan-conflict handoffs, whole-product architecture correction planning, and

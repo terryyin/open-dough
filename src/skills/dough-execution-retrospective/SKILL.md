@@ -1,8 +1,9 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Reviews one completed or unfinished planned execution, or a completed quick
-  execution whose plan never existed, against its original feature story or
+  Reviews one completed or unfinished planned execution, a completed quick
+  execution whose plan never existed, or a quick attempt continued through an
+  ordinary remaining-work plan, against its original feature story or
   bounded-correction contract, aggregate commit set, current whole-product
   architecture, and test suite. Use for an execution retrospective, product
   review, or backlog recommendation from current or supplied execution history,
@@ -51,8 +52,8 @@ focus or write its destination.
 - **Current truth decides remediation.** Report later fixes and do not plan work
   that is already resolved.
 - **Execution state decides the destination.** Amend an unfinished plan; create
-  a follow-up plan only for a completed execution. A quick execution with
-  unresolved completion has neither destination yet.
+  a follow-up plan only for a completed execution. A wholly planless quick
+  execution with unresolved completion has neither destination yet.
 - **The user owns disputed scope and constraints.** Stop when evidence cannot
   distinguish two execution candidates or when a finding would change the source
   outcome rather than correct it. Use the shared
@@ -73,8 +74,10 @@ location and status vocabulary for planned work, feature-story locations when
 applicable, cleanup lifecycle, repository navigation, and focused test commands.
 Preserve existing working-tree changes. A complete bounded correction plan is
 its source contract; do not require or create a seed for its retrospective. A
-quick execution instead requires its canonical story and enough execution
-history to establish that slice planning was explicitly skipped.
+wholly planless quick execution instead requires its canonical story and enough
+execution history to establish that slice planning was explicitly skipped. A
+quick-to-planned execution requires that initial evidence plus its ordinary
+remaining-work plan and evidence connecting both parts.
 
 Resolve this project's established near-future direction when present. When
 product review is enabled, resolve backlog and canonical-story conventions when
@@ -100,8 +103,9 @@ product review is enabled and recommendations depend on those conventions.
 
 Search the current conversation, supplied execution history, current planning
 material, and Git history in that order. First establish whether the execution
-used a plan, explicitly ran as one quick slice without creating a plan, or used
-a plan that normal cleanup later removed. File absence alone does not establish
+used a plan, explicitly ran as one quick slice without creating a plan, began as
+a quick attempt and continued through an ordinary remaining-work plan, or used a
+plan that normal cleanup later removed. File absence alone does not establish
 which case applies.
 
 For planned execution, preserve the existing recovery path: a partial reference
@@ -118,17 +122,30 @@ changes and commits; and the available proof. Do not require, invent, or
 reconstruct a historical plan or substitute execution record. Current chat is
 sufficient when it contains these facts; otherwise use a supplied transcript.
 
+For a quick attempt continued through planning, recover the initial quick-path
+selection and attempt from current or supplied conversation evidence, then the
+ordinary plan linked to the same canonical story and that attempt's remaining
+work. Treat both parts as one execution. The plan must preserve attributable
+completed compatible work and proof and must not represent them as earlier
+planned slices. Recover its remaining slices and later plan changes through the
+ordinary planned path. Do not manufacture a second execution identity merely
+because the execution source changed from story-and-chat to plan.
+
 Determine completion from source-specific evidence, not file presence. A plan
 is complete when every slice is done; a deleted plan needs history evidence of
 completion. A quick execution is complete only when its conversation and
 repository evidence establish the delivered story outcome and its required
-proof. Missing proof limits the completion or finding conclusion that depends on
-it; continue independently supported review rather than treating plan absence
-as failure. If execution kind, contract, or completion remains ambiguous, name
-the missing evidence and stop only the affected decision. If two candidates
-remain equally plausible, ask the user to choose and do not combine them.
+proof. A quick-to-planned execution is complete when the remaining-work plan is
+complete and the preserved quick-attempt evidence plus planned proof establish
+the original story outcome without a gap or repeated-work assumption. Missing
+proof limits the completion or finding conclusion that depends on it; continue
+independently supported review rather than treating plan absence as failure. If
+execution kind, continuity, contract, or completion remains ambiguous, name the
+missing evidence and stop only the affected decision. If two candidates remain
+equally plausible, ask the user to choose and do not combine them.
 
-Build a manifest of related commits. Include each SHA with a reason grounded in
+Build one manifest of related commits across a quick attempt and its planned
+continuation when both occurred. Include each SHA with a reason grounded in
 the plan or story, commit message, diff, or execution transcript. Inspect
 intervening and nearby commits and exclude unrelated work. Ambiguous attribution
 limits claims about that commit and findings that depend on it; it does not

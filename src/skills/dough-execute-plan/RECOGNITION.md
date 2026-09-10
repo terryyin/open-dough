@@ -96,3 +96,32 @@ review, not native acceptance. Existing native evidence establishes only the
 unchanged delivery mechanisms. Quick-entry behavior remains pending for Codex,
 Cursor, and Claude Code under [SEED-010 Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log)
 before any affected release.
+
+## Quick 040 Slice 3 local behavior evidence
+
+Walked an explicitly authorized quick attempt that failed to converge as one
+slice. The fixture contained one completed compatible behavior with focused
+proof, attributable incomplete edits, an unrelated pre-existing edit, and the
+story's existing **Taken** entry.
+
+1. **Safe stop and ownership.** The transition inventory retained the completed
+   behavior and proof, preserved the unrelated edit, and parked or reverted only
+   the attributable incomplete edits. The **Taken** entry stayed in its existing
+   position. A variant whose overlapping edit had unclear ownership stopped its
+   disposition and dependent planning for human judgment.
+2. **Ordinary planning and resume.** With story scope unchanged and the original
+   instruction authorizing continued execution, ordinary slice planning received
+   the canonical story, relevant chat evidence, completed work and proof,
+   incomplete-change disposition, elapsed time, and failed sizing assumption. It
+   planned only remaining work: no earlier planned slice, duplicate Taken entry,
+   substitute quick record, or second execution history was created. Planned
+   delegation began at the preserved completion boundary and reused unchanged
+   proof instead of repeating completed work.
+3. **Human-owned scope.** A variant where the new evidence changed the story's
+   scope stopped before affected planning and routed through story refinement for
+   the human decision. A disputed-constraint variant used the existing plan
+   conflict handoff. Complexity by itself granted neither change.
+
+This is local Proposed-source review under ADR 0005, not native acceptance.
+Native quick-to-planned transition behavior remains pending for Codex, Cursor,
+and Claude Code under [SEED-010 Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log).

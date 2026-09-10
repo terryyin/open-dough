@@ -242,3 +242,28 @@ that Slice 1 itself ran planlessly.
 
 Native behavior remains pending for Codex, Cursor, and Claude Code under
 [Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log).
+
+## Quick 040 Slice 3 local behavior evidence
+
+Walked retrospective recovery for the oversized quick-attempt fixture recorded
+in execute-plan recognition and its ordinary remaining-work continuation.
+
+1. **One execution boundary.** Recovery used the explicit quick selection and
+   initial chat first, then the plan linked to the same canonical story and only
+   its remaining work. Preserved quick-attempt work and proof were not invented
+   as earlier planned slices, and the source transition did not create a second
+   execution identity.
+2. **Combined attribution.** The manifest used one boundary for every
+   attributable commit, whether retained quick-attempt work was committed before
+   or during the planned continuation, while the unrelated nearby change
+   remained excluded. Completion required the finished remaining-work plan plus
+   combined evidence for the original story, so a proof gap or ambiguous
+   continuity limited only dependent conclusions.
+3. **Comparison and stops.** Ordinary planned, wholly planless, and
+   removed-plan recovery retained their existing rules. Unclear attribution did
+   not widen the manifest, and a changed source outcome still stopped for human
+   decision rather than being rewritten as a correction.
+
+This is a local Proposed-source authoring walkthrough, not native acceptance.
+Combined quick-to-planned retrospective behavior remains pending for Codex,
+Cursor, and Claude Code under [Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log).

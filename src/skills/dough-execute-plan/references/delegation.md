@@ -17,6 +17,12 @@ Give the agent:
   the explicit instruction to execute without slice planning, and the relevant
   conversation context; require no plan or substitute execution record. Omit
   unrelated plan or conversation history.
+- For planned execution continuing an oversized quick attempt, the remaining-work
+  plan plus the preserved completed work and proof and any incomplete-change
+  disposition needed to identify the true starting boundary. Require the agent
+  not to repeat completed compatible work or its unchanged proof. Treat the
+  quick attempt and planned continuation as one execution, not two handoffs with
+  independent histories.
 - [Execution decisions](execution-decisions.md), this project's slice budget and
   exceptions, workflow precedence, and literal focused commands with the runtime
   wrapper. Require relevant proof; broaden testing only when the slice, project

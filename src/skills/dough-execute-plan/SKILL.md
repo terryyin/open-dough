@@ -108,9 +108,12 @@ retrospective; story wrap-up owns completed-work removal.
    permits it, invoke
    [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md) on the
    same plan, then restart at step 1. If a quick attempt no longer fits one
-   coherent slice, stop it safely under execution decisions and report the need
-   for ordinary planning in the conversation; do not create that plan in the
-   quick path. Otherwise delegate under [delegation](references/delegation.md).
+   coherent slice, follow the quick-attempt transition under
+   [execution decisions](references/execution-decisions.md#refine-an-oversized-slice):
+   stop the attempt safely, then use
+   [ordinary slice planning](../dough-slice-planning/SKILL.md) for its remaining
+   work and restart at step 1 as planned execution. Otherwise delegate under
+   [delegation](references/delegation.md).
 4. On return, recheck execution decisions. For an incomplete or oversized slice,
    follow that reference before delivery. Otherwise inspect the proof under
    [wrap-up](references/wrap-up.md#accept-proof) and confirm uncommitted work

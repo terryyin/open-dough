@@ -67,21 +67,44 @@ Track elapsed implementation, focused testing, and slice-local cleanup with the
 host clock; exclude explicit CI repair pauses. Lack of one coherent behavior or
 failure to converge also calls for refinement.
 
-Inventory tracked and untracked changes owned by the attempt. Safely park or
-revert only those changes; preserve pre-existing work. Never use broad
-`git checkout .` or `git clean -fd`. Unclear ownership requires human judgment.
-For planned execution, record elapsed time, completed proof, and the failed
-sizing assumption in the same plan. Invoke
+Inventory tracked and untracked changes owned by the attempt and preserve
+pre-existing work. Never use broad `git checkout .` or `git clean -fd`. Unclear
+ownership requires human judgment. For planned execution, safely park or revert
+only attempt-owned changes, then record elapsed time, completed proof, and the
+failed sizing assumption in the same plan. Invoke
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) only
 when learning escalation permits slice refinement. The coordinator commits and
 pushes the updated plan. Report `reverted and refined`, elapsed time, and
 whether the hard limit applied, then restart from the plan on disk.
 
-For quick execution, record the same findings in the conversation and return a
-safe stop that identifies the canonical story, preserved completed work and
-proof, disposition of incomplete attempt-owned changes, elapsed time, and the
-reason ordinary planning is now needed. Do not create a plan or substitute
-execution record as part of this quick-path stop.
+For quick execution, first make a safe stop in the conversation. Identify the
+canonical story, elapsed time, the failed sizing assumption, completed compatible
+work and proof, and every incomplete attempt-owned change. Keep completed
+compatible work and proof in place. Safely park or revert only incomplete
+attempt-owned changes; do not discard completed work merely to give later slices
+a clean starting point. Keep backlog placement under
+[Take queued work](../SKILL.md#take-queued-work). Unclear ownership stops
+disposition and the dependent planning path for human judgment.
+
+After that stop, use this project's
+[ordinary story planning workflow](../../dough-slice-planning/SKILL.md) for the
+remaining work when the story goal, scope, examples, and constraints are still
+understood and the triggering instruction authorizes planning and continued
+execution. Transfer the canonical story, relevant chat evidence, completed work
+and proof, incomplete-change disposition, elapsed time, and failed sizing
+assumption into the ordinary plan as source, decisions, or learnings needed for
+resume. Plan only the remaining work. Do not fabricate completed planned slices,
+repeat already satisfied promises, create a substitute quick-execution record,
+or treat the plan as a second execution. Restart execute-plan from that plan;
+ordinary plan refinement remains available before delegation. Reuse preserved
+proof while its boundary remains unchanged.
+
+If planning or continued execution is not authorized, report the safe stop and
+the exact next authorization needed without creating the plan. If evidence
+changes the story scope or exposes a disputed constraint, use the existing human
+decision path before planning the affected work; complexity alone does not
+authorize a scope change. Once that decision is resolved, refine the canonical
+story as required before ordinary planning.
 
 ## Handle an implementation commit
 

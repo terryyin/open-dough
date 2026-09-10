@@ -123,7 +123,7 @@ using the unchanged downstream reviews.
 
 ### 3. Continue an oversized quick attempt through a slice plan
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a quick attempt that proves too complex or takes too long,
 execute-plan safely stops that attempt, uses the established planning/refinement
@@ -226,3 +226,8 @@ No separate slice-plan refinement pass was invoked.
   can establish a planless review, while a missing item limits only dependent
   conclusions. Native planless-retrospective behavior remains pending under
   SEED-010 Story 2.
+- Slice 3's walkthrough preserved completed compatible work and proof, disposed
+  only attributable incomplete changes, retained one **Taken** entry, and planned
+  only remaining work. Retrospective recovery treats the quick attempt and
+  planned continuation as one execution. Native transition behavior remains
+  pending under SEED-010 Story 2.
