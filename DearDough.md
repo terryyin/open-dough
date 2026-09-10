@@ -41,3 +41,27 @@ plan-recorded retrospective completion marker.
 
 Resolution: On 2026-09-10, the human authorized a one-off closure for this
 execution and retained the existing plan-required wrap-up contract unchanged.
+
+## DD-003 — Conventional guidance edits trigger delivery-mechanism rechecks
+
+A small instruction-only change was verified with payload upgrade and all-tool
+installation suites even though it changed no installation or discovery
+mechanism.
+
+### Occurrences
+
+- Execution: `SEED-004#execute-without-redundant-in-progress-status @ ec1942b`
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: 0.3.8
+  - Evidence: The developer identified the work as a simple direct change and
+    skipped slice planning. Before `ec1942b`, verification ran five skill
+    validators plus `story-payload-update.sh`, `execution-payload-update.sh`,
+    `dough-update-guidance-payload.sh`, and `install-all-tools.sh`; the commit
+    changed Markdown guidance and planning records only.
+  - Observed effect: All checks passed, but installation and payload behavior
+    unrelated to the changed status semantics was exercised again.
+  - Inference: The representative current-behavior review required by
+    `AGENTS.md` and ADR 0005 was the useful confidence boundary; delivery tests
+    added avoidable execution time because their mechanism and declarations
+    were unchanged.
