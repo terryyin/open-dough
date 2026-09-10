@@ -11,8 +11,9 @@ condition.
 ## Purpose
 
 Turn one understood story into an ordered executable plan of bounded,
-proof-owned Behavior/Structure slices, then stop or continue only within the
-triggering instruction's explicit execution authority.
+proof-owned Behavior/Structure slices, report remaining concerns or a limited
+no-concerns finding, then stop or continue only within the triggering
+instruction's explicit execution authority.
 
 ## Triggers
 
@@ -24,14 +25,16 @@ requires that same triggering instruction to request it explicitly.
 
 Behavior/Structure gate; outside-in promise ownership; safe stopping points;
 value-and-learning ordering; isolated proof for concrete uncertain assumptions;
-direct-execution readiness unless an explicit refinement trigger remains.
-Readiness assesses the plan and does not authorize execution. Planning-only and
-parent-delegated planning-only requests return the plan and stop; an explicit
-plan-and-execute request may continue into the authorized execution handoff
-without a duplicate confirmation, subject to project gates and unresolved
-concerns. A parent's broader implementation task does not authorize execution by
-a planner delegated only planning. Missing numeric limits alone do not block
-planning or create a timing policy.
+construction-time correction of obvious separable outcomes; report of remaining
+slice-specific concerns (or a limited no-concerns finding) without prescribing
+refinement or certifying execution readiness. Concern evidence assesses the plan
+and does not authorize execution. Planning-only and parent-delegated
+planning-only requests return the plan and stop; an explicit plan-and-execute
+request may continue into the authorized execution handoff without a duplicate
+confirmation, subject to project gates and unresolved concerns. A parent's
+broader implementation task does not authorize execution by a planner delegated
+only planning. Missing numeric limits alone do not block planning or create a
+timing policy.
 
 ## Client project context
 
@@ -45,7 +48,8 @@ execution authority.
 
 A workflow that plans unresolved stories, slices by technical layer, omits
 observable proof ownership, prepares beyond the next Behavior, guarantees
-duration, treats readiness as authorization, inherits a parent's broader
+duration, issues a planner workflow verdict in place of concern evidence,
+treats a clean assessment as execution permission, inherits a parent's broader
 implementation task as planner execution authority, or implements without
 separate authorization from the triggering instruction is not equivalent.
 
@@ -65,7 +69,7 @@ walkthrough: given one bounded weekly-totals export story, a supplied plan path,
 a five-minute target and ten-minute hard limit, and a stable export test entry
 point, write one Behavior slice for a single-team export before later policy
 exceptions. Put any necessary Structure immediately before that Behavior, map
-every included promise to observable proof, and recommend refinement only if a
+every included promise to observable proof, and report remaining concerns when a
 slice has separable beats or a plausible hard-limit path. With no plan destination,
 stop before writing rather than inventing a location; with no numeric policy but
 the other context, plan from cohesion and proof ownership without inventing a
@@ -223,4 +227,86 @@ workflow.
 This is local source-guidance authoring evidence under AGENTS.md, not native
 installed-host acceptance or release readiness. It does not prove Slice 2's
 concern-evidence report contract. Installed managed copies under `.agents/` and
+`.claude/` were not hand-synchronized.
+
+### Quick 035 Slice 2 concern-evidence walkthrough — 2026-09-10
+
+Candidate: uncommitted source change in `src/skills/dough-slice-planning/` for
+Quick 035 Slice 2 on branch `worktree-quick-035-bounded-slice-planning`. Historical
+Quick 033 and Quick 035 Slice 1 walkthroughs above remain prior evidence; this
+review covers only the planner report contract after construction.
+
+Shared story and context: one understood bounded export story with evaluable
+examples; established plan root `.planning/quick/` with layout
+`NNN-<slug>/PLAN.md`; no numeric slice target or hard limit unless a variant
+states otherwise; stable export-check proof entry point. No product
+implementation was performed. Each variant inspects the constructed plan and
+the reported assessment only.
+
+#### Variant A — clean cohesive plan
+
+Input: the shared story yields one Behavior slice for the CSV export with the
+export check as owning proof; all slices are cohesive with one proof loop and
+no remaining integration or sizing uncertainty.
+
+Resulting report: plan path, ordered export Behavior slice, and
+`no concerns were identified in this assessment`, ending
+`## SLICE PLAN WRITTEN`.
+
+Observed constraints: the report does not claim that no further refinement is
+required, does not prescribe a next workflow, and does not certify execution
+readiness or treat the finding as permission to execute.
+
+#### Variant B — uncertain Slice 5 integration assumption
+
+Input: the same construction path produces five ordered Behavior slices; Slice 5
+depends on an integration assumption (external totals service shape unknown)
+that makes its sizing uncertain under the linked sizing guidance.
+
+Resulting report: plan path, ordered slices, and a remaining concern that names
+Slice 5, the integration assumption, and the sizing consequence. Ending
+`## SLICE PLAN WRITTEN`.
+
+Observed constraints: the report does not prescribe
+`dough-slice-plan-refinement`, does not say `refinement recommended`, and does
+not certify execution readiness. The recipient retains choice of refinement,
+evidence gathering, or another applicable next action under existing authority.
+
+#### Variant C — obvious independent second outcome corrected during construction
+
+Input: a draft slice initially bundled the CSV export outcome with an independent
+email-delivery outcome (two externally observable postconditions / proof loops).
+
+Resulting plan: construction applies the linked decomposition gate and splits
+before reporting into (1) Behavior: CSV export with the export check as owning
+proof, and (2) Behavior: email delivery with its own delivery-check proof. Any
+supplied sizing constraints that applied to the original work remain stated on
+each resulting slice. The subsequent concern-evidence report follows Variant A
+or B from the corrected plan; the defect is not knowingly passed to a later
+refinement step.
+
+#### Candidate revision
+
+Entrypoint description and reporting instructions replace the planner workflow
+verdicts `ready for direct execution` / `refinement recommended` with concern
+evidence (named remaining concerns, or a limited no-concerns finding).
+Construction-time decomposition and sizing checks, proof ownership, numbering,
+and the Slice 1 authorization boundary are preserved. Refinement remains linked
+as the owner of resolving concerns when separately invoked.
+
+#### Linked-reference inspection
+
+Direct links to slice decomposition, executable-plan decisions, story
+refinement, story decomposition, slice-plan refinement, and execute-plan were
+inspected for a contradictory planner handoff. No edit required:
+decomposition and planning references already supply construction-time checks
+without issuing the planner's readiness verdict; refinement retains its own
+`ready for direct execution` assessment when refinement is invoked and states
+that execution still requires separate authorization.
+
+#### Limitations
+
+This is local source-guidance authoring evidence under AGENTS.md, not native
+installed-host acceptance or release readiness. Excluded acceptance and release
+work are not marked passed. Installed managed copies under `.agents/` and
 `.claude/` were not hand-synchronized.

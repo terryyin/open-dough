@@ -3,7 +3,9 @@
 ## Source and goal
 
 [SEED-004 Story 11](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded).
-Status: planned. Planning authorized 2026-09-10; implementation not requested.
+Status: complete in source, 2026-09-10. Both slices delivered on
+`worktree-quick-035-bounded-slice-planning`. Native acceptance and release remain
+excluded.
 
 A human or coordinating agent receives a useful slice plan and specific remaining
 concerns while retaining ownership of the next workflow action. This repairs an
@@ -96,13 +98,17 @@ infrastructure or delivery mechanism.
 
 ### 2. Return concern evidence without choosing the next workflow
 Type: Behavior
-Status: planned
+Status: done
 Proof: One plan-report walkthrough with a clean plan and an uncertain Slice 5.
 The clean report says only that no concerns were identified in this assessment;
 the uncertain report names Slice 5, its integration assumption, and the sizing
 consequence. Neither prescribes refinement nor certifies execution readiness.
 An obvious independent second outcome is corrected before reporting, and every
 resulting slice retains its proof owner and any supplied sizing constraints.
+Evidence: RECOGNITION.md Quick 035 Slice 2 walkthrough (Variants A/B/C);
+`git diff --check`; frontmatter and relative-link check; planner SKILL.md no
+longer issues `ready for direct execution` / `refinement recommended` verdicts.
+No linked-reference edits required.
 
 Behavior: Given a constructed plan, when the planner reports its assessment,
 the recipient receives concrete remaining concerns or a limited no-concerns
@@ -133,25 +139,13 @@ with no separate tooling or speculative reference rewrite.
 
 ## Current decisions and readiness
 
-No open story decision blocks this plan. Exact prose is an implementation choice.
-Two cohesive Behavior slices have one proof loop each and no hidden preparation
-or concrete integration uncertainty. No slice-plan refinement trigger remains:
-ready for direct execution under the currently installed planning skill's report
-contract. This assessment does not authorize execution or guarantee duration.
-
-The story changes that reporting contract in source; this plan does not
-preemptively edit the installed skill. No Structure slice is needed. Reassess
-sizing if execution discovers a necessary reference change beyond a local
-contradiction; revisit the story with the human if it would expand the boundary.
+All slices done. Source work is complete with local behavior evidence in
+`src/skills/dough-slice-planning/`. Installed managed copies were not
+hand-synchronized. Excluded acceptance and release work are not marked passed.
 
 ## Learnings
 
-The source planner currently forbids product implementation unconditionally and
-requires `ready for direct execution` / `refinement recommended` verdicts. Its
-linked decomposition and planning references already supply the desired proof
-and sizing checks. The change can stay concentrated in the entrypoint and
-maintainer record, with reference edits conditional on actual contradiction.
-
-Slice 1: Linked decomposition, planning, refinement, and execute-plan references
-needed no edits for the authorization boundary. Readiness phrases retained for
-Slice 2; readiness explicitly does not authorize execution.
+Linked decomposition, planning, refinement, and execute-plan references needed
+no edits. Slice 1 established the triggering-instruction authority boundary;
+Slice 2 replaced planner readiness verdicts with concern evidence while keeping
+construction-time decomposition and sizing checks.
