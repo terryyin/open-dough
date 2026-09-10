@@ -7,7 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Backlog list
 
-- [Carry bounded corrections through delivery without a seed](quick/038-seedless-correction-lifecycle/PLAN.md)
 - [Story Wrap-Up](seeds/SEED-011-story-wrap-up.md#story-wrap-up) — SEED-011
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Help the maintainer act on DearDough.md findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail) — SEED-010
