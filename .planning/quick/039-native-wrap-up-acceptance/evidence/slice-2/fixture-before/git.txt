@@ -1,0 +1,5 @@
+HEAD=6fdaa1a64686a0252ceeec8ba253679540fe1217
+status:
+log:
+6fdaa1a Record completed Trim names work and seedless correction
+b23f5a0 Add greeting CLI with extra prefix

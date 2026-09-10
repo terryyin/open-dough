@@ -1,0 +1,18 @@
+Independent repeat predecessor wrap-up checks for /private/tmp/dough-wrap-up-039-s2.GVuKFo/fixture
+time: 2026-09-10T07:00:22Z
+PASS: transcript contains type=result
+PASS: installed wrap-up skill was read or used
+PASS: spent path absent: planning/plans/trim-names.md
+PASS: spent path absent: planning/plans/trim-names/evidence/cli-run.txt
+PASS: repeat did not recreate Trim names history
+PASS: preserved path present: planning/plans/remove-extra-greeting-prefix.md
+PASS: no invented seed file besides SEED-001-greeting.md
+PASS: seed has no invented correction story section
+PASS: repeat did not duplicate the follow-up queue entry
+queue items (2):
+  - [Remove extra greeting prefix](plans/remove-extra-greeting-prefix.md)
+  - [Formal titles](seeds/SEED-001-greeting.md#formal-titles) — SEED-001
+PASS: follow-up remains first
+PASS: Trim names queue history still absent
+PASS: correction plan bytes unchanged by the repeat
+summary: pass=12 fail=0

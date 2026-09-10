@@ -90,7 +90,7 @@ observer: `/tmp/dough-ci-501/watch-IgmJt1`, workflow `ci.yml` / `CI`.
 
 ### 2. Carry follow-up work through Cursor closure
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A completed predecessor has an existing seedless corrective plan and
 compatible product advice plus an explicit human correction; native wrap-up
 queues that plan once as its canonical home, applies the human decision, and
@@ -103,6 +103,15 @@ unrelated work, provenance recovery, then the correction's final absence and
 recoverability. Repeat predecessor closure while the follow-up is still active
 to check duplicate queueing and preservation. Reuse shared content/empty-review
 proof from slice 1 only with an explicit applicability judgment.
+
+Outcome: pass. Evidence: [evidence/slice-2/](evidence/slice-2/). Native
+Cursor `2026.09.08-6caf4ff`, `--sandbox enabled`, deadline 3600s. No product
+source retry. Predecessor before-cleanup `4fb462f`; correction
+`139b655`. Follow-up queued once first as a plan-identity link; HUMAN.md beat
+Formal titles advice; repeat did not duplicate; correction closed by plan
+identity with no invented seed; Formal titles remained. Slice 1 shared
+observations remain applicable (wrap-up source hash unchanged). Does not prove
+Claude native skill-use.
 
 ### 3. Respect completion boundaries through Claude Code
 Type: Behavior
@@ -163,3 +172,6 @@ No additional slice-specific concern was identified in this planning assessment.
   host adapter. Shared wrap-up observations may be reused on Cursor and Claude
   while source bytes stay the same; native skill-use still belongs to each
   host's slice.
+- Cursor native wrap-up used the installer's `.claude/skills/` copy while
+  `--platform cursor` also wrote `.agents/skills/`; both matched source. Treat
+  either installed root as skill-use when bytes match.
