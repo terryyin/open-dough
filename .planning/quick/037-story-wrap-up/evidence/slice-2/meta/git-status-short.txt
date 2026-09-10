@@ -1,7 +1,0 @@
- M .planning/PRODUCT-BACKLOG.md
- D .planning/quick/001-widget-status/PLAN.md
- D .planning/quick/001-widget-status/evidence/run.md
- M .planning/seeds/SEED-W-widget-status.md
- M DearDough.md
- M docs/index.md
- M docs/widget.md
