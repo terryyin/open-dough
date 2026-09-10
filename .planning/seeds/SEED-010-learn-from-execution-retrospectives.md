@@ -187,7 +187,7 @@ No architectural exception or new ADR is proposed here.
 
 ### 1. Preserve recurring retrospective findings in DearDough.md
 
-**Status:** Refined and execution-planned on 2026-09-10.
+**Status:** Source complete on 2026-09-10.
 **Plan:** [Quick 036](../quick/036-record-retrospective-process-findings/PLAN.md).
 
 **Goal:** A developer can revisit supported process findings after a retrospective
@@ -198,81 +198,15 @@ This adds durable feedback to the existing lifecycle guidance with minimal overh
 write process findings to one local `DearDough.md`. Process review already owns
 observation quality, direction alignment, and token-efficiency considerations;
 reuse those rules. Record useful practices, one-off costs, potentially general
-costs, and supported observations about the retrospective itself. Keep product
-learning and implementation corrections in their existing destinations.
-
-**Concrete defaults:** Use `<project-root>/DearDough.md` unless the project has
-explicitly established another canonical location for that filename. Do not
-search other repositories or invent an alternative log. Missing or conflicting
-location/identity evidence stops recording only; return the supported findings
-and the limitation. With `--skip-process`, do not read, create, or update the log.
-With no supported process finding, leave an existing log unchanged and do not
-create an empty one. `--skip-product` does not suppress process recording.
-
-Use a small Markdown format: one heading with a stable local ID (`DD-001`, next
-unused number) and descriptive title per issue, a concise issue description, and
-an occurrence list. Each occurrence identifies its execution, decisive evidence,
-and observed effect; include qualified inference and consequential uncertainty
-only when needed. Count distinct occurrence rows instead of maintaining a second
-stored counter. Use references or compact locators, not transcript copies.
-
-Reuse an execution identity already in the log. Otherwise identify it from its
-canonical plan/story and first related implementation commit; later commits or
-another review date do not create another execution. If there are no commits,
-use an available stable execution-record reference. Do not fabricate an identity
-from the current date or require a new tracking system. If identity cannot be
-established, report the finding without adding a countable occurrence.
-
-A repeat review of the same issue in the same execution keeps one occurrence;
-add only new decisive evidence or a corrected qualified conclusion in that row.
-A distinct execution with evidence of the same concrete issue adds one occurrence
-to its existing entry. Similar wording or symptoms alone do not establish a
-match: keep uncertain issues separate and explain uncertainty briefly. A second
-symptom in the same execution does not count as recurrence of that issue.
-
-Preserve IDs, other entries, human notes, and evidence when updating. If existing
-content cannot be safely interpreted, leave it intact and report the recording
-problem; do not migrate, normalize, or replace it. Report an unsuccessful write
-as unsuccessful while completing independently supported reviews.
-
-**Key examples:**
-
-- A supported repeated-context-recovery observation produces one readable issue
-  with an execution identity, evidence, observed cost, and qualified explanation.
-- Reviewing that execution again leaves its occurrence count at one. New evidence
-  enriches the existing occurrence without duplicating it or erasing human notes.
-- A second execution demonstrates the same concrete issue: its entry now has two
-  occurrences. Similar symptoms with uncertain cause remain a separate issue.
-- A one-off cost or useful practice is retained without claiming generality.
-- `--skip-process` leaves the log unread and unchanged; no findings leaves no new
-  file. Product skipping still allows supported process recording.
-- An ambiguous existing log or failed write returns the finding and limitation,
-  preserves existing content, and does not suppress other enabled reviews.
-
-**Evaluation:** Focused local behavior walkthroughs inspect the actual Markdown
-and response for capture, rereview, and distinct recurrence. Reuse Quick 034's
-process evidence when adequate; label any supplied representative record clearly.
-Do not reconstruct a missing real transcript just to force a real occurrence.
-Cross-tool testing and acceptance are excluded by explicit human instruction:
-no native-host matrix, integration-reuse audit, or acceptance gate in this story.
-
-**Exclusions:** Release/adoption, cross-tool testing and acceptance, consumer
-skills, remote exchange, automatic responses or guidance edits, token measurement,
-a registry/database, general log migration, concurrency/locking infrastructure,
-causal inference engines, automatic issue merging, retention/pruning, and changes
-to near-future direction. Release/adoption remains Story 2; this refinement does
-not change that sibling's requirements.
-
-**Assumptions / open questions:** The defaults above keep this an ordinary
-Markdown-writing behavior in the executing project. No blocking product question
-remains. Location overrides and unavailable execution evidence are runtime inputs,
-not reasons to expand this story. No comparative S/M/L estimate is needed.
-
-**Depends on:** Existing retrospective process review, already implemented by
-Story 6. No logging service, release, or consumer prerequisite.
-
-**Safe stopping point:** A developer can read the local log and respond manually
-indefinitely. Source completion does not claim released or installed availability.
+costs, and supported observations about the retrospective itself. Use stable issue
+and execution identities, preserve interpretable human content, and avoid
+double-counting a rereview. Keep uncertain matches separate and refuse ambiguous
+or unsuccessful writes without suppressing other reviews. Keep product learning
+and implementation corrections in their existing destinations. Exclude
+release/adoption, cross-tool testing and acceptance, consumers, remote exchange,
+automatic guidance edits, token measurement, migration, pruning, locking
+infrastructure, causal inference engines, automatic merging, and direction
+changes; Story 2 retains release and adoption.
 
 <a id="use-released-retrospective-log"></a>
 

@@ -6,7 +6,8 @@ description: >-
   retrospective, product review, or backlog recommendation even when cleanup
   removed the plan or the user supplies only a partial reference. `--skip-process`
   and `--skip-product` omit those reviews independently. May plan unresolved
-  implementation findings and recommend product work; never implements them.
+  implementation findings, record supported process findings in `DearDough.md`,
+  and recommend product work; never implements them.
 ---
 
 # Review an execution
@@ -65,9 +66,9 @@ that review needs them. Do not invent a direction, backlog, or seed location.
 If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
 Return retrospective evidence in the response; do not create a separate artifact
-unless the user asks. Keep the repository read-only except for an allowed plan
-update described below and authorized product maintenance described in product
-review.
+unless the user asks. Keep the repository read-only except for the process log,
+an allowed plan update described below, and authorized product maintenance
+described in product review.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
 refactor checks before assessing refactoring residue; apply its smell definitions
@@ -193,9 +194,91 @@ only when they are available in the record; otherwise cite the repeated work and
 qualify the cost. Neither shorter text nor skipped necessary investigation proves
 improvement. If the record is insufficient for a process conclusion, state that
 limit instead of manufacturing a finding. Do not infer missing events, edit
-guidance, require token measurement, write `DearDough.md`, or recursively
-launch another retrospective. Do not put process proposals into the repository
-correction plan.
+guidance, require token measurement, or recursively launch another retrospective.
+Do not put process proposals into the repository correction plan.
+
+### Record supported process findings
+
+After process analysis, record its supported findings in the project's canonical
+`DearDough.md`. This is a narrow process-recording allowance; it does not authorize
+other project or product maintenance. Product-only findings and implementation
+corrections stay in their own destinations. Preserve every unrelated file.
+
+Apply `--skip-process` before resolving, checking, or reading the log location.
+When process review is skipped, do not create, read, or edit the log. When enabled
+review yields no supported process finding, do not create an empty log and leave
+an existing log unchanged. `--skip-product` does not suppress process recording.
+
+Use `<project-root>/DearDough.md` unless the user or this project's conventions
+explicitly establish another canonical location for that filename. An explicit
+location wins over the root default. Do not search other projects or invent an
+alternative. If the project root or canonical location is missing or conflicting,
+return the findings with that limitation and stop recording only; continue every
+independently supported review.
+
+Identify the reviewed execution before writing. Reuse an execution identity
+already present in the log when available. Otherwise combine its canonical plan
+or story reference with its first related implementation commit. If it has no
+implementation commit, use an available stable execution-record reference. A
+later commit, another review, or the review date does not create another
+execution. If identity evidence is missing or conflicting, return the findings
+without a countable occurrence, report the limitation, and continue the other
+reviews. Do not make an identity from today's date or introduce a tracking
+system.
+
+For a new log, write this minimal Markdown shape, assigning `DD-001` upward in
+the order of supported findings:
+
+```markdown
+# DearDough Process Findings
+
+## DD-001 — <descriptive issue title>
+
+<concise concrete description>
+
+### Occurrences
+
+- Execution: <stable execution identity>
+  - Evidence: <decisive compact references or locators>
+  - Observed effect: <what the record shows>
+  - Inference: <qualified cause, cost, or uncertainty, only when needed>
+```
+
+Keep observation separate from inference. Use compact references rather than
+transcript copies. The occurrence rows are the count; do not add a redundant
+total. Record one-off costs, useful practices, potentially general problems,
+and supported observations about this retrospective without claiming recurrence
+or generality the evidence does not establish.
+
+When the canonical log exists, maintain it only when its issue headings,
+descriptions, and occurrence rows are interpretable enough to identify the
+affected issue, execution, and next unused local ID. Preserve existing IDs,
+human notes, prior evidence, unrelated entries, and all content outside the
+smallest supported edit. Do not migrate, normalize, reorder, delete, or
+automatically merge existing content.
+
+Match an existing issue only when decisive evidence supports the same concrete
+process problem or useful practice; similar wording or symptoms do not establish
+that match. If the relationship is uncertain but the log itself is interpretable,
+create a separate issue with the next unused `DD-NNN` ID and briefly state the
+matching uncertainty. Never change another issue's ID to fill a gap.
+
+Within a matched issue, treat equal execution identities as one occurrence. An
+identical rereview makes no edit. Add only newly available decisive evidence or
+a corrected qualified conclusion to that existing row, without discarding its
+prior evidence or human notes. Evidence of the same concrete issue in a distinct
+execution adds one occurrence row. A second symptom in the same execution does
+not add a row. Keep rows as the count; do not store or update a total.
+
+If malformed or ambiguous content prevents safe identification of entries,
+executions, or the next unused ID, leave the entire existing file byte-identical
+and report a recording limitation. Do the same when a write fails. Return the
+supported findings and continue other independently supported reviews; never
+describe either case as a successful write.
+
+In the final response, give a concise recording result: the canonical path and
+created issue IDs with occurrence rows, or `unchanged`/`not recorded` and the
+reason. Do not describe a skipped, refused, or failed write as successful.
 
 Surface a concrete overlooked request, decision, warning, failed verification,
 or Jidoka stop only when the record clearly shows that it still needs user
