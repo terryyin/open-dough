@@ -21,8 +21,9 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 14. Show queued work as taken when plan execution starts
 
-**Status:** Complete in source on 2026-09-10; implemented directly at human
-direction without a slice plan. New native acceptance was explicitly skipped.
+**Status:** Done on 2026-09-10. Implemented directly at human direction without
+a slice plan, reviewed in an execution retrospective, and closed through an
+explicit one-off exception. New native acceptance was explicitly skipped.
 
 **Goal:** A developer can distinguish a backlog item whose plan is being
 executed from work that remains available in the queue.
@@ -71,7 +72,10 @@ execute-plan's first project-state change, and story-wrap-up's active-entry
 removal. Recorded representative source walkthroughs for first execution,
 pre-authorization failure, resume, non-backlog execution, and wrap-up. The
 focused guidance, story-payload, and execution-payload checks passed; release
-and adoption remain excluded.
+and adoption remain excluded. Commit `519bb4a` contains the implementation.
+The retrospective recorded its process findings in `DearDough.md`; the human
+authorized this story's planless execution as a one-off closure and directed
+that its canonical story and **Recently done** entry remain.
 
 <a id="plan-without-numbering-or-budget-prompts"></a>
 
@@ -262,8 +266,8 @@ fixture remain maintainer-owned follow-ups.
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 11 retains its separate outcome and
-backlog position relative to the other existing items. Story 14 is complete in
-source. Story 6 remains the next extraction reuse opportunity. Story 7 surfaces
+backlog position relative to the other existing items. Story 14 is done. Story
+6 remains the next extraction reuse opportunity. Story 7 surfaces
 for a real oversized problem; Story 8 surfaces for its named client/task needs.
 
 ## Delivered capabilities

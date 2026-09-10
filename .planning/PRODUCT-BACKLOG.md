@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Show queued work as taken when plan execution starts](seeds/SEED-004-extract-and-adopt-project-guidance.md#show-stories-as-taken-during-execution) — SEED-004
-
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
@@ -25,6 +23,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Recently done
 
+- [Show queued work as taken when plan execution starts](seeds/SEED-004-extract-and-adopt-project-guidance.md#show-stories-as-taken-during-execution) — SEED-004 / `519bb4a`
 - [Preserve recurring retrospective findings in DearDough.md](seeds/SEED-010-learn-from-execution-retrospectives.md#turn-retrospectives-into-learning-loop) — SEED-010 / Quick 036
 - [Keep slice planning within the requested workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded) — SEED-004 / Quick 035
 - [Receive a slice plan without numbering or budget prompts](seeds/SEED-004-extract-and-adopt-project-guidance.md#plan-without-numbering-or-budget-prompts) — SEED-004 / Quick 033 / v0.3.5
