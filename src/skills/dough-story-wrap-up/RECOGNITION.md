@@ -30,10 +30,11 @@ while Git can recover what was removed.
   deleting the only copy; refuses closure when recovery cannot be resolved.
 - Assimilates lasting knowledge into maintained product content without
   execution narration or judgments.
-- Deletes spent standalone plan, story, proof, and queue history without
-  archives, tombstones, or finished-list replacements.
-- Leaves follow-up plans, shared process logs, and product-review advice intact
-  until later slices add those actions.
+- Deletes spent plan, story, proof, queue and finished-history entries, related
+  log occurrences, and incoming historical links without archives or tombstones.
+- Preserves sibling stories, unrelated log text, human notes, and ambiguous
+  records that cannot be attributed to the selected execution.
+- Leaves follow-up plans and product-review advice intact until later slices.
 
 ## Client project context
 
@@ -74,3 +75,13 @@ Walked standalone closure on 2026-09-10 in worktree
 3. **Useful outcome.** Spent plan, seed, and queue entry disappeared; product
    docs received the retry rule; unrelated sentinel and product test remained;
    `git show` recovered the deleted paths from `fe8e287`.
+
+## Slice 2 local behavior evidence
+
+Walked shared-record cleanup on 2026-09-10.
+[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-2/WALKTHROUGH.md).
+
+Spent-only `DD-001`, the spent `DD-003` occurrence, the recently-done entry,
+the incoming plan link, and the spent seed section disappeared. Sibling
+story, `DD-002` human note, ambiguous `DD-004`, and sentinels remained. A
+second invocation made no further edits. Recovery used `2e11de9`.

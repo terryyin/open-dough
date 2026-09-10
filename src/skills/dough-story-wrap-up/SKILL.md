@@ -23,8 +23,12 @@ Require a selected story. Resolve from this project, not this skill's location:
 - canonical seed location, story identity, heading or stable-anchor conventions;
 - executable-plan location, status vocabulary, and the selected story's plan;
 - how this project records that a retrospective finished, including an empty result;
-- Git commit conventions used to preserve a recoverable revision; and
-- the product backlog path when a queue entry points at the selected story.
+- Git commit conventions used to preserve a recoverable revision;
+- the product backlog path when a queue entry or finished-history entry
+  points at the selected story; and
+- shared records that name the selected story: its seed, process log
+  (`DearDough.md` unless this project sets another canonical location), incoming
+  links, and assessment or recognition records.
 
 An empty retrospective result is valid input. Do not invent a retrospective
 artifact or require another review. Do not invent a plan path, completion rule,
@@ -66,33 +70,39 @@ already state current behavior. Do not invent product knowledge.
 
 ## Leave unsupported wrap-up actions intact
 
-This closure handles a standalone completed story with no follow-up plan,
-shared process log, or product-review advice to apply. If those are present,
-leave their required inputs intact, report them as unsupported by this closure,
-and continue only with the supported standalone deletions below.
+Follow-up plans and product-review advice remain unsupported. If those are
+present, leave their required inputs intact, report them, and continue with
+the supported deletions below. Do not create, execute, or replan follow-up
+work. Do not launch discovery or another review.
 
-Do not create, execute, or replan follow-up work. Do not launch discovery or
-another review.
+## Delete spent history, including shared records
 
-## Delete spent standalone history
-
-When completion and recovery are resolved, delete only the selected story's
-spent material:
+When completion and recovery are resolved, delete only material the selected
+story's references identify as spent:
 
 - its executable plan and owned proof, evidence, and assessment records;
-- its canonical story section, and the seed when that seed would become empty;
-- queue entries whose only remaining work is that completed story; and
+- its canonical story section; delete the seed only when every remaining
+  section is spent;
+- queue entries and finished-history / recently-done entries for that
+  completed story;
+- related occurrences in the process log, and an issue or container that
+  becomes empty afterward; and
 - incoming links that exist solely to preserve that spent history.
 
-Preserve unrelated active content, sibling stories, product and version
-identity, and maintained tests or documents. Delete an empty container that
-held only spent material. Repair remaining Markdown links that this deletion
-breaks; do not leave a live link to a removed path.
+Preserve unrelated human text, sibling stories, unrelated log issues and
+occurrences, product and version identity, and maintained tests or documents.
+Resolve ambiguous attribution before deleting that portion; if a log issue or
+link cannot be tied to the selected execution, leave it intact and say so.
+
+Repair remaining Markdown links that this deletion breaks; do not leave a
+live link to a removed path. Unrelated links stay unchanged.
 
 Do not replace deleted history with a summary, archive, tombstone, recently-done
-ledger, or judgment for later readers. An already-absent artifact does not prove
-a different story complete. Repeating wrap-up must not recreate history or
-duplicate edits.
+ledger, or judgment for later readers. Assimilate current product knowledge
+instead of preserving the removed story's identity. An already-absent artifact
+does not prove a different story complete. Repeating wrap-up must not
+recreate history, duplicate edits, or claim that missing files close a
+different story.
 
 Inspect tracked and untracked files. Absence is the current snapshot, including
 untracked paths. Recover removed files with

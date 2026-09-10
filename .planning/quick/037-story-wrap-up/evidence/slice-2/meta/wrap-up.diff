@@ -1,0 +1,121 @@
+diff --git a/.planning/PRODUCT-BACKLOG.md b/.planning/PRODUCT-BACKLOG.md
+index b04da6e..5c3dd36 100644
+--- a/.planning/PRODUCT-BACKLOG.md
++++ b/.planning/PRODUCT-BACKLOG.md
+@@ -6,9 +6,6 @@ Keep the widget status endpoint reliable.
+ 
+ ## Backlog list
+ 
+-- [Report widget status](seeds/SEED-W-widget-status.md#widget-status) — SEED-W
+ - [Keep the audit trail](seeds/SEED-W-widget-status.md#audit-trail) — SEED-W
+ 
+ ## Recently done
+-
+-- [Report widget status](seeds/SEED-W-widget-status.md#widget-status) — SEED-W
+diff --git a/.planning/quick/001-widget-status/PLAN.md b/.planning/quick/001-widget-status/PLAN.md
+deleted file mode 100644
+index 9d23ff8..0000000
+--- a/.planning/quick/001-widget-status/PLAN.md
++++ /dev/null
+@@ -1,12 +0,0 @@
+-# Report widget status
+-
+-Status: done. SPENT-STORY-WIDGET-STATUS
+-
+-## Learnings
+-
+-A failed widget status check is retried twice before an error is returned.
+-Do not narrate this execution in product docs.
+-
+-### Close the status path
+-Type: Behavior
+-Status: done
+diff --git a/.planning/quick/001-widget-status/evidence/run.md b/.planning/quick/001-widget-status/evidence/run.md
+deleted file mode 100644
+index aff528e..0000000
+--- a/.planning/quick/001-widget-status/evidence/run.md
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# Assessment
+-
+-SPENT-STORY-WIDGET-STATUS
+-
+-Walked 001-widget-status. This assessment record is spent.
+diff --git a/.planning/seeds/SEED-W-widget-status.md b/.planning/seeds/SEED-W-widget-status.md
+index 4725490..8093786 100644
+--- a/.planning/seeds/SEED-W-widget-status.md
++++ b/.planning/seeds/SEED-W-widget-status.md
+@@ -1,18 +1,5 @@
+ # SEED-W: Widget work
+ 
+-<a id="widget-status"></a>
+-
+-### Report widget status
+-
+-**Status:** execution and retrospective complete.
+-**Plan:** `.planning/quick/001-widget-status/PLAN.md`.
+-
+-SPENT-STORY-WIDGET-STATUS
+-
+-A failed widget status check is retried twice before an error is returned.
+-
+-This section is spent story history for wrap-up.
+-
+ <a id="audit-trail"></a>
+ 
+ ### Keep the audit trail
+diff --git a/DearDough.md b/DearDough.md
+index 24be977..9cd5512 100644
+--- a/DearDough.md
++++ b/DearDough.md
+@@ -1,16 +1,5 @@
+ # DearDough Process Findings
+ 
+-## DD-001 — Recovered the widget-status plan too often
+-
+-Repeated recovery of `.planning/quick/001-widget-status/PLAN.md`.
+-
+-### Occurrences
+-
+-- Execution: `001-widget-status` / `SPENT-STORY-WIDGET-STATUS`
+-  - Tool: Cursor
+-  - Evidence: plan path `.planning/quick/001-widget-status/PLAN.md`
+-  - Observed effect: recovered the same spent plan three times
+-
+ ## DD-002 — Keep the process map handy
+ 
+ UNRELATED-SENTINEL-KEEP
+@@ -26,14 +15,8 @@ A useful map for other work. Human note: do not rewrite this issue.
+ 
+ ## DD-003 — Status checks reread context
+ 
+-Mixed issue. One occurrence is the spent widget-status execution; one is not.
+-
+ ### Occurrences
+ 
+-- Execution: `001-widget-status` / `SPENT-STORY-WIDGET-STATUS`
+-  - Tool: Cursor
+-  - Evidence: `.planning/quick/001-widget-status/PLAN.md`
+-  - Observed effect: reread spent story context
+ - Execution: `record:unrelated-audit`
+   - Tool: Codex
+   - Evidence: audit-trail sibling
+diff --git a/docs/index.md b/docs/index.md
+index de33f0f..2e9df5c 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -1,5 +1,4 @@
+ # Docs index
+ 
+ - Product: [widget](widget.md)
+-- Spent plan: [001-widget-status](../.planning/quick/001-widget-status/PLAN.md)
+ - Active sibling: [Keep the audit trail](../.planning/seeds/SEED-W-widget-status.md#audit-trail)
+diff --git a/docs/widget.md b/docs/widget.md
+index b442638..4507f44 100644
+--- a/docs/widget.md
++++ b/docs/widget.md
+@@ -1,3 +1,4 @@
+ # Widget
+ 
+ The widget reports whether its status endpoint is reachable.
++A failed widget status check is retried twice before an error is returned.

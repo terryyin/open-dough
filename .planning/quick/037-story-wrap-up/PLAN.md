@@ -3,7 +3,7 @@
 ## Source and outcome
 
 [SEED-011 — Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: in progress. Slice 1 is done.
+Status: in progress. Slices 1–2 are done.
 
 A developer closes one completed story after retrospective: relevant product
 changes are applied, existing follow-up work is first in the queue, lasting
@@ -124,9 +124,10 @@ recovery variation is the highest-risk input within this proof loop.
 
 ### Remove spent material from shared records without losing active work
 Type: Behavior
-Status: planned
+Status: done
 Proof: The closure fixture with a shared seed, mixed `DearDough.md` issue
 occurrences, an old finished entry, an incoming reference, and unrelated sentinels.
+Evidence: [evidence/slice-2/WALKTHROUGH.md](evidence/slice-2/WALKTHROUGH.md).
 
 Behavior: Given completed-story material mixed with unrelated active content,
 when wrap-up runs, only the spent material and its historical references disappear;
@@ -290,10 +291,12 @@ new-integration assumption requires an experiment. Native access and prior
 proof validity remain execution-time acceptance concerns, not passed checks.
 If implementation reveals multiple mechanisms or unbounded work, refine the
 affected slice in this same plan. Do not drop scope or waive checks to meet a
-deadline. Slice 1 is done. Remaining slices stay planned.
+deadline. Slices 1–2 are done. Remaining slices stay planned.
 
 ## Learnings
 
 Standalone closure commits recovery with the project's Git conventions, then
-deletes working-tree copies. Empty plan roots are spent containers. Follow-up,
-shared logs, and product-review advice remain intact until later slices.
+deletes working-tree copies. Empty plan roots are spent containers. Shared-log
+cleanup removes spent-only issues and spent occurrences, preserves ambiguous
+issues, and does not recreate history on a second invocation. Follow-up and
+product-review advice remain intact until later slices.
