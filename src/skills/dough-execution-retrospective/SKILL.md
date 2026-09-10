@@ -165,9 +165,19 @@ Apply the shared direction consideration. When the current conversation or a
 sufficiently complete transcript contains the execution, separately identify
 evidence-backed process improvements: wasted work, rule-induced churn, a
 missing stop condition, a disproved sizing or decomposition assumption, avoidable
-digression from direction, or a useful practice to learn. Distinguish
-necessary investigation from avoidable waste. Do not infer missing events,
-edit guidance, or put process proposals into the repository correction plan.
+digression from direction, or a useful practice to learn. Consider whether
+instructions were concise and context was organized for easy consumption,
+including this retrospective's own avoidable rereading, duplication, or
+reconstruction. Distinguish necessary investigation from avoidable waste.
+
+Record observations separately from inferred cost and cause. Use token counts
+only when they are available in the record; otherwise cite the repeated work and
+qualify the cost. Neither shorter text nor skipped necessary investigation proves
+improvement. If the record is insufficient for a process conclusion, state that
+limit instead of manufacturing a finding. Do not infer missing events, edit
+guidance, require token measurement, write `DearDough.md`, or recursively
+launch another retrospective. Do not put process proposals into the repository
+correction plan.
 
 Surface a concrete overlooked request, decision, warning, failed verification,
 or Jidoka stop only when the record clearly shows that it still needs user

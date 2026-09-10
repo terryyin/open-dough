@@ -153,7 +153,7 @@ approved historical work not treated as a defect. Evidence:
 
 ### 3. Receive useful process-efficiency observations
 Type: Behavior
-Status: planned
+Status: done
 Proof: A supplied process record supports an actionable context-consumption
 improvement without invented counts, automatic edits, or mandatory optimization.
 
@@ -169,6 +169,13 @@ necessary-investigation counterexample. Inspect the actionable recommendation,
 qualified claims, and absence of token measurement requirements, DearDough.md
 writes, guidance edits, or recursively launched retrospectives. When evidence is
 insufficient, report that limit instead of manufacturing a finding.
+
+Outcome: done. Process section now covers consumption, qualified cost, and
+insufficient-record limits. Repeated-recovery record: reuse context once.
+Necessary investigation not labeled waste. Quick 031 commit history alone:
+limitation, no invented finding. No DearDough.md, guidance edit, token
+requirement, or recursive retrospective. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-3/`.
 
 ### 4. Apply product maintenance within established authority
 Type: Behavior

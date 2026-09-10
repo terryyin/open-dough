@@ -102,3 +102,13 @@ product. The digression fixture routed a contract extra to correction planning
 and a process detour to a process recommendation, without editing direction. The
 later-changed-direction fixture did not treat approved historical work as a
 defect.
+
+## Slice 3 local behavior evidence
+
+Walked process-efficiency observations on 2026-09-10.
+[evidence/slice-3/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-3/WALKTHROUGH.md).
+
+Repeated context recovery produced an actionable reuse recommendation with
+qualified cost and no token requirement. Necessary investigation was not labeled
+waste. Insufficient Quick 031 transcript was reported as a limit. No
+`DearDough.md` write, guidance edit, or recursive retrospective.
