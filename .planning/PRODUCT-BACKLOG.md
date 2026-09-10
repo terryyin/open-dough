@@ -7,7 +7,7 @@ complete set of skills covering the full software development lifecycle.
 
 ## Backlog list
 
-- [Story Wrap-Up](seeds/SEED-011-story-wrap-up.md#story-wrap-up) — SEED-011
+- [Delete empty spent wrap-up containers](quick/041-delete-empty-spent-wrap-up-containers/PLAN.md)
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Keep internal and external finding code names consistent](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail) — SEED-010
 - [Decide and follow up on retrospective findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings) — SEED-010
