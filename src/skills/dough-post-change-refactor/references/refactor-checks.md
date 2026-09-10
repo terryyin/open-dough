@@ -58,14 +58,31 @@ to code the current change introduced or exposed. Remove:
   never flip).
 - Production code only exercised by unit tests — no real caller from a
   controller, mounted component, CLI command, MCP tool, or other entry.
-- Unit tests that overlap another test on the same observable surface (same
-  input/output, same entry point).
-- Tests that pin internal structure rather than observable behavior — prefer
-  the test that drives a stable boundary (controller, mounted component,
-  end-to-end scenario).
 
 Remove speculative code within that boundary; do not retain it for an
 unspecified future need.
+
+## Tests as behavioral documentation
+
+Assess coverage at observable boundaries and its execution cost. Retain E2E
+scenarios that document important user journeys and prove integration; neither
+newness nor age is a reason to remove a test. Move detailed rule variations to
+black-box unit coverage when they do not need the integrated path. Consolidate
+overlapping scenarios, including unit tests, only when their meaningful behavior
+coverage and important integration proof survive at lower cost.
+
+Use this project's preferred test style when supplied. Otherwise assert
+observable black-box behavior rather than internal structure. Use stable
+boundaries, real lower layers, and crafted data; mock external services rather
+than internal collaborators. An E2E test is not automatically a better boundary
+than a unit test. Replace tests of internal structure with behavioral coverage,
+not merely fewer assertions.
+
+Identify the surviving proof for each proposed consolidation and establish
+replacement unit coverage before removing or narrowing detailed E2E cases.
+Apply the invoking workflow's scope and authority: post-change refactoring owns
+tests implicated by its change; an implementation retrospective assesses the
+whole suite and plans corrections without implementing them.
 
 ## File size
 

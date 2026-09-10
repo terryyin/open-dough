@@ -28,7 +28,7 @@ backlog's direction of learning reusable skills and rules from Donut.
 
 ### 1. Evolve a cohesive design from incremental delivery examples
 
-**Status:** Planned; second-priority backlog item.
+**Status:** Implemented; retained for retrospective. Backlog order unchanged.
 **Plan:** [Executable slices](../quick/037-cohesive-design-from-examples/PLAN.md).
 Human priority: keep this guidance improvement small and ready promptly; release
 preparation is separate and waits for other improvements.
@@ -209,4 +209,7 @@ must reconcile existing story-limited review/correction language and refactoring
 gates with the whole-product instructions above, without treating story
 boundaries as implementation boundaries or changing human-owned product
 constraints. “Execution readiness” adds a design check at existing assessment
-points, not a new certification stage. Executable planning is now requested; implementation remains unrequested.
+points, not a new certification stage. All six executable slices are complete with authoring evidence in the plan.
+Native acceptance remains pending in
+[release/adoption work](SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log);
+source completion does not authorize release.

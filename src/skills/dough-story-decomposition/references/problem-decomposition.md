@@ -8,7 +8,7 @@ Do not plan a lower level while a higher-level decision remains unresolved.
 | --- | --- | --- |
 | **Problem or capability** | The beneficiary, problem, desired effect, constraint, or direction is unclear | One evaluable decision, assumption, or outcome |
 | **Story** | The problem is understood but several useful outcomes are possible | Ordered Valuable, Visible, Vertical stories |
-| **Slice** | One story's goal, scope, and key examples are understood | Behavior slices and only immediately enabling Structure slices |
+| **Slice** | One story or bounded retrospective correction is understood | Behavior/Structure slices under [slice decomposition](#decompose-slices) |
 
 The levels are fractal: name the evaluator and observable result, split
 independent outcomes, order by value and learning, and make every stopping point
@@ -139,7 +139,7 @@ around files, layers, components, specialists, or activities.
 
 For an evidenced retrospective correction that changes structure while preserving
 product behavior, a Structure slice may instead own that correction directly.
-Name the concrete architectural weakness it removes and prove preserved behavior
+Name the concrete architectural or test-suite weakness it removes and prove preserved behavior
 at the affected external boundaries in the same slice. Do not invent a new
 Behavior promise merely to justify the correction. Keep one bounded outcome and
 proof loop; this exception does not authorize speculative preparation.

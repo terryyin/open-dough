@@ -86,8 +86,8 @@ When the caller supplied `proof:` commands, rerun only those whose covered
 behavior or paths the refactor invalidated. If the covered boundary moved,
 explain why the original command no longer applies and run a focused replacement.
 Without supplied proof, run focused tests related to the refactor edits. Use
-this project's literal commands and observable stable boundaries, real lower layers,
-and crafted data; mock external services rather than internal collaborators.
+this project's literal commands and the shared
+[behavioral test guidance](references/refactor-checks.md#tests-as-behavioral-documentation).
 Do not run the full suite. Fix failures caused by the refactor and require
 passing relevant proof before completion. Report other unresolved failures to
 the caller; do not claim success.

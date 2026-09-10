@@ -2,7 +2,7 @@
 name: dough-execution-retrospective
 description: >-
   Reviews one completed or in-progress plan execution against its original story,
-  aggregate commit set, and current whole-product architecture. Use for an execution
+  aggregate commit set, current whole-product architecture, and test suite. Use for an execution
   retrospective, product review, or backlog recommendation even when cleanup
   removed the plan or the user supplies only a partial reference. `--skip-process`
   and `--skip-product` omit those reviews independently. May plan unresolved
@@ -13,7 +13,7 @@ description: >-
 # Review an execution
 
 Recover what one plan intended, identify the commits that executed it, and
-review their combined outcome and the current product architecture. By default,
+review their combined outcome, current product architecture, and whole test suite. By default,
 cover implementation, process, and
 product learning. Leave the project with evidence and, only when needed, a
 plan for bounded corrections. Do not implement, commit, or push those
@@ -149,8 +149,9 @@ Keep only findings with concrete evidence and plausible impact:
 
 1. bugs or regressions;
 2. story drift or an unresolved scope dispute;
-3. refactoring residue in complete implicated concepts; and
-4. consequential weaknesses in the current whole-product architecture.
+3. refactoring residue in complete implicated concepts;
+4. consequential weaknesses in the current whole-product architecture; and
+5. test coverage or execution-cost findings under the shared behavioral test guidance.
 
 Assess overall responsibilities, dependencies, and representations against the
 product's domain, not the story sequence. Ask whether successive examples
@@ -167,6 +168,15 @@ constraints and leave conflicting decisions with the human.
 Keep historical attribution separate from current assessment: only claim this
 execution introduced a defect when its provenance supports that claim. An older
 weakness can warrant current correction without becoming an execution regression.
+
+Identify whether E2E tests drove this execution's development, then assess the
+whole suite, including older tests outside the story, using
+[tests as behavioral documentation](../dough-post-change-refactor/references/refactor-checks.md#tests-as-behavioral-documentation).
+No newly added E2E tests does not exempt existing coverage from review. Ground
+retention, detail downgrades, and overlap consolidation in actual coverage and
+cost findings; preserve important journey documentation and integration proof.
+Use the project's testing guidance when supplied and the shared black-box
+fallback otherwise. Whole-suite assessment does not require running every test.
 
 Look explicitly for additions later worked around or replaced: dead branches,
 flags, callers, fixtures, compatibility paths, overlapping tests, tests of
@@ -194,6 +204,14 @@ constraints using the shared
 [scope distinction](../dough-story-refinement/references/planning.md#examples-and-constraints);
 review reach does not authorize new feature promises. If none remain, leave
 planning unchanged.
+
+Give unresolved test downgrades and consolidation, including older redundant
+tests, explicit ownership in the bounded correction plan. Name the retained
+meaningful coverage and integration proof for consolidation; existing retained
+E2E coverage may suffice. For detail downgrades, make replacement unit coverage
+a prerequisite to removing or narrowing the corresponding E2E tests. Apply the same current-truth and
+destination rules as other corrections; the retrospective plans suite cleanup
+and does not perform it.
 
 For an unfinished plan, update that plan in place. Preserve completed and
 in-progress evidence and history; place corrective work before still-planned

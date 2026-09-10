@@ -3,7 +3,8 @@
 ## Source and outcome
 
 [SEED-012](../../seeds/SEED-012-cohesive-design-from-examples.md#cohesive-design-from-examples).
-Status: in-progress. Execution authorized in an isolated worktree and branch.
+Status: done. All six source slices and authoring proof are complete; native
+acceptance and release remain separate.
 
 A developer delivers small evidenced increments while agents evolve a cohesive
 product design, challenge accidental plan restrictions, and review architecture
@@ -234,7 +235,7 @@ planning handoff is the principal reconciliation concern.
 
 ### Keep the test suite useful as behavioral documentation
 Type: Behavior
-Status: planned
+Status: done
 Proof: In the same retrospective, inspect a suite containing a key integrated
 journey, detailed E2E variations, and an older overlapping scenario; inspect the
 resulting coverage-preserving correction plan. Vary missing preferred test style
@@ -404,3 +405,33 @@ review; missing plan location or bounded proof stopped planning. Links, anchors,
 frontmatter, and whitespace passed. Independent refactoring aligned one leftover
 planner inspection instruction with the shared Structure correction exception;
 its focused walkthrough preserved the same outcome. Authoring evidence only.
+
+### Useful test suite and final sequence — authoring observation
+
+The complete manual sequence against the final candidate retained the import →
+persist → reopen journey as important integrated documentation. Detailed
+validation/order/limit variations received replacement black-box unit coverage
+before their E2E cases could narrow. An older overlapping import scenario was
+owned by the bounded correction only after its meaningful assertions survived
+in retained proof; no redundant unit test was invented to permit that merge.
+Supplied table-driven public-import style was used; with no style, the proposed
+cases used observable boundaries, crafted data, and real local lower layers.
+No-new-E2E history still produced whole-suite assessment. Without an actual
+coverage finding, no downgrade was proposed. Review planned but did not execute
+corrections or run every test.
+
+The cumulative walkthrough also retained both required layouts, no unlisted-case
+prohibition, genuine attachment-limit rejection, the human-owned exact-layout
+conflict, complete handlers/preview concept review, honest attribution of older
+weaknesses, and no correction for already-fixed findings. Missing correction
+scope/proof/location stopped only dependent planning; review skip options held.
+Independent refactoring reconciled the decomposition overview with its shared
+Structure correction rule. No new stage, harness, skill, or release declaration
+was introduced. No target-product behavior or measured cost savings are claimed.
+
+Final validation: `npm run lint` passed after the CI fixture repair. Changed
+skill frontmatter, local links/anchors, and `git diff --check` passed. Functional
+proof for the sole executable edit remains the passing payload-update test;
+no unrelated suite rerun was needed. The plan and source-story inputs remain
+available for retrospective. Native behavioral requirements are explicitly
+assigned in SEED-010 Story 2, with missing proof pending on all three hosts.
