@@ -1,25 +1,27 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Reviews one completed or unfinished plan execution against its original
-  feature story or bounded-correction contract, aggregate commit set, current
-  whole-product architecture, and test suite. Use for an execution
-  retrospective, product review, or backlog recommendation even when cleanup
-  removed the plan or the user supplies only a partial reference. `--skip-process`
-  and `--skip-product` omit those reviews independently. May plan unresolved
-  implementation findings, record supported process findings in `DearDough.md`,
-  and recommend product work; never implements them.
+  Reviews one completed or unfinished planned execution, a completed quick
+  execution whose plan never existed, or a quick attempt continued through an
+  ordinary remaining-work plan, against its original feature story or
+  bounded-correction contract, aggregate commit set, current whole-product
+  architecture, and test suite. Use for an execution retrospective, product
+  review, or backlog recommendation from current or supplied execution history,
+  including after cleanup. `--skip-process` and `--skip-product` omit those
+  reviews independently. May plan unresolved implementation findings, record
+  supported process findings in `DearDough.md`, and recommend product work;
+  never implements them.
 ---
 
 # Review an execution
 
-Recover what one plan intended, identify the commits that executed it, and
+Recover what one execution intended, identify the commits that executed it, and
 review their combined outcome, current product architecture, and whole test suite. By default,
 cover implementation, process, and
 product learning. Leave the project with evidence and, only when needed, a
 plan for bounded corrections. Do not implement, commit, or push those
 corrections. A retrospective authorizes product recommendations; it does not grant
-backlog-write authority. Leave the completed plan and routine
+backlog-write authority. Leave any completed plan and routine
 completion or backlog actions for
 [dough-story-wrap-up](../dough-story-wrap-up/SKILL.md).
 
@@ -49,11 +51,12 @@ focus or write its destination.
   coincident product boundaries need independent domain justification.
 - **Current truth decides remediation.** Report later fixes and do not plan work
   that is already resolved.
-- **Plan state decides the destination.** Amend an unfinished plan; create a
-  follow-up plan only for a completed execution.
+- **Execution state decides the destination.** Amend an unfinished plan; create
+  a follow-up plan only for a completed execution. A wholly planless quick
+  execution with unresolved completion has neither destination yet.
 - **The user owns disputed scope and constraints.** Stop when evidence cannot
-  distinguish two plans or when a finding would change the source outcome rather
-  than correct it. Use the shared
+  distinguish two execution candidates or when a finding would change the source
+  outcome rather than correct it. Use the shared
   [plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
   for apparently accidental contractual restrictions; plan compliance does not
   settle their justification.
@@ -66,11 +69,15 @@ focus or write its destination.
 ## Resolve this project's context
 
 Require one useful clue: a capability or story phrase, correction plan, commit,
-or the current execution conversation. Resolve this project's plan and
-feature-story locations when applicable, status vocabulary, cleanup lifecycle,
-repository navigation, and focused test commands. Preserve existing working-tree
-changes. A complete bounded correction plan is its source contract; do not
-require or create a seed for its retrospective.
+or the current or supplied execution conversation. Resolve this project's plan
+location and status vocabulary for planned work, feature-story locations when
+applicable, cleanup lifecycle, repository navigation, and focused test commands.
+Preserve existing working-tree changes. A complete bounded correction plan is
+its source contract; do not require or create a seed for its retrospective. A
+wholly planless quick execution instead requires its canonical story and enough
+execution history to establish that slice planning was explicitly skipped. A
+quick-to-planned execution requires that initial evidence plus its ordinary
+remaining-work plan and evidence connecting both parts.
 
 Resolve this project's established near-future direction when present. When
 product review is enabled, resolve backlog and canonical-story conventions when
@@ -94,21 +101,56 @@ product review is enabled and recommendations depend on those conventions.
 
 ## Recover one execution
 
-Search the current conversation, current planning material, and Git history in
-that order. A partial reference or a plan removed by normal cleanup is sufficient
-when history identifies it. Recover the earliest execution-ready plan, its
-feature story or bounded-correction input and intended outcome, and any later
-changes supported by user approval or new evidence.
+Search the current conversation, supplied execution history, current planning
+material, and Git history in that order. First establish whether the execution
+used a plan, explicitly ran as one quick slice without creating a plan, began as
+a quick attempt and continued through an ordinary remaining-work plan, or used a
+plan that normal cleanup later removed. File absence alone does not establish
+which case applies.
 
-Determine completion from the latest plan state and execution evidence, not file
-presence. A plan is complete when every slice is done. A deleted plan needs
-history evidence of completion. If two candidates remain equally
-plausible, ask the user to choose and do not combine them.
+For planned execution, preserve the existing recovery path: a partial reference
+or a plan removed by normal cleanup is sufficient when history identifies it.
+Recover the earliest execution-ready plan, its feature story or
+bounded-correction input and intended outcome, and any later changes supported
+by user approval or new evidence. Do not relabel a removed-but-recoverable plan
+as quick execution.
 
-Build a manifest of related commits. Include each SHA with a reason grounded in
-the plan, commit message, diff, or execution transcript. Inspect intervening
-commits and exclude unrelated work. Treat planning-only commits as provenance,
-not product findings.
+For quick execution, require conversation evidence that the caller explicitly
+selected planless execution. Recover the canonical story's goal, boundaries,
+examples, and promised proof; approved changes from the conversation; related
+changes and commits; and the available proof. Do not require, invent, or
+reconstruct a historical plan or substitute execution record. Current chat is
+sufficient when it contains these facts; otherwise use a supplied transcript.
+
+For a quick attempt continued through planning, recover the initial quick-path
+selection and attempt from current or supplied conversation evidence, then the
+ordinary plan linked to the same canonical story and that attempt's remaining
+work. Treat both parts as one execution. The plan must preserve attributable
+completed compatible work and proof and must not represent them as earlier
+planned slices. Recover its remaining slices and later plan changes through the
+ordinary planned path. Do not manufacture a second execution identity merely
+because the execution source changed from story-and-chat to plan.
+
+Determine completion from source-specific evidence, not file presence. A plan
+is complete when every slice is done; a deleted plan needs history evidence of
+completion. A quick execution is complete only when its conversation and
+repository evidence establish the delivered story outcome and its required
+proof. A quick-to-planned execution is complete when the remaining-work plan is
+complete and the preserved quick-attempt evidence plus planned proof establish
+the original story outcome without a gap or repeated-work assumption. Missing
+proof limits the completion or finding conclusion that depends on it; continue
+independently supported review rather than treating plan absence as failure. If
+execution kind, continuity, contract, or completion remains ambiguous, name the
+missing evidence and stop only the affected decision. If two candidates remain
+equally plausible, ask the user to choose and do not combine them.
+
+Build one manifest of related commits across a quick attempt and its planned
+continuation when both occurred. Include each SHA with a reason grounded in
+the plan or story, commit message, diff, or execution transcript. Inspect
+intervening and nearby commits and exclude unrelated work. Ambiguous attribution
+limits claims about that commit and findings that depend on it; it does not
+authorize widening the manifest. Treat planning-only commits as provenance, not
+product findings.
 
 Use one net diff only when the implementation commits form an uncontaminated
 range. Otherwise review the selected patches together and inspect their files at
@@ -225,6 +267,12 @@ and revise overlapping planned slices instead of duplicating them. Do not
 renumber completed slices. Record the finding and reviewed commit manifest as a
 concise learning when this project's plan format supports it.
 
+When a planless execution's completion is not established, return the supported
+review evidence and the exact completion, proof, or attribution gap. There is no
+plan to amend, and unresolved original story work is not yet a completed
+execution correction. Do not reconstruct a plan or create a correction plan
+until evidence establishes the completed execution boundary.
+
 For a completed execution, use `dough-slice-planning` to create one follow-up
 plan in this project's established location. Cite the original story and commit
 manifest as historical provenance, and the current findings as the correction's
@@ -235,8 +283,9 @@ it. If correction would change product constraints or promised outcomes, stop
 for the user's decision. Stop likewise when the findings cannot form one bounded
 correction.
 
-When two authorized reviews cover the same plan, only the designated writer
-reconciles findings into it; the other reviewer returns read-only evidence.
+When two authorized reviews cover the same execution, only the designated writer
+reconciles findings into the plan destination; the other reviewer returns
+read-only evidence.
 After any planning change, do not refine or execute that correction unless the
 user separately requests it. Continue every other enabled review, then
 report. That restriction applies to correction refinement and implementation, not
@@ -430,7 +479,8 @@ result only for enabled product review; do not report backlog writes from this
 skill. Omit skipped-focus analysis, suggestions, and destination
 writes. Distinguish evidence from hypotheses, and recommendations from
 proposals and unresolved choices. State whether planning was updated in place,
-newly generated, read-only, or unchanged. End with:
+newly generated, read-only, unchanged, or not yet available because the
+execution boundary remains unresolved. End with:
 
 `## EXECUTION RETROSPECTIVE COMPLETE`
 
