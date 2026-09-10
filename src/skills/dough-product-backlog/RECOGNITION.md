@@ -12,8 +12,8 @@ Project identity is not a recognition condition.
 
 ## Purpose
 
-Maintain a selected, ordered backlog list without duplicating story details
-from their canonical sections in seeds.
+Maintain a selected, ordered backlog list without duplicating work details from
+their canonical story sections or bounded-correction plans.
 
 ## Triggers
 
@@ -26,19 +26,23 @@ Human-controlled near-future direction precedes a bulleted backlog list.
 It expresses a short-term vision focused on one customer value or goal and is
 the most important input for story scope, including decomposition and refinement.
 Add or change direction only on explicit human instruction; leave it absent
-if missing. Entries contain exact linked story titles and seed IDs. Human priorities, direction,
-value, learning, and prerequisites guide ordering, with urgent exceptions.
-Each story has one canonical section within a seed. Completed-story closure
-belongs to dough-story-wrap-up rather than a recently-done history list.
+if missing. Entries contain exact linked titles and their canonical identities:
+seed IDs for feature stories or plan identities for seedless corrections. Human
+priorities, direction, value, learning, and prerequisites guide ordering, with
+urgent exceptions. Each feature story has one canonical section within a seed;
+a bounded correction without a supplied story uses its plan as the canonical
+home. Completed-work closure belongs to dough-story-wrap-up rather than a
+recently-done history list.
 Standalone queue maintenance may drop a completed item from the active list
 without creating a tombstone. Maintenance does not authorize execution, commit,
 or push.
 
 ## Client project context
 
-Repository root, backlog path, seed locations and IDs, stable link
-conventions, relevant decomposition/refinement/slice-planning workflows, and
-commit conventions when applicable replace source-specific paths and names.
+Repository root, backlog path, the affected canonical seed or plan locations
+and identities, stable link conventions, relevant
+decomposition/refinement/slice-planning workflows, and commit conventions when
+applicable replace source-specific paths and names.
 The ordered-reference format remains part of the behavior. Finished-list
 retention does not.
 
@@ -71,5 +75,8 @@ story proposing onboarding help plus unrelated reporting. Verify the scope
 focuses on onboarding and carries that direction into refinement without
 rewriting the direction or treating scope review as execution authorization.
 Check bullet formatting and title-only retention when a completed story's seed
-is removed, including recovery from Git history when needed.
+is removed, including recovery from Git history when needed. Also verify that a
+complete seedless correction queues once by direct plan link without changing
+unrelated order or direction, while a missing beneficiary or outcome leaves the
+queue unchanged.
 Promotion, release, and client installation remain separate work.

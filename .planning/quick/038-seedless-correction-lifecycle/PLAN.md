@@ -2,8 +2,9 @@
 
 ## Outcome and authority
 
-Status: in progress. Planning and predecessor wrap-up were authorized first;
-Terry Yin authorized direct execution on 2026-09-10.
+Status: done. Planning and predecessor wrap-up were authorized first; Terry Yin
+authorized direct execution on 2026-09-10. Both slices are delivered or prepared
+for final delivery under the execution workflow.
 
 A developer can carry one understood retrospective correction from its plan
 through execution, refinement when needed, and closure without creating or
@@ -103,7 +104,7 @@ CI observer: Codex yielded-cell adapter, coordinator `root-038`, repository
 
 ### Preserve and close seedless corrections through the existing lifecycle
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk completed predecessor closure with a seedless follow-up, repeat the
 queue operation, and later close that correction after its own review; vary an
 unfinished correction and an existing canonical story.
@@ -126,6 +127,20 @@ Safe stop: a correction needs no seed at any lifecycle handoff and cleanup still
 preserves active work and recoverability.
 Concern: queue navigation and deletion ownership must identify a plan directly
 without treating every missing seed as permission to close unrelated work.
+
+Execution evidence (2026-09-10): story wrap-up, product backlog, retrospective,
+and planning cleanup guidance now use one canonical active home: a supplied
+feature story or a complete correction plan. Walkthroughs confirmed direct
+seedless queueing, idempotent repetition, later plan-identity closure after its
+own execution and retrospective, unfinished-plan preservation, canonical-story
+preservation, and unchanged unrelated order, direction, human text, and
+acceptance work. Recovery ordering is explicit: queue the active correction,
+commit a recoverable revision, then delete only the predecessor's spent history;
+source provenance becomes the recovery commit plus repository-relative path.
+Missing correction input or completion evidence stops before deletion.
+`git diff --check` passed. Independent post-change refactoring consolidated
+correction-input validation behind the planning contract and confirmed deletion
+ownership. `npm run format` passed without changing the Markdown sources.
 
 ## Proof ownership
 

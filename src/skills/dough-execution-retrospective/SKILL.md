@@ -1,8 +1,9 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Reviews one completed or in-progress plan execution against its original story,
-  aggregate commit set, current whole-product architecture, and test suite. Use for an execution
+  Reviews one completed or in-progress plan execution against its original
+  feature story or bounded-correction contract, aggregate commit set, current
+  whole-product architecture, and test suite. Use for an execution
   retrospective, product review, or backlog recommendation even when cleanup
   removed the plan or the user supplies only a partial reference. `--skip-process`
   and `--skip-product` omit those reviews independently. May plan unresolved
@@ -37,8 +38,9 @@ focus or write its destination.
 
 ## Work from these principles
 
-- **Original intent is the contract.** Recover the story, boundaries, approved
-  changes, and promised proof before judging implementation.
+- **Original intent is the contract.** Recover the feature story or bounded
+  correction input, boundaries, approved changes, and promised proof before
+  judging implementation.
 - **Commit membership needs evidence.** A nearby commit is not part of the
   execution merely because it is in the same range.
 - **Judge the aggregate result and current architecture.** Review the combined
@@ -50,8 +52,8 @@ focus or write its destination.
 - **Plan state decides the destination.** Amend an unfinished plan; create a
   follow-up plan only for a completed execution.
 - **The user owns disputed scope and constraints.** Stop when evidence cannot
-  distinguish two plans or when a finding would change the story rather than
-  correct it. Use the shared
+  distinguish two plans or when a finding would change the source outcome rather
+  than correct it. Use the shared
   [plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
   for apparently accidental contractual restrictions; plan compliance does not
   settle their justification.
@@ -63,14 +65,17 @@ focus or write its destination.
 
 ## Resolve this project's context
 
-Require one useful clue: a capability or story phrase, plan path, commit, or the
-current execution conversation. Resolve this project's plan and story locations,
-status vocabulary, cleanup lifecycle, repository navigation, and focused test
-commands. Preserve existing working-tree changes.
+Require one useful clue: a capability or story phrase, correction plan, commit,
+or the current execution conversation. Resolve this project's plan and
+feature-story locations when applicable, status vocabulary, cleanup lifecycle,
+repository navigation, and focused test commands. Preserve existing working-tree
+changes. A complete bounded correction plan is its source contract; do not
+require or create a seed for its retrospective.
 
 Resolve this project's established near-future direction when present. When
 product review is enabled, resolve backlog and canonical-story conventions when
-that review needs them. Do not invent a direction, backlog, or seed location.
+that review needs them. Do not invent a direction, backlog, or feature-story
+seed location.
 
 If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
@@ -91,9 +96,9 @@ product review is enabled and recommendations depend on those conventions.
 
 Search the current conversation, current planning material, and Git history in
 that order. A partial reference or a plan removed by normal cleanup is sufficient
-when history identifies it. Recover the earliest execution-ready plan, its story
-and intended outcome, and any later changes supported by user approval or new
-evidence.
+when history identifies it. Recover the earliest execution-ready plan, its
+feature story or bounded-correction input and intended outcome, and any later
+changes supported by user approval or new evidence.
 
 Determine completion from the latest plan state and execution evidence, not file
 presence. Any planned or in-progress slice makes the plan unfinished. A deleted
@@ -138,9 +143,10 @@ Never propose or apply a replacement or revision of the direction itself.
 
 ## Review the outcome
 
-Apply the shared direction consideration. Then compare the story contract and
-approved changes with the aggregate code, tests, documentation, and proof at
-the execution boundary. For the historical assessment of an unfinished plan,
+Apply the shared direction consideration. Then compare the feature-story or
+bounded-correction contract and approved changes with the aggregate code, tests,
+documentation, and proof at the execution boundary. For the historical
+assessment of an unfinished plan,
 judge only the completed slices;
 do not call unexecuted planned behavior missing or its explicitly temporary
 predecessor obsolete.
@@ -148,7 +154,7 @@ predecessor obsolete.
 Keep only findings with concrete evidence and plausible impact:
 
 1. bugs or regressions;
-2. story drift or an unresolved scope dispute;
+2. source-outcome drift or an unresolved scope dispute;
 3. refactoring residue in complete implicated concepts;
 4. consequential weaknesses in the current whole-product architecture; and
 5. test coverage or execution-cost findings under the shared behavioral test guidance.
@@ -389,8 +395,9 @@ implementation findings.
 
 ## Report
 
-Report the resolved story and completion state, provenance, included commit
-manifest and review boundary, findings ordered by impact or `none`, planning
+Report the resolved feature story or bounded correction and completion state,
+provenance, included commit manifest and review boundary, findings ordered by
+impact or `none`, planning
 result, and evidence limitations. Include supported process proposals only for
 enabled process review. Include product recommendations or a reasoned no-change
 result only for enabled product review; do not report backlog writes from this

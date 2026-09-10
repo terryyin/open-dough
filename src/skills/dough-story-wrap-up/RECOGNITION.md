@@ -12,13 +12,15 @@ Review: ready for maintainer review; native wrap-up acceptance pending
 
 ## Purpose
 
-Close one completed story after execution and retrospective so the current
-project keeps useful product knowledge and no spent story or plan history,
-while Git can recover what was removed.
+Close one completed feature story or bounded retrospective correction after
+execution and retrospective so the current project keeps useful product
+knowledge and no spent source or plan history, while Git can recover what was
+removed.
 
 ## Triggers
 
 - wrap up a story
+- wrap up a bounded correction
 - close a completed story
 - delete spent plan and execution history after retrospective
 
@@ -34,16 +36,20 @@ while Git can recover what was removed.
   log occurrences, and incoming historical links without archives or tombstones.
 - Preserves sibling stories, unrelated log text, human notes, and ambiguous
   records that cannot be attributed to the selected execution.
-- Puts an existing follow-up plan's story first without replanning or executing it.
+- Puts an existing follow-up plan first through one canonical active home:
+  its supplied feature story or, for a seedless correction, the plan itself.
+- Closes a completed seedless correction by plan identity after Git recovery,
+  while leaving unfinished corrections intact.
 - Applies authorized product-review advice with optional human input; human
   input wins; unresolved choices are reported.
 
 ## Client project context
 
-The executing project must supply repository root, selected story identity,
-plan location and status vocabulary, retrospective-completion evidence, and Git
-conventions for a recoverable commit. Backlog path is required only when a queue
-entry points at the selected story.
+The executing project must supply repository root, selected feature-story or
+bounded-correction identity, plan location and status vocabulary,
+retrospective-completion evidence, and Git conventions for a recoverable commit.
+Seed conventions apply only to feature stories. Backlog path is required only
+when a queue entry points at the selected work.
 
 ## Differences that rule out replacement
 
@@ -61,3 +67,6 @@ agent in this project and keeps maintainer analysis in this record.
 
 Native wrap-up acceptance on Codex, Cursor, and Claude Code remains unfinished.
 Recover prior walkthroughs from Git if a current native judgment needs them.
+Include predecessor closure with a seedless follow-up, repeated queueing, later
+closure of the completed correction by plan identity, and the unfinished-plan
+and existing-feature-story variants.

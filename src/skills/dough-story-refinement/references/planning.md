@@ -183,10 +183,13 @@ external-wait exception that decomposition cannot reduce.
 
 Keep enduring behavior in tests and product documentation, and enduring design
 in code and ADRs. Once that knowledge is captured, reduce each implemented
-story's refinement detail to Goal and Scope, including exclusions, while the
-plan and review evidence still exist. Retain unfinished siblings.
+feature story's refinement detail to Goal and Scope, including exclusions,
+while the plan and review evidence still exist. A bounded correction remains in
+its plan; do not create a seed as cleanup ceremony. Retain unfinished siblings
+and correction plans.
 
-When the executable plan completes, keep the plan and review inputs for
-retrospective and [dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md).
-Do not delete spent story or plan history, create a completion record, or
-trim review inputs here. Wrap-up owns that closure.
+When the executable plan completes, keep the plan, its feature-story source when
+applicable, and review inputs for retrospective and
+[dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md). Do not delete spent
+source or plan history, create a completion record, or trim review inputs here.
+Wrap-up owns that closure.
