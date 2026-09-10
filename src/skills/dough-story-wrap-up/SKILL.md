@@ -54,7 +54,12 @@ Judge the selected plan from its latest state and execution evidence. Any
 planned or in-progress slice is unfinished. A missing retrospective completion
 is unfinished even when the plan is done. Empty retrospective output still
 counts as complete when this project or the user records that the review
-finished with nothing to act on.
+finished with nothing to act on. Use only this project's recorded
+retrospective-completion location for that judgment — typically the selected
+plan's Retrospective section or a project-recorded completion marker in that
+plan. A related process-log occurrence, spent evidence file, completed seed
+status, or the absence of further advice is not that record. Do not invent a
+finished review from those.
 
 If execution or retrospective is unfinished, leave the selected work's source,
 plan, and related files intact. Report what remains and stop. Do not delete an
@@ -66,7 +71,11 @@ Move lasting behavior and design into this project's maintained code, tests,
 documentation, or current Accepted decisions. Describe the current product
 without execution narration, impact chronology, story or plan identity, or
 retrospective judgments. Preserve existing product tests and documents that
-already state current behavior. Do not invent product knowledge.
+already state current behavior. Do not invent product knowledge. When a current
+product fact is written only in the spent plan or review and is not already
+stated in maintained documentation, write it into maintained documentation
+before deleting that spent copy. Tests that exercise related behavior do not
+replace that documentation step.
 
 ## Queue an existing follow-up plan first
 
@@ -135,7 +144,9 @@ entry, or replacement summary for later readers.
 When completion and recovery are resolved, delete only material the selected
 work's identity and references identify as spent:
 
-- its executable plan and owned proof, evidence, and assessment records;
+- its executable plan and owned proof, evidence, and assessment records.
+  A plan decision that retained the plan at execution completion keeps it
+  through retrospective, not after wrap-up. Delete that spent plan here.
 - its canonical story section when it has one; delete the seed only when every
   remaining section is spent;
 - queue entries and finished-history / recently-done entries for that completed

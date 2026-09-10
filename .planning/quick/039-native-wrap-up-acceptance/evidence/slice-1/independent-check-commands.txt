@@ -1,0 +1,12 @@
+Independent check commands after each native session, run against the fixture:
+
+- jq -e -s 'any(.[]; .type == "turn.completed")' "$TRANSCRIPT"
+- inspect transcript for .agents/skills/dough-story-wrap-up/SKILL.md
+- test ! -e planning/plans/trim-names.md
+- test ! -e planning/plans/trim-names/evidence/cli-run.txt
+- grep seed/backlog/DearDough/README for spent vs preserved content
+- compare near-future direction bytes to the before snapshot
+- resolve remaining Markdown links
+- git show "$BEFORE_CLEANUP":planning/plans/trim-names.md
+- git show "$BEFORE_CLEANUP":planning/plans/trim-names/evidence/cli-run.txt
+- compare full product-file hashes after the repeat session

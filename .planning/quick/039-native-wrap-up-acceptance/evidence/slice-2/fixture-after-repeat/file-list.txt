@@ -1,0 +1,15 @@
+.
+./AGENTS.md
+./DearDough.md
+./HUMAN.md
+./README.md
+./planning
+./planning/PRODUCT-BACKLOG.md
+./planning/plans
+./planning/plans/remove-extra-greeting-prefix.md
+./planning/seeds
+./planning/seeds/SEED-001-greeting.md
+./src
+./src/greet.mjs
+./test
+./test/greet.test.mjs

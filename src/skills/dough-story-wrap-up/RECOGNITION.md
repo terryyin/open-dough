@@ -1,6 +1,6 @@
 # Recognition: dough-story-wrap-up
 
-Review: ready for maintainer review; native wrap-up acceptance pending
+Review: native wrap-up acceptance recorded for Codex, Cursor, and Claude Code
 
 ## Original clues
 
@@ -27,13 +27,18 @@ removed.
 ## Distinguishing behavior
 
 - Requires completed execution and retrospective; empty retrospective output
-  is allowed and does not invent another review.
+  is allowed and does not invent another review. A process-log occurrence,
+  spent evidence file, or completed seed status is not that completion record.
 - Commits uncommitted spent history with the project's Git conventions before
   deleting the only copy; refuses closure when recovery cannot be resolved.
 - Assimilates lasting knowledge into maintained product content without
-  execution narration or judgments.
+  execution narration or judgments. A spent-plan-only product fact is written
+  into maintained documentation even when tests already exercise related
+  behavior.
 - Deletes spent plan, story, proof, queue and finished-history entries, related
   log occurrences, and incoming historical links without archives or tombstones.
+  Execution may retain the plan through retrospective; wrap-up still deletes
+  that spent plan.
 - Preserves sibling stories, unrelated log text, human notes, and ambiguous
   records that cannot be attributed to the selected execution.
 - Puts an existing follow-up plan first through one canonical active home:
@@ -65,8 +70,7 @@ agent in this project and keeps maintainer analysis in this record.
 
 ## Validation needed
 
-Native wrap-up acceptance on Codex, Cursor, and Claude Code remains unfinished.
-Recover prior walkthroughs from Git if a current native judgment needs them.
-Include predecessor closure with a seedless follow-up, repeated queueing, later
-closure of the completed correction by plan identity, and the unfinished-plan
-and existing-feature-story variants.
+Native wrap-up acceptance for the promises in SEED-011 Story Wrap-Up is
+recorded in Quick 039. Recover that plan and evidence from Git when a later
+source change needs a new native judgment. Do not treat the v0.3.6 release
+exception as passing proof.

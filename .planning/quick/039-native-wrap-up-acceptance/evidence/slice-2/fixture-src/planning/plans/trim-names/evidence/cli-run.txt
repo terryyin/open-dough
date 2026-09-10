@@ -1,0 +1,4 @@
+node --test test/greet.test.mjs
+# pass: default greeting, trim surrounding whitespace, preserve internal spaces
+# spent Trim names proof; delete with the completed plan
+# current product still prints an unrequested Hey prefix before Hello

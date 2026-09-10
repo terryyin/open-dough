@@ -1,0 +1,9 @@
+candidate_sha=de140179fbc1cb69466a77e515e2d6a49324a1ca
+version=0.3.6
+wrap_up_skill_sha256=af9f5610e40994af01d0392f56f6f299163eb8994c611332b58f754c955f026a
+product_backlog_skill_sha256=06599395753097bbfa8e60c96c247cc5b534ea9c28be861ea2fd359d600541a7
+installed_wrap_up_sha256=af9f5610e40994af01d0392f56f6f299163eb8994c611332b58f754c955f026a
+host=codex-cli 0.144.1
+proof_root=/tmp/dough-wrap-up-039.KeOIhE
+wrap_up_ready_head=49c2199117f91910c4930d0ec8e9eb1100015517
+uncommitted_source=

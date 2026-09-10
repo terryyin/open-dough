@@ -1,0 +1,7 @@
+HEAD=92007167d01a38ce8d0e11f3babbc8ee3feecf66
+status:
+log:
+9200716 Remove spent Trim names plan and story history
+4fb462f Prepare Trim names wrap-up with follow-up queued first
+6fdaa1a Record completed Trim names work and seedless correction
+b23f5a0 Add greeting CLI with extra prefix

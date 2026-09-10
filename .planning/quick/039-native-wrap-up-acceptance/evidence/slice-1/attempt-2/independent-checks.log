@@ -1,0 +1,26 @@
+Independent checks for /private/tmp/dough-wrap-up-039-retry.HenGAU/fixture
+time: 2026-09-10T06:20:15Z
+PASS: transcript contains turn.completed
+PASS: installed wrap-up skill was read or used
+PASS: spent path absent: planning/plans/trim-names.md
+PASS: spent path absent: planning/plans/trim-names/evidence/cli-run.txt
+PASS: spent evidence directory empty or absent of files
+PASS: completed Trim names section absent from seed
+PASS: sibling Formal titles remains in seed
+PASS: completed queue entry absent from backlog
+PASS: unrelated Formal titles queue entry remains
+PASS: spent DearDough occurrence absent
+PASS: unrelated DearDough text remains
+PASS: preserved path present: src/greet.mjs
+PASS: preserved path present: test/greet.test.mjs
+PASS: near-future direction bytes unchanged
+PASS: remaining Markdown links resolve; no live link to a removed path
+PASS: no archive, tombstone, finished-list, or replacement history file
+FAIL: lasting knowledge phrase missing from README.md
+PASS: README has no spent story/plan identity or retrospective judgment phrases
+before-cleanup commit: f797bd44f5821dc06db3e687ab18cc13bc2472cd
+PASS: git show recovers planning/plans/trim-names.md from f797bd44f5821dc06db3e687ab18cc13bc2472cd
+PASS: git show recovers spent evidence from f797bd44f5821dc06db3e687ab18cc13bc2472cd
+summary: pass=19 fail=1
+
+MANUAL: lasting knowledge in README judged PASS against SEED-011; see knowledge-judgment.md

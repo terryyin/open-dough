@@ -24,10 +24,11 @@ development lifecycle coverage.
 
 ### 1. Story Wrap-Up
 
-**Status:** Implementation delivered; `dough-story-wrap-up` shipped in v0.3.6
-under the recorded native-acceptance exception. Native acceptance on Codex,
-Cursor, and Claude Code remains open. Later source corrections are assessed
-against the candidate actually exercised, not assumed covered by that release.
+**Status:** Native acceptance complete on Codex, Cursor, and Claude Code
+for [Quick 039](../quick/039-native-wrap-up-acceptance/PLAN.md). Source
+includes post-v0.3.6 seedless-correction work and later wrap-up
+clarifications exercised by that plan. Release of those later source
+changes is not part of this acceptance.
 **Working skill name:** `dough-story-wrap-up` (public Open Dough skill).
 
 **Scope:** Deliver one manually invoked skill that closes one selected story
@@ -108,10 +109,9 @@ Git rewriting, or cross-project workflow. Preserve release metadata and
 current architectural decisions; removing story history is not erasing the
 product's version identity or governing decisions.
 
-**Remaining outcome:** The maintainer can judge whether the existing wrap-up
-skill closes completed work correctly through each supported native host.
-The implementation scope and examples above describe behavior to verify, not
-features to rebuild.
+**Remaining outcome:** Judged complete through [Quick 039](../quick/039-native-wrap-up-acceptance/PLAN.md)
+on Codex, Cursor, and Claude Code. The implementation scope and examples
+above described behavior to verify, not features to rebuild.
 
 **Smallest remaining scope:** Reuse applicable integration and behavioral proof
 before running fresh sessions. Exercise one representative closure journey per
@@ -153,10 +153,9 @@ and [process recording](SEED-010-learn-from-execution-retrospectives.md#turn-ret
 provide existing inputs. Reconcile their source guidance at the handoff and
 cleanup boundaries; do not reopen their review or logging designs.
 
-**Open decisions:** None for this bounded acceptance scope. Runtime availability
-and evidence applicability are execution checks. The v0.3.6 exception remains
-historical release context, not a claim that acceptance passed. No new release
-is part of this work.
+**Open decisions:** None. Native wrap-up acceptance is recorded in Quick 039.
+The v0.3.6 exception remains historical release context for that tag, not the
+passing proof. No new release is part of this work.
 
 ## Human-Owned Decisions
 

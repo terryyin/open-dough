@@ -1,0 +1,1 @@
+cursor agent --print --force --trust --sandbox enabled --output-format stream-json --workspace "$FIXTURE" "$PROMPT"

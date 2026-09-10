@@ -1,0 +1,31 @@
+Independent unfinished-execution wrap-up checks for /private/tmp/dough-wrap-up-039-s3.CTmm5v/fixture
+time: 2026-09-10T07:28:05Z
+PASS: transcript contains type=result
+PASS: installed wrap-up skill was read or used
+PASS: no wrap-up-complete marker
+PASS: report mentions missing execution completion
+PASS: preserved path present: planning/plans/trim-names.md
+PASS: preserved path present: planning/plans/trim-names/evidence/cli-run.txt
+PASS: preserved path present: planning/plans/formal-titles.md
+PASS: preserved path present: planning/seeds/SEED-001-greeting.md
+PASS: preserved path present: src/greet.mjs
+PASS: Trim names still has a planned slice
+PASS: Trim names section remains in seed
+PASS: Trim names queue entry remains
+PASS: Trim names DearDough occurrence remains
+PASS: protected bytes identical: planning/seeds/SEED-001-greeting.md
+PASS: protected bytes identical: DearDough.md
+PASS: protected bytes identical: planning/PRODUCT-BACKLOG.md
+PASS: protected bytes identical: README.md
+PASS: protected bytes identical: planning/plans/trim-names.md
+PASS: protected bytes identical: planning/plans/trim-names/evidence/cli-run.txt
+PASS: protected bytes identical: planning/plans/formal-titles.md
+PASS: protected bytes identical: src/greet.mjs
+PASS: protected bytes identical: test/greet.test.mjs
+PASS: protected bytes identical: AGENTS.md
+PASS: product tree file hashes identical
+PASS: no deletion: product file list identical
+PASS: Git HEAD unchanged: 4d4f86d1b063807c9ed9ec1a71e16a28d7898283
+PASS: no invented seed file besides SEED-001-greeting.md
+PASS: no archive, tombstone, finished-list, or replacement history file
+summary: pass=28 fail=0

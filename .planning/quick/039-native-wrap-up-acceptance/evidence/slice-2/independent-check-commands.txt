@@ -1,0 +1,33 @@
+Independent check commands after each native Cursor session, run against the
+fixture. Exit codes and wrap-up self-report are not acceptance.
+
+Skill use and stream completeness:
+
+- jq -e -s 'any(.[]; .type == "result")' "$TRANSCRIPT"
+- inspect transcript for dough-story-wrap-up/SKILL.md (Read or Skill tool)
+
+After predecessor wrap-up:
+
+- test ! -e planning/plans/trim-names.md
+- test ! -e planning/plans/trim-names/evidence/cli-run.txt
+- first backlog bullet links plans/remove-extra-greeting-prefix.md once
+- Formal titles remains; product advice to promote it was not applied
+- HUMAN.md kept the corrective plan first
+- no invented seed
+- correction plan retains correction-input headings
+- provenance rewritten to a Git commit plus planning/plans/trim-names.md
+- src/greet.mjs still contains the extra prefix (wrap-up did not execute it)
+- remaining Markdown links resolve
+- git show "$BEFORE_CLEANUP":planning/plans/trim-names.md
+
+Repeat predecessor wrap-up while follow-up is active:
+
+- follow-up still queued once first
+- Trim names history not recreated
+
+After authored correction completion and native correction wrap-up:
+
+- test ! -e planning/plans/remove-extra-greeting-prefix.md
+- no invented seed
+- Formal titles is the remaining queue entry
+- git show "$CORRECTION_BEFORE_CLEANUP":planning/plans/remove-extra-greeting-prefix.md

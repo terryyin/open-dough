@@ -1,0 +1,25 @@
+Independent correction wrap-up checks for /private/tmp/dough-wrap-up-039-s2.GVuKFo/fixture
+time: 2026-09-10T07:04:35Z
+PASS: transcript contains type=result
+PASS: installed wrap-up skill was read or used
+PASS: spent path absent: planning/plans/remove-extra-greeting-prefix.md
+PASS: spent path absent: planning/plans/trim-names.md
+PASS: no invented seed file besides SEED-001-greeting.md
+PASS: seed has no invented correction story section
+PASS: no seed invented for the closed correction
+PASS: Formal titles remains in the seed
+PASS: closed correction absent from the queue
+PASS: Trim names still absent from the queue
+queue items (1):
+  - [Formal titles](seeds/SEED-001-greeting.md#formal-titles) — SEED-001
+PASS: Formal titles is the remaining queue entry
+PASS: near-future direction bytes unchanged
+PASS: unrelated DearDough text remains
+PASS: preserved path present: src/greet.mjs
+PASS: preserved path present: test/greet.test.mjs
+PASS: completed correction product still has no extra prefix
+PASS: no archive, tombstone, finished-list, or replacement history file
+PASS: remaining Markdown links resolve; no live link to a removed path
+correction before-cleanup commit: 139b655c014dddd899b1aa0ffacaedd980a4fe87
+PASS: git show recovers the correction plan from 139b655c014dddd899b1aa0ffacaedd980a4fe87
+summary: pass=19 fail=0

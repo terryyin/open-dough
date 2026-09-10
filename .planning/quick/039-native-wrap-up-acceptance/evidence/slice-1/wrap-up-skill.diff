@@ -1,0 +1,17 @@
+diff --git a/src/skills/dough-story-wrap-up/SKILL.md b/src/skills/dough-story-wrap-up/SKILL.md
+index 7a970c5..20321c6 100644
+--- a/src/skills/dough-story-wrap-up/SKILL.md
++++ b/src/skills/dough-story-wrap-up/SKILL.md
+@@ -66,7 +66,11 @@ Move lasting behavior and design into this project's maintained code, tests,
+ documentation, or current Accepted decisions. Describe the current product
+ without execution narration, impact chronology, story or plan identity, or
+ retrospective judgments. Preserve existing product tests and documents that
+-already state current behavior. Do not invent product knowledge.
++already state current behavior. Do not invent product knowledge. When a current
++product fact is written only in the spent plan or review and is not already
++stated in maintained documentation, write it into maintained documentation
++before deleting that spent copy. Tests that exercise related behavior do not
++replace that documentation step.
+ 
+ ## Queue an existing follow-up plan first
+ 
