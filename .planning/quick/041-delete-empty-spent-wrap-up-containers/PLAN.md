@@ -33,7 +33,7 @@ state the deletion rule once in the runtime skill.
 
 ### 1. Leave no empty spent wrap-up directories
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A completed story's spent plan and evidence files are deleted; native
 wrap-up also removes leftover empty directories named by that spent work,
 including nested untracked evidence directories, so those paths are absent
@@ -46,6 +46,16 @@ empty). Reuse Cursor and Claude predecessor directory-absence with an
 applicability note if wrap-up source differs only by this instruction. Do not
 treat “empty or absent of files” as passing. Record candidate hash, host
 version, skill use, and before/after state with the plan.
+
+Outcome: pass. The runtime skill now explicitly removes empty directories named
+by spent work, including nested untracked evidence directories, and verifies
+path absence. Native Codex 0.144.1 with `gpt-5.6-sol` read candidate
+`b7624ecb88cbaef2d06de0d1de96a02ca9cf93737b9e1c5ed1899006a4d01901`,
+removed the full nested spent path, and left tracked files recoverable from
+before-cleanup fixture commit `27df9a7`. Cursor and Claude predecessor
+directory-absence remains applicable because the shared wrap-up source is the
+only changed behavior and neither host has a wrap-up-specific adapter. Evidence:
+[evidence/slice-1/](evidence/slice-1/).
 
 ## Proof ownership
 
@@ -65,3 +75,15 @@ session duration is the execution concern; resolve it in the slice.
 ## Current decisions
 
 Keep this plan as the canonical active home. Do not create a seed.
+
+## Learnings
+
+- A native wrap-up fixture that must commit needs writable Git metadata.
+  `workspace-write` blocked `.git/index.lock`; the diagnostic run restored its
+  attempted cleanup, and a fresh outer-confined `danger-full-access` invocation
+  supplied the accepted proof.
+
+## Delivery
+
+CI observer: workflow `ci.yml` / `CI`, coordinator `root-quick-041`, cell 17,
+session 53255, `/tmp/dough-ci-501/watch-D8vEdH`, PID 56401.

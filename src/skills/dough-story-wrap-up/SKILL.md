@@ -155,6 +155,10 @@ work's identity and references identify as spent:
   becomes empty afterward; and
 - incoming links that exist solely to preserve that spent history.
 
+After deleting spent files, remove directories named by that spent work when
+they are empty, including nested untracked evidence directories. Verify those
+directory paths are absent, not merely free of files.
+
 Preserve unrelated human text, sibling stories, unrelated log issues and
 occurrences, product and version identity, maintained tests or documents,
 still-needed acceptance work, and any follow-up plan queued above. A direct
