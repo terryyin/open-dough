@@ -234,7 +234,7 @@ Resolved finding created no duplicate plan. Marker order preserved. Evidence:
 
 ### 6. Select reviews independently
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same bounded scenario exercises all four selection combinations
 with only the selected review results and destination effects.
 
@@ -256,6 +256,12 @@ selection instructions against invocation, conditional context, and usable
 results. Update the concise behavior-review evidence without adding cross-tool
 verification. Story 2 retains release/adoption ownership; do not claim release
 or installed availability.
+
+Outcome: done. Four combinations walked; skipped focuses produced no covert
+results or destination writes. Direction survived `--skip-product`. Correction
+planning remained available. DearDough.md fixture unchanged. Quick 031 product
+no-change reused. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-6/`.
 
 ## Proof ownership
 

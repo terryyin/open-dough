@@ -21,6 +21,7 @@ and return product recommendations without unauthorized backlog writes.
 
 - "execution retrospective" or "review this execution"
 - Product review or backlog recommendation from an execution
+- `--skip-process` or `--skip-product` on a retrospective
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
@@ -133,3 +134,13 @@ Unfinished and completed variants produced the correct plan destination and
 still reported product/process results. The correction was not executed.
 Resolved current-truth produced no duplicate plan. Completion marker remains
 last except for the gated attention banner.
+
+## Slice 6 local behavior evidence
+
+Walked the four selection combinations on 2026-09-10.
+[evidence/slice-6/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-6/WALKTHROUGH.md).
+
+Default, `--skip-process`, `--skip-product`, and both skips produced only the
+selected results. Skipped product did not suppress direction in implementation
+or process. Correction planning remained available. `DearDough.md` fixture
+unchanged. Quick 031 slice-1 product no-change still applies.
