@@ -181,3 +181,17 @@ second row. Similar but unproven symptoms became caveated `DD-003`. Existing IDs
 notes, evidence, and unrelated content remained intact. A malformed variation
 stayed byte-identical with a recording limitation. This is local behavior review
 of the Proposed source, not native cross-tool acceptance or release evidence.
+
+## Occurrence execution metadata follow-up
+
+Updated the occurrence format on 2026-09-10 after maintainer feedback. Every new
+occurrence now identifies the tool that executed the work; it records the model
+only when execution evidence supplies one. The reviewer does not substitute its
+own tool, guess a model, or backfill historical rows without evidence. Missing
+tool identity leaves the supported finding in the response without adding a
+countable occurrence.
+
+Behavior review: the occurrence-writing path clearly invokes the rule; required
+context distinguishes executing tool from reviewing tool and treats model as
+evidence-dependent; a representative Codex occurrence can record `Codex` and a
+known model while the same record without model evidence omits only that line.

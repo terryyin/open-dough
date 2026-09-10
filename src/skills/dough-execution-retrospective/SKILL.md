@@ -239,6 +239,8 @@ the order of supported findings:
 ### Occurrences
 
 - Execution: <stable execution identity>
+  - Tool: <Codex, Cursor, Claude Code, or another identified tool>
+  - Model: <model identifier, when available>
   - Evidence: <decisive compact references or locators>
   - Observed effect: <what the record shows>
   - Inference: <qualified cause, cost, or uncertainty, only when needed>
@@ -249,6 +251,13 @@ transcript copies. The occurrence rows are the count; do not add a redundant
 total. Record one-off costs, useful practices, potentially general problems,
 and supported observations about this retrospective without claiming recurrence
 or generality the evidence does not establish.
+
+Record the tool name for every new occurrence. Use the tool that executed the
+work, such as Codex, Cursor, or Claude Code, rather than the tool reviewing it.
+Record the model identifier when the execution evidence supplies it; otherwise
+omit the Model line instead of guessing or performing a separate lookup. If the
+executing tool cannot be identified, report the finding without adding a
+countable occurrence. Do not backfill older rows without supporting evidence.
 
 When the canonical log exists, maintain it only when its issue headings,
 descriptions, and occurrence rows are interpretable enough to identify the
