@@ -247,3 +247,8 @@ Slice 2: internal skill and empty catalog are source-only. Isolated catalogs
 are the writable proof target. `assert-public-payload-install.sh` remains a
 payload-completeness helper; omission of the new skill is owned by
 `tests/install-omits-internal.sh`. Cross-revision matching stays pending.
+
+CI repair of slice 2: ShellCheck SC2312 on `tests/install-omits-internal.sh`
+(`find` inside `[[ -z "$(...)" ]]`). Capture-then-assert. Run
+https://github.com/terryyin/open-dough/actions/runs/34448748798 job `lint`.
+Interrupted slice 3 remains in progress.

@@ -44,6 +44,7 @@ assert_internal_absent() {
   local root=$1
   local internal_skill_name
   local skill_root
+  local installed_finding_names
 
   for internal_skill_name in "${internal_skill_names[@]}"; do
     for skill_root in .agents .cursor .claude; do
@@ -56,7 +57,8 @@ assert_internal_absent() {
     [[ ! -e "${root}/${skill_root}/skills/dough-adr-awareness/RECOGNITION.md" ]]
   done
   [[ ! -e "${root}/docs/maintainer/finding-names.md" ]]
-  [[ -z "$(find "${root}" -name 'finding-names.md' -print)" ]]
+  installed_finding_names=$(find "${root}" -name 'finding-names.md' -print)
+  [[ -z "${installed_finding_names}" ]]
 }
 
 assert_sentinels() {
