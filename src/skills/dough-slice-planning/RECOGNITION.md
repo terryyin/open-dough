@@ -22,14 +22,15 @@ user requests implementation planning.
 
 Behavior/Structure gate; outside-in promise ownership; safe stopping points;
 value-and-learning ordering; isolated proof for concrete uncertain assumptions;
-direct-execution readiness unless explicit refinement triggers remain.
+direct-execution readiness unless an explicit refinement trigger remains. Missing
+numeric limits alone do not block planning or create a timing policy.
 
 ## Client project context
 
 Story and seed; canonical executable-plan root, filename layout, lifecycle, and
-active-plan status vocabulary; slice target, hard limit, exceptions, and
-repeated-overrun policy; verification and delivery gates; relevant stack rules
-and Accepted ADRs.
+active-plan status vocabulary; any supplied slice target, hard limit, exceptions,
+and repeated-overrun policy; verification and delivery gates; relevant stack
+rules and Accepted ADRs.
 
 ## Differences that rule out replacement
 
@@ -47,15 +48,17 @@ delivery.
 
 ## Validation needed
 
-Before release, maintainers must review invocation context, required client project
+Before release, maintainers must review invocation context, required project
 context, and useful outcome under [AGENTS.md](../../../AGENTS.md). Representative
 walkthrough: given one bounded weekly-totals export story, a supplied plan path,
 a five-minute target and ten-minute hard limit, and a stable export test entry
 point, write one Behavior slice for a single-team export before later policy
 exceptions. Put any necessary Structure immediately before that Behavior, map
 every included promise to observable proof, and recommend refinement only if a
-slice has separable beats or a plausible hard-limit path. With no plan destination
-or sizing policy, stop before writing instead of inventing conventions.
+slice has separable beats or a plausible hard-limit path. With no plan destination,
+stop before writing rather than inventing a location; with no numeric policy but
+the other context, plan from cohesion and proof ownership without inventing a
+timing limit.
 
 Dependency review: the source routing targets supplied the story-level base;
 their source copies were extended with ADR-0006-style execution sections for the
@@ -96,3 +99,39 @@ Inspected source SHA-256 values (paths relative to the supplied repository):
   `b9f6b603680c60ba0b1c8e0ead0f2626f86f5b7b04d531060d232929f1fda626`
 - `.agents/skills/dough-story-refinement/references/planning.md`:
   `6acb01af53cdef6c33497e03e8b8334c62c1cc425aa334b371170835e5f2ff89`
+
+### Slice 2 optional-budget walkthrough — 2026-09-10
+
+Candidate: base revision `ee88dab8fd6beed40fd4162f42ed1a903a7fd3e9`; uncommitted
+source change in `src/skills/dough-slice-planning/`, its authoritative slice-sizing
+reference, and `src/skills/dough-slice-plan-refinement/` for Quick 033 Slice 2.
+
+Inputs: the Slice 1 disposable quick-plan layout (`001-existing/PLAN.md` through
+`032-existing/PLAN.md`, with `NNN-<slug>/PLAN.md`) and one understood export story:
+given team data, a user requests a single-team CSV export and receives that file;
+the focused export check observes its row and headers. The no-policy case supplied
+the canonical root but no numeric target or hard limit. The supplied-policy case
+used the same story and root with a five-minute target and ten-minute hard limit;
+comparable endpoint evidence predicted twelve minutes for implementation, focused
+verification, and slice-local cleanup. The combined case omitted both a plan
+number and numeric policy while retaining the root, story, and layout.
+
+Observed results: the no-policy case produced one Behavior slice for the CSV
+export, with the export check as its owning proof, and reported readiness from its
+cohesive single outcome and proof loop without a time guarantee. The supplied
+policy changed the same example to refinement recommended: its predicted work
+had a plausible path beyond the supplied ten-minute hard limit. The combined case
+allocated `033` from the established layout and produced the same proof-owned
+export slice. The walkthrough inspected the generated slice boundaries, proof
+ownership, and whether planning stalled for additional numeric policy; it did not
+use phrase matching or authorize implementation.
+
+Changed assumptions: numeric targets and hard limits constrain sizing only when
+the project supplies them; in their absence, the Behavior/Structure gate, one
+observable outcome, one proof loop, and concrete uncertainty remain the bounded
+planning criteria. A missing canonical plan root or unresolved story scope still
+stops planning.
+
+Limitations: this is a disposable source-guidance walkthrough, not native
+installed-host acceptance. It does not prove release publication or ordinary
+adoption; those remain owned by Quick 033 Slices 3–4.
