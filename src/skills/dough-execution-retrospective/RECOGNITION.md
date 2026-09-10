@@ -112,3 +112,14 @@ Repeated context recovery produced an actionable reuse recommendation with
 qualified cost and no token requirement. Necessary investigation was not labeled
 waste. Insufficient Quick 031 transcript was reported as a limit. No
 `DearDough.md` write, guidance edit, or recursive retrospective.
+
+## Slice 4 local behavior evidence
+
+Walked authorized vs unauthorized product maintenance on 2026-09-10.
+[evidence/slice-4/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-4/WALKTHROUGH.md).
+
+Authorized disposable backlog received only the intended queue/story edits
+(add understood retry story, queue-remove charts while keeping SEED-A,
+canonical SEED-B detail). Unauthorized copy stayed a proposal. Disputed
+priorities stayed unresolved. Real product backlog and direction were not
+written.

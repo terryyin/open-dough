@@ -53,14 +53,16 @@ If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
 Return retrospective evidence in the response; do not create a separate artifact
 unless the user asks. Keep the repository read-only except for an allowed plan
-update described below.
+update described below and authorized product maintenance described in product
+review.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
 refactor checks before assessing refactoring residue; apply its smell definitions
 to the aggregate result without running its editing workflow. Read
 [dough-slice-planning](../dough-slice-planning/SKILL.md) only when unresolved
 findings need planning, then follow its story, proof, sizing, and destination
-gates.
+gates. Read [dough-product-backlog](../dough-product-backlog/SKILL.md) only when
+applying authorized product maintenance.
 
 ## Recover one execution
 
@@ -206,14 +208,31 @@ If backlog or story conventions cannot be resolved, keep product conclusions
 provisional, identify that gap, and do not invent files. Independent supported
 implementation and process review still proceed.
 
+Apply backlog or canonical-story edits only when session or project authority
+already permits that maintenance. Then follow
+[dough-product-backlog](../dough-product-backlog/SKILL.md). Do not ask for another
+permission. A skip option is never write authority.
+
+Apply only justified compatible changes: reorder, queue membership, understood
+new-story addition, and canonical detail. A new queued story needs a named
+beneficiary and an evaluable outcome. Removing a story from the queue does not
+delete its canonical definition or cancel active execution. Preserve unrelated
+order, content, valid links, and near-future direction.
+
+Leave unresolved: a disputed goal or scope, conflicting explicit priorities, and
+ideas whose beneficiary or outcome is unknown. Report applied changes, remaining
+proposals, and unresolved choices distinctly. Do not implement product or
+implementation findings.
+
 ## Report
 
 Report the resolved story and completion state, provenance, included commit
 manifest and review boundary, findings ordered by impact or `none`, planning
 result, supported process proposals, product recommendations or a reasoned
-no-change result, and evidence limitations. Distinguish evidence from
-hypotheses. State whether planning was updated in place, newly generated,
-read-only, or unchanged. End with:
+no-change result, applied product maintenance when authorized, and evidence
+limitations. Distinguish evidence from hypotheses, and applied changes from
+proposals and unresolved choices. State whether planning was updated in place,
+newly generated, read-only, or unchanged. End with:
 
 `## EXECUTION RETROSPECTIVE COMPLETE`
 

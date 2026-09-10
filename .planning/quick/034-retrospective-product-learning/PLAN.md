@@ -179,7 +179,7 @@ requirement, or recursive retrospective. Evidence:
 
 ### 4. Apply product maintenance within established authority
 Type: Behavior
-Status: planned
+Status: done
 Proof: The authorized version of a product-learning case changes only the intended
 queue/story data; its unauthorized counterpart remains a concrete proposal.
 
@@ -201,6 +201,13 @@ Run the case against disposable artifacts with and without authority. Inspect
 exact destination diffs, stable links, preserved direction and active contracts,
 and absence of automatic implementation. Do not mutate the real product backlog
 merely to demonstrate the capability.
+
+Outcome: done. Read-only rule now allows correction planning and authorized
+product maintenance; `dough-product-backlog` loads only when applying. Authorized
+fixture: added SEED-C, queue-removed charts with SEED-A kept, SEED-B detail
+updated, direction and active plan preserved. Unauthorized copy unchanged.
+Disputed fixture unresolved. Real backlog not written. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-4/`.
 
 ### 5. Finish enabled reviews after implementation correction planning
 Type: Behavior
