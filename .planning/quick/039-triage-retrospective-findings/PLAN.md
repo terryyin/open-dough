@@ -135,16 +135,17 @@ Safe stop: The selected work has a durable home without downstream refinement.
 
 ### 4. Recognize retained findings with existing follow-up
 Type: Behavior
-Status: planned
+Status: done
+Proof: Identical rereview of linked `ODF-901` surfaced queued Follow-up and the
+matching Backlog list line; findings, seed, and backlog stayed byte-identical.
+New evidence changed proposal text without a second queue, Follow-up, or
+occurrence row. Taken variant surfaced Taken follow-up and still refused a
+duplicate. Real log and catalog stayed byte-identical.
+Evidence: [evidence/slice-4/WALKTHROUGH.md](evidence/slice-4/WALKTHROUGH.md).
 
 Behavior: Given the linked result and a later triage request, surface existing
 queued or Taken follow-up and relevant new evidence without duplicating the
 story, seed, queue reference, or disposition. Retain the existing disposition and finding evidence.
-
-Proof: Revisit the accepted fixture in one follow-up-aware walkthrough. Check
-existing links remain usable, occurrence history remains intact, and rereview
-alone is byte-identical.
-New evidence may change the proposal, but does not authorize another queued fix.
 
 Safe stop: Repeated review surfaces existing work without duplicate commitments.
 
@@ -219,9 +220,10 @@ Retain plan and evidence for retrospective and story wrap-up.
   `evidence/slice-1/`.
 - Slice 2 `1d05077`: selected-proposal queue path; evidence under
   `evidence/slice-2/`. Missing writable finding location is a pre-edit stop.
-- Slice 3 delivered in this wrap-up: allocate a minimal canonical seed when none
-  is suitable, then the same linked queued outcome; evidence under
-  `evidence/slice-3/`.
+- Slice 3 `3045f72`: allocate a minimal canonical seed when none is suitable;
+  evidence under `evidence/slice-3/`.
+- Slice 4 delivered in this wrap-up: rereview surfaces existing queued or Taken
+  follow-up without duplication; evidence under `evidence/slice-4/`.
 - Branch: `worktree-quick-039-triage-retrospective-findings`.
 - CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
   Started from the main-checkout skill scripts so Cursor hooks bind the
@@ -229,7 +231,7 @@ Retain plan and evidence for retrospective and story wrap-up.
 
 ## Learnings
 
-None that change remaining slices. Slice 4 must surface existing queued or Taken
-follow-up on rereview without duplicating story, seed, queue, or disposition.
-Slice 5 still owns recording deferral / evidence-request / no-change without a
-queue item. Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.
+None that change remaining slices. Slice 5 must record an explicit developer
+deferral, evidence request, or no-change on the supplied finding without
+creating backlog work or deleting evidence. Use one concise disposition rule.
+Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.

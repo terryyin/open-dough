@@ -4,10 +4,12 @@ description: >-
   Recommend an ordered, evidence-linked follow-up proposal for reconciled Open Dough
   process findings, and when a developer selects a proposal, record one evaluable
   story in a suitable existing seed or a newly created canonical seed, queue its
-  canonical reference, and link the retained finding. Use when a maintainer asks
-  to triage findings, prioritize process findings, recommend finding follow-up,
-  queue a selected finding response, or turn a selected retrospective finding into
-  backlog work.
+  canonical reference, and link the retained finding. On later triage or rereview,
+  surface existing queued or Taken follow-up with usable story and queue links
+  instead of duplicating it. Use when a maintainer asks to triage findings,
+  prioritize process findings, recommend finding follow-up, rereview already-linked
+  findings, queue a selected finding response, or turn a selected retrospective
+  finding into backlog work.
 ---
 
 # Triage retrospective findings
@@ -20,7 +22,8 @@ create a second procedure under `src/skills/`.
 One skill, two invocation modes. Ranking is always the first step. Persistent
 writes run only after the developer **selects** a proposal for queued follow-up
 and supplies the write destinations below. Do not treat a ranking request as
-authorization to edit.
+authorization to edit. If the finding already records queued or Taken follow-up,
+follow [Rereview existing follow-up](#rereview-existing-follow-up).
 
 Identity ownership stays with
 [reconcile-finding-names](../reconcile-finding-names/SKILL.md). This skill does
@@ -30,16 +33,18 @@ not allocate, rename, or collect catalog identities.
 
 Use when a maintainer asks to triage, prioritize, or recommend follow-up for
 already recorded process findings, or to produce an ordered proposal from
-supplied accumulated evidence. Use the same skill when the developer then
-selects a proposal to queue into a suitable existing seed or, when none is
-suitable, a newly created canonical seed.
+supplied accumulated evidence. Use the same skill for a later triage or
+rereview of findings that already record queued or Taken follow-up; follow
+[Rereview existing follow-up](#rereview-existing-follow-up). Use the same
+skill when the developer then selects a proposal to queue into a suitable
+existing seed or, when none is suitable, a newly created canonical seed.
 
 Do not use this skill to allocate `ODF-NNN` codes, rename findings, collect or
-count occurrences into a catalog, fetch other projects, or record a deferral,
-evidence request, or no-change disposition without queueing. Ranking may still
-*recommend* those non-queue dispositions. Do not invent those writes, and do
-not add a rule that would force a second story, a new seed, or a queued item
-for those choices.
+count occurrences into a catalog or into the findings file, fetch other
+projects, or record a deferral, evidence request, or no-change disposition
+without queueing. Ranking may still *recommend* those non-queue dispositions.
+Do not invent those writes, and do not add a rule that would force a second
+story, a new seed, or a queued item for those choices.
 
 Create a seed only on the selected-proposal path, and only when the supplied
 canonical seed directory has no suitable existing seed. Do not create a seed
@@ -73,7 +78,8 @@ reading for ranking. Recommendation-only invocations must leave those bytes
 identical. Selected-proposal writes may change only the write destinations
 listed below; they still must not change the naming catalog or real
 `DearDough.md` unless that path was the explicitly supplied writable finding
-location.
+location. Rereview preservation of finding, seed, and backlog is under
+[Rereview existing follow-up](#rereview-existing-follow-up).
 
 Stop usefully when ranking input is missing or unusable:
 
@@ -96,7 +102,12 @@ Stop usefully when ranking input is missing or unusable:
 When the developer has **not** selected a proposal, stop after the proposal.
 Make no queue, seed, finding, catalog, or backlog edit.
 
-When the developer **selects** a proposal for queued follow-up, also require:
+When the developer **selects** a proposal for queued follow-up on a finding
+that already records queued or Taken follow-up, do not enter this write path;
+see [Rereview existing follow-up](#rereview-existing-follow-up).
+
+When the developer **selects** a proposal for queued follow-up on a finding
+without existing follow-up, also require:
 
 3. **Writable finding location** — an explicitly supplied path to the finding
    record that may receive the reciprocal story link and queued-follow-up
@@ -130,6 +141,12 @@ Identify each interpretable issue from the supplied evidence only.
 - Distinguish **observed effect** (what the record shows) from **inference**
   (qualified cause, cost, or speculation). Rank from observed impact; keep
   inference visible and qualified.
+- **Existing follow-up.** Read a Follow-up line (or the file's equivalent
+  human-note convention) that names queued or Taken work and links a story.
+  When a backlog path is supplied, resolve the matching **Backlog list** or
+  **Taken** line so the proposal can cite a usable queue link. A story link on
+  the finding is still existing follow-up even if the backlog file was not
+  supplied.
 - Do not import occurrence rows, counts, or execution history into the naming
   catalog.
 
@@ -161,6 +178,9 @@ change**. Recommend that disposition in the proposal. Do not invent a fix,
 recurrence count, or cause to make the finding actionable. Do not queue or
 write those non-queue dispositions.
 
+When a ranked finding already has queued or Taken follow-up, recommend
+retaining that work per [Rereview existing follow-up](#rereview-existing-follow-up).
+
 Keep original findings preserved during ranking. After a recommendation-only
 proposal, supplied evidence (and any supplied direction file) must be
 byte-identical to the pre-read checksums.
@@ -177,12 +197,52 @@ Include, for each ranked finding:
 - direction alignment, or that alignment is unassessed
 - why it sits at this position relative to its neighbors
 - recommended next step as advice until the developer selects it
+- existing Follow-up when present: queued or Taken, with the story link and the
+  canonical **Backlog list** or **Taken** line when the supplied backlog
+  contains it; state that another queued fix is not authorized
 
 Surface unidentified findings, empty evidence, and other stops as limitations,
 not as ranked invented items.
 
 When this invocation is recommendation-only, state that it does not authorize
 queueing, seed creation, disposition recording, or finding edits.
+
+## Rereview existing follow-up
+
+Use this path whenever ranking (or a later selection) sees queued or Taken
+follow-up already recorded on the finding. Taken is the same work as queued:
+the canonical home is already linked.
+
+1. **Surface the existing work** in the proposal. Cite the Follow-up
+   disposition, the story link (seed path and stable anchor), and the matching
+   **Backlog list** or **Taken** line when the supplied backlog contains it.
+   Those links must be usable: a later reader can open the story and the queue
+   entry from the proposal.
+2. **Do not duplicate.** Do not create another story, seed, queue reference, or
+   Follow-up disposition. Do not rewrite, move, or delete the existing
+   Follow-up. Do not start refinement, planning, or implementation.
+3. **Same evidence.** Rereview with the same accumulated evidence leaves the
+   finding record, destination seed, and backlog byte-identical to the
+   pre-read checksums.
+4. **New evidence.** The invocation may supply additional observed impact or
+   another execution supporting the same finding. Mention it in the proposal
+   (order, confidence, or newly observed impact may change). Do not treat it as
+   authorization for another queued fix. Retain the existing disposition.
+   Preserve existing occurrence rows. This skill is not the occurrence
+   collector: do not add occurrence rows here even when the process-log rules
+   would add a distinct-execution row. Prefer mentioning the new evidence in
+   the proposal. Do not delete evidence. If the supplied evidence file already
+   contains additional rows recorded elsewhere, count those rows as usual and
+   still do not add a second follow-up.
+5. **Selection is not a second write.** If the developer selects that already-
+   linked finding again for queued follow-up, stop before any edit, surface the
+   existing work, and make no write.
+6. **Findings without follow-up.** Ranking and, when selected, the queue path
+   below still apply. Do not skip a finding that has no Follow-up merely
+   because a sibling already has one.
+
+Do not use this path to record deferral, evidence request, or no-change. Those
+writes remain a later non-queue disposition; ranking may still recommend them.
 
 ## Queue a selected response
 
@@ -232,9 +292,9 @@ Check every destination before changing any file:
 - The story would be evaluable: a named beneficiary and an evaluable outcome
   can be stated from the selected proposal. If either is missing, stop rather
   than invoking decomposition, refinement, or slice planning to fabricate them.
-
-A finding that already records queued or Taken follow-up is left for later
-rereview; do not add a second story, queue line, or disposition.
+- The selected finding does **not** already record queued or Taken follow-up.
+  If it does, stop before any edit and follow
+  [Rereview existing follow-up](#rereview-existing-follow-up).
 
 ### Create a minimal canonical seed
 
@@ -313,6 +373,8 @@ stop: invent no path, and do not claim queue or finding writes complete.
 - Do not force unrelated follow-up into an unsuitable existing seed.
 - Do not claim a queued, seeded, or dispositioned outcome from a
   recommendation-only invocation.
+- Do not add a second follow-up or occurrence row when
+  [Rereview existing follow-up](#rereview-existing-follow-up) applies.
 - Do not claim a fully linked outcome when the reciprocal finding update was
   blocked or failed, or when seed conventions could not be resolved.
 - Do not generate a slice plan or implement the proposed fix.
