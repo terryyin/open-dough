@@ -17,14 +17,16 @@ review their combined outcome. By default, cover implementation, process, and
 product learning. Leave the project with evidence and, only when needed, a
 plan for bounded corrections. Do not implement, commit, or push those
 corrections. A retrospective authorizes product recommendations; it does not grant
-backlog-write authority.
+backlog-write authority. Leave the completed plan and routine
+completion or backlog actions for
+[dough-story-wrap-up](../dough-story-wrap-up/SKILL.md).
 
 ## Select reviews
 
 Ordinary invocation considers implementation, process, and product review.
 `--skip-process` omits process analysis and recording, including any
 `DearDough.md` write when that destination exists. `--skip-product` omits
-product analysis, suggestions, and edits. Both flags may be supplied together.
+product analysis and suggestions. Both flags may be supplied together.
 Neither skips implementation review or its correction planning.
 
 Choose the enabled set before loading focus-specific context or acting on that
@@ -66,9 +68,8 @@ that review needs them. Do not invent a direction, backlog, or seed location.
 If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
 Return retrospective evidence in the response; do not create a separate artifact
-unless the user asks. Keep the repository read-only except for the process log,
-an allowed plan update described below, and authorized product maintenance
-described in product review.
+unless the user asks. Keep the repository read-only except for the process log
+and an allowed plan update described below.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
 refactor checks before assessing refactoring residue; apply its smell definitions
@@ -76,7 +77,7 @@ to the aggregate result without running its editing workflow. Read
 [dough-slice-planning](../dough-slice-planning/SKILL.md) only when unresolved
 findings need planning, then follow its story, proof, sizing, and destination
 gates. Read [dough-product-backlog](../dough-product-backlog/SKILL.md) only when
-product review is enabled and applying authorized product maintenance.
+product review is enabled and recommendations depend on those conventions.
 
 ## Recover one execution
 
@@ -317,20 +318,15 @@ If backlog or story conventions cannot be resolved, keep product conclusions
 provisional, identify that gap, and do not invent files. Independent supported
 implementation and enabled process review still proceed.
 
-Apply backlog or canonical-story edits only when session or project authority
-already permits that maintenance. Then follow
-[dough-product-backlog](../dough-product-backlog/SKILL.md). Do not ask for another
-permission. A skip option is never write authority.
-
-Apply only justified compatible changes: reorder, queue membership, understood
-new-story addition, and canonical detail. A new queued story needs a named
-beneficiary and an evaluable outcome. Removing a story from the queue does not
-delete its canonical definition or cancel active execution. Preserve unrelated
-order, content, valid links, and near-future direction.
+Do not apply backlog or canonical-story edits during retrospective. Report
+recommendations, remaining proposals, and unresolved choices for
+[dough-story-wrap-up](../dough-story-wrap-up/SKILL.md). Standalone
+[dough-product-backlog](../dough-product-backlog/SKILL.md) maintenance remains
+available when a human requests it separately. A skip option is never write
+authority.
 
 Leave unresolved: a disputed goal or scope, conflicting explicit priorities, and
-ideas whose beneficiary or outcome is unknown. Report applied changes, remaining
-proposals, and unresolved choices distinctly. Do not implement product or
+ideas whose beneficiary or outcome is unknown. Do not implement product or
 implementation findings.
 
 ## Report
@@ -339,9 +335,9 @@ Report the resolved story and completion state, provenance, included commit
 manifest and review boundary, findings ordered by impact or `none`, planning
 result, and evidence limitations. Include supported process proposals only for
 enabled process review. Include product recommendations or a reasoned no-change
-result, and applied product maintenance when authorized, only for enabled
-product review. Omit skipped-focus analysis, suggestions, and destination
-writes. Distinguish evidence from hypotheses, and applied changes from
+result only for enabled product review; do not report backlog writes from this
+skill. Omit skipped-focus analysis, suggestions, and destination
+writes. Distinguish evidence from hypotheses, and recommendations from
 proposals and unresolved choices. State whether planning was updated in place,
 newly generated, read-only, or unchanged. End with:
 

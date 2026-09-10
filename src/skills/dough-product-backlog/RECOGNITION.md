@@ -28,18 +28,19 @@ the most important input for story scope, including decomposition and refinement
 Add or change direction only on explicit human instruction; leave it absent
 if missing. Entries contain exact linked story titles and seed IDs. Human priorities, direction,
 value, learning, and prerequisites guide ordering, with urgent exceptions.
-Each story has one canonical section within a seed. Evidence-backed completions move to a
-newest-first history capped at ten.
-Completed items whose seeds were removed retain only their plain-text titles;
-definitions remain recoverable through Git history.
-Maintenance does not authorize execution, commit, or push.
+Each story has one canonical section within a seed. Completed-story closure
+belongs to dough-story-wrap-up rather than a recently-done history list.
+Standalone queue maintenance may drop a completed item from the active list
+without creating a tombstone. Maintenance does not authorize execution, commit,
+or push.
 
 ## Client project context
 
 Repository root, backlog path, seed locations and IDs, stable link
 conventions, relevant decomposition/refinement/slice-planning workflows, and
 commit conventions when applicable replace source-specific paths and names.
-The ordered-reference format and ten-item history remain part of the behavior.
+The ordered-reference format remains part of the behavior. Finished-list
+retention does not.
 
 ## Differences that rule out replacement
 

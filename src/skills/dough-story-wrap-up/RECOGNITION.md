@@ -105,3 +105,12 @@ Walked product-review application on 2026-09-10.
 Advice reordered SLO above audit; human correction kept audit above SLO;
 a named new story was added; an unresolved split was reported without a
 guess. Follow-up stayed first. Empty review asked nothing.
+
+## Slice 5 local behavior evidence
+
+Walked execution → retrospective → wrap-up handoffs on 2026-09-10.
+[evidence/slice-5/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-5/WALKTHROUGH.md).
+
+Execute-plan and planning cleanup keep the plan. Retrospective recommends
+without backlog writes. Wrap-up owns closure. Standalone backlog maintenance
+remains.

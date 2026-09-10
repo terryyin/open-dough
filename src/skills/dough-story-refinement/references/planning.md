@@ -139,11 +139,10 @@ external-wait exception that decomposition cannot reduce.
 
 Keep enduring behavior in tests and product documentation, and enduring design
 in code and ADRs. Once that knowledge is captured, reduce each implemented
-story's refinement detail to Goal and Scope, including exclusions. Remove spent
-examples, UI sketches, and architectural discussion; preserve its anchor,
-completion status, and unfinished siblings. Retain still-needed detail until
-the enduring knowledge has a home.
+story's refinement detail to Goal and Scope, including exclusions, while the
+plan and review evidence still exist. Retain unfinished siblings.
 
-When the executable plan completes, remove spent diary and obsolete summary
-detail according to this project's lifecycle. Preserve unfinished scope and any
-evidence still needed for resume or review.
+When the executable plan completes, keep the plan and review inputs for
+retrospective and [dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md).
+Do not delete spent story or plan history, create a completion record, or
+trim review inputs here. Wrap-up owns that closure.
