@@ -250,11 +250,31 @@ total. Record one-off costs, useful practices, potentially general problems,
 and supported observations about this retrospective without claiming recurrence
 or generality the evidence does not establish.
 
-Until recurring-log maintenance is available, if the canonical log already
-exists, leave it unchanged. Return the supported findings and an interim
-limitation instead of overwriting it, appending an unverified duplicate, or
-claiming a successful write. Likewise, if creating the new log fails, report
-recording as unsuccessful while completing other supported reviews.
+When the canonical log exists, maintain it only when its issue headings,
+descriptions, and occurrence rows are interpretable enough to identify the
+affected issue, execution, and next unused local ID. Preserve existing IDs,
+human notes, prior evidence, unrelated entries, and all content outside the
+smallest supported edit. Do not migrate, normalize, reorder, delete, or
+automatically merge existing content.
+
+Match an existing issue only when decisive evidence supports the same concrete
+process problem or useful practice; similar wording or symptoms do not establish
+that match. If the relationship is uncertain but the log itself is interpretable,
+create a separate issue with the next unused `DD-NNN` ID and briefly state the
+matching uncertainty. Never change another issue's ID to fill a gap.
+
+Within a matched issue, treat equal execution identities as one occurrence. An
+identical rereview makes no edit. Add only newly available decisive evidence or
+a corrected qualified conclusion to that existing row, without discarding its
+prior evidence or human notes. Evidence of the same concrete issue in a distinct
+execution adds one occurrence row. A second symptom in the same execution does
+not add a row. Keep rows as the count; do not store or update a total.
+
+If malformed or ambiguous content prevents safe identification of entries,
+executions, or the next unused ID, leave the entire existing file byte-identical
+and report a recording limitation. Do the same when a write fails. Return the
+supported findings and continue other independently supported reviews; never
+describe either case as a successful write.
 
 In the final response, give a concise recording result: the canonical path and
 created issue IDs with occurrence rows, or `unchanged`/`not recorded` and the

@@ -37,9 +37,12 @@ without unauthorized backlog writes.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
 - Records supported process findings in one project-local `DearDough.md` with
-  stable issue and execution identities. Process skip, no findings, unresolved
-  identity or location, an existing-log interim refusal, and write failure do
-  not become successful writes or suppress independent reviews.
+  stable issue and execution identities. Interpretable logs retain IDs, notes,
+  evidence, and unrelated entries while same-execution rereview stays one row;
+  distinct proven recurrence adds a row and uncertain matching stays separate.
+  Process skip, no findings, unresolved identity or location, ambiguous content,
+  and write failure do not become successful writes or suppress independent
+  reviews.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -165,3 +168,16 @@ existing-log, and failed-write variants created no false success and preserved
 their destinations. Product skipping did not suppress the enabled process write.
 This is local behavior review of the Proposed source, not native cross-tool
 acceptance or release evidence.
+
+## Quick 036 Slice 2 local behavior evidence
+
+Walked recurring-log maintenance on 2026-09-10.
+[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/036-record-retrospective-process-findings/evidence/slice-2/WALKTHROUGH.md).
+
+The Slice 1 `DD-001` log was augmented with a human note and unrelated `DD-002`
+entry. An identical rereview made no edit; new decisive evidence enriched the
+original execution without adding a row; a distinct matching execution added a
+second row. Similar but unproven symptoms became caveated `DD-003`. Existing IDs,
+notes, evidence, and unrelated content remained intact. A malformed variation
+stayed byte-identical with a recording limitation. This is local behavior review
+of the Proposed source, not native cross-tool acceptance or release evidence.
