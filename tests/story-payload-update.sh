@@ -56,6 +56,7 @@ for platform in codex cursor claude; do
       sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${target}/${root}/${managed_file}" > "${temporary_dir}/links"
       while IFS= read -r link; do
         link=${link%%#*}
+        [[ -n "${link}" ]] || continue
         [[ -f "${target}/${root}/${managed_file%/*}/${link}" ]]
       done < "${temporary_dir}/links"
     done
