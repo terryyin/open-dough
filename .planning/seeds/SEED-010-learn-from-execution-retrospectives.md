@@ -372,225 +372,37 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ### 6. Turn execution learning into product backlog decisions
 
-**Status:** Refined on 2026-09-10; selected as the top-priority product backlog
-story. Scope and authority decisions are settled.
-**Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md); all
-slices planned, no implementation performed.
+**Status:** Source complete 2026-09-10. Proposed skill in
+`src/skills/dough-execution-retrospective/`; not released. Story 2 owns
+release/adoption.
+**Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md);
+all six slices done. Local behavior evidence is in that plan's `evidence/`
+and the skill's `RECOGNITION.md`.
 
 **Goal:** The developer or product owner of the executing project can use
 what development revealed to decide what to build next and keep product direction,
 priorities, and story details consistent with that learning.
 
 **Scope:** Add product review to the retrospective alongside implementation
-review (features, bugs, code, and design) and process review. Summarize
-consequential learning, experience, ideas, and
-inspirations from developing and executing the plan. Connect them to the current
-established near-future direction, including evidence
-that supports keeping the current course. Distinguish observed learning from
-new hypotheses or inspirations that still need exploration.
-
-Read the project's near-future direction for every enabled review. Inspect the
-queue and other canonical stories only when relevant to the execution, a finding,
-or a proposed change. Recommend or directly
-apply justified priority changes, new story proposals, removal from the queue,
-and changes to story details. Use the project's story and backlog workflows to
-keep one canonical story definition and valid references. Explain each change
-through its product value or learning opportunity; do not require every review
-to produce a change. Preserve unrelated work and make applied changes, proposals,
-and unresolved choices explicit. Do not propose or apply changes to near-future
-direction; assess the work and priorities against its existing text.
-A review authorized to maintain the backlog can apply compatible item changes
-without inventing another approval gate. New product ideas do not authorize
-implementation or silently rewrite the completed execution's original contract.
-
-Treat near-future direction as a high-priority lens across all enabled reviews:
-
-- Implementation review questions whether delivered features, bug fixes, code,
-  and design advance the direction or represent justified exceptions. Correct
-  defects within the original contract through existing correction planning;
-  surface direction-driven scope changes for a human decision.
-- Process review questions whether the way work was selected, planned, executed,
-  and reviewed served the direction or caused avoidable digression. Explain
-  supported corrective process recommendations without automatically editing
-  guidance or adding them to an implementation correction plan. Include token
-  efficiency as a process focus: concise instructions and context organized for
-  easy consumption, with evidence of avoidable repetition or recovery effort.
-  This includes the retrospective itself and does not require token metrics.
-- Product review questions whether learned needs and proposed priorities advance
-  the direction, and recommends or applies authorized product corrections.
-
-Question apparent alignment as well as digression; do not merely assert that the
-work fits. A justified urgent fix can take priority without changing direction.
-Distinguish the original approved execution contract from today's direction:
-a later change in direction does not retroactively make approved work a defect.
-An unsupported deviation needs a corrective recommendation or authorized change,
-not only a label. A needed decision outside existing authority remains explicit.
-With product review skipped, implementation and enabled process review still
-consider direction, but do not produce product backlog proposals or edits.
-
-Make process and product review default-on. Support `--skip-process` and
-`--skip-product` independently and together. Process recording, when available,
-is included in the process skip. Product suggestions and backlog writes are
-included in the product skip. Implementation review and its existing conditional
-correction-planning behavior continue in all four combinations.
+review and process review. Connect supported learning to the established
+near-future direction. Recommend or apply authorized backlog maintenance;
+do not implement findings or change direction. Process and product review are
+default-on with independent `--skip-process` and `--skip-product`. Complete
+all enabled reviews even after implementation correction planning.
 
 **Material exclusions:** No process-log format or writing, internal mailbox
 consumer, cross-project collection, new retrospective workflow, automatic
 implementation, or release/adoption work. Removing a story from the queue does
-not delete its canonical definition or cancel active execution. A direction
-proposal does not authorize the broad WIP cleanup performed under SEED-009.
-No standalone product report or full-backlog audit is required. Proposing or
+not delete its canonical definition or cancel active execution. Proposing or
 applying a near-future direction adjustment is entirely outside this story.
+Cross-tool verification was skipped for this story at the human's direction.
 
-**Authority boundary:** Follow the executing project's established authority.
-Preserve near-future direction exactly; no adjustment proposal belongs in this
-retrospective. Existing
-priority instructions also prevail. Within authorization to maintain the backlog,
-compatible item maintenance may change order, queue membership, and canonical
-story detail without another approval step. A new story needs a beneficiary and
-evaluable outcome; an unresolved idea goes through decomposition before queueing.
-A disputed goal or scope change remains a proposal for human discussion. Preserve
-active-plan consistency through the project's workflow; do not silently rewrite
-an executing or completed story's contract. This refinement authorizes none of
-those retrospective backlog mutations itself.
-
-**Agreed review behavior:**
-
-- A bare retrospective invocation enables product analysis and concrete
-  recommendations. Backlog writes require authority established in the session
-  or project workflow; the skip flags select reviews and do not grant authority.
-  When authority is absent, return a reviewable proposal without a mandatory
-  approval ceremony.
-- Resolve near-future direction for all enabled reviews. Inspect the queue and
-  other stories only when the execution or its learning makes them relevant;
-  avoid reconstructing the entire product history.
-- If direction is absent, state that alignment cannot be assessed against an
-  established direction; do not invent one. Continue supported review against
-  the execution contract. If backlog or story conventions cannot be resolved,
-  report the missing context and keep product conclusions provisional. Continue the enabled reviews
-  whose context is available; do not invent a backlog or seed location.
-- Complete all enabled review focuses even when implementation review creates or
-  amends a correction plan. The existing stop-after-planning rule should prevent
-  further planning refinement or execution, without suppressing product or
-  process review. Likewise, the existing read-only rule needs a narrow allowance
-  for authorized backlog and canonical-story maintenance.
-- Product observations can come from the recovered story and execution result.
-  Claims about developer experience or process need the actual conversation or
-  transcript. Missing evidence means an explicit limitation, not confirmation
-  that the current priorities are correct.
-
-**Key examples:**
-
-- Given execution reveals a simpler way to meet the user's need, product review
-  explains that learning and proposes or applies a higher priority for the
-  smaller outcome and removal or revision of the now-unnecessary queued story.
-- Given development inspires an adjacent capability without validating demand,
-  product review labels it as a hypothesis and proposes exploration or a new
-  candidate story rather than presenting the idea as an established requirement.
-- Given learning reveals digression from near-future direction, review proposes
-  or applies an authorized correction to the work or priorities against that
-  direction; it neither proposes a new direction nor edits the existing one.
-- Given an ordinary retrospective invocation, all three focuses are considered.
-  With either skip option only that focus is omitted; with both options only
-  implementation review remains. `--skip-process` causes no `DearDough.md` write;
-  `--skip-product` causes no product backlog suggestions or edits.
-- Given sufficient evidence supports no product change, review states why the
-  reviewed direction and relevant priorities remain appropriate, without claiming
-  to validate uninspected queue items. Missing execution evidence limits the
-  conclusions rather than prompting invented learning.
-- Given only a retrospective request with no backlog-maintenance authority,
-  when evidence suggests a priority change, return the exact affected story,
-  proposed change, and rationale; leave the queue unchanged. With established
-  maintenance authority, apply the compatible change and report it as applied.
-- Given the backlog is missing or two seed locations remain ambiguous, when
-  product review reaches a proposed story edit, identify the missing input and
-  leave files unchanged; the independently supported implementation and process
-  reviews still complete.
-- Given implementation review needs a bounded correction plan and product review
-  identifies a separate opportunity, when both are enabled, report both with
-  their distinct destinations; creating the correction plan neither queues the
-  opportunity automatically nor ends the other enabled reviews.
-- Given an isolated urgent bug fix with no connection to other queued stories,
-  assess its justification against direction in each enabled review and inspect
-  its own contract and evidence; do not inspect the queue or unrelated stories.
-- Given an implementation addition and an expensive review routine appear
-  unrelated to direction, question both. Route a supported contract defect to
-  correction planning and supported process waste to a process recommendation;
-  ask for a scope decision if removing approved behavior would change the story.
-  With `--skip-product`, these reviews still run without backlog suggestions.
-- Representative execution candidate: [register CI observation host hooks](SEED-001-install-and-update-open-dough.md#register-ci-host-hooks-consistently)
-  (SEED-001, Story 8; Quick 031) delivered install/update behavior in v0.3.4.
-  Review whether reproducible setup advances usable lifecycle guidance, whether
-  the execution process served that outcome, and whether supported learning
-  warrants a product recommendation. Recover the plan and related commits before
-  drawing conclusions; this is a candidate, not completed acceptance evidence.
-
-**Evaluation:** Use one real execution and the executing project's current
-backlog. The product owner can trace a consequential observation or inspiration
-to a concrete backlog recommendation or authorized change, assess the rationale,
-and distinguish evidence from hypotheses. Check valid story references and the
-separation between product decisions, corrective planning, and process feedback.
-Verify direction is considered in every enabled focus, including when product
-review is skipped, and the isolated urgent-fix case avoids unrelated queue
-investigation. Use representative cases for the four review-selection
-combinations; no skipped focus performs its review or writes its destination. Conduct the normal skill
-behavior review. At the human's direction on 2026-09-10, cross-tool verification
-is skipped for this story: no per-host runs, coverage matrix, or evidence-reuse
-audit is a completion requirement. Keep the focused local behavior review.
-Story 2 retains release acceptance/adoption ownership.
-
-**Accepted naming and representative candidate:**
-
-- Use **implementation review**, **process review**, and **product review** as
-  the three focus names. The first includes features, bugs, code, and design.
-  The user accepted these names during refinement.
-- The user accepted Quick 031's completed feature execution as the candidate.
-  Its seed records release/adoption, and Git history contains feature commits
-  for initial registration, settings merging, update registration, and repair.
-  Confirm the recovered evidence supports a useful review during acceptance;
-  do not require a backlog mutation or manufacture an insight. Use bounded cases
-  for authority, missing context, direction alignment, and skip-option boundaries.
-
-**Settled scope boundaries:**
-
-- Identify new hypotheses and propose concrete exploration when beneficiary or
-  outcome is unresolved; do not run full discovery or decomposition within the
-  retrospective. Authorized maintenance of understood stories remains included.
-- Keep near-future direction unchanged. Question alignment and digression of
-  work against it; neither propose nor apply direction adjustments.
-- Review process efficiency through evidence-backed observations and actionable
-  recommendations. Exclude token instrumentation, automatic context
-  reorganization, and guidance rewrites. DearDough.md writing remains Story 1.
-
-The four selection results are already decided: ordinary invocation considers
-all three focuses; `--skip-process` leaves implementation and product;
-`--skip-product` leaves implementation and process; both leave implementation only.
-No further decision on these defaults or on DearDough.md is needed for this story.
-
-**Value / learning:** Test whether explicit product reflection changes or
-confirms what is worth building next, beyond checking whether the plan was
-implemented well. This is the user's highest priority and works before durable
-process logging or internal mailbox consumption exists.
-
-**Effort hypothesis:** Band pending project S/M/L definitions. Main uncertainty
-is turning execution learning into appropriately bounded product decisions while
-preserving project authority and keeping the retrospective economical.
-
-**Depends on:** No new product prerequisite. Extend the existing retrospective
-and use the executing project's backlog/story conventions. Process review can
-remain conversational until Story 1 adds its durable destination.
-
-**Safe stopping point:** A project can improve its product decisions from each
-retrospective even if later process stories are cancelled. Existing code/design
-and process review remain usable; unsupported ideas stay proposals and no
-implementation follows automatically. Public release still needs its acceptance
-and ordinary release workflow.
 
 ## Ordering and Scope Reduction
 
-Place Story 6 first in the product backlog by explicit user direction. Keep
-Stories 1, 2, and 3 selected and preserve the relative order of all existing
-backlog entries, including the workflow-boundary fix. Story numbers are stable
+Story 6 source work is complete. Keep Stories 1, 2, and 3 selected and preserve
+the relative order of remaining backlog entries, including the workflow-boundary
+fix. Story numbers are stable
 references, not priority ranks. Within the process feedback work, local capture
 gives the earliest value and learning; public
 release/adoption advances reusable lifecycle coverage before adding maintainer
@@ -604,9 +416,8 @@ Bring Story 4 forward if a real response and comparable later execution provide
 an immediate learning opportunity; do not wait for an internal skill solely for
 workflow completeness.
 
-These are outcome boundaries, not slices or an executable plan. Story 6 is
-refined with accepted authority and direction-alignment scope; the other
-selected stories still need refinement before slice planning. No estimate distribution
+These are outcome boundaries, not slices or an executable plan. Story 6 source
+work is complete; Stories 1–3 still need refinement before slice planning. No estimate distribution
 is claimed: repository S/M/L definitions were not found, so bands remain pending
 rather than carrying forward the original oversized story's unsupported L label.
 
@@ -618,13 +429,11 @@ refinement must settle the canonical `DearDough.md` location, minimal format,
 occurrence boundary, and conservative issue-matching rules. Later evidence will
 inform filtering, response dispositions, retention, and cross-project identity;
 these are not prerequisites for choosing the local process increment. Story 6
-now records representative examples, accepted default authority, and direction
-alignment across all three reviews. Its candidate execution still needs evidence
-recovery during acceptance; that is not an unresolved product decision.
+source work is complete; release/adoption remains Story 2.
 
 ## When to Surface
 
-Story 6 has an executable plan (Quick 034); execute when requested.
+Story 6 source work is complete (Quick 034); Story 2 owns release/adoption.
 Refine Story 1 before adding process logging;
 complete the applicable acceptance before promoting or releasing changes. Revisit internal
 consumption after local manual use; surface effectiveness tracking after a
