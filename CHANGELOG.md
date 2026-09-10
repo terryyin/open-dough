@@ -1,3 +1,11 @@
+## 0.3.8 - 2026-09-10
+
+- Add a persistent **Taken** section to the product backlog so work whose execution has started is distinct from the prioritized queue. Authorized execution moves the existing queued entry first; resume does not duplicate or reorder it, and work absent from both active lists is not fabricated.
+- Keep taken work visible through pauses, failures, plan completion, and retrospective. Story wrap-up removes the completed **Taken** entry with its other spent history, while standalone backlog maintenance can remove completed work from either active list when explicitly requested.
+- Complete repository wrap-up for the finding-name work by removing its spent Quick 040 plan, evidence, and obsolete process findings while retaining current product guidance and Git recovery.
+
+Native acceptance was explicitly skipped for the new **Taken** transition; existing native evidence does not prove that behavior. Native acceptance also remains pending for retrospective logging and the broader lifecycle-guidance requirements tracked by Story 2. This release proceeds under an explicit maintainer-approved exception for `0.3.8`; these checks remain pending and are not reported as passing.
+
 ## 0.3.7 - 2026-09-10
 
 - Support bounded, seedless retrospective corrections throughout planning, execution, backlog prioritization, retrospective review, and wrap-up. A correction plan can remain its canonical active home without an invented feature-story seed.
