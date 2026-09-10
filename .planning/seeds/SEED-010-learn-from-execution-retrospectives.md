@@ -187,41 +187,92 @@ No architectural exception or new ADR is proposed here.
 
 ### 1. Preserve recurring retrospective findings in DearDough.md
 
-**Status:** Selected for backlog; unrefined. The existing anchor is preserved.
+**Status:** Refined and execution-planned on 2026-09-10.
+**Plan:** [Quick 036](../quick/036-record-retrospective-process-findings/PLAN.md).
 
-**For / why:** A developer can revisit evidence-backed process observations and
-recognize repetition after the execution conversation is gone.
+**Goal:** A developer can revisit supported process findings after a retrospective
+conversation ends and recognize which issues occurred in distinct executions.
+This adds durable feedback to the existing lifecycle guidance with minimal overhead.
 
-**Scope:** Extend the public retrospective to produce its concise conversational
-result and write the canonical local log. Define enough format and identity rules
-to group an issue's distinct occurrences and count them. Include supported
-process findings about execution and the retrospective itself, including useful
-practices. Record both special costs and potentially general costs without
-premature filtering. Preserve existing product-review and correction-planning
-boundaries; process feedback does not become a product correction plan.
+**Scope:** Extend the existing retrospective to keep its concise response and
+write process findings to one local `DearDough.md`. Process review already owns
+observation quality, direction alignment, and token-efficiency considerations;
+reuse those rules. Record useful practices, one-off costs, potentially general
+costs, and supported observations about the retrospective itself. Keep product
+learning and implementation corrections in their existing destinations.
 
-**Evaluation:** In Open Dough, review a real execution record and inspect the
-resulting log. A developer can find the issue, decisive evidence, occurrence,
-and any qualified causal or cost inference. A distinct execution repeating the
-issue increases its occurrence count; reviewing the original again does not.
-If no second real occurrence is available, use a bounded representative case
-for the counting behavior and label it as such. A supported one-off cost is
-retained, and unsupported generalization is not presented as fact. The review's
-own observable waste can be recorded without launching another review.
+**Concrete defaults:** Use `<project-root>/DearDough.md` unless the project has
+explicitly established another canonical location for that filename. Do not
+search other repositories or invent an alternative log. Missing or conflicting
+location/identity evidence stops recording only; return the supported findings
+and the limitation. With `--skip-process`, do not read, create, or update the log.
+With no supported process finding, leave an existing log unchanged and do not
+create an empty one. `--skip-product` does not suppress process recording.
 
-**Value / learning:** Determine whether durable local observations make repetition
-recognizable without turning recording into another source of avoidable work.
-The smallest first use needs no internal consumer or cross-repository access.
+Use a small Markdown format: one heading with a stable local ID (`DD-001`, next
+unused number) and descriptive title per issue, a concise issue description, and
+an occurrence list. Each occurrence identifies its execution, decisive evidence,
+and observed effect; include qualified inference and consequential uncertainty
+only when needed. Count distinct occurrence rows instead of maintaining a second
+stored counter. Use references or compact locators, not transcript copies.
 
-**Effort hypothesis:** Band pending project S/M/L definitions. Main uncertainty
-is reliable issue matching and economical evidence review, not file writing.
+Reuse an execution identity already in the log. Otherwise identify it from its
+canonical plan/story and first related implementation commit; later commits or
+another review date do not create another execution. If there are no commits,
+use an available stable execution-record reference. Do not fabricate an identity
+from the current date or require a new tracking system. If identity cannot be
+established, report the finding without adding a countable occurrence.
 
-**Depends on:** No product prerequisite. Build on the Proposed retrospective.
+A repeat review of the same issue in the same execution keeps one occurrence;
+add only new decisive evidence or a corrected qualified conclusion in that row.
+A distinct execution with evidence of the same concrete issue adds one occurrence
+to its existing entry. Similar wording or symptoms alone do not establish a
+match: keep uncertain issues separate and explain uncertainty briefly. A second
+symptom in the same execution does not count as recurrence of that issue.
 
-**Safe stopping point:** Open Dough can manually read and act on a useful local
-log even if all later stories are cancelled. Do not claim source completion
-means public availability; Story 2 owns release acceptance. Existing evidence
-and unrelated project content are preserved.
+Preserve IDs, other entries, human notes, and evidence when updating. If existing
+content cannot be safely interpreted, leave it intact and report the recording
+problem; do not migrate, normalize, or replace it. Report an unsuccessful write
+as unsuccessful while completing independently supported reviews.
+
+**Key examples:**
+
+- A supported repeated-context-recovery observation produces one readable issue
+  with an execution identity, evidence, observed cost, and qualified explanation.
+- Reviewing that execution again leaves its occurrence count at one. New evidence
+  enriches the existing occurrence without duplicating it or erasing human notes.
+- A second execution demonstrates the same concrete issue: its entry now has two
+  occurrences. Similar symptoms with uncertain cause remain a separate issue.
+- A one-off cost or useful practice is retained without claiming generality.
+- `--skip-process` leaves the log unread and unchanged; no findings leaves no new
+  file. Product skipping still allows supported process recording.
+- An ambiguous existing log or failed write returns the finding and limitation,
+  preserves existing content, and does not suppress other enabled reviews.
+
+**Evaluation:** Focused local behavior walkthroughs inspect the actual Markdown
+and response for capture, rereview, and distinct recurrence. Reuse Quick 034's
+process evidence when adequate; label any supplied representative record clearly.
+Do not reconstruct a missing real transcript just to force a real occurrence.
+Cross-tool testing and acceptance are excluded by explicit human instruction:
+no native-host matrix, integration-reuse audit, or acceptance gate in this story.
+
+**Exclusions:** Release/adoption, cross-tool testing and acceptance, consumer
+skills, remote exchange, automatic responses or guidance edits, token measurement,
+a registry/database, general log migration, concurrency/locking infrastructure,
+causal inference engines, automatic issue merging, retention/pruning, and changes
+to near-future direction. Release/adoption remains Story 2; this refinement does
+not change that sibling's requirements.
+
+**Assumptions / open questions:** The defaults above keep this an ordinary
+Markdown-writing behavior in the executing project. No blocking product question
+remains. Location overrides and unavailable execution evidence are runtime inputs,
+not reasons to expand this story. No comparative S/M/L estimate is needed.
+
+**Depends on:** Existing retrospective process review, already implemented by
+Story 6. No logging service, release, or consumer prerequisite.
+
+**Safe stopping point:** A developer can read the local log and respond manually
+indefinitely. Source completion does not claim released or installed availability.
 
 <a id="use-released-retrospective-log"></a>
 
@@ -425,8 +476,8 @@ rather than carrying forward the original oversized story's unsupported L label.
 
 No unresolved product choice prevents the selected order. Project S/M/L effort
 bands must be supplied before comparative estimates are assigned. Story 1
-refinement must settle the canonical `DearDough.md` location, minimal format,
-occurrence boundary, and conservative issue-matching rules. Later evidence will
+now defines the local Markdown location, minimal format, occurrence identity,
+and conservative matching in its refined section. Later evidence will
 inform filtering, response dispositions, retention, and cross-project identity;
 these are not prerequisites for choosing the local process increment. Story 6
 source work is complete; release/adoption remains Story 2.
@@ -434,7 +485,7 @@ source work is complete; release/adoption remains Story 2.
 ## When to Surface
 
 Story 6 source work is complete (Quick 034); Story 2 owns release/adoption.
-Refine Story 1 before adding process logging;
+Story 1 has Quick 036 for process logging; execute when requested;
 complete the applicable acceptance before promoting or releasing changes. Revisit internal
 consumption after local manual use; surface effectiveness tracking after a
 response has a relevant follow-up execution. Surface cross-project exchange only

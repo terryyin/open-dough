@@ -122,7 +122,8 @@ payload phrasing. No slice plan, release, or installation/adoption was performed
 
 ### 11. Keep slice planning within the requested workflow
 
-**Status:** Refined; not execution-planned.
+**Status:** Refined and execution-planned, 2026-09-10.
+Plan: [Quick 035](../quick/035-bounded-slice-planning/PLAN.md).
 
 **Goal:** A human or coordinating agent requesting a slice plan receives a
 useful plan and concrete remaining concerns without unintended execution or a
@@ -146,9 +147,17 @@ reinstate the planner's execution-readiness verdict or automatic handoff.
 
 Exclude mandatory refinement after every plan, a new coordinator skill or
 orchestration framework, changes to story scope or slice budgets, and a
-redesign of the refinement skill's own assessment. Release, installation, and
-client adoption remain separate work. This story's refinement does not
-authorize editing the skills, generating an executable plan, or execution.
+redesign of the refinement skill's own assessment. Cross-tool testing and native
+acceptance are explicitly excluded, including host runs, discovery matrices,
+acceptance harnesses, and acceptance-story creation or maintenance. Retain the
+local representative skill-authoring behavior review. Release, installation,
+and adoption remain separate work; source completion makes no cross-tool
+acceptance or release-readiness claim.
+
+The 2026-09-10 instruction authorizes this scope refinement and an executable
+slice plan, with slice-plan refinement only if needed. It does not request
+implementation. Edit shared sources under `src/skills/` during later execution;
+do not hand-synchronize installed managed copies.
 
 **Key examples:**
 
@@ -180,13 +189,15 @@ authorize editing the skills, generating an executable plan, or execution.
 plan-and-execute uses preserve the authorization boundary. Reports retain
 useful concern evidence without choosing the coordinator's next action.
 Review the shared guidance against these examples under the repository's
-skill-authoring behavior review; this is not a new per-tool delivery exercise.
+skill-authoring behavior review. Record observed behavior and limitations in the
+maintainer recognition record; cross-tool testing and acceptance are not
+completion gates for this story.
 
 **Effort:** S, medium confidence; a bounded guidance change, with directly
 referenced wording checked for contradictory handoff instructions.
 
-**Depends on:** No new product prerequisite. Follows the WIP cleanup in the
-backlog as explicitly requested.
+**Depends on:** No new product prerequisite. This is the first selected backlog
+item; preserve sibling scope and backlog order.
 
 **Open decisions:** None currently blocking story understanding. Exact output
 wording can be settled during implementation within these boundaries.
