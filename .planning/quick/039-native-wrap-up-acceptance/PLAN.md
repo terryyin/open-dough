@@ -3,7 +3,9 @@
 ## Source and outcome
 
 [SEED-011 Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: planned. Planning only; no native runs performed by this plan's authoring.
+Status: in progress. Slice 1 native Codex closure passed; Cursor and Claude
+remain. Candidate exercised: worktree HEAD `de14017` plus the uncommitted
+wrap-up documentation-step correction delivered with this slice.
 
 The maintainer can establish that the existing wrap-up skill closes completed
 work through Codex, Cursor, and Claude Code. v0.3.6 already shipped under an
@@ -59,7 +61,7 @@ owning slice before proceeding.
 
 ### 1. Close completed work through Codex without losing active context
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A completed feature story has shared seed/log content, lasting product
 knowledge and a completed empty retrospective; native wrap-up removes only its
 spent history and queue entries, retains unrelated work and useful product
@@ -69,6 +71,22 @@ comparisons, link inspection and Git recovery establish the outcome. Repeat the
 invocation to establish that it recreates no history and duplicates no edits.
 Apply or explicitly justify reuse of the shared boundary observations for the
 other hosts in the requirement mapping.
+
+Outcome: pass on retry. Evidence: [evidence/slice-1/](evidence/slice-1/),
+[requirement mapping](evidence/assessment.md). Native Codex 0.144.1,
+deadline 3600s. Attempt 1 used wrap-up and deleted spent history but left
+README unchanged because tests already encoded trim. Retry after a fixture
+documentation-only fact plus a source clarification in
+`src/skills/dough-story-wrap-up/SKILL.md` assimilated that fact into README
+without story identity. Before-cleanup commit
+`f797bd44f5821dc06db3e687ab18cc13bc2472cd`. Repeat hashes matched the closed
+tree. Empty untracked `planning/plans/trim-names/evidence` directories with no
+files remained; recorded as a limitation, not restored history. Shared
+empty-review / durable-knowledge / shared-content / history-absence /
+repeat-safety observations may be reused on Cursor and Claude (shared wrap-up
+source, no wrap-up host adapter). This run does not prove those hosts' native
+skill-use. Delivered on `worktree-quick-039-native-wrap-up-acceptance`. CI
+observer: `/tmp/dough-ci-501/watch-IgmJt1`, workflow `ci.yml` / `CI`.
 
 ### 2. Carry follow-up work through Cursor closure
 Type: Behavior
@@ -131,3 +149,17 @@ No numeric slice budget was supplied. The concrete execution uncertainties are
 host access, current evidence applicability and native-session duration. Resolve
 these within the owning slice; they do not require a product-scope decision.
 No additional slice-specific concern was identified in this planning assessment.
+
+## Learnings
+
+- Tests that encode current behavior do not replace writing a spent-plan-only
+  product fact into maintained documentation. Slice 1's first native run
+  deleted history without that README step; the skill now states the
+  documentation requirement explicitly.
+- Git-untracked empty spent directories can remain after file deletion. They
+  are not recoverable history; they are still a named-container trace. Not
+  expanded into a second native retry.
+- Codex `sandbox-exec` isolation is an invocation concern, not a wrap-up
+  host adapter. Shared wrap-up observations may be reused on Cursor and Claude
+  while source bytes stay the same; native skill-use still belongs to each
+  host's slice.
