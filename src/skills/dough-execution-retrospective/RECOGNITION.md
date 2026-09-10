@@ -12,11 +12,12 @@ Review: ready for maintainer review
 
 ## Purpose
 
-Review one completed or unfinished plan execution against its original story,
-separate implementation findings from process improvements and product
-learning, route only unresolved bounded implementation work back into planning,
-record supported process findings locally, and return product recommendations
-without unauthorized backlog writes.
+Review one completed or unfinished planned execution, or a completed quick
+execution whose plan never existed, against its original story; separate
+implementation findings from process improvements and product learning; route
+only unresolved bounded implementation work back into planning; record
+supported process findings locally; and return product recommendations without
+unauthorized backlog writes.
 
 ## Triggers
 
@@ -27,13 +28,17 @@ without unauthorized backlog writes.
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
+- Review of a completed quick execution from current or supplied chat history
+  without reconstructing a plan
 
 ## Distinguishing behavior
 
 - Uses eight decision principles, including product learning is not an
   implementation defect and direction is a criterion, not a deliverable.
 - Rechecks findings at the current revision, updates an unfinished plan in
-  place, and permits a follow-up plan only for a completed execution.
+  place, and permits a follow-up plan only for a completed execution. Planless
+  execution with unresolved completion stays evidence-limited rather than
+  acquiring a reconstructed or corrective plan.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
 - Records supported process findings in one project-local `DearDough.md` with
@@ -54,9 +59,11 @@ without unauthorized backlog writes.
 
 ## Client project context
 
-The executing project must supply its plan and story locations, plan format and
-lifecycle, status vocabulary, repository navigation, focused verification
-commands, and any writer/reviewer assignment. Git history or equivalent
+The executing project must supply its story locations, repository navigation,
+focused verification commands, and any writer/reviewer assignment. Planned work
+also supplies plan location, format, lifecycle, and status vocabulary. Quick
+work supplies a canonical story and current or supplied conversation evidence
+that planless execution was explicitly selected. Git history or equivalent
 execution provenance must be available. Near-future direction is required to
 assess alignment in every enabled review. Backlog/story conventions are required
 only for product conclusions that depend on them. Process recording also needs
@@ -81,12 +88,15 @@ remains authoritative for that project unless separately replaced there.
 
 ## Validation needed
 
-Walk a representative retrospective where a partial capability phrase resolves
-one cleaned-up plan, unrelated intervening commits are excluded, and one
-aggregate finding is shown to remain unresolved. Confirm that a completed
-execution produces a bounded follow-up plan without executing it, while an
-unfinished execution updates its existing plan. Verify invocation context,
-required project context, and the useful outcome before promotion.
+Walk representative planned and planless retrospectives. For planned recovery,
+let a partial capability phrase resolve one cleaned-up plan and preserve the
+unfinished-plan update path. For planless recovery, use current and supplied
+chat-history variants, require explicit quick selection and a canonical story,
+and do not reconstruct a plan. In both, exclude unrelated commits, constrain
+missing-proof and ambiguous-attribution conclusions, and confirm that an
+established completed execution may produce a bounded follow-up plan without
+executing it. Verify invocation context, required project context, and the useful
+outcome before promotion.
 
 ## Slice 1 local behavior evidence
 
@@ -206,3 +216,29 @@ Execution guidance-release provenance and mixed local/internal finding codes
 remain source-only behavior. Native acceptance and public release belong to
 [Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log).
 Prior logging evidence does not establish these changed requirements.
+
+## Quick 040 Slice 2 local behavior evidence
+
+Walked the planless-recovery boundary on 2026-09-11 using the Quick 040 Slice 1
+story and change as an authoring fixture. This is a source review, not a claim
+that Slice 1 itself ran planlessly.
+
+1. **Invocation.** In the current-chat and supplied-history variants, explicit
+   quick-path selection, the same canonical story, and the same delivered change
+   selected planless recovery. Neither variant required or reconstructed a plan.
+   A planned comparison still recovered Quick 040's executable plan, and a
+   removed-plan comparison used Git history rather than being relabeled planless.
+2. **Required context.** The planless variants recovered the story contract,
+   approved conversation changes, commit membership, and proof. Nearby commit
+   `cd5b176` was excluded because its finding-triage cleanup does not belong to
+   the Slice 1 execution; proximity did not override provenance. In a variant
+   with the required proof removed, completion and proof-dependent findings
+   remained unresolved while independently supported review could continue.
+   Ambiguous commit attribution likewise stayed outside the manifest.
+3. **Useful outcome.** Established completed variants reach the unchanged
+   implementation, process, and product reviews and ordinary completed-execution
+   correction routing. Evidence-limited variants report the exact gap and create
+   neither a reconstructed historical plan nor a premature correction plan.
+
+Native behavior remains pending for Codex, Cursor, and Claude Code under
+[Story 2](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log).

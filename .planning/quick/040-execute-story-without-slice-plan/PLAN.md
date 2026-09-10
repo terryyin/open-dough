@@ -91,7 +91,7 @@ walkthrough, and local cleanup in this proof loop.
 
 ### 2. Review an execution whose plan never existed
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a completed quick execution and its current or supplied chat
 history, retrospective recovers intent, completion, related commits, and proof
@@ -221,3 +221,8 @@ No separate slice-plan refinement pass was invoked.
   ordinary proof, refactor, delivery, CI, and backlog rules when plan-dependent
   reads and writes are conditioned explicitly. Native quick-entry behavior
   remains pending for Codex, Cursor, and Claude Code under SEED-010 Story 2.
+- Slice 2's walkthrough distinguished a plan that never existed from a removed
+  recoverable plan. Canonical story, conversation, commit attribution, and proof
+  can establish a planless review, while a missing item limits only dependent
+  conclusions. Native planless-retrospective behavior remains pending under
+  SEED-010 Story 2.

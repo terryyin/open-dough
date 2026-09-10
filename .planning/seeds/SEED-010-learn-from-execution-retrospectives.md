@@ -248,6 +248,13 @@ executable-plan requirements for ordinary invocation. Select representative
 Codex, Cursor, and Claude Code cases by unresolved risk; local authoring
 walkthroughs and earlier planned-execution evidence do not prove this quick path.
 
+Also own pending native acceptance for reviewing a completed quick execution
+whose plan never existed. Cover recovery from current and supplied chat history,
+canonical story and commit attribution, missing-proof limits, exclusion of an
+unrelated nearby commit, and unchanged recovery for a removed-but-recoverable
+planned execution. Select representative Codex, Cursor, and Claude Code cases by
+unresolved risk. Source authoring walkthroughs do not satisfy this acceptance.
+
 Also own pending native acceptance for the lifecycle guidance:
 refinement/planning distinctions and cumulative design, refactoring and human
 plan-conflict handoffs, whole-product architecture correction planning, and
