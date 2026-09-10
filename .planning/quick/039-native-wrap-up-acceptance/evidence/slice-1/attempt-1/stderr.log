@@ -1,8 +1,0 @@
-Reading additional input from stdin...
-2026-09-10T06:13:07.150941Z ERROR codex_core_skills::service: failed to install system skills: io error while remove existing system skills dir: Operation not permitted (os error 1)
-2026-09-10T06:13:07.202061Z ERROR codex_models_manager::cache: failed to load models cache: missing field `base_instructions` at line 132 column 5
-2026-09-10T06:13:41.381599Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 132 column 5
-2026-09-10T06:14:04.141186Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 132 column 5
-2026-09-10T06:14:14.962531Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 132 column 5
-2026-09-10T06:14:27.480244Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 132 column 5
-2026-09-10T06:14:37.246527Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 132 column 5

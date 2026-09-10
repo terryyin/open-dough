@@ -1,4 +1,0 @@
-## Near-future direction
-
-Keep the greeting CLI the only active product surface this week.
-

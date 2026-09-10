@@ -1,7 +1,0 @@
-candidate_sha=ab447d4cfbb1331696a85133cc22dbdf49aae968
-version=0.3.6
-wrap_up_skill_sha256=558586b730f824b27ebf53575daeb9d12b007197cdb7960f4feefdac1ef804cf
-execution_complete_head=b6456d84c1800441033d4888f095e06485609413
-execution_complete_retry_head=f15e7d53ff35444c011d9e8a99b557d5529659a3
-proof_root=/tmp/dough-wrap-up-039-s3.CTmm5v
-note=retry after wrap-up skill completion-record clarification

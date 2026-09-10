@@ -1,6 +1,0 @@
-HEAD=8f3a4415e00463073d1385f971bd2873e5634700
-status:
-log:
-8f3a441 Wrap up Trim names story
-49c2199 Record completed Trim names work
-86ddff4 Add greeting CLI

@@ -1,5 +1,0 @@
-HEAD=4d4f86d1b063807c9ed9ec1a71e16a28d7898283
-status:
-log:
-4d4f86d Record unfinished Trim names and Formal titles follow-up
-e8a8ef7 Add greeting CLI

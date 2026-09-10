@@ -1,6 +1,0 @@
-HEAD=b6456d84c1800441033d4888f095e06485609413
-status:
-log:
-b6456d8 Mark Trim names slices done
-4d4f86d Record unfinished Trim names and Formal titles follow-up
-e8a8ef7 Add greeting CLI

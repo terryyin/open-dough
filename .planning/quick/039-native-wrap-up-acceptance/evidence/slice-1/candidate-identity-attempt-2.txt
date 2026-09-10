@@ -1,9 +1,0 @@
-attempt=2
-candidate_sha=de140179fbc1cb69466a77e515e2d6a49324a1ca
-version=0.3.6
-wrap_up_skill_sha256=93d089e6f4e333c80d2dfacd082c8586fdbe7358995f7c5befde8ab3a47ee53d
-installed_wrap_up_sha256=93d089e6f4e333c80d2dfacd082c8586fdbe7358995f7c5befde8ab3a47ee53d
-host=codex-cli 0.144.1
-proof_root=/tmp/dough-wrap-up-039-retry.HenGAU
-wrap_up_ready_head=f797bd44f5821dc06db3e687ab18cc13bc2472cd
-uncommitted_source_diff_hash=d8983d9ffc98028b500f8d49cb808e85b2001a8006c95847a8f9a814306f4d9e

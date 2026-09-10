@@ -4,7 +4,6 @@ Review: native wrap-up acceptance recorded for Codex, Cursor, and Claude Code
 
 ## Original clues
 
-- Authored for [SEED-011 Story Wrap-Up](../../../.planning/seeds/SEED-011-story-wrap-up.md#story-wrap-up)
 - Working name: Story Wrap-Up
 - Public Open Dough skill under `src/skills/dough-story-wrap-up/`
 - Human direction: delete spent plan/story history from the current snapshot;
@@ -58,19 +57,19 @@ when a queue entry points at the selected work.
 
 ## Differences that rule out replacement
 
-This is new public source, not a rewrite of an installed skill. It does not
+This is public source, not a rewrite of an installed skill. It does not
 replace `dough-execute-plan`, `dough-execution-retrospective`, or standalone
 `dough-product-backlog` maintenance. Those participants keep their review and
 delivery behavior; wrap-up owns later closure.
 
-Under ADR 0003 the skill is declared in the candidate payload and is not
-in a release tag. Under ADR 0005 spent proof is deleted at wrap-up, not
-retained for later judgment. Under ADR 0006 the runtime skill addresses the
-agent in this project and keeps maintainer analysis in this record.
+Under ADR 0003 the skill is in the 0.3.6 payload; later source clarifications
+remain Proposed until a later release. Under ADR 0005 spent proof is deleted
+at wrap-up, not retained for later judgment. Under ADR 0006 the runtime skill
+addresses the agent in this project and keeps maintainer analysis in this
+record.
 
 ## Validation needed
 
-Native wrap-up acceptance for the promises in SEED-011 Story Wrap-Up is
-recorded in Quick 039. Recover that plan and evidence from Git when a later
-source change needs a new native judgment. Do not treat the v0.3.6 release
-exception as passing proof.
+Native wrap-up acceptance on Codex, Cursor, and Claude Code is recorded.
+Recover that plan and evidence from Git when a later source change needs a new
+native judgment. Do not treat the v0.3.6 release exception as passing proof.

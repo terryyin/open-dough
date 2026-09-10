@@ -1,7 +1,0 @@
-HEAD=f15e7d53ff35444c011d9e8a99b557d5529659a3
-status:
-log:
-f15e7d5 Reinstall wrap-up skill after completion-record clarification
-b6456d8 Mark Trim names slices done
-4d4f86d Record unfinished Trim names and Formal titles follow-up
-e8a8ef7 Add greeting CLI

@@ -1,2 +1,0 @@
-node --test test/greet.test.mjs
-# pass: prefix absent, trim, internal spaces, Guest default

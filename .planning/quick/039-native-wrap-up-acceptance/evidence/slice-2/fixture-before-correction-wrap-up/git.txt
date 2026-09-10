@@ -1,8 +1,0 @@
-HEAD=e909a18060ba1a8a65cf1ac20258a87d25c0bae4
-status:
-log:
-e909a18 Complete extra greeting prefix correction
-9200716 Remove spent Trim names plan and story history
-4fb462f Prepare Trim names wrap-up with follow-up queued first
-6fdaa1a Record completed Trim names work and seedless correction
-b23f5a0 Add greeting CLI with extra prefix

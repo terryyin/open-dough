@@ -1,1 +1,0 @@
-claude --print --dangerously-skip-permissions --no-session-persistence --output-format stream-json --verbose "$PROMPT"

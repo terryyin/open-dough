@@ -1,5 +1,0 @@
-HEAD=49c2199117f91910c4930d0ec8e9eb1100015517
-status:
-log:
-49c2199 Record completed Trim names work
-86ddff4 Add greeting CLI
