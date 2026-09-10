@@ -122,85 +122,29 @@ payload phrasing. No slice plan, release, or installation/adoption was performed
 
 ### 11. Keep slice planning within the requested workflow
 
-**Status:** Refined and execution-planned, 2026-09-10.
-Plan: [Quick 035](../quick/035-bounded-slice-planning/PLAN.md).
+**Status:** Complete in source, 2026-09-10; implemented via
+[Quick 035](../quick/035-bounded-slice-planning/PLAN.md). Not released. Native
+acceptance excluded by scope.
 
 **Goal:** A human or coordinating agent requesting a slice plan receives a
 useful plan and concrete remaining concerns without unintended execution or a
-planner-issued workflow decision. This repairs an observed problem in an
-existing SDLC skill while the broader skill set is being completed.
+planner-issued workflow decision.
 
-**Scope:** Make the slice-planning boundary explicit: finish after writing and
-reporting the plan unless the triggering human or parent-agent instruction
-explicitly also requests execution. Do not automatically invoke execution or
-treat a readiness assessment as authorization. An explicit plan-and-execute
-request permits the authorized execution handoff without another confirmation.
+**Scope:** Finish after writing and reporting the plan unless the triggering
+human or parent-agent instruction explicitly also requests execution. Do not
+treat readiness or concern evidence as authorization. Report remaining
+slice-specific concerns or a limited no-concerns finding without prescribing
+the next workflow. Correct obvious construction defects; preserve decomposition,
+proof ownership, and sizing. Exclude mandatory refinement, coordinator tooling,
+budget redesign, refinement's own assessment redesign, cross-tool acceptance,
+release, installation, and hand-edits of installed managed copies.
 
-The planner still applies decomposition, proof-ownership, and sizing guidance,
-fixes obvious defects while constructing the plan, and reports remaining
-slice-specific concerns with their reasons. Replace the planner's directional
-readiness verdict with that evidence, including a narrow statement when no
-concerns were identified. The coordinator chooses the next action under the
-human's instructions and project policy; refinement owns resolving concerns
-when invoked. Align directly referenced guidance where needed so it does not
-reinstate the planner's execution-readiness verdict or automatic handoff.
-
-Exclude mandatory refinement after every plan, a new coordinator skill or
-orchestration framework, changes to story scope or slice budgets, and a
-redesign of the refinement skill's own assessment. Cross-tool testing and native
-acceptance are explicitly excluded, including host runs, discovery matrices,
-acceptance harnesses, and acceptance-story creation or maintenance. Retain the
-local representative skill-authoring behavior review. Release, installation,
-and adoption remain separate work; source completion makes no cross-tool
-acceptance or release-readiness claim.
-
-The 2026-09-10 instruction authorizes this scope refinement and an executable
-slice plan, with slice-plan refinement only if needed. It does not request
-implementation. Edit shared sources under `src/skills/` during later execution;
-do not hand-synchronize installed managed copies.
-
-**Key examples:**
-
-- Given a human asks only for a slice plan and the planner identifies no
-  remaining concerns, when planning finishes, then it reports the plan and
-  that limited finding and stops; it neither implements nor invokes execution.
-- Given a parent agent delegates only slice planning as part of a larger
-  implementation task, when the planner finishes, then it returns the plan
-  and concerns to that parent; the parent's broader task is not an explicit
-  execution request to the delegated planner.
-- Given the triggering human or parent instruction explicitly asks to plan
-  and execute, when the plan is written, then the authorized workflow can
-  continue into execution without asking for the same authorization again,
-  subject to applicable project gates and unresolved concerns.
-- Given a slice has an obvious separable second outcome, when constructing
-  the plan, then the planner corrects it rather than knowingly passing the
-  defect to a later refinement step.
-- Given a remaining integration assumption makes Slice 5's sizing uncertain,
-  when reporting the plan, then the planner identifies Slice 5, the assumption,
-  and its consequence; it does not prescribe refinement or certify execution
-  readiness. The coordinator chooses refinement, evidence gathering, or other
-  applicable next action.
-- Given all slices appear cohesive and plausibly within the project target,
-  when reporting, then the planner can say no refinement concerns were
-  identified in its assessment; it does not claim no further refinement is
-  required or use that finding as permission to execute.
-
-**Evaluation:** Representative planning-only, parent-delegated, and explicitly
-plan-and-execute uses preserve the authorization boundary. Reports retain
-useful concern evidence without choosing the coordinator's next action.
-Review the shared guidance against these examples under the repository's
-skill-authoring behavior review. Record observed behavior and limitations in the
-maintainer recognition record; cross-tool testing and acceptance are not
-completion gates for this story.
-
-**Effort:** S, medium confidence; a bounded guidance change, with directly
-referenced wording checked for contradictory handoff instructions.
-
-**Depends on:** No new product prerequisite. This is the first selected backlog
-item; preserve sibling scope and backlog order.
-
-**Open decisions:** None currently blocking story understanding. Exact output
-wording can be settled during implementation within these boundaries.
+**Completion:** Updated `src/skills/dough-slice-planning/` so planning-only and
+parent-delegated planning stop after the plan, explicit plan-and-execute may
+continue without re-approval, and reports carry concern evidence instead of
+`ready for direct execution` / `refinement recommended`. Local AGENTS.md
+behavior walkthroughs are recorded in recognition; linked references needed no
+edits.
 
 <a id="extract-story-refinement"></a>
 

@@ -3,15 +3,20 @@ name: dough-slice-planning
 description: >-
   Plans one understood, bounded story as an executable sequence of
   Behavior/Structure slices with outside-in proof and safe stopping points. Use
-  when a selected story is ready for implementation planning. Recommends
-  dough-slice-plan-refinement only for complex, low-confidence, or over-budget
-  slices; does not implement the plan.
+  when a selected story is ready for implementation planning. Stays within the
+  triggering instruction's execution authority: finish after writing and
+  reporting the plan unless that instruction explicitly also requests execution.
+  Reports remaining slice-specific concerns or a limited no-concerns finding;
+  does not prescribe the next workflow action or certify execution readiness.
+  Concern evidence does not authorize execution.
 ---
 
 # Slice planning
 
-Write one sufficient executable plan for one understood story. Do not implement
-product code.
+Write one sufficient executable plan for one understood story. Stay within the
+triggering human or parent-agent instruction's explicit execution authority.
+Do not implement product code or invoke execution unless that instruction
+explicitly also requests execution after planning.
 
 ## Require an understood story
 
@@ -71,17 +76,49 @@ engine and version. Record the assumption, literal command, critical
 postcondition, and result in the plan. Failed proof changes the plan before
 broad implementation. Keep experiments off shared and production systems.
 
-Use [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md) only
-when the reference's refinement conditions apply:
+During construction, apply those decomposition and sizing checks: correct
+obvious defects such as an independent second outcome before reporting, and
+preserve proof ownership and any supplied sizing constraints on every resulting
+slice. [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md)
+owns resolving remaining concerns when the coordinator or invoking workflow
+separately requests it; do not invoke it as part of writing this plan.
 
-- If all slices are cohesive, have one proof loop, meet any supplied target,
-  and have no unexplained path beyond a supplied hard limit, report
-  `ready for direct execution`.
-- If any trigger remains, report
-  `refinement recommended: <affected slices>`. Do not claim an execution-time
-  guarantee.
+## Report concern evidence
 
-Report the plan path, ordered slices, considered-but-excluded additions, and the
-readiness result. End with:
+After constructing the plan, report remaining concerns rather than a workflow
+verdict:
+
+- Name each remaining slice-specific concern with the affected slice, the
+  reason (for example an integration assumption), and its consequence (for
+  example uncertain sizing). Do not prescribe refinement or certify execution
+  readiness.
+- When no concerns were identified in this assessment, say so narrowly. Do not
+  claim that no further refinement is required or treat that finding as
+  permission to execute.
+
+The recipient chooses the next action under the triggering instruction's
+authority and project policy. Concern evidence is an assessment of the plan, not
+authorization to execute. It does not grant, expand, or replace the triggering
+instruction's execution authority.
+
+## Stay within the triggering instruction
+
+After writing and reporting the plan, the next action remains within the
+triggering human or parent-agent instruction:
+
+- Planning-only request: report the plan path, ordered slices,
+  considered-but-excluded additions, and remaining concerns or the limited
+  no-concerns finding, then stop. Do not implement and do not invoke execution.
+- Parent-agent delegation that asks only for slice planning: return the plan
+  and remaining concerns or the limited no-concerns finding to the parent. The
+  parent's broader implementation task is not an explicit execution request to
+  this planner.
+- Explicit plan-and-execute request: after reporting, the authorized workflow
+  may continue into execution without asking again for the same authorization,
+  subject to this project's gates and any unresolved concerns that still block
+  progress. Prefer the project's established execution path (for example
+  [dough-execute-plan](../dough-execute-plan/SKILL.md)) when that path applies.
+
+After the matching case above, end with:
 
 `## SLICE PLAN WRITTEN`
