@@ -3,7 +3,7 @@
 ## Source and outcome
 
 [SEED-011 — Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: in progress. Slices 1–3 are done.
+Status: in progress. Slices 1–4 are done.
 
 A developer closes one completed story after retrospective: relevant product
 changes are applied, existing follow-up work is first in the queue, lasting
@@ -170,9 +170,10 @@ Sizing: one queue outcome using existing plan/story conventions.
 
 ### Apply product-review decisions with optional human input
 Type: Behavior
-Status: planned
+Status: done
 Proof: One relevant-backlog decision scenario, varying advice alone, a human
 correction, a supported new-story addition, and a genuinely unresolved choice.
+Evidence: [evidence/slice-4/WALKTHROUGH.md](evidence/slice-4/WALKTHROUGH.md).
 
 Behavior: Given retrospective product advice and optional human input, when
 wrap-up runs, the relevant backlog and canonical stories reflect the authorized
@@ -292,7 +293,7 @@ new-integration assumption requires an experiment. Native access and prior
 proof validity remain execution-time acceptance concerns, not passed checks.
 If implementation reveals multiple mechanisms or unbounded work, refine the
 affected slice in this same plan. Do not drop scope or waive checks to meet a
-deadline. Slices 1–3 are done. Remaining slices stay planned.
+deadline. Slices 1–4 are done. Remaining slices stay planned.
 
 ## Learnings
 

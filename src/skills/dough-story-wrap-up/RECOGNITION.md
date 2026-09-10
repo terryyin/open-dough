@@ -35,6 +35,8 @@ while Git can recover what was removed.
 - Preserves sibling stories, unrelated log text, human notes, and ambiguous
   records that cannot be attributed to the selected execution.
 - Puts an existing follow-up plan's story first without replanning or executing it.
+- Applies authorized product-review advice with optional human input; human
+  input wins; unresolved choices are reported.
 
 ## Client project context
 
@@ -94,3 +96,12 @@ Walked follow-up queueing on 2026-09-10.
 An existing retry story moved first and linked the existing plan. A
 supplied beneficiary/outcome created one home. Missing outcome kept the
 plan without inventing a story. Rerun did not duplicate the queue entry.
+
+## Slice 4 local behavior evidence
+
+Walked product-review application on 2026-09-10.
+[evidence/slice-4/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-4/WALKTHROUGH.md).
+
+Advice reordered SLO above audit; human correction kept audit above SLO;
+a named new story was added; an unresolved split was reported without a
+guess. Follow-up stayed first. Empty review asked nothing.

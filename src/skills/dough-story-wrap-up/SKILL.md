@@ -89,11 +89,29 @@ Preserve unrelated queue order after that first item, and preserve
 near-future direction. Repeating wrap-up must not duplicate the follow-up
 story or queue entry.
 
-## Leave unsupported wrap-up actions intact
+## Apply product-review decisions
 
-Product-review advice remains unsupported. If it is present, leave those
-inputs intact, report them, and continue with the supported work below. Do
-not launch discovery or another review.
+When retrospective product advice or additional human input is present, apply
+only authorized compatible backlog and canonical-story changes. Follow
+[dough-product-backlog](../dough-product-backlog/SKILL.md) for queue and
+story conventions. Explicit human input wins over advice.
+
+Supported changes: relevant reorder, queue membership, understood new-story
+addition, and canonical-detail edits. A new queued story needs a named
+beneficiary and an evaluable outcome. Keep existing follow-up work first
+unless a later explicit human instruction changes that priority. Preserve
+unrelated content and near-future direction.
+
+A skipped or empty product review, or absent extra human input, introduces
+no mandatory question. Leave unresolved necessary context with active work
+and report the choice; do not invent scope, launch discovery, or start
+another review.
+
+## Leave no extra wrap-up ceremony
+
+Do not launch discovery or another review. Empty retrospective product
+advice is valid and changes nothing beyond the supported closure and
+follow-up actions above.
 
 ## Delete spent history, including shared records
 
