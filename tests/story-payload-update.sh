@@ -16,13 +16,13 @@ mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
 git_identity "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 before-stories
-# Model the previous three-skill release, including its declared payload.
+# Model a release before decomposition and refinement, including its declared payload.
 for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-story-/d' "${fixture}/${script}" > "${fixture}/filtered"
+  sed '/dough-story-decomposition\//d; /dough-story-refinement\//d' "${fixture}/${script}" > "${fixture}/filtered"
   mv -- "${fixture}/filtered" "${fixture}/${script}"
 done
 rm -rf -- "${fixture}/src/skills/dough-story-decomposition" "${fixture}/src/skills/dough-story-refinement"
-commit_all "${fixture}" 'release without story skills'
+commit_all "${fixture}" 'release without decomposition and refinement skills'
 tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
 checkout_tagged_release "${fixture}" "${older}" 0.1.1

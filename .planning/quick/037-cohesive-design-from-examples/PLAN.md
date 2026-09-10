@@ -363,3 +363,22 @@ An unresolved exact-layout contract or genuine architectural conflict stopped
 before edits; story-named handlers alone did not establish separate subsystems.
 Links/anchors/frontmatter and whitespace checks passed. Independent review
 found no refactor changes needed. No native product behavior is claimed.
+
+### CI fixture repair during architecture slice
+
+Runs 34434147532/1 (`0517e0b`) and 34434296713/1 (`ea9c3a8`), test jobs
+102735634229 and 102736069900, failed `tests/story-payload-update.sh`: the
+simulated old release removed every story-skill declaration but deleted only
+decomposition/refinement source, leaving wrap-up inconsistently present. The
+same filter and fixture source are present on the base `main`; this was a
+pre-existing fixture defect, not an updater safety-check defect.
+
+Paused the only writer, stashed its four unstaged slice-5 source files at
+`84aa78f519db7c028c0e3a1f8bc3abf9e6c2d0e4`, and repaired at current HEAD.
+Narrowing the filter to the two removed skills preserves the safety check.
+`bash tests/story-payload-update.sh` reproduced the mismatch, then passed all
+three host contexts, collision refusal, edited/missing-reference protection,
+and force restoration. An intermediate attempt was invalidated by editing the
+running shell script; final proof ran with its input unchanged. Independent
+refactor review found no edits needed. Selective shfmt, shellcheck, and whitespace
+checks passed. Slice 5 remains in progress; restore its exact stash after push.
