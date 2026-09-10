@@ -2,8 +2,8 @@
 
 ## Outcome and authority
 
-Status: planned. Planning and predecessor wrap-up are authorized; execution of
-this correction is not requested.
+Status: in progress. Planning and predecessor wrap-up were authorized first;
+Terry Yin authorized direct execution on 2026-09-10.
 
 A developer can carry one understood retrospective correction from its plan
 through execution, refinement when needed, and closure without creating or
@@ -65,7 +65,7 @@ authorized execution. No numeric slice budget or file limit was supplied.
 
 ### Accept the correction plan as execution and refinement context
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the seedless correction through execution entry and the existing
 refinement path, then apply the missing-proof and conflicting-constraint variants.
 
@@ -85,6 +85,21 @@ to story refinement. Planning-only authorization still stops before execution.
 Safe stop: all execution/refinement consumers accept the same correction context.
 Concern: remaining story-only wording can silently reintroduce the requirement;
 verify the full entry-to-delegation path, not just the initial paragraph.
+
+Execution evidence (2026-09-10): the shared planning contract, execution entry,
+delegation, execution decisions, slice refinement, planning handoff, and delivery
+handoff now distinguish a feature story from a bounded correction. Representative
+walkthroughs confirmed that complete seedless corrections proceed, missing
+outcome or proof names the absent field, product-constraint conflicts remain
+human-owned, ordinary unresolved stories still route to refinement, and
+planning-only authority still stops. `git diff --check` passed. Independent
+post-change refactoring consolidated the correction-input field list behind its
+authoritative planning reference and repaired two affected inbound anchors.
+`npm run format` passed without changing the Markdown sources.
+
+CI observer: Codex yielded-cell adapter, coordinator `root-038`, repository
+`terryyin/open-dough`, branch `main`, workflow `ci.yml` / `CI`, cell `14`, session
+`3685`, mailbox `/tmp/dough-ci-501/watch-tpoZNj`, PID `78613`.
 
 ### Preserve and close seedless corrections through the existing lifecycle
 Type: Behavior

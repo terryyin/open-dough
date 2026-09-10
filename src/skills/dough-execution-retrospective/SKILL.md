@@ -83,7 +83,7 @@ refactor checks before assessing refactoring residue; apply its smell definition
 to the aggregate result without running its editing workflow. Read
 [dough-slice-planning](../dough-slice-planning/SKILL.md) only when unresolved
 findings need planning, then follow its
-[bounded-correction entry](../dough-slice-planning/SKILL.md#require-an-understood-story),
+[bounded-correction entry](../dough-slice-planning/SKILL.md#require-understood-planning-input),
 proof, sizing, and destination gates. Read [dough-product-backlog](../dough-product-backlog/SKILL.md) only when
 product review is enabled and recommendations depend on those conventions.
 
