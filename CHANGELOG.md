@@ -1,3 +1,7 @@
+## 0.3.5 - 2026-09-10
+
+Planning guidance now infers plan numbers and treats numeric timing limits as optional.
+
 ## 0.3.4 - 2026-09-09
 
 CI host hooks: install and update portable Cursor and Claude Code observation hooks, merge them safely beside existing settings, repair missing registrations on repeat use, and preserve semantically complete configuration without rewrites.
