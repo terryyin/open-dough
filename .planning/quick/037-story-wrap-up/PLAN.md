@@ -3,8 +3,7 @@
 ## Source and outcome
 
 [SEED-011 — Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: planned. Planning and conditional slice refinement are authorized;
-execution, commits, pushes, promotion, and release are not part of this turn.
+Status: in progress. Slice 1 is done.
 
 A developer closes one completed story after retrospective: relevant product
 changes are applied, existing follow-up work is first in the queue, lasting
@@ -100,9 +99,10 @@ review inputs until retrospective and Story Wrap-Up complete.
 
 ### Close a completed story without follow-up
 Type: Behavior
-Status: planned
+Status: done
 Proof: One isolated single-story closure, with incomplete-plan,
 incomplete-retrospective, and uncommitted-history boundary variations.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md).
 
 Behavior: Given completed execution and retrospective with no actionable output,
 when wrap-up is invoked, the current project contains maintained product knowledge
@@ -290,14 +290,10 @@ new-integration assumption requires an experiment. Native access and prior
 proof validity remain execution-time acceptance concerns, not passed checks.
 If implementation reveals multiple mechanisms or unbounded work, refine the
 affected slice in this same plan. Do not drop scope or waive checks to meet a
-deadline. Assessment: ready for direct execution when separately authorized.
-
-No behavior has been executed or verified in this planning turn. All slices
-remain planned. Execution remains explicitly prohibited by the current request.
+deadline. Slice 1 is done. Remaining slices stay planned.
 
 ## Learnings
 
-None from execution. Planning found that the installed planner guidance differs
-from its newer Proposed source and that retrospective is not yet declared in the
-payload. Follow this turn's planning-only authority; use source changes and
-candidate checks without manually synchronizing installed skills.
+Standalone closure commits recovery with the project's Git conventions, then
+deletes working-tree copies. Empty plan roots are spent containers. Follow-up,
+shared logs, and product-review advice remain intact until later slices.

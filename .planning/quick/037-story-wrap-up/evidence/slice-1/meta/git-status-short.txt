@@ -1,0 +1,4 @@
+ M .planning/PRODUCT-BACKLOG.md
+ D .planning/quick/001-widget-status/PLAN.md
+ D .planning/seeds/SEED-W-widget-status.md
+ M docs/widget.md
