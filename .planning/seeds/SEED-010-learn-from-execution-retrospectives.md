@@ -543,9 +543,8 @@ Bring Story 4 forward if a real response and comparable later execution provide
 an immediate learning opportunity; do not wait for an internal skill solely for
 workflow completeness.
 
-These are outcome boundaries, not slices or an executable plan. Stories 1 and 6
-are source complete; Story 2 remains unrefined and Story 3 has Quick 040's slice
-plan without implementation authorization. No estimate distribution
+These are outcome boundaries, not slices or an executable plan. Stories 1, 3,
+and 6 are source complete; Story 2 remains unrefined. No estimate distribution
 is claimed: repository S/M/L definitions were not found, so bands remain pending
 rather than carrying forward the original oversized story's unsupported L label.
 
@@ -564,11 +563,12 @@ next for action on findings and awaits refinement.
 ## When to Surface
 
 Story 6 source work is complete (Quick 034); Story 2 owns release/adoption.
-Story 1 has Quick 036 for process logging; execute when requested;
-complete the applicable acceptance before promoting or releasing changes. Revisit internal
-consumption after local manual use; surface effectiveness tracking after a
-response has a relevant follow-up execution. Surface cross-project exchange only
-when another project's finding offers additional learning.
+Story 1 has Quick 036 for process logging; Story 3 has Quick 040 for internal
+naming (source complete; not released). Complete the applicable Story 2
+acceptance before promoting or releasing public retrospective changes. Revisit
+internal consumption after local manual use; surface effectiveness tracking
+after a response has a relevant follow-up execution. Surface cross-project
+exchange only when another project's finding offers additional learning.
 
 ## Breadcrumbs
 
