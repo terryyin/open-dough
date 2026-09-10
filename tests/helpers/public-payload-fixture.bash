@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034 # Sourced scenarios consume managed_files.
+# shellcheck disable=SC2034 # Sourced scenarios consume managed_files and internal_skill_names.
 # Client payload expected by current-source install and release-fixture scenarios.
+# Internal maintainer skills that must remain outside that payload.
+
+internal_skill_names=(
+  release-version
+  extract-guidance
+  reconcile-finding-names
+  triage-retrospective-findings
+)
 
 managed_files=(
   dough-update/SKILL.md

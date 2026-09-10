@@ -7,10 +7,11 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
+- [Decide and follow up on retrospective findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings) — SEED-010
+
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
-- [Decide and follow up on retrospective findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings) — SEED-010
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Adopt the simplified release once in Donut and use it](seeds/SEED-006-extend-adr-guidance-adoption.md#finish-donut-adr-adoption) — SEED-006
 - [Extract story refinement and improve one real story](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-story-refinement) — SEED-004

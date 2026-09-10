@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091,SC2154 # The sourced fixture supplies internal_skill_names.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+# shellcheck source=tests/helpers/public-payload-fixture.bash
+source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 
 if (($# < 2)); then
   echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
@@ -65,7 +68,7 @@ done
 [[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
 [[ ! -e "${target}/${relative_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
-for internal_skill in extract-guidance release-version; do
+for internal_skill in "${internal_skill_names[@]}"; do
   for skill_root in "${skill_roots[@]}"; do
     [[ ! -e "${target}/${skill_root}/${internal_skill}" ]]
   done

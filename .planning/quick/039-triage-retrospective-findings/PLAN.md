@@ -3,10 +3,11 @@
 ## Source and authority
 
 [SEED-010 Story 7](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings).
-Status: planned. The 2026-09-10 conversation selected the finding-response
-behavior for planning and authorized slice refinement if needed. This is
-planning authorization only. Story 2's release/adoption work and backlog order
-remain unchanged; do not move this story to Taken until execution starts.
+Status: executing. The 2026-09-10 conversation authorized plan execution in
+worktree `/Users/terryyin/git/open-dough-quick-039` on branch
+`worktree-quick-039-triage-retrospective-findings`, then merge back to `main`.
+Story 7 is under **Taken**. Story 2's release/adoption work and remaining queue
+order are unchanged.
 
 ## Goal and scope
 
@@ -76,18 +77,19 @@ skill text. No infrastructure experiment is needed for ordinary Markdown edits.
 
 ### 1. Receive a reasoned finding-priority proposal
 Type: Behavior
-Status: planned
+Status: done
+Proof: Isolated ranking walk placed severe one-off `ODF-901` first over
+recurring minor `ODF-902` (two distinct executions, not three rows); `ODF-903`
+surfaced as an evidence request. Missing path/empty/prose/unidentified-identity
+stops invented nothing. Real `DearDough.md` and `docs/maintainer/finding-names.md`
+stayed byte-identical.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md).
 
 Behavior: Given supplied reconciled fictional findings and product direction,
 a maintainer requests triage and receives an ordered, evidence-linked proposal
 without queue or finding edits. The recommendation distinguishes observed impact
 from inference, uses distinct occurrences rather than repeated reports, and
 makes uncertainty or an evidence request visible.
-
-Proof: One walkthrough contrasts severe one-off harm, recurring minor cost, and
-insufficient evidence. Assess the explanation rather than demanding a universal
-ranking. Check all input bytes remain unchanged; missing input or identity is
-reported without invented codes, counts, or automatic reconciliation.
 
 Safe stop: The maintainer can manually act on a useful proposal. No persistent
 state changes or downstream commitment are implied.
@@ -191,8 +193,8 @@ combined rereview-and-new-disposition behavior with slices 4 and 5 above.
 Result: five slices, all classified Ready: one Behavior gate and one focused
 proof loop each, with the same finding/proposal/disposition model. No sizing
 exceptions or resplit recommendation. No remaining slice-specific concerns
-identified in this assessment. Planning is complete; execution is not started
-or authorized by this request. Delivery context checks below still apply.
+identified in this assessment. Execution started 2026-09-10; delivery gates
+below still apply.
 
 ## Execution and delivery gates
 
@@ -207,5 +209,20 @@ hooksPath was found during planning. Do not invent or bypass a missing hook.
 Use representative behavior review for this prose change, not a routine full
 native-discovery matrix or full-CI rerun before each commit.
 
-Retain plan and evidence for retrospective and story wrap-up. No product changes,
-real triage, commit, push, or execution occurred while constructing this plan.
+Retain plan and evidence for retrospective and story wrap-up.
+
+## Delivery
+
+- Slice 1 delivered in this wrap-up: internal skill
+  `.agents/skills/triage-retrospective-findings/SKILL.md` with Claude pointer;
+  ranking and stop evidence under `evidence/slice-1/`.
+- Branch: `worktree-quick-039-triage-retrospective-findings`.
+- CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
+  Started from the main-checkout skill scripts so Cursor hooks bind the
+  coordinator session; the observer watches this worktree branch.
+
+## Learnings
+
+None that change remaining slices. Slice 2 must replace the recommendation-only
+write prohibition with a developer-selected queue path in the same skill, not a
+second procedure. Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.
