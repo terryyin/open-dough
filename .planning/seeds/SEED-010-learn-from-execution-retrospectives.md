@@ -126,6 +126,10 @@ behavior and proof necessary for that story's observable outcome; defer broader
 capabilities, optional automation, and speculative generalization to later work.
 Do not expand a story to complete the whole learning loop.
 
+Story 3 is an internal maintainer capability and is not released. Its refinement
+below owns the small findings-consumption increment; the release guideline
+applies to public retrospective improvements, not this internal skill or record.
+
 Release each independently useful improvement when its required review and
 acceptance are satisfied. Do not wait for sibling stories merely to bundle a
 larger release. Story 2's acceptance scope follows the improvement ready to ship;
@@ -261,38 +265,131 @@ access, or internal consumer is required.
 
 <a id="act-on-local-retrospective-mail"></a>
 
-### 3. Help the maintainer act on DearDough.md findings
+### 3. Keep internal and external finding code names consistent
 
-**Status:** Selected for backlog; unrefined.
+**Status:** Slice-planned on 2026-09-10; implementation not authorized.
+**Plan:** [Quick 040](../quick/040-consistent-finding-names/PLAN.md).
 
-**For / why:** The Open Dough maintainer can turn accumulated local observations
-into an explicit, traceable decision without repeatedly reconstructing context.
+**Goal:** The Open Dough maintainer can associate a project's finding with a
+stable internal code and recommend the corresponding external rename. Start
+with Open Dough's own retrospective findings. Use the reported Open Dough release
+and relevant internal change history to distinguish a continuing issue from a
+new issue after an intervening correction. This is naming consistency, not
+cumulative feedback collection or action on findings.
 
-**Scope:** Introduce an internal skill to consume Open Dough's own log, recognize
-recurrence and uncertainty, discuss a useful response, and record the human's
-disposition against the finding. Support action, request for evidence, deliberate
-deferral, or a reasoned decision to retain current behavior. Do not assume every
-cost is general or every finding deserves new guidance. Link resulting work to
-the finding; do not autonomously implement or release guidance.
+**Scope:** Add one internal maintainer skill and one small repository-kept naming
+record, using Markdown or CSV rather than a database. Both remain internal and
+outside the released payload. Follow the repository's
+[maintainer guidance](../../AGENTS.md) for internal skill placement. Inspect
+supplied feedback or the selected project's canonical `DearDough.md` only as
+needed to identify findings and resolve their names.
 
-**Evaluation:** Given accumulated local observations, the maintainer can assess
-why an issue deserves attention, accept or revise a proposed response, and later
-recover that decision without rereading whole executions. One ambiguous
-story-specific cost can remain unresolved without being lost or generalized.
+- Extend the public retrospective's `DearDough.md` occurrence format with the
+  Open Dough release used during the reported execution. This is the guidance
+  release, not the target project's product version or the release installed
+  when the retrospective is later run. Resolve it from available execution or
+  installation provenance; do not assume the current checkout's `VERSION` applies.
+  If unknown, record that explicitly. For unreleased or modified guidance, mark
+  that state and retain an available revision reference rather than claiming a
+  clean released version. Preserve older rows; do not guess historical releases.
+- Keep source project and original finding code separate from the internal code,
+  even when both roles belong to Open Dough. Use a distinct internal prefix.
+- Match an existing internal finding by its concrete meaning and supporting
+  evidence, not wording or symptoms alone. For an unseen finding, allocate a
+  fresh stable internal code. Keep uncertain matches separate and explicit.
+- Make that identity decision revision-aware: inspect relevant Open Dough release
+  and change history from the reported revision through the current revision
+  being assessed. If the same concrete issue remains in the current revision,
+  reuse its internal code despite the different release numbers. If evidence
+  establishes an intervening correction and a later finding is a new occurrence
+  of a reintroduced or different problem, allocate a new internal code and retain
+  a compact relationship to the earlier code and decisive change reference.
+  A release-number difference or a changelog claim alone does not prove the old
+  issue ended. Historical feedback about an issue already corrected does not by
+  itself establish a new current issue; retain its historical identity and explain
+  the revision limit. Missing history leaves continuity uncertain, not proven.
+- Retain only the description, source-code mappings, and compact references
+  needed to recognize that identity later, including the release/revision context
+  and decisive change references used for the naming decision. Reprocessing or a source rename
+  reuses the same identity. Do not accumulate execution occurrence histories,
+  maintain recurrence counts, or build a second feedback log. The existing
+  retrospective retains ownership of local occurrence recording.
+- Output source-project/code → internal-code rename recommendations in chat,
+  with a brief matching reason and the relevant revision distinction. If the source already uses that internal code,
+  report that no rename is needed. Never apply renames to the source log, even
+  when the source project is Open Dough itself. If a source code groups findings
+  from both sides of a proven correction, qualify the recommendation by revision
+  or occurrence reference; do not suggest renaming the entire historical entry
+  to the new code or overwrite its earlier mapping.
+- Keep retrospective naming compatible: reuse an existing local finding's code,
+  including a previously adopted internal code. A new finding without a supported
+  match receives the next unused external/local `DD-NNN` code. The retrospective
+  neither mints internal codes nor requires access to the internal naming record.
+  A later internal review can recommend a rename. Existing local occurrence and
+  conservative-matching behavior stays intact.
 
-**Value / learning:** Reduce repeated interpretation work and test whether
-assisted consumption produces better decisions than reading the log manually.
-Reconsider automation if manual consumption already suffices.
+**Required context:** Resolve the selected source project, supplied feedback or
+canonical log, and internal naming record separately. Missing feedback or an
+ambiguous identity is reported without inventing a finding or unsafe record
+change. Resolve the reported guidance release/revision, the current Open Dough
+revision being assessed, and the relevant internal change history for a
+revision-based decision. Unknown release or missing history does not prevent
+local retrospective logging, but must remain explicit in internal matching;
+do not claim a continuing or corrected issue without supporting evidence.
+Open Dough currently has no root `DearDough.md`; actual use requires
+supplied feedback or a log produced by a retrospective.
 
-**Effort hypothesis:** Band pending project definitions. Uncertainty is the
-amount of judgment assistance useful after representative manual consumption.
+**Key examples:** Codes illustrate the proposed separate namespaces.
 
-**Depends on:** Story 1's usable log. Story 2 is ordered earlier for public value,
-not because a release technically enables internal reading.
+- **Unseen finding:** Source `DD-001` describes repeated recovery of an established
+  execution boundary. Create internal `ODF-001` with the description and source
+  mapping, and suggest `DD-001 → ODF-001` in chat. Leave the source unchanged;
+  do not import its occurrence history.
+- **Known finding:** Later supplied feedback supports the same concrete issue.
+  Reuse `ODF-001` and recommend its name. Reprocessing the same source, including
+  after it adopts `ODF-001`, does not allocate another identity or count recurrence.
+- **Issue persists across releases:** A finding reports release A; the current
+  release is B. Relevant history and current guidance show that the same issue
+  remains. Recommend the existing `ODF-001`, citing that continuity.
+- **Issue after a correction:** History supports a correction of `ODF-001` in B.
+  A later finding in C shows a reintroduced or different problem. Allocate a new
+  internal code and explain the distinction with the correction reference.
+  Merely rereading the old release-A report does not create this new issue.
+- **Release provenance:** An execution used A and its retrospective runs after
+  installation of B. Its occurrence records A. If A cannot be established, record
+  `Open Dough release: unknown`; do not substitute B. An older row with no release
+  stays interpretable without invented backfill or a confident revision match.
+- **Uncertain similarity:** A transcript reread caused by losing an observation
+  locator does not establish the boundary-recovery issue. Keep it separate under
+  another internal code and retain the matching uncertainty.
+- **Mixed local names:** After a human adopts `ODF-001`, a retrospective reuses it
+  for the same issue. A new issue receives the next unused `DD-NNN`; its internal
+  name can be recommended later. Without adoption, the original `DD-001` is valid.
+- **No feedback:** Report that there is nothing to match; invent neither an
+  internal finding nor a rename.
 
-**Safe stopping point:** Recorded decisions and linked follow-up work remain
-useful with manual effectiveness checks. Findings are not deleted merely because
-a response exists, and installed guidance remains governed by releases.
+**Excluded scope:** Cumulative feedback collection, recurrence tracking in the
+internal record, taking action on findings, disposition workflows, guidance
+fixes, backlog changes, and ongoing effectiveness tracking. Bounded inspection
+of existing change history for a naming decision is included; implementing a fix
+or monitoring whether a response helped is not. Story 7 owns the separate
+response outcome. Also defer automatic source renaming, historical migration or
+merging, pruning, databases, remote collection, another-project acceptance,
+release/adoption, and installed-copy synchronization.
+
+**Refinement assumptions:** Prefer Markdown and `ODF-NNN` for internal codes,
+with `DD-NNN` remaining local. Exact skill name and record path are planning
+choices. These are proposed defaults, not human-selected names.
+
+**Depends on:** Story 1's existing process-log contract. Story 2's public
+release/adoption is not technically required for internal naming. Any necessary
+public naming-compatibility and release-provenance edits belong in `src/skills/`;
+release stays separate. The internal skill and naming record are not published.
+
+**Safe stopping point:** The naming record and chat mapping are useful without
+collecting further feedback, applying a rename, or acting on a finding.
+
+**Open decisions:** None blocks this bounded refinement.
 
 <a id="observe-retrospective-response-effectiveness"></a>
 
@@ -392,15 +489,51 @@ applying a near-future direction adjustment is entirely outside this story.
 Cross-tool verification was skipped for this story at the human's direction.
 
 
+<a id="act-on-identified-retrospective-findings"></a>
+
+### 7. Decide and follow up on retrospective findings
+
+**Status:** Selected for backlog on 2026-09-10; awaits story refinement.
+
+**Goal:** The Open Dough maintainer can turn an identified process finding into
+an explicit response and traceable next action, so feedback can improve guidance
+instead of stopping at consistent names.
+
+**Scope:** Assess selected findings and their available evidence, propose a useful
+response, and record the human's disposition against the finding's identity.
+Support a concrete follow-up, a request for evidence, deliberate deferral, or a
+reasoned decision to retain current behavior. Route accepted work through the
+existing story/backlog or correction workflow within established authority.
+Do not assume every finding requires a guidance change.
+
+**Key examples:** A supported guidance problem produces a recorded response and
+linked accepted follow-up work. A finding whose cause remains uncertain produces
+an explicit evidence request or deferral without manufacturing a fix. A reasoned
+no-change decision remains recoverable against the same finding code.
+
+**Boundaries:** Start with Open Dough's own findings. Identity matching and rename
+recommendations belong to Story 3. Cumulative feedback collection is not required
+by this story. Effectiveness evaluation remains Story 4. Automatic implementation,
+release, and remote feedback exchange are not promised; refinement must resolve
+any broader action authority before adding those commitments.
+
+**Depends on:** Available process findings. Use Story 3's internal names when
+available; a local code is sufficient to discuss a response. Queue this immediately
+following Story 3 as requested.
+
+**Safe stopping point:** A recorded disposition and linked follow-up remain useful
+without automating implementation or tracking later effectiveness.
+
 ## Ordering and Scope Reduction
 
-Story 6 source work is complete. Keep Stories 1, 2, and 3 selected and preserve
+Story 6 source work is complete. Keep Stories 1, 2, 3, and 7 selected and preserve
 the relative order of remaining backlog entries, including the workflow-boundary
 fix. Story numbers are stable
 references, not priority ranks. Within the process feedback work, local capture
 gives the earliest value and learning; public
 release/adoption advances reusable lifecycle coverage before adding maintainer
-convenience. Internal consumption follows observations from manual use.
+convenience. Internal naming follows observations from manual use; Story 7 follows Story 3
+in the backlog and owns response decisions and follow-up.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -410,8 +543,9 @@ Bring Story 4 forward if a real response and comparable later execution provide
 an immediate learning opportunity; do not wait for an internal skill solely for
 workflow completeness.
 
-These are outcome boundaries, not slices or an executable plan. Story 6 source
-work is complete; Stories 1–3 still need refinement before slice planning. No estimate distribution
+These are outcome boundaries, not slices or an executable plan. Stories 1 and 6
+are source complete; Story 2 remains unrefined and Story 3 has Quick 040's slice
+plan without implementation authorization. No estimate distribution
 is claimed: repository S/M/L definitions were not found, so bands remain pending
 rather than carrying forward the original oversized story's unsupported L label.
 
@@ -421,9 +555,11 @@ No unresolved product choice prevents the selected order. Project S/M/L effort
 bands must be supplied before comparative estimates are assigned. Story 1
 now defines the local Markdown location, minimal format, occurrence identity,
 and conservative matching in its refined section. Later evidence will
-inform filtering, response dispositions, retention, and cross-project identity;
+inform filtering, response dispositions, retention, and cross-project exchange;
 these are not prerequisites for choosing the local process increment. Story 6
-source work is complete; release/adoption remains Story 2.
+source work is complete; release/adoption remains Story 2. Story 3 now defines
+separate local/internal identities and rename recommendations. Story 7 is queued
+next for action on findings and awaits refinement.
 
 ## When to Surface
 
@@ -447,3 +583,18 @@ when another project's finding offers additional learning.
 - User direction on 2026-09-10: add product review as a separate perspective
   for the executing project, make it the top backlog priority, and make process
   and product review default-on with `--skip-process` and `--skip-product`.
+- Story 3 refinement on 2026-09-10: the user requested a small internal consumer,
+  repository-kept findings and recurrence record, separate internal codes, and
+  chat-only rename suggestions. The request called this the second backlog item;
+  its described capability matches the third queue entry, Story 3. Refine that
+  story without reordering the backlog or replacing Story 2's release/adoption work.
+
+- Clarification on 2026-09-10 supersedes the earlier internal recurrence scope:
+  Story 3 owns code-name consistency only, not cumulative feedback collection or
+  action on findings. Add Story 7 immediately after it in the product backlog
+  for response decisions and follow-up.
+- Further Story 3 scope on 2026-09-10: record the execution's Open Dough release
+  in `DearDough.md` and use relevant internal change history in naming decisions.
+  Keep the code for the same issue persisting into the current revision;
+  distinguish a later issue after a supported correction with a new code.
+  This extends Story 3, without adding another story or authorizing implementation.
