@@ -26,9 +26,10 @@ direct-execution readiness unless explicit refinement triggers remain.
 
 ## Client project context
 
-Story and seed; executable-plan path and lifecycle; slice target, hard
-limit, exceptions, and repeated-overrun policy; verification and delivery gates;
-relevant stack rules and Accepted ADRs.
+Story and seed; canonical executable-plan root, filename layout, lifecycle, and
+active-plan status vocabulary; slice target, hard limit, exceptions, and
+repeated-overrun policy; verification and delivery gates; relevant stack rules
+and Accepted ADRs.
 
 ## Differences that rule out replacement
 
@@ -61,6 +62,27 @@ their source copies were extended with ADR-0006-style execution sections for the
 slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 Both slice skills link those authoritative sections rather than copying them.
 Client installation remains separate validation.
+
+### Slice 1 numbering walkthrough — 2026-09-10
+
+Candidate: base revision `d0a8263366168cb9cccc82adbcbd642ee40890f3`; uncommitted source change in
+`src/skills/dough-slice-planning/` for Quick 033 Slice 1.
+
+Inputs: a disposable quick-plan root containing
+`001-existing/PLAN.md` through `032-existing/PLAN.md`, a selected story, and
+project layout `NNN-<slug>/PLAN.md`. The walkthrough also supplied an active
+matching plan, created `033-new-story` after candidate selection, and omitted
+the root in a separate case.
+
+Observed results: a new story selected `033-new-story/PLAN.md`; the matching
+active plan was reused; the newly occupied `033-new-story/PLAN.md` retained its
+original contents and the result advanced to `034-new-story/PLAN.md`; the absent
+root returned missing context without a number. The check inspected paths and
+file contents, not wording in this record or skill.
+
+Limitations: this is a disposable source-guidance walkthrough, not native
+installed-host acceptance. Slice 2 separately covers absent sizing policy; the
+release and installed-use slices retain the remaining native evidence.
 
 Inspected source SHA-256 values (paths relative to the supplied repository):
 
