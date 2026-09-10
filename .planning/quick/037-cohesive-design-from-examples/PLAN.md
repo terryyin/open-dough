@@ -308,7 +308,11 @@ no hook or formatting configuration change is warranted.
 
 CI: `terryyin/open-dough`, `ci.yml` / `CI`, push-triggered. Codex observer
 coordinator `root-canonical`, cell 12, session 65416, PID 20303, receipt
-`/tmp/dough-ci-501/watch-SDxjdK`, checkout as above; status watching.
+`/tmp/dough-ci-501/watch-SDxjdK`, checkout as above; status stopped after final slice delivery. Cell 12 was reaped
+and PID exit confirmed. Pending CI is unobserved. All four streamed failure
+events were inspected and resolved by the fixture repair described below; the
+retained mailbox receipt reports four unread records because its persisted
+delivery cursor was not advanced by the stream adapter.
 The initial noncanonical `/tmp` invocation exited without launching: its CLI
 entrypoint compares the invoked path with the canonical module URL. The
 canonical launch produced the receipt above.
