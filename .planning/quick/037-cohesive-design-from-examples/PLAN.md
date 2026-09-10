@@ -178,7 +178,7 @@ Sizing: one decision handoff exercised at existing consumers; no new approval UI
 
 ### Refactor complete concepts beyond shared helpers
 Type: Behavior
-Status: planned
+Status: done
 Proof: Review handlers sharing persistence helpers plus an untouched parallel
 representation; inspect the smallest coherent refactor and its focused proof.
 
@@ -349,3 +349,17 @@ while independent reviews continued. No disputed behavior changed. Planning
 classified the contractual conflict as Escalate. A supplied attachment maximum
 remained binding with its rejection proof. Changed links/anchors/frontmatter and
 whitespace checks passed; independent refactor review found no edits needed.
+
+### Complete concepts — authoring observation
+
+Two representative import handlers shared persistence but repeated validation,
+ordering, and attachment-limit knowledge; an untouched preview repeated
+validation. The proposed smallest refactor gave shared rules one home consumed
+by both handlers and preview, retaining distinct representations justified by
+their responsibilities. Helper reuse alone failed the review. Focused proof
+covered both promised imports, preview/import agreement, and genuine over-limit
+rejection, without promises for hypothetical layouts or a speculative framework.
+An unresolved exact-layout contract or genuine architectural conflict stopped
+before edits; story-named handlers alone did not establish separate subsystems.
+Links/anchors/frontmatter and whitespace checks passed. Independent review
+found no refactor changes needed. No native product behavior is claimed.
