@@ -366,35 +366,47 @@ Cross-tool verification was skipped for this story at the human's direction.
 
 ### 7. Decide and follow up on retrospective findings
 
-**Status:** Selected for backlog on 2026-09-10; awaits story refinement.
+**Status:** Refined for planning on 2026-09-10; implementation not started.
+**Plan:** [Finding triage slices](../quick/039-triage-retrospective-findings/PLAN.md).
 
-**Goal:** The Open Dough maintainer can turn an identified process finding into
-an explicit response and traceable next action, so feedback can improve guidance
-instead of stopping at consistent names.
+**Goal:** The Open Dough maintainer receives a reasoned ordering of process
+findings and turns a developer-selected response into traceable queued work.
 
-**Scope:** Assess selected findings and their available evidence, propose a useful
-response, and record the human's disposition against the finding's identity.
-Support a concrete follow-up, a request for evidence, deliberate deferral, or a
-reasoned decision to retain current behavior. Route accepted work through the
-existing story/backlog or correction workflow within established authority.
-Do not assume every finding requires a guidance change.
+**Scope:** Build an internal maintainer skill. Review supplied accumulated finding
+evidence with already reconciled internal identities. Recommend priority using
+severity, distinct supported recurrence, confidence, and established direction;
+explain judgment without a numeric formula. The developer chooses what enters
+the backlog. Reuse a canonical story/appropriate seed or create a minimal story
+and seed as needed, queue the canonical story reference, and link it reciprocally
+with the retained finding. Surface already-linked queued or Taken work instead
+of duplicating it. Record explicit deferral, evidence requests, or no-change
+choices without manufacturing a fix. Preserve findings and occurrence history.
 
-**Key examples:** A supported guidance problem produces a recorded response and
-linked accepted follow-up work. A finding whose cause remains uncertain produces
-an explicit evidence request or deferral without manufacturing a fix. A reasoned
-no-change decision remains recoverable against the same finding code.
+**Key examples:** A severe one-off can outrank repeated minor cost with an
+explanation. An accepted proposal becomes a story in an existing or newly needed
+seed, a backlog reference, and reciprocal finding link. A rereview exposes the
+existing follow-up without duplicating work. Insufficient evidence produces a
+qualified recommendation or evidence request, not invented recurrence.
 
-**Boundaries:** Start with Open Dough's own findings. Identity matching and rename
-recommendations belong to the internal `reconcile-finding-names` skill.
-Cumulative feedback collection is not required by this story. Effectiveness evaluation remains Story 4. Automatic implementation,
-release, and remote feedback exchange are not promised; refinement must resolve
-any broader action authority before adding those commitments.
+**Boundaries:** Build and verify with fictional examples; leave real
+`DearDough.md` and the naming catalog alone. A later real trial must first use
+`reconcile-finding-names` to establish missing internal identities separately.
+This skill does not assign codes or collect occurrences. Defer collection
+infrastructure, remote exchange, scheduled triage, downstream story refinement,
+planning and execution, automatic guidance changes, effectiveness assessment,
+and finding removal/archival. Story 2 retains release/adoption; backlog priority
+is unchanged by selecting this story for planning.
 
-**Depends on:** Available process findings. Use internal catalog names when
-available; a local code is sufficient to discuss a response.
+**Input assumption:** The invocation supplies the canonical accumulated evidence
+location with reconciled identities and, for accepted writes, its writable
+finding location. No new maintained log or default path is selected. Missing
+inputs stop dependent work usefully. The current naming catalog holds mappings,
+not recurrence. This contract lets fictional inputs prove the skill before any
+real accumulated-log adoption; the later production location remains outside
+this delivery.
 
-**Safe stopping point:** A recorded disposition and linked follow-up remain useful
-without automating implementation or tracking later effectiveness.
+**Safe stopping point:** Developer-selected work is recoverable from both the
+queue and retained finding, without executing it or deleting its evidence.
 
 ## Ordering and Scope Reduction
 
@@ -427,8 +439,8 @@ now defines the local Markdown location, minimal format, occurrence identity,
 and conservative matching in its refined section. Later evidence will
 inform filtering, response dispositions, retention, and cross-project exchange;
 these are not prerequisites for choosing the local process increment. Story 6
-source work is complete; release/adoption remains Story 2. Story 7 is queued
-for action on findings and awaits refinement.
+source work is complete; release/adoption remains Story 2. Story 7 is refined and planned for action on findings; implementation remains
+separately authorized work.
 
 ## When to Surface
 
