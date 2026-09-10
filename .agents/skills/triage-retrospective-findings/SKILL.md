@@ -3,10 +3,11 @@ name: triage-retrospective-findings
 description: >-
   Recommend an ordered, evidence-linked follow-up proposal for reconciled Open Dough
   process findings, and when a developer selects a proposal, record one evaluable
-  story in a supplied existing seed, queue its canonical reference, and link the
-  retained finding. Use when a maintainer asks to triage findings, prioritize
-  process findings, recommend finding follow-up, queue a selected finding
-  response, or turn a selected retrospective finding into backlog work.
+  story in a suitable existing seed or a newly created canonical seed, queue its
+  canonical reference, and link the retained finding. Use when a maintainer asks
+  to triage findings, prioritize process findings, recommend finding follow-up,
+  queue a selected finding response, or turn a selected retrospective finding into
+  backlog work.
 ---
 
 # Triage retrospective findings
@@ -30,14 +31,19 @@ not allocate, rename, or collect catalog identities.
 Use when a maintainer asks to triage, prioritize, or recommend follow-up for
 already recorded process findings, or to produce an ordered proposal from
 supplied accumulated evidence. Use the same skill when the developer then
-selects a proposal to queue into an existing seed.
+selects a proposal to queue into a suitable existing seed or, when none is
+suitable, a newly created canonical seed.
 
 Do not use this skill to allocate `ODF-NNN` codes, rename findings, collect or
-count occurrences into a catalog, fetch other projects, create a missing
-seed, or record a deferral, evidence request, or no-change disposition without
-queueing. Ranking may still *recommend* those non-queue dispositions. Do not
-invent those writes, and do not add a rule that would force a second story, a
-new seed, or a queued item for those choices.
+count occurrences into a catalog, fetch other projects, or record a deferral,
+evidence request, or no-change disposition without queueing. Ranking may still
+*recommend* those non-queue dispositions. Do not invent those writes, and do
+not add a rule that would force a second story, a new seed, or a queued item
+for those choices.
+
+Create a seed only on the selected-proposal path, and only when the supplied
+canonical seed directory has no suitable existing seed. Do not create a seed
+during ranking. Do not invent a seed location or ID scheme.
 
 Do not treat real `DearDough.md` or `docs/maintainer/finding-names.md` as a
 default input or write target. The evidence path must be supplied explicitly.
@@ -97,9 +103,13 @@ When the developer **selects** a proposal for queued follow-up, also require:
    disposition. It may be the same file as accumulated evidence. Do not guess
    `DearDough.md`. Missing writable location blocks the reciprocal-link
    contract; see [Validate before any edit](#validate-before-any-edit).
-4. **Existing appropriate seed** — an explicitly supplied seed path that already
-   exists and is a suitable home for this finding's follow-up. Do not invent a
-   seed or filename.
+4. **Seed destination** — an existing suitable seed path, or an explicit
+   **canonical seed directory**. Do not guess `.planning/seeds/`. If a suitable
+   existing seed is supplied or found in that directory, reuse it (same writes
+   as an existing-seed queue). If none is suitable, the canonical seed directory
+   is required so a minimal seed can be created there. Resolve identity,
+   filename, metadata fields, and stable-anchor conventions from files already
+   in that directory, or from invocation-supplied convention.
 5. **Canonical backlog path** — the backlog file to receive the canonical story
    reference. Follow
    [dough-product-backlog](../dough-product-backlog/SKILL.md). Do not invent a
@@ -174,7 +184,7 @@ not as ranked invented items.
 When this invocation is recommendation-only, state that it does not authorize
 queueing, seed creation, disposition recording, or finding edits.
 
-## Queue a selected response in an existing seed
+## Queue a selected response
 
 Run this path only after a developer selection for **queued follow-up**. Record
 the selection as queued follow-up, not problem resolution. Do not start story
@@ -191,17 +201,32 @@ Near-future direction unless the developer gives a priority instruction).
 
 Check every destination before changing any file:
 
-- The supplied seed exists, is writable, and is an **appropriate** home for
-  this finding's follow-up (the parent problem can host this response). If the
-  seed is missing, stop and say that a suitable existing seed is required; do
-  not invent one. If the seed exists but is unsuitable, stop and say so; do not
-  stuff unrelated work into it.
+- The writable finding location was supplied, exists, and is writable. If it
+  is missing, **do not create a seed, write an existing seed, or write the
+  queue**. The reciprocal-link contract cannot be completed; report that concrete
+  block. Prefer this pre-edit stop over a half-linked story.
+- Suitability: a seed is a suitable home when its parent problem can host this
+  finding's follow-up.
+  - If a suitable existing seed is supplied, or found in the supplied canonical
+    seed directory, reuse it. Do not allocate a new seed. A supplied seed that
+    exists but is unsuitable is not reused; do not stuff unrelated work into it.
+  - If no suitable seed is available, the canonical seed directory must have been
+    supplied and be readable. If it is missing or unreadable, stop. Do not
+    invent `.planning/seeds/` or another path. Do not claim a queued or linked
+    outcome.
+  - Seed conventions for a new seed are resolvable from existing `SEED-NNN`
+    files in that supplied directory, or from invocation-supplied convention: ID
+    pattern, next unused ID (one greater than the highest `SEED-NNN` already in
+    **that supplied directory**), filename pattern, required frontmatter fields,
+    title shape `# SEED-NNN: ...`, and `<a id="kebab-case"></a>` immediately
+    before the story heading. If the directory is empty and no invocation
+    convention was supplied, or next ID or required metadata fields cannot be
+    determined, stop. Do not invent a location or ID scheme.
+  - If none is suitable and conventions are resolved, create one minimal
+    canonical seed in the supplied directory, then continue with the same
+    linked writes as an existing-seed queue.
 - Backlog conventions are identifiable (title, Near-future direction when
   present, Taken retained, Backlog list). If they are not, stop before editing.
-- The writable finding location was supplied, exists, and is writable. If it
-  is missing, **do not write the seed or the queue**. The reciprocal-link
-  contract cannot be completed; report that concrete block. Prefer this
-  pre-edit stop over a half-linked story.
 - The selected finding has a reconciled `ODF-NNN` identity in the evidence. If
   not, route identity work to `reconcile-finding-names` and make no write.
 - The story would be evaluable: a named beneficiary and an evaluable outcome
@@ -211,17 +236,47 @@ Check every destination before changing any file:
 A finding that already records queued or Taken follow-up is left for later
 rereview; do not add a second story, queue line, or disposition.
 
+### Create a minimal canonical seed
+
+When no suitable existing seed is available and validation above succeeded,
+create one seed file in the supplied directory:
+
+1. Allocate the next unused `SEED-NNN` (highest already in that directory plus
+   one) and a filename that matches the directory's existing pattern
+   (`SEED-NNN-<kebab>.md`).
+2. Write required metadata using the field names already used in that
+   directory (typically `id`, `status`, `planted`, `planted_during`,
+   `trigger_when`, `scope`). Map them from
+   [seed-format](../dough-story-decomposition/references/seed-format.md): seed
+   identity, this project's status vocabulary from existing files or invocation,
+   creation date, creation context from the invocation, resurfacing trigger, and
+   whole-set size. Do not invent field names or an ID scheme.
+3. Title: `# SEED-NNN: <parent problem that can host this follow-up>`.
+4. A short **Why This Matters** (beneficiary, current problem, desired effect).
+
+Do not write the queued story here. Do not add sibling stories, a slice plan, or
+implementation. Do not invoke story refinement or full story decomposition beyond
+this minimal host.
+
+Preserve any unrelated seeds already in the directory; do not rewrite them.
+
+Then write the three linked records using that new seed as the story home.
+
 ### Write the three linked records
 
-After validation succeeds, write all three in one invocation. Preserve
-occurrences, human notes, unrelated findings, unrelated sibling stories,
-unrelated queue order, and direction text.
+After validation succeeds (and after creating a seed when none was suitable),
+write all three in one invocation. Preserve occurrences, human notes,
+unrelated findings, unrelated sibling stories, unrelated seeds, unrelated queue
+order, and direction text.
 
-1. **Story in the existing seed.** Add one new story with the next unused local
-   number, a kebab-case stable anchor, named beneficiary, and evaluable outcome.
-   On the story, record the finding code and the supplied finding location. Do
-   not copy occurrence rows into the seed. Do not rewrite sibling stories or
-   seed metadata.
+1. **Story in the destination seed.** In the existing suitable seed, or in the
+   newly created seed, add one new story under the destination's story-section
+   heading (use the directory's heading pattern; on a new seed, add that
+   heading). Use the next unused local number (1 on a new seed), a kebab-case
+   stable anchor, named beneficiary, and evaluable outcome. On the story,
+   record the finding code and the supplied finding location. Do not copy
+   occurrence rows into the seed. Do not rewrite sibling stories or, on an
+   existing seed, its metadata.
 2. **Canonical queue entry.** Add the story to **Backlog list** (not Taken)
    using the exact title linked to its stable anchor plus the seed ID. Leave
    details in the seed. Queueing here does not start execution.
@@ -240,7 +295,9 @@ link is missing. Do not claim that all links were saved. Do not silently roll
 forward as if the reciprocal contract completed.
 
 A missing writable finding location is not a partial success: it is a
-pre-edit stop, so seed and queue remain unchanged.
+pre-edit stop, so no seed is created and the existing seed and queue remain
+unchanged. Missing or unusable seed conventions are the same kind of pre-edit
+stop: invent no path, and do not claim queue or finding writes complete.
 
 ## Boundaries
 
@@ -250,9 +307,13 @@ pre-edit stop, so seed and queue remain unchanged.
 - Do not fetch other projects or scan unrelated logs.
 - Do not treat similar symptoms as a shared cause.
 - Do not count the same execution twice.
-- Do not invent recurrence, codes, fixes, seeds, or direction text.
+- Do not invent recurrence, codes, fixes, seed locations, ID schemes, or
+  direction text.
+- Do not guess `.planning/seeds/` as the canonical seed directory.
+- Do not force unrelated follow-up into an unsuitable existing seed.
 - Do not claim a queued, seeded, or dispositioned outcome from a
   recommendation-only invocation.
 - Do not claim a fully linked outcome when the reciprocal finding update was
-  blocked or failed.
+  blocked or failed, or when seed conventions could not be resolved.
 - Do not generate a slice plan or implement the proposed fix.
+- Do not invoke story refinement to fabricate a seed or story.

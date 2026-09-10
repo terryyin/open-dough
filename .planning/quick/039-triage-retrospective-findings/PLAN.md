@@ -117,18 +117,19 @@ support is the next slice, not a permanent restriction.
 
 ### 3. Host a selected response when no suitable seed exists
 Type: Behavior
-Status: planned
+Status: done
+Proof: Absent-seed walk allocated `SEED-902` (`SEED-902-protect-reviewed-execution-commits.md`)
+with required metadata, evaluable story, canonical queue link, and reciprocal
+queued follow-up on `ODF-901`. Unsuitable `SEED-901` was not written.
+Reuse walk added story 4 to existing `SEED-901` and allocated no `SEED-902`.
+Missing conventions and missing writable finding location were pre-edit stops.
+Real log, catalog, and `.planning/seeds/` stayed unused/unchanged.
+Evidence: [evidence/slice-3/WALKTHROUGH.md](evidence/slice-3/WALKTHROUGH.md).
 
 Behavior: Given the same accepted-response journey without a suitable seed,
 create a minimal canonical seed using this project's identity and anchor
 conventions, then produce the same linked queued outcome as slice 2. Reuse a
 suitable existing seed whenever one exists; do not force unrelated work into it.
-
-Proof: One isolated absent-seed walkthrough checks the newly allocated seed's
-required metadata, beneficiary and evaluable story, canonical queue link, and
-reciprocal finding link. Missing canonical seed conventions stops the dependent
-write usefully rather than inventing a location. No slice plan or implementation
-is generated for the proposed fix.
 
 Safe stop: The selected work has a durable home without downstream refinement.
 
@@ -216,9 +217,11 @@ Retain plan and evidence for retrospective and story wrap-up.
 
 - Slice 1 `57425ff`: recommendation-only skill, ranking evidence under
   `evidence/slice-1/`.
-- Slice 2 delivered in this wrap-up: selected-proposal queue path in the same
-  skill; evidence under `evidence/slice-2/`. Missing writable finding location
-  is a pre-edit stop.
+- Slice 2 `1d05077`: selected-proposal queue path; evidence under
+  `evidence/slice-2/`. Missing writable finding location is a pre-edit stop.
+- Slice 3 delivered in this wrap-up: allocate a minimal canonical seed when none
+  is suitable, then the same linked queued outcome; evidence under
+  `evidence/slice-3/`.
 - Branch: `worktree-quick-039-triage-retrospective-findings`.
 - CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
   Started from the main-checkout skill scripts so Cursor hooks bind the
@@ -226,7 +229,7 @@ Retain plan and evidence for retrospective and story wrap-up.
 
 ## Learnings
 
-None that change remaining slices. Slice 3 must create a minimal canonical seed
-when no suitable existing seed is supplied, then reuse the same linked queued
-outcome as slice 2. Do not force unrelated work into an existing seed. Fictional
-`ODF-901`–`ODF-903` stay out of the naming catalog.
+None that change remaining slices. Slice 4 must surface existing queued or Taken
+follow-up on rereview without duplicating story, seed, queue, or disposition.
+Slice 5 still owns recording deferral / evidence-request / no-change without a
+queue item. Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.
