@@ -34,7 +34,7 @@ while Git can recover what was removed.
   log occurrences, and incoming historical links without archives or tombstones.
 - Preserves sibling stories, unrelated log text, human notes, and ambiguous
   records that cannot be attributed to the selected execution.
-- Leaves follow-up plans and product-review advice intact until later slices.
+- Puts an existing follow-up plan's story first without replanning or executing it.
 
 ## Client project context
 
@@ -85,3 +85,12 @@ Spent-only `DD-001`, the spent `DD-003` occurrence, the recently-done entry,
 the incoming plan link, and the spent seed section disappeared. Sibling
 story, `DD-002` human note, ambiguous `DD-004`, and sentinels remained. A
 second invocation made no further edits. Recovery used `2e11de9`.
+
+## Slice 3 local behavior evidence
+
+Walked follow-up queueing on 2026-09-10.
+[evidence/slice-3/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-3/WALKTHROUGH.md).
+
+An existing retry story moved first and linked the existing plan. A
+supplied beneficiary/outcome created one home. Missing outcome kept the
+plan without inventing a story. Rerun did not duplicate the queue entry.

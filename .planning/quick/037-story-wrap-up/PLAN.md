@@ -3,7 +3,7 @@
 ## Source and outcome
 
 [SEED-011 — Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: in progress. Slices 1–2 are done.
+Status: in progress. Slices 1–3 are done.
 
 A developer closes one completed story after retrospective: relevant product
 changes are applied, existing follow-up work is first in the queue, lasting
@@ -148,9 +148,10 @@ or recurrence-model redesign.
 
 ### Put an existing follow-up plan first
 Type: Behavior
-Status: planned
+Status: done
 Proof: The fixture with one existing corrective plan, exercised with an existing
 canonical follow-up story and with only enough supplied context to create its home.
+Evidence: [evidence/slice-3/WALKTHROUGH.md](evidence/slice-3/WALKTHROUGH.md).
 
 Behavior: Given a completed retrospective supplying a follow-up plan, when wrap-up
 runs, that plan's active story is first in the queue and self-contained, while
@@ -291,7 +292,7 @@ new-integration assumption requires an experiment. Native access and prior
 proof validity remain execution-time acceptance concerns, not passed checks.
 If implementation reveals multiple mechanisms or unbounded work, refine the
 affected slice in this same plan. Do not drop scope or waive checks to meet a
-deadline. Slices 1–2 are done. Remaining slices stay planned.
+deadline. Slices 1–3 are done. Remaining slices stay planned.
 
 ## Learnings
 

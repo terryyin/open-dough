@@ -68,12 +68,32 @@ without execution narration, impact chronology, story or plan identity, or
 retrospective judgments. Preserve existing product tests and documents that
 already state current behavior. Do not invent product knowledge.
 
+## Queue an existing follow-up plan first
+
+When the retrospective supplies an existing follow-up plan, put that plan's
+active story first in the queue. Do not replan or execute it. Preserve the
+plan contents needed for later execution.
+
+Resolve one canonical story reference:
+
+- If a canonical follow-up story already exists, link the existing plan there
+  and remove historical references to the closed execution.
+- If none exists, create one home only when the supplied outcome names a
+  beneficiary and an evaluable outcome. Use this project's seed and anchor
+  conventions. Do not invent either field.
+- If beneficiary or outcome is missing, do not guess the addition. Keep the
+  follow-up plan and any other needed active-work context, report the gap, and
+  continue supported wrap-up of the closed story.
+
+Preserve unrelated queue order after that first item, and preserve
+near-future direction. Repeating wrap-up must not duplicate the follow-up
+story or queue entry.
+
 ## Leave unsupported wrap-up actions intact
 
-Follow-up plans and product-review advice remain unsupported. If those are
-present, leave their required inputs intact, report them, and continue with
-the supported deletions below. Do not create, execute, or replan follow-up
-work. Do not launch discovery or another review.
+Product-review advice remains unsupported. If it is present, leave those
+inputs intact, report them, and continue with the supported work below. Do
+not launch discovery or another review.
 
 ## Delete spent history, including shared records
 
@@ -90,7 +110,9 @@ story's references identify as spent:
 - incoming links that exist solely to preserve that spent history.
 
 Preserve unrelated human text, sibling stories, unrelated log issues and
-occurrences, product and version identity, and maintained tests or documents.
+occurrences, product and version identity, maintained tests or documents,
+and any follow-up plan queued above. Do not treat that follow-up plan as
+spent history of the closed story.
 Resolve ambiguous attribution before deleting that portion; if a log issue or
 link cannot be tied to the selected execution, leave it intact and say so.
 
