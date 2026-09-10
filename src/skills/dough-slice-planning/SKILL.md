@@ -62,7 +62,7 @@ Record the source, goal, included scope, material exclusions, assumptions, and
 key examples without enlarging the story. Read and apply:
 
 - [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices),
-  including its sizing and escalation rules; and
+  including its cumulative design assessment, sizing, and escalation rules; and
 - [executable-plan decisions](../dough-story-refinement/references/planning.md#write-an-executable-plan),
   including executable proof ownership.
 
@@ -76,7 +76,7 @@ engine and version. Record the assumption, literal command, critical
 postcondition, and result in the plan. Failed proof changes the plan before
 broad implementation. Keep experiments off shared and production systems.
 
-During construction, apply those decomposition and sizing checks: correct
+During construction, apply those decomposition, cumulative design, and sizing checks: correct
 obvious defects such as an independent second outcome before reporting, and
 preserve proof ownership and any supplied sizing constraints on every resulting
 slice. [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md)
@@ -89,8 +89,9 @@ After constructing the plan, report remaining concerns rather than a workflow
 verdict:
 
 - Name each remaining slice-specific concern with the affected slice, the
-  reason (for example an integration assumption), and its consequence (for
-  example uncertain sizing). Do not prescribe refinement or certify execution
+  reason (for example an integration assumption or repeated special-case
+  design), and its consequence (for example uncertain sizing or duplicated
+  domain rules). Include concerns spanning successive slices. Do not prescribe refinement or certify execution
   readiness.
 - When no concerns were identified in this assessment, say so narrowly. Do not
   claim that no further refinement is required or treat that finding as

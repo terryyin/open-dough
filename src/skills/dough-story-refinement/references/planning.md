@@ -149,7 +149,8 @@ Edit the same plan in place. Preserve completed slices and resume-useful history
 replace obsolete planned detail rather than appending a competing breakdown,
 and record only learnings that affect remaining work. Apply
 [slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
-and its sizing and escalation rules before declaring execution ready.
+and its cumulative design assessment, sizing, and escalation rules before
+declaring execution ready.
 
 After an execution overrun, record elapsed time, completed evidence, the failure
 or thrash point, and the sizing assumption that proved false. Replace slices

@@ -129,7 +129,7 @@ Sizing: one refinement result with a boundary variation; no new workflow.
 
 ### Plan increments that exercise one coherent model
 Type: Behavior
-Status: planned
+Status: done
 Proof: Plan the refined sequence, then assess the same plan's cumulative design
 through the existing slice-refinement/readiness path.
 
@@ -322,3 +322,16 @@ requirement, no rejection was invented. Implementation reach remained independen
 of delivery grouping. Invocation and required project context remain explicit.
 Local links/frontmatter and `git diff --check` passed. Independent post-change
 review found no refactor needed. This is authoring evidence, not native acceptance.
+
+### Coherent increments — authoring observation
+
+The manual plan assigned the two imports to Behavior increments with each owning
+its import proof and the second preserving the first example. The supported
+rule processed content kinds under their domain rules, extending for Relationship
+behavior without count dispatch or universal-layout promises. An explicit
+attachment maximum retained rejection proof. Cumulative refinement classified
+separate fixture recognizers as Refine despite small single-proof slices; the
+common-rule sequence passed the existing assessment. An already contractual
+exact-layout restriction remained a human decision, not an automatic rewrite.
+Links/anchors/frontmatter, skill validation, and whitespace checks passed.
+Independent refactor review found no changes needed; source-only authoring proof.

@@ -136,6 +136,23 @@ immediately before its Behavior. Use the splitting moves above at this finer
 resolution, but do not split tests from the Behavior they prove or create slices
 around files, layers, components, specialists, or activities.
 
+Evolve the simplest common rule supported by the current examples and domain
+constraints. Apply the shared [examples and constraints
+distinction](../../dough-story-refinement/references/planning.md#examples-and-constraints):
+fixture counts and arrangements alone do not justify production gates. A later
+example should exercise or extend the model, not prescribe another recognizer
+or parallel representation. Do not design a generic framework for hypothetical
+cases or expand delivery and verification promises to every naturally handled
+case. Retain independently justified constraints and their rejection proof.
+
+Assess the sequence cumulatively alongside slice size and proof ownership:
+are the examples exercising one coherent model or accumulating special cases?
+Explain the common rule supported by current evidence and any domain reason for
+separate rules. Delivery grouping alone cannot justify implementation structure.
+Revise unsupported design prescriptions within the authorized scope; surface
+unresolved product or plan constraints for human judgment before conflicting
+changes. Passing each slice's proof does not answer this design question.
+
 Refine a slice when it has independent postconditions or proof loops, separable
 implementation beats before a green result, hidden preparation, low confidence
 at an execution or integration boundary, or, when a hard limit is supplied, a
