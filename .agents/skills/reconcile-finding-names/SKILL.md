@@ -14,7 +14,8 @@ Two roles stay separate even when both are Open Dough:
 
 - **Source project** — the selected project whose supplied feedback or canonical
   `DearDough.md` you inspect. Its local codes stay `DD-NNN` until a human adopts
-  an internal name.
+  an internal name. After that adoption, a source heading may already be
+  `ODF-NNN`.
 - **Open Dough catalog** — this repository's naming record. Internal codes are
   `ODF-NNN`.
 
@@ -97,8 +98,12 @@ Stop usefully when input is missing:
    correction, or uncertain relationship below decide whether this is still
    that identity.
 6. **Source already uses that internal code:** if the source heading is already
-   the matching `ODF-NNN`, report that no rename is needed. Still do not edit
-   the source log or add catalog history.
+   the matching `ODF-NNN` — including a human-adopted heading whose concrete
+   meaning already has that catalog identity — report that no rename is needed
+   for that aligned issue. Do not add a source-mapping alias, rewrite that
+   catalog entry, or collect occurrence history. A new unmatched finding in
+   the same log still follows No known match: allocate the next unused
+   `ODF-NNN` and recommend a rename only for that finding.
 7. **Demonstrated continuity:** when the catalog already has an identity for
    this concrete issue, the supplied finding reports an earlier revision, and
    that entry does not yet record that the issue remains at the current

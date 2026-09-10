@@ -3,9 +3,8 @@
 ## Source and outcome
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
-including the release/history clarification. Status: executing on
-`worktree-quick-040-consistent-finding-names`. Slices 1–5 delivered; slice 6
-remains.
+including the release/history clarification. Status: all six slices delivered on
+`worktree-quick-040-consistent-finding-names`.
 
 The Open Dough maintainer receives a stable internal finding identity and a
 chat-only rename recommendation justified by meaning and relevant revision
@@ -190,18 +189,17 @@ all matching decisions use the same evidence rule, with uncertainty preserved.
 
 ### 6. Continue retrospective logging after a project adopts an internal name
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given a source log whose human has adopted an internal name, the next
 retrospective reuses it for a supported match and gives new issues unused local
 DD codes, preserving release-bearing occurrences.
-Proof: One mixed-name end-to-end scenario: obtain a rename suggestion, let fixture
-setup represent the human rename, and invoke retrospective with a matching and
-an unseen issue. Assert the adopted ODF code is reused, the new DD code does not
-collide or fill an old gap, and releases/old notes/occurrences remain correct.
-Run the internal skill on the resulting input: it reports no rename for the
-already aligned issue and suggests an internal name only for the new finding.
-The internal invocation leaves source bytes unchanged and collects no occurrence
-history. The public skill requires no access to the internal record.
+Proof: Fixture-renamed `ODF-001` received a second occurrence at 0.3.6; original
+0.3.4 row and notes survived. Unmatched finding allocated `DD-002` (not
+`DD-001` or `ODF-002`). Internal skill: no rename for aligned `ODF-001`;
+`Open Dough/DD-002 → ODF-002`; source SHA-256
+`22e04368dd0e556a42f227fe0e10f7acf67a74f1d4449374e861d84e3e14a816` unchanged.
+Public skill did not read the internal catalog.
+Evidence: [evidence/slice-6/WALKTHROUGH.md](evidence/slice-6/WALKTHROUGH.md).
 Safe stop: Full naming round-trip works; no response, automatic rename, release,
 or feedback-collection workflow is introduced.
 
@@ -236,8 +234,8 @@ rather than enlarging the investigation. Scope-changing evidence returns to
 story refinement; slice-only sizing concerns amend this same plan.
 
 Assessment found no remaining slice-specific decomposition concern. The
-execution formatting/hook contract noted above remains an execution-context gap,
-not a reason to split the story or claim that execution has been authorized.
+execution formatting/hook and push destination were resolved during this
+execution (`git diff --check`; `origin worktree-quick-040-consistent-finding-names`).
 
 ## Learnings
 
@@ -266,3 +264,6 @@ Historical A replay does not invent C. Uncertainty stays pending.
 Slice 5: similar symptoms, unknown release, and unverifiable claimed fixes
 allocate separate ODF identities with qualified uncertainty. Matching is no
 longer pending.
+
+Slice 6: mixed-name continuation reuses adopted `ODF-001` and allocates
+`DD-002` without filling `DD-001`. Native mixed-code acceptance remains Story 2.
