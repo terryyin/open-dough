@@ -229,8 +229,7 @@ do not multiply every case across all tools. Record evidence or justified reuse
 for each affected requirement on each tool. Use the released skill in Open Dough
 through its normal update process, with no manually synchronized managed copies.
 
-Also own pending native acceptance for
-[cohesive design from examples](SEED-012-cohesive-design-from-examples.md#cohesive-design-from-examples):
+Also own pending native acceptance for the lifecycle guidance:
 refinement/planning distinctions and cumulative design, refactoring and human
 plan-conflict handoffs, whole-product architecture correction planning, and
 whole-suite test review. Assess these changed behavioral requirements on Codex,

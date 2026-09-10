@@ -14,11 +14,6 @@ context but is not mandatory for a correction.
 Human decision: follow-up plans do not need a seed. Queue this correction by a
 direct link to this plan, preserving unrelated backlog order and direction.
 
-Review provenance (remove with predecessor wrap-up): SEED-012 / Quick 037;
-reviewed commits 0517e0b (examples), ea9c3a8 (design assessment), 99a7eec
-(conflicts), 4a4c7a6 (concept review), 475986e (fixture repair), 943a8f9
-(correction planning), e8ada1a (suite review), 21b39d2 (observer closure).
-
 ## Current evidence and scope
 
 `src/skills/dough-slice-planning/SKILL.md` already accepts bounded retrospective
