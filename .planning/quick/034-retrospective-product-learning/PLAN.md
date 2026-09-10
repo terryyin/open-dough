@@ -211,7 +211,7 @@ Disputed fixture unresolved. Real backlog not written. Evidence:
 
 ### 5. Finish enabled reviews after implementation correction planning
 Type: Behavior
-Status: planned
+Status: done
 Proof: One execution with an implementation correction and separate product/process
 learning receives all supported results without executing the correction plan.
 
@@ -226,6 +226,11 @@ and unfinished plan variants; inspect correct plan destination, preserved eviden
 product/process results, and no execution. Reuse a resolved-finding variation to
 confirm no duplicate correction plan is created. Preserve the existing completion
 marker and optional evidence-gated attention banner in their required order.
+
+Outcome: done. Stop-after-planning now continues other enabled reviews. Unfinished
+amendment and completed follow-up destinations recorded; correction not executed.
+Resolved finding created no duplicate plan. Marker order preserved. Evidence:
+`.planning/quick/034-retrospective-product-learning/evidence/slice-5/`.
 
 ### 6. Select reviews independently
 Type: Behavior

@@ -123,3 +123,13 @@ Authorized disposable backlog received only the intended queue/story edits
 canonical SEED-B detail). Unauthorized copy stayed a proposal. Disputed
 priorities stayed unresolved. Real product backlog and direction were not
 written.
+
+## Slice 5 local behavior evidence
+
+Walked completion-after-correction-planning on 2026-09-10.
+[evidence/slice-5/WALKTHROUGH.md](../../../.planning/quick/034-retrospective-product-learning/evidence/slice-5/WALKTHROUGH.md).
+
+Unfinished and completed variants produced the correct plan destination and
+still reported product/process results. The correction was not executed.
+Resolved current-truth produced no duplicate plan. Completion marker remains
+last except for the gated attention banner.

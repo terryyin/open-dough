@@ -158,8 +158,10 @@ gate. Stop likewise when the findings cannot form one bounded correction.
 
 When two authorized reviews cover the same plan, only the designated writer
 reconciles findings into it; the other reviewer returns read-only evidence.
-After any planning change, stop. Do not refine or execute it unless the user
-separately requests that work.
+After any planning change, do not refine or execute that correction unless the
+user separately requests it. Continue every other enabled review, then
+report. That restriction applies to correction refinement and implementation, not
+to process or product review.
 
 ## Review process only from a real record
 
