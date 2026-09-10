@@ -1,0 +1,7 @@
+SHA-256 of existing-rows/before/DearDough.md and existing-rows/after/DearDough.md
+after an identical rereview of Quick 034 / 7650585. The files are byte-identical.
+
+920da4b3947d84deecf08b02f64d4bf70d3798eb23f7174b31868957435914e4
+
+No Open Dough release field was added. Human notes, DD-002, Tool, and Model
+lines were left as they were.

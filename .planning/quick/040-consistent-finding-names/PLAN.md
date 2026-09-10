@@ -3,8 +3,8 @@
 ## Source and outcome
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
-including the release/history clarification. Status: planned. This request
-allows planning and refinement, not implementation, commit, push, or release.
+including the release/history clarification. Status: all six slices delivered on
+`worktree-quick-040-consistent-finding-names`.
 
 The Open Dough maintainer receives a stable internal finding identity and a
 chat-only rename recommendation justified by meaning and relevant revision
@@ -97,105 +97,109 @@ record, and run `bash tests/install-omits-internal.sh` in slice 2 to prove the
 unreleased boundary through an actual installation. Do not add a parallel
 installer suite or modify payload declarations to ship internal material.
 
-Future execution follows `dough-execute-plan`: proof, independent post-change
-refactor, slice delivery and CI observation when authorized. Use
-`git diff --check` for Markdown changes. `npm run format` currently invokes a
-repository-wide script for JS/JSON/shell, not a selective Markdown formatter;
-no configured `core.hooksPath` or repository `.githooks/pre-commit` was found.
-Resolve the actual selective-format/check-only-hook contract before an execution
-commit rather than inventing a hook, running broad auto-fixes, or bypassing the
-execution skill's gate. Resolve the authorized push destination at execution.
-Retain this plan through retrospective and wrap-up.
+Execution uses `dough-execute-plan`. Selective format for Markdown-only slices
+is `git diff --check`; `npm run format` is a repository-wide JS/JSON/shell
+fixer and is not used as a Markdown formatter. There is no `core.hooksPath` or
+repository pre-commit hook; do not invent one. The check-only gate is
+`git diff --check` on the staged diff. Authorized push destination during this
+execution is `origin worktree-quick-040-consistent-finding-names`. CI observer:
+`/tmp/dough-ci-501/watch-DCr7nh` (`ci.yml` / `CI`). Merge to `main` and drop
+the worktree after all slices. Retain this plan through retrospective and wrap-up.
 
 ## Ordered slices
 
 ### 1. Report the guidance release used by an execution
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given supported process feedback and execution provenance, invoking
 retrospective writes the occurrence with the actual guidance release or an
 explicit unknown/unreleased/modified state.
-Proof: Execute one log-writing walkthrough with provenance variants: work used
-A but review runs under B; no release evidence; modified/unreleased guidance
-with a known revision. Assert A is retained, unknown is explicit, and modified
-content is not called a clean release. Existing rows without releases are
-preserved without guessed backfill; rereview still does not add an occurrence.
-Reuse unaffected skip/no-finding/preservation evidence with a stated reason.
+Proof: Walked used-A-under-B (`0.3.4` retained, not review-time `0.3.6`),
+unknown, and modified with revision `4f8a1c2` / base `0.3.4`. Existing
+Tool/Model-era rows stayed byte-identical on identical rereview
+(`920da4b3947d84deecf08b02f64d4bf70d3798eb23f7174b31868957435914e4`). Skip /
+no-finding / preservation reused from Quick 036 as unchanged. Unreleased uses
+the same state-plus-revision rule as the modified case.
+Evidence: [evidence/slice-1/WALKTHROUGH.md](evidence/slice-1/WALKTHROUGH.md);
+`git diff --check`. Delivered on `worktree-quick-040-consistent-finding-names`.
 Safe stop: Release-bearing logs are useful independently of internal matching.
 
 ### 2. Recommend a stable internal name for an unseen finding
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given one interpretable source finding and no known internal match,
 invoking the internal skill creates one minimal naming entry and returns a
 source-code → ODF-code suggestion without changing source feedback.
-Proof: Walk the first-use invocation using Open Dough as both named roles in an
-isolated fixture. Inspect description, source project/code mapping and references,
-chat suggestion and identical source bytes. Repeat the exact input: the same
-identity is retained, with no count/history added. Missing or empty feedback
-produces no invented finding; an uninterpretable naming record stays unchanged.
-Run the extended existing internal-omission installation check in this slice.
-Interim boundary: Until slices 3–5 provide historical matching, report unsupported
-cross-revision matching as pending without guessing a reuse or correction.
+Proof: Isolated first-use allocated `ODF-001` and recommended
+`Open Dough/DD-001 → ODF-001` with meaning, mapping, and references; source
+SHA-256 `fea3a65ae043b9115275ee63c38e2edfd276606f8b678e9c4d73028b884d5f6a`
+unchanged. Replay kept catalog hash
+`2fe80bfae32ec31bc796a5430aa6ede2e2bd2542c1f5e0850e1ce33f6d9350f2` with no
+counts. Missing feedback and a malformed catalog stayed byte-identical.
+Unsupported cross-revision matching was reported pending at checkout `962b4e7`.
+`bash tests/install-omits-internal.sh` passed.
+Evidence: [evidence/slice-2/WALKTHROUGH.md](evidence/slice-2/WALKTHROUGH.md).
 Safe stop: First identities and replay work; history-dependent decisions remain
 explicitly unresolved.
 
 ### 3. Reuse a code for an issue that persists across revisions
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given an existing identity and feedback from release A, current B still
 contains the same issue → the skill recommends the existing internal code with
 supporting continuity references.
-Proof: One A/B Git fixture has unrelated intervening changes and the concrete
-problem still present. Inspect the relevant historical/current guidance and
-verify reuse with the assessed revision and decisive reference. Different release
-numbers and an alias spelling change must not produce another identity. Source
-bytes remain unchanged.
+Proof: Disposable A/B fixture (reconstruct-fixture.sh) with intervening 0.3.5
+changelog that did not change the recovery skill. Assessed B `f8c2033`
+(`v0.3.6`) still omits a compact reviewed manifest. Recommendation
+`Open Dough/DD-001 → ODF-001` with continuity locators; no `ODF-002`. Alias
+retitle reused the same identity. Source SHA-256
+`fea3a65ae043b9115275ee63c38e2edfd276606f8b678e9c4d73028b884d5f6a` unchanged.
+Evidence: [evidence/slice-3/WALKTHROUGH.md](evidence/slice-3/WALKTHROUGH.md).
 Safe stop: Demonstrated continuity is supported; correction/uncertainty cases
 remain explicitly unresolved until their owning slices.
 
 ### 4. Give a later issue a new identity after an evidenced correction
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given an old code, a demonstrated correction in B, and supported new
 feedback in C, the skill allocates a new code and explains the break in continuity.
-Proof: Extend the Git scenario with a correction and a later reintroduction.
-The recommendation contains a new code and the earlier-code/change relationship.
-Replaying only the historical A report retains its old identity and does not
-invent a C issue. When one source code spans both sides of the correction,
-qualify the new recommendation by revision/locator instead of renaming the
-entire entry. Preserve original mapping and source bytes.
+Proof: A/B/C fixture A `3cd2884` (issue), B `36bb259` (compact-manifest
+correction in the skill file), C `9060700` (reintroduction). Feedback at C
+allocated `ODF-002` with ODF-001/B relationship. Historical A replay stayed
+catalog-identical (`5686fcdd…`) and did not invent C. Spanning `DD-001`
+qualified the new mapping at 0.3.6. Source bytes unchanged.
+Evidence: [evidence/slice-4/WALKTHROUGH.md](evidence/slice-4/WALKTHROUGH.md).
 Safe stop: Supported continuity and breaks share one revision-aware naming rule.
 
 ### 5. Keep uncertain relationships explicit in naming recommendations
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given similar symptoms or insufficient release/history evidence, the
 skill records an interpretable finding separately with qualified uncertainty,
 without asserting continuity or correction; unsafe identity/record writes stop.
-Proof: One matching walkthrough varies decisive evidence: similar rereading
-symptoms with a different unresolved cause; unknown execution release; a claimed
-fix whose relevant change cannot be verified. Inspect separate identity and
-uncertainty, absence of an invented fix/current recurrence, and identical source
-bytes. Replaying uncertain input reuses its recorded identity. Missing source
-identity or malformed catalog produces a stated limitation and no unsafe edit.
+Proof: Similar-symptom `DD-003` allocated `ODF-002` without treating it as
+`ODF-001`. Unknown release and unverifiable claimed fix also allocated separate
+identities without inventing continuity, a fix, or a current recurrence.
+Uncertain replay catalog hash `2999c68f…` unchanged. Missing local code and
+malformed catalog stayed byte-identical. Source bytes unchanged on every
+invocation.
+Evidence: [evidence/slice-5/WALKTHROUGH.md](evidence/slice-5/WALKTHROUGH.md).
 Safe stop: Removes the history-dependent interim limitation from slices 2–3;
 all matching decisions use the same evidence rule, with uncertainty preserved.
 
 ### 6. Continue retrospective logging after a project adopts an internal name
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given a source log whose human has adopted an internal name, the next
 retrospective reuses it for a supported match and gives new issues unused local
 DD codes, preserving release-bearing occurrences.
-Proof: One mixed-name end-to-end scenario: obtain a rename suggestion, let fixture
-setup represent the human rename, and invoke retrospective with a matching and
-an unseen issue. Assert the adopted ODF code is reused, the new DD code does not
-collide or fill an old gap, and releases/old notes/occurrences remain correct.
-Run the internal skill on the resulting input: it reports no rename for the
-already aligned issue and suggests an internal name only for the new finding.
-The internal invocation leaves source bytes unchanged and collects no occurrence
-history. The public skill requires no access to the internal record.
+Proof: Fixture-renamed `ODF-001` received a second occurrence at 0.3.6; original
+0.3.4 row and notes survived. Unmatched finding allocated `DD-002` (not
+`DD-001` or `ODF-002`). Internal skill: no rename for aligned `ODF-001`;
+`Open Dough/DD-002 → ODF-002`; source SHA-256
+`22e04368dd0e556a42f227fe0e10f7acf67a74f1d4449374e861d84e3e14a816` unchanged.
+Public skill did not read the internal catalog.
+Evidence: [evidence/slice-6/WALKTHROUGH.md](evidence/slice-6/WALKTHROUGH.md).
 Safe stop: Full naming round-trip works; no response, automatic rename, release,
 or feedback-collection workflow is introduced.
 
@@ -230,11 +234,36 @@ rather than enlarging the investigation. Scope-changing evidence returns to
 story refinement; slice-only sizing concerns amend this same plan.
 
 Assessment found no remaining slice-specific decomposition concern. The
-execution formatting/hook contract noted above remains an execution-context gap,
-not a reason to split the story or claim that execution has been authorized.
+execution formatting/hook and push destination were resolved during this
+execution (`git diff --check`; `origin worktree-quick-040-consistent-finding-names`).
 
 ## Learnings
 
-Planning inspection only: the current public log has tool/model but no guidance
-release; installation records exist but do not establish historical provenance
-without execution evidence. No implementation or behavioral proof has run.
+Slice 1: occurrence template now records `Open Dough release`. Review-time
+updater VERSION files are decoys unless tied to the work. Unreleased and
+modified share one state-plus-revision form; the walkthrough used the modified
+case. Native acceptance of the field remains Story 2.
+
+Slice 2: internal skill and empty catalog are source-only. Isolated catalogs
+are the writable proof target. `assert-public-payload-install.sh` remains a
+payload-completeness helper; omission of the new skill is owned by
+`tests/install-omits-internal.sh`. Cross-revision matching stays pending.
+
+CI repair of slice 2: ShellCheck SC2312 on `tests/install-omits-internal.sh`
+(`find` inside `[[ -z "$(...)" ]]`). Capture-then-assert. Run
+https://github.com/terryyin/open-dough/actions/runs/34448748798 job `lint`.
+Slice 3 then resumed.
+
+Slice 3: ordinary git history on a disposable A/B fixture reuses `ODF-001`
+when the missing-manifest issue remains at B. Changelog wording is not
+effect. Correction and uncertainty stay pending.
+
+Slice 4: evidenced B correction then C reintroduction allocates `ODF-002`.
+Historical A replay does not invent C. Uncertainty stays pending.
+
+Slice 5: similar symptoms, unknown release, and unverifiable claimed fixes
+allocate separate ODF identities with qualified uncertainty. Matching is no
+longer pending.
+
+Slice 6: mixed-name continuation reuses adopted `ODF-001` and allocates
+`DD-002` without filling `DD-001`. Native mixed-code acceptance remains Story 2.

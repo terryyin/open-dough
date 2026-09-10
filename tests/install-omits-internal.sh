@@ -3,7 +3,7 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-internal_skill_names=(release-version extract-guidance)
+internal_skill_names=(release-version extract-guidance reconcile-finding-names)
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 
@@ -14,6 +14,8 @@ done
 [[ -f "${source_dir}/AGENTS.md" ]]
 [[ -f "${source_dir}/CLAUDE.md" ]]
 [[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
+[[ -f "${source_dir}/docs/maintainer/finding-names.md" ]]
+[[ -f "${source_dir}/.claude/skills/reconcile-finding-names/SKILL.md" ]]
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -42,6 +44,7 @@ assert_internal_absent() {
   local root=$1
   local internal_skill_name
   local skill_root
+  local installed_finding_names
 
   for internal_skill_name in "${internal_skill_names[@]}"; do
     for skill_root in .agents .cursor .claude; do
@@ -53,6 +56,9 @@ assert_internal_absent() {
   for skill_root in .agents .cursor .claude; do
     [[ ! -e "${root}/${skill_root}/skills/dough-adr-awareness/RECOGNITION.md" ]]
   done
+  [[ ! -e "${root}/docs/maintainer/finding-names.md" ]]
+  installed_finding_names=$(find "${root}" -name 'finding-names.md' -print)
+  [[ -z "${installed_finding_names}" ]]
 }
 
 assert_sentinels() {
@@ -137,4 +143,4 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, reconcile-finding-names, its Claude discovery pointer, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."

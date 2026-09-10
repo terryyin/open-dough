@@ -1,0 +1,11 @@
+SHA-256 of after-retrospective/DearDough.md and after-internal/DearDough.md
+before and after the internal invocation (byte-identical):
+
+22e04368dd0e556a42f227fe0e10f7acf67a74f1d4449374e861d84e3e14a816
+
+SHA-256 of catalog-before.md: 5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
+SHA-256 of catalog.md:      8a5a9481dd2e5beaf09bca1789d4be64cab4b80ac05ffd23d45e86ef0aa920c1
+
+ODF-001 was left unchanged (no rename, no mapping rewrite, no occurrence
+history). ODF-002 was allocated for Open Dough / DD-002 only. No Occurrences
+section, count, or extra field.

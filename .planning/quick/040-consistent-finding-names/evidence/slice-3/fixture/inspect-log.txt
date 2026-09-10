@@ -1,0 +1,14 @@
+=== git log v0.3.4..v0.3.6 -- skills/recover-execution/SKILL.md ===
+f8c2033 (HEAD -> main, tag: v0.3.6) Reword near-future direction; recovery still omits a compact manifest
+
+=== git log v0.3.4..v0.3.6 --oneline (all files) ===
+f8c2033 (HEAD -> main, tag: v0.3.6) Reword near-future direction; recovery still omits a compact manifest
+4edda03 (tag: v0.3.5) Record 0.3.5 changelog wording and unrelated notes
+
+=== git show --stat v0.3.5 ===
+4edda03 Record 0.3.5 changelog wording and unrelated notes
+
+ CHANGELOG.md | 4 ++++
+ README.md    | 2 ++
+ VERSION      | 2 +-
+ 3 files changed, 7 insertions(+), 1 deletion(-)

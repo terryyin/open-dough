@@ -1,0 +1,6 @@
+SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
+99362e818480cc1be7dd98e270ceee6b2c769322689e251107dfd15530d0b4db
+
+SHA-256 of catalog-before.md: 5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
+SHA-256 of catalog.md:      5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
+Catalog bytes unchanged. Missing local source code; no unsafe mapping write.

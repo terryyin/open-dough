@@ -306,6 +306,7 @@ the order of supported findings:
 - Execution: <stable execution identity>
   - Tool: <Codex, Cursor, Claude Code, or another identified tool>
   - Model: <model identifier, when available>
+  - Open Dough release: <version | unknown | unreleased | modified>
   - Evidence: <decisive compact references or locators>
   - Observed effect: <what the record shows>
   - Inference: <qualified cause, cost, or uncertainty, only when needed>
@@ -324,18 +325,43 @@ omit the Model line instead of guessing or performing a separate lookup. If the
 executing tool cannot be identified, report the finding without adding a
 countable occurrence. Do not backfill older rows without supporting evidence.
 
+On every new occurrence, record `Open Dough release:` as a released version,
+`unknown`, `unreleased`, or `modified`. This is the Open Dough guidance used
+while the work ran — not this project's product version, and not the release
+installed when the retrospective later runs. Resolve it from execution or
+installation provenance tied to the reviewed work. Do not use a current
+checkout `VERSION`, or today's `.agents/skills/dough-update/VERSION` or
+`.claude/skills/dough-update/VERSION`, unless that installation is tied to the
+work. If the release cannot be established, write `unknown`. For unreleased or
+modified guidance, mark that state and attach an available revision and, when
+known, the base released version — for example
+`modified; revision <rev>; base <version>` — rather than a clean released
+version. Do not guess or backfill a release on older rows; an identical
+rereview still makes no edit.
+
 When the canonical log exists, maintain it only when its issue headings,
 descriptions, and occurrence rows are interpretable enough to identify the
-affected issue, execution, and next unused local ID. Preserve existing IDs,
-human notes, prior evidence, unrelated entries, and all content outside the
+affected issue, execution, and next unused local ID. Existing headings may use
+`DD-NNN` or a previously adopted code such as `ODF-001`; both are local issue
+IDs in this project's log. Identify issue IDs only from this project's log. Do
+not mint `ODF-NNN`. Preserve existing IDs, human notes, prior evidence,
+unrelated entries, release-bearing occurrence rows, and all content outside the
 smallest supported edit. Do not migrate, normalize, reorder, delete, or
 automatically merge existing content.
 
 Match an existing issue only when decisive evidence supports the same concrete
 process problem or useful practice; similar wording or symptoms do not establish
-that match. If the relationship is uncertain but the log itself is interpretable,
-create a separate issue with the next unused `DD-NNN` ID and briefly state the
-matching uncertainty. Never change another issue's ID to fill a gap.
+that match. Reuse that issue's existing heading code, including a previously
+adopted code such as `ODF-001`. If the relationship is uncertain, or
+the finding has no supported match, and the log itself is interpretable, create
+a separate issue with the next unused local `DD-NNN` and briefly state matching
+uncertainty when that is the reason. Never change another issue's ID to fill a
+gap.
+
+The next unused `DD-NNN` is one greater than the highest number already used on
+any issue heading, counting both `DD-NNN` and adopted `ODF-NNN` numbers. Do
+not allocate a `DD-NNN` that collides with an existing heading number. If
+`ODF-001` is present, do not allocate `DD-001`.
 
 Within a matched issue, treat equal execution identities as one occurrence. An
 identical rereview makes no edit. Add only newly available decisive evidence or

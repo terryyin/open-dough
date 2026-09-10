@@ -1,0 +1,6 @@
+SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
+f08a15407e4f6666c9447697a95e1957b4d63542208bd3b831f7f995f988f8f6
+
+SHA-256 of catalog-before.md: 13df5df592f4b257f76280bf8a4f6fef80369cca9990b8274d3e8eb354527d85
+SHA-256 of catalog.md:      13df5df592f4b257f76280bf8a4f6fef80369cca9990b8274d3e8eb354527d85
+Catalog bytes unchanged. Title alias did not allocate ODF-002.

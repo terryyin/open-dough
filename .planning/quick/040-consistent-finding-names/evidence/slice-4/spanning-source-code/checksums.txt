@@ -1,0 +1,6 @@
+SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
+d5845581458d0f187756202199b266d98b9b736af131bf12d26233a5672d65de
+
+SHA-256 of catalog-before.md: 5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
+SHA-256 of catalog.md:      071220cb7827ea2948da99c5c1baaa8465795ab2652421426c35687b50b01f0a
+Catalog gained ODF-002 mapped to DD-001 at 0.3.6; ODF-001 source mapping still Open Dough / DD-001. No Occurrences section, count, or overwrite of the earlier mapping.
