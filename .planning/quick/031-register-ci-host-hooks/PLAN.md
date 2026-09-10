@@ -19,7 +19,7 @@ Do not pull those stories into this plan merely because they share source files.
 - Execution resumed 2026-09-09 at the human's direction directly in
   `/Users/terryyin/git/open-dough` on `main`, without a worktree. This supersedes
   the earlier execution location and push destination for remaining slices.
-- Use `planned`, `in-progress`, `done`. Keep this one plan updated during execution;
+- Keep this one plan updated during execution;
   retain unfinished proof and relevant evidence. At completion, update the seed
   and backlog and remove spent planning detail under the existing lifecycle.
 - Per the human's explicit direction, numeric slice budgets and changes to timing

@@ -1,7 +1,7 @@
 # Slice wrap-up
 
-The coordinator runs this sequence after implementation. For a CI repair, apply
-the same proof and delivery gates while keeping the interrupted slice in progress.
+The coordinator runs this sequence after implementation. CI repairs use the
+same proof and delivery gates.
 
 ## Accept proof
 
@@ -49,8 +49,8 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
    correction understanding, record `awaiting correction review` and identify
    the correction plan and affected field. Stop at the safe delivery boundary
    without changing other stories or the correction outcome. This plan update
-   alone does not trigger another formatting pass. A CI repair records its
-   result without marking the interrupted slice done.
+   alone does not trigger another formatting pass. Record a CI repair result
+   with the interrupted slice's existing status.
 6. Stage only owned files or separable owned changes and inspect the staged diff.
    Stage all content only when all of it is owned. Unrelated unstaged work does
    not block delivery. Resolve unrelated staged content or ambiguous ownership

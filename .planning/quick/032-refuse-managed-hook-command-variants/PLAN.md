@@ -119,8 +119,8 @@ file-size limit was found or imported from the external skill's project.
 
 - Planning only in this task. Claude Code is the intended executing coordinator;
   do not launch it or execute, commit, or push while updating this plan.
-- Use this new quick PLAN because the reviewed execution is complete. Keep
-  statuses `planned`, `in-progress`, `done`; preserve Quick 031's evidence.
+- Use this new quick PLAN because the reviewed execution is complete. Preserve
+  Quick 031's evidence.
 - Carry forward Quick 031's explicit human direction excluding numeric slice
   budgets and timing-policy changes. Each slice owns one observable outcome and
   focused proof loop; no numeric sizing readiness or timing guarantee is claimed.

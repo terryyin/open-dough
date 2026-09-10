@@ -1,7 +1,7 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Reviews one completed or in-progress plan execution against its original
+  Reviews one completed or unfinished plan execution against its original
   feature story or bounded-correction contract, aggregate commit set, current
   whole-product architecture, and test suite. Use for an execution
   retrospective, product review, or backlog recommendation even when cleanup
@@ -101,8 +101,8 @@ feature story or bounded-correction input and intended outcome, and any later
 changes supported by user approval or new evidence.
 
 Determine completion from the latest plan state and execution evidence, not file
-presence. Any planned or in-progress slice makes the plan unfinished. A deleted
-plan needs history evidence of completion. If two candidates remain equally
+presence. A plan is complete when every slice is done. A deleted plan needs
+history evidence of completion. If two candidates remain equally
 plausible, ask the user to choose and do not combine them.
 
 Build a manifest of related commits. Include each SHA with a reason grounded in
@@ -219,9 +219,9 @@ a prerequisite to removing or narrowing the corresponding E2E tests. Apply the s
 destination rules as other corrections; the retrospective plans suite cleanup
 and does not perform it.
 
-For an unfinished plan, update that plan in place. Preserve completed and
-in-progress evidence and history; place corrective work before still-planned
-work and revise overlapping planned slices instead of duplicating them. Do not
+For an unfinished plan, update that plan in place. Preserve completed evidence
+and resume-useful history; place corrective work before remaining planned work
+and revise overlapping planned slices instead of duplicating them. Do not
 renumber completed slices. Record the finding and reviewed commit manifest as a
 concise learning when this project's plan format supports it.
 

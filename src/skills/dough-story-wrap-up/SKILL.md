@@ -50,9 +50,9 @@ affected material intact, and do not claim closure.
 
 ## Confirm execution and retrospective are complete
 
-Judge the selected plan from its latest state and execution evidence. Any
-planned or in-progress slice is unfinished. A missing retrospective completion
-is unfinished even when the plan is done. Empty retrospective output still
+Judge the selected plan from its latest state and execution evidence. Execution
+is complete when every slice is done. A missing retrospective completion is
+unfinished even when the plan is done. Empty retrospective output still
 counts as complete when this project or the user records that the review
 finished with nothing to act on. Use only this project's recorded
 retrospective-completion location for that judgment — typically the selected

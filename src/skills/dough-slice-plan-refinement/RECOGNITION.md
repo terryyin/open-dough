@@ -29,7 +29,7 @@ ownership reconciled before execution resumes.
 
 Existing plan and selected story; slice target, hard limit, exceptions,
 and repeated-overrun policy; plan lifecycle and delivery gates; ownership of
-work in progress after an execution attempt.
+unfinished work after an execution attempt.
 
 ## Differences that rule out replacement
 

@@ -12,7 +12,7 @@ Review: ready for maintainer review
 
 ## Purpose
 
-Review one completed or in-progress plan execution against its original story,
+Review one completed or unfinished plan execution against its original story,
 separate implementation findings from process improvements and product
 learning, route only unresolved bounded implementation work back into planning,
 record supported process findings locally, and return product recommendations

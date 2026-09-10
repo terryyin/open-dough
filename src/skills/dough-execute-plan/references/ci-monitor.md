@@ -104,8 +104,7 @@ until that missing history is accounted for.
    infrastructure, record the evidence and ignore the attempt without a repair
    commit. If HEAD already contains a demonstrated repair, accept the focused
    proof without manufacturing another commit. For a new repair, the coordinator
-   runs [wrap-up](wrap-up.md); the interrupted slice stays in progress. Preserve
-   the same observer through the repair push.
+   runs [wrap-up](wrap-up.md). Preserve the same observer through the repair push.
 5. **Restore and resume after repair or a justified no-change disposition.**
    Push a new repair first; otherwise proceed as soon as focused proof shows
    HEAD is already fixed or analysis proves all failures were infrastructure.
