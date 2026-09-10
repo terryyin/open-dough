@@ -52,70 +52,12 @@ replace `dough-execute-plan`, `dough-execution-retrospective`, or standalone
 `dough-product-backlog` maintenance. Those participants keep their review and
 delivery behavior; wrap-up owns later closure.
 
-Under ADR 0003 the revision remains Proposed in `src/skills/` and outside the
-client payload. Under ADR 0005 spent proof is deleted at wrap-up, not retained
-for later judgment. Under ADR 0006 the runtime skill addresses the agent in this
-project and keeps maintainer analysis in this record.
+Under ADR 0003 the skill is declared in the candidate payload and is not
+in a release tag. Under ADR 0005 spent proof is deleted at wrap-up, not
+retained for later judgment. Under ADR 0006 the runtime skill addresses the
+agent in this project and keeps maintainer analysis in this record.
 
 ## Validation needed
 
-Walk one isolated single-story closure with incomplete-plan,
-incomplete-retrospective, and uncommitted-history refusals. Confirm Git
-recovery of deleted paths. Later slices own shared records, follow-up
-priority, product-review decisions, lifecycle alignment, and installation.
-
-## Slice 1 local behavior evidence
-
-Walked standalone closure on 2026-09-10 in worktree
-`/tmp/open-dough-quick-037-story-wrap-up`.
-[evidence/slice-1/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-1/WALKTHROUGH.md).
-
-1. **Invocation.** Description and body name wrap-up after completed execution
-   and retrospective, including empty retrospective output.
-2. **Required context.** Unfinished plan, missing retrospective completion, and
-   uncommitted spent files without Git conventions each leave material intact.
-3. **Useful outcome.** Spent plan, seed, and queue entry disappeared; product
-   docs received the retry rule; unrelated sentinel and product test remained;
-   `git show` recovered the deleted paths from `fe8e287`.
-
-## Slice 2 local behavior evidence
-
-Walked shared-record cleanup on 2026-09-10.
-[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-2/WALKTHROUGH.md).
-
-Spent-only `DD-001`, the spent `DD-003` occurrence, the recently-done entry,
-the incoming plan link, and the spent seed section disappeared. Sibling
-story, `DD-002` human note, ambiguous `DD-004`, and sentinels remained. A
-second invocation made no further edits. Recovery used `2e11de9`.
-
-## Slice 3 local behavior evidence
-
-Walked follow-up queueing on 2026-09-10.
-[evidence/slice-3/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-3/WALKTHROUGH.md).
-
-An existing retry story moved first and linked the existing plan. A
-supplied beneficiary/outcome created one home. Missing outcome kept the
-plan without inventing a story. Rerun did not duplicate the queue entry.
-
-## Slice 4 local behavior evidence
-
-Walked product-review application on 2026-09-10.
-[evidence/slice-4/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-4/WALKTHROUGH.md).
-
-Advice reordered SLO above audit; human correction kept audit above SLO;
-a named new story was added; an unresolved split was reported without a
-guess. Follow-up stayed first. Empty review asked nothing.
-
-## Slice 5 local behavior evidence
-
-Walked execution → retrospective → wrap-up handoffs on 2026-09-10.
-[evidence/slice-5/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-5/WALKTHROUGH.md).
-
-## Slice 6 local behavior evidence
-
-Walked candidate install and installed-skill closure on 2026-09-10.
-[evidence/slice-6/WALKTHROUGH.md](../../../.planning/quick/037-story-wrap-up/evidence/slice-6/WALKTHROUGH.md).
-
-Payload declarations and focused install checks include the two new runtime
-files. Recognition is omitted. This worktree's installed copies were not
-edited. Native wrap-up on Codex, Cursor, and Claude Code remains pending.
+Native wrap-up acceptance on Codex, Cursor, and Claude Code remains unfinished.
+Recover prior walkthroughs from Git if a current native judgment needs them.

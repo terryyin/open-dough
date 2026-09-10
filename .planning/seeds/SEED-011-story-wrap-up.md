@@ -24,9 +24,8 @@ development lifecycle coverage.
 
 ### 1. Story Wrap-Up
 
-**Status:** Source complete on Quick 037. Native wrap-up acceptance on Codex,
-Cursor, and Claude Code remains pending. Not released.
-**Plan:** [Quick 037 — Story Wrap-Up](../quick/037-story-wrap-up/PLAN.md).
+**Status:** Native wrap-up acceptance on Codex, Cursor, and Claude Code remains
+pending. Not released.
 **Working skill name:** `dough-story-wrap-up` (public Open Dough skill).
 
 **Scope:** Deliver one manually invoked skill that closes one selected story
@@ -135,9 +134,9 @@ and [process recording](SEED-010-learn-from-execution-retrospectives.md#turn-ret
 provide existing inputs. Reconcile their source guidance at the handoff and
 cleanup boundaries; do not reopen their review or logging designs.
 
-**Readiness / open decision:** Source implementation is complete on Quick 037.
-Native wrap-up acceptance on Codex, Cursor, and Claude Code remains unfinished
-and blocks release of this increment. No version is selected by this work.
+**Readiness / open decision:** Native wrap-up acceptance on Codex, Cursor, and
+Claude Code remains unfinished and blocks release of this increment. No
+version is selected by this work.
 
 ## Human-Owned Decisions
 
