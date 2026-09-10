@@ -205,7 +205,7 @@ wording so neither partial fixes nor unauthorized constraint changes are implied
 
 ### Review whole-product architecture and plan corrections
 Type: Behavior
-Status: planned
+Status: done
 Proof: Review an aggregate implementation with story-shaped handlers and a
 concrete architectural weakness beyond newly changed files; inspect its finding
 and correction plan, then vary an already-fixed finding.
@@ -381,4 +381,26 @@ three host contexts, collision refusal, edited/missing-reference protection,
 and force restoration. An intermediate attempt was invalidated by editing the
 running shell script; final proof ran with its input unchanged. Independent
 refactor review found no edits needed. Selective shfmt, shellcheck, and whitespace
-checks passed. Slice 5 remains in progress; restore its exact stash after push.
+checks passed. The repair was pushed as `475986e`; all four slice-5 files were then restored
+byte-for-byte and only the recorded task stash was dropped. The pre-existing
+user stash was preserved. Later delivered runs 34434473289/1 (`99a7eec`, job
+102736583977) and 34434661872/1 (`4a4c7a6`, job 102737128368) each showed the
+same sole payload mismatch in bounded failed logs; the current repair and focused
+proof apply to both, so no duplicate repair or retry was needed.
+
+### Whole architecture — authoring observation
+
+The aggregate import implementation and older untouched preview repeated
+attachment rules, requiring coordinated edits despite shared persistence. Review
+identified one current architectural weakness and distinguished the older preview
+from an execution regression. A completed-plan walkthrough produced one bounded
+Structure correction owning shared rule consolidation across the full concept,
+with preservation proof for both imports, preview behavior, and the domain limit.
+No fictitious new feature was needed. The unfinished variant amended overlapping
+remaining work while preserving completed evidence; an already-fixed current
+revision reported the later fix and left planning unchanged. Disputed rejection
+removal stayed pending human judgment. Both skip flags retained implementation
+review; missing plan location or bounded proof stopped planning. Links, anchors,
+frontmatter, and whitespace passed. Independent refactoring aligned one leftover
+planner inspection instruction with the shared Structure correction exception;
+its focused walkthrough preserved the same outcome. Authoring evidence only.

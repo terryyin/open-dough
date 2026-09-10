@@ -2,7 +2,7 @@
 name: dough-execution-retrospective
 description: >-
   Reviews one completed or in-progress plan execution against its original story,
-  aggregate commit set, and current project truth. Use for an execution
+  aggregate commit set, and current whole-product architecture. Use for an execution
   retrospective, product review, or backlog recommendation even when cleanup
   removed the plan or the user supplies only a partial reference. `--skip-process`
   and `--skip-product` omit those reviews independently. May plan unresolved
@@ -13,7 +13,8 @@ description: >-
 # Review an execution
 
 Recover what one plan intended, identify the commits that executed it, and
-review their combined outcome. By default, cover implementation, process, and
+review their combined outcome and the current product architecture. By default,
+cover implementation, process, and
 product learning. Leave the project with evidence and, only when needed, a
 plan for bounded corrections. Do not implement, commit, or push those
 corrections. A retrospective authorizes product recommendations; it does not grant
@@ -40,8 +41,10 @@ focus or write its destination.
   changes, and promised proof before judging implementation.
 - **Commit membership needs evidence.** A nearby commit is not part of the
   execution merely because it is in the same range.
-- **Judge the aggregate result.** Review what the execution left behind, not the
-  temporary state of an individual slice.
+- **Judge the aggregate result and current architecture.** Review the combined
+  execution outcome and the whole product's conceptual structure, including
+  relevant untouched code. Delivery decomposition is not a design objective;
+  coincident product boundaries need independent domain justification.
 - **Current truth decides remediation.** Report later fixes and do not plan work
   that is already resolved.
 - **Plan state decides the destination.** Amend an unfinished plan; create a
@@ -79,8 +82,9 @@ Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and it
 refactor checks before assessing refactoring residue; apply its smell definitions
 to the aggregate result without running its editing workflow. Read
 [dough-slice-planning](../dough-slice-planning/SKILL.md) only when unresolved
-findings need planning, then follow its story, proof, sizing, and destination
-gates. Read [dough-product-backlog](../dough-product-backlog/SKILL.md) only when
+findings need planning, then follow its
+[bounded-correction entry](../dough-slice-planning/SKILL.md#require-an-understood-story),
+proof, sizing, and destination gates. Read [dough-product-backlog](../dough-product-backlog/SKILL.md) only when
 product review is enabled and recommendations depend on those conventions.
 
 ## Recover one execution
@@ -117,9 +121,10 @@ not merely assert that the work fits.
 
 Route a supported deviation through that review's existing authority:
 
-- Implementation: bounded defects of the original contract go to correction
-  planning. A needed scope change is the user's decision, not a rewritten
-  historical contract.
+- Implementation: supported defects and architectural weaknesses go to bounded
+  correction planning under current truth. A needed product-constraint or
+  promised-outcome change is the user's decision, not a rewritten historical
+  contract.
 - Process: produce a process recommendation; do not add it to an
   implementation correction plan.
 - Product: recommend work or priorities. Do not treat a direction mismatch as
@@ -135,7 +140,8 @@ Never propose or apply a replacement or revision of the direction itself.
 
 Apply the shared direction consideration. Then compare the story contract and
 approved changes with the aggregate code, tests, documentation, and proof at
-the execution boundary. For an unfinished plan, judge only the completed slices;
+the execution boundary. For the historical assessment of an unfinished plan,
+judge only the completed slices;
 do not call unexecuted planned behavior missing or its explicitly temporary
 predecessor obsolete.
 
@@ -143,8 +149,24 @@ Keep only findings with concrete evidence and plausible impact:
 
 1. bugs or regressions;
 2. story drift or an unresolved scope dispute;
-3. refactoring residue exposed by the aggregate change; and
-4. another consequential improvement specific to this execution.
+3. refactoring residue in complete implicated concepts; and
+4. consequential weaknesses in the current whole-product architecture.
+
+Assess overall responsibilities, dependencies, and representations against the
+product's domain, not the story sequence. Ask whether successive examples
+exercise a coherent model or accumulate special cases. Use the shared refactor
+checks for concrete concept examination; shared helpers alone do not establish
+cohesion. Follow architectural evidence beyond the changed files to relevant
+untouched code, and explain the concrete impact of a weakness, such as divergent
+domain rules or changes requiring repeated coordinated edits. Whole-product
+assessment is required; it does not require speculative redesign or treating
+cosmetic preferences as defects. Apply
+[dough-adr-awareness](../dough-adr-awareness/SKILL.md) to genuine architectural
+constraints and leave conflicting decisions with the human.
+
+Keep historical attribution separate from current assessment: only claim this
+execution introduced a defect when its provenance supports that claim. An older
+weakness can warrant current correction without becoming an execution regression.
 
 Look explicitly for additions later worked around or replaced: dead branches,
 flags, callers, fixtures, compatibility paths, overlapping tests, tests of
@@ -165,8 +187,13 @@ run broad suites.
 ## Reconcile findings with current truth
 
 Recheck every finding against the current revision and working tree. Report a
-later fix, deduplicate remaining findings by root cause, and keep corrections
-within the original story. If none remain, leave planning unchanged.
+later fix and deduplicate remaining findings by root cause. Use current evidence
+to bound needed corrections across the product, including outside the old
+story's implementation footprint. Preserve existing product promises and genuine
+constraints using the shared
+[scope distinction](../dough-story-refinement/references/planning.md#examples-and-constraints);
+review reach does not authorize new feature promises. If none remain, leave
+planning unchanged.
 
 For an unfinished plan, update that plan in place. Preserve completed and
 in-progress evidence and history; place corrective work before still-planned
@@ -175,10 +202,14 @@ renumber completed slices. Record the finding and reviewed commit manifest as a
 concise learning when this project's plan format supports it.
 
 For a completed execution, use `dough-slice-planning` to create one follow-up
-plan in this project's established location and cite the original story and
-commit manifest. If correction would change the story outcome or boundaries,
-stop for the user's decision instead of creating a plan that bypasses the scope
-gate. Stop likewise when the findings cannot form one bounded correction.
+plan in this project's established location. Cite the original story and commit
+manifest as historical provenance, and the current findings as the correction's
+scope and evidence. State one bounded correction outcome, affected concepts,
+concrete impact, preserved behavior, and focused proof. This may reach beyond the
+original story without rewriting its promises or attributing older defects to
+it. If correction would change product constraints or promised outcomes, stop
+for the user's decision. Stop likewise when the findings cannot form one bounded
+correction.
 
 When two authorized reviews cover the same plan, only the designated writer
 reconciles findings into it; the other reviewer returns read-only evidence.

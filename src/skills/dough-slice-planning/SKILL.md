@@ -3,7 +3,8 @@ name: dough-slice-planning
 description: >-
   Plans one understood, bounded story as an executable sequence of
   Behavior/Structure slices with outside-in proof and safe stopping points. Use
-  when a selected story is ready for implementation planning. Stays within the
+  when a selected story is ready for implementation planning or an execution
+  retrospective has one bounded correction to plan. Stays within the
   triggering instruction's execution authority: finish after writing and
   reporting the plan unless that instruction explicitly also requests execution.
   Reports remaining slice-specific concerns or a limited no-concerns finding;
@@ -13,7 +14,8 @@ description: >-
 
 # Slice planning
 
-Write one sufficient executable plan for one understood story. Stay within the
+Write one sufficient executable plan for one understood story or a bounded
+retrospective correction as described below. Stay within the
 triggering human or parent-agent instruction's explicit execution authority.
 Do not implement product code or invoke execution unless that instruction
 explicitly also requests execution after planning.
@@ -28,11 +30,22 @@ story's goal, scope, or examples are unresolved. Use
 parent problem, candidate selection, or story ordering is unresolved. Never
 turn a decomposition seed directly into an execution plan.
 
+For a correction handed off by
+[dough-execution-retrospective](../dough-execution-retrospective/SKILL.md#reconcile-findings-with-current-truth),
+use its evidenced current findings, one bounded correction outcome, affected
+concepts, preserved product promises and constraints, and evaluable proof as the
+planning input. Cite the original story and reviewed commits for provenance;
+do not invent a new feature story or require the correction to fit the old
+story's implementation footprint. The retrospective owns current-truth checks,
+constraint disputes, and whether to amend an unfinished plan or create a
+follow-up. Missing correction scope or proof stops this planning path.
+
 ## Resolve execution context
 
 Before writing, identify from the user's instructions and this project's guidance:
 
-- the selected story and its seed, when one exists;
+- the selected story and its seed, when one exists, or the retrospective
+  correction input and its source execution;
 - the executable-plan root, filename layout, format additions, status
   vocabulary, and lifecycle;
 - any supplied slice target and hard limit, including their permitted
@@ -43,7 +56,8 @@ Before writing, identify from the user's instructions and this project's guidanc
 
 Resolve these from this project, not this skill's location. First reuse a plan
 that is active under this project's status vocabulary and identifies the
-selected story. Otherwise, inspect the established plan entries in the known
+selected story or correction. Honor the retrospective's unfinished-plan
+amendment destination. Otherwise, inspect the established plan entries in the known
 root: use the number after the highest allocated entry, preserving its numeric
 padding and path layout rather than filling an old gap. Immediately before
 writing, recheck the candidate path. If it is occupied, leave it unchanged,
@@ -59,7 +73,7 @@ or merely inferred location.
 ## Write the plan
 
 Record the source, goal, included scope, material exclusions, assumptions, and
-key examples without enlarging the story. Read and apply:
+key examples without enlarging the story or bounded correction. Read and apply:
 
 - [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices),
   including its cumulative design assessment, sizing, and escalation rules; and
@@ -67,8 +81,8 @@ key examples without enlarging the story. Read and apply:
   including executable proof ownership.
 
 Inspect only the code and tests needed to find the stable outside-in proof entry
-point, behavior to extend, genuine dependencies, and any Structure needed
-immediately before the first Behavior.
+point, behavior to extend or preserve, genuine dependencies, and any Structure
+justified under the linked slice decomposition rules.
 
 For a concrete uncertain infrastructure or storage assumption, reuse matching
 evidence or require one isolated representative proof against the relevant

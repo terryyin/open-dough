@@ -123,18 +123,26 @@ belongs in executable examples and product documentation.
 
 ## Decompose slices
 
-Use slices only after one story is understood and executable planning
-is authorized. Every slice is exactly one of:
+Use slices only after one story or a
+[bounded retrospective correction](../../dough-slice-planning/SKILL.md#require-an-understood-story)
+is understood and executable planning is authorized. Every slice is exactly one of:
 
 | Type | Required content | Reject when |
 | --- | --- | --- |
 | **Behavior** | Pre-condition, trigger, one externally observable postcondition, and outside-in proof | It contains independent postconditions or proof loops |
-| **Structure** | Internal change, unchanged external behavior, and the immediate next Behavior it enables | It prepares for anything beyond that Behavior |
+| **Structure** | Internal change, unchanged external behavior, and the immediate next Behavior it enables, or the retrospective correction below | It prepares beyond that Behavior or evidenced correction |
 
-Tie every Behavior to included story scope or a key example. Put Structure
-immediately before its Behavior. Use the splitting moves above at this finer
+Tie every Behavior to included story or correction scope and an evaluable example.
+Put preparatory Structure immediately before its Behavior. Use the splitting moves above at this finer
 resolution, but do not split tests from the Behavior they prove or create slices
 around files, layers, components, specialists, or activities.
+
+For an evidenced retrospective correction that changes structure while preserving
+product behavior, a Structure slice may instead own that correction directly.
+Name the concrete architectural weakness it removes and prove preserved behavior
+at the affected external boundaries in the same slice. Do not invent a new
+Behavior promise merely to justify the correction. Keep one bounded outcome and
+proof loop; this exception does not authorize speculative preparation.
 
 Evolve the simplest common rule supported by the current examples and domain
 constraints. Apply the shared [examples and constraints

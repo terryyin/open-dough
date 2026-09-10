@@ -5,7 +5,9 @@
 Refine an unresolved selected story in its seed. Once its goal, scope, and key
 examples are understood and executable planning is authorized, write or refine
 one active executable plan. Do not use an execution plan to decide story scope,
-and do not turn a story seed directly into executable work.
+and do not turn a story seed directly into executable work. An evidenced
+[bounded retrospective correction](../../dough-slice-planning/SKILL.md#require-an-understood-story)
+may supply the understood outcome and proof without a new feature story.
 
 ## Refine story understanding
 
@@ -88,7 +90,8 @@ second plan for the same work.
 
 Keep only information needed for execution, proof, review, or resume:
 
-1. **Source** — selected story or decision link when applicable.
+1. **Source** — selected story or decision link, or retrospective findings and
+   execution provenance for a correction.
 2. **Goal and scope** — one selected outcome, material exclusions, and
    assumptions.
 3. **Outside-in proof** — key examples and their observable test or
@@ -110,13 +113,14 @@ Behavior: <pre-condition → trigger → externally observable postcondition>
 ```
 
 For Structure, replace `Behavior` with the internal change and the immediate
-next Behavior it enables. Planning numbers stay in planning artifacts; product
+next Behavior it enables, or the directly owned retrospective correction under
+[slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-slices). Planning numbers stay in planning artifacts; product
 code, tests, and enduring documentation remain capability-named.
 
 ## Own executable proof
 
-Map every checkable final-state promise in the selected story and current
-decisions to an owning slice and observable proof. Inline links or a compact table
+Map every checkable final-state promise in the selected story or bounded
+retrospective correction and current decisions to an owning slice and observable proof. Inline links or a compact table
 are sufficient. Include applicable promises, not broader aspirations. Passing
 commands without the promised observation does not establish completion.
 
