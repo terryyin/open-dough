@@ -1,0 +1,93 @@
+=== git log v0.3.4..v0.3.6 -- skills/recover-execution/SKILL.md ===
+9060700 Reword near-future direction; recovery again omits a compact manifest
+36bb259 Retain a compact reviewed manifest after the first recovery
+
+=== git log v0.3.4..v0.3.6 --oneline (all files) ===
+9060700 Reword near-future direction; recovery again omits a compact manifest
+36bb259 Retain a compact reviewed manifest after the first recovery
+
+=== git show --stat v0.3.5 ===
+36bb259 Retain a compact reviewed manifest after the first recovery
+
+ CHANGELOG.md                      | 4 ++++
+ VERSION                           | 2 +-
+ skills/recover-execution/SKILL.md | 6 +++---
+ 3 files changed, 8 insertions(+), 4 deletions(-)
+
+=== git show v0.3.5 -- skills/recover-execution/SKILL.md (correction meaning) ===
+commit 36bb259583397374a4b0781e426097387af2bf13
+Author: Slice 4 Fixture <slice4@example.test>
+Date:   Tue Sep 8 00:00:00 2026 +0000
+
+    Retain a compact reviewed manifest after the first recovery
+
+diff --git a/skills/recover-execution/SKILL.md b/skills/recover-execution/SKILL.md
+index 48bd09e..e5a188f 100644
+--- a/skills/recover-execution/SKILL.md
++++ b/skills/recover-execution/SKILL.md
+@@ -4,9 +4,9 @@ Search the current conversation, current planning material, and Git history
+ in that order. Recover the earliest execution-ready plan, its intended
+ outcome, and the related commit boundary.
+
+-When later review needs that same boundary, reopen the plan and Git log and
+-reconstruct it. Do not retain a compact reviewed manifest after the first
+-recovery.
++When later review needs that same boundary, retain a compact reviewed
++manifest after the first recovery. Do not reopen the plan and Git log to
++reconstruct it.
+
+ ## Near-future direction
+
+
+=== git show --stat v0.3.6 ===
+9060700 Reword near-future direction; recovery again omits a compact manifest
+
+ CHANGELOG.md                      |  4 ++++
+ VERSION                           |  2 +-
+ skills/recover-execution/SKILL.md | 11 ++++++-----
+ 3 files changed, 11 insertions(+), 6 deletions(-)
+
+=== git show v0.3.6 -- skills/recover-execution/SKILL.md (reintroduction meaning) ===
+commit 9060700d5c041308c34f16103542ebf7c01f5b3e
+Author: Slice 4 Fixture <slice4@example.test>
+Date:   Sat Sep 12 00:00:00 2026 +0000
+
+    Reword near-future direction; recovery again omits a compact manifest
+
+diff --git a/skills/recover-execution/SKILL.md b/skills/recover-execution/SKILL.md
+index e5a188f..5db19c5 100644
+--- a/skills/recover-execution/SKILL.md
++++ b/skills/recover-execution/SKILL.md
+@@ -4,11 +4,12 @@ Search the current conversation, current planning material, and Git history
+ in that order. Recover the earliest execution-ready plan, its intended
+ outcome, and the related commit boundary.
+
+-When later review needs that same boundary, retain a compact reviewed
+-manifest after the first recovery. Do not reopen the plan and Git log to
+-reconstruct it.
++When later review needs that same boundary, reopen the plan and Git log and
++reconstruct it. Do not retain a compact reviewed manifest after the first
++recovery.
+
+ ## Near-future direction
+
+-Treat the established near-future direction as a high-priority criterion.
+-Read it once from the resolved project location.
++Read the established near-future direction once from the resolved project
++location and treat it as a high-priority criterion. A missing direction does
++not stop other reviews.
+
+=== git show v0.3.6:CHANGELOG.md (locates 0.3.6; does not mention reintroduction) ===
+# Changelog
+
+## 0.3.6
+
+Reword near-future direction notes.
+
+## 0.3.5
+
+Retain a compact reviewed manifest after the first recovery.
+
+## 0.3.4
+
+Initial recovery guidance.

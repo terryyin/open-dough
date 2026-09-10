@@ -4,7 +4,7 @@
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
 including the release/history clarification. Status: executing on
-`worktree-quick-040-consistent-finding-names`. Slices 1–3 delivered; slices 4–6
+`worktree-quick-040-consistent-finding-names`. Slices 1–4 delivered; slices 5–6
 remain.
 
 The Open Dough maintainer receives a stable internal finding identity and a
@@ -161,15 +161,15 @@ remain explicitly unresolved until their owning slices.
 
 ### 4. Give a later issue a new identity after an evidenced correction
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given an old code, a demonstrated correction in B, and supported new
 feedback in C, the skill allocates a new code and explains the break in continuity.
-Proof: Extend the Git scenario with a correction and a later reintroduction.
-The recommendation contains a new code and the earlier-code/change relationship.
-Replaying only the historical A report retains its old identity and does not
-invent a C issue. When one source code spans both sides of the correction,
-qualify the new recommendation by revision/locator instead of renaming the
-entire entry. Preserve original mapping and source bytes.
+Proof: A/B/C fixture A `3cd2884` (issue), B `36bb259` (compact-manifest
+correction in the skill file), C `9060700` (reintroduction). Feedback at C
+allocated `ODF-002` with ODF-001/B relationship. Historical A replay stayed
+catalog-identical (`5686fcdd…`) and did not invent C. Spanning `DD-001`
+qualified the new mapping at 0.3.6. Source bytes unchanged.
+Evidence: [evidence/slice-4/WALKTHROUGH.md](evidence/slice-4/WALKTHROUGH.md).
 Safe stop: Supported continuity and breaks share one revision-aware naming rule.
 
 ### 5. Keep uncertain relationships explicit in naming recommendations
@@ -258,3 +258,6 @@ Slice 3 then resumed.
 Slice 3: ordinary git history on a disposable A/B fixture reuses `ODF-001`
 when the missing-manifest issue remains at B. Changelog wording is not
 effect. Correction and uncertainty stay pending.
+
+Slice 4: evidenced B correction then C reintroduction allocates `ODF-002`.
+Historical A replay does not invent C. Uncertainty stays pending.
