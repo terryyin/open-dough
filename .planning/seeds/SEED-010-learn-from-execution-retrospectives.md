@@ -267,7 +267,7 @@ access, or internal consumer is required.
 
 ### 3. Keep internal and external finding code names consistent
 
-**Status:** Executing on 2026-09-10 via Quick 040; slices 1–2 delivered.
+**Status:** Executing on 2026-09-10 via Quick 040; slices 1–3 delivered.
 **Plan:** [Quick 040](../quick/040-consistent-finding-names/PLAN.md).
 
 **Goal:** The Open Dough maintainer can associate a project's finding with a

@@ -44,6 +44,10 @@ Resolve these independently before matching:
    catalog, unless the invocation supplies an isolated writable catalog. When an
    isolated catalog is supplied, write only that file; leave the maintained
    record unchanged.
+4. **Current revision assessed** — for a continuity decision, name the
+   current guidance revision being assessed. Inspect only the relevant local
+   Git history for that revision range as described under Inspect relevant
+   history.
 
 Checksum the source log or supplied feedback before any catalog work. After the
 invocation, the source bytes must be identical.
@@ -68,33 +72,52 @@ Stop usefully when input is missing:
    interpretable source finding (local code plus concrete meaning). Do not import
    occurrence rows, counts, or execution history into the catalog.
 3. For each interpretable finding, look for a current-catalog identity whose
-   **concrete meaning** is the same issue. Wording or symptoms alone are not a
-   match. Match only with decisive evidence already in the catalog.
+   **concrete meaning** is the same issue. Wording, title, or symptoms alone are
+   not a match. Identity is the concrete issue plus evidence of continuity;
+   release numbers locate history and do not partition identities. A spelling or
+   alias change of the same source issue must not mint another identity. Qualify
+   a source alias by project and, when necessary, a revision or evidence locator.
 4. **No known match:** allocate the next unused `ODF-NNN`. Write one minimal
    entry (see below). Recommend `source-project/code → ODF-NNN` in chat with a
    brief matching reason (unseen concrete issue; first unused internal code).
-5. **Known match:** reuse that identity. Recommend the same mapping. Make no
-   catalog edit: do not add counts, history rows, extra fields, or duplicate
-   mappings. Reprocessing the same source finding keeps the same identity.
+   First-use needs only the current catalog and the supplied finding; do not
+   invent a history investigation.
+5. **Known match already recorded:** reuse that identity. Recommend the
+   same mapping. Make no catalog edit: do not add counts, history rows, extra
+   fields, or duplicate mappings. Reprocessing the same source finding keeps
+   the recorded identity.
 6. **Source already uses that internal code:** if the source heading is already
    the matching `ODF-NNN`, report that no rename is needed. Still do not edit
    the source log or add catalog history.
-7. **Unsupported — cross-revision continuity or correction:** matching that would
-   require deciding reuse versus a new code from historical guidance revisions
-   (an issue persisting from release A into B, or a later issue after an
-   evidenced correction) is not supported. Report that limitation as pending
-   without guessing a reuse or a correction. Do not claim a fix or a
-   recurrence. Unknown continuity stays qualified. Still allocate a first
-   identity when the catalog has no known match; first-use needs only the
-   current catalog and the supplied finding.
-8. When a revision-aware decision is attempted, explicitly name the current
-   Open Dough revision being assessed (this checkout). Do not audit all
-   guidance. For first-use with no catalog match, the current catalog plus the
-   supplied finding suffice; do not invent a history investigation.
+7. **Demonstrated continuity:** when the catalog already has an identity for
+   this concrete issue, the supplied finding reports earlier revision A, and
+   that entry does not yet record that the issue remains at the current
+   revision assessed, inspect history as below. If current revision B still
+   contains that same issue, reuse the existing `ODF-NNN` and append continuity
+   locators on that entry (see Catalog entry). Recommend
+   `source-project/code → ODF-NNN` with a brief reason that the same issue
+   remains at B.
+8. **Unsupported — correction or uncertain similarity:** matching that would
+   require a new code after an evidenced correction, or a qualified-uncertainty
+   record when history or similarity is insufficient, is not supported. Report
+   that limitation as pending without guessing a correction, a later new
+   identity, or a recurrence. Missing or unverifiable history is not a
+   demonstrated fix or recurrence. Unknown continuity stays qualified.
 
 Chat is the only recommendation channel. Format:
 `source-project/code → ODF-NNN`. Never edit source feedback, even when the source
 project is Open Dough.
+
+## Inspect relevant history
+
+Use ordinary `git log`, `git show`, and tags on the supplied or selected guidance
+files in a Git repository. This is not a new history engine.
+
+- Bound the inspection to the supplied finding's reported revision through the
+  current revision being assessed, and to the files that could contain that
+  concrete issue. Do not audit all guidance.
+- Inspect tagged content and current guidance. A changelog helps locate a
+  change; it does not prove the change's effect on the issue.
 
 ## Catalog entry
 
@@ -113,6 +136,11 @@ Qualify a source mapping with a revision or occurrence locator when needed so
 one source code cannot overwrite an earlier different issue. Do not add
 occurrence history, totals, or count fields.
 
+When continuity is demonstrated, append compact locators to **References** on
+the existing heading: reported revision A, current revision B, and the
+decisive remaining-issue locator. Do not add a second heading, occurrence
+rows, or counts.
+
 Replace `_No findings allocated yet._` with the first entry. Append later
 entries after existing findings. Do not rewrite unrelated catalog text.
 
@@ -123,3 +151,4 @@ entries after existing findings. Do not rewrite unrelated catalog text.
 - Do not fetch other projects or scan unrelated logs.
 - Do not turn a matching limitation into a claim that a fix or recurrence
   occurred.
+- Do not allocate a new `ODF-NNN` from a release-number difference alone.

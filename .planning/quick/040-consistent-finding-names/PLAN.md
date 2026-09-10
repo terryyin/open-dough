@@ -4,7 +4,7 @@
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
 including the release/history clarification. Status: executing on
-`worktree-quick-040-consistent-finding-names`. Slices 1–2 delivered; slices 3–6
+`worktree-quick-040-consistent-finding-names`. Slices 1–3 delivered; slices 4–6
 remain.
 
 The Open Dough maintainer receives a stable internal finding identity and a
@@ -145,15 +145,17 @@ explicitly unresolved.
 
 ### 3. Reuse a code for an issue that persists across revisions
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given an existing identity and feedback from release A, current B still
 contains the same issue → the skill recommends the existing internal code with
 supporting continuity references.
-Proof: One A/B Git fixture has unrelated intervening changes and the concrete
-problem still present. Inspect the relevant historical/current guidance and
-verify reuse with the assessed revision and decisive reference. Different release
-numbers and an alias spelling change must not produce another identity. Source
-bytes remain unchanged.
+Proof: Disposable A/B fixture (reconstruct-fixture.sh) with intervening 0.3.5
+changelog that did not change the recovery skill. Assessed B `f8c2033`
+(`v0.3.6`) still omits a compact reviewed manifest. Recommendation
+`Open Dough/DD-001 → ODF-001` with continuity locators; no `ODF-002`. Alias
+retitle reused the same identity. Source SHA-256
+`fea3a65ae043b9115275ee63c38e2edfd276606f8b678e9c4d73028b884d5f6a` unchanged.
+Evidence: [evidence/slice-3/WALKTHROUGH.md](evidence/slice-3/WALKTHROUGH.md).
 Safe stop: Demonstrated continuity is supported; correction/uncertainty cases
 remain explicitly unresolved until their owning slices.
 
@@ -251,4 +253,8 @@ payload-completeness helper; omission of the new skill is owned by
 CI repair of slice 2: ShellCheck SC2312 on `tests/install-omits-internal.sh`
 (`find` inside `[[ -z "$(...)" ]]`). Capture-then-assert. Run
 https://github.com/terryyin/open-dough/actions/runs/34448748798 job `lint`.
-Interrupted slice 3 remains in progress.
+Slice 3 then resumed.
+
+Slice 3: ordinary git history on a disposable A/B fixture reuses `ODF-001`
+when the missing-manifest issue remains at B. Changelog wording is not
+effect. Correction and uncertainty stay pending.
