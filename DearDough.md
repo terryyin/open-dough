@@ -41,25 +41,3 @@ plan-recorded retrospective completion marker.
 
 Resolution: On 2026-09-10, the human authorized a one-off closure for this
 execution and retained the existing plan-required wrap-up contract unchanged.
-
-## DD-003 — CI observation skipped when the host bridge is not ready
-
-A completed execution was pushed to the authorized remote, including `main`,
-without an attached CI observer because the Cursor host hook did not add
-`CI_MONITOR_READY`.
-
-### Occurrences
-
-- Execution: `SEED-010#prove-retrospective-completion-without-redundant-plan-ceremony @ ae12e1e`
-  - Tool: Cursor
-  - Model: Grok 4.6
-  - Open Dough release: 0.3.8
-  - Evidence: Quick 039 PLAN learnings; execution report `pendingCi: unobserved`;
-    session hook context contained GSD messages only, not `CI_MONITOR_READY`.
-  - Observed effect: The feature branch and `main` were updated without
-    coordinator notification of GitHub Actions results.
-  - Inference: Execute-plan correctly continues without polling when readiness
-    is missing. A coordinator whose writers use a separate worktree while the
-    Cursor workspace remains `main` may not receive host-bridge readiness, so
-    coverage is lost rather than delayed. This execution does not prove how
-    often that binding fails.

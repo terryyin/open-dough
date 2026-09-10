@@ -32,11 +32,12 @@ and condition only plan-dependent context and updates. No installed managed-copy
 edits, new tracking files, generic execution-state framework, or duplicated
 runtime workflow.
 
-Wrap-up is owned by
-[SEED-010 Story 7](../../seeds/SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony),
-currently planned in [Quick 039](../039-wrap-up-from-available-context/PLAN.md).
-Do not implement that dependency here or assert it is complete. This plan covers
-execution and retrospective; full story closure relies on that dependency.
+Wrap-up from available execution context is current
+`src/skills/dough-story-wrap-up` behavior. Recover the predecessor story and plan
+from `5e82f7e:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`
+and `5e82f7e:.planning/quick/039-wrap-up-from-available-context/PLAN.md`. Native
+acceptance of that wrap-up revision remains with SEED-010 Story 2. This plan
+covers execution and retrospective; do not implement wrap-up here.
 
 Excluded: coordinator orchestration, choosing which stories are simple, changes
 to story refinement, numeric time limits, concurrent quick slices, release,
@@ -184,8 +185,8 @@ local walkthroughs as native acceptance or expand sibling stories in this plan.
 Established plan location: `.planning/quick/NNN-<slug>/PLAN.md`; slice statuses
 are planned, in-progress, and done. No active plan for this story was found.
 039 was the highest allocated directory before creation. Planning leaves backlog
-placement unchanged. Preserve existing changes in both seeds, the backlog, and
-Quick 039. No numeric slice target, hard limit, or repeated-overrun threshold
+placement unchanged. Preserve existing changes in both seeds and the backlog.
+No numeric slice target, hard limit, or repeated-overrun threshold
 was supplied; assess boundedness through cohesive behavior and one proof loop.
 No infrastructure or storage experiment is implicated.
 

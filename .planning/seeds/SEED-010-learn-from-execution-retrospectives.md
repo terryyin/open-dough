@@ -240,7 +240,7 @@ Native logging acceptance also covers execution guidance-release provenance
 codes: preserve adopted identities and allocate new local codes without reading
 the internal catalog. Earlier logging proof does not establish these behaviors.
 
-Also own Story 7's changed wrap-up requirements: planned and planless execution
+Also own native acceptance for wrap-up's planned and planless execution
 context, optional retrospective advice with absent/empty fallback, and preserved
 active-work and recovery behavior. Select representative cases for Codex, Cursor,
 and Claude Code by unresolved risk; earlier marker-required acceptance does not
@@ -372,82 +372,6 @@ implementation, or release/adoption work. Removing a story from the queue does
 not delete its canonical definition or cancel active execution. Proposing or
 applying a near-future direction adjustment is entirely outside this story.
 Cross-tool verification was skipped for this story at the human's direction.
-
-<a id="prove-retrospective-completion-without-redundant-plan-ceremony"></a>
-
-### 7. Wrap up work on the coordinator's retrospective decision
-
-**Status:** Source complete on 2026-09-11. Proposed skill in
-`src/skills/dough-story-wrap-up/`; not released. Story 2 owns native
-acceptance and release/adoption.
-**Plan:** [Quick 039](../quick/039-wrap-up-from-available-context/PLAN.md);
-the one Behavior slice is done. Local behavior evidence is in the skill's
-`RECOGNITION.md`.
-
-**Goal:** A developer can close completed planned or planless work through a
-simple wrap-up that uses the available execution context and preserves lasting
-knowledge and active follow-ups.
-
-**Scope:** The coordinator owns lifecycle sequencing and invokes wrap-up when
-ready to close the selected work. Wrap-up establishes execution completion from
-the selected work and available execution evidence, assimilates lasting
-knowledge, handles existing follow-ups and authorized product decisions, and
-preserves recovery before cleanup. A plan supplies execution context when one
-exists; planless work uses its story, changes, and available execution results.
-
-Retrospective output is optional input. When available, use its findings and
-recommendations for the applicable wrap-up actions. When absent, continue from
-the story or bounded-work context, implementation results, maintained product
-knowledge, existing follow-ups, and coordinator instructions. Apply ordinary
-closure actions supported by those inputs. Report the actual closure outcome
-and any concrete execution, attribution, or recovery gap that remains.
-
-Align retrospective and wrap-up guidance with this simpler flow. Deferred work:
-quick execution itself, retrospective-content redesign, performing story cleanup
-in this change, release, and adoption.
-
-**Human decision:** On 2026-09-11, the user assigned lifecycle sequencing to the
-coordinator and selected removal of the retrospective-completion check. Author
-runtime guidance as the current positive workflow, deleting the obsolete
-requirement completely. Keep the change rationale here in the story. Express
-the missing-retrospective case through the fallback above.
-
-**Key examples:**
-
-- Planned work is complete and the coordinator invokes wrap-up with review
-  output → wrap-up uses the plan and applicable review advice to close the work.
-- Planless work is complete and the coordinator invokes wrap-up → wrap-up uses
-  the story, implementation results, and available execution context.
-- The coordinator goes directly to wrap-up and retrospective output is absent
-  → wrap-up assimilates known lasting knowledge, preserves existing follow-ups,
-  and closes the completed work using available context.
-- The retrospective returns an empty result → ordinary closure proceeds using
-  the execution context.
-- Retrospective output is absent but an existing correction plan is present
-  → preserve and handle that active follow-up under the ordinary queue rules.
-- Implementation is unfinished or recovery is unresolved → preserve the affected
-  work and report that concrete gap.
-
-**Evaluation:** Planned, planless, reviewed, empty-result, and absent-review
-cases follow the same closure flow, with retrospective advice used when present
-and the defined fallback used when absent. Published guidance describes the
-current workflow directly. Closure remains truthful and preserves unfinished
-work and recovery.
-
-**Evidence:** Open Dough's `DearDough.md` DD-002 records the planless Story 14
-closure obstruction and its human-authorized one-off resolution. Read-only
-inspection on 2026-09-11 found no corresponding finding in the current
-`/Users/terryyin/git/doughnut/DearDough.md` (DD-001–DD-002) or
-`/Users/terryyin/git/pygardon/DearDough.md` (DD-001–DD-005). Their test execution,
-verification, and diagnostic findings do not establish recurrence of this
-closure problem. This observation concerns the current logs, not all history.
-
-**Value / learning:** Remove a demonstrated lifecycle obstruction and put the
-retrospective decision with the coordinator before making planless execution
-an ordinary supported path.
-
-**Depends on:** None. This is a product prerequisite for
-[Story 15 — Execute a simple story as one quick slice](../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-simple-story-as-one-quick-slice).
 
 <a id="respond-when-deardough-reaches-500-lines"></a>
 
@@ -609,11 +533,6 @@ if manual observation suffices. Preserve local recording and public usability.
 Bring Story 4 forward if a real response and comparable later execution provide
 an immediate learning opportunity; do not wait for an internal skill solely for
 workflow completeness.
-
-Story 7 is the highest-priority queued work because it resolves the evidenced
-closure contract needed by quick planless execution. It does not delay the
-independently useful Story 2 release/adoption work beyond that prerequisite and
-its dependent quick-execution story.
 
 Story 8 follows Story 2 in the queue. Releasing and using the current log comes
 first; its bounded-retention and project-configuration behavior is refined and planned;

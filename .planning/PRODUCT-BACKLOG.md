@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Wrap up work on the coordinator's retrospective decision](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony) — SEED-010
-
 ## Backlog list
 
 - [Execute a simple story as one quick slice](seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-simple-story-as-one-quick-slice) — SEED-004

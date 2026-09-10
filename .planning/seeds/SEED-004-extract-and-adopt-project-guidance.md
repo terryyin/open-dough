@@ -77,10 +77,9 @@ does not add a closure workflow or require retrospective invocation by execution
 ordinary execution quality and recovery when the initial simplicity judgment
 proves wrong.
 
-**Depends on:**
-[SEED-010 Story 7 — Wrap up work on the coordinator's retrospective decision](SEED-010-learn-from-execution-retrospectives.md#prove-retrospective-completion-without-redundant-plan-ceremony)
-for closure from available execution context. That dependency owns wrap-up;
-coordinator sequencing is not part of this story's implementation.
+**Depends on:** none. Wrap-up from available execution context is current
+`dough-story-wrap-up` behavior; coordinator sequencing is not part of this
+story's implementation.
 
 **Open decisions:** None for this refinement.
 
@@ -334,9 +333,9 @@ fixture remain maintainer-owned follow-ups.
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 11 retains its separate outcome and
 backlog position relative to the other existing items. Story 14 is done. Story
-15 is selected after its SEED-010 Story 7 prerequisite. Story 6 remains the next
-extraction reuse opportunity after higher-priority queued work. Story 7 surfaces
-for a real oversized problem; Story 8 surfaces for its named client/task needs.
+15 is selected. Story 6 remains the next extraction reuse opportunity after
+higher-priority queued work. Story 7 surfaces for a real oversized problem;
+Story 8 surfaces for its named client/task needs.
 
 ## Delivered capabilities
 
