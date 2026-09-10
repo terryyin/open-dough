@@ -37,6 +37,8 @@ Resolve from this project:
 
 - plan path, source kind, slice status vocabulary, slice target, hard limit, and
   exceptions;
+- product backlog path and selected entry when this plan was selected from
+  **Backlog list**;
 - navigation, focused test commands, runtime wrapper, and workflow precedence;
 - selective formatting command, commit hook contract, and authorized push destination;
 - generated-artifact triggers and commands when affected; and
@@ -51,6 +53,23 @@ Read [execution decisions](references/execution-decisions.md),
 before implementation. Read [CI observation](references/ci-monitor.md) before
 the first push and load only the current host's notification adapter. For a
 bounded investigation, use [disposable research](references/disposable-research.md).
+
+## Take queued work
+
+After resolving the plan context and current execution authorization, inspect
+the product backlog before changing plan status, recovering or starting a CI
+observer, delegating, or implementing. When the selected work is under
+**Backlog list**, follow
+[dough-product-backlog](../dough-product-backlog/SKILL.md#take-queued-work-for-execution)
+to move its existing entry to **Taken**. This backlog update is execution's
+first project-state change. Stop before implementation if the queued entry
+cannot be moved unambiguously.
+
+An entry already in **Taken** means execution is resuming; do not duplicate or
+reorder it. Work absent from both active lists was not selected from the
+backlog; do not fabricate an entry. Refinement and planning do not invoke this
+transition. Leave taken work there through pauses, failures, completion, and
+retrospective; story wrap-up owns completed-work removal.
 
 ## Execute the next slice
 

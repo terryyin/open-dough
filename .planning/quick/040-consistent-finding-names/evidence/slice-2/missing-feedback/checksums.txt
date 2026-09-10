@@ -1,5 +1,0 @@
-No source log or supplied feedback was present.
-
-SHA-256 of catalog-before.md: c6e27b52cb80fdcc5c88cfa3af3a7b3e4d4de678c1ddcb5b63d2d49e5b2d44c1
-SHA-256 of catalog.md:      c6e27b52cb80fdcc5c88cfa3af3a7b3e4d4de678c1ddcb5b63d2d49e5b2d44c1
-Catalog bytes unchanged.

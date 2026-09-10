@@ -1,6 +1,0 @@
-SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
-572a49aa67c61501db419309aecdd92d99cc3f11f90b77637b60019615b13338
-
-SHA-256 of catalog-before.md: 5686fcdd32f57ef05109c64779ca4cad93ebbdda879abd6c057466b0e7c81b13
-SHA-256 of catalog.md:      9a668219da431c1aed7f4fdb6b9acfec3ed8bb286bddfb23a12cf404171e93e7
-Catalog kept ODF-001 unchanged and allocated ODF-002 with qualified uncertainty. No invented fix, no current recurrence after a fix, and no demonstrated-correction relationship.

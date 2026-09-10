@@ -17,6 +17,62 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="show-stories-as-taken-during-execution"></a>
+
+### 14. Show queued work as taken when plan execution starts
+
+**Status:** Complete in source on 2026-09-10; implemented directly at human
+direction without a slice plan. New native acceptance was explicitly skipped.
+
+**Goal:** A developer can distinguish a backlog item whose plan is being
+executed from work that remains available in the queue.
+
+**Scope:** Add a **Taken** section immediately above **Backlog list** in the
+product-backlog layout and retain the section when it is empty. For a story or
+bounded correction selected from the queue, execute-plan first resolves the
+plan and confirms current execution authorization, then makes moving the
+existing entry from **Backlog list** to **Taken** its first project-state
+change. Preserve the entry's exact canonical link and identity, preserve the
+order of entries already in **Taken**, append the moved entry, and never list it
+in both sections. If it is already in **Taken**, resume without duplicating or
+reordering it.
+
+Refinement, initial slice planning, slice-plan refinement, and an unfulfilled
+intent to execute do not change backlog placement. A context or authorization
+failure before execution starts leaves the entry in the queue. After execution
+starts, pauses and failures leave it in **Taken**; successful execution also
+leaves it there for the existing retrospective and story-wrap-up lifecycle,
+which removes completed work. Returning cancelled work to the queue remains an
+explicit product-backlog maintenance decision. Executing work that was not
+selected from the backlog does not fabricate a backlog entry.
+
+Behavioral source changes are limited to `dough-product-backlog`,
+`dough-execute-plan`, the minimum `dough-story-wrap-up` wording needed to remove
+a completed **Taken** entry, and directly affected checks. It does not add a
+general status model, owner metadata, timestamps, concurrency or locking,
+automatic assignment, cancellation policy, finished history, release, or
+adoption.
+
+**Key examples:**
+
+- Given the highest-priority entry is refined and then slice-planned, it remains
+  first under **Backlog list** and **Taken** is unchanged.
+- Given that queued entry and an authorized executable plan, starting execution
+  moves the unchanged entry to **Taken** before a slice becomes in progress or
+  implementation is delegated. This story's first execution performs the same
+  transition as the bootstrap case.
+- Given execution later pauses, fails, completes, or resumes, the entry remains
+  once under **Taken**. Story wrap-up removes it after its existing completion
+  conditions are met; only explicit backlog maintenance returns cancelled work
+  to the queue.
+
+**Completion:** Updated the shared product-backlog layout and transition,
+execute-plan's first project-state change, and story-wrap-up's active-entry
+removal. Recorded representative source walkthroughs for first execution,
+pre-authorization failure, resume, non-backlog execution, and wrap-up. The
+focused guidance, story-payload, and execution-payload checks passed; release
+and adoption remain excluded.
+
 <a id="plan-without-numbering-or-budget-prompts"></a>
 
 ### 13. Receive a slice plan without numbering or budget prompts
@@ -206,9 +262,9 @@ fixture remain maintainer-owned follow-ups.
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 11 retains its separate outcome and
-backlog position relative to the other existing items. Story 6 remains the next
-extraction reuse opportunity. Story 7 surfaces for a real oversized problem; Story 8
-surfaces for its named client/task needs.
+backlog position relative to the other existing items. Story 14 is complete in
+source. Story 6 remains the next extraction reuse opportunity. Story 7 surfaces
+for a real oversized problem; Story 8 surfaces for its named client/task needs.
 
 ## Delivered capabilities
 

@@ -12,8 +12,9 @@ Project identity is not a recognition condition.
 
 ## Purpose
 
-Maintain a selected, ordered backlog list without duplicating work details from
-their canonical story sections or bounded-correction plans.
+Maintain selected backlog references without duplicating work details from
+their canonical story sections or bounded-correction plans, and distinguish
+work whose execution has started from the still-prioritized queue.
 
 ## Triggers
 
@@ -22,7 +23,8 @@ Exclude classroom and workshop exercise backlog preparation.
 
 ## Distinguishing behavior
 
-Human-controlled near-future direction precedes a bulleted backlog list.
+Human-controlled near-future direction precedes **Taken**, which immediately
+precedes the bulleted backlog queue. **Taken** remains present when empty.
 It expresses a short-term vision focused on one customer value or goal and is
 the most important input for story scope, including decomposition and refinement.
 Add or change direction only on explicit human instruction; leave it absent
@@ -31,8 +33,11 @@ seed IDs for feature stories or plan identities for seedless corrections. Human
 priorities, direction, value, learning, and prerequisites guide ordering, with
 urgent exceptions. Each feature story has one canonical section within a seed;
 a bounded correction without a supplied story uses its plan as the canonical
-home. Completed-work closure belongs to dough-story-wrap-up rather than a
-recently-done history list.
+home. Authorized execution moves an unchanged queued entry to the end of
+**Taken** as its first project-state change; refinement and planning do not.
+Pauses, failures, completion, and resumption leave the entry taken. Completed-
+work closure belongs to dough-story-wrap-up rather than a recently-done history
+list.
 Standalone queue maintenance may drop a completed item from the active list
 without creating a tombstone. Maintenance does not authorize execution, commit,
 or push.
@@ -80,3 +85,12 @@ complete seedless correction queues once by direct plan link without changing
 unrelated order or direction, while a missing beneficiary or outcome leaves the
 queue unchanged.
 Promotion, release, and client installation remain separate work.
+
+The 2026-09-10 source review walked a queued story with one existing **Taken**
+entry. Refinement and planning left the queue unchanged; authorized execution
+preserved the existing entry, moved the selected canonical link after it, and
+left no duplicate; resume made no change; a pre-authorization failure made no
+change; wrap-up removed the completed **Taken** entry. Missing or ambiguous
+backlog context stops before execution. The human explicitly skipped new native
+acceptance for this change; the existing native evidence does not prove the new
+transition.

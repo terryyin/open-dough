@@ -35,8 +35,8 @@ Resolve from this project, not this skill's location:
   identity;
 - how this project records that a retrospective finished, including an empty result;
 - Git commit conventions used to preserve a recoverable revision;
-- the product backlog path when a queue entry or finished-history entry points
-  at the selected work; and
+- the product backlog path when a **Taken**, queue, or finished-history entry
+  points at the selected work; and
 - shared records that name the selected work: its seed when applicable, process
   log (`DearDough.md` unless this project sets another canonical location),
   incoming links, and assessment or recognition records.
@@ -149,8 +149,8 @@ work's identity and references identify as spent:
   through retrospective, not after wrap-up. Delete that spent plan here.
 - its canonical story section when it has one; delete the seed only when every
   remaining section is spent;
-- queue entries and finished-history / recently-done entries for that completed
-  work;
+- **Taken**, queue, and finished-history / recently-done entries for that
+  completed work;
 - related occurrences in the process log, and an issue or container that
   becomes empty afterward; and
 - incoming links that exist solely to preserve that spent history.

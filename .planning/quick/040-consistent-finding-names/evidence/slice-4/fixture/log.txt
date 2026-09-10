@@ -1,3 +1,0 @@
-3cd28847958c83e3388b2c0c37c4302598e0653b   (tag: v0.3.4) Add 0.3.4 recovery guidance without a compact reviewed manifest
-36bb259583397374a4b0781e426097387af2bf13   (tag: v0.3.5) Retain a compact reviewed manifest after the first recovery
-9060700d5c041308c34f16103542ebf7c01f5b3e   (HEAD -> main, tag: v0.3.6) Reword near-future direction; recovery again omits a compact manifest

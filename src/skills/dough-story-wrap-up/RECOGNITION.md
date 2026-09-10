@@ -34,8 +34,9 @@ removed.
   execution narration or judgments. A spent-plan-only product fact is written
   into maintained documentation even when tests already exercise related
   behavior.
-- Deletes spent plan, story, proof, queue and finished-history entries, related
-  log occurrences, and incoming historical links without archives or tombstones.
+- Deletes spent plan, story, proof, **Taken**, queue, and finished-history
+  entries, related log occurrences, and incoming historical links without
+  archives or tombstones.
   Execution may retain the plan through retrospective; wrap-up still deletes
   that spent plan.
 - Preserves sibling stories, unrelated log text, human notes, and ambiguous
@@ -53,7 +54,7 @@ The executing project must supply repository root, selected feature-story or
 bounded-correction identity, plan location and status vocabulary,
 retrospective-completion evidence, and Git conventions for a recoverable commit.
 Seed conventions apply only to feature stories. Backlog path is required only
-when a queue entry points at the selected work.
+when a **Taken** or queue entry points at the selected work.
 
 ## Differences that rule out replacement
 
@@ -73,3 +74,6 @@ record.
 Native wrap-up acceptance on Codex, Cursor, and Claude Code is recorded.
 Recover that plan and evidence from Git when a later source change needs a new
 native judgment. Do not treat the v0.3.6 release exception as passing proof.
+The 2026-09-10 source review confirmed that the existing active-entry removal
+also names **Taken** entries. The human explicitly skipped new native acceptance
+for this wording extension.

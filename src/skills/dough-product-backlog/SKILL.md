@@ -24,15 +24,18 @@ required workflow is unavailable, stop that activity and ask for its guidance.
 
 ## File layout
 
-- Place **Near-future direction** immediately after the title and the **Backlog
-  list** next. Do not add a finished-list or recently-done section.
-- Use bullet lists. Do not number items. Put the highest-priority backlog item first.
-- In the backlog list, include only each exact work title linked to its canonical
-  active home and its established identity. A feature story uses its heading or
-  stable anchor plus seed ID. A bounded correction without a supplied story
-  links directly to its existing plan and uses the plan identity; the linked
-  path is sufficient when that is this project's identity convention. Keep
-  details, estimates, dependencies, and status in that canonical home.
+- Place **Near-future direction** immediately after the title when it exists,
+  then **Taken** immediately before **Backlog list**. Retain **Taken** when it is
+  empty. Do not add a finished-list or recently-done section.
+- Use bullet lists. Do not number items. Put the highest-priority queued item
+  first. Preserve the order of entries already in **Taken** and append each
+  newly taken entry.
+- In **Taken** and **Backlog list**, include only each exact work title linked to
+  its canonical active home and its established identity. A feature story uses
+  its heading or stable anchor plus seed ID. A bounded correction without a
+  supplied story links directly to its existing plan and uses the plan identity;
+  the linked path is sufficient when that is this project's identity convention.
+  Keep details, estimates, dependencies, and status in that canonical home.
 - Select work for the backlog list; do not inventory every candidate or turn
   the list into a roadmap or execution plan.
 
@@ -67,7 +70,7 @@ required workflow is unavailable, stop that activity and ask for its guidance.
   user value, learning value, and genuine product prerequisites. Preserve
   unrelated order. Do not derive priority from seed IDs or order within a seed.
 - Link from related documents; do not duplicate work details or list the same
-  story or correction twice.
+  story or correction twice within or across **Taken** and **Backlog list**.
 - Preserve stable anchors when renaming or moving stories. Update incoming links.
 - Add a feature story only with a named beneficiary and evaluable outcome. If
   either is unresolved, use this project's decomposition workflow and route
@@ -82,19 +85,40 @@ required workflow is unavailable, stop that activity and ask for its guidance.
   stories.
 - Reprioritizing does not authorize execution or cancel other candidates.
 
+## Take queued work for execution
+
+Move an entry from **Backlog list** to **Taken** only when execution of its
+authorized plan is starting. Resolving and refining a story, initial slice
+planning, slice-plan refinement, and an intention to execute leave it in the
+queue. If execution context or authorization fails before execution starts,
+leave the entry unchanged.
+
+Preserve the entry text, canonical link, and identity exactly. Remove it from
+the queue, append it after existing **Taken** entries, and perform both changes
+as one backlog update. If the entry is already in **Taken**, resume without
+duplicating or reordering it. If the executed work is in neither active list,
+do not fabricate an entry. Stop before execution when an entry expected from
+the queue cannot be moved unambiguously.
+
+Once execution starts, leave the entry in **Taken** across pauses, failures,
+resumption, successful plan completion, and retrospective. Returning cancelled
+work to the queue requires an explicit backlog-maintenance decision. Story
+wrap-up removes completed work under its existing closure contract.
+
 ## Complete items
 
 - Completed story or correction closure belongs to
   [dough-story-wrap-up](../dough-story-wrap-up/SKILL.md). Do not record a
   completion chronicle in the canonical home or move the item onto a finished
   list.
-- Standalone maintenance may remove a completed item from the active queue when
-  the human asks only for queue maintenance. Leave plan, applicable seed, and
-  proof deletion to wrap-up. Do not create a recently-done or tombstone entry.
+- Standalone maintenance may remove a completed item from either active list
+  when the human asks only for backlog maintenance. Leave plan, applicable seed,
+  and proof deletion to wrap-up. Do not create a recently-done or tombstone entry.
 
 ## Check and report
 
-- Check exact titles, links, duplicate outcomes, and prerequisite order.
+- Check exact titles, links, duplicates across both active lists, and
+  prerequisite order in the queue.
 - Check section order, bullet formatting, and direction alignment when present.
   Confirm the direction is unchanged unless explicitly instructed by a human.
 - Do not require a recently-done section. If one exists from earlier guidance,

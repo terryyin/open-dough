@@ -1,6 +1,0 @@
-SHA-256 of DearDough.md before and after the internal invocation (byte-identical):
-fea3a65ae043b9115275ee63c38e2edfd276606f8b678e9c4d73028b884d5f6a
-
-SHA-256 of catalog-before.md: c6e27b52cb80fdcc5c88cfa3af3a7b3e4d4de678c1ddcb5b63d2d49e5b2d44c1
-SHA-256 of catalog.md:      2fe80bfae32ec31bc796a5430aa6ede2e2bd2542c1f5e0850e1ce33f6d9350f2
-Catalog bytes changed (expected for first-use allocation).

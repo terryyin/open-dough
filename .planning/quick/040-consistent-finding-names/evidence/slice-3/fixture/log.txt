@@ -1,3 +1,0 @@
-f8c20339c2603756cbf571dfe154280770b3bfdc  (HEAD -> main, tag: v0.3.6) Reword near-future direction; recovery still omits a compact manifest
-4edda03a33066dbf9f8a6b8d3d39dc2b05e6725e  (tag: v0.3.5) Record 0.3.5 changelog wording and unrelated notes
-e0af631d6f47de17303a68eb590d3e1afbcec834  (tag: v0.3.4) Add 0.3.4 recovery guidance without a compact reviewed manifest
