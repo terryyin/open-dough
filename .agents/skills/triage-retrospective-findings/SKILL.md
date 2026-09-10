@@ -6,10 +6,13 @@ description: >-
   story in a suitable existing seed or a newly created canonical seed, queue its
   canonical reference, and link the retained finding. On later triage or rereview,
   surface existing queued or Taken follow-up with usable story and queue links
-  instead of duplicating it. Use when a maintainer asks to triage findings,
+  instead of duplicating it. When a developer explicitly chooses to defer, seek
+  more evidence, or retain current behavior, record that disposition on the finding
+  without queueing a fix. Use when a maintainer asks to triage findings,
   prioritize process findings, recommend finding follow-up, rereview already-linked
-  findings, queue a selected finding response, or turn a selected retrospective
-  finding into backlog work.
+  findings, queue a selected finding response, turn a selected retrospective
+  finding into backlog work, defer a finding, request more evidence, or record
+  no-change.
 ---
 
 # Triage retrospective findings
@@ -19,11 +22,12 @@ skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-
 it is not in the released payload and must not be added to `install.sh`. Do not
 create a second procedure under `src/skills/`.
 
-One skill, two invocation modes. Ranking is always the first step. Persistent
-writes run only after the developer **selects** a proposal for queued follow-up
-and supplies the write destinations below. Do not treat a ranking request as
-authorization to edit. If the finding already records queued or Taken follow-up,
-follow [Rereview existing follow-up](#rereview-existing-follow-up).
+One skill. Ranking is always the first step. Persistent writes run only after
+the developer **explicitly chooses** queued follow-up or a non-queue
+disposition (defer, evidence request, or no-change) and supplies that path's
+destinations. Do not treat a ranking request as authorization to edit. If the
+finding already records queued or Taken follow-up, follow
+[Rereview existing follow-up](#rereview-existing-follow-up).
 
 Identity ownership stays with
 [reconcile-finding-names](../reconcile-finding-names/SKILL.md). This skill does
@@ -37,18 +41,19 @@ supplied accumulated evidence. Use the same skill for a later triage or
 rereview of findings that already record queued or Taken follow-up; follow
 [Rereview existing follow-up](#rereview-existing-follow-up). Use the same
 skill when the developer then selects a proposal to queue into a suitable
-existing seed or, when none is suitable, a newly created canonical seed.
+existing seed or, when none is suitable, a newly created canonical seed. Use
+the same skill when the developer **explicitly chooses** to defer, seek more
+evidence, or retain current behavior (no-change); follow
+[Record a non-queue disposition](#record-a-non-queue-disposition). Ranking may
+still *recommend* those dispositions; that recommendation is not a queued fix.
 
 Do not use this skill to allocate `ODF-NNN` codes, rename findings, collect or
-count occurrences into a catalog or into the findings file, fetch other
-projects, or record a deferral, evidence request, or no-change disposition
-without queueing. Ranking may still *recommend* those non-queue dispositions.
-Do not invent those writes, and do not add a rule that would force a second
-story, a new seed, or a queued item for those choices.
+count occurrences into a catalog or into the findings file, or fetch other
+projects.
 
-Create a seed only on the selected-proposal path, and only when the supplied
-canonical seed directory has no suitable existing seed. Do not create a seed
-during ranking. Do not invent a seed location or ID scheme.
+Create a seed only on the queued selected-proposal path, and only when the
+supplied canonical seed directory has no suitable existing seed. Do not create
+a seed during ranking. Do not invent a seed location or ID scheme.
 
 Do not treat real `DearDough.md` or `docs/maintainer/finding-names.md` as a
 default input or write target. The evidence path must be supplied explicitly.
@@ -75,10 +80,13 @@ paths from this skill's directory, repository-root `DearDough.md`, or
 
 Checksum every supplied evidence file, and any supplied direction file, before
 reading for ranking. Recommendation-only invocations must leave those bytes
-identical. Selected-proposal writes may change only the write destinations
-listed below; they still must not change the naming catalog or real
-`DearDough.md` unless that path was the explicitly supplied writable finding
-location. Rereview preservation of finding, seed, and backlog is under
+identical. Queued-follow-up writes may change only the queued write
+destinations listed below. Non-queue disposition writes may change only the
+supplied writable finding location; see
+[Record a non-queue disposition](#record-a-non-queue-disposition). They still
+must not change the naming catalog or real `DearDough.md` unless that path
+was the explicitly supplied writable finding location. Rereview preservation
+of finding, seed, and backlog is under
 [Rereview existing follow-up](#rereview-existing-follow-up).
 
 Stop usefully when ranking input is missing or unusable:
@@ -97,7 +105,7 @@ Stop usefully when ranking input is missing or unusable:
 - Missing direction: continue ranking as above, with alignment marked
   unassessed.
 
-### Write destinations (selected proposal only)
+### Write destinations after developer selection
 
 When the developer has **not** selected a proposal, stop after the proposal.
 Make no queue, seed, finding, catalog, or backlog edit.
@@ -106,8 +114,14 @@ When the developer **selects** a proposal for queued follow-up on a finding
 that already records queued or Taken follow-up, do not enter this write path;
 see [Rereview existing follow-up](#rereview-existing-follow-up).
 
+When the developer **explicitly chooses** to defer, seek more evidence, or
+retain current behavior (no-change), follow
+[Record a non-queue disposition](#record-a-non-queue-disposition). Do not use
+the queued destinations below. Ranking that only *recommends* one of those
+dispositions is not this selection.
+
 When the developer **selects** a proposal for queued follow-up on a finding
-without existing follow-up, also require:
+without existing queued or Taken follow-up, also require:
 
 3. **Writable finding location** — an explicitly supplied path to the finding
    record that may receive the reciprocal story link and queued-follow-up
@@ -142,11 +156,12 @@ Identify each interpretable issue from the supplied evidence only.
   (qualified cause, cost, or speculation). Rank from observed impact; keep
   inference visible and qualified.
 - **Existing follow-up.** Read a Follow-up line (or the file's equivalent
-  human-note convention) that names queued or Taken work and links a story.
-  When a backlog path is supplied, resolve the matching **Backlog list** or
-  **Taken** line so the proposal can cite a usable queue link. A story link on
-  the finding is still existing follow-up even if the backlog file was not
-  supplied.
+  human-note convention). Queued or Taken work that links a story is existing
+  queued follow-up: when a backlog path is supplied, resolve the matching
+  **Backlog list** or **Taken** line so the proposal can cite a usable queue
+  link. A story link on the finding is still existing follow-up even if the
+  backlog file was not supplied. A Follow-up that records deferred, evidence
+  request, or no-change is a recorded non-queue disposition, not queued work.
 - Do not import occurrence rows, counts, or execution history into the naming
   catalog.
 
@@ -176,7 +191,9 @@ that explained comparison.
 An uncertain finding may warrant an **evidence request**, **deferral**, or **no
 change**. Recommend that disposition in the proposal. Do not invent a fix,
 recurrence count, or cause to make the finding actionable. Do not queue or
-write those non-queue dispositions.
+write those non-queue dispositions during ranking. Record them only on the
+[non-queue disposition](#record-a-non-queue-disposition) path after an
+explicit developer choice.
 
 When a ranked finding already has queued or Taken follow-up, recommend
 retaining that work per [Rereview existing follow-up](#rereview-existing-follow-up).
@@ -200,6 +217,8 @@ Include, for each ranked finding:
 - existing Follow-up when present: queued or Taken, with the story link and the
   canonical **Backlog list** or **Taken** line when the supplied backlog
   contains it; state that another queued fix is not authorized
+- recorded non-queue Follow-up when present (deferred, evidence request, or
+  no-change), with its rationale; that is not a queue item
 
 Surface unidentified findings, empty evidence, and other stops as limitations,
 not as ranked invented items.
@@ -241,8 +260,52 @@ the canonical home is already linked.
    below still apply. Do not skip a finding that has no Follow-up merely
    because a sibling already has one.
 
-Do not use this path to record deferral, evidence request, or no-change. Those
-writes remain a later non-queue disposition; ranking may still recommend them.
+An explicit non-queue choice (defer, evidence request, or no-change) on a
+finding that already records queued or Taken follow-up also uses this path:
+stop, surface the existing work, and do not overwrite it unless the developer
+**explicitly replaces** that follow-up. The default without that replacement
+instruction is this stop.
+
+## Record a non-queue disposition
+
+Run this path only after the developer **explicitly chooses** to **defer**,
+**seek more evidence**, or **retain current behavior (no-change)** for a
+finding. Ranking that *recommends* one of these is not this path.
+
+These three choices share one rule. Vary only the disposition word and the
+short rationale. Do not invent a separate status database, a second skill
+section per choice, a story, a seed, or a queue item.
+
+Check the finding destination before changing any file:
+
+- The writable finding location was supplied, exists, and is writable. If it
+  is missing, **make no write**. Report that a writable finding location is
+  required. Do not guess `DearDough.md`. If a backlog path was supplied, leave
+  it unchanged.
+- The selected finding has a reconciled `ODF-NNN` identity in the evidence. If
+  not, route identity work to `reconcile-finding-names` and make no write.
+- The selected finding does **not** already record queued or Taken follow-up.
+  If it does, stop before any edit and follow
+  [Rereview existing follow-up](#rereview-existing-follow-up). Make no write
+  unless the developer **explicitly replaces** that follow-up. The default is
+  this stop.
+
+On the supplied writable finding location, add a concise Follow-up (or the
+file's equivalent human-note convention) against that finding identity:
+`Follow-up: <disposition>, not resolved.` plus a short rationale from the
+developer's choice (what to gather, why wait, or why current behavior stands).
+Use **deferred**, **evidence request**, or **no-change**. Example:
+`Follow-up: evidence request, not resolved. Gather a stable execution identity
+and locators for an actual second planning pass.`
+
+The finding is **not resolved**. Do not delete the finding, occurrence history,
+or unrelated notes. Do not edit `docs/maintainer/finding-names.md` or allocate
+catalog identities. Preserve occurrences, observed effect, inference, unrelated
+human notes, and unrelated findings.
+
+If the finding write fails after validation, report that the disposition was
+not recorded. Do not claim a recorded decision. Do not compensate by queueing
+a story.
 
 ## Queue a selected response
 
@@ -373,6 +436,9 @@ stop: invent no path, and do not claim queue or finding writes complete.
 - Do not force unrelated follow-up into an unsuitable existing seed.
 - Do not claim a queued, seeded, or dispositioned outcome from a
   recommendation-only invocation.
+- Do not queue a [non-queue disposition](#record-a-non-queue-disposition),
+  treat it as resolved, or overwrite queued or Taken follow-up with one unless
+  the developer explicitly replaces that follow-up.
 - Do not add a second follow-up or occurrence row when
   [Rereview existing follow-up](#rereview-existing-follow-up) applies.
 - Do not claim a fully linked outcome when the reciprocal finding update was

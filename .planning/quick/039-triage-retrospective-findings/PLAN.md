@@ -3,11 +3,12 @@
 ## Source and authority
 
 [SEED-010 Story 7](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings).
-Status: executing. The 2026-09-10 conversation authorized plan execution in
-worktree `/Users/terryyin/git/open-dough-quick-039` on branch
+Status: slices complete; plan retained for retrospective and story wrap-up.
+The 2026-09-10 conversation authorized plan execution in worktree
+`/Users/terryyin/git/open-dough-quick-039` on branch
 `worktree-quick-039-triage-retrospective-findings`, then merge back to `main`.
-Story 7 is under **Taken**. Story 2's release/adoption work and remaining queue
-order are unchanged.
+Story 7 remains under **Taken**. Story 2's release/adoption work and remaining
+queue order are unchanged.
 
 ## Goal and scope
 
@@ -151,16 +152,18 @@ Safe stop: Repeated review surfaces existing work without duplicate commitments.
 
 ### 5. Retain a developer decision without queuing a fix
 Type: Behavior
-Status: planned
+Status: done
+Proof: Explicit evidence request on uncertain `ODF-903` recorded
+`Follow-up: evidence request, not resolved.` plus rationale. Deferral and
+no-change used the same Follow-up line shape. Isolated backlog unchanged;
+finding history retained; no story or queue entry. Missing writable location
+and existing queued follow-up were pre-edit stops. Real log and catalog stayed
+byte-identical.
+Evidence: [evidence/slice-5/WALKTHROUGH.md](evidence/slice-5/WALKTHROUGH.md).
 
 Behavior: Given a finding and the developer's explicit choice to defer, seek
 more evidence, or retain current behavior, record that disposition against the
 supplied finding identity without creating backlog work or deleting evidence.
-
-Proof: One disposition walkthrough uses a fictional finding with uncertain
-cause and an explicit developer evidence request. Check the recorded decision
-and rationale, retained finding/history, and unchanged backlog. Deferral and
-no-change use this same concise disposition rule, not separate workflows.
 
 Safe stop: A recoverable human decision remains useful without executing a fix,
 measuring effectiveness, or removing the finding.
@@ -222,16 +225,25 @@ Retain plan and evidence for retrospective and story wrap-up.
   `evidence/slice-2/`. Missing writable finding location is a pre-edit stop.
 - Slice 3 `3045f72`: allocate a minimal canonical seed when none is suitable;
   evidence under `evidence/slice-3/`.
-- Slice 4 delivered in this wrap-up: rereview surfaces existing queued or Taken
-  follow-up without duplication; evidence under `evidence/slice-4/`.
+- Slice 4 `217146d`: rereview surfaces existing queued or Taken follow-up
+  without duplication; evidence under `evidence/slice-4/`.
+- Slice 5 delivered in this wrap-up: one non-queue disposition rule (defer /
+  evidence request / no-change); evidence under `evidence/slice-5/`.
 - Branch: `worktree-quick-039-triage-retrospective-findings`.
 - CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
   Started from the main-checkout skill scripts so Cursor hooks bind the
   coordinator session; the observer watches this worktree branch.
+- CI event on `3045f72` (run 34476615807): `CI_INCOMPLETE` / cancelled after
+  `tests/native-delivery-updated-use-adapters.sh` exceeded the 20-minute job
+  timeout (watchdog `sleep` still running). That test and native supervisor
+  were not in the slice 3 diff. Slices 1–2 CI on this branch succeeded
+  (`34474336734`, `34475537144`). Classified as unrelated pre-existing native
+  fixture hang vs this plan's walkthrough proof; no native-supervisor repair
+  in this story. Pending later-SHA CI remains unobserved after observer
+  shutdown.
 
 ## Learnings
 
-None that change remaining slices. Slice 5 must record an explicit developer
-deferral, evidence request, or no-change on the supplied finding without
-creating backlog work or deleting evidence. Use one concise disposition rule.
-Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.
+None that change remaining work; all five slices are done. Fictional
+`ODF-901`–`ODF-903` stay out of the naming catalog. Real `DearDough.md` was
+not used as a default path.

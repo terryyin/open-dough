@@ -6,10 +6,13 @@ description: >-
   story in a suitable existing seed or a newly created canonical seed, queue its
   canonical reference, and link the retained finding. On later triage or rereview,
   surface existing queued or Taken follow-up with usable story and queue links
-  instead of duplicating it. Use when a maintainer asks to triage findings,
+  instead of duplicating it. When a developer explicitly chooses to defer, seek
+  more evidence, or retain current behavior, record that disposition on the finding
+  without queueing a fix. Use when a maintainer asks to triage findings,
   prioritize process findings, recommend finding follow-up, rereview already-linked
-  findings, queue a selected finding response, or turn a selected retrospective
-  finding into backlog work.
+  findings, queue a selected finding response, turn a selected retrospective
+  finding into backlog work, defer a finding, request more evidence, or record
+  no-change.
 ---
 
 # Triage retrospective findings
