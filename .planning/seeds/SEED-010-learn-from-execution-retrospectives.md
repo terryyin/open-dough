@@ -212,6 +212,12 @@ changes; Story 2 retains release and adoption.
 
 ### 2. Use released retrospective logging in Open Dough
 
+Story 8 adds pending native acceptance for project-configured selection and
+bounded log recording/replacement on Codex, Cursor, and Claude Code. Use shared
+cases and justified integration reuse under ADR 0005; include fresh use after
+ordinary update with the project preference preserved. This is required before
+releasing Story 8, not a prerequisite for an earlier logging release.
+
 **Status:** Selected for backlog; acceptance and adoption story, unrefined.
 
 **For / why:** A developer receives usable logging through the ordinary public
@@ -447,41 +453,144 @@ an ordinary supported path.
 
 ### 8. Respond when DearDough.md reaches 500 lines
 
-**Status:** Selected for backlog; captured on 2026-09-10 and intentionally
-unrefined pending the human-owned response policy.
+**Status:** Refined on 2026-09-11; execution planning authorized, implementation
+not requested.
+**Plan:** [Quick 041](../quick/041-bound-process-log-and-configure-review/PLAN.md).
 
-**Goal:** A developer whose retrospective process log has reached 500 lines or
-more is not surprised by indefinite growth or silent loss of more important
-findings.
+**Goal:** A developer can keep useful process learning in a bounded local log
+and persist a project preference to omit process retrospectives without editing
+installed guidance or repeating an invocation flag.
 
-**Scope:** When process review is enabled and the retrospective is about to
-write `DearDough.md`, recognize that the existing file is already at least 500
-lines and take an explicit, bounded action. Preserve 500 lines as the trigger
-for action, not yet as a hard size limit. During refinement, choose among or
-combine the currently proposed responses: warn the developer and continue;
-allow growth until a second threshold such as 1,000 lines and then stop adding;
-or retain a higher-priority new finding by replacing lower-priority material.
-Define priority, replacement safety, recoverability, and behavior for a finding
-that matches an existing issue before authorizing any destructive response.
-Keep `--skip-process` authoritative and do not inspect or mutate the log when
-process review is skipped. Exclude deciding the policy in this capture,
-automatic summarization, remote storage, cross-project quotas, and a general
-retention system.
+**Human decisions, 2026-09-11:** Warn at the 500-line threshold; 1,000 lines is
+a hard ceiling. Use judgment to retain higher-priority new findings by replacing
+lower-priority material, including occurrence detail or a whole issue entry.
+Include the first project configuration setting, “Skip Process Retrospective,”
+in this story. Use a simple JSON file in the planning folder. These explicit
+extensions supersede this story's earlier undecided response policy and the
+initial recording story's preservation-only rule only where bounded retention
+requires replacement. Keep the stable story anchor and queue position.
 
-**Evaluation:** With a log below 500 lines, ordinary retrospective recording is
-unchanged. With a log already at 500 lines or more, recording follows one
-human-selected and documented response instead of appending silently; any stop
-or replacement preserves higher-value supported findings and makes omitted or
-removed material explicit. Boundary cases and repeat occurrences behave
-consistently with the selected policy.
+**Scope and refinement decisions:**
 
-**Value / learning:** Introduce an early pressure signal before the local
-learning log becomes costly to read or grows without an intentional retention
-policy, while leaving the irreversible trade-off to later refinement.
+- Before a supported process finding is written, warn if the existing log is
+  already at least 500 lines. Below 500, ordinary recording has no threshold
+  warning, even when this write crosses 500. Always check the proposed final
+  size: no successful write may exceed 1,000 lines. Count physical text lines,
+  including blanks and metadata; a final unterminated line counts once.
+- When a candidate write would exceed the ceiling, compare the new information
+  with existing material using supported impact, likely recurrence, current
+  actionability, and evidence quality. A severe one-off problem can outrank a
+  frequent minor inconvenience. Age, position in the file, recurrence alone,
+  and text length are not priority rules. Prefer removing redundant detail or
+  lower-value occurrences before a whole finding when that preserves more
+  learning; a whole low-priority issue, including one at the top, may be removed.
+  Do not fabricate condensed findings or strip decisive evidence to meet size.
+- Retain a higher-priority supported finding when enough lower-priority material
+  can safely be replaced. If it is not higher priority, cannot fit even after
+  justified replacements, or cannot be recorded safely, leave the log unchanged
+  and report the supported finding, reason, and limit in the response. An
+  already oversized log must be reduced to at most 1,000 lines before a write
+  succeeds; otherwise report that existing violation without claiming repair.
+- Before removal, establish a recoverable exact copy of the affected content
+  through existing project history or an explicitly established recovery method.
+  Verify that the recovery reference includes any affected uncommitted content;
+  HEAD alone is insufficient. No automatic commits, remote storage, or growing
+  backup directory. If recovery is unavailable, refuse replacement, continue
+  independent reviews, and return the finding. Summarize omissions/removals and
+  their priority rationale, resulting size, and recovery reference.
+- Preserve IDs and interpretability of retained issues. Keep compact retention
+  metadata in the same log for the highest allocated local number, the recovery
+  reference, and the fact that occurrence history is partial. Include metadata
+  in the ceiling. Never reuse removed IDs or present retained rows as an all-time
+  recurrence count. Use recovery history only when a match or execution identity
+  needs it; recover a removed issue's identity when decisively matched. An
+  identical rereview must not resurrect a pruned occurrence or inflate the count.
+  If missing history prevents safe identity resolution, report that limitation
+  instead of inventing a new issue or count. Ordinary uncertain matches retain
+  the existing separate-issue behavior when identity remains safely allocatable.
+- Resolve review selection before log access. The project-owned configuration is
+  `<established-planning-directory>/open-dough.json`, defaulting to
+  `<project-root>/.planning/open-dough.json` when no different planning directory
+  is established. Do not search other projects or use the installed skill's
+  directory. Use one optional JSON object:
 
-**Depends on:** Story 1's `DearDough.md` recording behavior. It does not block
-Story 2 release/adoption; current evidence does not show the growth threshold is
-near.
+  ```json
+  { "skipProcessRetrospective": true }
+  ```
+
+  The setting is boolean; missing file, missing key, or `false` preserves
+  default-on process review. `true` omits both process analysis and all log
+  inspection/writing. Explicit invocation instructions override the stored
+  default; `--skip-process` always skips, even when the file says `false`.
+  An explicit request to include process review can override stored `true`
+  without editing the file. Contradictory explicit instructions use ordinary
+  clarification. Product and implementation review selection is unchanged.
+- Reject malformed JSON, a non-object root, a non-boolean known setting, or an
+  unreadable configuration as an unresolved process selection: report the error
+  and leave process analysis and the log untouched while independent reviews
+  continue. An explicit process-selection instruction can resolve this for the
+  invocation without repairing the file. Unrecognized keys are ignored and
+  preserved. Do not introduce schema versions, migration, global/per-tool
+  layers, configurable thresholds, or additional settings for this first key.
+- Configuration is optional, project-owned, and shared by Codex, Cursor, and
+  Claude Code. Document its location, syntax, defaults, precedence, and errors.
+  Installation/update must preserve an existing configuration byte-for-byte,
+  including unknown keys, and must not create a default file when absent.
+  A project opts in by creating the file; the installer does not prompt or merge
+  it. Test preservation through existing install/update paths.
+
+**Architecture:** The current ADR index contains no project-customization JSON
+contract; this refinement defines the first concrete setting and location as
+implementation decisions, not an already accepted ADR. Follow
+[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) for source
+and release ownership, [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+for delivery/preservation proof and separately tracked native acceptance, and
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+for one authoritative runtime rule, addressing the executing project. No
+conflict, exception, or ADR status change is required.
+
+**Key examples:**
+
+- Existing 499 lines → append to 507 → ordinary recording, no threshold warning;
+  the next supported write warns. Existing 500 or 999 → write that fits → warn
+  and record. Exactly 1,000 lines is allowed; 1,001 is not.
+- Existing 995 lines plus a severe supported finding → candidate would be 1,015
+  → replace recoverable lower-value occurrence content or a whole minor issue,
+  retain decisive evidence and required metadata, and report a result at or below
+  1,000 with a reason and recovery reference.
+- Same full log plus a low-value finding, or no recoverable lower-value content
+  → unchanged file and explicit not-recorded result; independent reviews finish.
+- Existing 1,020 lines → supported write → safely prune to at most 1,000, or
+  report that the existing violation remains and make no write.
+- Recurrence of a retained issue → keep its ID and compare the new occurrence's
+  value when room is needed. Rereview of a previously pruned execution → no new
+  occurrence. Removing the highest-numbered issue never makes its ID reusable.
+- Config `true` with a large or malformed log → ordinary retrospective skips
+  process without accessing that log; implementation and product still run.
+- Absent config or `false` → ordinary process review. Config `false` with
+  `--skip-process` → skipped. Config `true` with explicit include-process
+  instruction → process runs for this invocation; config stays unchanged.
+- Config has `"skipProcessRetrospective": "true"` → report invalid type, leave
+  process/log untouched, complete independent reviews. Explicit skip still works.
+- Install/update in a project with a configured `true` and unrelated JSON keys
+  → identical project file; fresh use retains the preference. No existing file
+  → installation/update creates none and default-on behavior remains.
+
+**Deferred promises:** Automatic summarization, remote storage, general retention
+or configuration frameworks, automated priority scoring, new settings or enable
+flags, automated recovery commits, release, and adoption. Native acceptance for
+this story is assigned to Story 2 before releasing this behavior; local authoring
+walkthroughs do not satisfy that acceptance.
+
+**Evaluation:** The examples above demonstrate one review-selection rule and one
+bounded retention rule, with recoverable, explained replacement and truthful
+counts. Configuration survives ordinary installation/update without managed
+skill edits. No unanswered product question blocks planning; the named defaults
+and conservative error/recovery decisions are refinement judgments under the
+user's instruction to design the first setting carefully.
+
+**Depends on:** Story 1 recording. Story 2 owns release/adoption; this story does
+not delay an earlier independently useful release of existing logging.
 
 ## Ordering and Scope Reduction
 
@@ -507,8 +616,8 @@ independently useful Story 2 release/adoption work beyond that prerequisite and
 its dependent quick-execution story.
 
 Story 8 follows Story 2 in the queue. Releasing and using the current log comes
-first; its 500-line response is selected but deferred because the current
-`DearDough.md` is well below the trigger and the response policy remains open.
+first; its bounded-retention and project-configuration behavior is refined and planned;
+the current `DearDough.md` remains well below the trigger.
 
 These are outcome boundaries, not slices or an executable plan. Stories 1
 and 6 are source complete; Story 2 remains unrefined. No estimate distribution
@@ -525,10 +634,10 @@ inform filtering, response dispositions, retention, and cross-project exchange;
 these are not prerequisites for choosing the local process increment. Story 6
 source work is complete; release/adoption remains Story 2.
 
-Story 8 fixes the action trigger at an existing length of 500 lines. The human
-has postponed whether that action is a warning, a later hard stop such as 1,000
-lines, priority-based replacement, or a combination. No destructive log policy
-is authorized by this capture.
+Story 8 now fixes the warning at 500 existing lines, the ceiling at 1,000,
+and judgment-based replacement with recovery. Its refined section defines the
+first project configuration setting and its defaults; no response-policy choice
+remains open.
 
 ## When to Surface
 
