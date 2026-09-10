@@ -90,7 +90,7 @@ owned by Slice 2. Do not claim this completes the original reported interruption
 
 ### 2. Receive a bounded plan without supplying a timing policy
 Type: Behavior
-Status: planned
+Status: done
 Proof: One paired planning walkthrough returns a plan without budget questions
 when no numeric policy exists, and respects an explicit policy when supplied.
 
@@ -224,6 +224,25 @@ repeatedly. Preserve passing proof unless later edits invalidate its boundary.
 
 ## Execution journal
 
+- Slice 2 completed 2026-09-10. Numeric timing policies are now conditional
+  across slice planning, refinement, and shared decomposition guidance; the
+  owned source diff is limited to those three guidance locations and the
+  slice-planning recognition record. The no-policy walkthrough made one
+  Behavior CSV-export slice with one focused proof and no time guarantee; a
+  supplied 5/10-minute policy with a plausible 12-minute evidence path
+  recommended refinement. `bash tests/story-payload-update.sh` and `git diff
+  --check` passed.
+- Fresh installed native proof used the candidate at `ee88dab` plus Slice 2's
+  uncommitted changes (its installer record remained `0.3.4`) with no numeric
+  target or hard limit in the prompt. Codex CLI 0.144.1 read the target's
+  installed `.agents` slice-planning skill and made a 033 one-Behavior,
+  one-proof plan without a timing question or implementation. Cursor Agent
+  2026.09.08-6caf4ff read the target's installed `.claude` skill and produced
+  the same bounded plan; Claude Code 2.1.267 did likewise from installed target
+  roots. An initial Codex attempt stopped because the disposable fixture lacked
+  a committed baseline and ADR catalog; after repairing only that fixture, the
+  retry passed. The retained native transcripts record the tool/version/input/
+  result cases.
 - CI observer started 2026-09-10 before the first delivery push: Codex yielded
   cell `16`, terminal session `19079`, mailbox `/tmp/dough-ci-501/watch-LM7ebt`,
   worker PID `70915`; execution `terryyin/open-dough` on `main` using verified
