@@ -1,3 +1,14 @@
+## 0.3.7 - 2026-09-10
+
+- Support bounded, seedless retrospective corrections throughout planning, execution, backlog prioritization, retrospective review, and wrap-up. A correction plan can remain its canonical active home without an invented feature-story seed.
+- Strengthen story wrap-up so it requires recorded retrospective completion, preserves recoverable Git history, assimilates lasting product facts from spent plans, removes empty spent directories, and handles existing follow-up corrections without duplication.
+- Record native story-wrap-up acceptance for Codex, Cursor, and Claude Code, covering feature-story and seedless-correction closure, refusal boundaries, product-knowledge preservation, and spent-plan deletion.
+- Extend retrospective process logs with the Open Dough guidance release actually used during execution. Preserve adopted `ODF-NNN` identities, allocate non-colliding local `DD-NNN` codes, and keep uncertain, corrected, or reintroduced findings distinct.
+- Add the internal `reconcile-finding-names` maintainer skill and finding-name record for evidence-based mapping to stable `ODF-NNN` identities. Keep this maintenance guidance outside the installable client payload.
+- Accept same-document payload links during update verification and avoid masking `find` failures in the installer omission check.
+
+Native acceptance remains pending for retrospective logging and the broader lifecycle-guidance requirements tracked by Story 2, including refinement and planning distinctions, cumulative design, refactoring and plan-conflict handoffs, whole-product correction planning, and whole-suite test review. This release proceeds under an explicit maintainer-approved exception for `0.3.7`; those checks remain pending and are not reported as passing.
+
 ## 0.3.6 - 2026-09-10
 
 - Add `dough-execution-retrospective` to the installable payload: review implementation, product direction, and process efficiency; maintain process findings in `DearDough.md`; plan bounded corrections and apply authorized backlog changes. Product and process reviews can be skipped independently.
