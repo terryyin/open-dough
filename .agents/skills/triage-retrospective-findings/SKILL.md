@@ -1,6 +1,12 @@
 ---
 name: triage-retrospective-findings
-description: Recommend an ordered, evidence-linked follow-up proposal for reconciled Open Dough process findings. Use when a maintainer asks to triage findings, prioritize process findings, recommend finding follow-up, or produce an ordered proposal from DearDough or supplied accumulated evidence.
+description: >-
+  Recommend an ordered, evidence-linked follow-up proposal for reconciled Open Dough
+  process findings, and when a developer selects a proposal, record one evaluable
+  story in a supplied existing seed, queue its canonical reference, and link the
+  retained finding. Use when a maintainer asks to triage findings, prioritize
+  process findings, recommend finding follow-up, queue a selected finding
+  response, or turn a selected retrospective finding into backlog work.
 ---
 
 # Triage retrospective findings
@@ -10,29 +16,36 @@ skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-
 it is not in the released payload and must not be added to `install.sh`. Do not
 create a second procedure under `src/skills/`.
 
-This invocation is **recommendation-only**. The response is the only proposal
-channel. Do not edit the queue, findings, naming catalog, seeds, backlog, or
-any other persistent state.
+One skill, two invocation modes. Ranking is always the first step. Persistent
+writes run only after the developer **selects** a proposal for queued follow-up
+and supplies the write destinations below. Do not treat a ranking request as
+authorization to edit.
+
+Identity ownership stays with
+[reconcile-finding-names](../reconcile-finding-names/SKILL.md). This skill does
+not allocate, rename, or collect catalog identities.
 
 ## When to apply
 
 Use when a maintainer asks to triage, prioritize, or recommend follow-up for
 already recorded process findings, or to produce an ordered proposal from
-supplied accumulated evidence.
+supplied accumulated evidence. Use the same skill when the developer then
+selects a proposal to queue into an existing seed.
 
 Do not use this skill to allocate `ODF-NNN` codes, rename findings, collect or
-count occurrences into a catalog, fetch other projects, apply a selected
-proposal to the backlog, create a seed, or record a deferral, evidence request,
-or no-change disposition. Those write paths are out of scope for a
-recommendation-only invocation.
+count occurrences into a catalog, fetch other projects, create a missing
+seed, or record a deferral, evidence request, or no-change disposition without
+queueing. Ranking may still *recommend* those non-queue dispositions. Do not
+invent those writes, and do not add a rule that would force a second story, a
+new seed, or a queued item for those choices.
 
 Do not treat real `DearDough.md` or `docs/maintainer/finding-names.md` as a
-default input. The evidence path must be supplied explicitly.
+default input or write target. The evidence path must be supplied explicitly.
 
 ## Required context
 
-Resolve these independently before ranking. Do not guess missing paths from this
-skill's directory, repository-root `DearDough.md`, or
+Resolve ranking inputs independently before ranking. Do not guess missing
+paths from this skill's directory, repository-root `DearDough.md`, or
 `docs/maintainer/finding-names.md`.
 
 1. **Accumulated evidence** — an explicitly supplied path to canonical findings
@@ -50,10 +63,13 @@ skill's directory, repository-root `DearDough.md`, or
    recurrence, and confidence.
 
 Checksum every supplied evidence file, and any supplied direction file, before
-reading for ranking. After the invocation those bytes must be identical. Make
-no catalog, log, or backlog write while checking.
+reading for ranking. Recommendation-only invocations must leave those bytes
+identical. Selected-proposal writes may change only the write destinations
+listed below; they still must not change the naming catalog or real
+`DearDough.md` unless that path was the explicitly supplied writable finding
+location.
 
-Stop usefully when input is missing or unusable:
+Stop usefully when ranking input is missing or unusable:
 
 - Missing evidence path: report that an accumulated-evidence path is required.
   Invent no findings, codes, or counts.
@@ -68,6 +84,26 @@ Stop usefully when input is missing or unusable:
   unidentified.
 - Missing direction: continue ranking as above, with alignment marked
   unassessed.
+
+### Write destinations (selected proposal only)
+
+When the developer has **not** selected a proposal, stop after the proposal.
+Make no queue, seed, finding, catalog, or backlog edit.
+
+When the developer **selects** a proposal for queued follow-up, also require:
+
+3. **Writable finding location** — an explicitly supplied path to the finding
+   record that may receive the reciprocal story link and queued-follow-up
+   disposition. It may be the same file as accumulated evidence. Do not guess
+   `DearDough.md`. Missing writable location blocks the reciprocal-link
+   contract; see [Validate before any edit](#validate-before-any-edit).
+4. **Existing appropriate seed** — an explicitly supplied seed path that already
+   exists and is a suitable home for this finding's follow-up. Do not invent a
+   seed or filename.
+5. **Canonical backlog path** — the backlog file to receive the canonical story
+   reference. Follow
+   [dough-product-backlog](../dough-product-backlog/SKILL.md). Do not invent a
+   second backlog format. Do not guess `.planning/PRODUCT-BACKLOG.md`.
 
 ## Read findings
 
@@ -112,15 +148,17 @@ that explained comparison.
 
 An uncertain finding may warrant an **evidence request**, **deferral**, or **no
 change**. Recommend that disposition in the proposal. Do not invent a fix,
-recurrence count, or cause to make the finding actionable.
+recurrence count, or cause to make the finding actionable. Do not queue or
+write those non-queue dispositions.
 
-Keep original findings preserved. After the proposal, supplied evidence (and
-any supplied direction file) must be byte-identical to the pre-read checksums.
+Keep original findings preserved during ranking. After a recommendation-only
+proposal, supplied evidence (and any supplied direction file) must be
+byte-identical to the pre-read checksums.
 
 ## Proposal shape
 
-Chat is the only recommendation channel. Keep the proposal readable rather than
-matching a template word for word. Include, for each ranked finding:
+Keep the proposal readable rather than matching a template word for word.
+Include, for each ranked finding:
 
 - internal identity and title
 - observed impact, distinct from inference
@@ -128,29 +166,93 @@ matching a template word for word. Include, for each ranked finding:
 - confidence, including any evidence request
 - direction alignment, or that alignment is unassessed
 - why it sits at this position relative to its neighbors
-- recommended next step as advice only
+- recommended next step as advice until the developer selects it
 
 Surface unidentified findings, empty evidence, and other stops as limitations,
 not as ranked invented items.
 
-State that this invocation does not authorize queueing the selected proposal,
-creating a seed, recording a disposition, or editing findings. Later
-maintainer skills own those writes:
-[dough-product-backlog](../dough-product-backlog/SKILL.md) for canonical queue
-updates, and
-[seed-format](../dough-story-decomposition/references/seed-format.md) when a
-story needs a canonical seed. Do not invoke those write paths here.
+When this invocation is recommendation-only, state that it does not authorize
+queueing, seed creation, disposition recording, or finding edits.
+
+## Queue a selected response in an existing seed
+
+Run this path only after a developer selection for **queued follow-up**. Record
+the selection as queued follow-up, not problem resolution. Do not start story
+refinement, slice planning, or implementation.
+
+Use [seed-format](../dough-story-decomposition/references/seed-format.md) for
+the story body and this project's stable-anchor convention: a
+`<a id="kebab-case"></a>` line immediately before the story heading. Follow
+[dough-product-backlog](../dough-product-backlog/SKILL.md) for the queue write
+(canonical link + identity, Taken vs Backlog list, preserve unrelated order and
+Near-future direction unless the developer gives a priority instruction).
+
+### Validate before any edit
+
+Check every destination before changing any file:
+
+- The supplied seed exists, is writable, and is an **appropriate** home for
+  this finding's follow-up (the parent problem can host this response). If the
+  seed is missing, stop and say that a suitable existing seed is required; do
+  not invent one. If the seed exists but is unsuitable, stop and say so; do not
+  stuff unrelated work into it.
+- Backlog conventions are identifiable (title, Near-future direction when
+  present, Taken retained, Backlog list). If they are not, stop before editing.
+- The writable finding location was supplied, exists, and is writable. If it
+  is missing, **do not write the seed or the queue**. The reciprocal-link
+  contract cannot be completed; report that concrete block. Prefer this
+  pre-edit stop over a half-linked story.
+- The selected finding has a reconciled `ODF-NNN` identity in the evidence. If
+  not, route identity work to `reconcile-finding-names` and make no write.
+- The story would be evaluable: a named beneficiary and an evaluable outcome
+  can be stated from the selected proposal. If either is missing, stop rather
+  than invoking decomposition, refinement, or slice planning to fabricate them.
+
+A finding that already records queued or Taken follow-up is left for later
+rereview; do not add a second story, queue line, or disposition.
+
+### Write the three linked records
+
+After validation succeeds, write all three in one invocation. Preserve
+occurrences, human notes, unrelated findings, unrelated sibling stories,
+unrelated queue order, and direction text.
+
+1. **Story in the existing seed.** Add one new story with the next unused local
+   number, a kebab-case stable anchor, named beneficiary, and evaluable outcome.
+   On the story, record the finding code and the supplied finding location. Do
+   not copy occurrence rows into the seed. Do not rewrite sibling stories or
+   seed metadata.
+2. **Canonical queue entry.** Add the story to **Backlog list** (not Taken)
+   using the exact title linked to its stable anchor plus the seed ID. Leave
+   details in the seed. Queueing here does not start execution.
+3. **Reciprocal finding link.** On the supplied writable finding location, add a
+   concise Follow-up (or the file's equivalent human-note convention) that
+   links to the queued story and states that the finding is **queued, not
+   resolved**. Do not add a separate status database. Do not edit
+   `docs/maintainer/finding-names.md`. Preserve occurrence rows, observed
+   effect, inference, unrelated human notes, and unrelated findings.
+
+### Partial failure
+
+If a later write fails after validation (for example the finding file cannot
+be updated), report the actual outcome: which destinations were written and which
+link is missing. Do not claim that all links were saved. Do not silently roll
+forward as if the reciprocal contract completed.
+
+A missing writable finding location is not a partial success: it is a
+pre-edit stop, so seed and queue remain unchanged.
 
 ## Boundaries
 
-- Do not write `DearDough.md`, supplied evidence, the naming catalog, seeds,
-  or `.planning/PRODUCT-BACKLOG.md`.
 - Do not default to real `DearDough.md` or `docs/maintainer/finding-names.md`.
 - Do not allocate, rename, or reconcile identities; route that work to
   `reconcile-finding-names`.
 - Do not fetch other projects or scan unrelated logs.
 - Do not treat similar symptoms as a shared cause.
 - Do not count the same execution twice.
-- Do not invent recurrence, codes, fixes, or direction text.
+- Do not invent recurrence, codes, fixes, seeds, or direction text.
 - Do not claim a queued, seeded, or dispositioned outcome from a
   recommendation-only invocation.
+- Do not claim a fully linked outcome when the reciprocal finding update was
+  blocked or failed.
+- Do not generate a slice plan or implement the proposed fix.

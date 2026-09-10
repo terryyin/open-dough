@@ -96,19 +96,20 @@ state changes or downstream commitment are implied.
 
 ### 2. Queue a selected response in an existing seed
 Type: Behavior
-Status: planned
+Status: done
+Proof: Isolated accepted walk recorded story 4 with stable anchor
+`prevent-wrap-up-from-overwriting-reviewed-commits`, canonical Backlog list
+entry, and `Follow-up: queued, not resolved` on `ODF-901`. Occurrences, notes,
+`ODF-902`, Taken order, unrelated queue order, and direction stayed intact.
+Missing writable finding location was a pre-edit stop (seed and queue unchanged).
+Recommendation-only still wrote nothing. Real log and catalog stayed
+byte-identical.
+Evidence: [evidence/slice-2/WALKTHROUGH.md](evidence/slice-2/WALKTHROUGH.md).
 
 Behavior: Given a developer-selected proposal, an appropriate existing seed,
 and supplied writable finding record, record one evaluable story, queue its
 canonical reference, and link the retained finding and story in both directions.
 Record the developer's selection as queued follow-up, not problem resolution.
-
-Proof: One isolated accepted-proposal walkthrough shows beneficiary/outcome in
-the seed, valid canonical backlog reference, finding code/location on the story,
-and story link on the finding. Compare snapshots to establish preservation of
-occurrences, unrelated notes, direction, and unrelated queue order. Proposal-only
-state from slice 1 remains read-only. Validate destinations before editing; report
-any partial failure truthfully instead of claiming all links were saved.
 
 Safe stop: Accepted work is discoverable and the original evidence is retained.
 The caller supplies an existing seed for this first increment; missing-seed
@@ -213,9 +214,11 @@ Retain plan and evidence for retrospective and story wrap-up.
 
 ## Delivery
 
-- Slice 1 delivered in this wrap-up: internal skill
-  `.agents/skills/triage-retrospective-findings/SKILL.md` with Claude pointer;
-  ranking and stop evidence under `evidence/slice-1/`.
+- Slice 1 `57425ff`: recommendation-only skill, ranking evidence under
+  `evidence/slice-1/`.
+- Slice 2 delivered in this wrap-up: selected-proposal queue path in the same
+  skill; evidence under `evidence/slice-2/`. Missing writable finding location
+  is a pre-edit stop.
 - Branch: `worktree-quick-039-triage-retrospective-findings`.
 - CI observer: `/tmp/dough-ci-501/watch-6ldH7a` (workflow `ci.yml` / `CI`).
   Started from the main-checkout skill scripts so Cursor hooks bind the
@@ -223,6 +226,7 @@ Retain plan and evidence for retrospective and story wrap-up.
 
 ## Learnings
 
-None that change remaining slices. Slice 2 must replace the recommendation-only
-write prohibition with a developer-selected queue path in the same skill, not a
-second procedure. Fictional `ODF-901`–`ODF-903` stay out of the naming catalog.
+None that change remaining slices. Slice 3 must create a minimal canonical seed
+when no suitable existing seed is supplied, then reuse the same linked queued
+outcome as slice 2. Do not force unrelated work into an existing seed. Fictional
+`ODF-901`–`ODF-903` stay out of the naming catalog.
