@@ -149,8 +149,9 @@ Assess the sequence cumulatively alongside slice size and proof ownership:
 are the examples exercising one coherent model or accumulating special cases?
 Explain the common rule supported by current evidence and any domain reason for
 separate rules. Delivery grouping alone cannot justify implementation structure.
-Revise unsupported design prescriptions within the authorized scope; surface
-unresolved product or plan constraints for human judgment before conflicting
+Revise unsupported design prescriptions within the authorized scope; use the shared
+[plan-conflict handoff](../../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
+for disputed product or plan constraints before conflicting
 changes. Passing each slice's proof does not answer this design question.
 
 Refine a slice when it has independent postconditions or proof loops, separable

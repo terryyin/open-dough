@@ -46,8 +46,12 @@ focus or write its destination.
   that is already resolved.
 - **Plan state decides the destination.** Amend an unfinished plan; create a
   follow-up plan only for a completed execution.
-- **The user owns disputed scope.** Stop when evidence cannot distinguish two
-  plans or when a finding would change the story rather than correct it.
+- **The user owns disputed scope and constraints.** Stop when evidence cannot
+  distinguish two plans or when a finding would change the story rather than
+  correct it. Use the shared
+  [plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
+  for apparently accidental contractual restrictions; plan compliance does not
+  settle their justification.
 - **Product learning is not an implementation defect.** Keep product
   recommendations out of correction plans and process findings.
 - **Direction is a criterion, not a deliverable.** Question alignment of
@@ -149,6 +153,11 @@ instead of product truth. An explicit user decision is not drift. Style
 preferences, speculative redesigns, duplicate symptoms, and unsupported claims
 are not findings. Do not retain a negative test or documentation merely to prove
 that temporary behavior is gone unless its absence is an enduring requirement.
+
+Surface a disputed plan restriction through that handoff before planning its
+removal. Leave the disputed correction pending the human decision, retain genuine
+constraints, and continue independently supported reviews. Do not silently
+rewrite the historical contract or treat preservation as resolution.
 
 Use focused read-only checks when they can confirm or dismiss a finding. Do not
 run broad suites.

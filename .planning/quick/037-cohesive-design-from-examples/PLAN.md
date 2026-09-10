@@ -153,7 +153,7 @@ editing risk, so follow links only where they govern this result.
 
 ### Surface accidental plan restrictions for human resolution
 Type: Behavior
-Status: planned
+Status: done
 Proof: Present the existing exact-layout rejection instruction to execution,
 post-change review, and retrospective review using the same decision case.
 
@@ -335,3 +335,17 @@ common-rule sequence passed the existing assessment. An already contractual
 exact-layout restriction remained a human decision, not an automatic rewrite.
 Links/anchors/frontmatter, skill validation, and whitespace checks passed.
 Independent refactor review found no changes needed; source-only authoring proof.
+
+### Disputed restrictions — authoring observation
+
+Execution, refactor, and retrospective consumers reached one shared handoff:
+“The plan requires rejecting other mixed counts, but the story supplies two
+required examples and defers future-layout promises; no independent rejection
+rule is supplied. May we remove that rejection and align the plan with the
+common rule, or should it remain under an explicit product requirement?”
+Execution stopped the disputed implementation; refactoring returned JIDOKA
+instead of a clean result; retrospective kept the removal correction pending
+while independent reviews continued. No disputed behavior changed. Planning
+classified the contractual conflict as Escalate. A supplied attachment maximum
+remained binding with its rejection proof. Changed links/anchors/frontmatter and
+whitespace checks passed; independent refactor review found no edits needed.

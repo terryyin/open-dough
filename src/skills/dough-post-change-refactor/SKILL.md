@@ -3,7 +3,7 @@ name: dough-post-change-refactor
 description: >-
   Refactors concepts implicated by the current uncommitted change before commit.
   Includes untouched code needed for coherence, stops before unapproved
-  cross-subsystem refactoring, and tests only after edits. Use after a slice,
+  cross-subsystem refactoring or disputed plan behavior, and tests only after edits. Use after a slice,
   for post-change refactoring, or to clean up the current change.
 ---
 
@@ -45,6 +45,12 @@ Include untouched code when it represents the same concept, duplicates the same
 knowledge, or must change for coherence. Dependency adjacency alone does not
 establish scope. Do not initiate unrelated cleanup discovered during tracing.
 
+If a candidate exposes a disputed plan restriction, use the shared
+[plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
+before editing that behavior. Preserving it is not a clean review result when its
+justification is disputed; return a decision stop without disguising a behavior
+change as refactoring.
+
 If a candidate needs coordinated production refactoring in more than one
 production subsystem, stop before editing unless the human has authorized that named concept
 and those subsystems. Generic cleanup authorization is insufficient. Tests,
@@ -79,6 +85,10 @@ the caller; do not claim success.
 On completion, report checks that changed code, files renamed, extracted, split,
 or deleted, passing test commands or `skipped — no refactor edits`, and approximate
 active elapsed time. End with `## REFACTOR COMPLETE`.
+
+For a disputed plan restriction, return the shared plan-conflict handoff and end
+with `## REFACTOR JIDOKA STOP`; the caller must resolve it before treating the
+review as complete or committing.
 
 When the subsystem gate stops work, report the triggering issue, concept,
 affected subsystems and representative files, why a narrower change would be

@@ -55,7 +55,11 @@ completed slices, then classify each remaining slice:
 | **Refine** | Same story, but the slice has multiple beats, unsupported special-case design, low confidence, or a supplied target or hard-limit concern |
 | **Escalate** | Learning requires selected-story or parent-story review |
 
-Route Escalate through the input gate. Refine every Refine slice.
+A suspected accidental contractual restriction uses the shared
+[plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
+before a conflicting plan edit; classify it as Escalate, not an automatically
+correctable special case. Route other Escalate findings through the input gate.
+Refine every remaining Refine slice.
 
 After an overrun, confirm attempt-owned work is safely parked or reverted before
 editing the plan. Stop for human judgment when ownership is unclear. Do not
