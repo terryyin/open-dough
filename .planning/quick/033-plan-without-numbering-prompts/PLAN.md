@@ -118,7 +118,7 @@ release until the pre-release gate below is satisfied and Slice 3 publishes it.
 
 ### 3. Receive the fix from a published immutable release
 Type: Behavior
-Status: planned
+Status: done
 Proof: The recorded release source advertises the new annotated version tag;
 its peeled commit contains matching VERSION/changelog and the corrected payload.
 
@@ -153,7 +153,7 @@ repository still needs Slice 4 to use it. Do not mark the story complete yet.
 
 ### 4. Use the released fix through the ordinary updater
 Type: Behavior
-Status: planned
+Status: done
 Proof: Ordinary recorded-source update changes both native roots to the released
 payload, passes the self-installation check, and fresh installed use produces a
 numbered plan without a number or absent-budget question.
@@ -246,8 +246,9 @@ repeatedly. Preserve passing proof unless later edits invalidate its boundary.
 - CI observer started 2026-09-10 before the first delivery push: Codex yielded
   cell `16`, terminal session `19079`, mailbox `/tmp/dough-ci-501/watch-LM7ebt`,
   worker PID `70915`; execution `terryyin/open-dough` on `main` using verified
-  workflow `ci.yml` (`CI`) from this checkout. Reuse this observer across
-  subsequent deliveries and stop the recorded mailbox before plan completion.
+  workflow `ci.yml` (`CI`) from this checkout. It stopped at the maintainer
+  version-selection boundary without a delivered failure; its receipt records
+  `pendingCi: unobserved`.
 - Slice 1 completed 2026-09-10. Source guidance now reuses a matching active
   plan or allocates after the highest established padded entry, rechecking and
   skipping an occupied candidate without overwriting it. A disposable walkthrough
@@ -257,12 +258,36 @@ repeatedly. Preserve passing proof unless later edits invalidate its boundary.
   `bash tests/story-payload-update.sh` and `git diff --check` passed. The
   post-change refactor review found no cohesive follow-up edits.
 
-Pre-release completion: Slices 1–2 have decisive proof, applicable native
-coverage/reuse and focused checks pass, and the reviewed payload is bounded.
-Story completion additionally requires Slice 3 publication and Slice 4 ordinary
-adoption plus fresh installed-use proof. Source edits, a local tag, or a successful
-file update alone do not complete this story. Resume the parked retrospective
-plan only when requested.
+- Slice 3 completed 2026-09-10. An isolated branch from `v0.3.4` cherry-picked
+  only Slices 1–2, so the release excluded unrelated unreviewed payload work
+  and the Proposed retrospective. Both payload declarations already named the
+  changed skill/reference files. `bash scripts/check-self-installation.sh`
+  passed before metadata. The maintainer-selected `0.3.5` metadata commit is
+  `bed3bad9892d801968dd6d490625648c91977f56` with annotated tag `v0.3.5`;
+  it was merged into `main` at `38ea03b6d0f6b783bae67197774a8249b8f5fa0` and
+  pushed without force to `https://github.com/terryyin/open-dough`. Remote tag
+  object `f331261afcdc5bd62c6c6c00eb175de200f998b4` peels to that metadata
+  commit, whose `VERSION`, dated changelog, and declared payload were inspected.
+- Slice 4 completed 2026-09-10. The installed `dough-update` workflow pinned
+  remote `v0.3.5` at `bed3bad9892d801968dd6d490625648c91977f56` and, with no
+  URL, version, or force override, advanced this checkout's `.agents` and
+  `.claude` roots from `0.3.4` to `0.3.5`. The three changed payload files in
+  each root matched the pinned snapshot; both `SOURCE` records remained
+  `https://github.com/terryyin/open-dough`, existing hook settings were
+  byte-for-byte unchanged, and the post-update self-installation check passed.
+  A fresh Codex CLI 0.144.1 session in a disposable target read the installed
+  `.agents` planning skill and wrote 033 with one proof-owned Behavior slice,
+  no numeric-policy question or implementation, and direct-execution readiness
+  based on cohesion and one proof loop.
+- CI observation was rearmed before the release publication push: cell `76`,
+  terminal session `58902`, mailbox `/tmp/dough-ci-501/watch-xUokcM`, worker
+  PID `67779`, same verified `ci.yml` / `CI` selection. It remains active until
+  this execution's final delivery is pushed and shutdown is confirmed.
+
+Completion evidence: all four slices now have decisive behavior, release, and
+ordinary-adoption proof. Source edits, a local tag, or a successful file update
+were never treated as sufficient on their own. The parked retrospective plan
+remains unrelated and is not resumed by this completion.
 
 ## Planning assessment
 

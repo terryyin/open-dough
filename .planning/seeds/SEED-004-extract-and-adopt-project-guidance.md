@@ -21,7 +21,7 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 13. Receive a slice plan without numbering or budget prompts
 
-**Status:** Refined and execution-planned at human direction, 2026-09-10.
+**Status:** Complete, 2026-09-10.
 **Plan:** [Quick 033](../quick/033-plan-without-numbering-prompts/PLAN.md).
 
 **Goal:** A developer requesting a plan receives it immediately when the story
@@ -38,6 +38,12 @@ planning guidance. Complete focused behavior review, existing payload checks,
 and applicable native evidence/reuse, then publish a new immutable release and
 update this repository through its ordinary recorded-source updater. Verify
 fresh installed use; release and adoption are required for story completion.
+
+**Completion:** Published `v0.3.5` from the reviewed bounded payload, then
+updated this repository through its ordinary recorded-source updater. Both
+native roots record `0.3.5`, the post-update self-installation check passed,
+and a fresh installed Codex session created plan 033 without a supplied number
+or numeric timing policy and without implementing the generated plan.
 
 **Key examples:** Existing quick plans through 032 yield 033 without a question;
 an existing story plan is updated in place; a newly occupied number is skipped.
