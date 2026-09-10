@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Decide and follow up on retrospective findings](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-identified-retrospective-findings) — SEED-010
-
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

@@ -361,62 +361,15 @@ not delete its canonical definition or cancel active execution. Proposing or
 applying a near-future direction adjustment is entirely outside this story.
 Cross-tool verification was skipped for this story at the human's direction.
 
-
-<a id="act-on-identified-retrospective-findings"></a>
-
-### 7. Decide and follow up on retrospective findings
-
-**Status:** Refined for planning on 2026-09-10; implementation not started.
-**Plan:** [Finding triage slices](../quick/039-triage-retrospective-findings/PLAN.md).
-
-**Goal:** The Open Dough maintainer receives a reasoned ordering of process
-findings and turns a developer-selected response into traceable queued work.
-
-**Scope:** Build an internal maintainer skill. Review supplied accumulated finding
-evidence with already reconciled internal identities. Recommend priority using
-severity, distinct supported recurrence, confidence, and established direction;
-explain judgment without a numeric formula. The developer chooses what enters
-the backlog. Reuse a canonical story/appropriate seed or create a minimal story
-and seed as needed, queue the canonical story reference, and link it reciprocally
-with the retained finding. Surface already-linked queued or Taken work instead
-of duplicating it. Record explicit deferral, evidence requests, or no-change
-choices without manufacturing a fix. Preserve findings and occurrence history.
-
-**Key examples:** A severe one-off can outrank repeated minor cost with an
-explanation. An accepted proposal becomes a story in an existing or newly needed
-seed, a backlog reference, and reciprocal finding link. A rereview exposes the
-existing follow-up without duplicating work. Insufficient evidence produces a
-qualified recommendation or evidence request, not invented recurrence.
-
-**Boundaries:** Build and verify with fictional examples; leave real
-`DearDough.md` and the naming catalog alone. A later real trial must first use
-`reconcile-finding-names` to establish missing internal identities separately.
-This skill does not assign codes or collect occurrences. Defer collection
-infrastructure, remote exchange, scheduled triage, downstream story refinement,
-planning and execution, automatic guidance changes, effectiveness assessment,
-and finding removal/archival. Story 2 retains release/adoption; backlog priority
-is unchanged by selecting this story for planning.
-
-**Input assumption:** The invocation supplies the canonical accumulated evidence
-location with reconciled identities and, for accepted writes, its writable
-finding location. No new maintained log or default path is selected. Missing
-inputs stop dependent work usefully. The current naming catalog holds mappings,
-not recurrence. This contract lets fictional inputs prove the skill before any
-real accumulated-log adoption; the later production location remains outside
-this delivery.
-
-**Safe stopping point:** Developer-selected work is recoverable from both the
-queue and retained finding, without executing it or deleting its evidence.
-
 ## Ordering and Scope Reduction
 
-Story 6 source work is complete. Keep Stories 1, 2, and 7 selected and preserve
+Story 6 source work is complete. Keep Stories 1 and 2 selected and preserve
 the relative order of remaining backlog entries, including the workflow-boundary
 fix. Story numbers are stable
 references, not priority ranks. Within the process feedback work, local capture
 gives the earliest value and learning; public
 release/adoption advances reusable lifecycle coverage before adding maintainer
-convenience. Story 7 owns response decisions and follow-up.
+convenience.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -439,8 +392,7 @@ now defines the local Markdown location, minimal format, occurrence identity,
 and conservative matching in its refined section. Later evidence will
 inform filtering, response dispositions, retention, and cross-project exchange;
 these are not prerequisites for choosing the local process increment. Story 6
-source work is complete; release/adoption remains Story 2. Story 7 is refined and planned for action on findings; implementation remains
-separately authorized work.
+source work is complete; release/adoption remains Story 2.
 
 ## When to Surface
 
@@ -455,6 +407,8 @@ exchange only when another project's finding offers additional learning.
 
 - Proposed skill:
   [`dough-execution-retrospective`](../../src/skills/dough-execution-retrospective/SKILL.md)
+- Internal maintainer follow-up of recorded findings:
+  [`triage-retrospective-findings`](../../.agents/skills/triage-retrospective-findings/SKILL.md)
 - User direction on 2026-09-09 initially captured one oversized story, then
   authorized this decomposition and selection of top-value backlog stories.
 - Clarifications: `DearDough.md`; public local writing first; Open Dough as its
