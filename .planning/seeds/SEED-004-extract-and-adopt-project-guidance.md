@@ -17,6 +17,68 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="execute-without-redundant-in-progress-status"></a>
+
+### 15. Execute slices without a redundant in-progress status
+
+**Status:** Unplanned.
+
+**Goal:** A developer executing a plan sees only slice state that changes a
+workflow decision, without a transient `in-progress` update during the ordinary
+continuous path from starting a planned slice to delivering it as done.
+
+**Scope:** Simplify Open Dough's default slice vocabulary from `planned |
+in-progress | done` to `planned | done`. Starting or delegating a slice does not
+write a status-only plan change. Successful coordinator-owned delivery records
+the slice as done with its proof and learnings in the delivery commit. An
+interrupted slice remains not done.
+
+On resume, begin with the first dependency-ready slice that is not done and
+reconcile its expected outcome and proof with the current conversation,
+handoffs, and owned working-tree changes. A dirty working tree alone does not
+prove which slice is active: preserve pre-existing and concurrent work, continue
+only when ownership is clear, and stop for human judgment when it is ambiguous.
+Keep a richer status vocabulary when the executing project explicitly supplies
+one whose intermediate states affect behavior.
+
+Align the shared planning format, plan execution, CI-repair wording,
+retrospective completion, story wrap-up, and directly affected behavioral
+checks. Preserve backlog **Taken** as the execution-level state across pauses
+and resumption. Exclude changes to backlog lifecycle, commit boundaries,
+concurrency or locking policy, CI repair behavior, executable-plan layout beyond
+status semantics, release, and installation or adoption.
+
+**Key examples:**
+
+- Given a planned slice executes successfully in one run, starting it does not
+  modify the plan; delivery changes it directly from planned to done alongside
+  its proof and learnings.
+- Given execution stops with clearly owned uncommitted work, resumption selects
+  the first dependency-ready slice that is not done, reconciles that work with
+  the slice, and continues without requiring an `in-progress` marker.
+- Given a dirty tree contains unrelated or ambiguously owned changes, resumption
+  does not infer an active slice from dirtiness alone and does not overwrite or
+  absorb those changes.
+- Given CI repair interrupts delivery, the affected slice remains unfinished
+  and is not marked done; repair and resumption retain the existing safety
+  protocol without requiring a third status.
+- Given a project defines an intermediate slice state with a real consumer or
+  decision consequence, execution honors that project vocabulary rather than
+  forcing the two-state default.
+
+**Evaluation:** A representative behavior review covers continuous execution,
+clear interrupted resumption, ambiguous shared-worktree recovery, CI repair,
+and a project-supplied richer vocabulary. Default runtime guidance has no
+behavioral dependency on `in-progress`; completion consumers consistently treat
+every non-done slice as unfinished.
+
+**Effort hypothesis:** Band pending project definitions. The change appears
+bounded to shared guidance and focused behavioral checks; uncertainty concerns
+interrupted and concurrent execution examples rather than product code.
+
+**Depends on:** No product prerequisite. Preserve Story 14's **Taken** behavior
+as the durable execution-level signal.
+
 <a id="show-stories-as-taken-during-execution"></a>
 
 ### 14. Show queued work as taken when plan execution starts
@@ -264,7 +326,8 @@ fixture remain maintainer-owned follow-ups.
 
 ## Ordering
 
-Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
+Story 15 is the first queued priority. Story 9 is complete. Story 5 is complete.
+Story 12 is complete in source.
 Story 11 retains its separate outcome and
 backlog position relative to the other existing items. Story 14 is done. Story
 6 remains the next extraction reuse opportunity. Story 7 surfaces
