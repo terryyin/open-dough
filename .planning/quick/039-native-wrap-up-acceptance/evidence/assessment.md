@@ -7,14 +7,17 @@ product docs.
 
 - Worktree: `/private/tmp/open-dough-quick-039-native-wrap-up-acceptance`
 - Branch: `worktree-quick-039-native-wrap-up-acceptance`
-- Source revision: `65349b573b8345f6af312382b4dfba6792eb7e9d` (slice 2 HEAD)
+- Source revision: `ab447d4cfbb1331696a85133cc22dbdf49aae968` plus uncommitted
+  wrap-up clarifications delivered with slice 3
 - Recorded VERSION: `0.3.6` (`deecc7d`). Candidate is not a new release.
 - Post-release wrap-up source still in HEAD: `81e9fbb` (seedless corrections
   through wrap-up) and related `fbbb1b2`. `src/skills/dough-story-wrap-up/SKILL.md`
   and `src/skills/dough-product-backlog/SKILL.md` differ from tagged `v0.3.6`.
-- Slice 1 documentation-step correction is in HEAD `65349b5`. Wrap-up source
-  hash `93d089e6f4e333c80d2dfacd082c8586fdbe7358995f7c5befde8ab3a47ee53d`
-  matches slice 1 attempt 2. Slice 2 made no further `src/skills/` edit.
+- Slice 1 documentation-step correction is in HEAD. Wrap-up source hash
+  `93d089e6f4e333c80d2dfacd082c8586fdbe7358995f7c5befde8ab3a47ee53d` matched
+  slice 1 attempt 2 through slice 3's first native launch. Slice 3 then
+  clarified completion-record location and spent-plan deletion; final hash
+  `921971ba1fd0c4eb953a83e2c41e8a8c87210ab30137396562e67a04a6eb7c73`.
   Managed installed copies in this worktree were not edited.
 - This repository's installed managed copies under `.agents/skills/` and
   `.claude/skills/` differ from current source. ADR 0003: do not edit them.
@@ -27,9 +30,9 @@ product docs.
   installation/discovery mechanism is unchanged and may be reused. It does
   **not** establish wrap-up closure, preservation, follow-up, or refusal.
 - [Wrap-up recognition](../../../../src/skills/dough-story-wrap-up/RECOGNITION.md):
-  native wrap-up acceptance unfinished; recover walkthroughs from Git if a
-  current native judgment needs them. No wrap-up native run was found in
-  current or recovered 027/031/032 evidence.
+  at start of this plan, native wrap-up acceptance was unfinished. No wrap-up
+  native run was found in recovered 027/031/032 evidence. This plan now
+  records that acceptance.
 - Changelog 0.3.6: wrap-up shipped under an explicit native-acceptance
   exception. That exception is historical release context, not passing proof.
 
@@ -54,11 +57,11 @@ identified fixture or product correction.
 
 | Requirement | Codex | Cursor | Claude |
 | --- | --- | --- | --- |
-| Native skill use + useful closure | pass slice 1 (attempt 2) | pass slice 2 | pending slice 3 |
-| Empty review, durable knowledge, shared-content preservation, history absence, repeat safety | pass slice 1 | reuse confirmed; Cursor also observed these on this lifecycle | reuse permitted; see applicability below |
-| Seedless follow-up, priority, human precedence, no duplicates, provenance, later correction closure | n/a (slice 2) | pass slice 2 | reuse only after slice 2 applicability judgment |
-| Unfinished execution/review refusal + existing-story follow-up | reuse only after slice 3 applicability judgment | reuse only after slice 3 applicability judgment | pending slice 3 |
-| Recoverable deletion + remaining links | pass slice 1 Codex closure (`f797bd4`) | pass Cursor closures `4fb462f` and `139b655` | pending fresh Claude closure |
+| Native skill use + useful closure | pass slice 1 (attempt 2) | pass slice 2 | pass slice 3 (closure retry) |
+| Empty review, durable knowledge, shared-content preservation, history absence, repeat safety | pass slice 1 | reuse confirmed; Cursor also observed these on this lifecycle | empty review, durable knowledge, shared-content, and history absence observed on Claude closure; repeat safety reused from slice 1 (not re-run) |
+| Seedless follow-up, priority, human precedence, no duplicates, provenance, later correction closure | n/a (slice 2) | pass slice 2 | justified reuse; seedless native skill-use remains Cursor-owned |
+| Unfinished execution/review refusal + existing-story follow-up | reuse after slice 3; see applicability below | reuse after slice 3; see applicability below | pass slice 3 |
+| Recoverable deletion + remaining links | pass slice 1 Codex closure (`f797bd4`) | pass Cursor closures `4fb462f` and `139b655` | pass Claude closure `38aeb7d0b09416790e6dfb9ee6318f040ffee054` |
 | Installation/update/coexistence | reuse 027/032; wrap-up skill edit does not invalidate install/update evidence | same | same |
 
 ## Slice 1 Codex results
@@ -111,5 +114,44 @@ repeat-safety remain applicable. This slice still required native Cursor
 skill-use, follow-up/provenance/correction-closure, and Git recovery on each
 fresh Cursor closure; those passed.
 
-Claude still needs its slice-owned native journey. Seedless follow-up reuse
-on Claude waits for that host's applicability judgment after its run.
+## Slice 3 Claude results
+
+Evidence: [slice-3/](slice-3/). Native Claude Code `2.1.267`, deadline 3600s,
+`--dangerously-skip-permissions --no-session-persistence`. Installed wrap-up
+matched source at each launch. Transcripts contain `{"type":"result"}` and
+`Skill` `dough-story-wrap-up`.
+
+Unfinished execution: skill used; planned slice reported; protected bytes
+identical; HEAD `4d4f86d`. Unfinished retrospective attempt 1 treated DearDough
+as a finished review (product defect). Retry after the completion-record
+clarification refused, bytes identical, HEAD `f15e7d5`. Closure attempt 1
+kept the spent plan because the fixture said to retain it at completion.
+Retry after fixture wording plus spent-plan-deletion clarification closed
+Trim names, left Formal titles as the single story-home queue entry with its
+plan link, invented no seed, and recovered spent files from
+`38aeb7d0b09416790e6dfb9ee6318f040ffee054`.
+
+## Remaining-gap reconciliation (all three hosts)
+
+- **Native skill-use and useful closure:** Codex, Cursor, and Claude each have
+  a passing slice-owned native journey.
+- **Empty review / durable knowledge / shared-content / history absence:**
+  observed on all three hosts' closures. Repeat safety: observed Codex and
+  Cursor; reused for Claude (not re-invoked after closure).
+- **Seedless follow-up lifecycle:** Cursor-owned and passed. Justified reuse
+  on Claude: slice 3's completion-record and spent-plan-deletion clarifications
+  do not change seedless queueing, human precedence, or provenance rewrite, and
+  Claude native skill-use was established on the existing-story variant of the
+  same skill. Codex did not own that variant. Native seedless skill-use was
+  not re-run on Claude.
+- **Unfinished execution/review refusal + existing-story follow-up:**
+  Claude-owned and passed. Codex and Cursor may reuse those shared-source
+  observations (no wrap-up host adapter) while hash
+  `921971ba1fd0c4eb953a83e2c41e8a8c87210ab30137396562e67a04a6eb7c73` stays
+  current; they were not natively re-run.
+- **Recoverable deletion + remaining links:** each fresh closure has a
+  before-cleanup commit (Codex `f797bd4`, Cursor `4fb462f`/`139b655`, Claude
+  `38aeb7d`).
+- **No remaining pending native wrap-up requirement** for the hosts and
+  promises in this plan. Slice 3 source clarifications are delivered with this
+  slice's commit.

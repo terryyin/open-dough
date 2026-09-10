@@ -1,0 +1,12 @@
+date=2026-09-10T07:32:23Z
+host=2.1.267 (Claude Code)
+deadline=3600 grace=15
+proof_root=/private/tmp/dough-wrap-up-039-s3.CTmm5v
+fixture=/private/tmp/dough-wrap-up-039-s3.CTmm5v/fixture
+prompt_file=/private/tmp/open-dough-quick-039-native-wrap-up-acceptance/.planning/quick/039-native-wrap-up-acceptance/evidence/slice-3/prompt.txt
+command=claude --print --dangerously-skip-permissions --no-session-persistence --output-format stream-json --verbose This\ project\ uses\ Open\ Dough.\ Wrap\ up\ the\ story\ Trim\ names\ in\ planning/seeds/SEED-001-greeting.md\ after\ its\ plan\ execution\ and\ retrospective.\ Repository\ root\ is\ this\ checkout.\ Seeds\ live\ in\ planning/seeds/.\ Executable\ plans\ live\ in\ planning/plans/.\ Status\ vocabulary:\ planned\,\ in-progress\,\ done.\ Retrospective\ completion\ is\ recorded\ in\ the\ plan\'s\ Retrospective\ section.\ Product\ backlog\ is\ planning/PRODUCT-BACKLOG.md.\ Process\ log\ is\ DearDough.md.\ Use\ ordinary\ Git\ commits\;\ do\ not\ rewrite\ history. 
+native_run_outcome=exited
+native_run_failure_reason=
+native_run_stream_status=complete
+native_run_stream_reason=
+exit=0

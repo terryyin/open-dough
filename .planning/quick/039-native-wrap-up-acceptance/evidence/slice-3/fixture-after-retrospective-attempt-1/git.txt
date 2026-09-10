@@ -1,0 +1,7 @@
+HEAD=cba27dbe0e63e8a2869879b6828e4c2ea04d5755
+status:
+log:
+cba27db Wrap up Trim names story
+b6456d8 Mark Trim names slices done
+4d4f86d Record unfinished Trim names and Formal titles follow-up
+e8a8ef7 Add greeting CLI

@@ -3,9 +3,10 @@
 ## Source and outcome
 
 [SEED-011 Story Wrap-Up](../../seeds/SEED-011-story-wrap-up.md#story-wrap-up).
-Status: in progress. Slice 1 native Codex closure passed; Cursor and Claude
-remain. Candidate exercised: worktree HEAD `de14017` plus the uncommitted
-wrap-up documentation-step correction delivered with this slice.
+Status: complete. Native wrap-up acceptance recorded on Codex, Cursor, and
+Claude Code. Candidate exercised: worktree HEAD plus wrap-up source
+clarifications delivered with these slices. Release of those later source
+changes is not part of this plan.
 
 The maintainer can establish that the existing wrap-up skill closes completed
 work through Codex, Cursor, and Claude Code. v0.3.6 already shipped under an
@@ -115,7 +116,7 @@ Claude native skill-use.
 
 ### 3. Respect completion boundaries through Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A selected plan or retrospective is unfinished; native wrap-up leaves
 its material intact and reports the missing completion. After completion is
 supplied, the same fixture closes the predecessor while retaining its existing
@@ -126,6 +127,14 @@ where prior context could conceal a failure. Compare protected bytes at each
 refusal; final state must preserve the feature-story/plan link and one queue
 entry, remove spent history, and support Git recovery. These are stages of one
 completion-boundary proof loop, not independently shippable implementation work.
+
+Outcome: pass. Evidence: [evidence/slice-3/](evidence/slice-3/). Native
+Claude Code `2.1.267`. Unfinished execution and (after one product retry)
+unfinished retrospective left protected bytes identical. Closure retry
+deleted spent Trim names history, recovered it from `38aeb7d`, and left
+Formal titles as the single story-home queue entry with its plan link. Source
+clarifications: do not invent a finished review from the process log; delete the
+spent plan at wrap-up even if execution retained it through retrospective.
 
 ## Proof ownership and stopping points
 
@@ -175,3 +184,19 @@ No additional slice-specific concern was identified in this planning assessment.
 - Cursor native wrap-up used the installer's `.claude/skills/` copy while
   `--platform cursor` also wrote `.agents/skills/`; both matched source. Treat
   either installed root as skill-use when bytes match.
+- A process-log occurrence is not a retrospective-completion record. Slice 3
+  attempt 1 treated DearDough as an empty finished review.
+- A plan decision to retain the plan at execution completion keeps it through
+  retrospective, not after wrap-up.
+
+## Coverage reconciliation
+
+Every included requirement has native proof or justified reuse on each
+affected host. Seedless follow-up remains Cursor-owned; Claude reuse is
+justified because slice 3's completion-record and spent-plan-deletion
+clarifications do not change seedless queueing, human precedence, or
+provenance rewrite, and Claude native skill-use was established on the
+existing-story variant. Repeat safety was observed on Codex and Cursor and
+reused for Claude. Installation/update evidence from 027/032 remains
+applicable. This plan and its evidence stay for retrospective; this acceptance
+does not wrap up SEED-011.

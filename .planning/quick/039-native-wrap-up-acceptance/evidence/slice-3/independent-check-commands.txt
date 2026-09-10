@@ -1,0 +1,32 @@
+Independent check commands after each native Claude session, run against the
+fixture. Exit codes and wrap-up self-report are not acceptance.
+
+Skill use and stream completeness:
+
+- jq -e -s 'any(.[]; .type == "result")' "$TRANSCRIPT"
+- jq -e -s 'any(.[] | (.message.content // [])[]?; .type == "tool_use" and .name == "Skill" and (.input.skill // "" | test("dough-story-wrap-up")))' "$TRANSCRIPT"
+
+After unfinished-execution wrap-up:
+
+- protected hashes identical for plan, seed, backlog, log, src
+- product file list identical (no deletion)
+- git HEAD unchanged
+- result does not contain ## STORY WRAP-UP COMPLETE
+- report mentions the planned slice / unfinished execution
+
+After unfinished-retrospective wrap-up:
+
+- same byte-identity and no-deletion checks against the execution-complete snapshot
+- plan still has no Status: complete / EXECUTION RETROSPECTIVE COMPLETE
+- report mentions missing retrospective
+
+After successful closure:
+
+- test ! -e planning/plans/trim-names.md
+- test ! -e planning/plans/trim-names/evidence/cli-run.txt
+- Formal titles remains in the seed with its plan link
+- exactly one backlog bullet, linking SEED-001-greeting.md#formal-titles
+- no formal-titles.md queue entry
+- no invented seed
+- remaining Markdown links resolve
+- git show "$BEFORE_CLEANUP":planning/plans/trim-names.md
