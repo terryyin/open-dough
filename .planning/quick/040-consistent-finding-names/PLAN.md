@@ -4,7 +4,7 @@
 
 [SEED-010 Story 3](../../seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-local-retrospective-mail),
 including the release/history clarification. Status: executing on
-`worktree-quick-040-consistent-finding-names`. Slice 1 delivered; slices 2–6
+`worktree-quick-040-consistent-finding-names`. Slices 1–2 delivered; slices 3–6
 remain.
 
 The Open Dough maintainer receives a stable internal finding identity and a
@@ -127,18 +127,19 @@ Safe stop: Release-bearing logs are useful independently of internal matching.
 
 ### 2. Recommend a stable internal name for an unseen finding
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given one interpretable source finding and no known internal match,
 invoking the internal skill creates one minimal naming entry and returns a
 source-code → ODF-code suggestion without changing source feedback.
-Proof: Walk the first-use invocation using Open Dough as both named roles in an
-isolated fixture. Inspect description, source project/code mapping and references,
-chat suggestion and identical source bytes. Repeat the exact input: the same
-identity is retained, with no count/history added. Missing or empty feedback
-produces no invented finding; an uninterpretable naming record stays unchanged.
-Run the extended existing internal-omission installation check in this slice.
-Interim boundary: Until slices 3–5 provide historical matching, report unsupported
-cross-revision matching as pending without guessing a reuse or correction.
+Proof: Isolated first-use allocated `ODF-001` and recommended
+`Open Dough/DD-001 → ODF-001` with meaning, mapping, and references; source
+SHA-256 `fea3a65ae043b9115275ee63c38e2edfd276606f8b678e9c4d73028b884d5f6a`
+unchanged. Replay kept catalog hash
+`2fe80bfae32ec31bc796a5430aa6ede2e2bd2542c1f5e0850e1ce33f6d9350f2` with no
+counts. Missing feedback and a malformed catalog stayed byte-identical.
+Unsupported cross-revision matching was reported pending at checkout `962b4e7`.
+`bash tests/install-omits-internal.sh` passed.
+Evidence: [evidence/slice-2/WALKTHROUGH.md](evidence/slice-2/WALKTHROUGH.md).
 Safe stop: First identities and replay work; history-dependent decisions remain
 explicitly unresolved.
 
@@ -241,3 +242,8 @@ Slice 1: occurrence template now records `Open Dough release`. Review-time
 updater VERSION files are decoys unless tied to the work. Unreleased and
 modified share one state-plus-revision form; the walkthrough used the modified
 case. Native acceptance of the field remains Story 2.
+
+Slice 2: internal skill and empty catalog are source-only. Isolated catalogs
+are the writable proof target. `assert-public-payload-install.sh` remains a
+payload-completeness helper; omission of the new skill is owned by
+`tests/install-omits-internal.sh`. Cross-revision matching stays pending.
