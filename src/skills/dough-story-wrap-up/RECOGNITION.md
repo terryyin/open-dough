@@ -54,6 +54,10 @@ actions.
   invent a planless correction format.
 - Applies authorized product-review advice with optional human input; human
   input wins; unresolved choices are reported.
+- After saved-tip integration is verified, removes only the exact owned clean
+  execution worktree and integrated local branch with non-force Git operations.
+  Dirty or ambiguous state, partial cleanup, and retry are reported without
+  risking caller-owned, original-checkout, unrelated, or remote resources.
 
 ## Client project context
 
@@ -64,6 +68,8 @@ work needs the story, changes, and execution results instead of a plan.
 Seed conventions apply only to feature stories. Backlog path is required only
 when a **Taken** or queue entry points at the selected work. Retrospective
 advice is used when present and is not a required completion record.
+Worktree-mode cleanup also requires the retained execution checkout, local
+branch, saved tip, originating checkout, and integration-target identity.
 
 ## Differences that rule out replacement
 

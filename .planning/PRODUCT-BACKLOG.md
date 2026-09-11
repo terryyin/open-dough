@@ -7,7 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Execute in a worktree by default and merge back at wrap-up](seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up) — SEED-004
 - [Drop Recently done from the product backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#drop-recently-done-from-product-backlog) — SEED-004
 
 ## Backlog list

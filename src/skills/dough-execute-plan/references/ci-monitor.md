@@ -6,11 +6,16 @@ launching.
 
 ## Own one observer
 
-Start one observer per
-repository/branch/coordinator before the first push and reuse it across normal
-and repair pushes. The observer discovers later pushes; a changed SHA does not
+Start one observer per repository/branch/coordinator before the first push,
+where branch is the selected execution branch, and reuse it across normal and
+repair pushes. The observer discovers later pushes; a changed SHA does not
 require new setup. Push success closes routine delivery without waiting for CI
 or deployment.
+
+Bind the observer to the selected execution location. Observe that branch and
+use that checkout for every pause, stash, repair, delivery, and restoration
+operation. For planned execution, verify the binding against the retained
+execution identity; for quick execution, retain it in the conversation.
 
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally. It never dispatches or retries a workflow, observes

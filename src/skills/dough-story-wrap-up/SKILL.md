@@ -38,6 +38,8 @@ Resolve from this project, not this skill's location:
 - optional retrospective advice when it is present, including an empty
   result;
 - Git commit conventions used to preserve a recoverable revision;
+- for planned execution, its selected mode and available originating checkout,
+  execution checkout and branch, and integration-target identity;
 - the product backlog path when a **Taken**, queue, or finished-history entry
   points at the selected work; and
 - shared records that name the selected work: its seed when applicable, process
@@ -51,6 +53,12 @@ identity contract above; do not invent a planless correction format.
 
 If context needed for a closure decision is missing, name the gap, leave
 affected material intact, and do not claim closure.
+
+Before deleting a plan that carries planned-execution identity, retain the
+resolved mode and checkout, branch, and target values in the coordinator's
+available execution context for the remaining wrap-up actions and report. Do
+not create a parallel registry. Missing identity needed by a later action stops
+that action instead of reconstructing or guessing it after plan deletion.
 
 ## Establish execution completion
 
@@ -131,16 +139,19 @@ Do not launch discovery or another review. Absent or empty retrospective
 advice is valid and changes nothing beyond the supported closure and follow-up
 actions above.
 
-## Preserve Git recovery
+## Commit closure inputs and preserve Git recovery
 
 After supported follow-up queue changes and before deleting anything, make the
 current revision recoverable with this project's ordinary Git conventions.
-Include an uncommitted active follow-up plan and its queue edit in that revision
-as well as the spent material, so cleanup cannot strand the plan's only copy. If
-affected files are uncommitted, commit them first using those conventions, then
-record that revision as the before-cleanup commit. If commit conventions,
-ownership, or recovery cannot be resolved, leave the material intact and report
-the gap.
+Commit all owned review and closure-input changes in that revision, including
+applicable retrospective edits to the process log, an uncommitted active
+follow-up plan and its queue edit, assimilated product knowledge, and the spent
+material. Preserve unrelated changes and include only files or portions whose
+ownership is unambiguous. Resolve ownership of the intended cleanup targets at
+this boundary too, before deleting any of them. Then record that revision as
+the before-cleanup commit, even when the current revision was already suitable.
+If commit conventions, ownership, or recovery cannot be resolved, leave the
+material intact, report the gap, and do not claim closure.
 
 Do not rewrite Git history. Do not create an archive, tombstone, finished-list
 entry, or replacement summary for later readers.
@@ -191,16 +202,115 @@ Inspect tracked and untracked files. Absence is the current snapshot, including
 untracked paths. Recover removed files with
 `git show <before-cleanup-commit>:<spent-path>` using the recorded revision.
 
+## Commit final closure
+
+After the spent-history deletion and link repair above, inspect the complete
+closure diff and commit all owned closure changes with this project's ordinary
+Git conventions. Preserve unrelated staged and unstaged changes. A successful
+wrap-up requires a committed final snapshot; staged or unstaged deletion is not
+completion. If ownership or commit completion is ambiguous or the commit fails,
+retain the material and Git state, report the unresolved closure, and do not
+claim success.
+
+Finish both the before-cleanup and final-closure commits in caller-selected
+direct-current-branch mode as well as worktree mode. In worktree mode, complete
+these commits before any later integration or owned worktree/branch removal.
+Direct-current-branch mode has no later integration or worktree-removal action.
+
+## Integrate committed worktree closure
+
+For worktree mode, save the committed final-closure tip and use the retained
+planned-execution identity to resolve the exact integration-target branch and
+the checkout that holds it. Leave the execution checkout before integration;
+run target inspection and integration from the target checkout. If the target
+checkout cannot be resolved uniquely, does not hold the recorded target branch,
+or no longer matches the retained identity, preserve the execution branch and
+worktree, report the mismatch, and stop this action. Direct-current-branch mode
+skips integration.
+
+Inspect the target checkout's branch, staged and unstaged changes, untracked
+files, and any unfinished Git operation before merging. Preserve unrelated
+target work. Do not stash, reset, overwrite, silently include it, or proceed
+through a state whose safety or ownership is ambiguous. An unsafe target state
+stops integration with both the execution branch and worktree intact.
+
+First test whether the saved execution tip is already an ancestor of the target
+branch. If so, treat integration as already done and do not merge again.
+Otherwise merge that committed tip into the target branch using this project's
+ordinary Git merge conventions. This integration is local: do not rebase, push
+the target branch, delete a remote branch, or introduce CI waiting policy. A
+merge conflict remains in the target checkout for explicit resolution; do not
+abort, reset, remove the execution worktree, or delete either branch. Report
+the conflicted paths and actual Git state, and do not claim wrap-up complete.
+
+After a successful merge or an already-integrated result, verify that the saved
+execution tip is an ancestor of the recorded target branch. A failed ancestry
+check is unresolved integration: preserve the branch and worktree, report the
+observed refs, and do not claim completion. Successful integration alone does
+not remove those owned resources; keep them for the later safe cleanup action.
+
+## Remove integrated worktree resources safely
+
+After verified worktree-mode integration, use the retained execution identity
+to inspect the current state of the exact execution-checkout path and local
+execution branch. For each resource still present, confirm from Git's worktree
+and ref state that its path, checked-out branch, and tip match the retained
+identity, and that the path is not the originating or target checkout. Treat an
+identified resource's absence as an already-completed cleanup step only when
+the current Git state contains no conflicting resource at that identity. A
+missing retained identity, changed present resource, or ambiguity stops cleanup;
+do not infer ownership from a branch name or reconstruct it from history.
+
+When the execution checkout is present, inspect its tracked changes, untracked
+files, index, and unfinished Git-operation state. Recheck that the saved
+execution tip is an ancestor of the recorded target branch whether resources
+are present or already absent.
+
+Dirty tracked or staged changes, untracked content, an unfinished operation, or
+another ownership ambiguity leaves the execution worktree and branch intact.
+Report the retained data and the already-completed integration separately. Do
+not stash, reset, clean, or force removal.
+
+From a surviving checkout outside the execution directory, remove the exact
+owned clean worktree when it remains with ordinary non-force `git worktree
+remove`, then delete the exact integrated local execution branch when it remains
+with ordinary non-force `git branch -d`. Never remove the originating checkout
+or a caller-owned checkout or branch. Never force either operation or delete a
+remote branch.
+
+Treat each cleanup operation independently. If worktree removal succeeds but
+branch deletion fails, retain the branch and any other reported resource; do
+not escalate to force or remove an unrelated worktree that now uses it. Report
+integration as complete but cleanup as partial, without the completion marker.
+On retry, use the retained saved identity and current Git worktree and ref state.
+Recognize already-absent owned resources without recreating history, and stop on
+an identity mismatch instead of selecting a similarly named branch or path.
+
+Report successful closure only from a surviving checkout after verifying all of
+these outcomes: the execution directory is absent, Git's worktree listing no
+longer contains its path, the local execution branch is absent, the saved
+execution tip remains an ancestor of the recorded target branch, and the target
+contains the committed closure. Direct-current-branch mode has no cleanup
+action and never treats its caller-owned checkout or branch as spent execution
+resources.
+
 ## Report
 
 Report the selected work and its canonical identity, completion judgment,
-before-cleanup commit when deletion happened, assimilated knowledge, deleted
-paths, preserved unsupported material, and any gap that blocked closure.
+execution mode and retained checkout/branch/target identity when applicable,
+before-cleanup and final-closure commits when deletion happened, assimilated
+knowledge, deleted paths, the saved execution tip and local integration result
+in worktree mode, worktree and local-branch cleanup results, preserved
+unsupported material and resources, and any gap that blocked closure.
+Distinguish a new merge from an already-integrated tip, integration success from
+partial or refused cleanup, and name unsafe or conflicted state without implying
+that the target was pushed or a remote branch was deleted.
 Distinguish a completed wrap-up from a refusal that left files intact.
 
 End a successful closure with:
 
 `## STORY WRAP-UP COMPLETE`
 
-Do not emit that marker when required context, unfinished work, or
-unresolved recovery blocked deletion.
+Do not emit that marker when required context, unfinished work, unresolved
+recovery or worktree-mode integration, or remaining required worktree cleanup
+blocks closure.
