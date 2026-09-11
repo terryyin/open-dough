@@ -29,6 +29,31 @@ release identity and the maintainer's version choice.
 
 ## Stories
 
+<a id="default-skip-process-retrospective"></a>
+
+### 9. Skip process retrospectives by default for new installations
+
+**Status:** Backlog; mid priority.
+**Goal:** A client installing Open Dough starts with process retrospectives
+skipped unless the project has deliberately chosen otherwise.
+**Scope:** Set `skipProcessRetrospective` to boolean `true` in
+`.planning/open-dough.json` for a new installation. When updating an
+installation that predates the setting, add the same default only when the key
+is absent. Preserve an existing boolean `true` or `false` and all unrelated
+configuration; do not treat the new default as authority to replace the
+project's choice. Keep malformed or invalid configuration on the existing
+refusal path rather than overwriting it. Update the directly affected
+installation and update checks and documentation.
+**Evaluation:** A fresh installation records `true`; an older installation
+without the key gains `true` on update; updates preserve explicit `true` and
+`false` values and unrelated keys; malformed or invalid configuration is
+reported without replacement.
+**Effort:** S–M, medium confidence; the write is small, but safe migration,
+preservation, refusal, and install/update coverage make this more than a
+one-line quick fix.
+**Depends on:** The existing merge-and-preserve behavior for
+`.planning/open-dough.json`.
+
 <a id="register-ci-host-hooks-consistently"></a>
 
 ### 8. Register CI observation host hooks without environment-local drift
