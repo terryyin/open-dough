@@ -17,6 +17,28 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="drop-recently-done-from-product-backlog"></a>
+
+### 17. Drop Recently done from the product backlog
+
+**Status:** Selected for backlog on 2026-09-11; quick fix, unplanned and not
+started.
+
+**Goal:** A developer reviewing the product backlog sees only active work in
+**Taken** and **Backlog list**, without a separate completion chronicle that can
+become stale or duplicate canonical story history.
+
+**Scope:** Remove the **Recently done** section and all of its entries from the
+canonical product backlog. Preserve **Near-future direction**, **Taken**,
+**Backlog list**, **Longer-term direction**, their contents, and queued priority
+order exactly. Do not delete or rewrite the linked canonical stories, plans,
+proof, Git history, or release history. Do not execute story wrap-up or make a
+broader backlog-format change.
+
+**Evaluation:** `.planning/PRODUCT-BACKLOG.md` has no **Recently done** heading
+or finished entries; every active entry and both direction statements remain
+unchanged, with no duplicate across **Taken** and **Backlog list**.
+
 <a id="execute-in-worktree-and-merge-at-wrap-up"></a>
 
 ### 16. Execute in a worktree by default and merge back at wrap-up
