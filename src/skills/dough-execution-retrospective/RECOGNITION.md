@@ -27,6 +27,7 @@ unauthorized backlog writes.
 - `--skip-process` or `--skip-product` on a retrospective
 - Project `open-dough.json` or `skipProcessRetrospective` for process review
 - Invalid or unreadable process configuration on a retrospective
+- 500-line warning or 1,000-line ceiling on `DearDough.md`
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
@@ -64,6 +65,13 @@ unauthorized backlog writes.
   instructions override the stored preference without editing the file.
   Product skip remains independent. A file beside the installed skill is not
   this project's configuration.
+- After constructing a supported process-log candidate, warns when the existing
+  log is already at least 500 physical lines and never writes a result over
+  1,000. Below 500, ordinary recording has no threshold warning even if the write
+  crosses 500. An overflowing candidate or an already oversized file is refused
+  without replacement, deletion, or recovery, and is reported as
+  `not recorded`/`unchanged` with the reason. No-findings and identical rereview
+  stay no-op; skipped or unresolved process review does not inspect size.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -80,7 +88,9 @@ execution provenance must be available. Near-future direction is required to
 assess alignment in every enabled review. Backlog/story conventions are required
 only for product conclusions that depend on them. Process recording also needs
 one unambiguous canonical `DearDough.md` location and a stable execution identity;
-missing evidence stops recording, not the remaining reviews. Process-review
+missing evidence stops recording, not the remaining reviews. A process write
+also needs the existing log and complete candidate measured as physical lines,
+including blanks, metadata, and an unterminated last line. Process-review
 preference is optional project configuration at
 `<established-planning-directory>/open-dough.json`, defaulting to
 `<project-root>/.planning/open-dough.json`. Missing file or key is default-on.
@@ -247,8 +257,32 @@ Inputs, observations, and destination effects:
    unknown keys stay byte-identical; a skill-adjacent file is ignored.
 
 This is local behavior review of the Proposed source, not native cross-tool
-acceptance or release evidence. Slices 2–4 own retention warnings, the
-ceiling, priority replacement, and install/update preservation.
+acceptance or release evidence. Slice 2 owns the warning and ceiling walked
+below. Slices 3–4 own priority replacement and install/update preservation.
+
+## Quick 041 Slice 2 local behavior evidence
+
+Walked bounded process-log recording on 2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review`. Inputs, measured
+line counts, checksums, and destination effects:
+[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-2/WALKTHROUGH.md).
+
+1. **Invocation.** Description names the 500-line warning and 1,000-line
+   ceiling beside process recording. The recording section loads the size/write
+   rule only for an enabled process write.
+2. **Required context.** A candidate write needs an interpretable log and a
+   complete candidate whose physical line count can be measured, including
+   blanks, metadata, and an unterminated last line. Missing process selection
+   still stops before any log or size inspection.
+3. **Useful outcome.** 499→507 recorded with no threshold warning. Existing 500
+   and 999 warned and recorded within the ceiling, including an accepted
+   1,000-line candidate. A 1,001-line candidate and a 1,020-line existing file
+   stayed byte-identical with `not recorded`/`unchanged` reasons. No-findings,
+   identical rereview, and skipped process did not inspect size as a write.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Slice 3 owns priority replacement; this
+walkthrough refuses overflow rather than repairing it.
 
 ## Pending native logging acceptance
 

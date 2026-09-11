@@ -11,7 +11,8 @@ description: >-
   reviews independently. Project `open-dough.json` may set
   `skipProcessRetrospective` to persist skipping process review. May plan
   unresolved implementation findings, record supported process findings in
-  `DearDough.md`, and recommend product work; never implements them.
+  `DearDough.md` with a 500-line warning and 1,000-line ceiling, and recommend
+  product work; never implements them.
 ---
 
 # Review an execution
@@ -459,6 +460,14 @@ prior evidence or human notes. Evidence of the same concrete issue in a distinct
 execution adds one occurrence row. A second symptom in the same execution does
 not add a row. Keep rows as the count; do not store or update a total.
 
+When those rules produce a supported edit, construct the complete candidate
+first, then measure, warn, write, or refuse using
+[bounded process-log recording](references/bounded-process-log.md). Load that
+reference only for an enabled process write. No-findings and an identical
+rereview are not candidate writes; do not load this size check for them.
+Skipped or unresolved process review never loads the log or this size check;
+follow [Select reviews](#select-reviews).
+
 If malformed or ambiguous content prevents safe identification of entries,
 executions, or the next unused ID, leave the entire existing file byte-identical
 and report a recording limitation. Do the same when a write fails. Return the
@@ -467,7 +476,9 @@ describe either case as a successful write.
 
 In the final response, give a concise recording result: the canonical path and
 created issue IDs with occurrence rows, or `unchanged`/`not recorded` and the
-reason. Do not describe a skipped, refused, or failed write as successful.
+reason. Include any size warning or size-limited refusal required by
+[bounded process-log recording](references/bounded-process-log.md). Do not
+describe a skipped, refused, failed, or size-limited write as successful.
 
 Surface a concrete overlooked request, decision, warning, failed verification,
 or Jidoka stop only when the record clearly shows that it still needs user

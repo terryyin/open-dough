@@ -115,7 +115,11 @@ and its variants; implementation, review, and local cleanup are one proof loop.
 
 ### 2. Warn and prevent writes beyond the ceiling
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 2 walkthrough; measured fixtures at
+499→507 (no warning), 500→508 and 999→1000 (warn and record), 1001 and 1020
+byte-identical refusals; `count-physical-lines.py`; `git diff --check`.
+Delivered on `worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given supported findings with process review enabled, recording warns
 when the existing log has at least 500 lines and never writes a result over 1,000.
@@ -254,3 +258,5 @@ slice-plan refinement pass was invoked.
 Slice 1: one selection rule in `Select reviews` is enough; recording links to it.
 A worktree needs `npm ci` before `npm run format` because node_modules is not
 shared from the main checkout.
+Slice 2: size/write belongs in `references/bounded-process-log.md`; `wc -l`
+is not the line definition because it misses an unterminated last line.
