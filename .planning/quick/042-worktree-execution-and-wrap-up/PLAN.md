@@ -3,7 +3,7 @@
 ## Source, goal, and scope
 
 [SEED-004 Story 16](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up).
-Status: planned, 2026-09-11. Planning only; execution not authorized.
+Status: in progress, authorized 2026-09-11.
 
 Deliver one lifecycle: locally claim queued planned work, execute in a new
 branch/worktree by default, preserve it for separately invoked review/closure,
@@ -55,6 +55,22 @@ Read-only preflight precedes the first project mutation; the Taken commit stays
 first. Respect unrelated staged/unstaged changes without automatic stashing or
 reset. Non-main origins follow the same identity rule, not a separate mode.
 
+## Execution context
+
+- Authorized by the caller on 2026-09-11 for worktree-mode execution.
+- Originating checkout: `/Users/terryyin/git/open-dough`, branch `main`.
+- Local Taken-only commit: `48f9b81127f3f617847fb87eb2000976e8e8cba9`;
+  `origin/main` remained at `eb0dd8ad6d525ba32fdcc456124c0125741db301`.
+- Execution checkout: `/private/tmp/open-dough-plan-042.5nAk5N/worktree`,
+  branch `codex/plan-042-worktree-execution`.
+- Integration target: local `main` in the originating checkout. Automatic target
+  push is outside this story.
+- Delivery push destination: `origin/codex/plan-042-worktree-execution`.
+- CI observer: Codex yielded cell `16`, session `88039`, receipt directory
+  `/tmp/dough-ci-501/watch-F1x9Xd`, PID `66575`, coordinator
+  `root-plan42`; repository `terryyin/open-dough`, branch
+  `codex/plan-042-worktree-execution`, workflow `ci.yml` / `CI`; watching.
+
 ## Outside-in proof and delivery gates
 
 The product is agent guidance. For each slice, perform the AGENTS.md behavior
@@ -96,7 +112,7 @@ each sizing judgment includes implementation, walkthrough, and local cleanup.
 
 ### 1. Record the claim locally before isolated execution
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An authorized planned execution in worktree mode records its existing
 queued entry as Taken in a local commit on the originating branch before any
@@ -230,4 +246,8 @@ slice-plan refinement pass was not triggered by this assessment.
 
 ## Learnings
 
-None from execution; implementation has not started.
+- Slice 1 kept queue ownership in `dough-product-backlog` and added only the
+  mode-specific Git sequencing to `dough-execute-plan`. A disposable-repository
+  walkthrough confirmed the Taken-only commit, unchanged remote, no premature
+  worktree, and the already-Taken, absent-entry, and ambiguous-staging stops.
+  Native agent compliance remains pending under ADR 0005.

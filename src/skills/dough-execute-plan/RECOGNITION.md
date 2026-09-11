@@ -58,3 +58,45 @@ changes. Resume and non-backlog execution did not duplicate or invent entries;
 missing authorization stopped with the queue intact. The human explicitly
 skipped new native acceptance, so the earlier native review remains evidence
 for the unchanged delivery machinery only.
+
+## 2026-09-11 worktree claim behavior review
+
+**Candidate identity:** uncommitted Slice 1 revision of `SKILL.md` based on
+`48f9b81127f3f617847fb87eb2000976e8e8cba9` on
+`codex/plan-042-worktree-execution`.
+
+**Input:** a disposable Git repository on `main` with one existing **Taken**
+entry, one selected queued story and plan, one unrelated queued story, and a
+local bare `origin`. The initial commit
+`0d971324b28c625b8f0cc46758ecd751b7d7486d` was pushed before the walkthrough.
+Execution was authorized in worktree mode; the walkthrough stopped at the claim
+boundary before creating a branch or worktree.
+
+**Actions:** applied the candidate guidance's read-only preflight, moved the
+selected entry unchanged to the end of **Taken**, staged only `BACKLOG.md`,
+inspected the staged diff, and made local commit
+`9a133a6f2d3227b9126d0a369f18fe0fafa25a77`. Inspected branch, parent, changed
+paths, local and remote refs, backlog membership, and worktree/branch listings.
+Repeated the boundary with the selected entry already **Taken**, absent from
+both lists, and still queued while unrelated `PLAN.md` content was staged.
+
+**Observations:** the Taken-only commit remained on `main`, had the pushed
+baseline as its parent, and changed only `BACKLOG.md`; `origin/main` remained at
+`0d971324b28c625b8f0cc46758ecd751b7d7486d`. The existing **Taken** entry kept
+its order, the selected entry appeared once after it, and the unrelated queued
+entry remained queued. No execution branch or added worktree existed. The
+already-Taken repeat kept the two-commit tip unchanged and clean. The absent
+repeat made no execution change or empty commit. In the ambiguous staged-state
+repeat, preflight observed only staged `PLAN.md`; `BACKLOG.md`, the one-commit
+tip, and `origin/main` stayed unchanged, so no unrelated content entered a
+Taken-only commit.
+
+**Assessment and limitations:** the candidate supplies a useful outcome for an
+authorized worktree-mode invocation and truthful stops for ambiguous ownership,
+while preserving the existing already-Taken and absent-entry meanings. This was
+a manual disposable-repository behavior review of the guidance and ordinary Git
+assumptions, not native Codex, Cursor, or Claude Code compliance evidence. It
+did not create a worktree or exercise post-claim setup failure; those boundaries
+remain with the later execution-location slice. Native behavior proof for this
+revision remains pending under ADR 0005 and the selected story's deferred
+acceptance work.

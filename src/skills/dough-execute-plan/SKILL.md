@@ -54,7 +54,8 @@ for Behavior and Structure slices, sizing, and learning escalation.
 Resolve from this project:
 
 - execution-source kind, slice target, hard limit, and exceptions; for planned
-  execution also resolve the plan path and slice-status vocabulary;
+  execution also resolve the plan path, slice-status vocabulary, and whether
+  worktree mode applies or the caller selected execution on the current branch;
 - product backlog path and selected entry when this work was selected from
   **Backlog list**;
 - navigation, focused test commands, runtime wrapper, and workflow precedence;
@@ -88,6 +89,22 @@ reorder it. Work absent from both active lists was not selected from the
 backlog; do not fabricate an entry. Refinement and planning do not invoke this
 transition. Leave taken work there through pauses, failures, completion, and
 retrospective; story wrap-up owns completed-work removal.
+
+For planned execution in worktree mode, perform a read-only preflight in the
+originating checkout before moving the entry. Resolve its current branch and
+backlog path, inspect tracked and staged changes, and confirm that the exact
+backlog transition can be committed without including or disturbing unrelated
+work. If branch identity or change ownership is ambiguous, stop with the queue
+unchanged. Do not stash, reset, overwrite, or silently unstage existing work.
+
+After the transition, stage only the backlog path, inspect the staged change,
+and commit the Taken transition locally on the originating branch as a
+Taken-only commit. Do not push this commit separately. Create the
+execution branch or worktree only after that commit succeeds, based on the
+committed claim. If staging or commit fails, do not begin isolated execution;
+preserve and report the actual backlog and index state. If later worktree setup
+fails, leave the committed entry in **Taken** for a retry. The no-change cases
+above produce no empty Taken-only commit.
 
 ## Execute the next slice
 
