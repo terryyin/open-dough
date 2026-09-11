@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Remove retired completion-list vocabulary from story wrap-up](quick/043-remove-retired-completion-vocabulary/PLAN.md)
-
 ## Backlog list
 
 - [Guide implementation from generic design toward specific examples](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific) — SEED-004

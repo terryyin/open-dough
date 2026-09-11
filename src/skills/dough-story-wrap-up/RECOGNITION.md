@@ -223,23 +223,3 @@ product-backlog source.
 This walkthrough inspects closure decisions against the updated source. It
 does not run wrap-up on SEED-010 Story 7, delete this plan, or prove native
 host behavior. Story 2 retains that acceptance.
-
-## Quick 043 active-work closure evidence
-
-Source-authoring review on 2026-09-11 applied the existing Quick 039 completed
-planned-story fixture to the active-work convention. The invocation still
-requires selected completed work; plan status, ownership, and recoverable Git
-context still gate deletion. The completed story's **Taken** entry and spent
-plan, proof, and story section leave the snapshot after the before-cleanup
-commit. Maintained product knowledge and the sibling story remain. The final
-closure is committed, and `git show <before-cleanup-commit>:<spent-path>`
-recovers the originals. **Backlog list** uses the same active-entry rule.
-
-A disposable local Git fixture exercised those resulting edits and recovery.
-Its standalone backlog-maintenance intermediate state removed only the entry
-and verified that seed, plan, and proof remained unchanged for later wrap-up,
-as required by `dough-product-backlog`. The fixture passed both outcomes.
-This is source-authoring and Git-mechanism evidence; the edits were applied
-explicitly by the fixture, not by a native host running the skill. It adds no
-native-host acceptance claim and leaves the earlier acceptance ownership above
-in place.
