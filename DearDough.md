@@ -41,3 +41,46 @@ plan-recorded retrospective completion marker.
 
 Resolution: On 2026-09-10, the human authorized a one-off closure for this
 execution and retained the existing plan-required wrap-up contract unchanged.
+
+## DD-003 — Broad verification repeated focused guidance proof
+
+The execution ran and waited for the full repository test suite even though the
+plan explicitly limited this guidance change to representative authoring
+walkthroughs, link/frontmatter review, and affected focused checks.
+
+### Occurrences
+
+- Execution: `SEED-004#execute-simple-story-as-one-quick-slice @ d812e92`
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: 0.3.8
+  - Evidence: Quick 040's proof boundary says not to run installer/CI-runtime
+    suites merely because execution guidance changed; the execution transcript
+    records a full local `npm test` plus an explicit wait for GitHub Actions run
+    `34543610881`, whose test job took 10m20s.
+  - Observed effect: Merge and cleanup waited for broad verification that
+    duplicated the already running repository suite after slice-owned
+    walkthroughs, formatting, lint, focused proof, and delivery had passed.
+  - Inference: Treating "everything is done" as a new broad-suite requirement
+    overrode the plan's proof ownership and added avoidable verification delay.
+
+## DD-004 — Isolated execution preserved concurrent mainline work
+
+Running the plan in its own worktree and branch kept concurrent mainline changes
+separate until an explicit merge boundary.
+
+### Occurrences
+
+- Execution: `SEED-004#execute-simple-story-as-one-quick-slice @ d812e92`
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: 0.3.8
+  - Evidence: Quick 040 branched from `97daf44`; while it ran, `main` advanced
+    through `a6e3396`. Merge `3395460` retained both histories and required one
+    bounded conflict resolution in `.planning/PRODUCT-BACKLOG.md`.
+  - Observed effect: All three Quick 040 delivery commits and the concurrent
+    wrap-up-context commits reached `main` without either execution rewriting or
+    discarding the other's work; the temporary worktree and branch were then
+    removed cleanly.
+  - Inference: The isolated-worktree practice provided a reliable ownership and
+    recovery boundary for concurrent lifecycle work.
