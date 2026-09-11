@@ -270,6 +270,11 @@ working-tree helper. The updater:
    newer root, or missing/edited/unverifiable managed root refuses the whole
    operation before writing. It does not infer the client remote or treat an
    existing destination as a clean first install.
+   The baseline installer declaration determines which paths were managed; a
+   file present only in release source was not installed. Newly declared paths
+   must be absent locally before an ordinary update can add them; collisions
+   are preserved and refused. An unreadable or unrecognized baseline declaration
+   refuses comparison.
 7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
    guidance remain unchanged. Optional
