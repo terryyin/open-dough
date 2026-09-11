@@ -41,6 +41,7 @@ The payload in each root is exactly:
 - `dough-post-change-refactor/SKILL.md`
 - `dough-post-change-refactor/references/refactor-checks.md`
 - `dough-execution-retrospective/SKILL.md`
+- `dough-execution-retrospective/references/bounded-process-log.md`
 - `dough-story-wrap-up/SKILL.md`
 
 The source files live under `src/skills/`. Recognition records, extraction reviews, source checksums, and test fixtures

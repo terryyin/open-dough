@@ -16,7 +16,7 @@ report_managed_payload_mismatch() {
 managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
-  local skill_root managed_file
+  local skill_root managed_file historical_files
   local -a files=(
     dough-update/SKILL.md
     dough-adr-awareness/SKILL.md
@@ -55,15 +55,30 @@ managed_payload_unchanged() {
     dough-post-change-refactor/SKILL.md
     dough-post-change-refactor/references/refactor-checks.md
     dough-execution-retrospective/SKILL.md
+    dough-execution-retrospective/references/bounded-process-log.md
     dough-story-wrap-up/SKILL.md
   )
 
+  # Refuse an unavailable/unrecognized declaration instead of treating every
+  # source file as unmanaged. Historical installers use this literal array.
+  if ! historical_files=$(awk '
+    /^managed_files=\(/ { in_payload = 1; next }
+    in_payload && /^\)/ { closed = 1; in_payload = 0 }
+    in_payload && $1 == "dough-update/SKILL.md" { core = 1 }
+    in_payload { print $1 }
+    END { exit !(closed && core) }
+  ' "${checkout}/install.sh"); then
+    echo "Cannot read managed payload declaration: ${checkout}/install.sh" >&2
+    return 1
+  fi
+
   skill_root=$(dirname -- "${dest}")
   for managed_file in "${files[@]}"; do
-    # A clean older release may not contain a skill added by the new release.
-    # The new path must still be absent so replace-verified cannot overwrite an
-    # unrelated local skill that happens to use the same name.
-    if [[ ! -e "${checkout}/src/skills/${managed_file}" ]]; then
+    # Source presence does not imply delivery: an older release may have
+    # omitted an existing reference from its installer declaration. New paths
+    # must still be absent so replacement cannot overwrite unrelated files.
+    if [[ ! -e "${checkout}/src/skills/${managed_file}" ]] \
+      || [[ $'\n'${historical_files}$'\n' != *$'\n'"${managed_file}"$'\n'* ]]; then
       if [[ -e "${skill_root}/${managed_file}" ]]; then
         report_managed_payload_mismatch "${skill_root}" "${managed_file}"
         return 1

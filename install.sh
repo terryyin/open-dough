@@ -124,6 +124,7 @@ managed_files=(
   dough-post-change-refactor/SKILL.md
   dough-post-change-refactor/references/refactor-checks.md
   dough-execution-retrospective/SKILL.md
+  dough-execution-retrospective/references/bounded-process-log.md
   dough-story-wrap-up/SKILL.md
 )
 for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
