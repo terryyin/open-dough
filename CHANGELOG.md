@@ -1,3 +1,13 @@
+## 0.3.9 - 2026-09-11
+
+- Support executing an explicitly selected, understood story as one quick slice without inventing a plan, reviewing planless executions from available context, and converting oversized quick work into ordinary planned execution while preserving attributable work and one active backlog entry.
+- Run planned execution in an owned Git worktree by default, claim work before isolation, preserve stable CI-observer behavior, commit closure durably, integrate the completed tip into the recorded target checkout, and remove only verified clean owned worktree resources.
+- Let projects configure process-review selection in an optional `open-dough.json` that installation and update preserve. Bound process logs with a warning at 500 lines, refusal above 1,000 lines, and evidence-preserving replacement of lower-priority material when a write would overflow.
+- Simplify active-work lifecycle around **Taken** and **Backlog list**. Completed work leaves the active backlog at wrap-up, retired completion-list vocabulary is removed, and Git remains the recovery surface for deleted execution history.
+- Add the internal `triage-retrospective-findings` maintainer skill for evidence-backed follow-up recommendations, selected-story or bounded-correction creation, canonical queueing, reciprocal evidence links, and duplicate-safe rereview. It remains outside the installable payload.
+
+Native acceptance remains pending for quick and oversized execution, planless retrospective review, the revised wrap-up and worktree lifecycle, process-review configuration, and bounded process-log behavior across Codex, Cursor, and Claude Code. This release proceeds under an explicit maintainer-approved exception for `0.3.9`; these checks remain pending and are not reported as passing.
+
 ## 0.3.8 - 2026-09-10
 
 - Add a persistent **Taken** section to the product backlog so work whose execution has started is distinct from the prioritized queue. Authorized execution moves the existing queued entry first; resume does not duplicate or reorder it, and work absent from both active lists is not fabricated.
