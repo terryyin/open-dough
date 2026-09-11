@@ -3,7 +3,8 @@
 ## Source, goal, and scope
 
 [SEED-004 Story 16](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up).
-Status: in progress, authorized 2026-09-11.
+Status: implementation complete, authorized 2026-09-11; final delivery and CI
+observer shutdown in progress.
 
 Deliver one lifecycle: locally claim queued planned work, execute in a new
 branch/worktree by default, preserve it for separately invoked review/closure,
@@ -203,7 +204,7 @@ Sizing: bounded, medium confidence; one integration boundary and its refusal.
 
 ### 5. Remove only the integrated execution worktree and branch
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: After verified integration, wrap-up removes the owned clean execution
 worktree and its branch, then reports complete closure from a surviving checkout.
@@ -275,3 +276,7 @@ slice-plan refinement pass was not triggered by this assessment.
   recognized repeated integration without another merge, retained conflicted
   and dirty-target state without guessing, and skipped integration in
   direct-current mode.
+- Slice 5 made cleanup conditional on retained identity, verified integration,
+  and exact clean resource state. The walkthrough removed only an owned local
+  worktree and branch, preserved an unrelated branch, refused dirty data,
+  reported partial cleanup separately, and made repeat closure idempotent.

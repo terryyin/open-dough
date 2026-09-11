@@ -249,16 +249,62 @@ check is unresolved integration: preserve the branch and worktree, report the
 observed refs, and do not claim completion. Successful integration alone does
 not remove those owned resources; keep them for the later safe cleanup action.
 
+## Remove integrated worktree resources safely
+
+After verified worktree-mode integration, use the retained execution identity
+to inspect the current state of the exact execution-checkout path and local
+execution branch. For each resource still present, confirm from Git's worktree
+and ref state that its path, checked-out branch, and tip match the retained
+identity, and that the path is not the originating or target checkout. Treat an
+identified resource's absence as an already-completed cleanup step only when
+the current Git state contains no conflicting resource at that identity. A
+missing retained identity, changed present resource, or ambiguity stops cleanup;
+do not infer ownership from a branch name or reconstruct it from history.
+
+When the execution checkout is present, inspect its tracked changes, untracked
+files, index, and unfinished Git-operation state. Recheck that the saved
+execution tip is an ancestor of the recorded target branch whether resources
+are present or already absent.
+
+Dirty tracked or staged changes, untracked content, an unfinished operation, or
+another ownership ambiguity leaves the execution worktree and branch intact.
+Report the retained data and the already-completed integration separately. Do
+not stash, reset, clean, or force removal.
+
+From a surviving checkout outside the execution directory, remove the exact
+owned clean worktree when it remains with ordinary non-force `git worktree
+remove`, then delete the exact integrated local execution branch when it remains
+with ordinary non-force `git branch -d`. Never remove the originating checkout
+or a caller-owned checkout or branch. Never force either operation or delete a
+remote branch.
+
+Treat each cleanup operation independently. If worktree removal succeeds but
+branch deletion fails, retain the branch and any other reported resource; do
+not escalate to force or remove an unrelated worktree that now uses it. Report
+integration as complete but cleanup as partial, without the completion marker.
+On retry, use the retained saved identity and current Git worktree and ref state.
+Recognize already-absent owned resources without recreating history, and stop on
+an identity mismatch instead of selecting a similarly named branch or path.
+
+Report successful closure only from a surviving checkout after verifying all of
+these outcomes: the execution directory is absent, Git's worktree listing no
+longer contains its path, the local execution branch is absent, the saved
+execution tip remains an ancestor of the recorded target branch, and the target
+contains the committed closure. Direct-current-branch mode has no cleanup
+action and never treats its caller-owned checkout or branch as spent execution
+resources.
+
 ## Report
 
 Report the selected work and its canonical identity, completion judgment,
 execution mode and retained checkout/branch/target identity when applicable,
 before-cleanup and final-closure commits when deletion happened, assimilated
 knowledge, deleted paths, the saved execution tip and local integration result
-in worktree mode, preserved unsupported material and resources, and any gap
-that blocked closure. Distinguish a new merge from an already-integrated tip,
-and name unsafe or conflicted target state without implying that the target was
-pushed.
+in worktree mode, worktree and local-branch cleanup results, preserved
+unsupported material and resources, and any gap that blocked closure.
+Distinguish a new merge from an already-integrated tip, integration success from
+partial or refused cleanup, and name unsafe or conflicted state without implying
+that the target was pushed or a remote branch was deleted.
 Distinguish a completed wrap-up from a refusal that left files intact.
 
 End a successful closure with:

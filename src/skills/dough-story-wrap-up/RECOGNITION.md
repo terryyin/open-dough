@@ -54,6 +54,10 @@ actions.
   invent a planless correction format.
 - Applies authorized product-review advice with optional human input; human
   input wins; unresolved choices are reported.
+- After saved-tip integration is verified, removes only the exact owned clean
+  execution worktree and integrated local branch with non-force Git operations.
+  Dirty or ambiguous state, partial cleanup, and retry are reported without
+  risking caller-owned, original-checkout, unrelated, or remote resources.
 
 ## Client project context
 
@@ -64,6 +68,8 @@ work needs the story, changes, and execution results instead of a plan.
 Seed conventions apply only to feature stories. Backlog path is required only
 when a **Taken** or queue entry points at the selected work. Retrospective
 advice is used when present and is not a required completion record.
+Worktree-mode cleanup also requires the retained execution checkout, local
+branch, saved tip, originating checkout, and integration-target identity.
 
 ## Differences that rule out replacement
 
@@ -384,3 +390,100 @@ owned worktree removal, target-branch push behavior, remote deletion behavior,
 CI behavior, or release readiness. Slice 5 owns local resource cleanup. ADR 0005
 native acceptance remains pending; installed managed copies and payload
 declarations were not changed.
+
+## Quick 042 local integrated-resource cleanup evidence
+
+Walked the proposed post-integration cleanup guidance on 2026-09-11 in
+disposable local Git repositories. This is the representative behavior review
+required by `AGENTS.md`, not native Codex, Cursor, or Claude Code acceptance.
+
+### Input
+
+The primary fixture retained the worktree-mode identity after local integration:
+originating and target checkout on `main`, execution checkout
+`/private/tmp/dough-wrap-up-slice5.yPRdBD/owned-success-execution`, local
+execution branch `codex/execution`, and saved committed closure tip
+`bde84de054b442015787586f8c7325db5461165f`. The repository also contained
+unrelated local branch `unrelated-keep`. A dirty variant added an unstaged
+tracked edit and untracked `local-draft.txt` in the execution checkout. A
+partial-failure variant simulated a race after worktree removal by attaching
+the saved branch to a different worktree before local branch deletion. The
+repeat used the primary fixture's saved identity after completed cleanup.
+
+### Actions and observations
+
+In `/private/tmp/dough-wrap-up-slice5.yPRdBD/owned-success`, `git worktree list
+--porcelain` identified the target checkout on `main` and the exact execution
+path on `codex/execution` at the saved tip; `git rev-parse codex/execution`
+returned that same tip. Execution-checkout inspection used the literal commands
+`git status --short`, `git diff --cached --name-only`, and `git rev-parse
+--git-path MERGE_HEAD`. The first two produced no output, and the resolved
+`MERGE_HEAD` path did not exist, establishing clean tracked, untracked, index,
+and merge-operation state for this fixture. From the target checkout,
+`git merge-base --is-ancestor
+bde84de054b442015787586f8c7325db5461165f main` succeeded. With the shell's
+working directory at `/private/tmp/open-dough-plan-042.5nAk5N/worktree`, outside
+both fixture paths, the walkthrough ran exactly `git worktree remove
+/private/tmp/dough-wrap-up-slice5.yPRdBD/owned-success-execution` and `git branch
+-d codex/execution`; Git reported `Deleted branch codex/execution (was
+bde84de)`.
+
+The literal observations `test ! -e
+/private/tmp/dough-wrap-up-slice5.yPRdBD/owned-success-execution`, `git worktree list
+--porcelain`, and `git branch --list` showed the directory absent, only the
+surviving target checkout listed, and only `main` plus unrelated branch
+`unrelated-keep`. The ancestry command above still succeeded, and `git show
+main:closure.txt` returned `committed execution closure`. This satisfies target
+ancestry and committed-closure verification after resource absence, from the
+surviving checkout.
+
+For the repeat, no removal command was run. Checks of the known path, exact
+worktree-listing path, and `git branch --list codex/execution` all remained
+empty or absent. `git branch --list unrelated-keep` still returned
+`unrelated-keep`; the saved-tip ancestry check still succeeded; and `git show
+main:closure.txt` still returned `committed execution closure`. The candidate
+therefore recognizes completed cleanup from retained identity without history
+reconstruction or unrelated deletion.
+
+In `/private/tmp/dough-wrap-up-slice5.yPRdBD/dirty`, `git status --short`
+returned ` M closure.txt` and `?? local-draft.txt`; `git diff --cached
+--name-only` was empty, and `git merge-base --is-ancestor
+24245d48913f2054ada3623dbadc06901804f7c1 main` succeeded. No removal or branch
+deletion command was run. `test -f
+/private/tmp/dough-wrap-up-slice5.yPRdBD/dirty-execution/local-draft.txt`
+succeeded, while `git worktree list --porcelain` and `git branch --list` still
+showed the execution checkout and `codex/execution`. Integration is complete,
+but dirty cleanup is refused and the data remains recoverable.
+
+In `/private/tmp/dough-wrap-up-slice5.yPRdBD/partial`, the execution checkout
+was clean and saved tip `24245d48913f2054ada3623dbadc06901804f7c1` was an
+ancestor of `main`. From the target checkout, `git worktree remove
+/private/tmp/dough-wrap-up-slice5.yPRdBD/partial-execution` succeeded. The
+fixture then attached the execution branch to
+`/private/tmp/dough-wrap-up-slice5.yPRdBD/partial-race`; the literal non-force
+`git branch -d codex/execution` returned 1 with `cannot delete branch
+'codex/execution' used by worktree at
+'/private/tmp/dough-wrap-up-slice5.yPRdBD/partial-race'`. No force or unrelated
+removal followed. Observations showed the original owned directory absent, the
+branch and new worktree retained, saved-tip ancestry still verified, and `git
+show main:closure.txt` returned `closure`. This is successful integration with
+partial cleanup, so it must report remaining resources without
+`## STORY WRAP-UP COMPLETE`.
+
+### Candidate identity
+
+`src/skills/dough-story-wrap-up/SKILL.md` and this recognition record. Story
+wrap-up remains the authoritative home for committed closure, integration, and
+owned resource removal. No competing cleanup rule was added to execution,
+backlog, retrospective, or installed managed copies.
+
+### Limitations
+
+The commands manually exercise ordinary local Git inspection, removal,
+non-force branch deletion, and retry decisions selected by the candidate
+guidance. The partial case injects an identity-changing worktree race to make
+the ordinary deletion fail; it does not claim every filesystem or Git failure
+mode was run. This evidence does not prove native agent compliance, target
+push behavior, remote deletion behavior, CI behavior, or release readiness.
+ADR 0005 native acceptance remains pending; payload declarations and installed
+managed copies were not changed.
