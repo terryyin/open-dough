@@ -1,1 +1,0 @@
-cat: /private/tmp/open-dough-quick-041-bound-process-log-and-configure-review/.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-1/04-unreadable/.planning/open-dough.json: Permission denied

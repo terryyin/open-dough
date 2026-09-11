@@ -7,7 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Respond when DearDough.md reaches 500 lines](seeds/SEED-010-learn-from-execution-retrospectives.md#respond-when-deardough-reaches-500-lines) — SEED-010
 - [Execute in a worktree by default and merge back at wrap-up](seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up) — SEED-004
 
 ## Backlog list
