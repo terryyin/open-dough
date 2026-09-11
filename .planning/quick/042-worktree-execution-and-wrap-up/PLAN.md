@@ -3,8 +3,7 @@
 ## Source, goal, and scope
 
 [SEED-004 Story 16](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up).
-Status: implementation complete, authorized 2026-09-11; final delivery and CI
-observer shutdown in progress.
+Status: complete, 2026-09-11.
 
 Deliver one lifecycle: locally claim queued planned work, execute in a new
 branch/worktree by default, preserve it for separately invoked review/closure,
@@ -70,7 +69,9 @@ reset. Non-main origins follow the same identity rule, not a separate mode.
 - CI observer: Codex yielded cell `16`, session `88039`, receipt directory
   `/tmp/dough-ci-501/watch-F1x9Xd`, PID `66575`, coordinator
   `root-plan42`; repository `terryyin/open-dough`, branch
-  `codex/plan-042-worktree-execution`, workflow `ci.yml` / `CI`; watching.
+  `codex/plan-042-worktree-execution`, workflow `ci.yml` / `CI`; stopped after
+  final slice delivery. Terminal coverage is `pendingCi: unobserved`; the two
+  retained unread records are the handled failures documented below.
 
 ## Outside-in proof and delivery gates
 
