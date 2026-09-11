@@ -160,7 +160,7 @@ path/context propagation; do not build one silently.
 
 ### 3. Commit review material and final closure
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: On valid wrap-up, all owned review and closure changes are committed
 and recoverable before integration, including applicable DearDough.md edits.
@@ -257,3 +257,8 @@ slice-plan refinement pass was not triggered by this assessment.
   retained completion, caller-selected current-branch execution, and unchanged
   quick execution. Failed setup may leave a partial branch; recovery reports
   actual resources instead of guessing or nesting another worktree.
+- Slice 3 made closure durable as two ordinary commits: one recovers every owned
+  review and closure input before cleanup, and the second records the final
+  snapshot after existing spent-history removal. Worktree and direct-current
+  modes share this boundary; unresolved completion or ownership leaves all
+  material intact.

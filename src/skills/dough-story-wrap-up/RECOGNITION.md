@@ -216,3 +216,80 @@ product-backlog source.
 This walkthrough inspects closure decisions against the updated source. It
 does not run wrap-up on SEED-010 Story 7, delete this plan, or prove native
 host behavior. Story 2 retains that acceptance.
+
+## Quick 042 closure durability evidence
+
+Walked the proposed source guidance on 2026-09-11 in disposable local Git
+repositories. This is the representative behavior review required by
+`AGENTS.md`, not native Codex, Cursor, or Claude Code acceptance.
+
+### Input
+
+The primary fixture had a completed planned story, a sibling story, a Taken
+entry, maintained product documentation, execution mode `worktree`, and the
+recorded originating checkout, execution checkout/branch, and integration
+target. `DearDough.md` began with unrelated `DD-001`; selected-execution
+`DD-002` was then added as an uncommitted retrospective occurrence. A second
+fixture selected `direct-current-branch` mode. Refusal fixtures varied only
+completion (`Slice 1: in-progress`) or attribution (log prose that might belong
+to the selected or a sibling execution).
+
+### Actions and observations
+
+In `/private/tmp/dough-wrap-up-slice3.Mdhgrm`, the literal sequence
+`git status --short`, `git diff -- DearDough.md`,
+`git add DearDough.md`, and
+`git commit -m "Record selected retrospective finding"` produced
+before-cleanup commit `a304fb8a03a5e459a37de001a61fbe5a74c9ae18`.
+`git show a304fb8a03a5e459a37de001a61fbe5a74c9ae18:DearDough.md`
+showed both unrelated `DD-001` and selected `DD-002`. The fixture retained the
+resolved mode and checkout/branch/target values outside the deleted plan for
+the remainder of the walkthrough.
+
+After applying the existing spent-history removals, the literal commands
+`git status --short`, `git diff -- .planning/PRODUCT-BACKLOG.md
+.planning/seeds/SEED.md DearDough.md
+.planning/quick/001-selected/PLAN.md`,
+`git add .planning/PRODUCT-BACKLOG.md .planning/seeds/SEED.md DearDough.md
+.planning/quick/001-selected/PLAN.md`, and
+`git commit -m "Close selected story"` produced final-closure commit
+`af994741017c69cdc125ce6eef51ad46f08d5aed`. `git status --short` was
+empty. `git show af994741017c69cdc125ce6eef51ad46f08d5aed:DearDough.md`
+retained unrelated `DD-001` while the selected occurrence was absent, and
+`git show a304fb8a03a5e459a37de001a61fbe5a74c9ae18:DearDough.md` still
+recovered it. The final snapshot retained the sibling story and backlog entry;
+`test ! -e .planning/quick/001-selected` succeeded.
+
+In `/private/tmp/dough-wrap-up-slice3-direct.weKtlS`, direct-current-branch
+mode followed the same two-commit boundary: before-cleanup commit
+`30f8acb3c80943982235aa56261e70a4a801203e` contained its retrospective
+edit and final-closure commit
+`3389cd82b23f162e6e4b87251082035027140f3b` removed the spent plan and
+selected occurrence. `git status --short` was empty and
+`git show HEAD:DearDough.md` retained the unrelated issue. No integration or
+worktree-removal action was introduced for this mode.
+
+For incomplete fixture `/private/tmp/dough-wrap-up-slice3-stop.EH2CJb/incomplete`,
+`git rev-parse HEAD`, `git status --short`, `test -f
+.planning/quick/003-incomplete/PLAN.md`, and `rg -n
+"in-progress|Uncommitted retrospective"
+.planning/quick/003-incomplete/PLAN.md DearDough.md` showed unchanged tip
+`4f05a58`, the plan still present, and the retrospective edit still uncommitted.
+For ambiguous fixture `/private/tmp/dough-wrap-up-slice3-stop.EH2CJb/ambiguous`,
+the equivalent commands showed unchanged tip `7a43520`, the completed plan
+still present, and the ambiguous log prose intact. Neither refusal gained a
+closure commit or qualifies for the success marker.
+
+### Candidate identity
+
+`src/skills/dough-story-wrap-up/SKILL.md` and this recognition record. No
+other runtime guidance needed a competing lifecycle rule: story wrap-up owns
+both closure commits, while later integration/removal remains separate.
+
+### Limitations
+
+The commands manually exercise ordinary Git state transitions selected by the
+candidate guidance. They do not prove native agent compliance, integration,
+worktree removal, remote behavior, or release readiness. ADR 0005 acceptance
+therefore remains pending; installed managed copies and payload declarations
+were not changed.

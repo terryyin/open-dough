@@ -38,6 +38,8 @@ Resolve from this project, not this skill's location:
 - optional retrospective advice when it is present, including an empty
   result;
 - Git commit conventions used to preserve a recoverable revision;
+- for planned execution, its selected mode and available originating checkout,
+  execution checkout and branch, and integration-target identity;
 - the product backlog path when a **Taken**, queue, or finished-history entry
   points at the selected work; and
 - shared records that name the selected work: its seed when applicable, process
@@ -51,6 +53,12 @@ identity contract above; do not invent a planless correction format.
 
 If context needed for a closure decision is missing, name the gap, leave
 affected material intact, and do not claim closure.
+
+Before deleting a plan that carries planned-execution identity, retain the
+resolved mode and checkout, branch, and target values in the coordinator's
+available execution context for the remaining wrap-up actions and report. Do
+not create a parallel registry. Missing identity needed by a later action stops
+that action instead of reconstructing or guessing it after plan deletion.
 
 ## Establish execution completion
 
@@ -131,16 +139,19 @@ Do not launch discovery or another review. Absent or empty retrospective
 advice is valid and changes nothing beyond the supported closure and follow-up
 actions above.
 
-## Preserve Git recovery
+## Commit closure inputs and preserve Git recovery
 
 After supported follow-up queue changes and before deleting anything, make the
 current revision recoverable with this project's ordinary Git conventions.
-Include an uncommitted active follow-up plan and its queue edit in that revision
-as well as the spent material, so cleanup cannot strand the plan's only copy. If
-affected files are uncommitted, commit them first using those conventions, then
-record that revision as the before-cleanup commit. If commit conventions,
-ownership, or recovery cannot be resolved, leave the material intact and report
-the gap.
+Commit all owned review and closure-input changes in that revision, including
+applicable retrospective edits to the process log, an uncommitted active
+follow-up plan and its queue edit, assimilated product knowledge, and the spent
+material. Preserve unrelated changes and include only files or portions whose
+ownership is unambiguous. Resolve ownership of the intended cleanup targets at
+this boundary too, before deleting any of them. Then record that revision as
+the before-cleanup commit, even when the current revision was already suitable.
+If commit conventions, ownership, or recovery cannot be resolved, leave the
+material intact, report the gap, and do not claim closure.
 
 Do not rewrite Git history. Do not create an archive, tombstone, finished-list
 entry, or replacement summary for later readers.
@@ -191,11 +202,28 @@ Inspect tracked and untracked files. Absence is the current snapshot, including
 untracked paths. Recover removed files with
 `git show <before-cleanup-commit>:<spent-path>` using the recorded revision.
 
+## Commit final closure
+
+After the spent-history deletion and link repair above, inspect the complete
+closure diff and commit all owned closure changes with this project's ordinary
+Git conventions. Preserve unrelated staged and unstaged changes. A successful
+wrap-up requires a committed final snapshot; staged or unstaged deletion is not
+completion. If ownership or commit completion is ambiguous or the commit fails,
+retain the material and Git state, report the unresolved closure, and do not
+claim success.
+
+Finish both the before-cleanup and final-closure commits in caller-selected
+direct-current-branch mode as well as worktree mode. In worktree mode, complete
+these commits before any later integration or owned worktree/branch removal.
+Direct-current-branch mode has no later integration or worktree-removal action.
+
 ## Report
 
 Report the selected work and its canonical identity, completion judgment,
-before-cleanup commit when deletion happened, assimilated knowledge, deleted
-paths, preserved unsupported material, and any gap that blocked closure.
+execution mode and retained checkout/branch/target identity when applicable,
+before-cleanup and final-closure commits when deletion happened, assimilated
+knowledge, deleted paths, preserved unsupported material, and any gap that
+blocked closure.
 Distinguish a completed wrap-up from a refusal that left files intact.
 
 End a successful closure with:
