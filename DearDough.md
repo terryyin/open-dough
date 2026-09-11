@@ -82,3 +82,25 @@ handoff.
     partial guidance intact; the older unrelated stash remained untouched.
   - Inference: Explicit writer quiescence, exact stash identity, and focused
     repair delivery formed a useful recovery boundary for worktree execution.
+
+## DD-005 — Installed and unreleased execution guidance competed for authority
+
+The selected quick story had explicit planless execution authority, while the
+installed execution skill still required a plan and the repository's unreleased
+source already defined the quick path.
+
+### Occurrences
+
+- Execution: `SEED-004#drop-recently-done-from-product-backlog @ 30a5026`
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: unreleased; revision `533da34`; base `0.3.8`
+  - Evidence: The execution first loaded
+    `.agents/skills/dough-execute-plan/SKILL.md`, which excluded seed execution,
+    then inspected `src/skills/dough-execute-plan/SKILL.md`, which accepted an
+    explicitly selected canonical story as one quick slice.
+  - Observed effect: Execution required an extra authority reconciliation before
+    the queued story could move to **Taken** and implementation could begin.
+  - Inference: Maintainer dogfooding of unreleased workflow behavior needs an
+    explicit source-versus-installed authority convention to avoid contradictory
+    execution gates.
