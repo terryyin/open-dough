@@ -8,10 +8,10 @@ complete set of skills covering the full software development lifecycle.
 ## Taken
 
 - [Execute in a worktree by default and merge back at wrap-up](seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-in-worktree-and-merge-at-wrap-up) — SEED-004
+- [Drop Recently done from the product backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#drop-recently-done-from-product-backlog) — SEED-004
 
 ## Backlog list
 
-- [Drop Recently done from the product backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#drop-recently-done-from-product-backlog) — SEED-004
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001
@@ -23,17 +23,3 @@ complete set of skills covering the full software development lifecycle.
 
 Enable agents to execute stories in parallel while collaborating through
 trunk-based development, with each agent working in its own Git worktree.
-
-## Recently done
-
-- [Show queued work as taken when plan execution starts](seeds/SEED-004-extract-and-adopt-project-guidance.md#show-stories-as-taken-during-execution) — SEED-004 / `519bb4a`
-- [Preserve recurring retrospective findings in DearDough.md](seeds/SEED-010-learn-from-execution-retrospectives.md#turn-retrospectives-into-learning-loop) — SEED-010 / Quick 036
-- [Keep slice planning within the requested workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-slice-planning-bounded) — SEED-004 / Quick 035
-- [Receive a slice plan without numbering or budget prompts](seeds/SEED-004-extract-and-adopt-project-guidance.md#plan-without-numbering-or-budget-prompts) — SEED-004 / Quick 033 / v0.3.5
-- [Turn execution learning into product backlog decisions](seeds/SEED-010-learn-from-execution-retrospectives.md#turn-execution-learning-into-product-backlog-decisions) — SEED-010 / Quick 034
-- [Use the standalone updater in Claude Code](seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow) — SEED-007 / Quick 032
-- [Register CI observation host hooks without environment-local drift](seeds/SEED-001-install-and-update-open-dough.md#register-ci-host-hooks-consistently) — SEED-001 / Quick 031 / v0.3.4
-- [Write installed skills from this project's perspective](seeds/SEED-004-extract-and-adopt-project-guidance.md#write-installed-skills-from-this-project) — SEED-004
-- [Remove WIP without external value and find a home for the rest](seeds/SEED-009-keep-only-externally-valuable-work.md#harden-direction-change) — SEED-009 / Quick 029
-- [Extract plan execution for one real task through CI](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-plan-execution-with-ci-monitor) — SEED-004 / Quick 028 / Quick 030
-- [Extract a project skill directly into unreleased source](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-directly-with-guidelines) — SEED-004 / Quick 026

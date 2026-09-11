@@ -21,23 +21,47 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 17. Drop Recently done from the product backlog
 
-**Status:** Selected for backlog on 2026-09-11; quick fix, unplanned and not
-started.
+**Status:** Refined on 2026-09-11; ready for planning as a quick fix.
 
-**Goal:** A developer reviewing the product backlog sees only active work in
-**Taken** and **Backlog list**, without a separate completion chronicle that can
-become stale or duplicate canonical story history.
+**Goal:** A developer reviewing the product backlog sees the current product
+direction and active work. Git provides the recoverable history of completed
+backlog entries.
 
-**Scope:** Remove the **Recently done** section and all of its entries from the
-canonical product backlog. Preserve **Near-future direction**, **Taken**,
-**Backlog list**, **Longer-term direction**, their contents, and queued priority
-order exactly. Do not delete or rewrite the linked canonical stories, plans,
-proof, Git history, or release history. Do not execute story wrap-up or make a
-broader backlog-format change.
+**Scope and human decisions:**
 
-**Evaluation:** `.planning/PRODUCT-BACKLOG.md` has no **Recently done** heading
-or finished entries; every active entry and both direction statements remain
-unchanged, with no duplicate across **Taken** and **Backlog list**.
+- Delete the **Recently done** section and its entries from
+  `.planning/PRODUCT-BACKLOG.md`. Keep **Near-future direction**, **Taken**,
+  **Backlog list**, **Longer-term direction**, their contents, and active-work
+  order unchanged.
+- Express the reusable `dough-product-backlog` convention as the remaining
+  active layout and lifecycle: optional direction, **Taken**, **Backlog list**,
+  execution movement into **Taken**, and completion removal through story
+  wrap-up or authorized standalone maintenance.
+- Remove completion-chronicle concepts and vocabulary from the published skill
+  source and its recognition record, including their behavior-review cases.
+  The current guidance describes the convention that exists after the change.
+- Use Git history as the sole recovery path for the deleted backlog entries.
+  The current product backlog represents current direction and active work.
+
+**Key examples:**
+
+1. Given the current canonical backlog, applying the change leaves both
+   direction statements and every active entry in the same order, while the
+   file ends after **Longer-term direction**.
+2. Given a developer reads the updated product-backlog skill, the documented
+   layout and lifecycle contain only current direction and active-work behavior;
+   completed work leaves the active lists through the existing completion owner.
+3. Given a maintainer needs an earlier completion reference, Git history supplies
+   it while the current backlog remains an active-work view.
+
+**Evaluation:** Inspect the canonical backlog, published skill source, and
+recognition record. They express the active-work convention above, active links
+remain unique and valid, and both direction statements retain their exact text.
+
+**Lifecycle boundary:** Story wrap-up continues to own completed canonical
+seeds, plans, and execution evidence.
+
+**Open decisions:** None.
 
 <a id="execute-in-worktree-and-merge-at-wrap-up"></a>
 
