@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Ship the missing bounded process-log reference](seeds/SEED-010-learn-from-execution-retrospectives.md#ship-bounded-process-log-reference) — SEED-010
-
 ## Backlog list
 
 - [Validate the remaining released lifecycle behavior across tools](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

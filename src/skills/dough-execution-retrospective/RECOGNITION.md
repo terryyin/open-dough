@@ -247,9 +247,6 @@ known model while the same record without model evidence omits only that line.
 
 ## Pending native logging acceptance
 
-The managed payload now includes
-`dough-execution-retrospective/references/bounded-process-log.md` under
-[Story 7](../../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#ship-bounded-process-log-reference).
 Broader native acceptance of execution guidance-release provenance, mixed
 local/internal finding codes, project-configured process-review selection,
 and bounded process-log recording remains with
