@@ -3,7 +3,7 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: executing; Slice 1 done, Slices 2–6 planned.
+Status: executing; Slices 1–2 done, Slices 3–6 planned.
 
 Execution identity:
 
@@ -124,11 +124,17 @@ Safe stop: the clearer example and rule are useful independently of PFE.
 
 ### 2. Find and use a suitable existing solution
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk one basket-total lookup with an existing solution elsewhere in the
 product; vary direct fit, modularization needed across a process boundary,
 similar-looking code with different meaning, and unresolved domain meaning.
 The result is a justified use/change choice or an evidenced developer question.
+
+Delivered proof: `src/skills/dough-pfe/RECOGNITION.md` records all four
+authoring-walkthrough variants. The Skill Creator validator, YAML/frontmatter
+check, relative-link check, and whitespace checks passed. The independent
+refactor pass found the small self-contained skill already clean, and
+`npm run format` passed.
 
 Behavior: Given a responsibility to implement, invoking dough-pfe finds suitable
 existing product knowledge and a domain-correct way to use it, or makes the gap
