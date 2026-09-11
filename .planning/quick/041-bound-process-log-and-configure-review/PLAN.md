@@ -144,7 +144,12 @@ one size/write boundary with clear deterministic observations.
 
 ### 3. Retain higher-value learning without losing recoverable identity
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 3 walkthrough; isolated Git fixture
+rebuild (`build-isolated-fixture.py`, `capture-walk.py`); 995→1010 overflow,
+bounded 58 with recovery; continued identity 93; refusal byte-identity;
+`git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given an overflowing candidate with higher-priority new information,
 replace enough recoverable lower-priority material to record it within 1,000
@@ -260,3 +265,5 @@ A worktree needs `npm ci` before `npm run format` because node_modules is not
 shared from the main checkout.
 Slice 2: size/write belongs in `references/bounded-process-log.md`; `wc -l`
 is not the line definition because it misses an unterminated last line.
+Slice 3: extend the same candidate-write flow rather than a second store;
+priority is a manual behavior review, not a score or a line count.

@@ -11,8 +11,9 @@ description: >-
   reviews independently. Project `open-dough.json` may set
   `skipProcessRetrospective` to persist skipping process review. May plan
   unresolved implementation findings, record supported process findings in
-  `DearDough.md` with a 500-line warning and 1,000-line ceiling, and recommend
-  product work; never implements them.
+  `DearDough.md` with a 500-line warning, 1,000-line ceiling, and recoverable
+  replacement of lower-priority material when a write would overflow, and
+  recommend product work; never implements them.
 ---
 
 # Review an execution
@@ -403,8 +404,8 @@ the order of supported findings:
 ```
 
 Keep observation separate from inference. Use compact references rather than
-transcript copies. The occurrence rows are the count; do not add a redundant
-total. Record one-off costs, useful practices, potentially general problems,
+transcript copies. The occurrence rows are the visible count; do not add a
+redundant total. Record one-off costs, useful practices, potentially general problems,
 and supported observations about this retrospective without claiming recurrence
 or generality the evidence does not establish.
 
@@ -437,46 +438,65 @@ IDs in this project's log. Identify issue IDs only from this project's log. Do
 not mint `ODF-NNN`. Preserve existing IDs, human notes, prior evidence,
 unrelated entries, release-bearing occurrence rows, and all content outside the
 smallest supported edit. Do not migrate, normalize, reorder, delete, or
-automatically merge existing content.
+automatically merge existing content except as required by bounded retention
+in [bounded process-log recording](references/bounded-process-log.md).
 
 Match an existing issue only when decisive evidence supports the same concrete
 process problem or useful practice; similar wording or symptoms do not establish
 that match. Reuse that issue's existing heading code, including a previously
-adopted code such as `ODF-001`. If the relationship is uncertain, or
-the finding has no supported match, and the log itself is interpretable, create
-a separate issue with the next unused local `DD-NNN` and briefly state matching
-uncertainty when that is the reason. Never change another issue's ID to fill a
-gap.
+adopted code such as `ODF-001`. Consult recovered history only to resolve a
+consequential identity or match, not on every review. When decisive evidence
+identifies a removed issue, recover that identity: reuse its heading code and
+do not allocate a new ID. Do not restore a pruned occurrence, and do not
+inflate the visible count, when the current review is an identical rereview
+of a pruned execution. If missing history prevents safe identity resolution,
+report that limitation instead of inventing a new issue or count. If the
+relationship is uncertain, or the finding has no supported match, and identity
+remains safely allocatable, create a separate issue with the next unused local
+`DD-NNN` and briefly state matching uncertainty when that is the reason. Never
+change another issue's ID to fill a gap.
 
-The next unused `DD-NNN` is one greater than the highest number already used on
-any issue heading, counting both `DD-NNN` and adopted `ODF-NNN` numbers. Do
-not allocate a `DD-NNN` that collides with an existing heading number. If
-`ODF-001` is present, do not allocate `DD-001`.
+The next unused `DD-NNN` is one greater than the highest allocated local number.
+That high-water is the greater of the highest number on any issue heading still
+in the log (`DD-NNN` and adopted `ODF-NNN`) and the highest allocated local
+number recorded in retention metadata, when present. Never reuse a removed ID.
+Removing the highest-numbered issue does not make its ID reusable. When
+retention metadata is present, update its highest allocated local number
+whenever a new ID is allocated, including ordinary writes that do not remove
+content. Do not allocate a `DD-NNN` that collides with an existing heading
+number. If `ODF-001` is present or recorded in the high-water, do not allocate
+`DD-001`. If a gap exists and high-water or recovery cannot establish whether a
+missing number was allocated, do not fill that gap; report the limitation when
+a new ID cannot be allocated safely.
 
 Within a matched issue, treat equal execution identities as one occurrence. An
-identical rereview makes no edit. Add only newly available decisive evidence or
-a corrected qualified conclusion to that existing row, without discarding its
-prior evidence or human notes. Evidence of the same concrete issue in a distinct
-execution adds one occurrence row. A second symptom in the same execution does
-not add a row. Keep rows as the count; do not store or update a total.
+identical rereview makes no edit, including an identical rereview of an
+execution whose occurrence was pruned. Add only newly available decisive
+evidence or a corrected qualified conclusion to that existing row, without
+discarding its prior evidence or human notes. Evidence of the same concrete
+issue in a distinct execution adds one occurrence row. A second symptom in the
+same execution does not add a row. Keep retained rows as the count; they are
+not an all-time recurrence total.
 
-When those rules produce a supported edit, construct the complete candidate
-first, then measure, warn, write, or refuse using
+When those rules produce a supported edit, construct the complete ordinary
+candidate first, then measure, retain if required, warn, write, or refuse using
 [bounded process-log recording](references/bounded-process-log.md). Load that
 reference only for an enabled process write. No-findings and an identical
-rereview are not candidate writes; do not load this size check for them.
-Skipped or unresolved process review never loads the log or this size check;
+rereview are not candidate writes; do not load that reference for them.
+Skipped or unresolved process review never loads the log or that reference;
 follow [Select reviews](#select-reviews).
 
 If malformed or ambiguous content prevents safe identification of entries,
 executions, or the next unused ID, leave the entire existing file byte-identical
-and report a recording limitation. Do the same when a write fails. Return the
-supported findings and continue other independently supported reviews; never
-describe either case as a successful write.
+and report a recording limitation. Do the same when a write fails or when
+bounded retention cannot form a safe candidate. Return the supported findings
+and continue other independently supported reviews; never describe either case
+as a successful write.
 
 In the final response, give a concise recording result: the canonical path and
 created issue IDs with occurrence rows, or `unchanged`/`not recorded` and the
-reason. Include any size warning or size-limited refusal required by
+reason. Include any size warning, bounded-retention report, or size-limited
+refusal required by
 [bounded process-log recording](references/bounded-process-log.md). Do not
 describe a skipped, refused, failed, or size-limited write as successful.
 

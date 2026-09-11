@@ -27,7 +27,7 @@ unauthorized backlog writes.
 - `--skip-process` or `--skip-product` on a retrospective
 - Project `open-dough.json` or `skipProcessRetrospective` for process review
 - Invalid or unreadable process configuration on a retrospective
-- 500-line warning or 1,000-line ceiling on `DearDough.md`
+- 500-line warning, 1,000-line ceiling, or recoverable replacement on `DearDough.md`
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
@@ -68,10 +68,13 @@ unauthorized backlog writes.
 - After constructing a supported process-log candidate, warns when the existing
   log is already at least 500 physical lines and never writes a result over
   1,000. Below 500, ordinary recording has no threshold warning even if the write
-  crosses 500. An overflowing candidate or an already oversized file is refused
-  without replacement, deletion, or recovery, and is reported as
-  `not recorded`/`unchanged` with the reason. No-findings and identical rereview
-  stay no-op; skipped or unresolved process review does not inspect size.
+  crosses 500. An overflowing candidate or already oversized file is retained
+  only when higher-priority new information can replace recoverable lower-priority
+  material without losing interpretable identity; otherwise it is refused
+  without mutation and reported as `not recorded`/`unchanged` with the reason.
+  No-findings and identical rereview stay no-op; skipped or unresolved process
+  review does not inspect size. Removed IDs are not reused; a rereview of a
+  pruned execution does not resurrect a pruned occurrence.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -90,8 +93,11 @@ only for product conclusions that depend on them. Process recording also needs
 one unambiguous canonical `DearDough.md` location and a stable execution identity;
 missing evidence stops recording, not the remaining reviews. A process write
 also needs the existing log and complete candidate measured as physical lines,
-including blanks, metadata, and an unterminated last line. Process-review
-preference is optional project configuration at
+including blanks, metadata, and an unterminated last line. Bounded retention
+also needs a usable recovery reference that contains any affected uncommitted
+bytes, interpretable retained identity, and enough lower-priority material;
+missing recovery or unsafe identity stops the write, not the remaining reviews.
+Process-review preference is optional project configuration at
 `<established-planning-directory>/open-dough.json`, defaulting to
 `<project-root>/.planning/open-dough.json`. Missing file or key is default-on.
 Do not read a file beside the installed skill, create a missing file, or repair
@@ -283,6 +289,33 @@ line counts, checksums, and destination effects:
 This is local behavior review of the Proposed source, not native cross-tool
 acceptance or release evidence. Slice 3 owns priority replacement; this
 walkthrough refuses overflow rather than repairing it.
+
+## Quick 041 Slice 3 local behavior evidence
+
+Walked bounded retention on 2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review` against an isolated
+Git fixture, not this worktree's history. Inputs, measured counts, recovery
+refs, and ID observations:
+[evidence/slice-3/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-3/WALKTHROUGH.md).
+
+1. **Invocation.** Description names recoverable replacement of lower-priority
+   material when a write would overflow. The same candidate-write flow loads
+   retention only after an enabled process write would exceed 1,000 lines.
+2. **Required context.** Bounded retention needs a usable recovery reference
+   that contains any affected uncommitted bytes, interpretable retained
+   identity, and enough lower-priority material. Missing recovery or unsafe
+   identity stops the write, not independent reviews.
+3. **Useful outcome.** A 995-line committed log plus a severe finding overflowed
+   to 1,010, then a bounded write of 58 lines recorded DD-005 after removing
+   whole-issue DD-001 (top), redundant occurrence `dd002-c`, and whole-issue
+   DD-004 (highest code). Recovery from `git show 90d2b82…:DearDough.md` held
+   the removed bytes. Rereview did not resurrect pruned rows; DD-003 kept its ID
+   with two honest rows; a decisive match recovered DD-001 without a new ID;
+   the next unmatched issue allocated DD-006. Refusal variants left original
+   bytes unchanged.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Slice 4 owns install/update preservation.
 
 ## Pending native logging acceptance
 
