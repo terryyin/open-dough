@@ -182,7 +182,7 @@ Sizing: bounded, high confidence; extends existing recovery/cleanup ordering.
 
 ### 4. Integrate the committed work into the target branch
 Type: Behavior
-Status: planned
+Status: in-progress
 
 Behavior: Completed, committed worktree closure is merged into the resolved
 target branch without overwriting unrelated target changes.
@@ -262,3 +262,8 @@ slice-plan refinement pass was not triggered by this assessment.
   snapshot after existing spent-history removal. Worktree and direct-current
   modes share this boundary; unresolved completion or ownership leaves all
   material intact.
+- CI repair for run `34550693158` attempt 1: Slice 2 changed the stable observer
+  phrase expected by `ci-supported-host-contract.test.mjs`. Focused red/green
+  proof restored `repository/branch/coordinator` while defining that branch as
+  the selected execution branch. Slice 4 remained paused and stashed during
+  repair; this note does not mark it done.

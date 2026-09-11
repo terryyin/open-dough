@@ -6,10 +6,11 @@ launching.
 
 ## Own one observer
 
-Start one observer per repository/execution-branch/coordinator before the first
-push and reuse it across normal and repair pushes. The observer discovers later
-pushes; a changed SHA does not require new setup. Push success closes routine
-delivery without waiting for CI or deployment.
+Start one observer per repository/branch/coordinator before the first push,
+where branch is the selected execution branch, and reuse it across normal and
+repair pushes. The observer discovers later pushes; a changed SHA does not
+require new setup. Push success closes routine delivery without waiting for CI
+or deployment.
 
 Bind the observer to the selected execution location. Observe that branch and
 use that checkout for every pause, stash, repair, delivery, and restoration
