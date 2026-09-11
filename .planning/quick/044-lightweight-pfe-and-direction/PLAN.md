@@ -3,7 +3,19 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: planned; all slices unstarted.
+Status: executing; Slice 1 done, Slices 2–6 planned.
+
+Execution identity:
+
+- Originating checkout: `/Users/terryyin/git/open-dough` on `main`.
+- Execution checkout: `/private/tmp/open-dough-044.y5Xpot` on
+  `codex/044-lightweight-pfe-direction`.
+- Integration target: `main`.
+
+CI observer: repository `terryyin/open-dough`, branch
+`codex/044-lightweight-pfe-direction`, workflow selector `ci.yml`, workflow name
+`CI`, coordinator `root`, Codex cell `23`, session `12095`, directory
+`/tmp/dough-ci-501/watch-uHB7eu`, PID `90841`; status watching.
 
 Deliver only the refined three-change package: clear simple-rule guidance, a
 small PFE skill, and optional architectural direction connected to planning,
@@ -90,10 +102,16 @@ supplied; no time guarantee or invented sizing policy applies.
 
 ### 1. Implement the understood rule without fixture restrictions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the basket-total case and its explicit-limit variant. The guidance
 selects summing prices, accepts naturally handled baskets, retains a stated
 maximum-item rule, and adds no future discount framework.
+
+Delivered proof: the authoring walkthrough is recorded in
+`src/skills/dough-story-refinement/RECOGNITION.md`; `git diff --check` and
+`bash tests/story-payload-update.sh` passed. The independent refactor pass found
+the change already clean, and `npm run format` passed after installing the
+lockfile-defined worktree dependencies.
 
 Behavior: Given narrow acceptance examples, when implementing the outcome, the
 agent chooses a simple domain rule without inventing rejection conditions.
