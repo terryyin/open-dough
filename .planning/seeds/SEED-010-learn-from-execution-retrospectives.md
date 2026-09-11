@@ -268,7 +268,7 @@ proof, safe disposition of attributable incomplete changes, one unchanged
 ordinary resume without repeated work, and retrospective attribution of both
 parts as one execution. Include unclear-ownership and changed-story-scope stops.
 Select representative Codex, Cursor, and Claude Code cases by unresolved risk;
-the Quick 040 local authoring walkthrough does not satisfy this acceptance.
+source authoring walkthroughs do not satisfy this acceptance.
 
 Also own pending native acceptance for the lifecycle guidance:
 refinement/planning distinctions and cumulative design, refactoring and human
