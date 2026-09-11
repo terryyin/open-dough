@@ -19,34 +19,205 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 <a id="proudly-found-elsewhere-design"></a>
 
-### 19. Use Proudly Found Elsewhere during upfront design
+### 19. Find and use existing solutions through Proudly Found Elsewhere
 
-**Status:** Captured; not refined.
+**Status:** Direction agreed; not yet refined into an executable story contract.
 
-**Goal:** A developer designing an Open Dough-guided change searches across the
-existing system for the same or a related solution and, while remaining within
-the existing model, generalizes and reuses it instead of creating a duplicate.
+**Goal:** A developer uses suitable existing solutions across the whole product,
+with changes guided by domain meaning, through PFE during planning and when
+execution exposes a new need or invalidates an earlier decision.
 
-**Captured idea:** PFE means **Proudly Found Elsewhere**, the opposite of NIH
-(**Not Invented Here**). The guidance may belong in slice planning, plan
-execution, or both. It should search hard before inventing, but stop for a human
-decision when the reuse or generalization would challenge the existing model.
-Resolve its workflow placement during later refinement.
+**Scope:** Include a PFE skill. PFE means **Proudly Found Elsewhere**, opposed to
+NIH (**Not Invented Here**). Follow the shared decisions below; use “find and
+use,” not “reuse.”
 
 <a id="guide-implementation-from-generic-to-specific"></a>
 
-### 18. Guide implementation from generic design toward specific examples
+### 18. Evolve simple implementations through specific scenarios
 
-**Status:** Captured; not refined.
+**Status:** Direction agreed; not yet refined into an executable story contract.
 
-**Goal:** A developer implementing a scenario-led Open Dough story can start
-from a generic design and make it more specific only as further examples
-justify it, using implementation guidance that applies before the existing
-post-change refactoring guidance.
+**Goal:** A developer delivers specific, valuable end-to-end scenarios while
+keeping implementation simple, evolving its generality through learning, and
+following a coherent architectural direction without investing in unneeded
+future capabilities.
 
-**Related idea:** This may be combined with
-[the PFE story](#proudly-found-elsewhere-design); resolve the relationship
-during later refinement.
+**Relationship:** Discussed together with [Story 19](#proudly-found-elsewhere-design).
+Their final delivery split remains for refinement. Existing story anchors are
+preserved; neither story is authorized for implementation by these notes.
+
+<a id="architecture-discussion-convergence"></a>
+
+#### Agreed principles and scope — 2026-09-11
+
+**Specific problems, progressively general solutions.** Scenarios start from
+user or external value. Choose the least complexity that delivers the current
+outcome while preserving understood domain meaning and agreed direction.
+Necessary current coherence is part of sufficiency; anticipated future benefit
+alone does not justify added structure. Generalize as learning and current
+needs justify it, not automatically with every story. Do not pretend known
+facts are unknown, but defer sophistication whose benefit depends on future
+stories that may never arrive. Safe stopping means useful software without
+unpaid complexity. If the simplest solution naturally handles more cases, keep
+it; examples alone do not authorize adding rejection constraints.
+
+**Direct domain meaning.** Implementation of domain rules should map directly
+to domain concepts, usually without translation. This does not imply one unique
+implementation structure. Legitimate boundary cases, such as DTOs across
+subdomains, require judgment. Ordinary technical mechanisms may retain honest
+technical names without invented business counterparts; they must not hide or
+redefine domain rules.
+
+**PFE and present cost.** Search the whole product for an existing, partial, or
+related solution, beyond modules and potentially across processes. Improved
+modularization can expose a suitable part while preserving its original purpose.
+Judge suitability by domain meaning, not superficial code similarity. Pay the
+necessary cost of confirmed domain coherence within this story, including one
+or more Structure slices and later plan refinement when needed. Distinguish
+confidence in the domain responsibility from confidence in the restructuring;
+uncertain domain meaning or consequential competing interpretations involves
+the developer. Size alone does not require approval. Low-level choices without
+domain significance remain ordinary judgment calls.
+
+**PFE timing.** Run PFE during upfront architectural thinking. During execution,
+run it for an unforeseen introduction or relocation of a responsibility, or
+new evidence invalidating an earlier find-and-use decision. Carry forward
+still-valid findings; do not mandate a lookup on every slice. Refactoring
+should make existing solutions easier to discover through clear domain meaning
+and cohesive responsibility placement; this is a review outcome, not a separate
+process.
+
+**Architectural thinking and North Star.** Use a focused reference within slice
+planning, in the same agent. Do not introduce a separate architecture skill or
+mandatory subagent. Planning and architectural thinking inform each other.
+Keep short statements by architectural topic in one discoverable place. A
+planner finds and connects to relevant existing statements, updates them, or
+starts a new topic; one story may involve several topics. Record direction only
+when it resolves a consequential choice for relevant upcoming work and is
+supported by current evidence. Keep uncertainty explicit; do not turn a
+possibility into an implementation constraint. Implementation must align with
+recorded direction, though a
+simple incomplete expression is enough. Rare needs for an ADR are legitimate
+planning stops; Accepted ADRs retain official authority.
+
+**Judgment and authority.** Delegate North Star decisions to the planner,
+including changes affecting other stories. Before making or changing direction,
+consider supporting evidence and consequences for affected stories, established
+domain meaning, and Accepted ADRs. Delegated judgment includes accounting for
+those consequences; do not impose an automatic coordinator approval gate.
+This is substantive judgment, not permission to ignore conflicts or bypass
+human-owned domain and ADR decisions. An executor needing a revision stops the
+affected path instead of revising the North Star itself. Retrospective evaluates
+execution discoveries; the coordinator applies the selected midway update.
+A planner may reconsider direction through informed judgment, including after
+an execution stop. Resume only when the blocker is resolved and the remaining
+plan agrees with the selected direction.
+
+**Review and retirement.** Review existing post-change refactoring and
+architectural retrospective guidance for PFE and North Star alignment. Keep
+statements honest to current understanding. Retrospective can propose changes
+or retirement; the coordinator selects and applies midway changes, while
+ordinary wrap-up applies selected retirement. Remove statements when mostly
+materialized or no remaining stories need them; stale, unreferenced material
+can be considered during ordinary review without mandatory tracking machinery.
+Critical assumptions or constraints that cannot be reconstructed belong in
+ADRs through their existing human-owned process.
+
+**Example repair and existing delivery.** SEED-012 Story 1, “Evolve a cohesive
+design from incremental delivery examples,” already delivered examples versus
+constraints, common rules, whole-concept refactoring, and architectural review
+through Quick 037. Its seed is recoverable at `84fc69a^`. Build on that work.
+Replace its context-heavy README/Notes/Relationship example with an example
+understandable without Donut knowledge. The endorsed basket example is a useful
+starting point: £10 plus £20 totals £30; summing prices expresses the rule
+without restricting the basket to those items. Final wording remains to be
+worked out during refinement.
+
+**Boundaries.** Include the PFE skill, planning reference, necessary lifecycle
+alignment, and example repair. No partial wrap-up or early-termination workflow.
+Midway updates preserve the active story, plan, proof, backlog entry, and
+worktree. No source-skill changes, ADR creation/restoration, release, or
+implementation is authorized by this discussion.
+
+**Maintainer-only rationale.** North Star is internally understood as a
+safely disposable decision cache for reducing reasoning effort or AI tokens.
+Keep both the cache terminology and that efficiency rationale out of public
+Open Dough guidance, descriptions, and examples. Public guidance describes
+current architectural direction and its lifecycle. Balance admission and
+flexibility. Keep a guidance mechanism only while observed benefit justifies
+its maintenance and interruption cost; simplify or retire it when evidence
+shows otherwise. Start with this bounded experiment and improve from actual
+feedback about prevented mistakes, repeated reasoning, unnecessary stops, and
+maintenance burden. Do not add a telemetry requirement.
+Informational disposability does not authorize an executor to bypass its stop
+rule or delete the record. Historical Proposed ADR 0002 supports the low-cost
+change-of-direction philosophy; recover it at
+`e7f1e36^:docs/adrs/0002-software-development-lifecycle-principles.md`. It was
+accidentally removed on September 9, then restored, revised, and accepted on
+September 11 as [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
+
+#### Internal ADR selection — recommended destinations
+
+**Audience and state:** The human accepted the principle recommendations; they
+are incorporated above without the former assessment's duplication. Open Dough
+ADRs govern internal maintainer decisions and how we develop and judge guidance.
+They are not installed runtime instructions or decisions imposed on other
+projects. They may indirectly shape public guidance. The human accepted all ADRs on September 11. ADRs 0001, 0002, and 0004
+now have Accepted status and matching filenames and index entries; ADRs 0000
+and 0006 include the integrated clarifications. ADR 0002 preserves its original
+two goals and seven principle headings. All changes remain uncommitted.
+The selection rationale below describes how the decisions were assigned.
+
+**Primary selection: lifecycle principles.** Recovered and revised
+ADR 0002 is the internal home for these enduring choices:
+
+- Deliver external value in small increments and preserve inexpensive changes
+  of direction. Do not assume the remaining decomposition will be delivered.
+- Choose sufficient simplicity; generalize through evidence rather than a
+  target of increasing generality. Examples are promises, not inferred rejection
+  constraints. Necessary current domain coherence is not speculative preparation.
+- Keep domain meaning directly expressed and responsibilities cohesive; find
+  and use suitable solutions across the product. Preserve judgment about
+  structure and legitimate technical mechanisms.
+- Exercise evidence-based judgment with responsibility for consequences.
+  Distinguish human-owned domain/ADR decisions from delegated implementation and
+  temporary-direction choices.
+- Treat processes as provisional mechanisms: judge their benefit against
+  maintenance and interruption cost, and improve or retire them through actual
+  experience. The internal North Star/cache rationale is a concrete application
+  of this principle, not a reason to make its current workflow permanent.
+
+These align with the historical record's goals and principles on domain
+mapping, cohesion, judgment, and empiricism. Do not restore all old wording
+unchanged or silently treat its other historical claims as newly accepted.
+The human has now accepted the revised record.
+
+**Secondary selection: durable authority versus temporary direction.** Recommend
+clarifying ADR 0000 with the internal distinction: Accepted ADRs retain durable,
+human-owned authority and decision history; North Star statements hold temporary,
+evidence-supported direction and may be revised or retired under delegated
+judgment. Information necessary for safe future decisions must not live solely
+in the temporary record. This elaborates the existing distinction between
+lasting decisions and delivery material without weakening ADR authority. Leave
+executor/planner/coordinator choreography in skill guidance, not this ADR.
+
+**Runtime audience.** ADR 0006 keeps maintainer analysis
+out of runtime instructions and requires project-specific decisions to resolve
+in the executing project. Apply it to keep cache/token-efficiency rationale
+internal; its integrated clarification makes this explicit. Internal
+ADR links must not become mandatory dependencies of the published guidance.
+
+**Keep outside ADRs:** Skill packaging, same-agent execution, precise PFE
+triggers, topic storage format, planner/coordinator update steps, retirement
+check timing, basket example wording, and story/slice boundaries. These are
+changeable behavioral guidance or acceptance examples, not additional enduring
+internal decisions. ADRs 0001, 0003, and 0005 need no change for this selection.
+
+**Next refinement evidence:** Contrast necessary current structural work with
+speculative extension; a worthwhile North Star statement with an unsupported
+possibility; and a justified planner revision with missing domain understanding.
+Use those cases to derive observable agent behavior. No executable plan is
+created by this selection.
 
 <a id="show-stories-as-taken-during-execution"></a>
 

@@ -13,8 +13,8 @@ and its integrations with AI development tools. Its architectural choices need
 a durable home where contributors and agents can find both the current
 direction and the reasons behind it.
 
-The project owner has chosen to adopt ADRs using the advice process followed
-in Doughnut. Delivery plans serve a different purpose from lasting decisions.
+These ADRs govern Open Dough internally; they may inform published
+guidance but are not imposed on projects using it.
 
 ## Decision
 
@@ -32,6 +32,9 @@ in Doughnut. Delivery plans serve a different purpose from lasting decisions.
    and keep delivery prioritization separate from architectural acceptance.
    Remove obsolete process instructions from current guidance rather than
    retaining them as explanatory archive; decision records stay.
+6. Keep temporary North Star direction separate from durable ADR decisions.
+   It may be revised or retired under delegated judgment, but cannot override
+   Accepted ADRs. Preserve indispensable architectural assumptions in ADRs.
 
 ## Consequences
 

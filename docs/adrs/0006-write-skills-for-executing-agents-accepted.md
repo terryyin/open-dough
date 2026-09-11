@@ -27,9 +27,12 @@ preserving across Open Dough skills.
    not mean the Open Dough source repository or the skill's directory. Resolve
    project paths, decisions, vocabulary, and workflow from that context. Do not
    ask the user to identify a separate “client project” when the task already
-   establishes the project.
+   establishes the project. Open Dough's internal ADRs may inform authoring,
+   but must not become runtime dependencies or decisions imposed on that project.
 2. Keep provenance, extraction history, checksums, and maintainer analysis in
    recognition or other maintainer records, outside runtime instructions.
+   This includes the North Star's decision-cache interpretation and effort/token
+   rationale. Public guidance describes architectural direction and its lifecycle.
    Maintainer concepts such as “client project,” “client payload,” recognition
    records, and guidance promotion describe Open Dough's production and delivery
    work; they are not vocabulary requirements for published skills or rules.
