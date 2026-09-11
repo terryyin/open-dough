@@ -37,31 +37,3 @@ similar code as proof of shared meaning, requires repeated or exhaustive search,
 forces unrelated responsibilities together, changes the original purpose while
 modularizing, or lets an agent silently settle unresolved domain or
 architectural choices.
-
-## Authoring walkthrough
-
-Story 44 Slice 2 used one basket-total responsibility with four variants:
-
-- **Direct fit:** An existing product operation already owns summing the prices
-  of basket items under the same rules and lifecycle. The skill follows domain
-  concepts and callers to it, selects direct reuse, cites the shared meaning,
-  and stops searching because the evidence establishes the fit.
-- **Process-boundary modularization:** The same total is embedded in another
-  process whose orchestration must remain intact. The skill searches across
-  that boundary and selects exposing the cohesive calculation for both callers,
-  including the necessary current structural change while preserving the
-  original process's purpose and behavior.
-- **Similar code, different meaning:** Another routine also adds monetary
-  values but calculates an accounting settlement with different ownership,
-  rules, and lifecycle. The skill rejects reuse despite its similar shape,
-  records the domain mismatch, and makes the basket-total gap explicit.
-- **Unresolved domain meaning:** Evidence does not establish whether discounts
-  belong to basket pricing or a later checkout process. The skill stops the
-  affected choice and gives the developer both interpretations, their evidence,
-  and the ownership decision needed to continue; it neither forces reuse nor
-  overrides project direction.
-
-In each variant, invocation and required context are explicit and the outcome is
-a justified use/change decision or a focused developer question. This is a
-manual source walkthrough, not a native Codex, Cursor, or Claude Code run, and
-does not establish promotion or release readiness.

@@ -283,13 +283,24 @@ and document any justified reuse. Shared integration evidence is separate;
 source authoring walkthroughs do not satisfy native acceptance. Release and
 adoption remain separately authorized work.
 
-Also own native acceptance before release for
-[SEED-004 Story 18](SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific):
-simple-rule guidance, PFE direct use and triggers, optional architectural
-planning, direction conflict/resumption, and ordinary retirement. Use its plan's
-representative cases; distinguish fresh behavior proof from existing integration
+Also own native acceptance before release for the delivered lightweight
+implementation guidance: simple-rule guidance, PFE direct use and triggers,
+optional architectural planning, direction conflict/resumption, and ordinary
+retirement. Cover a basket sum with an additional valid item, an explicit item
+limit, and deferred discounts; PFE direct fit, cross-process modularization,
+similar code with different domain meaning, and unresolved ownership; ordinary
+planning with no architectural topic, an existing consequential topic, a
+warranted new topic, and missing indispensable input; execution with a
+still-valid PFE finding, an unforeseen responsibility, an invalidated candidate,
+and contrary direction that stops and resumes only after coordinator alignment;
+and wrap-up that removes disposable direction while retaining shared or
+indispensable context. Distinguish fresh behavior proof from existing integration
 evidence. Promotion must include the new PFE skill and architectural reference
-with their callers. This adds no separate acceptance programme or release authority.
+with their callers. The completed source contract and representative plan are
+recoverable at
+`7f672bf:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
+`7f672bf:.planning/quick/044-lightweight-pfe-and-direction/PLAN.md`. This adds no
+separate acceptance programme or release authority.
 
 **Evaluation:** Native evidence identifies the candidate, tool, inputs, decisive
 log result, and limitations. Required Codex, Cursor, and Claude Code proof is

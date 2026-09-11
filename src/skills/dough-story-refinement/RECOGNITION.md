@@ -66,18 +66,6 @@ copying those rules. Refinement links the existing Open Dough
 `dough-adr-awareness` skill, whose inspected source is byte-identical to the
 current source copy. Client installation remains separate validation work.
 
-Story 44 Slice 1 authoring walkthrough: with a £10 item and a £20 item, the
-shared guidance selects the single rule of summing item prices and yields £30.
-An otherwise valid third item exercises that same rule rather than causing an
-example-specific rejection or handler. In the explicit-limit variant, a stated
-maximum item count independently warrants rejection above the limit and remains
-in scope. Deferring discounts adds neither discount machinery nor a narrower
-basket rule. Invocation remains story refinement or executable slice
-decomposition, required project examples and genuine constraints stay explicit,
-and the linked disputed-contract handoff still stops unsupported removal of a
-claimed rejection for human judgment. This is a manual source walkthrough, not
-native Codex, Cursor, or Claude Code acceptance.
-
 Inspected source SHA-256 values (paths relative to the supplied repository):
 
 - `.agents/skills/story-refinement/SKILL.md`:

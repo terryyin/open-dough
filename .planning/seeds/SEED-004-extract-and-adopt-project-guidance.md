@@ -17,53 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="guide-implementation-from-generic-to-specific"></a>
-
-### 18. Guide a simple implementation with PFE and optional architectural direction
-
-**Status:** Implemented in source on 2026-09-11; not yet released.
-**Plan:** [Quick 044 — lightweight PFE and direction](../quick/044-lightweight-pfe-and-direction/PLAN.md).
-
-**Goal:** A developer delivering a specific end-to-end scenario gets a simple,
-domain-aligned implementation that uses suitable existing solutions, without
-having to maintain an additional architectural process for ordinary changes.
-This advances the backlog's goal of a complete useful development lifecycle.
-
-**Scope — three changes:**
-
-- Clarify existing implementation guidance and replace the context-heavy
-  README/Notes/Relationship example with the basket example. Implement the
-  simplest understood rule, introduce no fixture-derived rejection conditions,
-  and generalize when current examples justify it. Preserve explicit product
-  constraints and avoid structure justified only by future stories.
-- Add a small PFE skill and connect it to planning and execution. Find and use
-  suitable existing solutions across the product, including across processes
-  when relevant. Use it during upfront thinking, then again only for an
-  unforeseen introduction or relocation of responsibility or evidence
-  invalidating the previous choice. Carry forward still-valid findings.
-  Judge fit by domain meaning; include necessary modularization in current
-  work and involve the developer when the model or a consequential choice is
-  unresolved. Do not force similar-looking code together.
-- Add a focused architectural-thinking reference to slice planning, used by
-  the same agent. Find relevant topic-based North Star statements; update or
-  add a few sentences only for an evidence-supported consequential choice.
-  Connect the plan to relevant topics without requiring a statement for every
-  story. The planner judges consequences for other stories, domain meaning,
-  and Accepted ADRs. Execution follows recorded direction and surfaces a needed
-  revision to the coordinator instead of changing it itself. The coordinator
-  can apply a selected update; resume with an aligned remaining plan. Ordinary
-  wrap-up removes fulfilled or no-longer-needed statements, retaining those
-  needed elsewhere and preserving indispensable decisions in their durable home.
-
-**Exclusions:** Keep existing refactoring and retrospective behavior; do not add
-separate architectural-review procedures or broadly redesign authorization.
-A directly contradictory instruction that blocks these behaviors belongs in
-this story, not its successor. No mandatory North Star report, search history,
-reference tracker, confidence score, monitoring, architecture subagent, partial
-wrap-up, early-termination workflow, release, installation, or adoption. Edit
-shared source, not installed copies; public instructions address the executing
-project rather than exposing internal ADR or cache/token rationale.
-
 <a id="proudly-found-elsewhere-design"></a>
 
 ### 19. Strengthen architectural review after using the lightweight guidance
@@ -80,14 +33,18 @@ post-change refactoring and execution retrospective; propose evidence-backed
 corrections or direction updates; refine lifecycle handling where actual use
 shows the minimal flow insufficient. Consider broader refactoring-authorization
 alignment only for a demonstrated obstacle. Basic planning, execution stops,
-coordinator updates, and ordinary retirement belong to Story 18, not this story.
-Do not assume every candidate extension is worth implementing.
+coordinator updates, and ordinary retirement are already delivered by the
+lightweight guidance. Do not assume every candidate extension is worth
+implementing.
 
-**Evaluation:** From an actual use of Story 18, identify a concrete missed
-architectural issue or unnecessary process step; refine this story around a
-review result or simplification the developer can evaluate. Existing review
+**Evaluation:** From actual use of the lightweight guidance, identify a concrete
+missed architectural issue or unnecessary process step; refine this story around
+a review result or simplification the developer can evaluate. Existing review
 that already supplies the outcome is evidence to drop that extension.
-**Depends on:** Story 18 and evidence from using its guidance.
+**Depends on:** Evidence from using the delivered lightweight guidance. Its
+completed source contract and plan are recoverable at
+`7f672bf:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
+`7f672bf:.planning/quick/044-lightweight-pfe-and-direction/PLAN.md`.
 **Safe stopping point:** Any selected review improvement delivers its own useful
 correction or reduced burden; no further process rollout is required.
 **Effort hypothesis:** Uncertain until a concrete review gap is observed; no
@@ -95,30 +52,6 @@ S/M/L estimate without repository definitions and a refined outcome.
 **Deferred decisions:** Which remaining extensions are justified, their concrete
 examples, and the final bounded delivery scope. Tracking machinery, mandatory
 per-story documents, partial wrap-up, and early termination remain excluded.
-
-<a id="architecture-discussion-convergence"></a>
-
-#### Shared decisions and decomposition rationale
-
-The human selected Story 18 as the highest-priority narrow package and Story 19
-for the lower half of the queue. Preserve their existing identities and anchors;
-PFE is now delivered in Story 18, not a separate competing backlog promise.
-The strongest smaller alternative, changing only the example, does not supply
-the requested find-and-use behavior or upfront direction. The larger lifecycle
-redesign adds process before its value is known. Learn first whether the small
-package changes useful agent behavior without creating routine overhead.
-If priorities change, drop Story 19 first; Story 18 remains independently useful.
-
-Internal principles are maintained in Accepted ADRs
-[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-[0000](../../docs/adrs/0000-use-adrs-accepted.md), and
-[0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-They preserve sufficient simplicity, domain meaning, accountable judgment, and
-processes justified by their benefit. They are not public runtime dependencies.
-SEED-012 Story 1 already delivered examples-versus-constraints and cohesive
-review; recover its seed at `84fc69a^` if needed, rather than rebuilding that work.
-The human subsequently authorized slice planning and conditional plan
-refinement for Story 18. Implementation, commits, and pushes remain unauthorized.
 
 <a id="show-stories-as-taken-during-execution"></a>
 

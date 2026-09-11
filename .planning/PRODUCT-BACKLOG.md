@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Guide a simple implementation with PFE and optional architectural direction](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific) — SEED-004
-
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

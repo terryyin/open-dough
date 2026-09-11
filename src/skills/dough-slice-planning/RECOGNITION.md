@@ -86,51 +86,6 @@ slice gate, sizing/escalation, executable-plan contract, and proof ownership.
 Both slice skills link those authoritative sections rather than copying them.
 Client installation remains separate validation.
 
-### Story 44 Slice 3 architectural-thinking walkthrough — 2026-09-11
-
-Candidate: uncommitted Proposed source changes in
-`src/skills/dough-slice-planning/` and
-`src/skills/dough-slice-plan-refinement/SKILL.md`. This was a manual source
-walkthrough, not a native Codex, Cursor, or Claude Code run.
-
-Shared input: an understood basket-total story, established plan root and plan
-format, relevant product navigation and Accepted ADRs, and a responsibility to
-provide the basket total. PFE searches the whole product and supplies the
-evidenced solution decision; planning does not duplicate that search.
-
-- **Established structure, no new topic:** The existing basket pricing
-  operation owns the same sum under the same domain rules. PFE selects reuse.
-  Existing structure and accepted decisions support it without another
-  consequential choice, so the planner writes the ordinary Behavior slice and
-  its proof. It creates no `NORTH-STAR.md`, topic, report, registry, approval
-  step, or speculative Structure slice.
-- **Existing consequential topic:** The project's established North Star has a
-  short `Basket pricing ownership` topic supported by current callers and domain
-  rules. PFE selects purpose-preserving modularization across the checkout
-  boundary. The planner cites that topic and location, includes only the
-  Structure needed immediately before the basket-total Behavior, and records
-  how the choice follows the supported direction. It does not repeat PFE or
-  invent future discount machinery.
-- **Warranted new topic:** No North Star location exists, and evidence from two
-  current affected stories establishes the consequential boundary that basket
-  pricing owns pre-checkout totals. The planner chooses one shared
-  `NORTH-STAR.md` under the supplied established planning root, records the path
-  in the plan, and adds one short heading and paragraph with the direction,
-  evidence, and affected work. Accepted ADRs are consistent; no extra report,
-  registry, configuration, approval gate, or hypothetical structure appears.
-- **Missing indispensable input:** Evidence leaves basket-versus-checkout
-  discount ownership unresolved, or a proposed topic conflicts with an
-  Accepted ADR whose exception has not been decided. The planner stops only the
-  dependent solution/direction path and returns the competing evidence and
-  human-owned decision. Independent plan construction may continue, but the
-  affected path is not presented as executable and the planner does not settle
-  the domain or ADR decision.
-
-Plan refinement follows the same reference only when new evidence reopens that
-same solution or direction decision. Otherwise it carries the decision forward
-without another PFE pass or topic. These cases inspect instruction outcomes and
-file side effects; they do not establish release or installed-host behavior.
-
 ### Slice 1 numbering walkthrough — 2026-09-10
 
 Candidate: base revision `d0a8263366168cb9cccc82adbcbd642ee40890f3`; uncommitted source change in
