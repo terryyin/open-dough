@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Drop Recently done from the product backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#drop-recently-done-from-product-backlog) — SEED-004
-
 ## Backlog list
 
 - [Remove retired completion-list vocabulary from story wrap-up](quick/043-remove-retired-completion-vocabulary/PLAN.md)

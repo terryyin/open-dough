@@ -17,52 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="drop-recently-done-from-product-backlog"></a>
-
-### 17. Drop Recently done from the product backlog
-
-**Status:** Refined on 2026-09-11; ready for planning as a quick fix.
-
-**Goal:** A developer reviewing the product backlog sees the current product
-direction and active work. Git provides the recoverable history of completed
-backlog entries.
-
-**Scope and human decisions:**
-
-- Delete the **Recently done** section and its entries from
-  `.planning/PRODUCT-BACKLOG.md`. Keep **Near-future direction**, **Taken**,
-  **Backlog list**, **Longer-term direction**, their contents, and active-work
-  order unchanged.
-- Express the reusable `dough-product-backlog` convention as the remaining
-  active layout and lifecycle: optional direction, **Taken**, **Backlog list**,
-  execution movement into **Taken**, and completion removal through story
-  wrap-up or authorized standalone maintenance.
-- Remove completion-chronicle concepts and vocabulary from the published skill
-  source and its recognition record, including their behavior-review cases.
-  The current guidance describes the convention that exists after the change.
-- Use Git history as the sole recovery path for the deleted backlog entries.
-  The current product backlog represents current direction and active work.
-
-**Key examples:**
-
-1. Given the current canonical backlog, applying the change leaves both
-   direction statements and every active entry in the same order, while the
-   file ends after **Longer-term direction**.
-2. Given a developer reads the updated product-backlog skill, the documented
-   layout and lifecycle contain only current direction and active-work behavior;
-   completed work leaves the active lists through the existing completion owner.
-3. Given a maintainer needs an earlier completion reference, Git history supplies
-   it while the current backlog remains an active-work view.
-
-**Evaluation:** Inspect the canonical backlog, published skill source, and
-recognition record. They express the active-work convention above, active links
-remain unique and valid, and both direction statements retain their exact text.
-
-**Lifecycle boundary:** Story wrap-up continues to own completed canonical
-seeds, plans, and execution evidence.
-
-**Open decisions:** None.
-
 <a id="show-stories-as-taken-during-execution"></a>
 
 ### 14. Show queued work as taken when plan execution starts
