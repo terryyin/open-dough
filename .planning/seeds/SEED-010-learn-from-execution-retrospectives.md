@@ -3,7 +3,7 @@ id: SEED-010
 status: active
 planted: 2026-09-09
 planted_during: Execution retrospective extraction follow-up
-trigger_when: Before promoting execution retrospective guidance or after its first representative use
+trigger_when: Close the retrospective payload gap, then resolve remaining released lifecycle acceptance
 scope: large
 ---
 
@@ -26,11 +26,10 @@ to later rework; reviewing only the immediate result misses those connections.
 The retrospective can itself spend excessive effort recovering, reviewing, and
 explaining evidence. Its own behavior belongs within the feedback scope.
 
-The current Proposed retrospective already reviews process from a real record,
-including waste, rule-induced churn, disproved assumptions, and useful practices.
-It does not explicitly assess token-heavy low-value work or qualify causal
-reasoning, and normally leaves findings in the conversation without an artifact.
-Extend that foundation; do not rebuild the retrospective as a separate workflow.
+The released retrospective reviews implementation, product, and process, and
+records supported process findings in `DearDough.md`. The remaining work is to
+close a concrete payload omission and establish missing acceptance evidence for
+released behavior; it does not require rebuilding the retrospective.
 
 Product insights, experiences, ideas, and inspirations from development can also
 be lost when a retrospective focuses only on implementation quality and process.
@@ -98,9 +97,12 @@ assumptions against its established near-future direction.
   Review alignment against the existing direction and correct the work or its
   proposed priorities within existing authority. Execution planning is authorized.
 
-## Alternatives and Decision
+## Original Alternatives and Decision
 
-Deferring preserves today's chat-only process but postpones learning before
+The following rationale describes the initial selection before logging shipped.
+Current remaining work is defined in Stories 7 and 2.
+
+Deferring preserved the then chat-only process but postpones learning before
 retrospective promotion. Merely making the chat report shorter does not retain
 occurrences or expose repetition. Manually copying selected findings into issues
 is a useful consumption workflow, but relying on it for capture loses observations
@@ -128,10 +130,10 @@ Do not expand a story to complete the whole learning loop.
 
 Release each independently useful improvement when its required review and
 acceptance are satisfied. Do not wait for sibling stories merely to bundle a
-larger release. Story 2's acceptance scope follows the improvement ready to ship;
-product review and process logging need not be completed together. Keep required
-quality and release checks, but choose the smallest representative proof that
-resolves the actual risks.
+larger release. Story 7 owns the bounded payload correction; Story 2 owns the
+remaining acceptance of already released behavior. Keep required quality and
+release checks, but choose the smallest representative proof that resolves the
+actual risks. Existing release exceptions remain recorded in `CHANGELOG.md`.
 
 For process review across this seed, examine the cost of consuming instructions
 and context as well as producing output. Findings should explain how organization
@@ -146,17 +148,18 @@ the existing correction-planning rules: amend an unfinished plan or produce a
 follow-up plan for a completed execution when bounded unresolved corrections
 warrant it. Product learning belongs in the executing project's direction,
 backlog, and canonical stories; it is not automatically an implementation defect
-or an Open Dough process message. Process learning belongs in `DearDough.md` once
-Story 1 supplies recording. One observation can support both product and process
-learning, but each conclusion must explain its relevance to that destination.
+or an Open Dough process message. Process learning belongs in `DearDough.md`
+through the released recording behavior. One observation can support both product
+and process learning, but each conclusion must explain its relevance to that
+destination.
 
 Story 6 owns direction alignment across all three reviews, default-on review
 selection, and the two skip options. Story 1's
 writing must respect `--skip-process`; recording must not run independently of
 that selection. Skipped reviews do not block or suppress the other focuses.
 
-`DearDough.md` is the agreed filename; its canonical location and exact format
-belong to Story 1 refinement. There is one canonical log per project, not a
+`DearDough.md` is the agreed filename; the released retrospective defines its
+location and recording format. There is one canonical log per project, not a
 copy per conversation. Evidence should be linked, not copied wholesale.
 
 Findings need a stable local identity and distinct occurrences. Reviewing the
@@ -206,122 +209,143 @@ and implementation corrections in their existing destinations. Exclude
 release/adoption, cross-tool testing and acceptance, consumers, remote exchange,
 automatic guidance edits, token measurement, migration, pruning, locking
 infrastructure, causal inference engines, automatic merging, and direction
-changes; Story 2 retains release and adoption.
+changes; Story 7 owns the payload correction and Story 2 remaining acceptance.
+
+<a id="ship-bounded-process-log-reference"></a>
+
+### 7. Ship the missing bounded process-log reference
+
+**Status:** Selected for backlog; first priority, quick-fix candidate. Scope
+analyzed on 2026-09-11; release and acceptance decisions remain open.
+
+**Goal:** A developer using the installed retrospective skill can load the
+instructions it needs to record a bounded process log.
+
+**Current gap:** The `v0.3.10` retrospective links to
+`references/bounded-process-log.md`, but that file is absent from the managed
+payload declarations in `install.sh` and
+`src/install/open-dough-release-version.sh`. It is also absent from Open Dough's
+installed retrospective directory. The source reference already exists.
+
+**Scope:** Include the existing reference in the managed payload and align the
+directly affected payload checks and fixtures. Deliver the correction through
+the ordinary release and update workflow, then verify the installed reference
+can be used. Do not manually synchronize managed copies. Keep this correction
+independent of the broader native acceptance work in Story 2.
+
+**Evaluation:** Installation and update deliver the referenced file; the
+installed retrospective resolves it and uses it for a representative bounded
+recording case. Evidence identifies the release and installed result. Apply the
+existing release and acceptance rules to this correction without claiming that
+it closes unrelated pending native checks.
+
+**Key examples:**
+
+- A fresh installation from the corrected release delivers the existing
+  reference, byte-for-byte, to both the shared Codex/Cursor skill root and the
+  Claude Code skill root; its relative links resolve within installed guidance.
+- An ordinary update from the incomplete released payload adds the reference
+  and records the new release while preserving project preferences and unrelated
+  content. Exercise the newly added path, not just replacement of an existing
+  managed file.
+- Proposed representative use: in an isolated project with process review
+  enabled and an existing 500-line log, an installed retrospective records a
+  supported new occurrence that fits below the ceiling. It loads the installed
+  reference, preserves existing content, reports the measured final size, and
+  emits the threshold warning. The prompt supplies execution evidence rather
+  than the expected recording instructions.
+
+**Analysis and proposed proof:** The source reference exists; both payload
+declarations omit it. Align `tests/helpers/public-payload-fixture.bash` and the
+payload list in `docs/installation-and-updates.md` with those declarations.
+Existing install/update scenarios provide reusable machinery. Add a focused
+regression that fails on the current omission and proves installed link
+resolution; do not create a general link-validation framework for this fix.
+Review the reference's stale source-only/release wording in `RECOGNITION.md`
+against actual delivery without marking pending behavior accepted.
+
+The code change appears small. Full delivery also includes release/update and
+native-use evidence, whose duration is less certain. Propose fresh deterministic
+delivery checks for all tool entry contexts and the representative native case
+above, selecting native runs after assessing reusable evidence. Under ADR 0005,
+identify fresh proof or justified reuse for each affected requirement on each
+tool; one tool's result cannot stand for the others. Story 2 retains the broader
+bounded-retention, review-selection, and lifecycle acceptance obligations.
+
+**Open decisions:** The maintainer supplies the next release version under ADR
+0003. Determine whether applicable native proof/reuse is sufficient for this
+release; otherwise an explicit release exception is needed under ADR 0005.
+Earlier version-specific exceptions do not authorize a new one. These are
+delivery decisions, not uncertainty about the payload repair itself.
+
+**Boundaries:** No log-policy redesign, new retrospective feature, or broad
+lifecycle acceptance campaign. This analysis does not start execution or choose
+a release version. Native case selection above is a recommendation, not a
+recorded human decision.
 
 <a id="use-released-retrospective-log"></a>
 
-### 2. Use released retrospective logging in Open Dough
+### 2. Validate the remaining released lifecycle behavior across tools
 
-**Status:** Selected for backlog; acceptance and adoption story, unrefined.
+**Status:** Selected for backlog; second priority, unrefined.
 
-**For / why:** A developer receives usable logging through the ordinary public
-Open Dough release, and the maintainer knows the same shared behavior can be
-used in Codex, Cursor, and Claude Code.
+**For / why:** Developers using Codex, Cursor, and Claude Code can rely on the
+released lifecycle guidance, with concrete evidence for the behaviors that
+remain unverified.
 
-**Scope:** Own outstanding native acceptance and release/adoption for the
-retrospective improvement ready to ship from Story 1 or Story 6. Validate only
-the affected behavior; include product-to-backlog outcomes and the four
-review-selection combinations when Story 6 ships. Do not wait for both stories
-to finish or bundle their release as a prerequisite. Cover local log creation, repeat-occurrence handling, qualified findings,
-and project-context resolution. Review reusable integration evidence separately
-from new behavior proof. Select representative native cases by unresolved risk;
-do not multiply every case across all tools. Record evidence or justified reuse
-for each affected requirement on each tool. Use the released skill in Open Dough
-through its normal update process, with no manually synchronized managed copies.
+**Current context:** Retrospective logging and product review shipped in 0.3.6;
+later releases through 0.3.10 added and revised lifecycle behavior under explicit
+maintainer-approved native-acceptance exceptions. Open Dough already records real
+findings in `DearDough.md` and has internal finding-name and triage skills.
+Initial implementation and first publication are not remaining work. Native
+acceptance and an evidenced ordinary-update-and-use journey remain incomplete;
+release exceptions do not establish passing results.
 
-Native logging acceptance also covers execution guidance-release provenance
-(including unknown, unreleased, and modified states) and mixed local/internal
-codes: preserve adopted identities and allocate new local codes without reading
-the internal catalog. Earlier logging proof does not establish these behaviors.
+**Scope:** Resolve the meaningful remaining behavior gaps in the existing
+acceptance obligations. At refinement, assess current guidance and recover
+applicable evidence before selecting fresh native cases. The covered outcomes
+are:
 
-Also own pending native acceptance for project-configured process-review
-selection and bounded process-log recording and replacement on Codex, Cursor,
-and Claude Code. Use shared cases and justified integration reuse under ADR
-0005; include fresh use after ordinary update with the project preference
-preserved. When releasing that behavior, include
-`dough-execution-retrospective/references/bounded-process-log.md` in the
-managed payload. This is required before releasing those changes, not a
-prerequisite for an earlier logging-only release. Local authoring walkthroughs
-do not satisfy this acceptance.
+- Retrospective findings remain useful and correctly attributed: local recording,
+  recurrence without duplicate counting, qualified findings, project context,
+  execution-release provenance, and preservation of adopted finding identities.
+- Review selection and bounded logging behave as configured: independent process
+  and product selection, preserved project preferences after update, bounded
+  recording and replacement, and authorized product-to-backlog outcomes.
+- Quick, planned, and oversized executions preserve attributable work and proof:
+  entry authority, **Taken** handling, refactoring and delivery, remaining-work
+  conversion, planless retrospective recovery, and ordinary planned recovery.
+- Wrap-up closes supported execution contexts, handles absent retrospective
+  advice, preserves active work and recoverability, and retires only disposable
+  implementation direction.
+- Planning and implementation guidance produces useful decisions: refinement and
+  planning boundaries, cumulative design, whole-product correction and test
+  review, simple domain rules, PFE reuse and changed assumptions, optional
+  architectural thinking, and human resolution of conflicting direction.
 
-Also own native acceptance for wrap-up's planned and planless execution
-context, optional retrospective advice with absent/empty fallback, and preserved
-active-work and recovery behavior. Select representative cases for Codex, Cursor,
-and Claude Code by unresolved risk; earlier marker-required acceptance does not
-prove the revised flow. This acceptance remains pending until evaluated.
+Use representative native cases on Codex, Cursor, and Claude Code under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Separate
+reusable integration evidence from skill behavior evidence; record passing
+proof or justified reuse for each affected requirement on each tool. Select
+fresh cases by unresolved risk, not a full tool-by-skill-by-scenario matrix.
+Missing proof remains pending. Do not add unrelated future changes to this story.
 
-Also own pending native acceptance for executing an explicitly selected
-canonical story as one quick slice without creating a plan or substitute record.
-Cover quick-entry authority and story-context stops, backlog **Taken** handling,
-ordinary refactoring and delivery through commit and push, and unchanged
-executable-plan requirements for ordinary invocation. Select representative
-Codex, Cursor, and Claude Code cases by unresolved risk; local authoring
-walkthroughs and earlier planned-execution evidence do not prove this quick path.
+**Evaluation:** The selected current behaviors have decisive native evidence or
+justified reuse, with candidate, tool, inputs, outcome, and limitations identified.
+An ordinary update followed by real Open Dough retrospective use demonstrates
+that the installed guidance records useful findings while preserving project
+preferences. Existing local use is evidence to assess, not a substitute for
+missing cross-tool or update proof. Report concrete defects through the existing
+correction workflow without inventing speculative features.
 
-Also own pending native acceptance for reviewing a completed quick execution
-whose plan never existed. Cover recovery from current and supplied chat history,
-canonical story and commit attribution, missing-proof limits, exclusion of an
-unrelated nearby commit, and unchanged recovery for a removed-but-recoverable
-planned execution. Select representative Codex, Cursor, and Claude Code cases by
-unresolved risk. Source authoring walkthroughs do not satisfy this acceptance.
+**Depends on:** Story 7 supplies the missing reference before installed bounded
+logging can be accepted. Evidence assessment for other behavior can proceed
+independently. No dependency on first publication of Stories 1 or 6 remains.
 
-Also own pending native acceptance for converting an oversized quick attempt to
-ordinary planned execution. Cover preservation of completed compatible work and
-proof, safe disposition of attributable incomplete changes, one unchanged
-**Taken** entry, a remaining-work plan with no fabricated earlier slices,
-ordinary resume without repeated work, and retrospective attribution of both
-parts as one execution. Include unclear-ownership and changed-story-scope stops.
-Select representative Codex, Cursor, and Claude Code cases by unresolved risk;
-source authoring walkthroughs do not satisfy this acceptance.
-
-Also own pending native acceptance for the lifecycle guidance:
-refinement/planning distinctions and cumulative design, refactoring and human
-plan-conflict handoffs, whole-product architecture correction planning, and
-whole-suite test review. Assess these changed behavioral requirements on Codex,
-Cursor, and Claude Code; select representative fresh cases for missing proof
-and document any justified reuse. Shared integration evidence is separate;
-source authoring walkthroughs do not satisfy native acceptance. Release and
-adoption remain separately authorized work.
-
-Also own native acceptance before release for the delivered lightweight
-implementation guidance: simple-rule guidance, PFE direct use and triggers,
-optional architectural planning, direction conflict/resumption, and ordinary
-retirement. Cover a basket sum with an additional valid item, an explicit item
-limit, and deferred discounts; PFE direct fit, cross-process modularization,
-similar code with different domain meaning, and unresolved ownership; ordinary
-planning with no architectural topic, an existing consequential topic, a
-warranted new topic, and missing indispensable input; execution with a
-still-valid PFE finding, an unforeseen responsibility, an invalidated candidate,
-and contrary direction that stops and resumes only after coordinator alignment;
-and wrap-up that removes disposable direction while retaining shared or
-indispensable context. Distinguish fresh behavior proof from existing integration
-evidence. Promotion must include the new PFE skill and architectural reference
-with their callers. The completed source contract and representative plan are
-recoverable at
-`7f672bf:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
-`7f672bf:.planning/quick/044-lightweight-pfe-and-direction/PLAN.md`. This adds no
-separate acceptance programme or release authority.
-
-**Evaluation:** Native evidence identifies the candidate, tool, inputs, decisive
-log result, and limitations. Required Codex, Cursor, and Claude Code proof is
-passed or justifiably reused before release; missing proof stays pending. After
-an authorized immutable release and normal adoption, a real Open Dough review
-writes its own `DearDough.md` using the installed public guidance. A maintainer
-can read that file directly and respond manually.
-
-**Value / learning:** Establish that local success survives ordinary public
-installation and fresh use, without depending on an internal maintainer workflow.
-
-**Effort hypothesis:** Band pending project definitions. Uncertainty depends on
-available reusable native proof and the ordinary release/adoption journey.
-
-**Depends on:** The completed improvement being released from Story 1 or Story 6,
-not both. Release version and authorization follow the existing
-release workflow; this seed does not choose a version or authorize release.
-
-**Safe stopping point:** Released local logging remains useful to any project;
-Open Dough can consume its own log manually indefinitely. No registry, remote
-access, or internal consumer is required.
+**Boundaries:** Exclude Story 7's payload repair, already completed implementation
+and publication, new logging features, remote exchange, and new internal
+consumers. Refine the remaining cases and effort when selected for work; this is
+not an executable plan or release authorization.
 
 <a id="observe-retrospective-response-effectiveness"></a>
 
@@ -395,9 +419,8 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ### 6. Turn execution learning into product backlog decisions
 
-**Status:** Source complete 2026-09-10. Proposed skill in
-`src/skills/dough-execution-retrospective/`; not released. Story 2 owns
-release/adoption.
+**Status:** Source complete 2026-09-10; released in 0.3.6. Story 2 owns
+remaining native acceptance of the current behavior.
 **Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md);
 all six slices done. Local behavior evidence is in that plan's `evidence/`
 and the skill's `RECOGNITION.md`.
@@ -422,13 +445,10 @@ Cross-tool verification was skipped for this story at the human's direction.
 
 ## Ordering and Scope Reduction
 
-Story 6 source work is complete. Keep Stories 1 and 2 selected and preserve
-the relative order of remaining backlog entries, including the workflow-boundary
-fix. Story numbers are stable
-references, not priority ranks. Within the process feedback work, local capture
-gives the earliest value and learning; public
-release/adoption advances reusable lifecycle coverage before adding maintainer
-convenience.
+The user selected Story 7 first and Story 2 second on 2026-09-11. Keep both
+unrefined until their turn; preserve unrelated backlog order. Story numbers are
+stable identities, not priority ranks. The concrete delivery fix precedes the
+broader acceptance work and does not absorb it.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -438,33 +458,27 @@ Bring Story 4 forward if a real response and comparable later execution provide
 an immediate learning opportunity; do not wait for an internal skill solely for
 workflow completeness.
 
-These are outcome boundaries, not slices or an executable plan. Stories 1
-and 6 are source complete; Story 2 remains unrefined. No estimate distribution
-is claimed: repository S/M/L definitions were not found, so bands remain pending
-rather than carrying forward the original oversized story's unsupported L label.
+These are outcome boundaries, not slices or an executable plan. Stories 1 and 6
+have shipped; Story 7 has an initial scope analysis and open delivery decisions,
+while Story 2 remains unrefined. Detailed remaining case selection and effort
+assessment belong to later refinement.
 
 ## Open Decisions
 
-No unresolved product choice prevents the selected order. Project S/M/L effort
-bands must be supplied before comparative estimates are assigned. Story 1
-now defines the local Markdown location, minimal format, occurrence identity,
-and conservative matching in its refined section. Later evidence will
-inform filtering, response dispositions, retention, and cross-project exchange;
-these are not prerequisites for choosing the local process increment. Story 6
-source work is complete; release/adoption remains Story 2.
+The two-story split and first/second priorities are settled. Refinement will
+identify applicable reusable evidence, the smallest fresh cases, and delivery
+details. No new feature or change to the near-future direction is authorized.
 
 ## When to Surface
 
-Story 6 source work is complete (Quick 034); Story 2 owns release/adoption.
-Story 1 has Quick 036 for process logging. Complete the applicable Story 2
-acceptance before promoting or releasing public retrospective changes. Revisit
-internal consumption after local manual use; surface effectiveness tracking
-after a response has a relevant follow-up execution. Surface cross-project
+Take Story 7's payload correction first, then refine Story 2 against the current
+released behavior and remaining evidence gaps. Surface effectiveness tracking
+when a response has a relevant follow-up execution; surface cross-project
 exchange only when another project's finding offers additional learning.
 
 ## Breadcrumbs
 
-- Proposed skill:
+- Released skill source:
   [`dough-execution-retrospective`](../../src/skills/dough-execution-retrospective/SKILL.md)
 - Internal maintainer follow-up of recorded findings:
   [`triage-retrospective-findings`](../../.agents/skills/triage-retrospective-findings/SKILL.md)
