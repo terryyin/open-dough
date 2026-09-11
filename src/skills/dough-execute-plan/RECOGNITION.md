@@ -83,3 +83,30 @@ Only the latter two variants trigger PFE. In each, current necessary structure
 is planned without changing the selected story outcome, while unresolved domain
 meaning and unauthorized consequential choices retain the existing human stop.
 This is a manual source walkthrough, not a native agent run or a release claim.
+
+Story 44 Slice 5 manually walked the midway direction-conflict journey:
+
+- **Contrary topic evidence:** The basket-total plan cites a North Star topic
+  placing pricing before checkout, but execution finds current ownership and
+  lifecycle evidence that settlement is the required owner. The executing role
+  returns the topic, evidence, affected slices, and consequences, stops only
+  that dependent path, and does not edit or reinterpret the topic. Independent
+  work with separate state and proof may continue.
+- **Coordinator application and resume:** The coordinator uses the linked
+  architectural-thinking procedure as the planner, weighs the affected stories,
+  domain meaning, product structure, and Accepted ADRs, selects the supported
+  owner, updates the topic when needed, and refines the same active plan until
+  remaining slices and direction agree. Only then does the affected path resume.
+  The story remains active; completed proof, its **Taken** backlog entry, the
+  recorded execution checkout and branch, and its worktree remain intact. No
+  retrospective, wrap-up, partial closure, new approval gate, or history record
+  is introduced.
+- **Accepted ADR conflict:** If the settlement direction would contradict an
+  Accepted ADR, the topic is not rewritten around that decision. The dependent
+  path remains stopped while the project's existing human-owned ADR exception
+  or supersession process supplies the decision; unrelated safe work may still
+  proceed. The coordinator then applies the human-owned result and aligns the
+  remaining plan before resumption.
+
+This is a manual authoring walkthrough of the linked source instructions, not a
+native agent run, acceptance claim, or release claim.

@@ -3,7 +3,7 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: executing; Slices 1–4 done, Slices 5–6 planned.
+Status: executing; Slices 1–5 done, Slice 6 planned.
 
 Execution identity:
 
@@ -193,12 +193,20 @@ handling is completed in the next slice, with existing human stops retained.
 
 ### 5. Resolve conflicting direction without closing the story
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk an executor discovering evidence contrary to a recorded topic.
 It stops the affected path and cites evidence. Coordinator/planner judgment
 produces a selected direction and consistent remaining plan before resumption;
 the active story, proof, backlog entry, and worktree remain intact. A conflict
 with an Accepted ADR uses the project's human decision path.
+
+Delivered proof: `src/skills/dough-execute-plan/RECOGNITION.md` records the
+direction-conflict journey and Accepted-ADR variant. Affected frontmatter and
+relative runtime links were checked; `git diff --check`,
+`bash tests/execution-payload-update.sh`, and
+`bash tests/story-payload-update.sh` passed. Refactoring removed duplicated ADR
+procedure while preserving planner authority and the execution stop; its
+affected execution proof and `npm run format` passed.
 
 Behavior: Given a needed direction revision, execution surfaces the conflict
 instead of silently changing the North Star or continuing against it.

@@ -24,6 +24,10 @@ Give the agent:
   the explicit instruction to execute without slice planning, and the relevant
   conversation context; require no plan or substitute execution record. Omit
   unrelated plan or conversation history.
+- Any North Star topic cited by the delegated work and the evidence supporting
+  it. Require the agent to return contrary evidence through [execution
+  decisions](execution-decisions.md#resolve-conflicting-recorded-direction),
+  without changing the topic or continuing the affected path.
 - For planned execution continuing an oversized quick attempt, the remaining-work
   plan plus the preserved completed work and proof and any incomplete-change
   disposition needed to identify the true starting boundary. Require the agent

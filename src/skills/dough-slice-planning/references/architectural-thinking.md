@@ -29,6 +29,25 @@ clearer direction. Consider the consequences for affected stories, domain
 meaning, and relevant Accepted ADRs before revising it; do not turn uncertainty
 or a hypothetical later need into a constraint.
 
+### Reconsider recorded direction during execution
+
+When execution returns contrary evidence through the existing execution
+handoff, the coordinator applies this same planner judgment rather than asking
+the executing role to choose or rewrite direction. Recheck the cited topic,
+evidence, affected stories, domain meaning, relevant product structure, and
+Accepted ADRs. Select a direction supported by that complete context, then
+update the topic only if the selection changes it and align the same active
+plan through [active-plan
+refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan).
+Resume the affected execution path only after the topic and remaining plan are
+consistent. This reconsideration does not close the active story or discard
+completed proof.
+
+If the evidence conflicts with an Accepted ADR, do not revise a North Star
+topic to work around it. Leave the dependent path stopped and follow the
+project's existing human-owned ADR exception or supersession process. Continue
+independent work only where its direction remains supported.
+
 ## Record warranted new direction narrowly
 
 If consequential, evidence-supported direction is needed and no existing topic

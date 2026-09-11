@@ -180,6 +180,12 @@ selected current checkout and branch from the conversation instead.
    affected path through execution decisions when domain meaning remains
    unresolved or a consequential choice is not authorized. Do not use the
    revisit to broaden the selected outcome or initiate unrelated cleanup.
+   When evidence instead contradicts recorded North Star direction, use
+   [the conflicting-direction handoff](references/execution-decisions.md#resolve-conflicting-recorded-direction):
+   stop the affected path, let the coordinator apply the linked planner
+   judgment and align the remaining plan, then resume only from the consistent
+   direction and plan. Do not let an executing role revise direction to justify
+   its work.
 3. For planned execution, if refinement is needed and learning escalation
    permits it, invoke
    [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md) on the
