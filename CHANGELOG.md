@@ -1,3 +1,13 @@
+## 0.3.10 - 2026-09-11
+
+- Add `dough-pfe` (Proudly Found Elsewhere) and its required planning reference to the installable payload. Find existing solutions across the whole product, assess domain meaning before reuse or modularization, and stop unresolved consequential choices for the developer.
+- Integrate existing-solution findings and architectural thinking into slice planning, refinement, execution, and delegation. Carry supported findings forward and revisit them only when new evidence or responsibility changes require it.
+- Use brief North Star topics only for warranted temporary architectural direction. Route contrary execution evidence through the coordinator, align direction and the remaining plan before resuming, preserve human ownership of Accepted ADRs, and retire disposable topics during wrap-up only after checking active work and durable decision context.
+- Clarify implementation of the simplest supported domain rule: examples do not impose arbitrary rejection limits, deferred behavior needs no machinery now, and an active plan can authorize necessary cross-subsystem structure for the current responsibility.
+- Update repository architectural guidance on domain language, development lifecycle, installation and update, and the separation of temporary direction from durable decisions. Complete wrap-up of the active-backlog correction and lightweight PFE story, retaining recovery through Git.
+
+Cross-tool native validation for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.10`. Native acceptance for the changed guidance and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.9 - 2026-09-11
 
 - Support executing an explicitly selected, understood story as one quick slice without inventing a plan, reviewing planless executions from available context, and converting oversized quick work into ordinary planned execution while preserving attributable work and one active backlog entry.
