@@ -56,6 +56,30 @@ workflow and verify host-bridge readiness; execute-plan starts and stops the
 observer without writing host settings. Missing readiness is reported as
 unavailable coverage and does not authorize settings changes.
 
+## Optional process-review preference
+
+The target project's optional process-review preference is project-owned and
+shared by Codex, Cursor, and Claude Code. It lives at
+`<established-planning-directory>/open-dough.json`, defaulting to
+`.planning/open-dough.json` when no different planning directory is established.
+That path is in the project being installed or updated, not in an installed
+skill directory and not in the Open Dough source checkout. The file is not part
+of the managed payload listed above.
+
+A project opts in by creating the file. The installer does not prompt, merge,
+or create a default. The JSON contract — including defaults, invocation
+overrides, and invalid-file handling — lives once in
+[Select reviews](../src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
+A project that wants to skip process retrospectives uses that skill's example:
+
+```json
+{ "skipProcessRetrospective": true }
+```
+
+Ordinary installation and update preserve an existing file byte-for-byte,
+including unrecognized keys, and leave the path absent when the project has not
+created it. Explicit `--force` replacement of managed skills does the same.
+
 ## Common installation flow
 
 The installing agent follows this procedure in stages, keeping the same captured
@@ -243,7 +267,10 @@ working-tree helper. The updater:
    existing destination as a clean first install.
 7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
-   guidance remain unchanged.
+   guidance remain unchanged. Optional
+   `<established-planning-directory>/open-dough.json` is unrelated project
+   configuration: preserve its exact bytes when present, and do not create it
+   when absent. See [Optional process-review preference](#optional-process-review-preference).
 
 An equal recorded version that still matches its recorded release produces no
 installed-file writes. An older unchanged installation advances to the selected

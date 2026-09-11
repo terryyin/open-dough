@@ -25,6 +25,9 @@ unauthorized backlog writes.
 - Record a supported retrospective process finding in `DearDough.md`
 - Product review or backlog recommendation from an execution
 - `--skip-process` or `--skip-product` on a retrospective
+- Project `open-dough.json` or `skipProcessRetrospective` for process review
+- Invalid or unreadable process configuration on a retrospective
+- 500-line warning, 1,000-line ceiling, or recoverable replacement on `DearDough.md`
 - Audit of a completed or unfinished plan's aggregate result
 - Recovery of an executed plan from partial names, story phrases, commits, or
   Git history after normal cleanup
@@ -49,9 +52,31 @@ unauthorized backlog writes.
   row; distinct proven recurrence adds a row under the matched heading; a new
   unmatched finding receives the next unused local `DD-NNN` that does not
   collide with or fill a renamed heading's number. The public skill does not
-  mint `ODF-NNN` or read an internal naming record. Process skip, no findings,
-  unresolved identity or location, ambiguous content, and write failure do
-  not become successful writes or suppress independent reviews.
+  mint `ODF-NNN` or read an internal naming record. Process skip, unresolved
+  process selection, no findings, unresolved identity or location, ambiguous
+  content, and write failure do not become successful writes or suppress
+  independent reviews.
+- Resolves process review from this project's optional
+  `<established-planning-directory>/open-dough.json`
+  (`skipProcessRetrospective`) together with `--skip-process` and an explicit
+  include-process request, before any process analysis or log access. Invalid
+  or unreadable config leaves process unresolved: report the error, skip
+  process and log access, and continue independent reviews. Explicit invocation
+  instructions override the stored preference without editing the file.
+  Product skip remains independent. A file beside the installed skill is not
+  this project's configuration. The file is outside managed payload lists;
+  ordinary install/update and supported `--force` replacement preserve its
+  bytes or absence so later selection still uses the same preference.
+- After constructing a supported process-log candidate, warns when the existing
+  log is already at least 500 physical lines and never writes a result over
+  1,000. Below 500, ordinary recording has no threshold warning even if the write
+  crosses 500. An overflowing candidate or already oversized file is retained
+  only when higher-priority new information can replace recoverable lower-priority
+  material without losing interpretable identity; otherwise it is refused
+  without mutation and reported as `not recorded`/`unchanged` with the reason.
+  No-findings and identical rereview stay no-op; skipped or unresolved process
+  review does not inspect size. Removed IDs are not reused; a rereview of a
+  pruned execution does not resurrect a pruned occurrence.
 - A retrospective authorizes product recommendations only; backlog writes require
   separate authority. Missing direction means alignment cannot be assessed.
   Missing backlog conventions keep product conclusions provisional. Neither
@@ -68,7 +93,17 @@ execution provenance must be available. Near-future direction is required to
 assess alignment in every enabled review. Backlog/story conventions are required
 only for product conclusions that depend on them. Process recording also needs
 one unambiguous canonical `DearDough.md` location and a stable execution identity;
-missing evidence stops recording, not the remaining reviews. The Open Dough
+missing evidence stops recording, not the remaining reviews. A process write
+also needs the existing log and complete candidate measured as physical lines,
+including blanks, metadata, and an unterminated last line. Bounded retention
+also needs a usable recovery reference that contains any affected uncommitted
+bytes, interpretable retained identity, and enough lower-priority material;
+missing recovery or unsafe identity stops the write, not the remaining reviews.
+Process-review preference is optional project configuration at
+`<established-planning-directory>/open-dough.json`, defaulting to
+`<project-root>/.planning/open-dough.json`. Missing file or key is default-on.
+Do not read a file beside the installed skill, create a missing file, or repair
+an invalid one during retrospective. The Open Dough
 `dough-post-change-refactor` and `dough-slice-planning` skills supply the smell
 and planning gates.
 
@@ -209,6 +244,108 @@ Behavior review: the occurrence-writing path clearly invokes the rule; required
 context distinguishes executing tool from reviewing tool and treats model as
 evidence-dependent; a representative Codex occurrence can record `Codex` and a
 known model while the same record without model evidence omits only that line.
+
+## Quick 041 Slice 1 local behavior evidence
+
+Walked process-review selection from stored project preference on 2026-09-11
+in worktree `worktree-quick-041-bound-process-log-and-configure-review`.
+Inputs, observations, and destination effects:
+[evidence/slice-1/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-1/WALKTHROUGH.md).
+
+1. **Invocation.** Description names `open-dough.json` and
+   `skipProcessRetrospective` beside the independent skip flags. Selection
+   happens before process analysis or any `DearDough.md` access.
+2. **Required context.** Established planning directory defaults to
+   `.planning`; a different established directory wins. Missing file or key is
+   usable default-on, not a stop. Invalid or unreadable config stops only process
+   selection and leaves independent reviews running.
+3. **Useful outcome.** Stored `true` skips process and log access; explicit
+   `--skip-process` still skips when the file says `false`; explicit
+   include-process runs process this invocation without editing the file;
+   unknown keys stay byte-identical; a skill-adjacent file is ignored.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Slice 2 owns the warning and ceiling walked
+below. Slices 3–4 own priority replacement and install/update preservation.
+
+## Quick 041 Slice 2 local behavior evidence
+
+Walked bounded process-log recording on 2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review`. Inputs, measured
+line counts, checksums, and destination effects:
+[evidence/slice-2/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-2/WALKTHROUGH.md).
+
+1. **Invocation.** Description names the 500-line warning and 1,000-line
+   ceiling beside process recording. The recording section loads the size/write
+   rule only for an enabled process write.
+2. **Required context.** A candidate write needs an interpretable log and a
+   complete candidate whose physical line count can be measured, including
+   blanks, metadata, and an unterminated last line. Missing process selection
+   still stops before any log or size inspection.
+3. **Useful outcome.** 499→507 recorded with no threshold warning. Existing 500
+   and 999 warned and recorded within the ceiling, including an accepted
+   1,000-line candidate. A 1,001-line candidate and a 1,020-line existing file
+   stayed byte-identical with `not recorded`/`unchanged` reasons. No-findings,
+   identical rereview, and skipped process did not inspect size as a write.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Slice 3 owns priority replacement; this
+walkthrough refuses overflow rather than repairing it.
+
+## Quick 041 Slice 3 local behavior evidence
+
+Walked bounded retention on 2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review` against an isolated
+Git fixture, not this worktree's history. Inputs, measured counts, recovery
+refs, and ID observations:
+[evidence/slice-3/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-3/WALKTHROUGH.md).
+
+1. **Invocation.** Description names recoverable replacement of lower-priority
+   material when a write would overflow. The same candidate-write flow loads
+   retention only after an enabled process write would exceed 1,000 lines.
+2. **Required context.** Bounded retention needs a usable recovery reference
+   that contains any affected uncommitted bytes, interpretable retained
+   identity, and enough lower-priority material. Missing recovery or unsafe
+   identity stops the write, not independent reviews.
+3. **Useful outcome.** A 995-line committed log plus a severe finding overflowed
+   to 1,010, then a bounded write of 58 lines recorded DD-005 after removing
+   whole-issue DD-001 (top), redundant occurrence `dd002-c`, and whole-issue
+   DD-004 (highest code). Recovery from `git show 90d2b82…:DearDough.md` held
+   the removed bytes. Rereview did not resurrect pruned rows; DD-003 kept its ID
+   with two honest rows; a decisive match recovered DD-001 without a new ID;
+   the next unmatched issue allocated DD-006. Refusal variants left original
+   bytes unchanged.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Slice 4 owns install/update preservation.
+
+## Quick 041 Slice 4 local behavior evidence
+
+Walked install/update preservation of the optional project preference on
+2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review`. Inputs, byte
+comparisons, and selection after retention:
+[evidence/slice-4/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-4/WALKTHROUGH.md).
+
+1. **Invocation.** Installation docs name optional
+   `<established-planning-directory>/open-dough.json` (default
+   `.planning/open-dough.json`) when installing or updating. They reuse the
+   skill's single JSON example and link
+   [Select reviews](SKILL.md#select-reviews) instead of restating defaults,
+   flags, or invalid-file handling.
+2. **Required context.** The path is the project being installed or updated,
+   not a skill directory and not the Open Dough source checkout. Missing file
+   is usable absence. Codex, Cursor, and Claude Code share that one file.
+3. **Useful outcome.** Real `install.sh` and `apply` operations, including
+   `--force`, left retained `true` plus unknown keys byte-identical
+   (`46079f7c…`, same as Slice 1 variant 7) and left absence absent. Walking
+   Select reviews on the retained file still skips process and does not access
+   `DearDough.md`. No managed-payload list gained `open-dough.json`; installer
+   behavior was not changed.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Fresh native use after update remains pending
+Story 2.
 
 ## Pending native logging acceptance
 

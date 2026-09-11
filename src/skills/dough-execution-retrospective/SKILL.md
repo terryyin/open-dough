@@ -8,9 +8,12 @@ description: >-
   architecture, and test suite. Use for an execution retrospective, product
   review, or backlog recommendation from current or supplied execution history,
   including after cleanup. `--skip-process` and `--skip-product` omit those
-  reviews independently. May plan unresolved implementation findings, record
-  supported process findings in `DearDough.md`, and recommend product work;
-  never implements them.
+  reviews independently. Project `open-dough.json` may set
+  `skipProcessRetrospective` to persist skipping process review. May plan
+  unresolved implementation findings, record supported process findings in
+  `DearDough.md` with a 500-line warning, 1,000-line ceiling, and recoverable
+  replacement of lower-priority material when a write would overflow, and
+  recommend product work; never implements them.
 ---
 
 # Review an execution
@@ -28,15 +31,51 @@ completion or backlog actions for
 ## Select reviews
 
 Ordinary invocation considers implementation, process, and product review.
-`--skip-process` omits process analysis and recording, including any
-`DearDough.md` write when that destination exists. `--skip-product` omits
-product analysis and suggestions. Both flags may be supplied together.
-Neither skips implementation review or its correction planning.
-
 Choose the enabled set before loading focus-specific context or acting on that
-focus. Skipped product review does not suppress the shared direction consideration
-in implementation or enabled process review. Do not covertly review a skipped
-focus or write its destination.
+focus. Resolve process review before process analysis and before resolving,
+checking, reading, or writing `DearDough.md`.
+
+`--skip-product` omits product analysis and suggestions. It does not change
+process selection. `--skip-process` omits process analysis and all log
+inspection and writing. Both flags may be supplied together. Neither skips
+implementation review or its correction planning. Skipped or unresolved process
+review does not skip implementation or product review, and does not suppress
+their destination writes. Skipped product review does not suppress the shared
+direction consideration in implementation or enabled process review. Do not
+covertly review a skipped or unresolved focus or write its destination.
+
+Read this project's optional `open-dough.json` from the established planning
+directory: `<established-planning-directory>/open-dough.json`, defaulting to
+`<project-root>/.planning/open-dough.json` when no different planning directory is
+established by the user or this project's conventions. Resolve that path from
+this project, not this skill's location. Do not search other projects. Do not use
+`open-dough.json` beside this skill.
+
+The file is one optional JSON object. The only recognized setting is this boolean:
+
+```json
+{ "skipProcessRetrospective": true }
+```
+
+A missing file, missing `skipProcessRetrospective` key, or boolean `false`
+leaves process review on. Boolean `true` omits process analysis and all log
+inspection and writing.
+
+Ignore unrecognized keys. Leave the file unchanged: do not rewrite it, create a
+missing file, or repair an invalid or unreadable file.
+
+Explicit invocation instructions override the stored preference without editing
+the file. `--skip-process` always skips, even when the file is missing or says
+`false`. An explicit request to include process review enables it for this
+invocation even when the file says `true`; do not add a new flag for that
+override. Contradictory explicit instructions use ordinary clarification.
+
+If the file is unreadable, is not a JSON object, contains malformed JSON, or sets
+a recognized key to a non-boolean, process selection is unresolved: report the
+error, omit process analysis, leave the log untouched, and continue
+independently supported reviews. An explicit process-selection instruction
+(`--skip-process` or an explicit include-process request) resolves that
+invocation without repairing the file.
 
 ## Work from these principles
 
@@ -88,7 +127,8 @@ If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
 Return retrospective evidence in the response; do not create a separate artifact
 unless the user asks. Keep the repository read-only except for the process log
-and an allowed plan update described below.
+when process review is enabled and an allowed plan update described below. Do
+not create, repair, or rewrite `open-dough.json`.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
 refactor checks before assessing refactoring residue; apply its smell definitions
@@ -318,10 +358,12 @@ After process analysis, record its supported findings in the project's canonical
 other project or product maintenance. Product-only findings and implementation
 corrections stay in their own destinations. Preserve every unrelated file.
 
-Apply `--skip-process` before resolving, checking, or reading the log location.
-When process review is skipped, do not create, read, or edit the log. When enabled
-review yields no supported process finding, do not create an empty log and leave
-an existing log unchanged. `--skip-product` does not suppress process recording.
+Apply the process-selection result from [Select reviews](#select-reviews)
+before resolving, checking, reading, or writing the log location. When process
+review is skipped or unresolved, do not create, read, or edit the log. When
+enabled review yields no supported process finding, do not create an empty log
+and leave an existing log unchanged. `--skip-product` does not suppress process
+recording.
 
 Use `<project-root>/DearDough.md` unless the user or this project's conventions
 explicitly establish another canonical location for that filename. An explicit
@@ -362,8 +404,8 @@ the order of supported findings:
 ```
 
 Keep observation separate from inference. Use compact references rather than
-transcript copies. The occurrence rows are the count; do not add a redundant
-total. Record one-off costs, useful practices, potentially general problems,
+transcript copies. The occurrence rows are the visible count; do not add a
+redundant total. Record one-off costs, useful practices, potentially general problems,
 and supported observations about this retrospective without claiming recurrence
 or generality the evidence does not establish.
 
@@ -396,38 +438,67 @@ IDs in this project's log. Identify issue IDs only from this project's log. Do
 not mint `ODF-NNN`. Preserve existing IDs, human notes, prior evidence,
 unrelated entries, release-bearing occurrence rows, and all content outside the
 smallest supported edit. Do not migrate, normalize, reorder, delete, or
-automatically merge existing content.
+automatically merge existing content except as required by bounded retention
+in [bounded process-log recording](references/bounded-process-log.md).
 
 Match an existing issue only when decisive evidence supports the same concrete
 process problem or useful practice; similar wording or symptoms do not establish
 that match. Reuse that issue's existing heading code, including a previously
-adopted code such as `ODF-001`. If the relationship is uncertain, or
-the finding has no supported match, and the log itself is interpretable, create
-a separate issue with the next unused local `DD-NNN` and briefly state matching
-uncertainty when that is the reason. Never change another issue's ID to fill a
-gap.
+adopted code such as `ODF-001`. Consult recovered history only to resolve a
+consequential identity or match, not on every review. When decisive evidence
+identifies a removed issue, recover that identity: reuse its heading code and
+do not allocate a new ID. Do not restore a pruned occurrence, and do not
+inflate the visible count, when the current review is an identical rereview
+of a pruned execution. If missing history prevents safe identity resolution,
+report that limitation instead of inventing a new issue or count. If the
+relationship is uncertain, or the finding has no supported match, and identity
+remains safely allocatable, create a separate issue with the next unused local
+`DD-NNN` and briefly state matching uncertainty when that is the reason. Never
+change another issue's ID to fill a gap.
 
-The next unused `DD-NNN` is one greater than the highest number already used on
-any issue heading, counting both `DD-NNN` and adopted `ODF-NNN` numbers. Do
-not allocate a `DD-NNN` that collides with an existing heading number. If
-`ODF-001` is present, do not allocate `DD-001`.
+The next unused `DD-NNN` is one greater than the highest allocated local number.
+That high-water is the greater of the highest number on any issue heading still
+in the log (`DD-NNN` and adopted `ODF-NNN`) and the highest allocated local
+number recorded in retention metadata, when present. Never reuse a removed ID.
+Removing the highest-numbered issue does not make its ID reusable. When
+retention metadata is present, update its highest allocated local number
+whenever a new ID is allocated, including ordinary writes that do not remove
+content. Do not allocate a `DD-NNN` that collides with an existing heading
+number. If `ODF-001` is present or recorded in the high-water, do not allocate
+`DD-001`. If a gap exists and high-water or recovery cannot establish whether a
+missing number was allocated, do not fill that gap; report the limitation when
+a new ID cannot be allocated safely.
 
 Within a matched issue, treat equal execution identities as one occurrence. An
-identical rereview makes no edit. Add only newly available decisive evidence or
-a corrected qualified conclusion to that existing row, without discarding its
-prior evidence or human notes. Evidence of the same concrete issue in a distinct
-execution adds one occurrence row. A second symptom in the same execution does
-not add a row. Keep rows as the count; do not store or update a total.
+identical rereview makes no edit, including an identical rereview of an
+execution whose occurrence was pruned. Add only newly available decisive
+evidence or a corrected qualified conclusion to that existing row, without
+discarding its prior evidence or human notes. Evidence of the same concrete
+issue in a distinct execution adds one occurrence row. A second symptom in the
+same execution does not add a row. Keep retained rows as the count; they are
+not an all-time recurrence total.
+
+When those rules produce a supported edit, construct the complete ordinary
+candidate first, then measure, retain if required, warn, write, or refuse using
+[bounded process-log recording](references/bounded-process-log.md). Load that
+reference only for an enabled process write. No-findings and an identical
+rereview are not candidate writes; do not load that reference for them.
+Skipped or unresolved process review never loads the log or that reference;
+follow [Select reviews](#select-reviews).
 
 If malformed or ambiguous content prevents safe identification of entries,
 executions, or the next unused ID, leave the entire existing file byte-identical
-and report a recording limitation. Do the same when a write fails. Return the
-supported findings and continue other independently supported reviews; never
-describe either case as a successful write.
+and report a recording limitation. Do the same when a write fails or when
+bounded retention cannot form a safe candidate. Return the supported findings
+and continue other independently supported reviews; never describe either case
+as a successful write.
 
 In the final response, give a concise recording result: the canonical path and
 created issue IDs with occurrence rows, or `unchanged`/`not recorded` and the
-reason. Do not describe a skipped, refused, or failed write as successful.
+reason. Include any size warning, bounded-retention report, or size-limited
+refusal required by
+[bounded process-log recording](references/bounded-process-log.md). Do not
+describe a skipped, refused, failed, or size-limited write as successful.
 
 Surface a concrete overlooked request, decision, warning, failed verification,
 or Jidoka stop only when the record clearly shows that it still needs user
@@ -474,9 +545,10 @@ Report the resolved feature story or bounded correction and completion state,
 provenance, included commit manifest and review boundary, findings ordered by
 impact or `none`, planning
 result, and evidence limitations. Include supported process proposals only for
-enabled process review. Include product recommendations or a reasoned no-change
-result only for enabled product review; do not report backlog writes from this
-skill. Omit skipped-focus analysis, suggestions, and destination
+enabled process review. When process selection is unresolved, report the
+configuration error and omit process analysis. Include product recommendations or
+a reasoned no-change result only for enabled product review; do not report backlog
+writes from this skill. Omit skipped-focus analysis, suggestions, and destination
 writes. Distinguish evidence from hypotheses, and recommendations from
 proposals and unresolved choices. State whether planning was updated in place,
 newly generated, read-only, unchanged, or not yet available because the

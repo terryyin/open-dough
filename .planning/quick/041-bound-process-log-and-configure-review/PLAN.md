@@ -3,12 +3,13 @@
 ## Source and goal
 
 [SEED-010 Story 8](../../seeds/SEED-010-learn-from-execution-retrospectives.md#respond-when-deardough-reaches-500-lines).
-Status: planned, 2026-09-11.
+Status: source complete, 2026-09-11.
 
 Keep useful process learning within 1,000 lines, warn from 500 existing lines,
 and let a project persist its choice to skip process retrospectives. The human
 explicitly included configuration in this story despite its loose relationship
-to retention. Planning is authorized; implementation is not requested.
+to retention. Execution authorized 2026-09-11 on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 ## Scope and decisions
 
@@ -85,7 +86,12 @@ priority judgment.
 
 ### 1. Persist a project's process-review selection
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 1 walkthrough (variants 1–11 plus
+invalid/unreadable, missing-key, skill-adjacent, and skip-product combinations);
+`evidence/slice-1/checksums.fixtures`; `git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`. CI observer:
+`/tmp/dough-ci-501/watch-aQKXo5`, workflow `ci.yml` / `CI`.
 
 Behavior: Given an ordinary retrospective and optional project configuration,
 resolve whether process review runs before any process/log access, while keeping
@@ -109,7 +115,11 @@ and its variants; implementation, review, and local cleanup are one proof loop.
 
 ### 2. Warn and prevent writes beyond the ceiling
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 2 walkthrough; measured fixtures at
+499→507 (no warning), 500→508 and 999→1000 (warn and record), 1001 and 1020
+byte-identical refusals; `count-physical-lines.py`; `git diff --check`.
+Delivered on `worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given supported findings with process review enabled, recording warns
 when the existing log has at least 500 lines and never writes a result over 1,000.
@@ -134,7 +144,12 @@ one size/write boundary with clear deterministic observations.
 
 ### 3. Retain higher-value learning without losing recoverable identity
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 3 walkthrough; isolated Git fixture
+rebuild (`build-isolated-fixture.py`, `capture-walk.py`); 995→1010 overflow,
+bounded 58 with recovery; continued identity 93; refusal byte-identity;
+`git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given an overflowing candidate with higher-priority new information,
 replace enough recoverable lower-priority material to record it within 1,000
@@ -169,7 +184,11 @@ than silently expanding this story.
 
 ### 4. Preserve the project preference through installation and update
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 4 walkthrough;
+`bash tests/install-preserves-open-dough-json.sh`; `bash tests/install.sh`;
+`bash tests/install-all-tools.sh`; `git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given an absent or existing project configuration, ordinary installation
 and update preserve its absence or exact bytes so subsequent review selection
@@ -228,17 +247,12 @@ requirement needs evidence or justified reuse for each host before release.
 ## Execution context and assessment
 
 Plan layout: `.planning/quick/NNN-<slug>/PLAN.md`; statuses planned, in-progress,
-and done. 040 was the highest allocated directory and no active Story 8 plan
-existed. The candidate path was checked immediately before creation. Keep backlog
-position unchanged. No numeric slice target, hard limit, or repeated-overrun
+and done. Execution is on `worktree-quick-041-bound-process-log-and-configure-review`
+with Story 8 in Taken. No numeric slice target, hard limit, or repeated-overrun
 threshold was supplied; the log's 1,000-line limit is a product constraint,
-not an execution budget.
-
-When execution is separately requested, use ordinary dough-execute-plan with its
-independent refactoring, slice-local proof, commit/push, and CI obligations.
-Resolve then-current working-tree ownership and delivery settings at execution.
-This planning turn does not implement, commit, push, change live configuration,
-prune DearDough.md, or release guidance.
+not an execution budget. CI observer `/tmp/dough-ci-501/watch-aQKXo5`,
+workflow `ci.yml` / `CI`. Authorized push destination: this worktree branch on
+`origin`.
 
 Cumulative assessment: selection and retention each have one authoritative rule;
 installation preserves the configuration outside managed ownership. No speculative
@@ -250,4 +264,10 @@ slice-plan refinement pass was invoked.
 
 ## Learnings
 
-None from execution yet.
+Slice 1: one selection rule in `Select reviews` is enough; recording links to it.
+A worktree needs `npm ci` before `npm run format` because node_modules is not
+shared from the main checkout.
+Slice 2: size/write belongs in `references/bounded-process-log.md`; `wc -l`
+is not the line definition because it misses an unterminated last line.
+Slice 4: existing unrelated-file preservation already keeps `open-dough.json`
+outside managed payload writes; add focused assertions rather than a writer.

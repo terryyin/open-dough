@@ -1,0 +1,5 @@
+{
+  "skipProcessRetrospective": true,
+  "unrelatedFutureSetting": "leave-me",
+  "nested": { "also": true }
+}
