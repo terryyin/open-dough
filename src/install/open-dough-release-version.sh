@@ -28,6 +28,8 @@ managed_payload_unchanged() {
     dough-story-refinement/references/planning.md
     dough-resplit-story/SKILL.md
     dough-slice-planning/SKILL.md
+    dough-slice-planning/references/architectural-thinking.md
+    dough-pfe/SKILL.md
     dough-slice-plan-refinement/SKILL.md
     dough-execute-plan/SKILL.md
     dough-execute-plan/assets/claude-hooks.json

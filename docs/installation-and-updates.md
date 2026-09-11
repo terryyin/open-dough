@@ -14,6 +14,8 @@ The payload in each root is exactly:
 - `dough-story-refinement/references/planning.md`
 - `dough-resplit-story/SKILL.md`
 - `dough-slice-planning/SKILL.md`
+- `dough-slice-planning/references/architectural-thinking.md`
+- `dough-pfe/SKILL.md`
 - `dough-slice-plan-refinement/SKILL.md`
 - `dough-execute-plan/SKILL.md`
 - `dough-execute-plan/assets/claude-hooks.json`
@@ -143,6 +145,8 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-story-refinement/references/planning.md`
    - `src/skills/dough-resplit-story/SKILL.md`
    - `src/skills/dough-slice-planning/SKILL.md`
+   - `src/skills/dough-slice-planning/references/architectural-thinking.md`
+   - `src/skills/dough-pfe/SKILL.md`
    - `src/skills/dough-slice-plan-refinement/SKILL.md`
    - `src/skills/dough-execute-plan/SKILL.md`
    - `src/skills/dough-post-change-refactor/SKILL.md`
