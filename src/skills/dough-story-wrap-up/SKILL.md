@@ -40,8 +40,8 @@ Resolve from this project, not this skill's location:
 - Git commit conventions used to preserve a recoverable revision;
 - for planned execution, its selected mode and available originating checkout,
   execution checkout and branch, and integration-target identity;
-- the product backlog path when a **Taken**, queue, or finished-history entry
-  points at the selected work; and
+- the product backlog path when a **Taken** or **Backlog list** entry points
+  at the selected work; and
 - shared records that name the selected work: its seed when applicable, process
   log (`DearDough.md` unless this project sets another canonical location),
   incoming links, and assessment or recognition records.
@@ -153,8 +153,8 @@ the before-cleanup commit, even when the current revision was already suitable.
 If commit conventions, ownership, or recovery cannot be resolved, leave the
 material intact, report the gap, and do not claim closure.
 
-Do not rewrite Git history. Do not create an archive, tombstone, finished-list
-entry, or replacement summary for later readers.
+Preserve Git history as the sole recovery surface for spent execution material.
+Keep current product knowledge in maintained project content.
 
 ## Delete spent history, including shared records
 
@@ -166,8 +166,7 @@ work's identity and references identify as spent:
   still leaves that spent plan for wrap-up to delete.
 - its canonical story section when it has one; delete the seed only when every
   remaining section is spent;
-- **Taken**, queue, and finished-history / recently-done entries for that
-  completed work;
+- the completed work's entry in **Taken** or **Backlog list**;
 - related occurrences in the process log, and an issue or container that
   becomes empty afterward; and
 - incoming links that exist solely to preserve that spent history.
@@ -191,10 +190,9 @@ link cannot be tied to the selected execution, leave it intact and say so.
 Repair remaining Markdown links that this deletion breaks; do not leave a
 live link to a removed path. Unrelated links stay unchanged.
 
-Do not replace deleted history with a summary, archive, tombstone, recently-done
-ledger, or judgment for later readers. Assimilate current product knowledge
-instead of preserving the removed work's identity. An already-absent artifact
-does not prove different work complete. Repeating wrap-up must not recreate
+Keep maintained content focused on current product knowledge, with the removed
+work's identity and execution judgments recoverable through Git. An already-absent
+artifact does not prove different work complete. Repeating wrap-up must not recreate
 history, duplicate edits, or claim that missing files close a different story
 or correction.
 

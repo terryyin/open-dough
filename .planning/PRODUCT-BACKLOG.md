@@ -7,9 +7,10 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
+- [Remove retired completion-list vocabulary from story wrap-up](quick/043-remove-retired-completion-vocabulary/PLAN.md)
+
 ## Backlog list
 
-- [Remove retired completion-list vocabulary from story wrap-up](quick/043-remove-retired-completion-vocabulary/PLAN.md)
 - [Guide implementation from generic design toward specific examples](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific) — SEED-004
 - [Use Proudly Found Elsewhere during upfront design](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

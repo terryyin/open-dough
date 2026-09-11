@@ -62,7 +62,7 @@ leaves the current snapshot, and Git remains the recovery mechanism.
 ### 1. Close completed work through the active backlog model
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Representative wrap-up evidence shows active-entry and spent-material
 removal with Git recovery; focused source and maintained checks demonstrate one
 positive active-work convention across product-backlog and story-wrap-up.
@@ -76,3 +76,43 @@ and active work while Git retains recoverable execution history.
 - Story 17 corrected the product-backlog source in one quick execution, but the
   same retired completion-list concept remains in the adjacent story-wrap-up
   representation. Whole-product review supplied the cross-skill evidence.
+
+## Execution context
+
+- Authorized direct execution on the existing `main` checkout at
+  `/Users/terryyin/git/open-dough`; delivery destination `origin/main`
+  (`terryyin/open-dough`).
+- Source-only Markdown correction; no generator or managed-copy update applies.
+  Focused proof is the representative authoring review required by AGENTS.md,
+  with `git diff --check` for whitespace. No numeric slice budget is supplied.
+- Repository tooling runs directly. `npm run format` is repository-wide and
+  targets JavaScript/JSON/shell only; the changed Markdown has no formatter
+  target. No active pre-commit hook is configured. Use a scoped whitespace
+  check for this prose change rather than altering unrelated tooling.
+- CI observer: coordinator task 043, checkout above, workflow `ci.yml` / `CI`,
+  branch `main`, cell `12`, session `70567`, PID `70550`, receipt directory
+  `/tmp/dough-ci-501/watch-KJgT26`; status: watching.
+
+## Slice delivery evidence
+
+- Updated only the story-wrap-up source and recognition record. The source now
+  resolves and removes the selected entry from **Taken** or **Backlog list**,
+  with Git as the sole recovery surface and maintained product content carrying
+  lasting knowledge.
+- Representative invocation, missing-context safeguards, completed-work closure,
+  and standalone backlog removal were reviewed. The recognition record retains
+  the outcome; [walkthrough evidence](evidence/WALKTHROUGH.md) records the
+  disposable Git-mechanism demonstration. This does not claim native-host
+  acceptance.
+- Focused source inspection passed: both changed sources contain the active-list
+  and sole-recovery wording, with none of the retired terms specified by this
+  correction. Existing wrap-up recognition cases remain applicable; there are
+  no focused executable wrap-up/backlog behavior tests in this repository.
+- Independent dough-post-change-refactor review: none — already clean;
+  `## REFACTOR COMPLETE`. No edits or repeated tests needed. Completion checks,
+  follow-ups, product decisions, commits, cleanup, links, and worktree safeguards
+  remain intact.
+- Markdown formatting reviewed selectively; `git diff --check` passes. No active
+  commit hook exists, so no hook-owned lint command applies to this change.
+- Retain this completed plan, evidence, and Taken entry for retrospective and
+  subsequent story wrap-up. Release and installed-copy updates remain separate.
