@@ -91,7 +91,9 @@ and active work while Git retains recoverable execution history.
   check for this prose change rather than altering unrelated tooling.
 - CI observer: coordinator task 043, checkout above, workflow `ci.yml` / `CI`,
   branch `main`, cell `12`, session `70567`, PID `70550`, receipt directory
-  `/tmp/dough-ci-501/watch-KJgT26`; status: watching.
+  `/tmp/dough-ci-501/watch-KJgT26`; status: stopped.
+  Stop receipt and terminal process exit confirmed; unread events: 0;
+  `pendingCi: unobserved`.
 
 ## Slice delivery evidence
 
@@ -116,3 +118,6 @@ and active work while Git retains recoverable execution history.
   commit hook exists, so no hook-owned lint command applies to this change.
 - Retain this completed plan, evidence, and Taken entry for retrospective and
   subsequent story wrap-up. Release and installed-copy updates remain separate.
+
+Delivery: implementation commit `a5da136` pushed to `origin/main`. CI observation
+ended after delivery without waiting for pending runs.
