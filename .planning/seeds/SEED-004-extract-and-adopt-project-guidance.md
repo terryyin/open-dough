@@ -17,6 +17,37 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="proudly-found-elsewhere-design"></a>
+
+### 19. Use Proudly Found Elsewhere during upfront design
+
+**Status:** Captured; not refined.
+
+**Goal:** A developer designing an Open Dough-guided change searches across the
+existing system for the same or a related solution and, while remaining within
+the existing model, generalizes and reuses it instead of creating a duplicate.
+
+**Captured idea:** PFE means **Proudly Found Elsewhere**, the opposite of NIH
+(**Not Invented Here**). The guidance may belong in slice planning, plan
+execution, or both. It should search hard before inventing, but stop for a human
+decision when the reuse or generalization would challenge the existing model.
+Resolve its workflow placement during later refinement.
+
+<a id="guide-implementation-from-generic-to-specific"></a>
+
+### 18. Guide implementation from generic design toward specific examples
+
+**Status:** Captured; not refined.
+
+**Goal:** A developer implementing a scenario-led Open Dough story can start
+from a generic design and make it more specific only as further examples
+justify it, using implementation guidance that applies before the existing
+post-change refactoring guidance.
+
+**Related idea:** This may be combined with
+[the PFE story](#proudly-found-elsewhere-design); resolve the relationship
+during later refinement.
+
 <a id="show-stories-as-taken-during-execution"></a>
 
 ### 14. Show queued work as taken when plan execution starts
