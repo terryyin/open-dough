@@ -64,7 +64,9 @@ unauthorized backlog writes.
   process and log access, and continue independent reviews. Explicit invocation
   instructions override the stored preference without editing the file.
   Product skip remains independent. A file beside the installed skill is not
-  this project's configuration.
+  this project's configuration. The file is outside managed payload lists;
+  ordinary install/update and supported `--force` replacement preserve its
+  bytes or absence so later selection still uses the same preference.
 - After constructing a supported process-log candidate, warns when the existing
   log is already at least 500 physical lines and never writes a result over
   1,000. Below 500, ordinary recording has no threshold warning even if the write
@@ -316,6 +318,34 @@ refs, and ID observations:
 
 This is local behavior review of the Proposed source, not native cross-tool
 acceptance or release evidence. Slice 4 owns install/update preservation.
+
+## Quick 041 Slice 4 local behavior evidence
+
+Walked install/update preservation of the optional project preference on
+2026-09-11 in worktree
+`worktree-quick-041-bound-process-log-and-configure-review`. Inputs, byte
+comparisons, and selection after retention:
+[evidence/slice-4/WALKTHROUGH.md](../../../.planning/quick/041-bound-process-log-and-configure-review/evidence/slice-4/WALKTHROUGH.md).
+
+1. **Invocation.** Installation docs name optional
+   `<established-planning-directory>/open-dough.json` (default
+   `.planning/open-dough.json`) when installing or updating. They reuse the
+   skill's single JSON example and link
+   [Select reviews](SKILL.md#select-reviews) instead of restating defaults,
+   flags, or invalid-file handling.
+2. **Required context.** The path is the project being installed or updated,
+   not a skill directory and not the Open Dough source checkout. Missing file
+   is usable absence. Codex, Cursor, and Claude Code share that one file.
+3. **Useful outcome.** Real `install.sh` and `apply` operations, including
+   `--force`, left retained `true` plus unknown keys byte-identical
+   (`46079f7c…`, same as Slice 1 variant 7) and left absence absent. Walking
+   Select reviews on the retained file still skips process and does not access
+   `DearDough.md`. No managed-payload list gained `open-dough.json`; installer
+   behavior was not changed.
+
+This is local behavior review of the Proposed source, not native cross-tool
+acceptance or release evidence. Fresh native use after update remains pending
+Story 2.
 
 ## Pending native logging acceptance
 

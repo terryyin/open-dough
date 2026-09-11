@@ -3,7 +3,7 @@
 ## Source and goal
 
 [SEED-010 Story 8](../../seeds/SEED-010-learn-from-execution-retrospectives.md#respond-when-deardough-reaches-500-lines).
-Status: executing, 2026-09-11.
+Status: source complete, 2026-09-11.
 
 Keep useful process learning within 1,000 lines, warn from 500 existing lines,
 and let a project persist its choice to skip process retrospectives. The human
@@ -184,7 +184,11 @@ than silently expanding this story.
 
 ### 4. Preserve the project preference through installation and update
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 4 walkthrough;
+`bash tests/install-preserves-open-dough-json.sh`; `bash tests/install.sh`;
+`bash tests/install-all-tools.sh`; `git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 Behavior: Given an absent or existing project configuration, ordinary installation
 and update preserve its absence or exact bytes so subsequent review selection
@@ -265,5 +269,5 @@ A worktree needs `npm ci` before `npm run format` because node_modules is not
 shared from the main checkout.
 Slice 2: size/write belongs in `references/bounded-process-log.md`; `wc -l`
 is not the line definition because it misses an unterminated last line.
-Slice 3: extend the same candidate-write flow rather than a second store;
-priority is a manual behavior review, not a score or a line count.
+Slice 4: existing unrelated-file preservation already keeps `open-dough.json`
+outside managed payload writes; add focused assertions rather than a writer.
