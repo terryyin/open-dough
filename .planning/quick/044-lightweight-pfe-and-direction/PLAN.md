@@ -3,7 +3,7 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: executing; Slices 1–5 done, Slice 6 planned.
+Status: complete; all six slices done.
 
 Execution identity:
 
@@ -217,11 +217,19 @@ Safe stop: planning-to-execution direction has a complete correction path.
 
 ### 6. Retire direction that no longer serves remaining work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk ordinary story closure with a realized topic, a topic still needed
 by another story, and indispensable architectural context needing a durable
 home. Remove only disposable direction and affected references; preserve the
 still-needed topic and resolve durable decision ownership before deleting it.
+
+Delivered proof: `src/skills/dough-story-wrap-up/RECOGNITION.md` records the
+three retirement variants and the complete Story 18 journey. Affected
+frontmatter and six relative links were checked; `git diff --check`,
+`bash tests/story-payload-update.sh`, and
+`bash tests/execution-payload-update.sh` passed. The independent refactor pass
+found one authoritative topic-lifecycle source and one minimal wrap-up hook;
+`npm run format` passed.
 
 Behavior: At ordinary wrap-up, selected fulfilled or no-longer-needed direction
 is retired while remaining work retains its necessary context.

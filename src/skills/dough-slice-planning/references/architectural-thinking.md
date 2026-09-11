@@ -75,3 +75,24 @@ the current story, even when that work crosses components or process boundaries.
 Place it immediately before the Behavior it enables and prove preserved external
 behavior. Do not add structure, topics, or flexibility solely for hypothetical
 later stories.
+
+## Retire temporary direction during ordinary wrap-up
+
+During ordinary story wrap-up, inspect the North Star topics that the completed
+work cited, added, or revised. Treat a topic as a retirement candidate only when
+the completed work has substantially realized it or remaining work no longer
+needs it. Retire a selected candidate only after checking the current stories
+and plans that its direction affects. If another active story still needs the
+topic, keep the topic and its references.
+
+When retiring a topic, delete its heading and text and remove or repair affected
+references consistently. Do not preserve an archive, registry, monitor, or
+completion record for the removed direction.
+
+The North Star cannot be the sole durable home of indispensable architectural
+context. Before deleting a topic that carries such context, require that context
+in this project's applicable durable, human-owned decision home, such as its ADR
+process, and resolve ownership through that existing decision process. Until
+that is resolved, keep the topic and its references, report the blocking gap,
+and do not claim closure. Do not turn retirement into a new review or approval
+ceremony.

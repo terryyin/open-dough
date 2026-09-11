@@ -39,6 +39,10 @@ actions.
   execution narration or judgments. A spent-context-only product fact is
   written into maintained documentation even when tests already exercise
   related behavior.
+- Inspects North Star topics used or changed by completed work through the
+  shared topic lifecycle: retires only selected disposable direction, preserves
+  direction needed by active work, and refuses to delete indispensable context
+  until its durable human-owned decision home is resolved.
 - Deletes spent plan (when one exists), story, proof, the completed work's
   entry in **Taken** or **Backlog list**, related log occurrences, and incoming
   historical links. Git is the sole recovery surface for that spent material.
@@ -71,6 +75,8 @@ when a **Taken** or queue entry points at the selected work. Retrospective
 advice is used when present and is not a required completion record.
 Worktree-mode cleanup also requires the retained execution checkout, local
 branch, saved tip, originating checkout, and integration-target identity.
+When completed work used or changed North Star topics, their established
+location and the affected current stories and plans supply retirement context.
 
 ## Differences that rule out replacement
 
@@ -223,3 +229,56 @@ product-backlog source.
 This walkthrough inspects closure decisions against the updated source. It
 does not run wrap-up on SEED-010 Story 7, delete this plan, or prove native
 host behavior. Story 2 retains that acceptance.
+
+## Story 44 Slice 6 direction-retirement evidence
+
+Walked ordinary closure on 2026-09-11 against the Proposed source changes in
+`src/skills/dough-story-wrap-up/` and the shared
+`src/skills/dough-slice-planning/references/architectural-thinking.md`. This is
+manual authoring evidence under `AGENTS.md`, not a native Codex, Cursor, or
+Claude Code run. No story wrap-up, history deletion, installation, or release
+was performed.
+
+Shared input: completed basket-total work whose plan cites the established
+North Star location and the `Basket pricing ownership` topic. The coordinator
+has the current stories and plans affected by that topic, the project's durable
+human-owned decision process, and the existing wrap-up recovery context.
+
+- **Realized temporary topic:** The completed work has established the selected
+  basket-pricing boundary, and no remaining story or plan needs its temporary
+  direction. Ordinary wrap-up deletes the topic heading and paragraph and
+  removes the completed plan's and other affected references consistently. It
+  creates no archive, registry, monitor, or completion record.
+- **Topic still needed elsewhere:** The completed work is done, but the active
+  `Retry failed basket pricing` story still depends on the same boundary. The
+  topic and its references remain. Wrap-up continues its other authorized
+  closure actions without claiming that the realized portion makes shared
+  direction disposable.
+- **Indispensable context has no durable home:** The topic is the only statement
+  of a cross-cutting basket-pricing ownership decision. Wrap-up stops closure
+  before deleting the topic or its references, names the missing durable
+  ownership, and requires resolution through the project's existing human-owned
+  decision process. After that context is recorded in the applicable durable
+  home, retirement can be reconsidered; the North Star is not used as the sole
+  durable decision record.
+
+### Complete Story 18 journey review
+
+The basket example now leads from the simplest understood sum through one
+authoritative PFE fit decision, architecture-aware planning only when a
+consequential topic is warranted, execution reuse of still-valid findings,
+coordinator/planner resolution of contrary evidence, and ordinary retirement
+of disposable temporary direction. The shared sources keep domain disagreement
+and Accepted-ADR conflicts with their human owners, retain necessary current
+Structure work, and preserve active work during a direction correction. The
+closure hook adds no repeat search, passive review, partial wrap-up, early
+termination, or Story 19 review mechanism. Source inspection does not establish
+native acceptance; SEED-010 Story 2 retains that work.
+
+### Candidate revision and limitations
+
+The candidate changes only the authoritative topic-lifecycle reference, the
+minimal ordinary-wrap-up hook, and this maintainer evidence. Existing wrap-up
+completion, recovery, spent-history deletion, commit, integration, worktree
+cleanup, and reporting semantics are unchanged. Installed managed copies and
+payload declarations are unchanged.

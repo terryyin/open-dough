@@ -21,7 +21,7 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 18. Guide a simple implementation with PFE and optional architectural direction
 
-**Status:** Refined and planned on 2026-09-11; execution not started.
+**Status:** Implemented in source on 2026-09-11; not yet released.
 **Plan:** [Quick 044 — lightweight PFE and direction](../quick/044-lightweight-pfe-and-direction/PLAN.md).
 
 **Goal:** A developer delivering a specific end-to-end scenario gets a simple,
@@ -55,60 +55,14 @@ This advances the backlog's goal of a complete useful development lifecycle.
   wrap-up removes fulfilled or no-longer-needed statements, retaining those
   needed elsewhere and preserving indispensable decisions in their durable home.
 
-**Key examples:**
-
-- **Simple rule:** Given a basket containing a £10 item and a £20 item, when
-  the developer requests a total, the guidance leads to summing prices and a
-  £30 result, without hard-coding those items or rejecting a third item merely
-  because it was unlisted. A separately stated maximum item count still
-  warrants its own rejection behavior. Do not introduce future discount machinery.
-- **Find and use:** Given another part of the product already provides the
-  same basket-total responsibility, planning finds and uses it, or identifies
-  the necessary modularization while preserving its existing purpose. Execution
-  does not repeat that search on every slice. If evidence invalidates the fit,
-  it runs PFE again; a domain-model disagreement goes to the developer.
-- **Ordinary planning:** Given no consequential architectural choice beyond
-  established structure, the planner returns a normal plan without creating a
-  North Star statement, architecture report, or extra approval step.
-- **Direction through delivery:** Given a consequential direction relevant to
-  the story, the planner connects to an existing topic or records a short new
-  statement. Execution follows it. If new evidence requires revision, the
-  affected path stops for coordinator resolution and resumes with consistent
-  direction and plan. Wrap-up retires the fulfilled statement unless other
-  remaining work still needs it; the midway update does not close the story.
-
-**Evaluation:** Walk these representative cases through the affected guidance,
-including a candidate with similar code but different domain meaning. Judge
-clear agent behavior and a reviewable developer outcome, not exact wording.
-Use existing authoring and affected-payload checks. Follow ADR 0005 for any
-native acceptance required before release; do not invent a separate acceptance
-programme or claim source review proves native behavior.
-
-**Narrow boundary:** Add only the connections necessary for these three changes.
-Keep existing refactoring and retrospective behavior; do not add separate
-architectural-review procedures or broadly redesign authorization. A directly
-contradictory instruction that blocks these examples must be aligned within
-this story, rather than left for its successor. No mandatory North Star report,
-search history, reference tracker, confidence score, monitoring, architecture
-subagent, partial wrap-up, or early-termination workflow. Release, installation,
-and adoption are not part of this story. Edit shared source, not installed copies.
-Public instructions address the executing project; internal ADRs and cache/token
-rationale remain maintainer context.
-
-**Safe stopping point:** The three behaviors work without Story 19. Do not add
-extension points or records merely to prepare for that later work.
-**Effort hypothesis:** Bounded guidance work, with uncertainty concentrated in
-existing caller conflicts and native proof needs. No time or slice estimate is
-claimed; repository S/M/L definitions are unavailable.
-**Refinement clarification:** Optional direction is a few topic statements,
-not a required per-story document. A midway revision uses existing coordinator
-and planner handoffs; it does not require a new retrospective/closure ceremony.
-The new skill is `dough-pfe`; project-local topic placement follows existing
-conventions or a shared file under that project's established planning root.
-No broader review behavior or new configuration is implied.
-**Open decisions:** None blocking planning. Six proof-owned slices are justified
-by distinct planning, execution, and closure boundaries; the story is not a
-single-slice wording edit.
+**Exclusions:** Keep existing refactoring and retrospective behavior; do not add
+separate architectural-review procedures or broadly redesign authorization.
+A directly contradictory instruction that blocks these behaviors belongs in
+this story, not its successor. No mandatory North Star report, search history,
+reference tracker, confidence score, monitoring, architecture subagent, partial
+wrap-up, early-termination workflow, release, installation, or adoption. Edit
+shared source, not installed copies; public instructions address the executing
+project rather than exposing internal ADR or cache/token rationale.
 
 <a id="proudly-found-elsewhere-design"></a>
 
