@@ -3,7 +3,7 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: executing; Slices 1–2 done, Slices 3–6 planned.
+Status: executing; Slices 1–3 done, Slices 4–6 planned.
 
 Execution identity:
 
@@ -146,11 +146,18 @@ Safe stop: PFE can be invoked directly; automatic caller integration follows.
 
 ### 3. Plan with existing solutions and only warranted direction
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk planning with established structure/no new topic, then with a
 consequential topic (existing or new). PFE informs the selected solution; the
 plan refers to supported direction, and the ordinary case creates no North Star
 file/report. Missing indispensable domain/ADR input stops only the affected path.
+
+Delivered proof: `src/skills/dough-slice-planning/RECOGNITION.md` records the
+four planning variants and their file-side-effect expectations. Frontmatter and
+21 relative runtime links were checked; `git diff --check` and
+`bash tests/story-payload-update.sh` passed. Refactoring made architectural
+thinking the single PFE-and-direction orchestration path, revalidated the
+affected proof, and `npm run format` passed.
 
 Behavior: Given an understood story, slice planning produces a sufficient plan
 informed by PFE and relevant architecture, with optional short topic direction.
