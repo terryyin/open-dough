@@ -8,6 +8,10 @@ The coordinator retains
 
 Give the agent:
 
+- The selected execution checkout and branch. For planned execution, pass the
+  complete retained execution identity; for quick execution, pass the location
+  retained in the conversation. Require all implementation commands and edits
+  to run there rather than relying on the agent's inherited working directory.
 - The execution source and current slice with mapped promises and observations,
   including replacement and lifecycle obligations. For planned execution, pass
   the plan path and its selected-story or bounded-correction source. For a
@@ -27,8 +31,8 @@ Give the agent:
   exceptions, workflow precedence, and literal focused commands with the runtime
   wrapper. Require relevant proof; broaden testing only when the slice, project
   workflow, or human requires it.
-- Ownership of the slice's changes. State that other agents share the checkout
-  and their work must be preserved.
+- Ownership of the slice's changes. State that other agents may share the
+  execution checkout and their work must be preserved.
 - A stop before coordinator delivery: no commit, push, marking a planned slice
   done, refactor pass, selective formatting, or independent hook-owned lint
   command.

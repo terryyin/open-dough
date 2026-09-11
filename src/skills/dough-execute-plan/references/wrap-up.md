@@ -24,10 +24,17 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
 
 ## Deliver the change
 
+Run this sequence in the selected execution location established by the main
+workflow. Pass its checkout to every delegated refactor, generator, and host
+operation; do not let an inherited working directory redirect delivery. This
+slice delivery does not integrate or remove a retained execution branch or
+worktree.
+
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
-   Supply the execution source, slice, implementation proof, project context,
-   and ownership boundaries; supply the plan path only when one exists. Keep
+   Supply the execution source, execution checkout and branch, slice,
+   implementation proof, project context, and ownership boundaries; supply the
+   plan path only when one exists. Keep
    formatting and hook-owned lint with the coordinator. Do not
    add instructions contradicting that skill's decide-before-testing contract;
    explicit human verification requests remain authoritative.

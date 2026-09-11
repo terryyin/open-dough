@@ -106,11 +106,55 @@ preserve and report the actual backlog and index state. If later worktree setup
 fails, leave the committed entry in **Taken** for a retry. The no-change cases
 above produce no empty Taken-only commit.
 
+## Choose the execution location
+
+Planned execution uses worktree mode unless the caller explicitly selects the
+current branch. After a worktree-mode claim is committed, create a new branch
+and Git worktree from that commit before delegation. When backlog inspection
+established that no claim applies, use the verified current HEAD instead.
+Resolve names and location from this project's conventions and the current
+host's ordinary Git facilities; do not invent a parallel registry,
+configuration format, or worktree manager. If a required convention or safe
+location cannot be resolved, or creation fails, stop with the claim and any
+created resources intact and report their actual state.
+
+Retain one planned-execution identity in the existing plan and conversation.
+Its selected execution location is the checkout and branch used for all slice
+work:
+
+- the originating checkout and its branch, where the claim was recorded;
+- the execution checkout and branch used for implementation and delivery; and
+- the integration target established by the caller or this project, defaulting
+  to `main` only when neither establishes another target.
+
+Record that identity after successful setup and before delegation. For an
+explicit caller-selected current-branch execution, record the current checkout
+and branch as both the originating and execution location; do not create an
+execution worktree. Quick execution also stays in the current checkout and
+branch. Never extend the planned-execution default to the planless quick path.
+
+On resume, do not treat **Taken** alone as a location identity. Read the retained
+identity and verify it against actual Git branch, HEAD ancestry, and worktree
+state. Reuse the identified execution checkout when it still matches. If the
+identity is missing, ambiguous, contradictory, or points to an unsafe or
+partially created setup, preserve all resources and report the exact recovery
+decision needed; do not guess, create a nested worktree, or silently select a
+different branch.
+
+Run delegation, post-change refactoring, generators, formatting, staging,
+commits, normal pushes, and CI repair from the selected execution location.
+Push the execution branch to the authorized destination in worktree mode. Pass
+the planned-execution identity and selected location explicitly whenever
+handing work to another agent or host adapter so that a tool's own default
+working directory cannot redirect the execution. For quick execution, pass the
+selected current checkout and branch from the conversation instead.
+
 ## Execute the next slice
 
-1. For planned execution, read the plan's current slice statuses, decisions,
-   learnings, and proof and use it as execution and resume state. For quick
-   execution, reread the canonical story and the conversation's current scope,
+1. In the selected execution checkout, for planned execution read the plan's
+   current slice statuses, decisions, learnings, and proof and use it as
+   execution and resume state. For quick execution, reread the canonical story
+   and the conversation's current scope,
    decisions, progress, and proof; the story is the only slice. Do not create or
    update a separate state artifact. Confirm the current instruction still
    authorizes execution. Recover an existing CI observer before considering a
@@ -151,7 +195,10 @@ observer through the current host adapter. Handle delivered failures, then
 stop observers without waiting for CI. Report pending CI as unobserved.
 
 When all planned slices are done, leave the completed plan and review evidence
-in place for retrospective and story wrap-up. When the quick slice is done,
+in place for retrospective and story wrap-up. Retain a planned execution's
+recorded checkout and branch through pauses and completion; do not invoke
+retrospective or story wrap-up automatically and do not remove its worktree or
+branch here. When the quick slice is done,
 leave its story and conversation available instead. Report completed work,
 retained evidence, and observer shutdown. End with `## PLAN EXECUTION COMPLETE`
 for planned execution or `## QUICK EXECUTION COMPLETE` for quick execution only

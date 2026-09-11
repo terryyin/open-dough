@@ -134,7 +134,7 @@ Sizing: bounded, high confidence; one existing transition and Git commit boundar
 
 ### 2. Execute in the owned checkout and retain it for review
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the recorded claim, planned execution uses a new branch/worktree
 by default, or the caller-selected current branch, and retains that execution
@@ -251,3 +251,9 @@ slice-plan refinement pass was not triggered by this assessment.
   walkthrough confirmed the Taken-only commit, unchanged remote, no premature
   worktree, and the already-Taken, absent-entry, and ambiguous-staging stops.
   Native agent compliance remains pending under ADR 0005.
+- Slice 2 established one planned-execution identity and one selected execution
+  location across delegation, delivery, and CI. The walkthrough confirmed
+  default isolation, claim ancestry, execution-branch delivery, resume reuse,
+  retained completion, caller-selected current-branch execution, and unchanged
+  quick execution. Failed setup may leave a partial branch; recovery reports
+  actual resources instead of guessing or nesting another worktree.
