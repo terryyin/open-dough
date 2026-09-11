@@ -283,6 +283,14 @@ and document any justified reuse. Shared integration evidence is separate;
 source authoring walkthroughs do not satisfy native acceptance. Release and
 adoption remain separately authorized work.
 
+Also own native acceptance before release for
+[SEED-004 Story 18](SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific):
+simple-rule guidance, PFE direct use and triggers, optional architectural
+planning, direction conflict/resumption, and ordinary retirement. Use its plan's
+representative cases; distinguish fresh behavior proof from existing integration
+evidence. Promotion must include the new PFE skill and architectural reference
+with their callers. This adds no separate acceptance programme or release authority.
+
 **Evaluation:** Native evidence identifies the candidate, tool, inputs, decisive
 log result, and limitations. Required Codex, Cursor, and Claude Code proof is
 passed or justifiably reused before release; missing proof stays pending. After
