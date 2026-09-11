@@ -3,7 +3,7 @@
 ## Source, scope, and authority
 
 Source: [SEED-004 Story 18](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-implementation-from-generic-to-specific).
-Status: executing; Slices 1–3 done, Slices 4–6 planned.
+Status: executing; Slices 1–4 done, Slices 5–6 planned.
 
 Execution identity:
 
@@ -170,11 +170,18 @@ Safe stop: planning and direct PFE are useful; no execution trigger is claimed y
 
 ### 4. Revisit the find-and-use decision only when evidence changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk execution with a still-valid planned responsibility, an unforeseen
 responsibility, and a candidate invalidated by new evidence. Only the latter
 two trigger PFE; necessary current structural work enters the remaining plan,
 and unresolved domain meaning reaches the developer.
+
+Delivered proof: `src/skills/dough-execute-plan/RECOGNITION.md` records all
+three execution variants. Affected frontmatter and 37 relative runtime links
+were checked; `git diff --check` and
+`bash tests/execution-payload-update.sh` passed. The independent refactor pass
+confirmed one PFE trigger owner, one delegation transport seam, and the narrow
+planned-work authorization boundary; `npm run format` passed.
 
 Behavior: During execution, the agent carries forward valid findings and uses
 PFE at the two agreed triggers, rather than automatically on each slice.

@@ -58,3 +58,28 @@ changes. Resume and non-backlog execution did not duplicate or invent entries;
 missing authorization stopped with the queue intact. The human explicitly
 skipped new native acceptance, so the earlier native review remains evidence
 for the unchanged delivery machinery only.
+
+Story 44 Slice 4 manually walked three planned basket-total execution variants:
+
+- **Still-valid finding:** The plan's evidenced basket-total candidate still
+  owns the same responsibility under the same rules and lifecycle. Execution
+  carries the finding and candidate evidence through delegation and does not
+  invoke PFE merely because another slice or fresh agent starts.
+- **Unforeseen responsibility:** A slice reveals that a second process must now
+  introduce or relocate ownership of basket totals. That trigger invokes the
+  linked `dough-pfe` skill with the plan context and observation. Its
+  purpose-preserving modularization result becomes necessary Structure work in
+  the remaining plan, even across the two real process boundaries; the active
+  plan's specific concept-and-boundary authorization permits the implicated
+  refactor but not unrelated cross-subsystem cleanup.
+- **Invalidated candidate:** New lifecycle evidence shows the planned candidate
+  owns accounting settlement rather than basket pricing. Execution invokes PFE
+  again because fit is invalidated, rather than silently reusing it. When the
+  evidence cannot resolve which domain owns discounts, execution gives the
+  developer the competing meanings and evidence and stops the affected path;
+  the coordinator cannot treat structural reach as permission to choose.
+
+Only the latter two variants trigger PFE. In each, current necessary structure
+is planned without changing the selected story outcome, while unresolved domain
+meaning and unauthorized consequential choices retain the existing human stop.
+This is a manual source walkthrough, not a native agent run or a release claim.

@@ -20,6 +20,14 @@ stop or unresolved proof failure prevents that delivery. Resolve routine naming,
 placement, test choices, minor refactoring, and defects caused by the current
 change within the authorized scope.
 
+An understood responsibility already authorized by the active plan does not
+become a new consequential choice merely because its necessary domain-coherent
+structure crosses a component or process boundary. Keep that work in the
+remaining plan and preserve the responsibility's meaning and applicable
+decisions. Stop when the meaning, fit, or consequential choice is unresolved;
+do not turn this distinction into permission for unplanned cleanup or a story
+outcome change.
+
 ## Resolve a disputed plan restriction
 
 Use [examples and constraints](../../dough-story-refinement/references/planning.md#examples-and-constraints)

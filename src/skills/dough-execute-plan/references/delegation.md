@@ -14,8 +14,11 @@ Give the agent:
   to run there rather than relying on the agent's inherited working directory.
 - The execution source and current slice with mapped promises and observations,
   including replacement and lifecycle obligations. For planned execution, pass
-  the plan path and its selected-story or bounded-correction source. For a
-  correction, pass its complete plan-owned
+  the plan path and its selected-story or bounded-correction source. Also pass
+  any relevant existing-solution finding and candidate evidence from the plan,
+  plus new evidence that triggered a PFE revisit; a fresh agent does not repeat
+  a still-valid search merely because delegation occurred. For a correction,
+  pass its complete plan-owned
   [correction input](../../dough-story-refinement/references/planning.md#choose-the-planning-level)
   rather than requiring a seed. For quick execution, pass the canonical story,
   the explicit instruction to execute without slice planning, and the relevant
