@@ -3,12 +3,13 @@
 ## Source and goal
 
 [SEED-010 Story 8](../../seeds/SEED-010-learn-from-execution-retrospectives.md#respond-when-deardough-reaches-500-lines).
-Status: planned, 2026-09-11.
+Status: executing, 2026-09-11.
 
 Keep useful process learning within 1,000 lines, warn from 500 existing lines,
 and let a project persist its choice to skip process retrospectives. The human
 explicitly included configuration in this story despite its loose relationship
-to retention. Planning is authorized; implementation is not requested.
+to retention. Execution authorized 2026-09-11 on
+`worktree-quick-041-bound-process-log-and-configure-review`.
 
 ## Scope and decisions
 
@@ -85,7 +86,12 @@ priority judgment.
 
 ### 1. Persist a project's process-review selection
 Type: Behavior
-Status: planned
+Status: done
+Evidence: RECOGNITION.md Quick 041 Slice 1 walkthrough (variants 1–11 plus
+invalid/unreadable, missing-key, skill-adjacent, and skip-product combinations);
+`evidence/slice-1/checksums.fixtures`; `git diff --check`. Delivered on
+`worktree-quick-041-bound-process-log-and-configure-review`. CI observer:
+`/tmp/dough-ci-501/watch-aQKXo5`, workflow `ci.yml` / `CI`.
 
 Behavior: Given an ordinary retrospective and optional project configuration,
 resolve whether process review runs before any process/log access, while keeping
@@ -228,17 +234,12 @@ requirement needs evidence or justified reuse for each host before release.
 ## Execution context and assessment
 
 Plan layout: `.planning/quick/NNN-<slug>/PLAN.md`; statuses planned, in-progress,
-and done. 040 was the highest allocated directory and no active Story 8 plan
-existed. The candidate path was checked immediately before creation. Keep backlog
-position unchanged. No numeric slice target, hard limit, or repeated-overrun
+and done. Execution is on `worktree-quick-041-bound-process-log-and-configure-review`
+with Story 8 in Taken. No numeric slice target, hard limit, or repeated-overrun
 threshold was supplied; the log's 1,000-line limit is a product constraint,
-not an execution budget.
-
-When execution is separately requested, use ordinary dough-execute-plan with its
-independent refactoring, slice-local proof, commit/push, and CI obligations.
-Resolve then-current working-tree ownership and delivery settings at execution.
-This planning turn does not implement, commit, push, change live configuration,
-prune DearDough.md, or release guidance.
+not an execution budget. CI observer `/tmp/dough-ci-501/watch-aQKXo5`,
+workflow `ci.yml` / `CI`. Authorized push destination: this worktree branch on
+`origin`.
 
 Cumulative assessment: selection and retention each have one authoritative rule;
 installation preserves the configuration outside managed ownership. No speculative
@@ -250,4 +251,6 @@ slice-plan refinement pass was invoked.
 
 ## Learnings
 
-None from execution yet.
+Slice 1: one selection rule in `Select reviews` is enough; recording links to it.
+A worktree needs `npm ci` before `npm run format` because node_modules is not
+shared from the main checkout.

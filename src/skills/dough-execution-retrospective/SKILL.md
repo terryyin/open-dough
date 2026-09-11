@@ -8,9 +8,10 @@ description: >-
   architecture, and test suite. Use for an execution retrospective, product
   review, or backlog recommendation from current or supplied execution history,
   including after cleanup. `--skip-process` and `--skip-product` omit those
-  reviews independently. May plan unresolved implementation findings, record
-  supported process findings in `DearDough.md`, and recommend product work;
-  never implements them.
+  reviews independently. Project `open-dough.json` may set
+  `skipProcessRetrospective` to persist skipping process review. May plan
+  unresolved implementation findings, record supported process findings in
+  `DearDough.md`, and recommend product work; never implements them.
 ---
 
 # Review an execution
@@ -28,15 +29,51 @@ completion or backlog actions for
 ## Select reviews
 
 Ordinary invocation considers implementation, process, and product review.
-`--skip-process` omits process analysis and recording, including any
-`DearDough.md` write when that destination exists. `--skip-product` omits
-product analysis and suggestions. Both flags may be supplied together.
-Neither skips implementation review or its correction planning.
-
 Choose the enabled set before loading focus-specific context or acting on that
-focus. Skipped product review does not suppress the shared direction consideration
-in implementation or enabled process review. Do not covertly review a skipped
-focus or write its destination.
+focus. Resolve process review before process analysis and before resolving,
+checking, reading, or writing `DearDough.md`.
+
+`--skip-product` omits product analysis and suggestions. It does not change
+process selection. `--skip-process` omits process analysis and all log
+inspection and writing. Both flags may be supplied together. Neither skips
+implementation review or its correction planning. Skipped or unresolved process
+review does not skip implementation or product review, and does not suppress
+their destination writes. Skipped product review does not suppress the shared
+direction consideration in implementation or enabled process review. Do not
+covertly review a skipped or unresolved focus or write its destination.
+
+Read this project's optional `open-dough.json` from the established planning
+directory: `<established-planning-directory>/open-dough.json`, defaulting to
+`<project-root>/.planning/open-dough.json` when no different planning directory is
+established by the user or this project's conventions. Resolve that path from
+this project, not this skill's location. Do not search other projects. Do not use
+`open-dough.json` beside this skill.
+
+The file is one optional JSON object. The only recognized setting is this boolean:
+
+```json
+{ "skipProcessRetrospective": true }
+```
+
+A missing file, missing `skipProcessRetrospective` key, or boolean `false`
+leaves process review on. Boolean `true` omits process analysis and all log
+inspection and writing.
+
+Ignore unrecognized keys. Leave the file unchanged: do not rewrite it, create a
+missing file, or repair an invalid or unreadable file.
+
+Explicit invocation instructions override the stored preference without editing
+the file. `--skip-process` always skips, even when the file is missing or says
+`false`. An explicit request to include process review enables it for this
+invocation even when the file says `true`; do not add a new flag for that
+override. Contradictory explicit instructions use ordinary clarification.
+
+If the file is unreadable, is not a JSON object, contains malformed JSON, or sets
+a recognized key to a non-boolean, process selection is unresolved: report the
+error, omit process analysis, leave the log untouched, and continue
+independently supported reviews. An explicit process-selection instruction
+(`--skip-process` or an explicit include-process request) resolves that
+invocation without repairing the file.
 
 ## Work from these principles
 
@@ -88,7 +125,8 @@ If context needed for a review decision is missing, name it and stop that path.
 Do not invent a plan location, completion rule, or project convention.
 Return retrospective evidence in the response; do not create a separate artifact
 unless the user asks. Keep the repository read-only except for the process log
-and an allowed plan update described below.
+when process review is enabled and an allowed plan update described below. Do
+not create, repair, or rewrite `open-dough.json`.
 
 Read [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) and its
 refactor checks before assessing refactoring residue; apply its smell definitions
@@ -318,10 +356,12 @@ After process analysis, record its supported findings in the project's canonical
 other project or product maintenance. Product-only findings and implementation
 corrections stay in their own destinations. Preserve every unrelated file.
 
-Apply `--skip-process` before resolving, checking, or reading the log location.
-When process review is skipped, do not create, read, or edit the log. When enabled
-review yields no supported process finding, do not create an empty log and leave
-an existing log unchanged. `--skip-product` does not suppress process recording.
+Apply the process-selection result from [Select reviews](#select-reviews)
+before resolving, checking, reading, or writing the log location. When process
+review is skipped or unresolved, do not create, read, or edit the log. When
+enabled review yields no supported process finding, do not create an empty log
+and leave an existing log unchanged. `--skip-product` does not suppress process
+recording.
 
 Use `<project-root>/DearDough.md` unless the user or this project's conventions
 explicitly establish another canonical location for that filename. An explicit
@@ -474,9 +514,10 @@ Report the resolved feature story or bounded correction and completion state,
 provenance, included commit manifest and review boundary, findings ordered by
 impact or `none`, planning
 result, and evidence limitations. Include supported process proposals only for
-enabled process review. Include product recommendations or a reasoned no-change
-result only for enabled product review; do not report backlog writes from this
-skill. Omit skipped-focus analysis, suggestions, and destination
+enabled process review. When process selection is unresolved, report the
+configuration error and omit process analysis. Include product recommendations or
+a reasoned no-change result only for enabled product review; do not report backlog
+writes from this skill. Omit skipped-focus analysis, suggestions, and destination
 writes. Distinguish evidence from hypotheses, and recommendations from
 proposals and unresolved choices. State whether planning was updated in place,
 newly generated, read-only, unchanged, or not yet available because the
