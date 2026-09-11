@@ -17,6 +17,98 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="execute-in-worktree-and-merge-at-wrap-up"></a>
+
+### 16. Execute in a worktree by default and merge back at wrap-up
+
+**Status:** Refined on 2026-09-11; top queued story. Planning authorized;
+implementation not requested.
+**Plan:** [Quick 042](../quick/042-worktree-execution-and-wrap-up/PLAN.md).
+
+**Goal:** A developer using Open Dough can execute a slice plan in isolation,
+see its Taken status from the original checkout, and integrate the completed
+work through wrap-up. This extends the existing lifecycle guidance toward the
+backlog's stated worktree collaboration direction without building coordination
+tooling.
+
+**Scope and human decisions:**
+
+- Planned execution defaults to **worktree mode**, using a new branch and Git
+  worktree. Explicit caller instructions can instead select execution directly
+  on the current branch, typically main.
+- After resolving execution authority and context, worktree mode first moves
+  the existing queued entry to **Taken** on the current branch and commits
+  only that bookkeeping change locally. Create the execution branch/worktree
+  from that committed state. Do not separately push the bookkeeping commit
+  to trigger CI. Normal execution delivery still commits, pushes, and observes
+  CI under the existing execution contract.
+- Completed execution retains its branch and worktree. The caller or
+  coordinator separately invokes retrospective and wrap-up; execution does
+  not automatically invoke either.
+- Wrap-up commits story-related `DearDough.md` changes, preserves the existing
+  before-cleanup recovery revision, and commits the resulting closure changes.
+  Existing removal of spent story occurrences from the log remains applicable:
+  the pre-cleanup commit preserves retrospective entries even when closure
+  removes them from the current snapshot.
+- Once closure is committed, merge the work back to main, then remove the
+  execution worktree and branch only after successful integration. Later
+  wrap-up actions are explicitly part of this same story.
+
+**Bounded refinement decisions:** These are implementation judgments under the
+request to keep scope limited, not additional human requirements.
+
+- Retain the originating checkout, execution branch/worktree, and integration
+  target in the existing plan/conversation context. Main is the target unless
+  the caller or established project convention identifies another. The Taken
+  commit belongs to the originating branch even if it differs from the target.
+- Reuse an identified worktree for this execution on resume; Taken alone does
+  not establish its identity. Already-Taken work is neither reordered nor
+  given an empty bookkeeping commit. Work absent from the active backlog gains
+  no fabricated entry.
+- Respect unrelated edits and staged work. Do not stash, discard, overwrite,
+  force-delete, or merge unrelated changes to make this workflow proceed.
+  Missing or ambiguous branch/worktree ownership, unsafe checkout state, or a
+  failed Git operation leaves a precise recovery report and retained work.
+  A failed setup after the Taken commit leaves the item Taken for retry.
+- Use existing Git and host facilities, project branch/path conventions, and
+  existing execution context. No new state file, configuration, locking,
+  scheduler, custom worktree manager, or host adapter is promised.
+- Direct-current-branch execution has no worktree merge/removal step. Preserve
+  its ordinary backlog and delivery behavior. The new default is required for
+  planned execution; changing the separately selected planless quick path is
+  deferred.
+- Integration is local; this story adds no automatic push of main, remote
+  branch deletion, PR workflow, rebase policy, or CI waiting policy. Existing
+  explicit delivery instructions remain authoritative.
+
+**Key examples / evaluation:**
+
+1. Queued story on main + authorized plan + no override → local Taken-only
+   commit on main → a new branch/worktree based on that commit; execution
+   changes occur there and ordinary execution delivery uses its branch.
+2. Explicit current-branch instruction → execute there without creating an
+   execution branch/worktree; closure still commits applicable changes.
+3. Pause or completed execution in an identified worktree → retain it and the
+   branch; resumption reuses them with no duplicate Taken entry or empty commit.
+4. Completed execution + retrospective edits to `DearDough.md` → wrap-up makes
+   those edits recoverable before removing spent history, commits closure,
+   merges execution and closure into main, then removes the execution worktree
+   and branch. Unrelated main-branch changes remain intact.
+5. Setup failure after the claim, ambiguous ownership, merge conflict, or dirty
+   execution worktree at cleanup → report the unfinished operation and retain
+   recoverable work; never claim full wrap-up or remove unmerged work. A cleanup
+   failure after a successful merge reports integration separately from cleanup.
+
+**Deferred promises:** Automatic retrospective/wrap-up invocation, parallel-task
+coordination, additional execution modes, planless-path changes, release,
+installation/update changes, and new native-host acceptance runs. Source behavior
+review does not establish native acceptance or authorize release.
+
+**Depends on:** Story 14's Taken transition, already complete. No unfinished
+queued prerequisite.
+**Open decisions:** None blocking planning. Resolve actual Git paths, ownership,
+formatting/hook conventions, and authorized push destination when executing.
+
 <a id="show-stories-as-taken-during-execution"></a>
 
 ### 14. Show queued work as taken when plan execution starts
@@ -263,6 +355,9 @@ Manual post-release self-update/commit and the separate historical regression
 fixture remain maintainer-owned follow-ups.
 
 ## Ordering
+
+Story 16 is the top queued priority by explicit human instruction. It covers
+both default worktree execution and integration/cleanup at wrap-up.
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 11 retains its separate outcome and
