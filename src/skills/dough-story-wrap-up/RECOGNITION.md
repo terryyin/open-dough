@@ -293,3 +293,94 @@ candidate guidance. They do not prove native agent compliance, integration,
 worktree removal, remote behavior, or release readiness. ADR 0005 acceptance
 therefore remains pending; installed managed copies and payload declarations
 were not changed.
+
+## Quick 042 local integration evidence
+
+Walked the proposed worktree-mode integration guidance on 2026-09-11 in
+disposable local Git repositories. This is the representative behavior review
+required by `AGENTS.md`, not native Codex, Cursor, or Claude Code acceptance.
+
+### Input
+
+The primary fixture retained one planned-execution identity: originating and
+target checkout on `main`, execution checkout and branch `codex/execution`, and
+the execution branch's committed closure tip. The target had a separate,
+committed, nonconflicting change after the execution branch split. A conflict
+fixture changed the same tracked line on target and execution branches. An
+unsafe-target fixture added unrelated untracked target work before integration.
+The direct-current variant reused the completed Slice 3 fixture and its recorded
+mode; it had one checkout on `main` and no separate execution branch.
+
+### Actions and observations
+
+In `/private/tmp/dough-wrap-up-slice4.GdydHF/nonconflict`, the walkthrough first
+entered the execution checkout, saved
+`fb7c212e306b8f46b0348159cc920b7cc09cf5c4` with `git rev-parse HEAD`, then
+left that directory for the target checkout. The literal target inspection
+commands `pwd`, `git branch --show-current`, and `git status --short` showed
+`/private/tmp/dough-wrap-up-slice4.GdydHF/nonconflict`, `main`, and a clean
+checkout. `git merge-base --is-ancestor
+fb7c212e306b8f46b0348159cc920b7cc09cf5c4 main` returned 1 before integration.
+`git merge --no-edit fb7c212e306b8f46b0348159cc920b7cc09cf5c4`
+created merge commit `9a5f3f4234192a4668d8374338038933e81114c0`.
+
+The literal observations `git diff --name-only HEAD^ HEAD`, `git log --oneline
+--all --decorate`, `git show HEAD:target-only.txt`, and `git show
+HEAD:closure.txt` showed only `closure.txt` in the merge's first-parent diff,
+the separate `a174e45 Unrelated main change`, target content `unrelated
+committed target change`, and execution content `committed execution closure`.
+`git merge-base --is-ancestor
+fb7c212e306b8f46b0348159cc920b7cc09cf5c4 main` then succeeded. `git worktree
+list --porcelain` and `git branch --list` showed that the execution worktree and
+`codex/execution` branch remained for the later cleanup action.
+
+On a subsequent invocation, `git merge-base --is-ancestor
+fb7c212e306b8f46b0348159cc920b7cc09cf5c4 main` succeeded before any merge.
+The literal `git rev-parse HEAD` values before and after the decision were both
+`9a5f3f4234192a4668d8374338038933e81114c0`, and `git status --short` was empty.
+The already-integrated tip therefore caused no duplicate merge.
+
+In `/private/tmp/dough-wrap-up-slice4.GdydHF/conflict`, saved execution tip
+`56a4d5ac87924f605efa3d0549f3a542e449d3e4` conflicted with the target's
+separate commit. The literal `git merge --no-edit
+56a4d5ac87924f605efa3d0549f3a542e449d3e4` returned 1 and reported a content
+conflict in `shared.txt`. `git status --short` returned `UU shared.txt`, and
+`git diff --name-only --diff-filter=U` returned `shared.txt`. `git worktree list
+--porcelain`, `git branch --list`, and `git rev-parse codex/execution` showed
+both worktrees and branches retained and the execution branch still at the
+saved tip. The ancestry check returned 1, so this state cannot receive the
+completion marker; the merge was not aborted or reset.
+
+In `/private/tmp/dough-wrap-up-slice4.GdydHF/unsafe`, target inspection with
+`git branch --show-current` and `git status --short` showed `main` and
+`?? local-draft.txt`. No merge command was run. `git rev-parse HEAD` returned
+`791b4c9982105acfe0ff9009dd2b62d662ecffff` both before and after the refusal,
+`test -f local-draft.txt` succeeded, and the final `git status --short` still
+showed the untracked file. `git worktree list --porcelain` and `git branch
+--list` showed both owned execution resources retained. The saved execution tip
+was not yet an ancestor of `main`, so the report must identify unresolved
+integration rather than success.
+
+For direct-current mode in
+`/private/tmp/dough-wrap-up-slice3-direct.weKtlS`, the candidate rule selected no
+integration action. Literal `git branch --show-current`, `git status --short`,
+`git worktree list --porcelain`, and `git branch --list` showed a clean `main`
+checkout and no execution worktree or branch. `git rev-parse HEAD` remained
+`3389cd82b23f162e6e4b87251082035027140f3b` before and after the decision.
+
+### Candidate identity
+
+`src/skills/dough-story-wrap-up/SKILL.md` and this recognition record. The
+candidate extends the existing retained execution identity and closure commits
+with one mode-aware local integration boundary. It introduces no registry,
+remote delivery, rebase, conflict-resolution, or CI policy. No competing rule
+was needed in execution, backlog, retrospective, or cleanup guidance.
+
+### Limitations
+
+The commands manually exercise ordinary local Git inspection and merge behavior
+selected by the candidate guidance. They do not prove native agent compliance,
+owned worktree removal, target-branch push behavior, remote deletion behavior,
+CI behavior, or release readiness. Slice 5 owns local resource cleanup. ADR 0005
+native acceptance remains pending; installed managed copies and payload
+declarations were not changed.

@@ -217,18 +217,54 @@ direct-current-branch mode as well as worktree mode. In worktree mode, complete
 these commits before any later integration or owned worktree/branch removal.
 Direct-current-branch mode has no later integration or worktree-removal action.
 
+## Integrate committed worktree closure
+
+For worktree mode, save the committed final-closure tip and use the retained
+planned-execution identity to resolve the exact integration-target branch and
+the checkout that holds it. Leave the execution checkout before integration;
+run target inspection and integration from the target checkout. If the target
+checkout cannot be resolved uniquely, does not hold the recorded target branch,
+or no longer matches the retained identity, preserve the execution branch and
+worktree, report the mismatch, and stop this action. Direct-current-branch mode
+skips integration.
+
+Inspect the target checkout's branch, staged and unstaged changes, untracked
+files, and any unfinished Git operation before merging. Preserve unrelated
+target work. Do not stash, reset, overwrite, silently include it, or proceed
+through a state whose safety or ownership is ambiguous. An unsafe target state
+stops integration with both the execution branch and worktree intact.
+
+First test whether the saved execution tip is already an ancestor of the target
+branch. If so, treat integration as already done and do not merge again.
+Otherwise merge that committed tip into the target branch using this project's
+ordinary Git merge conventions. This integration is local: do not rebase, push
+the target branch, delete a remote branch, or introduce CI waiting policy. A
+merge conflict remains in the target checkout for explicit resolution; do not
+abort, reset, remove the execution worktree, or delete either branch. Report
+the conflicted paths and actual Git state, and do not claim wrap-up complete.
+
+After a successful merge or an already-integrated result, verify that the saved
+execution tip is an ancestor of the recorded target branch. A failed ancestry
+check is unresolved integration: preserve the branch and worktree, report the
+observed refs, and do not claim completion. Successful integration alone does
+not remove those owned resources; keep them for the later safe cleanup action.
+
 ## Report
 
 Report the selected work and its canonical identity, completion judgment,
 execution mode and retained checkout/branch/target identity when applicable,
 before-cleanup and final-closure commits when deletion happened, assimilated
-knowledge, deleted paths, preserved unsupported material, and any gap that
-blocked closure.
+knowledge, deleted paths, the saved execution tip and local integration result
+in worktree mode, preserved unsupported material and resources, and any gap
+that blocked closure. Distinguish a new merge from an already-integrated tip,
+and name unsafe or conflicted target state without implying that the target was
+pushed.
 Distinguish a completed wrap-up from a refusal that left files intact.
 
 End a successful closure with:
 
 `## STORY WRAP-UP COMPLETE`
 
-Do not emit that marker when required context, unfinished work, or
-unresolved recovery blocked deletion.
+Do not emit that marker when required context, unfinished work, unresolved
+recovery or worktree-mode integration, or remaining required worktree cleanup
+blocks closure.

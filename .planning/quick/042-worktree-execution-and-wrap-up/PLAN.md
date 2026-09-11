@@ -182,7 +182,7 @@ Sizing: bounded, high confidence; extends existing recovery/cleanup ordering.
 
 ### 4. Integrate the committed work into the target branch
 Type: Behavior
-Status: in-progress
+Status: done
 
 Behavior: Completed, committed worktree closure is merged into the resolved
 target branch without overwriting unrelated target changes.
@@ -267,3 +267,11 @@ slice-plan refinement pass was not triggered by this assessment.
   proof restored `repository/branch/coordinator` while defining that branch as
   the selected execution branch. Slice 4 remained paused and stashed during
   repair; this note does not mark it done.
+- CI run `34551244098` attempt 1 for the earlier Slice 3 tip failed with the same
+  host-contract assertion. It was already repaired by `2272133`; the focused
+  test remained green at current HEAD, so no duplicate repair was created.
+- Slice 4 integrated only from the retained target checkout after safety and
+  ancestry checks. The walkthrough preserved an unrelated target commit,
+  recognized repeated integration without another merge, retained conflicted
+  and dirty-target state without guessing, and skipped integration in
+  direct-current mode.
