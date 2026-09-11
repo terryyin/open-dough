@@ -1,3 +1,11 @@
+## 0.3.11 - 2026-09-11
+
+- Ship the missing bounded process-log reference required by the execution retrospective.
+- Compare installed files against the recorded release's declared payload, allowing ordinary updates to add references that existed in source but were not previously shipped while preserving local collision protection.
+- Align native delivery fixtures with the maintained payload inventory and verify reference installation, update, link resolution, and preservation across all three tool entry contexts.
+
+A focused native Codex candidate check verified installed-reference use, preservation of existing log content, and the 500-line warning. Remaining native acceptance checks, including the broader cross-tool lifecycle and bounded-log behaviors tracked by SEED-010 Story 2, proceed under the maintainer's explicit exception for `0.3.11`. They remain pending and are not reported as passing.
+
 ## 0.3.10 - 2026-09-11
 
 - Add `dough-pfe` (Proudly Found Elsewhere) and its required planning reference to the installable payload. Find existing solutions across the whole product, assess domain meaning before reuse or modularization, and stop unresolved consequential choices for the developer.
