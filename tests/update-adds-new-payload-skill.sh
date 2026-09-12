@@ -11,6 +11,7 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 new_managed_files=(
+  dough-maintain-findings/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-plan-refinement/SKILL.md
@@ -21,7 +22,7 @@ mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
 git_identity "${fixture}"
 
-write_candidate_payload "${fixture}" 0.1.1 payload-before-story-planning
+write_candidate_payload "${fixture}" 0.1.1 payload-before-added-skills
 for managed_file in "${new_managed_files[@]}"; do
   rm -- "${fixture}/src/skills/${managed_file}"
 done
@@ -32,14 +33,14 @@ for script in install.sh src/install/open-dough-release-version.sh; do
     mv -- "${fixture}/filtered" "${fixture}/${script}"
   done
 done
-commit_all "${fixture}" 'release before story planning skills'
+commit_all "${fixture}" 'release before added skills'
 tag_release "${fixture}" 0.1.1 '2026-06-01T00:00:00'
 
 older_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 
-write_candidate_payload "${fixture}" 0.1.2 payload-with-story-planning
-commit_all "${fixture}" 'release with story planning skills'
+write_candidate_payload "${fixture}" 0.1.2 payload-with-added-skills
+commit_all "${fixture}" 'release with added skills'
 tag_release "${fixture}" 0.1.2 '2026-06-02T00:00:00'
 
 target="${temporary_dir}/target"
@@ -93,4 +94,4 @@ fi
 after=$(snapshot_path_state "${collision_target}")
 [[ "${after}" == "${before}" ]]
 
-echo 'PASS: ordinary update adds newly released story-planning skills and refuses a pre-existing path collision.'
+echo 'PASS: ordinary update adds newly released skills and refuses a pre-existing path collision.'

@@ -7,6 +7,8 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
+- [Adopt finding names through explicitly requested log maintenance](seeds/SEED-010-learn-from-execution-retrospectives.md#explicit-finding-log-maintenance) — SEED-010
+
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
