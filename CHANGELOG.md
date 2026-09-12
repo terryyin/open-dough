@@ -1,3 +1,11 @@
+## 0.3.14 - 2026-09-13
+
+- Match completion claims to the smallest sufficient proof at the promised boundary. Distinguish setup supplied by fixtures or seams from behavior the product establishes, require caller-level completion when that is the promise, reuse valid evidence, and leave unavailable observations explicitly unproved.
+- Reassess the premise and smallest authorized finish line before accumulating corrections, extending a plan, or responding to a simplification request. Compare the strongest relevant simpler choice, preserve compatible completed work and proof, and invoke existing-solution analysis only when evidence changes responsibility or domain fit.
+- Strengthen internal retrospective-finding maintenance: rename reconciliation around retrospective findings, retain additional evidence under stable `ODF-NNN` identities, and require triaged follow-up stories to update addressed finding statuses after delivery.
+
+Native acceptance for the changed proof and reassessment guidance in Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.14`. That acceptance remains pending and is not reported as passing.
+
 ## 0.3.13 - 2026-09-12
 
 - Add `dough-maintain-findings` to the installable payload. On explicit request, adopt approved `DD-NNN` to `ODF-NNN` finding-code mappings while preserving finding evidence, recording former local codes, treating repeated adoption as a no-op, and leaving ambiguous or conflicting identities for human resolution.
