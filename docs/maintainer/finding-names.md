@@ -215,6 +215,8 @@ and unrelated notes when recording authorized follow-up.
     cleanup after a crashed build, and passed only after rerun; the boundary
     suite had remained green because its seam elided provisioning.
 
+- **Follow-up:** queued, not resolved. [Match success claims to proof of the promised outcome](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#match-success-claims-to-promised-outcome-proof). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
+
 ## ODF-012 — Load-sensitive failures lack a bounded reproduction path
 
 - **Meaning:** Requiring independent reproduction without retaining the smallest observed load or ordering boundary can force repeated complete verdict runs without localizing an intermittent lifecycle failure.
@@ -287,6 +289,8 @@ and unrelated notes when recording authorized follow-up.
   - Inference: The original claim extrapolated beyond its proof. The later
     public-path evidence is intentionally narrower and does not certify every
     retained-child-pipe cleanup failure.
+
+- **Follow-up:** queued, not resolved. [Match success claims to proof of the promised outcome](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#match-success-claims-to-promised-outcome-proof). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
 
 ## ODF-015 — Diagnostic transport was not validated before failure reruns
 
@@ -369,6 +373,8 @@ and unrelated notes when recording authorized follow-up.
   - Inference: Following intra-skill references in release completeness checks,
     or generating the manifest from the shipped tree, would prevent this
     false-current state more reliably than a hand-maintained list.
+
+- **Follow-up:** queued, not resolved. [Match success claims to proof of the promised outcome](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#match-success-claims-to-promised-outcome-proof). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
 
 ## ODF-018 — Credential handoffs were not validated at the user boundary
 
