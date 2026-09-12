@@ -1,6 +1,22 @@
 # Match success claims to proof of the promised outcome
 
-Status: planned. Planning authorized on 2026-09-12; execution not requested.
+Status: complete in source on 2026-09-12. Execution authorized after planning commit
+`0c1c1f4`; Taken-only commit `bb891de` established the execution base.
+
+## Execution identity
+
+- Origin: `/Users/terryyin/git/open-dough`, branch `main`.
+- Execution: `/Users/terryyin/git/open-dough-039-proof-claims`, branch
+  `codex/proof-claims`, based on `bb891de`.
+- Integration target: `main`; delivery destination: `origin/codex/proof-claims`.
+- CI: `terryyin/open-dough`, `ci.yml`, display name `CI` (push-triggered).
+- Observer: Codex yielded cell `27`, session `95427`, PID `7788`, receipt
+  `/tmp/dough-ci-501/watch-Nvf1DE`; coordinator `root`, bound to the execution
+  checkout and branch above. Started before delivery; pending CI is unobserved.
+- Formatting/hook context: no pre-commit hook or configured hooksPath. The
+  repository formatter/linter covers JS/JSON and shell, not Markdown; this
+  Markdown-only slice uses `git diff --check` and affected link checks without
+  running unrelated language formatters. No generated artifacts are implicated.
 
 ## Source, goal, and scope
 
@@ -93,7 +109,7 @@ over shorter text. No extra runtime efficiency-reporting procedure is introduced
 
 ### 1. Choose and accept proof without bypassing the promised behavior
 Type: Behavior
-Status: planned
+Status: done
 Proof: The single comparative walkthrough above shows case-specific supported
 claims and minimal next actions, while preserving correct sufficient-evidence
 acceptance; authoring review assesses clarity and total-work implications.
@@ -152,7 +168,28 @@ consistency, and truthful source-only completion. No further slice decomposition
 concern was identified in this assessment; candidate wording effectiveness remains
 a bounded verification question, not a missing product decision.
 
-## Learnings
+## Completion evidence and learnings
 
-No execution yet. Historical and current-text findings are recorded in the seed;
-reuse them unless new evidence changes their applicability.
+The shared rule now distinguishes promised setup from fixture-supplied behavior
+and inner completion from caller completion. Acceptance uses the same linked
+rule, replacing its duplicate setup-inspection sentence. Existing narrower proof,
+sufficient evidence, scope authority, and incomplete promises are preserved.
+
+The [comparative source review](evidence/proof-review.md) covers all five cases,
+identifies the exact reviewed source hashes, and records a net increase of 73
+whitespace-delimited words with no new runtime reads/procedures. It supports
+clearer instructions and a qualitative efficiency rationale, not observed native
+behavior, measured token savings, or a claim that the baseline always failed.
+
+Independent dough-post-change-refactor review: `none — already clean`, no edits,
+checks/tests skipped accordingly, `REFACTOR COMPLETE` (approximately two minutes).
+Coordinator checks passed: `git diff --check`; changed Markdown relative links
+and anchors; SHA-256 agreement with the two runtime sources identified in the
+assessment. No frontmatter, generated output, installer, or adapter changed.
+
+Delivery is to `origin/codex/proof-claims`. Observer launch handles above identify
+the exact receipt; its terminal receipt and the execution conversation own the
+shutdown result. Pending CI remains unobserved, not passing. The plan, evidence,
+Taken entry, execution branch, and worktree are retained for retrospective and
+story wrap-up; those workflows have not run.
+

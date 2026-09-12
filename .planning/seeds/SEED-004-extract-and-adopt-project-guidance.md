@@ -20,10 +20,10 @@ follows the established Codex, Cursor, and Claude Code conventions.
 <a id="match-success-claims-to-promised-outcome-proof"></a>
 ### 20. Match success claims to proof of the promised outcome
 
-**Status:** Refined on 2026-09-12. The owner confirmed the narrow goal and
-useful scope, with skill-language efficiency and total token efficiency as
-explicit objectives. Historical comparison is complete; slice planning is
-authorized, implementation is not.
+**Status:** Complete in source on 2026-09-12 after explicitly authorized planned
+execution. The linked plan retains comparative source review and delivery
+evidence. Release/adoption, native acceptance, and measured token savings are
+not claimed. Retrospective and story wrap-up remain separate.
 
 **Goal:** Help an agent using Open Dough reach a correctly supported completion
 claim with less total token expenditure: clear, correct instructions should lead
