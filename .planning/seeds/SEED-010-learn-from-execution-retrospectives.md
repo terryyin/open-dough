@@ -404,94 +404,9 @@ not delete its canonical definition or cancel active execution. Proposing or
 applying a near-future direction adjustment is entirely outside this story.
 Cross-tool verification was skipped for this story at the human's direction.
 
-<a id="explicit-finding-log-maintenance"></a>
-
-### 7. Adopt finding names through explicitly requested log maintenance
-
-**Status:** Taken for explicitly authorized quick execution on 2026-09-12.
-Retain this contract for retrospective; execution proof stays in the conversation.
-
-**Goal:** A developer using Open Dough, including in Open Dough itself, can
-explicitly adopt supplied, approved finding-code mappings in the project's
-`DearDough.md`, preserving the evidence needed for later review and triage.
-Deliver this small public capability promptly without building the rest of the
-finding lifecycle.
-
-**Scope — required behavior:** Deliver one public skill for explicitly requested
-finding-log maintenance. This increment supports adopting one or more supplied
-`DD-NNN` → `ODF-NNN` mappings only. Resolve the target project's canonical log
-and the mappings from the request and established session context. Match the
-source identity and concrete finding meaning, replace the heading code, retain
-its title and body, and record the former project-local code as a concise alias.
-Preserve occurrence rows, observations, inferences, resolution notes, and
-unrelated findings. Report mappings applied, already adopted, or blocked.
-The skill consumes recommendations; it does not allocate catalog identities or
-require the Open Dough maintainer catalog in the executing project.
-
-**Explicit-use constraint:** The user's direction on 2026-09-12 requires an
-explicit skill invocation or explicit natural-language request for this
-maintenance. Accepted mappings and the target may come from earlier session
-context; do not ask for approval again when already supplied. A bare invocation
-without mappings identifies the missing input and makes no rename. Merely
-encountering findings or reconciliation recommendations during other work does
-not authorize adoption. State this boundary in the skill description and body.
-The deliverable is this agent behavior across Codex, Cursor, and Claude Code;
-no new host invocation infrastructure or guarantee that a host never loads the
-skill text is required.
-
-**Rejection constraints:** Missing or ambiguous source identity, mismatched
-meaning, or an internal code already assigned to a different local finding
-blocks that mapping with an explanation. Do not merge findings or reinterpret
-the supplied mapping to force a match. These constraints preserve finding
-identity and evidence. Independently unambiguous approved mappings can still
-be applied; report partial outcomes. A previously adopted matching mapping is
-a no-op, not another alias or finding.
-
-**Key examples:**
-
-- A project log contains `DD-001` about mixed commit provenance. The user asks
-  to adopt its supplied matching `ODF-001` recommendation. The heading becomes
-  `ODF-001`, its title and evidence remain intact, and the former `DD-001`
-  identity remains traceable in a short alias note.
-- The same accepted mapping is requested again. The existing `ODF-001` and
-  alias identify the same finding; the log is unchanged.
-- The user accepts two mappings. One is clear; the other would assign an
-  internal code already used for a different finding. Apply the clear mapping,
-  leave the conflicting findings intact, and explain the unresolved mapping.
-- A retrospective sees an available mapping but the user has not requested
-  adoption. This maintenance skill makes no log change.
-- The user explicitly invokes the skill without supplying any mapping in the
-  request or session. Report the missing mapping and leave the log unchanged.
-
-**Delivery boundary:** Include the skill in the public delivery through the
-existing release/install conventions; keep a single shared behavioral source
-and only necessary host adaptation. Use the repository's existing behavior
-review and applicable delivery checks. Do not create a broad lifecycle
-validation campaign for this story. Its completion does not certify pending
-sibling validation obligations. Executing this story does not itself authorize
-a version release or adoption of the real log's mappings.
-
-**Deferred promises:** Cleanup, recategorization, pending observation after a
-fix, confirmation that a problem is gone, and removal from the active log remain
-future uses of the same maintenance skill. Applying a fix alone does not prove
-disappearance. Story 4 continues to own evaluating response effectiveness;
-select evidence and retention rules for later maintenance operations when
-needed. No status model, monitoring, pruning, remote exchange, catalog changes,
-or scaffolding for those future operations is required now.
-
-**Boundary assumptions / open decisions:** Existing Markdown finding headings
-and supplied textual mappings are sufficient; no new mapping format or parser
-service is needed. The skill's final kebab-case name and alias wording are
-routine implementation choices. No unresolved product decision blocks planning.
-
-**Safe stopping point:** A project can adopt approved names on explicit request
-and continue using the preserved log, even if all later maintenance operations
-are deferred indefinitely.
-
 ## Ordering and Scope Reduction
 
-Story 7 was selected first and is now Taken for quick execution. Story 2 is
-the next queued work. Preserve unrelated backlog order. Story
+Story 2 is the next queued work. Preserve unrelated backlog order. Story
 numbers are stable identities, not priority ranks.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
@@ -515,8 +430,7 @@ change to the near-future direction is authorized.
 
 ## When to Surface
 
-Retain Story 7 for its execution retrospective and wrap-up. Refine Story 2
-around released logging use in Open Dough. Surface the separately
+Refine Story 2 around released logging use in Open Dough. Surface the separately
 pending validation obligations when selecting acceptance work or assessing an
 affected release. Surface effectiveness tracking
 when a response has a relevant follow-up execution; surface cross-project
