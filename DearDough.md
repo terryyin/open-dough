@@ -104,3 +104,27 @@ source already defined the quick path.
   - Inference: Maintainer dogfooding of unreleased workflow behavior needs an
     explicit source-versus-installed authority convention to avoid contradictory
     execution gates.
+
+## DD-006 — Oversized context reads obscure narrow execution inputs
+
+Bundling large skill references and planning documents into one output exceeded
+output limits during a small guidance change, obscuring requested context and
+prompting further reads. This concerns input selection, not a reason to omit
+required review or proof.
+
+### Occurrences
+
+- Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: This execution conversation's combined read of SEED-010 and
+    `dough-execute-plan/references/{delegation,execution-decisions,wrap-up,ci-monitor}.md`
+    returned truncated output. The next combined reconciliation/triage/context
+    read was also truncated; execution-decisions was subsequently loaded again.
+    Bundled document reads in this retrospective repeated the truncation.
+  - Observed effect: Requested guidance was not fully visible in those outputs,
+    and additional context reads were performed for the same single-slice work.
+  - Inference: Load required references once, then select sections for concrete
+    unresolved questions and size outputs to fit. This should reduce avoidable
+    rereading while preserving required context; net time and token cost were
+    not measured. No decisive match to an existing local issue was found.
