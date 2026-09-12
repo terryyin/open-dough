@@ -78,47 +78,113 @@ must be resolved during execution.
 <a id="revisit-premise-and-finish-line"></a>
 ### 2. Revisit the premise and finish line before expanding corrective work
 
-**Status:** Selected for backlog; unrefined.
+**Status:** Quick execution complete in source; retained for retrospective and
+story wrap-up. Real-use effectiveness remains unverified.
 
-**For / why:** A product owner using Open Dough can keep corrective execution
-focused on the smallest intended outcome when an assumption fails or they request
-simplification, rather than receiving an expanding plan without delivery.
+**Goal:** A product owner using Open Dough gets corrective work directed at the
+smallest authorized, evaluable outcome when an assumption fails or they request
+simplification. The agent reassesses why the work is needed before extending it.
+This supports delivering useful outcomes and changing direction at low cost.
 
-**Scope:** Improve the existing planning and execution response to accumulating
-corrective work or an explicit simplification request. Revisit the parent premise
-and current finish line before extending the plan. Use available evidence to
-compare a simpler environmental or product choice, preserve useful completed
-work and its proof, and distinguish an authorized scope decision from a proposal
-that needs the owner's decision. Reuse existing PFE and direction guidance;
-refinement should identify the remaining gap before adding instructions.
+**Evidence and need:** This story comes from triaging two retained Pygardon
+findings, selected together on 2026-09-12:
 
-**Evaluation:** In a representative environment-premise case, corrective
-expansion prompts a bounded comparison of the infrastructure assumption before
-more downstream implementation. In a simplification case, the agent restates the
-smallest intended outcome, identifies work no longer required, and continues only
-within established authority or surfaces the specific unresolved scope decision.
-A justified correction within an unchanged valid outcome can proceed without
-inventing a new approval gate. Neither case treats more slices as authorization
-for a broader finish line.
+- [ODF-013](../../docs/maintainer/finding-names.md#odf-013--plan-splits-preserve-an-untested-environment-premise):
+  execution `quick/107-checked-docker-release` at `276caaf2e` accumulated
+  application ownership corrections while publication remained unimplemented.
+  A later pinned-image probe reaped an orphan with Docker init and retained a
+  zombie without it. This supports questioning the application obligation;
+  it does not establish that init fixes every historical hang.
+- [ODF-023](../../docs/maintainer/finding-names.md#odf-023--simplification-retains-an-expanding-closure-condition):
+  execution `quick/108-publish-install-checked-docker-release` at `f011af3b5`,
+  continuation `3f6302ec6..e3e2a25c4`, retained a broad finish line after the
+  owner's simplification request. Nine implementation and seven planning
+  commits left ten publication slices; the owner stopped execution without a
+  published release. Commit counts describe the sequence, not proof that all
+  intervening work was unnecessary.
 
-**Value / learning:** Reduce avoidable implementation and planning that leave the
-owner's outcome undelivered, while retaining useful proof and necessary corrections.
-The environmental and product-scope findings remain distinct causes.
+These are supplied retrospective observations retained in the finding catalog,
+not a fresh reproduction. Both report an unknown Open Dough release, so they
+support investigating the failure mechanism but do not prove current guidance
+still fails. Their environmental and product-scope causes remain distinct.
 
-**Effort hypothesis:** Uncertain until refinement compares these cases with the
-current planning and execution guidance; no execution estimate is promised.
+**Challenge and preferred approach:** More instructions are not yet justified.
+[Decomposition](../../src/skills/dough-story-decomposition/references/problem-decomposition.md#choose-the-decomposition-level)
+already says to revisit invalidated parent decisions;
+[planning](../../src/skills/dough-slice-planning/SKILL.md) requires evidence for
+uncertain infrastructure assumptions; and
+[execution decisions](../../src/skills/dough-execute-plan/references/execution-decisions.md)
+already handle scope and direction changes. The likely gap is recognizing that
+accumulating corrections or a simplification request calls for that reassessment
+before further subdivision, even without an explicit recorded-direction conflict.
+This is a hypothesis to check against the examples below.
 
-**Depends on:** No new product prerequisite; independent of the first selected
-finding response.
+Prefer making the existing decision path clearer through consolidation or
+replacement. Reusing the guidance unchanged is a valid smaller alternative if
+representative use already produces the intended behavior; do not manufacture a
+rule to mark findings addressed. A reminder that depends on the owner repeatedly
+interrupting execution does not meet the goal. Separate environment and
+simplification procedures risk duplicating one decision: is the remaining work
+still necessary for the authorized outcome?
 
-**Safe stopping point:** The active work has an evidence-supported premise and
-an authorized, evaluable finish line. No automatic cancellation, deletion of useful
-work, new tracking system, or broader workflow redesign is required.
+**Scope:** Clarify that decision within existing planning and execution guidance.
+When the premise is challenged, compare the strongest relevant simpler choice
+using available evidence, with a bounded check only for a decisive uncertainty.
+When simplification is requested, establish the smallest intended finish line
+and remove obligations the owner has authorized dropping. Preserve compatible
+completed work and proof. Continue justified corrections within existing
+authority; surface only an unresolved consequential decision.
 
-**Findings:** [ODF-013](../../docs/maintainer/finding-names.md#odf-013--plan-splits-preserve-an-untested-environment-premise)
-and [ODF-023](../../docs/maintainer/finding-names.md#odf-023--simplification-retains-an-expanding-closure-condition).
-Grouped as related failures to reassess ongoing work; identities and historical
-observations remain separate. Queued follow-up does not resolve these findings.
+Although this responds to findings, the expected resolution is simpler, clearer,
+more concise instructions. Prefer one common rule in an existing authoritative
+home, replacing overlapping prose rather than adding case-by-case coverage.
+Judge simplicity by the decisions, steps, and text an executing agent must use,
+not word count alone or moving verbosity into references. If a simpler solution
+cannot satisfy these examples while preserving necessary constraints, inform
+the owner with the concrete failure and smallest proposed exception before
+adopting a more elaborate solution.
+
+**Boundaries:** No new skill, tracking system, routine approval gate, numeric
+expansion threshold, or general workflow redesign is promised. No Pygardon
+infrastructure repair or release delivery is included. Existing PFE and direction
+handling may be reused or clarified where necessary; a general rewrite is outside
+this story. Fewer slices are not themselves success, and necessary corrections
+are not waste merely because they cross components. Simplification does not
+authorize cancelling user promises or deleting useful work. These boundaries
+keep delivery small without prescribing Docker init as the answer.
+
+**Key examples:**
+
+- Given the ODF-013 assumption and growing application corrections, before
+  extending implementation the agent compares the environment's existing
+  lifecycle capability against the presumed application obligation. It states
+  what the probe establishes and what remains unproved, then proceeds only on
+  the supported, authorized choice.
+- Given the ODF-023 simplification request and useful completed local-CI work,
+  before adding publication slices the agent states the minimum intended
+  delivery and which obligations are unnecessary. It applies scope already
+  authorized by the owner; if the finish line is still ambiguous, it presents
+  that specific choice. Completed local-CI proof is preserved.
+- Given a defect whose correction remains necessary for an unchanged, supported
+  outcome, the agent repairs it within existing authority. It does not require
+  another approval or reopen the whole product merely because the plan grows.
+
+**Evaluation:** Representative use of these cases reaches the supported premise
+and authorized finish line before further corrective expansion, preserves useful
+proof, and permits ordinary corrections. Compare the current and proposed
+instructions to demonstrate a simpler decision path without losing these
+behaviors. A walkthrough supports the guidance change; effectiveness in real
+use remains unverified until subsequent feedback.
+
+**Effort hypothesis:** Bounded guidance clarification; estimate remains for
+execution planning. If the examples require broader redesign, report the gap
+instead of absorbing it into this story.
+
+**Depends on:** No new product prerequisite.
+
+**Safe stopping point:** Existing guidance supplies a clear, concise path to an
+evidence-supported premise and authorized finish line. Findings retain their
+separate evidence and are not resolved merely by refining this story.
 
 ## Ordering
 
