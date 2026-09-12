@@ -90,3 +90,27 @@ and unrelated notes when recording authorized follow-up.
 - **Meaning:** Installed plan-required execution guidance and unreleased quick-execution guidance impose conflicting entry conditions during maintainer execution.
 - **Source mappings:** Open Dough / DD-005
 - **References:** `DearDough.md`, DD-005; `30a5026`; assessed source report at unreleased revision `533da34`, base `0.3.8`; installed and source `dough-execute-plan/SKILL.md`.
+
+## ODF-006 — Oversized context reads obscure narrow execution inputs
+
+- **Meaning:** Bundling broad skill references and planning documents into oversized reads can truncate required context and force avoidable rereading during a narrow execution.
+- **Source mappings:** Open Dough / DD-006
+- **References:** `DearDough.md`, DD-006; `0120ac3`.
+
+### Occurrences
+
+- Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
+  - Source: Open Dough / DD-006; canonical `DearDough.md` occurrence
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: Combined reads of SEED-010, four `dough-execute-plan` references,
+    and later reconciliation, triage, and context material returned truncated
+    output; `execution-decisions.md` and bundled retrospective documents were
+    subsequently read again.
+  - Observed effect: Required guidance was not fully visible in the original
+    outputs, so the execution performed additional reads for the same
+    single-slice work.
+  - Inference: Selecting sections for concrete unresolved questions and sizing
+    outputs to fit may reduce avoidable rereading without omitting required
+    review or proof; net time and token cost were not measured, and no decisive
+    match to an existing local issue was found.

@@ -1,6 +1,8 @@
 # DearDough Process Findings
 
-## DD-001 — Mixed execution changes obscure commit provenance
+## ODF-001 — Mixed execution changes obscure commit provenance
+
+Former local code: DD-001.
 
 The execution's product changes were committed together with a much larger,
 separately described cleanup, so the commit does not identify the Taken-work
@@ -19,7 +21,9 @@ outcome as one of its responsibilities.
   - Inference: Separate commits for independently completed work would make
     review scope, attribution, and recovery clearer.
 
-## DD-002 — Planless Taken work lacks closure evidence
+## ODF-002 — Planless Taken work lacks closure evidence
+
+Former local code: DD-002.
 
 This story was intentionally implemented without a slice plan, but the current
 wrap-up workflow requires a plan identity, completed slice state, and a
@@ -42,7 +46,9 @@ plan-recorded retrospective completion marker.
 Resolution: On 2026-09-10, the human authorized a one-off closure for this
 execution and retained the existing plan-required wrap-up contract unchanged.
 
-## DD-003 — File-type assumptions skipped affected maintained proof
+## ODF-003 — File-type assumptions skipped affected maintained proof
+
+Former local code: DD-003.
 
 Slice implementation and refactor handoffs treated runtime Markdown changes as
 having no applicable maintained tests, even though one changed phrase was an
@@ -63,7 +69,9 @@ explicit contract in the focused CI runtime suite.
   - Inference: Selecting focused proof from file type instead of tracing the
     changed contract to maintained tests caused avoidable CI repair churn.
 
-## DD-004 — Exact CI repair recovery preserved in-progress slice work
+## ODF-004 — Exact CI repair recovery preserved in-progress slice work
+
+Former local code: DD-004.
 
 The asynchronous repair protocol isolated a real failure without losing or
 mixing the active slice, then resumed the same implementation from its precise
@@ -83,7 +91,9 @@ handoff.
   - Inference: Explicit writer quiescence, exact stash identity, and focused
     repair delivery formed a useful recovery boundary for worktree execution.
 
-## DD-005 — Installed and unreleased execution guidance competed for authority
+## ODF-005 — Installed and unreleased execution guidance competed for authority
+
+Former local code: DD-005.
 
 The selected quick story had explicit planless execution authority, while the
 installed execution skill still required a plan and the repository's unreleased
@@ -105,7 +115,9 @@ source already defined the quick path.
     explicit source-versus-installed authority convention to avoid contradictory
     execution gates.
 
-## DD-006 — Oversized context reads obscure narrow execution inputs
+## ODF-006 — Oversized context reads obscure narrow execution inputs
+
+Former local code: DD-006.
 
 Bundling large skill references and planning documents into one output exceeded
 output limits during a small guidance change, obscuring requested context and
