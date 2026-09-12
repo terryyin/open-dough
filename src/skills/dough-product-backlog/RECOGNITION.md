@@ -33,8 +33,11 @@ seed IDs for feature stories or plan identities for seedless corrections. Human
 priorities, direction, value, learning, and prerequisites guide ordering, with
 urgent exceptions. Each feature story has one canonical section within a seed;
 a bounded correction without a supplied story uses its plan as the canonical
-home. Authorized execution moves an unchanged queued entry to the end of
-**Taken** as its first project-state change; refinement and planning do not.
+home. Authorized execution moves a queued entry to the end of **Taken** as its
+first project-state change, preserving its title, canonical link, and identity
+and adding a direct slice-plan link for a planned feature story. Planless quick
+stories need no plan link; corrections already linked to a plan need no duplicate.
+Refinement and planning do not take work.
 Pauses, failures, completion, and resumption leave the entry taken. Story
 wrap-up removes completed work from its active list and owns applicable seed,
 plan, and proof cleanup. Authorized standalone queue maintenance may remove a
@@ -90,3 +93,10 @@ change; wrap-up removed the completed **Taken** entry. Missing or ambiguous
 backlog context stops before execution. The human explicitly skipped new native
 acceptance for this change; the existing native evidence does not prove the new
 transition.
+
+The 2026-09-12 source behavior review walked a planned story moving after an
+existing taken entry: its canonical story link and identity remain, and a direct
+link opens its resolved slice plan. Resume retains ordering and adds a missing
+plan link without duplicating one. Missing or ambiguous plans stop the transition.
+A planless quick story moves without inventing a plan; a seedless correction
+retains its existing plan link. This is a source review, not native acceptance.
