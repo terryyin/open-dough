@@ -30,7 +30,7 @@ finding already records queued or Taken follow-up, follow
 [Rereview existing follow-up](#rereview-existing-follow-up).
 
 Identity ownership stays with
-[reconcile-finding-names](../reconcile-finding-names/SKILL.md). This skill does
+[reconcile-retrospective-findings](../reconcile-retrospective-findings/SKILL.md). This skill does
 not allocate, rename, or collect catalog identities.
 
 ## When to apply
@@ -66,11 +66,15 @@ paths from this skill's directory, repository-root `DearDough.md`, or
 
 1. **Accumulated evidence** — an explicitly supplied path to canonical findings
    Markdown whose issue identities are already reconciled internal codes
-   (`ODF-NNN`). The file should use the same issue-heading plus occurrence-row
+   (`ODF-NNN`), including the internal catalog when explicitly supplied. Source
+   mappings may still say `DD-NNN`; source adoption is not required. The file
+   should use the same issue-heading plus occurrence-row
    shape as this project's process log: one heading per issue, occurrence rows
    as the count, observed effect separate from inference. See
    [dough-execution-retrospective](../dough-execution-retrospective/SKILL.md)
-   for that shape. Stop if no evidence path was supplied.
+   for that shape; the catalog uses **Meaning** as its concrete description.
+   Naming-only entries or Evidence notes may inform a qualified proposal but
+   establish no occurrence count. Stop if no evidence path was supplied.
 2. **Established product direction** — a supplied backlog or direction path, or
    explicit direction text in the invocation. Do not guess
    `.planning/PRODUCT-BACKLOG.md`. If direction is missing, say that alignment
@@ -97,7 +101,7 @@ Stop usefully when ranking input is missing or unusable:
   Invent no findings, codes, or counts.
 - Finding without a reconciled internal identity (`ODF-NNN`): report that
   limitation for that finding and route the maintainer to
-  [reconcile-finding-names](../reconcile-finding-names/SKILL.md). Do not invent
+  [reconcile-retrospective-findings](../reconcile-retrospective-findings/SKILL.md). Do not invent
   codes, auto-reconcile, rename, collect occurrences, fetch other projects, or
   write the catalog. Rank any remaining findings that already have `ODF-NNN`
   identities; do not drop a usable ranking because a sibling finding is
@@ -149,6 +153,7 @@ Identify each interpretable issue from the supplied evidence only.
   mint are not reconciled internal identities.
 - **Occurrences are the count.** Count distinct supported execution identities
   among occurrence rows that identify an execution and show an observed effect.
+  Qualify execution identities by source project when the catalog supplies it.
   Repeated reports of the same execution are one occurrence. Do not add a
   stored total, and do not treat an inference of “this happens often” as
   recurrence.
@@ -283,7 +288,7 @@ Check the finding destination before changing any file:
   required. Do not guess `DearDough.md`. If a backlog path was supplied, leave
   it unchanged.
 - The selected finding has a reconciled `ODF-NNN` identity in the evidence. If
-  not, route identity work to `reconcile-finding-names` and make no write.
+  not, route identity work to `reconcile-retrospective-findings` and make no write.
 - The selected finding does **not** already record queued or Taken follow-up.
   If it does, stop before any edit and follow
   [Rereview existing follow-up](#rereview-existing-follow-up). Make no write
@@ -299,8 +304,9 @@ Use **deferred**, **evidence request**, or **no-change**. Example:
 and locators for an actual second planning pass.`
 
 The finding is **not resolved**. Do not delete the finding, occurrence history,
-or unrelated notes. Do not edit `docs/maintainer/finding-names.md` or allocate
-catalog identities. Preserve occurrences, observed effect, inference, unrelated
+or unrelated notes. The catalog may receive this disposition only when it is
+the explicitly supplied writable finding location. Never alter catalog identities.
+Preserve occurrences, observed effect, inference, unrelated
 human notes, and unrelated findings.
 
 If the finding write fails after validation, report that the disposition was
@@ -351,7 +357,7 @@ Check every destination before changing any file:
 - Backlog conventions are identifiable (title, Near-future direction when
   present, Taken retained, Backlog list). If they are not, stop before editing.
 - The selected finding has a reconciled `ODF-NNN` identity in the evidence. If
-  not, route identity work to `reconcile-finding-names` and make no write.
+  not, route identity work to `reconcile-retrospective-findings` and make no write.
 - The story would be evaluable: a named beneficiary and an evaluable outcome
   can be stated from the selected proposal. If either is missing, stop rather
   than invoking decomposition, refinement, or slice planning to fabricate them.
@@ -406,8 +412,9 @@ order, and direction text.
 3. **Reciprocal finding link.** On the supplied writable finding location, add a
    concise Follow-up (or the file's equivalent human-note convention) that
    links to the queued story and states that the finding is **queued, not
-   resolved**. Do not add a separate status database. Do not edit
-   `docs/maintainer/finding-names.md`. Preserve occurrence rows, observed
+   resolved**. The catalog may receive this link only when it is the explicitly
+   supplied writable finding location. Do not add a separate status database.
+   Preserve identity fields, occurrence rows, observed
    effect, inference, unrelated human notes, and unrelated findings.
 
 ### Partial failure
@@ -426,7 +433,7 @@ stop: invent no path, and do not claim queue or finding writes complete.
 
 - Do not default to real `DearDough.md` or `docs/maintainer/finding-names.md`.
 - Do not allocate, rename, or reconcile identities; route that work to
-  `reconcile-finding-names`.
+  `reconcile-retrospective-findings`.
 - Do not fetch other projects or scan unrelated logs.
 - Do not treat similar symptoms as a shared cause.
 - Do not count the same execution twice.

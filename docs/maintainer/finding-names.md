@@ -5,12 +5,13 @@ Internal maintainer catalog for stable process-finding identities. Namespace:
 payload.
 
 Allocate a code only from supported supplied feedback. Empty scaffolding is
-not a finding. Do not add occurrence history, recurrence counts, or execution
-rows.
+not a finding. Retain finding-relevant supplied evidence under its identity,
+independently of source-project code adoption. Existing naming-only entries
+remain valid; do not fabricate or backfill their history.
 
 ## Entry shape
 
-Each allocated finding uses one heading and these fields only:
+Each allocated finding keeps these identity fields:
 
 - **Meaning:** the concrete issue, not a wording or symptom label
 - **Source mappings:** `source-project / local-code`, qualified by revision or
@@ -19,6 +20,44 @@ Each allocated finding uses one heading and these fields only:
   decision
 
 The heading carries the code as `## ODF-NNN — <short title>`.
+
+### Retained evidence
+
+Under the same ODF heading, reuse the process log's occurrence shape, adding
+source attribution:
+
+```markdown
+### Occurrences
+
+- Execution: <stable execution identity>
+  - Source: <source project / supplied code; source occurrence locator>
+  - Tool: <executing tool>
+  - Model: <when supplied>
+  - Open Dough release: <version | unknown | unreleased | modified; supplied revision/base>
+  - Evidence: <compact decisive references>
+  - Observed effect: <what the supplied record shows>
+  - Inference: <qualified cause, cost, confidence, unknowns or counterevidence, when relevant>
+```
+
+Preserve supplied execution and revision provenance; unknown stays unknown.
+Do not substitute today's checkout, installed version, or reviewing tool. Keep
+observations separate from inferences and retain consequential uncertainty.
+If execution identity or executing tool is missing, retain the supplied evidence
+and limitation as an **Evidence note**, without inventing a countable occurrence.
+Naming references alone are not occurrence evidence.
+
+Within an identity, the same source project and execution identify one
+occurrence; source-code adoption or another symptom does not add one. A distinct
+supported execution adds one row. Identical replay leaves the entry byte-identical;
+merge only newly supplied decisive evidence into an existing row or note. When
+missing provenance becomes available, complete that evidence rather than duplicate
+it. Keep uncertain matches under their separately resolved identity. Rows are
+the visible count; add no redundant total or inferred recurrence.
+
+An optional **Follow-up** records an explicitly selected disposition or linked
+story under [triage-retrospective-findings](../../.agents/skills/triage-retrospective-findings/SKILL.md).
+Ranking alone leaves this catalog unchanged. Preserve identity fields, evidence,
+and unrelated notes when recording authorized follow-up.
 
 ## Findings
 

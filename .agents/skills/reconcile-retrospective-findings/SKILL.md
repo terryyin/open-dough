@@ -1,14 +1,16 @@
 ---
-name: reconcile-finding-names
-description: Reconcile a source project's retrospective finding names with stable internal Open Dough finding codes (ODF-NNN). Use when a maintainer asks to recommend a rename, assign an ODF code, match finding names, or reconcile source and internal codes from DearDough or supplied feedback.
+name: reconcile-retrospective-findings
+description: Reconciles supplied retrospective findings under stable internal Open Dough codes (ODF-NNN) and retains their evidence for later triage. Use when a maintainer asks to reconcile findings, retain supplied DearDough feedback, recommend a rename, assign an ODF code, or match source and internal finding names.
 ---
 
-# Reconcile finding names
+# Reconcile retrospective findings
 
 You are the maintainer agent working in the Open Dough source repository. This
 skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)):
 it is not in the released payload and must not be added to `install.sh`. Do not
 create a second procedure under `src/skills/`.
+
+Follow [maintainer guidance](../../../AGENTS.md) when editing this skill.
 
 Two roles stay separate even when both are Open Dough:
 
@@ -16,7 +18,7 @@ Two roles stay separate even when both are Open Dough:
   `DearDough.md` you inspect. Its local codes stay `DD-NNN` until a human adopts
   an internal name. After that adoption, a source heading may already be
   `ODF-NNN`.
-- **Open Dough catalog** — this repository's naming record. Internal codes are
+- **Open Dough catalog** — this repository's identity and evidence record. Internal codes are
   `ODF-NNN`.
 
 Never treat those namespaces as interchangeable. This skill never writes the
@@ -25,13 +27,12 @@ not mint `ODF-NNN` codes.
 
 ## When to apply
 
-Use when a maintainer asks to reconcile finding names, recommend a source-code
-rename to an ODF code, or match supplied DearDough/feedback against the internal
-catalog.
+Use when a maintainer asks to reconcile or retain supplied findings, recommend
+a source-code rename to an ODF code, or match supplied DearDough/feedback against
+the internal catalog. Retention does not depend on source adoption.
 
-Do not use this skill to collect recurrence, count executions, edit guidance,
-apply a source rename, respond to a finding, or audit every skill. Do not
-fetch other projects.
+Do not use this skill to fetch findings, edit guidance, apply a source rename,
+triage or queue responses, or audit every skill. Retain only supplied evidence.
 
 ## Required context
 
@@ -72,8 +73,10 @@ Stop usefully when input is missing:
    scaffolding with no allocated findings is valid; it is not a finding, and
    the next code is `ODF-001`.
 2. Read only the supplied feedback or the selected source log. Identify each
-   interpretable source finding (local code plus concrete meaning). Do not import
-   occurrence rows, counts, or execution history into the catalog.
+   interpretable source finding (local code plus concrete meaning) and its
+   supplied evidence. After resolving identity below, retain that evidence under
+   the selected heading using the catalog’s occurrence rules. Naming-only
+   entries remain valid; do not backfill unrelated entries.
 3. For each interpretable finding, look for a current-catalog identity whose
    **concrete meaning** is the same issue. Wording, title, or symptoms alone are
    not a match. Identity is the concrete issue plus evidence of continuity or
@@ -90,8 +93,8 @@ Stop usefully when input is missing:
    invent a history investigation.
 5. **Known match already recorded:** reuse that identity when the supplied
    finding is the same recorded source issue, including a previously recorded
-   uncertain identity. Recommend the same mapping. Make no catalog edit: do
-   not add counts, history rows, extra fields, or duplicate mappings.
+   uncertain identity. Recommend the same mapping and retain only missing
+   supplied evidence. Identical replay makes no catalog edit or duplicate mapping.
    Reprocessing the same source finding keeps the recorded identity. If the
    supplied finding reports a later revision than the catalog entry, inspect
    history (see Inspect relevant history) before reuse; continuity,
@@ -100,8 +103,8 @@ Stop usefully when input is missing:
 6. **Source already uses that internal code:** if the source heading is already
    the matching `ODF-NNN` — including a human-adopted heading whose concrete
    meaning already has that catalog identity — report that no rename is needed
-   for that aligned issue. Do not add a source-mapping alias, rewrite that
-   catalog entry, or collect occurrence history. A new unmatched finding in
+   for that aligned issue. Retain missing supplied evidence under that identity
+   without a redundant source-mapping alias. A new unmatched finding in
    the same log still follows No known match: allocate the next unused
    `ODF-NNN` and recommend a rename only for that finding.
 7. **Demonstrated continuity:** when the catalog already has an identity for
@@ -154,11 +157,12 @@ Stop usefully when input is missing:
    the new code.
 
    Replaying that same uncertain source finding reuses the recorded identity
-   (step 5). Make no extra catalog edit.
+   (step 5); identical evidence makes no extra catalog edit.
 
 Chat is the only recommendation channel. Format:
 `source-project/code → ODF-NNN`. Never edit source feedback, even when the source
-project is Open Dough.
+project is Open Dough. Optional source adoption belongs to
+[dough-maintain-findings](../dough-maintain-findings/SKILL.md).
 
 ## Inspect relevant history
 
@@ -185,25 +189,20 @@ files in a Git repository. This is not a new history engine.
 ## Catalog entry
 
 Follow [docs/maintainer/finding-names.md](../../../docs/maintainer/finding-names.md).
-A new identity is one heading and these fields only:
-
-```markdown
-## ODF-NNN — <short title>
-
-- **Meaning:** <one concrete issue>
-- **Source mappings:** <source-project / local-code>
-- **References:** <compact evidence or change locators>
-```
+Keep the identity fields there and retain finding-relevant supplied evidence in
+that same entry, using its occurrence shape and replay rules. Preserve existing
+human notes and Follow-up dispositions. No second evidence store or transcript
+copies. A source already using the matching ODF code needs no new alias.
 
 Qualify a source mapping with a revision or occurrence locator when needed so
 one source code cannot overwrite an earlier different issue. After a
 demonstrated correction, do not rewrite the earlier heading's source mapping
-to the new code. Do not add occurrence history, totals, or count fields.
+to the new code.
 
 When continuity is demonstrated, append compact locators to **References** on
 the existing heading: the reported revision, the current revision assessed,
-and the decisive remaining-issue locator. Do not add a second heading,
-occurrence rows, or counts.
+and the decisive remaining-issue locator. This identity decision adds no second heading or occurrence by itself;
+retain actual supplied occurrence evidence separately under the same heading.
 
 When a new identity follows a demonstrated correction, write the new heading
 with compact **References** to the earlier `ODF-NNN` and the decisive
@@ -217,7 +216,12 @@ change). Do not write continuity locators or a demonstrated-correction
 relationship as if those were proven.
 
 Replace `_No findings allocated yet._` with the first entry. Append later
-entries after existing findings. Do not rewrite unrelated catalog text.
+entries after existing findings. Do not rewrite unrelated catalog text. Verify
+the source checksum after the write; report the identity, retained evidence,
+and any provenance limitations. An identical replay leaves both files
+byte-identical. Supply the catalog explicitly to
+[triage-retrospective-findings](../triage-retrospective-findings/SKILL.md) for
+later ranking; reconciliation does not invoke triage.
 
 ## Boundaries
 

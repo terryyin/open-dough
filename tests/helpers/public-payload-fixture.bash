@@ -6,7 +6,7 @@
 internal_skill_names=(
   release-version
   extract-guidance
-  reconcile-finding-names
+  reconcile-retrospective-findings
   triage-retrospective-findings
 )
 

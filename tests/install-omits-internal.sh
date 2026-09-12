@@ -14,7 +14,7 @@ done
 [[ -f "${source_dir}/CLAUDE.md" ]]
 [[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
 [[ -f "${source_dir}/docs/maintainer/finding-names.md" ]]
-[[ -f "${source_dir}/.claude/skills/reconcile-finding-names/SKILL.md" ]]
+[[ -f "${source_dir}/.claude/skills/reconcile-retrospective-findings/SKILL.md" ]]
 [[ -f "${source_dir}/.claude/skills/triage-retrospective-findings/SKILL.md" ]]
 
 temporary_dir=$(mktemp -d)
@@ -143,4 +143,4 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, reconcile-finding-names, triage-retrospective-findings, their Claude discovery pointers, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, extract-guidance, reconcile-retrospective-findings, triage-retrospective-findings, their Claude discovery pointers, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."
