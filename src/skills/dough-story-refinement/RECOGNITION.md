@@ -76,9 +76,3 @@ Inspected source SHA-256 values (paths relative to the supplied repository):
   `744f1099dcd3c3280402eacc38b0a5a22a0d871bae8b9f511f8389ee01a16b33`
 - `.agents/skills/dough-adr-awareness/SKILL.md`:
   `6c0f29ceec252eeda4a0c3bb3a0fcc0260a6d0f907ca8467a96dbd39cb43cd25`
-
-The 2026-09-12 [proof-selection and acceptance review](../../../.planning/quick/039-match-success-claims-to-proof/evidence/proof-review.md)
-compares current and candidate guidance on promised setup, caller completion,
-installed use, sufficient evidence, and unavailable proof. It records the shared
-rule clarification, caller reuse, reading cost, and qualitative work rationale;
-it is manual source review, not native execution or measured token savings.
