@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Revisit the premise and finish line before expanding corrective work](seeds/SEED-009-keep-only-externally-valuable-work.md#revisit-premise-and-finish-line) — SEED-009
-
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

@@ -140,14 +140,3 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
-
-- Execution: `SEED-009#revisit-premise-and-finish-line @ 3446f62`
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: The conversation's combined refinement-reference/finding-catalog
-    read was truncated; the combined retrospective/wrap-up read also truncated
-    process guidance, which was then read by section.
-  - Observed effect: Required context was not fully visible in the combined
-    outputs and required additional reads for this single-slice story.
-  - Inference: Select bounded sections and size outputs to fit. This repeats
-    ODF-006's input-selection problem; time and token cost were not measured.

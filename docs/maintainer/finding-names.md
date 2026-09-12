@@ -283,7 +283,15 @@ of effectiveness. Keep this maintainer-only; no project notification is required
     first failed would likely have reduced work, but the probe does not prove
     that init alone resolves every historical hang.
 
-- **Follow-up:** queued, not resolved. [Revisit the premise and finish line before expanding corrective work](../../.planning/seeds/SEED-009-keep-only-externally-valuable-work.md#revisit-premise-and-finish-line). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Consolidated reassessment of the premise and smallest authorized
+  outcome before corrective expansion into the shared execution decisions,
+  also used before further plan subdivision. Preserves compatible proof and
+  existing authority for necessary corrections. Guidance commit: `3446f62`.
+  Story recoverable at
+  `dbf5813:.planning/seeds/SEED-009-keep-only-externally-valuable-work.md`.
+  ODF-013 and ODF-023 retain distinct causes and evidence.
+- **Released in:** Pending; this closure does not establish real-use effectiveness.
 
 ## ODF-014 — Local failure proof was accepted as public completion proof
 
@@ -546,4 +554,12 @@ of effectiveness. Keep this maintainer-only; no project notification is required
     orchestration. Preserve its proof and settle the smallest closure outcome
     before further implementation rather than extending the plan to fit it.
 
-- **Follow-up:** queued, not resolved. [Revisit the premise and finish line before expanding corrective work](../../.planning/seeds/SEED-009-keep-only-externally-valuable-work.md#revisit-premise-and-finish-line). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Consolidated reassessment of the premise and smallest authorized
+  outcome before corrective expansion into the shared execution decisions,
+  also used before further plan subdivision. Preserves compatible proof and
+  existing authority for necessary corrections. Guidance commit: `3446f62`.
+  Story recoverable at
+  `dbf5813:.planning/seeds/SEED-009-keep-only-externally-valuable-work.md`.
+  ODF-013 and ODF-023 retain distinct causes and evidence.
+- **Released in:** Pending; this closure does not establish real-use effectiveness.
