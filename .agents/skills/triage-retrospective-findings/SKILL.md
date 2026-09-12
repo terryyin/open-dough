@@ -20,7 +20,8 @@ description: >-
 You are the maintainer agent working in the Open Dough source repository. This
 skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)):
 it is not in the released payload and must not be added to `install.sh`. Do not
-create a second procedure under `src/skills/`.
+create a second procedure under `src/skills/`. Follow the repository
+[maintainer guidance](../../../AGENTS.md) when authoring or reviewing this skill.
 
 One skill. Ranking is always the first step. Persistent writes run only after
 the developer **explicitly chooses** queued follow-up or a non-queue
@@ -404,8 +405,10 @@ order, and direction text.
    heading). Use the next unused local number (1 on a new seed), a kebab-case
    stable anchor, named beneficiary, and evaluable outcome. On the story,
    record the finding code and the supplied finding location. Do not copy
-   occurrence rows into the seed. Do not rewrite sibling stories or, on an
-   existing seed, its metadata.
+   occurrence rows into the seed. Add a completion criterion to update each
+   addressed finding at the supplied writable location after delivery, following
+   the [finding-status convention](../../../docs/maintainer/finding-names.md#retained-evidence).
+   Do not rewrite sibling stories or, on an existing seed, its metadata.
 2. **Canonical queue entry.** Add the story to **Backlog list** (not Taken)
    using the exact title linked to its stable anchor plus the seed ID. Leave
    details in the seed. Queueing here does not start execution.
