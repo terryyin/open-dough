@@ -1,3 +1,0 @@
-Reading additional input from stdin...
-2026-09-08T02:59:02.782989Z ERROR codex_core_skills::service: failed to install system skills: io error while remove existing system skills dir: Operation not permitted (os error 1)
-2026-09-08T02:59:02.823730Z ERROR codex_models_manager::cache: failed to load models cache: missing field `base_instructions` at line 132 column 5

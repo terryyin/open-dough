@@ -214,34 +214,6 @@ all 23 runtime Markdown files, `git diff --check`, and the existing
 `execution-payload-update.sh` checks. The updater wording check accepts equivalent
 payload phrasing. No slice plan, release, or installation/adoption was performed.
 
-<a id="keep-slice-planning-bounded"></a>
-
-### 11. Keep slice planning within the requested workflow
-
-**Status:** Complete in source, 2026-09-10; implemented via
-[Quick 035](../quick/035-bounded-slice-planning/PLAN.md). Not released. Native
-acceptance excluded by scope.
-
-**Goal:** A human or coordinating agent requesting a slice plan receives a
-useful plan and concrete remaining concerns without unintended execution or a
-planner-issued workflow decision.
-
-**Scope:** Finish after writing and reporting the plan unless the triggering
-human or parent-agent instruction explicitly also requests execution. Do not
-treat readiness or concern evidence as authorization. Report remaining
-slice-specific concerns or a limited no-concerns finding without prescribing
-the next workflow. Correct obvious construction defects; preserve decomposition,
-proof ownership, and sizing. Exclude mandatory refinement, coordinator tooling,
-budget redesign, refinement's own assessment redesign, cross-tool acceptance,
-release, installation, and hand-edits of installed managed copies.
-
-**Completion:** Updated `src/skills/dough-slice-planning/` so planning-only and
-parent-delegated planning stop after the plan, explicit plan-and-execute may
-continue without re-approval, and reports carry concern evidence instead of
-`ready for direct execution` / `refinement recommended`. Local AGENTS.md
-behavior walkthroughs are recorded in recognition; linked references needed no
-edits.
-
 <a id="extract-story-refinement"></a>
 
 ### 6. Extract story refinement and improve one real story
@@ -301,8 +273,7 @@ fixture remain maintainer-owned follow-ups.
 ## Ordering
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
-Story 11 retains its separate outcome and
-backlog position relative to the other existing items. Story 14 is done. Story
+Story 14 is done. Story
 15 is selected. Story 6 remains the next extraction reuse opportunity after
 higher-priority queued work. Story 7 surfaces for a real oversized problem;
 Story 8 surfaces for its named client/task needs.

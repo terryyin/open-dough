@@ -30,7 +30,8 @@ rule, no unchanged retry was made.
 bash /private/tmp/dough-032-compat.slyRFx/source/install.sh --target /private/tmp/dough-032-compat.slyRFx/target --source /private/tmp/dough-032-compat.slyRFx/source --platform cursor
 ```
 
-New versus Quick 031's three negative diagnostics: current Cursor 3.19.13 (was
+New versus Quick 031's three negative diagnostics, recoverable under
+`aa32c106ad5d:.planning/quick/031-register-ci-host-hooks/evidence/`: current Cursor 3.19.13 (was
 `2026.09.08-6caf4ff`) and `--sandbox disabled` (031 used `--sandbox enabled`).
 
 ## Compatibility setting

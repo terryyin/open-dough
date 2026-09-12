@@ -1,2 +1,0 @@
-# Customer labels
-One production subsystem: customer labels, all src/ files. Domain vocabulary: customer label = trimmed first and last names joined by a single space. test/ exercises the CLI public entrypoint. No generated artifacts. No runtime wrapper. File size limit 150 lines for source/tests, installed guidance exempt. Whitespace: git diff --check. Focused tests: node --test test/labels.test.mjs. No active plan. Current change adds invoice labels using the same customer label concept. The work is owned by this request. Refactor only, no commit or push.

@@ -138,9 +138,7 @@ Manual instruction walkthroughs, not native agent acceptance:
    `REFACTOR JIDOKA STOP`; make no cross-boundary edit and do not commit.
 
 Invocation context, required context, and useful outcomes are covered in these
-walkthroughs. Native notification delivery was pending at extraction; the
-[execution acceptance review](../../../.planning/quick/027-execution-native-acceptance/README.md)
-records the subsequent native cases and adapter corrections.
+walkthroughs.
 
 ## Automated validation
 

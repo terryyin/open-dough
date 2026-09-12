@@ -2,8 +2,10 @@
 
 ## Source and scope
 
-Execution retrospective of [Quick 031](../031-register-ci-host-hooks/PLAN.md),
-implementing [SEED-001 Story 8](../../seeds/SEED-001-install-and-update-open-dough.md#register-ci-host-hooks-consistently).
+Execution retrospective of Quick 031, recoverable at
+`aa32c106ad5d:.planning/quick/031-register-ci-host-hooks/PLAN.md`, implementing
+SEED-001 Story 8, recoverable at
+`aa32c106ad5d:.planning/seeds/SEED-001-install-and-update-open-dough.md`.
 Review date: 2026-09-09. Quick 031 now has all 13 slices done; release and ordinary
 adoption of `0.3.4` are recorded through `623c3ce`. This is a follow-up correction
 of its existing conflict-refusal promise, not a reopening of its completed slices.
@@ -119,8 +121,8 @@ file-size limit was found or imported from the external skill's project.
 
 - Planning only in this task. Claude Code is the intended executing coordinator;
   do not launch it or execute, commit, or push while updating this plan.
-- Use this new quick PLAN because the reviewed execution is complete. Preserve
-  Quick 031's evidence.
+- Use this new quick PLAN because the reviewed execution is complete. Recover
+  Quick 031's evidence from `aa32c106ad5d` only when it is needed.
 - Carry forward Quick 031's explicit human direction excluding numeric slice
   budgets and timing-policy changes. Each slice owns one observable outcome and
   focused proof loop; no numeric sizing readiness or timing guarantee is claimed.
@@ -292,15 +294,16 @@ the native hook exactly once and can stop its observer cleanly without changing
 host settings. Missing readiness produces explicit unavailable coverage.
 
 Proof: Reuse Slice 2's updated fixture, or independently create a committed
-installer-created fixture if Slice 2 is blocked on ADR use. Inspect Quick 031's
-Claude evidence before selecting only the missing or invalidated checks. Follow
+installer-created fixture if Slice 2 is blocked on ADR use. Recover Quick 031's
+Claude evidence from `aa32c106ad5d` before selecting only the missing or
+invalidated checks. Follow
 the installed `ci-notify-hosts.md` and `ci-monitor.md` contracts:
 
 - Run `node <installed-skill>/scripts/ci-mailbox.mjs probe` through native Bash;
   retain the receipt and separately injected `CI_MONITOR_READY` context.
 - Start one observer with the fixture's controlled GitHub source, retaining its
-  mailbox and separate coordinator-attachment context. Reuse Quick 031's controlled
-  `gh` fixture with an unpredictable failure label absent from the prompt. Continue
+  mailbox and separate coordinator-attachment context. Recover Quick 031's controlled
+  `gh` fixture from `aa32c106ad5d` and use an unpredictable failure label absent from the prompt. Continue
   useful coordinator work; do not replace hook delivery with model polling.
 - Observe the owning coordinator receiving the label at a tool/stop boundary;
   verify delivery progress and a subsequent boundary without duplicate delivery.
@@ -329,7 +332,8 @@ real checkout), as the plan's execution-context notes require, separate from
 disposable acceptance sessions. Real, unplanned evidence came first: the
 observer set up for this slice's own use also delivered a genuine
 `CI_INCOMPLETE` for the Slice 1 push, leading to Slice 2's CI-timeout repair.
-For the controlled cases, Quick 031's `evidence/controlled-gh.py` only
+For the controlled cases, Quick 031's
+`aa32c106ad5d:.planning/quick/031-register-ci-host-hooks/evidence/controlled-gh.py` only
 implemented the startup `run list` shape and returned a jobs-shaped body for
 any other call regardless of requested fields — insufficient for the real
 `run view --json attempt,status,conclusion,url` / `--json jobs` polling
@@ -359,8 +363,8 @@ is handled safely while one native CI failure reaches the owning coordinator
 once. Shutdown preserves both settings files.
 
 Proof: Claude Code coordinates this check, but it must run through real Cursor.
-Review Quick 031's retained `cursor-compatibility-diagnostic/README.md` and its
-three negative diagnostics first; file presence and successful Claude-native
+Recover Quick 031's `evidence/cursor-compatibility-diagnostic/README.md` from
+`aa32c106ad5d` and review its three negative diagnostics first; file presence and successful Claude-native
 delivery do not resolve R5. Record current Cursor version, active compatibility
 setting, actual Claude-hook invocation/input, guard outcome, one unpredictable
 failure delivery, exact mailbox shutdown, and unchanged settings. The current

@@ -1,5 +1,0 @@
-root=/private/tmp/dough-031-claude.Ipxozo
-claude_checkout=/private/tmp/dough-031-claude.Ipxozo/claude-checkout
-token=acceptance-b8118306c1d27163
-update_cmd=bash /Users/terryyin/git/open-dough-wt-031-ci-hooks/src/install/open-dough-release.sh apply --target <target> --platform claude
-claude --version: 2.1.265 (Claude Code)

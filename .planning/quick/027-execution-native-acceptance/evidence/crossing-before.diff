@@ -1,9 +1,0 @@
-diff --git a/src/cli.mjs b/src/cli.mjs
-index 734d627..e52655d 100644
---- a/src/cli.mjs
-+++ b/src/cli.mjs
-@@ -1,2 +1,3 @@
- import { customerLabel } from "./customer.mjs";
--console.log(customerLabel(process.argv[2], process.argv[3]));
-+import { invoiceLabel } from "./invoice.mjs";
-+console.log(process.argv[4] === "invoice" ? invoiceLabel(process.argv[2], process.argv[3]) : customerLabel(process.argv[2], process.argv[3]));

@@ -1,1 +1,0 @@
-This command needs your approval to run (it reads the recorded Open Dough source outside the project directory). Please approve the `git ls-remote --tags` command so I can pin the latest release tag, or let me know if you'd like to adjust permissions first.

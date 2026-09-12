@@ -1,6 +1,0 @@
-Observed in the running Cursor desktop Settings UI on 2026-09-09 immediately before the diagnostic runs:
-
-Section: Agents > Third-Party Imports
-Control: Include Third-Party Plugins, Skills, and Other Configs
-Description: Automatically import agent configs from other tools
-Accessibility value: on

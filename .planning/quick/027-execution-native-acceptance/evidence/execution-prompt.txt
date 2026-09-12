@@ -1,1 +1,0 @@
-Use dough-execute-plan to complete planning/plan.md for the selected story in planning/seed.md, following this client project context. Complete its authorized local delivery.

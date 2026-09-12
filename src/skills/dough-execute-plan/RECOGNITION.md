@@ -44,9 +44,6 @@ Synchronous CI gates, per-SHA observers, worker-owned commits, or workflows with
 Representative invocation-context, required-client-context, and useful-outcome
 walkthroughs are recorded in
 [the extraction review](../dough-execute-plan/EXTRACTION.md#representative-behavior-review).
-Native behavior and host integration, plus installation/update/coexistence
-checks, are recorded in the [execution acceptance review](../../../.planning/quick/027-execution-native-acceptance/README.md).
-The review retains failures, the Codex adapter corrections, and validation limits.
 See the extraction review for dependency disposition and source differences.
 Source integrity is recorded in
 [SOURCE-CHECKSUMS.json](../dough-execute-plan/SOURCE-CHECKSUMS.json).

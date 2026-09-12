@@ -70,33 +70,6 @@ assumptions against its established near-future direction.
   details. Apply changes within the user's established authority and project
   workflow; distinguish applied changes from proposals and unresolved decisions.
 
-- Refinement on 2026-09-10: a retrospective invocation alone produces product
-  recommendations; apply backlog edits when session or project authority already
-  permits maintenance, without asking again. Skip options do not grant authority.
-- The near-future direction is a high-priority consideration in all three
-  enabled reviews, not only product review. Question alignment and digression,
-  and route needed corrections through each review's existing authority and
-  destination. This cross-review behavior is explicitly included in Story 6.
-- Inspect the queue and other stories only when relevant to the execution or a
-  supported finding. An isolated urgent bug fix need not trigger queue analysis.
-- The remaining refinement assumptions are accepted, including completing all
-  enabled reviews after correction planning and reconciling the read-only rule
-  with authorized product edits. WIP cleanup is not the representative execution.
-
-- The user accepted **implementation review** as the name for the first focus
-  (features, bugs, code, and design), and Quick 031 as the representative candidate.
-- Token efficiency is a focus of process review, not a blanket optimization rule
-  or a numerical target for every activity. Consider concise skill instructions
-  and context organized for easy consumption, including avoidable rereading,
-  duplication, and reconstruction. Preserve the information needed for sound
-  decisions; shorter text alone does not establish a better process.
-
-- Final Story 6 refinement: the user accepted the bounded new-idea and
-  process-efficiency recommendations. Near-future direction adjustment is
-  entirely excluded: do not propose or apply a replacement or revision of it.
-  Review alignment against the existing direction and correct the work or its
-  proposed priorities within existing authority. Execution planning is authorized.
-
 ## Original Alternatives and Decision
 
 The following rationale describes the initial selection before logging shipped.
@@ -187,32 +160,6 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
-<a id="turn-retrospectives-into-learning-loop"></a>
-
-### 1. Preserve recurring retrospective findings in DearDough.md
-
-**Status:** Source complete on 2026-09-10.
-**Plan:** [Quick 036](../quick/036-record-retrospective-process-findings/PLAN.md).
-
-**Goal:** A developer can revisit supported process findings after a retrospective
-conversation ends and recognize which issues occurred in distinct executions.
-This adds durable feedback to the existing lifecycle guidance with minimal overhead.
-
-**Scope:** Extend the existing retrospective to keep its concise response and
-write process findings to one local `DearDough.md`. Process review already owns
-observation quality, direction alignment, and token-efficiency considerations;
-reuse those rules. Record useful practices, one-off costs, potentially general
-costs, and supported observations about the retrospective itself. Use stable issue
-and execution identities, preserve interpretable human content, and avoid
-double-counting a rereview. Keep uncertain matches separate and refuse ambiguous
-or unsuccessful writes without suppressing other reviews. Keep product learning
-and implementation corrections in their existing destinations. Exclude
-release/adoption, cross-tool testing and acceptance, consumers, remote exchange,
-automatic guidance edits, token measurement, migration, pruning, locking
-infrastructure, causal inference engines, automatic merging, and direction
-changes; Story 2 owns released local use. Broader acceptance remains in the
-separately pending lifecycle validation obligations below.
-
 <a id="use-released-retrospective-log"></a>
 
 ### 2. Use released retrospective logging in Open Dough
@@ -223,11 +170,9 @@ separately pending lifecycle validation obligations below.
 after the conversation ends, and the maintainer can judge whether the released
 logging is useful for recognizing recurrence and choosing a response.
 
-**Current context:** Retrospective logging has shipped and Open Dough already
-has real findings in `DearDough.md`. The missing bounded-log reference shipped
-in 0.3.11 with focused Codex evidence. First implementation, first publication,
-and the reference repair are completed work. Assess existing use and evidence
-before deciding what remains; do not repeat adoption merely to create a new run.
+**Current context:** Retrospective logging is released and Open Dough has real
+findings in `DearDough.md`. Assess existing use before deciding what remains;
+do not repeat adoption merely to create a new run.
 
 **Scope:** Establish use of the released retrospective in Open Dough through its
 ordinary update process, without manually synchronized managed copies. Review a
@@ -335,7 +280,8 @@ or expensive feedback routines from persisting merely because they were adopted.
 **Effort hypothesis:** Band pending project definitions. Evidence availability
 is the main uncertainty; elapsed observation time is not implementation effort.
 
-**Depends on:** Story 1 and a recorded response with a later relevant execution.
+**Depends on:** Released retrospective logging and a recorded response with a
+later relevant execution.
 Manual response recording is sufficient; internal naming is optional.
 
 **Safe stopping point:** Local evidence supports a meaningful response decision
@@ -370,39 +316,11 @@ decision before investing in broad discovery or transport automation.
 **Effort hypothesis:** Band pending project definitions. Uncertainty concerns
 identity relationships and a useful, explicitly authorized evidence exchange.
 
-**Depends on:** Story 1's stable local findings and a willing second project.
+**Depends on:** Stable local findings and a willing second project.
 Neither an internal consumer nor automated effectiveness tracking is required.
 
 **Safe stopping point:** A single manual exchange delivers a useful response.
 Projects retain control of their evidence; no ongoing access is implied.
-
-<a id="turn-execution-learning-into-product-backlog-decisions"></a>
-
-### 6. Turn execution learning into product backlog decisions
-
-**Status:** Source complete 2026-09-10; released in 0.3.6. Remaining native acceptance is tracked in the
-separately pending lifecycle validation obligations above.
-**Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md);
-all six slices done. Local behavior evidence is in that plan's `evidence/`
-and the skill's `RECOGNITION.md`.
-
-**Goal:** The developer or product owner of the executing project can use
-what development revealed to decide what to build next and keep product direction,
-priorities, and story details consistent with that learning.
-
-**Scope:** Add product review to the retrospective alongside implementation
-review and process review. Connect supported learning to the established
-near-future direction. Recommend or apply authorized backlog maintenance;
-do not implement findings or change direction. Process and product review are
-default-on with independent `--skip-process` and `--skip-product`. Complete
-all enabled reviews even after implementation correction planning.
-
-**Material exclusions:** No process-log format or writing, internal mailbox
-consumer, cross-project collection, new retrospective workflow, automatic
-implementation, or release/adoption work. Removing a story from the queue does
-not delete its canonical definition or cancel active execution. Proposing or
-applying a near-future direction adjustment is entirely outside this story.
-Cross-tool verification was skipped for this story at the human's direction.
 
 ## Ordering and Scope Reduction
 
@@ -448,6 +366,3 @@ exchange only when another project's finding offers additional learning.
   own first consuming project; manual reading and improvement initially;
   internal consumption later; other projects later still; retain both special
   and general costs while learning; review the retrospective's own process.
-- User direction on 2026-09-10: add product review as a separate perspective
-  for the executing project, make it the top backlog priority, and make process
-  and product review default-on with `--skip-process` and `--skip-product`.

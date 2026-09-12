@@ -20,7 +20,8 @@ below.
 
 ## Controlled-failure check
 
-Quick 031 left a `gh` stand-in (`evidence/controlled-gh.py`) that only
+Quick 031 left a `gh` stand-in, recoverable at
+`aa32c106ad5d:.planning/quick/031-register-ci-host-hooks/evidence/controlled-gh.py`, that only
 implements the startup `run list` call and returns a jobs-shaped body for
 *any* other invocation regardless of the fields actually requested — it
 would not have produced valid data for `watch-ci-execution.mjs`'s real

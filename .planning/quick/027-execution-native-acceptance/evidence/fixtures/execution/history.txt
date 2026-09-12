@@ -1,2 +1,0 @@
-a18a957 Trim surrounding whitespace from CLI greeting name
-2458e9c greeting baseline and understood story
