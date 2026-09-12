@@ -1,3 +1,12 @@
+## 0.3.12 - 2026-09-12
+
+- Link taken planned stories directly to their slice plans while preserving each story's title, canonical link, and identity. Add missing plan links on resume without duplicating or reordering entries; keep quick stories planless and avoid duplicate links for corrections.
+- Simplify story wrap-up guidance for deleting spent history, preserving active follow-up provenance, committing closure, and safely removing integrated worktree resources.
+- Resolve wrap-up integration conflicts using the reasoning and evidence behind both sides, verify the resolution, and complete the merge. Preserve unresolved work for a human decision when the evidence cannot justify a coherent resolution.
+- Clarify that update baselines follow the prior release's declared installed payload, with local collision protection for newly declared paths. Close completed repository story records while retaining outstanding acceptance work.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.12`. Acceptance for the changed guidance and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.11 - 2026-09-11
 
 - Ship the missing bounded process-log reference required by the execution retrospective.
