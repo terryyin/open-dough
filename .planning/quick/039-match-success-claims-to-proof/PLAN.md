@@ -192,4 +192,3 @@ the exact receipt; its terminal receipt and the execution conversation own the
 shutdown result. Pending CI remains unobserved, not passing. The plan, evidence,
 Taken entry, execution branch, and worktree are retained for retrospective and
 story wrap-up; those workflows have not run.
-
