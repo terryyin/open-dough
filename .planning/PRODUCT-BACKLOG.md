@@ -7,8 +7,6 @@ complete set of skills covering the full software development lifecycle.
 
 ## Taken
 
-- [Open a taken story's slice plan from the product backlog](seeds/SEED-011-link-taken-stories-to-slice-plans.md#link-taken-story-to-slice-plan) — SEED-011
-
 ## Backlog list
 
 - [Validate the remaining released lifecycle behavior across tools](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010

@@ -93,10 +93,3 @@ change; wrap-up removed the completed **Taken** entry. Missing or ambiguous
 backlog context stops before execution. The human explicitly skipped new native
 acceptance for this change; the existing native evidence does not prove the new
 transition.
-
-The 2026-09-12 source behavior review walked a planned story moving after an
-existing taken entry: its canonical story link and identity remain, and a direct
-link opens its resolved slice plan. Resume retains ordering and adds a missing
-plan link without duplicating one. Missing or ambiguous plans stop the transition.
-A planless quick story moves without inventing a plan; a seedless correction
-retains its existing plan link. This is a source review, not native acceptance.
