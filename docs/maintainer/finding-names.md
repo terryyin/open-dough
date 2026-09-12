@@ -59,6 +59,17 @@ story under [triage-retrospective-findings](../../.agents/skills/triage-retrospe
 Ranking alone leaves this catalog unchanged. Preserve identity fields, evidence,
 and unrelated notes when recording authorized follow-up.
 
+For an implemented response, optionally record **Status**, **Response**, and
+**Released in** under that finding. Use “Addressed in source; effectiveness
+unverified” until real-use evidence supports a narrower conclusion. Describe
+what changed and retain the implementation commit and a recoverable
+`commit:path` for a cleaned-up story or plan. These references support ongoing
+finding assessment and survive story cleanup. Record the containing release
+when known; pending release or feedback from an older installation does not
+establish recurrence after the response. On new feedback, compare the supplied
+release and failure mechanism before updating the status; silence is not proof
+of effectiveness. Keep this maintainer-only; no project notification is required.
+
 ## Findings
 
 ## ODF-001 — Mixed execution changes obscure commit provenance
@@ -200,6 +211,14 @@ and unrelated notes when recording authorized follow-up.
 - **Source mappings:** Doughnut Project / DD-005
 - **References:** Doughnut Project `DearDough.md`, DD-005; release `0.3.12`; `be7234f7f2`; pre-fix `47df168656`; fix `b0dad96aaa`; `scripts/e2e-runner.test.mjs`.
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Clarified that fixture-supplied allocation does not prove
+  product-owned provisioning, while preserving narrower useful proof.
+  Guidance change: `e710426`. Story 20 and its review are recoverable through
+  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
+- **Released in:** Pending for the guidance response; no containing release tag
+  is present in this repository at recording time.
+
 ### Occurrences
 
 - Execution: `SEED-015 Story 8 / quick-105-runner-owned-e2e-lifecycle / be7234f7f2`
@@ -264,11 +283,21 @@ and unrelated notes when recording authorized follow-up.
     first failed would likely have reduced work, but the probe does not prove
     that init alone resolves every historical hang.
 
+- **Follow-up:** queued, not resolved. [Revisit the premise and finish line before expanding corrective work](../../.planning/seeds/SEED-009-keep-only-externally-valuable-work.md#revisit-premise-and-finish-line). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.
+
 ## ODF-014 — Local failure proof was accepted as public completion proof
 
 - **Meaning:** A bounded inner failure-policy test does not establish terminal completion at the public caller when additional waits and joins remain outside the tested bound.
 - **Source mappings:** Pygardon / DD-003
 - **References:** Pygardon `DearDough.md`, DD-003; release `0.3.6`, snapshot `f5fd66e60`; local proof `b6d24ac22`; later public-path proof `2e06e144f`; distinct from ODF-011's seam-elided provisioning issue.
+
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Clarified that an inner operation finishing does not prove
+  public caller completion, and that missing proof leaves the promise incomplete.
+  Guidance change: `e710426`. Story 20 and its review are recoverable through
+  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
+- **Released in:** Pending for the guidance response; no containing release tag
+  is present in this repository at recording time.
 
 ### Occurrences
 
@@ -351,6 +380,15 @@ and unrelated notes when recording authorized follow-up.
 - **Meaning:** A manually maintained release manifest can omit a file required by an installed skill while the updater still certifies the incomplete installation as current.
 - **Source mappings:** Pygardon / DD-006
 - **References:** Pygardon `DearDough.md`, DD-006; modified revision `995bcbed2`, base `0.3.9`; Open Dough tag `v0.3.9` at `26cbba94f`; distinct from ODF-005's installed-versus-unreleased authority conflict.
+
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Clarified that success claims cover observed behavior, so
+  version metadata alone does not certify a usable invocation. This guidance
+  response is distinct from the missing-reference repair shipped in `v0.3.11`.
+  Guidance change: `e710426`. Story 20 and its review are recoverable through
+  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
+- **Released in:** Pending for the guidance response; no containing release tag
+  is present in this repository at recording time.
 
 ### Occurrences
 
@@ -507,3 +545,5 @@ and unrelated notes when recording authorized follow-up.
   - Inference: Useful local-CI work does not authorize continued durable release
     orchestration. Preserve its proof and settle the smallest closure outcome
     before further implementation rather than extending the plan to fit it.
+
+- **Follow-up:** queued, not resolved. [Revisit the premise and finish line before expanding corrective work](../../.planning/seeds/SEED-009-keep-only-externally-valuable-work.md#revisit-premise-and-finish-line). Selected on 2026-09-12 as a grouped response; finding identity and evidence remain distinct.

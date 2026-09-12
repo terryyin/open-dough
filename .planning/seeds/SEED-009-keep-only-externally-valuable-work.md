@@ -75,6 +75,51 @@ must be resolved during execution.
 
 **Depends on:** None. This hardening precedes further extraction work.
 
+<a id="revisit-premise-and-finish-line"></a>
+### 2. Revisit the premise and finish line before expanding corrective work
+
+**Status:** Selected for backlog; unrefined.
+
+**For / why:** A product owner using Open Dough can keep corrective execution
+focused on the smallest intended outcome when an assumption fails or they request
+simplification, rather than receiving an expanding plan without delivery.
+
+**Scope:** Improve the existing planning and execution response to accumulating
+corrective work or an explicit simplification request. Revisit the parent premise
+and current finish line before extending the plan. Use available evidence to
+compare a simpler environmental or product choice, preserve useful completed
+work and its proof, and distinguish an authorized scope decision from a proposal
+that needs the owner's decision. Reuse existing PFE and direction guidance;
+refinement should identify the remaining gap before adding instructions.
+
+**Evaluation:** In a representative environment-premise case, corrective
+expansion prompts a bounded comparison of the infrastructure assumption before
+more downstream implementation. In a simplification case, the agent restates the
+smallest intended outcome, identifies work no longer required, and continues only
+within established authority or surfaces the specific unresolved scope decision.
+A justified correction within an unchanged valid outcome can proceed without
+inventing a new approval gate. Neither case treats more slices as authorization
+for a broader finish line.
+
+**Value / learning:** Reduce avoidable implementation and planning that leave the
+owner's outcome undelivered, while retaining useful proof and necessary corrections.
+The environmental and product-scope findings remain distinct causes.
+
+**Effort hypothesis:** Uncertain until refinement compares these cases with the
+current planning and execution guidance; no execution estimate is promised.
+
+**Depends on:** No new product prerequisite; independent of the first selected
+finding response.
+
+**Safe stopping point:** The active work has an evidence-supported premise and
+an authorized, evaluable finish line. No automatic cancellation, deletion of useful
+work, new tracking system, or broader workflow redesign is required.
+
+**Findings:** [ODF-013](../../docs/maintainer/finding-names.md#odf-013--plan-splits-preserve-an-untested-environment-premise)
+and [ODF-023](../../docs/maintainer/finding-names.md#odf-023--simplification-retains-an-expanding-closure-condition).
+Grouped as related failures to reassess ongoing work; identities and historical
+observations remain separate. Queued follow-up does not resolve these findings.
+
 ## Ordering
 
 Story 1 is complete. Resume ordinary backlog selection; do not recreate deleted
