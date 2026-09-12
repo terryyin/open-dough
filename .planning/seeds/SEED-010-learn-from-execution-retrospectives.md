@@ -54,12 +54,6 @@ assumptions against its established near-future direction.
   Asking Open Dough to read findings and improve guidance needs no internal
   skill in the first increment. An internal consumer is a later increment;
   interaction with other projects comes later still.
-- On 2026-09-12, the user selected one correction to the internal consumer:
-  reconciliation must retain supplied finding evidence inside Open Dough under
-  its stable internal identity, independently of whether the source project
-  adopts the recommended code. Rename the naming-only skill to express this
-  broader finding responsibility and make the retained internal evidence usable
-  by triage.
 - The behavior is intended for the public release, not an Open Dough-only fork.
   This decomposition neither implements nor releases it.
 
@@ -120,11 +114,6 @@ Select automatic local recording with manual reading and response. This is the
 smallest change that preserves findings without depending on memory or repeated
 copying. Learn first whether a human can recognize recurrence and choose a useful
 response from the log. Introduce consumption assistance only after this works.
-
-That local evidence now exists, and naming-only reconciliation exposed a missing
-bridge: Open Dough records an internal identity but not the evidence that triage
-requires. The next increment retains supplied, reconciled evidence internally so
-Open Dough learning does not depend on a source project's optional name adoption.
 
 For product learning, the smaller alternative is a summary left in the
 conversation. It preserves ideas briefly but leaves priorities and story details
@@ -274,39 +263,6 @@ separately authorized correction.
 **Boundaries:** Keep this story unrefined. It does not authorize execution,
 release, a new validation framework, or certification of the whole lifecycle.
 
-<a id="retain-reconciled-findings-in-open-dough"></a>
-
-### 8. Retain reconciled findings in Open Dough
-
-**Status:** Source complete on 2026-09-12 in one quick execution slice;
-retrospective and story wrap-up remain separate.
-
-**Goal:** The Open Dough maintainer can retain and later triage supplied process
-findings under stable internal identities without waiting for source-project
-code adoption. This closes the evidence gap in the existing internal consumer.
-
-**Scope:** Rename the internal skill to `reconcile-retrospective-findings`.
-Extend the existing `docs/maintainer/finding-names.md` catalog in place: keep its
-ODF headings, meanings, mappings, and identity-decision references, and add
-finding-relevant supplied occurrence evidence under the same identity. Reuse
-the process log's occurrence shape, with source-project/code attribution,
-execution and revision provenance, observations separate from qualified
-inferences, and uncertainty preserved. Identity matching, continuity, correction,
-and uncertain-relationship rules remain in force. Unknown provenance remains
-unknown; replaying the same source occurrence does not add an identity or row.
-Existing naming-only entries remain valid without fabricated history.
-
-Allow `triage-retrospective-findings` to consume this catalog when explicitly
-supplied as evidence and to use its existing authorized disposition/follow-up
-paths there. Ranking remains read-only. Source feedback stays byte-identical;
-source rename recommendations stay in chat, with optional adoption separately
-owned by `dough-maintain-findings`.
-
-Keep this a guidance update with the necessary internal discovery links and
-existing affected checks. No second evidence store, catalog-wide backfill,
-remote collection, transcript copying, telemetry, automatic triage or queueing,
-guidance fixes, release, managed-copy update, or effectiveness evaluation.
-
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations
@@ -450,9 +406,8 @@ Cross-tool verification was skipped for this story at the human's direction.
 
 ## Ordering and Scope Reduction
 
-Story 8 is the first queued work at the user's direction. Story 2 follows it;
-preserve the order of all other backlog entries. Story numbers are stable
-identities, not priority ranks.
+Story 2 is the next queued work. Preserve unrelated backlog order. Story
+numbers are stable identities, not priority ranks.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -468,18 +423,16 @@ later refinement.
 
 ## Open Decisions
 
-Story 8 has no open scope decisions: use `reconcile-retrospective-findings` and
-extend the existing catalog in place. The user authorized narrow quick execution,
-with planning only if needed. Story 2 will later assess whether existing adoption
-and real-use evidence already meets its original outcome. Broader validation
-has no newly assigned story or priority. No change to the near-future direction
+Story 2 will assess whether existing adoption and real-use evidence already
+meets its original outcome. Broader validation has no newly assigned story or
+priority. No change to the near-future direction
 is authorized.
 
 ## When to Surface
 
-Retrospect and wrap up Story 8 after its quick execution. Then refine Story 2
-around released logging use in Open Dough. Surface the separately pending validation obligations
-when selecting acceptance work or assessing an affected release. Surface effectiveness tracking
+Refine Story 2 around released logging use in Open Dough. Surface the separately
+pending validation obligations when selecting acceptance work or assessing an
+affected release. Surface effectiveness tracking
 when a response has a relevant follow-up execution; surface cross-project
 exchange only when another project's finding offers additional learning.
 
@@ -498,6 +451,3 @@ exchange only when another project's finding offers additional learning.
 - User direction on 2026-09-10: add product review as a separate perspective
   for the executing project, make it the top backlog priority, and make process
   and product review default-on with `--skip-process` and `--skip-product`.
-- User direction on 2026-09-12: rename the naming-only reconciliation skill,
-  retain supplied client-project findings internally regardless of source-name
-  adoption, make that evidence available to triage, and queue the work first.
