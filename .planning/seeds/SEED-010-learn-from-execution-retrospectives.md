@@ -316,6 +316,14 @@ and general costs, without treating those classifications as certain or permanen
 Define when resolved-and-observed history is eligible for cleanup while retaining
 traceability. Include whether retrospective recording itself earns its cost.
 
+**Future maintenance direction:** Extend the public `dough-maintain-findings`
+skill only on explicit request to support recategorization and cleanup.
+Distinguish a fix applied but pending observation for recurrence, a problem
+confirmed gone from relevant evidence, and a finding eligible for removal from
+the active log. Applying a fix alone does not establish disappearance. Define
+evidence and retention rules when this work is selected; these operations remain
+unqueued future scope.
+
 **Evaluation:** A later comparable execution supports improvement, recurrence,
 or an inconclusive result. An execution without the relevant conditions cannot
 establish success. The maintainer can explain the next decision from linked
