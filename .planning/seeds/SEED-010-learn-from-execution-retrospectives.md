@@ -100,7 +100,8 @@ assumptions against its established near-future direction.
 ## Original Alternatives and Decision
 
 The following rationale describes the initial selection before logging shipped.
-Current remaining acceptance work is defined in Story 2.
+Story 2 retains the original released-local-use outcome. Broader acceptance
+obligations are tracked separately below.
 
 Deferring preserved the then chat-only process but postpones learning before
 retrospective promotion. Merely making the chat report shorter does not retain
@@ -130,8 +131,8 @@ Do not expand a story to complete the whole learning loop.
 
 Release each independently useful improvement when its required review and
 acceptance are satisfied. Do not wait for sibling stories merely to bundle a
-larger release. Story 2 owns the remaining acceptance of already released
-behavior. Keep required quality and
+larger release. Story 2 owns useful local adoption of released logging; broader
+acceptance obligations are tracked separately below. Keep required quality and
 release checks, but choose the smallest representative proof that resolves the
 actual risks. Existing release exceptions remain recorded in `CHANGELOG.md`.
 
@@ -209,30 +210,69 @@ and implementation corrections in their existing destinations. Exclude
 release/adoption, cross-tool testing and acceptance, consumers, remote exchange,
 automatic guidance edits, token measurement, migration, pruning, locking
 infrastructure, causal inference engines, automatic merging, and direction
-changes; Story 2 owns remaining acceptance.
+changes; Story 2 owns released local use. Broader acceptance remains in the
+separately pending lifecycle validation obligations below.
 
 <a id="use-released-retrospective-log"></a>
 
-### 2. Validate the remaining released lifecycle behavior across tools
+### 2. Use released retrospective logging in Open Dough
 
-**Status:** Selected for backlog; second priority, unrefined.
+**Status:** Selected for backlog; first priority, unrefined.
 
-**For / why:** Developers using Codex, Cursor, and Claude Code can rely on the
-released lifecycle guidance, with concrete evidence for the behaviors that
-remain unverified.
+**For / why:** An Open Dough developer can revisit findings from real execution
+after the conversation ends, and the maintainer can judge whether the released
+logging is useful for recognizing recurrence and choosing a response.
 
-**Current context:** Retrospective logging and product review shipped in 0.3.6;
-later releases through 0.3.10 added and revised lifecycle behavior under explicit
-maintainer-approved native-acceptance exceptions. Open Dough already records real
-findings in `DearDough.md` and has internal finding-name and triage skills.
-Initial implementation and first publication are not remaining work. Native
-acceptance and an evidenced ordinary-update-and-use journey remain incomplete;
-release exceptions do not establish passing results.
+**Current context:** Retrospective logging has shipped and Open Dough already
+has real findings in `DearDough.md`. The missing bounded-log reference shipped
+in 0.3.11 with focused Codex evidence. First implementation, first publication,
+and the reference repair are completed work. Assess existing use and evidence
+before deciding what remains; do not repeat adoption merely to create a new run.
 
-**Scope:** Resolve the meaningful remaining behavior gaps in the existing
-acceptance obligations. At refinement, assess current guidance and recover
-applicable evidence before selecting fresh native cases. The covered outcomes
-are:
+**Scope:** Establish use of the released retrospective in Open Dough through its
+ordinary update process, without manually synchronized managed copies. Review a
+real execution, retain supported findings in `DearDough.md`, and let the
+maintainer read them and decide on a response manually. Check enough attribution,
+qualified reasoning, and occurrence handling to make that use trustworthy.
+Recognize distinct recurrence without counting a rereview as a new occurrence.
+Preserve project review preferences and existing log content. Do not force a
+finding when the execution supplies none.
+
+**Evaluation:** Existing evidence or a fresh representative use identifies the
+installed release and real execution, shows useful findings in the local log,
+and lets the maintainer explain what was learned and a possible response. If a
+second real occurrence is unavailable, a bounded representative case can establish
+counting behavior when clearly labelled. Report the limits of the evidence;
+ordinary local use does not certify all lifecycle behavior on all tools.
+
+**Value / learning:** Determine whether durable retrospective findings help the
+maintainer notice repetition and choose useful action without excessive recording
+or reconstruction effort. This story establishes usable feedback; Story 4 owns
+whether a later response actually improved subsequent execution.
+
+**Dependencies:** Released logging and its required reference are available.
+Refinement will assess the remaining adoption and useful-use evidence, including
+applicable proof reuse under ADR 0005. The broader obligations below are not the
+completion criteria for this local-use outcome and remain explicitly pending.
+
+**Safe stopping point:** Open Dough can use and read its own released log without
+an internal consumer, remote exchange, or a broader validation campaign. No new
+logging feature or guidance rewrite is required unless a concrete defect warrants
+separately authorized correction.
+
+**Boundaries:** Keep this story unrefined. It does not authorize execution,
+release, a new validation framework, or certification of the whole lifecycle.
+
+<a id="pending-lifecycle-validation-obligations"></a>
+
+## Separately pending lifecycle validation obligations
+
+These obligations accumulated under Story 2 but do not define its original
+retrospective-use outcome. They remain pending under the recorded release
+exceptions. This section preserves their scope without creating another selected
+story or assigning backlog priority. A future human selection can establish an
+appropriate acceptance story; this correction does not reinstate the cancelled
+split or cancel any validation requirement.
 
 - Retrospective findings remain useful and correctly attributed: local recording,
   recurrence without duplicate counting, qualified findings, project context,
@@ -251,29 +291,14 @@ are:
   review, simple domain rules, PFE reuse and changed assumptions, optional
   architectural thinking, and human resolution of conflicting direction.
 
-Use representative native cases on Codex, Cursor, and Claude Code under
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Separate
-reusable integration evidence from skill behavior evidence; record passing
-proof or justified reuse for each affected requirement on each tool. Select
-fresh cases by unresolved risk, not a full tool-by-skill-by-scenario matrix.
-Missing proof remains pending. Do not add unrelated future changes to this story.
 
-**Evaluation:** The selected current behaviors have decisive native evidence or
-justified reuse, with candidate, tool, inputs, outcome, and limitations identified.
-An ordinary update followed by real Open Dough retrospective use demonstrates
-that the installed guidance records useful findings while preserving project
-preferences. Existing local use is evidence to assess, not a substitute for
-missing cross-tool or update proof. Report concrete defects through the existing
-correction workflow without inventing speculative features.
-
-**Dependencies:** The released payload includes the bounded process-log
-reference. Assess the current installed guidance and applicable evidence; no
-missing-reference repair or first-publication prerequisite remains.
-
-**Boundaries:** Exclude already completed implementation and publication,
-new logging features, remote exchange, and new internal
-consumers. Refine the remaining cases and effort when selected for work; this is
-not an executable plan or release authorization.
+Use representative native cases and justified reuse under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Separate shared
+integration proof from skill behavior; one tool's success does not prove another's.
+Assess applicable evidence from 0.3.11 and ordinary Story 2 use before fresh runs.
+Missing proof remains pending. Release exceptions and local-use completion do
+not mark these obligations passed. Historical references assigning broader
+acceptance to Story 2 resolve to this section for the outstanding obligations.
 
 <a id="observe-retrospective-response-effectiveness"></a>
 
@@ -347,8 +372,8 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ### 6. Turn execution learning into product backlog decisions
 
-**Status:** Source complete 2026-09-10; released in 0.3.6. Story 2 owns
-remaining native acceptance of the current behavior.
+**Status:** Source complete 2026-09-10; released in 0.3.6. Remaining native acceptance is tracked in the
+separately pending lifecycle validation obligations above.
 **Plan:** [Quick 034](../quick/034-retrospective-product-learning/PLAN.md);
 all six slices done. Local behavior evidence is in that plan's `evidence/`
 and the skill's `RECOGNITION.md`.
@@ -390,13 +415,16 @@ later refinement.
 
 ## Open Decisions
 
-Refinement of Story 2 will identify applicable reusable evidence, the smallest
-fresh cases, and delivery
-details. No new feature or change to the near-future direction is authorized.
+Refinement of Story 2 will assess whether existing adoption and real-use evidence
+already meets the original outcome, and identify only the remaining useful proof.
+Broader validation has no newly assigned story or priority. No new feature or
+change to the near-future direction is authorized.
 
 ## When to Surface
 
-Refine Story 2 against the current released behavior and remaining evidence gaps. Surface effectiveness tracking
+Refine Story 2 around released logging use in Open Dough. Surface the separately
+pending validation obligations when selecting acceptance work or assessing an
+affected release. Surface effectiveness tracking
 when a response has a relevant follow-up execution; surface cross-project
 exchange only when another project's finding offers additional learning.
 
