@@ -39,8 +39,11 @@ choice for independent work, not the default.
 
 ```mermaid
 flowchart TD
-    A["main: decompose and manage backlog"] --> B["main: refine story and plan"]
-    B --> C["Move Story to Taken"]
+    A["main: decompose and manage backlog"] --> B["main: refine story"]
+    B --> P["main: slice planning and refinement"]
+    P -->|Resplit needed| R["main: resplit story and map plans"]
+    R --> A
+    P --> C["Move Story to Taken"]
     subgraph S["Story Branch"]
         D["Execute slice and establish proof"] --> E["Review proof"]
         E --> F["Independent refactoring and affected verification"]
@@ -51,7 +54,16 @@ flowchart TD
     C --> D
     H --> I["Wrap-up: close story and merge result, findings, and learning to main"]
     I --> A
+
 ```
+
+## Artifacts
+
+- **Product backlog:** shared priorities and queued or taken work.
+- **Stories:** goals, scope, and key examples for valuable outcomes.
+- **Slice plans:** executable slices, proof, progress, and learning.
+- **Architecture North Star:** temporary architectural direction for upcoming work.
+- **DearDough.md:** retrospective findings about the development process.
 
 ## Consequences
 
