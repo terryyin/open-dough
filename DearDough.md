@@ -11,6 +11,7 @@ outcome as one of its responsibilities.
 ### Occurrences
 
 - Execution: `SEED-004#show-stories-as-taken-during-execution @ 519bb4a`
+  - Timestamp: unknown
   - Tool: Codex
   - Model: GPT-5
   - Evidence: `519bb4a` changes 147 files; the Taken outcome occupies eight
@@ -32,6 +33,7 @@ plan-recorded retrospective completion marker.
 ### Occurrences
 
 - Execution: `SEED-004#show-stories-as-taken-during-execution @ 519bb4a`
+  - Timestamp: unknown
   - Tool: Codex
   - Model: GPT-5
   - Evidence: The story records direct planless implementation and remains under
@@ -57,6 +59,7 @@ explicit contract in the focused CI runtime suite.
 ### Occurrences
 
 - Execution: `SEED-004#execute-in-worktree-and-merge-at-wrap-up @ 8a1be3c`
+  - Timestamp: unknown
   - Tool: Codex
   - Model: GPT-5
   - Open Dough release: 0.3.8
@@ -80,6 +83,7 @@ handoff.
 ### Occurrences
 
 - Execution: `SEED-004#execute-in-worktree-and-merge-at-wrap-up @ 8a1be3c`
+  - Timestamp: unknown
   - Tool: Codex
   - Model: GPT-5
   - Open Dough release: 0.3.8
@@ -102,6 +106,7 @@ source already defined the quick path.
 ### Occurrences
 
 - Execution: `SEED-004#drop-recently-done-from-product-backlog @ 30a5026`
+  - Timestamp: unknown
   - Tool: Codex
   - Model: GPT-5
   - Open Dough release: unreleased; revision `533da34`; base `0.3.8`
@@ -127,6 +132,7 @@ required review or proof.
 ### Occurrences
 
 - Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
+  - Timestamp: unknown
   - Tool: Codex
   - Open Dough release: unknown
   - Evidence: This execution conversation's combined read of SEED-010 and

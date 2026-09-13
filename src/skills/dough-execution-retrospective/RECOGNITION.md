@@ -45,7 +45,9 @@ unauthorized backlog writes.
 - Keeps repository findings, process proposals, product recommendations, and
   overlooked user attention distinct, and never executes planned corrections.
 - Records supported process findings in one project-local `DearDough.md` with
-  stable issue and execution identities. New occurrences record the Open Dough
+  stable issue and execution identities. New occurrences record an ISO 8601
+  event timestamp with timezone, or explicit `unknown` when unsupported;
+  rereview preserves that time and execution identity. They record the Open Dough
   guidance release used during the reported execution. Interpretable logs retain
   IDs (including an adopted `ODF-NNN` heading), notes, evidence, unrelated
   entries, and release-bearing rows while same-execution rereview stays one
