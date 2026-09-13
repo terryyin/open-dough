@@ -21,7 +21,7 @@ priority.
 ## Distinguishing behavior
 
 Human-owned framing decisions; strongest simpler alternative; 3V rejection;
-effort hypotheses without code inspection; safe stopping points and
+comparative effort hypotheses; safe stopping points and
 first-to-drop order.
 
 ## Client project context
@@ -31,8 +31,8 @@ execution workflow only when requested.
 
 ## Differences that rule out replacement
 
-A workflow that permits technical-layer stories, code-based estimation, or
-automatic implementation is not equivalent.
+A workflow that permits technical-layer stories or automatic implementation is
+not equivalent.
 
 The source dependencies `problem-decomposition.mdc` and `planning.mdc` are
 Cursor `alwaysApply: true` rules. The shared references preserve the shared

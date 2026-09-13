@@ -2,8 +2,10 @@
 
 ## Near-future direction
 
-Keep extracting skills and rules from Donut until Open Dough has a first
-complete set of skills covering the full software development lifecycle.
+Consolidate the full software development lifecycle around Story Branch Mode,
+so teams can carry a story from discovery and refinement through planning,
+execution, delivery, retrospective, and closure with coherent skills and
+clear transitions.
 
 ## Taken
 

@@ -73,7 +73,7 @@ work needs the story, changes, and execution results instead of a plan.
 Seed conventions apply only to feature stories. Backlog path is required only
 when a **Taken** or queue entry points at the selected work. Retrospective
 advice is used when present and is not a required completion record.
-Worktree-mode cleanup also requires the retained execution checkout, local
+Story Branch Mode cleanup also requires the retained execution checkout, local
 branch, saved tip, originating checkout, and integration-target identity.
 When completed work used or changed North Star topics, their established
 location and the affected current stories and plans supply retirement context.

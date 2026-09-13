@@ -9,7 +9,7 @@ Native acceptance for the changed proof and reassessment guidance in Codex, Curs
 ## 0.3.13 - 2026-09-12
 
 - Add `dough-maintain-findings` to the installable payload. On explicit request, adopt approved `DD-NNN` to `ODF-NNN` finding-code mappings while preserving finding evidence, recording former local codes, treating repeated adoption as a no-op, and leaving ambiguous or conflicting identities for human resolution.
-- Require worktree-mode story wrap-up targeting `main` to push the integrated result to `origin` before removing execution resources or claiming completion. Resolve merge conflicts from the reasoning behind both sides when the available evidence supports a coherent result, and preserve unresolved work otherwise.
+- Require Story Branch Mode story wrap-up targeting `main` to push the integrated result to `origin` before removing execution resources or claiming completion. Resolve merge conflicts from the reasoning behind both sides when the available evidence supports a coherent result, and preserve unresolved work otherwise.
 - Separate Open Dough's useful local adoption of released retrospective logging from the broader cross-tool lifecycle validation obligations. Keep those obligations pending without expanding the selected local-use story, and retain future finding recategorization and cleanup as explicitly requested later work.
 
 Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.13`. Acceptance for the new finding-maintenance behavior, revised wrap-up behavior, and previously pending lifecycle behaviors remains pending and is not reported as passing.
