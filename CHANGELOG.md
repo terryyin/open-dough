@@ -1,3 +1,11 @@
+## 0.3.15 - 2026-09-13
+
+- Introduce Story Branch Mode as the name and proposed lifecycle for planned execution in an isolated feature branch and worktree, with refinement and planning on `main`, retrospective in the story branch, and wrap-up integrating the completed change and learning. Record the unresolved conflict with the Accepted continuous-integration principle rather than treating the proposal as accepted.
+- Allow story decomposition to inspect implementation when useful for comparative effort hypotheses while keeping technical design and implementation outside decomposition. Preserve the existing 3V story boundary and human-owned workflow decisions.
+- Preserve completed plan history in Git, then remove spent plans and bulky acceptance evidence, trim recognition records that pointed to the removed material, and refocus the product backlog on a coherent end-to-end Story Branch Mode lifecycle.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.15`. Acceptance for the Story Branch Mode guidance, code-informed decomposition estimates, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.14 - 2026-09-13
 
 - Match completion claims to the smallest sufficient proof at the promised boundary. Distinguish setup supplied by fixtures or seams from behavior the product establishes, require caller-level completion when that is the promise, reuse valid evidence, and leave unavailable observations explicitly unproved.
