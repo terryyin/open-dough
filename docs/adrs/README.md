@@ -63,4 +63,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0004](./0004-client-installation-and-update-accepted.md) | Accepted | Client installation and update |
 | [0005](./0005-cross-tool-validation-accepted.md) | Accepted | Cross-tool validation through native acceptance stories |
 | [0006](./0006-write-skills-for-executing-agents-accepted.md) | Accepted | Write skills for executing agents |
-| [0007](./0007-story-branch-development-lifecycle.md) | Proposed | Story Branch development lifecycle |
+| [0007](./0007-software-development-lifecycles.md) | Proposed | Software development lifecycles |
