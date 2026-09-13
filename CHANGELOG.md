@@ -1,3 +1,9 @@
+## 0.3.16 - 2026-09-13
+
+- Add occurrence timestamps to retrospective process findings. Record the reported event time in ISO 8601 with a timezone when supported, use explicit `unknown` otherwise, preserve timestamps and execution identity during rereview, and avoid inventing precision or substituting review time.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.16`. Acceptance for the occurrence-timestamp guidance and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.15 - 2026-09-13
 
 - Introduce Story Branch Mode as the name and proposed lifecycle for planned execution in an isolated feature branch and worktree, with refinement and planning on `main`, retrospective in the story branch, and wrap-up integrating the completed change and learning. Record the unresolved conflict with the Accepted continuous-integration principle rather than treating the proposal as accepted.
