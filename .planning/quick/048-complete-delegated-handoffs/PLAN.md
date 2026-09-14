@@ -107,7 +107,7 @@ is separate from both source review and native acceptance.
 
 ### 1. Own verification through its actual result
 Type: Behavior
-Status: planned
+Status: delivered 2026-09-14
 
 Behavior: Required delegated verification yields a running command identity →
 the agent follows the supported continuation → the coordinator receives its
@@ -216,4 +216,28 @@ was applied. This assessment does not authorize implementation.
 
 ## Execution learnings
 
-None yet. No behavioral or native acceptance result is claimed by this plan.
+Execution identity (recorded 2026-09-14 at setup):
+
+- Originating checkout and branch: `/Users/terryyin/git/open-dough` on `main`;
+  Taken-only claim commit `7cc1e90`.
+- Execution checkout and branch:
+  `/private/tmp/open-dough-048-delegated-handoffs` on
+  `cursor/048-complete-delegated-handoffs`, created from the claim commit.
+- Integration target: `main`; authorized push destination: `origin`.
+- Hook contract: no `core.hooksPath` and no non-sample `.git/hooks` hooks at
+  claim time; the Taken transition was safe. `scripts/lint.mjs` covers
+  JS/JSON/shell only; no broad formatter applies to these Markdown changes.
+
+Slice 1 (delivered 2026-09-14): Added `## Own verification to its terminal
+result` to `src/skills/dough-execute-plan/references/delegation.md` and one
+linking sentence in `src/skills/dough-post-change-refactor/SKILL.md`
+`## Verify edits`. Accepted proof: `git diff --check`; link/anchor resolution
+for `#own-verification-to-its-terminal-result`;
+`bash tests/execution-payload-update.sh` (pass); manual three-variant
+walkthrough (yielded pass, failed/inaccessible incomplete stop, refactor via
+link with unchanged-proof reuse), labelled manual. Post-change refactor:
+`none — already clean`, no proof invalidated. Slices 2–3 must attach wait and
+watch-retirement decisions beside the new section without duplicating the
+ownership rule. `tests/story-payload-update.sh` does not cover the edited
+skills. Native acceptance remains separately pending under ADR 0005; no
+behavioral effectiveness is claimed beyond source review.

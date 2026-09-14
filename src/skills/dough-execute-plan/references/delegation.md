@@ -45,6 +45,23 @@ Give the agent:
   command.
 - The [CI pause and resume contract](ci-monitor.md#pause-and-resume-writers).
 
+## Own verification to its terminal result
+
+The agent that starts a required verification owns that command through its
+terminal result. When verification yields a running command identity — for
+example a backgrounded command whose result arrives later — the owning agent
+follows the host's supported continuation until it observes the terminal
+result. Yielding is valid and does not relinquish ownership. A completion
+claim and its proof rest on the terminal observation, never on the launch
+result or intervening progress output.
+
+If the command fails or its result becomes inaccessible, the agent returns an
+explicit incomplete stop instead of progress reported as completion. The stop
+names the known command state, the outstanding proof, and the recovery
+ownership, and carries no completion marker. The agent retains the command
+identity and known state in its ordinary handoff only when needed for
+continuation or recovery.
+
 Require uncommitted changes with passing focused proof, a stop requiring human
 judgment, or an oversized-slice report under execution decisions. Require a
 targeted return that gives the coordinator:
