@@ -7,6 +7,7 @@ description: >-
   repair. Use to execute a plan, run a plan, execute slices, or execute a
   canonical story when the caller explicitly skips slice planning; does not
   decide story scope or whether work qualifies for the quick path.
+  `--skip-retro` skips the automatic retrospective after planned execution.
 ---
 
 # Execute planned or quick story work
@@ -273,11 +274,16 @@ stop observers without waiting for CI. Report pending CI as unobserved.
 
 After all planned slices satisfy proof and delivery obligations and required
 observer shutdown succeeds, report completed execution, retained evidence, and
-CI limitations with `## PLAN EXECUTION COMPLETE`, then invoke
+CI limitations. With `--skip-retro`, report the retrospective skipped and end
+with `## PLAN EXECUTION COMPLETE`. The option applies to this execution only;
+it does not change project preferences or skip proof, delivery, or CI shutdown.
+Explicit instructions to omit or defer retrospective also take precedence.
+Retain the completed plan and evidence for later review and story wrap-up.
+
+Otherwise report `## PLAN EXECUTION COMPLETE`, then invoke
 [dough-execution-retrospective](../dough-execution-retrospective/SKILL.md) for
-that execution without another confirmation. Explicit instructions to omit or
-defer retrospective take precedence. Preserve explicit review instructions and
-project preferences through the receiving skill's review selection; do not
+that execution without another confirmation. Preserve explicit review
+instructions and project preferences through the receiving skill's review selection; do not
 extend its authority to implement findings or change the backlog.
 
 Continue in the recorded execution project and checkout. Supply retained
