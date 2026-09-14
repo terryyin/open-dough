@@ -94,7 +94,10 @@ original command no longer applies and run a focused replacement. Without
 supplied proof, run focused tests related to the refactor edits. Use this
 project's literal commands and the shared
 [behavioral test guidance](references/refactor-checks.md#tests-as-behavioral-documentation).
-Do not run the full suite. Fix failures caused by the refactor and require
+Do not run the full suite. Own any verification command that yields a running
+command identity through its terminal result under the shared
+[verification ownership](../dough-execute-plan/references/delegation.md#own-verification-to-its-terminal-result)
+rule. Fix failures caused by the refactor and require
 passing relevant proof before completion. Report other unresolved failures to
 the caller; do not claim success.
 
