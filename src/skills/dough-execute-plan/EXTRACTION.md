@@ -1,11 +1,10 @@
 # Execute-plan extraction review
 
 Proposed extraction, 2026-09-09. This is maintainer material, not runtime guidance.
-The user explicitly requested both skills and their support files, overriding the
-extract-guidance skill's usual one-source limit. The source files are
-`.agents/skills/execute-plan/SKILL.md` and
-`.agents/skills/post-change-refactor/SKILL.md` in the supplied Doughnut checkout.
-The original name is `post-change-refactor`, not `post-change-refactoring`.
+The user requested both skills and support files, overriding extract-guidance's
+one-source limit: `.agents/skills/execute-plan/SKILL.md` and
+`.agents/skills/post-change-refactor/SKILL.md` in the supplied Doughnut checkout
+(the original name is `post-change-refactor`, not `post-change-refactoring`).
 
 ## Analysis before extraction
 
@@ -52,10 +51,8 @@ application's end-to-end timing logs or unrelated tooling.
 | `bug-fixing` skill | Required minimal fail-for-right-reason → smallest fix → focused green behavior retained in CI repair reference; no sibling skill extraction |
 | `unit-testing.mdc` | Stable-boundary/data-over-internal-mocks guidance retained; application-specific fixtures and ADR policy omitted |
 
-The application scripts are intentionally client contracts, not missing runtime
-imports. Copying their implementations would import Doughnut's package topology,
-generators, Nix environment, and application services. The extracted runtime
-has no executable reference to those scripts.
+Application scripts are client contracts, not runtime imports: copying them would
+import Doughnut's package topology, generators, Nix environment, and services.
 
 ## Runtime files for later promotion
 
@@ -137,9 +134,6 @@ Manual instruction walkthroughs, not native agent acceptance:
    why a partial fix is misleading, risk/proof and human choices with
    `REFACTOR JIDOKA STOP`; make no cross-boundary edit and do not commit.
 
-Invocation context, required context, and useful outcomes are covered in these
-walkthroughs.
-
 ## Automated validation
 
 Run from the Open Dough root with Node 20+:
@@ -156,8 +150,7 @@ paths containing spaces, execute the actual hook fragments, and require a
 readiness event with matching checkout identity. Custom-workflow coverage checks
 a non-main branch and rejects unrelated branches and deployment runs.
 
-Validation results and source-integrity confirmation are recorded below after
-running checks. Preserve failures rather than interpreting a retry as a repair.
+Preserve failures; a passing retry alone is not a repair.
 
 ### Results, 2026-09-09
 
