@@ -174,6 +174,18 @@ the product promises to establish. A fixture or seam supplying that behavior
 leaves it unproved; keep the evidence for what it actually observes. An inner
 operation finishing does not prove completion for its caller.
 
+When a changed shared operation has production callers, inspect the affected
+call sites before choosing the change and its proof. A method's name or its
+dominant use does not settle every caller's requirement; derive the distinct
+behavioral obligations from how each affected caller actually uses the
+operation, and reuse available product-wide search analysis where it already
+identified those callers. Follow affected production use only — do not expand
+the investigation into unrelated consumers. Incompatible purposes need an
+observation for each; equivalent purposes may share sufficient evidence instead
+of duplicating proof. An unresolved domain purpose yields a precise question
+about that caller's requirement rather than a guessed policy; stop the
+dependent obligation there until it is answered.
+
 Reuse sufficient evidence. Obtain only missing observations within authorized
 work; if unavailable, report what is covered and the specific unproved promise.
 That promise remains incomplete; reporting the gap does not fulfill or remove

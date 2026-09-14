@@ -110,7 +110,7 @@ separate from later user evidence about recurrence. No release is selected here.
 
 ### 1. Preserve distinct requirements of affected callers
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given storage/export retains trashed content and learning excludes it,
 but both call one shared query, planning a change to that behavior identifies
@@ -189,6 +189,12 @@ from late recovery and preserving the original successful recovery evidence.
 Safe stop: this completes the third promised decision behavior; completion still
 requires the normal proof, refactoring, delivery, and review obligations.
 
+## Execution identity
+
+- Originating checkout: `/Users/terryyin/git/open-dough`, branch `main`, claim commit `8e966be`.
+- Execution checkout: `/private/tmp/dough-047-cover-actual-user-outcome.43743`, branch `cursor/047-cover-actual-user-outcome`.
+- Integration target: `main` (default).
+
 ## Execution checks and current assessment
 
 No numeric slice budget was supplied. Each slice has one decision outcome and
@@ -215,4 +221,21 @@ this planning assessment.
 
 ## Execution learnings
 
-None yet. Retain decisions and accepted evidence here when execution occurs.
+### Slice 1 — Preserve distinct requirements of affected callers (done)
+
+- Promise: distinct affected-caller purposes, bounded investigation, equivalent-proof reuse.
+- Change: added one conditional paragraph (12 lines) to the `## Own executable proof` section of
+  `src/skills/dough-story-refinement/references/planning.md`, between "Choose the smallest sufficient
+  proof…" and "Reuse sufficient evidence…". No other file changed; no installed managed copy, VERSION,
+  CHANGELOG, or tag touched.
+- Accepted proof: `git diff --check` → exit 0, no output. Walkthrough of the two-caller trash-query example
+  confirms: incompatible purposes (storage/export retain vs. learning exclude) each need an observation —
+  one cannot close the other; equivalent purposes share sufficient evidence (composes with the existing
+  "Reuse sufficient evidence" rule); an unresolved domain purpose yields a precise question and stops the
+  dependent obligation. Anchor `#own-executable-proof` and inbound links from `dough-execute-plan/SKILL.md`
+  and `wrap-up.md` unchanged. Existing mapping table and acceptance rules preserved.
+- Refactor: `skipped — no refactor edits`; the added paragraph is coherent and non-duplicative with its
+  neighbors; perspective is project-neutral per ADR 0006.
+- Native-session (Codex/Cursor/Claude Code) acceptance of the changed guidance is not established; remains
+  pending with this story/plan for release assessment (ADR 0003/0005). No release selected.
+- Delivery record: ODF-045 update is owed after delivery; not yet written.
