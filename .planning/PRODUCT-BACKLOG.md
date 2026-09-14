@@ -10,6 +10,8 @@ clear transitions.
 ## Taken
 
 ## Backlog list
+- [Extract test optimization and plan Open Dough's test speedup](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-test-optimization-and-plan-open-dough) — SEED-004
+- [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001

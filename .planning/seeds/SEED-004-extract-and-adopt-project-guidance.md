@@ -17,6 +17,100 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="extract-test-optimization-and-plan-open-dough"></a>
+
+### 21. Extract test optimization and plan Open Dough's test speedup
+
+**Status:** Captured; unrefined.
+
+**Goal:** A developer can use project-independent test-performance guidance to
+identify worthwhile speed improvements, and Open Dough has an evidence-based
+executable plan for improving the performance of its own test suite.
+
+**Scope candidate:** First extract the useful behavior from Donut's
+project-local `test-optimization` skill into reusable Open Dough guidance.
+Generalize the profiling, selection, optimization, stability, verification,
+and re-profiling workflow while removing Donut-specific subprojects, commands,
+tooling assumptions, paths, tags, and bookkeeping conventions from the shared
+skill. Leave each project's test commands and genuinely local prerequisites in
+that project.
+
+Then apply the extracted guidance to Open Dough itself: profile the relevant
+test suite, identify and group the slow tests or other material bottlenecks,
+and create an executable slice plan with baseline evidence and an after-change
+verification strategy. Planning the Open Dough optimization is in scope;
+executing that optimization plan is a later action and is not authorized by
+adding this story.
+
+**Key examples:**
+
+- Given a project supplies its own test commands and result formats, the shared
+  skill uses those inputs to profile and prioritize improvements without
+  assuming Donut's Nix environment, subproject names, Cypress tags, or planning
+  paths.
+- Given profiling finds redundant tests, fixed-time waits, or flaky behavior
+  among the meaningful bottlenecks, the plan prefers removing redundancy and
+  sources of nondeterminism before adding optimization machinery.
+- Given Open Dough's baseline does not support Donut's top-ten-percent grouping
+  rule, the plan selects and explains a grouping that fits the available
+  evidence rather than preserving that rule ceremonially.
+
+**Evaluation:** A representative walkthrough shows the extracted skill can be
+configured from a non-Donut project's test context and still produces a
+comparable before/after performance assessment. The resulting Open Dough plan
+names its measured baseline, selected bottlenecks, bounded slices, focused
+proof, and final re-profile, while no Donut-only commands or conventions have
+entered the reusable runtime guidance.
+
+**Depends on:** Story 9's completed direct-extraction workflow. Access to the
+current Donut skill is an extraction input, not a runtime dependency.
+
+<a id="extract-narrow-bug-fixing"></a>
+
+### 22. Extract a narrowly triggered bug-fixing workflow
+
+**Status:** Captured; unrefined.
+
+**Goal:** A developer with a concrete observable defect gets a focused,
+test-first repair workflow, while ordinary changes and broad requests to
+"fix" something are not automatically misclassified as bug fixing.
+
+**Scope candidate:** Extract the useful behavior from Donut's project-local
+`bug-fixing` skill into reusable Open Dough guidance, retaining its failing-test
+reproduction, smallest-fix, related-test, and post-change-refactoring
+discipline. Remove Donut-specific commands, test-framework choices, and local
+paths from the shared behavior.
+
+Tighten the skill description and recognition boundary. Select this workflow
+for an explicitly reported defect, regression, or clear mismatch between
+expected and actual observable behavior. Do not treat the word "fix" or a
+generic request for repair as sufficient by itself, and do not absorb feature
+work, refactoring, test maintenance, performance optimization, documentation,
+configuration changes, or environment recovery unless the request establishes
+the concrete product defect this workflow should reproduce.
+
+**Key examples:**
+
+- Given a user reports an observable behavior that differs from the promised
+  result, the skill reproduces that mismatch with the smallest useful failing
+  test before changing product code.
+- Given a user asks to fix lint failures, improve slow tests, refactor a module,
+  or repair documentation without reporting a product defect, the bug-fixing
+  skill does not trigger merely because the request contains "fix" or
+  "broken."
+- Given the reported behavior cannot be reproduced because the environment is
+  unavailable, the workflow reports the missing prerequisite rather than
+  treating an environment repair as confirmation of the product bug.
+
+**Evaluation:** Representative positive and negative invocation examples show
+that concrete defects enter the test-first workflow and adjacent maintenance
+tasks do not. A non-Donut walkthrough can reproduce a defect, confirm the test
+fails for the right reason, make the smallest repair, and run related proof
+using project-supplied commands without relying on Donut-specific context.
+
+**Depends on:** Story 9's completed direct-extraction workflow. Access to the
+current Donut skill is an extraction input, not a runtime dependency.
+
 <a id="guide-useful-manual-testing"></a>
 
 ### 20. Guide a useful manual and exploratory test session
@@ -357,10 +451,11 @@ fixture remain maintainer-owned follow-ups.
 ## Ordering
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
-Story 14 is done. Story
-15 is selected. Story 6 remains the next extraction reuse opportunity after
-higher-priority queued work. Story 7 surfaces for a real oversized problem;
-Story 8 surfaces for its named client/task needs.
+Story 14 is done. Story 15 is selected. Story 21 is the highest-priority queued
+work, with Story 22 as the next newly captured extraction opportunity. Story 6
+remains a later extraction reuse opportunity after higher-priority queued work.
+Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
+client/task needs.
 
 ## Delivered capabilities
 
