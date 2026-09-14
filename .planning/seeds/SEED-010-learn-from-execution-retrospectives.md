@@ -160,6 +160,41 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="continue-plan-execution-into-retrospective"></a>
+
+### 6. Continue completed plan execution into its retrospective
+
+**Status:** Selected for backlog; unrefined.
+
+**For / why:** A developer completing an executable plan can move directly into
+the execution retrospective without another prompt or reconstructing context
+that the execution already holds.
+
+**Scope:** After plan execution has completed successfully, automatically invoke
+the execution retrospective for that execution and supply its retained story or
+correction contract, plan, decisions, commits, delivery state, and proof. Do not
+start the retrospective when execution is incomplete, cancelled, or stopped for
+human judgment. Preserve the retrospective's own review-selection behavior and
+leave story wrap-up as a separate lifecycle transition.
+
+**Evaluation:** A representative completed planned execution proceeds into one
+retrospective without a separate human invocation, and the retrospective can
+identify and review that execution from the context handed over by execution.
+An incomplete or decision-blocked execution stops without launching one.
+
+**Value / learning:** Remove a routine lifecycle handoff while keeping the
+execution evidence at the point where the retrospective needs it.
+
+**Effort hypothesis:** Simple. Little judgment appears necessary between
+successful plan completion and retrospective entry; refinement should challenge
+that assumption against completion, CI-observer shutdown, and retrospective
+context requirements.
+
+**Boundaries:** This story changes the automatic transition after planned
+execution only. It does not automatically run story wrap-up, change what the
+retrospective reviews, or decide how unresolved retrospective findings proceed.
+Queueing does not authorize refinement, planning, implementation, or release.
+
 <a id="use-released-retrospective-log"></a>
 
 ### 2. Use released retrospective logging in Open Dough
@@ -324,8 +359,8 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ## Ordering and Scope Reduction
 
-Story 2 is the next queued work. Preserve unrelated backlog order. Story
-numbers are stable identities, not priority ranks.
+Story 6 is the next queued work, followed by Story 2. Preserve unrelated backlog
+order. Story numbers are stable identities, not priority ranks.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -341,18 +376,20 @@ later refinement.
 
 ## Open Decisions
 
-Story 2 will assess whether existing adoption and real-use evidence already
-meets its original outcome. Broader validation has no newly assigned story or
-priority. No change to the near-future direction
-is authorized.
+Story 6 will assess whether any real judgment or missing context requires a stop
+between successful plan execution and retrospective entry. Story 2 will assess
+whether existing adoption and real-use evidence already meets its original
+outcome. Broader validation has no newly assigned story or priority. No change
+to the near-future direction is authorized.
 
 ## When to Surface
 
-Refine Story 2 around released logging use in Open Dough. Surface the separately
-pending validation obligations when selecting acceptance work or assessing an
-affected release. Surface effectiveness tracking
-when a response has a relevant follow-up execution; surface cross-project
-exchange only when another project's finding offers additional learning.
+Refine Story 6 around the completed-plan transition before Story 2's released
+logging use in Open Dough. Surface the separately pending validation obligations
+when selecting acceptance work or assessing an affected release. Surface
+effectiveness tracking when a response has a relevant follow-up execution;
+surface cross-project exchange only when another project's finding offers
+additional learning.
 
 ## Breadcrumbs
 
