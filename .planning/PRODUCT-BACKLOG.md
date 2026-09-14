@@ -9,8 +9,9 @@ clear transitions.
 
 ## Taken
 
+- [Return complete usable delegated handoffs](seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 — [plan](quick/048-complete-delegated-handoffs/PLAN.md)
+
 ## Backlog list
-- [Return complete usable delegated handoffs](seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001
