@@ -101,6 +101,16 @@ ADR conflict, exception, or new architectural direction is proposed.
 
 ## Proof mapping and execution constraints
 
+Execution identity (2026-09-14): worktree mode; originating checkout
+`/Users/terryyin/git/open-dough` on `main`; execution checkout
+`/Users/terryyin/git/open-dough/.worktrees/046-resolve-execution-context` on
+`codex/046-resolve-execution-context`; integration target `main`; claimed from
+`814da18`.
+
+CI observer: workflow `ci.yml` / `CI`; coordinator `root`; selected checkout as
+above; yielded cell `12`, session `47597`, mailbox
+`/tmp/dough-ci-501/watch-3AfMvb`, PID `43515`.
+
 | Corrected promise | Owning slice and outside-in observation |
 | --- | --- |
 | A commit-hook contract governs the first commit, including the Taken-only claim | 1: representative active-hook and no-hook startup walkthrough |
@@ -120,7 +130,7 @@ for wording. No numeric slice budget or timing target is supplied or invented.
 
 ### 1. Resolve the claim commit contract before taking work
 Type: Behavior
-Status: planned
+Status: done
 Depends on: none
 
 Behavior: Given a queued story or bounded correction, the coordinator resolves
@@ -147,6 +157,15 @@ required for this conventional guidance boundary.
 Safe stopping point: the first commit has a resolved governing contract and all
 later execution responsibilities remain unchanged. Stop for human judgment if
 safe hook handling would require behavior outside the existing execution scope.
+
+Outcome: done. The main execution skill now resolves the selective-formatting
+command and the hook contract that governs the Taken-only claim before moving a
+queued entry. No active hook and an understood check-only hook permit the
+existing backlog-only transition; an unknown, mutating, failing, or disputed
+hook stops with the queue unchanged. Push and CI context remain deferred to
+their later boundaries. Representative walkthroughs covered all three outcomes;
+`git diff --check` and `npm run format` passed. Independent post-change review
+reported `none — already clean`.
 
 ### 2. Bind the CI observer runtime to the selected execution checkout
 Type: Behavior
