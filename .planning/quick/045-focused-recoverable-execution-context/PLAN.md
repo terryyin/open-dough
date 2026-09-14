@@ -191,7 +191,7 @@ performance or measured token-reduction evidence.
 
 ### 2. Accept delegated work from sufficient, targeted evidence
 Type: Behavior
-Status: planned
+Status: done
 Depends on: 1
 
 Behavior: Given implementation and refactor returns, the coordinator can accept
@@ -216,6 +216,24 @@ without evidence. Compare the reads with the baseline's repeated broad reviews.
 Sizing: One acceptance decision loop; moderate confidence. Producer and consumer
 instructions must change together to avoid a temporarily unsupported handoff.
 Safe boundary: evidence selection improves while every delivery gate remains.
+
+Outcome (2026-09-14): delegation now returns a targeted evidence index with
+changed boundaries, literal commands, setup and observation locations, gaps,
+and consequential learning. Wrap-up inspects those locations before acceptance,
+and refactoring reports which accepted boundaries changed. The independent
+refactor found this producer/consumer contract already cohesive.
+
+| Representative acceptance variation | Inspected evidence | Decision |
+| --- | --- | --- |
+| Sufficient proof, unchanged by refactor | Delegation return fields, actual changed boundary, setup/assertion locations, and accepted result; refactor reports the same boundary unchanged | Accept once, then reuse the inspection without rereading the raw trace, full output, or unchanged diff. |
+| Refactor changes the covered boundary | Refactor's changed paths/boundary and replacement setup/observation locations | Reinspect the newly affected locations and accept the rerun or replacement proof only if it still establishes the promise. |
+| Passing assertion whose setup supplies the promised state | Reported setup plus assertion and actual implementation boundary | Return the promise as unproved; the command and compact report do not substitute for product behavior. |
+
+Source inspection covered `references/delegation.md`'s targeted return contract,
+`references/wrap-up.md`'s acceptance and refactor-consumption rules, and
+`dough-post-change-refactor/SKILL.md`'s proof-effect report. `npm run format` and
+`git diff --check` passed. No semantic harness or native run was added; the
+representative walkthrough is the applicable conventional guidance review.
 
 ### 3. Continue or resume from trustworthy execution state
 Type: Behavior
