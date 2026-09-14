@@ -21,36 +21,177 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 21. Cover the actual user outcome before accepting proof
 
-**Status:** Queued; unrefined and unplanned.
+**Status:** Refined and planned; queued, execution not started.
+**Plan:** [Cover the actual user outcome before accepting proof](../quick/047-cover-actual-user-outcome/PLAN.md).
+**Decision:** On 2026-09-14, the owner accepted a narrow fix now and authorized
+refinement and slice planning. Do not wait for another incident on the latest
+release. Later real-use evidence assesses effectiveness; it is not a prerequisite
+to making this correction. Implementation is not authorized by this instruction.
 
-- **For / why:** A developer needs completion evidence to cover the actual user
-  outcome, including affected consumer purposes, the real predecessor or data
-  boundary, and required pre-change observations, so passing planned tests do
-  not conceal an omitted obligation.
-- **Evaluation:** On representative preservation, mixed-consumer, and measured
-  optimization cases, identify the relevant obligations before implementation
-  or proof acceptance. Distinguish preservation within a new installation from
-  migration of its predecessor; cover each incompatible production consumer
-  purpose; obtain a mandated baseline before changes. If an observation is
-  unavailable, keep the specific promise unproved. Reuse valid existing proof.
-- **Value / learning:** Prevent incorrect completion claims and escaped behavior
-  while learning whether obligation completeness improves on the proof
-  inspection guidance already released in 0.3.17. The supporting findings span
-  three distinct executions at 0.3.14–0.3.16; they are related problems, not one
-  merged finding or demonstrated failures of 0.3.17.
-- **Scope:** Improve existing planning and execution guidance at the affected
-  boundaries. Keep the outcome bounded to the selected story; do not introduce
-  a whole-product audit, mandatory full-suite runs, or a new proof registry.
-- **Depends on:** None.
-- **Safe stopping point:** One story can be completed with trustworthy coverage
-  even if the delegated-handoff story is never implemented.
-- **Finding evidence:** ODF-028, ODF-041, ODF-045 in
-  [finding names](../../docs/maintainer/finding-names.md).
-- **Completion record:** After delivery, update each addressed finding in that
-  catalog with the actual response, recoverable implementation references, and
-  containing release when known. Use “Addressed in source; effectiveness
-  unverified” until real-use evidence supports a stronger conclusion; preserve
-  each identity, occurrence, and any unresolved limits.
+**Is this a real problem?** Yes, the retained evidence shows consequential gaps,
+but does not establish that adding more guidance will prevent them:
+
+- [ODF-028](../../docs/maintainer/finding-names.md#odf-028--preservation-proof-omits-the-physical-predecessor-store)
+  records valid continuity proof for a Docker volume being understood as
+  preservation of the owner's native production settings and roughly 22 GB.
+  The original Pygardon plan explicitly deferred migrations. The supported
+  problem is an unidentified predecessor and an overbroad completion claim;
+  missing migration is not automatically an omitted authorized requirement.
+- [ODF-045](../../docs/maintainer/finding-names.md#odf-045--dominant-query-purpose-hides-incompatible-production-callers)
+  records a concrete escaped behavior: a trashed note remained gradeable despite
+  passing planned suites. A shared query was classified as storage-oriented,
+  overlooking its learning caller. This is the strongest evidence of a product
+  defect hidden by incomplete obligation discovery.
+- [ODF-041](../../docs/maintainer/finding-names.md#odf-041--required-pre-change-baseline-is-deferred-until-final-acceptance)
+  records a missed execution prerequisite, not a missing planning instruction:
+  the plan already said to collect the baseline before slice 1. Recovery at
+  final acceptance succeeded. Extra recovery work and delayed assurance are
+  supported; permanent loss of a reproducible baseline is not established.
+
+These are three distinct executions across two projects at 0.3.14–0.3.16, not
+three recurrences of one proven cause. Proof-boundary guidance shipped in
+0.3.14 and remains in 0.3.17. The absence of a supplied occurrence on 0.3.17
+does not establish prevention or justify deferral. Current [proof ownership](../../src/skills/dough-story-refinement/references/planning.md#own-executable-proof),
+[proof acceptance](../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof),
+and [PFE](../../src/skills/dough-pfe/SKILL.md#search-across-the-product) already
+require outcome-based evidence and attention to callers and domain purpose.
+The concrete correction is to make identity, affected-caller purpose, and
+pre-change evidence explicit at the decisions they govern. Whether that reduces
+recurrence remains an empirical question; existing general instructions do not
+make the recorded failures resolved.
+
+**Goal:** A developer carrying one selected story through planning and
+execution can rely on its completion claim: the agent identifies consequential
+preservation and consumer obligations within the authorized outcome, obtains
+time-sensitive evidence before the dependent change, and accepts only what the
+observations establish. This supports the backlog's coherent story lifecycle
+by carrying the same understood outcome across its existing transitions.
+
+**Alternatives and decision:** Waiting for latest-release incidents would defer
+a proportionate response to already observed failures. Simply restating that
+agents must follow existing guidance leaves the actionable gaps unresolved:
+which store, which caller purpose, and which observation must precede a change.
+Strengthen those three decision points within existing guidance now. Reuse or
+relocate an existing rule where sufficient, replace overlapping prose, and
+preserve the proof-acceptance rules rather than repeating them. Neither a new
+verification skill nor a universal checklist is justified. Reviewing current
+guidance chooses the smallest coherent edit; it is not an experiment that must
+reproduce failure before this accepted correction can proceed.
+
+**Scope:** Make three conditional checks explicit: preservation identity while
+planning, affected caller requirements before changing shared behavior, and
+required pre-change evidence before dependent implementation. Carry their results
+through existing promise mapping and proof acceptance:
+
+- Ground obligations in the selected story, approved decisions, and affected
+  existing product behavior. A passing plan is not the sole source of what must
+  remain true. Investigate only boundaries implicated by this change, including
+  relevant callers outside the files initially expected to change.
+- For a preservation claim, identify the installation, physical data store,
+  and predecessor relationship that the claim concerns. Distinguish continuity
+  within the same store from transfer out of another store. If the owner's
+  intended target conflicts with the supplied scope, expose that conflict before
+  dependent work; neither assume migration authority nor claim it occurred.
+- When a changed shared operation has production callers with potentially
+  different purposes, inspect those affected call sites and derive the distinct
+  behavioral obligations. Equivalent purposes can share sufficient evidence;
+  incompatible requirements need appropriate observations. A method's name or
+  dominant use does not settle all its callers' requirements.
+- When acceptance requires a pre-change observation, make it a prerequisite to
+  the change that would invalidate it. Reuse an adequate baseline with known
+  revision and relevant environment/selection conditions; otherwise obtain it
+  before that change. This is not a requirement to benchmark every story or to
+  run every baseline before unrelated setup or independent work.
+- At proof acceptance, reconcile the discovered obligations with the actual
+  observations and report the supported boundary. Retain gaps in the existing
+  plan or conversation. Missing evidence leaves the affected promise incomplete;
+  unrelated, independently supported work can continue. A late reconstructed
+  baseline can support a comparison when equivalence is established, but must
+  not be presented as an observation collected before implementation.
+
+**Constraints and deferred promises:** Preserve human ownership of disputed
+scope and product requirements. An example here does not authorize new product
+behavior or require rejecting other valid cases. This delivery does not commit
+to fixing Pygardon or Doughnut, adding migration machinery, auditing unrelated
+consumers, guaranteeing discovery of every latent defect, requiring full-suite
+runs, creating a proof registry or extra persistent checklist, changing delegated
+handoffs, or redesigning release and installation validation. Necessary changes
+to existing shared guidance are allowed; the examples are not a fixed file list.
+Keep runtime guidance project-neutral and shared across supported hosts.
+
+**Key examples:**
+
+- **Preservation identity:** Given a Docker installation preserves its own
+  volume across A→B while the owner's old data remains in a native store,
+  planning identifies both stores and the intended preservation boundary.
+  Proof of A→B supports only that volume's continuity. If migration is deferred,
+  the agent says the old data has not been transferred; a conflicting owner
+  expectation is a scope decision, not an automatic migration task.
+- **Mixed purposes:** Given storage/export must retain trashed content while
+  learning must exclude it, and both call one query, a trash-behavior change
+  identifies both uses and obtains or reuses evidence for each requirement.
+  Filtering every caller identically is not an acceptable repair.
+- **Evidence timing:** Given measured optimization acceptance explicitly needs
+  a full-suite baseline, execution obtains the required revision, conditions,
+  selection, and result before the dependent implementation. If the environment
+  prevents that observation, it reports the prerequisite and stops that path;
+  passing post-change tests alone cannot establish a measured improvement.
+- **Late discovery:** Given the baseline was missed, a recoverable old revision
+  and demonstrably comparable environment may support a transparently labelled
+  reconstructed comparison. Without sufficient comparability, the speedup
+  remains unproved. Neither recovery nor its impossibility is assumed.
+- **No extra ceremony:** Given an ordinary change has equivalent affected
+  callers, sufficient unchanged evidence, and no migration or measurement
+  promise, the agent reuses that evidence without adding a baseline run,
+  per-caller duplicate tests, migration investigation, or a new document.
+
+**Evaluation and limits:** Review each changed instruction through its normal
+invocation using the representative inputs above. Observe which obligations are
+identified, when evidence is requested, and what the completion claim says.
+Check invocation context, required inputs and missing-input handling, and the
+useful result under the maintainer behavior review. For any fresh agent session,
+withhold the finding and expected answer; use ordinary story/plan context and
+relevant caller/store evidence. The late-discovery and no-extra-ceremony examples
+protect existing recovery and evidence-reuse behavior. Record observations in
+ordinary execution evidence, without a new tracking system or mandatory
+before/after agent benchmark. An unresolved case remains visibly unproved even
+when the other cases pass.
+
+A representative walkthrough establishes intended guidance behavior, not a
+measured reduction in real-project defects. Later real use is needed for an
+effectiveness claim, not permission to begin the fix. Historical incidents
+justify this bounded correction, but do not quantify recurrence, savings, or
+superiority to the second story. Preserve the owner's queue order. Judge slice
+size by its focused behavior and proof; do not invent a timing guarantee.
+
+**Depends on:** No other backlog story and no new latest-release incident.
+
+**Safe stopping point:** One story's completion evidence can be made trustworthy
+without the delegated-handoff story. Each corrected decision point provides
+useful guidance independently; the story remains incomplete until all three
+promises are covered. Retain unresolved evidence limits explicitly.
+
+**Open uncertainty:** The correction's effectiveness in later real use and its
+interruption cost. No unresolved product-scope decision prevents planning the
+three accepted changes. Runtime proof and release acceptance remain distinct
+from evidence of reduced recurrence.
+
+**Source checks:** Read-only inspection during refinement confirmed the original
+Pygardon plan's migration exclusion at
+`d09f0a6ae:.planning/quick/112-automatic-tag-release-update/PLAN.md`, its explicit
+baseline requirement at
+`b1c3b5c83:.planning/quick/127-fast-service-and-packaged-tests/PLAN.md`, and
+Doughnut's query classification at
+`2be6138738:.planning/quick/115-web-note-trash-and-undo/PLAN.md`. Occurrence effects
+remain attributed to the finding catalog; these reads did not reproduce the
+incidents or evaluate current runtime effectiveness.
+
+**Completion record:** After delivery, update each addressed finding in the
+[catalog](../../docs/maintainer/finding-names.md) with the actual response,
+recoverable implementation references, and containing release when known. Use
+“Addressed in source; effectiveness unverified” until real-use evidence supports
+a stronger conclusion; preserve each identity, occurrence, and unresolved limit.
+Do not mark a finding resolved merely because this refinement or its plan exists.
 
 <a id="return-complete-usable-delegated-handoffs"></a>
 
