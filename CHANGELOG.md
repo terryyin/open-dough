@@ -1,3 +1,12 @@
+## 0.3.18 - 2026-09-14
+
+- Strengthen proof ownership before implementation. Inspect affected production callers of shared operations, distinguish their actual purposes, bind preservation claims to the intended installation, physical store, and predecessor, and obtain required pre-change observations before dependent changes invalidate them.
+- Make delegated execution handoffs complete and usable. Own asynchronous verification through its terminal result, wait through supported host facilities without no-op calls, retire owned watches only after accounting for unread evidence, and accept substantively complete proof without cosmetic resend requests.
+- Complete Story Branch Mode cleanup by removing verified integrated remote execution branches as well as owned local branches and worktrees, while preserving unique work and reporting partial or blocked cleanup accurately.
+- Clarify post-change refactoring with a consistent 250-line review threshold and terminal verification ownership, and streamline execution, retrospective, wrap-up, and internal finding-triage guidance without changing their established lifecycle boundaries.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.18`. Acceptance for the changed proof-planning, delegated-handoff, refactoring, cleanup, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.17 - 2026-09-14
 
 - Make planned execution startup and recovery focused, checkout-bound, and evidence-driven. Resolve only context needed at each boundary, bind the CI runtime to the selected execution checkout, preserve trustworthy work and accepted proof through interruption or replanning, and resume from the first unproved delivery obligation.
