@@ -137,7 +137,7 @@ the remaining two corrections.
 
 ### 2. Bind preservation claims to the intended store and predecessor
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given A→B preserves a Docker volume while the owner's native data is
 elsewhere, preservation planning identifies installation/store identity and the
@@ -239,3 +239,25 @@ this planning assessment.
 - Native-session (Codex/Cursor/Claude Code) acceptance of the changed guidance is not established; remains
   pending with this story/plan for release assessment (ADR 0003/0005). No release selected.
 - Delivery record: ODF-045 update is owed after delivery; not yet written.
+
+### Slice 2 — Bind preservation claims to the intended store and predecessor (done)
+
+- Promise: preservation identity, no automatic scope expansion, honest claim.
+- Change: added one conditional paragraph (13 lines) to the `## Own executable proof` section of
+  `src/skills/dough-story-refinement/references/planning.md`, immediately after slice 1's caller-purpose
+  paragraph and before "Reuse sufficient evidence…". Identifies installation, physical data store, and
+  predecessor relationship; distinguishes continuity within the same store from transfer out of another
+  store; surfaces intended-target vs. supplied-scope conflict before dependent work; does not assume
+  migration authority or report a deferred migration as completed; ordinary single-store case reuses
+  matching continuity evidence without inventing another predecessor or migration task. Conditional
+  aspect of the boundary above, not a mandatory per-story section. No other file changed.
+- Accepted proof: `git diff --check` → exit 0, no output. Two-store walkthrough (A→B preserves Docker
+  volume while owner's native data elsewhere) confirms: result names what was preserved (volume
+  continuity) and leaves native transfer outside the claim; missing intended-store identity stops the
+  dependent claim for clarification; ordinary one-store case reuses continuity evidence without
+  inventing a predecessor/migration task. Slice 1's paragraph, "Reuse sufficient evidence" rule, mapping
+  table, and acceptance rules preserved. Anchor and inbound links unchanged.
+- Refactor: `skipped — no refactor edits`; composes cleanly with slice 1's rule and the reuse rule;
+  perspective project-neutral per ADR 0006.
+- Native-session acceptance not established; remains pending for release assessment (ADR 0003/0005).
+- Delivery record: ODF-028 update is owed after delivery; not yet written.

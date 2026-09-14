@@ -186,6 +186,19 @@ of duplicating proof. An unresolved domain purpose yields a precise question
 about that caller's requirement rather than a guessed policy; stop the
 dependent obligation there until it is answered.
 
+When a promise preserves an existing artifact, identify the installation, the
+physical data store, and the predecessor relationship the claim concerns, using
+the identities and scope this project supplies. Distinguish continuity within
+the same store from transfer out of another store: a preservation claim covers
+the former and does not establish that the latter occurred. If the intended
+target conflicts with the supplied scope — for example, a Docker volume is
+preserved while the owner's native data lives elsewhere — surface that conflict
+before dependent work rather than silently resolving it. Do not assume
+migration authority or report a deferred migration as completed. The ordinary
+single-store case reuses matching continuity evidence without inventing another
+predecessor or migration task. This is a conditional aspect of the boundary
+above, not a mandatory per-story section.
+
 Reuse sufficient evidence. Obtain only missing observations within authorized
 work; if unavailable, report what is covered and the specific unproved promise.
 That promise remains incomplete; reporting the gap does not fulfill or remove
