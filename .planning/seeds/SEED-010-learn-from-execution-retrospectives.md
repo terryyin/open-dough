@@ -127,8 +127,8 @@ through the released recording behavior. One observation can support both produc
 and process learning, but each conclusion must explain its relevance to that
 destination.
 
-Story 6 owns direction alignment across all three reviews, default-on review
-selection, and the two skip options. Story 1's
+The retrospective owns direction alignment across all three reviews, default-on
+review selection, and the two skip options. Story 1's
 writing must respect `--skip-process`; recording must not run independently of
 that selection. Skipped reviews do not block or suppress the other focuses.
 
@@ -159,133 +159,6 @@ native delivery evidence remain distinct under
 No architectural exception or new ADR is proposed here.
 
 ## Stories
-
-<a id="continue-plan-execution-into-retrospective"></a>
-
-### 6. Continue completed plan execution into its retrospective
-
-**Status:** Refined on 2026-09-14; selected for backlog. Planning and execution
-are not authorized by this refinement.
-
-**Goal:** A developer completing planned execution receives the existing
-execution retrospective in the same continuation, without another prompt to
-start it. Retained execution context identifies what to review and reduces
-avoidable recovery. This advances the backlog's coherent story lifecycle;
-it does not promise fewer defects or a cheaper retrospective.
-
-**Why needed / why now:** The current execution skill explicitly stops before
-retrospective entry even though it retains the completed plan and evidence.
-The retrospective already accepts the current execution conversation, so this
-is a missing transition between existing capabilities. The selected near-future
-direction makes that transition timely; no measured prompt cost, missed-review
-rate, or deadline establishes greater urgency. The strongest smaller alternative
-is to retain manual invocation with a useful completion summary. That remains
-adequate when the developer wants to choose review timing, but does not deliver
-the selected uninterrupted transition. Automatic review can cost substantially
-more than the saved prompt; preserve existing review preferences and explicit
-instructions to stop after execution instead of adding mandatory review work.
-
-**Scope — required behavior:**
-
-- After all planned slices satisfy existing proof and delivery obligations and
-  required CI-observer shutdown succeeds, invoke the existing retrospective for
-  that execution without another confirmation. A plan marked done alone is
-  insufficient. Handle delivered CI failures under the existing execution rules
-  before taking this transition. Pending CI remains explicitly unobserved;
-  waiting for green CI, deployment, or merge is not a new completion gate.
-- Retain and supply the source story or bounded-correction contract, original
-  plan and approved changes, attributable commits, decisions, proof, delivery
-  state, CI limitations, and execution checkout/branch identity. Reuse available
-  context and references; do not require a new handoff artifact or copy whole
-  transcripts. Retrospective still validates attribution and fills real gaps.
-- Continue in the established execution project and checkout, including an
-  explicitly selected current-branch execution. A bounded correction needs its
-  contract, not a fabricated feature-story seed. A quick attempt subsequently
-  completed through an ordinary remaining-work plan retains both parts as one
-  execution, following the retrospective's existing recovery contract.
-- Preserve retrospective review selection, explicit review instructions, and
-  project preferences. The existing review owns its permitted process-log writes
-  and correction planning; this transition adds no authority to implement its
-  findings or change the backlog. Explicit user instructions to omit or defer
-  the retrospective take precedence over automatic continuation.
-- Distinguish completed execution from retrospective completion or a review
-  blocked on missing context. A retrospective stop must retain the completed
-  execution and identify the missing input; do not rerun implementation or
-  claim review completion. On recovery, use retained context to continue an
-  unfinished review or recognize one already completed, rather than launching
-  another merely because the plan is done. Ambiguous review state needs recovery,
-  not a guessed completion or duplicate run.
-
-**Rejection constraints:** Incomplete execution, failed required delivery or
-observer shutdown, cancellation, and stops for human judgment do not trigger
-automatic retrospective entry. These preserve the selected completed-execution
-boundary and the execution skill's existing finish/stop contract. They do not
-remove the retrospective's ability to review unfinished work when separately
-requested. An unresolved review-selection preference follows the retrospective's
-existing rules for continuing independently supported reviews.
-
-**Deferred promises:** No automatic retrospective after a wholly planless quick
-execution; no new skip flag or preference, review content, CI waiting or repair
-policy, observer lifetime extension, scheduler, host hook, durable deduplication
-registry, or cross-session automation. No automatic correction execution,
-recursive review/correction loop, story wrap-up, backlog removal, merge, branch
-cleanup, release, or managed-copy update. These exclusions bound delivery
-commitments; they do not restrict separately authorized existing workflows.
-
-**Key examples:**
-
-1. A feature plan's slices are delivered and its observer closes with CI still
-   pending → execution finishes → one retrospective begins in the execution
-   checkout using that story, plan, attributable commits, and proof; pending CI
-   is reported as unobserved, and the plan, branch, and Taken entry remain.
-2. A bounded-correction plan completes on an explicitly selected current branch
-   → the handoff occurs → review uses the correction contract and that checkout,
-   without requesting a feature-story seed or creating a worktree.
-3. The last slice is marked done but push fails, a delivered CI failure remains
-   unresolved, or observer shutdown is unconfirmed → execution stops → no
-   automatic review. The same applies to cancellation or a human-decision stop.
-4. Successful planned execution has an explicit `--skip-product` instruction
-   for its retrospective and the project preference skips process review → the
-   retrospective performs implementation review under its existing rules,
-   without process-log access or product suggestions. An explicit instruction
-   to stop after execution instead prevents automatic entry entirely.
-5. Execution completes but retained commit attribution is ambiguous → review
-   names the missing evidence and stops the affected path → execution remains
-   complete; no correction is implemented and no wrap-up begins. Resuming with
-   sufficient evidence continues that review; a retained completed review is
-   not automatically repeated.
-6. A quick attempt becomes an ordinary remaining-work plan and finishes → one
-   retrospective covers both attributable parts. A wholly planless quick
-   completion retains its existing finish behavior.
-
-**Evaluation:** Walk a representative completed planned execution through the
-actual handoff into useful retrospective output, plus focused boundary examples
-above. A completion message merely recommending a retrospective is insufficient.
-Review the shared guidance under the repository's behavior-review rules; use
-the smallest necessary evidence for changed behavior, without rebuilding the
-separately pending lifecycle-validation campaign or treating one host's result
-as certification of all hosts.
-
-**Effort hypothesis:** Small, with moderate confidence. The receiving capability
-and context already exist; the work should primarily clarify shared guidance.
-The risk is contradictory finish, recovery, or review-authority instructions,
-not a missing orchestration system. Reassess size if implementation appears to
-require new runtime machinery rather than expanding this story to justify it.
-
-**Dependencies / safe stopping point:** Existing execution completion and
-retrospective contracts are sufficient; Story 2's released logging-use evidence
-is not a prerequisite. The transition is useful independently while wrap-up
-remains separately invoked. The broader Story Branch Mode ADR is still Proposed;
-this story neither accepts it nor resolves its trunk-integration conflict.
-
-**Evidence:**
-[execution finish/stop](../../src/skills/dough-execute-plan/SKILL.md#finish-or-stop),
-[review selection and recovery](../../src/skills/dough-execution-retrospective/SKILL.md),
-and [backlog direction](../PRODUCT-BACKLOG.md#near-future-direction).
-
-**Open decisions:** None identified as blocking this bounded refinement. The
-small-effort estimate and the value of eliminating manual entry remain hypotheses
-to assess in representative use, not established performance claims.
 
 <a id="use-released-retrospective-log"></a>
 
@@ -451,8 +324,8 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ## Ordering and Scope Reduction
 
-Story 6 is the next queued work, followed by Story 2. Preserve unrelated backlog
-order. Story numbers are stable identities, not priority ranks.
+Story 2 is the next queued work. Preserve unrelated backlog order. Story numbers
+are stable identities, not priority ranks.
 
 Keep Stories 4 and 5 as unqueued candidates. Prefer local effectiveness evidence
 to expansion across projects. Drop cross-project exchange first, automated
@@ -468,18 +341,15 @@ later refinement.
 
 ## Open Decisions
 
-Story 6 preserves existing completion and review stop rules; no new mandatory
-human decision between successful execution and retrospective entry was found.
-Story 2 will assess
-whether existing adoption and real-use evidence already meets its original
-outcome. Broader validation has no newly assigned story or priority. No change
-to the near-future direction is authorized.
+Story 2 will assess whether existing adoption and real-use evidence already
+meets its original outcome. Broader validation has no newly assigned story or
+priority. No change to the near-future direction is authorized.
 
 ## When to Surface
 
-Story 6 is refined for a later authorized planning or execution selection before
-Story 2's released logging use in Open Dough. Surface the separately pending validation obligations
-when selecting acceptance work or assessing an affected release. Surface
+Refine Story 2's released logging use in Open Dough. Surface the separately
+pending validation obligations when selecting acceptance work or assessing an
+affected release. Surface
 effectiveness tracking when a response has a relevant follow-up execution;
 surface cross-project exchange only when another project's finding offers
 additional learning.

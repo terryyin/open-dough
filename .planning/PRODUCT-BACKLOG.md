@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Continue completed plan execution into its retrospective](seeds/SEED-010-learn-from-execution-retrospectives.md#continue-plan-execution-into-retrospective) — SEED-010
-
 ## Backlog list
 
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
