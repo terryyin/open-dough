@@ -733,7 +733,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Doughnut Project / DD-019
 - **References:** Doughnut Project `DearDough.md`, DD-019; Distinct from ODF-007: the agent supplied a complete final report; the problem is watch cleanup afterward, not returning before verification. `691e7be961`, release 0.3.14.
 
-- **Follow-up:** Queued, not resolved: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Addressed in source; effectiveness unverified: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22, [plan 048](../../.planning/quick/048-complete-delegated-handoffs/PLAN.md) slice 3. Response: `src/skills/dough-execute-plan/references/delegation.md` now bounds owned watch lifetime to the verification obligation, requires accounting for unread evidence before retirement through supported controls, treats queued duplicates as stale without restarting verification, and preserves unrelated watches including the CI observer; implementation commit `bad3aae` on `cursor/048-complete-delegated-handoffs`, unreleased (containing release not yet known). Effectiveness limit: source walkthrough only; the finding's limit stands that not every late host notification is preventable.
 
 ### Occurrences
 
