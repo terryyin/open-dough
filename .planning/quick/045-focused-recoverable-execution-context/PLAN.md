@@ -103,16 +103,27 @@ but this conventional guidance change does not require a new cross-host campaign
 
 ## Execution constraints and gates
 
+Execution identity (established 2026-09-14): originating checkout
+`/Users/terryyin/git/open-dough` on `main`; execution checkout
+`/tmp/open-dough-045.DZNCJt/worktree` on
+`codex/045-focused-recoverable-execution-context`; integration target `main`;
+claim commit `7e1d202155633c26a3a1c5619cadf115edd03747`.
+
+CI observer (started 2026-09-14): Codex cell `24`, session `31742`, directory
+`/tmp/dough-ci-501/watch-ISN12H`, PID `34512`; repository
+`terryyin/open-dough`; branch `codex/045-focused-recoverable-execution-context`;
+workflow selector `ci.yml`, display name `CI`; execution checkout as above.
+
 No numeric slice target, hard limit, or repeated-overrun threshold is supplied
 by current repository guidance. Size by one coherent behavior and proof loop;
 do not invent minutes. If implementation exposes independent outcomes or a
 missing contract, refine the remaining plan under existing escalation rules.
 
-On an eventual execution request, follow `dough-execute-plan`: claim the queued
-story first, establish Story Branch Mode identity, and retain this plan. No
-execution branch, checkout identity, CI observer, or delivery status exists yet.
-Implementation and fresh independent refactoring are delegated by that workflow;
-the coordinator retains acceptance, formatting, staging, commit, and push.
+The current 2026-09-14 `dough-execute-plan 45` invocation authorizes execution.
+The story is claimed in **Taken** and the Story Branch Mode identity above is
+active. Implementation and fresh independent refactoring are delegated by that
+workflow; the coordinator retains acceptance, formatting, staging, commit, and
+push. The CI observer above is active for the first and later slice pushes.
 
 Public edits belong in `src/skills/`; do not hand-synchronize `.agents/skills/`
 or `.claude/skills/`. Keep the shared host-neutral behavior and current reference
@@ -136,7 +147,7 @@ merely search for wording or run the full installer suite for ordinary prose.
 
 ### 1. Start with sufficient relevant context
 Type: Behavior
-Status: planned
+Status: done
 Depends on: none
 
 Behavior: Given an authorized plan and project guidance, entering execution
@@ -159,6 +170,24 @@ Sizing: One startup selection policy and proof loop; moderate confidence because
 mandatory and conditional references must remain consistent. Stop before expanding
 into a repository-wide skill rewrite. Safe boundary: startup improves with all
 existing downstream execution duties intact.
+
+Outcome (2026-09-14): `dough-execute-plan` now selects authoritative guidance
+at the boundary that needs it, reuses still-valid reads, and routes missing or
+truncated passages through the existing disposable-research owner. The
+independent refactor removed a duplicate recovery procedure from the main skill.
+
+| Representative startup variation | Concrete read and decision | Result |
+| --- | --- | --- |
+| Ordinary first delegation | Main skill execution-source, boundary-context, delegation, and common decision passages; current plan/story | Required authority, slice, ownership, commands, and stops are available without full wrap-up, CI, refactor, or unrelated lifecycle reads. |
+| Truncated delegation pause rule | Targeted delegation pause passage plus only its linked CI pause contract; retrieval policy in `references/disposable-research.md` | The complete decision and source are retained; overlapping full-reference batches are unnecessary. |
+| Missing execution location or slice command/runtime | Main skill required-context stop plus the relevant delegation requirement | Delegation stops; later-only delivery context may wait for its owning boundary but is not waived. |
+
+Source inspection covered `src/skills/dough-execute-plan/SKILL.md` startup and
+boundary-selection rules and `references/disposable-research.md` targeted
+recovery/stop rules. Linked delegation, wrap-up, CI pause, refactor, planning
+proof, and missing-context instructions were consistent. `npm run format` and
+`git diff --check` passed. This is representative guidance proof, not native
+performance or measured token-reduction evidence.
 
 ### 2. Accept delegated work from sufficient, targeted evidence
 Type: Behavior

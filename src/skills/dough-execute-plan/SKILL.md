@@ -41,37 +41,59 @@ from a story's apparent size. A successful quick execution creates no plan,
 completion note, or substitute execution record; retain its scope, decisions,
 progress, and proof in the conversation.
 
-Use [planning scope and
-lifecycle](../dough-story-refinement/references/planning.md) for source ownership
-and proof, and for plan updates when a plan exists. Keep a completed plan and
-its review evidence for retrospective and
+Use [planning level](../dough-story-refinement/references/planning.md#choose-the-planning-level)
+for source ownership,
+[proof ownership](../dough-story-refinement/references/planning.md#own-executable-proof)
+when proof is mapped or accepted, and
+[active-plan refinement](../dough-story-refinement/references/planning.md#refine-the-active-plan)
+for plan updates when a plan exists. Keep a completed plan and its review
+evidence for retrospective and
 [dough-story-wrap-up](../dough-story-wrap-up/SKILL.md); do not delete the
 completed plan or its source history here. For quick execution, retain the
 canonical story and conversation as the later review inputs. Use
 [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
-for Behavior and Structure slices, sizing, and learning escalation.
+for Behavior and Structure slices and
+[slice sizing](../dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices)
+for sizing and learning escalation.
 
-Resolve from this project:
+At startup, obtain enough authoritative context to select and delegate the first
+slice. Reuse applicable instructions already read during this execution while
+their source and the assumptions that make them applicable remain unchanged;
+do not reload a reference merely because execution reached another step.
+
+Resolve the following from this project at the boundary that first needs it:
 
 - execution-source kind, slice target, hard limit, and exceptions; for planned
   execution also resolve the plan path, slice-status vocabulary, and whether
   Story Branch Mode applies or the caller selected execution on the current branch;
 - product backlog path and selected entry when this work was selected from
   **Backlog list**;
-- navigation, focused test commands, runtime wrapper, and workflow precedence;
-- selective formatting command, commit hook contract, and authorized push destination;
+- navigation, focused test commands, runtime wrapper, and workflow precedence
+  needed by the selected slice;
+- selective formatting command, commit hook contract, and authorized push
+  destination before delivery;
 - generated-artifact triggers and commands when affected; and
-- context required by [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md).
+- context required by
+  [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) before
+  delegating refactoring.
 
-Name missing context and stop the affected work before delegation. When another
-execution tool such as GSD invokes this skill, keep the same slice delivery
-contract. Do not treat that tool's phase or task as an alternative to a slice.
+Each item remains required before the boundary it governs. Name missing context
+and stop the affected work; missing context needed by the first slice stops its
+delegation. When another execution tool such as GSD invokes this skill, keep the
+same slice delivery contract. Do not treat that tool's phase or task as an
+alternative to a slice.
 
-Read [execution decisions](references/execution-decisions.md),
-[delegation](references/delegation.md), and [wrap-up](references/wrap-up.md)
-before implementation. Read [CI observation](references/ci-monitor.md) before
-the first push and load only the current host's notification adapter. For a
-bounded investigation, use [disposable research](references/disposable-research.md).
+Before the first implementation delegation, read
+[delegation](references/delegation.md) and apply
+[execution decisions](references/execution-decisions.md): obtain its common
+reassessment and human-judgment rules plus any conditional section triggered by
+the current evidence. Before accepting an implementation return, read
+[proof acceptance](references/wrap-up.md#accept-proof); before delivery, read
+[delivery](references/wrap-up.md#deliver-the-change). Read
+[CI observation](references/ci-monitor.md) before the first push and load only
+the current host's notification adapter. For targeted recovery of an omitted or
+truncated passage, or for a bounded investigation, use
+[targeted retrieval and disposable research](references/disposable-research.md).
 
 ## Take queued work
 
