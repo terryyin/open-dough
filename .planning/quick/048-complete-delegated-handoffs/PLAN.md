@@ -131,7 +131,7 @@ After delivery, record the actual ODF-007 response and effectiveness limit.
 
 ### 2. Wait for delegated results without empty calls
 Type: Behavior
-Status: planned
+Status: delivered 2026-09-14
 
 Behavior: A coordinator awaits a delegated result → it uses an available
 notification/wait/resume facility → it continues on meaningful state without
@@ -236,6 +236,19 @@ Execution identity (recorded 2026-09-14 at setup):
 - Hook contract: no `core.hooksPath` and no non-sample `.git/hooks` hooks at
   claim time; the Taken transition was safe. `scripts/lint.mjs` covers
   JS/JSON/shell only; no broad formatter applies to these Markdown changes.
+
+Slice 2 (delivered 2026-09-14): Added `## Await delegated results without
+empty calls` to `src/skills/dough-execute-plan/references/delegation.md`
+(supported notification/wait/resume facility; no no-op calls; bounded state
+retrieval and progress communication stay valid; missing-facility variant
+reports the exact limitation and recovery need; CI lifecycle untouched).
+Accepted proof: `git diff --check`; link/anchor checks;
+`bash tests/execution-payload-update.sh` (pass); manual two-variant
+walkthrough, labelled manual. Post-change refactor restored the file's section
+structure with a new `## Return a targeted report with focused proof` heading
+(slice 1's insertion had left the return contract under the ownership
+heading); slice 1's boundary and anchor remain valid. Slices 3–4 attach after
+the wait section or extend ownership without restructuring.
 
 Slice 1 (delivered 2026-09-14): Added `## Own verification to its terminal
 result` to `src/skills/dough-execute-plan/references/delegation.md` and one

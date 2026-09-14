@@ -62,6 +62,8 @@ ownership, and carries no completion marker. The agent retains the command
 identity and known state in its ordinary handoff only when needed for
 continuation or recovery.
 
+## Return a targeted report with focused proof
+
 Require uncommitted changes with passing focused proof, a stop requiring human
 judgment, or an oversized-slice report under execution decisions. Require a
 targeted return that gives the coordinator:
@@ -98,3 +100,27 @@ abbreviations, and paraphrases are ambiguous evidence. When no setup is needed,
 say `none`; do not omit the field or mistake behavior supplied by a fixture for
 product behavior. Report uncovered behavior as incomplete implementation; the
 refactor pass must not supply missing behavior.
+
+## Await delegated results without empty calls
+
+When a delegated result is still pending, wait through the host's supported
+notification, wait, or resume facility and continue on the meaningful state it
+delivers. Do not issue no-op calls — such as a shell command run solely to
+keep the turn alive — while waiting; they consume turns without advancing the
+delegated work or its evidence.
+
+Bounded state retrieval is not no-op polling: a limited check of a delegated
+command's output or status to obtain real evidence remains useful, and
+necessary progress communication to the human stays valid. Neither replaces a
+supported wait facility when one exists. The delegated agent's
+[verification ownership](#own-verification-to-its-terminal-result) is
+unchanged; this decision covers only the coordinator's wait.
+
+If the host offers no supported way to await the pending result, report the
+exact limitation instead of inventing an API or assuming completion: name the
+missing facility, the known state of the delegated work, and what recovery
+needs. Do not copy another host's yield semantics, and do not treat ending
+the turn or blocking indefinitely as a universal remedy.
+
+CI observation keeps its own lifecycle under
+[CI monitoring](ci-monitor.md); this decision does not change it.
