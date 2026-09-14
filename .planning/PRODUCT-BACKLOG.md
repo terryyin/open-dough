@@ -9,9 +9,10 @@ clear transitions.
 
 ## Taken
 
+- [Resolve execution context at its first state change](quick/046-resolve-execution-context-at-first-state-change/PLAN.md)
+
 ## Backlog list
 
-- [Resolve execution context at its first state change](quick/046-resolve-execution-context-at-first-state-change/PLAN.md)
 - [Continue completed plan execution into its retrospective](seeds/SEED-010-learn-from-execution-retrospectives.md#continue-plan-execution-into-retrospective) — SEED-010
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
