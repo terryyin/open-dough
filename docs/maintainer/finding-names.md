@@ -768,7 +768,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-039
 - **References:** Pygardon `DearDough.md`, DD-039; Distinct from ODF-007 (premature worker return) and ODF-036 (stale watches after completion): these are coordinator-generated no-op calls during the wait. `e41447396`, release 0.3.14.
 
-- **Follow-up:** Queued, not resolved: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Addressed in source; effectiveness unverified: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22, [plan 048](../../.planning/quick/048-complete-delegated-handoffs/PLAN.md) slice 2. Response: `src/skills/dough-execute-plan/references/delegation.md` now directs awaiting delegated results through the host's supported notification/wait/resume facility and bars no-op calls, with an explicit limitation report when no facility exists; implementation commit `89728cb` on `cursor/048-complete-delegated-handoffs`, unreleased (containing release not yet known). Effectiveness limit: source walkthrough only; no native-session evidence that no-op waiting stops recurring.
 
 ### Occurrences
 
