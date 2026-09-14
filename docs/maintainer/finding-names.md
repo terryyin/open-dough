@@ -798,7 +798,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-041
 - **References:** Pygardon `DearDough.md`, DD-041; Distinct from ODF-029: the implementer delivers its own slice prematurely, rather than an owner catch-all commit absorbing unfinished shared-checkout work. `903c7a079`, execution `b1c3b5c83`, release 0.3.16.
 
-- **Follow-up:** Queued, not resolved: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Existing-rule preservation assessed, not fixed by this story: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22, [plan 048](../../.planning/quick/048-complete-delegated-handoffs/PLAN.md) slice 4. Assessment: the explicit no-commit/no-push implementation assignment in `src/skills/dough-execute-plan/references/delegation.md` (present since before v0.3.16) was confirmed present and untouched after the story's purely additive edits; no new prohibition was added and no recurrence was observed in this execution (all four implementation agents returned uncommitted changes). This is an application/validation concern; effectiveness against recurrence remains unverified.
 
 ### Occurrences
 
@@ -896,7 +896,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Doughnut Project / DD-038
 - **References:** Doughnut Project `DearDough.md`, DD-038; Distinct from ODF-007: proof is already complete and the extra handoff work is serialization only. `2be6138738`, slices 6 and 7, release 0.3.16.
 
-- **Follow-up:** Queued, not resolved: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Addressed in source; effectiveness unverified: [Return complete usable delegated handoffs](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs) — SEED-004 story 22, [plan 048](../../.planning/quick/048-complete-delegated-handoffs/PLAN.md) slice 4. Response: `src/skills/dough-execute-plan/references/delegation.md` now declares the proof block an example representation (substance required, layout flexible), and `src/skills/dough-execute-plan/references/wrap-up.md` accept-proof applies the same substance test, accepting equivalent complete layouts without report-only resends while gaps still block; implementation commit `a04e5a8` on `cursor/048-complete-delegated-handoffs`, unreleased (containing release not yet known). Effectiveness limit: source walkthrough only; no native-session evidence that cosmetic resends stop recurring.
 
 ### Occurrences
 
