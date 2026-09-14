@@ -174,6 +174,45 @@ the product promises to establish. A fixture or seam supplying that behavior
 leaves it unproved; keep the evidence for what it actually observes. An inner
 operation finishing does not prove completion for its caller.
 
+When a changed shared operation has production callers, inspect the affected
+call sites before choosing the change and its proof. A method's name or its
+dominant use does not settle every caller's requirement; derive the distinct
+behavioral obligations from how each affected caller actually uses the
+operation, and reuse available product-wide search analysis where it already
+identified those callers. Follow affected production use only — do not expand
+the investigation into unrelated consumers. Incompatible purposes need an
+observation for each; equivalent purposes may share sufficient evidence instead
+of duplicating proof. An unresolved domain purpose yields a precise question
+about that caller's requirement rather than a guessed policy; stop the
+dependent obligation there until it is answered.
+
+When a promise preserves an existing artifact, identify the installation, the
+physical data store, and the predecessor relationship the claim concerns, using
+the identities and scope this project supplies. Distinguish continuity within
+the same store from transfer out of another store: a preservation claim covers
+the former and does not establish that the latter occurred. If the intended
+target conflicts with the supplied scope — for example, a Docker volume is
+preserved while the owner's native data lives elsewhere — surface that conflict
+before dependent work rather than silently resolving it. Do not assume
+migration authority or report a deferred migration as completed. The ordinary
+single-store case reuses matching continuity evidence without inventing another
+predecessor or migration task. This is a conditional aspect of the boundary
+above, not a mandatory per-story section.
+
+When acceptance requires a pre-change observation — for example, a baseline a
+later change would invalidate — make that observation a prerequisite to the
+change it gates, not a concurrent or after-the-fact step. Reuse an adequate
+retained baseline whose revision and relevant environment/selection conditions
+are known and still match; otherwise obtain the missing observation before
+dispatching the dependent change. A missing or failed prerequisite stops only
+that dependent path and names the specific gap; unrelated work continues. For
+a late-recovery variant where the original baseline can no longer be obtained,
+a labelled reconstructed comparison is permitted only when revision and
+relevant conditions are demonstrably comparable; otherwise the dependent claim
+(for example, a speedup) remains unproved. This is a conditional aspect of the
+boundary above, not a requirement to benchmark every story or to run every
+baseline before unrelated setup or independent work.
+
 Reuse sufficient evidence. Obtain only missing observations within authorized
 work; if unavailable, report what is covered and the specific unproved promise.
 That promise remains incomplete; reporting the gap does not fulfill or remove

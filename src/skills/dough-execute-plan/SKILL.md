@@ -251,7 +251,15 @@ instead of inferring a checkout or completion.
    [execution decisions](references/execution-decisions.md#refine-an-oversized-slice):
    stop the attempt safely, then use
    [ordinary slice planning](../dough-slice-planning/SKILL.md) for its remaining
-   work and restart at step 1 as planned execution. Otherwise delegate under
+   work and restart at step 1 as planned execution. Before delegating a slice
+   whose acceptance requires a pre-change observation (for example, a baseline a
+   later change would invalidate), verify or obtain that evidence first under
+   [proof ownership](../dough-story-refinement/references/planning.md#own-executable-proof):
+   reuse an adequate retained baseline with known revision and relevant
+   environment/selection conditions, otherwise obtain it before that change;
+   a missing or failed prerequisite stops only that dependent path while
+   unrelated work continues. This applies on initial entry and resume without a
+   new startup audit or repeated recovery read. Otherwise delegate under
    [delegation](references/delegation.md).
 4. On return, recheck execution decisions. For an incomplete or oversized slice,
    follow that reference before delivery. Otherwise inspect the proof under
