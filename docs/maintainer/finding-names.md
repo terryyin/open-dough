@@ -559,7 +559,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-027
 - **References:** Pygardon `DearDough.md`, DD-027; Distinct from ODF-014 and ODF-021: physical store/predecessor identity is omitted, rather than public completion or authentication/lifecycle gates; `d09f0a6ae`, release 0.3.14.
 
-- **Follow-up:** Queued, not resolved: [Cover the actual user outcome before accepting proof](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#cover-the-actual-user-outcome) — SEED-004 story 21; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Addressed in source; effectiveness unverified. [Cover the actual user outcome before accepting proof](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#cover-the-actual-user-outcome) — SEED-004 story 21, plan 047 slice 2. The `## Own executable proof` section of `src/skills/dough-story-refinement/references/planning.md` now directs identifying the installation, physical data store, and predecessor relationship for a preservation claim; distinguishing continuity within the same store from transfer out of another store; and surfacing an intended-target vs. deferred-migration conflict before dependent work rather than silently resolving it, without assuming migration authority or reporting a deferred migration as completed. Source commit `0dbff99` on branch `cursor/047-cover-actual-user-outcome`; not yet released. Original occurrence and unverified real-use effectiveness preserved; no release selected.
 
 ### Occurrences
 
