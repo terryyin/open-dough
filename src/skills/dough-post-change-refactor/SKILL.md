@@ -21,8 +21,7 @@ change, report empty scope and use the completion handoff below without edits
 or tests.
 
 For a nonempty change, resolve this project's navigation, domain vocabulary,
-production subsystem boundaries and applicable architectural decisions, file-size
-limits and exemptions, tooling wrapper,
+production subsystem boundaries and applicable architectural decisions, tooling wrapper,
 whitespace check with generated-artifact exclusions, and focused test commands.
 Resolve generation triggers and commands only when affected. If necessary
 context is missing, report it and stop without claiming completion.
