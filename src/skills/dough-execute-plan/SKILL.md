@@ -189,7 +189,7 @@ before a dependent slice starts.
 ## Finish or stop
 
 On completion, human-judgment stop, or cancellation, close the observer through the current
-host adapter: handle delivered failures, then stop without waiting for CI. Report pending CI
+host adapter: handle delivered failures, then stop observers without waiting for CI. Report pending CI
 as unobserved.
 
 After all planned slices satisfy proof/delivery and required observer shutdown succeeds,
