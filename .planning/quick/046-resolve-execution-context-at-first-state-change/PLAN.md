@@ -169,7 +169,7 @@ reported `none — already clean`.
 
 ### 2. Bind the CI observer runtime to the selected execution checkout
 Type: Behavior
-Status: planned
+Status: done
 Depends on: none
 
 Behavior: Given distinct origin and execution checkouts that both contain an
@@ -197,6 +197,17 @@ an observer is armed. Then run:
 Safe stopping point: deterministic proof distinguishes the two checkouts and
 the existing lifecycle remains green. Native CI observation is not required
 unless implementation changes a host/runtime boundary beyond this plan.
+
+Outcome: done. Checkout-bound runtime guidance now resolves the installed
+runtime inside the selected execution checkout, uses that checkout as the
+working directory, and requires canonical runtime-derived and selected-checkout
+identities to match before launch. Missing and deliberately crossed runtimes
+refuse setup before mailbox creation. The deployment-layout fixture now proves
+selection between simultaneous origin and execution roots while preserving
+existing host layout coverage. The exact focused Node command passed 7 tests;
+`git diff --check` and `npm run format` passed. Independent post-change review
+consolidated the invariant in runtime setup and completed without a decision
+stop.
 
 ## Cumulative assessment and remaining concerns
 

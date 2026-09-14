@@ -186,6 +186,12 @@ handing work to another agent or host adapter so that a tool's own default
 working directory cannot redirect the execution. For quick execution, pass the
 selected current checkout and branch from the conversation instead.
 
+For checkout-bound runtime work, resolve the installed runtime from that same
+selected execution checkout and use the selected checkout as its working
+directory. Apply the selected-checkout identity and stop rules in
+[runtime setup](references/runtime-setup.md) before arming the runtime; do not
+fall back to the copy that supplied the initially loaded skill.
+
 ## Continue or recover at an execution boundary
 
 For planned execution, use the existing plan and conversation according to
