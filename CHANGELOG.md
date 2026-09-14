@@ -1,3 +1,11 @@
+## 0.3.17 - 2026-09-14
+
+- Make planned execution startup and recovery focused, checkout-bound, and evidence-driven. Resolve only context needed at each boundary, bind the CI runtime to the selected execution checkout, preserve trustworthy work and accepted proof through interruption or replanning, and resume from the first unproved delivery obligation.
+- Continue successfully completed planned execution directly into its retrospective while keeping execution and review completion distinct. Add `--skip-retro` for an explicit one-execution exception without weakening proof, delivery, or observer-shutdown requirements.
+- Add the product-backlog merge-conflict guide to the installable payload. Reconcile compatible concurrent backlog transitions from their common ancestor, preserve identity and queue intent, verify the combined result, and stop only for genuinely unresolved human decisions.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.17`. Acceptance for the changed execution, retrospective-handoff, backlog-conflict behavior, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.16 - 2026-09-13
 
 - Add occurrence timestamps to retrospective process findings. Record the reported event time in ISO 8601 with a timezone when supported, use explicit `unknown` otherwise, preserve timestamps and execution identity during rereview, and avoid inventing precision or substituting review time.
