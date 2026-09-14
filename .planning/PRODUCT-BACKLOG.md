@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Keep plan execution context focused and recoverable](quick/045-focused-recoverable-execution-context/PLAN.md) — SEED-004
-
 ## Backlog list
 
 - [Resolve execution context at its first state change](quick/046-resolve-execution-context-at-first-state-change/PLAN.md)

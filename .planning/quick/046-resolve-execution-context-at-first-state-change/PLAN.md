@@ -2,14 +2,15 @@
 
 ## Source and correction boundary
 
-Execution retrospective of
-[Quick 045](../045-focused-recoverable-execution-context/PLAN.md), implementing
-[SEED-004 Story 21](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#focused-recoverable-execution-context).
-Review date: 2026-09-14. The execution-ready plan is recoverable at claim commit
-`7e1d202`; the contiguous implementation boundary is `0f3af21`, `dd2190c`,
-`531e82c`, and `b0b32e1`. All four original slices are done. This is one bounded
-follow-up correction of pre-slice execution-context resolution, not a reopening
-of those completed slices.
+Execution retrospective of Quick 045, recoverable at
+`d44bafe:.planning/quick/045-focused-recoverable-execution-context/PLAN.md`,
+implementing SEED-004 Story 21, recoverable at
+`d44bafe:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md`.
+Review date: 2026-09-14. The execution-ready plan is also recoverable at claim
+commit `7e1d202`; the contiguous implementation boundary is `0f3af21`,
+`dd2190c`, `531e82c`, and `b0b32e1`. All four original slices are done. This is
+one bounded follow-up correction of pre-slice execution-context resolution, not
+a reopening of those completed slices.
 
 Beneficiary: a developer and coordinating agent executing planned work in Story
 Branch Mode. The bounded outcome is that each pre-slice state change resolves
