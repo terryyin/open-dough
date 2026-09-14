@@ -1,6 +1,6 @@
 # Cover the actual user outcome before accepting proof
 
-Status: planned — execution not started.
+Status: done — all three slices delivered; CI observer running, retrospective pending.
 Source: [SEED-004 story 21](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#cover-the-actual-user-outcome).
 Authority: The owner's 2026-09-14 instruction authorizes updating refinement and
 writing a slice plan for the accepted narrow fix. It does not authorize
@@ -162,7 +162,7 @@ are precise even before the evidence-timing correction is implemented.
 
 ### 3. Obtain required observations before dependent implementation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an accepted optimization plan requires a baseline before a
 particular change, execution verifies or obtains that evidence before dispatching
@@ -261,3 +261,16 @@ this planning assessment.
   perspective project-neutral per ADR 0006.
 - Native-session acceptance not established; remains pending for release assessment (ADR 0003/0005).
 - Delivery record: ODF-028 update is owed after delivery; not yet written.
+
+### Slice 3 — Obtain required observations before dependent implementation (done)
+
+- Promise: timely required evidence, safe missing-input stop, reuse and honest late recovery; no extra ceremony.
+- Change: edited TWO shared source files.
+  1. `src/skills/dough-story-refinement/references/planning.md` `## Own executable proof` — added the temporal-prerequisite paragraph (14 lines) after slice 2's preservation paragraph and before "Reuse sufficient evidence…": a pre-change observation (e.g. a baseline a later change would invalidate) is a prerequisite to the change it gates; reuse an adequate retained baseline with known revision and matching env/selection conditions, otherwise obtain it before dispatching the dependent change; a missing/failed prerequisite stops only that dependent path and names the gap; a late-recovery reconstructed comparison is permitted only when revision and conditions are demonstrably comparable, else the dependent claim remains unproved; conditional aspect, not a requirement to benchmark every story.
+  2. `src/skills/dough-execute-plan/SKILL.md` `## Execute the next slice` step 3 — added a concise invocation (10 lines) immediately before "Otherwise delegate under [delegation]", linking to `#own-executable-proof` rather than duplicating the rule; applies on initial entry and resume without a new startup audit or repeated recovery read.
+- Accepted proof: `git diff --check` → exit 0, no output. Tiny optimization plan walkthrough confirms: baseline must precede the change (incl. on resume); failed/unavailable baseline stops only that dependent path while unrelated work continues; adequate retained baseline is reused without another run; late-recovery reconstructed comparison gated on comparability; ordinary story with no pre-change observation requirement proceeds without a benchmark or full-suite run. Slices 1 & 2 paragraphs, "Reuse sufficient evidence" rule, mapping table, acceptance rules, and execute-plan step order (1–5) preserved. Relative link and anchor intact.
+- Refactor: `skipped — no refactor edits`; the two files compose coherently (invocation links rather than restates); perspective project-neutral per ADR 0006.
+- Native-session acceptance not established; remains pending for release assessment (ADR 0003/0005).
+- Delivery record: ODF-041 update is owed after delivery; not yet written.
+
+All three slices are done. Proof, refactoring, and delivery obligations are satisfied; CI observer remains running.

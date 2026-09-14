@@ -199,6 +199,20 @@ single-store case reuses matching continuity evidence without inventing another
 predecessor or migration task. This is a conditional aspect of the boundary
 above, not a mandatory per-story section.
 
+When acceptance requires a pre-change observation — for example, a baseline a
+later change would invalidate — make that observation a prerequisite to the
+change it gates, not a concurrent or after-the-fact step. Reuse an adequate
+retained baseline whose revision and relevant environment/selection conditions
+are known and still match; otherwise obtain the missing observation before
+dispatching the dependent change. A missing or failed prerequisite stops only
+that dependent path and names the specific gap; unrelated work continues. For
+a late-recovery variant where the original baseline can no longer be obtained,
+a labelled reconstructed comparison is permitted only when revision and
+relevant conditions are demonstrably comparable; otherwise the dependent claim
+(for example, a speedup) remains unproved. This is a conditional aspect of the
+boundary above, not a requirement to benchmark every story or to run every
+baseline before unrelated setup or independent work.
+
 Reuse sufficient evidence. Obtain only missing observations within authorized
 work; if unavailable, report what is covered and the specific unproved promise.
 That promise remains incomplete; reporting the gap does not fulfill or remove
