@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Resolve execution context at its first state change](quick/046-resolve-execution-context-at-first-state-change/PLAN.md)
-
 ## Backlog list
 
 - [Continue completed plan execution into its retrospective](seeds/SEED-010-learn-from-execution-retrospectives.md#continue-plan-execution-into-retrospective) — SEED-010

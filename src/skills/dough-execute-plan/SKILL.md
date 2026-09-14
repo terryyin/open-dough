@@ -68,10 +68,11 @@ Resolve the following from this project at the boundary that first needs it:
   Story Branch Mode applies or the caller selected execution on the current branch;
 - product backlog path and selected entry when this work was selected from
   **Backlog list**;
+- selective formatting command and commit hook contract before taking queued
+  work and creating its Taken-only claim commit;
 - navigation, focused test commands, runtime wrapper, and workflow precedence
   needed by the selected slice;
-- selective formatting command, commit hook contract, and authorized push
-  destination before delivery;
+- authorized push destination before delivery;
 - generated-artifact triggers and commands when affected; and
 - context required by
   [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) before
@@ -102,12 +103,21 @@ If an authorized Git operation encounters a product backlog conflict, follow
 
 After resolving the execution source and current execution authorization, inspect
 the product backlog before changing plan status, recovering or starting a CI
-observer, delegating, or implementing. When the selected work is under
-**Backlog list**, follow
+observer, delegating, or implementing. Moving a selected entry to **Taken** is
+execution's first project-state change.
+
+When the selected work is under **Backlog list**, before moving it resolve the
+project's selective formatting command and the commit hook contract applicable
+to the Taken-only claim commit. An absent hook or an understood check-only hook
+permits the transition. An unknown, mutating, failing, or disputed hook stops
+the transition with the queue unchanged until its safe handling is resolved
+through the existing execution decision path. Resolution does not run delivery
+formatting or hook-owned lint; do not pull push or CI context forward unless
+another current boundary needs it.
+With a safe contract, follow
 [dough-product-backlog](../dough-product-backlog/SKILL.md#take-queued-work-for-execution)
-to move its existing entry to **Taken**. This backlog update is execution's
-first project-state change. Stop before implementation if the queued entry
-cannot be moved unambiguously.
+to move the existing entry to **Taken**. Stop before implementation if the
+queued entry cannot be moved unambiguously.
 
 An entry already in **Taken** means execution is resuming; do not duplicate or
 reorder it. Work absent from both active lists was not selected from the
@@ -175,6 +185,12 @@ the planned-execution identity and selected location explicitly whenever
 handing work to another agent or host adapter so that a tool's own default
 working directory cannot redirect the execution. For quick execution, pass the
 selected current checkout and branch from the conversation instead.
+
+For checkout-bound runtime work, resolve the installed runtime from that same
+selected execution checkout and use the selected checkout as its working
+directory. Apply the selected-checkout identity and stop rules in
+[runtime setup](references/runtime-setup.md) before arming the runtime; do not
+fall back to the copy that supplied the initially loaded skill.
 
 ## Continue or recover at an execution boundary
 
