@@ -176,13 +176,46 @@ handing work to another agent or host adapter so that a tool's own default
 working directory cannot redirect the execution. For quick execution, pass the
 selected current checkout and branch from the conversation instead.
 
+## Continue or recover at an execution boundary
+
+For planned execution, use the existing plan and conversation according to
+[execution and resume state](../dough-story-refinement/references/planning.md#write-an-executable-plan).
+For quick execution, use its canonical story and retained conversation; never
+create a plan or substitute state artifact for recovery.
+During uninterrupted work, reuse current decisions, accepted proof, and known
+delivery progress while their sources, assumptions, and covered boundaries
+remain unchanged. After a confirmed push, select the next slice from that
+current state and obtain only newly relevant detail; do not perform a full
+recovery read merely because another slice begins.
+
+After an interruption, or when Git, an agent return, observer coverage, or
+another observation signals change, reconcile only the affected state before
+acting. Verify the retained execution identity first, then inspect the relevant
+working tree and index, branch and commits, agent or refactor return, and exact
+observer identity. Preserve unrelated and ambiguously owned work. Use accepted
+proof again only when its promise, boundary, implementation, setup, and
+observations still match.
+
+Resume at the first delivery obligation not established by that evidence. For
+example, an implementation return with owned uncommitted changes still needs
+proof acceptance and refactoring; a completed refactor still needs the
+remaining delivery steps; an edited plan not contained in a commit still needs
+staging and commit; and a local delivery commit absent from the authorized
+destination still needs push. A plan status or compact report alone proves none
+of those later boundaries. Once the pushed commit and retained delivery result
+agree, continue with the next dependency-ready slice. If the execution identity
+is missing or contradictory, use the existing human recovery decision above
+instead of inferring a checkout or completion.
+
 ## Execute the next slice
 
-1. In the selected execution checkout, for planned execution read the plan's
+1. In the selected execution checkout, for planned execution obtain the plan's
    current slice statuses, decisions, learnings, and proof and use it as
    execution and resume state, including the selected existing-solution finding
-   and its evidence when the plan contains one. For quick execution, reread the
-   canonical story and the conversation's current scope,
+   and its evidence when the plan contains one. On initial entry or recovery,
+   read the relevant retained state; during ordinary continuation, reuse its
+   still-valid current reading under the boundary rule above. For quick
+   execution, reread the canonical story and the conversation's current scope,
    decisions, progress, and proof; the story is the only slice. Do not create or
    update a separate state artifact. Confirm the current instruction still
    authorizes execution. Recover an existing CI observer before considering a

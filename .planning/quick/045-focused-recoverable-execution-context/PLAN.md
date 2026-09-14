@@ -105,14 +105,19 @@ but this conventional guidance change does not require a new cross-host campaign
 
 Execution identity (established 2026-09-14): originating checkout
 `/Users/terryyin/git/open-dough` on `main`; execution checkout
-`/tmp/open-dough-045.DZNCJt/worktree` on
+`/private/tmp/open-dough-045.DZNCJt/worktree` on
 `codex/045-focused-recoverable-execution-context`; integration target `main`;
 claim commit `7e1d202155633c26a3a1c5619cadf115edd03747`.
 
-CI observer (started 2026-09-14): Codex cell `24`, session `31742`, directory
-`/tmp/dough-ci-501/watch-ISN12H`, PID `34512`; repository
+CI observer (rearmed 2026-09-14 after the first observer's request root exposed
+an originating-checkout binding mismatch): Codex cell `37`, session `30189`,
+directory `/tmp/dough-ci-501/watch-iJdUlr`, PID `71307`; repository
 `terryyin/open-dough`; branch `codex/045-focused-recoverable-execution-context`;
-workflow selector `ci.yml`, display name `CI`; execution checkout as above.
+workflow selector `ci.yml`, display name `CI`; canonical request root and
+execution checkout `/private/tmp/open-dough-045.DZNCJt/worktree`. The stopped
+observer was cell `24`, directory `/tmp/dough-ci-501/watch-ISN12H`, PID `34512`;
+its terminal result recorded `pendingCi: unobserved`, zero recorded/delivered/
+unread events, and its PID is gone.
 
 No numeric slice target, hard limit, or repeated-overrun threshold is supplied
 by current repository guidance. Size by one coherent behavior and proof loop;
@@ -237,7 +242,7 @@ representative walkthrough is the applicable conventional guidance review.
 
 ### 3. Continue or resume from trustworthy execution state
 Type: Behavior
-Status: planned
+Status: done
 Depends on: 2
 
 Behavior: Given continuous work or interruption at an execution boundary, the
@@ -264,6 +269,33 @@ does not perform a full recovery reread without a change signal.
 Sizing: One reconciliation rule with boundary examples; moderate confidence.
 Do not build a delivery state machine or rewrite observer behavior. Safe
 boundary: normal execution and recovery share sufficient existing state.
+
+Outcome (2026-09-14): the executable plan now owns durable execution identity,
+decisions, consequential learnings, and reusable accepted proof; the execution
+conversation owns live returns, unfinished ownership, delivery boundary, and
+observer identity. The coordinator reconciles only state signalled as changed
+against actual Git, agent, and observer evidence. The independent refactor kept
+plan-status semantics solely in planning guidance and recovery behavior in the
+execution skill.
+
+| Interruption or continuation point | Evidence and next safe action |
+| --- | --- |
+| Implementation before refactor | Owned unstaged paths plus the indexed proof locations require acceptance, then fresh refactoring; unrelated work is preserved. |
+| Refactor before plan edit | Refactor marker and proof effects determine targeted reinspection, then remaining generator/format/plan duties. |
+| Plan edit before commit | Working tree/index show that `done` is still uncommitted; stage only owned changes and commit. |
+| Commit before push | HEAD-versus-upstream evidence identifies a local delivery commit; push it without repeating unchanged implementation or proof. |
+| Ordinary next slice | Matching pushed HEAD, retained valid proof, and current plan select the next dependency-ready slice without a full recovery reread. |
+| Missing or contradictory identity | Preserve resources and request the existing human recovery decision; never guess a checkout or completion. |
+
+The observer setup supplied a real changed-state variation: its first request
+root named the originating checkout despite the retained execution identity.
+The coordinator stopped that exact observer (zero recorded/delivered/unread,
+`pendingCi: unobserved`, PID gone) and rearmed the plan-recorded observer with
+the canonical execution root. No implementation work or unrelated state was
+reconstructed. Source inspection covered the main recovery rule, wrap-up's live
+delivery handoff, and planning's durable/live state division. `npm run format`
+and `git diff --check` passed; no new checkpoint, status machine, or CI behavior
+was introduced.
 
 ### 4. Replan from consequential learning without losing valid work
 Type: Behavior

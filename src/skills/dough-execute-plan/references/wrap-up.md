@@ -44,6 +44,13 @@ operation; do not let an inherited working directory redirect delivery. This
 slice delivery does not integrate or remove a retained execution branch or
 worktree.
 
+As each obligation finishes, retain the current delivery boundary in the
+execution conversation with the owned unfinished paths, accepted proof and its
+boundary, applicable implementation or refactor return, and exact observer
+identity when present. On recovery, reconcile this focused record with actual
+Git, agent, and observer state under
+[execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
+
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
    Supply the execution source, execution checkout and branch, slice,
@@ -70,7 +77,8 @@ worktree.
    staging. Repair mechanical failures and repeat only when the repair
    invalidates preparation. Stop for semantic or design judgment.
 5. For planned execution, update the active plan and any project-required
-   summary with learnings, slice status, and revised remaining slices under
+   summary with learnings, slice status, accepted proof needed for reuse, and
+   revised remaining slices under
    [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan).
    For stale feature-story understanding, record `awaiting story review` and
    identify the selected story in its seed and the affected field. For stale
