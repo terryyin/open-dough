@@ -60,9 +60,11 @@ actions.
 - Applies authorized product-review advice with optional human input; human
   input wins; unresolved choices are reported.
 - After saved-tip integration is verified, removes only the exact owned clean
-  execution worktree and integrated local branch with non-force Git operations.
+  execution worktree and integrated local branch with non-force Git operations,
+  and deletes the remote execution branch after verifying its tip is contained
+  in the remote integration target.
   Dirty or ambiguous state, partial cleanup, and retry are reported without
-  risking caller-owned, original-checkout, unrelated, or remote resources.
+  risking caller-owned, original-checkout, unrelated, or unintegrated resources.
 
 ## Client project context
 
@@ -75,6 +77,7 @@ when a **Taken** or queue entry points at the selected work. Retrospective
 advice is used when present and is not a required completion record.
 Story Branch Mode cleanup also requires the retained execution checkout, local
 branch, saved tip, originating checkout, and integration-target identity.
+Remote cleanup also needs the exact remote execution branch and remote target.
 When completed work used or changed North Star topics, their established
 location and the affected current stories and plans supply retirement context.
 
