@@ -7,6 +7,7 @@ The payload in each root is exactly:
 - `dough-update/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
 - `dough-product-backlog/SKILL.md`
+- `dough-product-backlog/references/merge-conflicts.md`
 - `dough-maintain-findings/SKILL.md`
 - `dough-story-decomposition/SKILL.md`
 - `dough-story-decomposition/references/problem-decomposition.md`
@@ -140,6 +141,7 @@ inspection and execution into an unattended one-shot command.
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
    - `src/skills/dough-product-backlog/SKILL.md`
+   - `src/skills/dough-product-backlog/references/merge-conflicts.md`
    - `src/skills/dough-maintain-findings/SKILL.md`
    - `src/skills/dough-story-decomposition/SKILL.md`
    - `src/skills/dough-story-decomposition/references/problem-decomposition.md`
