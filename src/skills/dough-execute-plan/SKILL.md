@@ -75,6 +75,9 @@ bounded investigation, use [disposable research](references/disposable-research.
 
 ## Take queued work
 
+If an authorized Git operation encounters a product backlog conflict, follow
+[backlog merge conflicts](../dough-product-backlog/references/merge-conflicts.md).
+
 After resolving the execution source and current execution authorization, inspect
 the product backlog before changing plan status, recovering or starting a CI
 observer, delegating, or implementing. When the selected work is under

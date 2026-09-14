@@ -17,6 +17,90 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="guide-useful-manual-testing"></a>
+
+### 20. Guide a useful manual and exploratory test session
+
+**Status:** Refined; unplanned.
+
+**Goal:** A developer who explicitly requests manual testing, or executes a
+story whose plan explicitly requires it, gets a focused test session that
+observes the story's promised behavior, explores relevant nearby risks, and
+returns trustworthy evidence and actionable findings without introducing a
+separate UAT lifecycle.
+
+**Scope:** Extract the useful core of Donut's project-local `manual-testing`
+skill into reusable Open Dough guidance, while retaining project-owned setup,
+access points, accounts, and commands in the project that supplies them. Keep
+manual testing opt-in: invoke it only at explicit human direction or when an
+authorized executable plan requires it. Resolve the test mission from that
+request and the selected story's promises, examples, constraints, and proof;
+do not derive acceptance solely from an implementation summary.
+
+Use available browser or application-observation tools to exercise one coherent
+flow at a time. State the expected observable behavior, perform the relevant
+actions, and record what was actually observed. Reuse sufficient automated
+evidence and manually exercise only missing procedural or human-judgment proof;
+manual testing must not replace or ceremonially repeat a required automated
+test. When the mission calls for exploratory testing, establish a bounded
+charter from the story's risks and follow relevant surprises beyond the scripted
+happy path. Record what was explored and material areas that were not observed.
+
+Report each material outcome without claiming more than the evidence supports:
+observed pass, observed discrepancy, blocked or could-not-observe with the
+specific prerequisite, and a new idea that does not contradict the current
+story. For a discrepancy, preserve the promised behavior, actual observation,
+and useful screenshot, console, or network evidence. Do not infer that an
+unavailable environment passed, silently turn a future idea into a current
+defect, diagnose root cause, change product code, or create correction work
+unless the triggering instruction separately authorizes it. Produce a concise
+session report in the conversation or a project-supplied location; do not add a
+default persistent UAT file, phase-completion state machine, cross-story UAT
+audit, severity classifier, or automatic fix-planning pipeline.
+
+Keep one shared behavioral source for Codex, Cursor, and Claude Code. Express
+tool use by capability and add only the smallest host-specific adaptation needed
+to operate the available browser or application surface. Validate the resulting
+guidance on one real Donut flow while preserving Donut's local prerequisites and
+test accounts outside the reusable skill.
+
+**Key examples:**
+
+- Given a developer asks to manually test a completed Donut interaction and the
+  local stack is available, the agent derives the expected outcome from the
+  selected story, exercises the flow, follows one relevant risk or surprising
+  observation when warranted, and reports the actions, observations, evidence,
+  and untested areas.
+- Given automated proof already establishes a deterministic behavior but visual
+  clarity still requires judgment, the session reuses the automated result and
+  manually evaluates only the visual outcome; it does not rerun the automated
+  path merely to manufacture manual compliance.
+- Given the required application, account, service, or observation tool is not
+  available, the report says the behavior could not be observed, names the
+  missing prerequisite, and never records a pass.
+- Given the observed behavior differs from the story's promise, the report
+  retains both expected and actual behavior with available evidence. It does not
+  guess a root cause or implement a fix without separate authority.
+- Given exploration reveals a worthwhile idea that is outside the current
+  promise, the report identifies it as a follow-up rather than failing or
+  silently enlarging the story.
+
+**Evaluation:** On one real Donut task, a developer can use the shared guidance
+to obtain a report that distinguishes observed behavior, discrepancies,
+unavailable observations, and follow-ups; traces checks to the story rather
+than implementation narration; and includes a useful bounded exploratory
+result when the mission warrants it. A representative walkthrough also shows
+that project-specific setup remains in Donut and that already-sufficient
+automated proof is not repeated.
+
+**Depends on:** None. The current Donut skill and `gsd-core` verification
+workflow are comparison inputs, not runtime dependencies.
+
+**Deferred:** Persistent resumable UAT artifacts, stakeholder sign-off and
+acceptance authority, phase or release gates, portfolio-wide verification-debt
+audits, automatic browser activation, automated root-cause diagnosis and fix
+planning, and general test-management infrastructure.
+
 <a id="proudly-found-elsewhere-design"></a>
 
 ### 19. Strengthen architectural review after using the lightweight guidance
