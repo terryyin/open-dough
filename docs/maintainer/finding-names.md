@@ -949,7 +949,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Doughnut Project / DD-040
 - **References:** Doughnut Project `DearDough.md`, DD-040; Distinct from ODF-042: production domain-purpose classification, rather than incomplete delegation of test representation sites. `2be6138738`, `LearningSessionService.record`, correction plan 116, release 0.3.16.
 
-- **Follow-up:** Queued, not resolved: [Cover the actual user outcome before accepting proof](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#cover-the-actual-user-outcome) — SEED-004 story 21; [product backlog](../../.planning/PRODUCT-BACKLOG.md#backlog-list).
+- **Follow-up:** Addressed in source; effectiveness unverified. [Cover the actual user outcome before accepting proof](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#cover-the-actual-user-outcome) — SEED-004 story 21, plan 047 slice 1. The `## Own executable proof` section of `src/skills/dough-story-refinement/references/planning.md` now directs inspecting affected production call sites of a changed shared operation and deriving distinct obligations per caller (a method's name or dominant use does not settle every caller's requirement); incompatible purposes need an observation each, equivalent purposes may share sufficient evidence, and an unresolved domain purpose yields a precise question and stops the dependent obligation. Source commit `a13ccab` on branch `cursor/047-cover-actual-user-outcome`; not yet released. Original occurrence and unverified real-use effectiveness preserved; no release selected.
 
 ### Occurrences
 
