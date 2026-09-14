@@ -153,7 +153,7 @@ After delivery, record the actual ODF-038 response and effectiveness limit.
 
 ### 3. Retire redundant verification watches
 Type: Behavior
-Status: planned
+Status: delivered 2026-09-14
 
 Behavior: A delegated verification obligation ends with an owned command watch
 still live → the owner accounts for unread evidence and retires that watch via
@@ -236,6 +236,18 @@ Execution identity (recorded 2026-09-14 at setup):
 - Hook contract: no `core.hooksPath` and no non-sample `.git/hooks` hooks at
   claim time; the Taken transition was safe. `scripts/lint.mjs` covers
   JS/JSON/shell only; no broad formatter applies to these Markdown changes.
+
+Slice 3 (delivered 2026-09-14): Added `## Retire owned watches when
+verification ends` to `src/skills/dough-execute-plan/references/delegation.md`
+between the ownership and return-contract sections (bounded watch lifetime;
+unread evidence accounted before retirement; queued duplicates never restart
+verification; CI observer lifecycle explicitly preserved; absent controls give
+a truthful limitation). Accepted proof: `git diff --check`; link/anchor
+checks; `bash tests/execution-payload-update.sh` (pass); manual five-variant
+walkthrough, labelled manual. Post-change refactor: `none — already clean`.
+Observation for later: the truthful-limitation-report pattern now appears in
+three decisions in delegation.md; healthy parallel structure, but watch for a
+fourth instance.
 
 Slice 2 (delivered 2026-09-14): Added `## Await delegated results without
 empty calls` to `src/skills/dough-execute-plan/references/delegation.md`
