@@ -1,65 +1,32 @@
 # Resolve product backlog merge conflicts
 
-Use this procedure when an already-authorized Git operation conflicts in this
-project's product backlog. Resolve clear independent changes without asking for
-confirmation. This procedure does not authorize starting a merge, rebase,
-cherry-pick, execution, or closure.
+Within the calling workflow's authorization, resolve compatible backlog changes
+without asking for confirmation.
 
-## Recover the intended changes
-
-Read the backlog's common ancestor and both versions supplied by the current
-Git operation, including entries outside the conflict markers. Compare each
-version with that ancestor; do not infer intent from the markers alone or assume
-that Git's `ours` always means the story branch during a rebase.
-
-Match entries using this project's established story or correction identity.
-A seed ID alone does not identify a story when a seed contains several stories.
-Treat an established story-to-plan link change as the same work. Use available
-execution context or affected history to resolve missing identity or intent;
-read canonical homes only when needed. Do not recreate deleted plans or stories
-merely to resolve the backlog.
-
-## Combine changes
-
-Apply each side's changes relative to the ancestor, preserving compatible
-changes from the other side:
-
-- Combine independent takes, completed-item removals, and other unambiguous
-  edits to different entries. Preserve an unchanged entry unless the other side
-  intentionally changes or removes it. An unchanged copy does not undo a take
-  or resurrect removed work.
-- Apply the same change to the same work once. If both sides change that work
-  differently, use the available evidence to establish whether the intentions
-  are compatible. Do not assume that removal or a later lifecycle state wins.
-- Preserve unrelated titles, links, direction text, and queue order. A take or
-  removal does not reprioritize the remaining queue. Preserve compatible
-  explicit reprioritization; do not infer a new priority to make the text merge.
-- Preserve the order of surviving ancestor entries in **Taken**, then append
-  newly taken entries. Preserve each side's relative order among those additions.
-  Where their interleaving is unspecified, choose by established identity in
-  lexical order among the next eligible entries. Follow an explicit project
-  convention instead when supplied. This tie-break does not set queue priority.
-
-For example, if one side takes queued story A while the other removes completed
-story B, put A in **Taken** and omit B. If both independently take A, retain one
-entry. If one removes B while the other explicitly returns B to the queue,
-resolve the incompatible intentions before choosing its state.
-
-Do not resolve by taking an entire side or blindly combining conflicting lines.
-If identity, competing order, or incompatible edits cannot be resolved from
-available evidence, name the affected entries and missing decision, preserve
-the unresolved Git state, and ask the human. Unambiguous changes to other
-entries need no new product decision.
-
-## Verify and return
-
-Check the resulting backlog against both sets of intended changes: each active
-identity appears once across **Taken** and **Backlog list**, removed work stays
-absent, surviving references are coherent, and unrelated content and order are
-preserved. Retain both section headings even when empty and remove all conflict
-markers from the resolved file. Inspect the resolution diff; do not rerun
-implementation tests solely for a backlog text resolution.
-
-Return to the calling workflow for staging, remaining conflicts, verification,
-and continuation of the authorized Git operation. Report the combined
-transitions briefly; a resolved backlog alone does not mean integration is done.
+1. Compare both backlog versions with their common ancestor to identify each
+   side's changes. Match work by established story or correction identity,
+   including known story-to-plan links; a shared seed ID is insufficient.
+   Consult affected history or canonical homes only if identity or intent is
+   unclear.
+2. Combine compatible changes from both sides. Apply identical changes once.
+   An unchanged entry does not override the other side's take or removal.
+   For example, taking A and removing completed B yields A in **Taken** and B
+   absent. Different changes to the same work require compatible intentions;
+   neither removal nor a later lifecycle state automatically wins.
+3. Preserve unrelated titles, links, direction text, and queue order. Retain
+   compatible explicit reprioritization; taking or removing work does not
+   reprioritize the remaining queue.
+4. In **Taken**, retain surviving existing entries in order, then append new
+   entries while preserving each side's addition order. Unless the project
+   supplies a convention, interleave concurrent additions by repeatedly choosing
+   the lexically smallest established identity among the next entries from each
+   side, emitting each identity once. Do not use this rule for queue priority.
+5. If identity, incompatible changes, or competing order remains unresolved,
+   preserve the conflict and ask the human for the specific missing decision.
+   For example, removal versus an explicit return to the queue requires a
+   decision when available context does not establish which intent applies.
+6. Verify both sides' intended changes are represented, each active identity
+   appears once across both lists, removed work stays absent, and references
+   remain coherent. Retain both section headings even when empty. Report the
+   resolved transitions briefly and continue the calling workflow; backlog-only
+   resolution needs no implementation test run.
