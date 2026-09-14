@@ -271,17 +271,40 @@ On completion, a stop requiring human judgment, or cancellation, close the CI
 observer through the current host adapter. Handle delivered failures, then
 stop observers without waiting for CI. Report pending CI as unobserved.
 
-When all planned slices are done, leave the completed plan and review evidence
-in place for retrospective and story wrap-up. Retain a planned execution's
-recorded checkout and branch through pauses and completion; do not invoke
-retrospective or story wrap-up automatically and do not remove its worktree or
-branch here. When the quick slice is done,
-leave its story and conversation available instead. Report completed work,
-retained evidence, and observer shutdown. End with `## PLAN EXECUTION COMPLETE`
-for planned execution or `## QUICK EXECUTION COMPLETE` for quick execution only
-after required delivery and shutdown succeed.
+After all planned slices satisfy proof and delivery obligations and required
+observer shutdown succeeds, report completed execution, retained evidence, and
+CI limitations with `## PLAN EXECUTION COMPLETE`, then invoke
+[dough-execution-retrospective](../dough-execution-retrospective/SKILL.md) for
+that execution without another confirmation. Explicit instructions to omit or
+defer retrospective take precedence. Preserve explicit review instructions and
+project preferences through the receiving skill's review selection; do not
+extend its authority to implement findings or change the backlog.
+
+Continue in the recorded execution project and checkout. Supply retained
+references and context: the source story or bounded-correction contract,
+original plan and approved changes, attributable commits, decisions, proof,
+delivery state, CI limitations, and checkout/branch identity. Include the
+initial attempt when quick execution continued through a remaining-work plan;
+both parts remain one execution. Reuse available context without a new handoff
+artifact or transcript copy; the retrospective validates attribution and fills
+real gaps under its existing recovery rules.
+
+Keep execution completion distinct from review completion. If the retrospective
+stops for missing context, retain completed execution and name the missing
+input without rerunning implementation or claiming review completion. On
+recovery, use retained review state to continue an unfinished retrospective or
+recognize one already completed; ambiguous state requires recovery, not a
+duplicate review or guessed completion.
+
+Leave the completed plan and review evidence in place for story wrap-up. Retain
+the execution checkout, branch, and worktree; do not invoke story wrap-up here.
+A wholly planless quick completion instead retains its story and conversation,
+reports completed work and observer shutdown, and ends with
+`## QUICK EXECUTION COMPLETE` after required delivery and shutdown succeed,
+without automatic retrospective entry.
 
 Otherwise report the execution source, the active plan and next unfinished slice
 or the canonical story and current quick-slice state, preserved work and observer
 state, and the decision or recovery action needed. Do not emit a completion
-marker.
+marker or automatically invoke retrospective for incomplete execution, failed
+delivery or shutdown, cancellation, or a stop requiring human judgment.
