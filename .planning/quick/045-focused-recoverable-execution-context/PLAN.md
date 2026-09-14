@@ -299,7 +299,7 @@ was introduced.
 
 ### 4. Replan from consequential learning without losing valid work
 Type: Behavior
-Status: planned
+Status: done
 Depends on: 3
 
 Behavior: Given evidence invalidating an assumption, the coordinator obtains the
@@ -327,6 +327,26 @@ Sizing: One changed-assumption decision loop; moderate confidence. Earlier slice
 provide the same retrieval, evidence, and retained-state rules; no new mechanism
 is added for this case. Safe boundary: all selected story examples are covered.
 
+Outcome (2026-09-14): consequential-learning reassessment now targets the
+decisive uncertainty, retains the observation, affected assumption,
+consequences, authorized decision and explanation, and unresolved limits, then
+replaces only invalidated future plan and proof detail. Compatible completed
+work and proof remain reusable. The independent refactor made execution
+decisions the authoritative reassessment owner and left planning to consume its
+result.
+
+Representative variation: after a delivered startup slice, a later return was
+assumed to establish its promise. The delegation evidence-index rule and
+wrap-up inspection rule contradicted that assumption. Targeted inspection
+retained those source locations, invalidated only the later acceptance/proof
+reuse, kept the startup slice and its proof, selected coordinator inspection at
+the reported setup/assertion boundary, and left whether integration proof was
+needed as a boundary-dependent limit. The plan replaces the affected future
+mapping and resumes there after interruption. Moving acceptance to the
+implementation agent would change the accepted story and stops that path;
+adding a parallel context store conflicts with ADR 0006 and stops only that
+path. Neither dispute erases compatible delivered work.
+
 ## Cumulative assessment and remaining concerns
 
 The common rule is to obtain and retain evidence according to the current
@@ -343,5 +363,24 @@ No additional slice-specific refinement concern was identified in this assessmen
 Evidence limitation: representative behavior review can establish the intended
 read/reuse decisions and preserved recovery contract, but cannot by itself prove
 a live token-reduction percentage. No such percentage is promised. The missing
-commit-hook contract is an eventual delivery-context item, not authority to skip
-lint or begin execution. Reassess if implementation reveals a genuine new boundary.
+commit-hook contract was resolved during execution as no configured
+`core.hooksPath` or active pre-commit script; each slice therefore used the
+explicit `npm run lint` check before commit. Reassess if implementation reveals
+a genuine new boundary.
+
+## Integrated representative behavior review
+
+| Decision point | Previously repeated material now unnecessary | Retained inputs that still support the decision |
+| --- | --- | --- |
+| Startup | Full planning/decomposition, wrap-up, refactor, CI adapter, and overlapping recovery batches | Execution authority/source, current story/plan/slice, applicable project commands and ownership, common execution decisions, targeted prerequisite passages |
+| Implementation and refactor acceptance | Raw agent trace, full command logs, duplicate full diff, and unchanged proof rereads | Promise, changed boundary, actual implementation, literal command, inspected setup/assertion locations, gaps, and refactor proof effects |
+| Ordinary continuation and recovery | Full prior guidance and operational-output reconstruction when no change signal exists | Durable plan identity/decisions/learnings/proof plus live ownership/delivery/observer state reconciled with actual Git, agent, and observer evidence |
+| Changed-assumption replanning | Unrelated source refresh, raw diagnostics in the plan, competing appended breakdowns, and revalidation of compatible completed proof | Contrary observation/location, invalidated assumption, consequences, authorized decision/explanation, unresolved limits, replacement mapping, and unchanged proof boundaries |
+
+Invocation remains limited to an authorized existing plan or explicitly selected
+quick story. Required context still stops at the boundary it governs. The useful
+outcome is one coherent evidence-validity rule across startup, acceptance,
+recovery, and replanning, with coordinator delivery and human authority intact.
+The walkthrough inspected concrete changed guidance and decisions rather than
+accepting a shorter-prompt claim. It establishes intended conventional skill
+behavior, not native-model savings or cross-host acceptance.

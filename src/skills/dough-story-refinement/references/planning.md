@@ -203,6 +203,21 @@ and record only learnings that affect remaining work. Apply
 and its cumulative design assessment, sizing, and escalation rules before
 declaring execution ready.
 
+When consequential evidence changes an execution assumption, first apply the
+shared [execution
+reassessment](../../dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work).
+Retain from that reassessment only the consequential information later work
+needs; keep raw diagnostics at their evidence location. Replace only the
+affected future slice detail and proof mapping, and record the changed decision
+or learning once.
+Preserve compatible completed slices, accepted proof with unchanged boundaries,
+and still-valid decisions and learnings. Do not refresh unrelated sources or
+rewrite unaffected history merely because replanning occurred.
+
+Do not make a disputed story-scope or Accepted-ADR decision through plan editing.
+Record the affected source and field and keep that path stopped under execution's
+human-decision procedure; independently supported remaining work may continue.
+
 After an execution overrun, record elapsed time, completed evidence, the failure
 or thrash point, and the sizing assumption that proved false. Replace slices
 only when learning escalation permits, and change later slices only when the
