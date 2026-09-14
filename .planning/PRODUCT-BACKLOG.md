@@ -9,9 +9,10 @@ clear transitions.
 
 ## Taken
 
+- [Keep plan execution context focused and recoverable](quick/045-focused-recoverable-execution-context/PLAN.md) — SEED-004
+
 ## Backlog list
 
-- [Keep plan execution context focused and recoverable](seeds/SEED-004-extract-and-adopt-project-guidance.md#focused-recoverable-execution-context) — SEED-004
 - [Use released retrospective logging in Open Dough](seeds/SEED-010-learn-from-execution-retrospectives.md#use-released-retrospective-log) — SEED-010
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
