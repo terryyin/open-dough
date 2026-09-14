@@ -224,6 +224,15 @@ Execution identity (recorded 2026-09-14 at setup):
   `/private/tmp/open-dough-048-delegated-handoffs` on
   `cursor/048-complete-delegated-handoffs`, created from the claim commit.
 - Integration target: `main`; authorized push destination: `origin`.
+- CI observer: mailbox `/tmp/dough-ci-501/watch-LzixQz`, workflow `ci.yml`
+  (name `CI`, push-triggered, verified), branch
+  `cursor/048-complete-delegated-handoffs`, repo `terryyin/open-dough`.
+  Bridge limitation: this session's Cursor host hook is bound to the
+  originating checkout, so worktree-owned mailbox notifications are not
+  delivered in-session (probe from the execution checkout produced no
+  `CI_MONITOR_READY`; probe from the originating checkout did). Coverage is
+  therefore not promised in-session; the detached observer still records
+  terminal results for authoritative inspection at shutdown. No AI polling.
 - Hook contract: no `core.hooksPath` and no non-sample `.git/hooks` hooks at
   claim time; the Taken transition was safe. `scripts/lint.mjs` covers
   JS/JSON/shell only; no broad formatter applies to these Markdown changes.
