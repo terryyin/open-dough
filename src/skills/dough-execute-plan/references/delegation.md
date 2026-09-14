@@ -128,6 +128,19 @@ say `none`; do not omit the field or mistake behavior supplied by a fixture for
 product behavior. Report uncovered behavior as incomplete implementation; the
 refactor pass must not supply missing behavior.
 
+The `proof:` block is an example representation, not a required schema. An
+equivalent layout that carries the same substantive evidence — the literal
+complete command, what it covers, the boundary exercised, concrete observation
+locations with their setup, and the result — is a complete report. Headings,
+key casing, and field arrangement may vary; the substance may not. A report
+missing that substance, or contradicting observed evidence, is incomplete
+however closely it matches the example. The coordinator's
+[proof acceptance](wrap-up.md#accept-proof) applies the same substance test.
+
+Explicit completion markers with a separate workflow contract — such as
+`## REFACTOR COMPLETE` and `## PAUSED FOR CI` — are not report formatting;
+return them verbatim.
+
 ## Await delegated results without empty calls
 
 When a delegated result is still pending, wait through the host's supported

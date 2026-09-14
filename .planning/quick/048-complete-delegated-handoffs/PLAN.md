@@ -1,6 +1,6 @@
 # Return complete usable delegated handoffs
 
-Status: planned — execution not started.
+Status: done — all four slices delivered; retrospective pending.
 Source: [SEED-004 story 22](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#return-complete-usable-delegated-handoffs).
 Authority: The owner's 2026-09-14 instruction authorizes narrowed refinement
 and slice planning, with further slice refinement if necessary. It does not
@@ -176,7 +176,7 @@ After delivery, record the actual ODF-036 response and effectiveness limit.
 
 ### 4. Accept equivalent complete proof without cosmetic retries
 Type: Behavior
-Status: planned
+Status: delivered 2026-09-14
 
 Behavior: A worker returns complete inspectable evidence in an equivalent
 layout → the coordinator inspects and uses it → no resend occurs solely to
@@ -236,6 +236,23 @@ Execution identity (recorded 2026-09-14 at setup):
 - Hook contract: no `core.hooksPath` and no non-sample `.git/hooks` hooks at
   claim time; the Taken transition was safe. `scripts/lint.mjs` covers
   JS/JSON/shell only; no broad formatter applies to these Markdown changes.
+
+Slice 4 (delivered 2026-09-14): Added representation flexibility to the
+return contract in `src/skills/dough-execute-plan/references/delegation.md`
+(the `proof:` block is an example representation; substance required, layout
+flexible; workflow-contract markers stay verbatim) and equivalent-evidence
+acceptance to `src/skills/dough-execute-plan/references/wrap-up.md`
+`## Accept proof`. Accepted proof: `git diff --check`; link/anchor checks;
+`bash tests/execution-payload-update.sh` (pass); manual four-variant
+walkthrough (equivalent layout accepted; canonical-looking incomplete
+rejected; review-before-delivery and unchanged-proof reuse retained; verbatim
+markers retained), labelled manual. Post-change refactor: `none — already
+clean`; the two-home substance test was assessed as justified caller/consumer
+duplication. Final coordinator handoff check: released report contents, proof
+reuse, and review before delivery all preserved (purely additive diffs).
+ODF-040 preservation assessment: the existing no-commit/no-push implementation
+assignment in delegation.md is present and untouched; no new prohibition
+added; not marked fixed by this story.
 
 Slice 3 (delivered 2026-09-14): Added `## Retire owned watches when
 verification ends` to `src/skills/dough-execute-plan/references/delegation.md`
