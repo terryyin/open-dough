@@ -93,3 +93,29 @@ change; wrap-up removed the completed **Taken** entry. Missing or ambiguous
 backlog context stops before execution. The human explicitly skipped new native
 acceptance for this change; the existing native evidence does not prove the new
 transition.
+
+## Concurrent closure conflict review (2026-09-14)
+
+The maintainer reported that Doughnut merge `f5d76ee9ae` restored SEED-009
+story 20's **Taken** entry while integrating portable-trash / plan 123. The
+ancestor contained both entries; the target removed story 20 and the execution
+branch removed trash. The existing unchanged-versus-removal rule was reportedly
+already available on the target at `b3b272be8b`. This is evidence of a loading or
+application failure, not a missing merge rule; the supplied history was not
+independently audited here.
+
+Execution, backlog maintenance, and Story Branch wrap-up now explicitly route
+backlog conflicts to a read-before-edit boundary. Wrap-up uses the integration
+checkout's guidance. The shared procedure retains each side's changes in working
+context and checks the staged result before continuation, including sibling
+removals. No additional persistent tracking artifact is required.
+
+Manual source walkthrough: the reported ancestor/target/execution states map
+to two compatible removals and an empty **Taken** with both headings retained.
+A stale surviving sibling fails staged verification. Taking A while removing B
+still yields only A in **Taken**. Removal versus an explicit return to the queue
+with no resolving context stops the conflicting path for the human's decision.
+Missing guidance stops before resolution; ambiguous work identity uses affected
+history and stops if still unresolved, including when cleanup deleted the home.
+These are instruction-level behavior checks, not evidence of native host execution
+or a released installation. Release and installation remain separate work.
