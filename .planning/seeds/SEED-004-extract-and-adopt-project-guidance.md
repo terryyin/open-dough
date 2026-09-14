@@ -17,6 +17,78 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="cover-the-actual-user-outcome"></a>
+
+### 21. Cover the actual user outcome before accepting proof
+
+**Status:** Queued; unrefined and unplanned.
+
+- **For / why:** A developer needs completion evidence to cover the actual user
+  outcome, including affected consumer purposes, the real predecessor or data
+  boundary, and required pre-change observations, so passing planned tests do
+  not conceal an omitted obligation.
+- **Evaluation:** On representative preservation, mixed-consumer, and measured
+  optimization cases, identify the relevant obligations before implementation
+  or proof acceptance. Distinguish preservation within a new installation from
+  migration of its predecessor; cover each incompatible production consumer
+  purpose; obtain a mandated baseline before changes. If an observation is
+  unavailable, keep the specific promise unproved. Reuse valid existing proof.
+- **Value / learning:** Prevent incorrect completion claims and escaped behavior
+  while learning whether obligation completeness improves on the proof
+  inspection guidance already released in 0.3.17. The supporting findings span
+  three distinct executions at 0.3.14–0.3.16; they are related problems, not one
+  merged finding or demonstrated failures of 0.3.17.
+- **Scope:** Improve existing planning and execution guidance at the affected
+  boundaries. Keep the outcome bounded to the selected story; do not introduce
+  a whole-product audit, mandatory full-suite runs, or a new proof registry.
+- **Depends on:** None.
+- **Safe stopping point:** One story can be completed with trustworthy coverage
+  even if the delegated-handoff story is never implemented.
+- **Finding evidence:** ODF-028, ODF-041, ODF-045 in
+  [finding names](../../docs/maintainer/finding-names.md).
+- **Completion record:** After delivery, update each addressed finding in that
+  catalog with the actual response, recoverable implementation references, and
+  containing release when known. Use “Addressed in source; effectiveness
+  unverified” until real-use evidence supports a stronger conclusion; preserve
+  each identity, occurrence, and any unresolved limits.
+
+<a id="return-complete-usable-delegated-handoffs"></a>
+
+### 22. Return complete usable delegated handoffs
+
+**Status:** Queued; unrefined and unplanned.
+
+- **For / why:** A developer needs delegated slice work to return completed,
+  inspectable evidence with clear delivery ownership, without repeated waiting,
+  stale notifications, or report-only formatting requests.
+- **Evaluation:** A delegated implementation owns its verification through the
+  final result and returns owned uncommitted changes or a precise unresolved
+  stop. The coordinator retains review and delivery. Completed commands leave
+  no redundant watches; waiting uses the host's supported notification or wait
+  mechanism without no-op polling. Equivalent complete evidence does not need
+  a report-only resend, while missing or contradictory evidence still blocks
+  acceptance. Demonstrate this through a representative delegated slice with
+  asynchronous verification and a coordinator-owned delivery boundary.
+- **Value / learning:** Reduce recurring coordination cost and prevent delivery
+  before review. Five distinct executions at 0.3.8–0.3.16 support this response,
+  including repeated premature verification returns. Existing instructions
+  already cover parts of this contract; assess why they fail at the handoff
+  rather than merely adding another reminder.
+- **Scope:** Improve the existing delegation and return contract using host
+  capabilities. Keep shared behavior with only necessary host adaptation; do
+  not build a general agent scheduler or weaken substantive proof acceptance.
+- **Depends on:** None; queued second by the owner's priority, not a technical
+  dependency on story 21.
+- **Safe stopping point:** A delegated slice can return usable proof and retain
+  coordinator delivery ownership independently of other lifecycle changes.
+- **Finding evidence:** ODF-007, ODF-036, ODF-038, ODF-040, ODF-043 in
+  [finding names](../../docs/maintainer/finding-names.md).
+- **Completion record:** After delivery, update each addressed finding in that
+  catalog with the actual response, recoverable implementation references, and
+  containing release when known. Use “Addressed in source; effectiveness
+  unverified” until real-use evidence supports a stronger conclusion; preserve
+  each identity, occurrence, and any unresolved limits.
+
 <a id="guide-useful-manual-testing"></a>
 
 ### 20. Guide a useful manual and exploratory test session
