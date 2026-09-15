@@ -302,7 +302,7 @@ run discovery alone cannot prove that a pushed revision was ever checked.
 ### 4. Deliver useful bounded failure evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A failed custom attempt yields its identity, SHA, and locally filtered
 bounded diagnostic excerpt through the observer event path.
@@ -317,6 +317,26 @@ still emits. Reuse the existing failure identity and queue behavior.
 Stopping point / sizing: Actionable bounded events with no new log service.
 One diagnostic-delivery loop; semantic usefulness is demonstrated for the chosen
 failure, not promised for every possible log format.
+
+Accepted proof (2026-09-15):
+
+- `ci-command-adapter-failures.test.mjs` invokes the public watcher with a real
+  executable adapter. Discovery returns a failed opaque attempt; the separate
+  diagnostic operation filters thousands of noise lines locally and returns
+  only error lines. The known semantic error remains at the start of the
+  delivered excerpt.
+- The shared boundary caps that excerpt at exactly 16,384 UTF-8 bytes and marks
+  truncation. Undeclared raw-log fields and noise are absent from the serialized
+  event. A repeated attempt emits once, while a distinct attempt emits a second
+  event whose unavailable diagnostic remains explicit.
+- The focused adapter and watcher proof passed 16/16 after formatting, the full
+  maintained execution runtime passed 74/74, and `git diff --check` passed.
+  The independent refactor found the design already cohesive; all touched files
+  remain below 250 lines.
+
+Learning: record a failed attempt as delivered only after its diagnostic result
+has been validated and bounded. This retains retryability for a transient
+diagnostic failure without redelivering evidence already handed off.
 
 ### 5. Report an unavailable custom observer honestly
 

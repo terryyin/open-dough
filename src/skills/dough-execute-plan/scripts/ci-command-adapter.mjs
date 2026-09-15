@@ -1,10 +1,12 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { ciAttemptKey } from "./ci-failures.mjs";
 
 const configurationPath = ".planning/open-dough.json";
 const adapterTimeoutMs = 20_000;
 const adapterResponseBytes = 64 * 1024;
+export const diagnosticExcerptBytes = 16 * 1024;
 
 export function readCiAdapter(root = process.cwd()) {
   const path = join(root, configurationPath);
@@ -34,6 +36,40 @@ export function createCommandRunAcquisition({ command, repo, branch, root }) {
     return response.attempts.map((attempt) =>
       normalizeAttempt(attempt, branch),
     );
+  };
+}
+
+export function createCommandFailureAcquisition({
+  command,
+  repo,
+  branch,
+  root,
+}) {
+  const reported = new Set();
+  return async (runs, signal) => {
+    const failed = runs.find(
+      (run) =>
+        run.status === "completed" &&
+        run.conclusion === "failure" &&
+        !reported.has(ciAttemptKey(run.databaseId, run.attempt)),
+    );
+    if (!failed) return {};
+    const response = await runAdapter(
+      command,
+      {
+        operation: "diagnose",
+        check: { repo, branch },
+        attempt: {
+          runId: failed.databaseId,
+          attemptId: failed.attempt,
+          sha: failed.headSha,
+        },
+      },
+      { signal, cwd: root },
+    );
+    const event = commandFailureEvent(repo, failed, response);
+    reported.add(ciAttemptKey(failed.databaseId, failed.attempt));
+    return { event };
   };
 }
 
@@ -92,4 +128,58 @@ function normalizeAttempt(attempt, branch) {
     ...(attempt.url === undefined ? {} : { url: attempt.url }),
     ...(attempt.time === undefined ? {} : { createdAt: attempt.time }),
   };
+}
+
+function commandFailureEvent(repo, run, response) {
+  if (!response || typeof response !== "object")
+    throw new Error("CI adapter diagnostic must return an object");
+  const diagnostic = boundedDiagnostic(response);
+  return {
+    type: "CI_FAILURE",
+    repo,
+    sha: run.headSha,
+    branch: run.headBranch,
+    runId: run.databaseId,
+    attempt: run.attempt,
+    conclusion: run.conclusion,
+    ...(run.url === undefined ? {} : { url: run.url }),
+    diagnostic,
+  };
+}
+
+function boundedDiagnostic(response) {
+  const unavailable = response.unavailable;
+  if (unavailable !== undefined) {
+    if (typeof unavailable !== "string" || !unavailable)
+      throw new Error("CI adapter diagnostic unavailability must be a reason");
+    const bounded = truncateUtf8(unavailable, 600);
+    return {
+      unavailable: bounded.text,
+      truncated: bounded.truncated,
+    };
+  }
+  if (typeof response.excerpt !== "string")
+    throw new Error("CI adapter diagnostic must return excerpt or unavailable");
+  if (
+    response.truncated !== undefined &&
+    typeof response.truncated !== "boolean"
+  )
+    throw new Error("CI adapter diagnostic truncation must be boolean");
+  const bounded = truncateUtf8(response.excerpt, diagnosticExcerptBytes);
+  return {
+    excerpt: bounded.text,
+    truncated: Boolean(response.truncated) || bounded.truncated,
+  };
+}
+
+function truncateUtf8(value, limit) {
+  let text = "";
+  let bytes = 0;
+  for (const character of value) {
+    const size = Buffer.byteLength(character);
+    if (bytes + size > limit) return { text, truncated: true };
+    text += character;
+    bytes += size;
+  }
+  return { text, truncated: false };
 }

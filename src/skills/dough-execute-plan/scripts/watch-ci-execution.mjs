@@ -1,5 +1,6 @@
 import { setTimeout as pause } from "node:timers/promises";
 import {
+  createCommandFailureAcquisition,
   createCommandRunAcquisition,
   readCiAdapter,
 } from "./ci-command-adapter.mjs";
@@ -48,7 +49,12 @@ export async function watchCiExecution({
     ? createCommandRunAcquisition({ command: adapter, repo, branch, root })
     : createGitHubRunAcquisition({ repo, branch, startedAt, gh });
   const acquireFailure = adapter
-    ? async () => ({})
+    ? createCommandFailureAcquisition({
+        command: adapter,
+        repo,
+        branch,
+        root,
+      })
     : createGitHubFailureAcquisition({ repo, gh });
   let consecutiveErrors = 0;
 
