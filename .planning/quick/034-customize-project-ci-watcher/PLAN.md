@@ -1,0 +1,364 @@
+# Customize execute-plan's CI watcher for a project's own CI server
+
+## Source and authority
+
+[SEED-011 Story 1](../../seeds/SEED-011-customize-project-ci-watcher.md#customize-project-ci-watcher).
+Status: planned; configuration location decision pending; no implementation begun.
+User request on 2026-09-15 authorizes slice planning only. Keep the story first
+in the queue; take it only when authorized execution starts.
+
+## Goal and scope
+
+Release public Open Dough support for a project CI command adapter and its
+standalone manual. Verify asynchronous failure handoff, exact-revision coverage,
+bounded local evidence, token-free observation, and the empty-config GitHub
+Actions default through controlled command/process and applicable host proof.
+
+The maintainer explicitly removed the real Pygardon repair loop from this story.
+After release, the maintainer takes adoption, adapter authoring, and real-use
+validation to Pygardon and returns findings as new Open Dough input. Neither
+Pygardon access nor its log endpoint is a prerequisite for this release.
+
+Exclude CI dispatch/retries, branch-policy changes, building Pygardon's server,
+additional providers, multiple-check aggregation, webhooks, authentication
+management, new notification transports, and advanced log analysis. These are
+deferred promises, not reasons to reject naturally supported cases.
+
+## Existing solutions and architectural context
+
+PFE assessment (source inspected during planning):
+
+- `src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs` already owns
+  bounded polling, tracked unfinished runs, startup history, attempt handling,
+  and incremental failure events. Change this shared mechanism; do not add a
+  separate watcher per provider.
+- `ci-runs.mjs` and `ci-failures.mjs` embed `gh` commands, GitHub workflow/branch
+  filtering, numeric attempt enumeration, and job diagnostics. Isolate those
+  provider responsibilities without forcing Pygardon to impersonate GitHub.
+- `watch-ci.mjs`, `ci-mailbox.mjs`, host hooks, and `ci-observer-stream.mjs`
+  already provide process launch, delivery, ownership, and shutdown. Reuse them.
+  Preserve installed-checkout binding and existing non-model delivery.
+- `references/ci-monitor.md` owns repair; `runtime-setup.md` currently assumes
+  authenticated `gh` and push-triggered Actions. Adapt provider-dependent setup
+  and evidence reading there; do not duplicate the pause/stash/repair protocol.
+- Run discovery alone cannot identify a pushed SHA with no run. The expected
+  revision must come from successful execution delivery, independently of CI.
+- `install.sh` and `src/install/open-dough-release-version.sh` declare the
+  payload. Reuse their install/update path and existing preservation tests;
+  do not introduce a second documentation installer.
+
+Relevant Accepted ADRs (index and records inspected):
+
+- [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md): one
+  project-owned configuration, separate from managed content. Its root location
+  conflicts with current planning-directory guidance; see the decision below.
+- [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
+  early feedback and one coherent domain model. Use run/attempt identity, checked
+  SHA, outcome, and diagnostic evidence throughout; provider translation belongs
+  at acquisition, not in host hooks and repair orchestration.
+- [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md):
+  matching complete payload and immutable tag; maintainer selects the version.
+- [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md):
+  locally available support, shared native layouts, preserved project settings.
+- [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md):
+  deterministic integration proof plus native evidence or justified reuse for
+  affected Codex, Cursor, and Claude Code requirements. One host proves only
+  that host's behavior. No automatic whole-matrix expansion.
+- [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
+  one shared source addressing the executing project. The optional manual is
+  shipped but not linked or loaded by skills, as explicitly requested.
+
+No North Star location was found or new topic warranted. Existing structure and
+accepted feedback/reuse principles suffice; this plan makes no new ADR decision.
+
+## Decisions and dependencies
+
+### Configuration location: pending human decision
+
+ADR 0001 names project-root `open-dough.json`. Current installation documentation,
+retrospective guidance, and preservation tests use the established planning
+directory (default `.planning/open-dough.json`). Do not silently create competing
+files, search both with invented precedence, relocate existing configuration, or
+claim an exception. The maintainer was asked whether to approve use of the
+existing planning-directory convention for this story or follow ADR 0001.
+Record the answer and rationale here and in the applicable maintained decision
+record before dependent implementation; this plan must not become the sole
+long-term home of an exception. Slice 2's configuration wiring and dependent
+installation details remain pending that answer. Independent structure and
+proof design can proceed under later execution authority.
+
+### Small contract choices
+
+Use `ciAdapter: []` as the empty/default setting and an argument array such as
+`["python3", "scripts/dough-ci.py"]` for customization. Absence also defaults;
+do not create a configuration file solely to materialize an empty default.
+Launch directly, without shell interpolation, in the selected execution checkout.
+Read configuration once per observer lifetime. These are planning choices;
+revise them in place if inspected project conventions require a smaller fit.
+
+Keep the adapter request/response as bounded JSON over a subprocess boundary,
+using the existing Node runtime and cancellation/time bounds. Separate discovery
+and diagnostic retrieval by operation so normal polls cannot return full logs.
+Represent opaque run and attempt identities, exact SHA, pending/success/failure/
+incomplete outcome, and optional URL/time. Keep GitHub's job detail and numbered
+history in its provider; retain its current failure protection. Settle exact
+field names and retained-attempt retrieval against the supplied requirements
+and a controlled adapter example during Slice 2. No generic plugin protocol or version-negotiation system.
+
+Use a finite 16 KiB UTF-8 diagnostic excerpt ceiling per failure event, with
+explicit truncation/unavailability and bounded metadata. The adapter filters
+locally; the shared boundary enforces the ceiling. This is a starting bound,
+not a claim that arbitrary truncation always yields useful repair evidence.
+
+Expected SHAs come from confirmed successful pushes in ordinary and repair
+wrap-up. Use a small local record in the existing execution observer state;
+record the pushed SHA, not a later moving HEAD. The same observer follows later
+pushes. Failure to register a delivered revision is lost coverage, not success.
+No new polling of an AI agent or automatic server trigger is involved.
+
+### Release and later adoption
+
+Use controlled adapters and local fixtures to prove Open Dough's contract.
+No live Pygardon endpoint, response sample, checkout, log API, or repair trial is
+required. Do not build a Pygardon-specific adapter in this story. The released
+manual enables the maintainer to undertake that work in Pygardon afterward.
+
+The maintainer's release version is needed for Slice 8. Publication remains an
+execution action; this planning request does not itself authorize a release.
+
+## Ordered slices
+
+Each slice includes its focused proof and local cleanup. No numeric slice budget
+was supplied; each has one outcome/proof loop, not an invented time estimate.
+Do not deliver a deliberately failing intermediate state. Carry working
+regression protection across all slices.
+
+### 1. Separate CI acquisition while preserving GitHub observation
+
+Type: Structure
+Status: planned
+
+Change: Isolate provider-specific run discovery, attempt refresh/history, and
+failure evidence from the shared observer. Immediately enables Slice 2.
+Preserve current CLI, event behavior, GitHub selection, unfinished-run retention,
+and prior failed-attempt protection. Add no unused provider framework.
+
+Proof: Existing observer startup, coverage, and failure tests pass at the
+`watchCiExecution` boundary, including failed prior attempts followed by success.
+Run `node --test src/skills/dough-execute-plan/scripts/watch-ci-execution*.test.mjs`
+and the existing `ci-client-configuration.test.mjs` test. Inspect the assertions
+for preserved outputs, not just exit status.
+
+Stopping point / sizing: GitHub behavior unchanged. One refactoring proof loop;
+numeric GitHub history assumptions are the main structural uncertainty.
+
+### 2. Observe a project command's CI attempts
+
+Type: Behavior
+Status: planned; configuration wiring depends on the location decision
+
+Behavior: Given a configured command and one selected check, launching the
+normal observer follows its attempts without an Actions workflow or `gh` setup.
+Absent/empty customization retains GitHub. Pending and successful polls cause
+no agent notification; distinct attempts remain distinguishable.
+
+Proof: Extend the real CLI/process fixture boundary with an executable adapter
+returning opaque identities and pending → success. Assert source selection,
+repeated polling, quiet output, retained attempt identity, and that `gh` was not
+invoked for the custom source. Check empty/absent configuration against the
+existing GitHub fixture. Maintain necessary source/runtime payload declarations
+with each introduced dependency so intermediate installations remain complete.
+
+Stopping point / sizing: Usable custom observation, with coverage still limited
+until Slice 3. One source-selection journey; use a controlled command example
+to settle contract details without requiring Pygardon access.
+
+### 3. Report the actual pushed revision's coverage
+
+Type: Behavior
+Status: planned
+
+Behavior: After successful execution delivery registers SHA A, the observer
+reports A uncovered when only B has a CI result; it records A pending/success
+only from an actual check of A. Later repair pushes extend the same execution.
+
+Proof: A temporary Git repository and delivery fixture push A, register it through
+the production delivery path, and offer B's green result. Observe uncovered A
+without code-failure classification; then supply an A attempt and observe its
+transition. Include a repair push C. Capture silent coverage state separately
+from intervention events so success does not wake an agent. Do not have the
+fixture prepopulate coverage as if the product had recorded the push.
+
+Apply existing observation bounds to discovery delay. On shutdown, pending or
+unchecked SHAs remain unproved. Changes must not add a synchronous CI wait to
+routine push wrap-up. Lost push registration reports a coverage limitation.
+
+Stopping point / sizing: Accurate revision coverage even without diagnostics.
+One revision-coverage rule; connecting successful pushes to observer state is
+this slice's main integration concern.
+
+### 4. Deliver useful bounded failure evidence
+
+Type: Behavior
+Status: planned
+
+Behavior: A failed custom attempt yields its identity, SHA, and locally filtered
+bounded diagnostic excerpt through the observer event path.
+
+Proof: Use the CLI fixture with a large local log containing a known error among
+noise. Assert the error survives filtering, the event stays within the excerpt
+ceiling, raw logs never enter events, and truncation/unavailable detail is honest.
+An adapter exceeding the response bound cannot bypass the shared limit. Repeated
+observations of the same evidence do not redeliver it; a distinct failed attempt
+still emits. Reuse the existing failure identity and queue behavior.
+
+Stopping point / sizing: Actionable bounded events with no new log service.
+One diagnostic-delivery loop; semantic usefulness is demonstrated for the chosen
+failure, not promised for every possible log format.
+
+### 5. Report an unavailable custom observer honestly
+
+Type: Behavior
+Status: planned
+
+Behavior: An invalid result, unknown status, failed command, or unavailable
+endpoint yields bounded observation-unavailable evidence under the existing
+error policy, without success, silent GitHub fallback, or a code-repair claim.
+
+Proof: Exercise the same process boundary with representative malformed output
+and timeout/failure variants; observe the existing error bound and a single
+coverage-loss delivery. Verify cancellation shuts down the adapter child and
+observer without leaving a process running. Preserve a known CI failure when
+only its logs become unavailable.
+
+Stopping point / sizing: One observation-error rule and process lifecycle proof;
+reuse existing timeout/cancellation mechanisms instead of new retry machinery.
+
+### 6. Carry custom failure evidence into the existing repair workflow
+
+Type: Behavior
+Status: planned
+
+Behavior: A custom failure reaches the execution coordinator through its current
+host bridge at a safe boundary with sufficient evidence for existing repair,
+without GitHub-only diagnostic commands or duplicated repair orchestration.
+
+Proof: Extend existing host/stream fixtures to pass the actual custom event
+through launch, mailbox/stream, and delivery, preserving execution binding,
+quiet routine observation, shutdown, and unread evidence. Walk updated setup
+and repair guidance with custom evidence and the GitHub default. Assert bounded
+excerpts survive transport and are treated as data. This deterministic slice
+proves Open Dough's transport and guidance boundaries. Preserve existing repair
+regression proof, including subsequent push registration from Slice 3. A real
+Pygardon repair is outside acceptance.
+
+Resolve affected native requirements with justified reusable evidence or the
+smallest missing native check using a controlled source. Assess host delivery
+and skill behavior separately; fixtures do not count as native use. Retain
+applicable ADR 0005 gates without requiring a real external CI server.
+
+Stopping point / sizing: Custom evidence uses the established lifecycle. One
+notification journey; assess each changed host difference under ADR 0005,
+reusing unchanged host evidence only with an explicit applicability reason.
+
+### 7. Install a usable customization manual and preserve project choices
+
+Type: Behavior
+Status: planned; location depends on configuration decision
+
+Behavior: A project installing/updating the complete payload receives the small
+adapter manual and working support while retaining its configured command.
+
+Use `src/skills/dough-execute-plan/manuals/custom-ci.md`, installed under the
+same skill-relative path in each managed root. Keep it out of `SKILL.md` and
+runtime reference links. Document its location in installation documentation
+for optional human discovery. Include configuration, a runnable minimal adapter
+example, outcome/coverage meanings, filtering, and the diagnostic limit.
+
+Proof: Extend `tests/execution-payload-update.sh` and
+`tests/install-preserves-open-dough-json.sh` for fresh installation, ordinary
+update, and forced managed replacement. Assert the complete runtime/manual and
+preserved configuration in Codex/Cursor and Claude layouts. Run the example with
+a fixture response to prove the instructions match the implemented contract;
+walk its optional discovery without skill loading. Align both payload lists
+and fixtures, keeping recognition/maintenance material out.
+
+Stopping point / sizing: Complete installable candidate with usable instructions.
+One install/update journey; no config migration, extra installer, or broad
+coexistence campaign beyond affected existing checks.
+
+### 8. Make the tested customization available in a release
+
+Type: Behavior
+Status: planned; maintainer version and release authority required
+
+Behavior: A project can obtain the tested adapter support and manual from the
+maintainer-selected immutable release through the ordinary updater.
+
+Proof: Use the normal release-version workflow after applicable acceptance.
+Verify complete payload, matching VERSION/CHANGELOG/tag, and released install or
+update containing the manual and runtime while preserving project configuration.
+Reuse candidate functional/native evidence only when its content and delivery
+remain applicable. Do not hand-synchronize this repository's managed copies.
+
+Stopping point / sizing: Released usable capability; no provider expansion or
+new release system. One release/update proof loop with external release inputs.
+
+## Verification, proof ownership, and delivery gates
+
+| Story promise | Owning slice and observation |
+| --- | --- |
+| Preserve GitHub default and prior-attempt behavior | 1–2: regression outputs and empty/absent config |
+| Configurable discovery and opaque run/attempt identities | 2: real command/CLI fixture |
+| No AI polling or routine success wakeups | 2, 6: command/process and host delivery evidence |
+| Exact-SHA coverage, pending, later repair revision | 3: controlled delivery-to-coverage journey |
+| Bounded locally useful logs and duplicate handling | 4: known large-log failure and distinct attempt |
+| Honest failure/coverage/diagnostic limitations | 3–5: missing SHA, invalid source, unavailable logs |
+| Preserve asynchronous notification and repair | 6: transport/guidance and preserved repair regression proof |
+| Standalone manual, no skill references, install/update preservation | 7: candidate install/update and manual example |
+| Released complete runtime and manual | 8: immutable release and ordinary update |
+
+Use `node --test` with each owning test file as it is added; record its literal
+command and inspected setup/assertion locations with accepted proof. Relevant
+existing broader checks are `bash tests/execution-ci-runtime.sh`,
+`bash tests/execution-payload-update.sh`,
+`bash tests/install-preserves-open-dough-json.sh`, and
+`bash tests/install-ci-host-hooks.sh`. Run affected checks once their boundaries
+change; do not repeat the entire suite for every slice. Apply `npm run lint`
+and project-required delivery checks. No tests have been run or claimed passed
+for this planning-only change beyond Markdown/link and diff checks.
+
+On later authorized execution, resolve the checkout/branch, hook contract and
+push destination through dough-execute-plan. Follow normal independent
+post-change refactoring, selective formatting, commit/push, asynchronous CI
+repair, retrospective, and story-wrap-up gates. Keep execution identity, accepted
+proof, consequential decisions and learnings in this same plan. Preserve the
+story and plan until ordinary wrap-up; do not create another integration plan.
+
+## Cumulative assessment and remaining concerns
+
+The sequence grows one model: a pushed revision has observable CI attempts and
+bounded evidence; providers acquire that evidence, the shared observer tracks
+it, existing host delivery reports actionable changes, and existing repair acts.
+There is no per-provider observer, host-specific outcome model, or log service.
+Slice 1 prepares only Slice 2; later slices extend the same current behavior.
+
+- Slice 2 and dependent configuration/documentation wiring: ADR location
+  conflict awaits a human answer. No exception is inferred from existing code.
+- Slices 1–2: numeric GitHub attempt/history assumptions may require smaller
+  adjustments. Exercise opaque identities through the controlled adapter
+  before committing to exact protocol fields.
+- Slice 3: existing run discovery cannot prove unchecked pushes; delivery
+  registration must cover normal and repair pushes without creating a second
+  execution lifecycle. This is the main new integration responsibility.
+- Slice 6: affected native host proof needs an applicability assessment; use
+  controlled sources for any missing checks, without external CI dependencies.
+- Slice 8: publication depends on the maintainer's version and valid affected
+  native evidence. Source completion alone does not satisfy released delivery.
+
+These are slice-specific concerns, not execution authorization. No product code,
+project adapter, CI service, installed guidance, or release was changed here.
+
+Scope decision: the maintainer explicitly removed Pygardon adoption and its real
+failure-to-repair trial. The plan now ends at release with eight slices. Later
+Pygardon findings are new input rather than incomplete acceptance here.
