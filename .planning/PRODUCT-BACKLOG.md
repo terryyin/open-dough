@@ -8,9 +8,9 @@ execution, delivery, retrospective, and closure with coherent skills and
 clear transitions.
 
 ## Taken
+- [Reject malformed custom CI revisions before classification](quick/035-reject-malformed-custom-ci-revisions/PLAN.md)
 
 ## Backlog list
-- [Reject malformed custom CI revisions before classification](quick/035-reject-malformed-custom-ci-revisions/PLAN.md)
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
