@@ -61,8 +61,8 @@ that purpose.
    files or an unverifiable baseline. Edited files are unsupported. Explicit
    forced updates overwrite managed content, including edits, with the complete
    latest payload; no merging or edit recovery is promised. Ordinary updates
-   leave equal versions unwritten and do not downgrade. Retire obsolete managed
-   files; record the new version only after verifying the installed payload.
+   leave equal versions unwritten and do not downgrade. Record the new version
+   only after verifying the installed payload.
    When configuration exists, reject incompatibility before changing content.
 
 6. **Preserve native integration and project boundaries.** Maintain one shared

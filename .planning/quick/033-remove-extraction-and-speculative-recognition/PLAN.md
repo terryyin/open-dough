@@ -209,7 +209,7 @@ slices or platform-specific implementations.
 
 ### 4. Install and verify the declared release payload
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given matching, changed, or missing managed installed content, ordinary
 installation/update establishes or preserves the declared release payload under
@@ -377,4 +377,25 @@ Native proof remains subject to the explicit evidence rule above.
 - `bash tests/story-payload-update.sh`,
   `bash tests/retrospective-reference-payload.sh`,
   `bash tests/pin-and-inspect.sh` pass.
-- Installer recognition unlink and retirement tests remain for Slice 4.
+
+### Slice 4 accepted proof
+
+- Ordinary install/update copies and byte-verifies the declared payload, then
+  certifies SOURCE/VERSION. Recognition preflight, unlink, and absence
+  verification are gone from `install.sh`.
+- `bash tests/install-repeat-force-public-payload.sh` pass: edited ordinary
+  install stops before writes; `--force` replaces declared payload and
+  preserves sidecars/unrelated files.
+- `bash tests/install-reports-real-copy-failure.sh`,
+  `bash tests/update-reports-replacement-failure.sh` pass: failed replacement
+  retains last certified records.
+- `bash tests/update-force-restores-latest.sh` pass: `--force` restores latest
+  payload.
+- `bash tests/update-skip-verified.sh` pass: matching content left unwritten.
+- `bash tests/update-refuses-unverifiable.sh` pass: edited/missing managed
+  content stops ordinary update before writes.
+- `bash tests/self-installation-baseline.sh` and
+  `bash tests/install-all-tools.sh` pass.
+- Managed-path collision remains in `tests/install-refuses-unsafe-topology.sh`.
+- Native `--native` sessions remain pending; CI host-bridge readiness was
+  never added, so pushed revisions are unobserved.

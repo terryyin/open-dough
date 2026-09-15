@@ -181,11 +181,6 @@ while IFS=$'\t' read -r selected_platform destination; do
       exit 1
     }
   done
-  retired_path="${root}/dough-adr-awareness/RECOGNITION.md"
-  [[ ! -L "${retired_path}" && (! -e "${retired_path}" || -f "${retired_path}") ]] || {
-    echo "Unsafe retired-file collision: expected a regular file or absent path at ${retired_path}." >&2
-    exit 1
-  }
   current=0
   if [[ -f "${destination}/SOURCE" && -f "${destination}/VERSION" ]] \
     && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then current=1; fi
@@ -232,10 +227,9 @@ for index in "${!platforms[@]}"; do
     report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'
   }
   for managed_file in "${managed_files[@]}"; do cp -- "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'; done
-  [[ ! -e "${root}/dough-adr-awareness/RECOGNITION.md" ]] || rm -- "${root}/dough-adr-awareness/RECOGNITION.md" || report_incomplete_install "${platforms[index]}" 'Retirement failed after replacement started.'
   verification_failed=0
   for managed_file in "${managed_files[@]}"; do cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || verification_failed=1; done
-  [[ ! -e "${root}/dough-adr-awareness/RECOGNITION.md" && "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
+  [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
   write_certified_records "${destination}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
   echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
 done
