@@ -15,6 +15,9 @@ new_managed_files=(
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-plan-refinement/SKILL.md
+  dough-test-optimization/SKILL.md
+  dough-test-optimization/references/optimization-tactics.md
+  dough-test-optimization/references/resolving-candidates.md
 )
 
 fixture="${temporary_dir}/fixture.git"
@@ -28,8 +31,8 @@ for managed_file in "${new_managed_files[@]}"; do
 done
 for script in install.sh src/install/open-dough-release-version.sh; do
   for managed_file in "${new_managed_files[@]}"; do
-    skill=${managed_file%%/*}
-    sed "/${skill}\/SKILL.md/d" "${fixture}/${script}" > "${fixture}/filtered"
+    awk -v managed_file="${managed_file}" '$1 != managed_file' \
+      "${fixture}/${script}" > "${fixture}/filtered"
     mv -- "${fixture}/filtered" "${fixture}/${script}"
   done
 done
@@ -74,14 +77,14 @@ prepare_target "${collision_target}"
 collision_root="${collision_target}/.agents/skills"
 mkdir -p -- "${collision_root}/dough-update" \
   "${collision_root}/dough-adr-awareness" \
-  "${collision_root}/dough-slice-planning"
+  "${collision_root}/dough-test-optimization/references"
 for managed_file in "${managed_files[@]}"; do
   [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
   mkdir -p -- "${collision_root}/${managed_file%/*}"
   cp -- "${older_checkout}/src/skills/${managed_file}" "${collision_root}/${managed_file}"
 done
-printf '%s\n' 'Keep this unrelated local slice-planning skill.' > \
-  "${collision_root}/dough-slice-planning/SKILL.md"
+printf '%s\n' 'Keep this unrelated local optimization guidance.' > \
+  "${collision_root}/dough-test-optimization/references/optimization-tactics.md"
 printf '%s\n' "${fixture}" > "${collision_root}/dough-update/SOURCE"
 printf '%s\n' '0.1.1' > "${collision_root}/dough-update/VERSION"
 

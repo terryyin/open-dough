@@ -42,6 +42,9 @@ The payload in each root is exactly:
 - `dough-execute-plan/scripts/watch-ci.mjs`
 - `dough-post-change-refactor/SKILL.md`
 - `dough-post-change-refactor/references/refactor-checks.md`
+- `dough-test-optimization/SKILL.md`
+- `dough-test-optimization/references/optimization-tactics.md`
+- `dough-test-optimization/references/resolving-candidates.md`
 - `dough-execution-retrospective/SKILL.md`
 - `dough-execution-retrospective/references/bounded-process-log.md`
 - `dough-story-wrap-up/SKILL.md`

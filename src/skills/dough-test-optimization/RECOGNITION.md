@@ -140,7 +140,8 @@ Representative authoring walkthrough, 2026-09-15, under
   remains in profiles until an authorized profile-only disposition is applied.
 
 This is a guidance walkthrough, not an executed optimization or measured speedup.
-Before promotion, maintainer review still needs to accept the invocation-context,
-required-client-context, and useful-outcome behavior above, including the shared
-style revision. Apply the relevant delivery checks when promotion is selected;
-extraction itself leaves the new skill outside the declared payload.
+The maintainer reviewed and selected the guidance for the next release. It uses
+the existing on-demand skill and relative-reference delivery mechanisms on Codex,
+Cursor, and Claude Code; this promotion introduces no new activation or adapter.
+Reuse that shared mechanism's integration evidence under ADR 0005. The payload
+fixtures cover installation and upgrade; recognition remains source-only.
