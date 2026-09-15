@@ -55,6 +55,9 @@ assert_upgraded_execution_payload() {
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)
     [[ "${receipt}" == 'CI_OBSERVER '* ]]
+    manual="${canonical_root}/manuals/custom-ci.md"
+    [[ -f "${manual}" ]]
+    grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
   assert_sentinels "${target}"
@@ -80,6 +83,7 @@ assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"
 for dependency in dough-execute-plan/scripts/ci-mailbox.mjs \
   dough-execute-plan/assets/claude-hooks.json \
+  dough-execute-plan/manuals/custom-ci.md \
   dough-post-change-refactor/references/refactor-checks.md; do
   path="${target}/.claude/skills/${dependency}"
   printf '\nlocal edit\n' >> "${path}"
@@ -94,6 +98,54 @@ for dependency in dough-execute-plan/scripts/ci-mailbox.mjs \
 done
 assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"
+
+# The standalone manual is human-discoverable without becoming runtime guidance,
+# and its extracted example speaks the installed adapter contract.
+manual="${target}/.agents/skills/dough-execute-plan/manuals/custom-ci.md"
+example="${temporary_dir}/dough-ci-example.mjs"
+fixture_response="${temporary_dir}/ci-fixture.json"
+awk '
+  /runnable-custom-ci-adapter:start/ { selected = 1; next }
+  /runnable-custom-ci-adapter:end/ { selected = 0 }
+  selected && /^```/ { next }
+  selected { print }
+' "${manual}" > "${example}"
+cat > "${fixture_response}" << 'EOF'
+{
+  "attempts": [{
+    "runId": "run/47",
+    "attemptId": "attempt:alpha",
+    "sha": "0123456789012345678901234567890123456789",
+    "outcome": "failure"
+  }],
+  "diagnostics": [{
+    "runId": "run/47",
+    "attemptId": "attempt:alpha",
+    "log": "setup complete\nERROR expected 2, received 3\ncleanup complete"
+  }]
+}
+EOF
+discover=$(printf '%s\n' '{"operation":"discover","check":{"repo":"owner/repo","branch":"feature"}}' \
+  | node "${example}" "${fixture_response}")
+diagnose=$(printf '%s\n' '{"operation":"diagnose","check":{"repo":"owner/repo","branch":"feature"},"attempt":{"runId":"run/47","attemptId":"attempt:alpha","sha":"0123456789012345678901234567890123456789"}}' \
+  | node "${example}" "${fixture_response}")
+[[ "${discover}" == *'"runId":"run/47"'* ]]
+[[ "${discover}" == *'"attemptId":"attempt:alpha"'* ]]
+[[ "${diagnose}" == *'ERROR expected 2, received 3'* ]]
+[[ "${diagnose}" != *'setup complete'* ]]
+[[ "${diagnose}" != *'cleanup complete'* ]]
+node -e 'const fs=require("node:fs"); const path=process.argv[1]; const value=JSON.parse(fs.readFileSync(path)); value.diagnostics[0].log="ERROR "+"é".repeat(10000); fs.writeFileSync(path, JSON.stringify(value))' "${fixture_response}"
+diagnose=$(printf '%s\n' '{"operation":"diagnose","check":{"repo":"owner/repo","branch":"feature"},"attempt":{"runId":"run/47","attemptId":"attempt:alpha","sha":"0123456789012345678901234567890123456789"}}' \
+  | node "${example}" "${fixture_response}")
+node -e 'const value=JSON.parse(process.argv[1]); if (!value.truncated || Buffer.byteLength(value.excerpt) > 16 * 1024) process.exit(1)' "${diagnose}"
+grep -Fq '.agents/skills/dough-execute-plan/manuals/custom-ci.md' \
+  "${source_dir}/docs/installation-and-updates.md"
+if grep -R -Fq 'manuals/custom-ci.md' \
+  "${source_dir}/src/skills/dough-execute-plan/SKILL.md" \
+  "${source_dir}/src/skills/dough-execute-plan/references"; then
+  echo 'FAIL: standalone custom CI manual is linked from runtime guidance.' >&2
+  exit 1
+fi
 
 # Exact prior manual registration of the new release's tagged fragments is adopted.
 manual_target="${temporary_dir}/manual project"

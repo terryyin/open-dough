@@ -16,7 +16,6 @@ report_incomplete_install() {
   echo "${selected_platform}: ${reason} Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
   exit 1
 }
-
 write_certified_records() {
   local destination=$1 restore_source='' source_path version_path status=0
   source_path="${destination}/SOURCE"
@@ -101,6 +100,7 @@ managed_files=(
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
+  dough-execute-plan/manuals/custom-ci.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
   dough-execute-plan/references/ci-notify-hosts.md

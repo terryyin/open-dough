@@ -22,6 +22,7 @@ The payload in each root is exactly:
 - `dough-execute-plan/SKILL.md`
 - `dough-execute-plan/assets/claude-hooks.json`
 - `dough-execute-plan/assets/cursor-hooks.json`
+- `dough-execute-plan/manuals/custom-ci.md`
 - `dough-execute-plan/references/ci-monitor.md`
 - `dough-execute-plan/references/ci-notify-codex.md`
 - `dough-execute-plan/references/ci-notify-hosts.md`
@@ -64,12 +65,16 @@ workflow and verify host-bridge readiness; execute-plan starts and stops the
 observer without writing host settings. Missing readiness is reported as
 unavailable coverage and does not authorize settings changes.
 
+Projects using another CI service can optionally read the installed standalone
+manual at `.agents/skills/dough-execute-plan/manuals/custom-ci.md` or
+`.claude/skills/dough-execute-plan/manuals/custom-ci.md`. Skills do not load or
+link to this human-facing adapter-authoring guide during ordinary execution.
+
 ## Optional process-review preference
 
 The target project's optional process-review preference is project-owned and
 shared by Codex, Cursor, and Claude Code. It lives at
-`<established-planning-directory>/open-dough.json`, defaulting to
-`.planning/open-dough.json` when no different planning directory is established.
+`.planning/open-dough.json`.
 That path is in the project being installed or updated, not in an installed
 skill directory and not in the Open Dough source checkout. The file is not part
 of the managed payload listed above.
@@ -285,7 +290,7 @@ working-tree helper. The updater:
 7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
    guidance remain unchanged. Optional
-   `<established-planning-directory>/open-dough.json` is unrelated project
+   `.planning/open-dough.json` is unrelated project
    configuration: preserve its exact bytes when present, and do not create it
    when absent. See [Optional process-review preference](#optional-process-review-preference).
 

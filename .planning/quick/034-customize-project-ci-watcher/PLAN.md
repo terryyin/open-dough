@@ -438,7 +438,7 @@ knowledge.
 ### 7. Install a usable customization manual and preserve project choices
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A project installing/updating the complete payload receives the small
 adapter manual and working support while retaining its configured command.
@@ -460,6 +460,30 @@ and fixtures, keeping recognition/maintenance material out.
 Stopping point / sizing: Complete installable candidate with usable instructions.
 One install/update journey; no config migration, extra installer, or broad
 coexistence campaign beyond affected existing checks.
+
+Accepted proof (2026-09-15):
+
+- Fresh Codex, Cursor, and Claude public-payload installation tests deliver
+  `manuals/custom-ci.md` in both managed skill roots. Ordinary and forced update
+  proof restores the managed manual while preserving `.planning/open-dough.json`
+  exactly when present and preserving its absence when absent.
+- The installed manual documents direct argv configuration, separate discovery
+  and diagnosis requests, opaque attempt identity, exact-SHA outcomes and
+  coverage, local filtering, bounded errors/cancellation, and the 16 KiB UTF-8
+  diagnostic limit. Its marked example is extracted from the installed copy and
+  executed against a fixture: it preserves `run/47` and `attempt:alpha`, removes
+  setup/cleanup noise, retains the known error, and reports Unicode-aware
+  truncation within the limit.
+- Payload update, config preservation, guidance-payload, and all three fresh
+  installation tests passed after formatting. Shellcheck and `git diff --check`
+  passed. The independent refactor found the slice already cohesive; all touched
+  files are at or below 250 lines except the installation guide under Terry
+  Yin's previously authorized deferred size exception.
+- The manual is not linked or loaded from `SKILL.md` or runtime references, and
+  no recognition or maintainer-only material enters the released payload.
+
+Learning: executing the example extracted from the installed manual turns its
+adapter protocol into installation evidence instead of relying on prose alone.
 
 ### 8. Make the tested customization available in a release
 

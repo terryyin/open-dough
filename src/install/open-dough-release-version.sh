@@ -33,6 +33,7 @@ managed_payload_unchanged() {
     dough-execute-plan/SKILL.md
     dough-execute-plan/assets/claude-hooks.json
     dough-execute-plan/assets/cursor-hooks.json
+    dough-execute-plan/manuals/custom-ci.md
     dough-execute-plan/references/ci-monitor.md
     dough-execute-plan/references/ci-notify-codex.md
     dough-execute-plan/references/ci-notify-hosts.md
