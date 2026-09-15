@@ -187,7 +187,7 @@ Accepted proof (2026-09-15):
 ### 2. Observe a project command's CI attempts
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a configured command and one selected check, launching the
 normal observer follows its attempts without an Actions workflow or `gh` setup.
@@ -204,6 +204,34 @@ with each introduced dependency so intermediate installations remain complete.
 Stopping point / sizing: Usable custom observation, with coverage still limited
 until Slice 3. One source-selection journey; use a controlled command example
 to settle contract details without requiring Pygardon access.
+
+Accepted proof (2026-09-15):
+
+- `node --test src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs`
+  passed 5/5. `projectFixture` supplies a temporary project configuration,
+  executable adapter, and fake `gh`; the production CLI selects the adapter
+  without invoking `gh`. The public watcher test rewrites configuration after
+  the first call yet observes repeated discovery through the originally
+  selected command, quiet pending-to-success events, discovery-only requests,
+  exact SHA/outcome mapping, opaque identities, and collision-safe attempt keys.
+  Empty and absent settings observe GitHub discovery with no adapter call.
+- `node --test src/skills/dough-execute-plan/scripts/watch-ci-execution\*.test.mjs`
+  passed 17/17 and
+  `node --test src/skills/dough-execute-plan/scripts/ci-client-configuration.test.mjs`
+  passed 1/1 at the unchanged GitHub observer boundary.
+- `bash tests/execution-ci-runtime.sh` passed 71/71 across the maintained
+  runtime, CLI/process, mailbox, and host lifecycle boundary.
+  `bash tests/execution-payload-update.sh` passed for install, update,
+  relocation, collision protection, forced restoration, and hook handling with
+  the new runtime module declared in every payload list.
+- The independent refactor removed an undocumented polling environment setting
+  and reused the watcher's existing injected-sleep seam. The real CLI selection
+  observation remains. `npm run format` completed successfully, and every
+  touched Slice 2 file is at or below 250 lines.
+
+Learning: run and attempt identifiers are opaque values, so shared attempt keys
+use tuple serialization rather than delimiter concatenation. Later coverage,
+diagnostic, and deduplication work must preserve that identity rule.
 
 ### 3. Report the actual pushed revision's coverage
 

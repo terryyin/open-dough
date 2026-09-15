@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 # Version records, changelog validation, numeric compare, and managed-payload
 # baseline comparison. Sourced by open-dough-release.sh.
-
 report_managed_payload_mismatch() {
   local skill_root=$1
   local managed_file=$2
-
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
-
 # Read-only comparison of dest against a supplied local tagged checkout.
 # dest is the dough-update destination; skill_root is its native root.
 # Performs no fetches or writes. Callers that already have a tagged tree
@@ -45,6 +42,7 @@ managed_payload_unchanged() {
     dough-execute-plan/references/execution-decisions.md
     dough-execute-plan/references/runtime-setup.md
     dough-execute-plan/references/wrap-up.md
+    dough-execute-plan/scripts/ci-command-adapter.mjs
     dough-execute-plan/scripts/ci-failures.mjs
     dough-execute-plan/scripts/ci-host-hook.mjs
     dough-execute-plan/scripts/ci-mailbox-store.mjs
@@ -63,7 +61,6 @@ managed_payload_unchanged() {
     dough-execution-retrospective/references/bounded-process-log.md
     dough-story-wrap-up/SKILL.md
   )
-
   # Refuse an unavailable/unrecognized declaration instead of treating every
   # source file as unmanaged. Historical installers use this literal array.
   if ! historical_files=$(awk '
@@ -76,7 +73,6 @@ managed_payload_unchanged() {
     echo "Cannot read managed payload declaration: ${checkout}/install.sh" >&2
     return 1
   fi
-
   skill_root=$(dirname -- "${dest}")
   for managed_file in "${files[@]}"; do
     # Source presence does not imply delivery: an older release may have
@@ -102,11 +98,9 @@ managed_payload_unchanged() {
     fi
   done
 }
-
 read_version_file() {
   local file=$1
   local version='' extra=''
-
   if [[ ! -f "${file}" ]]; then
     echo "Missing version file: ${file}" >&2
     return 1
@@ -125,12 +119,10 @@ read_version_file() {
   fi
   printf '%s\n' "${version}"
 }
-
 changelog_has_dated_entry() {
   local checkout=$1
   local version=$2
   local changelog="${checkout}/CHANGELOG.md"
-
   if [[ ! -f "${changelog}" ]]; then
     echo "Missing changelog: ${changelog}" >&2
     return 1
@@ -140,20 +132,16 @@ changelog_has_dated_entry() {
     return 1
   fi
 }
-
 validate_checkout() {
   local checkout=$1
   local version
-
   version=$(read_version_file "${checkout}/VERSION")
   changelog_has_dated_entry "${checkout}" "${version}"
   printf '%s\n' "${version}"
 }
-
 read_record() {
   local file=$1
   local version='' extra='' remainder=''
-
   if [[ ! -e "${file}" ]]; then
     return 0
   fi
@@ -172,11 +160,9 @@ read_record() {
   fi
   printf '%s\n' "${version}"
 }
-
 read_source_record() {
   local file=$1
   local source='' extra='' remainder=''
-
   if [[ ! -e "${file}" ]]; then
     echo "Missing installed source record: ${file}" >&2
     return 1
@@ -196,21 +182,17 @@ read_source_record() {
   fi
   printf '%s\n' "${source}"
 }
-
 strip_leading_zeros() {
   local digits=$1
-
   while [[ ${#digits} -gt 1 && ${digits} == 0* ]]; do
     digits=${digits#0}
   done
   printf '%s\n' "${digits}"
 }
-
 compare_numeric_strings() {
   local first=$1
   local second=$2
   local sorted first_sort
-
   first=$(strip_leading_zeros "${first}")
   second=$(strip_leading_zeros "${second}")
   if [[ ${#first} -lt ${#second} ]]; then
@@ -233,14 +215,12 @@ compare_numeric_strings() {
   fi
   printf '%s\n' newer
 }
-
 compare_versions() {
   local first=$1
   local second=$2
   local first_major first_minor first_patch
   local second_major second_minor second_patch
   local relation
-
   if [[ "${first}" == "${second}" ]]; then
     printf '%s\n' equal
     return 0

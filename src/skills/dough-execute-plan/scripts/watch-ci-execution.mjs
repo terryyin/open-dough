@@ -1,5 +1,9 @@
 import { setTimeout as pause } from "node:timers/promises";
 import {
+  createCommandRunAcquisition,
+  readCiAdapter,
+} from "./ci-command-adapter.mjs";
+import {
   ciAttemptKey,
   createGitHubFailureAcquisition,
 } from "./ci-failures.mjs";
@@ -22,6 +26,7 @@ export async function watchCiExecution({
   pollMs = 30_000,
   maxDurationMs = executionBudgetMs,
   now = Date.now,
+  root = process.cwd(),
 }) {
   if (typeof branch !== "string" || !branch.trim())
     throw new Error("Execution CI observation requires a branch");
@@ -37,20 +42,20 @@ export async function watchCiExecution({
   const observationSignal = observationAbort.signal;
   const startedAt = now();
   const reportedIncomplete = new Set();
-  const acquireRuns = createGitHubRunAcquisition({
-    repo,
-    branch,
-    startedAt,
-    gh,
-  });
-  const acquireFailure = createGitHubFailureAcquisition({ repo, gh });
+  const adapter = readCiAdapter(root);
+  const acquireRuns = adapter
+    ? createCommandRunAcquisition({ command: adapter, repo, branch, root })
+    : createGitHubRunAcquisition({ repo, branch, startedAt, gh });
+  const acquireFailure = adapter
+    ? async () => ({})
+    : createGitHubFailureAcquisition({ repo, gh });
   let consecutiveErrors = 0;
 
   const unavailable = (reason) => ({
     type: "CI_MONITOR_UNAVAILABLE",
     repo,
     branch,
-    workflow: ciWorkflowFile,
+    ...(adapter ? {} : { workflow: ciWorkflowFile }),
     reason: String(reason).slice(0, 600),
   });
 
@@ -92,7 +97,7 @@ export async function watchCiExecution({
           repo,
           sha: incomplete.headSha,
           branch: incomplete.headBranch,
-          workflow: ciWorkflowFile,
+          ...(adapter ? {} : { workflow: ciWorkflowFile }),
           runId: incomplete.databaseId,
           attempt: incomplete.attempt,
           conclusion: incomplete.conclusion,

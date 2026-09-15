@@ -38,6 +38,7 @@ managed_files=(
   dough-execute-plan/references/execution-decisions.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/wrap-up.md
+  dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/ci-failures.mjs
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-store.mjs

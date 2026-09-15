@@ -1,6 +1,7 @@
 import { ciWorkflowFile } from "./ci-runs.mjs";
 
-export const ciAttemptKey = (runId, attempt) => `${runId}:${attempt}`;
+export const ciAttemptKey = (runId, attempt) =>
+  JSON.stringify([runId, attempt]);
 
 const ciRunFallbackKey = (runId, attempt) =>
   `${ciAttemptKey(runId, attempt)}:run`;
@@ -240,7 +241,6 @@ function isFailedJob(job) {
     !["success", "skipped", "neutral", "cancelled"].includes(job.conclusion)
   );
 }
-
 function failedJobEvidence(job) {
   return {
     ...(job.databaseId === undefined ? {} : { jobId: job.databaseId }),

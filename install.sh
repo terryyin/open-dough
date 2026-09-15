@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2310,SC2312
 set -euo pipefail
-
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${source_dir}/src/install/open-dough-platform.sh"
 # shellcheck disable=SC1091
 source "${source_dir}/src/install/open-dough-register-hooks.sh"
-
 usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
 }
-
 report_incomplete_install() {
   local selected_platform=$1 reason=$2
   echo "${selected_platform}: ${reason} Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
@@ -36,7 +33,6 @@ write_certified_records() {
   [[ -z "${restore_source}" ]] || rm -f -- "${restore_source}"
   return "${status}"
 }
-
 target=''
 recorded_source=''
 platform=codex
@@ -114,6 +110,7 @@ managed_files=(
   dough-execute-plan/references/execution-decisions.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/wrap-up.md
+  dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/ci-failures.mjs
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-store.mjs
