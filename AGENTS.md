@@ -50,7 +50,7 @@ declarations, not source locations. Installed describes a client project copy.
 Follow [ADR 0006](docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
 write published skills and rules for the agent working in this project, meaning
 its task's established project, not the Open Dough source or skill directory.
-“Client project,” “client payload,” recognition, extraction, and promotion are
+“Client project,” “client payload,” recognition, and promotion are
 maintainer concepts; do not export them as required runtime vocabulary. Keep
 maintenance analysis in maintainer records. When a task needs multiple locations,
 name the target project, installed skill directory, or Open Dough release source
@@ -60,8 +60,7 @@ the same perspective, including wording without the literal word “client.”
 
 ### References
 
-- Link here from skills that author or review guidance (for example
-  `extract-guidance`).
+- Link here from skills that author or review guidance.
 - Prefer repository-relative links. Point at paths supplied by the client project from skill
   prose; do not hard-code another project's layout or decisions into a reusable
   skill.

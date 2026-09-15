@@ -3,15 +3,18 @@
 ## Source and execution context
 
 - Source: [SEED-014, Story 1](../../seeds/SEED-014-remove-extraction-and-speculative-recognition.md#remove-extraction-and-speculative-recognition).
-- Status: planned. All slice proof below is required work, not observed success.
-- Authority: planning and conditional plan refinement only. Keep the story first
-  in **Backlog list**; execution, commits, publication, and adoption have not started.
+- Status: in execution. Slice proof below is required work until accepted.
+- Authority: `/dough-execute-plan 33` on 2026-09-15. Publication and other-project
+  adoption remain outside this story.
 - Home: `.planning/quick/033-remove-extraction-and-speculative-recognition/PLAN.md`.
-  The existing allocated directory is 032; no active plan owns this story.
-- Follow the installed `dough-execute-plan` workflow when execution is requested:
-  claim the backlog entry, establish the execution checkout, accept focused
-  proof, independently refactor, and deliver coherent slices with CI repair.
-  Preserve current user changes. Read current delivery and hook rules at startup.
+- Execution identity:
+  - originating checkout: `/Users/terryyin/git/open-dough` on `main`
+    (claim `1ba03d0`)
+  - execution checkout: `/Users/terryyin/git/open-dough-worktrees/033-remove-extraction-and-speculative-recognition`
+    on `quick/033-remove-extraction-and-speculative-recognition`
+  - integration target: `main`
+- Follow the installed `dough-execute-plan` workflow: accept focused proof,
+  independently refactor, and deliver coherent slices with CI repair.
 - No numeric slice target, hard limit, or S/M/L definitions were supplied.
   Size by one outcome and proof loop, including cleanup. Reassess a slice before
   delivery if a new consumer or fixture dependency makes it multi-outcome.
@@ -91,7 +94,7 @@ consolidation direction remains unchanged.
 
 ### 1. Maintain shared guidance directly
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a maintainer following this repository's guidance to author or
 review a shared skill, the current instructions lead directly to authoring and
@@ -307,6 +310,22 @@ Native proof remains subject to the explicit evidence rule above.
 
 ## Learnings and accepted proof
 
-Planning inspection only; no product tests or native sessions have been run for
-this story. Record accepted execution proof and consequential learnings here
-when execution is authorized.
+- Removing `extract-guidance` from `internal_skill_names` also drops its
+  source-existence and installed-omit checks. That is deletion of obsolete
+  coupling, not a new absence assertion.
+
+### Slice 1 accepted proof
+
+- Direct authoring: remaining `AGENTS.md` Layout and Behavior review, plus
+  ADR 0003 Proposed as drafting under `src/skills/`, walk through
+  `src/skills/dough-pfe/SKILL.md` without an extraction step. Setup: none.
+- Payload omit of remaining internals:
+  `bash tests/install-omits-internal.sh` pass. Setup: disposable target with
+  unrelated sentinels; `install.sh --platform` codex, cursor, then claude.
+  Observations: remaining `internal_skill_names`, `assert_public_payload`,
+  `assert_internal_absent`, `expect_files`.
+- Ordinary execution-payload update:
+  `bash tests/execution-payload-update.sh` pass. Setup: tagged 0.1.1 then
+  0.1.2 fixtures; older install then apply from remembered SOURCE. Observations:
+  upgraded payload and runtime entrypoints; remaining `RECOGNITION.md`
+  omission; collision/edit/--force and host-hook refusal.

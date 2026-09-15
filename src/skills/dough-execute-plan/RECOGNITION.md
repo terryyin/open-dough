@@ -41,13 +41,6 @@ Synchronous CI gates, per-SHA observers, worker-owned commits, or workflows with
 
 ## Validation needed
 
-Representative invocation-context, required-client-context, and useful-outcome
-walkthroughs are recorded in
-[the extraction review](../dough-execute-plan/EXTRACTION.md#representative-behavior-review).
-See the extraction review for dependency disposition and source differences.
-Source integrity is recorded in
-[SOURCE-CHECKSUMS.json](../dough-execute-plan/SOURCE-CHECKSUMS.json).
-
 The 2026-09-10 source review walked authorized first execution, resume, missing
 authorization, and work not selected from the backlog. Only authorized first
 execution moved the existing queued entry, before plan-state or implementation

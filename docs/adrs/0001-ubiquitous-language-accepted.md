@@ -85,7 +85,7 @@ Follow [ADR 0006](./0006-write-skills-for-executing-agents-accepted.md) for the
 authoritative runtime audience rule. Address the executing agent in its task's
 established project: “this project's ADRs,” “this project's tooling,” or “the
 selected story.” Do not require the agent to identify another client repository
-or learn extraction, recognition, or promotion terminology to perform ordinary
+or learn recognition or promotion terminology to perform ordinary
 project work.
 
 When a task needs delivery concepts, explain the actionable roles in context.

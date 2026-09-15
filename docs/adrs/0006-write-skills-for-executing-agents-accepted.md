@@ -29,7 +29,7 @@ preserving across Open Dough skills.
    ask the user to identify a separate “client project” when the task already
    establishes the project. Open Dough's internal ADRs may inform authoring,
    but must not become runtime dependencies or decisions imposed on that project.
-2. Keep provenance, extraction history, checksums, and maintainer analysis in
+2. Keep maintainer analysis in
    recognition or other maintainer records, outside runtime instructions.
    This includes the North Star's decision-cache interpretation and effort/token
    rationale. Public guidance describes architectural direction and its lifecycle.
