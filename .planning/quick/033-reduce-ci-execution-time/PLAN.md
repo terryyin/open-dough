@@ -147,7 +147,7 @@ Outcome and accepted proof are recorded above.
 ### 4. Story payload protection does not repeat shared damage cases per entry hint
 
 Type: Behavior
-Status: planned; depends on Slices 2 and 3
+Status: done
 
 Behavior: Codex, Cursor, and Claude entry hints each retain old-to-new payload
 upgrade, unmanaged-collision refusal, two-root payload/relative-link integrity,
@@ -174,6 +174,10 @@ explicit-force repair.
   this experiment while preserving Slices 2-3. Stop before losing any success
   path, reference, damage class, refusal, immutability, force-repair, or assertion
   without an established surviving owner.
+
+Outcome: the complete shared matrix now runs once through the Cursor hint while
+all three success paths remain. Focused proof passed in 34.82 seconds versus
+87.37 seconds, a 52.55-second (60.2%) reduction with observations unchanged.
 
 ### 5. Developers can select the next material cost after shared protection is cheaper
 
