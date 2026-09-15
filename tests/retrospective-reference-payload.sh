@@ -40,7 +40,6 @@ assert_reference_links() {
         [[ -f "${target}/${root}/${file%/*}/${link}" ]]
       done < "${temporary_dir}/links"
     done
-    [[ ! -e "${target}/${root}/dough-execution-retrospective/RECOGNITION.md" ]]
   done
 }
 

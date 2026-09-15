@@ -50,7 +50,7 @@ Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at t
 
 - Introduce Story Branch Mode as the name and proposed lifecycle for planned execution in an isolated feature branch and worktree, with refinement and planning on `main`, retrospective in the story branch, and wrap-up integrating the completed change and learning. Record the unresolved conflict with the Accepted continuous-integration principle rather than treating the proposal as accepted.
 - Allow story decomposition to inspect implementation when useful for comparative effort hypotheses while keeping technical design and implementation outside decomposition. Preserve the existing 3V story boundary and human-owned workflow decisions.
-- Preserve completed plan history in Git, then remove spent plans and bulky acceptance evidence, trim recognition records that pointed to the removed material, and refocus the product backlog on a coherent end-to-end Story Branch Mode lifecycle.
+- Preserve completed plan history in Git, then remove spent plans and bulky acceptance evidence, and refocus the product backlog on a coherent end-to-end Story Branch Mode lifecycle.
 
 Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.15`. Acceptance for the Story Branch Mode guidance, code-informed decomposition estimates, and previously pending behaviors remains pending and is not reported as passing.
 
@@ -187,7 +187,7 @@ ADR-awareness now requires only context needed for the current request and does 
 
 ## 0.2.0 - 2026-09-06
 
-Safe installation now selects and inspects the pinned latest numeric release. Recorded updates advance older installations, leave equal versions unchanged, and preserve newer versions. The public payload now includes ADR-awareness and its recognition record for Codex, Cursor, and Claude Code. Local-guidance replacement and automatic changelog presentation remain future work.
+Safe installation now selects and inspects the pinned latest numeric release. Recorded updates advance older installations, leave equal versions unchanged, and preserve newer versions. The public payload now includes ADR-awareness for Codex, Cursor, and Claude Code. Local-guidance replacement and automatic changelog presentation remain future work.
 
 ## 0.1.0 - 2026-09-06
 

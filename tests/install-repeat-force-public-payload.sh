@@ -31,8 +31,6 @@ mkdir -p -- \
 
 printf '%s\n' 'Keep my local ADR skill edit.' > \
   "${selected_root}/dough-adr-awareness/SKILL.md"
-printf '%s\n' 'Keep my local recognition edit.' > \
-  "${selected_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep this ADR-side file.' > \
   "${selected_root}/dough-adr-awareness/LOCAL.md"
 printf '%s\n' 'Keep unrelated Cursor guidance.' > \
@@ -41,8 +39,6 @@ printf '%s\n' 'Keep the Claude updater.' > \
   "${claude_root}/dough-update/SKILL.md"
 printf '%s\n' 'Keep the Claude ADR skill.' > \
   "${claude_root}/dough-adr-awareness/SKILL.md"
-printf '%s\n' 'Keep the Claude ADR record.' > \
-  "${claude_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep this project file.' > "${target}/keep.txt"
 
 before_later_collision=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
@@ -94,7 +90,6 @@ cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
   "${selected_root}/dough-execution-retrospective/SKILL.md"
 cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
   "${selected_root}/dough-story-wrap-up/SKILL.md"
-[[ ! -e "${selected_root}/dough-adr-awareness/RECOGNITION.md" ]]
 expected_version=$(cat "${source_dir}/VERSION")
 assert_contents "${selected_root}/dough-update/VERSION" "${expected_version}"
 expected_source=$(cd -- "${source_dir}" && pwd -P)
@@ -115,7 +110,6 @@ cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
   "${claude_root}/dough-execution-retrospective/SKILL.md"
 cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
   "${claude_root}/dough-story-wrap-up/SKILL.md"
-[[ ! -e "${claude_root}/dough-adr-awareness/RECOGNITION.md" ]]
 
 after_selected_sidecars=$(shasum -a 256 \
   "${selected_root}/dough-update/LOCAL.md" \
@@ -127,38 +121,4 @@ after_project_file=$(shasum -a 256 "${target}/keep.txt")
 [[ "${after_selected_unrelated}" == "${before_selected_unrelated}" ]]
 [[ "${after_project_file}" == "${before_project_file}" ]]
 
-output=$(bash "${source_dir}/install.sh" \
-  --target "${target}" --source "${source_dir}" --platform cursor --force)
-[[ "${output}" == *"installed Open Dough guidance"* ]]
-[[ ! -e "${selected_root}/dough-adr-awareness/RECOGNITION.md" ]]
-
-assert_unsafe_retired_object() {
-  local object_kind=$1
-  local unsafe_target="${temporary_dir}/unsafe-${object_kind}"
-  local unsafe_path="${unsafe_target}/.agents/skills/dough-adr-awareness/RECOGNITION.md"
-  local outside_file="${temporary_dir}/outside-${object_kind}"
-  local before after failure_output
-
-  mkdir -p -- "$(dirname -- "${unsafe_path}")"
-  printf '%s\n' 'Keep this outside file.' > "${outside_file}"
-  if [[ "${object_kind}" == directory ]]; then
-    mkdir -- "${unsafe_path}"
-  else
-    ln -s -- "${outside_file}" "${unsafe_path}"
-  fi
-  before=$(snapshot_path_state "${unsafe_target}")
-  if failure_output=$(bash "${source_dir}/install.sh" \
-    --target "${unsafe_target}" --source "${source_dir}" --platform cursor --force 2>&1); then
-    echo "FAIL: a retired-path ${object_kind} must be refused before writes." >&2
-    exit 1
-  fi
-  [[ "${failure_output}" == *'Unsafe retired-file collision:'* ]]
-  after=$(snapshot_path_state "${unsafe_target}")
-  [[ "${after}" == "${before}" ]]
-  assert_contents "${outside_file}" 'Keep this outside file.'
-}
-
-assert_unsafe_retired_object directory
-assert_unsafe_retired_object symlink
-
-echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces the three declared Cursor payload files, retires only the fixed recognition file, preserves all other content, treats absence as a no-op, and refuses unsafe retired-path objects before writes.'
+echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces the declared Cursor payload files, and preserves all other content.'

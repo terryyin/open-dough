@@ -49,8 +49,6 @@ for platform in codex cursor claude; do
   bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-stories
-    [[ ! -e "${target}/${root}/dough-story-decomposition/RECOGNITION.md" ]]
-    [[ ! -e "${target}/${root}/dough-story-refinement/RECOGNITION.md" ]]
     for managed_file in "${managed_files[@]}"; do
       [[ "${managed_file}" == dough-story-* ]] || continue
       sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${target}/${root}/${managed_file}" > "${temporary_dir}/links"

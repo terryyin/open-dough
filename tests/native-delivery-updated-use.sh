@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Credential-free proof that Codex delivery/updated-use keeps ordinary no-URL
-# update then use as one retained journey: real fixture apply, no refusal, no retry.
+# update then use as one retained journey: real fixture apply, no retry.
 # shellcheck disable=SC2016,SC2034,SC2312 # Literal invocation marker; sourced asserts use work paths.
 set -euo pipefail
 
@@ -37,7 +37,7 @@ export PATH="${sentinel_bin}:${PATH}"
 success=$(run_selected 0)
 assert_single_attempt "${success}"
 assert_record_identity "${success}"
-assert_no_legacy_or_retry "${run_log}" 2
+assert_no_retry "${run_log}" 2
 grep -Fq 'execution-status: completed' "${success}/record"
 grep -Fq 'native-version: codex journey-1' "${success}/record"
 [[ -f ${success}/update-events.jsonl ]]
@@ -112,7 +112,7 @@ fail_update=$(
 )
 assert_single_attempt "${fail_update}"
 assert_record_identity "${fail_update}"
-assert_no_legacy_or_retry "${run_log}" 1
+assert_no_retry "${run_log}" 1
 [[ ${fail_update} != "${success}" ]]
 grep -Fq 'execution-status: failed' "${fail_update}/record"
 grep -Fq 'update-execution: failed' "${fail_update}/observations.txt"
@@ -137,7 +137,7 @@ fail_use=$(
 )
 assert_single_attempt "${fail_use}"
 assert_record_identity "${fail_use}"
-assert_no_legacy_or_retry "${run_log}" 2
+assert_no_retry "${run_log}" 2
 [[ ${fail_use} != "${success}" && ${fail_use} != "${fail_update}" ]]
 grep -Fq 'execution-status: failed' "${fail_use}/record"
 grep -Fq 'update-execution: completed' "${fail_use}/observations.txt"
@@ -158,4 +158,4 @@ if grep -Fq 'use-pending: true' "${fail_use}/observations.txt"; then
   exit 1
 fi
 
-echo 'PASS: Codex delivery/updated-use retains a combined real-update then use journey, keeps failures without retry, and does not launch a separate ordinary-update or refusal case.'
+echo 'PASS: Codex delivery/updated-use retains a combined real-update then use journey, keeps failures without retry, and does not launch extra supervised sessions.'

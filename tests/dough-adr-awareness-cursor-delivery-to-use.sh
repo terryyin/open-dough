@@ -11,7 +11,6 @@ delivery_host_name='Cursor'
 delivery_host_upper='CURSOR'
 delivery_platform='cursor'
 delivery_skill_root='.agents/skills'
-delivery_baseline_platforms=(codex cursor claude)
 
 delivery_check_fixture
 grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "$0"
@@ -24,8 +23,7 @@ fi
 
 command -v cursor > /dev/null
 delivery_prepare_fixture
-delivery_assert_legacy_install
-delivery_capture_legacy_state
+delivery_assert_baseline_install
 
 run_native_cursor() {
   local output_file=$1
@@ -37,25 +35,17 @@ run_native_cursor() {
   ) > "${output_file}"
 }
 
-refusal_output="${delivery_temporary_dir}/cursor-legacy-refusal-output.md"
-refusal_prompt=$(native_legacy_refusal_prompt "${delivery_source_url}")
-run_native_cursor "${refusal_output}" \
-  "${refusal_prompt}"
-delivery_assert_legacy_refusal "${refusal_output}"
-
-delivery_bootstrap_candidate
-delivery_publish_improved_release
 delivery_capture_update_state
 update_output="${delivery_temporary_dir}/cursor-update-output.md"
 run_native_cursor "${update_output}" \
-  "Use \$dough-update ${delivery_source_url} to perform an ordinary newer-release update of this inspected-bootstrap Cursor installation. Follow the installed updater exactly and do not force the update. Report release v${delivery_update_version}, its source and commit, Cursor as the running tool, and every installed path. Recognition is source-only and must not be reported as installed. Do not invoke ADR awareness yet."
+  "Use \$dough-update to perform an ordinary newer-release update of this Cursor installation. Follow the installed updater exactly and do not force the update. Report release v${delivery_update_version}, its source and commit, Cursor as the running tool, and every installed path. Do not invoke ADR awareness yet."
 
 delivery_assert_update "${update_output}"
 
 use_before=$(delivery_snapshot "${delivery_target}")
 use_output="${delivery_temporary_dir}/cursor-use-output.md"
 run_native_cursor "${use_output}" \
-  "Use \$dough-adr-awareness for an explicit ADR check. Your final response must begin exactly with the line Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. End with exactly: No decision or implementation was changed. Use only this client project, do not read source recognition, and keep the response concise."
+  "Use \$dough-adr-awareness for an explicit ADR check. Your final response must begin exactly with the line Invocation: \$dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. The catalog and ARC-12 record now disagree: demonstrate the installed v${delivery_update_version} improvement by naming each conflicting repository-relative authority and the value it reports before asking who owns precedence. End with exactly: No decision or implementation was changed. Use only this client project and keep the response concise."
 use_after=$(delivery_snapshot "${delivery_target}")
 if [[ "${use_before}" != "${use_after}" ]]; then
   echo 'FAIL: native Cursor changed client project files during ADR use.' >&2
@@ -65,9 +55,9 @@ delivery_assert_use "${use_output}"
 
 native_tool_version=$(cursor --version)
 printf 'Native tool version: %s\n' "${native_tool_version}"
-delivery_print_proof "${update_output}" "${use_output}" "${refusal_output}"
+delivery_print_proof "${update_output}" "${use_output}"
 printf '%s\n' \
-  'PASS: Cursor refused the incompatible smaller candidate unchanged; the explicit inspected bootstrap installed the current two-skill updater; a fresh session ordinarily updated it to the newer release.' \
-  'PASS: fresh native Cursor discovered and invoked only the installed dough-adr-awareness skill; no original adr-awareness skill or installed recognition was present.' \
+  'PASS: a fresh session ordinarily updated the verified older current-contract install to the newer release from recorded SOURCE.' \
+  'PASS: fresh native Cursor discovered and invoked the installed dough-adr-awareness skill.' \
   'PASS: Cursor enumerated both conflicting alternate-layout status authorities and their Adopted/Replaced values, stopped for human precedence, and changed no client project files.' \
-  'PASS: final recognition is absent, all platform installations advanced together, and the companion integration remained byte-identical.'
+  'PASS: all platform installations advanced together, and the companion integration remained byte-identical.'

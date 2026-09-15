@@ -83,17 +83,10 @@ tag_release() {
 
 build_current_tagged_release_fixture() {
   local repo=$1
-  shift
   local version
-  local source_only_file
 
   version=$(cat "${source_dir}/VERSION")
   copy_current_release_files "${repo}"
-  for source_only_file in "$@"; do
-    mkdir -p -- "${repo}/src/skills/$(dirname -- "${source_only_file}")"
-    cp -- "${source_dir}/src/skills/${source_only_file}" \
-      "${repo}/src/skills/${source_only_file}"
-  done
   git -C "${repo}" init --quiet -b main
   git_identity "${repo}"
 
@@ -211,10 +204,6 @@ assert_payload() {
       return 1
     fi
   done
-  if [[ -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]; then
-    echo "FAIL: assert_payload found retired RECOGNITION.md under ${skill_root}" >&2
-    return 1
-  fi
   contents=$(cat "${destination}/VERSION")
   if [[ "${contents}" != "${version}" ]]; then
     echo "FAIL: assert_payload VERSION is ${contents}, expected ${version}" >&2

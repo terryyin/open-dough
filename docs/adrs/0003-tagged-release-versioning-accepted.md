@@ -8,7 +8,7 @@
 
 ## Context
 
-Open Dough needs a clear path from drafted or extracted guidance to content
+Open Dough needs a clear path from drafted guidance to content
 available for client installation, with one identifiable release for the whole
 client payload.
 
@@ -18,14 +18,13 @@ Use three stages for a revision of Open Dough guidance:
 
 | Stage | Meaning and location |
 | --- | --- |
-| **Proposed** | Drafted or extracted under `src/skills/<name>/`, outside the declared client payload. Recognition records stay beside the skill as maintenance material. |
+| **Proposed** | Drafted under `src/skills/<name>/`, outside the declared client payload. |
 | **Promoted** | Reviewed and selected by a maintainer for the next release. Files stay in place; promotion adds the skill and required runtime dependencies to `install.sh`'s `managed_files` and the matching declaration in `src/install/open-dough-release-version.sh`. Keep payload fixtures aligned. |
 | **Released** | Included in the client payload at an immutable version tag available from the source repository. Clients can install that tagged content. Source files outside that tag's payload remain Proposed even if present in the snapshot. |
 
 Promotion requires the representative behavior review in `AGENTS.md` and the
 applicable delivery checks under ADR 0005. Payload declarations and release tags
-establish stage; do not maintain a separate status registry. Recognition records
-describe review evidence, not a competing lifecycle status. For an already
+establish stage; do not maintain a separate status registry. For an already
 declared skill, edits begin as Proposed changes; maintainer selection after
 review promotes that revision without re-adding its paths. Its earlier released
 revision remains Released.
@@ -55,7 +54,7 @@ public only for accessibility.
 - A release's identity, content, and description can be matched. A branch edit
   becomes available to client projects when a new version is tagged and published
   through Git.
-- Extraction creates Proposed guidance. Promotion selects the complete runtime
+- Authoring under `src/skills/` creates Proposed guidance. Promotion selects the complete runtime
   dependency set without copying it to a separate staging directory. Release
   makes that selection available to client projects.
 - Installation-record paths, helper layout, and native skill adaptation are

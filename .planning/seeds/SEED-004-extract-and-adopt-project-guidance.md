@@ -60,8 +60,9 @@ tasks do not. A non-Donut walkthrough can reproduce a defect, confirm the test
 fails for the right reason, make the smallest repair, and run related proof
 using project-supplied commands without relying on Donut-specific context.
 
-**Depends on:** Story 9's completed direct-extraction workflow. Access to the
-current Donut skill is an extraction input, not a runtime dependency.
+**Depends on:** Access to the current Donut skill as source input, not a
+runtime dependency. Author the shared skill under `src/skills/` using
+[AGENTS.md](../../AGENTS.md).
 
 <a id="guide-useful-manual-testing"></a>
 
@@ -293,7 +294,7 @@ repair, not removal of checks for genuinely missing inputs or a redesign of
 planning and execution policy. Apply the same review to related headings,
 examples, and linked runtime instructions so the confusion does not survive
 outside `SKILL.md`. “Client project” remains appropriate in internal maintainer
-guidance and recognition records when describing Open Dough's consumers.
+guidance when describing Open Dough's consumers.
 
 Edit the shared distributable sources only. Do not hand-edit installed managed
 copies in `.agents/skills/` or `.claude/skills/`. Exclude a global repository
@@ -356,7 +357,8 @@ the source skills. Apply it to one selected story in its existing seed.
 that the owner can review. Include the skill in the next useful release.
 **Effort:** M, medium confidence; assumes the supplied practice is self-contained
 with its directly referenced guidance.
-**Depends on:** The source practice and Story 9's direct extraction workflow.
+**Depends on:** The source practice. Author the shared skill under `src/skills/`
+using [AGENTS.md](../../AGENTS.md).
 
 <a id="extract-story-decomposition"></a>
 
@@ -371,8 +373,9 @@ seed and queue the useful next story.
 has a rough effort estimate. Manual work is considered when choosing scope.
 Include the skill in the next useful release.
 **Effort:** M, medium confidence; assumes one bounded problem.
-**Depends on:** The source practice and Story 9. Select when an actual problem
-needs decomposition.
+**Depends on:** The source practice. Author the shared skill under `src/skills/`
+using [AGENTS.md](../../AGENTS.md). Select when an actual problem needs
+decomposition.
 
 <a id="adopt-known-client-projects"></a>
 
@@ -402,7 +405,7 @@ fixture remain maintainer-owned follow-ups.
 
 ## Ordering
 
-Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
+Story 5 is complete. Story 12 is complete in source.
 Story 14 is done. Story 15 is selected. Story 22 is a newly captured
 extraction opportunity. Story 6 remains a later extraction reuse opportunity
 after higher-priority queued work.
@@ -410,15 +413,6 @@ Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
 client/task needs.
 
 ## Delivered capabilities
-
-<a id="extract-directly-with-guidelines"></a>
-
-### 9. Extract a project skill directly into unreleased source
-
-**Status:** Complete.
-**Goal and scope:** One extraction request yields a reviewable shared skill under
-`src/skills/` with concise recognition; generalization and review stay manual.
-Publication, client delivery, and particular Donut extractions remain separate.
 
 <a id="generalize-project-guidance"></a>
 

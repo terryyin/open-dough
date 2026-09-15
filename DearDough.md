@@ -68,7 +68,7 @@ required review or proof.
     Bundled document reads in this retrospective repeated the truncation.
   - Observed effect: Requested guidance was not fully visible in those outputs,
     and additional context reads were performed for the same single-slice work.
-  - Inference: Load required references once, then select sections for concrete
+  -     Inference: Load required references once, then select sections for concrete
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.

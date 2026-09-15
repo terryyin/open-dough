@@ -53,8 +53,8 @@ native_result_finalize_journey() {
     native_result_print_tool_identity
     printf 'fixture-tag: v%s\n' "${delivery_update_version}"
     printf 'fixture-commit: %s\n' "${delivery_source_revision:-unknown}"
-    printf 'bootstrap-tag: v%s\n' "${delivery_bootstrap_version}"
-    printf 'bootstrap-commit: %s\n' "${delivery_bootstrap_revision:-unknown}"
+    printf 'baseline-tag: v%s\n' "${delivery_baseline_version}"
+    printf 'baseline-commit: %s\n' "${delivery_baseline_revision:-unknown}"
     printf 'update-prompt-identity: %s\n' \
       "$(printf '%s' "${update_prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
     printf 'use-prompt-identity: %s\n' \

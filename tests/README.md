@@ -18,13 +18,11 @@ checks. Native invocation and behavior claims stay pending
 Prior-evidence values are `none` or `unreviewed <path>`. Listing cannot print a
 certified/passing reuse verdict.
 
-Fixed inventory (five cases per host `codex`, `cursor`, `claude`):
+Fixed inventory (three cases per host `codex`, `cursor`, `claude`):
 
 - `context/clear`
 - `context/conflict`
-- `delivery/legacy-refusal` — recognized; **unavailable** for selected launch
-- `delivery/ordinary-update` — recognized; **unavailable** for selected launch
-- `delivery/updated-use` — after inspected bootstrap, ordinary no-URL update from recorded `SOURCE` then fresh use on the same verified target; both stages share one attempt
+- `delivery/updated-use` — after a verified older current-contract install, ordinary no-URL update from recorded `SOURCE` then fresh use on the same verified target; both stages share one attempt
 
 ## `tests/dough-adr-awareness-context.sh`
 
@@ -81,29 +79,19 @@ tests/dough-adr-awareness-<host>-delivery-to-use.sh --native
 tests/dough-adr-awareness-<host>-delivery-to-use.sh --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
-No arguments: current deterministic cheap check (fixture mismatch, supplied-source
-`--force` bootstrap that writes `SOURCE`, ordinary no-URL helper update from that
-record, preservation). It does not run native refusal and does not
-certify native refusal. Native loading and no-URL skill behavior stay pending. `--native` with no extra arguments is the full
-three-session journey. Legacy-refusal prompts keep `$dough-update` and the
-source URL; they do not coach contracts, refusal, or facts to repeat.
-Assessment is the shared automatic check: the incompatible contract prevents
-the update and target/source stay unchanged. Unresolved refusal prose stays
-inconclusive for documented review (SEED-007 Story 3). `--list` prints that
-host's three delivery cases. `--native` plus junk, or an unknown `--case`,
-fails before `delivery_prepare_fixture`. `delivery/legacy-refusal` and
-`delivery/ordinary-update` are recognized and unavailable for selected launch
-(fail before setup). `--native --case delivery/updated-use` is the combined
+No arguments: current deterministic cheap check (older current-contract install that writes `SOURCE`, ordinary no-URL helper update from that record, preservation). Native loading and no-URL skill behavior stay pending. `--native` with no extra arguments is the full two-session journey (ordinary update then fresh use). `--list` prints that
+host's delivery case. `--native` plus junk, or an unknown `--case`,
+fails before `delivery_prepare_fixture`. `--native --case delivery/updated-use` is the combined
 ordinary no-URL update from recorded `SOURCE` then fresh use journey in one
-attempt. Inspected bootstrap remains supplied-source `--force` and is not the
-ordinary update. Codex, Cursor, and Claude Code each launch it through the
+attempt. Setup installs only the older tagged current-contract payload; the
+ordinary update establishes the newer release. Codex, Cursor, and Claude Code each launch it through the
 shared journey helpers and that host's command/event
 adapter (`native_run_context_command`). `--deadline` and `--grace` apply to
 both supervised stages (defaults 3600 and 15). A writable `--results-dir DIR`
 retains both stages under `DIR/<host>/delivery/updated-use/<attempt-id>/`,
 prints `result-path:`, and deletes scratch. Failed update starts no use; failed
 use retains the successful update and the use failure. The selected path does
-not run native legacy refusal and does not retry.
+not retry.
 
 ### Retained selected journey evidence
 
@@ -123,7 +111,7 @@ directory, not at live workspace bytes. Current retained contents:
 
 Record fields used for applicability: `host`, `case`, `native-version-command`,
 `native-version`, `adapter-identity`, `helper-identity`, `fixture-identity`,
-`fixture-tag`, `bootstrap-tag`, `update-prompt-identity`, `use-prompt-identity`,
+`fixture-tag`, `baseline-tag`, `update-prompt-identity`, `use-prompt-identity`,
 and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 `cursor --version`. Adapter identities are `tests/support/native-codex.sh`,
 `cursor-agent-stream-json`, and `claude-stream-json`. Codex activity uses
@@ -147,19 +135,9 @@ native invocation or behavior.
   once (expected real transition, catalog/ARC-12 conflict stop, wrong
   bytes/version, protected writes, stale-target use, failed update with a
   success claim). Does not launch a native session.
-- `tests/native-legacy-refusal.sh` — shared refusal examples once (unchanged
-  trees plus a genuine refusal; unrelated execution failure; a refusal claim
-  accompanied by writes). Automatic checks cover those cases; unresolved
-  prose stays inconclusive for documented review. Does not launch a native
-  session and does not add a selected `delivery/legacy-refusal` path. Cheap
-  wrappers and these examples do not certify native refusal. Story 3 still
-  needs representative native refusal evidence per tool: invocation or
-  application, intended behavior, and affected install/update/coexistence or
-  justified reuse.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
-  no-argument wrapper checks run independently; selected
-  `delivery/legacy-refusal` and `delivery/ordinary-update` stay unavailable.
+  no-argument wrapper checks run independently.
 - `tests/native-result-retention.sh` — selected context runs with recorded PATH
   substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
   runtime identity comes from `cursor agent --version`. An unwritable
@@ -189,8 +167,8 @@ native invocation or behavior.
   evidence. Both stages stay in one attempt after scratch cleanup. Ordinary
   prompts; assessment uses observed state and
   the shared conflict stop. Failed update starts no use; failed use retains
-  the successful update and the use failure. The invocation log has no legacy
-  refusal and no retry. Supervisor `--deadline`/`--grace` are accepted on the
+  the successful update and the use failure. The invocation log has no
+  retry. Supervisor `--deadline`/`--grace` are accepted on the
   selected path.
 - `tests/native-delivery-updated-use-adapters.sh` — Cursor and Claude Code
   `--native --case delivery/updated-use` through the same shared journey. Each

@@ -29,12 +29,9 @@ native_case_print_usage() {
       printf '   or: %s --native\n' "${native_case_entry}"
       printf '   or: %s --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]\n' \
         "${native_case_entry}"
-      printf 'CASE is delivery/legacy-refusal, delivery/ordinary-update, or delivery/updated-use.\n'
-      printf '%s\n' \
-        'delivery/legacy-refusal and delivery/ordinary-update are recognized and unavailable for selected launch.'
+      printf 'CASE is delivery/updated-use.\n'
       printf '%s\n' \
         'delivery/updated-use is the combined ordinary no-URL update then fresh use journey in one attempt.'
-      printf 'Selected --case does not launch the full three-session --native journey.\n'
       ;;
     *)
       printf 'error: internal error: unknown wrapper %s\n' \
@@ -54,10 +51,6 @@ native_case_fail() {
   printf 'error: %s\n' "$1" >&2
   native_case_print_usage >&2
   exit 2
-}
-
-native_case_reject_unavailable_selected() {
-  native_case_fail "selected case '${native_case_id}' is recognized and unavailable for selected launch"
 }
 
 native_case_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)

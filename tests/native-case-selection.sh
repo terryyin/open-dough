@@ -52,28 +52,14 @@ done
 [[ $(grep -c '^case: context/clear$' <<< "${context_listing}" || true) -eq 3 ]]
 [[ $(grep -c '^case: context/conflict$' <<< "${context_listing}" || true) -eq 3 ]]
 
-assert_record "${codex_listing}" codex delivery/legacy-refusal \
-  'v0.2.0' 'prior-evidence: none' 'dependencies: none' 'unavailable'
-assert_record "${codex_listing}" codex delivery/ordinary-update \
-  'inspected bootstrap' 'newer local tagged fixture' \
-  'not a native legacy-refusal' 'unavailable'
 assert_record "${codex_listing}" codex delivery/updated-use \
   'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
-assert_record "${cursor_listing}" cursor delivery/legacy-refusal \
-  'v0.2.0' 'unavailable'
-assert_record "${cursor_listing}" cursor delivery/ordinary-update \
-  'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${cursor_listing}" cursor delivery/updated-use \
   'ordinary no-URL' 'recorded SOURCE' 'one attempt'
-assert_record "${claude_listing}" claude delivery/legacy-refusal \
-  'v0.2.0' 'unavailable'
-assert_record "${claude_listing}" claude delivery/ordinary-update \
-  'inspected bootstrap' 'not a native legacy-refusal' 'unavailable'
 assert_record "${claude_listing}" claude delivery/updated-use \
   'ordinary no-URL' 'recorded SOURCE' 'one attempt' 'dependencies: none'
 
 for listing in "${codex_listing}" "${cursor_listing}" "${claude_listing}"; do
-  grep -Fq 'unavailable for selected launch' <<< "${listing}"
   grep -Fq 'combined ordinary no-URL update then fresh use journey in one attempt' <<< "${listing}"
 done
 
@@ -84,11 +70,6 @@ for host_listing in \
   updated_use_record=$(record_for "${listing}" "${host}" delivery/updated-use)
   if grep -Fq 'attempt ID' <<< "${updated_use_record}"; then
     echo "FAIL: ${host} delivery/updated-use listing still depends on an attempt ID." >&2
-    printf '%s\n' "${updated_use_record}" >&2
-    exit 1
-  fi
-  if grep -Fq 'delivery/ordinary-update' <<< "${updated_use_record}"; then
-    echo "FAIL: ${host} delivery/updated-use listing still depends on a separate ordinary-update case." >&2
     printf '%s\n' "${updated_use_record}" >&2
     exit 1
   fi
@@ -119,7 +100,7 @@ record_for "${unreviewed_listing}" cursor context/conflict \
 assert_invalid "${context_wrapper}" --native zed clear
 assert_invalid "${context_wrapper}" --native cursor fog
 assert_invalid "${context_wrapper}" --native cursor --case not-a-case
-assert_invalid "${context_wrapper}" --native cursor --case delivery/legacy-refusal
+assert_invalid "${context_wrapper}" --native cursor --case delivery/updated-use
 assert_invalid "${context_wrapper}" --bogus
 assert_invalid "${context_wrapper}" --list --native cursor clear
 assert_invalid "${context_wrapper}" --list --deadline 3600
@@ -134,18 +115,7 @@ assert_invalid "${codex_wrapper}" --native --case not-a-case
 assert_invalid "${codex_wrapper}" --native --case context/clear
 assert_invalid "${codex_wrapper}" --native --unknown
 assert_invalid "${cursor_wrapper}" --native extra
-assert_invalid "${claude_wrapper}" --case delivery/legacy-refusal
-assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal --bogus
-
-# Recognized selected delivery --case: unavailable stages fail before setup.
-# Selected delivery/updated-use launch is covered by the adapter proofs.
-assert_invalid "${codex_wrapper}" --native --case delivery/legacy-refusal
-grep -Fq 'unavailable for selected launch' "${stderr_file}"
-assert_invalid "${codex_wrapper}" --native --case delivery/ordinary-update
-grep -Fq 'unavailable for selected launch' "${stderr_file}"
-assert_invalid "${cursor_wrapper}" --native --case delivery/legacy-refusal
-assert_invalid "${cursor_wrapper}" --native --case delivery/ordinary-update
-assert_invalid "${claude_wrapper}" --native --case delivery/legacy-refusal
-assert_invalid "${claude_wrapper}" --native --case delivery/ordinary-update
+assert_invalid "${claude_wrapper}" --case delivery/not-a-case
+assert_invalid "${codex_wrapper}" --native --case delivery/not-a-case --bogus
 
 echo 'PASS: native case listing and invalid selection stay off the native path.'
