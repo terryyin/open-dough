@@ -23,17 +23,12 @@ assert_watched_empty() {
   fi
 }
 
-assert_no_legacy_or_retry() {
+assert_no_retry() {
   local log=$1
   local host=$2
   local launch_count=$3
   local launch
 
-  if grep -Eiq 'refus|incompatible smaller|three-file' "${log}"; then
-    echo "FAIL: ${host} invocation log contained a legacy-refusal prompt." >&2
-    cat "${log}" >&2
-    return 1
-  fi
   launch=$(print_launch "${host}")
   if [[ $(grep -cF "${launch}" "${log}" || true) -ne ${launch_count} ]]; then
     echo "FAIL: expected ${launch_count} ${host} supervised launches, no retry." >&2
@@ -95,8 +90,6 @@ assert_attempt_layout() {
 
   [[ -d ${attempt} ]]
   [[ ${attempt} == "${results_dir}/${host}/delivery/updated-use/"* ]]
-  [[ ! -e ${results_dir}/${host}/delivery/ordinary-update ]]
-  [[ ! -e ${results_dir}/${host}/delivery/legacy-refusal ]]
   [[ ! -e ${attempt}/adopter ]]
   [[ ! -e ${attempt}/candidate ]]
 }
@@ -125,7 +118,7 @@ assert_adapter_success() {
 
   assert_attempt_layout "${host}" "${success}"
   assert_record_identity "${host}" "${success}"
-  assert_no_legacy_or_retry "${run_log}" "${host}" 2
+  assert_no_retry "${run_log}" "${host}" 2
   grep -Fq -- '--output-format stream-json' "${run_log}"
   grep -Fq "$(version_command_for "${host}")" "${run_log}"
   if [[ ${host} == 'cursor' ]]; then
@@ -164,7 +157,7 @@ assert_adapter_payload_abort() {
 
   assert_attempt_layout "${host}" "${aborted}"
   assert_record_identity "${host}" "${aborted}"
-  assert_no_legacy_or_retry "${run_log}" "${host}" 1
+  assert_no_retry "${run_log}" "${host}" 1
   [[ ${aborted} != "${success}" ]]
   grep -Fq 'execution-status: completed' "${aborted}/record"
   grep -Fq 'update-execution: completed' "${aborted}/observations.txt"
@@ -192,7 +185,7 @@ assert_adapter_truncated() {
 
   assert_attempt_layout "${host}" "${truncated}"
   assert_record_identity "${host}" "${truncated}"
-  assert_no_legacy_or_retry "${run_log}" "${host}" 1
+  assert_no_retry "${run_log}" "${host}" 1
   [[ ${truncated} != "${success}" ]]
   grep -Fq 'execution-status: incomplete' "${truncated}/record"
   grep -Fq 'execution-reason: truncated terminal stream' "${truncated}/record"

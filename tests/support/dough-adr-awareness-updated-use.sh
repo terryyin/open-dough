@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Combined delivery/updated-use journey: inspected bootstrap, then ordinary
-# no-URL update from recorded SOURCE, then fresh use in one attempt. Each host
-# wrapper launches this helper; stage files and observations stay host-agnostic
-# via ${delivery_platform}. Inspected bootstrap is supplied-source --force and
-# is not the ordinary update.
+# Combined delivery/updated-use journey: verified older current-contract
+# install, then ordinary no-URL update from recorded SOURCE, then fresh use in
+# one attempt. Each host wrapper launches this helper; stage files and
+# observations stay host-agnostic via ${delivery_platform}. Setup installs only
+# the older tagged payload; the ordinary update establishes the newer release.
 # shellcheck disable=SC2034,SC2154,SC2312 # Wrappers and retention consume these globals.
 
 delivery_update_outcome=unrun
@@ -90,7 +90,7 @@ delivery_build_journey_observations() {
     companion_preserved=true
   fi
   if [[ ${delivery_update_outcome} == 'exited' &&
-    ${delivery_version_before} == "${delivery_bootstrap_version}" &&
+    ${delivery_version_before} == "${delivery_baseline_version}" &&
     ${delivery_version_after} == "${delivery_update_version}" &&
     ${delivery_improvement_after} == 'true' &&
     ${delivery_update_before} != "${delivery_update_after}" ]]; then
@@ -175,9 +175,7 @@ delivery_run_selected_updated_use() {
   fi
 
   delivery_prepare_fixture
-  delivery_assert_legacy_install
-  delivery_bootstrap_candidate
-  delivery_publish_improved_release
+  delivery_assert_baseline_install
   delivery_capture_update_state
 
   platform=${delivery_platform}
@@ -193,7 +191,7 @@ delivery_run_selected_updated_use() {
   use_transcript="${stage_prefix}-use.jsonl"
   use_stderr="${stage_prefix}-use-stderr.log"
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
-  update_prompt="Use ${dollar}dough-update for an ordinary newer-release update of this inspected-bootstrap installation. Follow the installed updater. Do not force. Do not invoke ADR awareness."
+  update_prompt="Use ${dollar}dough-update for an ordinary newer-release update of this installation. Follow the installed updater. Do not force. Do not invoke ADR awareness."
   # shellcheck disable=SC2016 # The dollar sign is the native skill invocation.
   use_prompt="Use ${dollar}dough-adr-awareness. Assess whether work may switch telemetry history to per-node files. Do not edit files."
 

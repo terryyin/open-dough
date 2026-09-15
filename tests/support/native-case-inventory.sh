@@ -8,8 +8,6 @@
 native_case_hosts=(codex cursor claude)
 native_case_context_ids=(context/clear context/conflict)
 native_case_delivery_ids=(
-  delivery/legacy-refusal
-  delivery/ordinary-update
   delivery/updated-use
 )
 
@@ -55,23 +53,9 @@ native_case_print_description() {
         "${host}"
       printf 'dependencies: none\n'
       ;;
-    delivery/legacy-refusal)
-      printf 'Refuse an incompatible smaller candidate against a genuine v0.2.0 three-file install without changing files.\n'
-      printf 'setup: Genuine v0.2.0 three-file %s payload and a two-skill candidate with a smaller installed-payload contract.\n' \
-        "${host}"
-      printf 'dependencies: none\n'
-      printf 'selected-launch: unavailable\n'
-      ;;
-    delivery/ordinary-update)
-      printf 'Perform an ordinary newer-release update of an inspected-bootstrap install.\n'
-      printf 'setup: Inspected bootstrap of the current two-skill updater plus a newer local tagged fixture on %s.\n' \
-        "${host}"
-      printf 'dependencies: inspected bootstrap and newer local tagged fixture; not a native legacy-refusal result\n'
-      printf 'selected-launch: unavailable\n'
-      ;;
     delivery/updated-use)
-      printf 'After inspected bootstrap, ordinary no-URL newer-release update from recorded SOURCE, then a fresh use session on that same verified target.\n'
-      printf 'setup: Isolated %s target with supplied-source --force inspected bootstrap and a newer local tagged fixture; ordinary no-URL update from recorded SOURCE and use are stages of one attempt.\n' \
+      printf 'After a verified older current-contract install, ordinary no-URL newer-release update from recorded SOURCE, then a fresh use session on that same verified target.\n'
+      printf 'setup: Isolated %s target with the older tagged current-contract payload and recorded SOURCE, plus a newer local tagged fixture; ordinary no-URL update from recorded SOURCE and use are stages of one attempt.\n' \
         "${host}"
       printf 'dependencies: none\n'
       printf 'selected-launch: combined ordinary no-URL update then fresh use in one attempt\n'

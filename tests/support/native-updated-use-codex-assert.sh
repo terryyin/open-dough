@@ -20,15 +20,10 @@ assert_watched_empty() {
   fi
 }
 
-assert_no_legacy_or_retry() {
+assert_no_retry() {
   local log=$1
   local exec_count=$2
 
-  if grep -Eiq 'refus|incompatible smaller|three-file' "${log}"; then
-    echo 'FAIL: invocation log contained a legacy-refusal prompt.' >&2
-    cat "${log}" >&2
-    return 1
-  fi
   if [[ $(grep -c 'codex exec --' "${log}" || true) -ne ${exec_count} ]]; then
     echo "FAIL: expected ${exec_count} supervised exec launches, no retry." >&2
     cat "${log}" >&2
@@ -42,8 +37,6 @@ assert_single_attempt() {
 
   [[ -d ${attempt} ]]
   [[ ${attempt} == "${results_dir}/codex/delivery/updated-use/"* ]]
-  [[ ! -e ${results_dir}/codex/delivery/ordinary-update ]]
-  [[ ! -e ${results_dir}/codex/delivery/legacy-refusal ]]
   [[ ! -e ${attempt}/adopter ]]
   [[ ! -e ${attempt}/candidate ]]
   [[ ! -e ${attempt}/codex-state ]]

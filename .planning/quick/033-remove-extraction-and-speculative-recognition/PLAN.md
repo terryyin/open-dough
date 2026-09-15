@@ -15,6 +15,11 @@
   - integration target: `main`
 - Follow the installed `dough-execute-plan` workflow: accept focused proof,
   independently refactor, and deliver coherent slices with CI repair.
+- CI: GitHub Actions workflow `ci.yml` display name `CI` on
+  `terryyin/open-dough` branch
+  `quick/033-remove-extraction-and-speculative-recognition`. Host-bridge
+  readiness (`CI_MONITOR_READY`) was not added after probe; observation was
+  not armed. Pushed `9440969f9f86b39cbb338f6082ed571876d9389f` is unobserved.
 - No numeric slice target, hard limit, or S/M/L definitions were supplied.
   Size by one outcome and proof loop, including cleanup. Reassess a slice before
   delivery if a new consumer or fixture dependency makes it multi-outcome.
@@ -123,7 +128,7 @@ references are dispersed. Do not turn that search into a new permanent audit.
 
 ### 2. Exercise ordinary update followed by useful ADR guidance
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a disposable project with a verified older declared payload and
 recorded SOURCE, the delivery fixture updates from that source and exercises the
@@ -329,3 +334,29 @@ Native proof remains subject to the explicit evidence rule above.
   0.1.2 fixtures; older install then apply from remembered SOURCE. Observations:
   upgraded payload and runtime entrypoints; remaining `RECOGNITION.md`
   omission; collision/edit/--force and host-hook refusal.
+
+- Recording `SOURCE` during the older `install.sh --source` is what lets the
+  later no-URL apply pin the newer tag. A force bootstrap is no longer part of
+  this journey.
+- `tests/native-legacy-refusal.sh` had no independent current-baseline
+  consumer; it was deleted rather than renamed.
+- Payload-root checks in this journey now follow installer
+  `all_destinations_for` instead of a parallel platform map.
+
+### Slice 2 accepted proof
+
+- Setup installs only the older tagged current-contract payload with recorded
+  SOURCE; improvement text is absent from that install and present on source
+  HEAD. `delivery_prepare_fixture` uses `write_candidate_payload` /
+  `tag_release` / `checkout_tagged_release`.
+- Ordinary no-URL update establishes VERSION `0.2.2` and the ADR improvement
+  while preserving companion integration:
+  `bash tests/dough-adr-awareness-codex-delivery-to-use.sh`,
+  `bash tests/dough-adr-awareness-cursor-delivery-to-use.sh`,
+  `bash tests/dough-adr-awareness-claude-delivery-to-use.sh` pass.
+- Selected inventory and combined journey:
+  `bash tests/native-case-selection.sh`,
+  `bash tests/native-delivery-updated-use.sh`,
+  `bash tests/native-delivery-updated-use-adapters.sh` pass.
+- Native `--native` sessions remain pending under the plan evidence rule;
+  previous recognition-bearing transition evidence is not reused.
