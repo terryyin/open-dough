@@ -72,20 +72,3 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
-
-## DD-007 — Cursor CI probe without host-bridge readiness left coverage unavailable
-
-The Cursor CI observer probe completed and printed an observer directory, but
-the host never emitted `CI_MONITOR_READY`. Coverage was therefore never
-armed, and every subsequent push for this execution remained unobserved.
-
-### Occurrences
-
-- Execution: `SEED-014#remove-extraction-and-speculative-recognition @ 9440969`
-  - Timestamp: unknown
-  - Tool: Cursor
-  - Model: Cursor Grok 4.6
-  - Open Dough release: 0.3.21
-  - Evidence: Probe stdout included `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-MsRtPB"}` and no `CI_MONITOR_READY`. Pushed commits `1ba03d0`, `9440969`, `53c064f`, `a9c3f4a`, and `3f75092` have no observer-backed CI result. `docs/maintainer/finding-names.md` has no matching CI_MONITOR_READY or host-bridge-readiness issue.
-  - Observed effect: Delivery continued without CI observation. Pending GitHub Actions status for this branch is unobserved; observer shutdown had no armed observer to close.
-  - Inference: Probe receipt of an observer directory is not host-bridge readiness. Without `CI_MONITOR_READY`, do not treat CI as watched. This is coverage unavailability, not a product defect of the extraction/recognition removal. No decisive match to an existing local ODF or adopted finding-name was found.
