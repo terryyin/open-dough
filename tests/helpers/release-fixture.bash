@@ -10,6 +10,7 @@ if ((${#managed_files[@]} == 0)); then
 fi
 
 # shellcheck source=tests/helpers/path-state-snapshot.bash
+# shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/path-state-snapshot.bash"
 
 git_identity() {
