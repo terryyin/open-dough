@@ -23,6 +23,11 @@ in the product backlog.
   after Slice 1 with no unread evidence and `pendingCi: unobserved`.
 - Current CI observer: Codex yielded cell `35`, stream session `55144`, mailbox
   `/tmp/dough-ci-501/watch-7eHXCN`, PID `64527`, coordinator `root`; repository,
+  branch, workflow, and execution checkout unchanged. Stopped during the Slice
+  2 CI repair with both recorded failures accounted for and `pendingCi:
+  unobserved`.
+- Current CI observer: Codex yielded cell `56`, stream session `15863`, mailbox
+  `/tmp/dough-ci-501/watch-fuzCmU`, PID `49630`, coordinator `root`; repository,
   branch, workflow, and execution checkout unchanged.
 
 ## Goal and scope
@@ -232,6 +237,16 @@ Accepted proof (2026-09-15):
 Learning: run and attempt identifiers are opaque values, so shared attempt keys
 use tuple serialization rather than delimiter concatenation. Later coverage,
 diagnostic, and deduplication work must preserve that identity rule.
+
+CI repair (2026-09-15): GitHub runs `34934932399` at `44995eb` and
+`34935086435` at `afd7ffc` passed lint and the 71/71 execution runtime boundary,
+then failed `tests/dough-update-guidance-payload.sh` because the newly managed
+`ci-command-adapter.mjs` path was absent from the installation guide's complete
+payload enumeration. The guide now names that path; the focused test passes.
+At Terry Yin's direction, the same repair removes its obsolete recognition
+transition note and legacy-bootstrap section while deferring the guide's
+remaining over-250-line refactor. Slice 3 remains planned and was paused before
+making changes, so this repair invalidated none of its proof.
 
 ### 3. Report the actual pushed revision's coverage
 

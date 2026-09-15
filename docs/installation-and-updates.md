@@ -31,6 +31,7 @@ The payload in each root is exactly:
 - `dough-execute-plan/references/execution-decisions.md`
 - `dough-execute-plan/references/runtime-setup.md`
 - `dough-execute-plan/references/wrap-up.md`
+- `dough-execute-plan/scripts/ci-command-adapter.mjs`
 - `dough-execute-plan/scripts/ci-failures.mjs`
 - `dough-execute-plan/scripts/ci-host-hook.mjs`
 - `dough-execute-plan/scripts/ci-mailbox-store.mjs`
@@ -52,8 +53,7 @@ The payload in each root is exactly:
 The source files live under `src/skills/`. Recognition records, extraction reviews, source checksums, and test fixtures
 are source-only maintenance material and are not installed. Installation preserves
 unrelated project files, home-level guidance, and any other tool's separate
-installation. During this interim release boundary, an obsolete recognition
-file from an earlier installation may remain until a later update retires it.
+installation.
 
 Installation and ordinary update register the managed host-hook entries from the
 execution skill fragments into `.cursor/hooks.json` and `.claude/settings.json`
@@ -303,20 +303,6 @@ inspected latest payload, then `SOURCE` and `VERSION`, including edited,
 incomplete, equal, or newer files. It does not merge changes or commit
 automatically. Review a resulting diff and start a fresh session in the same
 tool to use replaced guidance.
-
-## Legacy bootstrap
-
-An older installed updater may authorize only replacement of its own `SKILL.md`
-and must refuse the expanded multi-skill installer. Do not bypass or reinterpret
-that refusal as success. A known older installation that lacks `SOURCE` needs
-one inspected supplied-source `--force` bootstrap. Follow the
-[same safe installation procedure](#common-installation-flow), then run the
-inspected helper `apply --url <source-url> --target <project> --platform
-<tool> --checkout <snapshot> --force` with the invoking-tool hint. That writes
-the payload plus `SOURCE` then `VERSION` in all roots. Afterward ordinary helper calls omit
-`--url` and resolve the release from the `SOURCE` that force wrote.
-The old updater cannot perform a migration it correctly refuses. Start a fresh
-session before invoking the newly installed updater.
 
 ## Contributor checks
 
