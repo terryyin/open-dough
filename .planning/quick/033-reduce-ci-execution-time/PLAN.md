@@ -26,9 +26,9 @@ concurrency, or established cross-tool solution.
 - Integration target and authorized destination: `main` via `origin`; deliver the execution branch to `origin` before integration.
 - Prior CI observer stopped after Slice 5 profiling when Git became unavailable: Codex cell `21`, session `91396`, former PID `43121` absent, receipt `/tmp/dough-ci-501/watch-pX5OCG`, coordinator `root`, repository `terryyin/open-dough`, workflow `ci.yml` / `CI`, terminal state `stopped`, no unread events, `pendingCi: unobserved`.
 - Runtime restored: Apple Git 2.50.1 with `xcode-select` at `/Library/Developer/CommandLineTools`.
-- Second CI observer stopped at the Slice 7 decision boundary: Codex cell `55`, session `45708`, former PID `31323` absent, receipt `/tmp/dough-ci-501/watch-vaTHR9`; its sole unread event was the already repaired `7c31ba6` lint failure, and newer CI remained unobserved. Rearmed before correction delivery: active Codex cell `103`, session `2980`, PID `62869`, receipt `/tmp/dough-ci-501/watch-jWjvFt`.
+- Second CI observer stopped at the Slice 7 decision boundary: Codex cell `55`, session `45708`, former PID `31323` absent, receipt `/tmp/dough-ci-501/watch-vaTHR9`; its sole unread event was the already repaired `7c31ba6` lint failure. Correction-delivery observer cell `103`, session `2980`, former PID `62869` absent, receipt `/tmp/dough-ci-501/watch-jWjvFt`, stopped cleanly with no unread events and `pendingCi: unobserved`. Final delivery observer: Codex cell `117`, session `41685`, PID `73576`, receipt `/tmp/dough-ci-501/watch-qGCH3n`.
 
-One human-owned choice remains open: CI elapsed time from execution start until all required checks complete, excluding queue time (recommended), versus total runner time across jobs. Select the metric and repeat/aggregation procedure before claiming a CI baseline or ratio; local work is not blocked.
+Human selection on 2026-09-15: CI duration is elapsed time from the earliest required job start until the latest required job completion, excluding queue time; acceptance compares medians of three successful baseline and three successful final runs.
 
 Local comparisons use literal `/usr/bin/time -p npm test` after runtime setup in ordinary runner mode. Record revision, runtime, filters/workers, cache/fixture conditions, wall time, and an honestly labelled count. CI comparisons use successful comparable baseline/final runs and record URL, commit, workflow/event, job times, setup/cache, metric, and aggregation. Shell invocations are not behavioral cases; failed/incomplete runs are diagnostics, and pairs are not cherry-picked.
 
@@ -46,10 +46,10 @@ Local comparisons use literal `/usr/bin/time -p npm test` after runtime setup in
 - Twenty-three release-fixture consumers remain an investigation lead, not consolidation evidence. Process review of the optimization skill remains required.
 - The three adapter-specific public-payload checks are structurally similar, but fresh literal `/usr/bin/time -p bash` runs passed in 0.92 seconds for Codex, 0.89 for Cursor, and 0.93 for Claude Code. Their 2.74-second aggregate cost is immaterial to suite runtime, so no proof consolidation is planned there.
 - `tests/install-all-tools.sh` had the accepted 36.80-second focused baseline. Its entry loop gives Codex, Cursor, and Claude fresh-install proof, then repeated missing-registration repair and final no-op checks. Platform-hint semantics and common two-root operation support retaining every-entry fresh installation, one shared missing-entry repair, Claude's distinct missing-file repair, and one shared final no-op; this was an experiment, not redundancy inferred from counts.
-- CI candidate only: successful main-push run `https://github.com/terryyin/open-dough/actions/runs/34917070078` at `7bb6a0fad86d799179c0c93655cd5805964d71ee` used Ubuntu 24.04, Node 24, npm caching, `npm ci`, and parallel lint/test jobs. No duration is selected while metric/aggregation remains open.
+- CI acceptance: three latest successful pre-optimization main pushes under unchanged Ubuntu 24.04/Node 24, npm cache, `npm ci`, and parallel lint/test jobs measured [592s](https://github.com/terryyin/open-dough/actions/runs/34915424537) at `0850c70`, [761s](https://github.com/terryyin/open-dough/actions/runs/34915675364) at `ec570ee`, and [736s](https://github.com/terryyin/open-dough/actions/runs/34917070078) at `7bb6a0f`; median 736s. Three latest successful final-code branch pushes under the same workflow measured [232s](https://github.com/terryyin/open-dough/actions/runs/34926273641) at `1eec17b`, [233s](https://github.com/terryyin/open-dough/actions/runs/34926384805) at `d8e2198`, and [242s](https://github.com/terryyin/open-dough/actions/runs/34926780775) at `0b0a787`; median 233s. Final/baseline is 0.3166: 31.66% of baseline and 68.34% faster, strictly below 0.5. Queue was excluded through job timestamps; setup/cache, parallelism, revisions, and variability are disclosed.
 - Comparable re-profile after Slice 5: at `fb037fc5eb057adffa6b8853e34fd66b11a9150e`, literal `/usr/bin/time -p npm test` passed: `real 566.59`, `user 270.40`, `sys 212.54`, on baseline macOS/Node/npm, cache, fixture, and sequential-run conditions with 48 tests plus self-installation (49 invocations). This is 56.27 seconds/9.03% faster than baseline but 25.51 seconds slower than Slice 4. `/usr/bin/time -p bash tests/install-all-tools.sh` passed in 30.11 seconds (`user 15.18`, `sys 11.68`), within 0.32 seconds of its accepted focused result and 6.69 faster than its 36.80 baseline. Retain both: the whole-suite regression is unexplained variability, not lost focused saving, and no favorable pair is the result.
 - Comparable re-profile after Slice 6: at `7c31ba6`, literal `/usr/bin/time -p npm test` passed: `real 325.75`, `user 112.01`, `sys 150.30`, on macOS 26.6.2 arm64 with Node 24.5.0/npm 11.5.1, warm dependencies/cache, fresh per-test temporary fixtures, and the ordinary sequential runner with no filters or workers. Discovery selected 48 tests plus self-installation (49 shell invocations, not behavioral cases). This is 297.11 seconds/47.70% faster than the 622.86 baseline and lower than every retained post-change observation without selecting a favorable pair, satisfying the story's local-improvement promise. The story's strict ratio applies to CI, not this local measurement.
-- A bounded follow-up measured replacement-failure reporting at 11.55 seconds total, host-hook installation at 10.10, and the execution-observer family at 17.11. Their distinct proof and lifecycle contracts supplied no justified further local consolidation. These remain strategy evidence, not a local acceptance blocker; CI metric/aggregation and acceptance remain unresolved.
+- A bounded follow-up measured replacement-failure reporting at 11.55 seconds total, host-hook installation at 10.10, and the execution-observer family at 17.11. Their distinct proof and lifecycle contracts supplied no justified further local consolidation. These remain strategy evidence, not a local acceptance blocker.
 - The remaining installer/update bound rejected `tests/install.sh`: its fresh 4.87 seconds was immaterial. `tests/update-skip-verified.sh` passed in 36.87 seconds, but its distinct complete/semantic no-op, missing-entry, missing-file, and conflict outcomes leave no evidenced comparable scenario removal. Repeated exact state snapshots instead exposed shared support cost.
 - `tests/self-installation-baseline.sh` passed in 56.92 seconds (`user 33.72`, `sys 17.87`); its fresh repositories and matching/malformed/drift/collision outcomes remain required. Shared `snapshot_path_state` launches `shasum` per regular file and has 88 static sites across 15 installer/update consumers; counts locate cost, not redundant proof or predicted savings. On the unchanged checkout, disposable batching produced byte-identical `cmp` output for 1,992 entries while reducing one snapshot from 19.254 to 0.314 seconds. Raw output stayed outside Git: this supports an exact-output experiment, not yet focused or suite improvement.
 - CI repair: run `34925471087` at `7c31ba6` passed tests but lint found SC1091 on the new helper source. The targeted suppression now passes ShellCheck and `npm run lint`; Slice 7 subsequently passed.
@@ -61,7 +61,7 @@ Local comparisons use literal `/usr/bin/time -p npm test` after runtime setup in
 Type: Behavior
 Status: done
 
-Behavior: Profiling of the unchanged suite produced the comparable baseline, matching-condition CI candidate with metric-dependent proof pending, and two evidenced exact-repeat experiments. Product behavior stayed unchanged; the 622.86-second diagnostic loop stopped once useful experiments were found.
+Behavior: Profiling of the unchanged suite produced the comparable local baseline, CI baseline candidates later accepted by Slice 8, and two evidenced exact-repeat experiments. Product behavior stayed unchanged; the 622.86-second diagnostic loop stopped once useful experiments were found.
 
 ### 2. Developers do not run the superseded update journey twice
 
@@ -219,25 +219,24 @@ Observed result: the literal command passed at `7c31ba6` in 325.75 seconds with 
 ### 8. CI feedback completes in less than half the baseline
 
 Type: Behavior
-Status: planned; blocked until the human selects the CI metric and aggregation
+Status: done
 
-Behavior: Comparable successful baseline and final workflow runs under the selected procedure show post-change CI execution strictly below 0.5 of baseline, with queue time, parallel jobs, setup/cache conditions, revisions, and variability handled consistently. A ratio of 0.5 or higher remains incomplete.
+Behavior: Comparable successful baseline and final workflow runs under the selected procedure show post-change CI execution strictly below 0.5 of baseline, with queue time, parallel jobs, setup/cache conditions, revisions, and variability handled consistently. Accepted result: 233s / 736s = 0.3166.
 
 Every experiment follows hypothesize -> measure -> retain/revise/undo -> reassess.
 Establish replacement proof first; use no skips, focus markers, weakened
 assertions, or retry masking. Refine this plan in place for multiple loops or
-uncertain boundaries. Final comparable CI acceptance remains required now that
-local improvement is established.
+uncertain boundaries.
 
 ## Proof ownership and lifecycle
 
 | Promise | Owner and observable evidence |
 | --- | --- |
 | Comparable local baseline | Slice 1: recorded revision/setup, `scripts/test.sh` discovery, literal command, 622.86 seconds, honest count |
-| Comparable CI baseline | Later metric-dependent slice after human metric/aggregation selection; discovered run remains a candidate |
+| Comparable CI baseline | Slice 8: three disclosed successful pre-optimization runs, median 736 seconds under the selected procedure |
 | Preserve confidence | Slices 2-5 retain their mapped behavior; Slice 6 preserves exact snapshots with parity/failure controls and all 15 consumers |
 | Improve ordinary wall time | Slice 7: accepted 325.75-second result versus 622.86 baseline, with intermediate variability retained |
-| CI time strictly below half | Slice 8: comparable CI baseline/final ratio under the human-selected procedure |
+| CI time strictly below half | Slice 8: final median 233 seconds / baseline median 736 = 0.3166 |
 | Learn from real skill use | Automatic retrospective, including requested optimization-process review |
 
 Use focused proof per change and widen for shared consumers. Preserve this plan,
