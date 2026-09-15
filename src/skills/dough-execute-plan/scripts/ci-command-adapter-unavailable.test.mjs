@@ -18,7 +18,7 @@ import { watchCiExecution } from "./watch-ci.mjs";
 import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 const observer = fileURLToPath(new URL("./watch-ci.mjs", import.meta.url));
-const checkedSha = "e".repeat(40);
+const checkedSha = "e".repeat(40).toUpperCase();
 
 function unavailableFixture(t, mode) {
   const root = mkdtempSync(join(tmpdir(), "ci-adapter-unavailable-test-"));
@@ -39,6 +39,7 @@ appendFileSync(${JSON.stringify(requests)}, JSON.stringify(request) + '\\n');
 const mode = ${JSON.stringify(mode)};
 if (mode === 'invalid-json') process.stdout.write('{');
 else if (mode === 'unknown-status') process.stdout.write(JSON.stringify({ attempts: [{ runId: 'run', attemptId: 'attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'mystery' }] }));
+else if (mode === 'malformed-sha') process.stdout.write(JSON.stringify({ attempts: [{ runId: 'run', attemptId: 'attempt', sha: 'not-a-full-sha', outcome: 'failure' }] }));
 else if (mode === 'failed-command') { process.stderr.write('endpoint unavailable '.repeat(100)); process.exitCode = 2; }
 else if (mode === 'timeout' || mode === 'blocking') {
   writeFileSync(${JSON.stringify(pid)}, String(process.pid));
@@ -63,6 +64,7 @@ async function observeUnavailable(t, mode) {
   const fixture = unavailableFixture(t, mode);
   const events = [];
   let ghCalls = 0;
+  let coverageCalls = 0;
   await watchCiExecution({
     repo: "owner/project",
     branch: "feature/custom",
@@ -70,22 +72,28 @@ async function observeUnavailable(t, mode) {
     adapterTimeoutMs: 250,
     sleep: async () => undefined,
     emit: (event) => events.push(event),
+    observeCoverage: () => {
+      coverageCalls += 1;
+      return [];
+    },
     gh: async () => {
       ghCalls += 1;
       return [];
     },
   });
-  return { ...fixture, events, ghCalls };
+  return { ...fixture, events, ghCalls, coverageCalls };
 }
 
 for (const mode of [
   "invalid-json",
   "unknown-status",
+  "malformed-sha",
   "failed-command",
   "timeout",
 ]) {
   test(`${mode} loses custom observation once without fallback`, async (t) => {
-    const { events, ghCalls, requests } = await observeUnavailable(t, mode);
+    const { events, ghCalls, coverageCalls, requests } =
+      await observeUnavailable(t, mode);
     assert.deepEqual(
       events.map(({ type }) => type),
       ["CI_MONITOR_UNAVAILABLE"],
@@ -93,6 +101,7 @@ for (const mode of [
     assert.ok(events[0].reason.length <= 600);
     assert.equal("workflow" in events[0], false);
     assert.equal(ghCalls, 0);
+    assert.equal(coverageCalls, 0);
     assert.equal(readFileSync(requests, "utf8").trim().split("\n").length, 3);
   });
 }

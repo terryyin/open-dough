@@ -10,6 +10,16 @@ at implementation commit `c748b9d`, completes its candidate payload at
 `08d8eb2`, and releases it as `v0.3.21` at `1996670`.
 Status: planned. This retrospective authorizes planning only, not execution.
 
+## Execution identity
+
+- Mode: direct current branch, selected by Terry Yin because this correction has one slice.
+- Originating and execution checkout: `/Users/terryyin/git/open-dough`.
+- Originating and execution branch: `main`.
+- Integration and push target: `origin/main`.
+- CI observer: Codex yielded cell `13`, session `27539`, directory
+  `/tmp/dough-ci-501/watch-Lbhlq5`, PID `54772`, coordinator
+  `root-quick-035`, GitHub workflow `ci.yml` / `CI`.
+
 ## Goal and scope
 
 A project whose custom CI command returns malformed revision text receives one
@@ -49,7 +59,7 @@ classification nor established by this finding.
 ### 1. Reject an invalid checked revision at the adapter boundary
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a configured custom adapter whose discovery response otherwise
 looks like a failed attempt but whose `sha` is not a full 40-character
@@ -81,3 +91,24 @@ No separate Structure slice or protocol redesign is justified.
 
 No remaining slice-specific concern was identified. The established adapter
 normalization boundary and observer error policy directly own the correction.
+
+## Accepted execution proof
+
+- Promise: malformed custom adapter revisions cannot become CI failures or
+  coverage claims and do not fall back to GitHub.
+- Boundary: the public `watchCiExecution` path using a real executable custom
+  adapter, with revision validation in `ci-command-adapter.mjs` through the
+  shared `isFullGitRevision` rule in `ci-revisions.mjs`.
+- Setup and observations:
+  `ci-command-adapter-unavailable.test.mjs` creates the adapter response and
+  asserts one bounded `CI_MONITOR_UNAVAILABLE`, three discovery requests, no
+  `CI_FAILURE`, zero coverage calls, and zero GitHub calls. Its existing valid
+  diagnostic path exercises an uppercase full revision; the adapter regression
+  suite retains lowercase and all valid outcome states.
+- Command: `node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-command-adapter-unavailable.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter-failures.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-coverage.test.mjs`
+- Result: passed 24 tests after independent refactoring.
+
+## Execution learning
+
+Full Git revision identity is shared domain knowledge across adapter acquisition
+and revision-coverage persistence, so both now use one authoritative rule.
