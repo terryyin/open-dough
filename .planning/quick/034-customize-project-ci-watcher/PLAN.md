@@ -251,7 +251,7 @@ making changes, so this repair invalidated none of its proof.
 ### 3. Report the actual pushed revision's coverage
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: After successful execution delivery registers SHA A, the observer
 reports A uncovered when only B has a CI result; it records A pending/success
@@ -271,6 +271,33 @@ routine push wrap-up. Lost push registration reports a coverage limitation.
 Stopping point / sizing: Accurate revision coverage even without diagnostics.
 One revision-coverage rule; connecting successful pushes to observer state is
 this slice's main integration concern.
+
+Accepted proof (2026-09-15):
+
+- `ci-revision-coverage.test.mjs` creates a temporary repository and bare
+  remote, pushes ordinary revision A and repair revision C before invoking the
+  production `ci-mailbox.mjs register-push` command, and never prepopulates the
+  coverage store. A green attempt for SHA B leaves A uncovered after the bounded
+  three-poll discovery delay without producing `CI_FAILURE`; an exact pending
+  then successful A attempt updates A while producing no success notification.
+  The same observer tracks C, and shutdown reports its pending state as unproved.
+- The focused watcher, adapter, mailbox, and revision journey passed 32/32 after
+  the independent refactor and formatter. `bash tests/execution-ci-runtime.sh`
+  passed 73/73, `bash tests/execution-payload-update.sh` passed, and
+  `git diff --check` passed.
+- Delivery guidance resolves the full SHA immediately before an ordinary or
+  repair push and registers it only after confirmed push success. Registration
+  failure is explicitly lost coverage; delivery still performs no synchronous
+  CI wait. Persistent pending/success state stays in the mailbox coverage store,
+  while the one bounded missing-attempt transition publishes
+  `CI_COVERAGE_UNAVAILABLE`.
+- The independent refactor consolidated revision outcome selection without
+  changing the public boundary. Formatting exposed and the coordinator repaired
+  one unused-fixture-parameter lint error and one 251-line expansion. Every
+  touched implementation and test file is now at or below 250 lines.
+
+Learning: expected-revision coverage must be registered from confirmed delivery;
+run discovery alone cannot prove that a pushed revision was ever checked.
 
 ### 4. Deliver useful bounded failure evidence
 

@@ -8,9 +8,10 @@ launching.
 
 Start one observer per repository/branch/coordinator before the first push,
 where branch is the selected execution branch, and reuse it across normal and
-repair pushes. The observer discovers later pushes; a changed SHA does not
-require new setup. Push success closes routine delivery without waiting for CI
-or deployment.
+repair pushes. Register each delivered revision through
+[slice delivery](wrap-up.md#deliver-the-change); the observer continues discovery
+after later pushes, and a changed SHA does not require new setup. Push success
+closes routine delivery without waiting for CI or deployment.
 
 Bind the observer to the selected execution location. Observe that branch and
 use that checkout for every pause, stash, repair, delivery, and restoration

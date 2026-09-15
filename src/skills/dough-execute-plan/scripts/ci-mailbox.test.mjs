@@ -19,6 +19,7 @@ import {
   readMailbox,
   readMailboxEvents,
   readWorkerIdentity,
+  registerPushedRevision,
   recordWorkerIdentity,
   requestMailboxStop,
   runMailboxWorker,
@@ -130,6 +131,26 @@ test("a stop requested before worker startup does not start observation", async 
   assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
     status: "stopped",
     coverage: { state: "ended", pendingCi: "unobserved" },
+    evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
+  });
+});
+
+test("shutdown reports a registered but unchecked revision as unproved", async (t) => {
+  const { directory, options } = createTestMailbox(t, { mode: "execution" });
+  const sha = "d".repeat(40);
+  registerPushedRevision(directory, sha);
+  requestMailboxStop(directory, options);
+  await runMailboxWorker(directory, {
+    ...options,
+    observe: async () => assert.fail("observation should not start"),
+  });
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
+    status: "stopped",
+    coverage: {
+      state: "ended",
+      pendingCi: "unobserved",
+      unproved: [{ sha, state: "unchecked" }],
+    },
     evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
   });
 });

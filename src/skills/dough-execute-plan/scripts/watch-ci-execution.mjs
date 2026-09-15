@@ -27,6 +27,7 @@ export async function watchCiExecution({
   maxDurationMs = executionBudgetMs,
   now = Date.now,
   root = process.cwd(),
+  observeCoverage = () => [],
 }) {
   if (typeof branch !== "string" || !branch.trim())
     throw new Error("Execution CI observation requires a branch");
@@ -85,6 +86,8 @@ export async function watchCiExecution({
       } else {
         consecutiveErrors = 0;
       }
+      for (const coverageEvent of await observeCoverage(matching))
+        await emit(coverageEvent);
       const incomplete = matching.find(
         (run) =>
           run.status === "completed" &&
