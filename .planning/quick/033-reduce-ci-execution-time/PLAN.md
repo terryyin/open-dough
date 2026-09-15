@@ -169,7 +169,7 @@ all three success paths remain. Focused proof passed in 34.82 seconds versus
 ### 5. Repeated installation lifecycle proof runs only where behavior differs
 
 Type: Behavior
-Status: planned; depends on Slice 4
+Status: done
 
 Behavior: `tests/install-all-tools.sh` still proves that Codex, Cursor, and Claude
 entry hints each perform a fresh complete two-root installation with both host
@@ -201,6 +201,10 @@ force, unsafe-topology, and old-root update scenarios remain unchanged.
   otherwise revise or undo only this experiment. Record exact operations removed,
   surviving proof, terminal timing, and whether the result changes the credible
   strategy for the 229.65-second remaining local gap.
+
+Outcome: every fresh entry path and distinct repair remains; Cursor owns the
+shared final no-op. Focused proof passed after refactoring in 29.79 seconds
+versus 36.80, a 7.01-second (19.0%) retained reduction.
 
 ### 6. Developers can reassess the remaining installer/update cost
 
