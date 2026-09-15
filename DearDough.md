@@ -72,35 +72,3 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
-
-- Execution: `SEED-004#extract-test-optimization-and-plan-open-dough @ ccebbfb`
-  - Timestamp: 2026-09-15T12:05:43+08:00
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.20
-  - Evidence: This retrospective bundled six large changed test/helper files;
-    the result was truncated, so a targeted aggregate diff was read afterward.
-  - Observed effect: Review needed an additional read to recover the relevant
-    implementation boundaries.
-
-## DD-007 — Ambiguous time-target guidance conflates local and CI acceptance
-
-`dough-test-optimization` is explicitly local, but its reassessment instruction
-says to compare against a supplied time target without stating that only a local
-target belongs to that loop. A task with a separate CI target can therefore turn
-that external threshold into an unintended local acceptance gate.
-
-### Occurrences
-
-- Execution: `SEED-004#extract-test-optimization-and-plan-open-dough @ ccebbfb`
-  - Timestamp: 2026-09-15T11:48:22+08:00
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.20
-  - Evidence: Story 21 requires CI below 0.5 but only local improvement; the
-    plan from `b569bfc` instead applied 311.43s locally, and `d8e2198` stopped
-    after the improved 325.75s run before `0b0a787` restored the story boundary.
-  - Observed effect: Three additional small test families were timed and the
-    execution paused for an unnecessary local-strategy decision.
-  - Inference: Bind the skill's gap comparison to a selected local target and
-    keep external CI/system acceptance metrics separate.

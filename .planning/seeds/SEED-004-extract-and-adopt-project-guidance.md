@@ -17,91 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="extract-test-optimization-and-plan-open-dough"></a>
-
-### 21. Reduce Open Dough's CI execution time to less than half
-
-**Status:** Planned; CI timing metric awaiting clarification.
-
-**Slice plan:** [Reduce CI execution time](../quick/033-reduce-ci-execution-time/PLAN.md).
-
-**Goal:** Open Dough developers receive trustworthy CI feedback in less than
-half the current execution time by using the installed `dough-test-optimization`
-skill to optimize this project's tests. Real use also supplies evidence for
-improving the new skill through the story's process retrospective.
-
-**Scope:** Extraction and installation of the test optimization skill are
-already complete, as confirmed by the maintainer on 2026-09-15. Use the installed
-skill on Open Dough's own test suite, following its profiling, behavioral-family
-analysis, measured experiments, verification, and re-profiling workflow.
-The story's delivery outcome includes the implemented, measured optimization;
-the 2026-09-15 planning request authorizes the slice plan only. Profiling belongs
-to execution, where the optimization skill updates that same active plan with
-evidence-backed experiments instead of creating a nested optimization plan.
-
-Establish a successful pre-change baseline before optimization, then demonstrate
-that comparable post-change CI execution time is strictly below 50% of that
-baseline. Preserve revision, commands, selected checks, runner/concurrency,
-cache conditions, and run evidence so the comparison can be assessed. Account
-for run variability rather than accepting a favorable isolated run; select and record the
-measurement procedure during execution before accepting timing results. Preserve the current checks' behavioral
-protection and confidence, with replacement proof established before removing
-redundant cases. Skipped checks or weaker assertions do not establish success.
-
-The installed skill requires ordinary local before/after wall-time measurement
-and improvement. Retain that evidence as well as the CI comparison: local or
-focused test speedups alone do not prove the CI target. The current CI runs
-`lint` and `test` in parallel; evaluate the agreed CI metric across the relevant
-checks, including setup, rather than assuming test duration determines it.
-Use test optimization as the main intervention. If evidence shows the target
-requires a consequential scope or confidence trade-off, surface that decision
-instead of silently weakening the goal.
-
-Explicitly include process review in the eventual execution retrospective,
-with special attention to `dough-test-optimization`. Retain enough actual
-execution evidence to assess which guidance helped or hindered bottleneck
-selection, experiment design, preservation of behavioral proof, reassessment
-against the time target, and comparable measurement. In particular, assess how
-its local-feedback focus served this CI outcome. Record supported process
-findings through the existing retrospective workflow in `DearDough.md`; report
-no actionable finding when warranted rather than manufacturing feedback.
-
-**Key examples:**
-
-- Given a comparable successful CI baseline of 10 minutes, the optimized run
-  must take less than 5 minutes under the agreed measurement procedure.
-  Exactly 5 minutes does not satisfy the target.
-- Given focused tests become much faster but the agreed overall CI measure
-  remains at 60% of baseline, the story's timing goal remains unmet; use the
-  evidence to reassess the strategy.
-- Given several cases repeat the same behavioral protection, establish the
-  surviving proof and measure the whole selected scope, including replacement
-  tests, before claiming a saving from removing redundancy.
-- Given the skill steers useful experiments or causes avoidable work, the
-  retrospective cites those actual decisions and outcomes and proposes
-  evidence-backed guidance improvements where appropriate, independently of
-  whether the CI target was met.
-
-**Evaluation:** Comparable successful CI evidence establishes a post-change /
-pre-change time ratio below 0.5, ordinary local re-profiling demonstrates
-improvement, retained behavioral proof supports confidence, and the process
-retrospective explicitly assesses the test optimization skill from real use.
-An inconclusive measurement or missed target remains incomplete even if useful
-partial improvements and feedback have been obtained.
-
-**Depends on:** The extracted skill is already installed in Open Dough.
-No further extraction or access to Donut is required.
-
-**Deferred:** Implementing changes to the reusable skill from retrospective
-feedback, broader CI infrastructure work unrelated to the measured bottlenecks,
-and optimization of other projects. These require their own selected work.
-
-**Open question:** Does CI execution time mean elapsed time from CI execution
-starting until all required checks finish, excluding queue time (recommended
-for feedback speed), or total runner time consumed across jobs? Confirm before
-selecting the baseline and acceptance measurement. No baseline duration is
-claimed by this refinement.
-
 <a id="extract-narrow-bug-fixing"></a>
 
 ### 22. Extract a narrowly triggered bug-fixing workflow
@@ -488,9 +403,9 @@ fixture remain maintainer-owned follow-ups.
 ## Ordering
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
-Story 14 is done. Story 15 is selected. Story 21 is the highest-priority queued
-work, with Story 22 as the next newly captured extraction opportunity. Story 6
-remains a later extraction reuse opportunity after higher-priority queued work.
+Story 14 is done. Story 15 is selected. Story 22 is a newly captured
+extraction opportunity. Story 6 remains a later extraction reuse opportunity
+after higher-priority queued work.
 Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
 client/task needs.
 
