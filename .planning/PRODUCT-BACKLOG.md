@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Customize execute-plan's CI watcher for a project's own CI server](quick/034-customize-project-ci-watcher/PLAN.md) — SEED-011
-
 ## Backlog list
 - [Reject malformed custom CI revisions before classification](quick/035-reject-malformed-custom-ci-revisions/PLAN.md)
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004

@@ -2,10 +2,12 @@
 
 ## Source and provenance
 
-Bounded correction from the execution retrospective for
-[SEED-011 Story 1](../../seeds/SEED-011-customize-project-ci-watcher.md#customize-project-ci-watcher).
-The reviewed execution begins at implementation commit `c748b9d`, completes its
-candidate payload at `08d8eb2`, and releases it as `v0.3.21` at `1996670`.
+Bounded correction from the execution retrospective for Story 34, whose source
+is recoverable at
+`2ba6d834651aebb9f0e58741146783eab11dc95b:.planning/seeds/SEED-011-customize-project-ci-watcher.md`
+under the `customize-project-ci-watcher` anchor. The reviewed execution begins
+at implementation commit `c748b9d`, completes its candidate payload at
+`08d8eb2`, and releases it as `v0.3.21` at `1996670`.
 Status: planned. This retrospective authorizes planning only, not execution.
 
 ## Goal and scope
@@ -79,4 +81,3 @@ No separate Structure slice or protocol redesign is justified.
 
 No remaining slice-specific concern was identified. The established adapter
 normalization boundary and observer error policy directly own the correction.
-
