@@ -10,6 +10,7 @@ clear transitions.
 ## Taken
 
 ## Backlog list
+- [Minimize and prove AI involvement in CI watching](seeds/SEED-013-minimize-and-prove-ci-watcher-ai-involvement.md#minimize-and-prove-ci-watcher-involvement) — SEED-013
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
 - [Release the standalone client installation and update workflow](seeds/SEED-001-install-and-update-open-dough.md#standalone-client-update) — SEED-001
