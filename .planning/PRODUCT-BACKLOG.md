@@ -8,7 +8,6 @@ execution, delivery, retrospective, and closure with coherent skills and
 clear transitions.
 
 ## Taken
-- [Reject malformed custom CI revisions before classification](quick/035-reject-malformed-custom-ci-revisions/PLAN.md)
 
 ## Backlog list
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004
