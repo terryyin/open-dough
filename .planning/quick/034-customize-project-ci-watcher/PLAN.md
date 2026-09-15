@@ -381,7 +381,7 @@ failure.
 ### 6. Carry custom failure evidence into the existing repair workflow
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A custom failure reaches the execution coordinator through its current
 host bridge at a safe boundary with sufficient evidence for existing repair,
@@ -404,6 +404,36 @@ applicable ADR 0005 gates without requiring a real external CI server.
 Stopping point / sizing: Custom evidence uses the established lifecycle. One
 notification journey; assess each changed host difference under ADR 0005,
 reusing unchanged host evidence only with an explicit applicability reason.
+
+Accepted proof (2026-09-15):
+
+- A temporary project installs the real candidate skill and launches an actual
+  custom adapter. Cursor and Claude hook processes attach, stay quiet before an
+  event, deliver the failure once to the existing `ci-monitor` repair entry
+  point, and remain quiet after acknowledgement. The Codex stream carries the
+  same event and retains unread shutdown evidence.
+- Every path preserves the exact failed SHA, opaque run/attempt identity, and a
+  16 KiB truncated diagnostic containing adversarial instruction text as
+  untrusted JSON data. GitHub workflow/job fields are absent. The adapter sees
+  only `discover` then `diagnose`; a later repair SHA registers on the same
+  observer, and shutdown reports the expected delivered/unread and unchecked
+  coverage state.
+- The focused host/guidance suite passed 5/5 after the independent fixture
+  refactor and formatter. The maintained runtime passed 85/85, payload-update
+  proof passed, and `git diff --check` passed. No production bridge change was
+  needed; provider specificity is confined to setup, acquisition, and initial
+  classification.
+- ADR 0005 native applicability is satisfied by the deterministic candidate
+  fixture across all three adapters, existing native evidence for the unchanged
+  host mechanisms, and the smallest fresh Codex read-only walkthrough of the
+  changed shared guidance. That walkthrough selected custom CI without GitHub
+  prerequisites, treated the diagnostic as data, and used the one existing
+  ancestry-aware repair and later-SHA registration flow. No additional native
+  matrix is warranted for unchanged host-specific behavior.
+
+Learning: the existing host lifecycle is provider-neutral; only setup,
+acquisition, and the first evidence-classification step need provider-specific
+knowledge.
 
 ### 7. Install a usable customization manual and preserve project choices
 
