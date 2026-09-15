@@ -3,9 +3,10 @@
 ## Source and authority
 
 [SEED-011 Story 1](../../seeds/SEED-011-customize-project-ci-watcher.md#customize-project-ci-watcher).
-Status: execution in progress; configuration location resolved; Slice 1
-delivered. User request on 2026-09-15 authorizes execution. The story is Taken
-in the product backlog.
+Status: execution complete; configuration location resolved; all eight slices
+delivered. User request on 2026-09-15 authorizes execution and explicitly
+authorizes publishing version 0.3.21 from `main`. The story is Taken in the
+product backlog pending retrospective and wrap-up.
 
 ## Execution identity
 
@@ -26,9 +27,13 @@ in the product backlog.
   branch, workflow, and execution checkout unchanged. Stopped during the Slice
   2 CI repair with both recorded failures accounted for and `pendingCi:
   unobserved`.
-- Current CI observer: Codex yielded cell `56`, stream session `15863`, mailbox
+- Final CI observer: Codex yielded cell `56`, stream session `15863`, mailbox
   `/tmp/dough-ci-501/watch-fuzCmU`, PID `49630`, coordinator `root`; repository,
-  branch, workflow, and execution checkout unchanged.
+  branch, workflow, and execution checkout unchanged. Stopped cleanly after
+  release publication with `pendingCi: unobserved`. Its one unread record was
+  the already-accounted run `34935086435` failure at SHA `afd7ffc`, repaired by
+  commit `07929e0`; it was acknowledged after shutdown without starting another
+  repair.
 
 ## Goal and scope
 
@@ -488,7 +493,7 @@ adapter protocol into installation evidence instead of relying on prose alone.
 ### 8. Make the tested customization available in a release
 
 Type: Behavior
-Status: planned; maintainer version and release authority required
+Status: done
 
 Behavior: A project can obtain the tested adapter support and manual from the
 maintainer-selected immutable release through the ordinary updater.
@@ -501,6 +506,28 @@ remain applicable. Do not hand-synchronize this repository's managed copies.
 
 Stopping point / sizing: Released usable capability; no provider expansion or
 new release system. One release/update proof loop with external release inputs.
+
+Accepted proof (2026-09-15):
+
+- Terry Yin selected `0.3.21`, authorized publication, and required the release
+  to be finalized on `main`. The story branch fast-forwarded cleanly into
+  `main`; `bash scripts/check-self-installation.sh` passed there before release
+  metadata was written.
+- Release commit `19966702fa5d0c2d2f713082123b1118efb245ff` contains matching
+  `VERSION` and newest-first `CHANGELOG.md` metadata. Annotated tag `v0.3.21`
+  is available from `origin` and peels to that exact commit; remote `main`
+  points to the same commit at publication.
+- The ordinary remote release resolver selected `v0.3.21` and its exact commit.
+  A clean Codex-platform installation from the released source installed
+  version `0.3.21`, the command-adapter runtime, and the standalone manual in
+  both managed roots without creating `.planning/open-dough.json`. Candidate
+  update proof remains applicable because the released payload is the exact
+  accepted content plus release metadata and already proved byte-preserving
+  project configuration behavior.
+- The isolated verification checkout intentionally contained only the fetched
+  tag, so rerunning the repository self-check there could not find prior tag
+  `v0.3.20`; this is not release-gate evidence. The required check had already
+  passed in the full `main` repository before metadata, commit, or tag creation.
 
 ## Verification, proof ownership, and delivery gates
 
