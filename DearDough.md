@@ -46,6 +46,22 @@ explicit contract in the focused CI runtime suite.
   - Inference: Selecting focused proof from file type instead of tracing the
     changed contract to maintained tests caused avoidable CI repair churn.
 
+- Execution: `SEED-011#customize-project-ci-watcher @ c748b9d`
+  - Timestamp: 2026-09-15T14:02:10+08:00
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: 0.3.20
+  - Evidence: Slice 2 added managed `ci-command-adapter.mjs` and passed the
+    runtime and update fixtures, but omitted the installation guide's complete
+    payload enumeration. GitHub runs `34934932399` and `34935086435` failed
+    `tests/dough-update-guidance-payload.sh`; repair `07929e0` added the missing
+    path and the focused check passed.
+  - Observed effect: Slice 3 paused while the same payload-documentation defect
+    was diagnosed and repaired after two failed branch runs.
+  - Inference: Proof selection followed runtime/update files without tracing the
+    new managed path to the maintained documentation contract, repeating this
+    finding's cross-file contract gap.
+
 ## ODF-006 — Oversized context reads obscure narrow execution inputs
 
 Former local code: DD-006.
@@ -72,3 +88,17 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
+
+- Execution: `SEED-011#customize-project-ci-watcher @ c748b9d`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: 0.3.20
+  - Evidence: After Slice 3 implementation, one combined command requested
+    status, aggregate statistics, seven full diffs, complete source files, and
+    cross-file searches. Its output exceeded the retained context and was
+    truncated; smaller targeted inspections were then rerun.
+  - Observed effect: The acceptance review repeated reads of the changed
+    boundaries before it could approve the slice.
+  - Inference: Combining unrelated acceptance questions into one oversized read
+    repeated this finding; the additional time and token cost were not measured.
