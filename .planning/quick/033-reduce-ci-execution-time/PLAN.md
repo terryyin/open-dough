@@ -113,7 +113,7 @@ took 622.86 seconds, and profiling stopped once useful experiments were found.
 ### 2. Developers do not run the superseded update journey twice
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The ordinary runner selects the all-tool installer/update journey
 once, preserving old-record upgrade, missing-sibling restoration, conflict,
@@ -131,6 +131,11 @@ force-repair, and no-op behavior.
   supports duplicate removal; otherwise undo this experiment and record its
   distinct responsibility. End with one passing canonical journey and no
   installer/updater product change.
+
+Outcome: removed only `tests/update-when-needed.sh`. The canonical journey
+passed before and after deletion in 37.10 and 36.80 seconds; its accepted
+assertions and `scripts/test.sh` discovery boundary are unchanged. Expected
+ordinary invocation count is now 49; Slice 4 owns whole-suite measurement.
 
 ### 3. Native case selection does not repeat default wrapper journeys
 
@@ -216,6 +221,8 @@ stops before review.
 - CI metric and aggregation are open; run 34917070078 is only a candidate.
 - The first two experiments nominally save about 61 seconds, so comparable
   re-profiling and a larger evidence-backed strategy remain necessary.
+- The update alias experiment retained its canonical proof and removed one
+  measured 40.48-second duplicate invocation.
 - Twenty-three release-fixture consumers are an investigation lead, not
   consolidation evidence.
 - Process review of the optimization skill is explicitly required.
