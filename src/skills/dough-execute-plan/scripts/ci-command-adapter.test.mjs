@@ -177,30 +177,13 @@ test("command acquisition retains opaque run and attempt identities across polls
   const [[pending], [success], [failure], [incomplete]] = polls;
 
   assert.deepEqual(
-    [pending, success, failure, incomplete].map(
-      ({
-        databaseId,
-        attempt,
-        headSha,
-        status,
-        conclusion,
-        url,
-        createdAt,
-      }) => ({
-        databaseId,
-        attempt,
-        headSha,
-        status,
-        conclusion,
-        url,
-        createdAt,
-      }),
-    ),
+    [pending, success, failure, incomplete],
     [
       {
         databaseId: "run:opaque",
         attempt: "attempt/first",
         headSha: checkedSha,
+        headBranch: "feature/custom",
         status: "in_progress",
         conclusion: null,
         url: "https://ci.example/run",
@@ -210,6 +193,7 @@ test("command acquisition retains opaque run and attempt identities across polls
         databaseId: "run:opaque",
         attempt: "attempt/retry",
         headSha: checkedSha,
+        headBranch: "feature/custom",
         status: "completed",
         conclusion: "success",
         url: "https://ci.example/run",
@@ -219,19 +203,17 @@ test("command acquisition retains opaque run and attempt identities across polls
         databaseId: "run:opaque",
         attempt: "attempt:failed",
         headSha: checkedSha,
+        headBranch: "feature/custom",
         status: "completed",
         conclusion: "failure",
-        url: undefined,
-        createdAt: undefined,
       },
       {
         databaseId: "run:opaque",
         attempt: "attempt:incomplete",
         headSha: checkedSha,
+        headBranch: "feature/custom",
         status: "completed",
         conclusion: "cancelled",
-        url: undefined,
-        createdAt: undefined,
       },
     ],
   );
