@@ -8,7 +8,6 @@ execution, delivery, retrospective, and closure with coherent skills and
 clear transitions.
 
 ## Taken
-- [Reduce Open Dough's CI execution time to less than half](quick/033-reduce-ci-execution-time/PLAN.md) — SEED-004
 
 ## Backlog list
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004

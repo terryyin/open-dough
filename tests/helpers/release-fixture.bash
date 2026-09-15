@@ -9,6 +9,10 @@ if ((${#managed_files[@]} == 0)); then
   return 1
 fi
 
+# shellcheck source=tests/helpers/path-state-snapshot.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/path-state-snapshot.bash"
+
 git_identity() {
   git -C "$1" config user.email 'fixture@example.com'
   git -C "$1" config user.name 'Open Dough Fixture'
@@ -95,30 +99,6 @@ build_current_tagged_release_fixture() {
 
   commit_all "${repo}" "release ${version} exact candidate"
   tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
-}
-
-snapshot_path_state() {
-  local root=$1
-  local path relative digest symlink_target
-
-  while IFS= read -r -d '' path; do
-    relative=${path#"${root}/"}
-    if [[ -L ${path} ]]; then
-      symlink_target=$(readlink "${path}")
-      printf 'symlink\t%s\t%s\n' "${relative}" "${symlink_target}"
-    elif [[ -f ${path} ]]; then
-      digest=$(shasum -a 256 "${path}")
-      printf 'file\t%s\t%s\n' "${relative}" "${digest%% *}"
-    elif [[ -d ${path} ]]; then
-      printf 'directory\t%s\n' "${relative}"
-    else
-      printf 'other\t%s\n' "${relative}"
-    fi
-  done < <(
-    # shellcheck disable=SC2312 # pipefail preserves failures across the sorted snapshot pipeline.
-    find "${root}" -mindepth 1 ! -path "${root}/.git" \
-      ! -path "${root}/.git/*" -print0 | LC_ALL=C sort -z
-  )
 }
 
 build_latest_fixture() {

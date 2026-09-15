@@ -93,46 +93,51 @@ for entry in codex cursor claude; do
   assert_managed_host_hooks "${target}"
   assert_no_git_commit "${target}" "${head_before}"
 
-  agents_payload_state=$(snapshot_path_state "${target}/.agents/skills")
-  claude_payload_state=$(snapshot_path_state "${target}/.claude/skills")
-  payload_mtimes=$(snapshot_payload_mtimes "${target}")
-  if [[ "${entry}" == claude ]]; then
-    rm -- "${target}/.cursor/hooks.json"
-  else
-    remove_one_cursor_managed_entry "${target}"
+  if [[ "${entry}" != codex ]]; then
+    agents_payload_state=$(snapshot_path_state "${target}/.agents/skills")
+    claude_payload_state=$(snapshot_path_state "${target}/.claude/skills")
+    payload_mtimes=$(snapshot_payload_mtimes "${target}")
+    if [[ "${entry}" == claude ]]; then
+      rm -- "${target}/.cursor/hooks.json"
+    else
+      remove_one_cursor_managed_entry "${target}"
+    fi
+
+    # Representative missing-entry repair and Claude's missing-file repair do
+    # not rewrite the shared payload.
+    repeat_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
+    [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
+    [[ "${repeat_output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
+    assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
+      "${payload_mtimes}" \
+      "${entry} repeat-install hook repair"
+    if [[ "${entry}" == claude ]]; then
+      [[ $(node "${source_dir}/src/install/open-dough-register-hooks.mjs" status \
+        "${target}" "${source_dir}") == complete ]]
+      assert_cursor_managed_commands "${target}"
+    else
+      assert_managed_host_hooks "${target}"
+    fi
+    assert_no_git_commit "${target}" "${head_before}"
   fi
 
-  # Repeat installation repairs missing registration without rewriting payload.
-  repeat_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
-  [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
-  [[ "${repeat_output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
-  assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
-    "${payload_mtimes}" \
-    "${entry} repeat-install hook repair"
-  if [[ "${entry}" == claude ]]; then
-    [[ $(node "${source_dir}/src/install/open-dough-register-hooks.mjs" status \
-      "${target}" "${source_dir}") == complete ]]
-    assert_cursor_managed_commands "${target}"
-  else
-    assert_managed_host_hooks "${target}"
+  if [[ "${entry}" == cursor ]]; then
+    # Once repaired, another installation is a full no-op, including mtimes.
+    target_before=$(snapshot_path_state "${target}")
+    payload_mtimes=$(snapshot_payload_mtimes "${target}")
+    cursor_mtime=$(file_mtime "${target}/.cursor/hooks.json")
+    claude_mtime=$(file_mtime "${target}/.claude/settings.json")
+    final_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
+    [[ "${final_output}" == *'already current; left unwritten.'* ]]
+    [[ "${final_output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
+    [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
+    assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
+      "${payload_mtimes}" \
+      "${entry} final repeat-install no-op"
+    [[ $(file_mtime "${target}/.cursor/hooks.json") == "${cursor_mtime}" ]]
+    [[ $(file_mtime "${target}/.claude/settings.json") == "${claude_mtime}" ]]
+    assert_no_git_commit "${target}" "${head_before}"
   fi
-  assert_no_git_commit "${target}" "${head_before}"
-
-  # Once repaired, another installation is a full no-op, including mtimes.
-  target_before=$(snapshot_path_state "${target}")
-  payload_mtimes=$(snapshot_payload_mtimes "${target}")
-  cursor_mtime=$(file_mtime "${target}/.cursor/hooks.json")
-  claude_mtime=$(file_mtime "${target}/.claude/settings.json")
-  final_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
-  [[ "${final_output}" == *'already current; left unwritten.'* ]]
-  [[ "${final_output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
-  [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
-  assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
-    "${payload_mtimes}" \
-    "${entry} final repeat-install no-op"
-  [[ $(file_mtime "${target}/.cursor/hooks.json") == "${cursor_mtime}" ]]
-  [[ $(file_mtime "${target}/.claude/settings.json") == "${claude_mtime}" ]]
-  assert_no_git_commit "${target}" "${head_before}"
 done
 
 # A sibling edit refuses the complete ordinary operation before any root changes;
@@ -241,4 +246,4 @@ fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 assert_managed_host_hooks "${update_target}"
 
-echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; repeat installation repairs missing registrations without payload writes and then becomes a full no-op; current-root malformed/conflicting settings still refuse; force repairs payload conflicts; unsafe hooks refuse before mutation; and one-root update restores missing integrations.'
+echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; Cursor repairs a missing managed entry and proves the final no-op; Claude repairs a missing settings file; both repairs preserve payload bytes and mtimes; current-root malformed/conflicting settings still refuse; force repairs payload conflicts; unsafe hooks refuse before mutation; and one-root update restores missing integrations.'
