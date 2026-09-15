@@ -1,3 +1,11 @@
+## 0.3.19 - 2026-09-15
+
+- Make product-backlog conflict resolution reconstruct concurrent lifecycle changes from the ancestor, current, and incoming versions, preserving sibling removals and requiring staged per-identity verification before a merge, rebase, or cherry-pick continues.
+- Route execution and Story Branch wrap-up through that conflict guidance as soon as a backlog conflict is detected, preserve unresolved conflicts when the installed reference is unavailable, and verify sibling backlog changes before completing integration.
+- Expand shared behavioral-test refactoring guidance for stable black-box boundaries, external-only mocks, focused assertions, parameterization, builders, and complete destructive fixtures. Clarify that execution observer shutdown does not wait for CI.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.19`. Acceptance for the changed backlog-conflict, behavioral-test, execution, and wrap-up guidance, together with previously pending behaviors, remains pending and is not reported as passing.
+
 ## 0.3.18 - 2026-09-14
 
 - Strengthen proof ownership before implementation. Inspect affected production callers of shared operations, distinguish their actual purposes, bind preservation claims to the intended installation, physical store, and predecessor, and obtain required pre-change observations before dependent changes invalidate them.
