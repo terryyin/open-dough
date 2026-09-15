@@ -1,3 +1,11 @@
+## 0.3.20 - 2026-09-15
+
+- Add `dough-test-optimization` to the installable payload with its optimization tactics and candidate-resolution guidance. Profile comparable local test runs, investigate related behavioral families, execute measured proof-preserving experiments, and distinguish demonstrated speedups from inconclusive or unsuccessful changes.
+- Support resolve-only triage of recorded optimization candidates without profiling or implementation. Preserve normal test and CI coverage, plan cheaper replacement proof where warranted, and leave consequential product, architecture, or confidence trade-offs for a human decision.
+- Align installer and update declarations, payload documentation, and fixtures so new installations and upgrades deliver the complete optimization guidance while protecting unrelated local files.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.20`. Acceptance for the new test-optimization behavior, together with previously pending behaviors, remains pending and is not reported as passing.
+
 ## 0.3.19 - 2026-09-15
 
 - Make product-backlog conflict resolution reconstruct concurrent lifecycle changes from the ancestor, current, and incoming versions, preserving sibling removals and requiring staged per-identity verification before a merge, rebase, or cherry-pick continues.
