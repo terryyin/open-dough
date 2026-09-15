@@ -1,3 +1,12 @@
+## 0.3.21 - 2026-09-15
+
+- Add an optional project-owned CI command adapter while preserving GitHub Actions as the empty or absent default. Commands run directly from the execution checkout, use bounded JSON discovery and diagnostic operations, and retain opaque run and attempt identities.
+- Track coverage from the exact revision recorded after each confirmed ordinary or repair push. Another SHA's green result cannot cover the delivered revision; pending and successful checks remain quiet, while missing coverage and observation failures remain explicit.
+- Carry locally filtered failure evidence through the existing asynchronous Codex, Cursor, and Claude Code host bridges. Diagnostic excerpts are limited to 16 KiB of UTF-8 text, raw logs remain outside agent context, repeated attempts are deduplicated, and unavailable evidence does not erase a known CI failure.
+- Ship the standalone `dough-execute-plan/manuals/custom-ci.md` adapter guide through fresh installations and updates while preserving `.planning/open-dough.json` exactly.
+
+Candidate acceptance covered the custom adapter process, exact-SHA coverage, bounded evidence, unchanged host delivery mechanisms across Codex, Cursor, and Claude Code, install/update behavior, and a fresh native Codex guidance walkthrough. Real Pygardon adapter authoring and use remain subsequent adoption work and are not claimed by this release.
+
 ## 0.3.20 - 2026-09-15
 
 - Add `dough-test-optimization` to the installable payload with its optimization tactics and candidate-resolution guidance. Profile comparable local test runs, investigate related behavioral families, execute measured proof-preserving experiments, and distinguish demonstrated speedups from inconclusive or unsuccessful changes.
