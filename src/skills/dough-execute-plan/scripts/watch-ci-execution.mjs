@@ -29,6 +29,7 @@ export async function watchCiExecution({
   now = Date.now,
   root = process.cwd(),
   observeCoverage = () => [],
+  adapterTimeoutMs,
 }) {
   if (typeof branch !== "string" || !branch.trim())
     throw new Error("Execution CI observation requires a branch");
@@ -46,7 +47,13 @@ export async function watchCiExecution({
   const reportedIncomplete = new Set();
   const adapter = readCiAdapter(root);
   const acquireRuns = adapter
-    ? createCommandRunAcquisition({ command: adapter, repo, branch, root })
+    ? createCommandRunAcquisition({
+        command: adapter,
+        repo,
+        branch,
+        root,
+        timeoutMs: adapterTimeoutMs,
+      })
     : createGitHubRunAcquisition({ repo, branch, startedAt, gh });
   const acquireFailure = adapter
     ? createCommandFailureAcquisition({
@@ -54,6 +61,7 @@ export async function watchCiExecution({
         repo,
         branch,
         root,
+        timeoutMs: adapterTimeoutMs,
       })
     : createGitHubFailureAcquisition({ repo, gh });
   let consecutiveErrors = 0;
@@ -79,16 +87,17 @@ export async function watchCiExecution({
         continue;
       }
 
-      const { event, observationError } = await acquireFailure(
-        matching,
-        observationSignal,
-      );
+      const { event, observationError, deferredFailureEvent } =
+        await acquireFailure(matching, observationSignal);
       if (event) {
         await emit(event);
       }
       if (observationError) {
         consecutiveErrors += 1;
-        if (consecutiveErrors === 3) throw new Error(observationError);
+        if (consecutiveErrors === 3) {
+          if (deferredFailureEvent) await emit(deferredFailureEvent);
+          throw new Error(observationError);
+        }
       } else {
         consecutiveErrors = 0;
       }

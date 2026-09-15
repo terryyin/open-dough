@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { ciAttemptKey } from "./ci-failures.mjs";
 
 const configurationPath = ".planning/open-dough.json";
-const adapterTimeoutMs = 20_000;
+const defaultAdapterTimeoutMs = 20_000;
 const adapterResponseBytes = 64 * 1024;
 export const diagnosticExcerptBytes = 16 * 1024;
 
@@ -24,12 +24,18 @@ export function readCiAdapter(root = process.cwd()) {
   return command;
 }
 
-export function createCommandRunAcquisition({ command, repo, branch, root }) {
+export function createCommandRunAcquisition({
+  command,
+  repo,
+  branch,
+  root,
+  timeoutMs = defaultAdapterTimeoutMs,
+}) {
   return async (signal) => {
     const response = await runAdapter(
       command,
       { operation: "discover", check: { repo, branch } },
-      { signal, cwd: root },
+      { signal, cwd: root, timeoutMs },
     );
     if (!response || !Array.isArray(response.attempts))
       throw new Error("CI adapter discovery must return an attempts array");
@@ -44,36 +50,52 @@ export function createCommandFailureAcquisition({
   repo,
   branch,
   root,
+  timeoutMs = defaultAdapterTimeoutMs,
 }) {
   const reported = new Set();
+  let awaitingDiagnostic;
   return async (runs, signal) => {
-    const failed = runs.find(
-      (run) =>
-        run.status === "completed" &&
-        run.conclusion === "failure" &&
-        !reported.has(ciAttemptKey(run.databaseId, run.attempt)),
-    );
+    const failed =
+      awaitingDiagnostic ??
+      runs.find(
+        (run) =>
+          run.status === "completed" &&
+          run.conclusion === "failure" &&
+          !reported.has(ciAttemptKey(run.databaseId, run.attempt)),
+      );
     if (!failed) return {};
-    const response = await runAdapter(
-      command,
-      {
-        operation: "diagnose",
-        check: { repo, branch },
-        attempt: {
-          runId: failed.databaseId,
-          attemptId: failed.attempt,
-          sha: failed.headSha,
+    try {
+      const response = await runAdapter(
+        command,
+        {
+          operation: "diagnose",
+          check: { repo, branch },
+          attempt: {
+            runId: failed.databaseId,
+            attemptId: failed.attempt,
+            sha: failed.headSha,
+          },
         },
-      },
-      { signal, cwd: root },
-    );
-    const event = commandFailureEvent(repo, failed, response);
-    reported.add(ciAttemptKey(failed.databaseId, failed.attempt));
-    return { event };
+        { signal, cwd: root, timeoutMs },
+      );
+      const event = commandFailureEvent(repo, failed, response);
+      reported.add(ciAttemptKey(failed.databaseId, failed.attempt));
+      awaitingDiagnostic = undefined;
+      return { event };
+    } catch (error) {
+      awaitingDiagnostic = failed;
+      const reason = `Could not retrieve custom CI diagnostics: ${error instanceof Error ? error.message : error}`;
+      return {
+        observationError: reason,
+        deferredFailureEvent: commandFailureEvent(repo, failed, {
+          unavailable: reason,
+        }),
+      };
+    }
   };
 }
 
-function runAdapter(command, request, { signal, cwd }) {
+function runAdapter(command, request, { signal, cwd, timeoutMs }) {
   return new Promise((resolve, reject) => {
     const child = execFile(
       command[0],
@@ -81,7 +103,7 @@ function runAdapter(command, request, { signal, cwd }) {
       {
         cwd,
         signal,
-        timeout: adapterTimeoutMs,
+        timeout: timeoutMs,
         maxBuffer: adapterResponseBytes,
         encoding: "utf8",
       },

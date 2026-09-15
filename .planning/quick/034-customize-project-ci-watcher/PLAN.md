@@ -341,7 +341,7 @@ diagnostic failure without redelivering evidence already handed off.
 ### 5. Report an unavailable custom observer honestly
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An invalid result, unknown status, failed command, or unavailable
 endpoint yields bounded observation-unavailable evidence under the existing
@@ -355,6 +355,28 @@ only its logs become unavailable.
 
 Stopping point / sizing: One observation-error rule and process lifecycle proof;
 reuse existing timeout/cancellation mechanisms instead of new retry machinery.
+
+Accepted proof (2026-09-15):
+
+- The real adapter process boundary exercises invalid JSON, an unknown outcome,
+  nonzero command exit, and timeout. Each condition retries three times under
+  the existing observer policy, emits one reason bounded to 600 characters as
+  `CI_MONITOR_UNAVAILABLE`, omits GitHub workflow identity, never invokes `gh`,
+  and never becomes `CI_FAILURE`.
+- A diagnostic endpoint failure follows one discovered failed attempt; later
+  discovery returns no attempts, proving the known failure is retained rather
+  than erased. After three diagnostic failures the observer emits that exact
+  failed attempt with bounded `diagnostic.unavailable`, then separately reports
+  observation loss.
+- The cancellation case launches the real observer CLI and a blocking adapter,
+  sends `SIGTERM`, observes a clean exit with no output, and verifies the adapter
+  PID no longer exists. The focused adapter/watcher suite passed 29/29 after the
+  independent naming refactor and formatter; the maintained runtime passed
+  80/80 and `git diff --check` passed. All touched files remain below 250 lines.
+
+Learning: a known failed attempt awaiting diagnostics must outlive later empty
+discovery results, or a transient evidence outage can silently erase a real CI
+failure.
 
 ### 6. Carry custom failure evidence into the existing repair workflow
 

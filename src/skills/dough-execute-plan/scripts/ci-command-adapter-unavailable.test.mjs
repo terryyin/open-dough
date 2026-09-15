@@ -1,0 +1,145 @@
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import { watchCiExecution } from "./watch-ci.mjs";
+import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
+
+const observer = fileURLToPath(new URL("./watch-ci.mjs", import.meta.url));
+const checkedSha = "e".repeat(40);
+
+function unavailableFixture(t, mode) {
+  const root = mkdtempSync(join(tmpdir(), "ci-adapter-unavailable-test-"));
+  const planning = join(root, ".planning");
+  const adapter = join(root, "adapter.mjs");
+  const requests = join(root, "requests.jsonl");
+  const pid = join(root, "adapter.pid");
+  const discovered = join(root, "failure-discovered");
+  mkdirSync(planning);
+  writeFileSync(
+    adapter,
+    `#!${process.execPath}
+import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
+let input = '';
+for await (const chunk of process.stdin) input += chunk;
+const request = JSON.parse(input);
+appendFileSync(${JSON.stringify(requests)}, JSON.stringify(request) + '\\n');
+const mode = ${JSON.stringify(mode)};
+if (mode === 'invalid-json') process.stdout.write('{');
+else if (mode === 'unknown-status') process.stdout.write(JSON.stringify({ attempts: [{ runId: 'run', attemptId: 'attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'mystery' }] }));
+else if (mode === 'failed-command') { process.stderr.write('endpoint unavailable '.repeat(100)); process.exitCode = 2; }
+else if (mode === 'timeout' || mode === 'blocking') {
+  writeFileSync(${JSON.stringify(pid)}, String(process.pid));
+  setInterval(() => {}, 1000);
+} else if (request.operation === 'discover') {
+  const first = !existsSync(${JSON.stringify(discovered)});
+  writeFileSync(${JSON.stringify(discovered)}, '');
+  process.stdout.write(JSON.stringify({ attempts: first ? [{ runId: 'known-run', attemptId: 'known-attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }] : [] }));
+} else { process.stderr.write('diagnostic endpoint unavailable '.repeat(100)); process.exitCode = 3; }
+`,
+  );
+  chmodSync(adapter, 0o700);
+  writeFileSync(
+    join(planning, "open-dough.json"),
+    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+  );
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  return { root, requests, pid };
+}
+
+async function observeUnavailable(t, mode) {
+  const fixture = unavailableFixture(t, mode);
+  const events = [];
+  let ghCalls = 0;
+  await watchCiExecution({
+    repo: "owner/project",
+    branch: "feature/custom",
+    root: fixture.root,
+    adapterTimeoutMs: 250,
+    sleep: async () => undefined,
+    emit: (event) => events.push(event),
+    gh: async () => {
+      ghCalls += 1;
+      return [];
+    },
+  });
+  return { ...fixture, events, ghCalls };
+}
+
+for (const mode of [
+  "invalid-json",
+  "unknown-status",
+  "failed-command",
+  "timeout",
+]) {
+  test(`${mode} loses custom observation once without fallback`, async (t) => {
+    const { events, ghCalls, requests } = await observeUnavailable(t, mode);
+    assert.deepEqual(
+      events.map(({ type }) => type),
+      ["CI_MONITOR_UNAVAILABLE"],
+    );
+    assert.ok(events[0].reason.length <= 600);
+    assert.equal("workflow" in events[0], false);
+    assert.equal(ghCalls, 0);
+    assert.equal(readFileSync(requests, "utf8").trim().split("\n").length, 3);
+  });
+}
+
+test("diagnostic failure preserves the known CI failure and names its gap", async (t) => {
+  const { events, requests } = await observeUnavailable(t, "diagnose-fails");
+  assert.deepEqual(
+    events.map(({ type }) => type),
+    ["CI_FAILURE", "CI_MONITOR_UNAVAILABLE"],
+  );
+  assert.equal(events[0].sha, checkedSha);
+  assert.equal(events[0].runId, "known-run");
+  assert.match(events[0].diagnostic.unavailable, /diagnostic/i);
+  assert.equal(events[0].diagnostic.truncated, true);
+  assert.ok(JSON.stringify(events[0]).length < 1200);
+  const operations = readFileSync(requests, "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line).operation);
+  assert.deepEqual(operations, [
+    "discover",
+    "diagnose",
+    "discover",
+    "diagnose",
+    "discover",
+    "diagnose",
+  ]);
+});
+
+test("observer cancellation terminates its blocking adapter child", async (t) => {
+  const fixture = unavailableFixture(t, "blocking");
+  const child = spawn(
+    process.execPath,
+    [observer, "--execution", "owner/project", "feature/custom", "60000"],
+    { cwd: fixture.root },
+  );
+  const stdout = [];
+  child.stdout.on("data", (chunk) => stdout.push(chunk));
+  try {
+    await waitForFile(fixture.pid);
+  } finally {
+    child.kill("SIGTERM");
+  }
+  const [code, signal] = await once(child, "exit");
+  const adapterPid = Number(readFileSync(fixture.pid, "utf8"));
+  assert.equal(code, 0, signal);
+  assert.equal(Buffer.concat(stdout).toString(), "");
+  assert.equal(await waitForPidExit(adapterPid), true);
+  assert.equal(existsSync(fixture.requests), true);
+});
