@@ -19,51 +19,88 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 <a id="extract-test-optimization-and-plan-open-dough"></a>
 
-### 21. Extract test optimization and plan Open Dough's test speedup
+### 21. Reduce Open Dough's CI execution time to less than half
 
-**Status:** Captured; unrefined.
+**Status:** Planned; CI timing metric awaiting clarification.
 
-**Goal:** A developer can use project-independent test-performance guidance to
-identify worthwhile speed improvements, and Open Dough has an evidence-based
-executable plan for improving the performance of its own test suite.
+**Slice plan:** [Reduce CI execution time](../quick/033-reduce-ci-execution-time/PLAN.md).
 
-**Scope candidate:** First extract the useful behavior from Donut's
-project-local `test-optimization` skill into reusable Open Dough guidance.
-Generalize the profiling, selection, optimization, stability, verification,
-and re-profiling workflow while removing Donut-specific subprojects, commands,
-tooling assumptions, paths, tags, and bookkeeping conventions from the shared
-skill. Leave each project's test commands and genuinely local prerequisites in
-that project.
+**Goal:** Open Dough developers receive trustworthy CI feedback in less than
+half the current execution time by using the installed `dough-test-optimization`
+skill to optimize this project's tests. Real use also supplies evidence for
+improving the new skill through the story's process retrospective.
 
-Then apply the extracted guidance to Open Dough itself: profile the relevant
-test suite, identify and group the slow tests or other material bottlenecks,
-and create an executable slice plan with baseline evidence and an after-change
-verification strategy. Planning the Open Dough optimization is in scope;
-executing that optimization plan is a later action and is not authorized by
-adding this story.
+**Scope:** Extraction and installation of the test optimization skill are
+already complete, as confirmed by the maintainer on 2026-09-15. Use the installed
+skill on Open Dough's own test suite, following its profiling, behavioral-family
+analysis, measured experiments, verification, and re-profiling workflow.
+The story's delivery outcome includes the implemented, measured optimization;
+the 2026-09-15 planning request authorizes the slice plan only. Profiling belongs
+to execution, where the optimization skill updates that same active plan with
+evidence-backed experiments instead of creating a nested optimization plan.
+
+Establish a successful pre-change baseline before optimization, then demonstrate
+that comparable post-change CI execution time is strictly below 50% of that
+baseline. Preserve revision, commands, selected checks, runner/concurrency,
+cache conditions, and run evidence so the comparison can be assessed. Account
+for run variability rather than accepting a favorable isolated run; select and record the
+measurement procedure during execution before accepting timing results. Preserve the current checks' behavioral
+protection and confidence, with replacement proof established before removing
+redundant cases. Skipped checks or weaker assertions do not establish success.
+
+The installed skill requires ordinary local before/after wall-time measurement
+and improvement. Retain that evidence as well as the CI comparison: local or
+focused test speedups alone do not prove the CI target. The current CI runs
+`lint` and `test` in parallel; evaluate the agreed CI metric across the relevant
+checks, including setup, rather than assuming test duration determines it.
+Use test optimization as the main intervention. If evidence shows the target
+requires a consequential scope or confidence trade-off, surface that decision
+instead of silently weakening the goal.
+
+Explicitly include process review in the eventual execution retrospective,
+with special attention to `dough-test-optimization`. Retain enough actual
+execution evidence to assess which guidance helped or hindered bottleneck
+selection, experiment design, preservation of behavioral proof, reassessment
+against the time target, and comparable measurement. In particular, assess how
+its local-feedback focus served this CI outcome. Record supported process
+findings through the existing retrospective workflow in `DearDough.md`; report
+no actionable finding when warranted rather than manufacturing feedback.
 
 **Key examples:**
 
-- Given a project supplies its own test commands and result formats, the shared
-  skill uses those inputs to profile and prioritize improvements without
-  assuming Donut's Nix environment, subproject names, Cypress tags, or planning
-  paths.
-- Given profiling finds redundant tests, fixed-time waits, or flaky behavior
-  among the meaningful bottlenecks, the plan prefers removing redundancy and
-  sources of nondeterminism before adding optimization machinery.
-- Given Open Dough's baseline does not support Donut's top-ten-percent grouping
-  rule, the plan selects and explains a grouping that fits the available
-  evidence rather than preserving that rule ceremonially.
+- Given a comparable successful CI baseline of 10 minutes, the optimized run
+  must take less than 5 minutes under the agreed measurement procedure.
+  Exactly 5 minutes does not satisfy the target.
+- Given focused tests become much faster but the agreed overall CI measure
+  remains at 60% of baseline, the story's timing goal remains unmet; use the
+  evidence to reassess the strategy.
+- Given several cases repeat the same behavioral protection, establish the
+  surviving proof and measure the whole selected scope, including replacement
+  tests, before claiming a saving from removing redundancy.
+- Given the skill steers useful experiments or causes avoidable work, the
+  retrospective cites those actual decisions and outcomes and proposes
+  evidence-backed guidance improvements where appropriate, independently of
+  whether the CI target was met.
 
-**Evaluation:** A representative walkthrough shows the extracted skill can be
-configured from a non-Donut project's test context and still produces a
-comparable before/after performance assessment. The resulting Open Dough plan
-names its measured baseline, selected bottlenecks, bounded slices, focused
-proof, and final re-profile, while no Donut-only commands or conventions have
-entered the reusable runtime guidance.
+**Evaluation:** Comparable successful CI evidence establishes a post-change /
+pre-change time ratio below 0.5, ordinary local re-profiling demonstrates
+improvement, retained behavioral proof supports confidence, and the process
+retrospective explicitly assesses the test optimization skill from real use.
+An inconclusive measurement or missed target remains incomplete even if useful
+partial improvements and feedback have been obtained.
 
-**Depends on:** Story 9's completed direct-extraction workflow. Access to the
-current Donut skill is an extraction input, not a runtime dependency.
+**Depends on:** The extracted skill is already installed in Open Dough.
+No further extraction or access to Donut is required.
+
+**Deferred:** Implementing changes to the reusable skill from retrospective
+feedback, broader CI infrastructure work unrelated to the measured bottlenecks,
+and optimization of other projects. These require their own selected work.
+
+**Open question:** Does CI execution time mean elapsed time from CI execution
+starting until all required checks finish, excluding queue time (recommended
+for feedback speed), or total runner time consumed across jobs? Confirm before
+selecting the baseline and acceptance measurement. No baseline duration is
+claimed by this refinement.
 
 <a id="extract-narrow-bug-fixing"></a>
 
