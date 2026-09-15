@@ -9,9 +9,10 @@ clear transitions.
 
 ## Taken
 
+- [Remove internal extraction and speculative recognition](quick/033-remove-extraction-and-speculative-recognition/PLAN.md) — SEED-014
+
 ## Backlog list
 
-- [Remove internal extraction and speculative recognition](seeds/SEED-014-remove-extraction-and-speculative-recognition.md#remove-extraction-and-speculative-recognition) — SEED-014
 - [Minimize and prove AI involvement in CI watching](seeds/SEED-013-minimize-and-prove-ci-watcher-ai-involvement.md#minimize-and-prove-ci-watcher-involvement) — SEED-013
 - [Extract a narrowly triggered bug-fixing workflow](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
