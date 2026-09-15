@@ -154,7 +154,7 @@ versus 36.80, a 7.01-second (19.0%) retained reduction.
 ### 6. Exact fixture snapshots do not launch one hash process per file
 
 Type: Structure
-Status: planned; depends on Slice 5
+Status: done
 
 Behavior: Installer/update tests retain exact, path-sorted state snapshots of
 every file digest, symlink target, directory, and other entry, while the shared
@@ -191,6 +191,11 @@ hash algorithm, runner mode, or public behavior changes.
   revise or undo only this batching experiment and record the cause. Treat
   focused savings as support evidence, not as the ordinary-suite result.
 
+Outcome: `path-state-snapshot.bash` now batches 64 hashes and keeps the public
+helper API through `release-fixture.bash`; both files are under 250 lines. Exact
+parity/failure/batch controls and all 15 consumers passed. Focused timings fell
+from 56.92 to 7.65 seconds and from 36.87 to 13.31 seconds after refactoring.
+
 ### 7. Developers can reassess the remaining measured cost
 
 Type: Behavior
@@ -223,7 +228,7 @@ local strategy plausibly reaches the target.
 | --- | --- |
 | Comparable local baseline | Slice 1: recorded revision/setup, `scripts/test.sh` discovery, literal command, 622.86 seconds, honest count |
 | Comparable CI baseline | Later metric-dependent slice after human metric/aggregation selection; discovered run remains a candidate |
-| Preserve confidence | Slices 2-3 accepted boundaries above; Slice 4 owns every-entry upgrade plus one complete shared damage matrix |
+| Preserve confidence | Slices 2-5 retain their mapped behavior; Slice 6 preserves exact snapshots with parity/failure controls and all 15 consumers |
 | Improve ordinary wall time | Accepted 552.78-second re-profile after Slices 2-3 and 541.08-second re-profile after Slice 4; Slice 5's 566.59-second terminal result and focused diagnosis are retained without cherry-picking; Slice 7 owns the next comparable `npm test` run |
 | CI time strictly below half | Later final slice: comparable CI result and ratio under the selected procedure |
 | Learn from real skill use | Automatic retrospective, including requested optimization-process review |
