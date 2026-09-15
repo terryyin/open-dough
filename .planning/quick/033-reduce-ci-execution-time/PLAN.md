@@ -3,24 +3,13 @@
 ## Source, authority, and outcome
 
 [SEED-004 Story 21](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-test-optimization-and-plan-open-dough).
-Execution is in progress under the maintainer's 2026-09-15 authorization, with
-an explicit retrospective using the installed `dough-test-optimization` skill.
+Execution is in progress under the maintainer's 2026-09-15 authorization, with an explicit retrospective using the installed `dough-test-optimization` skill.
 
-Give Open Dough developers trustworthy CI feedback in strictly less than 50%
-of the current execution time while preserving behavioral protection. Include
-profiling, measured test optimization, ordinary local re-profiling, and CI
-acceptance measurement. Exclude feedback-driven skill implementation, unrelated
-CI infrastructure work, and other projects. A 10-minute baseline requires a
-result below 5 minutes; a local speedup with CI at 60% remains unmet.
+Give Open Dough developers trustworthy CI feedback in strictly less than 50% of current execution time while preserving behavioral protection. Include profiling, measured test optimization, ordinary local re-profiling, and CI acceptance measurement. Exclude feedback-driven skill implementation, unrelated CI infrastructure, and other projects. A 10-minute baseline requires below 5 minutes; local improvement with CI at 60% remains unmet.
 
 ## Existing solution and architectural context
 
-Reuse `npm test` -> `scripts/test.sh`, which runs discovered shell tests outside
-`tests/support/` and then `scripts/check-self-installation.sh`. Reuse
-`.github/workflows/ci.yml`: parallel `lint` and `test` jobs on Ubuntu 24.04,
-Node 24, with dependency/setup costs included; `npm run lint` remains the lint
-entry point. Test documentation is `tests/README.md`, and shared support is in
-`tests/support/`. No evidence supports a new benchmark framework.
+Reuse `npm test` -> `scripts/test.sh`, which runs discovered shell tests outside `tests/support/` and then `scripts/check-self-installation.sh`. Reuse `.github/workflows/ci.yml`: parallel `lint` and `test` jobs on Ubuntu 24.04 and Node 24, including dependency/setup costs; `npm run lint` remains the lint entry point. Test documentation is `tests/README.md`, shared support is in `tests/support/`, and no evidence supports a new benchmark framework.
 
 [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
 requires inexpensive feedback, empirical adaptation, and cohesive reuse.
@@ -38,14 +27,11 @@ concurrency, or established cross-tool solution.
   branch `codex/033-reduce-ci-execution-time`, created from `e61c329`.
 - Integration target and authorized destination: `main` via `origin`; deliver
   the execution branch to `origin` before integration.
-- CI observer: Codex cell `21`, session `91396`, PID `43121`, receipt directory
-  `/tmp/dough-ci-501/watch-pX5OCG`, coordinator `root`, checkout/branch above,
-  repository `terryyin/open-dough`, workflow `ci.yml` / `CI`.
+- CI observer stopped after Slice 5 profiling when Git became unavailable: Codex cell `21`, session `91396`, former PID `43121` now absent, receipt directory `/tmp/dough-ci-501/watch-pX5OCG`, coordinator `root`, checkout/branch above, repository `terryyin/open-dough`, workflow `ci.yml` / `CI`, terminal state `stopped`, no unread events, and `pendingCi: unobserved`.
+- Runtime restored: Apple Git 2.50.1 with `xcode-select` at `/Library/Developer/CommandLineTools`.
+- Active CI observer: Codex cell `55`, session `45708`, PID `31323`, receipt directory `/tmp/dough-ci-501/watch-vaTHR9`; coordinator/repository/branch/workflow remain as above.
 
-One human-owned choice remains open: CI elapsed time from execution start until
-all required checks complete, excluding queue time (recommended), versus total
-runner time across jobs. Select the metric and repeat/aggregation procedure
-before claiming a CI baseline or ratio; local work is not blocked.
+One human-owned choice remains open: CI elapsed time from execution start until all required checks complete, excluding queue time (recommended), versus total runner time across jobs. Select the metric and repeat/aggregation procedure before claiming a CI baseline or ratio; local work is not blocked.
 
 Local comparisons use literal `/usr/bin/time -p npm test` after runtime setup in
 ordinary runner mode. Record revision, runtime, filters/workers, cache/fixture
@@ -64,12 +50,7 @@ cherry-picked.
   sequential `scripts/test.sh` with no filters/workers. Its discovery selected
   49 test scripts plus self-installation: 50 shell invocations, not behavioral
   cases. Mixed/nested assertions prevent a trustworthy suite-wide case count.
-- Slice 1 found two exact repeats. `tests/update-when-needed.sh` merely executed
-  independently selected `tests/install-all-tools.sh`; they passed in 40.48 and
-  37.63 seconds. `tests/native-case-selection.sh` passed in 20.63 seconds; its
-  lines 151-156 reran four independently selected wrappers timed at 12.61, 3.53,
-  3.56, and 3.48 seconds. Their roughly 61-second nominal cost could not meet
-  the target alone. No raw profile artifact was retained.
+- Slice 1 found two exact repeats. `tests/update-when-needed.sh` merely executed independently selected `tests/install-all-tools.sh`; they passed in 40.48 and 37.63 seconds. `tests/native-case-selection.sh` passed in 20.63 seconds; lines 151-156 reran four independently selected wrappers timed at 12.61, 3.53, 3.56, and 3.48 seconds. Their roughly 61-second nominal cost could not meet the target alone. No raw profile artifact was retained.
 - Slice 2 removed only `tests/update-when-needed.sh`. The canonical
   `/usr/bin/time -p bash tests/install-all-tools.sh` journey passed before/after
   in 37.10/36.80 seconds; its installer/update assertions and `scripts/test.sh`
@@ -89,6 +70,7 @@ cherry-picked.
   setup above and 48 discovered tests plus self-installation (49 invocations).
   This is 70.08 seconds/11.25% faster, but 241.35 seconds above the required
   less-than-311.43 local threshold.
+- Comparable re-profile after Slice 4: at `ef9541f6feb96b858d70bffda95f0a5df5cb9caa`, literal `/usr/bin/time -p npm test` passed: `real 541.08`, `user 264.82`, `sys 201.16`, under baseline setup with 48 discovered tests plus self-installation (49 invocations). It is 11.70 seconds/2.12% faster than the post-Slices-2-3 run and 81.78 seconds/13.13% faster than baseline, but 229.65 seconds above the less-than-311.43 threshold. Slice 4's changed test passed; its smaller whole-suite delta than the 52.55-second focused reduction limits attribution to the measured terminal result without invalidating focused proof.
 - `tests/story-payload-update.sh` passed under `/usr/bin/time -p bash` in 87.37
   seconds (`user 44.78`, `sys 35.52`). Every Codex/Cursor/Claude entry hint
   proves successful upgrade, unmanaged collision refusal, two-root payload/link
@@ -105,9 +87,19 @@ cherry-picked.
   -p bash /tmp/open-dough-story-payload.p0HKuK/story-payload-update.sh` passed
   in 39.15 seconds (`user 19.56`, `sys 16.02`), a plausible 48.22-second saving,
   not a tracked-suite saving. Raw experimental material remains outside Git.
-- Twenty-three release-fixture consumers remain an investigation lead, not
-  consolidation evidence. Process review of the optimization skill remains
-  required.
+- Twenty-three release-fixture consumers remain an investigation lead, not consolidation evidence. Process review of the optimization skill remains required.
+- The three adapter-specific public-payload checks are structurally similar, but fresh literal `/usr/bin/time -p bash` runs passed in 0.92 seconds for Codex, 0.89 for Cursor, and 0.93 for Claude Code. Their 2.74-second aggregate cost is immaterial against the remaining gap, so no proof consolidation is planned there.
+- `tests/install-all-tools.sh` remains a stronger bounded candidate with its
+  accepted 36.80-second focused baseline. Its entry loop gives Codex, Cursor,
+  and Claude fresh-install proof, then repeats missing-registration repair and
+  final no-op checks for each. `open-dough-platform.sh` establishes that the
+  selected platform is only an invoking-tool hint and every success uses the
+  same two physical roots. Codex and Cursor take the same missing-entry branch;
+  Claude uniquely removes the whole Cursor settings file. ADR 0005 supports
+  retaining every-entry fresh installation, one missing-entry repair, the
+  distinct missing-file repair, and one shared final no-op while measuring
+  whether the narrower lifecycle removes material cost. This is an experiment,
+  not redundancy inferred from invocation or fixture counts.
 - CI candidate only: successful main-push run
   `https://github.com/terryyin/open-dough/actions/runs/34917070078` at
   `7bb6a0fad86d799179c0c93655cd5805964d71ee` used Ubuntu 24.04, Node 24,
@@ -121,10 +113,7 @@ cherry-picked.
 Type: Behavior
 Status: done
 
-Behavior: Profiling of the unchanged suite produced the comparable baseline,
-matching-condition CI candidate with metric-dependent proof pending, and two
-evidenced exact-repeat experiments. Product behavior stayed unchanged; the
-622.86-second diagnostic loop stopped once useful experiments were found.
+Behavior: Profiling of the unchanged suite produced the comparable baseline, matching-condition CI candidate with metric-dependent proof pending, and two evidenced exact-repeat experiments. Product behavior stayed unchanged; the 622.86-second diagnostic loop stopped once useful experiments were found.
 
 ### 2. Developers do not run the superseded update journey twice
 
@@ -140,9 +129,7 @@ force-repair, and no-op behavior. Outcome and accepted proof are recorded above.
 Type: Behavior
 Status: done
 
-Behavior: Native case inventory and invalid selections remain off the native
-path without the selection test rerunning four default wrapper journeys.
-Outcome and accepted proof are recorded above.
+Behavior: Native case inventory and invalid selections remain off the native path without the selection test rerunning four default wrapper journeys. Outcome and accepted proof are recorded above.
 
 ### 4. Story payload protection does not repeat shared damage cases per entry hint
 
@@ -179,25 +166,50 @@ Outcome: the complete shared matrix now runs once through the Cursor hint while
 all three success paths remain. Focused proof passed in 34.82 seconds versus
 87.37 seconds, a 52.55-second (60.2%) reduction with observations unchanged.
 
-### 5. Developers can select the next material cost after shared protection is cheaper
+### 5. Repeated installation lifecycle proof runs only where behavior differs
 
 Type: Behavior
 Status: planned; depends on Slice 4
 
-Behavior: A comparable ordinary re-profile reports wall time and honest
-shell-invocation count after retained Slice 4 work, then reassesses the remaining
-installer/update family just far enough to replace this slice with the smallest
-evidence-backed experiment or show that no authorized strategy can close the gap.
+Behavior: `tests/install-all-tools.sh` still proves that Codex, Cursor, and Claude
+entry hints each perform a fresh complete two-root installation with both host
+registrations and no Git commit. The shared repeat lifecycle runs only for
+distinct observations: one Codex/Cursor missing-entry repair, Claude's missing
+settings-file repair, and one repaired-install final no-op. All later conflict,
+force, unsafe-topology, and old-root update scenarios remain unchanged.
 
-Proof: run literal `/usr/bin/time -p npm test` under baseline conditions and
-compare with 622.86 and 552.78 seconds. Record surviving behavior, removed
-support, rejected experiments, remaining gap, and any next family's consumers,
-removable cost, surviving proof, literal command, smallest change, decision, and
-safe stop. If no improvement, revisit Slice 4 before delivery. If still at or
-above 311.43 seconds, replace this slice without claiming completion. If no
-credible authorized saving closes the gap, stop for human judgment. Do not infer
-redundancy from fixture counts or authorize fixture sharing, platform-proof
-removal, concurrency, runner changes, or confidence/architecture tradeoffs.
+- Hypothesis: the accepted 36.80-second focused baseline includes nine successful
+  `install.sh` operations in the three-entry fresh/repair/no-op loop. Preserve
+  every-entry fresh install, use Cursor as the representative shared-root
+  missing-entry repair and final no-op, and retain Claude's distinct missing-file
+  repair. Removing only Codex's equivalent repair/no-op and Claude's generic
+  final no-op should produce a material focused reduction without weakening an
+  adapter difference or installation outcome.
+- Change: reorganize only that entry loop's repair/no-op observations. Do not
+  change production installers, fixtures, shared mutable state, the runner, or
+  any scenario after the loop. Keep targets isolated and fresh.
+- Consumers/proof: each platform hint retains complete-payload, two-root, hook,
+  sentinel, and no-commit proof. Cursor owns missing managed-entry restoration,
+  payload-byte/mtime preservation, and the final full no-op; Claude owns missing
+  settings-file restoration and payload-byte/mtime preservation. The selected
+  platform's hint-only semantics and common two-root operation are established by
+  `src/install/open-dough-platform.sh`; ADR 0005 requires the adapter observations
+  above, not three repetitions of shared lifecycle behavior.
+- Command/decision: first reuse the unaffected 36.80-second baseline, then run
+  literal `/usr/bin/time -p bash tests/install-all-tools.sh`. Retain only if every
+  promised observation passes and the focused wall time improves materially;
+  otherwise revise or undo only this experiment. Record exact operations removed,
+  surviving proof, terminal timing, and whether the result changes the credible
+  strategy for the 229.65-second remaining local gap.
+
+### 6. Developers can reassess the remaining installer/update cost
+
+Type: Behavior
+Status: planned; depends on Slice 5
+
+Behavior: A comparable ordinary re-profile reports wall time and honest shell-invocation count after retained Slice 5 work, then reassesses the remaining installer/update family only far enough to select the next evidence-backed experiment or establish that authorized savings cannot plausibly close the gap.
+
+Proof: run literal `/usr/bin/time -p npm test` under baseline conditions and compare with 622.86, 552.78, and 541.08 seconds. Record surviving behavior, removed support, rejected experiments, remaining gap, and any next family's consumers, removable cost, surviving proof, literal command, smallest change, decision, and safe stop. If the suite does not improve, revisit Slice 5 before delivery. If still at or above 311.43 seconds, replace this slice without claiming completion. If no credible authorized saving closes the gap, stop for human judgment. Do not infer redundancy from fixture counts or authorize fixture sharing, platform-proof removal, concurrency, runner changes, or confidence/architecture tradeoffs.
 
 Every experiment follows hypothesize -> measure -> retain/revise/undo -> reassess.
 Establish replacement proof first; use no skips, focus markers, weakened
@@ -212,7 +224,7 @@ local strategy plausibly reaches the target.
 | Comparable local baseline | Slice 1: recorded revision/setup, `scripts/test.sh` discovery, literal command, 622.86 seconds, honest count |
 | Comparable CI baseline | Later metric-dependent slice after human metric/aggregation selection; discovered run remains a candidate |
 | Preserve confidence | Slices 2-3 accepted boundaries above; Slice 4 owns every-entry upgrade plus one complete shared damage matrix |
-| Improve ordinary wall time | Accepted 552.78-second re-profile after Slices 2-3; Slice 5 owns the next comparable `npm test` run |
+| Improve ordinary wall time | Accepted 552.78-second re-profile after Slices 2-3 and 541.08-second re-profile after Slice 4; Slice 6 owns the next comparable `npm test` run |
 | CI time strictly below half | Later final slice: comparable CI result and ratio under the selected procedure |
 | Learn from real skill use | Automatic retrospective, including requested optimization-process review |
 
