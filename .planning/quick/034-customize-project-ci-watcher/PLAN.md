@@ -3,9 +3,9 @@
 ## Source and authority
 
 [SEED-011 Story 1](../../seeds/SEED-011-customize-project-ci-watcher.md#customize-project-ci-watcher).
-Status: execution in progress; configuration location decision pending; no
-implementation begun. User request on 2026-09-15 authorizes execution. The
-story is Taken in the product backlog.
+Status: execution in progress; configuration location resolved; Slice 1
+delivered. User request on 2026-09-15 authorizes execution. The story is Taken
+in the product backlog.
 
 ## Execution identity
 
@@ -19,7 +19,11 @@ story is Taken in the product backlog.
 - CI observer: Codex yielded cell `17`, stream session `79690`, mailbox
   `/tmp/dough-ci-501/watch-CxzbNe`, PID `38539`, coordinator `root`; repository
   `terryyin/open-dough`, branch `codex/034-custom-ci-watcher`, workflow selector
-  `ci.yml`, display name `CI`, execution checkout as above.
+  `ci.yml`, display name `CI`, execution checkout as above. Stopped cleanly
+  after Slice 1 with no unread evidence and `pendingCi: unobserved`.
+- Current CI observer: Codex yielded cell `35`, stream session `55144`, mailbox
+  `/tmp/dough-ci-501/watch-7eHXCN`, PID `64527`, coordinator `root`; repository,
+  branch, workflow, and execution checkout unchanged.
 
 ## Goal and scope
 
@@ -64,8 +68,8 @@ PFE assessment (source inspected during planning):
 Relevant Accepted ADRs (index and records inspected):
 
 - [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md): one
-  project-owned configuration, separate from managed content. Its root location
-  conflicts with current planning-directory guidance; see the decision below.
+  project-owned configuration at `.planning/open-dough.json`, separate from
+  managed content.
 - [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
   early feedback and one coherent domain model. Use run/attempt identity, checked
   SHA, outcome, and diagnostic evidence throughout; provider translation belongs
@@ -87,19 +91,14 @@ accepted feedback/reuse principles suffice; this plan makes no new ADR decision.
 
 ## Decisions and dependencies
 
-### Configuration location: pending human decision
+### Configuration location: resolved
 
-ADR 0001 names project-root `open-dough.json`. Current installation documentation,
-retrospective guidance, and preservation tests use the established planning
-directory (default `.planning/open-dough.json`). Do not silently create competing
-files, search both with invented precedence, relocate existing configuration, or
-claim an exception. The maintainer was asked whether to approve use of the
-existing planning-directory convention for this story or follow ADR 0001.
-Record the answer and rationale here and in the applicable maintained decision
-record before dependent implementation; this plan must not become the sole
-long-term home of an exception. Slice 2's configuration wiring and dependent
-installation details remain pending that answer. Independent structure and
-proof design can proceed under later execution authority.
+On 2026-09-15, Terry Yin selected the established planning-directory convention:
+one project-owned `.planning/open-dough.json`, shared across tools and separate
+from managed content. ADR 0001 and ADR 0004 now record the same location. This
+avoids competing files, invented search precedence, and migration work; absence
+continues to select defaults. Slice 2 and dependent installation work may
+proceed with this location.
 
 ### Small contract choices
 
@@ -188,7 +187,7 @@ Accepted proof (2026-09-15):
 ### 2. Observe a project command's CI attempts
 
 Type: Behavior
-Status: planned; configuration wiring depends on the location decision
+Status: planned
 
 Behavior: Given a configured command and one selected check, launching the
 normal observer follows its attempts without an Actions workflow or `gh` setup.
@@ -297,7 +296,7 @@ reusing unchanged host evidence only with an explicit applicability reason.
 ### 7. Install a usable customization manual and preserve project choices
 
 Type: Behavior
-Status: planned; location depends on configuration decision
+Status: planned
 
 Behavior: A project installing/updating the complete payload receives the small
 adapter manual and working support while retaining its configured command.
@@ -376,8 +375,8 @@ it, existing host delivery reports actionable changes, and existing repair acts.
 There is no per-provider observer, host-specific outcome model, or log service.
 Slice 1 prepares only Slice 2; later slices extend the same current behavior.
 
-- Slice 2 and dependent configuration/documentation wiring: ADR location
-  conflict awaits a human answer. No exception is inferred from existing code.
+- Slice 2 and dependent configuration/documentation wiring use the resolved
+  `.planning/open-dough.json` location from ADR 0001 and ADR 0004.
 - Slices 1–2: numeric GitHub attempt/history assumptions may require smaller
   adjustments. Exercise opaque identities through the controlled adapter
   before committing to exact protocol fields.

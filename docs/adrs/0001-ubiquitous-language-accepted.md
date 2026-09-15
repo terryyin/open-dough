@@ -6,7 +6,7 @@
 
 **Date:** 2026-09-06
 
-**Revised:** 2026-09-09, at Terry Yin's direction.
+**Revised:** 2026-09-15, at Terry Yin's direction.
 
 **Decision makers:** Terry Yin
 
@@ -33,7 +33,7 @@ published skills, rules, templates, or runtime references.
 | Client payload | The guidance and supporting runtime files declared for installation by a release. |
 | Client installation | A release's managed content installed in a project in the supported tool layouts, with its installation record. |
 | Installation record | The installed release version and Open Dough repository URL used to obtain it. Updates use that source automatically. It contains no maintenance material. |
-| Client configuration | Project-owned settings in `open-dough.json` at the project root, shared by all tools and separate from managed content. Introduce settings only for demonstrated needs. |
+| Client configuration | Project-owned settings in `.planning/open-dough.json`, shared by all tools and separate from managed content. Introduce settings only for demonstrated needs. |
 | Maintenance material | Information used to produce, assess, or update guidance, outside the installed payload and installation record. Relevant material may be fetched temporarily during maintenance. |
 | Recognition record | Maintenance material describing a practice's purpose, triggers, distinguishing behavior, suitability as a replacement, and review evidence. `RECOGNITION.md` is its current representation. |
 | Internal skill | A skill for Open Dough maintainers, with no required `dough-` prefix. |

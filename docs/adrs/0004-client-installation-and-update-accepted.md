@@ -4,6 +4,8 @@
 
 **Accepted:** 2026-09-11, by Terry Yin.
 
+**Revised:** 2026-09-15, at Terry Yin's direction.
+
 **Date:** 2026-09-07
 
 **Decision makers:** Terry Yin
@@ -47,12 +49,12 @@ that purpose.
    support. This reduces footprint, not public access: it is not a security or
    secrecy boundary. Offline maintenance is not required.
 
-4. **Reserve one configuration file for demonstrated needs.** The proposed
-   location is `open-dough.json` at the client project root, shared by all tools.
-   No customization is needed yet: introduce no file or settings until needed,
-   then provide as few options as possible. Absence uses standard behavior.
-   Clients own their installations and configuration; both ordinary and forced
-   updates preserve configuration.
+4. **Reserve one configuration file for demonstrated needs.** Use
+   `.planning/open-dough.json`, relative to the client project root and shared
+   by all tools. Introduce settings only for demonstrated needs and provide as
+   few options as possible. Do not create the file solely to materialize
+   defaults; absence uses standard behavior. Clients own their installations
+   and configuration; both ordinary and forced updates preserve configuration.
 
 5. **Update released content without reconciling edits.** Record the installed
    version and the Open Dough repository URL used during installation. Subsequent
@@ -77,7 +79,8 @@ that purpose.
 
 - Ordinary use remains independent of Open Dough's availability; maintenance
   may require network access.
-- Configuration remains an unvalidated proposal until a real need arises.
+- Configuration has one project-owned location outside managed content; the
+  custom CI adapter is its first demonstrated setting.
 - This ADR governs installation and update work in
   [SEED-001](../../.planning/seeds/SEED-001-install-and-update-open-dough.md#client-installation-and-update),
   alongside ADR 0003. Delivery details, transition evidence, and future refinement

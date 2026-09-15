@@ -23,8 +23,8 @@ story execution and delivery.
 
 ### 1. Customize execute-plan's CI watcher for a project's own CI server
 
-**Status:** Planned on 2026-09-15; configuration-location decision remains
-pending. Queued first; execution not started.
+**Status:** Execution started on 2026-09-15; configuration location resolved as
+`.planning/open-dough.json`; Slice 1 delivered.
 
 **Slice plan:** [Custom CI watcher](../quick/034-customize-project-ci-watcher/PLAN.md).
 
@@ -157,12 +157,11 @@ its adapter, server/log readiness, and real failure-to-repair trial after releas
 Any gaps found there return as new input, not unfinished scope of this story.
 
 The slice plan selects a small command-array setting, bounded diagnostics, and
-an installed manual location. A configuration-location conflict discovered in
-planning remains unresolved: Accepted ADR 0001 names project-root configuration,
-while current product guidance uses the planning directory. The maintainer has
-been asked to choose the applicable location/exception; dependent wiring remains
-pending. Define protocol details against the documented needs and controlled
-adapter examples; no live Pygardon response or broader abstraction is required.
+an installed manual location. On 2026-09-15, the maintainer selected the
+established `.planning/open-dough.json` location and directed ADR 0001 and ADR
+0004 to align with it. Define protocol details against the documented needs and
+controlled adapter examples; no live Pygardon response or broader abstraction
+is required.
 
 **Effort hypothesis:** Moderate, with low confidence until the custom-source
 assumptions are checked against controlled command/process examples; preserving accurate coverage and host delivery still requires care.
