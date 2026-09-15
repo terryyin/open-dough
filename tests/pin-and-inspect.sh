@@ -154,7 +154,6 @@ install_inspected_release() (
   for managed_file in "${managed_files[@]}"; do
     cmp "${snapshot}/src/skills/${managed_file}" "${target_project}/.agents/skills/${managed_file}"
   done
-  [[ ! -e "${target_project}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
   cmp "${snapshot}/VERSION" "${target_project}/.agents/skills/dough-update/VERSION"
   recorded_source=$(cat "${target_project}/.agents/skills/dough-update/SOURCE")
   [[ "${recorded_source}" == "${source_url}" ]]

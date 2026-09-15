@@ -26,7 +26,7 @@ native_adr_behavior_md_count() {
   local paths
   paths=$(
     grep -Eo '[A-Za-z0-9_./-]+\.md' <<< "$1" \
-      | grep -Ev '(^|/)(SKILL|RECOGNITION)\.md$' \
+      | grep -Ev '(^|/)SKILL\.md$' \
       | sort -u || true
   )
   if [[ -z ${paths} ]]; then

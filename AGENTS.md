@@ -36,10 +36,7 @@ When changing Open Dough client-payload guidance, edit `src/skills/<name>/`.
 Do not hand-synchronize this repository's installed managed copies under
 `.agents/skills/` or `.claude/skills/`; update those only from a released
 payload. Internal maintainer skills remain authored in `.agents/skills/`.
-
-Recognition records live beside the Open Dough skill under `src/skills/` for
-maintainers; the installer does not ship them. Do not invent a separate behavior
-copy per tool.
+Do not invent a separate behavior copy per tool.
 
 Follow [ADR 0003](docs/adrs/0003-tagged-release-versioning-accepted.md) for
 Proposed, Promoted, and Released guidance. Promotion changes payload
@@ -50,7 +47,7 @@ declarations, not source locations. Installed describes a client project copy.
 Follow [ADR 0006](docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
 write published skills and rules for the agent working in this project, meaning
 its task's established project, not the Open Dough source or skill directory.
-“Client project,” “client payload,” recognition, and promotion are
+“Client project,” “client payload,” and promotion are
 maintainer concepts; do not export them as required runtime vocabulary. Keep
 maintenance analysis in maintainer records. When a task needs multiple locations,
 name the target project, installed skill directory, or Open Dough release source

@@ -29,7 +29,6 @@ assert_verified_install() {
   cmp "${source_dir}/src/skills/dough-update/SKILL.md" "${destination}/SKILL.md"
   cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
     "${skill_root}/dough-adr-awareness/SKILL.md"
-  [[ ! -e "${skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   recorded_source=$(cat "${destination}/SOURCE")
   [[ "${recorded_source}" == "${expected_source}" ]]
   cmp "${source_dir}/VERSION" "${destination}/VERSION"

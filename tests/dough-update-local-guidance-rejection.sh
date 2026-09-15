@@ -173,14 +173,14 @@ if [[ -f ${inspection_log} ]] && grep -Fqi 'team-architecture-practice' \
   echo "FAIL: ${platform} inspected the local practice after declining assessment." >&2
   exit 1
 fi
-if [[ -f ${inspection_log} ]] && grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' \
+if [[ -f ${inspection_log} ]] && grep -Eiq 'adr-adoption|migration' \
   "${inspection_log}"; then
   echo "FAIL: ${platform} read migration-support material." >&2
   exit 1
 fi
 assert_no_adr_install_or_fetch "${command_log}" \
   "${platform} local-guidance rejection"
-if grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' "${command_log}"; then
+if grep -Eiq 'adr-adoption|migration' "${command_log}"; then
   echo "FAIL: ${platform} fetched or read migration-support material." >&2
   cat "${command_log}" >&2
   exit 1

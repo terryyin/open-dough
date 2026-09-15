@@ -12,7 +12,6 @@ for internal_skill_name in "${internal_skill_names[@]}"; do
 done
 [[ -f "${source_dir}/AGENTS.md" ]]
 [[ -f "${source_dir}/CLAUDE.md" ]]
-[[ -f "${source_dir}/src/skills/dough-adr-awareness/RECOGNITION.md" ]]
 [[ -f "${source_dir}/docs/maintainer/finding-names.md" ]]
 [[ -f "${source_dir}/.claude/skills/reconcile-retrospective-findings/SKILL.md" ]]
 [[ -f "${source_dir}/.claude/skills/triage-retrospective-findings/SKILL.md" ]]
@@ -53,9 +52,6 @@ assert_internal_absent() {
   done
   [[ ! -e "${root}/AGENTS.md" ]]
   [[ ! -e "${root}/CLAUDE.md" ]]
-  for skill_root in .agents .cursor .claude; do
-    [[ ! -e "${root}/${skill_root}/skills/dough-adr-awareness/RECOGNITION.md" ]]
-  done
   [[ ! -e "${root}/docs/maintainer/finding-names.md" ]]
   installed_finding_names=$(find "${root}" -name 'finding-names.md' -print)
   [[ -z "${installed_finding_names}" ]]
@@ -143,4 +139,4 @@ assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits source recognition, internal release-version, reconcile-retrospective-findings, triage-retrospective-findings, their Claude discovery pointers, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."
+echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits internal release-version, reconcile-retrospective-findings, triage-retrospective-findings, their Claude discovery pointers, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."

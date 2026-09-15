@@ -294,7 +294,7 @@ repair, not removal of checks for genuinely missing inputs or a redesign of
 planning and execution policy. Apply the same review to related headings,
 examples, and linked runtime instructions so the confusion does not survive
 outside `SKILL.md`. “Client project” remains appropriate in internal maintainer
-guidance and recognition records when describing Open Dough's consumers.
+guidance when describing Open Dough's consumers.
 
 Edit the shared distributable sources only. Do not hand-edit installed managed
 copies in `.agents/skills/` or `.claude/skills/`. Exclude a global repository

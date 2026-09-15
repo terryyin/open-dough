@@ -59,8 +59,7 @@ finish() {
 }
 trap finish EXIT
 candidate="${temporary_dir}/candidate"
-build_current_tagged_release_fixture "${candidate}" \
-  dough-adr-awareness/RECOGNITION.md
+build_current_tagged_release_fixture "${candidate}"
 version=$(cat "${candidate}/VERSION")
 tag="v${version}"
 source_commit=$(git -C "${candidate}" rev-parse HEAD)
@@ -78,9 +77,6 @@ assert_fresh_install() {
     git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
       | cmp - "${checked_target}/${checked_skill_root}/${managed_file}"
   done
-  git -C "${candidate}" cat-file -e \
-    "${tag}:src/skills/dough-adr-awareness/RECOGNITION.md"
-  [[ ! -e "${checked_target}/${checked_skill_root}/dough-adr-awareness/RECOGNITION.md" ]]
   [[ $(cat "${checked_target}/${checked_skill_root}/dough-update/VERSION") == "${version}" ]]
   grep -Fq 'Do not require policies for situations absent from the current request.' \
     "${checked_target}/${checked_skill_root}/dough-adr-awareness/SKILL.md"
@@ -95,7 +91,7 @@ if [[ ${native_case_mode} == 'default' ]]; then
     [[ ${before} == "$(snapshot_path_state "${target}")" ]]
   done
   [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
-  echo 'PASS: clean Codex, Cursor, and Claude Code targets receive the exact tagged client payload and VERSION, retain the direct ADR context, contain the current on-demand-context improvement, and omit recognition while the complete candidate source stays unchanged.'
+  echo 'PASS: clean Codex, Cursor, and Claude Code targets receive the exact tagged client payload and VERSION, retain the direct ADR context, contain the current on-demand-context improvement, and leave the complete candidate source unchanged.'
   echo 'PENDING: native fresh-install use in Codex, Cursor, and Claude Code; run each platform with --native and the clear scenario.'
   exit 0
 fi
@@ -161,9 +157,9 @@ if grep -Fq "${candidate}" "${command_log}" \
   echo "FAIL: ${platform} fell back to the candidate source during installed use." >&2
   exit 1
 fi
-if [[ -f ${inspection_log} ]] && grep -Eiq 'RECOGNITION\.md|adr-adoption|migration' \
+if [[ -f ${inspection_log} ]] && grep -Eiq 'adr-adoption|migration' \
   "${inspection_log}"; then
-  echo "FAIL: ${platform} read source-only recognition or migration support." >&2
+  echo "FAIL: ${platform} read migration-support material." >&2
   exit 1
 fi
 before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)

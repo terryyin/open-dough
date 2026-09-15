@@ -30,12 +30,12 @@ preserving across Open Dough skills.
    establishes the project. Open Dough's internal ADRs may inform authoring,
    but must not become runtime dependencies or decisions imposed on that project.
 2. Keep maintainer analysis in
-   recognition or other maintainer records, outside runtime instructions.
+   maintainer records, outside runtime instructions.
    This includes the North Star's decision-cache interpretation and effort/token
    rationale. Public guidance describes architectural direction and its lifecycle.
-   Maintainer concepts such as “client project,” “client payload,” recognition
-   records, and guidance promotion describe Open Dough's production and delivery
-   work; they are not vocabulary requirements for published skills or rules.
+   Maintainer concepts such as “client project,” “client payload,” and guidance
+   promotion describe Open Dough's production and delivery work; they are not
+   vocabulary requirements for published skills or rules.
    When execution needs multiple locations, name their roles explicitly—for
    example, the target project, installed skill directory, and Open Dough
    release source in the updater. Include only the delivery detail needed to

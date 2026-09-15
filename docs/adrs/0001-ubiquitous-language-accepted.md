@@ -35,7 +35,6 @@ published skills, rules, templates, or runtime references.
 | Installation record | The installed release version and Open Dough repository URL used to obtain it. Updates use that source automatically. It contains no maintenance material. |
 | Client configuration | Project-owned settings in `.planning/open-dough.json`, shared by all tools and separate from managed content. Introduce settings only for demonstrated needs. |
 | Maintenance material | Information used to produce, assess, or update guidance, outside the installed payload and installation record. Relevant material may be fetched temporarily during maintenance. |
-| Recognition record | Maintenance material describing a practice's purpose, triggers, distinguishing behavior, suitability as a replacement, and review evidence. `RECOGNITION.md` is its current representation. |
 | Internal skill | A skill for Open Dough maintainers, with no required `dough-` prefix. |
 | Open Dough skill | A skill intended for installation into projects, named with the `dough-` prefix. |
 
@@ -50,7 +49,7 @@ A release defines one complete declared payload and may also contain maintenance
 material. A project may have installations for Codex, Cursor, and Claude Code;
 each realizes the payload in its supported layout, with an installation record
 identifying the release. Configuration supplies supported settings without
-changing managed content. Ordinary use does not require recognition records.
+changing managed content.
 
 The project runs `dough-update`, reviews the resulting installation changes,
 and commits them in its own repository. The Open Dough repository supplies the
@@ -85,7 +84,7 @@ Follow [ADR 0006](./0006-write-skills-for-executing-agents-accepted.md) for the
 authoritative runtime audience rule. Address the executing agent in its task's
 established project: “this project's ADRs,” “this project's tooling,” or “the
 selected story.” Do not require the agent to identify another client repository
-or learn recognition or promotion terminology to perform ordinary
+or learn promotion terminology to perform ordinary
 project work.
 
 When a task needs delivery concepts, explain the actionable roles in context.
@@ -103,8 +102,8 @@ executing project.
 
 Maintainers can describe production and delivery consistently while installed
 instructions remain direct and locally meaningful. Public accessibility of a
-source file does not make it runtime content. Recognition and other maintenance
-records remain outside the installed payload.
+source file does not make it runtime content. Maintenance material remains
+outside the installed payload.
 
 Review meaning and audience across runtime content rather than banning words
 through a global replacement or wording lint. Necessary source/target

@@ -52,8 +52,7 @@ The payload in each root is exactly:
 - `dough-execution-retrospective/references/bounded-process-log.md`
 - `dough-story-wrap-up/SKILL.md`
 
-The source files live under `src/skills/`. Recognition records and test fixtures
-are source-only maintenance material and are not installed. Installation preserves
+The source files live under `src/skills/`. Installation preserves
 unrelated project files, home-level guidance, and any other tool's separate
 installation.
 

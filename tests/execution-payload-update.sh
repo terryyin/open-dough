@@ -46,9 +46,6 @@ assert_upgraded_execution_payload() {
   local target=$1
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-execution
-    for skill in dough-execute-plan dough-post-change-refactor; do
-      [[ ! -e "${target}/${root}/${skill}/RECOGNITION.md" ]]
-    done
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)

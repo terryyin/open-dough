@@ -115,10 +115,7 @@ assert_force_success() {
 edited_target="${temporary_dir}/edited project"
 prepare_recorded_latest "${edited_target}"
 edited_dest="${edited_target}/.agents/skills/dough-update"
-edited_root=$(dirname -- "${edited_dest}")
 printf '%s\n' 'local managed edit' >> "${edited_dest}/SKILL.md"
-printf '%s\n' 'obsolete recognition' > \
-  "${edited_root}/dough-adr-awareness/RECOGNITION.md"
 printf '%s\n' 'Keep this updater-side file.' > "${edited_dest}/LOCAL.md"
 edited_tmp="${temporary_dir}/edited-tmp"
 output=$(run_force_apply "${edited_target}" "${edited_tmp}")

@@ -169,7 +169,7 @@ cohesive journey; keep this slice unfinished until the whole journey is green.
 
 ### 3. Assess shared skills through their current behavior
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a maintainer reviewing a shared skill, its current instructions,
 project context, and maintained behavior examples supply the review, including
@@ -360,3 +360,21 @@ Native proof remains subject to the explicit evidence rule above.
   `bash tests/native-delivery-updated-use-adapters.sh` pass.
 - Native `--native` sessions remain pending under the plan evidence rule;
   previous recognition-bearing transition evidence is not reused.
+- The last source-copy path was extra args to
+  `build_current_tagged_release_fixture`; removing them stops other tests from
+  reading deleted files.
+
+### Slice 3 accepted proof
+
+- ADR conflict review through remaining
+  `src/skills/dough-adr-awareness/SKILL.md` §4: cite current Accepted ADR, stop
+  conflicting implementation, leave the decision with the human. Setup: none.
+- `bash tests/adr-awareness-codex-alternate-layout.sh` pass: greps those
+  maintained-skill lines plus fixture Adopted/Replaced catalog.
+- `bash tests/dough-adr-awareness-context.sh` pass.
+- `bash tests/install-omits-internal.sh` pass without source-existence or
+  installed-omit of `RECOGNITION.md`.
+- `bash tests/story-payload-update.sh`,
+  `bash tests/retrospective-reference-payload.sh`,
+  `bash tests/pin-and-inspect.sh` pass.
+- Installer recognition unlink and retirement tests remain for Slice 4.

@@ -38,12 +38,9 @@ that purpose.
 
 3. **Keep maintenance material in Open Dough's source repository.** This is
    information for producing, assessing, or updating guidance. It is separate
-   from both the client payload and the installation record. A recognition
-   record describes a practice's purpose, triggers, distinguishing behavior, and
-   suitability for replacing local guidance. `RECOGNITION.md` is such a record;
-   keep it descriptive and do not install it. Replacing an existing local practice
-   is one-time project adoption work, not permanent updater behavior.
-   `dough-update` fetches needed maintenance material from the
+   from both the client payload and the installation record. Replacing an
+   existing local practice is one-time project adoption work, not permanent
+   updater behavior. `dough-update` fetches needed maintenance material from the
    appropriate pinned, inspected source and discards temporary copies. Only the
    small update entry point and installation record remain as local maintenance
    support. This reduces footprint, not public access: it is not a security or

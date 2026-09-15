@@ -44,7 +44,7 @@ Resolve from this project, not this skill's location:
   at the selected work; and
 - shared records that name the selected work: its seed when applicable, process
   log (`DearDough.md` unless this project sets another canonical location),
-  incoming links, and assessment or recognition records.
+  incoming links, and assessment records.
 
 Planless feature work needs no plan; corrections retain the plan-based identity
 contract. Missing closure context leaves affected material intact: report the gap

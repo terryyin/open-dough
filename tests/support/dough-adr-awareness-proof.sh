@@ -15,7 +15,6 @@ assert_tagged_adr_awareness_payload() {
     git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
       | cmp - "${target}/.agents/skills/${managed_file}"
   done
-  [[ ! -e "${target}/.agents/skills/dough-adr-awareness/RECOGNITION.md" ]]
   [[ ${installed_version} == "${expected_version}" ]]
 }
 
@@ -37,7 +36,7 @@ assert_no_adr_awareness_maintenance() {
   local proof_beat=$2
 
   assert_no_adr_install_or_fetch "${command_log}" "${proof_beat}"
-  if grep -Eiq 'dough-update|RECOGNITION\.md|adr-adoption|migration' \
+  if grep -Eiq 'dough-update|adr-adoption|migration' \
     "${command_log}"; then
     printf 'FAIL: %s invoked updater or migration-support machinery.\n' \
       "${proof_beat}" >&2
