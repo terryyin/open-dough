@@ -169,3 +169,62 @@ test("keeps run fallback distinct from later job evidence and cancellation", asy
     ],
   );
 });
+
+test("reports a failed prior attempt after the latest attempt succeeds", async () => {
+  const controller = new AbortController();
+  const events = [];
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    emit: (event) => events.push(event),
+    sleep: async () => controller.abort(),
+    gh: async (args) => {
+      if (args[1] === "list") {
+        return [
+          run({
+            attempt: 2,
+            conclusion: "success",
+            createdAt: "2026-09-05T10:00:00Z",
+          }),
+        ];
+      }
+      if (args[args.indexOf("--json") + 1] === "status,conclusion") {
+        return { status: "completed", conclusion: "failure" };
+      }
+      return {
+        jobs: [
+          {
+            databaseId: 101,
+            name: "Failed first attempt",
+            conclusion: "failure",
+          },
+        ],
+      };
+    },
+  });
+
+  assert.deepEqual(
+    events.map(({ runId, attempt, conclusion, failedJobs }) => ({
+      runId,
+      attempt,
+      conclusion,
+      failedJobs,
+    })),
+    [
+      {
+        runId: 42,
+        attempt: 1,
+        conclusion: "failure",
+        failedJobs: [
+          {
+            jobId: 101,
+            name: "Failed first attempt",
+            conclusion: "failure",
+          },
+        ],
+      },
+    ],
+  );
+});

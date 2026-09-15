@@ -1,16 +1,12 @@
 import { setTimeout as pause } from "node:timers/promises";
 import {
   ciAttemptKey,
-  inspectRunsForFailure,
-  reportedFailureEvidence,
+  createGitHubFailureAcquisition,
 } from "./ci-failures.mjs";
 import {
   ciWorkflowFile,
-  listRunsArguments,
-  matchingCiRuns,
+  createGitHubRunAcquisition,
   readGitHubActions,
-  startupCiRuns,
-  viewRunArguments,
 } from "./ci-runs.mjs";
 
 export const executionBudgetMs = 8 * 60 * 60 * 1000;
@@ -40,15 +36,14 @@ export async function watchCiExecution({
   else signal?.addEventListener("abort", stopObservation, { once: true });
   const observationSignal = observationAbort.signal;
   const startedAt = now();
-  const priorAttempts = new Map();
-  const reportedFailures = new Set();
-  const completedAttempts = new Set();
   const reportedIncomplete = new Set();
-  const trackedRuns = new Map();
-  const observedRunIds = new Set();
-  const startupAttempts = new Map();
-  const startupBoundary = `<=${new Date(startedAt).toISOString()}`;
-  let startupDiscovery = true;
+  const acquireRuns = createGitHubRunAcquisition({
+    repo,
+    branch,
+    startedAt,
+    gh,
+  });
+  const acquireFailure = createGitHubFailureAcquisition({ repo, gh });
   let consecutiveErrors = 0;
 
   const unavailable = (reason) => ({
@@ -62,49 +57,9 @@ export async function watchCiExecution({
   try {
     while (now() - startedAt < maxDurationMs) {
       if (observationSignal.aborted) return;
-      let runs;
       let matching;
       try {
-        runs = await gh(
-          listRunsArguments({
-            repo,
-            branch,
-            created: startupDiscovery ? startupBoundary : undefined,
-            limit: startupDiscovery ? 100 : 20,
-            includeCreatedAt: true,
-          }),
-          observationSignal,
-        );
-        matching = matchingCiRuns(runs, { branch });
-        if (startupDiscovery) {
-          for (const run of matching)
-            startupAttempts.set(run.databaseId, run.attempt);
-          matching = startupCiRuns(matching);
-        } else {
-          matching = matching.filter(
-            (run) =>
-              observedRunIds.has(run.databaseId) ||
-              !startupAttempts.has(run.databaseId) ||
-              run.status !== "completed" ||
-              run.attempt > startupAttempts.get(run.databaseId),
-          );
-        }
-        for (const run of matching) observedRunIds.add(run.databaseId);
-        startupDiscovery = false;
-        const visibleRunIds = new Set(matching.map((run) => run.databaseId));
-        for (const run of matching) {
-          if (run.status === "completed") trackedRuns.delete(run.databaseId);
-          else trackedRuns.set(run.databaseId, run);
-        }
-        for (const [runId, tracked] of trackedRuns) {
-          if (visibleRunIds.has(runId)) continue;
-          const refreshed = {
-            ...tracked,
-            ...(await gh(viewRunArguments({ repo, runId }), observationSignal)),
-          };
-          trackedRuns.set(runId, refreshed);
-          matching.push(refreshed);
-        }
+        matching = await acquireRuns(observationSignal);
       } catch (error) {
         consecutiveErrors += 1;
         if (consecutiveErrors === 3) throw error;
@@ -112,19 +67,12 @@ export async function watchCiExecution({
         continue;
       }
 
-      const { event, observationError } = await inspectRunsForFailure({
-        repo,
-        runs: matching,
-        signal: observationSignal,
-        gh,
-        priorAttempts,
-        reportedFailures,
-        completedAttempts,
-      });
+      const { event, observationError } = await acquireFailure(
+        matching,
+        observationSignal,
+      );
       if (event) {
         await emit(event);
-        for (const evidence of reportedFailureEvidence(event))
-          reportedFailures.add(evidence);
       }
       if (observationError) {
         consecutiveErrors += 1;
@@ -154,10 +102,6 @@ export async function watchCiExecution({
           ciAttemptKey(incomplete.databaseId, incomplete.attempt),
         );
       }
-      for (const run of matching) {
-        if (run.status === "completed") trackedRuns.delete(run.databaseId);
-      }
-
       await sleep(pollMs, undefined, { signal: observationSignal });
     }
     await emit(

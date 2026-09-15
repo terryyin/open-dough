@@ -3,9 +3,23 @@
 ## Source and authority
 
 [SEED-011 Story 1](../../seeds/SEED-011-customize-project-ci-watcher.md#customize-project-ci-watcher).
-Status: planned; configuration location decision pending; no implementation begun.
-User request on 2026-09-15 authorizes slice planning only. Keep the story first
-in the queue; take it only when authorized execution starts.
+Status: execution in progress; configuration location decision pending; no
+implementation begun. User request on 2026-09-15 authorizes execution. The
+story is Taken in the product backlog.
+
+## Execution identity
+
+- Originating checkout: `/Users/terryyin/git/open-dough`, branch `main`; the
+  queue claim is commit `1d54151`.
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/story-34`,
+  branch `codex/034-custom-ci-watcher`, based on planning commit `8cddfdb`.
+- Integration target: `main`.
+- Authorized push destination: `origin`, execution branch
+  `codex/034-custom-ci-watcher`.
+- CI observer: Codex yielded cell `17`, stream session `79690`, mailbox
+  `/tmp/dough-ci-501/watch-CxzbNe`, PID `38539`, coordinator `root`; repository
+  `terryyin/open-dough`, branch `codex/034-custom-ci-watcher`, workflow selector
+  `ci.yml`, display name `CI`, execution checkout as above.
 
 ## Goal and scope
 
@@ -136,7 +150,7 @@ regression protection across all slices.
 ### 1. Separate CI acquisition while preserving GitHub observation
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Isolate provider-specific run discovery, attempt refresh/history, and
 failure evidence from the shared observer. Immediately enables Slice 2.
@@ -151,6 +165,25 @@ for preserved outputs, not just exit status.
 
 Stopping point / sizing: GitHub behavior unchanged. One refactoring proof loop;
 numeric GitHub history assumptions are the main structural uncertainty.
+
+Accepted proof (2026-09-15):
+
+- `node --test src/skills/dough-execute-plan/scripts/watch-ci-execution*.test.mjs`
+  passed 17/17 at the public `watchCiExecution` boundary. The controlled GitHub
+  responses in `watch-ci-execution-failures.test.mjs` supply the starting run
+  and attempt states; its `reports a failed prior attempt after the latest
+  attempt succeeds` assertion observes the preserved earlier failure event.
+  The existing startup, coverage, and failure cases observe workflow/branch
+  filtering, retained unfinished runs, history errors, cancellation, bounds,
+  and event shapes through the same boundary.
+- `node --test src/skills/dough-execute-plan/scripts/ci-client-configuration.test.mjs`
+  passed 1/1. Its sole test supplies controlled GitHub results and observes the
+  configured GitHub workflow selector/name, non-main branch selection, and
+  deployment exclusion through `watchCiExecution`.
+- The independent refactor kept those implementation and observation
+  boundaries unchanged. `npm run format` completed successfully after
+  installing the worktree's locked dependencies with `npm ci`; all touched
+  Slice 1 files are at or below 250 lines.
 
 ### 2. Observe a project command's CI attempts
 
