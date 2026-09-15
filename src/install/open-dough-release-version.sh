@@ -50,6 +50,7 @@ managed_payload_unchanged() {
     dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
     dough-execute-plan/scripts/ci-mailbox.mjs
     dough-execute-plan/scripts/ci-observer-stream.mjs
+    dough-execute-plan/scripts/ci-revisions.mjs
     dough-execute-plan/scripts/ci-runs.mjs
     dough-execute-plan/scripts/watch-ci-execution.mjs
     dough-execute-plan/scripts/watch-ci.mjs

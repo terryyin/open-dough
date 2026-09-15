@@ -65,6 +65,7 @@ Preserve each skill's relative directory layout. Execute-plan runtime is
 - `scripts/ci-mailbox-worker-process.mjs`
 - `scripts/ci-mailbox.mjs`
 - `scripts/ci-observer-stream.mjs`
+- `scripts/ci-revisions.mjs`
 - `scripts/ci-runs.mjs`
 - `scripts/watch-ci-execution.mjs`
 - `scripts/watch-ci.mjs`
@@ -149,7 +150,6 @@ Deployment tests copy runtime modules to both client skill roots in canonical
 paths containing spaces, execute the actual hook fragments, and require a
 readiness event with matching checkout identity. Custom-workflow coverage checks
 a non-main branch and rejects unrelated branches and deployment runs.
-
 Preserve failures; a passing retry alone is not a repair.
 
 ### Results, 2026-09-09

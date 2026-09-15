@@ -29,9 +29,9 @@ Open your client project in an AI agent with web and shell access, then ask:
    both physical roots. Do not install the source recognition record.
 3. Follow the shared [safe installation procedure](docs/installation-and-updates.md#common-installation-flow)
    with the supplied URL and running tool
-   ([Codex](docs/installation-and-updates.md#codex),
-   [Cursor](docs/installation-and-updates.md#cursor), or
-   [Claude Code](docs/installation-and-updates.md#claude-code)). Select and pin
+   ([Codex](docs/installation-platforms-and-update-safety.md#codex),
+   [Cursor](docs/installation-platforms-and-update-safety.md#cursor), or
+   [Claude Code](docs/installation-platforms-and-update-safety.md#claude-code)). Select and pin
    the highest numeric release using Git before any fetched script runs. Inspect
    that snapshot's installer, helper and dependencies, and every declared client
    source;
