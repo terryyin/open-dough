@@ -140,7 +140,7 @@ ordinary invocation count is now 49; Slice 4 owns whole-suite measurement.
 ### 3. Native case selection does not repeat default wrapper journeys
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Native case inventory and invalid selections remain off the native
 path without the selection test rerunning four default wrapper journeys.
@@ -158,6 +158,10 @@ path without the selection test rerunning four default wrapper journeys.
 - Decision/stopping point: retain only if selection behavior and all wrappers
   pass and focused time improves; otherwise undo only this experiment. End with
   both responsibilities independently observable, without the nested lifecycle.
+
+Outcome: removed the four nested wrapper calls and aligned `tests/README.md`.
+Selection proof passed in 1.49 seconds versus 20.63 seconds before; all four
+independent wrapper commands passed with their boundaries unchanged.
 
 ### 4. Developers can select the next material cost after exact duplicates are gone
 
@@ -223,6 +227,8 @@ stops before review.
   re-profiling and a larger evidence-backed strategy remain necessary.
 - The update alias experiment retained its canonical proof and removed one
   measured 40.48-second duplicate invocation.
+- The native-selection experiment retained selection and wrapper proof while
+  reducing its focused wall time by 19.14 seconds.
 - Twenty-three release-fixture consumers are an investigation lead, not
   consolidation evidence.
 - Process review of the optimization skill is explicitly required.

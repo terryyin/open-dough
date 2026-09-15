@@ -148,11 +148,4 @@ assert_invalid "${cursor_wrapper}" --native --case delivery/ordinary-update
 assert_invalid "${claude_wrapper}" --native --case delivery/legacy-refusal
 assert_invalid "${claude_wrapper}" --native --case delivery/ordinary-update
 
-printf 'Running existing default wrapper checks.\n'
-bash "${context_wrapper}"
-bash "${codex_wrapper}"
-bash "${cursor_wrapper}"
-bash "${claude_wrapper}"
-assert_no_sentinel_calls
-
-echo 'PASS: native case listing and invalid selection stay off the native path, and default checks still pass.'
+echo 'PASS: native case listing and invalid selection stay off the native path.'

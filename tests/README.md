@@ -158,8 +158,8 @@ native invocation or behavior.
   justified reuse.
 - `tests/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
-  no-argument checks still pass; selected `delivery/legacy-refusal` and
-  `delivery/ordinary-update` stay unavailable.
+  no-argument wrapper checks run independently; selected
+  `delivery/legacy-refusal` and `delivery/ordinary-update` stay unavailable.
 - `tests/native-result-retention.sh` — selected context runs with recorded PATH
   substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
   runtime identity comes from `cursor agent --version`. An unwritable
