@@ -88,8 +88,9 @@ following loop explicit in the plan and each experiment slice:
    ineffective/regressing edits while preserving others' work. Record the
    finding rather than deliver a change merely because its tests pass.
 4. **Reassess:** use the result to reconsider the family's bottleneck and strategy.
-   Update remaining experiments in the same plan; do not blindly execute the
-   original sequence. Try a materially different hypothesis when warranted.
+   When a time target is supplied, compare the remaining gap with realistically
+   removable cost. If the remaining experiments cannot plausibly close it,
+   change the strategy before continuing. Update the same plan.
 
 Stop experimenting when no credible further saving remains within scope; record
 what was tried and the remaining cost as a candidate. An unresolved product,

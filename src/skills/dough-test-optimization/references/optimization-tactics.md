@@ -9,9 +9,14 @@ Choose and reassess them through the main skill's experiment loop.
 
 Use the group's surviving-proof map to find repeated work. A line-coverage
 percentage or similar test name does not establish equivalent protection.
-Before moving variations to a cheaper boundary, inspect error propagation,
-serialization, persistence, rendering, and ordering obligations to establish
-which integrated checks must remain.
+
+Identify which observation requires each expensive process, container, browser,
+or deployment. Retain that proof there; move other behavioral variations to
+cheaper real application boundaries.
+
+Combine compatible integration observations into one coherent lifecycle when
+they share expensive setup. Preserve each meaningful assertion and keep
+unrelated scenarios separate.
 
 Parameterization reduces duplication; it does not inherently reduce executions
 or runtime. Remove equivalent cases when their fault-detection purpose is
