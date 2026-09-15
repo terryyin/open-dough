@@ -1,9 +1,9 @@
 # Design a cheaper test family
 
-Apply these tactics to the complete related group identified by the skill.
+Apply these tactics to the related family investigated by the skill.
 Apply the [shared behavioral test guidance](../../dough-post-change-refactor/references/refactor-checks.md#tests-as-behavioral-documentation)
 for test boundaries, assertions, builders, and proof-preserving consolidation.
-Use the main skill's design comparison to choose and reassess these tactics.
+Choose and reassess them through the main skill's experiment loop.
 
 ## Reduce repeated proof and work
 
@@ -48,7 +48,7 @@ queries before replacing them; retain role, accessibility, or real-input proof
 when that is their purpose. Batch long input only when per-character behavior
 is irrelevant to the scenario.
 
-## Challenge the design, then measure
+## Simplify the design
 
 Look for a simpler existing seam that eliminates repeated work across the
 family. Improve fixture and harness design rather than add special-case flags,
@@ -57,7 +57,6 @@ authority when a production seam must change.
 
 Assess test and support code together: shorter test files that hide more
 orchestration elsewhere are not automatically cleaner. Use parallelism only
-after removing needless work, with isolation and resource contention understood.
-Do not accept a runner-only saving as completion of an identified proof/design
-simplification. If no material improvement survives verification, explain the
-attempts and remaining cost as a candidate instead of manufacturing success.
+with isolation and resource contention understood; measure its effect on local
+feedback. Prefer eliminating repeated work to spreading the same waste over
+more workers.

@@ -30,8 +30,9 @@ The extraction-time recheck on 2026-09-15 matched all 11 files unchanged.
 
 ## Purpose
 
-Optimize a coherent test family for faster execution, fewer cases, less code,
-and cleaner design together without reducing behavioral coverage or confidence.
+Shorten local test feedback without reducing behavioral coverage or confidence.
+Fewer redundant cases, less code, and cleaner design are complementary means
+to that time-saving goal, not independent substitutes for it.
 
 ## Triggers
 
@@ -46,15 +47,18 @@ triages recorded candidates without running an optimization pass.
 - Slowest tests seed investigation; aggregate cost and related behavior expand
   it across files and test boundaries. Removes the source's file-or-three-test
   grouping, rank adjacency, hard top-10% scope, and first-applicable-tactic limit.
-- Complete-family design survives smaller execution slices. Serious alternatives
-  precede declaring necessary slowness. Lower case and code counts are measured
-  alongside preserved proof; no claim that a smaller suite necessarily ran faster.
+- Family analysis survives smaller execution slices. Discovery follows a cost
+  hypothesis and stops when more inspection no longer changes the experiment or
+  proof. Measured experiments precede delivery; ineffective changes are revised
+  or undone, and results can redirect the remaining strategy.
 - Merges the reusable small-test preferences into the existing authoritative
   [behavioral test guidance](../dough-post-change-refactor/references/refactor-checks.md#tests-as-behavioral-documentation),
   also consumed by refactoring and retrospective. Stable boundaries, real lower
   layers, focused/delta assertions, concise builders, and complete destructive
   fixtures share that home rather than acquiring a second optimization copy.
-- Retains execute-plan delegation and delivery. Uses current Open Dough plan
+- Retains execute-plan delegation, delivery, and its normal retrospective. The
+  maintainer's request to omit retrospective applied only to the critical review.
+  Uses current Open Dough plan
   conventions; wrap-up owns history cleanup after review. Corrects the source's
   summed-duration-as-CPU label and red-reprofile fallback to partial timings/CI.
 
@@ -110,11 +114,20 @@ Representative authoring walkthrough, 2026-09-15, under
   equivalent rule examples, keep their distinct edge/error protections in real
   stable-boundary tests, retain the real checkout/persistence journey, and remove
   repeated setup. Each deletion has surviving proof before it occurs. Measure
-  all replacement cases, total support code, and the same family/suite conditions.
+  all replacement cases and the same local-run conditions; assess support code
+  as part of design simplification.
   Parameterizing unchanged cases alone cannot establish fewer executions.
 - **Shared-cost grouping:** checkout and export tests using one expensive
   fixture remain distinct behavior families. Assign the fixture change once,
   include both consumers in verification, and avoid counting its saving twice.
+- **Experiment feedback:** removing repeated checkout setup passes behavioral
+  checks but makes the focused run slower. Undo that experiment's edits before
+  delivery, retain the finding, and revise the hypothesis toward repeated process
+  startup. Stop expanding discovery once the needed consumers and proof are
+  understood. Judge a successful replacement against local feedback time;
+  if focused improvement disappears in the final local run, investigate again.
+- **Timing caution:** a small apparent gain after a warm run is inconclusive
+  until a comparable check supports it. No fixed statistical protocol is required.
 - **Resolve-only planning:** a candidate with stale timing evidence creates a
   replacement plan whose first prerequisite obtains a valid baseline during
   later execution. Resolution itself runs no profile or optimization. Candidates
