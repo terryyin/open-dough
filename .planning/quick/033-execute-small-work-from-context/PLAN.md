@@ -1,6 +1,6 @@
 # Execute small work from a story or contextual instruction
 
-Status: in progress; slice 3 is the next unfinished work.
+Status: complete; all slices delivered.
 Source: [SEED-004 Story 23](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-small-work-from-context).
 
 ## Execution identity
@@ -165,7 +165,7 @@ Accepted proof:
 ### 3. Continue authorized work through planning without restarting it
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With replanning authorized, a planless attempt becomes too large; the
 ordinary planning workflow continues the same work from compatible changes and
@@ -182,6 +182,22 @@ remaining-work plan. Observe preserved compatible work, original scope and proof
 same checkout identity, and no duplicate execution. Read the adjacent contextual
 source path for the same handoff and ordinary source resolution. Contrast Slice 2's
 exit at the single replan decision; do not enumerate a source-by-option matrix.
+
+Accepted proof:
+- Promise: authorized replanning continues the same work through ordinary
+  planning for a story or sufficient instruction; identity, compatible work, and
+  proof retained; missing field/decision returned without fabricating a source;
+  Slice 2 no-replan exit unchanged. Boundary: allowed-replan handoff and
+  ordinary source resolution.
+- Command: source walkthrough as an executing agent.
+  Setup: oversized selected story with `--replan`; compare a sufficient
+  instruction and a missing-field instruction; contrast `--no-replan`.
+  Locations: `SKILL.md` Execute-next-slice 3; `execution-decisions.md` allowed
+  Refine oversized; `dough-slice-planning/SKILL.md` Require understood planning
+  input; `planning.md` Source; Slice 2 disabled branch contrast.
+  Result: pass.
+- Command: `git -C /Users/terryyin/git/open-dough-worktrees/033-execute-small-work-from-context diff --check`
+  Result: pass.
 
 ## Verification and refinement assessment
 
@@ -217,6 +233,9 @@ identified in this assessment; execution is not authorized by this planning requ
 - execute-plan `SKILL.md` is at the 250-line cap after Slice 2. Evidence for a
   no-replan stop uses this project's executable-plan root (resolved via slice
   planning), not a hard-coded folder in reusable prose.
-- Overrun for a contextual source still requires understood story
-  goal/scope/examples before ordinary planning, otherwise it stops without
-  fabricating a source. Slice 3 owns that continuity.
+- Ordinary planning already owned goal/scope/examples. Slice 3 removed the
+  leftover story-only gate (“refine the canonical story”). A missing field at
+  that boundary returns the decision; `--replan` does not fill it.
+  `dough-slice-plan-refinement` still names story or correction as plan source;
+  later overrun of an instruction-sourced remaining-work plan stays planned
+  refinement of that plan.

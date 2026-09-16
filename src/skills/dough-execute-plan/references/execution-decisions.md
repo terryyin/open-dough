@@ -168,29 +168,30 @@ source, elapsed time, the failed sizing assumption, completed compatible
 work and proof, and every incomplete attempt-owned change. Keep completed
 compatible work and proof in place. Safely park or revert only incomplete
 attempt-owned changes; do not discard completed work merely to give later slices
-a clean starting point. Keep backlog placement under
-[Take queued work](../SKILL.md#take-queued-work). Unclear ownership stops
+a clean starting point. Keep the same execution identity and backlog placement
+under [Take queued work](../SKILL.md#take-queued-work). Unclear ownership stops
 disposition and the dependent planning path for human judgment.
 
-After that stop, use this project's
-[ordinary story planning workflow](../../dough-slice-planning/SKILL.md) for the
-remaining work when the story goal, scope, examples, and constraints are still
-understood and the triggering instruction authorizes planning and continued
-execution. Transfer the source, relevant chat evidence, completed work
-and proof, incomplete-change disposition, elapsed time, and failed sizing
-assumption into the ordinary plan as source, decisions, or learnings needed for
-resume. Plan only the remaining work. Do not fabricate a story, completed planned
-slices, already satisfied promises, a substitute quick-execution record, or a
-second execution. Restart execute-plan from that plan;
-ordinary plan refinement remains available before delegation. Reuse preserved
-proof while its boundary remains unchanged.
+After that stop, when the triggering instruction authorizes planning and
+continued execution, use this project's
+[ordinary slice planning](../../dough-slice-planning/SKILL.md) for remaining
+work from the established source — the selected story or the sufficient
+instruction. Replanning permission grants neither missing scope nor execution
+authority. Transfer the source, relevant chat evidence, completed work and
+proof, incomplete-change disposition, elapsed time, failed sizing assumption,
+and retained identity into the ordinary plan as source, decisions, or
+learnings needed for resume. Plan only the remaining work. Do not fabricate a
+story, completed planned slices, already satisfied promises, a substitute
+quick-execution record, or a second execution. Restart execute-plan from that
+plan in the same checkout; ordinary plan refinement remains available before
+delegation. Reuse preserved proof while its boundary remains unchanged.
 
-If planning or continued execution is not authorized, report the safe stop and
-the exact next authorization needed without creating the plan or fabricating a
-story. If evidence changes the source scope or exposes a disputed constraint, use
-the existing human decision path before planning the affected work; complexity
-alone does not authorize a scope change. Once that decision is resolved, refine
-the canonical story as required before ordinary planning.
+If planning or continued execution is not authorized, or ordinary planning
+returns a missing field or disputed decision, report the safe stop and that
+exact need without creating the plan or fabricating a story. If evidence
+changes the source scope or exposes a disputed constraint, use the existing human
+decision path before planning the affected work; complexity alone does not
+authorize a scope change.
 
 ## Handle an implementation commit
 
