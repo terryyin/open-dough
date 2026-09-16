@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
 
-export const launcher = fileURLToPath(new URL("./ci-mailbox.mjs", import.meta.url));
+export const launcher = fileURLToPath(
+  new URL("./ci-mailbox.mjs", import.meta.url),
+);
 export const completingFixture = fileURLToPath(
   new URL("./ci-observer-stream-fixture.mjs", import.meta.url),
 );

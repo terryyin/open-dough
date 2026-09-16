@@ -308,6 +308,14 @@ when proof is accepted, not merely the planned command.
     617 w / 104 lines (+90 B / −17 w). Pre-story file 5979 B / 726 w. Shutdown
     bookkeeping is a 16-line copied cell plus retained recovery prose. Isolate
     still cannot import Node; finite `ps` wait remains coordinator-side.
+  - Delivery repair: Codex observer delivered GitHub Actions run `35067498190`,
+    attempt 1, for pushed revision `d57b4c51d1d8f8ba6b2b7e759ba17efdaa397dd9`.
+    The lint job found an intentional test-only `Function` evaluator without a
+    narrow `no-new-func` explanation and two unformatted fixture files. Added the
+    scoped suppression, formatted those fixtures, and preserved the accepted
+    notification and lifecycle boundaries. Focused ESLint/Prettier checks passed;
+    the four affected Codex notification/lifecycle test files passed 10/10; the
+    independent refactor pass found no further change.
 
 ## Plan refinement assessment — 2026-09-16
 

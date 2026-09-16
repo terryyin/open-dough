@@ -15,16 +15,25 @@ function documentedCodexHostBindings() {
     const start = markdown.indexOf(fence, from);
     if (start === -1) break;
     const end = markdown.indexOf("\n```", start + fence.length);
-    assert.notEqual(end, -1, "ci-notify-codex.md host binding fence must close");
+    assert.notEqual(
+      end,
+      -1,
+      "ci-notify-codex.md host binding fence must close",
+    );
     cells.push(markdown.slice(start + fence.length, end));
     from = end + 4;
   }
-  assert.equal(cells.length, 2, "ci-notify-codex.md must fence launch and stop");
+  assert.equal(
+    cells.length,
+    2,
+    "ci-notify-codex.md must fence launch and stop",
+  );
   return cells;
 }
 
 function evaluateDocumentedCell(cell, bindings) {
   const names = Object.keys(bindings);
+  // eslint-disable-next-line no-new-func -- Exercise the documented cell with injected host bindings.
   return new Function(
     ...names,
     `"use strict"; return (async () => {\n${cell}\n})();`,
