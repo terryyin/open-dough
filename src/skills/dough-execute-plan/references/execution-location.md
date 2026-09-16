@@ -39,8 +39,10 @@ Run delegation, refactoring, generation, formatting, staging, commits, pushes,
 and CI repair from the selected execution location. Story Branch Mode pushes
 its execution branch to the authorized destination. Trunk Mode publishes each
 verified increment through [trunk publication](trunk-publication.md) and
-does not push the execution branch. Pass identity/location explicitly to agents
-and host adapters.
+does not push the execution branch. That rule's exclusive-turn and target
+cleanliness checks apply only to shared-target mutation, not to
+execution-checkout commits. Pass identity/location explicitly to agents and
+host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
 and use it as working directory. Before arming, apply

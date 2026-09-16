@@ -36,18 +36,33 @@ another writer's commits.
 
 ## Preconditions
 
+Apply exclusive-turn and target cleanliness checks only when this publication
+must mutate the shared integration checkout. They do not gate execution-checkout
+commits, proof, or formatting. Do not invent a merge queue, lock, or extra claim.
+
 Resolve source, mode, target branch, authorized remote, and the owned
 unpublished suffix before mutating the shared integration checkout. For a
 queue claim, that suffix is the Taken commit only. For a verified increment,
 use the suffix defined in the increment rule.
 
 Acquire an exclusive integration turn through available coordinator context
-before changing the shared integration checkout. A clean working directory
-alone is not ownership. If another writer cannot be coordinated, stop without
-altering its work. Do not treat Git lock files as a transaction lock.
+before changing the shared integration checkout. A clean working directory is
+not exclusivity. Git lock files are not a transaction lock. Coordinate with a
+declared owner, or stop. Unclear ownership uses
+[human judgment](execution-decisions.md#stop-for-human-judgment). Apply the
+same ownership stop as [delivery staging](wrap-up.md#deliver-the-change) and
+[resume](../SKILL.md#continue-or-recover-at-an-execution-boundary).
 
-Known unrelated local commits on the target, dirty or ambiguous target state,
-or unknown ownership stop this path. Do not silently publish those commits.
+A stop here mutates nothing on the target. Report the inspectable reason:
+the declared competing writer, and/or dirty, ambiguous, or unrelated-commit
+target state. Preserve unrelated staged and unstaged target content; do not
+stash, reset, unstage, or revert it. Leave the owned unpublished suffix SHA
+recoverable on the execution branch, or the local Taken commit when no
+workspace exists yet. Do not register publication or continue as delivered.
+After an exclusive turn, inspect the target; dirty or ambiguous state, known
+unrelated local commits, or unknown ownership still stop as above. Do not
+silently publish those commits. Ordinary candidate publication proceeds only
+after that turn and a usable target.
 
 ## Publish the candidate
 

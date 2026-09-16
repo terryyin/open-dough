@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–3 delivered on `quick/052-introduce-trunk-mode`. Slice 4 is next.
+Status: in execution. Slices 1–4 delivered on `quick/052-introduce-trunk-mode`. Slice 5 is next.
 
 ## Execution identity
 
@@ -226,7 +226,7 @@ Accepted proof (2026-09-16):
 
 ### 4. Preserve a shared target when integration ownership is unavailable
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A target checkout has another active writer or ambiguous local state;
 this execution stops its target mutation with its increment recoverable. Once an
@@ -238,6 +238,12 @@ as proof of exclusivity. Preserve unrelated staged and unstaged content.
 Proof: Simulate a declared competing writer with clean and dirty target variants;
 inspect unchanged target/index and retained execution commit after the stop.
 Sizing: One preservation gate; no distributed locking implementation.
+
+Accepted proof (2026-09-16):
+- Promise: competing writer or dirty/ambiguous target stops mutation; unpublished increment remains; target index preserved; clean is not exclusive.
+- Boundary: `trunk-publication.md` Preconditions; wrap-up does not register a stopped increment.
+- Git walk: `/tmp/trunk-mode-slice4-PJV87L` target `1fe3795` with staged/unstaged/untracked remaining; exec `b743465` not on remote `main`.
+- Native pending.
 
 ### 5. Recover a rejected push without rewriting published history
 Type: Behavior

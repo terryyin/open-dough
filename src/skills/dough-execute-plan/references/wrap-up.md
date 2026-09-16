@@ -120,6 +120,9 @@ Git, agent, and observer state under
    authorized destination. Trunk Mode publishes through the increment rule above
    and retains that rule's candidate SHA after any rewrite onto newer trunk; do
    not register the pre-rebase unpublished commit.
+   A [Trunk Mode publication stop](trunk-publication.md#preconditions) leaves
+   that execution commit unpublished and recoverable; do not register it or
+   treat delivery as complete.
    After confirmed success, register the
    retained SHA with the existing observer by running
    `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' register-push
