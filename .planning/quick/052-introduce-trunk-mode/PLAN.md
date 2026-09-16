@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–7 delivered on `quick/052-introduce-trunk-mode`. Slice 8 is next.
+Status: in execution. Slices 1–8 delivered on `quick/052-introduce-trunk-mode`. Slice 9 is next.
 
 ## Execution identity
 
@@ -313,7 +313,7 @@ Accepted proof (2026-09-16):
 
 ### 8. Deliver a trunk CI repair without taking another agent's work
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A delivered failure attributable to this execution is repaired from
 its retained worktree and published through the same trunk cycle; another known
@@ -326,6 +326,13 @@ Proof: A notification arrives with unfinished owned work; repair is published,
 that work is restored, and the same execution resumes. A known foreign repair
 countercase preserves its files and reports coordination instead of duplicate work.
 Sizing: One repair lifecycle using existing machinery; no global repair scheduler.
+
+Accepted proof (2026-09-16):
+- Promise: owned registered SHA is repaired in the execution worktree and published as a trunk increment; unfinished work is restored; known foreign files are not mutated.
+- Boundary: `ci-monitor.md` ownership/stash; wrap-up uses `#publish-a-verified-increment`.
+- Git walk: `/tmp/trunk-mode-slice8-fRikt7` remote `main` `84d2876`; exec `?? wip.txt`; foreign `?? foreign-repair.txt`.
+- Commands: `node --test src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs src/skills/dough-execute-plan/scripts/ci-custom-guidance.test.mjs` (3 pass).
+- Native pending.
 
 ### 9. Resume at the first unfinished trunk delivery obligation
 Type: Behavior

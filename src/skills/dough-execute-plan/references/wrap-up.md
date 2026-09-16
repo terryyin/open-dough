@@ -1,7 +1,8 @@
 # Slice wrap-up
 
 The coordinator runs this sequence after implementation. CI repairs use the
-same proof and delivery gates.
+same proof and delivery gates, including Trunk Mode
+[verified-increment publication](trunk-publication.md#publish-a-verified-increment).
 
 ## Accept proof
 
