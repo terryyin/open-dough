@@ -12,6 +12,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 new_managed_files=(
   dough-maintain-findings/SKILL.md
+  dough-bug-fixing/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-plan-refinement/SKILL.md

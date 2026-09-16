@@ -82,6 +82,7 @@ elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd --
 target=$(cd -- "${target}" && pwd -P)
 managed_files=(
   dough-update/SKILL.md
+  dough-bug-fixing/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
   dough-product-backlog/references/merge-conflicts.md

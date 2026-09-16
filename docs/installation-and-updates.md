@@ -5,6 +5,7 @@ roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
 The payload in each root is exactly:
 
 - `dough-update/SKILL.md`
+- `dough-bug-fixing/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
 - `dough-product-backlog/SKILL.md`
 - `dough-product-backlog/references/merge-conflicts.md`
@@ -147,6 +148,7 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-register-hooks.mjs`
    - `src/install/open-dough-register-hooks-merge.mjs`
    - `src/skills/dough-update/SKILL.md`
+   - `src/skills/dough-bug-fixing/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`
    - `src/skills/dough-product-backlog/SKILL.md`
    - `src/skills/dough-product-backlog/references/merge-conflicts.md`

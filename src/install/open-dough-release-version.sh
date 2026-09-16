@@ -16,6 +16,7 @@ managed_payload_unchanged() {
   local skill_root managed_file historical_files
   local -a files=(
     dough-update/SKILL.md
+    dough-bug-fixing/SKILL.md
     dough-adr-awareness/SKILL.md
     dough-product-backlog/SKILL.md
     dough-product-backlog/references/merge-conflicts.md
