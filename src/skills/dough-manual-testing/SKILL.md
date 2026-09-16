@@ -1,52 +1,66 @@
 ---
 name: dough-manual-testing
-description: Verifies web-app behavior manually in a browser when the developer explicitly requests manual testing or an active plan slice requires it. Does not run proactively or replace required automated E2E tests.
+description: >-
+  Plans bounded manual or exploratory observation of requested product
+  behavior when the developer explicitly requests manual testing, exploratory
+  testing, or an active plan slice requires it. Covers web, CLI, API, desktop,
+  or combined surfaces. Does not run proactively or replace required automated
+  tests.
 ---
 
-# Test web-app behavior manually
+# Observe requested behavior
 
-Use only for an explicit developer request or manual testing required by the
-active plan slice. Exercise the requested flows through available browser
-tools and report observed behavior.
+Use only on explicit developer request or plan-slice manual testing.
+No diagnosis, product repair, or unrequested tooling.
 
-## Establish the environment
+## Mission
 
-Resolve this project's target flows and expected results, test environment and
-app URL, stack startup instructions, authentication flow, and approved test
-accounts from the task and repository. Resolve service endpoints or external
-service configuration only when needed for the requested flow. Do not copy
-credentials into the report.
+Resolve scope and time budget from the request: a feature, story set, recent
+deliveries, or change range. Recover current promises, examples, and
+constraints from this project's records or Git history, including deleted
+stories. Apply later decisions before older expectations; implementation,
+narration, and existing tests are not the oracle.
 
-Expect the project's test stack to be running. Check availability; if it is not
-running, tell the user how to start it using the project's documented command
-in a separate terminal. Report that testing is blocked until it is available.
-Do not guess a URL, account, startup command, or secret. If necessary context or
-browser tooling is unavailable, identify the missing prerequisite and stop
-without claiming verification.
+Identify in-scope externally observable surfaces, including non-web. Resolve
+URLs, accounts, startup, secrets, and tools from this project's guidance when
+needed; do not guess credentials.
 
-## Exercise and observe
+If oracle, budget, or needed environment or access is missing, name it and
+stop; do not invent them.
 
-1. Navigate to the app URL and inspect a browser snapshot to establish the
-   current state.
-2. If authentication is needed, follow the project's documented login flow
-   using an approved test account.
-3. Inspect the snapshot for available elements. Prefer stable IDs or accessible
-   labels, falling back to element text or role. Use the host's available
-   browser tools for navigation, clicking, typing, and selecting options.
-4. Exercise the target flows and inspect snapshots after interactions to verify
-   the results against the expected behavior.
-5. If issues occur, inspect browser console messages and network requests.
-   Where the development server runs background linting, also check its terminal
-   output; overlays may be disabled. Resolve lint errors before any commit under
-   the active task, or report them as unresolved.
+## Plan
 
-Manual testing does not replace automated E2E verification required by the plan.
+Before acting, list coverage areas and journeys, risks or questions, and
+proportional split of preparation, breadth, selective depth, and
+surprise/confirmation reserve. Weight by importance and risk. Include each
+promised surface. Completing this plan is not acceptance.
+
+## Prepare
+
+Choose the cheapest reliable route: existing setup, whole or partial automated
+journey, or temporary harness or test, including a setup-only feature
+scenario using existing steps. Skip setup when current state serves. Confirm
+state, session, and required services remain available for external
+observation; a finished batch run may not. Preserve isolation, cleanup,
+compatible-state reuse, and removal of owned temporary artifacts. Missing
+reuse is a possible improvement, not authority for permanent test/runner
+changes. If no supported route leaves a usable starting state, name it and
+stop.
+
+## Explore
+
+Cover planned areas in breadth first with this project's tools. Spend depth on
+surprises and high-risk questions; reallocate remaining time, keeping
+confirmation reserve. Reuse sufficient automated evidence; do not replay
+deterministic checks or proven setup. If a needed tool or environment is
+unavailable, name it and stop.
 
 ## Report
 
-Report the flows exercised, expected and observed results, supporting snapshot
-observations, and issues found. Distinguish failures from flows that could not
-be tested. When all requested flows have been exercised and their results
-recorded, end with `## MANUAL TEST COMPLETE`; this marker means testing finished,
-not that every flow passed. For blocked or partial testing, report the missing
-prerequisite or remaining work without the completion marker.
+When planned coverage completes with no actionable findings or material
+uncertainty, report exactly `Good.` Otherwise report only discrepancies
+(expected versus actual plus evidence), unresolved expectations (not false
+fails), improvements (out-of-scope ideas, not failed acceptance), and
+material coverage gaps. Never report `Good.` when blocked or incomplete.
+Omit narration, speculation, and completion markers. Do not start repair,
+root-cause, or permanent test changes.

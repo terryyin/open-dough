@@ -72,3 +72,29 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
+
+## DD-047 — Cursor mailbox probe did not attach CI_MONITOR_READY
+
+A harmless `ci-mailbox.mjs probe` printed a `CI_OBSERVER` receipt, but this
+coordinator session never received host `CI_MONITOR_READY`. Observation was
+not started; later execution-branch pushes were unobserved.
+
+### Occurrences
+
+- Execution: `SEED-004#guide-useful-manual-testing @ ed19f9f`
+  - Timestamp: 2026-09-16T16:00:00+08:00
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: modified; revision 1805b5a; base 0.3.22
+  - Evidence: Probe from
+    `.worktrees/051-guide-manual-exploration/.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs`
+    printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-P9o15E"}`.
+    Pushes `ed19f9f`, `067b29f`, `96822da` to
+    `quick/051-guide-manual-exploration`. Plan records CI observation unavailable.
+  - Observed effect: No observer was armed; `pendingCi: unobserved` for the
+    whole planned execution. GitHub Actions for the branch was not claimed.
+  - Inference: The adapter requires a separate hook `CI_MONITOR_READY` after
+    the receipt; a probe directory is not an execution observer. Following the
+    unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
+    hook failed to bind `generation_id` was not proved.
+

@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004 — [plan](quick/051-guide-manual-exploration/PLAN.md)
-
 ## Backlog list
 
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001
