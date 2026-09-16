@@ -1,6 +1,14 @@
 # Guide a useful manual and exploratory test session
 
-Status: planned.
+Status: planned; execution started.
+
+## Execution identity
+
+- Originating checkout: `/Users/terryyin/git/open-dough` on `main` (claim `b118af5`).
+- Execution checkout: `/Users/terryyin/git/open-dough/.worktrees/051-guide-manual-exploration` on `quick/051-guide-manual-exploration`.
+- Integration target: `main`.
+- Replanning: existing planning authority preserved (neither `--replan` nor `--no-replan`).
+- Slice budget: none numeric; bound by Behavior/Structure.
 
 ## Source and outcome
 
@@ -10,7 +18,7 @@ exploration across the requested surfaces, efficient temporary preparation,
 and action-only reporting. This supports the backlog's lifecycle direction by
 making requested story verification useful without introducing another lifecycle.
 
-Planning only is authorized. Keep the story queued. Exclude project customization,
+Execution is authorized via `/dough-execute-plan 51`. Exclude project customization,
 permanent runner/setup tooling, automatic repairs, formal UAT machinery, promotion,
 release, and installation/adoption. Do not edit installed managed skill copies.
 
@@ -68,7 +76,7 @@ constraints (no conflict, exception, or metadata mismatch found):
 ### 1. Plan a bounded observation mission from recoverable expectations
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an explicit testing scope and available budget, the skill guides
 an agent to a proportional coverage plan grounded in current promises, including
@@ -89,6 +97,24 @@ it. Record decisive observations in this plan; no new prose-matching tests.
 Safe stop: the source supports a grounded mission and plan; preparation and
 exploration enhancements remain explicitly planned. Inspect the whole source for
 contradictions introduced by this replacement.
+
+Accepted proof:
+- Promise: opt-in multi-surface mission; Git-recovered oracles including deleted
+  stories; later decisions before older expectations; missing oracle/budget/environment
+  named; proportional prep/breadth/depth/reserve plan; completing the plan is not
+  acceptance.
+- Boundary: `src/skills/dough-manual-testing/SKILL.md` mission and coverage sections.
+  Leftover exercise/report text remains slice 3 and is not web-only.
+- Command: representative walkthrough of recent CI-feedback deliveries plus
+  `wc -w src/skills/dough-manual-testing/SKILL.md` and `git diff --check`.
+- Setup: apply the edited skill in the execution checkout; recover promises from
+  wrap-up `18a2673` (deleted SEED-013) and current
+  `src/skills/dough-execute-plan/references/ci-monitor.md`.
+- Observations: supplied 40-minute budget split 8/15/10/7; CLI surface `gh run view`;
+  current-host dispatch supersedes the deleted seed’s Codex-first line; missing budget
+  and missing notebook-UI oracle stop without invention; 387 words vs 397 baseline;
+  whitespace check clean.
+- Result: pass. Not rerun after refactor (`none — already clean`).
 
 ### 2. Reach an externally usable starting state through temporary preparation
 
@@ -199,6 +225,10 @@ No unresolved product-scope decision was identified. No timing guarantee is made
 Planning inspection: database reset at scenario start does not establish application
 availability after a batch ends. Keep state lifetime and runner lifetime distinct;
 this finding narrows the real proof without adding project-specific runtime rules.
+
+Slice 1 walkthrough: recover deleted SEED-013 at `18a2673`, then apply the current
+execute-plan host-dispatch contract as the later decision. The seed’s Codex-first
+proof line is not the live oracle.
 
 ## Slice-plan refinement assessment
 
