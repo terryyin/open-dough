@@ -1,3 +1,12 @@
+## 0.3.22 - 2026-09-16
+
+- Add `dough-bug-fixing` to the installable payload. Triage reported discrepancies before implementation, carry bounded fixes through the shared execution workflow, and queue larger or inconclusive reports as first-priority product work without overstating diagnosis or completion.
+- Let small, well-understood requests use the isolated execution path directly through wrap-up. Return control when a planless attempt exceeds its no-replan boundary, and move genuinely oversized remaining work into ordinary planning without discarding completed work or proof.
+- Remove the finished extraction and speculative-recognition machinery from skill authoring, installation, and update behavior. Review shared skills from their current behavior, deliver newly declared paths through ordinary tagged updates, and preserve collision protection without recognition-specific retirement logic.
+- Tighten custom CI revision accounting by rejecting malformed revision identities and shipping the revision helper required by the execution watcher, while retaining exact-revision coverage and explicit observation gaps.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.22`. Acceptance for the new bug-fixing workflow, revised execution and wrap-up behavior, extraction-removal changes, custom CI revision handling, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.21 - 2026-09-15
 
 - Add an optional project-owned CI command adapter while preserving GitHub Actions as the empty or absent default. Commands run directly from the execution checkout, use bounded JSON discovery and diagnostic operations, and retain opaque run and attempt identities.
