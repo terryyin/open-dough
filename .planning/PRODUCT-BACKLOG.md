@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Minimize and prove AI involvement in CI watching](seeds/SEED-013-minimize-and-prove-ci-watcher-ai-involvement.md#minimize-and-prove-ci-watcher-involvement) — SEED-013 — [plan](quick/050-simplify-and-prove-ci-feedback/PLAN.md)
-
 ## Backlog list
 
 - [Guide a useful manual and exploratory test session](seeds/SEED-004-extract-and-adopt-project-guidance.md#guide-useful-manual-testing) — SEED-004
