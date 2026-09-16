@@ -1,0 +1,407 @@
+# Plan 052 — Introduce Trunk Mode for plan execution
+
+Status: planned. Planning only is authorized; the source remains queued.
+
+## Source and outcome
+
+[SEED-008 Story 1](../../seeds/SEED-008-worktree-branch-trunk-sync.md#introduce-trunk-mode).
+A developer explicitly selects Trunk Mode for planned or authorized planless
+work. A retained local branch/worktree delivers verified increments immediately
+to shared trunk, receives trunk CI feedback, and closes with correct attribution
+and safe local cleanup. Keep the existing execution default unchanged.
+
+[Story 2](../../seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+separately owns an automated same-machine merge queue. This plan includes safe
+coordination and refusal when exclusive target access is unresolved; it does
+not build a queue, scheduler, daemon, distributed claims, or global repair service.
+Hosted cloud execution, indexing/build-cache optimization, automatic migration
+between modes, PR integration, release, and performance benchmarking are excluded.
+
+## Context, reuse, and architectural decisions
+
+- Root/layout: `.planning/quick/NNN-description/PLAN.md`, planned/done slices.
+  Git history allocates through 051; 052 was checked vacant before writing.
+  No numeric slice budget or active North Star was found. Do not invent either.
+- Edit published behavior at `src/skills/`, never hand-edit installed managed
+  `.agents/skills/` or `.claude/skills/` copies. Any new runtime-consumed reference
+  must follow existing payload declaration/verification behavior. No version
+  bump, tag, installation refresh, or release is authorized by this plan.
+- PFE: `dough-execute-plan/SKILL.md` already owns selection, claims, identity,
+  resume, and the execution loop. Its `references/wrap-up.md` owns per-increment
+  proof, refactoring, commit, publication, and revision registration. Extend
+  these owners rather than create a second executor.
+- PFE: `references/runtime-setup.md` already selects CI from the push destination;
+  `scripts/ci-mailbox.mjs` accepts a branch independently of its checkout-bound
+  runtime. `ci-command-adapter.mjs` separately passes branch and working directory.
+  `ci-mailbox-store.mjs` owns revision registration/coverage. Reuse these concepts;
+  the prose currently conflating observed and execution branches must change.
+  Do not infer native behavior proof solely from these source findings.
+- PFE: `references/ci-monitor.md` owns asynchronous feedback and pause/repair;
+  existing host bridges remain the notification mechanism. The watcher observes
+  branch activity, so ownership/registration must distinguish a delivered
+  execution revision from another contributor's failure.
+- PFE: `dough-execution-retrospective` already manifests attributable SHAs and
+  rejects contaminated net diffs. Extend that recovery for rewritten unpublished
+  commits and interleaved trunk history. `dough-story-wrap-up` owns durable
+  closure, integration checks, and non-force cleanup. Reuse its recovery rules.
+- PFE: `dough-product-backlog/references/merge-conflicts.md` already preserves
+  independent queue edits. Existing execution-decisions own disputed intent,
+  writer pauses, and preservation. Do not invent another conflict policy.
+- Relevant Accepted ADRs: [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  requires continuous integration and shared-intent resolution;
+  [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) governs useful
+  behavior proof and host-specific evidence;
+  [0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+  requires one shared, concise runtime behavior written for the executing project.
+  Apply [AGENTS.md](../../../AGENTS.md). ADR 0007 remains Proposed, not a barrier
+  to a separate mode and not accepted or rewritten by this work.
+- One shared Trunk Mode publication contract should serve execution, claim,
+  repair, and closure, with the caller's existing preparation/proof obligations.
+  Extract a focused reference only where that avoids duplicated behavior. This
+  does not justify a generic Git framework or a new configuration system.
+
+## Execution decisions
+
+1. Use explicit `--trunk` selection (including equivalent clear natural-language
+   invocation). Preserve Story Branch Mode as the default and current-branch
+   selection. Resolve contradictory selections before changing state. Planned
+   corrections and planless contextual instructions keep their existing sources
+   and authority; a mode never creates execution authority.
+2. Retain execution checkout/branch, integration checkout/branch, remote target,
+   mode, and actual published revisions in the existing plan/conversation.
+   Claim setup may establish provisional identity; complete it before dispatch.
+   No new recovery file or registry. Reuse project naming and target conventions.
+3. Acquire an explicit exclusive integration turn through available coordinator
+   context before changing a shared target checkout. A clean working directory
+   alone does not establish ownership. If another writer cannot be coordinated,
+   stop that integration without altering its work. This is a usable manual
+   boundary until Story 2 automates admission; do not rely on Git's individual
+   lock files as a transaction lock for fetch/rebase/advance/push.
+4. In that turn, fetch the authorized remote, reconcile target state, rebase only
+   owned unpublished execution work onto current trunk, validate affected
+   behavior, fast-forward the local target, and publish the exact candidate.
+   Keep the same worktree. Known unrelated local target commits are not silently
+   published; ambiguous ownership or dirty target conflicts stop the path.
+5. A push race after local integration may leave an owned unpublished suffix on
+   local trunk. Reconcile that suffix with the newer remote under exclusive
+   ownership, update execution identity/commit attribution, and publish normally.
+   Never rewrite remote history or another writer's commits. If local state
+   cannot be reconciled safely, retain it and report the precise decision.
+6. Rebase changes invalidate affected proof, not every prior observation.
+   Reuse unaffected proof, preserve established independent refactoring and
+   selective formatting/hook obligations, and avoid deliberate failing commits.
+   No force push, no blind retry loop, no replay of already published story work.
+7. CI source is the authorized target branch; runtime, edits, and repair remain
+   bound to the execution checkout. Retain the exact candidate SHA before push,
+   establish publication of that SHA, and register it after success. Fetching a
+   newer HEAD is not evidence for a different candidate. Observe claims and all
+   subsequent publications when coverage is available; report gaps explicitly.
+8. Preserve asynchronous delivery and existing pending/lost coverage reporting.
+   Before handling a reported trunk failure, inspect its revision, this execution's
+   deliveries, and any known repair owner. Do not infer cause or ownership from
+   ancestry alone. Pause owned writers for repair; coordinate with the relevant
+   owner or stop conflicting work when ownership is unclear.
+9. Execution retains resources for review and wrap-up. Closure commits use the
+   same publication contract. If execution's observer has stopped, closure must
+   resolve its own observation ownership through the existing lifecycle before
+   publishing, then stop only that observer and report remaining coverage.
+   Pending CI does not become a new completion wait. Never delete a worktree
+   containing an active checkout-bound observer or unique/unpublished work.
+10. Implementation follows existing execute-plan proof, independent refactoring,
+    formatting, staged-diff, commit, delivery, and review gates. Resolve actual
+    checkout, hooks, CI, and push authority at execution. Planning performs no
+    implementation, commit, push, or changes to execution state.
+
+## Proof approach
+
+Guidance is the product. Each slice has one behavior review using the changed
+instructions and an inspectable outcome, not a wording-match test. For Git
+boundaries, use disposable local repositories with a bare remote and separate
+worktrees/clones; inspect refs, files, remote heads, and resource state. No live
+project or shared remote is a test fixture. A shell reconstruction establishes
+Git feasibility only; it does not prove an agent followed the skill.
+
+For changed runtime behavior, extend existing Node tests at the nearest external
+boundary and run focused cases first. Relevant existing entries are
+`ci-mailbox-launch.test.mjs`, `ci-deployment-layout.test.mjs`,
+`watch-ci-execution-coverage.test.mjs`, `ci-custom-host-bridge.test.mjs`, and the
+Codex/Cursor/Claude lifecycle tests under `src/skills/dough-execute-plan/scripts/`.
+`bash tests/execution-ci-runtime.sh` is the full runtime regression entry; run it
+when runtime/shared lifecycle changes justify it, not after every prose edit.
+For payload changes, use `bash tests/execution-payload-update.sh` and
+`bash tests/dough-update-guidance-payload.sh`. `npm run lint` and `npm test` remain
+the repository checks when applicable; unchanged managed-copy expectations are
+not permission to self-install unreleased guidance.
+
+Native acceptance ownership: slices 1–2 own selected entry/delivery behavior on
+local Codex, Cursor, and Claude Code; slice 7 owns the checkout/target split through
+each host's bridge; slice 12 owns local lifecycle closure. Reuse valid existing
+integration evidence, but do not equate one host's success or a hand-scripted
+fixture with another host's skill behavior. Track each required native result
+or justified reuse in this plan during execution. Unavailable checks remain
+pending, with a linked acceptance-story owner if implementation closes before
+native acceptance under ADR 0005; no such checks are claimed passed here.
+
+## Ordered slices
+
+### 1. Start explicitly selected work with a visible trunk claim
+Type: Behavior
+Status: planned
+
+Behavior: Given authorized planned or planless work and explicit Trunk Mode,
+startup produces one retained local execution workspace with the required queue
+claim published on trunk before implementation. Context-only planless work starts
+without fabricated planning artifacts. Omitted mode retains existing behavior.
+
+Change: Extend selection, provisional/full identity, and startup publication at
+the existing entry boundary. Share the minimal publication rule used by slice 2;
+claim setup failures preserve exact state. Resolve source/context before mutation.
+Proof: Walk a queued startup through visible remote Taken state and inspect its
+execution base; contrast contextual planless startup and no-mode selection.
+An unavailable destination prevents implementation, preserving existing changes.
+Sizing: One startup gate; moderate uncertainty from claim-before-worktree ordering.
+
+### 2. Publish each verified increment from the retained workspace
+Type: Behavior
+Status: planned
+
+Behavior: With unchanged trunk, two separately completed increments each reach
+the remote trunk before the next dependent increment; the workspace remains and
+no execution branch is published.
+
+Change: Route Trunk Mode slice delivery through rebase/fast-forward publication,
+retaining existing preparation gates. Same rule applies to planned, quick, and
+contextual work; normal execution retains its current retrospective behavior.
+Proof: In a disposable two-increment scenario, inspect remote history after each
+boundary, unchanged checkout identity, and absence of a remote workspace branch.
+Review no unnecessary proof rerun, no CI wait, and preservation of other modes.
+Sizing: One repeated delivery gate; source guidance is the primary change.
+
+### 3. Incorporate another contributor's increment before continuing
+Type: Behavior
+Status: planned
+
+Behavior: Another worktree publishes while this execution has an unpublished
+increment; delivery rebases onto current trunk and preserves both increments,
+with the execution workspace observing the combined state for subsequent work.
+
+Change: Reconcile from the fetched target; update rewritten commit attribution
+and reverify only affected behavior. Reuse backlog reconciliation for sibling edits.
+Proof: A/B/A interleaving in real Git; inspect combined remote files and separate
+queue entries, correct execution bases, and survival of previously published SHAs.
+Sizing: One interleaving proof; no automatic concurrent admission in this slice.
+
+### 4. Preserve a shared target when integration ownership is unavailable
+Type: Behavior
+Status: planned
+
+Behavior: A target checkout has another active writer or ambiguous local state;
+this execution stops its target mutation with its increment recoverable. Once an
+exclusive turn is established, ordinary integration can proceed.
+
+Change: Make ownership/cleanliness checks conditional on target mutation and use
+existing pause/coordination behavior. Do not create a queue or treat clean status
+as proof of exclusivity. Preserve unrelated staged and unstaged content.
+Proof: Simulate a declared competing writer with clean and dirty target variants;
+inspect unchanged target/index and retained execution commit after the stop.
+Sizing: One preservation gate; no distributed locking implementation.
+
+### 5. Recover a rejected push without rewriting published history
+Type: Behavior
+Status: planned
+
+Behavior: Another contributor pushes after our fetch/local integration; publication
+is rejected, then succeeds after reconciliation of only our unpublished work.
+
+Change: Retain candidate/base/publication state through a race; refresh actual
+remote state, reconcile the owned local suffix, update identities, and retry an
+ordinary push. Unknown ownership or persistent failure reports the retained state.
+Proof: Inject a competing commit from another clone between integration and push;
+assert remote history preserves it and receives our increment exactly once, without
+force-push, branch publication, or silently pushing unrelated local commits.
+Sizing: One rejection/reconciliation loop; moderate Git-state recovery concern.
+
+### 6. Resolve an integration conflict from both contributors' intent
+Type: Behavior
+Status: planned
+
+Behavior: Rebase encounters a conflict; understood intent produces a verified
+combined change, while incompatible intent leaves a preserved, reported decision.
+
+Change: Apply existing conflict/human-judgment policy to unpublished rebase work,
+including backlog conflict handling. Recheck affected proof before publication.
+Proof: Walk one concrete conflicting backlog/code change with known compatible
+intent and a countercase lacking the product decision. Inspect both preserved
+outcomes or the unresolved work state; no blind ours/theirs choice.
+Sizing: One conflict-resolution gate, not an evaluation of general agent competence.
+
+### 7. Receive CI feedback for the exact published trunk revision
+Type: Behavior
+Status: planned
+
+Behavior: A worktree publishes an increment whose SHA changes during rebase;
+its observer runs from the execution checkout but reports coverage/feedback for
+the final SHA on trunk, without waiting for CI.
+
+Change: Remove execution-branch assumptions from CI guidance and necessary
+callers. Reuse explicit branch and revision registration in the runtime; change
+runtime code only for a demonstrated gap. Include claim publication and truthful
+unavailable-bridge/registration-failure handling under the existing contract.
+Proof: Launch from an installed-layout fixture worktree on a different branch,
+observe target-branch request and final SHA registration, and deliver a matching
+failure through the applicable bridge. Old SHA/unrelated SHA is not reported as
+coverage for our delivery. Required host evidence belongs to this slice.
+Sizing: One notification boundary; native bridge evidence may be unavailable and
+must remain pending rather than broaden into a new notification framework.
+
+### 8. Deliver a trunk CI repair without taking another agent's work
+Type: Behavior
+Status: planned
+
+Behavior: A delivered failure attributable to this execution is repaired from
+its retained worktree and published through the same trunk cycle; another known
+owner's repair is not duplicated or overwritten.
+
+Change: Extend current pause/stash/repair/restoration behavior with trunk revision
+and ownership checks. Queue notifications during repair as already specified;
+retain unknown ownership as a coordination stop rather than inventing a registry.
+Proof: A notification arrives with unfinished owned work; repair is published,
+that work is restored, and the same execution resumes. A known foreign repair
+countercase preserves its files and reports coordination instead of duplicate work.
+Sizing: One repair lifecycle using existing machinery; no global repair scheduler.
+
+### 9. Resume at the first unfinished trunk delivery obligation
+Type: Behavior
+Status: planned
+
+Behavior: After interruption, execution recognizes whether its increment is only
+committed, integrated locally, already published, or missing CI registration, and
+continues without duplicate commits, pushes, or replacement worktrees.
+
+Change: Extend existing recovery using actual refs, retained rewritten identities,
+and observer receipts. Preserve mode when a quick attempt becomes planned.
+Proof: Table-driven walkthrough of those four delivery boundaries against real
+Git/receipt states. A lost push response with the candidate already on remote
+trunk is recognized; ambiguous identity preserves resources and reports the gap.
+Sizing: One recovery decision across states of the same publication operation.
+
+### 10. Review only the selected execution's interleaved changes
+Type: Behavior
+Status: planned
+
+Behavior: Retrospective on a Trunk Mode story identifies its actual delivered
+changes even after rebases and interleaved sibling commits, without attributing
+the whole trunk range to that story.
+
+Change: Reuse existing SHA manifests, selected-patch review, and recovery of
+original intent. Carry published attribution through execution; avoid a second
+ledger and preserve normal planned/planless review selection.
+Proof: A/B/A history with a rebased unpublished A revision yields only A's delivered
+changes in its review; sibling B and stale unpublished SHA are excluded with reasons.
+Sizing: One review attribution boundary; no new retrospective process.
+
+### 11. Publish closure durably before deleting its recoverable history
+Type: Behavior
+Status: planned
+
+Behavior: Wrap-up makes selected review/closure inputs recoverable on shared
+trunk, then publishes final cleanup while preserving sibling stories and edits.
+
+Change: Route before-cleanup and final-closure commits through the common Trunk
+Mode publication rule. Reconcile observation ownership after execution shutdown;
+report exact published closure revisions and pending coverage without waiting.
+Proof: Close A while B's backlog/seed work remains active. Inspect remote
+before-cleanup recovery, remote final closure, surviving B content, and accurate
+CI shutdown/coverage state. Failed publication retains recoverable resources.
+Sizing: One durable-closure lifecycle; does not yet claim resource cleanup.
+
+### 12. Remove only safely published local execution resources
+Type: Behavior
+Status: planned
+
+Behavior: After durable closure, remove this execution's clean branch/worktree
+only when publication and observer shutdown are established; repeated closure
+recognizes already-completed steps. Unique work or blocked removal remains intact.
+
+Change: Add Trunk Mode cleanup to the existing wrap-up owner without remote
+branch deletion. Keep completion reporting honest and preserve other modes.
+Proof: A representative complete local journey ends with remote trunk retaining
+all work and owned resources absent. Countercases for unpublished work, active
+observer, and dirty/unrelated resources leave those resources intact. Repeated
+wrap-up causes no duplicate closure. Native lifecycle evidence belongs here.
+Sizing: One resource-lifecycle gate; reuse durable publication evidence from slice 11.
+
+## Promise coverage and stopping points
+
+| Source promise | Owning slices |
+| --- | --- |
+| Explicit selection, unchanged defaults, planned/planless/contextual inputs | 1–2 |
+| Visible claim, setup failures, existing project conventions | 1 |
+| Per-commit publication, local-only branch, unchanged-trunk fast path | 2 |
+| Incoming changes, interleaved work, affected proof only | 3 |
+| Exclusive target mutation, unrelated work preservation | 4 |
+| Push race, failed publication, no remote history rewrite | 5 |
+| Conflict intent and human decision boundary | 6 |
+| Trunk CI, final SHA, asynchronous and missing coverage reporting | 7 |
+| Repair location, restoration, ownership | 8 |
+| Interrupted delivery, quick-to-planned continuity, no duplicate work | 9 |
+| Story attribution across interleaving and rebase | 10 |
+| Review/closure publication, recovery and sibling preservation | 11 |
+| Final local-only cleanup, shutdown, retry, truthful completion | 12 |
+
+Every slice must leave existing supported execution modes intact. Intermediate
+Trunk Mode capability is not the completed story; make limitations explicit and
+preserve execution resources at unsupported boundaries. Do not promote or release
+partial lifecycle support as complete. A safe stop retains integrated increments
+and recoverable local work; native gaps remain visible. Full story value does not
+depend on delivering the later merge queue.
+
+## Plan assessment and evidence
+
+The cumulative design is one mode-aware publication boundary with separate
+execution location and publication target. Claims, normal increments, repairs,
+and closure reuse it; source type controls its existing lifecycle, not separate
+Trunk Mode implementations. Reuse judgments above are based on source inspection,
+not completed runtime proof. No slices or native observations have run.
+
+Construction separated push-race recovery (5) from interruption recovery (9),
+CI observation (7) from repair (8), and durable closure (11) from resource removal
+(12), keeping each externally observable gate and proof loop distinct.
+
+### Isolated Git feasibility evidence
+
+On 2026-09-16, Git 2.50.1 (Apple Git-155) passed a disposable local fixture
+with a bare remote, a target checkout on `main`, an `execution` worktree, and
+a competing clone. The target first fast-forwarded to our execution commit;
+the competing clone then pushed an independent commit, rejecting our push.
+Both local checkouts were clean and exclusively owned by the fixture.
+
+The tested recovery calls were:
+
+```python
+git(target, 'fetch', 'origin')
+git(target, 'rebase', '--onto', 'origin/main', base, 'main')
+git(execution, 'rebase', '--onto', 'main', old, 'execution')
+git(target, 'push', 'origin', 'main')
+```
+
+Here `git(where, *args)` invokes `git -C <where> <args>`; `base` is the
+previously published base SHA and `old` is our locally integrated, unpublished
+candidate SHA. The second rebase moves the execution branch with no remaining
+commits beyond that candidate. It is not a recipe for discarding additional work.
+
+Critical postconditions passed: the competing published commit remains an
+ancestor, our increment appears exactly once, both checkouts end at the rewritten
+candidate with both files, and the remote has only `main`. No force push was used.
+The temporary fixture was removed. This proves the clean, exclusively owned
+Git-state transition only; it does not prove skill behavior, conflicts, unknown
+ownership, additional unfinished work, or native host delivery.
+
+Remaining concerns: slice 5 must prove reconciliation of a locally integrated
+but unpublished suffix through the actual skill, beyond the isolated Git proof;
+slice 7 must establish checkout/target separation in the
+native hosts rather than relying on the runtime signature; slices 4 and 8 must
+stop safely where independent coordinators cannot establish ownership. These are
+bounded verification concerns, not authorization to add the queued merge service
+or weaken ownership guarantees. Native coverage selection/availability is not yet
+established. No timing guarantee or claim of zero integration overhead is made.
