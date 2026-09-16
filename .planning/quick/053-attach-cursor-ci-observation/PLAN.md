@@ -66,7 +66,7 @@ adopted worktree execution, not a new product boundary.
 
 | Promise | Owner | Observable proof |
 | --- | --- | --- |
-| Worktree probe yields host `CI_MONITOR_READY` when hooks can run | Slice 1 | Inexpensive: `node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs` pass (coordinator). Setup: fixture originating git + `git worktree add` execution; deploy `.agents` runtime; originating `cwd` managed Cursor `postToolUse`. Observation: originating hook `additional_context` matches `/CI_MONITOR_READY/`. Native Cursor coordinator: still unproved — this session's installed originating `.agents` hook is not the `src/` change. |
+| Worktree probe yields host `CI_MONITOR_READY` when hooks can run | Slice 1 | Inexpensive: `node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs` pass (coordinator). Setup: fixture originating git + `git worktree add` execution; deploy `.agents` runtime; originating `cwd` managed Cursor `postToolUse`. Observation: originating hook `additional_context` matches `/CI_MONITOR_READY/`. Native Cursor READY in a session whose installed payload includes this adapter is follow-up evidence at the next payload update, not a remaining slice gate (authorized 2026-09-17). |
 | After READY, execute-plan can start one observer for the authorized branch | Slice 1 | Same focused test: start from worktree runtime; originating hook matches `/CI observer attached to this coordinator/`. Later push registration/stop: reuse existing same-checkout lifecycle tests. |
 | Receipt is not an armed observer | Slice 1 | Same focused test: probe `request.probe === true`; READY context does not match attach. |
 | Unrelated checkout mailbox is still another checkout | Slice 1 | Same focused test: unrelated probe into originating hook rejects `/CI mailbox belongs to another checkout/`. Launcher identity: `node --test src/skills/dough-execute-plan/scripts/ci-deployment-layout.test.mjs` (implementation report, pass 4). |
@@ -76,11 +76,11 @@ adopted worktree execution, not a new product boundary.
 
 ### 1. Attach READY after a worktree mailbox probe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Inexpensive contract accepted via
 `node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs`
-(pass). Native Cursor coordinator READY after a worktree probe remains required
-and unproved; do not mark this slice done.
+(pass). Native Cursor READY after the next payload update is follow-up evidence,
+not remaining slice work.
 
 Behavior: Given managed Cursor hooks registered on the originating project and
 a session that can run them, when `ci-mailbox.mjs probe` runs from the
@@ -98,8 +98,11 @@ unchanged.
   probe of this repository is visible to the originating workspace hook. Do not
   relax the launcher rule that probe/start must use the selected execution
   checkout's own runtime.
-- Native Cursor evaluation stays in this slice (external session wait). Do not
-  split a second acceptance story for the same READY outcome.
+- Native Cursor READY is follow-up evidence when a live hook is this adapter
+  (ordinary payload update). It is not a remaining gate for this slice
+  (authorized 2026-09-17). Do not release-and-self-install Open Dough solely
+  to obtain that session, and do not hand-sync installed copies or rewrite
+  `.cursor/hooks.json`.
 - Claude Code, Codex, and GitHub Actions remain out of this plan.
 
 ## Execution identity

@@ -30,9 +30,9 @@ Following the unavailable-bridge path is correct until this story lands.
 
 ### 1. Attach Cursor CI observation after a mailbox probe
 
-**Status:** Refined 2026-09-17; first backlog priority. Planned at
-`.planning/quick/053-attach-cursor-ci-observation/PLAN.md`. No remaining
-story-scope open questions.
+**Status:** Done 2026-09-17; native Cursor READY after the next payload update
+is follow-up evidence. Planned at
+`.planning/quick/053-attach-cursor-ci-observation/PLAN.md`.
 
 **Goal:** A developer executing planned Cursor work, including from a Trunk
 Mode worktree, gets host `CI_MONITOR_READY` after a harmless mailbox probe, so
@@ -79,10 +79,11 @@ richer diagnosis of a missed READY beyond the adapter's existing notes.
 - Why READY was missing in the recorded sessions (`generation_id` bind versus
   hook not run versus checkout/delivery mismatch) is implementation
   investigation, not a remaining scope question.
-- Native Cursor coordinator proof is this story's evaluation: this is host-bridge
-  integration, not a skill-only change that can finish from substitute payloads
-  alone. Inexpensive tests must still cover the actual probe/hook contract once
-  known. Claude Code and Codex native rechecks stay deferred.
+- Inexpensive originating-workspace hook plus execution-worktree probe coverage
+  is this delivery's proof of the host-bridge contract. Native Cursor READY in
+  a session whose installed payload includes this adapter is follow-up evidence
+  at the next ordinary payload update, not a remaining delivery gate (authorized
+  2026-09-17). Claude Code and Codex native rechecks stay deferred.
 
 #### Key examples
 
@@ -101,11 +102,10 @@ richer diagnosis of a missed READY beyond the adapter's existing notes.
    still fails as another checkout. Execute-plan does not arm from it. A worktree
    of this repository is not that case.
 
-**Evaluation:** In a real Cursor coordinator session with registered hooks, a
-probe from the execution worktree is followed by `CI_MONITOR_READY` without
-editing host JSON from execute-plan, and execute-plan can then arm one observer.
-A session that cannot run hooks still reports unavailable coverage instead of
-claiming observation.
+**Evaluation:** Originating-workspace Cursor hook plus execution-worktree probe
+yields `CI_MONITOR_READY` without editing host JSON, then execute-plan can arm
+one observer; a session that cannot run hooks still reports unavailable
+coverage. Native READY after this adapter is installed remains later evidence.
 
 **Evidence already in hand:** Plan 052 execution identity; DD-047; adapter
 contract in `dough-execute-plan/references/ci-notify-hosts.md`. Recorded misses:
