@@ -1,6 +1,6 @@
 # Simplify and prove active-execution CI feedback
 
-Status: planned. Planning and refinement only; no implementation or native run performed.
+Status: executing.
 
 ## Source and outcome
 
@@ -23,17 +23,22 @@ linked guidance and inline code, and preserve clarity and safeguards.
 
 Use the established `.planning/quick/NNN-description/PLAN.md` layout and
 planned/done slice vocabulary. Existing history allocates through 049; 050 avoids
-reusing a spent identity. No active plan identified this story. No numeric slice
-target/hard limit or North Star topic was found; no new timing policy or North Star
-is needed. Backlog remains queued during planning.
+reusing a spent identity. No numeric slice target/hard limit or North Star topic
+was found; no new timing policy or North Star is needed.
 
-Execution will resolve its location, installed runtime, push authority, selective
-formatting, and hook contract at the existing workflow boundaries. Current checkout
-is `main`; this plan creates no execution identity or branch. ADR 0002 and 0005
-constrain simplification and evidence. ADR 0007 remains Proposed; this plan grants
-no Story Branch exception. If an execution invocation chooses a conflicting
-lifecycle, resolve only that choice through existing ADR rules before it begins.
-The isolated acceptance target below is test infrastructure, not product delivery.
+Execution identity (Story Branch Mode):
+
+- originating checkout: `/Users/terryyin/git/open-dough` on `main`
+- claim commit: `bc41b15610c651e8ff33f1782e828c4bfda1a290` (local-only; not pushed separately)
+- execution checkout: `/Users/terryyin/git/open-dough/.worktrees/050-simplify-and-prove-ci-feedback`
+- execution branch: `quick/050-simplify-and-prove-ci-feedback`
+- caller/project integration target: `main`
+
+Replanning permission: allowed (existing planning authority; no `--no-replan`).
+ADR 0002 and 0005 constrain simplification and evidence. ADR 0007 remains Proposed;
+this execution uses Story Branch Mode as the execute-plan default, not as an
+ADR 0007 adoption. The isolated acceptance target below is test infrastructure,
+not product delivery.
 
 Apply existing execute-plan implementation proof, independent post-change refactor,
 coordinator-owned formatting/commit/push, retrospective, and closure contracts when
@@ -87,7 +92,7 @@ reference does not establish savings. No numeric growth allowance is invented.
 ### 1. Start one observer and deliver events through a smaller Codex interaction
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given verified checkout/repository/branch and an available Codex bridge,
 the coordinator uses a compact maintained launch interaction; one observer starts
@@ -242,7 +247,7 @@ All paths below are repository-relative. Planned commands have not been run here
 Focused starting checks (select only those affected; add newly owned cases):
 
 ```sh
-node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs
+node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs
 ```
 
 If shared host behavior changes, inspect and run the affected
@@ -259,16 +264,36 @@ when proof is accepted, not merely the planned command.
 - Joint value and pending-CI gap are settled; no product question blocks planning.
 - Use existing mailbox/coverage/repair concepts and a minimal host boundary; do
   not replace them with a second observer architecture.
-- Slice 1's native loader capability and slice 3's real delivery/timing are still
-  unproved. The first is checked before dependent changes; the latter is the
-  purpose of native acceptance. Neither has been disguised as existing proof.
-- Do not resolve credentials, create a remote fixture, start watching, or push
-  anything during this planning-only request.
+- Slice 1 native Codex isolate import remains unsupported in this Cursor
+  execution; the documented inline host binding is the supported fallback.
+  Slice 3 still owns real native delivery/timing.
+- Cursor host-bridge readiness: probe printed `CI_OBSERVER` only; no
+  `CI_MONITOR_READY` context. Product-delivery CI observation is unavailable for
+  this session. Do not promise notifications or start an observer.
 
 ## Execution learning and accepted proof
 
-None yet. Record consequential learning and accepted observations here during
-execution, retaining proof across slices only while its boundary remains valid.
+- Learning: this Cursor session has no Codex `functions.exec` / `yield_control` /
+  `notify` / `tools.exec_command` / `tools.write_stdin`. Node-module import into
+  a Codex isolate is unproved; keep the irreducible launch/notify/yield cell
+  inline. A disposable Node fixture stream can prove receipt/parser locally; it
+  is not native notification.
+- Slice 1 accepted (startup-and-delivery Codex cell):
+  - Promise: compact documented cell starts one mailbox stream; events notify
+    only after yield; fragments; one launch; bounded unavailable; finished-skip.
+  - Boundary: fenced JS in `src/skills/dough-execute-plan/references/ci-notify-codex.md`
+    evaluated as-is; `createObserverStreamParser` only for mailbox stream parsing.
+  - Setup: substitute `tools`/`notify`/`yield_control`/`load`/`store`/`text` in
+    `src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs`
+    (`documentedCodexHostBinding` / `runDocumentedCodexHostBinding`).
+  - Command:
+    `node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs`
+  - Result: 17 pass, 0 fail.
+  - Ceremony: `ci-notify-codex.md` 5979 B / 726 w → 5128 B / 634 w (−851 B / −92 w).
+    Inline cell 1916 B / 71 lines → 1690 B / 41 lines. `ci-observer-stream.mjs` is
+    not required launch reading. Isolate still copies consume/deliver.
+  - Native Codex notify remains slice 3. Shutdown remaining in the same file is
+    slice 2.
 
 ## Plan refinement assessment — 2026-09-16
 
