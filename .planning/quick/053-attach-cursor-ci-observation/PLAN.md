@@ -8,20 +8,21 @@ Refined 2026-09-17.
 
 ## Goal and scope
 
-A developer executing planned work in Cursor gets host `CI_MONITOR_READY` after
-a harmless mailbox probe, so execute-plan can arm one observer without waiting
-for CI.
+A developer executing planned Cursor work, including from a Trunk Mode
+worktree, gets host `CI_MONITOR_READY` after a harmless mailbox probe, so
+execute-plan can arm one observer without waiting for CI.
 
 Include: probe from the execution checkout, including a Trunk Mode worktree,
 while the coordinator's managed Cursor hooks may run in the originating
 workspace; separate `CI_MONITOR_READY` context; start one observer for the
-authorized branch after readiness; preserve receipt-is-not-an-observer and
-genuinely-unavailable reporting.
+authorized branch after readiness; preserve receipt-is-not-an-observer,
+unrelated-checkout refusal, and genuinely-unavailable reporting.
 
 Exclude: rewriting `.cursor/hooks.json` from execute-plan; AI polling or a
 second notification framework; waiting for CI; Claude Code and Codex native
 proof; GitHub Actions changes; installing unreleased guidance in other
-projects; richer missed-READY diagnosis.
+projects; richer missed-READY diagnosis; re-proving attached-observer failure
+delivery, stop, and child `generation_id` isolation.
 
 ## Assumptions
 
@@ -68,6 +69,7 @@ adopted worktree execution, not a new product boundary.
 | Worktree probe yields host `CI_MONITOR_READY` when hooks can run | Slice 1 | Focused failing-then-green hook delivery: probe with the execution worktree runtime, feed the receipt to the originating-workspace Cursor hook, match `CI_MONITOR_READY`. Native Cursor coordinator session: probe from an execution worktree, then observe `CI_MONITOR_READY` without editing host JSON. |
 | After READY, execute-plan can start one observer for the authorized branch | Slice 1 | Same focused path starts with the worktree runtime after READY; hook can add `CI observer attached to this coordinator`. Reuse existing same-checkout lifecycle proof for later push registration and stop. |
 | Receipt is not an armed observer | Slice 1 | Execute-plan / adapter still refuses to treat the probe directory as the execution observer (existing readiness-vs-receipt distinction). |
+| Unrelated checkout mailbox is still another checkout | Slice 1 | Existing launcher identity proof stays green (`ci-deployment-layout.test.mjs`); hook still refuses a mailbox whose root is a different repository, not a worktree of this one. |
 | Genuinely unavailable coverage reports once and continues | Slice 1 | Existing missing-`generation_id` / empty-hook tests stay green; no host JSON rewrite. |
 
 ## Ordered slices
@@ -87,8 +89,9 @@ a session that can run them, when `ci-mailbox.mjs probe` runs from the
 execution worktree through Shell, the next coordinator hook context includes
 `CI_MONITOR_READY`, execute-plan may start one observer for the authorized
 branch from that same execution runtime, and the probe receipt directory is
-still not treated as that observer. Disabled hooks, missing `generation_id`, or
-an untrusted workspace still yield unavailable coverage once with host settings
+still not treated as that observer. A mailbox from an unrelated checkout still
+fails as another checkout. Disabled hooks, missing `generation_id`, or an
+untrusted workspace still yield unavailable coverage once with host settings
 unchanged.
 
 ## Current decisions

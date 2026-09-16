@@ -31,11 +31,12 @@ Following the unavailable-bridge path is correct until this story lands.
 ### 1. Attach Cursor CI observation after a mailbox probe
 
 **Status:** Refined 2026-09-17; first backlog priority. Planned at
-`.planning/quick/053-attach-cursor-ci-observation/PLAN.md`.
+`.planning/quick/053-attach-cursor-ci-observation/PLAN.md`. No remaining
+story-scope open questions.
 
-**Goal:** A developer executing planned work in Cursor gets host
-`CI_MONITOR_READY` after a harmless mailbox probe, so execute-plan can arm one
-observer and handle delivered CI failures without waiting for CI.
+**Goal:** A developer executing planned Cursor work, including from a Trunk
+Mode worktree, gets host `CI_MONITOR_READY` after a harmless mailbox probe, so
+execute-plan can arm one observer without waiting for CI.
 
 #### Scope
 
@@ -50,12 +51,15 @@ observer and handle delivered CI failures without waiting for CI.
   workspace while the probe runs from the execution worktree. Success only when
   probing from the main checkout does not close this story.
 - After that readiness, execute-plan may start the observer for the authorized
-  branch and register later pushes.
+  branch and register later pushes. Existing attached-observer failure delivery
+  stays as already proved; this story does not re-prove the full CI lifecycle.
 
 **Rejection constraints** (independent product requirements)
 
 - A receipt alone still does not prove readiness. Execute-plan still refuses to
   treat the probe directory as an armed observer.
+- A mailbox from an unrelated checkout still belongs to another checkout. A
+  Trunk Mode worktree of this repository is not that case.
 - Do not rewrite `.cursor/hooks.json` or other host settings from execute-plan.
 - Do not wait for CI. Do not invent a second notification framework. Do not
   replace observation with AI polling.
@@ -93,6 +97,9 @@ richer diagnosis of a missed READY beyond the adapter's existing notes.
 3. **Genuinely unavailable:** Hooks are disabled, `generation_id` is missing, or
    the workspace is untrusted. Execute-plan reports unavailable coverage once and
    continues without rewriting host settings or claiming observation.
+4. **Unrelated checkout:** A probe mailbox whose root is a different repository
+   still fails as another checkout. Execute-plan does not arm from it. A worktree
+   of this repository is not that case.
 
 **Evaluation:** In a real Cursor coordinator session with registered hooks, a
 probe from the execution worktree is followed by `CI_MONITOR_READY` without
