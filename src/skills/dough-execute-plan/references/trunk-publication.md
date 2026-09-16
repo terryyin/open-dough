@@ -24,8 +24,9 @@ unpublished increment with the same steps below. Keep the same execution
 worktree. Planned, quick, and contextual Trunk Mode work share this rule.
 
 The owned unpublished suffix is the execution commit or consecutive commits
-not yet on the authorized remote trunk. When the last published revision is
-that suffix's parent and remote trunk is still that parent, the increment is
+not yet on the authorized remote trunk. The previously published base is
+that suffix's parent: the last recorded published revision when this
+execution has one. When remote trunk is still that parent, the increment is
 already based on current trunk: do not rewrite it; fast-forward the local
 target to that commit and publish it.
 
@@ -98,14 +99,51 @@ same execution worktree; a claim may have none yet.
    Do not treat rebase success as behavioral proof, rerun unrelated checks,
    or wait for CI.
 5. Fast-forward the local target to the exact candidate. Do not merge.
-6. Immediately before pushing, retain the full candidate SHA. Push that
-   exact revision to the authorized remote target. After confirmed success,
-   record that SHA as the published revision in the existing plan or
-   conversation. Do not read a later moving `HEAD` as that publication.
+6. Immediately before pushing, retain the full candidate SHA and the
+   previously published base. Push that exact candidate to the authorized
+   remote target. After confirmed success, record that SHA as the published
+   revision in the existing plan or conversation. Do not read a later
+   moving `HEAD` as that publication.
 
-A push rejection after local integration leaves the owned unpublished suffix
-recoverable. Do not start implementation from an unpublished claim. Preserve
-the exact refs, worktree, and index, and report them.
+## Recover a rejected push
+
+A non-fast-forward rejection after local integration is not publication
+and is not permission to force-push or to publish the execution branch.
+Retain the rejected candidate SHA, previously published base, exclusive
+turn, and unpublished publication state through the race. The local
+target tip is the owned unpublished suffix, not a published revision.
+
+If exclusive ownership is now unknown, the target is dirty or ambiguous,
+or local trunk has unpublished commits that are not this execution's
+owned suffix, stop. Preserve the exact refs, worktree, and index, and
+report that retained state. Do not silently push those commits. Do not
+undo the local suffix.
+
+Otherwise refresh actual remote state and reconcile only the owned local
+suffix, then retry one ordinary push:
+
+1. Fetch the authorized remote for the target branch. Current trunk is
+   the fetched remote target.
+2. On the integration checkout, replay only commits after the previously
+   published base onto that fetched trunk:
+   `git rebase --onto <fetched-remote-trunk> <previously-published-base> <target-branch>`.
+   Do not rebase from the rejected candidate; that would drop the suffix
+   or rewrite another writer's commits.
+3. Replace the unpublished candidate SHA with the rewritten target tip;
+   the rejected SHA is not the increment. When an execution worktree
+   exists and that branch has no remaining commits beyond the rejected
+   candidate, move it with
+   `git rebase --onto <target-branch> <rejected-candidate> <execution-branch>`.
+   That second rebase is not permission to drop additional unfinished
+   work. Update retained identity to the rewritten candidate.
+4. Revalidate as in candidate step 4. The post-rejection rebase
+   invalidates only proof the combined changes affect.
+5. Push the rewritten candidate once with an ordinary push. After
+   confirmed success, record that SHA as the published revision.
+
+A second rejection or other persistent failure stops. Preserve remaining
+state and report it. Do not loop.
 
 Setup or publication failure preserves remaining state. It is not permission
-to start unclaimed queued work or to substitute Story Branch Mode publication.
+to start unclaimed queued work, start implementation from an unpublished
+claim, or substitute Story Branch Mode publication.

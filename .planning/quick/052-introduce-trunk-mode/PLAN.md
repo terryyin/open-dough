@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–4 delivered on `quick/052-introduce-trunk-mode`. Slice 5 is next.
+Status: in execution. Slices 1–5 delivered on `quick/052-introduce-trunk-mode`. Slice 6 is next.
 
 ## Execution identity
 
@@ -247,7 +247,7 @@ Accepted proof (2026-09-16):
 
 ### 5. Recover a rejected push without rewriting published history
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Another contributor pushes after our fetch/local integration; publication
 is rejected, then succeeds after reconciliation of only our unpublished work.
@@ -259,6 +259,12 @@ Proof: Inject a competing commit from another clone between integration and push
 assert remote history preserves it and receives our increment exactly once, without
 force-push, branch publication, or silently pushing unrelated local commits.
 Sizing: One rejection/reconciliation loop; moderate Git-state recovery concern.
+
+Accepted proof (2026-09-16):
+- Promise: rejected push after local integration rebases only the owned suffix onto fetched trunk and retries one ordinary push; competing commit remains an ancestor; no force-push or execution-branch publication; second rejection stops.
+- Boundary: `trunk-publication.md#recover-a-rejected-push`; wrap-up registers only the confirmed rewritten SHA.
+- Git: agent reconstruction plus plan isolated evidence (`rebase --onto` onto fetched trunk from previously published base). Temporary fixture was removed after inspect.
+- Native pending.
 
 ### 6. Resolve an integration conflict from both contributors' intent
 Type: Behavior
