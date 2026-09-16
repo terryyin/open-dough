@@ -89,7 +89,7 @@ export async function createTargetBranchWorktreeFixture() {
   const adapterCalls = join(fixture, "adapter-calls.jsonl");
   const release = join(fixture, "release");
 
-  await exec("git", ["init", "--bare", origin]);
+  await exec("git", ["init", "--bare", "-b", "main", origin]);
   mkdirSync(project, { recursive: true });
   await git(project, "init", "-b", "main");
   await git(project, "config", "user.name", "Trunk Fixture");

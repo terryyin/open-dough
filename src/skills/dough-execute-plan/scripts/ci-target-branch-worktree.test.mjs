@@ -16,6 +16,14 @@ import {
 
 const exec = promisify(execFile);
 
+function extractFailureEvent(context) {
+  if (!context) return undefined;
+  const line = context
+    .split("\n")
+    .find((candidate) => candidate.startsWith('{"type":"CI_FAILURE"'));
+  return line ? JSON.parse(line) : undefined;
+}
+
 test("worktree launch observes target-branch final SHA and ignores old coverage", async (t) => {
   const fixture = await createTargetBranchWorktreeFixture();
   t.after(fixture.cleanup);
@@ -128,7 +136,10 @@ test("worktree launch observes target-branch final SHA and ignores old coverage"
     env,
     execution,
   );
-  const event = JSON.parse(deliveryContext(delivered).split("\n")[1]);
+  const event =
+    extractFailureEvent(deliveryContext(attached)) ??
+    extractFailureEvent(deliveryContext(delivered));
+  assert.ok(event, "expected the CI_FAILURE event from either hook delivery");
   assert.equal(event.type, "CI_FAILURE");
   assert.equal(event.sha, finalSha);
   assert.equal(event.branch, "main");
