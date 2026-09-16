@@ -17,79 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="extract-narrow-bug-fixing"></a>
-
-### 22. Enrich bug fixing with triage and backlog routing
-
-**Status:** Refined; slice-planned, not executed.
-**Plan:** [Enrich bug fixing with triage and backlog routing](../quick/049-enrich-bug-fixing/PLAN.md).
-
-**Goal:** A reported discrepancy receives an evidence-backed resolution and a
-small confirmed defect is repaired through main integration; larger or unresolved
-work becomes an actionable first-priority story. Avoid both unsupported defect
-claims and dismissal merely because investigation could not confirm a report.
-
-**Scope:** Enrich the existing
-[bug-fixing skill](../../src/skills/dough-bug-fixing/SKILL.md) as a thin caller of
-[dough-execute-plan](../../src/skills/dough-execute-plan/SKILL.md). Gather the supplied
-report, then invoke execution early for investigation, reproduction, and attempted
-repair, planlessly with replanning disabled and a ten-minute slice allowance.
-Use execution's existing timing and exception rules. Keep reporting/refinement-only
-requests within their authority. Known larger work can be queued immediately.
-
-Preserve the useful failing-test reproduction, stable observable boundary,
-expected-versus-actual assertions, related verification, and refactoring discipline.
-Debug as needed using available knowledge or guidance without teaching debugging
-or requiring an external skill. A supported conclusion that behavior is correct
-resolves the report; unconfirmed validity, cause, or scope remains explicit.
-
-After execution returns an incomplete attempt, link its preserved planning-folder
-evidence from a new or existing canonical story and put that story first through
-product-backlog rules. Larger fixes and inconclusive reports have the same queue
-priority, without severity categories. The distinction lives inside the story:
-an inconclusive report first establishes whether behavior violates the intended
-behavior, then repairs a confirmed violation. Return to the coordinator after
-queuing; execution owns preservation and rollback, so bug fixing does not repeat it.
-
-Reuse an owning story when a simple move is appropriate. If promoting that story
-would distort broader scope or ownership is unclear, make a Jidoka handoff for the
-coordinator to decide. Leave Taken work running and in place; report contradictions
-with it. Stop-and-fix informs coordinator judgment rather than automatically
-interrupting ongoing work.
-
-On success, shared execution/closure integrates to main. Report the result and
-any need for subsequent reporter confirmation on main to the coordinator; bug
-fixing owns neither merging nor manual confirmation. During later refinement and
-planning, contribute the bug's expectations, evidence, gaps, and acceptance
-examples to existing artifacts. Reuse sufficient evidence during execution.
-
-**Keep it small:** Retain the useful reproduction instructions and replace the
-local execution loop with the shared handoff. Keep guidance concise and express
-current behavior directly. Require a product-contract reason for absence assertions;
-removal history is insufficient. Use existing refactoring guidance rather than
-repeating it. Invoke for reported discrepancies/defects, not the word "fix" alone.
-Exclude a debugging tutorial, severity system, separate tracker or coordinator,
-new isolation machinery, release, and adoption.
-
-**Key examples and validation:** Use short manual behavior walkthroughs:
-
-- A reported total of 12 instead of the intended 15 is reproduced and repaired
-  through shared execution; the integrated result returns to the coordinator.
-- A larger repair or an inconclusive discount report is queued first with useful
-  evidence and its remaining question. An ambiguous owning-story move returns to
-  the coordinator while Taken work continues.
-- Evidence establishes that the reported behavior is correct: resolve the report
-  without a repair. For a removal, assert the intended result; an explicit promise
-  such as cancellation creating no order still justifies an absence assertion.
-
-Reuse existing execution/rollback proof and existing focused checks; validate
-only the bug-specific routing and evidence here. No new harness, full test matrix,
-or routine per-host discovery exercise.
-
-**Depends on:** Existing execution and closure. This story adds bug policy, not another execution path.
-**Effort hypothesis:** Smaller if the shared execution contract is
-sufficient; investigate any pressure to duplicate it before expanding this story.
-
 <a id="guide-useful-manual-testing"></a>
 
 ### 20. Guide a useful manual and exploratory test session
@@ -433,8 +360,8 @@ fixture remain maintainer-owned follow-ups.
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
 Story 14 is done. Story 15 is selected. Shared small-work execution lives in
-dough-execute-plan; Story 22 adds bug triage and backlog routing without duplicating
-that path. Story 6 remains a later extraction reuse opportunity
+dough-execute-plan. Bug triage and backlog routing live in dough-bug-fixing
+without duplicating that path. Story 6 remains a later extraction reuse opportunity
 after higher-priority queued work.
 Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
 client/task needs.

@@ -9,8 +9,6 @@ clear transitions.
 
 ## Taken
 
-- [Enrich bug fixing with triage and backlog routing](seeds/SEED-004-extract-and-adopt-project-guidance.md#extract-narrow-bug-fixing) — SEED-004 — [plan](quick/049-enrich-bug-fixing/PLAN.md)
-
 ## Backlog list
 
 - [Minimize and prove AI involvement in CI watching](seeds/SEED-013-minimize-and-prove-ci-watcher-ai-involvement.md#minimize-and-prove-ci-watcher-involvement) — SEED-013
