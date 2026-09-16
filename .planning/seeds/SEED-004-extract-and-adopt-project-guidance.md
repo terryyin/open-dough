@@ -17,52 +17,143 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="execute-small-work-from-context"></a>
+
+### 23. Execute small work from a story or contextual instruction
+
+**Status:** Refined; planned.
+**Plan:** [Execute small work from context](../quick/033-execute-small-work-from-context/PLAN.md).
+
+**Goal:** A developer can execute a small story or one-time instruction in an
+isolated worktree through integration to main, and choose whether an oversized
+attempt returns control or continues through authorized planning.
+
+**Scope:** Extend [dough-execute-plan](../../src/skills/dough-execute-plan/SKILL.md)
+to accept a plan, a story, or an instruction in context. Select the source and
+permission to replan independently, explicitly or from clear caller context.
+A contextual instruction supplies the objective, known expectations, uncertainties,
+and authority; it needs no fabricated story or executable plan. Investigation
+can be part of the bounded attempt, including establishing intended behavior.
+Source selection needs no new flag family. Accept explicit replan/no-replan
+instructions (including `--replan` / `--no-replan`); otherwise retain existing
+planning authority. Replanning permission never grants missing scope or execution
+authority. The choice applies independently to all three input kinds.
+
+Unify planless story and instruction execution in the existing worktree path.
+Use existing slice limits, verification, refactoring, delivery, and closure to
+integrate successful work to main through coordinator-invoked shared wrap-up.
+Branch delivery and main integration remain distinct completion boundaries.
+Retain execution identity in context and make
+only the necessary changes to closure for planless inputs. Assume the project's
+existing isolation facilities; introducing isolation infrastructure is excluded.
+
+When replanning is authorized, preserve compatible work and use ordinary planning
+or refinement. When disabled, a time/scope overrun or failure to converge returns
+control: first preserve useful evidence in the disposable planning folder, then
+undo attempt-owned incomplete changes. Evidence may be prose, snippets, or a
+patch; it need not be executable or constitute a plan. Unfinished work remains
+only in that folder. Preserve unrelated work; unclear ownership or failed cleanup
+requires coordinator judgment. Delivery failures after a verified result follow
+existing recovery rather than the overrun route. Execution does not queue bugs. A stop affects the current unfinished attempt,
+not earlier delivered slices. Existing Taken entries stay Taken; a contextual
+request needs no fabricated backlog entry. An evidence-backed investigation
+conclusion can complete without a code change.
+
+**Keep it small:** Replace overlapping instructions and reuse existing execution
+and closure steps. Prefer shorter guidance; add only the source and replan
+choices needed here, without a new coordinator or option framework. Exact option
+names can be chosen during planning. No new universal timing policy, release,
+or installation work.
+
+**Key examples and validation:** Use a short manual behavior walkthrough of each:
+
+- A context-only instruction completes planlessly in a worktree and integrates
+  to main using ordinary verification and closure.
+- An oversized story with replanning allowed continues through authorized
+  planning; with replanning disabled, evidence survives in the planning folder,
+  incomplete changes are undone, and control returns without a plan or retry.
+
+Review the changed instructions and directly affected references for consistency;
+reuse existing focused checks where relevant. No new validation framework,
+exhaustive input/option matrix, or routine per-host discovery exercise.
+
+**Depends on:** Existing execution and closure workflows.
+**Value if Story 22 is deferred:** Small stories and contextual requests already
+have one usable isolated execution path with an explicit overrun disposition.
+**Effort hypothesis:** More coordination than Story 22 because execution and
+closure must agree; precise sizing belongs to slice planning.
+
 <a id="extract-narrow-bug-fixing"></a>
 
-### 22. Extract a narrowly triggered bug-fixing workflow
+### 22. Enrich bug fixing with triage and backlog routing
 
-**Status:** Captured; unrefined.
+**Status:** Refined; unplanned.
 
-**Goal:** A developer with a concrete observable defect gets a focused,
-test-first repair workflow, while ordinary changes and broad requests to
-"fix" something are not automatically misclassified as bug fixing.
+**Goal:** A reported discrepancy receives an evidence-backed resolution and a
+small confirmed defect is repaired through main integration; larger or unresolved
+work becomes an actionable first-priority story. Avoid both unsupported defect
+claims and dismissal merely because investigation could not confirm a report.
 
-**Scope candidate:** Extract the useful behavior from Donut's project-local
-`bug-fixing` skill into reusable Open Dough guidance, retaining its failing-test
-reproduction, smallest-fix, related-test, and post-change-refactoring
-discipline. Remove Donut-specific commands, test-framework choices, and local
-paths from the shared behavior.
+**Scope:** Enrich the existing
+[bug-fixing skill](../../src/skills/dough-bug-fixing/SKILL.md) as a thin caller of
+[Story 23's execution path](#execute-small-work-from-context). Gather the supplied
+report, then invoke execution early for investigation, reproduction, and attempted
+repair, planlessly with replanning disabled and a ten-minute slice allowance.
+Use execution's existing timing and exception rules. Keep reporting/refinement-only
+requests within their authority. Known larger work can be queued immediately.
 
-Tighten the skill description and recognition boundary. Select this workflow
-for an explicitly reported defect, regression, or clear mismatch between
-expected and actual observable behavior. Do not treat the word "fix" or a
-generic request for repair as sufficient by itself, and do not absorb feature
-work, refactoring, test maintenance, performance optimization, documentation,
-configuration changes, or environment recovery unless the request establishes
-the concrete product defect this workflow should reproduce.
+Preserve the useful failing-test reproduction, stable observable boundary,
+expected-versus-actual assertions, related verification, and refactoring discipline.
+Debug as needed using available knowledge or guidance without teaching debugging
+or requiring an external skill. A supported conclusion that behavior is correct
+resolves the report; unconfirmed validity, cause, or scope remains explicit.
 
-**Key examples:**
+After execution returns an incomplete attempt, link its preserved planning-folder
+evidence from a new or existing canonical story and put that story first through
+product-backlog rules. Larger fixes and inconclusive reports have the same queue
+priority, without severity categories. The distinction lives inside the story:
+an inconclusive report first establishes whether behavior violates the intended
+behavior, then repairs a confirmed violation. Return to the coordinator after
+queuing; execution owns preservation and rollback, so bug fixing does not repeat it.
 
-- Given a user reports an observable behavior that differs from the promised
-  result, the skill reproduces that mismatch with the smallest useful failing
-  test before changing product code.
-- Given a user asks to fix lint failures, improve slow tests, refactor a module,
-  or repair documentation without reporting a product defect, the bug-fixing
-  skill does not trigger merely because the request contains "fix" or
-  "broken."
-- Given the reported behavior cannot be reproduced because the environment is
-  unavailable, the workflow reports the missing prerequisite rather than
-  treating an environment repair as confirmation of the product bug.
+Reuse an owning story when a simple move is appropriate. If promoting that story
+would distort broader scope or ownership is unclear, make a Jidoka handoff for the
+coordinator to decide. Leave Taken work running and in place; report contradictions
+with it. Stop-and-fix informs coordinator judgment rather than automatically
+interrupting ongoing work.
 
-**Evaluation:** Representative positive and negative invocation examples show
-that concrete defects enter the test-first workflow and adjacent maintenance
-tasks do not. A non-Donut walkthrough can reproduce a defect, confirm the test
-fails for the right reason, make the smallest repair, and run related proof
-using project-supplied commands without relying on Donut-specific context.
+On success, shared execution/closure integrates to main. Report the result and
+any need for subsequent reporter confirmation on main to the coordinator; bug
+fixing owns neither merging nor manual confirmation. During later refinement and
+planning, contribute the bug's expectations, evidence, gaps, and acceptance
+examples to existing artifacts. Reuse sufficient evidence during execution.
 
-**Depends on:** Access to the current Donut skill as source input, not a
-runtime dependency. Author the shared skill under `src/skills/` using
-[AGENTS.md](../../AGENTS.md).
+**Keep it small:** Retain the useful reproduction instructions and replace the
+local execution loop with the shared handoff. Keep guidance concise and express
+current behavior directly. Require a product-contract reason for absence assertions;
+removal history is insufficient. Use existing refactoring guidance rather than
+repeating it. Invoke for reported discrepancies/defects, not the word "fix" alone.
+Exclude a debugging tutorial, severity system, separate tracker or coordinator,
+new isolation machinery, release, and adoption.
+
+**Key examples and validation:** Use short manual behavior walkthroughs:
+
+- A reported total of 12 instead of the intended 15 is reproduced and repaired
+  through shared execution; the integrated result returns to the coordinator.
+- A larger repair or an inconclusive discount report is queued first with useful
+  evidence and its remaining question. An ambiguous owning-story move returns to
+  the coordinator while Taken work continues.
+- Evidence establishes that the reported behavior is correct: resolve the report
+  without a repair. For a removal, assert the intended result; an explicit promise
+  such as cancellation creating no order still justifies an absence assertion.
+
+Reuse Story 23's execution/rollback proof and existing focused checks; validate
+only the bug-specific routing and evidence here. No new harness, full test matrix,
+or routine per-host discovery exercise.
+
+**Depends on:** Story 23. This story adds bug policy, not another execution path.
+**Effort hypothesis:** Smaller than Story 23 if the shared execution contract is
+sufficient; investigate any pressure to duplicate it before expanding this story.
 
 <a id="guide-useful-manual-testing"></a>
 
@@ -405,9 +496,10 @@ fixture remain maintainer-owned follow-ups.
 
 ## Ordering
 
-Story 5 is complete. Story 12 is complete in source.
-Story 14 is done. Story 15 is selected. Story 22 is a newly captured
-extraction opportunity. Story 6 remains a later extraction reuse opportunity
+Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
+Story 14 is done. Story 15 is selected. Story 23 delivers the shared small-work
+execution path before Story 22 adds bug triage and backlog routing. This split
+keeps execution independently useful and avoids duplicating it in bug fixing. Story 6 remains a later extraction reuse opportunity
 after higher-priority queued work.
 Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
 client/task needs.
