@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–2 delivered on `quick/052-introduce-trunk-mode`. Slice 3 is next.
+Status: in execution. Slices 1–3 delivered on `quick/052-introduce-trunk-mode`. Slice 4 is next.
 
 ## Execution identity
 
@@ -206,7 +206,7 @@ Accepted proof (2026-09-16):
 
 ### 3. Incorporate another contributor's increment before continuing
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Another worktree publishes while this execution has an unpublished
 increment; delivery rebases onto current trunk and preserves both increments,
@@ -217,6 +217,12 @@ and reverify only affected behavior. Reuse backlog reconciliation for sibling ed
 Proof: A/B/A interleaving in real Git; inspect combined remote files and separate
 queue entries, correct execution bases, and survival of previously published SHAs.
 Sizing: One interleaving proof; no automatic concurrent admission in this slice.
+
+Accepted proof (2026-09-16):
+- Promise: unpublished increment rebases onto fetched newer trunk; both increments and queue entries survive; published SHAs remain ancestors; rewritten candidate is the increment.
+- Boundary: `trunk-publication.md` candidate step 3–4; identity unpublished candidate SHA; wrap-up registers rewritten SHA.
+- Git walk: `/tmp/trunk-mode-slice3-3zBc` remote `main` `a09f3a2` with `feature-a.txt`, `feature-b.txt`, `feature-a2.txt`; Taken lists Story A and Story B; `81ca425` ancestor; remote only `main`.
+- Native still pending.
 
 ### 4. Preserve a shared target when integration ownership is unavailable
 Type: Behavior

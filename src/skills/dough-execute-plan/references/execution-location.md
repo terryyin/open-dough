@@ -22,7 +22,8 @@ the existing plan when one exists, and in the conversation:
 - integration checkout and branch, and the authorized remote target, defaulting
   the branch to `main` only when neither caller nor project supplies one;
 - selected mode;
-- actual published revisions when Trunk Mode has published any.
+- actual published revisions when Trunk Mode has published any, and the
+  unpublished candidate SHA after a rewrite onto newer trunk.
 
 Caller-selected current-branch work records that checkout/branch for both
 locations and creates no worktree. It is incompatible with Trunk Mode;

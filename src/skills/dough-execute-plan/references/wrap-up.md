@@ -118,7 +118,9 @@ Git, agent, and observer state under
 8. Immediately before publishing, resolve and retain the full revision SHA being
    delivered. Story Branch Mode and current-branch work push that revision to the
    authorized destination. Trunk Mode publishes through the increment rule above
-   and retains that rule's candidate SHA. After confirmed success, register the
+   and retains that rule's candidate SHA after any rewrite onto newer trunk; do
+   not register the pre-rebase unpublished commit.
+   After confirmed success, register the
    retained SHA with the existing observer by running
    `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' register-push
    OBSERVER_DIRECTORY SHA`. Use the observer directory and checkout-bound runtime

@@ -29,9 +29,10 @@ that suffix's parent and remote trunk is still that parent, the increment is
 already based on current trunk: do not rewrite it; fast-forward the local
 target to that commit and publish it.
 
-A newer remote trunk, rebase conflict, or rejected push after local
-integration is not specified here. Preserve the exact refs, worktree, and
-index, and report them.
+When fetch shows a newer remote trunk than that parent, publish through the
+candidate steps so only that suffix is rebased onto current trunk.
+Previously published revisions remain ancestors; never rewrite them or
+another writer's commits.
 
 ## Preconditions
 
@@ -55,20 +56,30 @@ history or another writer's commits. No force push. An increment keeps the
 same execution worktree; a claim may have none yet.
 
 1. Fetch the authorized remote for the target branch.
-2. Reconcile the fetched target with the local integration checkout. If the
-   local target has unpublished commits that are not this execution's owned
-   suffix, or ownership is ambiguous, stop and preserve that state.
+2. Reconcile from the fetched target. Current trunk is the fetched remote
+   target, not a stale local target tip. A local target that is only behind
+   that remote is not a stop. If the local target has unpublished commits
+   that are not this execution's owned suffix, or ownership is ambiguous,
+   stop and preserve that state.
 3. Rebase only the owned unpublished suffix onto the current remote trunk.
    For a claim, that is the Taken commit. For an increment, that is the
    unpublished execution suffix. When that suffix is already based on
-   current trunk, leave its commits unchanged. Update the execution branch to
-   the rewritten candidate when a worktree already exists; otherwise keep
-   the candidate on the integration checkout until workspace setup uses it.
+   current trunk, leave its commits unchanged. When trunk advanced, rewrite
+   only that suffix onto it and replace the unpublished candidate SHA with
+   the rewritten SHA; the pre-rebase SHA is not the increment. Update the
+   execution branch to the rewritten candidate when a worktree already
+   exists; otherwise keep the candidate on the integration checkout until
+   workspace setup uses it. A rebase conflict in this project's product
+   backlog uses
+   [backlog merge conflicts](../dough-product-backlog/references/merge-conflicts.md)
+   before continuing Git. Other conflicts are not specified here: preserve
+   the exact refs, worktree, and index, and report them.
 4. Validate the candidate. For a claim, confirm the selected entry is
    **Taken** on the candidate and that no empty commit was invented. For an
    increment, reuse accepted proof whose promise, boundary, implementation,
    setup, and observations still match. An unchanged-trunk fast-forward does
-   not invalidate that proof; do not rerun it solely because publication ran.
+   not invalidate that proof. A newer-trunk rebase invalidates only proof
+   the combined changes affect; reverify that behavior and reuse the rest.
    Do not treat rebase success as behavioral proof, rerun unrelated checks,
    or wait for CI.
 5. Fast-forward the local target to the exact candidate. Do not merge.
