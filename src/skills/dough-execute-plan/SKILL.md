@@ -236,8 +236,8 @@ wrap-up; do not invoke it here. Wholly planless completion retains source, conve
 identity, delivered changes, and proof, reports delivered work and shutdown, and ends with
 `## QUICK EXECUTION COMPLETE` after required delivery/shutdown, without automatic
 retrospective. The coordinator invokes wrap-up after successful branch delivery. Do not
-report integrated completion here; wrap-up owns merge, required target push, and resource
-cleanup.
+report integrated completion here; wrap-up owns Story Branch merge and required
+target push, Trunk Mode closure publication, and resource cleanup.
 
 For incomplete work, failed delivery/shutdown, cancellation, or a human-judgment stop, report
 source, active plan/next slice or quick-slice state, preserved work, observer state,

@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–10 delivered on `quick/052-introduce-trunk-mode`. Slice 11 is next.
+Status: in execution. Slices 1–11 delivered on `quick/052-introduce-trunk-mode`. Slice 12 is next.
 
 ## Execution identity
 
@@ -378,7 +378,7 @@ Accepted proof (2026-09-16):
 
 ### 11. Publish closure durably before deleting its recoverable history
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Wrap-up makes selected review/closure inputs recoverable on shared
 trunk, then publishes final cleanup while preserving sibling stories and edits.
@@ -390,6 +390,12 @@ Proof: Close A while B's backlog/seed work remains active. Inspect remote
 before-cleanup recovery, remote final closure, surviving B content, and accurate
 CI shutdown/coverage state. Failed publication retains recoverable resources.
 Sizing: One durable-closure lifecycle; does not yet claim resource cleanup.
+
+Accepted proof (2026-09-16):
+- Promise: before-cleanup then final-closure reach remote trunk; sibling B seed/backlog remains; failed publication keeps local resources; wrap-up observer stops without waiting; worktree not removed.
+- Boundary: `dough-story-wrap-up/SKILL.md`; `trunk-publication.md#publish-wrap-up-closure`; `ci-monitor.md` post-shutdown pointer.
+- Git walk: `/tmp/trunk-mode-slice11-CcIwC0` remote `main` `d46d4f3` claim, `ec40758` before-cleanup A (recoverable `review-A.md`), `5f08962` final-closure A; B seed remains; A seed gone; remote only `main`. Failed `c047ac2` rejected; `stuck.md` not on remote; worktree remains. `pendingCi: unobserved`.
+- Native pending.
 
 ### 12. Remove only safely published local execution resources
 Type: Behavior

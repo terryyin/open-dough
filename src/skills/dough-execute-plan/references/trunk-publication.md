@@ -2,8 +2,9 @@
 
 Use this rule for Trunk Mode work that must reach the authorized remote trunk
 without publishing the execution branch. Startup uses it to publish a queue
-claim. Wrap-up delivery uses the same Git steps for each verified increment.
-Do not invent a second publication sequence.
+claim. Slice delivery and story wrap-up use the same Git steps for each
+verified increment, including wrap-up's before-cleanup and final-closure
+commits. Do not invent a second publication sequence.
 
 This rule does not create execution authority, wait for CI, or push the
 execution branch. Observation is armed from the execution checkout against the
@@ -108,6 +109,29 @@ same execution worktree; a claim may have none yet.
    publication. When an observer is already bound to the execution checkout,
    register that SHA with it. Registration failure is lost coverage: report
    it and do not claim the revision was observed. Do not wait for CI.
+
+## Publish wrap-up closure
+
+Story wrap-up treats each owned wrap-up commit on the execution checkout as a
+verified increment. Publish it immediately through
+[verified-increment publication](#publish-a-verified-increment) before the
+next wrap-up mutation that depends on that revision being recoverable on
+shared trunk. Do not merge an execution branch. Do not push the execution
+branch. Do not wait for CI.
+
+Resolve observation ownership before the first wrap-up publication: recover
+the execution's observer when it still exists; if execution already stopped
+it, arm one observer from the same execution checkout against the authorized
+target using [CI observation](ci-monitor.md). Register each confirmed
+published SHA with that observer. After the last wrap-up publication this
+invocation will perform, stop only that observer through the host adapter,
+report the exact published closure SHAs and remaining coverage, and do not
+wait. An unavailable bridge or registration failure is lost coverage: report
+it and continue.
+
+A publication stop leaves the commit recoverable on the execution branch.
+Do not delete spent history, remove resources, or claim closure. After the
+final-closure publication succeeds, leave local execution resources intact.
 
 ## Recover a rejected push
 
