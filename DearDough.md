@@ -98,3 +98,19 @@ not started; later execution-branch pushes were unobserved.
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
 
+- Execution: `SEED-008#introduce-trunk-mode @ 24a9af2`
+  - Timestamp: 2026-09-16T21:43:00+08:00
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: modified; revision 205a28c; base 0.3.23
+  - Evidence: Plan 052 identity records Cursor probe `CI_OBSERVER`
+    (`/tmp/dough-ci-501/watch-widqgL`) without `CI_MONITOR_READY`. Pushes
+    `ce14505`–`205a28c` on `quick/052-introduce-trunk-mode` were delivered
+    with `pendingCi: unobserved`.
+  - Observed effect: No observer was armed for this planned execution. Trunk
+    Mode CI source/target work was proved with Node tests and Git walks, not
+    with a live Cursor mailbox.
+  - Inference: Same unreadiness as the prior Cursor occurrence; the developer
+    queued SEED-011 first without interrupting Taken Plan 052.
+
+
