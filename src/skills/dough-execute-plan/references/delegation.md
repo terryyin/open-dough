@@ -34,10 +34,14 @@ Give the agent:
   not to repeat completed compatible work or its unchanged proof. Treat the
   quick attempt and planned continuation as one execution, not two handoffs with
   independent histories.
-- [Execution decisions](execution-decisions.md), this project's slice budget and
-  exceptions, workflow precedence, and literal focused commands with the runtime
-  wrapper. Require relevant proof; broaden testing only when the slice, project
-  workflow, or human requires it.
+- [Execution decisions](execution-decisions.md), the resolved
+  [replanning permission](execution-decisions.md#choose-replanning-permission), this
+  project's slice budget and exceptions, workflow precedence, and literal
+  focused commands with the runtime wrapper. Require relevant proof; broaden
+  testing only when the slice, project workflow, or human requires it.
+  When replanning is disabled, an oversized stop returns the incomplete attempt in
+  place; do not plan, retry, invent backlog work, or clean up. The coordinator
+  applies the overrun branch.
 - Ownership of the slice's changes. State that other agents may share the
   execution checkout and their work must be preserved.
 - A stop before coordinator delivery: no commit, push, marking a planned slice

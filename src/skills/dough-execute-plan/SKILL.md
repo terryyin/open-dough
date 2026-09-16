@@ -7,7 +7,9 @@ description: >-
   asynchronous CI repair. Use to execute a plan, run slices, execute a canonical
   story when the caller explicitly skips slice planning, or execute a small
   instruction from context without a story or plan. Does not decide story scope
-  or quick-path eligibility. `--skip-retro` skips the automatic planned-execution retrospective.
+  or quick-path eligibility. `--skip-retro` skips the automatic planned-execution
+  retrospective. `--replan` and `--no-replan` choose whether an oversized attempt
+  may continue through planning.
 ---
 
 # Execute planned or planless work
@@ -53,8 +55,10 @@ At startup, obtain enough authoritative context to select and delegate the first
 Reuse instructions while their sources and applicability assumptions remain unchanged.
 Resolve project context at the first boundary that needs it:
 
-- execution-source kind, slice target, hard limit, and exceptions; Story Branch Mode
-  or caller-selected current branch; for planned work, plan path and status vocabulary;
+- execution-source kind, slice target, hard limit, and exceptions;
+  [replanning permission](references/execution-decisions.md#choose-replanning-permission);
+  Story Branch Mode or caller-selected current branch; for planned work, plan
+  path and status vocabulary;
 - backlog path and selected entry for work selected from **Backlog list**;
 - selective formatter and commit hook contract before taking queued work and its claim commit;
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
@@ -67,11 +71,13 @@ needed there. Other invoking tools, including GSD, retain this slice delivery co
 a phase or task cannot replace a slice.
 
 Before first implementation delegation, read [delegation](references/delegation.md)
-and the common reassessment/human-judgment rules plus currently triggered sections of
-[execution decisions](references/execution-decisions.md). Before accepting a return,
-read [proof acceptance](references/wrap-up.md#accept-proof); before delivery, read
-[delivery](references/wrap-up.md#deliver-the-change). Before first push, read
-[CI observation](references/ci-monitor.md) and only the current host's notification adapter.
+and the common reassessment/human-judgment rules, [replanning
+permission](references/execution-decisions.md#choose-replanning-permission), plus
+currently triggered sections of [execution decisions](references/execution-decisions.md).
+Before accepting a return, read [proof acceptance](references/wrap-up.md#accept-proof);
+before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Before
+first push, read [CI observation](references/ci-monitor.md) and only the current
+host's notification adapter.
 Use [targeted retrieval and disposable research](references/disposable-research.md)
 for omitted/truncated passages or bounded investigations; another step alone needs no reload.
 
@@ -148,7 +154,8 @@ identity and stop rules; the initially loaded skill's copy is not a fallback.
 
 Planned work uses the existing plan and conversation under
 [execution and resume state](../dough-story-refinement/references/planning.md#write-an-executable-plan).
-Quick work uses its source and conversation, without a recovery artifact. During uninterrupted
+Quick work uses its source and conversation, without a recovery artifact. Retain the
+resolved replanning permission with that context. During uninterrupted
 work, reuse decisions, accepted proof, and delivery progress while their sources,
 assumptions, and covered boundaries hold. After confirmed push, obtain only newly relevant
 next-slice detail; a slice transition alone needs no full recovery read.
@@ -158,8 +165,10 @@ execution identity first and reconcile only affected worktree/index, branch/comm
 implementation/refactor return, and exact observer identity. Preserve unrelated or ambiguously
 owned work. Reuse proof only while promise, boundary, implementation, setup, and observations match.
 
-Resume at the first delivery obligation not established by evidence: implementation returns
-still need proof acceptance/refactoring; completed refactors need remaining delivery;
+Resume at the first delivery obligation not established by evidence. An incomplete
+or oversized return still needs [oversized-slice handling](references/execution-decisions.md#refine-an-oversized-slice)
+before proof acceptance. Otherwise implementation returns still need proof
+acceptance/refactoring; completed refactors need remaining delivery;
 uncommitted plan edits need staging/commit; local commits absent from the authorized
 destination need push. Plan status or a compact report proves none of those later boundaries.
 When pushed commit and retained delivery result agree, select the next dependency-ready slice.
@@ -178,9 +187,12 @@ Missing/contradictory execution identity requires the recovery decision above.
    disablement, also run the [destructive later-outcome check](references/destructive-later-outcome-check.md).
 3. When planned refinement is needed and learning escalation permits, invoke
    [slice-plan refinement](../dough-slice-plan-refinement/SKILL.md) in place, then restart
-   at step 1. If quick work no longer fits one coherent slice, safely stop the attempt under
-   [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice),
-   use [ordinary slice planning](../dough-slice-planning/SKILL.md) for remaining work,
+   at step 1, unless replanning is disabled; then apply
+   [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice)
+   and stop without retry. If quick work no longer fits one coherent slice, apply
+   [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice).
+   A no-replan return stops without planning or retry. When replanning is allowed, use
+   [ordinary slice planning](../dough-slice-planning/SKILL.md) for remaining work,
    and restart as planned execution. Before delegating a change that invalidates a required
    pre-change observation, apply [proof ownership](../dough-story-refinement/references/planning.md#own-executable-proof):
    reuse an adequate baseline with known matching revision/environment/selection conditions,
@@ -188,7 +200,7 @@ Missing/contradictory execution identity requires the recovery decision above.
    and resume without a new startup audit or repeated recovery read. Otherwise delegate
    under [delegation](references/delegation.md).
 4. On return, recheck execution decisions; handle incomplete/oversized work there before
-   delivery. Otherwise [accept proof](references/wrap-up.md#accept-proof) and confirm
+   delivery, including a no-replan overrun. Otherwise [accept proof](references/wrap-up.md#accept-proof) and confirm
    uncommitted work or an explained empty change.
 5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. After successful
    push, restart for remaining planned slices; a delivered quick slice has no successor.

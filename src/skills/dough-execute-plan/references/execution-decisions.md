@@ -119,6 +119,14 @@ for human judgment. A recorded explanation never waives required proof or the
 CI repair protocol; an infrastructure finding cannot excuse a separate assertion
 failure.
 
+## Choose replanning permission
+
+Resolve this at entry and retain it for [delegation](delegation.md) and resume.
+`--replan` and `--no-replan`, or a clear current instruction, grant or deny overrun
+replanning independently of whether the source is a plan, story, or instruction.
+Otherwise preserve existing planning authority. Neither option authorizes new
+scope, destructive action, or missing execution.
+
 ## Refine an oversized slice
 
 Use this project's target, hard limit, exceptions, and repeated-overrun threshold
@@ -129,7 +137,25 @@ failure to converge also calls for refinement.
 
 Inventory tracked and untracked changes owned by the attempt and preserve
 pre-existing work. Never use broad `git checkout .` or `git clean -fd`. Unclear
-ownership requires human judgment. For planned execution, safely park or revert
+ownership requires [human judgment](#stop-for-human-judgment); do not guess,
+silently revert unrelated work, or continue cleanup. Apply the same ownership
+stop as [delivery staging](wrap-up.md#deliver-the-change) and
+[resume](../SKILL.md#continue-or-recover-at-an-execution-boundary). A verified-result
+[delivery](wrap-up.md#deliver-the-change) failure or
+[integration](../../dough-story-wrap-up/SKILL.md#integrate-committed-story-branch-mode-closure)
+failure is ordinary recovery, not this overrun.
+
+When replanning is disabled, do not plan, refine, or retry. First write useful
+evidence under this project's executable-plan root, resolved from this project
+as in [slice planning](../../dough-slice-planning/SKILL.md#resolve-execution-context).
+Do not invent a location or write a plan. Evidence may be prose, snippets, or a
+patch; it need not run. Then remove only current attempt-owned unfinished changes
+outside that folder. Leave no abandoned incomplete code or test work elsewhere.
+Preserve unrelated work and earlier delivered slices; do not undo delivered
+work. Existing Taken entries stay Taken; invent no story, plan, or backlog
+entry. Report the stop under [Finish or stop](../SKILL.md#finish-or-stop).
+
+When replanning is allowed, continue as follows. For planned execution, safely park or revert
 only attempt-owned changes, then record elapsed time, completed proof, and the
 failed sizing assumption in the same plan. Invoke
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) only

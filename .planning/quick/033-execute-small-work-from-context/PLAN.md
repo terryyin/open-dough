@@ -1,6 +1,6 @@
 # Execute small work from a story or contextual instruction
 
-Status: in progress; slice 2 is the next unfinished work.
+Status: in progress; slice 3 is the next unfinished work.
 Source: [SEED-004 Story 23](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-small-work-from-context).
 
 ## Execution identity
@@ -127,7 +127,7 @@ Accepted proof:
 ### 2. Return a bounded attempt without replanning
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With replanning disabled, an unfinished attempt exceeds its time/scope
 boundary or fails to converge; evidence is preserved in the planning folder,
@@ -144,6 +144,23 @@ changes removed outside the planning folder, an accurate return, and no invented
 backlog action. The same branch applies to a plan or story; a previously delivered
 slice and unrelated work remain intact. Inspect the ownership-ambiguity stop rather
 than adding a second test harness or a destructive demonstration.
+
+Accepted proof:
+- Promise: `--no-replan` (or equivalent) independently of source; evidence saved
+  before rollback of owned incomplete work; return without planning/retry;
+  delivered slices and unrelated work intact; ownership-ambiguity stop;
+  integration failure is ordinary recovery. Boundary: entry, delegation,
+  oversized-slice disposition, finish/stop.
+- Command: source walkthrough as an executing agent.
+  Setup: authorized inconclusive context-only investigation; `--no-replan`;
+  supplied slice limit; compare plan/story on the same disabled branch.
+  Locations: `SKILL.md` Establish + startup read of Choose replanning permission;
+  `references/delegation.md` agent returns incomplete attempt; Execute-next-slice
+  3–4; `execution-decisions.md` disabled Refine oversized (project executable-plan
+  root, then owned unfinished cleanup; Taken stays Taken); Finish or stop.
+  Result: pass.
+- Command: `git -C /Users/terryyin/git/open-dough-worktrees/033-execute-small-work-from-context diff --check`
+  Result: pass.
 
 ### 3. Continue authorized work through planning without restarting it
 
@@ -197,6 +214,9 @@ identified in this assessment; execution is not authorized by this planning requ
   it without shortening in place. Contextual payload fields live in execute-plan
   Establish; delegation defers to that source. CI observer verifies retained
   identity for planless work too.
+- execute-plan `SKILL.md` is at the 250-line cap after Slice 2. Evidence for a
+  no-replan stop uses this project's executable-plan root (resolved via slice
+  planning), not a hard-coded folder in reusable prose.
 - Overrun for a contextual source still requires understood story
   goal/scope/examples before ordinary planning, otherwise it stops without
   fabricating a source. Slice 3 owns that continuity.
