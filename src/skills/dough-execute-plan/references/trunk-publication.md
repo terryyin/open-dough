@@ -131,7 +131,8 @@ it and continue.
 
 A publication stop leaves the commit recoverable on the execution branch.
 Do not delete spent history, remove resources, or claim closure. After the
-final-closure publication succeeds, leave local execution resources intact.
+final-closure publication and wrap-up observer shutdown succeed, wrap-up
+removes only this execution's clean local worktree and local execution branch.
 
 ## Recover a rejected push
 

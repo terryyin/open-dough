@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–11 delivered on `quick/052-introduce-trunk-mode`. Slice 12 is next.
+Status: executed. All 12 slices delivered on `quick/052-introduce-trunk-mode`.
 
 ## Execution identity
 
@@ -399,7 +399,7 @@ Accepted proof (2026-09-16):
 
 ### 12. Remove only safely published local execution resources
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: After durable closure, remove this execution's clean branch/worktree
 only when publication and observer shutdown are established; repeated closure
@@ -412,6 +412,12 @@ all work and owned resources absent. Countercases for unpublished work, active
 observer, and dirty/unrelated resources leave those resources intact. Repeated
 wrap-up causes no duplicate closure. Native lifecycle evidence belongs here.
 Sizing: One resource-lifecycle gate; reuse durable publication evidence from slice 11.
+
+Accepted proof (2026-09-16):
+- Promise: published+shutdown removes clean local worktree/branch; no remote execution branch; unpublished, dirty, active observer, unrelated target work remain; retry already-absent; repeat adds no remote commit.
+- Boundary: `dough-story-wrap-up/SKILL.md` resource removal; `trunk-publication.md#publish-wrap-up-closure`.
+- Git walk: `/tmp/trunk-mode-slice12-U74a3S` remote only `main` `c3e9154` + `dd4cb42`; `exec-ok` absent; unpublished/dirty/observer/unrelated retained.
+- Native Codex/Cursor/Claude local lifecycle: pending (ADR 0005).
 
 ## Promise coverage and stopping points
 

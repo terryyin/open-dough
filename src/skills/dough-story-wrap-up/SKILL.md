@@ -186,8 +186,7 @@ closure.
 
 Direct-current-branch mode ends with committed closure. Trunk Mode publishes the
 final-closure commit through [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure),
-then reports durable publication without removing execution resources. Story Branch Mode
-continues with integration and resource cleanup below.
+then continues with resource cleanup below. Story Branch Mode continues with integration and resource cleanup below.
 
 ## Integrate committed Story Branch Mode closure
 
@@ -221,30 +220,31 @@ resource cleanup or claiming completion. If the push fails, retain the execution
 resources and report the push failure separately from successful local integration;
 do not force-push.
 
-## Remove integrated execution resources safely
+## Remove execution resources safely
 
-After verified Story Branch Mode integration and any required target push, remove
-the clean execution worktree and its local and remote branches. Use the retained
-execution identity and non-force operations; preserve unrelated resources and any
-unique work. Delete the remote branch only when its tip is integrated in the remote
-target. Verify removal, accept already-absent resources on retry, and report any
-blocked or partial cleanup. Direct-current-branch mode needs no cleanup.
+After Story Branch Mode's verified integration and required target push, or after
+Trunk Mode's wrap-up closure publications and wrap-up observer shutdown, remove
+this execution's clean local worktree and local execution branch. Use retained
+identity and non-force operations. Preserve unrelated resources, unique or
+unpublished work, a dirty checkout, and a worktree that still hosts an active
+checkout-bound observer. Trunk Mode never deletes a remote execution branch.
+Story Branch Mode deletes the remote branch only when its tip is integrated in
+the remote target. Verify removal, accept already-absent resources on retry,
+report blocked or partial cleanup without repeating already-completed closure,
+and skip cleanup in direct-current-branch mode.
 
 ## Report
 
-Report the selected work and its identity (canonical story, correction plan, or
-contextual instruction), completion judgment, execution mode and retained
-checkout/branch/target identity when applicable, before-cleanup and final-closure
-commits when deletion happened, Trunk Mode published closure SHAs and remaining CI
-coverage when those publications ran, assimilated knowledge, deleted paths, the
-saved execution tip and local integration result in Story Branch Mode, the push
-result when the target is `main`, worktree and local- and remote-branch cleanup
-results, preserved unsupported material and resources, and any gap that blocked
-closure. Distinguish a new merge from an already-integrated tip, integration
-success from partial or refused cleanup, and local integration from a successful
-push to `origin`. Report remote deletion only when its absence has been verified.
-Distinguish a completed wrap-up from a refusal that left files intact.
+Report the selected work and identity, completion judgment, mode and retained
+checkout/branch/target, before-cleanup and final-closure commits when deletion
+happened, Trunk Mode published closure SHAs and remaining CI coverage, assimilated
+knowledge, deleted paths, Story Branch saved tip and integration/push results when
+the target is `main`, worktree and branch cleanup results (remote deletion only when
+verified absent), preserved material and resources, and any gap. Distinguish a new
+merge from an already-integrated tip, integration from refused cleanup, local
+integration from a successful `origin` push, and completed wrap-up from a refusal
+that left files intact.
 
 End successful closure with `## STORY WRAP-UP COMPLETE`. Missing context, unfinished
-work, unresolved recovery/integration, required push, or resource cleanup blocks that
-marker.
+work, unresolved recovery/integration, required push, unpublished Trunk Mode closure,
+an active wrap-up observer, or resource cleanup blocks that marker.
