@@ -130,7 +130,7 @@ or automatic queuing. Reporting-only requests cause no execution or code change.
 ### 2. Queue larger or unresolved reports as actionable first-priority work
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given known larger work or an incomplete returned attempt, bug fixing
 places an actionable canonical story first in the queue, or returns the specific
@@ -183,9 +183,26 @@ Slice 1 accepted proof (manual walkthrough plus whitespace):
   is sufficient; reporting-only contributes to the existing artifact without
   execution.
 
+Slice 2 accepted proof (manual walkthrough plus whitespace):
+
+- Promise: known larger work, an incomplete `--no-replan` return, or an
+  inconclusive report becomes one first-priority canonical story, or a named
+  Jidoka stop when an owning-story move would distort scope or ownership is
+  ambiguous. Taken work stays in place. Queued work does not start.
+- Boundary: `src/skills/dough-bug-fixing/SKILL.md` **Route remaining work** and
+  disposition **Queued** / **Jidoka**.
+- Inspected: description; Invoke shared execution skip for known larger;
+  Route remaining work (evidence link, inconclusive question-then-repair,
+  reuse/create/Jidoka, first Backlog list, Taken, no extra tracker); narrowed
+  Unresolved vs Queued.
+- Command: `git diff --check` from the execution checkout. Setup: none.
+  Result: pass.
+
 CI: GitHub Actions default (no `.planning/open-dough.json`). Workflow file
-`ci.yml`, display name `CI`. Observer identity is recorded when armed.
+`ci.yml`, display name `CI`. Cursor host-bridge probe returned only a
+`CI_OBSERVER` receipt, not `CI_MONITOR_READY`; no observer was armed. Pushed
+revisions are unobserved.
 
 Execute-plan already forbids reporting branch delivery as integrated; this
-caller only states that contract in the disposition. No shared-execution gap
-was exposed.
+caller only states that contract in the disposition. Slice 1 **Incomplete**
+is replaced by **Queued** / **Jidoka**. No shared-execution gap was exposed.
