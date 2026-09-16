@@ -21,85 +21,87 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 20. Guide a useful manual and exploratory test session
 
-**Status:** Refined; unplanned.
+**Status:** Refined; planned. [Slice plan](../quick/051-guide-manual-exploration/PLAN.md).
 
-**Goal:** A developer who explicitly requests manual testing, or executes a
-story whose plan explicitly requires it, gets a focused test session that
-observes the story's promised behavior, explores relevant nearby risks, and
-returns trustworthy evidence and actionable findings without introducing a
-separate UAT lifecycle.
+**Goal:** A developer requesting manual testing, or executing an authorized plan
+that requires it, gets budgeted exploration from an external observer's
+perspective and only actionable findings or material uncertainty.
 
-**Scope:** Extract the useful core of Donut's project-local `manual-testing`
-skill into reusable Open Dough guidance, while retaining project-owned setup,
-access points, accounts, and commands in the project that supplies them. Keep
-manual testing opt-in: invoke it only at explicit human direction or when an
-authorized executable plan requires it. Resolve the test mission from that
-request and the selected story's promises, examples, constraints, and proof;
-do not derive acceptance solely from an implementation summary.
+**Scope:** Evolve `dough-manual-testing` into one concise, tool-independent skill
+for externally observable behavior across web, CLI, API, desktop, or combined
+flows. Run only on explicit request or an authorized plan requirement. Accept a
+bounded feature, story set, recent deliveries, or change range. Recover promises,
+examples, and constraints from current project records or Git history, including
+deleted stories; account for later decisions rather than treating implementation
+narration as the oracle. Surface unresolved expectations.
 
-Use available browser or application-observation tools to exercise one coherent
-flow at a time. State the expected observable behavior, perform the relevant
-actions, and record what was actually observed. Reuse sufficient automated
-evidence and manually exercise only missing procedural or human-judgment proof;
-manual testing must not replace or ceremonially repeat a required automated
-test. When the mission calls for exploratory testing, establish a bounded
-charter from the story's risks and follow relevant surprises beyond the scripted
-happy path. Record what was explored and material areas that were not observed.
+Before testing, identify coverage areas, journeys, and exploration questions;
+allocate the available time proportionally to importance and risk, including
+preparation and a reserve for surprises and confirmation. Establish breadth,
+then investigate suspicious observations deeply enough to learn; consciously
+adjust coverage when reallocating time. Reuse sufficient automated proof and
+focus on missing procedural or judgment-based observations.
 
-Report each material outcome without claiming more than the evidence supports:
-observed pass, observed discrepancy, blocked or could-not-observe with the
-specific prerequisite, and a new idea that does not contradict the current
-story. For a discrepancy, preserve the promised behavior, actual observation,
-and useful screenshot, console, or network evidence. Do not infer that an
-unavailable environment passed, silently turn a future idea into a current
-defect, diagnose root cause, change product code, or create correction work
-unless the triggering instruction separately authorizes it. Produce a concise
-session report in the conversation or a project-supplied location; do not add a
-default persistent UAT file, phase-completion state machine, cross-story UAT
-audit, severity classifier, or automatic fix-planning pipeline.
+Use the project's available test/E2E environment. Choose the cheapest reliable
+route to each starting state: existing setup facilities, whole or partial E2E
+journeys, or a temporary preparation harness/test case. A temporary feature-file
+scenario containing only necessary setup is explicitly allowed. Verify that the
+resulting state and required application/session remain available for external
+exploration; do not assume every runner permits takeover. Reuse compatible
+prepared states, permit zero setup, preserve isolation and necessary cleanup,
+and remove attempt-owned temporary artifacts. Missing suitable automation is a
+possible improvement finding, not automatic authority for permanent test changes.
+Leave project-specific customization and tool-operation recipes out of scope.
 
-Keep one shared behavioral source for Codex, Cursor, and Claude Code. Express
-tool use by capability and add only the smallest host-specific adaptation needed
-to operate the available browser or application surface. Validate the resulting
-guidance on one real Donut flow while preserving Donut's local prerequisites and
-test accounts outside the reusable skill.
+Report **Good.** when the agreed scope is completed without actionable findings.
+Otherwise report only actionable discrepancies, worthwhile improvements, unresolved
+expectations, and material coverage limitations, with just enough expected/actual
+behavior and evidence to enable action. Filter speculation and incidental comments;
+never imply blocked or materially incomplete coverage passed. Do not require a
+success transcript, completion marker, or persistent UAT document. Testing permits
+temporary preparation, not unrequested diagnosis, product repairs, permanent test
+changes, or fix planning.
+
+**Instruction constraint:** Replace existing prose rather than accumulating rules.
+The current source is 397 whitespace-delimited words including frontmatter. Aim
+for the same size or shorter, with no substantial net growth; justify any small
+increase by necessary behavior. Count required linked instructions too. Keep the
+skill self-contained unless a reference materially improves use, and follow
+[AGENTS.md](../../AGENTS.md) and Accepted ADRs, especially 0002 and 0006.
 
 **Key examples:**
 
-- Given a developer asks to manually test a completed Donut interaction and the
-  local stack is available, the agent derives the expected outcome from the
-  selected story, exercises the flow, follows one relevant risk or surprising
-  observation when warranted, and reports the actions, observations, evidence,
-  and untested areas.
-- Given automated proof already establishes a deterministic behavior but visual
-  clarity still requires judgment, the session reuses the automated result and
-  manually evaluates only the visual outcome; it does not rerun the automated
-  path merely to manufacture manual compliance.
-- Given the required application, account, service, or observation tool is not
-  available, the report says the behavior could not be observed, names the
-  missing prerequisite, and never records a pass.
-- Given the observed behavior differs from the story's promise, the report
-  retains both expected and actual behavior with available evidence. It does not
-  guess a root cause or implement a fix without separate authority.
-- Given exploration reveals a worthwhile idea that is outside the current
-  promise, the report identifies it as a follow-up rather than failing or
-  silently enlarging the story.
+- Given a request to test recent deliveries whose stories were deleted, recover
+  their expectations and subsequent decisions from Git, then produce a bounded
+  coverage/time plan before acting, including non-web surfaces when relevant.
+- Given expensive setup already expressed in an E2E scenario, run a temporary
+  setup-only scenario through existing infrastructure, confirm the application
+  and prepared state are usable, explore from there, and clean up temporary work.
+  If the runner tears down required state, choose another supported route or
+  report the precise limitation rather than claiming takeover succeeded.
+- Given several planned areas and one suspicious observation, establish breadth
+  and allocate depth deliberately; reuse sufficient automated proof and compatible
+  prepared states instead of repeating setup and deterministic checks.
+- Given completed coverage with no actionable result, say **Good.**; given a
+  discrepancy, uncertainty, or material gap, report only what supports action.
+  An idea outside current promises is an improvement, not a failed acceptance.
 
-**Evaluation:** On one real Donut task, a developer can use the shared guidance
-to obtain a report that distinguishes observed behavior, discrepancies,
-unavailable observations, and follow-ups; traces checks to the story rather
-than implementation narration; and includes a useful bounded exploratory
-result when the mission warrants it. A representative walkthrough also shows
-that project-specific setup remains in Donut and that already-sufficient
-automated proof is not repeated.
+**Evaluation:** Walk the guidance against the examples above, including a non-web
+mission and unavailable prerequisites. Use it on one real Donut flow to observe
+that temporary preparation leaves a usable starting state, bounded exploration
+happens, and the final report is appropriately sparse. Keep project setup local;
+record actual evidence separately from the sparse user-facing testing report.
+Check final instruction weight and meaningful behavior, not exact prose matching.
 
-**Depends on:** None. The current Donut skill and `gsd-core` verification
-workflow are comparison inputs, not runtime dependencies.
+**Depends on:** No product prerequisite. Existing Open Dough guidance and Donut's
+local manual-testing/E2E facilities are reuse inputs. Real-flow proof requires an
+available Donut test environment and observation capability; unavailable proof
+remains pending rather than being replaced by a walkthrough.
 
-**Deferred:** Persistent resumable UAT artifacts, stakeholder sign-off and
-acceptance authority, phase or release gates, portfolio-wide verification-debt
-audits, automatic browser activation, automated root-cause diagnosis and fix
-planning, and general test-management infrastructure.
+**Deferred:** Project-specific customization, reusable runner/adaptor tooling,
+permanent setup facilities, automatic repairs or test improvements, persistent
+UAT tracking, stakeholder sign-off, release gates, cross-story verification-debt
+audits, promotion, release, and installation/adoption.
 
 <a id="proudly-found-elsewhere-design"></a>
 
