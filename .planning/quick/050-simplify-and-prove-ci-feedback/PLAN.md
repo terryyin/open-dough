@@ -1,6 +1,6 @@
 # Simplify and prove active-execution CI feedback
 
-Status: executing.
+Status: complete.
 
 ## Source and outcome
 
@@ -158,7 +158,7 @@ alone is insufficient. Ordinary outstanding CI is an accepted limit, not a defec
 ### 3. Prove the simplified interaction on a real native failure-and-repair journey
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With the candidate in a disposable installed project and an active native
 Codex coordinator, a controlled real CI failure reaches that coordinator once for
@@ -264,12 +264,12 @@ when proof is accepted, not merely the planned command.
 - Joint value and pending-CI gap are settled; no product question blocks planning.
 - Use existing mailbox/coverage/repair concepts and a minimal host boundary; do
   not replace them with a second observer architecture.
-- Slice 1 native Codex isolate import remains unsupported in this Cursor
-  execution; the documented inline host binding is the supported fallback.
-  Slice 3 still owns real native delivery/timing.
-- Cursor host-bridge readiness: probe printed `CI_OBSERVER` only; no
-  `CI_MONITOR_READY` context. Product-delivery CI observation is unavailable for
-  this session. Do not promise notifications or start an observer.
+- Native Codex acceptance confirmed the documented inline host binding; no Node
+  import or second adapter mechanism is required.
+- The prior Cursor session's host-bridge probe printed `CI_OBSERVER` only, with
+  no `CI_MONITOR_READY` context. Cursor product-delivery observation was
+  unavailable there. Slice 3 changed no Cursor/Claude responsibility, so their
+  retained evidence remains applicable without claiming Codex as their proof.
 
 ## Execution learning and accepted proof
 
@@ -316,6 +316,35 @@ when proof is accepted, not merely the planned command.
     notification and lifecycle boundaries. Focused ESLint/Prettier checks passed;
     the four affected Codex notification/lifecycle test files passed 10/10; the
     independent refactor pass found no further change.
+- Slice 3 accepted (real native Codex red-to-green journey):
+  - Candidate: source revision `6b999618e327f6ef2cc8f07bb11305991da1c0e4`,
+    installed into an isolated project with tree digest
+    `969420adc3bf91cc5314a6f503aad01c52349603a3b15f1ed6e509ec615f4662`.
+  - Baseline: revision `a60b3f32496e8a57f51658ab300842a27cddb838`,
+    run `35069167007`, attempt 1, succeeded before the controlled failure.
+  - Native delivery: yielded Codex cell 33 delivered one `CI_FAILURE` for exact
+    revision `d3371e9c07001cd8cc42514ef7eab108126ede2e`, run `35069263335`,
+    attempt 1, job `ci-feedback-proof-6dd953ee`, before direct provider or
+    mailbox inspection. Its bounded log contained the distinctive planned
+    `CI_FEEDBACK_PROOF_ASSERTION_6DD953EE expected green, got red` diagnostic.
+  - Repair: the same observer covered revision
+    `a48461a70a53d6ba06469df7ba3701b5cd040b73`; run `35069388314`,
+    attempt 1, succeeded and emitted no actionable success notification.
+  - Shutdown: the exact mailbox stopped cooperatively, PID `60409` exited, and
+    the terminal result preserved one unread controlled-failure event while
+    reporting `pendingCi: unobserved`. The temporary remote branch was deleted
+    only after its green repaired head was verified; its local project was moved
+    to Trash.
+  - Ceremony: required Codex adapter guidance is 5,218 bytes / 617 words / 104
+    lines versus 5,979 / 726 / 135 before the story. The real journey used the
+    smaller launch cell plus deterministic stop cell without reconstructing
+    parsing or lifecycle bookkeeping. Total inline code grew, but complete
+    required reading shrank by 761 bytes, 109 words, and 31 lines.
+  - Evidence and inspected boundaries:
+    `.planning/quick/050-simplify-and-prove-ci-feedback/evidence/native-codex-acceptance/README.md`,
+    its literal launch/stop cells, event record, three exact-SHA coverage
+    records, request identity, and terminal result. The independent refactor
+    pass found no product or evidence change.
 
 ## Plan refinement assessment — 2026-09-16
 
