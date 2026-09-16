@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–5 delivered on `quick/052-introduce-trunk-mode`. Slice 6 is next.
+Status: in execution. Slices 1–6 delivered on `quick/052-introduce-trunk-mode`. Slice 7 is next.
 
 ## Execution identity
 
@@ -268,7 +268,7 @@ Accepted proof (2026-09-16):
 
 ### 6. Resolve an integration conflict from both contributors' intent
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Rebase encounters a conflict; understood intent produces a verified
 combined change, while incompatible intent leaves a preserved, reported decision.
@@ -279,6 +279,12 @@ Proof: Walk one concrete conflicting backlog/code change with known compatible
 intent and a countercase lacking the product decision. Inspect both preserved
 outcomes or the unresolved work state; no blind ours/theirs choice.
 Sizing: One conflict-resolution gate, not an evaluation of general agent competence.
+
+Accepted proof (2026-09-16):
+- Promise: compatible unpublished rebase conflict is combined without ours/theirs; incompatible intent keeps markers and unpublished SHA; no publication until affected proof is rechecked.
+- Boundary: `trunk-publication.md#resolve-a-publication-rebase-conflict`; wrap-up does not register a conflict stop; `merge-conflicts.md` names fetched trunk vs unpublished suffix.
+- Git walk: `.../trunk-mode-slice6-67ng8blr` remote `widget.conf` is `name=widget-pro` / `timeout=30` / `allow_admin=false`; unresolved `UU widget.conf` with remote2 still `4b3c9e5`.
+- Native pending.
 
 ### 7. Receive CI feedback for the exact published trunk revision
 Type: Behavior

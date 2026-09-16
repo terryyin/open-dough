@@ -85,11 +85,9 @@ same execution worktree; a claim may have none yet.
    the rewritten SHA; the pre-rebase SHA is not the increment. Update the
    execution branch to the rewritten candidate when a worktree already
    exists; otherwise keep the candidate on the integration checkout until
-   workspace setup uses it. A rebase conflict in this project's product
-   backlog uses
-   [backlog merge conflicts](../dough-product-backlog/references/merge-conflicts.md)
-   before continuing Git. Other conflicts are not specified here: preserve
-   the exact refs, worktree, and index, and report them.
+   workspace setup uses it. A rebase conflict uses
+   [publication rebase conflicts](#resolve-a-publication-rebase-conflict)
+   before continuing Git.
 4. Validate the candidate. For a claim, confirm the selected entry is
    **Taken** on the candidate and that no empty commit was invented. For an
    increment, reuse accepted proof whose promise, boundary, implementation,
@@ -136,6 +134,8 @@ suffix, then retry one ordinary push:
    `git rebase --onto <target-branch> <rejected-candidate> <execution-branch>`.
    That second rebase is not permission to drop additional unfinished
    work. Update retained identity to the rewritten candidate.
+   A conflict on either rebase uses
+   [publication rebase conflicts](#resolve-a-publication-rebase-conflict).
 4. Revalidate as in candidate step 4. The post-rejection rebase
    invalidates only proof the combined changes affect.
 5. Push the rewritten candidate once with an ordinary push. After
@@ -143,6 +143,45 @@ suffix, then retry one ordinary push:
 
 A second rejection or other persistent failure stops. Preserve remaining
 state and report it. Do not loop.
+
+## Resolve a publication rebase conflict
+
+A conflict while rebasing the owned unpublished suffix is not permission to
+take `--ours` or `--theirs`, skip the commit, or continue Git blindly.
+
+Inspect unmerged paths. For this project's product backlog, apply
+[backlog merge conflicts](../dough-product-backlog/references/merge-conflicts.md)
+before continuing Git. If that reference is unavailable, preserve the
+conflict and report the missing guidance.
+
+For other product or code paths, read the three Git versions (ancestor,
+current side, and incoming side; index stages 1, 2, and 3). Identify the
+fetched trunk versus the unpublished suffix from the actual commits; Git's
+ours/theirs labels during rebase do not name intent. Compare each side with
+the ancestor and retain a brief account of what each contributor changed.
+
+When both sides' intent is understood and compatible, combine those changes.
+Apply identical edits once. An unchanged region does not override the other
+side. Do not choose an entire side. Continue the rebase only after the
+combined working tree matches that account, then revalidate as in candidate
+step 4: the combined change invalidates only the affected proof. Rebase
+success is not behavioral proof. Do not publish until that recheck succeeds.
+
+If identity, incompatible product intent, or a competing restriction remains
+unresolved, preserve the exact refs, worktree, and index, including conflict
+markers. Do not discard either side. Stop publication and report the specific
+missing decision:
+
+- Unclear value, domain meaning, architecture, or ambiguity that could
+  waste a commit uses
+  [human judgment](execution-decisions.md#stop-for-human-judgment).
+- A change that would drop or weaken a required rejection or other
+  contractual product constraint uses
+  [a disputed plan restriction](execution-decisions.md#resolve-a-disputed-plan-restriction).
+
+Do not register publication or continue as delivered. After a human
+decision, resume from the preserved conflict state rather than inventing a
+side.
 
 Setup or publication failure preserves remaining state. It is not permission
 to start unclaimed queued work, start implementation from an unpublished

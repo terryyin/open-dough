@@ -123,7 +123,8 @@ Git, agent, and observer state under
    A rejected push after local integration follows
    [rejected-push recovery](trunk-publication.md#recover-a-rejected-push)
    and registers only the SHA that path records after a confirmed ordinary
-   push. A [Trunk Mode publication stop](trunk-publication.md#preconditions)
+   push. A [Trunk Mode publication stop](trunk-publication.md#preconditions),
+   [rebase conflict stop](trunk-publication.md#resolve-a-publication-rebase-conflict),
    or a recovery stop leaves that execution commit unpublished and
    recoverable; do not register it or treat delivery as complete.
    After confirmed success, register the
