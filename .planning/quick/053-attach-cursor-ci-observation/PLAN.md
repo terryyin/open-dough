@@ -66,23 +66,21 @@ adopted worktree execution, not a new product boundary.
 
 | Promise | Owner | Observable proof |
 | --- | --- | --- |
-| Worktree probe yields host `CI_MONITOR_READY` when hooks can run | Slice 1 | Focused failing-then-green hook delivery: probe with the execution worktree runtime, feed the receipt to the originating-workspace Cursor hook, match `CI_MONITOR_READY`. Native Cursor coordinator session: probe from an execution worktree, then observe `CI_MONITOR_READY` without editing host JSON. |
-| After READY, execute-plan can start one observer for the authorized branch | Slice 1 | Same focused path starts with the worktree runtime after READY; hook can add `CI observer attached to this coordinator`. Reuse existing same-checkout lifecycle proof for later push registration and stop. |
-| Receipt is not an armed observer | Slice 1 | Execute-plan / adapter still refuses to treat the probe directory as the execution observer (existing readiness-vs-receipt distinction). |
-| Unrelated checkout mailbox is still another checkout | Slice 1 | Existing launcher identity proof stays green (`ci-deployment-layout.test.mjs`); hook still refuses a mailbox whose root is a different repository, not a worktree of this one. |
-| Genuinely unavailable coverage reports once and continues | Slice 1 | Existing missing-`generation_id` / empty-hook tests stay green; no host JSON rewrite. |
+| Worktree probe yields host `CI_MONITOR_READY` when hooks can run | Slice 1 | Inexpensive: `node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs` pass (coordinator). Setup: fixture originating git + `git worktree add` execution; deploy `.agents` runtime; originating `cwd` managed Cursor `postToolUse`. Observation: originating hook `additional_context` matches `/CI_MONITOR_READY/`. Native Cursor coordinator: still unproved — this session's installed originating `.agents` hook is not the `src/` change. |
+| After READY, execute-plan can start one observer for the authorized branch | Slice 1 | Same focused test: start from worktree runtime; originating hook matches `/CI observer attached to this coordinator/`. Later push registration/stop: reuse existing same-checkout lifecycle tests. |
+| Receipt is not an armed observer | Slice 1 | Same focused test: probe `request.probe === true`; READY context does not match attach. |
+| Unrelated checkout mailbox is still another checkout | Slice 1 | Same focused test: unrelated probe into originating hook rejects `/CI mailbox belongs to another checkout/`. Launcher identity: `node --test src/skills/dough-execute-plan/scripts/ci-deployment-layout.test.mjs` (implementation report, pass 4). |
+| Genuinely unavailable coverage reports once and continues | Slice 1 | `node --test src/skills/dough-execute-plan/scripts/ci-host-hook.test.mjs` (implementation report, pass 17) — missing `generation_id` / empty later deliveries; no host JSON rewrite. |
 
 ## Ordered slices
 
 ### 1. Attach READY after a worktree mailbox probe
 Type: Behavior
 Status: planned
-Proof: Focused Node test of originating-workspace Cursor hook + execution-worktree probe receipt (and subsequent start attachment). Keep
-`src/skills/dough-execute-plan/scripts/ci-host-hook.test.mjs`,
-`ci-cursor-lifecycle.test.mjs`, and
-`ci-deployment-layout.test.mjs` (launcher identity) green. Native Cursor
-coordinator: from an execution worktree, `node <execution-skill>/scripts/ci-mailbox.mjs probe`
-is followed by `CI_MONITOR_READY` without editing `.cursor/hooks.json`.
+Proof: Inexpensive contract accepted via
+`node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs`
+(pass). Native Cursor coordinator READY after a worktree probe remains required
+and unproved; do not mark this slice done.
 
 Behavior: Given managed Cursor hooks registered on the originating project and
 a session that can run them, when `ci-mailbox.mjs probe` runs from the
@@ -104,9 +102,26 @@ unchanged.
   split a second acceptance story for the same READY outcome.
 - Claude Code, Codex, and GitHub Actions remain out of this plan.
 
+## Execution identity
+
+- Mode: Story Branch Mode
+- Originating checkout/branch: `/Users/terryyin/git/open-dough` `main` (claim `87db020`)
+- Execution checkout/branch: `/Users/terryyin/git/open-dough/.worktrees/053-attach-cursor-ci-observation` `quick/053-attach-cursor-ci-observation`
+- Integration target: `origin/main` (`terryyin/open-dough`)
+- Authorized push destination: `origin` `quick/053-attach-cursor-ci-observation`
+- CI source: GitHub Actions workflow `ci.yml` display name `CI`; observe `terryyin/open-dough` `quick/053-attach-cursor-ci-observation`
+- Observer: unavailable. Probe from execution runtime printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-YPwNFo"}`; host did not add `CI_MONITOR_READY`. Continue without promised monitoring; do not rewrite host settings.
+
 ## Learnings
 
-None yet.
+- Mailbox claim fails when the hook `checkoutRoot` is the originating workspace
+  and `request.root` is the execution worktree. Comparing
+  `git rev-parse --git-common-dir` at each checkout (only when
+  `--show-toplevel` is that root) accepts same-repo worktrees and still
+  rejects unrelated clones.
+- Native evaluation in this coordinator still runs the originating installed
+  `.agents` hook, not unreleased `src/skills` scripts. Do not hand-sync
+  installed copies or rewrite `.cursor/hooks.json` to complete that proof.
 
 ## Considered but excluded
 
