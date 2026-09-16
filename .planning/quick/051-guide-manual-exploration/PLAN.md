@@ -1,6 +1,6 @@
 # Guide a useful manual and exploratory test session
 
-Status: planned; execution started.
+Status: done.
 
 ## Execution identity
 
@@ -188,13 +188,13 @@ Accepted proof:
   PGID; extra `mb` stopped. No Donut commit. Story-28 worktree runner left
   untouched. Coordinator confirmed Donut working tree clean of this attempt and
   no listener on `:5173`. Refactor: `none — already clean`.
-- Remaining: skill is 458 words vs 397; slice 3 must reclaim weight while
-  replacing leftover report/marker behavior.
+- Remaining: slice 3 reclaimed weight to 397 words and replaced leftover
+  report/marker behavior.
 
 ### 3. Explore within the budget and report only actionable outcomes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a planned mission and usable starting state, the skill guides
 bounded breadth and selective depth and returns only actionable findings/material
@@ -228,6 +228,28 @@ discovery run is justified by this source-only change.
 Safe stop: concise guidance and its promised behavior have been assessed. Missing
 real-flow proof remains unfinished; no release or all-host validation is implied.
 
+Accepted proof:
+- Promise: breadth then selective depth; reuse automated evidence; `Good.` only
+  for complete clean coverage; discrepancies with expected/actual; ambiguous
+  expectation is unresolved not a fail; out-of-scope is improvement; blocked
+  coverage is not `Good.`; no repair/root-cause; 397-word source.
+- Boundary: Explore and Report in `src/skills/dough-manual-testing/SKILL.md`.
+  Mission/Prepare from slices 1–2 remain.
+- Commands: walkthroughs below; `wc -w src/skills/dough-manual-testing/SKILL.md`;
+  `git diff --check`.
+- Setup: apply finished skill; Donut live app from slice 2 was already cleaned up
+  (`a4507e5304`, no `:5173` listener). Independent reporting walkthroughs used;
+  no second Cypress session.
+- Observations: mismatch → expected/actual discrepancy; ambiguous oracle →
+  unresolved expectation; blockage → coverage gap not `Good.`; out-of-scope
+  idea → improvement; clean coverage → exactly `Good.`; zero setup; reuse
+  `notebook_creation` automation without replaying Givens; CLI mission still
+  holds. 397 words; no new links; whitespace clean. AGENTS.md invocation/
+  context/outcome review passed. Refactor: `none — already clean`.
+- Result: pass for reporting/weight. Bounded live Donut exploration was not
+  re-run; slice 2’s external `/notebooks/1` action remains the real-flow
+  observation.
+
 ## Proof ownership and cumulative assessment
 
 | Promise | Owner and observation |
@@ -245,10 +267,9 @@ workflow. No preparatory Structure slice or new North Star is needed. Each slice
 has one outcome and owns its proof; retain prior evidence without rerunning it
 merely to satisfy the next slice.
 
-Remaining concern: Slice 2’s interactive `cy:open` route is now observed; batch
-`cy:run` still tears down. Slice 3 may reuse that route while its setup matches,
-and can complete reporting walkthroughs without it. Concision (458 vs 397) is
-unfinished until slice 3. No timing guarantee.
+Remaining concern: none for this plan’s slices. Batch `cy:run` still tears down;
+that is recorded Donut lifetime knowledge, not unfinished skill behavior. No
+release or all-host validation is implied. CI for this branch is unobserved.
 
 ## Learnings
 
@@ -260,9 +281,10 @@ Slice 1 walkthrough: recover deleted SEED-013 at `18a2673`, then apply the curre
 execute-plan host-dispatch contract as the later decision. The seed’s Codex-first
 proof line is not the live oracle.
 
-Slice 2: interactive wrapper lifetime kept the app; `--spec` only preselects;
-Cypress AUT iframe is not external takeover; `start_mb.sh` may skip port 2525
-when nothing is listening. Do not encode Donut-specific commands in the skill.
+Slice 3: Explore/Report weight came from leftover verbose report and tighter
+headings, not from a reference file. Live Donut re-arm was optional once slice 2
+had observed takeover; reporting counterexamples do not require a second Cypress
+session.
 
 ## Slice-plan refinement assessment
 
@@ -276,5 +298,5 @@ uncertainty. Slice 3 reuses that proof and owns the full exploration/report outc
 Slices 1 and 3 have cohesive instruction changes and bounded observable review.
 Slice 2 remains contingent on the stated real environment; its uncertainty is
 explicit rather than hidden preparation. No scope escalation, numeric sizing
-exception, new infrastructure, or story resplit is indicated. Slices 1–2 are
-executed with accepted proof recorded above.
+exception, new infrastructure, or story resplit is indicated. All three slices
+are executed with accepted proof recorded above.

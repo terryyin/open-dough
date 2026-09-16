@@ -1,72 +1,66 @@
 ---
 name: dough-manual-testing
 description: >-
-  Plans a bounded manual or exploratory observation of requested product
+  Plans bounded manual or exploratory observation of requested product
   behavior when the developer explicitly requests manual testing, exploratory
   testing, or an active plan slice requires it. Covers web, CLI, API, desktop,
-  or combined surfaces named in the scope. Does not run proactively or replace
-  required automated tests.
+  or combined surfaces. Does not run proactively or replace required automated
+  tests.
 ---
 
 # Observe requested behavior
 
-Use only for an explicit developer request or manual testing required by the
-active plan slice.
+Use only on explicit developer request or plan-slice manual testing.
+No diagnosis, product repair, or unrequested tooling.
 
-## Establish the mission and budget
+## Mission
 
-Resolve the testing scope and available time budget from the request. Scope
-may be a feature, story set, recent deliveries, or change range. Recover current
-promises, examples, and constraints from this project's records or Git
-history, including deleted stories. Apply later decisions before older
-expectations. Do not treat implementation, narration, or existing tests as the
-acceptance oracle.
+Resolve scope and time budget from the request: a feature, story set, recent
+deliveries, or change range. Recover current promises, examples, and
+constraints from this project's records or Git history, including deleted
+stories. Apply later decisions before older expectations; implementation,
+narration, and existing tests are not the oracle.
 
-Identify in-scope externally observable surfaces from those promises, including
-non-web surfaces when relevant. Keep URLs, accounts, startup commands, secrets,
-and tool operation in this project's own guidance. Resolve them when the
-mission needs them; do not guess or copy credentials into notes.
+Identify in-scope externally observable surfaces, including non-web. Resolve
+URLs, accounts, startup, secrets, and tools from this project's guidance when
+needed; do not guess credentials.
 
-If the oracle, budget, or needed environment or access is missing, name that
-specific unresolved input and stop. Do not invent a budget, environment, or
-expected result.
+If oracle, budget, or needed environment or access is missing, name it and
+stop; do not invent them.
 
-This skill is observation only. It does not authorize diagnosis, product
-repair, or unrequested runner tooling.
+## Plan
 
-## Plan coverage
+Before acting, list coverage areas and journeys, risks or questions, and
+proportional split of preparation, breadth, selective depth, and
+surprise/confirmation reserve. Weight by importance and risk. Include each
+promised surface. Completing this plan is not acceptance.
 
-Before acting, list coverage areas and journeys, the main risks or questions,
-and a proportional time split: preparation, breadth, selective depth, and a
-reserve for surprises and confirmation. Weight by importance and risk. Include
-each promised surface the scope requires. Completing this plan is not
-acceptance.
+## Prepare
 
-## Prepare a starting state
+Choose the cheapest reliable route: existing setup, whole or partial automated
+journey, or temporary harness or test, including a setup-only feature
+scenario using existing steps. Skip setup when current state serves. Confirm
+state, session, and required services remain available for external
+observation; a finished batch run may not. Preserve isolation, cleanup,
+compatible-state reuse, and removal of owned temporary artifacts. Missing
+reuse is a possible improvement, not authority for permanent test/runner
+changes. If no supported route leaves a usable starting state, name it and
+stop.
 
-Choose the cheapest reliable route: existing setup, a whole or partial
-automated journey, or a temporary harness or test, including a setup-only
-feature scenario using existing steps. Skip setup when the current state
-already serves.
+## Explore
 
-Confirm state, session, and required services remain available for external
-observation; a finished batch run may not leave them usable. Preserve isolation
-and cleanup. Reuse compatible states. Remove owned temporary artifacts.
-
-Missing reuse is a possible improvement, not authority for permanent test or
-runner changes. If no supported route leaves a usable starting state, name that
-limitation and stop.
-
-## Exercise and observe
-
-After a usable starting state exists, exercise the planned surfaces with this
-project's available tools and compare to recovered promises. If a needed tool
-or environment is unavailable, name it and stop without claiming verification.
-This does not replace required automated verification.
+Cover planned areas in breadth first with this project's tools. Spend depth on
+surprises and high-risk questions; reallocate remaining time, keeping
+confirmation reserve. Reuse sufficient automated evidence; do not replay
+deterministic checks or proven setup. If a needed tool or environment is
+unavailable, name it and stop.
 
 ## Report
 
-Report surfaces exercised, expected versus observed results, evidence, and
-issues; distinguish failures from untested work. When requested coverage is
-done, end with `## MANUAL TEST COMPLETE` (finished, not all-passed). For
-blocked or partial testing, report the gap without that marker.
+When planned coverage completes with no actionable findings or material
+uncertainty, report exactly `Good.` Otherwise report only discrepancies
+(expected versus actual plus evidence), unresolved expectations (not false
+fails), improvements (out-of-scope ideas, not failed acceptance), and
+material coverage gaps. Never report `Good.` when blocked or incomplete.
+Omit narration, speculation, and completion markers. Do not start repair,
+root-cause, or permanent test changes.
