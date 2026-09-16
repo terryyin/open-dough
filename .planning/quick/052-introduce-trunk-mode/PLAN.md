@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–9 delivered on `quick/052-introduce-trunk-mode`. Slice 10 is next.
+Status: in execution. Slices 1–10 delivered on `quick/052-introduce-trunk-mode`. Slice 11 is next.
 
 ## Execution identity
 
@@ -357,7 +357,7 @@ Accepted proof (2026-09-16):
 
 ### 10. Review only the selected execution's interleaved changes
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Retrospective on a Trunk Mode story identifies its actual delivered
 changes even after rebases and interleaved sibling commits, without attributing
@@ -369,6 +369,12 @@ ledger and preserve normal planned/planless review selection.
 Proof: A/B/A history with a rebased unpublished A revision yields only A's delivered
 changes in its review; sibling B and stale unpublished SHA are excluded with reasons.
 Sizing: One review attribution boundary; no new retrospective process.
+
+Accepted proof (2026-09-16):
+- Promise: review uses retained published SHAs only; sibling and rewritten unpublished SHA are excluded with reasons.
+- Boundary: `dough-execution-retrospective/SKILL.md` related set; execute-plan identity published revisions.
+- Git walk: `/tmp/trunk-mode-slice10-fKLvI9` A1 `2a3e9c9` (`feature-a.txt`), B `64d2c17` (`feature-b.txt`), A2' `31aa759` (`feature-a2.txt`).
+- Native pending.
 
 ### 11. Publish closure durably before deleting its recoverable history
 Type: Behavior

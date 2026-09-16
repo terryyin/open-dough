@@ -62,8 +62,9 @@ increment through
 As each obligation finishes, retain the current delivery boundary in the
 execution conversation with the owned unfinished paths, accepted proof and its
 boundary, applicable implementation or refactor return, exact observer
-identity when present, and Trunk Mode candidate/base/published SHAs after any
-rewrite. On recovery, reconcile this focused record with actual
+identity when present, and Trunk Mode unpublished candidate, previously
+published base, and retained published revisions after any rewrite. On recovery,
+reconcile this focused record with actual
 Git, agent, and observer state under
 [execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
 Trunk Mode then classifies the increment with

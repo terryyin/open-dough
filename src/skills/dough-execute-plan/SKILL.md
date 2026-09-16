@@ -220,8 +220,10 @@ review selection; its authority excludes implementing findings or changing the b
 
 Continue in the recorded execution project/checkout. Supply available references/context:
 source contract, original plan and approved changes, attributable commits, decisions, proof,
-delivery state, CI limitations, and checkout/branch identity. Include an initial quick attempt
-and its planned continuation as one execution. Reuse context without another handoff artifact
+delivery state, CI limitations, and checkout/branch identity. Trunk Mode attributable
+commits are that identity's retained published revisions, not another ledger or a
+rewrite's unpublished SHA. Include an initial quick attempt and its planned
+continuation as one execution. Reuse context without another handoff artifact
 or transcript copy; retrospective validates attribution and recovers real gaps.
 
 Execution completion and review completion are distinct. A retrospective context stop leaves

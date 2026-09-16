@@ -101,12 +101,13 @@ same execution worktree; a claim may have none yet.
 5. Fast-forward the local target to the exact candidate. Do not merge.
 6. Immediately before pushing, retain the full candidate SHA and the
    previously published base. Push that exact candidate to the authorized
-   remote target. After confirmed success, record that SHA as the published
-   revision in the existing plan or conversation. Do not read a later
-   moving `HEAD` as that publication. When an observer is already bound to
-   the execution checkout, register that SHA with it. Registration failure is
-   lost coverage: report it and do not claim the revision was observed. Do not
-   wait for CI.
+   remote target. After confirmed success, append that SHA to this
+   execution's retained published revisions in the existing plan or
+   conversation. Do not drop earlier published SHAs of this execution, add a
+   pre-rebase unpublished SHA, or treat a later moving `HEAD` as that
+   publication. When an observer is already bound to the execution checkout,
+   register that SHA with it. Registration failure is lost coverage: report
+   it and do not claim the revision was observed. Do not wait for CI.
 
 ## Recover a rejected push
 
@@ -144,7 +145,7 @@ suffix, then retry one ordinary push:
 4. Revalidate as in candidate step 4. The post-rejection rebase
    invalidates only proof the combined changes affect.
 5. Push the rewritten candidate once with an ordinary push. After
-   confirmed success, record that SHA as the published revision.
+   confirmed success, record that SHA as in candidate step 6.
 
 A second rejection or other persistent failure stops. Preserve remaining
 state and report it. Do not loop.
@@ -205,7 +206,7 @@ exists. A pre-rebase SHA that is no longer the tip is not a second increment.
 | --- | --- | --- |
 | Only committed | Execution branch has the owned suffix; neither local target nor fetched remote trunk contains that candidate | [Publish a verified increment](#publish-a-verified-increment) from its preconditions. Do not commit again. |
 | Integrated locally | Local target tip is the owned candidate; fetched remote trunk does not contain it | Exclusive-turn checks, then candidate push (step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
-| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it | Record that SHA as the published revision if identity omitted it. Do not push again. |
+| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it | Append that SHA to retained published revisions if identity omitted it. Do not push again. |
 | Missing CI registration | Remote trunk contains the published SHA; the existing observer's coverage or `register-push` receipt does not | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
 
 A lost or unknown push response is not unpublished. If the exact candidate is
