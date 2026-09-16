@@ -78,8 +78,8 @@ contract in `dough-execute-plan/references/ci-notify-hosts.md`. Remaining
 uncertainty: whether Cursor failed to bind `generation_id`, the hook did not
 run, or another host-delivery gap.
 
-**Depends on:** none as a product prerequisite. Plan 052 Trunk Mode remains
-Taken and is not this story.
+**Depends on:** none as a product prerequisite. Trunk Mode is already on trunk;
+recover the spent story from `ef6a59c:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#introduce-trunk-mode`.
 
 **Safe stopping point:** Cursor planned execution can arm observation when
 hooks are able to run. Other hosts can stay on their existing evidence.

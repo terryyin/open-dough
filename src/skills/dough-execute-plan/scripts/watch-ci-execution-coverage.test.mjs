@@ -136,6 +136,50 @@ test("execution observation rejects a non-finite setup budget", async () => {
   );
 });
 
+test("registered revisions suppress unrelated target-branch failures", async () => {
+  const events = [];
+  const finalSha = "a".repeat(40);
+  const oldSha = "b".repeat(40);
+  const unrelatedSha = "c".repeat(40);
+  const controller = new AbortController();
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    registeredRevisions: async () => [finalSha],
+    emit: (event) => {
+      events.push(event);
+      if (event.type === "CI_FAILURE") controller.abort();
+    },
+    sleep: async () => undefined,
+    gh: async (args) => {
+      if (args[1] === "list")
+        return [
+          run({ databaseId: 1, headSha: oldSha, conclusion: "failure" }),
+          run({ databaseId: 2, headSha: unrelatedSha, conclusion: "failure" }),
+          run({ databaseId: 3, headSha: finalSha, conclusion: "failure" }),
+        ];
+      if (args.includes("3"))
+        return {
+          jobs: [{ databaseId: 301, name: "Owned", conclusion: "failure" }],
+        };
+      throw new Error(`unexpected job inspection ${args.join(" ")}`);
+    },
+  });
+
+  assert.deepEqual(
+    events.map(({ type, sha, runId }) => ({ type, sha, runId })),
+    [
+      {
+        type: "CI_FAILURE",
+        sha: finalSha,
+        runId: 3,
+      },
+    ],
+  );
+});
+
 test("normal shutdown cancels polling immediately without a coverage-loss event", async () => {
   const controller = new AbortController();
   const events = [];

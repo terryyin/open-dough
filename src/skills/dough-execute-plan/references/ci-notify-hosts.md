@@ -42,12 +42,15 @@ After readiness succeeds, launch with the verified runtime setup values:
 node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' start --execution OWNER/REPO BRANCH
 ```
 
-This starts a detached non-AI process and returns immediately. Retain the one
+`BRANCH` is the authorized target from runtime setup, which may differ from
+the execution checkout branch. This starts a detached non-AI process and
+returns immediately. Retain the one
 directory from its `CI_OBSERVER` receipt as the coordinator's execution
 handle. The hook must add `CI observer attached to this coordinator`; absence
 of that labelled context means observation is not connected. Re-entering setup,
-including after a normal or repair push, reuses that directory and must not run
-the launcher again. The observer discovers each later selected branch push itself, so a
+including after a claim, normal, or repair publication, reuses that directory and must not run
+the launcher again. The observer discovers each later selected target-branch
+publication itself, so a
 push changes neither its owner binding nor its process handle. Continue
 delegation and execution immediately.
 

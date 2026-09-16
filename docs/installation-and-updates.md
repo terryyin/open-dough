@@ -31,11 +31,14 @@ The payload in each root is exactly:
 - `dough-execute-plan/references/destructive-later-outcome-check.md`
 - `dough-execute-plan/references/disposable-research.md`
 - `dough-execute-plan/references/execution-decisions.md`
+- `dough-execute-plan/references/execution-location.md`
 - `dough-execute-plan/references/runtime-setup.md`
+- `dough-execute-plan/references/trunk-publication.md`
 - `dough-execute-plan/references/wrap-up.md`
 - `dough-execute-plan/scripts/ci-command-adapter.mjs`
 - `dough-execute-plan/scripts/ci-failures.mjs`
 - `dough-execute-plan/scripts/ci-host-hook.mjs`
+- `dough-execute-plan/scripts/ci-mailbox-location.mjs`
 - `dough-execute-plan/scripts/ci-mailbox-store.mjs`
 - `dough-execute-plan/scripts/ci-mailbox-worker-process.mjs`
 - `dough-execute-plan/scripts/ci-mailbox.mjs`

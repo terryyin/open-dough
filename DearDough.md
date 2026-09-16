@@ -98,3 +98,4 @@ not started; later execution-branch pushes were unobserved.
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
 
+
