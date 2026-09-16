@@ -21,7 +21,8 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 22. Enrich bug fixing with triage and backlog routing
 
-**Status:** Refined; unplanned.
+**Status:** Refined; slice-planned, not executed.
+**Plan:** [Enrich bug fixing with triage and backlog routing](../quick/049-enrich-bug-fixing/PLAN.md).
 
 **Goal:** A reported discrepancy receives an evidence-backed resolution and a
 small confirmed defect is repaired through main integration; larger or unresolved
