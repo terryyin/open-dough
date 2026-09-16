@@ -30,8 +30,7 @@ entirely local, disposable fixture, which is the project's already-
 established pattern for this exact native check (see the sibling
 Codex/Cursor `dough-adr-awareness-*-delivery-to-use.sh` tests). Evidence:
 `.planning/quick/032-refuse-managed-hook-command-variants/evidence/claude-update-use/`.
-**Candidate:** `6682816a2385d96066883b5e4dc073b28e4b3d4f`; choose the current
-release candidate with SEED-001 Story 7 when starting work.
+**Candidate:** `6682816a2385d96066883b5e4dc073b28e4b3d4f`.
 **Goal:** The maintainer can run the ordinary updater and use its result in Claude Code.
 **Scope:** Start an ordinary permitted session on a disposable client, update
 from its remembered source, and use the installed ADR guidance on one concrete

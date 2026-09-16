@@ -3,7 +3,7 @@ id: SEED-001
 status: active
 planted: 2026-09-06
 planted_during: Initial installation and update exploration
-trigger_when: Release the working standalone updater for client use
+trigger_when: A concrete installation or update improvement is needed
 scope: medium
 ---
 
@@ -53,23 +53,6 @@ preservation, refusal, and install/update coverage make this more than a
 one-line quick fix.
 **Depends on:** The existing merge-and-preserve behavior for
 `.planning/open-dough.json`.
-
-<a id="standalone-client-update"></a>
-
-### 7. Release the standalone client installation and update workflow
-
-**Status:** Pending release. Candidate: `6682816a2385d96066883b5e4dc073b28e4b3d4f`.
-**Goal:** Make the working standalone updater available as a tagged release and
-use it in Open Dough.
-**Scope:** Review the candidate's functional checks, resolve the concrete
-[Claude Code use question](SEED-007-cross-tool-validation.md#accept-standalone-client-workflow),
-publish the maintainer-chosen version, and adopt it through the ordinary updater.
-Review current source changes when choosing the release revision.
-**Evaluation:** A fresh fetch supplies the chosen tag and complete payload;
-Open Dough updates from its remembered source and uses the installed guidance
-on a real task. The owner can review the installed version and file changes.
-**Effort:** S–M, medium confidence; assumes existing implementation and release tools.
-**Depends on:** A working candidate and the maintainer's release version.
 
 <a id="show-update-changelog"></a>
 

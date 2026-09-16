@@ -300,21 +300,6 @@ all 23 runtime Markdown files, `git diff --check`, and the existing
 `execution-payload-update.sh` checks. The updater wording check accepts equivalent
 payload phrasing. No slice plan, release, or installation/adoption was performed.
 
-<a id="extract-story-refinement"></a>
-
-### 6. Extract story refinement and improve one real story
-
-**Status:** Unplanned.
-**Goal:** Refine an actual Open Dough story using reusable shared guidance.
-**Scope:** Extract Donut's story-refinement practice and its needed guidance into
-the source skills. Apply it to one selected story in its existing seed.
-**Evaluation:** The story has a useful goal, small scope, and concrete examples
-that the owner can review. Include the skill in the next useful release.
-**Effort:** M, medium confidence; assumes the supplied practice is self-contained
-with its directly referenced guidance.
-**Depends on:** The source practice. Author the shared skill under `src/skills/`
-using [AGENTS.md](../../AGENTS.md).
-
 <a id="extract-story-decomposition"></a>
 
 ### 7. Extract story decomposition and simplify one real problem
