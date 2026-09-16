@@ -9,6 +9,9 @@ Status: planned; execution started.
 - Integration target: `main`.
 - Replanning: existing planning authority preserved (neither `--replan` nor `--no-replan`).
 - Slice budget: none numeric; bound by Behavior/Structure.
+- CI observation: Cursor mailbox probe printed `CI_OBSERVER` only; host
+  `CI_MONITOR_READY` did not appear. Pushed revisions are **unobserved**. Do not
+  claim GitHub Actions coverage. Retry probe in a session where the hook attaches.
 
 ## Source and outcome
 
@@ -119,7 +122,7 @@ Accepted proof:
 ### 2. Reach an externally usable starting state through temporary preparation
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given costly setup and existing E2E facilities, the skill guides the
 agent to a verified starting state without manually replaying all setup or changing
@@ -159,6 +162,34 @@ still describe capability-based alternatives without claiming they were validate
 
 Safe stop: one starting state has been observed and temporary work cleaned up;
 no permanent Donut or runner changes. Preserve the observation for reuse in Slice 3.
+
+Accepted proof:
+- Promise: cheapest temporary preparation; setup-only scenario using existing
+  steps; surviving app/state for external observation; no permanent runner change.
+- Boundary: `src/skills/dough-manual-testing/SKILL.md` Prepare section. Slice 3
+  exploration/`Good.` reporting and leftover completion marker remain.
+- Donut revision: `a4507e530475daded032da9d3528a8dc204b5904` on `main` (local
+  ahead of origin by 1; later `ahead 1, behind 2` without our Donut edits).
+- Command: `CURSOR_DEV=true SUT_TIMEOUT_MS=360000 nix develop -c pnpm cy:open --spec e2e_test/features/notebooks/notebook_creation.feature`
+  (primary unconfigured checkout; spec is on the isolated allowlist; `--spec` is
+  wrapper preselect only). Corrected Mountebank absence with existing
+  `pnpm exec mb` after `start_mb.sh` skipped 2525.
+- Setup: temporary `@focus` scenario `Temporary manual-exploration setup` in
+  `e2e_test/features/notebooks/notebook_creation.feature` (Background login +
+  `Given I have a notebook "Manual Explore NB"`). Selected through Cypress UI
+  (`http://localhost:5173/__/#/specs`). Cypress reporter: 1 passed.
+- Observation: external browser `http://localhost:5173/users/identify` then
+  `/notebooks` as `old_learner` showed **Manual Explore NB**; opened
+  `/notebooks/1` (heading, New note, Readme) — not performed by setup Givens.
+- Result: pass for this route. Batch `cy:run` still shuts the stack; takeover
+  used interactive lifetime. Cypress AUT iframe after the scenario showed an
+  empty catalog while the independent session saw the notebook.
+- Cleanup: restored the feature file; stopped owned `cy:open` and leftover SUT
+  PGID; extra `mb` stopped. No Donut commit. Story-28 worktree runner left
+  untouched. Coordinator confirmed Donut working tree clean of this attempt and
+  no listener on `:5173`. Refactor: `none — already clean`.
+- Remaining: skill is 458 words vs 397; slice 3 must reclaim weight while
+  replacing leftover report/marker behavior.
 
 ### 3. Explore within the budget and report only actionable outcomes
 
@@ -214,11 +245,10 @@ workflow. No preparatory Structure slice or new North Star is needed. Each slice
 has one outcome and owns its proof; retain prior evidence without rerunning it
 merely to satisfy the next slice.
 
-Remaining concern: Slice 2's real setup-to-observer boundary depends on Donut's
-available environment, session lifetime, and supported selection. The runner code
-supports an interactive candidate but is not runtime proof. Slice 3 depends on that
-observed route; its independent reporting walkthroughs can proceed if unavailable.
-No unresolved product-scope decision was identified. No timing guarantee is made.
+Remaining concern: Slice 2’s interactive `cy:open` route is now observed; batch
+`cy:run` still tears down. Slice 3 may reuse that route while its setup matches,
+and can complete reporting walkthroughs without it. Concision (458 vs 397) is
+unfinished until slice 3. No timing guarantee.
 
 ## Learnings
 
@@ -229,6 +259,10 @@ this finding narrows the real proof without adding project-specific runtime rule
 Slice 1 walkthrough: recover deleted SEED-013 at `18a2673`, then apply the current
 execute-plan host-dispatch contract as the later decision. The seed’s Codex-first
 proof line is not the live oracle.
+
+Slice 2: interactive wrapper lifetime kept the app; `--spec` only preselects;
+Cypress AUT iframe is not external takeover; `start_mb.sh` may skip port 2525
+when nothing is listening. Do not encode Donut-specific commands in the skill.
 
 ## Slice-plan refinement assessment
 
@@ -242,5 +276,5 @@ uncertainty. Slice 3 reuses that proof and owns the full exploration/report outc
 Slices 1 and 3 have cohesive instruction changes and bounded observable review.
 Slice 2 remains contingent on the stated real environment; its uncertainty is
 explicit rather than hidden preparation. No scope escalation, numeric sizing
-exception, new infrastructure, or story resplit is indicated. Execution has not
-started; no preparation or application-behavior proof is claimed by this plan.
+exception, new infrastructure, or story resplit is indicated. Slices 1–2 are
+executed with accepted proof recorded above.

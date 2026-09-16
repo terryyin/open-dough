@@ -32,7 +32,7 @@ specific unresolved input and stop. Do not invent a budget, environment, or
 expected result.
 
 This skill is observation only. It does not authorize diagnosis, product
-repair, permanent test changes, or unrequested runner tooling.
+repair, or unrequested runner tooling.
 
 ## Plan coverage
 
@@ -42,19 +42,31 @@ reserve for surprises and confirmation. Weight by importance and risk. Include
 each promised surface the scope requires. Completing this plan is not
 acceptance.
 
+## Prepare a starting state
+
+Choose the cheapest reliable route: existing setup, a whole or partial
+automated journey, or a temporary harness or test, including a setup-only
+feature scenario using existing steps. Skip setup when the current state
+already serves.
+
+Confirm state, session, and required services remain available for external
+observation; a finished batch run may not leave them usable. Preserve isolation
+and cleanup. Reuse compatible states. Remove owned temporary artifacts.
+
+Missing reuse is a possible improvement, not authority for permanent test or
+runner changes. If no supported route leaves a usable starting state, name that
+limitation and stop.
+
 ## Exercise and observe
 
-After the plan exists, exercise the planned surfaces with this project's
-available tools. Compare observed results to recovered promises. If a needed
-tool or environment is unavailable, name it and stop without claiming
-verification. Manual testing does not replace automated verification required by
-the plan.
+After a usable starting state exists, exercise the planned surfaces with this
+project's available tools and compare to recovered promises. If a needed tool
+or environment is unavailable, name it and stop without claiming verification.
+This does not replace required automated verification.
 
 ## Report
 
-Report the surfaces exercised, expected and observed results, evidence, and
-issues found. Distinguish failures from work that could not be tested. When
-all requested coverage has been exercised and recorded, end with
-`## MANUAL TEST COMPLETE`; this marker means testing finished, not that every
-check passed. For blocked or partial testing, report the missing prerequisite
-or remaining work without the completion marker.
+Report surfaces exercised, expected versus observed results, evidence, and
+issues; distinguish failures from untested work. When requested coverage is
+done, end with `## MANUAL TEST COMPLETE` (finished, not all-passed). For
+blocked or partial testing, report the gap without that marker.
