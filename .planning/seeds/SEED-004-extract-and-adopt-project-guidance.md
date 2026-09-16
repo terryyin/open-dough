@@ -17,72 +17,6 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
-<a id="execute-small-work-from-context"></a>
-
-### 23. Execute small work from a story or contextual instruction
-
-**Status:** Refined; planned.
-**Plan:** [Execute small work from context](../quick/033-execute-small-work-from-context/PLAN.md).
-
-**Goal:** A developer can execute a small story or one-time instruction in an
-isolated worktree through integration to main, and choose whether an oversized
-attempt returns control or continues through authorized planning.
-
-**Scope:** Extend [dough-execute-plan](../../src/skills/dough-execute-plan/SKILL.md)
-to accept a plan, a story, or an instruction in context. Select the source and
-permission to replan independently, explicitly or from clear caller context.
-A contextual instruction supplies the objective, known expectations, uncertainties,
-and authority; it needs no fabricated story or executable plan. Investigation
-can be part of the bounded attempt, including establishing intended behavior.
-Source selection needs no new flag family. Accept explicit replan/no-replan
-instructions (including `--replan` / `--no-replan`); otherwise retain existing
-planning authority. Replanning permission never grants missing scope or execution
-authority. The choice applies independently to all three input kinds.
-
-Unify planless story and instruction execution in the existing worktree path.
-Use existing slice limits, verification, refactoring, delivery, and closure to
-integrate successful work to main through coordinator-invoked shared wrap-up.
-Branch delivery and main integration remain distinct completion boundaries.
-Retain execution identity in context and make
-only the necessary changes to closure for planless inputs. Assume the project's
-existing isolation facilities; introducing isolation infrastructure is excluded.
-
-When replanning is authorized, preserve compatible work and use ordinary planning
-or refinement. When disabled, a time/scope overrun or failure to converge returns
-control: first preserve useful evidence in the disposable planning folder, then
-undo attempt-owned incomplete changes. Evidence may be prose, snippets, or a
-patch; it need not be executable or constitute a plan. Unfinished work remains
-only in that folder. Preserve unrelated work; unclear ownership or failed cleanup
-requires coordinator judgment. Delivery failures after a verified result follow
-existing recovery rather than the overrun route. Execution does not queue bugs. A stop affects the current unfinished attempt,
-not earlier delivered slices. Existing Taken entries stay Taken; a contextual
-request needs no fabricated backlog entry. An evidence-backed investigation
-conclusion can complete without a code change.
-
-**Keep it small:** Replace overlapping instructions and reuse existing execution
-and closure steps. Prefer shorter guidance; add only the source and replan
-choices needed here, without a new coordinator or option framework. Exact option
-names can be chosen during planning. No new universal timing policy, release,
-or installation work.
-
-**Key examples and validation:** Use a short manual behavior walkthrough of each:
-
-- A context-only instruction completes planlessly in a worktree and integrates
-  to main using ordinary verification and closure.
-- An oversized story with replanning allowed continues through authorized
-  planning; with replanning disabled, evidence survives in the planning folder,
-  incomplete changes are undone, and control returns without a plan or retry.
-
-Review the changed instructions and directly affected references for consistency;
-reuse existing focused checks where relevant. No new validation framework,
-exhaustive input/option matrix, or routine per-host discovery exercise.
-
-**Depends on:** Existing execution and closure workflows.
-**Value if Story 22 is deferred:** Small stories and contextual requests already
-have one usable isolated execution path with an explicit overrun disposition.
-**Effort hypothesis:** More coordination than Story 22 because execution and
-closure must agree; precise sizing belongs to slice planning.
-
 <a id="extract-narrow-bug-fixing"></a>
 
 ### 22. Enrich bug fixing with triage and backlog routing
@@ -96,7 +30,7 @@ claims and dismissal merely because investigation could not confirm a report.
 
 **Scope:** Enrich the existing
 [bug-fixing skill](../../src/skills/dough-bug-fixing/SKILL.md) as a thin caller of
-[Story 23's execution path](#execute-small-work-from-context). Gather the supplied
+[dough-execute-plan](../../src/skills/dough-execute-plan/SKILL.md). Gather the supplied
 report, then invoke execution early for investigation, reproduction, and attempted
 repair, planlessly with replanning disabled and a ten-minute slice allowance.
 Use execution's existing timing and exception rules. Keep reporting/refinement-only
@@ -147,12 +81,12 @@ new isolation machinery, release, and adoption.
   without a repair. For a removal, assert the intended result; an explicit promise
   such as cancellation creating no order still justifies an absence assertion.
 
-Reuse Story 23's execution/rollback proof and existing focused checks; validate
+Reuse existing execution/rollback proof and existing focused checks; validate
 only the bug-specific routing and evidence here. No new harness, full test matrix,
 or routine per-host discovery exercise.
 
-**Depends on:** Story 23. This story adds bug policy, not another execution path.
-**Effort hypothesis:** Smaller than Story 23 if the shared execution contract is
+**Depends on:** Existing execution and closure. This story adds bug policy, not another execution path.
+**Effort hypothesis:** Smaller if the shared execution contract is
 sufficient; investigate any pressure to duplicate it before expanding this story.
 
 <a id="guide-useful-manual-testing"></a>
@@ -497,9 +431,9 @@ fixture remain maintainer-owned follow-ups.
 ## Ordering
 
 Story 9 is complete. Story 5 is complete. Story 12 is complete in source.
-Story 14 is done. Story 15 is selected. Story 23 delivers the shared small-work
-execution path before Story 22 adds bug triage and backlog routing. This split
-keeps execution independently useful and avoids duplicating it in bug fixing. Story 6 remains a later extraction reuse opportunity
+Story 14 is done. Story 15 is selected. Shared small-work execution lives in
+dough-execute-plan; Story 22 adds bug triage and backlog routing without duplicating
+that path. Story 6 remains a later extraction reuse opportunity
 after higher-priority queued work.
 Story 7 surfaces for a real oversized problem; Story 8 surfaces for its named
 client/task needs.
