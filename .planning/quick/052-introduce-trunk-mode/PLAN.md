@@ -1,6 +1,18 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: planned. Planning only is authorized; the source remains queued.
+Status: in execution. Slice 1 delivered locally pending push; slice 2 is next.
+
+## Execution identity
+
+- Mode: Story Branch Mode (caller invoked `/dough-execute-plan 52` without `--trunk`).
+- Replanning permission: allowed (no `--no-replan`).
+- Originating checkout/branch: `/Users/terryyin/git/open-dough` on `main`; claim commit `ce145051ca526c8b0343b030e4374d9c7f687ccc` (`Take SEED-008 Trunk Mode for planned execution.`).
+- Execution checkout/branch: `/Users/terryyin/git/open-dough/.worktrees/052-introduce-trunk-mode` on `quick/052-introduce-trunk-mode`.
+- Integration target: `main`.
+- Authorized push destination: `origin` `quick/052-introduce-trunk-mode`.
+- Slice budget: none supplied; bound each slice by one Behavior/Structure gate and one proof loop.
+- Selective formatter: `npm run format` (`node scripts/lint.mjs --fix`). Commit hooks: absent (sample Git hooks only); check-only contract is understood.
+- CI: default GitHub Actions (`ciAdapter` absent); workflow to verify before first observer arm. No observer armed yet.
 
 ## Source and outcome
 
@@ -146,7 +158,7 @@ native acceptance under ADR 0005; no such checks are claimed passed here.
 
 ### 1. Start explicitly selected work with a visible trunk claim
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given authorized planned or planless work and explicit Trunk Mode,
 startup produces one retained local execution workspace with the required queue
@@ -160,6 +172,15 @@ Proof: Walk a queued startup through visible remote Taken state and inspect its
 execution base; contrast contextual planless startup and no-mode selection.
 An unavailable destination prevents implementation, preserving existing changes.
 Sizing: One startup gate; moderate uncertainty from claim-before-worktree ordering.
+
+Accepted proof (2026-09-16, Story Branch Mode execution of this slice):
+- Promise: explicit `--trunk` publishes Taken claim to remote trunk, then creates the local worktree from that SHA; omitted mode keeps Story Branch local-only claim; contextual planless fabricates no queue artifacts; failed publication leaves local Taken and no worktree; later increment push of the execution branch is an explicit stop.
+- Boundary: `src/skills/dough-execute-plan/SKILL.md` plus `references/execution-location.md` and `references/trunk-publication.md`.
+- Commands: `bash tests/execution-payload-update.sh` (pass); `bash tests/dough-update-guidance-payload.sh` (pass). Setup: execution checkout cwd with uncommitted then refactored payload lists.
+- Git walk: disposable fixture `/tmp/trunk-mode-slice1-lLAiL7` (instruction reconstruction, not native skill invocation). Trunk-claim remote has only `main` at `b3332f8` matching `trunk-claim/execution` on `exec/story` with Taken backlog; omitted-mode observer still lists the story on Backlog list and remote `main` stays `29422d7`; contextual execution has no `.planning`; failed push remote `90556c8` ≠ local `b7591cf` with no `fail/execution` worktree.
+- Native Codex, Cursor, and Claude Code `--trunk` entry behavior: pending (ADR 0005). This Cursor implementation session does not cover those hosts.
+
+Learnings: publish the claim before creating the worktree so a claim rebase does not require moving an existing worktree; do not reuse Story Branch execution-branch push after a Trunk Mode claim (slice 2 owns increment publication).
 
 ### 2. Publish each verified increment from the retained workspace
 Type: Behavior
@@ -362,7 +383,8 @@ The cumulative design is one mode-aware publication boundary with separate
 execution location and publication target. Claims, normal increments, repairs,
 and closure reuse it; source type controls its existing lifecycle, not separate
 Trunk Mode implementations. Reuse judgments above are based on source inspection,
-not completed runtime proof. No slices or native observations have run.
+not completed runtime proof. Slice 1 source and payload proof have run;
+native host entry observations remain pending.
 
 Construction separated push-race recovery (5) from interruption recovery (9),
 CI observation (7) from repair (8), and durable closure (11) from resource removal

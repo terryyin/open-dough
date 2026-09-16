@@ -6,10 +6,9 @@ report_managed_payload_mismatch() {
   local managed_file=$2
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
-# Read-only comparison of dest against a supplied local tagged checkout.
-# dest is the dough-update destination; skill_root is its native root.
-# Performs no fetches or writes. Callers that already have a tagged tree
-# pass it as checkout; ordinary update fetches first, then uses this.
+# Read-only dest vs tagged checkout. dest is the dough-update destination;
+# skill_root is its native root. No fetches or writes. Callers with a tagged
+# tree pass it as checkout; ordinary update fetches first.
 managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
@@ -42,7 +41,9 @@ managed_payload_unchanged() {
     dough-execute-plan/references/destructive-later-outcome-check.md
     dough-execute-plan/references/disposable-research.md
     dough-execute-plan/references/execution-decisions.md
+    dough-execute-plan/references/execution-location.md
     dough-execute-plan/references/runtime-setup.md
+    dough-execute-plan/references/trunk-publication.md
     dough-execute-plan/references/wrap-up.md
     dough-execute-plan/scripts/ci-command-adapter.mjs
     dough-execute-plan/scripts/ci-failures.mjs

@@ -49,11 +49,15 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
 
 ## Deliver the change
 
-Run this sequence in the selected execution location established by the main
-workflow. Pass its checkout to every delegated refactor, generator, and host
-operation; do not let an inherited working directory redirect delivery. This
+Run this sequence in the selected execution location established by
+[execution location](execution-location.md). Pass its checkout to every
+delegated refactor, generator, and host operation; do not let an inherited
+working directory redirect delivery. This
 slice delivery does not integrate or remove a retained execution branch or
-worktree.
+worktree. Trunk Mode does not push the execution branch. Claim publication uses
+[trunk publication](trunk-publication.md#publish-a-queue-claim). Routing later
+increments through that rule is not yet this sequence—stop rather than
+publishing a workspace branch.
 
 As each obligation finishes, retain the current delivery boundary in the
 execution conversation with the owned unfinished paths, accepted proof and its

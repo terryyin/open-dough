@@ -21,7 +21,7 @@ isolation must not postpone integration until the story is complete.
 
 ### 1. Introduce Trunk Mode for plan execution
 
-**Status:** Backlog; first priority. Refined and planned on 2026-09-16; not authorized for execution.
+**Status:** Taken; in execution on `quick/052-introduce-trunk-mode` (authorized 2026-09-16 via `/dough-execute-plan 52`).
 **Slice plan:** [Plan 052](../quick/052-introduce-trunk-mode/PLAN.md).
 
 **Goal:** A developer executes planned or authorized planless work in **Trunk Mode**: the agent

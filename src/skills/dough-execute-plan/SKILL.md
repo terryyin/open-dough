@@ -7,7 +7,8 @@ description: >-
   asynchronous CI repair. Use to execute a plan, run slices, execute a canonical
   story when the caller explicitly skips slice planning, or execute a small
   instruction from context without a story or plan. Does not decide story scope
-  or quick-path eligibility. `--skip-retro` skips the automatic planned-execution
+  or quick-path eligibility. `--trunk` selects Trunk Mode; omitted mode keeps
+  Story Branch Mode. `--skip-retro` skips the automatic planned-execution
   retrospective. `--replan` and `--no-replan` choose whether an oversized attempt
   may continue through planning.
 ---
@@ -57,12 +58,15 @@ Resolve project context at the first boundary that needs it:
 
 - execution-source kind, slice target, hard limit, and exceptions;
   [replanning permission](references/execution-decisions.md#choose-replanning-permission);
-  Story Branch Mode or caller-selected current branch; for planned work, plan
-  path and status vocabulary;
+  execution mode and location: default Story Branch Mode; `--trunk` or a clear
+  equivalent selects Trunk Mode; explicit caller selection uses the current
+  branch. Resolve contradictions before changing state. Mode never creates
+  execution authority; for planned work, plan path and status vocabulary;
 - backlog path and selected entry for work selected from **Backlog list**;
 - selective formatter and commit hook contract before taking queued work and its claim commit;
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
-- authorized push destination before delivery;
+- authorized push destination before delivery, and for Trunk Mode before
+  publishing a queue claim;
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
 
@@ -76,8 +80,10 @@ permission](references/execution-decisions.md#choose-replanning-permission), plu
 currently triggered sections of [execution decisions](references/execution-decisions.md).
 Before accepting a return, read [proof acceptance](references/wrap-up.md#accept-proof);
 before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Before
-first push, read [CI observation](references/ci-monitor.md) and only the current
-host's notification adapter.
+a Story Branch Mode delivery push, read [CI observation](references/ci-monitor.md)
+and only the current host's notification adapter. Before creating the execution workspace, read
+[execution location](references/execution-location.md). Before a Trunk Mode
+claim publication, read [trunk publication](references/trunk-publication.md).
 Use [targeted retrieval and disposable research](references/disposable-research.md)
 for omitted/truncated passages or bounded investigations; another step alone needs no reload.
 
@@ -106,49 +112,29 @@ Already **Taken** means resume: preserve its position without duplication. Work 
 from both active lists needs no fabricated entry. Planning/refinement never takes work.
 Leave taken work through pauses, failures, completion, and retrospective; wrap-up removes it.
 
-For Story Branch Mode with a queue claim, preflight read-only in the originating checkout
-before moving the entry: verify branch, backlog path, tracked/staged changes, and ownership
-of an isolated claim commit. Ambiguous branch or ownership leaves the queue unchanged;
-preserve existing work without stashing, resetting, overwriting, or silently unstaging it.
+For a queue claim, preflight read-only in the originating checkout before moving
+the entry: verify branch, backlog path, tracked/staged changes, and ownership of
+an isolated claim commit. Ambiguous branch or ownership leaves the queue
+unchanged; preserve existing work without stashing, resetting, overwriting, or
+silently unstaging it.
 
 After moving, stage only the backlog path, inspect the staged diff, and commit the claim
-locally on the originating branch. Create the execution branch/worktree from that commit
-only after success; do not push the claim separately. Staging/commit failure stops isolated
-execution: preserve and report backlog/index state. Later setup failure leaves the committed
-entry **Taken** for retry. No-change cases produce no empty claim commit.
+locally on the originating branch. Claim setup may record provisional identity;
+complete it before dispatch. Staging/commit failure stops isolated execution:
+preserve and report backlog/index state. No-change cases produce no empty claim
+commit.
+
+Story Branch Mode creates the execution branch/worktree from that local commit
+only after success; do not push the claim separately. Trunk Mode publishes the
+claim per [trunk publication](references/trunk-publication.md#publish-a-queue-claim)
+before implementation. Later workspace-setup failure leaves the published or
+locally committed **Taken** entry for retry; do not treat that as a new claim.
 
 ## Choose the execution location
 
-Planned and planless work default to Story Branch Mode: one execution branch and Git
-worktree for the selected work. Explicit caller selection uses the current branch instead.
-After committing a claim, create the branch/worktree from it before delegation; when no
-claim applies, use verified current HEAD. Resolve names and safe location from project
-conventions and ordinary host Git facilities. Missing conventions, unsafe location, or
-creation failure stops setup; preserve and report the claim and created resources.
-Use no parallel registry, configuration format, or worktree manager.
-
-After successful setup and before delegation, retain one execution identity in the
-existing plan when one exists, and in the conversation:
-
-- originating checkout and branch, where the claim was recorded if any;
-- execution checkout and branch for implementation and delivery;
-- caller/project integration target, defaulting to `main` only when neither supplies one.
-
-Caller-selected current-branch work records that checkout/branch for both locations and
-creates no worktree.
-
-On resume, verify retained identity against actual branch, HEAD ancestry, and worktree
-state; **Taken** alone supplies no location. Reuse a matching execution checkout. Missing,
-ambiguous, contradictory, unsafe, or partial identity/setup requires an exact recovery
-decision: preserve resources rather than guessing, nesting worktrees, or switching branches.
-
-Run delegation, refactoring, generation, formatting, staging, commits, pushes, and CI repair
-from the selected execution location; Story Branch Mode pushes its execution branch to the
-authorized destination. Pass identity/location explicitly to agents and host adapters.
-
-Resolve checkout-bound installed runtime from the selected execution checkout and use it
-as working directory. Before arming, apply [runtime setup](references/runtime-setup.md)
-identity and stop rules; the initially loaded skill's copy is not a fallback.
+Follow [execution location](references/execution-location.md) for mode,
+workspace creation, retained identity, resume, push destination, and
+checkout-bound runtime.
 
 ## Continue or recover at an execution boundary
 
