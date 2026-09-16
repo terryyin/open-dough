@@ -1,3 +1,11 @@
+## 0.3.23 - 2026-09-16
+
+- Add `dough-manual-testing` to the installable payload. Plan bounded manual or exploratory missions across web, CLI, API, desktop, or combined surfaces; recover the product oracle from current project evidence; preserve usable prepared state; and report only actionable findings, material gaps, or exactly `Good.` when coverage completes cleanly.
+- Simplify the Codex CI notification binding around one yielded observer cell and one cooperative stop command. Preserve exact observer identity, deliver queued failures after yielding, avoid competing PTY readers, and report unread evidence and pending CI honestly without polling or waiting for completion.
+- Add focused deterministic coverage for the documented Codex launch, fragmented event delivery, terminal reuse, cooperative shutdown, multiple pending revisions, and bounded unavailable-monitoring paths.
+
+No additional native acceptance was run for `0.3.23` at the maintainer's request. The CI-observer work includes an existing fresh native Codex journey, but native acceptance for the new manual-testing behavior, Cursor and Claude Code coverage of the revised Codex-specific lifecycle where applicable, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.22 - 2026-09-16
 
 - Add `dough-bug-fixing` to the installable payload. Triage reported discrepancies before implementation, carry bounded fixes through the shared execution workflow, and queue larger or inconclusive reports as first-priority product work without overstating diagnosis or completion.
