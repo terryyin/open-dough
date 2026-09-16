@@ -67,10 +67,13 @@ remaining uncertainty or repair work through the existing story/backlog homes.
 
 ## Execution and verification
 
-This request authorizes planning only. All slices remain `planned`; execution
-will supply identity and proof here through the ordinary execution workflow.
-Use the established `.planning/quick/NNN-name/PLAN.md` layout; 049 follows the
-highest allocation found in Git history, 048, without reusing a spent number.
+Execution started 2026-09-16. Identity:
+
+- Originating checkout and branch: `/Users/terryyin/git/open-dough` on `main` (claim `6e79e6d`)
+- Execution checkout and branch: `/Users/terryyin/git/open-dough-worktrees/049-enrich-bug-fixing` on `quick/049-enrich-bug-fixing`
+- Integration target: `main`
+
+Replanning remains allowed for this planned execution.
 
 Each slice below is one small guidance change and one manual proof loop,
 including slice-local cleanup. No numeric authoring budget was supplied. The
@@ -94,7 +97,7 @@ before adding another execution mechanism or expanding this story.
 ### 1. Resolve a reported discrepancy through shared execution
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an authorized reported discrepancy, invoking bug fixing passes
 the report and uncertainty into bounded shared execution and returns an
@@ -159,5 +162,30 @@ queued work does not silently start execution or interrupt Taken work.
 The refined story supplies the goal, boundaries, and evaluable examples. All
 promises map to the two walkthroughs above. The slices extend one disposition
 rule with unresolved-work routing; they add no parallel execution lifecycle.
-No remaining slice-specific sizing or integration concern was identified in
-this assessment. Execution evidence and consequential learnings are pending.
+
+Slice 1 accepted proof (manual walkthrough plus whitespace):
+
+- Promise: an authorized discrepancy is gathered, then passed as one planless
+  contextual execute-plan instruction with `--no-replan` and a ten-minute
+  hard limit; the coordinator receives repaired (not integrated), explained
+  no-change, unresolved, recovery, or incomplete (no queue) dispositions.
+- Boundary: `src/skills/dough-bug-fixing/SKILL.md` (bug-policy owner only).
+- Inspected: frontmatter description; Stay in request authority; Gather the
+  report; Invoke shared execution (handoff items 1–6 and explained-empty-change);
+  Report the disposition (wrap-up integration, pending reporter confirmation,
+  `## BUG REPORT RESOLVED` is not integration).
+- Command: `git diff --check` from the execution checkout. Setup: none.
+  Result: pass.
+- Walkthrough routing: “total is 12; intended 15” enters gather then execute-plan;
+  same report with matching intended behavior uses explained-empty-change;
+  unconfirmed stays Unresolved; failed delivery stays Recovery; removal history
+  is insufficient for absence assertions while “cancellation creates no order”
+  is sufficient; reporting-only contributes to the existing artifact without
+  execution.
+
+CI: GitHub Actions default (no `.planning/open-dough.json`). Workflow file
+`ci.yml`, display name `CI`. Observer identity is recorded when armed.
+
+Execute-plan already forbids reporting branch delivery as integrated; this
+caller only states that contract in the disposition. No shared-execution gap
+was exposed.

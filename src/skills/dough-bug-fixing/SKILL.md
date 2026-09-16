@@ -1,66 +1,119 @@
 ---
 name: dough-bug-fixing
-description: Fixes reported bugs with a test-first workflow, from a confirmed failing test through the smallest fix and focused verification. Use for a bug report, defect, regression, broken behavior, or unexpected behavior that needs correction.
+description: >-
+  Resolves a reported discrepancy, defect, or regression by gathering expected
+  versus actual behavior and passing the report into bounded shared execution.
+  Use for a bug report, defect, regression, broken or unexpected behavior, or
+  a mismatch between intended and actual results. Do not use for the word
+  "fix" alone, a reporting-only request, or refinement-only work.
 ---
 
-# Fix a reported bug
+# Resolve a reported discrepancy
 
-Reproduce the defect in a failing test, apply the smallest fix, confirm green,
-and hand off for refactoring and commit. Keep the change focused on observable
-behavior and make test failures explain what went wrong.
+Gather the supplied report, then invoke shared execution early for investigation,
+reproduction, and attempted repair. Return an evidence-backed disposition to the
+coordinator. Do not invent a defect, dismiss a report for lack of confirmation,
+or treat branch delivery as integration.
 
-## Resolve project context
+## Stay in request authority
 
-Use this project's reported and expected behavior, relevant code and tests,
-tooling wrapper, focused test commands, fixture conventions, and testing rules.
-Resolve these from the established task and repository. If required behavior
-or tooling context is missing, report the gap and stop the affected work rather
-than inventing it.
+A reporting-only or refinement-only request does not authorize execution or code
+change. Contribute the report's expectations, evidence, gaps, and acceptance
+examples to the existing artifact that request already owns, such as a seed
+under [story refinement](../dough-story-refinement/SKILL.md). Stop after that
+contribution.
 
-Choose the test level:
+Invoke this skill for an authorized discrepancy, defect, or regression, not
+because the instruction contains the word "fix".
 
-- If the bug matches an existing E2E scenario's feature and user interaction,
-  extend or add an E2E test.
-- Otherwise write a small test through a stable boundary, such as a controller,
-  mounted component, CLI entry point, or deliberate domain API. Exercise real
-  lower layers with crafted data and this project's fixture helpers; mock only
-  external dependencies, subject to the project's explicit testing exceptions.
-  Do not test internal helpers when a stable boundary is available or widen
-  exports solely for tests.
+## Gather the report
 
-## Reproduce before fixing
+Collect what the report already supplies and name the gaps:
 
-1. Locate the likely defect. Treat this as a hypothesis until the test confirms it.
-2. Write the minimum test or smallest addition that reproduces the bug. Prefer
-   updating an overlapping or contradictory test over adding duplicate coverage.
-3. Assert observable output, such as the response, rendered text, terminal output,
-   or exit code. Prefer expected-versus-actual assertions to boolean checks so
-   the diff identifies the mismatch. Tighten assertions that could pass while
-   the bug remains.
-4. Run the test and confirm it fails because of the reported bug, not a typo or
-   environment issue. Improve an unclear assertion or failure message before
-   proceeding. If the failure cannot be confirmed, return to the hypothesis;
-   do not skip this step or claim reproduction.
+- intended or expected behavior
+- actual or observed behavior
+- evidence (repro steps, tests, logs, revision, environment)
+- remaining uncertainty (validity, cause, or scope)
 
-## Fix and verify
+Resolve this project's reported and expected behavior, relevant code and tests,
+tooling wrapper, focused test commands, fixture conventions, and testing rules
+from the established task and repository. If required behavior or tooling
+context is missing, report the gap and stop the affected work rather than
+inventing it.
 
-1. Make the smallest change that passes the test. Remove debugging and dead code.
-2. Run the regression test and related tests in the same file or feature.
-   Select only relevant E2E specs using this project's test runner. Do not run
-   the full E2E suite unless explicitly requested.
-3. Simplify overlap introduced among tests. Before commit, run
-   [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) on the full
-   uncommitted change, or explicitly delegate that step to the caller's wrap-up.
-   If that skill is unavailable, report the missing dependency and pending
-   pre-commit step. An unresolved refactoring stop prevents commit.
+## Invoke shared execution
 
-## Report
+Invoke [dough-execute-plan](../dough-execute-plan/SKILL.md) immediately as one
+planless contextual instruction. Pass `--no-replan` and a ten-minute hard limit.
+Carry the gathered expectation, actual behavior, evidence, and gaps. Do not
+plan, invent a story, or start a local implement-and-refactor loop.
 
-Report the bug location, test level and rationale, test files added or updated,
-confirmed failure and its cause, fix, and passing focused commands. State
-whether refactoring completed or remains delegated to caller wrap-up.
-Return control to the caller for delivery.
+Debug with available knowledge as needed. Do not require a separate debugging
+skill.
 
-Only after the regression and related tests pass, with no debugging residue,
-end the summary with `## BUG FIX COMPLETE`. If blocked or verification fails,
-report the gap without the completion marker.
+The contextual instruction must require:
+
+1. **Reproduce before repair.** Treat the likely defect as a hypothesis until a
+   test confirms it. Write the minimum test or smallest addition that reproduces
+   the discrepancy. Prefer updating an overlapping or contradictory test over
+   adding duplicate coverage.
+2. **Stable observable boundary.** If the report matches an existing E2E
+   scenario's feature and user interaction, extend or add that E2E test.
+   Otherwise write a small test through a stable boundary such as a controller,
+   mounted component, CLI entry point, or deliberate domain API. Exercise real
+   lower layers with crafted data and this project's fixture helpers; mock only
+   external dependencies, subject to this project's testing exceptions. Do not
+   test internal helpers when a stable boundary is available or widen exports
+   solely for tests.
+3. **Useful expected-versus-actual assertion.** Assert observable output such as
+   the response, rendered text, terminal output, or exit code. Prefer
+   expected-versus-actual assertions to boolean checks so the diff identifies
+   the mismatch. Tighten assertions that could pass while the discrepancy
+   remains. Run the test and confirm it fails because of the reported behavior,
+   not a typo or environment issue. If that failure cannot be confirmed, do not
+   claim reproduction or proceed to repair.
+4. **Absence needs a product contract.** An absence assertion requires a product
+   reason: the current intended behavior is that the result is missing. Removal
+   history alone cannot justify it. An explicit promise such as "cancellation
+   creates no order" still justifies asserting that no order exists.
+5. **Smallest repair and related verification.** After a confirmed failing
+   reproduction, make the smallest change that passes the test. Remove debugging
+   and dead code. Run the regression test and related tests in the same file or
+   feature. Select only relevant E2E specs using this project's test runner. Do
+   not run the full E2E suite unless explicitly requested.
+6. **Shared refactoring.** Keep the existing pre-commit refactoring obligation.
+   Execute-plan delivery already runs
+   [dough-post-change-refactor](../dough-post-change-refactor/SKILL.md) on the
+   full uncommitted change. Do not replace that step with a local refactor loop.
+
+A supported conclusion that the reported behavior is already correct is a valid
+resolution. Use execute-plan's explained-empty-change path. Do not invent a
+defect to have something to repair.
+
+## Report the disposition
+
+Return control to the coordinator with an evidence-backed disposition. Name the
+gathered expectation, actual, evidence, and gaps, then what execution returned.
+
+- **Repaired:** the reproduction test failed for the reported mismatch, the
+  smallest change made that proof green, related verification passed, and
+  shared delivery completed refactoring and branch delivery. Do not report
+  that result as integrated. The coordinator invokes
+  [story wrap-up](../dough-story-wrap-up/SKILL.md#integrate-committed-story-branch-mode-closure)
+  for integration to the selected target (default `main`). Reporter
+  confirmation on main is pending when a repair needs it; never fabricate
+  that confirmation.
+- **Explained no-change:** evidence shows the actual behavior matches the
+  intended behavior. Resolve the report without a repair.
+- **Unresolved:** validity, cause, or scope remains unconfirmed. Do not claim
+  resolution.
+- **Recovery:** failed delivery or shutdown remains ordinary recovery. Do not
+  claim resolution.
+- **Incomplete:** an overrun or unfinished attempt under `--no-replan` returns
+  honestly with the preserved evidence. Do not claim resolution or invent a
+  queue entry.
+
+Use `## BUG REPORT RESOLVED` only for a repaired or explained-no-change
+disposition after execute-plan has returned that outcome. That marker is not
+main integration and not reporter confirmation. Otherwise report the gap
+without the marker.
