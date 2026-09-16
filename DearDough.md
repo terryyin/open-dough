@@ -72,39 +72,3 @@ required review or proof.
     unresolved questions and size outputs to fit. This should reduce avoidable
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
-
-- Execution: `SEED-013#minimize-and-prove-ci-watcher-involvement @ 5e2b50a`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.22
-  - Evidence: Startup combined `dough-execute-plan` with delegation,
-    execution-decision, and wrap-up references in one read; the 11,635-token
-    output was truncated. A later combined planning/decomposition/CI read also
-    truncated, so required passages were retrieved again in smaller reads.
-  - Observed effect: Execution spent additional reads recovering instruction
-    passages that the first bundled reads had already requested.
-  - Inference: This is another occurrence of oversized context bundling; the
-    later targeted reads were necessary recovery, not evidence the full guidance
-    was unnecessary.
-
-## DD-007 — Delivery preparation skipped before push
-
-The execution pushed two completed slices without running the repository's
-required formatting/lint preparation, even though the active plan explicitly
-identified the broad formatter and required delivery-time resolution.
-
-### Occurrences
-
-- Execution: `SEED-013#minimize-and-prove-ci-watcher-involvement @ 5e2b50a`
-  - Timestamp: 2026-09-16T07:14:29Z
-  - Tool: Cursor
-  - Open Dough release: 0.3.22
-  - Evidence: GitHub Actions run `35067498190` for `d57b4c5` failed
-    `no-new-func` in `ci-notify-codex-test-fixtures.mjs` and Prettier checks in
-    two new fixture files; repair `6b99961` added the scoped explanation and
-    formatting before Slice 3 continued.
-  - Observed effect: Codex had to pause resumed execution for an avoidable CI
-    repair before it could run the planned native acceptance journey.
-  - Inference: Skipping the coordinator-owned formatter and staged preparation
-    moved deterministic local feedback into CI and added repair churn.
