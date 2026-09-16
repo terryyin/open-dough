@@ -64,6 +64,6 @@ public only for accessibility.
 ## Related
 
 - [ADR 0000 — Use Architectural Decision Records](./0000-use-adrs-accepted.md)
-- [Story 4 — Create an identifiable release](../../.planning/seeds/SEED-001-install-and-update-open-dough.md#release-tagged-version)
-- [Story 5 — Update only when needed](../../.planning/seeds/SEED-001-install-and-update-open-dough.md#update-only-when-needed)
-- [Story 6 — Show the relevant changelog](../../.planning/seeds/SEED-001-install-and-update-open-dough.md#show-update-changelog)
+- Story 4 — Create an identifiable release — historical source: `3cace96:.planning/seeds/SEED-001-install-and-update-open-dough.md`, anchor `release-tagged-version`.
+- Story 5 — Update only when needed — historical source: `3cace96:.planning/seeds/SEED-001-install-and-update-open-dough.md`, anchor `update-only-when-needed`.
+- Story 6 — Show the relevant changelog — historical source: `3cace96:.planning/seeds/SEED-001-install-and-update-open-dough.md`, anchor `show-update-changelog`.
