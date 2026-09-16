@@ -98,33 +98,4 @@ not started; later execution-branch pushes were unobserved.
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
 
-## DD-048 — Source-adapter delivery waited on this session's installed hook
-
-Planned Cursor CI-hook work in the Open Dough source repository treated native
-`CI_MONITOR_READY` in the current coordinator as a remaining slice gate, even
-though that session's live hook is the installed `.agents` payload rather than
-unreleased `src/` scripts.
-
-### Occurrences
-
-- Execution: `SEED-011#attach-cursor-ci-observation @ 4fa48f0`
-  - Timestamp: 2026-09-17T07:45:00+08:00
-  - Tool: Cursor
-  - Model: Cursor Grok 4.6
-  - Open Dough release: modified; revision 4fa48f0; base 0.3.23
-  - Evidence: Plan 053 slice 1 kept native coordinator READY in-slice; probe
-    from `.worktrees/053-attach-cursor-ci-observation` printed
-    `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-YPwNFo"}` with no host
-    READY; coordinator then asked whether to release and install back into
-    Open Dough. Human authorized inexpensive
-    `ci-cursor-worktree-hook.test.mjs` as delivery proof and native READY as
-    follow-up at the next payload update (`67b4a99`).
-  - Observed effect: Slice 1 stayed planned after `4fa48f0` was pushed;
-    observation was not started; pushes remained `pendingCi: unobserved`.
-  - Inference: Inexpensive tests of the originating-hook plus worktree-probe
-    contract can finish this adapter change. Native READY belongs to a session
-    whose installed payload includes the adapter, not a same-session
-    release-and-self-install. Do not hand-sync `.agents` or rewrite
-    `.cursor/hooks.json` to manufacture that proof.
-
 
