@@ -188,6 +188,36 @@ Do not register publication or continue as delivered. After a human
 decision, resume from the preserved conflict state rather than inventing a
 side.
 
+## Resume an interrupted publication
+
+After interruption during Trunk Mode delivery, classify the owned increment
+from actual refs, retained rewritten identities, and observer receipts.
+Continue the first unfinished obligation. Do not duplicate the commit, push
+an already-published candidate, or replace the execution worktree. Verify
+identity first as in
+[execution location](execution-location.md). Fetch the authorized remote
+before treating a push as unfinished.
+
+Match the owned suffix to the retained rewritten candidate when that SHA
+exists. A pre-rebase SHA that is no longer the tip is not a second increment.
+
+| Boundary | Actual state | Continue with |
+| --- | --- | --- |
+| Only committed | Execution branch has the owned suffix; neither local target nor fetched remote trunk contains that candidate | [Publish a verified increment](#publish-a-verified-increment) from its preconditions. Do not commit again. |
+| Integrated locally | Local target tip is the owned candidate; fetched remote trunk does not contain it | Exclusive-turn checks, then candidate push (step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
+| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it | Record that SHA as the published revision if identity omitted it. Do not push again. |
+| Missing CI registration | Remote trunk contains the published SHA; the existing observer's coverage or `register-push` receipt does not | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
+
+A lost or unknown push response is not unpublished. If the exact candidate is
+already an ancestor of fetched remote trunk, treat it as already published.
+
+If mode, checkout, branch, or candidate SHA is missing, contradictory, or
+matches no unique owned suffix, preserve every existing worktree, branch, and
+index. Report the gap. Do not create a replacement worktree, switch branches,
+or guess which commit to publish.
+
+## Preserve remaining state
+
 Setup or publication failure preserves remaining state. It is not permission
 to start unclaimed queued work, start implementation from an unpublished
 claim, or substitute Story Branch Mode publication.

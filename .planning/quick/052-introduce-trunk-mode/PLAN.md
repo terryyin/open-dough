@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–8 delivered on `quick/052-introduce-trunk-mode`. Slice 9 is next.
+Status: in execution. Slices 1–9 delivered on `quick/052-introduce-trunk-mode`. Slice 10 is next.
 
 ## Execution identity
 
@@ -336,7 +336,7 @@ Accepted proof (2026-09-16):
 
 ### 9. Resume at the first unfinished trunk delivery obligation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: After interruption, execution recognizes whether its increment is only
 committed, integrated locally, already published, or missing CI registration, and
@@ -348,6 +348,12 @@ Proof: Table-driven walkthrough of those four delivery boundaries against real
 Git/receipt states. A lost push response with the candidate already on remote
 trunk is recognized; ambiguous identity preserves resources and reports the gap.
 Sizing: One recovery decision across states of the same publication operation.
+
+Accepted proof (2026-09-16):
+- Promise: classify committed / locally integrated / published / missing CI registration; lost push already on remote is published; ambiguous identity preserves worktrees.
+- Boundary: `trunk-publication.md#resume-an-interrupted-publication`.
+- Git walk: `/tmp/trunk-mode-slice9-ljZ4tg` remote only `main` `c01c1f9`.
+- Native pending.
 
 ### 10. Review only the selected execution's interleaved changes
 Type: Behavior

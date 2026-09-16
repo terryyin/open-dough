@@ -30,10 +30,13 @@ locations and creates no worktree. It is incompatible with Trunk Mode;
 contradictory selection stops before setup.
 
 On resume, verify retained identity against actual branch, HEAD ancestry, mode,
-published revisions, and worktree state; **Taken** alone supplies no location.
-Reuse a matching execution checkout. Missing, ambiguous, contradictory, unsafe,
-or partial identity/setup requires an exact recovery decision: preserve
-resources rather than guessing, nesting worktrees, or switching branches.
+published revisions, retained rewritten candidate SHA, and worktree state;
+**Taken** alone supplies no location. Reuse a matching execution checkout.
+Rewritten unpublished identities follow
+[interrupted publication](trunk-publication.md#resume-an-interrupted-publication).
+Missing, ambiguous, contradictory, unsafe, or partial identity/setup requires
+an exact recovery decision: preserve resources rather than guessing, nesting
+worktrees, or switching branches.
 
 Run delegation, refactoring, generation, formatting, staging, commits, pushes,
 and CI repair from the selected execution location. Story Branch Mode pushes

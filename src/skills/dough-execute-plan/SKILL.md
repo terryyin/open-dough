@@ -156,9 +156,12 @@ Resume at the first delivery obligation not established by evidence. An incomple
 or oversized return still needs [oversized-slice handling](references/execution-decisions.md#refine-an-oversized-slice)
 before proof acceptance. Otherwise implementation returns still need proof
 acceptance/refactoring; completed refactors need remaining delivery;
-uncommitted plan edits need staging/commit; local commits absent from the authorized
-destination need push. Plan status or a compact report proves none of those later boundaries.
-When pushed commit and retained delivery result agree, select the next dependency-ready slice.
+uncommitted plan edits need staging/commit. Classify a Trunk Mode increment with
+[interrupted publication](references/trunk-publication.md#resume-an-interrupted-publication)
+before any further commit or push. Story Branch Mode still pushes local commits
+absent from its authorized destination. Plan status or a compact report proves none
+of those later boundaries. When pushed commit, retained delivery result, and
+required registration agree, select the next dependency-ready slice.
 Missing/contradictory execution identity requires the recovery decision above.
 
 ## Execute the next slice
@@ -180,7 +183,8 @@ Missing/contradictory execution identity requires the recovery decision above.
    [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice).
    A no-replan return stops without planning or retry. When replanning is allowed, use
    [ordinary slice planning](../dough-slice-planning/SKILL.md) for remaining work,
-   and restart as planned execution. Before delegating a change that invalidates a required
+   and restart as planned execution. Before
+   delegating a change that invalidates a required
    pre-change observation, apply [proof ownership](../dough-story-refinement/references/planning.md#own-executable-proof):
    reuse an adequate baseline with known matching revision/environment/selection conditions,
    or obtain it first. Missing/failed prerequisites stop only dependent work. Apply on entry

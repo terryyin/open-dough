@@ -61,10 +61,14 @@ increment through
 
 As each obligation finishes, retain the current delivery boundary in the
 execution conversation with the owned unfinished paths, accepted proof and its
-boundary, applicable implementation or refactor return, and exact observer
-identity when present. On recovery, reconcile this focused record with actual
+boundary, applicable implementation or refactor return, exact observer
+identity when present, and Trunk Mode candidate/base/published SHAs after any
+rewrite. On recovery, reconcile this focused record with actual
 Git, agent, and observer state under
 [execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
+Trunk Mode then classifies the increment with
+[interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
+and continues that unfinished obligation only.
 
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).

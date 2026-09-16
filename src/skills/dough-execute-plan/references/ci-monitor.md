@@ -18,7 +18,11 @@ delivery without waiting for CI or deployment.
 
 Bind the observer's runtime, pause, stash, repair, delivery, and restoration to
 the selected execution checkout. Observe the target branch from that checkout.
-Verify the binding against the retained execution identity. An unavailable host
+Verify the binding against the retained execution identity. Recover that
+observer from its `CI_OBSERVER` directory and coverage receipts before considering
+a replacement. A published SHA absent from those receipts is
+[missing CI registration](trunk-publication.md#resume-an-interrupted-publication).
+An unavailable host
 bridge is missing coverage: report it once and continue without promising
 notifications.
 
