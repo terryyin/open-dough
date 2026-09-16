@@ -66,7 +66,7 @@ Resolve project context at the first boundary that needs it:
 - selective formatter and commit hook contract before taking queued work and its claim commit;
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
 - authorized push destination before delivery, and for Trunk Mode before
-  publishing a queue claim;
+  publishing a queue claim or verified increment;
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
 
@@ -83,7 +83,7 @@ before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Befo
 a Story Branch Mode delivery push, read [CI observation](references/ci-monitor.md)
 and only the current host's notification adapter. Before creating the execution workspace, read
 [execution location](references/execution-location.md). Before a Trunk Mode
-claim publication, read [trunk publication](references/trunk-publication.md).
+claim or increment publication, read [trunk publication](references/trunk-publication.md).
 Use [targeted retrieval and disposable research](references/disposable-research.md)
 for omitted/truncated passages or bounded investigations; another step alone needs no reload.
 
@@ -188,8 +188,9 @@ Missing/contradictory execution identity requires the recovery decision above.
 4. On return, recheck execution decisions; handle incomplete/oversized work there before
    delivery, including a no-replan overrun. Otherwise [accept proof](references/wrap-up.md#accept-proof) and confirm
    uncommitted work or an explained empty change.
-5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. After successful
-   push, restart for remaining planned slices; a delivered quick slice has no successor.
+5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. After
+   successful delivery, restart for remaining planned slices; a delivered
+   quick slice has no successor.
 
 Planned slices may run concurrently only with disjoint file changes, mutable state, and
 plan writes. Quick execution has one slice. Each slice completes coordinator-owned delivery

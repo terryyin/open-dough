@@ -2,8 +2,8 @@
 
 Planned and planless work default to Story Branch Mode: one execution branch and
 Git worktree for the selected work. Explicit `--trunk` uses Trunk Mode: still
-one retained local execution branch and worktree, with claim publication as in
-[trunk publication](trunk-publication.md). Explicit caller selection uses the
+one retained local execution branch and worktree, with claim and increment
+publication as in [trunk publication](trunk-publication.md). Explicit caller selection uses the
 current branch instead. After the claim is established for the selected mode,
 create the branch/worktree from that revision before delegation. When no claim
 applies, including authorized contextual planless work, use verified current
@@ -36,10 +36,10 @@ resources rather than guessing, nesting worktrees, or switching branches.
 
 Run delegation, refactoring, generation, formatting, staging, commits, pushes,
 and CI repair from the selected execution location. Story Branch Mode pushes
-its execution branch to the authorized destination. Trunk Mode does not; stop
-at a later increment rather than substituting that push (see
-[delivery](wrap-up.md#deliver-the-change)). Pass identity/location explicitly
-to agents and host adapters.
+its execution branch to the authorized destination. Trunk Mode publishes each
+verified increment through [trunk publication](trunk-publication.md) and
+does not push the execution branch. Pass identity/location explicitly to agents
+and host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
 and use it as working directory. Before arming, apply

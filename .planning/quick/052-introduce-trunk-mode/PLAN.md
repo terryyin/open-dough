@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slice 1 delivered locally pending push; slice 2 is next.
+Status: in execution. Slices 1–2 delivered on `quick/052-introduce-trunk-mode`. Slice 3 is next.
 
 ## Execution identity
 
@@ -12,7 +12,7 @@ Status: in execution. Slice 1 delivered locally pending push; slice 2 is next.
 - Authorized push destination: `origin` `quick/052-introduce-trunk-mode`.
 - Slice budget: none supplied; bound each slice by one Behavior/Structure gate and one proof loop.
 - Selective formatter: `npm run format` (`node scripts/lint.mjs --fix`). Commit hooks: absent (sample Git hooks only); check-only contract is understood.
-- CI: default GitHub Actions (`ciAdapter` absent); workflow to verify before first observer arm. No observer armed yet.
+- CI: default GitHub Actions, workflow `ci.yml` display name `CI`. Cursor probe returned only `CI_OBSERVER` (`/tmp/dough-ci-501/watch-widqgL`) without `CI_MONITOR_READY`; bridge treated as unavailable. No observer armed. Slice 1 push `24a9af2112a9b01fc7e1e0f599a5fd900787cf2b` is unobserved (`pendingCi: unobserved`).
 
 ## Source and outcome
 
@@ -184,7 +184,7 @@ Learnings: publish the claim before creating the worktree so a claim rebase does
 
 ### 2. Publish each verified increment from the retained workspace
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With unchanged trunk, two separately completed increments each reach
 the remote trunk before the next dependent increment; the workspace remains and
@@ -197,6 +197,12 @@ Proof: In a disposable two-increment scenario, inspect remote history after each
 boundary, unchanged checkout identity, and absence of a remote workspace branch.
 Review no unnecessary proof rerun, no CI wait, and preservation of other modes.
 Sizing: One repeated delivery gate; source guidance is the primary change.
+
+Accepted proof (2026-09-16):
+- Promise: two unchanged-trunk increments each reach remote `main` before the next; same worktree; no remote execution branch; proof reuse; Story Branch Mode still publishes a workspace branch.
+- Boundary: `references/wrap-up.md` delivery + `references/trunk-publication.md#publish-a-verified-increment`.
+- Git walk: `/tmp/trunk-mode-slice2-RSDxBA`. Remote `main` at `154facf` (increment 2) with ancestor `5e873ac` (increment 1); execution checkout remains `exec/story` at that SHA; `remote.git` has only `refs/heads/main`. Contrast `sb-remote.git` has `main` and `exec/sb`.
+- Native Codex/Cursor/Claude `--trunk` increment delivery: still pending (ADR 0005).
 
 ### 3. Incorporate another contributor's increment before continuing
 Type: Behavior

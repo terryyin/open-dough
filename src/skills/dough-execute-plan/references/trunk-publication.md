@@ -2,8 +2,8 @@
 
 Use this rule for Trunk Mode work that must reach the authorized remote trunk
 without publishing the execution branch. Startup uses it to publish a queue
-claim. Later verified increments use the same Git steps once delivery routes
-here; do not invent a second publication sequence.
+claim. Wrap-up delivery uses the same Git steps for each verified increment.
+Do not invent a second publication sequence.
 
 This rule does not create execution authority, start an observer, wait for CI,
 or push the execution branch.
@@ -17,11 +17,28 @@ an unpublished claim. An unavailable destination or failed publication leaves
 the exact remaining state and does not authorize starting unclaimed queued
 work.
 
+## Publish a verified increment
+
+After wrap-up proof, refactor, format, and commit succeed, publish the owned
+unpublished increment with the same steps below. Keep the same execution
+worktree. Planned, quick, and contextual Trunk Mode work share this rule.
+
+The owned unpublished suffix is the execution commit or consecutive commits
+not yet on the authorized remote trunk. When the last published revision is
+that suffix's parent and remote trunk is still that parent, the increment is
+already based on current trunk: do not rewrite it; fast-forward the local
+target to that commit and publish it.
+
+A newer remote trunk, rebase conflict, or rejected push after local
+integration is not specified here. Preserve the exact refs, worktree, and
+index, and report them.
+
 ## Preconditions
 
 Resolve source, mode, target branch, authorized remote, and the owned
 unpublished suffix before mutating the shared integration checkout. For a
-queue claim, that suffix is the Taken commit only.
+queue claim, that suffix is the Taken commit only. For a verified increment,
+use the suffix defined in the increment rule.
 
 Acquire an exclusive integration turn through available coordinator context
 before changing the shared integration checkout. A clean working directory
@@ -33,21 +50,27 @@ or unknown ownership stop this path. Do not silently publish those commits.
 
 ## Publish the candidate
 
-Keep the same execution worktree throughout. Rebase only owned unpublished
-execution work; never rewrite published trunk history or another writer's
-commits. No force push.
+Rebase only owned unpublished execution work; never rewrite published trunk
+history or another writer's commits. No force push. An increment keeps the
+same execution worktree; a claim may have none yet.
 
 1. Fetch the authorized remote for the target branch.
 2. Reconcile the fetched target with the local integration checkout. If the
    local target has unpublished commits that are not this execution's owned
    suffix, or ownership is ambiguous, stop and preserve that state.
 3. Rebase only the owned unpublished suffix onto the current remote trunk.
-   For a claim, that is the Taken commit. Update the execution branch to the
-   rewritten candidate when a worktree already exists; otherwise keep the
-   candidate on the integration checkout until workspace setup uses it.
+   For a claim, that is the Taken commit. For an increment, that is the
+   unpublished execution suffix. When that suffix is already based on
+   current trunk, leave its commits unchanged. Update the execution branch to
+   the rewritten candidate when a worktree already exists; otherwise keep
+   the candidate on the integration checkout until workspace setup uses it.
 4. Validate the candidate. For a claim, confirm the selected entry is
-   **Taken** on the candidate and that no empty commit was invented. Do not
-   treat rebase success as behavioral proof of later product changes.
+   **Taken** on the candidate and that no empty commit was invented. For an
+   increment, reuse accepted proof whose promise, boundary, implementation,
+   setup, and observations still match. An unchanged-trunk fast-forward does
+   not invalidate that proof; do not rerun it solely because publication ran.
+   Do not treat rebase success as behavioral proof, rerun unrelated checks,
+   or wait for CI.
 5. Fast-forward the local target to the exact candidate. Do not merge.
 6. Immediately before pushing, retain the full candidate SHA. Push that
    exact revision to the authorized remote target. After confirmed success,
@@ -55,9 +78,8 @@ commits. No force push.
    conversation. Do not read a later moving `HEAD` as that publication.
 
 A push rejection after local integration leaves the owned unpublished suffix
-recoverable. Do not start implementation from an unpublished claim. Further
-reconciliation of a rejected increment is not specified here; preserve the
-exact refs, worktree, and index, and report them.
+recoverable. Do not start implementation from an unpublished claim. Preserve
+the exact refs, worktree, and index, and report them.
 
 Setup or publication failure preserves remaining state. It is not permission
 to start unclaimed queued work or to substitute Story Branch Mode publication.

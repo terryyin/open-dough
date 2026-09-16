@@ -52,12 +52,11 @@ unfinished proof. Do not run full CI before commit unless explicitly required.
 Run this sequence in the selected execution location established by
 [execution location](execution-location.md). Pass its checkout to every
 delegated refactor, generator, and host operation; do not let an inherited
-working directory redirect delivery. This
-slice delivery does not integrate or remove a retained execution branch or
-worktree. Trunk Mode does not push the execution branch. Claim publication uses
-[trunk publication](trunk-publication.md#publish-a-queue-claim). Routing later
-increments through that rule is not yet this sequence—stop rather than
-publishing a workspace branch.
+working directory redirect delivery. This slice delivery does not integrate
+or remove a retained execution branch or worktree. Trunk Mode never pushes
+the execution branch. After the commit, it publishes the owned unpublished
+increment through
+[trunk publication](trunk-publication.md#publish-a-verified-increment).
 
 As each obligation finishes, retain the current delivery boundary in the
 execution conversation with the owned unfinished paths, accepted proof and its
@@ -116,9 +115,11 @@ Git, agent, and observer state under
    contract before committing. Fix mechanical findings; stop for semantic or
    design judgment. Do not run hook-owned lint independently. If hook repairs
    invalidate preparation, rerun formatting before restaging and retrying.
-8. Immediately before pushing, resolve and retain the full revision SHA being
-   delivered. Push that revision to the authorized destination. After confirmed
-   success, register the retained SHA with the existing observer by running
+8. Immediately before publishing, resolve and retain the full revision SHA being
+   delivered. Story Branch Mode and current-branch work push that revision to the
+   authorized destination. Trunk Mode publishes through the increment rule above
+   and retains that rule's candidate SHA. After confirmed success, register the
+   retained SHA with the existing observer by running
    `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' register-push
    OBSERVER_DIRECTORY SHA`. Use the observer directory and checkout-bound runtime
    retained for this execution. Apply the same registration after a repair push;
