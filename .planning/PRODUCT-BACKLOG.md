@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Introduce Trunk Mode for plan execution](seeds/SEED-008-worktree-branch-trunk-sync.md#introduce-trunk-mode) — SEED-008 — [Plan 052](quick/052-introduce-trunk-mode/PLAN.md)
-
 ## Backlog list
 
 - [Attach Cursor CI observation after a mailbox probe](seeds/SEED-011-cursor-ci-observer-readiness.md#attach-cursor-ci-observation) — SEED-011
