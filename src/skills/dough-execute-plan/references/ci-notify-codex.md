@@ -66,33 +66,39 @@ Without those host tools, report monitoring unavailable once and continue; never
 poll or claim notifications from a background shell or file. Use another native
 bridge only when its delivery contract is independently verified for this host.
 
-When the shared [observer lifecycle](ci-monitor.md#own-one-observer) calls
-for shutdown:
+When the shared [observer lifecycle](ci-monitor.md#own-one-observer) calls for
+shutdown, consume delivered failures first. Copy this stop binding with the
+note's exact `directory`; do not `write_stdin` the stream PTY. Confirm receipt
+and a finite local `ps` wait for the recorded PID; never signal it. Report
+unread events and `pendingCi: unobserved`. Never wait for CI.
 
-- With the receipt directory from the observer note, run
-  `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop DIRECTORY`
-  from the verified checkout. Let the existing reader consume the stream's
-  terminal result, then reap its cell with one bounded wait. Do not issue a
-  second `write_stdin` while that reader owns the PTY: concurrent reads can
-  consume each other's terminal output and invalidate the process handle.
-  Confirm the stop receipt, terminal result, and process exit before marking
-  the observer note stopped. Cell termination alone proves no subprocess exit.
-- Without handles, recover the observer note. Match coordinator/checkout and validate
-  the saved directory's `request.json` root, repository, branch, and execution
-  mode. Run `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop DIRECTORY`
-  from that checkout. Read its terminal receipt and `result.json`; confirm the
-  recorded PID disappears using a finite local `ps` wait. Never signal that PID.
-  Missing/mismatched identity means no guessed stop, newest-mailbox lookup, or
-  replacement launch. Older unidentified observers cannot be recovered. Stop
-  errors, missing terminal evidence, or unconfirmed exit mean unresolved
-  shutdown; never force termination or claim closure.
+```js
+const key = 'ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR'
+try {
+  const stop = await tools.exec_command({
+    cmd: `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stop ${directory}`,
+    workdir: '/ABSOLUTE/VERIFIED/CHECKOUT_ROOT',
+    yield_time_ms: 10000,
+    max_output_tokens: 2000,
+  })
+  if (stop.session_id) throw new Error('observer stop still running')
+  const line = String(stop.output).split('\n').find((row) => row.startsWith('CI_OBSERVER '))
+  const receipt = JSON.parse(line.slice('CI_OBSERVER '.length))
+  if (receipt.directory !== directory || receipt.terminal?.status !== 'stopped') throw new Error('observer stop did not confirm')
+  text({ key, status: 'stopped', directory, terminal: receipt.terminal, pendingCi: receipt.terminal.coverage?.pendingCi ?? 'unobserved' })
+} catch (error) {
+  notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000) })
+}
+```
 
-Preserve recorded failures and report unread events and `pendingCi: unobserved`,
-not green CI. Consume delivered failures before completion; never wait for pending
-CI. Keep acknowledgment and repair semantics unchanged. On resume, rearm only
-absent, `stopped`, or `lost` observers after confirming the old process ended;
-never restart terminal `finished` observers.
-
-Normal and repair pushes retain the key, session, directory, process, and cell.
-The observer discovers successive selected-branch pushes, persists events before streaming,
-and owns observation until shutdown. Changed HEAD/SHA never requires setup again.
+Without handles, recover the observer note. Match coordinator/checkout and
+`request.json` root, repository, branch, and execution mode, then evaluate the
+stop binding. Read the terminal receipt and `result.json`. Missing/mismatched
+identity means no guessed stop, newest-mailbox lookup, or replacement launch.
+Older unidentified observers cannot be recovered. Stop errors, missing terminal
+evidence, or unconfirmed exit mean unresolved shutdown; never force termination
+or claim closure. Keep acknowledgment and repair unchanged. On resume, rearm
+only absent, `stopped`, or `lost` observers after the old process ended; never
+restart terminal `finished` observers. Normal and repair pushes retain the key,
+session, directory, process, and cell. Changed HEAD/SHA never requires setup
+again.

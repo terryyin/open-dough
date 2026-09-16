@@ -1,13 +1,8 @@
 import assert from "node:assert/strict";
-import { execFile, spawn } from "node:child_process";
-import { once } from "node:events";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createInterface } from "node:readline";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 import {
   checkoutRoot,
   publishMailboxEvent,
@@ -16,87 +11,18 @@ import {
   receiptPrefix,
 } from "./ci-mailbox.mjs";
 import {
+  completingFixture,
+  createCodexReplay,
+  key,
+  launcher,
+  runCommand,
+  waitForExit,
+} from "./ci-codex-lifecycle-test-fixtures.mjs";
+import {
   blockingGithubEnvironment,
   waitForFile,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
-
-const launcher = fileURLToPath(new URL("./ci-mailbox.mjs", import.meta.url));
-const completingFixture = fileURLToPath(
-  new URL("./ci-observer-stream-fixture.mjs", import.meta.url),
-);
-const key = "ci-watch-execution:owner/repo:main:coordinator";
-const runCommand = promisify(execFile);
-
-async function waitForLine(stream) {
-  const lines = createInterface({ input: stream });
-  try {
-    const [line] = await once(lines, "line");
-    return line;
-  } finally {
-    lines.close();
-  }
-}
-
-function waitForExit(child) {
-  return new Promise((resolve, reject) => {
-    child.once("exit", (code, signal) =>
-      code === 0
-        ? resolve()
-        : reject(new Error(`observer exited ${code ?? signal}`)),
-    );
-    child.once("error", reject);
-  });
-}
-
-function createCodexReplay(
-  env,
-  command = [launcher, "stream", "--execution", "owner/repo", "main", "60000"],
-) {
-  const saved = new Map();
-  let launches = 0;
-
-  return {
-    async setup() {
-      const retained = saved.get(key);
-      if (["watching", "finished"].includes(retained?.status)) return retained;
-      launches += 1;
-      const child = spawn(process.execPath, command, { env });
-      const receipt = await waitForLine(child.stdout);
-      const { directory, pid } = JSON.parse(
-        receipt.slice(receiptPrefix.length),
-      );
-      const state = {
-        status: "watching",
-        sessionId: child.pid,
-        directory,
-        pid,
-        process: child,
-      };
-      saved.set(key, state);
-      child.once("exit", () => {
-        if (saved.get(key)?.status !== "watching") return;
-        saved.set(key, {
-          status: "finished",
-          sessionId: undefined,
-          directory,
-          process: child,
-        });
-      });
-      return state;
-    },
-    launches: () => launches,
-    state: () => saved.get(key),
-    forgetHandles: () => saved.clear(),
-    async stop() {
-      const state = saved.get(key);
-      saved.set(key, { ...state, status: "stopped" });
-      state.process.kill("SIGINT");
-      await waitForExit(state.process);
-      return saved.get(key);
-    },
-  };
-}
 
 test("Codex retains its execution handles until natural observer completion", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-completion-test-"));

@@ -128,7 +128,7 @@ integration mechanism, reassess this slice before adding machinery.
 ### 2. End observation with less bookkeeping and honest pending coverage
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the observer from slice 1 and multiple registered pushes still
 pending, the coordinator ends execution through a compact shutdown interaction;
@@ -247,7 +247,7 @@ All paths below are repository-relative. Planned commands have not been run here
 Focused starting checks (select only those affected; add newly owned cases):
 
 ```sh
-node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs
+node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex-stop.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs
 ```
 
 If shared host behavior changes, inspect and run the affected
@@ -292,8 +292,22 @@ when proof is accepted, not merely the planned command.
   - Ceremony: `ci-notify-codex.md` 5979 B / 726 w → 5128 B / 634 w (−851 B / −92 w).
     Inline cell 1916 B / 71 lines → 1690 B / 41 lines. `ci-observer-stream.mjs` is
     not required launch reading. Isolate still copies consume/deliver.
-  - Native Codex notify remains slice 3. Shutdown remaining in the same file is
-    slice 2.
+  - Native Codex notify remains slice 3.
+- Slice 2 accepted (compact shutdown, pending CI unobserved):
+  - Promise: documented stop cell cooperatively stops only the retained mailbox;
+    no `write_stdin`; no CI wait; unread evidence kept; `pendingCi: unobserved`
+    for two pending SHAs; failed/unconfirmed stop → `CI_MONITOR_UNAVAILABLE`.
+  - Boundary: second fenced JS in `src/skills/dough-execute-plan/references/ci-notify-codex.md`.
+  - Setup: `ci-notify-codex-stop.test.mjs` substitute tools;
+    `ci-codex-stop-lifecycle.test.mjs` real child, `registerPushedRevision` ×2,
+    unread `CI_FAILURE`, unrelated observer; helper evaluates the stop fence.
+  - Command:
+    `node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex-stop.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs`
+  - Result: 21 pass, 0 fail.
+  - Ceremony (`ci-notify-codex.md`): slice-1 5128 B / 634 w / 98 lines → 5218 B /
+    617 w / 104 lines (+90 B / −17 w). Pre-story file 5979 B / 726 w. Shutdown
+    bookkeeping is a 16-line copied cell plus retained recovery prose. Isolate
+    still cannot import Node; finite `ps` wait remains coordinator-side.
 
 ## Plan refinement assessment — 2026-09-16
 

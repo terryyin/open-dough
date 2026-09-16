@@ -1,61 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
-
-const documentedCell = Symbol("documented-codex-cell-exit");
-
-function documentedCodexHostBinding() {
-  const markdown = readFileSync(
-    new URL("../references/ci-notify-codex.md", import.meta.url),
-    "utf8",
-  );
-  const fence = "```js\n";
-  const start = markdown.indexOf(fence);
-  assert.notEqual(start, -1, "ci-notify-codex.md must fence the host binding");
-  const end = markdown.indexOf("\n```", start + fence.length);
-  assert.notEqual(end, -1, "ci-notify-codex.md host binding fence must close");
-  const cell = markdown.slice(start + fence.length, end);
-  assert.match(cell, /tools\.exec_command/);
-  assert.match(cell, /yield_control/);
-  return cell;
-}
-
-async function runDocumentedCodexHostBinding({
-  load,
-  tools,
-  text,
-  yield_control,
-  notify,
-  store,
-}) {
-  const run = new Function(
-    "load",
-    "exit",
-    "tools",
-    "text",
-    "yield_control",
-    "notify",
-    "store",
-    `"use strict"; return (async () => {\n${documentedCodexHostBinding()}\n})();`,
-  );
-  try {
-    await run(
-      load,
-      () => {
-        throw documentedCell;
-      },
-      tools,
-      text,
-      yield_control,
-      notify,
-      store,
-    );
-    return { completed: true };
-  } catch (error) {
-    if (error === documentedCell) return { skipped: true };
-    throw error;
-  }
-}
+import { runDocumentedCodexHostBinding } from "./ci-notify-codex-test-fixtures.mjs";
 
 test("documented Codex host binding notifies pre-yield events after yield, then fragmented later events, with one launch", async () => {
   const key = "ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR";
