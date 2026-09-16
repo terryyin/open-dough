@@ -48,6 +48,7 @@ managed_payload_unchanged() {
     dough-execute-plan/scripts/ci-command-adapter.mjs
     dough-execute-plan/scripts/ci-failures.mjs
     dough-execute-plan/scripts/ci-host-hook.mjs
+    dough-execute-plan/scripts/ci-mailbox-location.mjs
     dough-execute-plan/scripts/ci-mailbox-store.mjs
     dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
     dough-execute-plan/scripts/ci-mailbox.mjs

@@ -80,8 +80,9 @@ permission](references/execution-decisions.md#choose-replanning-permission), plu
 currently triggered sections of [execution decisions](references/execution-decisions.md).
 Before accepting a return, read [proof acceptance](references/wrap-up.md#accept-proof);
 before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Before
-a Story Branch Mode delivery push, read [CI observation](references/ci-monitor.md)
-and only the current host's notification adapter. Before creating the execution workspace, read
+arming observation, read [CI observation](references/ci-monitor.md) and only the
+current host's notification adapter. Arm from the execution checkout against the
+authorized target branch; do not wait for CI. Before creating the execution workspace, read
 [execution location](references/execution-location.md). Before a Trunk Mode
 claim or increment publication, read [trunk publication](references/trunk-publication.md).
 Use [targeted retrieval and disposable research](references/disposable-research.md)

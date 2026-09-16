@@ -1,6 +1,6 @@
 # Plan 052 — Introduce Trunk Mode for plan execution
 
-Status: in execution. Slices 1–6 delivered on `quick/052-introduce-trunk-mode`. Slice 7 is next.
+Status: in execution. Slices 1–7 delivered on `quick/052-introduce-trunk-mode`. Slice 8 is next.
 
 ## Execution identity
 
@@ -12,7 +12,7 @@ Status: in execution. Slices 1–6 delivered on `quick/052-introduce-trunk-mode`
 - Authorized push destination: `origin` `quick/052-introduce-trunk-mode`.
 - Slice budget: none supplied; bound each slice by one Behavior/Structure gate and one proof loop.
 - Selective formatter: `npm run format` (`node scripts/lint.mjs --fix`). Commit hooks: absent (sample Git hooks only); check-only contract is understood.
-- CI: default GitHub Actions, workflow `ci.yml` display name `CI`. Cursor probe returned only `CI_OBSERVER` (`/tmp/dough-ci-501/watch-widqgL`) without `CI_MONITOR_READY`; bridge treated as unavailable. No observer armed. Slice 1 push `24a9af2112a9b01fc7e1e0f599a5fd900787cf2b` is unobserved (`pendingCi: unobserved`).
+- CI: default GitHub Actions, workflow `ci.yml` display name `CI`. Cursor probe returned only `CI_OBSERVER` (`/tmp/dough-ci-501/watch-widqgL`) without `CI_MONITOR_READY`; bridge treated as unavailable. No observer armed. Pushes through slice 7 are unobserved (`pendingCi: unobserved`).
 
 ## Source and outcome
 
@@ -288,7 +288,7 @@ Accepted proof (2026-09-16):
 
 ### 7. Receive CI feedback for the exact published trunk revision
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A worktree publishes an increment whose SHA changes during rebase;
 its observer runs from the execution checkout but reports coverage/feedback for
@@ -304,6 +304,12 @@ failure through the applicable bridge. Old SHA/unrelated SHA is not reported as
 coverage for our delivery. Required host evidence belongs to this slice.
 Sizing: One notification boundary; native bridge evidence may be unavailable and
 must remain pending rather than broaden into a new notification framework.
+
+Accepted proof (2026-09-16):
+- Promise: observer launched from an `exec/story` worktree requests target `main`; registered claim and rewritten SHA are coverage; old/sibling SHAs are not; delivery does not wait for CI.
+- Boundary: `ci-monitor.md` / `runtime-setup.md` target branch; `watch-ci-execution.mjs` `registeredRevisions` filter; `observeRevisionCoverage` walks registered files only.
+- Commands: `node --test src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-coverage.test.mjs` (9 pass); `bash tests/execution-payload-update.sh` and `bash tests/dough-update-guidance-payload.sh` after declaring `ci-mailbox-location.mjs`.
+- Native Codex/Cursor/Claude bridges: pending (ADR 0005). This session's Cursor probe is `CI_OBSERVER` without `CI_MONITOR_READY`; slice 1–7 pushes are `pendingCi: unobserved`.
 
 ### 8. Deliver a trunk CI repair without taking another agent's work
 Type: Behavior

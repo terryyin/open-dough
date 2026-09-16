@@ -5,16 +5,22 @@ repository, branch, runtime, and host-bridge readiness before launching.
 
 ## Own one observer
 
-Start one observer per repository/branch/coordinator before the first push,
-where branch is the selected execution branch, and reuse it across normal and
-repair pushes. Register each delivered revision through
-[slice delivery](wrap-up.md#deliver-the-change); the observer continues discovery
-after later pushes, and a changed SHA does not require new setup. Push success
-closes routine delivery without waiting for CI or deployment.
+Start one observer per repository/branch/coordinator before the first
+publication it must cover, where branch is the authorized **target** from the
+push destination, not the execution checkout's current branch. Trunk Mode
+observes shared trunk; Story Branch Mode observes the branch it pushes. Reuse it
+across claim, normal, and repair pushes. Register each
+delivered revision through [slice delivery](wrap-up.md#deliver-the-change);
+register a Trunk Mode claim once the execution workspace exists and the observer
+is armed there. The observer continues discovery after later publications, and a
+changed SHA does not require new setup. Publication success closes routine
+delivery without waiting for CI or deployment.
 
-Bind the observer to the selected execution location. Observe that branch and
-use that checkout for every pause, stash, repair, delivery, and restoration
-operation. Verify the binding against the retained execution identity.
+Bind the observer's runtime, pause, stash, repair, delivery, and restoration to
+the selected execution checkout. Observe the target branch from that checkout.
+Verify the binding against the retained execution identity. An unavailable host
+bridge is missing coverage: report it once and continue without promising
+notifications.
 
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally. It never dispatches or retries a check, observes
@@ -57,9 +63,10 @@ attempt identity, adding job identity when the provider supplies it. An event
 without a job ID is attempt-level evidence: it does not make a later failed
 sibling job or new attempt a duplicate, and a successful job or rerun does not
 erase evidence.
-Check the failed SHA belongs to this
-execution's pushed history and is an ancestor of the repair HEAD; do not switch
-back to an old revision to repair it. Queue further failures during one repair;
+Check the failed SHA is a revision this execution registered after confirmed
+publication. A pre-rebase unpublished SHA, another contributor's target
+revision, or ancestry on the target branch is not this execution's coverage; do
+not switch back to an old revision to repair it. Queue further failures during one repair;
 never nest stash/repair cycles. After restoration, triage queued events against
 the new HEAD, coalescing duplicates only when the same cause is demonstrated.
 An event's `relatedFailures` are additional failed attempts to triage and

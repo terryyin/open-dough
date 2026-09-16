@@ -5,8 +5,10 @@ without publishing the execution branch. Startup uses it to publish a queue
 claim. Wrap-up delivery uses the same Git steps for each verified increment.
 Do not invent a second publication sequence.
 
-This rule does not create execution authority, start an observer, wait for CI,
-or push the execution branch.
+This rule does not create execution authority, wait for CI, or push the
+execution branch. Observation is armed from the execution checkout against the
+authorized target branch. A queue claim may be published before that workspace
+exists; retain its published SHA and register it after the observer is armed.
 
 ## Publish a queue claim
 
@@ -101,7 +103,10 @@ same execution worktree; a claim may have none yet.
    previously published base. Push that exact candidate to the authorized
    remote target. After confirmed success, record that SHA as the published
    revision in the existing plan or conversation. Do not read a later
-   moving `HEAD` as that publication.
+   moving `HEAD` as that publication. When an observer is already bound to
+   the execution checkout, register that SHA with it. Registration failure is
+   lost coverage: report it and do not claim the revision was observed. Do not
+   wait for CI.
 
 ## Recover a rejected push
 

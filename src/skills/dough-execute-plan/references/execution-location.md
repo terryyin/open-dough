@@ -47,4 +47,5 @@ host adapters.
 Resolve checkout-bound installed runtime from the selected execution checkout
 and use it as working directory. Before arming, apply
 [runtime setup](runtime-setup.md) identity and stop rules; the initially loaded
-skill's copy is not a fallback.
+skill's copy is not a fallback. CI source is the authorized target branch;
+edits and repair stay in this checkout.
