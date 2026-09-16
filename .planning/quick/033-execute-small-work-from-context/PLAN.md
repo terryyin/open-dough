@@ -1,7 +1,13 @@
 # Execute small work from a story or contextual instruction
 
-Status: planned; execution has not started.
+Status: in progress; slice 2 is the next unfinished work.
 Source: [SEED-004 Story 23](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#execute-small-work-from-context).
+
+## Execution identity
+
+- Originating checkout and branch: `/Users/terryyin/git/open-dough` (`main`), claim `9f3a11f5f4a596c42d2b00fc7c55891fe40c6190`
+- Execution checkout and branch: `/Users/terryyin/git/open-dough-worktrees/033-execute-small-work-from-context` (`worktree-quick-033-execute-small-work-from-context`)
+- Integration target: `main`
 
 ## Outcome and scope
 
@@ -78,7 +84,7 @@ here during execution. This is source behavior review, not a claimed native run.
 ### 1. Complete a contextual small request through main integration
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An authorized small instruction without a story/plan enters the same
 planless path as a selected story, runs in an isolated worktree, and reaches main
@@ -99,6 +105,24 @@ An existing selected story follows the same path with its established queue iden
 
 Safe stop: Small work is independently useful; overrun follows existing authorized
 planning until the next slice adds the explicit return-without-replanning choice.
+
+Accepted proof:
+- Promise: contextual instruction is a first-class Quick source; no fabricated
+  story/plan/queue; same Story Branch Mode worktree as a selected story; identity
+  retained; evidenced no-change uses explained-empty-change; wrap-up owns main
+  integration. Boundary: planless source, isolation, wrap-up-owned integration.
+- Command: source walkthrough of changed guidance as an executing agent.
+  Setup: authorized small instruction with no story/plan vs existing Backlog
+  list story with skip-planning; no current-branch override.
+  Locations: `src/skills/dough-execute-plan/SKILL.md` Establish (Quick source
+  fields), Take queued work, Choose the execution location, Execute next slice
+  1/4, Finish (`## QUICK EXECUTION COMPLETE` is branch delivery); `references/delegation.md`
+  passes the established source; `src/skills/dough-story-wrap-up/SKILL.md`
+  Resolve/completion/Integrate/push/cleanup/spent-history-when-present.
+  Result: pass.
+- Command: `git -C /Users/terryyin/git/open-dough-worktrees/033-execute-small-work-from-context diff --check`
+  Setup: uncommitted Slice 1 skill edits. Result: pass (empty stdout, exit 0).
+- Payload test not run: no payload or dependency-path change.
 
 ### 2. Return a bounded attempt without replanning
 
@@ -169,4 +193,10 @@ identified in this assessment; execution is not authorized by this planning requ
 
 ## Learnings
 
-None from execution; all slices remain planned.
+- Wrap-up is at the 250-line cap after Slice 1; remaining slices must not grow
+  it without shortening in place. Contextual payload fields live in execute-plan
+  Establish; delegation defers to that source. CI observer verifies retained
+  identity for planless work too.
+- Overrun for a contextual source still requires understood story
+  goal/scope/examples before ordinary planning, otherwise it stops without
+  fabricating a source. Slice 3 owns that continuity.

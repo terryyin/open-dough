@@ -8,9 +8,8 @@ The coordinator retains
 
 Give the agent:
 
-- The selected execution checkout and branch. For planned execution, pass the
-  complete retained execution identity; for quick execution, pass the location
-  retained in the conversation. Require all implementation commands and edits
+- The selected execution checkout and branch. Pass the complete retained
+  execution identity. Require all implementation commands and edits
   to run there rather than relying on the agent's inherited working directory.
 - The execution source and current slice with mapped promises and observations,
   including replacement and lifecycle obligations. For planned execution, pass
@@ -20,10 +19,11 @@ Give the agent:
   a still-valid search merely because delegation occurred. For a correction,
   pass its complete plan-owned
   [correction input](../../dough-story-refinement/references/planning.md#choose-the-planning-level)
-  rather than requiring a seed. For quick execution, pass the canonical story,
-  the explicit instruction to execute without slice planning, and the relevant
-  conversation context; require no plan or substitute execution record. Omit
-  unrelated plan or conversation history.
+  rather than requiring a seed. For quick execution, pass the established
+  source — the canonical story and skip-planning instruction, or the contextual
+  instruction — plus relevant conversation context; require no plan, fabricated
+  story, or substitute execution record. Omit unrelated plan or conversation
+  history.
 - Any North Star topic cited by the delegated work and the evidence supporting
   it. Require the agent to return contrary evidence through [execution
   decisions](execution-decisions.md#resolve-conflicting-recorded-direction),
@@ -122,7 +122,7 @@ proof:
   result: pass
 ```
 
-Connect proof to the planned slice's or quick story's promises. Placeholders,
+Connect proof to the planned slice's, quick story's, or instruction's promises. Placeholders,
 abbreviations, and paraphrases are ambiguous evidence. When no setup is needed,
 say `none`; do not omit the field or mistake behavior supplied by a fixture for
 product behavior. Report uncovered behavior as incomplete implementation; the
