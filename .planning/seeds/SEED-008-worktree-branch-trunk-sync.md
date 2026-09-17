@@ -106,51 +106,122 @@ changing the readable Markdown backlog or its established semantics.
 
 <a id="publish-trunk-mode-from-local-main"></a>
 
-### 5. Publish Trunk Mode from local main
+### 5. Leave local main synchronized after Trunk Mode publication
 
-**Status:** Captured; before same-machine queue integration. Not refined or
-planned.
+**Status:** Refined around a reported discrepancy; first backlog priority. Not
+planned or authorized for execution. Reproduce before repair because the exact
+incident refs and conflicting commits are no longer available.
 
-**For / why:** A developer using Trunk Mode can treat local `main` as the
-integration point and the sole source of publication to `origin/main`, so the
-local repository reflects each integrated increment before that increment is
-shared remotely.
+**Goal:** A developer whose IDE remains on the local integration checkout can
+publish a Trunk Mode increment and find local `main` at the exact revision
+published to `origin/main`, without pulling or replaying that same publication.
+If local `main` cannot safely become the publication candidate, publication
+stops before the remote advances and preserves the work that prevents it.
 
-**Scope candidate:** Change Trunk Mode publication so a verified increment is
-first merged into local `main`, the retained execution branch is then rebased
-onto that updated local `main`, and local `main` is reconciled by rebasing onto
-the latest `origin/main` before local `main` is pushed to `origin/main`. Preserve
-exclusive integration ownership, recoverable conflict stops, proof revalidation,
-ordinary non-force pushes, exact published-SHA tracking, and CI registration.
-Do not publish the execution branch.
+**Why now:** The newly delivered Trunk Mode is the basis of the near-future
+parallel-agent direction. In reported use, the worktree content reached remote
+trunk while the IDE on local `main` still offered synchronization; the
+configured pull-with-rebase then conflicted. That undermines the local trunk as
+the recoverable integration point and should be understood before a merge queue
+automates the same publication path. This is observed friction rather than a
+preference for one Git command sequence.
 
-**Evaluation:** Given a verified execution increment and an unchanged remote,
-local `main` contains the merged increment and the execution branch is based on
-that local result before `origin/main` advances from local `main`. When
-`origin/main` advances concurrently, only this execution's unpublished local
-work is reconciled onto the fetched remote state; successful revalidation is
-followed by a push from local `main`, while a conflict or ambiguous ownership
-preserves all local branches and reports the exact blocked state.
+**Reported observation — Cursor:** The developer kept Cursor on the repository's
+local `main` checkout, not on the execution worktree or execution branch. Cursor
+was configured to rebase when synchronizing. After Trunk Mode worktree content
+was reported as published to remote trunk, Cursor still showed work to sync on
+local `main`; invoking sync produced a Git conflict. The incident's exact refs,
+ahead/behind counts, conflicting paths, and pre-sync graph were not retained, so
+this observation establishes the discrepancy to investigate but not its cause.
 
-**Value / learning:** This establishes whether local-first integration gives
-developers a clearer recoverable trunk and a better base for continued work
-without weakening frequent remote publication or overwriting another writer's
-changes.
+#### Scope
+
+- First reproduce or explain the discrepancy with a real same-repository
+  integration checkout and execution worktree. Record the local `main`,
+  execution-branch, and fetched `origin/main` identities immediately before
+  publication, after local integration, and after push. Before invoking Cursor
+  sync, retain the current branch, status, upstream, ahead/behind counts, commit
+  graph, pull-rebase configuration, and any uncommitted state so the sync does
+  not destroy the evidence. Reproduce the conflict only in a disposable
+  fixture. Treat the cause as unconfirmed until the observable divergence is
+  reproduced or its historical graph is established.
+- For a successful queue-claim, verified-increment, or wrap-up publication,
+  make local `main` the exact candidate before pushing and leave local `main`
+  and `origin/main` at the same published SHA. Preserve the existing execution
+  branch alignment, exact published-SHA tracking, CI registration, proof
+  revalidation, ordinary non-force push, and recoverable interruption rules.
+- Do not report publication as successful until the local-main SHA, the actual
+  remote-trunk SHA, and the retained published SHA agree, and local `main` is
+  zero ahead and zero behind after refreshing the remote view. A mismatch is an
+  unfinished publication or a later writer to classify, not a successful state
+  for the developer to repair with ordinary IDE sync.
+- Fetch and reconcile a concurrently advanced remote before publication. Rebase
+  only this execution's unpublished suffix, revalidate affected proof, update
+  the execution branch and local `main` to the resulting candidate, and then
+  publish that candidate.
+- If local `main` has unrelated unpublished commits, dirty content, ambiguous
+  ownership, or cannot be advanced to the exact candidate, stop without
+  advancing `origin/main`. Report and preserve the local main state and the
+  execution's unpublished work; do not bypass the stop by pushing a candidate
+  SHA or the execution branch directly.
+- Distinguish this discrepancy from a later independent writer legitimately
+  advancing `origin/main` after publication. That later change may make the IDE
+  show incoming work and is not a promise this story can prevent.
+
+#### Key examples
+
+1. **Ordinary publication:** Given local `main`, the execution branch, and
+   `origin/main` share a published base, publishing one verified increment
+   leaves all three at the exact new published SHA. The main checkout has zero
+   ahead and zero behind relative to `origin/main`; IDE synchronization is not
+   needed for that publication.
+2. **Unsafe local main:** Given local `main` contains unrelated unpublished work
+   or dirty content, a ready execution increment does not advance
+   `origin/main`. Both bodies of work remain recoverable and the stop identifies
+   the conflicting local state.
+3. **Remote advances during publication:** Given another writer advances
+   `origin/main` after the initial fetch, reconcile only this execution's owned
+   suffix onto the newer remote, update the execution branch and local `main`,
+   revalidate affected behavior, and publish once. A conflict preserves all
+   refs and does not invite an ordinary IDE sync as recovery.
+4. **Genuinely later publication:** Given all three refs matched after this
+   publication, another writer subsequently advances remote trunk. The IDE may
+   then show incoming work; this is normal new integration, not recurrence of
+   the reported defect.
+
+**Excluded:** Changing IDE settings or Git's pull-rebase policy; promising that
+local `main` never receives later remote work; publishing the execution branch;
+Story Branch Mode changes; a merge queue, new lock service, branch manager, or
+parallel-agent launcher; hosted-agent workflows; force pushes; new CI policy;
+and worktree or build-performance optimization. The outcome is branch/ref
+coherence, not a required merge-versus-rebase command recipe.
+
+**Value retained if later work is cancelled:** A reproduced no-change result
+establishes that the existing contract already provides the promised local-main
+coherence and identifies the incident as a different synchronization case. A
+confirmed correction makes current manual Trunk Mode safe to use without the
+later merge queue.
 
 **Depends on:** The existing Trunk Mode execution identity, proof, publication,
-and observer contracts. Complete this before the same-machine merge queue so
-the queue automates the selected local-to-remote integration path rather than
-the current publication sequence.
+and observer contracts. Complete this investigation before the same-machine
+merge queue so the queue automates a publication path whose local-main behavior
+is known.
 
-**Deferred decisions:** Refine the exact merge strategy, how to avoid replaying
-an increment when the execution branch is rebased after its merge, which proofs
-the local and remote rebases invalidate, and recovery after interruption at
-each boundary. This capture selects the requested ordering but does not choose
-unsafe Git commands or authorize implementation.
+**Evidence gap and open decision:** The repository currently has local `main`
+and `origin/main` at the same SHA, and the incident's pre-sync branch graph is
+unavailable. Determine whether publication advanced the remote without first
+advancing local `main`, whether unrelated local work made the branches diverge,
+or whether a later independent publication caused the IDE signal. A supported
+finding that the existing behavior is correct closes the discrepancy without a
+repair; do not manufacture a Git change merely to retain this story.
 
-**Architecture and boundaries:** This advances continuous integration under
+**Architecture and proof:** This applies the stop-and-fix, empiricism, and
+continuous-integration principles in
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-ADR 0007 remains Proposed and is not adopted or changed by this capture.
+Prove the Git ref and ahead/behind invariants deterministically; the IDE symptom
+does not require a vendor UI test under
+[ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+ADR 0007 remains Proposed and is not adopted or changed by this story.
 
 ## Research and Architectural Context
 
