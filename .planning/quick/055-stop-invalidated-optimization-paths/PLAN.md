@@ -84,8 +84,26 @@ tool matrix for this conventional instruction change.
 
 ### 1. Honor a decisive optimization checkpoint before the next experiment
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in behavior review and focused commands above pass.
+
+Accepted proof:
+- Review: the three key examples are satisfied by the revised text —
+  `src/skills/dough-test-optimization/SKILL.md` step 4 "Reassess" now records a
+  decisive checkpoint's measurement, remaining-gap comparison, invalidated
+  assumption, consequence, and selected authorized decision in the plan's
+  Current decisions before another dependent experiment dispatches; a
+  still-plausible checkpoint continues without an extra record; and
+  `src/skills/dough-execute-plan/references/execution-decisions.md`
+  ("Reassess before extending work") enforces that recorded decision at the
+  next-slice boundary without recomputing the remaining-gap comparison, which
+  stays solely owned by `dough-test-optimization`.
+- `git diff --check` — pass, no output.
+- `npm run lint` — pass, "All matched files use Prettier code style!".
+- `bash tests/install-all-tools.sh` — pass, full-suite PASS line observed.
+- Post-change refactor pass: `## REFACTOR COMPLETE`, no edits needed — no
+  duplication, dead cross-references, or managed-copy drift found; only the
+  two `src/skills/` files own this change.
 
 Behavior: Given an optimization plan with an explicit target and a comparable
 checkpoint whose recorded remaining experiments cannot plausibly close the
