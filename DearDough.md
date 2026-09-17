@@ -73,7 +73,9 @@ required review or proof.
     rereading while preserving required context; net time and token cost were
     not measured. No decisive match to an existing local issue was found.
 
-## DD-047 — Cursor mailbox probe did not attach CI_MONITOR_READY
+## ODF-052 — Cursor mailbox probe did not attach CI_MONITOR_READY
+
+Former local code: DD-047.
 
 A harmless `ci-mailbox.mjs probe` printed a `CI_OBSERVER` receipt, but this
 coordinator session never received host `CI_MONITOR_READY`. Observation was
@@ -97,5 +99,4 @@ not started; later execution-branch pushes were unobserved.
     the receipt; a probe directory is not an execution observer. Following the
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
-
 

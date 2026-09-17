@@ -150,50 +150,6 @@ consult both lists when matching findings or allocating identities.
     review or proof; net time and token cost were not measured, and no decisive
     match to an existing local issue was found.
 
-## ODF-007 — Implementation agents fail to await their own background verification
-
-- **Meaning:** An implementation agent that ends its turn before its own background test completes leaves the required pass/fail result unreported and shifts verification back to the coordinator.
-- **Source mappings:** Doughnut Project / DD-001
-- **References:** Doughnut Project `DearDough.md`, DD-001; release `0.3.8`; `5ed11cd8e0`; later report `a6fcddacad` at release `0.3.13`. Current guidance assessed: Open Dough `1088f77044cadaadfa6f40b40824ae1551d6270c`. Relevant `git log -p v0.3.8..1088f77` for `src/skills/dough-execute-plan/references/delegation.md` and `src/skills/dough-post-change-refactor/SKILL.md` shows no intervening correction to awaiting background verification; delegation still requires passing focused proof without an explicit background-command completion protocol. The supplied later execution demonstrates the same premature return; this does not establish an execution at today's revision.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 1. Response: `src/skills/dough-execute-plan/references/delegation.md` now owns verification through its terminal result (explicit incomplete stop otherwise), linked from `dough-post-change-refactor` verify-edits; source commit `c8d2fd0`; not yet released. Effectiveness limit: source walkthrough only; no native-session evidence that premature returns stop recurring.
-
-### Occurrences
-
-- Execution: `SEED-017 Story 1 / quick-099-receive-compatible-accepted-history / 5ed11cd8e0`
-  - Source: Doughnut Project / DD-001; canonical `DearDough.md` occurrence
-  - Tool: Claude Code
-  - Open Dough release: 0.3.8
-  - Evidence: The slice 4 implementation agent twice ended its turn while its
-    Vitest run was still in progress, despite explicit instructions to wait for
-    and report the result; the coordinator then ran the focused test directly
-    and obtained a 95/95 pass.
-  - Observed effect: Two extra coordinator round-trips were required before the
-    slice could proceed to wrap-up.
-
-- Execution: SEED-018 story 3 / quick/108-publish-notebook-edits-faster / a6fcddacad
-  - Source: Doughnut Project / ODF-007; second canonical `DearDough.md` occurrence
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.13
-  - Evidence: the slice 1 implementation agent's first two reports ("I'll
-    wait for the background smoke-test run to finish before continuing." and,
-    after one resend, "Waiting for baseline run 1 (1000/1000) to finish.")
-    before a second resend produced its real final report; separately, the
-    slice 2 post-change-refactor agent's first report ("I've queued a focused
-    Cypress verification run ... and I'm waiting for it to complete before
-    finalizing the report") even though that agent's initial delegation
-    prompt already contained an explicit instruction not to stop and wait
-    mid-verification.
-  - Observed effect: three extra coordinator round-trips across the
-    execution (two resends for the slice 1 agent, one for the slice 2
-    refactor agent) before each returned a real final report with actual
-    results.
-  - Inference: giving the anti-pattern instruction directly in the initial
-    delegation prompt (done for the slice 2 refactor agent) did not prevent
-    the same pause-and-wait behavior from recurring, suggesting an inline
-    instruction alone is not a reliable mitigation for this pattern.
-
 ## ODF-009 — Deep managed worktrees exceed project-local socket limits
 
 - **Meaning:** A host tool's deeply nested worktree location can make a checkout-relative Unix socket path exceed the platform limit and block isolated-system integration proof before product code runs.
@@ -263,7 +219,7 @@ consult both lists when matching findings or allocating identities.
     first failed would likely have reduced work, but the probe does not prove
     that init alone resolves every historical hang.
 
-- **Status:** Addressed in source; effectiveness unverified.
+- **Status:** Response released; effectiveness unverified.
 - **Response:** Consolidated reassessment of the premise and smallest authorized
   outcome before corrective expansion into the shared execution decisions,
   also used before further plan subdivision. Preserves compatible proof and
@@ -271,7 +227,9 @@ consult both lists when matching findings or allocating identities.
   Story recoverable at
   `dbf5813:.planning/seeds/SEED-009-keep-only-externally-valuable-work.md`.
   ODF-013 and ODF-023 retain distinct causes and evidence.
-- **Released in:** Pending; this closure does not establish real-use effectiveness.
+- **Released in:** 0.3.14 (`3446f62`; first containing tag `v0.3.14`). No
+  later evidence establishes recurrence of this environmental-premise
+  mechanism; the related ODF-023 reassessment response did recur on 0.3.18.
 
 ## ODF-015 — Diagnostic transport was not validated before failure reruns
 
@@ -402,8 +360,8 @@ consult both lists when matching findings or allocating identities.
 ## ODF-023 — Simplification retains an expanding closure condition
 
 - **Meaning:** After an approach is abandoned in favor of simplification, moving dependencies into the active story and refining more execution steps does not authorize retaining an overbroad finish line that no longer matches the owner's smallest intended outcome.
-- **Source mappings:** Pygardon / DD-012
-- **References:** Pygardon `DearDough.md`, DD-012; `f011af3b5`; continuation `3f6302ec6..e3e2a25c4`; related to ODF-013's failure to revisit a parent decision, but the environment-premise and product-scope causes are distinct.
+- **Source mappings:** Pygardon / DD-012; Pygardon / DD-048 (merged into the adopted ODF-023 source entry during the 2026-09-17 maintenance run)
+- **References:** Pygardon `DearDough.md`, DD-012 and former DD-048; `f011af3b5`; continuation `3f6302ec6..e3e2a25c4`; `c4efd7b5c..77425e394`; checkpoint `a2ab5ea9a`; related to ODF-013's failure to revisit a parent decision, but the environment-premise and product-scope causes are distinct.
 
 ### Occurrences
 
@@ -423,7 +381,26 @@ consult both lists when matching findings or allocating identities.
     orchestration. Preserve its proof and settle the smallest closure outcome
     before further implementation rather than extending the plan to fit it.
 
-- **Status:** Addressed in source; effectiveness unverified.
+- Execution: `.planning/quick/132-faster-simpler-python-proof/PLAN.md @ c4efd7b5c..77425e394`
+  - Timestamp: 2026-09-14T18:42:07+08:00
+  - Source: Pygardon / DD-048; merged into canonical ODF-023 source occurrence
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.18
+  - Evidence: The plan and `dough-test-optimization` required reassessment if
+    the remaining experiments could not plausibly close the target gap. The
+    slices-1-2 checkpoint measured 390.00s, still 90 seconds above target,
+    while the five remaining experiments' recorded expected savings were
+    visibly well below that gap. All five ran before final acceptance measured
+    364.47s.
+  - Observed effect: Five implementation/refactor/delivery cycles completed
+    before the target shortfall was reconciled, although each retained
+    independent local value.
+  - Inference: This is the same failure to act on evidence that invalidates the
+    remaining closure path, after the response was released in 0.3.14. The
+    response did not prevent recurrence on 0.3.18.
+
+- **Status:** Response released; post-fix recurrence confirmed.
 - **Response:** Consolidated reassessment of the premise and smallest authorized
   outcome before corrective expansion into the shared execution decisions,
   also used before further plan subdivision. Preserves compatible proof and
@@ -431,7 +408,9 @@ consult both lists when matching findings or allocating identities.
   Story recoverable at
   `dbf5813:.planning/seeds/SEED-009-keep-only-externally-valuable-work.md`.
   ODF-013 and ODF-023 retain distinct causes and evidence.
-- **Released in:** Pending; this closure does not establish real-use effectiveness.
+- **Released in:** 0.3.14 (`3446f62`; first containing tag `v0.3.14`). The
+  Pygardon 0.3.18 occurrence above demonstrates recurrence after release.
+- **Follow-up:** [Act on decisive optimization checkpoints before continuing](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010 story 6; queued, not resolved. On delivery, record the actual response and first containing release here.
 
 ## ODF-024 — Packaged demo invocation loses approved host isolation
 
@@ -552,34 +531,6 @@ consult both lists when matching findings or allocating identities.
   - Inference: an initial release-base/ref preflight and integration step would
     have avoided most of that repetition; the later just-in-time preflight was
     still necessary and should be retained.
-
-## ODF-028 — Preservation proof omits the physical predecessor store
-
-- **Meaning:** Proof that one new installation preserves its own data is communicated as production preservation without identifying the physical predecessor store or proving migration from it.
-- **Source mappings:** Pygardon / DD-027
-- **References:** Pygardon `DearDough.md`, DD-027; Distinct from ODF-014 and ODF-021: physical store/predecessor identity is omitted, rather than public completion or authentication/lifecycle gates; `d09f0a6ae`, release 0.3.14.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 21 (closed; story and plan recoverable at `818a4f1:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `818a4f1:.planning/quick/047-cover-actual-user-outcome/PLAN.md`), slice 2. The `## Own executable proof` section of `src/skills/dough-story-refinement/references/planning.md` now directs identifying the installation, physical data store, and predecessor relationship for a preservation claim; distinguishing continuity within the same store from transfer out of another store; and surfacing an intended-target vs. deferred-migration conflict before dependent work rather than silently resolving it, without assuming migration authority or reporting a deferred migration as completed. Source commit `0dbff99`; not yet released. Original occurrence and unverified real-use effectiveness preserved; no release selected.
-
-### Occurrences
-
-- Execution: `.planning/quick/112-automatic-tag-release-update/PLAN.md` at
-  `d09f0a6ae`
-  - Source: Pygardon / DD-027; canonical `DearDough.md` occurrence
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.14
-  - Evidence: slice 9 baselined the separately provisioned `pygardon-data`
-    volume and slice 14 proved its settings/data survived A→B, but the completion
-    report called those “production settings” without distinguishing the intact
-    native `~/.config/pygardon/production` plane. Owner feedback then exposed
-    that its established settings and roughly 22 GB had never been imported.
-  - Observed effect: a technically correct Docker-volume continuity result was
-    understood as native-to-Docker preservation, and the missing migration only
-    became explicit at the final feedback boundary.
-  - Inference: every preservation baseline should record installation identity,
-    physical store path or volume, and predecessor relationship before the
-    result is generalized in status communication.
 
 ## ODF-029 — Owner commit absorbs an unfinished shared-checkout slice
 
@@ -727,48 +678,13 @@ consult both lists when matching findings or allocating identities.
     baseRef is the wrong choice unless that ref is already pushed; the `head`
     baseRef setting or a manual `git worktree add` avoids this.
 
-## ODF-036 — Completed delegated work leaves stale background watches
-
-- **Meaning:** Per-command background watches outlive a delegated agent's completed report and emit redundant timeout notifications that consume coordinator turns.
-- **Source mappings:** Doughnut Project / DD-019
-- **References:** Doughnut Project `DearDough.md`, DD-019; Distinct from ODF-007: the agent supplied a complete final report; the problem is watch cleanup afterward, not returning before verification. `691e7be961`, release 0.3.14.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 3. Response: `src/skills/dough-execute-plan/references/delegation.md` now bounds owned watch lifetime to the verification obligation, requires accounting for unread evidence before retirement through supported controls, treats queued duplicates as stale without restarting verification, and preserves unrelated watches including the CI observer; source commit `bad3aae`; not yet released. Effectiveness limit: source walkthrough only; the finding's limit stands that not every late host notification is preventable.
-
-### Occurrences
-
-- Execution: SEED-018 story 5 / quick/112-publish-additions-with-simpler-title-check / 691e7be961
-  - Source: Doughnut Project / DD-019; canonical `DearDough.md` occurrence
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.14
-  - Evidence: after the implementation agent (delegated task for this slice)
-    returned its full final report (baseline/candidate benchmark numbers,
-    proof log), the coordinator received seven further separate
-    task-notifications for the same already-completed task, each one
-    self-described in its own result text as a "stale monitor timeout" for one
-    specific already-reported benchmark run (baseline runs 1-3, candidate runs
-    1-3, and the small acceptance/rejection run), arriving individually over
-    the following several minutes while a second delegated agent (the
-    post-change-refactor pass) was concurrently running.
-  - Observed effect: seven extra coordinator turns, each requiring inspection
-    of the notification and a one-line "no action needed" acknowledgment,
-    interleaved with the unrelated in-progress refactor-agent notification the
-    coordinator was actually waiting on.
-  - Inference: each notification's own text confirmed it added no information
-    beyond the agent's already-received final report, so the cost was purely
-    coordinator attention; a subagent that arms one watch per background
-    command it launches, without stopping or consolidating those watches once
-    it has already produced its own synchronous final report, generates this
-    kind of post-completion notification noise.
-
 ## ODF-038 — No-op polling consumes notification-wait turns
 
 - **Meaning:** A coordinator repeatedly issues no-op shell calls while awaiting asynchronous completion notifications, adding turns without obtaining state or accelerating completion.
 - **Source mappings:** Pygardon / DD-039
 - **References:** Pygardon `DearDough.md`, DD-039; Distinct from ODF-007 (premature worker return) and ODF-036 (stale watches after completion): these are coordinator-generated no-op calls during the wait. `e41447396`, release 0.3.14.
 
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 2. Response: `src/skills/dough-execute-plan/references/delegation.md` now directs awaiting delegated results through the host's supported notification/wait/resume facility and bars no-op calls, with an explicit limitation report when no facility exists; source commit `89728cb`; not yet released. Effectiveness limit: source walkthrough only; no native-session evidence that no-op waiting stops recurring.
+- **Follow-up:** Response released but ineffective for the observed recurrence. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 2. Response: `src/skills/dough-execute-plan/references/delegation.md` directs awaiting delegated results through the host's supported notification/wait/resume facility and bars no-op calls; source commit `89728cb`, first released in 0.3.18. Pygardon's later 0.3.18 execution repeated the same no-op wait and added a stale scheduled wakeup, so the response must be reconsidered.
 
 ### Occurrences
 
@@ -791,6 +707,22 @@ consult both lists when matching findings or allocating identities.
     sufficient while waiting for an async notification; repeated no-op tool
     calls are pure overhead from this session's own execution habit, not a
     limitation of the notification mechanism.
+
+- Execution: `.planning/quick/132-faster-simpler-python-proof/PLAN.md` (first implementation commit `c4efd7b5c`)
+  - Timestamp: 2026-09-14T17:36:00+08:00
+  - Source: Pygardon / ODF-038; second canonical `DearDough.md` occurrence
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.18
+  - Evidence: While waiting on a hung baseline background run, the coordinator
+    issued one `Bash({command: "true"})` placeholder and scheduled a five-minute
+    wakeup even though the background command already delivered completion
+    notifications. The later wakeup referred to superseded work.
+  - Observed effect: One no-op turn and one stale wakeup required an additional
+    explanatory reply without producing execution state.
+  - Inference: This is the same coordinator-generated polling mechanism after
+    `89728cb` was included in release 0.3.18; the added wakeup is a related form
+    of the same avoidable wait polling.
 
 ## ODF-040 — Implementation delegation bypasses coordinator delivery review
 
@@ -824,40 +756,6 @@ consult both lists when matching findings or allocating identities.
     every subsequent slice's prompt in this same execution prevented a repeat
     for the remaining four slices.
 
-## ODF-041 — Required pre-change baseline is deferred until final acceptance
-
-- **Meaning:** Implementation starts before a plan-mandated full-suite baseline and environment record, leaving final before/after acceptance dependent on recovering the original measurement later.
-- **Source mappings:** Pygardon / DD-042
-- **References:** Pygardon `DearDough.md`, DD-042; Distinct from ODF-027: missing pre-implementation baseline, rather than qualifying a candidate before integration. `b1c3b5c83`, pre-slice commit `b119887fd`, release 0.3.16. The source claim that an advanced original checkout would make recovery impossible is an inference: these findings do not establish that recreating the recorded Git revision elsewhere would be impossible.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 21 (closed; story and plan recoverable at `818a4f1:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `818a4f1:.planning/quick/047-cover-actual-user-outcome/PLAN.md`), slice 3. The `## Own executable proof` section of `src/skills/dough-story-refinement/references/planning.md` now states that a pre-change observation (e.g. a baseline a later change would invalidate) is a prerequisite to the change it gates; reuse an adequate retained baseline with known revision and matching environment/selection conditions, otherwise obtain it before dispatching the dependent change; a missing or failed prerequisite stops only that dependent path and names the gap. A late-recovery reconstructed comparison is permitted only when revision and relevant conditions are demonstrably comparable, else the dependent claim remains unproved. `dough-execute-plan/SKILL.md` invokes this rule from the existing next-slice boundary before implementation delegation, on initial entry and resume, without a new startup audit. Source commit `b383f63`; not yet released. Original occurrence and unverified real-use effectiveness preserved; no release selected.
-
-### Occurrences
-
-- Execution: `.planning/quick/127-fast-service-and-packaged-tests/PLAN.md` at
-  `b1c3b5c83`
-  - Source: Pygardon / DD-042; canonical `DearDough.md` occurrence
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.16
-  - Evidence: no `/tmp/pytest-service-optimization-before.xml` or baseline
-    numbers exist anywhere in the plan's slice 1 text or delivery note; the gap
-    was only discovered and reconciled during final acceptance, after all 14
-    slices were already committed, by finding that the originating checkout
-    (`/Users/terryyin/git/pygardon`, branch `main`) coincidentally still sat
-    clean at the exact pre-slice-1 commit `b119887fd` (the Taken-transition
-    commit), allowing a retroactive baseline run there: 2301 passed, 13
-    skipped, 625.63s real.
-  - Observed effect: the retroactive baseline succeeded only because of that
-    coincidence. Had the originating checkout advanced to a later commit or
-    been dirtied by unrelated work in the meantime, no faithful pre-slice-1
-    full-suite baseline would have been recoverable at all, and final
-    acceptance could not have reported a measured before/after gain.
-  - Inference: run and record the plan-mandated pre-slice-1 baseline as a
-    literal first action before any slice's implementation begins, not as
-    something to reconcile opportunistically during final acceptance.
-
 ## ODF-042 — Coordinator filtering omits representation migration sites
 
 - **Meaning:** A coordinator pre-filters field-reference search results before delegation, omitting sites from a representation slice and shifting their test repairs into the later field-removal slice.
@@ -890,33 +788,6 @@ consult both lists when matching findings or allocating identities.
     misses, but shifting that work to the later slice blurs the slice's
     intended boundary.
 
-## ODF-043 — Proof serialization mismatches require report-only retries
-
-- **Meaning:** Completed delegated work returns adequate substantive proof in a noncanonical schema, requiring coordinator-agent round-trips solely to reformat the handoff.
-- **Source mappings:** Doughnut Project / DD-038
-- **References:** Doughnut Project `DearDough.md`, DD-038; Distinct from ODF-007: proof is already complete and the extra handoff work is serialization only. `2be6138738`, slices 6 and 7, release 0.3.16.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 4. Response: `src/skills/dough-execute-plan/references/delegation.md` now declares the proof block an example representation (substance required, layout flexible), and `src/skills/dough-execute-plan/references/wrap-up.md` accept-proof applies the same substance test, accepting equivalent complete layouts without report-only resends while gaps still block; source commit `a04e5a8`; not yet released. Effectiveness limit: source walkthrough only; no native-session evidence that cosmetic resends stop recurring.
-
-### Occurrences
-
-- Execution: SEED-009 story 29 / quick/115-web-note-trash-and-undo / 2be6138738
-  - Source: Doughnut Project / DD-038; canonical `DearDough.md` occurrence
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.16
-  - Evidence: slice 6 required two report-only follow-ups after first returning
-    custom Command/Result/Focused-proof fields and then title-cased YAML keys;
-    slice 7 required one report-only follow-up after returning a custom report
-    rather than the required proof block. Each final handoff described the same
-    already-completed tests and changes.
-  - Observed effect: three extra coordinator-agent round-trips produced no new
-    implementation or verification evidence.
-  - Inference: exact proof serialization is not reliably enforced at the agent
-    boundary even when a literal template is supplied; structured validation
-    before accepting the handoff would remove this clerical loop.
-
 ## ODF-044 — Overrun refinement repeats after all compatible work is complete
 
 - **Meaning:** A hard-limit protocol parks completed implementation and proof for plan-only refinement, then repeats after refactoring without yielding smaller remaining executable work.
@@ -942,35 +813,6 @@ consult both lists when matching findings or allocating identities.
     compatible outcome: record the overrun once during final plan update when
     no implementation or proof remains, while retaining escalation for actual
     unfinished work.
-
-## ODF-045 — Dominant query purpose hides incompatible production callers
-
-- **Meaning:** Consumer analysis assigns a shared query its dominant storage purpose instead of classifying each production caller, leaving an incompatible learning caller with trashed-note inclusion.
-- **Source mappings:** Doughnut Project / DD-040
-- **References:** Doughnut Project `DearDough.md`, DD-040; Distinct from ODF-042: production domain-purpose classification, rather than incomplete delegation of test representation sites. `2be6138738`, `LearningSessionService.record`, correction plan 116, release 0.3.16.
-
-- **Follow-up:** Addressed in source; effectiveness unverified. SEED-004 story 21 (closed; story and plan recoverable at `818a4f1:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `818a4f1:.planning/quick/047-cover-actual-user-outcome/PLAN.md`), slice 1. The `## Own executable proof` section of `src/skills/dough-story-refinement/references/planning.md` now directs inspecting affected production call sites of a changed shared operation and deriving distinct obligations per caller (a method's name or dominant use does not settle every caller's requirement); incompatible purposes need an observation each, equivalent purposes may share sufficient evidence, and an unresolved domain purpose yields a precise question and stops the dependent obligation. Source commit `a13ccab`; not yet released. Original occurrence and unverified real-use effectiveness preserved; no release selected.
-
-### Occurrences
-
-- Execution: SEED-009 story 29 / quick/115-web-note-trash-and-undo / 2be6138738
-  - Source: Doughnut Project / DD-040; canonical `DearDough.md` occurrence
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.16
-  - Evidence: plan 115's consumer table explicitly says
-    `findLiveNotesByNotebookIdOrderByIdAsc` serves Git state loading and must
-    retain legacy content inclusion; current caller search also finds
-    `LearningSessionService.record`, which matches commissioned report titles
-    from that query without a later `Note.isAvailable()` or tracker-activity
-    check.
-  - Observed effect: all planned suites passed while a trashed commissioned note
-    remained gradeable by report; retrospective correction plan 116 was needed.
-  - Inference: when one shared query has mixed production callers, consumer
-    inventory must classify each call site by domain purpose rather than assign
-    the method one dominant category; focused proof should cover every
-    incompatible category.
 
 ## ODF-046 — Coordinator edits land in the originating checkout
 
@@ -1004,3 +846,116 @@ consult both lists when matching findings or allocating identities.
     tools do not bind to the worktree from an earlier `cd` used for shell
     commands. Verifying which checkout a file edit landed in (as done here)
     contains the slip to a cheap revert.
+
+## ODF-051 — Refactor reports claim edits absent from the diff
+
+- **Meaning:** A delegated refactor report claims dead dependencies were removed even though the returned diff still contains them, requiring coordinator inspection and a resumed correction.
+- **Source mappings:** Doughnut Project / ODF-051 (already adopted in the source log)
+- **References:** Doughnut Project `DearDough.md`, ODF-051; `febbd2d9bb`; corrected before `8d67cd6cff`.
+
+### Occurrences
+
+- Execution: `plan 100 cursor/100-receive-web-note-moves (SEED-009 story 25)`
+  - Timestamp: 2026-09-15T13:52:00+08:00
+  - Source: Doughnut Project / ODF-051; canonical `DearDough.md` occurrence
+  - Tool: Cursor
+  - Model: glm-5.2-high
+  - Open Dough release: unreleased
+  - Evidence: The slice 2 refactor return claimed three dead dependencies were
+    removed from `RelationController`; `git diff` at `febbd2d9bb` showed the
+    fields remained. The resumed agent removed them before `8d67cd6cff`.
+  - Observed effect: The coordinator performed one resumed refactor exchange
+    and reran affected proof before delivery.
+  - Inference: Existing proof acceptance caught the inaccurate report before
+    commit; whether another response would improve on mandatory diff inspection
+    remains uncertain.
+
+## ODF-052 — Cursor mailbox readiness is lost across worktree hook identity
+
+- **Meaning:** A Cursor coordinator can receive a harmless CI mailbox receipt from an execution worktree without the host hook attaching `CI_MONITOR_READY`, so planned pushes remain unobserved.
+- **Source mappings:** Doughnut Project / DD-050 (historical occurrence); Open Dough / DD-047
+- **References:** Doughnut Project `DearDough.md` at `3c129ca`, DD-050; Open Dough `DearDough.md`, DD-047; `f7a150d`; response `4fa48f0`; release 0.3.24.
+
+- **Status:** Addressed in source and released; effectiveness unverified.
+- **Response:** The existing Cursor host hook now recognizes an execution
+  worktree and its originating checkout as the same repository by their Git
+  common directory while still rejecting unrelated checkouts. Source commit
+  `4fa48f0`; story and plan recoverable from
+  `cf4780d^:.planning/seeds/SEED-011-cursor-ci-observer-readiness.md` and
+  `cf4780d^:.planning/quick/053-attach-cursor-ci-observation/PLAN.md`.
+- **Released in:** 0.3.24 (`4fa48f0`; first containing tag `v0.3.24`).
+  A relevant installation and native Cursor READY observation have not yet
+  established a watch start.
+
+### Occurrences
+
+- Execution: `SEED-009 story 24 / quick/099-publish-existing-readme-edits / 20bac4cb5d`
+  - Timestamp: unknown; bounded by `20bac4cb5d` at 2026-09-15T12:17:05+08:00
+  - Source: Doughnut Project / DD-050; historical `DearDough.md` occurrence at `3c129ca`
+  - Tool: Cursor
+  - Model: GLM 5.2
+  - Open Dough release: unknown
+  - Evidence: Mailbox probe/start attempts returned no usable READY context;
+    pushes `20bac4cb5d` and `19a53c39fc` closed as unobserved.
+  - Observed effect: No CI monitoring covered either push.
+  - Inference: The coordinator could not establish the host bridge from its
+    execution surface; exact checkout-identity cause was not yet isolated.
+
+- Execution: `SEED-004#guide-useful-manual-testing @ ed19f9f`
+  - Timestamp: 2026-09-16T16:00:00+08:00
+  - Source: Open Dough / DD-047; canonical `DearDough.md` occurrence
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: modified; revision `1805b5a`; base 0.3.22
+  - Evidence: A worktree probe printed `CI_OBSERVER` for
+    `/tmp/dough-ci-501/watch-P9o15E`, but the originating-workspace hook did
+    not attach `CI_MONITOR_READY`; pushes `ed19f9f`, `067b29f`, and `96822da`
+    remained unobserved. Plan 053 later localized the mismatch to worktree vs.
+    originating-checkout mailbox identity.
+  - Observed effect: The complete planned execution had no CI observer.
+  - Inference: This is the same bridge-readiness mechanism as Doughnut DD-050,
+    now with the receipt and checkout mismatch evidenced.
+
+## ODF-054 — Delegated implementers edit coordinator-owned plans
+
+- **Meaning:** Delegated implementation agents modify the active PLAN.md even though the coordinator owns plan status and evidence, creating avoidable re-ownership work before delivery.
+- **Source mappings:** Doughnut Project / DD-056
+- **References:** Doughnut Project `DearDough.md`, DD-056; `473550c16e`; range `a4507e5304..1c790376e4`; release 0.3.22.
+
+### Occurrences
+
+- Execution: `SEED-009 story 28 / quick/129-publish-trash-moves / 473550c16e`
+  - Timestamp: unknown
+  - Source: Doughnut Project / DD-056; canonical `DearDough.md` occurrence
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: 0.3.22
+  - Evidence: Delegated product and CI-repair work included PLAN.md edits across
+    `a4507e5304..1c790376e4`; the coordinator re-applied or re-owned them before
+    staging.
+  - Observed effect: Extra edit/review traffic occurred, but no contaminated
+    product commit was identified.
+  - Inference: The ownership split is documented but not enforced at the
+    delegated edit boundary.
+
+## ODF-055 — Post-change refactors exceed the execution-leaf target
+
+- **Meaning:** Post-change refactor passes are reported at roughly 12–25 active minutes despite the project's five-minute target and ten-minute finer-decomposition boundary.
+- **Source mappings:** Doughnut Project / DD-057
+- **References:** Doughnut Project `DearDough.md`, DD-057; `473550c16e`; release 0.3.22; elapsed evidence is coordinator-reported rather than per-pass measured.
+
+### Occurrences
+
+- Execution: `SEED-009 story 28 / quick/129-publish-trash-moves / 473550c16e`
+  - Timestamp: unknown
+  - Source: Doughnut Project / DD-057; canonical `DearDough.md` occurrence
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: 0.3.22
+  - Evidence: Coordinator process notes report 12–25 minute refactor passes;
+    the plan records outcomes for slices 2, 4, 5, 7, and 8 without per-refactor
+    elapsed measurements.
+  - Observed effect: Refactor time was several times the leaf target while the
+    product slices still completed.
+  - Inference: Confidence is limited because per-pass timing is absent and the
+    recorded backend-suite waits do not fully explain the reported range.

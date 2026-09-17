@@ -269,6 +269,48 @@ Neither an internal consumer nor automated effectiveness tracking is required.
 **Safe stopping point:** A single manual exchange delivers a useful response.
 Projects retain control of their evidence; no ongoing access is implied.
 
+<a id="act-on-decisive-optimization-checkpoints"></a>
+
+### 6. Act on decisive optimization checkpoints before continuing
+
+**Status:** Backlog; second priority. Not refined or planned.
+
+**For / why:** A developer running a measured optimization plan gets a strategy
+decision when checkpoint evidence makes the remaining target implausible, before
+the agent spends every remaining implementation/refactor/delivery cycle.
+
+**Scope:** Reuse `dough-test-optimization` as the authoritative owner of the
+remaining-gap comparison and `dough-execute-plan` as the next-slice boundary.
+When an explicit checkpoint changes the premise for remaining experiments,
+require the recorded reassessment decision before dispatching the dependent
+slice. Preserve completed improvements and independently valuable remaining
+work; do not automatically cancel slices, change the developer's target, add a
+new measurement framework, or turn every intermediate number into a stop.
+
+**Evaluation:** Given the Pygardon plan 132 checkpoint at 390 seconds against a
+sub-300-second target, with five recorded hypotheses whose plausible aggregate
+savings are visibly below the remaining 90-second gap, execution records the
+strategy/scope decision before slice 3. It may continue only the work supported
+by that decision. A checkpoint that leaves a plausible path proceeds without a
+gratuitous human stop.
+
+**PFE and architecture:** The comparison already exists in
+`dough-test-optimization`; change the existing execution handoff rather than
+duplicate the rule. This applies [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+principles 5–7: reduce repeated judgment, stop and fix, and improve from actual
+evidence. Runtime wording remains for the executing project under
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+
+**Supporting finding:** [ODF-023](../../docs/maintainer/finding-names.md#odf-023--simplification-retains-an-expanding-closure-condition), including the post-response Pygardon 0.3.18 recurrence formerly recorded as DD-048.
+
+**Completion criterion:** After delivery, update ODF-023 with the actual new
+response and its first containing Open Dough release, while retaining the failed
+0.3.14 response and 0.3.18 recurrence. Queueing this story is not resolution.
+
+**Safe stopping point:** A decisive checkpoint cannot be bypassed silently;
+completed local improvements remain valid even when the aggregate target or
+remaining scope changes.
+
 ## Ordering and Scope Reduction
 
 Story numbers are stable identities, not priority ranks.

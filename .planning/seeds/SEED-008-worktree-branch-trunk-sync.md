@@ -55,6 +55,55 @@ queue. Distributed queues, hosted cloud-agent integration, a parallel-agent
 launcher, and global CI repair scheduling are not promised. Reuse an existing
 solution if suitable; this capture authorizes no queue implementation.
 
+<a id="script-product-backlog-list-updates"></a>
+
+### 4. Update the product backlog without hand-editing the shared list
+
+**Status:** Captured; middle backlog priority. Not refined or planned.
+
+**For / why:** An Open Dough maintainer coordinating parallel agents can add,
+take, reorder, or complete work in the plain-text product backlog through a
+stable operation, so concurrent queue changes do not repeatedly require manual
+reconstruction of overlapping Markdown-list edits.
+
+**Scope candidate:** Keep the Markdown backlog as the canonical, human-readable
+view while introducing script-backed operations over stable work identities and
+relative priority. Preserve exact story titles, canonical links, **Taken** and
+**Backlog list** semantics, existing unrelated order, and the near-future
+direction. Reject stale anchors, ambiguous identities, duplicates, and malformed
+sections without partially writing the file. Do not introduce a service,
+database, second backlog representation, or automated priority policy.
+
+**Evaluation:** Starting from the same backlog revision, two worktrees add
+different middle-priority stories. Integrating their script-expressed changes
+retains both entries in the intended relative order without a maintainer
+hand-editing `PRODUCT-BACKLOG.md`. A stale or ambiguous operation stops with a
+specific diagnostic, and every successful result remains ordinary readable
+Markdown.
+
+**Value / learning:** The first useful increment tests whether stable,
+script-backed queue operations remove the recurring list-edit hotspot while
+retaining the product backlog's low-complexity plain-text form. Direct editing
+plus later conflict reconstruction remains available, but it repeats the
+coordination cost this story is intended to reduce.
+
+**Effort hypothesis:** S–M, low confidence; local queue operations are small,
+but proving compatible concurrent additions and lifecycle transitions may
+expose a need for a durable operation representation.
+
+**Depends on:** The existing canonical backlog identity and lifecycle
+conventions. No new product prerequisite.
+
+**Architecture and boundaries:** This advances decentralized coordination and
+continuous integration under
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+while keeping one canonical representation. ADR 0007 remains Proposed and is
+not adopted by this capture.
+
+**Safe stopping point:** Maintainers can apply one validated queue change
+without hand-editing the list; later automation can be cancelled without
+changing the readable Markdown backlog or its established semantics.
+
 ## Research and Architectural Context
 
 Research on 2026-09-16 established precedent for frequent mainline integration
