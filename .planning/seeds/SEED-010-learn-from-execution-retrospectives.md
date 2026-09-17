@@ -273,33 +273,83 @@ Projects retain control of their evidence; no ongoing access is implied.
 
 ### 6. Act on decisive optimization checkpoints before continuing
 
-**Status:** Backlog; second priority. Not refined or planned.
+**Status:** Refined; first backlog priority; planned.
+[Slice plan](../quick/055-stop-invalidated-optimization-paths/PLAN.md).
 
-**For / why:** A developer running a measured optimization plan gets a strategy
-decision when checkpoint evidence makes the remaining target implausible, before
-the agent spends every remaining implementation/refactor/delivery cycle.
+**Goal:** A developer running a measured test-optimization plan gets an explicit
+strategy decision as soon as checkpoint evidence invalidates the remaining path
+to the agreed target, before the agent spends further
+implementation/refactor/delivery cycles on that invalidated path.
 
-**Scope:** Reuse `dough-test-optimization` as the authoritative owner of the
-remaining-gap comparison and `dough-execute-plan` as the next-slice boundary.
-When an explicit checkpoint changes the premise for remaining experiments,
-require the recorded reassessment decision before dispatching the dependent
-slice. Preserve completed improvements and independently valuable remaining
-work; do not automatically cancel slices, change the developer's target, add a
-new measurement framework, or turn every intermediate number into a stop.
+**Why now / priority challenge:** The existing response is demonstrably
+ineffective rather than merely incomplete: after its release in 0.3.14, the
+Pygardon 0.3.18 execution crossed a recorded decisive checkpoint and still ran
+five more experiments before reconciling the target shortfall. That supports a
+systematic correction before the next affected optimization execution.
 
-**Evaluation:** Given the Pygardon plan 132 checkpoint at 390 seconds against a
-sub-300-second target, with five recorded hypotheses whose plausible aggregate
-savings are visibly below the remaining 90-second gap, execution records the
-strategy/scope decision before slice 3. It may continue only the work supported
-by that decision. A checkpoint that leaves a plausible path proceeds without a
-gratuitous human stop.
+This evidence alone does not establish urgency over unrelated work: no evidence
+here says another measured optimization execution is imminent, and the story
+does not directly advance the current near-future direction of parallel story
+execution through Trunk Mode. The maintainer nevertheless chose to keep the
+current backlog order because this correction and the other selected work will
+be released together, so their relative order does not delay either release.
+Readiness and field provenance support doing the story; they are not treated as
+an independent claim that it outranks the direction-aligned outcome.
 
-**PFE and architecture:** The comparison already exists in
-`dough-test-optimization`; change the existing execution handoff rather than
-duplicate the rule. This applies [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-principles 5–7: reduce repeated judgment, stop and fix, and improve from actual
-evidence. Runtime wording remains for the executing project under
+**Scope:** Preserve `dough-test-optimization` as the authoritative owner of the
+target, current measurement, remaining-gap comparison, and optimization
+hypotheses. At an explicit checkpoint, when those recorded facts no longer show
+a plausible path to the target, the next dependent optimization slice must not
+be dispatched until the active plan records the resulting strategy decision.
+The decision may select a different strategy within existing authority, retain
+only independently valuable work that it explicitly supports, or stop for the
+developer when continuing would change the target, outcome, or scope.
+
+Keep `dough-execute-plan` responsible for enforcing that decision at its
+existing next-slice boundary. Preserve completed improvements and compatible
+proof. This is a handoff correction between two existing responsibilities, not
+a new checkpoint owner or a second remaining-gap rule.
+
+**Deferred promises:** Do not add a measurement framework, numeric plausibility
+formula, automatic hypothesis scoring, generic approval gate, or new
+optimization workflow. Do not turn every intermediate timing into a checkpoint,
+automatically cancel or replan remaining slices, change the developer's target,
+or generalize this story to every kind of execution reassessment. Naturally
+supported continuation remains allowed when the recorded evidence still leaves
+a plausible route to the target.
+
+**Key examples:**
+
+- Given the Pygardon plan 132 checkpoint at 390 seconds against a sub-300-second
+  target, with five recorded hypotheses whose plausible aggregate savings are
+  visibly below the remaining 90-second gap, execution records a changed
+  strategy, explicitly retained independent work, or a developer decision stop
+  before slice 3. It does not run all five experiments merely because each has
+  some local value.
+- Given a checkpoint whose remaining hypotheses still offer a plausible route
+  to the target, execution continues to the next experiment without inventing a
+  human stop.
+- Given evidence that defeats the current strategy but changing the target or
+  promised outcome exceeds the agent's authority, execution preserves completed
+  improvements and proof, reports the affected decision, and stops only the
+  dependent optimization path.
+
+**Simpler alternative and PFE:** Merely repeat or emphasize the existing
+remaining-gap sentence in `dough-test-optimization`. The 0.3.18 recurrence shows
+that the comparison already exists and that another isolated reminder would
+not address its failed handoff into continued execution. Change the existing
+handoff to `dough-execute-plan`'s next-slice decision boundary instead of
+duplicating the comparison or adding another workflow.
+
+**Architecture:** This applies
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+principles 5–7: settle consequential judgment, stop an invalidated path, and
+improve from observed recurrence. Runtime wording must address the agent in the
+executing project and keep one authoritative behavioral home under
 [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+Behavior review should prove the checkpoint-to-next-slice outcome; ordinary
+shared-guidance edits do not require a fresh tool-by-tool discovery matrix under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 **Supporting finding:** [ODF-023](../../docs/maintainer/finding-names.md#odf-023--simplification-retains-an-expanding-closure-condition), including the post-response Pygardon 0.3.18 recurrence formerly recorded as DD-048.
 
@@ -329,6 +379,11 @@ These are outcome boundaries, not slices or an executable plan.
 
 Broader validation has no newly assigned story or priority. No change to the
 near-future direction is authorized.
+
+On 2026-09-17, the maintainer kept Story 6 first because this correction and the
+other selected work will be released together. This resolves the immediate
+ordering question without changing the near-future direction or claiming that
+field provenance alone establishes higher value.
 
 ## When to Surface
 

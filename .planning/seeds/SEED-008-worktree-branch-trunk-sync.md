@@ -104,6 +104,54 @@ not adopted by this capture.
 without hand-editing the list; later automation can be cancelled without
 changing the readable Markdown backlog or its established semantics.
 
+<a id="publish-trunk-mode-from-local-main"></a>
+
+### 5. Publish Trunk Mode from local main
+
+**Status:** Captured; before same-machine queue integration. Not refined or
+planned.
+
+**For / why:** A developer using Trunk Mode can treat local `main` as the
+integration point and the sole source of publication to `origin/main`, so the
+local repository reflects each integrated increment before that increment is
+shared remotely.
+
+**Scope candidate:** Change Trunk Mode publication so a verified increment is
+first merged into local `main`, the retained execution branch is then rebased
+onto that updated local `main`, and local `main` is reconciled by rebasing onto
+the latest `origin/main` before local `main` is pushed to `origin/main`. Preserve
+exclusive integration ownership, recoverable conflict stops, proof revalidation,
+ordinary non-force pushes, exact published-SHA tracking, and CI registration.
+Do not publish the execution branch.
+
+**Evaluation:** Given a verified execution increment and an unchanged remote,
+local `main` contains the merged increment and the execution branch is based on
+that local result before `origin/main` advances from local `main`. When
+`origin/main` advances concurrently, only this execution's unpublished local
+work is reconciled onto the fetched remote state; successful revalidation is
+followed by a push from local `main`, while a conflict or ambiguous ownership
+preserves all local branches and reports the exact blocked state.
+
+**Value / learning:** This establishes whether local-first integration gives
+developers a clearer recoverable trunk and a better base for continued work
+without weakening frequent remote publication or overwriting another writer's
+changes.
+
+**Depends on:** The existing Trunk Mode execution identity, proof, publication,
+and observer contracts. Complete this before the same-machine merge queue so
+the queue automates the selected local-to-remote integration path rather than
+the current publication sequence.
+
+**Deferred decisions:** Refine the exact merge strategy, how to avoid replaying
+an increment when the execution branch is rebased after its merge, which proofs
+the local and remote rebases invalidate, and recovery after interruption at
+each boundary. This capture selects the requested ordering but does not choose
+unsafe Git commands or authorize implementation.
+
+**Architecture and boundaries:** This advances continuous integration under
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
+ADR 0007 remains Proposed and is not adopted or changed by this capture.
+
 ## Research and Architectural Context
 
 Research on 2026-09-16 established precedent for frequent mainline integration
