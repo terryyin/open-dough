@@ -121,10 +121,26 @@ passes. Delivered on branch
 
 ### 2. Stop when local main has unrelated unpublished commits
 Type: Behavior
-Status: planned
+Status: done
 Proof: same test file, unrelated-commit fixture. After the stop, `git ls-remote origin refs/heads/main` is still the pre-publication SHA, the execution increment remains on `exec/story`, and the unpublished local-main commit remains on `main`. The publication rule requires inspecting the integration checkout before advancing remote trunk even when the would-be push is `HEAD:main` from the execution worktree, and treats unpublished local-main commits that are not the owned suffix as a stop, not as permission to push the candidate SHA.
 
 Behavior: Given the same worktree layout, local `main` has an unpublished commit that is not the execution's owned suffix, and the execution increment is ready, publication does not advance `origin/main` and both commits remain recoverable.
+
+Outcome: done. No rule-text edit was needed: `trunk-publication.md`'s
+Preconditions ("known unrelated local commits... still stop") and "Publish
+the candidate" step 2 already required and correctly sequenced this stop
+ahead of the fast-forward/push steps, and Slice 1's tightened
+`execution-location.md` sentence already closes the SHA-push loophole for
+this case (it names the step-2 inspection as still applying regardless of
+which checkout issues the push). Added a second test to the same file
+proving the real Git mechanism: local `main` carrying a commit that is not
+an ancestor of the candidate makes `git merge --ff-only <candidate>`
+genuinely fail (`assert.rejects` matching Git's actual "Not possible to
+fast-forward" error), after which the bare remote, the execution branch, and
+local `main` are all unchanged. `node --test
+src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+passes (2/2). Delivered on branch
+`worktree-033-synchronize-local-main-after-trunk-publication`.
 
 ### 3. Recover a raced remote onto local main before reporting success
 Type: Behavior
