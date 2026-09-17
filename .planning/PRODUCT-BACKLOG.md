@@ -7,9 +7,10 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
+- [Act on decisive optimization checkpoints before continuing](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010
+
 ## Backlog list
 
-- [Act on decisive optimization checkpoints before continuing](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010
 - [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008
 - [Publish Trunk Mode from local main](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-trunk-mode-from-local-main) — SEED-008
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
