@@ -46,9 +46,16 @@ and CI repair from the selected execution location. Story Branch Mode pushes
 its execution branch to the authorized destination. Trunk Mode publishes each
 verified increment through [trunk publication](trunk-publication.md) and
 does not push the execution branch. That rule's exclusive-turn and target
-cleanliness checks apply only to shared-target mutation, not to
-execution-checkout commits. Pass identity/location explicitly to agents and
-host adapters.
+cleanliness checks apply only to shared-target mutation — any operation that
+advances the authorized target branch's ref, including a same-command SHA
+push issued from the execution worktree — and not to execution-checkout
+commits, proof, or formatting, which stay ungated. Which checkout's shell
+issues that push does not change the mutation target: the target branch's
+ref and the integration checkout that tracks it are still gated, so the
+inspection and fast-forward named in
+[publish the candidate](trunk-publication.md#publish-the-candidate) still
+apply and are not satisfied by a push alone. Pass identity/location
+explicitly to agents and host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
 and use it as working directory. Before arming, apply

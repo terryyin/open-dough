@@ -99,10 +99,25 @@ than introducing a product boundary.
 
 ### 1. Publish a verified increment onto a clean local main
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs` covering the ordinary fixture. After following the named sequence from the execution worktree (fetch, leave an already-based suffix unchanged, `git -C <integration-checkout> merge --ff-only <candidate>`, push that candidate, refresh remote view), `git rev-parse main`, `origin/main`, and `exec/story` are the candidate SHA, `git rev-list --left-right --count main...origin/main` is `0	0`, and the integration checkout is not left with a staged inverse of the increment. The publication rule names that `merge --ff-only` on the integration checkout, forbids `update-ref` / `branch -f` of a branch checked out elsewhere, and forbids reporting success before the four identities agree.
 
 Behavior: Given a disposable repository whose primary checkout is clean `main` at the same SHA as `origin/main`, and an execution worktree whose unpublished suffix is already based on that trunk, publishing the increment leaves local `main`, remote `main`, and the execution branch at that increment and 0 ahead / 0 behind.
+
+Outcome: done. Tightened `trunk-publication.md` "Publish the candidate" step 5
+to name `git -C <integration-checkout> merge --ff-only <candidate>` explicitly
+and forbid a same-command SHA push, `update-ref`, or `branch -f` as
+substitutes; step 6 now forbids reporting/registering success before local
+`main`, the freshly fetched remote, the retained SHA, and the execution
+branch agree. Aligned `execution-location.md`'s shared-target-mutation
+sentence so a same-command SHA push from the execution worktree still counts
+as shared-target mutation gated by that inspection and fast-forward. Added
+`src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+(new; exports `createCleanTrunkFixture()` for slices 2-3) proving the four
+identities and clean working tree. `node --test
+src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+passes. Delivered on branch
+`worktree-033-synchronize-local-main-after-trunk-publication`.
 
 ### 2. Stop when local main has unrelated unpublished commits
 Type: Behavior
@@ -130,4 +145,11 @@ Behavior: Given local `main` was fast-forwarded to this execution's candidate an
 
 ## Learnings
 
-None yet.
+- Slice 1's refactor pass found `trunk-publication.md` now at 263 lines
+  (started at 249, one line under the project's 250-line refactor-check
+  threshold). Splitting it along a cohesive seam would touch cross-references
+  in `wrap-up.md`, `ci-monitor.md`, both `dough-execute-plan`/
+  `dough-story-wrap-up` `SKILL.md` files, `src/install/open-dough-release-version.sh`,
+  and `docs/installation-and-updates.md` — a cross-subsystem structural change
+  this plan does not authorize. Deferred; flagging for a dedicated structure
+  slice/story after slices 2-3 finish shaping this file's remaining content.
