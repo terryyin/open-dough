@@ -1,3 +1,11 @@
+## 0.3.25 - 2026-09-17
+
+- Make Trunk Mode resolve queue claims through the configured integration branch and publish verified increments from its checkout. Require local main, the refreshed remote, and the execution branch to converge on the published revision; preserve unrelated unpublished commits; and recover a raced non-fast-forward push by rebasing only the owned suffix.
+- Give standalone manual-testing sessions one stable temporary branch and worktree when no checkout is already established. Reuse that identity through preparation and exploration, keep the originating checkout unchanged, clean it up only when safe, and retain exact recovery details otherwise.
+- Turn decisive test-optimization checkpoints into explicit execution decisions. Stop dependent experiments when evidence invalidates the remaining strategy, preserve independently valuable work only when authorized, and carry the measured gap and affected proof into the active plan before continuing.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.25`. Acceptance for the revised Trunk Mode publication lifecycle, standalone manual-testing workspace behavior, decisive optimization checkpoints, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.24 - 2026-09-17
 
 - Add optional Trunk Mode to planned execution while preserving Story Branch Mode as the default. Publish queue claims and verified increments from an isolated worktree onto the shared trunk, rebase only the owned unpublished suffix after concurrent updates, resolve compatible edits from both contributors' intent, and leave ambiguous or repeatedly rejected publication recoverable.
