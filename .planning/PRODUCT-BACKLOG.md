@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Run standalone manual testing from a stable temporary work branch](seeds/SEED-004-extract-and-adopt-project-guidance.md#run-standalone-manual-testing-in-isolated-execution) — SEED-004
-
 ## Backlog list
 
 - [Act on decisive optimization checkpoints before continuing](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010
