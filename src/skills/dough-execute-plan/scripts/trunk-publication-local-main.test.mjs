@@ -1,88 +1,16 @@
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { promisify } from "node:util";
-
-const exec = promisify(execFile);
-
-async function git(cwd, ...args) {
-  return exec("git", args, { cwd });
-}
-
-async function revParse(cwd, ref) {
-  return (await git(cwd, "rev-parse", ref)).stdout.trim();
-}
-
-// Resolves a ref on a bare remote directly (not the checkout's cached
-// remote-tracking ref), so proof about "the bare origin itself" is genuine.
-async function lsRemoteSha(remote, ref) {
-  const { stdout } = await exec("git", ["ls-remote", remote, ref]);
-  return stdout.trim().split(/\s+/)[0];
-}
-
-// Shared precondition step (trunk-publication.md's "Publish the candidate"
-// step 1): fetch the authorized remote and confirm the checkout observed the
-// pre-publication trunk before any reconciliation is attempted.
-async function fetchAndAssertOriginMain(integration, expectedSha) {
-  await git(integration, "fetch", "origin");
-  assert.equal(
-    await revParse(integration, "origin/main"),
-    expectedSha,
-    "fetch must observe the pre-publication trunk before reconciling",
-  );
-}
-
-// Builds the fixture named in Slice 1 of
-// .planning/quick/033-synchronize-local-main-after-trunk-publication/PLAN.md:
-// a disposable repository whose primary checkout (the shared "integration
-// checkout") is clean `main` at the same SHA as `origin/main` (a local bare
-// repo), plus an execution worktree whose unpublished suffix is already
-// based on that trunk. Exported so later slices in this same test file can
-// build on the same clean-trunk starting point before diverging it.
-export async function createCleanTrunkFixture() {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "trunk-publication-local-main-")),
-  );
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-  const execution = join(fixture, "execution");
-
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  await git(integration, "add", "trunk.txt");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-
-  await git(integration, "branch", "exec/story");
-  await git(integration, "worktree", "add", execution, "exec/story");
-  await git(execution, "config", "user.name", "Execution Worktree");
-  await git(execution, "config", "user.email", "execution@example.test");
-
-  writeFileSync(join(execution, "increment.txt"), "increment\n");
-  await git(execution, "add", "increment.txt");
-  await git(execution, "commit", "-m", "verified increment");
-
-  const trunkSha = await revParse(integration, "main");
-  const candidateSha = await revParse(execution, "exec/story");
-
-  return {
-    fixture,
-    origin,
-    integration,
-    execution,
-    trunkSha,
-    candidateSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
-}
+import {
+  assertPublicationAgreement,
+  createCleanTrunkFixture,
+  exec,
+  fetchAndAssertOriginMain,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./trunk-publication-local-main-test-fixtures.mjs";
 
 test("publishing a verified increment onto a clean local main leaves local main, origin/main, and the execution branch at the candidate SHA", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
@@ -120,35 +48,14 @@ test("publishing a verified increment onto a clean local main leaves local main,
   await git(integration, "push", "origin", "main");
   await git(integration, "fetch", "origin");
 
-  // Observable proof: local main (integration checkout), fetched
-  // origin/main, the retained candidate SHA, and the execution branch all
-  // agree on the same candidate SHA.
-  assert.equal(await revParse(integration, "main"), candidateSha);
-  assert.equal(await revParse(integration, "origin/main"), candidateSha);
-  assert.equal(await revParse(execution, "exec/story"), candidateSha);
-
-  // The bare origin itself (not just the integration checkout's cached
-  // remote-tracking ref) carries the candidate.
-  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), candidateSha);
-
-  // main...origin/main is 0/0: neither side is ahead of the other.
-  const counts = (
-    await git(
-      integration,
-      "rev-list",
-      "--left-right",
-      "--count",
-      "main...origin/main",
-    )
-  ).stdout.trim();
-  assert.equal(counts, "0\t0");
-
-  // The integration checkout's working tree is not left with a staged or
-  // reverted inverse diff after the fast-forward merge.
-  const status = (await git(integration, "status", "--porcelain")).stdout;
-  assert.equal(
-    status,
-    "",
+  // Observable proof: local main (integration checkout), the bare origin
+  // itself (not just the integration checkout's cached remote-tracking ref),
+  // and the execution branch all agree on the same candidate SHA, main and
+  // origin/main have converged, and the fast-forward merge left the
+  // integration checkout's working tree clean.
+  await assertPublicationAgreement(
+    { origin, integration, execution },
+    candidateSha,
     "the integration checkout must be clean after merge --ff-only",
   );
 });
@@ -221,4 +128,120 @@ test("stopping when local main has unrelated unpublished commits preserves both 
   // The unrelated local-main commit remains on the integration checkout's
   // main -- not reverted, reset, or overwritten.
   assert.equal(await revParse(integration, "main"), unrelatedSha);
+});
+
+// Builds the Slice 3 fixture on top of Slice 1's clean-trunk starting point:
+// the integration checkout is fast-forwarded to the candidate exactly as
+// Slice 1's rule prescribes, but a concurrent writer advances the bare
+// `origin` with a disjoint commit (based on trunkSha, not candidateSha)
+// before the integration checkout's push lands. This genuinely races the
+// first ordinary publish push, which Git must actually reject.
+test("recovering a rejected push after a concurrent remote advance publishes the rewritten candidate and moves local main and the execution branch onto it", async (t) => {
+  const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
+    await createCleanTrunkFixture();
+  t.after(cleanup);
+
+  // 1. Fast-forward the integration checkout to the candidate exactly as
+  // Slice 1's rule prescribes -- but do NOT push yet, so the concurrent
+  // writer's advance below is still racing an unpublished local main.
+  await git(integration, "merge", "--ff-only", candidateSha);
+  assert.equal(await revParse(integration, "main"), candidateSha);
+
+  // 2. Simulate a concurrent writer: a throwaway third checkout clones the
+  // bare origin (still at trunkSha), commits a disjoint change, and pushes
+  // it to origin's main -- producing disjointSha, whose parent is trunkSha,
+  // not candidateSha.
+  const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
+  await exec("git", ["clone", origin, thirdCheckout]);
+  await git(thirdCheckout, "config", "user.name", "Concurrent Writer");
+  await git(thirdCheckout, "config", "user.email", "concurrent@example.test");
+  writeFileSync(join(thirdCheckout, "disjoint.txt"), "concurrent work\n");
+  await git(thirdCheckout, "add", "disjoint.txt");
+  await git(thirdCheckout, "commit", "-m", "concurrent disjoint commit");
+  await git(thirdCheckout, "push", "origin", "main");
+  const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
+  t.after(() => rmSync(thirdCheckout, { recursive: true, force: true }));
+
+  assert.notEqual(
+    disjointSha,
+    trunkSha,
+    "the concurrent commit must actually advance origin/main",
+  );
+  assert.equal(
+    await revParse(thirdCheckout, `${disjointSha}~1`),
+    trunkSha,
+    "the concurrent commit's parent must be trunkSha, not the candidate -- a genuinely disjoint race",
+  );
+
+  // 3. Attempt the ordinary publish push from the integration checkout.
+  // This MUST be actually attempted and MUST be genuinely rejected by Git
+  // as non-fast-forward, since origin/main (disjointSha) is no longer an
+  // ancestor of the integration checkout's view of the push. The exact
+  // wording below was verified against real Git output in a throwaway
+  // repository before being used here (Git emits
+  // "! [rejected]        main -> main (fetch first)" plus the
+  // "Updates were rejected because the remote contains work..." hint).
+  await assert.rejects(
+    () => git(integration, "push", "origin", "main"),
+    /! \[rejected\]\s+main -> main \(fetch first\)/,
+    "the first ordinary publish push must be genuinely rejected by Git as non-fast-forward",
+  );
+
+  // Confirm the rejection did not silently advance anything: origin is
+  // still exactly at disjointSha, and local main is still the pre-rebase
+  // candidate.
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), disjointSha);
+  assert.equal(await revParse(integration, "main"), candidateSha);
+
+  // 4. Recovery sequence from trunk-publication.md's "Recover a rejected
+  // push": fetch, then rebase only the owned suffix (previously published
+  // base trunkSha..main) onto the fetched trunk (disjointSha), on the
+  // integration checkout.
+  await git(integration, "fetch", "origin");
+  assert.equal(await revParse(integration, "origin/main"), disjointSha);
+
+  await git(integration, "rebase", "--onto", disjointSha, trunkSha, "main");
+  const rewrittenSha = await revParse(integration, "main");
+
+  assert.notEqual(
+    rewrittenSha,
+    candidateSha,
+    "the rebase must produce a genuinely new, different commit SHA, not reuse the pre-rebase candidate",
+  );
+  assert.equal(
+    (
+      await git(integration, "log", "--format=%P", "-1", rewrittenSha)
+    ).stdout.trim(),
+    disjointSha,
+    "the rewritten candidate's parent must be the disjoint commit -- a real rewrite, not a discard",
+  );
+
+  // Move the execution branch to the rewritten candidate, per "Recover a
+  // rejected push" step 3: `git rebase --onto <target-branch>
+  // <rejected-candidate> <execution-branch>`.
+  await git(execution, "rebase", "--onto", "main", candidateSha, "exec/story");
+  assert.equal(await revParse(execution, "exec/story"), rewrittenSha);
+
+  // Push once. This attempt must actually succeed now that origin's tip
+  // (disjointSha) is an ancestor of the rewritten candidate.
+  await git(integration, "push", "origin", "main");
+  await git(integration, "fetch", "origin");
+
+  // 5. Genuine final-state proof: local main, the bare origin itself, and
+  // the execution branch all agree on the rewritten candidate, main and
+  // origin/main have converged, and recovery left the integration checkout
+  // clean.
+  await assertPublicationAgreement(
+    { origin, integration, execution },
+    rewrittenSha,
+    "the integration checkout must be clean after recovery and push",
+  );
+
+  // The rewritten commit still carries the increment's actual content --
+  // proving the rebase preserved the change, not just a same-named empty
+  // commit.
+  const incrementContent = (
+    await git(integration, "show", `${rewrittenSha}:increment.txt`)
+  ).stdout;
+  assert.equal(incrementContent, "increment\n");
 });

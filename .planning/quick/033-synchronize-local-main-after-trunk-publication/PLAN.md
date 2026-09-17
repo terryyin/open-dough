@@ -144,10 +144,36 @@ passes (2/2). Delivered on branch
 
 ### 3. Recover a raced remote onto local main before reporting success
 Type: Behavior
-Status: planned
+Status: done
 Proof: same test file, race fixture. First push of the original candidate is rejected. Recovery rebases only the owned suffix onto fetched `origin/main` on the integration checkout, fast-forwards that checkout to the rewritten candidate, and pushes once. After refresh, local `main`, `origin/main`, and `exec/story` are the rewritten SHA and 0/0. The recovery rule does not treat an execution-worktree-only rewrite plus `HEAD:main` push as a successful publication while primary `main` still points at the rejected candidate.
 
 Behavior: Given local `main` was fast-forwarded to this execution's candidate and another writer then advanced `origin/main` with a disjoint commit, rejected-push recovery publishes the rewritten candidate and leaves local `main` at that published SHA.
+
+Outcome: done. No rule-text edit was needed: `trunk-publication.md`'s
+"Recover a rejected push" already names the exact `git rebase --onto
+<fetched-remote-trunk> <previously-published-base> <target-branch>` command
+on the integration checkout, already requires moving the execution branch
+with `git rebase --onto <target-branch> <rejected-candidate>
+<execution-branch>`, and already pulls in candidate step 6's four-identity/
+0-0 success gate by reference. Added a third test proving the real race:
+a genuine third throwaway checkout pushes a disjoint commit to the bare
+origin; the integration checkout's first ordinary push is actually attempted
+and genuinely rejected by Git (`! [rejected] ... (fetch first)`); real
+`git rebase --onto` recovery on both the integration checkout and the
+execution branch produces a genuinely new commit whose parent is the
+disjoint commit and whose tree still carries the increment's content; the
+final push succeeds; and local `main`, the bare origin, `origin/main`, and
+`exec/story` all converge on the rewritten SHA with `main...origin/main`
+at `0/0` and a clean working tree. The refactor pass split the by-then
+366-line test file into `trunk-publication-local-main.test.mjs` (247 lines,
+all three `test(...)` calls) and a new
+`trunk-publication-local-main-test-fixtures.mjs` (115 lines, shared
+`createCleanTrunkFixture()`/`assertPublicationAgreement()`/helpers),
+matching this project's existing `*-test-fixtures.mjs` convention; the
+literal proof command is unchanged. `node --test
+src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+passes (3/3). Delivered on branch
+`worktree-033-synchronize-local-main-after-trunk-publication`.
 
 ## Current decisions
 
