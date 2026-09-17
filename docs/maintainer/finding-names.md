@@ -410,7 +410,17 @@ consult both lists when matching findings or allocating identities.
   ODF-013 and ODF-023 retain distinct causes and evidence.
 - **Released in:** 0.3.14 (`3446f62`; first containing tag `v0.3.14`). The
   Pygardon 0.3.18 occurrence above demonstrates recurrence after release.
-- **Follow-up:** [Act on decisive optimization checkpoints before continuing](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010 story 6; queued, not resolved. On delivery, record the actual response and first containing release here.
+- **Follow-up:** [Act on decisive optimization checkpoints before continuing](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010 story 6 (plan recoverable at `.planning/quick/055-stop-invalidated-optimization-paths/PLAN.md`), slice 1; delivered. Response: `dough-test-optimization`
+  (`src/skills/dough-test-optimization/SKILL.md`) now records a decisive
+  checkpoint's measurement, remaining-gap comparison, invalidated strategy
+  assumption, and selected authorized decision as an explicit obligation in
+  the plan's Current decisions before another dependent experiment is
+  dispatched, and `dough-execute-plan`
+  (`src/skills/dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work`)
+  enforces that recorded decision at its existing next-slice boundary without
+  recomputing the remaining-gap comparison, which stays solely owned by
+  `dough-test-optimization`; source commit `b39f967`. First containing release
+  pending until the maintainer's combined release publishes.
 
 ## ODF-024 — Packaged demo invocation loses approved host isolation
 
