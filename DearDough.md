@@ -1,5 +1,37 @@
 # DearDough Process Findings
 
+## DD-053 — Take-queued-work claim staging assumes exclusive backlog ownership
+
+The take-queued-work guidance says to stage the backlog path as a whole when
+committing an isolated **Taken** claim. It does not address a concurrent
+session's own uncommitted, unrelated edits already present in that same
+tracked file at claim time; staging the whole path would have folded that
+other session's unreviewed draft content into this execution's claim commit.
+
+### Occurrences
+
+- Execution: `SEED-004#run-standalone-manual-testing-in-isolated-execution @ 290d30d`
+  - Timestamp: 2026-09-17T12:08:37+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: modified; revision 9e6ce93; base 0.3.24
+  - Evidence: Before the claim, `git status --short` on `.planning/PRODUCT-BACKLOG.md`
+    and `.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` already showed
+    unstaged modifications (a "Publish Trunk Mode from local main" story
+    capture) with mtimes ~2 minutes old, not owned by this execution.
+    Following the literal "stage only the backlog path" instruction would have
+    staged that unrelated addition together with this claim's move of one
+    entry to Taken.
+  - Observed effect: The claim was instead built by staging a hand-constructed
+    target blob via `git hash-object`/`git update-index` for only the intended
+    move, leaving the concurrent session's edits untouched and unstaged; commit
+    `290d30d` contains only the claim's own change.
+  - Inference: The guidance's "stage only the backlog path" step assumes the
+    backlog file has no concurrent uncommitted edits from another session at
+    claim time; when it does, whole-path staging would misattribute unreviewed
+    content into the claim commit. A hunk- or content-aware staging fallback
+    for this case is not currently documented.
+
 ## ODF-001 — Mixed execution changes obscure commit provenance
 
 Former local code: DD-001.
