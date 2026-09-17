@@ -60,8 +60,21 @@ that the shared source still installs through the existing payload mechanism.
 
 ### 1. Keep one stable workspace for standalone manual testing
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in review and focused commands above pass.
+
+Delivered by revising `src/skills/dough-manual-testing/SKILL.md` directly: a
+new `## Prepare` opening paragraph settles which checkout to use (an
+already-established story/plan-slice/caller-selected/other-workflow checkout
+is reused without nesting; otherwise a temporary branch and paired worktree
+are created from the verified current revision before checkout-bound setup,
+reused and re-verified across the session and any resume, with the
+originating checkout unchanged and no claim of isolating shared external test
+state), and a `## Report` addition covers normal cleanup order (owned
+artifacts, then the clean worktree and branch) and unsafe-cleanup retention
+and reporting. Reviewed against all five outside-in proof cases;
+`npm run lint` and `bash tests/install-all-tools.sh` pass. A dedicated
+post-change refactor pass found no further changes needed.
 
 Behavior: Given a standalone manual-testing request that needs a project
 checkout and supplies no checkout, when preparation begins, the agent creates
