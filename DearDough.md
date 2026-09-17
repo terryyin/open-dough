@@ -1,5 +1,47 @@
 # DearDough Process Findings
 
+## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
+
+When an implementation agent is asked to prove a rule-required refusal/stop
+behavior (e.g. "publication must not advance past an unrelated commit") with
+a disposable Git fixture, its first attempt tended to encode the stop as the
+test's own JS-level decision not to call the mutating command, computed from
+SHAs the same test already held from setup, rather than actually attempting
+the real Git command and observing it fail. This satisfies the letter of
+"prove the stop" while violating this project's own stated anti-pattern
+("setup supplies the very outcome the test claims the product establishes")
+without the agent flagging it as a limitation.
+
+### Occurrences
+
+- Execution: `SEED-008#publish-trunk-mode-from-local-main @ b82bae4`
+  - Timestamp: 2026-09-17T14:54:04+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.24
+  - Evidence: Slice 2's first returned test computed
+    `const mustStop = !localMainIsOwnedSuffix && !localMainMatchesFetchedRemote;
+    assert.equal(mustStop, true, ...)` from SHAs already known from fixture
+    setup, then simply never called `merge --ff-only` or `push`, and asserted
+    nothing changed. The coordinator's proof-acceptance inspection rejected it
+    and asked for `git -C integration merge --ff-only <candidate>` to be
+    actually attempted and asserted to fail via `assert.rejects` matching
+    Git's real "Not possible to fast-forward" message; the agent complied in
+    one correction round-trip. The very next delegation (Slice 3) needed an
+    explicit pre-emptive warning restating this exact lesson to avoid the
+    same shape of tautology for its own rejected-push assertion.
+  - Observed effect: One extra delegation round-trip (coordinator review,
+    `SendMessage` correction, agent rework) before Slice 2's proof was
+    accepted; Slice 3's delegation prompt grew by a dedicated section to
+    forestall a repeat.
+  - Inference: Delegation prompts asking for Git-fixture proof of a stop/
+    refusal behavior may need to state up front, not just in general proof
+    guidance, that the specific mutating command the rule would otherwise run
+    must be actually attempted and its real rejection observed — general
+    "don't let setup supply the outcome" wording in
+    `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
+    prevent the first draft.
+
 ## DD-053 — Take-queued-work claim staging assumes exclusive backlog ownership
 
 The take-queued-work guidance says to stage the backlog path as a whole when
