@@ -4,11 +4,13 @@ Planned and planless work default to Story Branch Mode: one execution branch and
 Git worktree for the selected work. Explicit `--trunk` uses Trunk Mode: still
 one retained local execution branch and worktree, with claim and increment
 publication as in [trunk publication](trunk-publication.md). Explicit caller selection uses the
-current branch instead. After the claim is established for the selected mode,
-create the branch/worktree from that revision before delegation. When no claim
-applies, including authorized contextual planless work, use verified current
-HEAD and create no story, plan, or queue entry; still create the local
-execution workspace from that HEAD unless the caller selected the current
+current branch instead. Establish any queue claim first under
+[Take queued work](../SKILL.md#take-queued-work). After that commit succeeds,
+Story Branch and Trunk modes create their branch/worktree from that revision
+before delegation; caller-selected current-branch work continues from that same
+committed revision. When no claim applies, including authorized contextual
+planless work, use verified current HEAD and create no story, plan, or queue
+entry; still create the local execution workspace from that HEAD unless the caller selected the current
 branch. Resolve names and safe location from project conventions and ordinary
 host Git facilities. Missing conventions, unsafe location, or creation failure
 stops setup; preserve and report the claim and created resources. Use no
@@ -17,10 +19,12 @@ parallel registry, configuration format, or worktree manager.
 After successful setup and before delegation, retain one execution identity in
 the existing plan when one exists, and in the conversation:
 
-- originating checkout and branch, where the claim was recorded if any;
+- originating checkout and resolved integration branch, where the claim was
+  recorded if any;
 - execution checkout and branch for implementation and delivery;
-- integration checkout and branch, and the authorized remote target, defaulting
-  the branch to `main` only when neither caller nor project supplies one;
+- integration checkout and branch for later integration or publication, and the
+  authorized remote target, defaulting the branch to `main` only when neither
+  caller nor project supplies one;
 - selected mode;
 - retained published revisions when Trunk Mode has published any — this
   execution's review attribution in the existing plan or conversation, not a

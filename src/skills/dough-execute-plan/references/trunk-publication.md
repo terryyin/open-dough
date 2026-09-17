@@ -13,12 +13,12 @@ exists; retain its published SHA and register it after the observer is armed.
 
 ## Publish a queue claim
 
-After the local Taken claim commit succeeds on the originating branch, publish
-that claim with the steps below, then create the local execution
-branch/worktree from the published revision. Do not start implementation from
-an unpublished claim. An unavailable destination or failed publication leaves
-the exact remaining state and does not authorize starting unclaimed queued
-work.
+After [Take queued work](../SKILL.md#take-queued-work) commits the local Taken
+claim on the resolved integration branch, publish it with the steps below, then
+create the local execution branch/worktree from the published revision. Do not
+start implementation from an unpublished claim. An unavailable destination or
+failed publication leaves the exact remaining state and does not authorize
+starting unclaimed queued work.
 
 ## Publish a verified increment
 
