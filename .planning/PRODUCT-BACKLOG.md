@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Act on decisive optimization checkpoints before continuing](seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010
-
 ## Backlog list
 
 - [Publish Trunk Mode from local main](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-trunk-mode-from-local-main) — SEED-008

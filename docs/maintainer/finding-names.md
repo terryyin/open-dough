@@ -410,7 +410,10 @@ consult both lists when matching findings or allocating identities.
   ODF-013 and ODF-023 retain distinct causes and evidence.
 - **Released in:** 0.3.14 (`3446f62`; first containing tag `v0.3.14`). The
   Pygardon 0.3.18 occurrence above demonstrates recurrence after release.
-- **Follow-up:** [Act on decisive optimization checkpoints before continuing](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#act-on-decisive-optimization-checkpoints) — SEED-010 story 6 (plan recoverable at `.planning/quick/055-stop-invalidated-optimization-paths/PLAN.md`), slice 1; delivered. Response: `dough-test-optimization`
+- **Follow-up:** SEED-010 story 6 (closed; story and plan recoverable at
+  `c856d52:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md` and
+  `c856d52:.planning/quick/055-stop-invalidated-optimization-paths/PLAN.md`),
+  slice 1; delivered. Response: `dough-test-optimization`
   (`src/skills/dough-test-optimization/SKILL.md`) now records a decisive
   checkpoint's measurement, remaining-gap comparison, invalidated strategy
   assumption, and selected authorized decision as an explicit obligation in
