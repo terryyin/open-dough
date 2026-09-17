@@ -1,3 +1,11 @@
+## 0.3.24 - 2026-09-17
+
+- Add optional Trunk Mode to planned execution while preserving Story Branch Mode as the default. Publish queue claims and verified increments from an isolated worktree onto the shared trunk, rebase only the owned unpublished suffix after concurrent updates, resolve compatible edits from both contributors' intent, and leave ambiguous or repeatedly rejected publication recoverable.
+- Bind Trunk Mode CI observation and repair to the exact registered published revision. Resume interrupted publication from repository evidence, exclude sibling and rewritten commits from review attribution, publish both wrap-up closure commits before deleting recoverable history, and remove execution resources only after durable publication and observer shutdown.
+- Let the Cursor CI host hook attach to observer mailboxes created by another worktree of the same repository after a readiness probe, while rejecting unrelated checkouts. Add deterministic coverage for worktree mailbox identity, target-branch publication and repair, fragmented hook timing, and resume behavior.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.24`. Acceptance for the new Trunk Mode lifecycle, Cursor worktree observer attachment, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.23 - 2026-09-16
 
 - Add `dough-manual-testing` to the installable payload. Plan bounded manual or exploratory missions across web, CLI, API, desktop, or combined surfaces; recover the product oracle from current project evidence; preserve usable prepared state; and report only actionable findings, material gaps, or exactly `Good.` when coverage completes cleanly.
