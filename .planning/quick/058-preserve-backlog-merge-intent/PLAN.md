@@ -102,9 +102,21 @@ navigation. Retain existing allocated values; relocation is not re-identificatio
 
 ### 1. Keep reconciliation proof cohesive and fully discovered
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog.sh` must discover and pass the same 76
 existing cases without skips before behavior changes.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 76 tests, 76 pass, 0
+fail, 0 skipped, matching the `2941a3d` baseline. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects. Inspected locations: the `node --test`
+discovery list in `tests/product-backlog.sh`, which now names the five merge
+files; `tests/support/product-backlog-merge-fixture.mjs` `versions()`, which
+supplies only the three version files and the argv naming them; and
+`tests/support/product-backlog-merge-items.test.mjs` "merge items keeps both
+branches' closures", which observes the destination's whole bytes after the run.
+Preservation was verified directly: the 29 merge test names are identical before
+and after the split and both sides hold 130 `assert.` calls.
 
 Split the oversized merge test file by cohesive behavior, keeping affected
 files within the current size guidance. Preserve meaningful CLI journeys and
@@ -114,6 +126,20 @@ same slice. This directly owns the evidenced test-structure correction and
 enables the following behavior changes. No assertion downgrade or test
 removal is justified by the current approximately 1.3-second suite runtime.
 Sizing: one test-organization change and one full focused proof loop.
+
+Learnings: `tests/product-backlog.sh` has no glob discovery, so every later
+slice adding a merge test file must extend its explicit `node --test` list or
+those cases silently stop running. Helper modules that are not `*.test.mjs` are
+safe in `tests/support/`, which neither the runner's list nor `scripts/test.sh`
+discovers. `tests/support/product-backlog-merge-direction.test.mjs` sits at 242
+of the 250-line guidance, so slice 3's report assertions should budget a further
+combine/refusal split there rather than discover it late. Slices 2, 3 and 6 now
+have obvious homes: removal-versus-priority refusal in the order or items
+refusal file, one-sided reorder reporting in
+`tests/support/product-backlog-merge-order.test.mjs`, and relocated-item
+reconciliation in `tests/support/product-backlog-merge-items.test.mjs`.
+`DearDough.md:20` still names the deleted merge test file inside DD-055's
+evidence; that is a record of what was observed at `ff8987d`, so it stays.
 
 ### 2. Stop when removal conflicts with changed queue priority
 Type: Behavior
@@ -246,3 +272,22 @@ unrelated Claude background-mode refinement and is excluded.
 | `d7af102` | Earlier review findings and successor obligations |
 | `46ce42d` | Integrated core; recoverable final execution record |
 | `b017cc5` | Closure/cleanup; current revision reviewed |
+
+## Execution identity
+
+Execution started 2026-09-18 by an explicit `/dough-execute-plan 58` request.
+
+- Originating checkout: `/Users/terryyin/git/open-dough`; resolved integration
+  branch `main`. This correction is absent from both active backlog lists, so no
+  queue claim or **Taken** transition applies.
+- Execution checkout: `/tmp/open-dough-058.m8uW3C/worktree`; execution branch
+  `claude/quick-058-preserve-backlog-merge-intent`, created from `2941a3d`.
+- Integration checkout: `/Users/terryyin/git/open-dough`, branch `main`;
+  authorized remote target `origin`, pushing the execution branch.
+- Mode: Story Branch Mode. Replanning permission: preserved existing authority
+  (neither `--replan` nor `--no-replan` was supplied).
+- CI: GitHub Actions, verified workflow selector `ci.yml` and display name `CI`,
+  observing branch `claude/quick-058-preserve-backlog-merge-intent`. Observer
+  directory `/tmp/dough-ci-501/watch-YjbHWt`; host bridge readiness confirmed.
+- Pre-execution baseline: `bash tests/product-backlog.sh` passed 76 tests with
+  0 failures and 0 skips at `2941a3d`.
