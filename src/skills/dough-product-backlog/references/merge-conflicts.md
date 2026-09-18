@@ -28,7 +28,9 @@ without asking for confirmation.
    target. Do not choose an entire side or union the surviving entries.
 3. Preserve unrelated titles, links, direction text, and queue order. Retain
    compatible explicit reprioritization; taking or removing work does not
-   reprioritize the remaining queue.
+   reprioritize the remaining queue. An entry that only shifts position behind
+   work a side took or removed keeps its priority; a reprioritization is a
+   change to an entry's place among the entries around it.
 4. In **Taken**, retain surviving existing entries in order, then append new
    entries while preserving each side's addition order. Unless the project
    supplies a convention, interleave concurrent additions by repeatedly choosing
@@ -36,8 +38,10 @@ without asking for confirmation.
    side, emitting each identity once. Do not use this rule for queue priority.
 5. If identity, incompatible changes, or competing order remains unresolved,
    preserve the conflict and ask the human for the specific missing decision.
-   For example, removal versus an explicit return to the queue requires a
-   decision when available context does not establish which intent applies.
+   For example, one side removing B while the other side gives B a different
+   place in the queue requires a decision: removing work and reprioritizing it
+   are different intentions, and neither wins because available context does
+   not establish which one applies.
 6. Before completing the merge or continuing the rebase/cherry-pick, inspect the
    staged backlog against the per-identity changes from step 1. Verify both sides'
    intended changes are represented, each active identity appears once across

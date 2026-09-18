@@ -15,6 +15,7 @@
 import {
   mergeValue,
   mergeWork,
+  reorderedWork,
   sameState,
 } from "./product-backlog-combine.mjs";
 import { directionHeading } from "./product-backlog-direction.mjs";
@@ -71,10 +72,29 @@ export function mergeBacklogs(request) {
   const [ancestor, one, other] = versions;
   const { groups, keyOf } = groupWork(versions);
 
+  const orderIn = (version, list) =>
+    version.entries
+      .filter((entry) => entry.list === list)
+      .map((entry) => keyOf.get(entry));
+
+  // Which work each branch gave another place in the queue, established once
+  // from the queue's order and then asked of each work item. A place in the
+  // queue is a priority, so it is part of what a branch said about that work;
+  // the Taken list is the display order of claimed work rather than a
+  // priority, so a place in it says nothing about the work itself.
+  const ancestralQueue = orderIn(ancestor, queueHeading);
+  const reprioritizedIn = new Map(
+    [one, other].map((version) => [
+      version.label,
+      reorderedWork(ancestralQueue, orderIn(version, queueHeading)),
+    ]),
+  );
+  const reprioritized = (label, key) => reprioritizedIn.get(label).has(key);
+
   const conflicts = [];
   const merged = new Map();
   for (const group of groups) {
-    const outcome = mergeWork(group, versions);
+    const outcome = mergeWork(group, versions, reprioritized);
     if (outcome.conflict) {
       conflicts.push(outcome.conflict);
     } else {
@@ -82,10 +102,6 @@ export function mergeBacklogs(request) {
     }
   }
 
-  const orderIn = (version, list) =>
-    version.entries
-      .filter((entry) => entry.list === list)
-      .map((entry) => keyOf.get(entry));
   const listed = {};
   for (const list of [takenHeading, queueHeading]) {
     const held = new Set(

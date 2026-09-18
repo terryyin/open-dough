@@ -1,12 +1,81 @@
-// Where the three supplied versions do not determine one order — two branches
-// moving one entry different ways, or two branches wanting the same place for
-// different work — deciding which comes first is a priority decision, so the
-// real backlog CLI hands it back: a diagnostic naming the competing placements,
-// a nonzero exit, and the destination left exactly as it was.
+// Where work sits in the queue is its priority, and where the three supplied
+// versions do not settle it between them — two branches moving one entry
+// different ways, two branches wanting the same place for different work, or
+// one branch removing the work the other branch reprioritized — the decision
+// belongs to a human, so the real backlog CLI hands it back: a diagnostic
+// naming the competing intentions, a nonzero exit, and the destination left
+// exactly as it was. The places these versions do settle, including the ones a
+// branch's removals only shifted, are established by
+// `product-backlog-merge-order.test.mjs` and
+// `product-backlog-merge-items.test.mjs`.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf, run, scratchProject } from "./product-backlog-fixture.mjs";
-import { list, named, versions } from "./product-backlog-merge-fixture.mjs";
+import {
+  backlogOf,
+  occurrences,
+  run,
+  scratchProject,
+} from "./product-backlog-fixture.mjs";
+import {
+  branchFrom,
+  list,
+  named,
+  versions,
+} from "./product-backlog-merge-fixture.mjs";
+
+test("merge order refuses completing work the other branch reprioritized", async (t) => {
+  // Both branch versions are the real operations' own doing. From the queue
+  // A, B, C, D one branch completed B, and closed the unrelated A with it; the
+  // other gave B the last place in the queue. Closing A moves everything
+  // behind it up a place without reprioritizing any of it, so B's competing
+  // removal and priority is the only thing in dispute.
+  const ancestor = backlogOf([], list("ABCD"));
+  const project = scratchProject(t, ancestor);
+  const closed = await branchFrom(
+    t,
+    ancestor,
+    ["complete", "--identity", named("B")],
+    ["complete", "--identity", named("A")],
+  );
+  const last = ["place", "--identity", named("B"), "--position", "last"];
+  const reprioritized = await branchFrom(t, ancestor, last);
+
+  const refused = await run(
+    project,
+    versions(project, ancestor, closed, reprioritized),
+  );
+  assert.equal(refused.code, 1);
+  assert.equal(project.read(), ancestor, "the destination was written");
+  assert.match(
+    refused.stderr,
+    new RegExp(
+      `"${named("B")}": the first branch version removes it while the second ` +
+        `branch version gives it a different place in the queue, which is ` +
+        `its priority\\. Removing work and reprioritizing it are different ` +
+        `intentions`,
+    ),
+  );
+  // No other entry is in dispute: A was closed on one branch and left alone on
+  // the other, and C and D only shifted up behind the closures.
+  for (const letter of "ACD") {
+    assert.equal(occurrences(refused.stderr, named(letter)), 0, letter);
+  }
+
+  // Neither intention wins by being named first.
+  const swapped = await run(
+    project,
+    versions(project, ancestor, reprioritized, closed),
+  );
+  assert.equal(swapped.code, 1);
+  assert.equal(project.read(), ancestor, "the destination was written");
+  assert.match(
+    swapped.stderr,
+    new RegExp(
+      `"${named("B")}": the second branch version removes it while the first ` +
+        `branch version gives it a different place in the queue`,
+    ),
+  );
+});
 
 test("merge order refuses two branches moving one entry different ways", async (t) => {
   // The case an ordinary text merge accepts and then duplicates: each branch

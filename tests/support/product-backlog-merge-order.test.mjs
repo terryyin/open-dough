@@ -12,6 +12,7 @@ import {
   scratchProject,
 } from "./product-backlog-fixture.mjs";
 import {
+  branchFrom,
   item,
   list,
   named,
@@ -74,6 +75,35 @@ test("merge order does not read an untouched order as undoing a reprioritization
   assert.equal(merged.code, 0, merged.stderr);
   assert.equal(project.read(), backlogOf([], list("BA")));
   assert.equal(occurrences(project.read(), item("C")), 0);
+});
+
+test("merge order does not read work shifting up behind a removal as a reprioritization", async (t) => {
+  // Both branch versions are the real operations' own doing. From A, B, C, D
+  // one branch completed A and gave D the place above C; the other completed
+  // B. Every surviving entry ends up at a different numbered position than the
+  // ancestor gave it, and only D and C had their place among the others
+  // changed, so both closures apply and the one reprioritization stands.
+  const ancestor = backlogOf([], list("ABCD"));
+  const project = scratchProject(t, ancestor);
+  const reprioritized = await branchFrom(
+    t,
+    ancestor,
+    ["complete", "--identity", named("A")],
+    ["place", "--identity", named("D"), "--before", named("C")],
+  );
+  const closed = await branchFrom(t, ancestor, [
+    "complete",
+    "--identity",
+    named("B"),
+  ]);
+
+  const merged = await run(
+    project,
+    versions(project, ancestor, reprioritized, closed),
+  );
+
+  assert.equal(merged.code, 0, merged.stderr);
+  assert.equal(project.read(), backlogOf([], list("DC")));
 });
 
 test("merge order appends concurrent claims to Taken and will not order a queue that way", async (t) => {

@@ -143,7 +143,7 @@ evidence; that is a record of what was observed at `ff8987d`, so it stays.
 
 ### 2. Stop when removal conflicts with changed queue priority
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the real CLI suite, then run `bash tests/product-backlog.sh`.
 
 From [A,B,C,D], generate one branch by completing B and the other by placing B
@@ -165,6 +165,47 @@ not recover operation history; genuinely ambiguous attribution remains a stop.
 Sizing concern: deriving changed relationships without treating unchanged
 relative order as intent is the substantive design work. Reassess this slice
 if it accumulates fixture-specific exceptions; do not broaden merge policy.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 78 tests, 78 pass, 0
+fail, 0 skipped. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects. Inspected locations:
+`tests/support/product-backlog-merge-order-refusals.test.mjs` "merge order
+refuses completing work the other branch reprioritized", which observes exit 1,
+the destination's bytes equal to the ancestor under both branch orderings, the
+stderr naming the disputed identity with both intentions, and zero occurrences
+of every other identity; and
+`tests/support/product-backlog-merge-order.test.mjs` "merge order does not read
+work shifting up behind a removal as a reprioritization", which observes exit 0
+and the whole destination. Both branch versions are produced by running the real
+`complete` and `place` commands through the new `branchFrom` fixture helper, so
+no expected branch text is assumed. The coordinator additionally reproduced the
+plan's literal scenario against the changed CLI outside the suite: exit 1, the
+destination unchanged, and the diagnostic naming both intents, where the audited
+revision exited 0 and published [A,C,D].
+
+Design as delivered: `reorderedWork(ancestral, order)` in
+`product-backlog-combine.mjs` derives one account of changed queue relationships,
+computed once per branch in `mergeBacklogs` and asked of each work item by the
+existing `mergeWork`. It compares only the entries both versions list, so work
+that shifted up behind taken or removed work is never read as reprioritized, and
+it blames the smallest account of the difference, naming every entry a maximal
+reading blames rather than inferring one. The Taken list deliberately does not
+feed the account, because a place there is display order rather than priority.
+
+Learnings: a take (queue to **Taken**) competing with a reprioritization of the
+same work still merges successfully, with the work ending in **Taken** and its
+queue place moot. That is unchanged prior behavior, left alone because this
+slice is bounded to removal versus priority and the plan forbids broadening
+merge policy. It is a genuine judgment call worth a human decision later, not a
+defect this correction fixed. Test-file headroom under the 250-line guidance is
+now tight: `product-backlog-merge-order-refusals.test.mjs` 223,
+`product-backlog-merge-order.test.mjs` 221, and
+`product-backlog-merge-direction.test.mjs` 242, so slice 3's report assertions
+should budget a split rather than discover the limit late. Slice 3 can reuse the
+account this slice established: `mergeBacklogs` now holds the per-branch
+reprioritization sets beside the merged work, so `transitions()` can report a
+one-sided reorder without a second algorithm.
 
 ### 3. Report actual reconciled changes without false no-change claims
 Type: Behavior
