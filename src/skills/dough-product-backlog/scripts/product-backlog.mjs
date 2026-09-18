@@ -3,73 +3,35 @@
 // backlog file. It applies a decision; it never decides value, priority,
 // prerequisites, completion, or who may execute the work.
 
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
 import { adoptIdentities } from "./product-backlog-adopt.mjs";
 import { completeEntry } from "./product-backlog-complete.mjs";
 import { setDirection } from "./product-backlog-direction.mjs";
+import { mergeBacklogs } from "./product-backlog-merge.mjs";
 import { placeEntry } from "./product-backlog-place.mjs";
 import { refreshEntry } from "./product-backlog-refresh.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
+import {
+  options,
+  readPlacement,
+  readPlan,
+  resolvePath,
+} from "./product-backlog-request.mjs";
 import {
   reportAdd,
   reportAdopt,
   reportComplete,
   reportDirection,
+  reportMerge,
   reportPlace,
   reportRefresh,
   reportTake,
 } from "./product-backlog-report.mjs";
-import {
-  applyToBacklog,
-  defaultBacklogPath,
-} from "./product-backlog-store.mjs";
+import { applyToBacklog } from "./product-backlog-store.mjs";
 import { takeEntry } from "./product-backlog-take.mjs";
 import { usage } from "./product-backlog-usage.mjs";
-
-const options = {
-  identity: { type: "string" },
-  title: { type: "string" },
-  link: { type: "string" },
-  after: { type: "string" },
-  before: { type: "string" },
-  position: { type: "string" },
-  plan: { type: "string" },
-  "no-plan": { type: "boolean", default: false },
-  text: { type: "string" },
-  clear: { type: "boolean", default: false },
-  expect: { type: "string" },
-  "expect-none": { type: "boolean", default: false },
-  return: { type: "boolean", default: false },
-  all: { type: "boolean", default: false },
-  file: { type: "string", default: defaultBacklogPath },
-  help: { type: "boolean", default: false },
-};
-
-function readPlacement(values) {
-  const chosen = ["after", "before", "position"].filter(
-    (name) => values[name] !== undefined,
-  );
-  if (chosen.length !== 1) {
-    throw new BacklogError(
-      `Supply exactly one of --after, --before, or --position; found ${chosen.length}.`,
-    );
-  }
-  if (
-    values.position !== undefined &&
-    !["first", "last"].includes(values.position)
-  ) {
-    throw new BacklogError(
-      `--position accepts "first" or "last"; found "${values.position}".`,
-    );
-  }
-  return {
-    after: values.after,
-    before: values.before,
-    position: values.position,
-  };
-}
 
 async function add(file, values) {
   const request = {
@@ -106,18 +68,6 @@ async function place(file, values) {
   );
 
   console.log(reportPlace(outcome, values.file));
-}
-
-// The caller always states whether the work has an active plan, so a planned
-// story can never be taken without its link by leaving an option out.
-function readPlan(values) {
-  if ((values.plan !== undefined) === values["no-plan"]) {
-    throw new BacklogError(
-      `Supply exactly one of --plan <path> or --no-plan, so that taking work ` +
-        `always states whether it has an active plan.`,
-    );
-  }
-  return values.plan;
 }
 
 async function take(file, values) {
@@ -196,7 +146,32 @@ async function adopt(file, values) {
   console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, place, take, complete, refresh, direction, adopt };
+// The destination's own bytes are deliberately not read. A merge is run on a
+// file that may still hold whatever an integration left in it, so what the
+// result should say comes from the three supplied versions alone; the write
+// boundary still serializes this run against every other script writer, and a
+// refused merge still leaves the destination exactly as it was.
+async function merge(file, values) {
+  const outcome = await applyReportedChange(file, () =>
+    mergeBacklogs({
+      ancestor: resolvePath(values.ancestor),
+      branches: values.branch?.map(resolvePath),
+    }),
+  );
+
+  console.log(reportMerge(outcome, values.file));
+}
+
+const operations = {
+  add,
+  place,
+  take,
+  complete,
+  refresh,
+  direction,
+  adopt,
+  merge,
+};
 
 async function main(argv) {
   let parsed;
@@ -217,7 +192,7 @@ async function main(argv) {
       `Unknown operation: ${positionals.join(" ") || "(none)"}\n\n${usage}`,
     );
   }
-  await operations[named](resolve(process.cwd(), values.file), values);
+  await operations[named](resolvePath(values.file), values);
 }
 
 try {

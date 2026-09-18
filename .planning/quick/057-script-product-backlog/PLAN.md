@@ -338,7 +338,7 @@ Hypothesis: one value update with the same validated write boundary.
 
 ### 8. Reconcile identified work across three backlog versions
 Type: Behavior
-Status: planned
+Status: done (2026-09-18)
 Proof: `node --test --test-name-pattern='merge items' tests/support/product-backlog-merge.test.mjs`
 
 Given ancestor and two branch versions, combine compatible ID-keyed membership
@@ -901,6 +901,85 @@ after the split.
 
 Slice 14 now also has `product-backlog-direction.mjs`,
 `product-backlog-refusal.mjs`, and `product-backlog-identity.mjs` to declare.
+
+### Slice 8 (done)
+
+New CLI verb `merge --ancestor <path> --branch <path> --branch <path>
+[--file <path>]`, which reads three ordinary backlog files and writes one
+complete reconciled backlog, or leaves the destination untouched and reports
+what it will not decide. New modules: `product-backlog-combine.mjs` (110, the
+rule), `-merge.mjs` (181), `-version.mjs` (197), `-work.mjs` (92), and
+`-request.mjs` (71, the shared reading of a request's options and paths,
+extracted because this verb pushed the CLI past the size seam).
+
+Decisions and observations that bind later slices:
+
+- **The verb is deliberately not Git-aware.** It consumes three files named on
+  the command line and knows nothing about index stages, `MERGE_HEAD`, or
+  rebase state. Slices 11–13 own placing it inside a Git operation and must
+  supply the three versions themselves; they must not push Git knowledge down
+  into these modules.
+- **The reconciliation is one rule, asked three times.** `mergeValue` is a
+  plain three-way comparison; `mergeWork` asks it of each value of one work
+  item; `mergeOrder` asks it of a list's order. There is no per-scenario
+  recogniser anywhere, and the plan's named cases fall out of the rule rather
+  than each being detected. Slices 9 and 10 extend what the rule is asked
+  about, not the rule.
+- **A value unchanged on one side is no evidence at all about the other side's
+  change.** This is the property that stops an entry no branch touched from
+  resurrecting an entry a branch removed, and it is what distinguishes this
+  from a surviving-line union. Flipping it to a union fails exactly the two
+  closure tests and the symmetry test.
+- **Removal versus change is handed back, not ordered.** A branch that removed
+  an item and a branch that changed it have stated different intentions about
+  the same work, and no lifecycle order (queued → taken → done) decides
+  between them. `mergeWork` refuses rather than picking one.
+- **The same-work relation across versions is the existing same-identity-OR-
+  same-canonical-home rule**, reused from `requireDistinctWork` rather than
+  restated. Identity alone would duplicate work across an adopted and a
+  non-adopted branch; canonical home alone would let a one-sided link refresh
+  resurrect a removal. When a chain of that relation makes one version say two
+  things about one item, the verb stops for a human.
+- **`requireEstablishedShape` refuses a version carrying a `## ` section
+  between the direction and the two lists.** That whole region is re-rendered
+  from the merged state, so such text would be silently dropped. This is a
+  silent-data-loss guard, not strictness for its own sake; do not weaken it.
+- **The destination is never read as an input.** The three named versions are
+  the only evidence, so running the verb twice with the same inputs gives the
+  same result, and a half-written destination cannot influence a merge.
+- **Argument order does not change the result.** Entries whose position no
+  version establishes are ordered by identity, so swapping the two `--branch`
+  arguments produces byte-identical output.
+
+Left explicitly unimplemented, with the seams named:
+
+- **Slice 9's interleaving case is not met yet.** Given `[A, B, C]` with X
+  added after A on one branch and Y after B on the other, slice 8 produces
+  `[A, B, C, X, Y]`, not `[A, X, B, Y, C]`. The seam is the `rest` computation
+  in `mergeBacklogs`. The Taken interleaving rule of
+  `references/merge-conflicts.md` step 4 (retain survivors in order, append
+  preserving each side's addition order, tie-break by lexically smallest
+  identity) is also slice 9's, as is proving the order-conflict refusal that
+  `mergeOrder` already implements but nothing yet exercises.
+- **Slice 10 owns the direction cases** the plan names: an identical direction
+  update on both branches applying once, deletion versus replacement, and
+  edits to different lines of one direction that ordinary Git text merging
+  would wrongly accept. The direction is already a single merged value in
+  `renderCandidate`; that is slice 10's seam.
+
+The post-change refactor collapsed three duplications without touching the
+rule: `directionLines` in `product-backlog-direction.mjs` is now the one owner
+of how a direction is written as lines (the merge renderer had become a second
+composer of that section); `valueNames` moved beside `stateOf` in
+`product-backlog-version.mjs`, so the state's values, their human names, and
+the state builder have one home and a value added to one cannot be silently
+compared by nothing; and the CLI now resolves its destination through
+`resolvePath` like every other path a request names. The import graph stays
+acyclic across all 23 modules with no new edges.
+
+Slice 14 now also has `product-backlog-combine.mjs`,
+`product-backlog-merge.mjs`, `product-backlog-version.mjs`,
+`product-backlog-work.mjs`, and `product-backlog-request.mjs` to declare.
 
 ## Coverage, stopping points, and remaining concerns
 

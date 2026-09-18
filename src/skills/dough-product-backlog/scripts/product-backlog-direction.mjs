@@ -56,6 +56,17 @@ export function directionOf(document) {
   return body.join("\n");
 }
 
+// The lines a direction is written as: its heading, the text exactly as it was
+// supplied, and the blank lines that hold both apart from what surrounds them
+// — or no lines at all when there is no direction. Recording a direction and
+// writing out a whole merged backlog compose the section here, so `directionOf`
+// always reads back what either of them wrote.
+export function directionLines(text) {
+  return text === ""
+    ? []
+    : [`## ${directionHeading}`, "", ...text.split("\n"), ""];
+}
+
 // What this request asks the direction to become, and the direction the caller
 // read it against. Both are stated the same way, and both are required: an
 // empty --text or --expect cannot be told apart from a variable the caller
@@ -134,12 +145,12 @@ export function setDirection(source, request) {
   );
 
   const section = sectionOf(document);
-  const block =
-    wanted === ""
-      ? []
-      : [`## ${directionHeading}`, "", ...wanted.split("\n"), ""];
   const lines = [...document.lines];
-  lines.splice(section.heading, section.end - section.heading, ...block);
+  lines.splice(
+    section.heading,
+    section.end - section.heading,
+    ...directionLines(wanted),
+  );
 
   // Reading the candidate back is what keeps the supplied text the recorded
   // text: anything that would not read back as supplied — a blank line at

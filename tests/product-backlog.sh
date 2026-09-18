@@ -15,6 +15,7 @@ node --test \
   tests/support/product-backlog-direction.test.mjs \
   tests/support/product-backlog-direction-refusals.test.mjs \
   tests/support/product-backlog-adopt.test.mjs \
-  tests/support/product-backlog-adopt-refusals.test.mjs
+  tests/support/product-backlog-adopt-refusals.test.mjs \
+  tests/support/product-backlog-merge.test.mjs
 
-echo 'PASS: scripted product backlog additions, placements, claims, completions, reference refreshes, direction updates, identity adoption, and write safety.'
+echo 'PASS: scripted product backlog additions, placements, claims, completions, reference refreshes, direction updates, identity adoption, three-version reconciliation, and write safety.'
