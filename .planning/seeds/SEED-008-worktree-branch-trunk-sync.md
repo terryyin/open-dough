@@ -202,11 +202,21 @@ solution if suitable; this capture authorizes no queue implementation.
 
 ### 4. Update the product backlog without hand-editing the shared list
 
-**Status:** Refined and planned 2026-09-18; first backlog priority. Execution
-has not started. [Slice plan](../quick/057-script-product-backlog/PLAN.md). Terry Yin
-confirmed stable identity, scripted conflict resolution, and delivery to all
-projects using Open Dough as scope. Scripted near-future direction updates and
-a bounded assessment of lightweight direct-edit protection are also in scope.
+**Status:** Executed and concluded 2026-09-18 at a deliberate boundary.
+[Slice plan](../quick/057-script-product-backlog/PLAN.md); slices 1-10 delivered.
+Terry Yin confirmed stable identity, scripted conflict resolution, and delivery to
+all projects using Open Dough as scope; scripted near-future direction updates and
+a bounded assessment of lightweight direct-edit protection were also in scope.
+
+This story now ends at the validated operations and the three-version
+reconciliation core that decides them. Gating real Git operations with that core,
+and delivering it through installed workflows, moved to
+[Gate Git backlog conflicts and deliver the scripted backlog](#gate-and-deliver-scripted-backlog),
+so a finished and proven core could be concluded without waiting on its
+integration. The plan was judged too large to run to its end in one execution;
+the boundary was chosen because nothing the delivered work adds is installed or
+referenced by any guidance, so concluding here changes nothing for any project
+using Open Dough.
 
 **Goal:** A developer or agent maintaining this project's product backlog can
 apply a clear update safely and deterministically, without spending AI judgment
@@ -552,6 +562,68 @@ expanding to complex enforcement. ID spelling, safe
 allocation, the write mechanism, and reconciliation approach remain design
 choices constrained by these outcomes; no separate registry, operation log,
 Git hook, or merge driver has been selected by refinement.
+
+<a id="gate-and-deliver-scripted-backlog"></a>
+
+### 6. Gate Git backlog conflicts and deliver the scripted backlog
+
+**Status:** Split out of
+[Update the product backlog without hand-editing the shared list](#script-product-backlog-list-updates)
+on 2026-09-18, after that story delivered and proved the operations and the
+reconciliation core. Refined to the extent that its predecessor's
+[slice plan](../quick/057-script-product-backlog/PLAN.md) already carries
+slices 11-17 with their proof commands, boundaries, and accumulated execution
+learnings. Re-plan before executing: seven slices was judged too large for one
+execution, and the delivered half changed what some of the remaining slices must
+say.
+
+**Goal:** The scripted backlog operations that now exist reach the developers and
+agents who need them, and hold at the moment they matter most — when an
+authorized merge, rebase, or cherry-pick leaves the shared list conflicted. Today
+the operations exist in this repository's source, are proven by 76 tests, and are
+installed nowhere: no installer declares them and no guidance mentions them. The
+observable outcome is that an ordinary install or update delivers them, that
+guidance directs an agent to the script instead of to hand-editing or intellectual
+conflict repair, and that a Git conflict in the backlog stops for the script's
+decision rather than for an agent's reconstruction.
+
+**Existing evidence and reuse:**
+
+- The reconciliation core is finished and reusable as it stands. It takes three
+  ordinary files, knows nothing about Git, refuses rather than guesses whenever
+  two branches decide the same thing differently, and never reads its destination
+  as input. Slices 11-13 supply it with the real ancestor and branch inputs from
+  index stages; they do not reopen how it decides.
+- Its refusals are deliberately strict, and one of them will be met often. Two
+  branches that each append to the queue put their new work in the same place,
+  and nothing in the versions says which comes first, so the merge stops for a
+  human. That was a chosen design position — priority is a human decision — but
+  it has never yet been felt in daily use, because nothing calls it from Git.
+  Decide before slice 11 whether it stays as is.
+- The root helper `scripts/product-backlog-insert.mjs` still exists and still
+  works, but now owns no rules that the new modules do not own better. Nothing
+  operational references it: only this seed and the slice plan mention it.
+- Installed guidance is untouched by the delivered work.
+  [SKILL.md](../../src/skills/dough-product-backlog/SKILL.md) and its
+  [merge rules](../../src/skills/dough-product-backlog/references/merge-conflicts.md)
+  are byte-identical to what they were before execution began, and both still
+  describe intellectual conflict repair.
+
+**Known obligations carried out of execution:** all 24 script modules must be
+declared in both `install.sh` and `src/install/open-dough-release-version.sh`;
+`merge-conflicts.md` must be rewritten as a calling contract, and its steps 3-5
+aligned with refusals that did not exist when it was written, including the
+undetermined queue position and the rule that a textually clean merge of the
+direction is not evidence of compatibility; guidance must tell a human what to do
+when a refusal fires, and must read `complete`'s repeat-removal nonzero exit as
+"the outcome already holds" rather than as a repair trigger; the root helper must
+be retired or delegated; and the `EISDIR` limit needs a decision.
+
+**Assumption to validate:** that the reconciliation core, which has only ever
+been given files a test wrote, behaves the same when given the real ancestor and
+branch content of an actual conflicted merge, rebase, and cherry-pick. Deriving
+those three inputs mechanically, before integration discards the context, is the
+part not yet demonstrated.
 
 ## Research and Architectural Context
 
