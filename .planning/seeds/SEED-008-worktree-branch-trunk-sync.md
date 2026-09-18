@@ -125,11 +125,71 @@ fresh execution workspace.
 manual-testing workspace behavior recoverable at `2df8c8e` and the existing
 `dough-execute-plan` workspace lifecycle.
 
+<a id="claude-code-background-mode"></a>
+
+### 5. Complete execution and wrap-up in fresh Claude Code background mode
+
+**Status:** Captured; second backlog priority. Not refined or planned.
+
+**For / why:** A developer starting Open Dough work in Claude Code background
+mode on a fresh setup can execute and wrap up a story successfully without
+Claude Code first having to learn that developer's preferred workflow.
+
+**Observed problem:** Claude Code background mode starts work in its own Git
+worktree and integrates the result through a pull request by default. The
+current `dough-execute-plan` and `dough-story-wrap-up` guidance instead assumes
+that it owns execution-worktree creation and that Story Branch Mode finishes by
+locally integrating the execution branch into the target branch and pushing
+that target. Existing learned user behavior can hide this mismatch, so an
+already-personalized Claude Code setup is not sufficient evidence.
+
+**Scope candidate:** Reproduce the workflow in a fresh Claude Code background
+setup, then adapt execution-location, retained-identity, delivery, integration,
+and cleanup behavior so the Open Dough lifecycle composes safely with the
+host-provided worktree and pull-request path. Keep one shared behavioral source
+and introduce only the smallest necessary host-specific adaptation. Do not
+depend on conversation history, learned preferences, manual rescue, or a
+nested/replacement worktree.
+
+**Evaluation:** From a fresh setup with no learned workflow preference, start a
+representative story in Claude Code background mode. The agent uses the
+host-provided worktree, completes `dough-execute-plan`, and runs
+`dough-story-wrap-up` through the pull-request integration lifecycle without
+attempting an unsafe local-main integration, losing recoverable work, or
+claiming completion before required integration and cleanup are complete. The
+run produces native evidence of the useful outcome rather than relying on
+self-report or an existing personalized session.
+
+**Value / learning:** This establishes whether Open Dough can cooperate with a
+materially different native activation and integration mode instead of working
+only after Claude Code has inferred one maintainer's intent. It also reveals
+which execution and closure rules are truly shared and which require a bounded
+host adaptation.
+
+**Effort hypothesis:** M, low confidence; the guidance change may be small, but
+fresh background-mode setup, pull-request lifecycle ownership, and cleanup
+timing need native observation.
+
+**Depends on:** A fresh Claude Code background environment with repository and
+pull-request access. No product prerequisite is known.
+
+**Architecture and boundaries:** Follow
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+by preserving recoverable, continuously integrated user-centric work;
+[ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires fresh native evidence because background mode is a materially
+different activation mode; and
+[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+requires shared behavior with only necessary host adaptation. This capture does
+not choose whether Claude Code, Open Dough, or a human owns pull-request merge
+and post-merge cleanup; refinement must resolve that boundary from observed
+native behavior. ADR 0007 remains Proposed and is not adopted by this story.
+
 <a id="same-machine-merge-queue"></a>
 
 ### 2. Queue trunk integration for agents on the same machine
 
-**Status:** Captured; third backlog priority. Not refined or planned.
+**Status:** Captured; fourth backlog priority. Not refined or planned.
 
 **Goal:** A developer running multiple agents in separate worktrees on the same
 machine gets orderly integration into their shared trunk without manually

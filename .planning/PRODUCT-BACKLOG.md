@@ -11,6 +11,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Backlog list
 
+- [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008
 - [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001
