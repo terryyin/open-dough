@@ -57,8 +57,13 @@ summary line can be wrong, or silently absent, without any test failing.
     and reviewed by two later slices.
   - Inference: Assertions followed the tests' attention — refusals, exit codes,
     published bytes — and the reported summary was treated as incidental.
-    Qualified: the delivered behavior is correct; what is missing is proof, not
-    a working outcome.
+    Qualified: the original review established missing proof, not a working
+    defect. Follow-up review at `b017cc5` disproved the broader claim that the
+    delivered report is correct: a real CLI merge of a one-sided queue reorder
+    publishes the changed order while printing "neither changed the ancestor".
+    `transitions()` omits order, so an empty report is not evidence of no change.
+    This is additional evidence for the same execution and assertion gap;
+    correction ownership is `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`.
 
 ## DD-057 — Delegated refactor pass stalled after editing and before reporting
 

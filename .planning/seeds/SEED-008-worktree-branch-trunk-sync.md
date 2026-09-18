@@ -202,14 +202,34 @@ solution if suitable; this capture authorizes no queue implementation.
 
 ### 6. Gate Git backlog conflicts and deliver the scripted backlog
 
-**Status:** Split on 2026-09-18 out of the completed story that scripted the
-product backlog, after it delivered and proved the operations and the
-reconciliation core. Refined to the extent that its predecessor's slice plan
-already carries slices 11-17 with their proof commands, boundaries, and
-accumulated execution learnings; that plan is spent history, recoverable at
+**Status:** Split on 2026-09-18 after the predecessor's slices 1-10 were marked
+complete. Delivery review subsequently found core defects; their corrections,
+including the human-confirmed relocation-safe identity contract, are owned by
+[Plan 058](../quick/058-preserve-backlog-merge-intent/PLAN.md).
+This story retains original slices 11-17 with their proof commands, boundaries,
+and accumulated execution learnings by reference to the predecessor plan,
+recoverable at
 `46ce42d:.planning/quick/057-script-product-backlog/PLAN.md`. Re-plan before
 executing: seven slices was judged too large for one execution, and the
 delivered half changed what some of the remaining slices must say.
+
+**Remaining scope from Plan 057:**
+
+| Original slice | Work retained by this story |
+| --- | --- |
+| 11 | Gate Git merge results, including clean-but-invalid results, and validate human repair before resuming |
+| 12 | Gate rebase reconciliation, preserve recoverable state, and prevent publication after failure |
+| 13 | Gate cherry-pick reconciliation and validate human repair before continuation |
+| 14 | Install/update the complete standalone script set and route ordinary workflows through it; core rule/identity guidance correction moves to Plan 058 |
+| 15 | Prove installed use and feasible lightweight native edit protection in Codex |
+| 16 | Prove installed use and feasible lightweight native edit protection in Cursor |
+| 17 | Prove installed use and feasible lightweight native edit protection in Claude Code |
+
+These are unexecuted inherited slices, not completed work or a new active
+executable plan. Replanning must preserve human-only failure/resume, validation
+of clean integrations, and the lightweight-guard feasibility boundary. Do not
+silently broaden enforcement or add AI repair. Plan 058 repairs the predecessor;
+it does not replace these seven remaining delivery responsibilities.
 
 **Goal:** The scripted backlog operations that now exist reach the developers and
 agents who need them, and hold at the moment they matter most — when an
@@ -223,17 +243,18 @@ decision rather than for an agent's reconstruction.
 
 **Existing evidence and reuse:**
 
-- The reconciliation core is finished and reusable as it stands. It takes three
-  ordinary files, knows nothing about Git, refuses rather than guesses whenever
-  two branches decide the same thing differently, and never reads its destination
-  as input. Slices 11-13 supply it with the real ancestor and branch inputs from
-  index stages; they do not reopen how it decides.
+- Reuse the reconciliation core after the corrections in Plan 058. It takes
+  three ordinary files, knows nothing about Git, and never reads its destination
+  as input. Review reproduced removal overriding reprioritization, false
+  no-change reports, and identity restrictions that violate the original scope.
+  The core is not frozen against correction. Slices 11-13 supply real ancestor
+  and branch inputs and must validate the corrected contract at the Git boundary.
 - Its refusals are deliberately strict, and one of them will be met often. Two
   branches that each append to the queue put their new work in the same place,
   and nothing in the versions says which comes first, so the merge stops for a
-  human. That was a chosen design position — priority is a human decision — but
-  it has never yet been felt in daily use, because nothing calls it from Git.
-  Decide before slice 11 whether it stays as is.
+  human. Priority remains a human decision under the agreed scope. Its daily-use
+  cost is unmeasured because nothing calls it from Git yet; that uncertainty
+  does not authorize an automatic tie-break or reopen the rule by default.
 - The root helper `scripts/product-backlog-insert.mjs` still exists and still
   works, but now owns no rules that the new modules do not own better. Nothing
   operational references it: only this seed and the slice plan mention it.
@@ -243,27 +264,28 @@ decision rather than for an agent's reconstruction.
   are byte-identical to what they were before execution began, and both still
   describe intellectual conflict repair.
 
-**Known obligations carried out of execution:** all 24 script modules must be
+**Known obligations carried out of execution:** the complete runtime script set must be
 declared in both `install.sh` and `src/install/open-dough-release-version.sh`;
-`merge-conflicts.md` must be rewritten as a calling contract, and its steps 3-5
-aligned with refusals that did not exist when it was written, including the
-undetermined queue position and the rule that a textually clean merge of the
-direction is not evidence of compatibility; guidance must tell a human what to do
+`merge-conflicts.md` must be rewritten as a script calling/recovery contract,
+using the corrected domain rules from Plan 058. Git integration must enforce
+undetermined queue-position refusal and scalar direction reconciliation even
+when the text merge is clean. Guidance must tell a human what to do
 when a refusal fires, and must read `complete`'s repeat-removal nonzero exit as
 "the outcome already holds" rather than as a repair trigger; the root helper must
 be retired or delegated; and the `EISDIR` limit needs a decision.
 
-**Proof gaps found by review, to close alongside the work above:** the merge
-report's own output is only partly proved. Blanking the lines that announce
-`added "<id>" to "## <list>"` and `changed "<id>", now in "## <list>"`, or
-replacing the wording used when neither branch changed anything, leaves the
-whole suite passing. That matters more once a Git gate calls this, because the
-report becomes what a human reads before accepting a gated merge: a merge could
-add work and say nothing about it. Separately,
-`tests/support/product-backlog-merge.test.mjs` is 926 lines, four times the next
-largest, and its three groups are a clean seam; splitting it means updating
-`tests/product-backlog.sh` in the same move, which is why it was deferred twice
-during execution and never revisited.
+**Core correction ownership:** Plan 058 owns merge-report defects and missing
+assertions, removal-versus-priority safety, the oversized merge test file, and
+relocation-safe identity. Terry additionally authorized transferring the domain
+merge-rule correction and preservation of recorded IDs in story/plan source
+guidance from original slice 14 into Plan 058's existing slices 2 and 4. Those
+are corrections to the core contract, not new installation or host journeys.
+This story still owns routing ordinary workflows through the scripts and proving
+that the complete corrected guidance/scripts are delivered and usable. Reuse
+Plan 058's accepted proof when available; do not treat planned corrections as
+completed or duplicate them as new delivery features. Root-helper retirement,
+the bounded `EISDIR` input-error decision, and Git-specific human recovery remain
+here; moving unrelated cleanup into Plan 058 would enlarge the correction.
 
 **Assumption to validate:** that the reconciliation core, which has only ever
 been given files a test wrote, behaves the same when given the real ancestor and
