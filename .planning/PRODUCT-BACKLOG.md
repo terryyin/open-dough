@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008 ([plan](quick/057-script-product-backlog/PLAN.md))
-
 ## Backlog list
 
 - [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008
