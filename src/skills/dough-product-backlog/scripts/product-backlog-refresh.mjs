@@ -45,21 +45,6 @@ function requireRequestedChange(request) {
   }
 }
 
-// A work item identified by the canonical path it links cannot have that path
-// refreshed: the relocated document would read as different work. Deciding
-// that it is still this work item is an identity decision, not a metadata
-// refresh.
-function requireCarriedIdentity(entry, href) {
-  if (!entry.identity.includes("#") && entry.identity.includes("/")) {
-    throw new BacklogError(
-      `"${entry.identity}" is identified by the canonical path it links, so ` +
-        `pointing it at "${href}" would change its identity rather than ` +
-        `refresh its reference. This operation never re-identifies work: a ` +
-        `human decides what identity the relocated document carries.`,
-    );
-  }
-}
-
 // The moved document's own recorded identity is the evidence tying the old
 // reference to the new one. That record is what survives a rename, which the
 // backlog line alone could not, so a home that does not carry it does not
@@ -148,9 +133,6 @@ export function refreshEntry(source, request) {
     href: request.href ?? entry.href,
     plan: planFor(entry, request),
   };
-  if (refreshed.href !== entry.href) {
-    requireCarriedIdentity(entry, refreshed.href);
-  }
   // Written before any reference is established, so a title or link the
   // backlog cannot carry — including one the identity would not read back
   // from — is refused before the canonical homes are consulted.

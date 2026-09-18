@@ -342,7 +342,7 @@ to maintainer data. Installed managed copies under `.agents/skills/` and
 
 ### 5. Refresh a relocated home while retaining its identity
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend refresh CLI journeys; run `bash tests/product-backlog.sh`.
 
 After an identified story's canonical home is moved or renamed, `refresh` must
@@ -354,6 +354,58 @@ operation addressed by that ID. Replace tests enforcing the rejected restriction
 with positive relocation proof. Keep wrong-ID, duplicate-home, and genuinely
 ambiguous identity refusals; do not create a general document-moving tool.
 Sizing: one relocation outcome using slice 4's representation and existing home checks.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 89 tests, 89 pass, 0
+fail, 0 skipped. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects. Inspected locations, in
+`tests/support/product-backlog-refresh.test.mjs`: "refresh reference carries the
+identity to a home whose link spells none of it", which renames a seed so the
+filename holds none of the old token and re-anchors the story, observing the
+whole published backlog with only that entry line rewritten and the moved seed's
+bytes unchanged; "refresh reference follows a correction plan identified by its
+old path", which runs the move the removed restriction refused and observes the
+entry recording the old path beside the new link; and the shared `placedFirst`
+check, which runs `place --identity <recorded id> --position first` after each
+refresh and compares the whole document, so the unchanged ID, list membership,
+queue priority, unrelated entries, and the direction section are all observed to
+survive an operation addressed by that identity.
+
+`requireCarriedIdentity` and its call site are removed; that was the rejected
+restriction at the `refresh` boundary. Its test is replaced rather than deleted,
+by the positive correction-plan relocation above and by
+`tests/support/product-backlog-refresh-refusals.test.mjs` "refresh reference
+refuses a home its identity could not be read back from", which keeps the
+genuine ambiguity stop at that spot. The refusals carrying the real evidence
+stand unchanged and each still has a proving test: the new home must record this
+identity and not a different one, the old home must have released it, the
+request must name a change, a duplicate canonical home is refused, and an
+identity in neither list stops.
+
+Learnings: the removed function held the last inline copy of the "does this
+identity name an anchor" predicate, so that knowledge now has exactly one home
+in `product-backlog-identity.mjs`; this slice closed a duplication rather than
+opening one. For slice 6, a relocated correction plan's entry now records a
+value beside its link where before the move it recorded nothing, because the
+link spelled the identity exactly — so a three-version merge across a correction
+relocation compares a recorded-value entry against a link-only entry for the
+same identity, and slice 6 should exercise that pairing explicitly. The refresh
+report reads `Refreshed the canonical link of "<id>"`, a separate owner from the
+merge report's wording.
+
+CI repair delivered during this slice as `b6f9515`: slice 4 added
+`references/identity.md` and linked the story guidance to it without declaring
+it in the payload manifests, so an installed project received guidance pointing
+at a file it was never given. It is now declared in `install.sh`,
+`src/install/open-dough-release-version.sh`,
+`tests/helpers/public-payload-fixture.bash`, and both enumerations in
+`docs/installation-and-updates.md`, which a sibling test holds the manifest
+against. The defect reached CI because `tests/story-payload-update.sh` walks
+installed links with a bare test in a `while` body, which `set -e` does not
+abort on under the bash 3.2 that ships with macOS; the assertion was already
+false locally and silent, and only the Linux runner's bash 5 aborted — with no
+diagnostic of its own. Making that check portable and give a message is a test
+change outside a CI repair's scope and is left as a recommendation.
 
 ### 6. Reconcile a relocated item as the same work
 Type: Behavior
