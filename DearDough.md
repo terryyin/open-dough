@@ -1,5 +1,94 @@
 # DearDough Process Findings
 
+## DD-055 — A plan's proof command can select an empty test set and report success
+
+The plan format states each slice's proof as a runnable command. When that
+command selects tests by name pattern, a pattern naming a group that does not
+exist yet runs zero tests and exits 0. The proof reports success while executing
+nothing, and is indistinguishable in its output from a proof that genuinely
+passed.
+
+### Occurrences
+
+- Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
+  - Timestamp: 2026-09-18T19:31:24+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: Slice 10's planned proof was `node --test
+    --test-name-pattern='merge direction'
+    tests/support/product-backlog-merge.test.mjs`. Before the slice every test
+    in that file was named `merge items ...` or `merge order ...`, so the
+    pattern matched nothing and the command exited 0. After the slice created
+    the group the same command reports 6 tests, 6 passing.
+  - Observed effect: The slice's source diff was empty because the behavior
+    already worked. Had "the planned proof command passes" been accepted as
+    evidence, the slice would have been recorded as proved while asserting
+    nothing about the behavior it named.
+  - Inference: Name-pattern selection makes "no test was selected" and "every
+    selected test passed" the same observable result. Qualified: this affects
+    pattern-selected proofs only, not file-level or script-level proof commands.
+
+## DD-056 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
+
+Tests for a command whose contract includes a human-readable summary asserted
+the exit status and the resulting file bytes, but not the summary text. That
+summary is what a caller reads to decide whether to accept a result, so a
+summary line can be wrong, or silently absent, without any test failing.
+
+### Occurrences
+
+- Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
+  - Timestamp: 2026-09-18T17:12:49+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: `transitions()` in `product-backlog-merge.mjs` emits four summary
+    lines. During slice 10 the coordinator found `changed the "## Near-future
+    direction"` asserted nowhere; deleting that block left all 25 pre-existing
+    tests passing, and slice 10 added assertions for both its presence and its
+    absence. This retrospective then blanked the two remaining lines, `added
+    "<id>" to "## <list>"` and `changed "<id>", now in "## <list>"`, and the
+    full 76-test suite still passed; replacing `reportMerge`'s no-change branch
+    text passed as well. Both mutations were reverted and the worktree left
+    clean.
+  - Observed effect: Three of the merge report's five outputs carry no
+    assertion after ten delivered slices, including one introduced in slice 8
+    and reviewed by two later slices.
+  - Inference: Assertions followed the tests' attention — refusals, exit codes,
+    published bytes — and the reported summary was treated as incidental.
+    Qualified: the delivered behavior is correct; what is missing is proof, not
+    a working outcome.
+
+## DD-057 — Delegated refactor pass stalled after editing and before reporting
+
+An independent post-change refactor agent finished its edits but stopped
+without returning a report, leaving the coordinator with uncommitted
+third-party changes in the worktree and no account of what they were or why.
+
+### Occurrences
+
+- Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: Slice 10's refactor agent ended with status `failed` and summary
+    "Agent stalled: no progress for 600s (stream watchdog did not recover)",
+    its last output truncated mid-sentence. It occurred between the slice-10
+    implementation return and commit `b75c3dc` (2026-09-18T19:31:24+08:00); no
+    exact event time is recoverable. The worktree held a complete and coherent
+    change: a fixture value relocated into the single test file using it, a
+    `versionPath` helper, and a `saying(text)` collapse of eight repetitions.
+  - Observed effect: The coordinator accepted the work by reading the diff hunk
+    by hunk and re-running two mutations against the refactored tests rather
+    than by report. Two questions the pass had been asked — anything it found
+    unproved, and its judgement on the deferred 926-line test-file split —
+    were never answered and remain open.
+  - Inference: Qualified. The unproved report lines confirmed in DD-056 are the
+    class of finding that pass was asked to surface; whether it had found them
+    cannot be determined from the record.
+
 ## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
 When an implementation agent is asked to prove a rule-required refusal/stop

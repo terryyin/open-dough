@@ -619,6 +619,18 @@ when a refusal fires, and must read `complete`'s repeat-removal nonzero exit as
 "the outcome already holds" rather than as a repair trigger; the root helper must
 be retired or delegated; and the `EISDIR` limit needs a decision.
 
+**Proof gaps found by review, to close alongside the work above:** the merge
+report's own output is only partly proved. Blanking the lines that announce
+`added "<id>" to "## <list>"` and `changed "<id>", now in "## <list>"`, or
+replacing the wording used when neither branch changed anything, leaves the
+whole suite passing. That matters more once a Git gate calls this, because the
+report becomes what a human reads before accepting a gated merge: a merge could
+add work and say nothing about it. Separately,
+`tests/support/product-backlog-merge.test.mjs` is 926 lines, four times the next
+largest, and its three groups are a clean seam; splitting it means updating
+`tests/product-backlog.sh` in the same move, which is why it was deferred twice
+during execution and never revisited.
+
 **Assumption to validate:** that the reconciliation core, which has only ever
 been given files a test wrote, behaves the same when given the real ancestor and
 branch content of an actual conflicted merge, rebase, and cherry-pick. Deriving
