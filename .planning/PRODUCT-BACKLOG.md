@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Separate bug exploration from repair execution](seeds/SEED-008-worktree-branch-trunk-sync.md#separate-bug-exploration-from-execution) — SEED-008 ([plan](quick/056-separate-bug-exploration-from-execution/PLAN.md))
-
 ## Backlog list
 
 - [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008
