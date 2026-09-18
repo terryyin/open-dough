@@ -14,7 +14,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
-import { BacklogError } from "./product-backlog-document.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // Where a project keeps its backlog unless a caller names another file.
 export const defaultBacklogPath = ".planning/PRODUCT-BACKLOG.md";

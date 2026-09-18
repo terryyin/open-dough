@@ -9,7 +9,6 @@
 // commits the claim, and it gives no run exclusive ownership of an item.
 
 import {
-  BacklogError,
   parseBacklog,
   renderBacklog,
   renderEntry,
@@ -21,6 +20,7 @@ import {
   moveEntryLine,
 } from "./product-backlog-placement.mjs";
 import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
 // A quick story and a bounded correction take none: a correction's canonical

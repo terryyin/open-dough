@@ -41,23 +41,26 @@ export const skipRetrospective = "SEED-001#default-skip-process-retrospective";
 export const architecture = "SEED-004#proudly-found-elsewhere-design";
 export const takenStory = "SEED-008#script-product-backlog-list-updates";
 
-// Everything the established backlog holds before its two lists.
-const preamble = `# Product backlog
+// The direction the established backlog carries, spelled out as one value: a
+// wrapped paragraph, because that is the real shape a project writes.
+export const direction =
+  "Enable agents to execute stories in parallel while collaborating through\n" +
+  "trunk-based development, with each agent working in its own Git worktree.";
 
-## Near-future direction
-
-Enable agents to execute stories in parallel while collaborating through
-trunk-based development, with each agent working in its own Git worktree.
-
-`;
+// Everything the established backlog holds before its two lists. A backlog
+// carrying no direction holds no such section at all.
+function preambleOf(text) {
+  const held = text === "" ? "" : `## Near-future direction\n\n${text}\n\n`;
+  return `# Product backlog\n\n${held}`;
+}
 
 // The whole backlog a run is expected to leave behind, spelled from the two
 // lists rather than derived from the product's own rendering, so an expectation
 // cannot agree with a wrongly rendered document. A list holding nothing keeps
 // its heading and the single blank line before the next one.
-export function backlogOf(taken, queue) {
+export function backlogOf(taken, queue, text = direction) {
   const held = taken.length > 0 ? `${taken.join("\n")}\n\n` : "";
-  return `${preamble}## Taken\n\n${held}## Backlog list\n\n${queue.join("\n")}\n`;
+  return `${preambleOf(text)}## Taken\n\n${held}## Backlog list\n\n${queue.join("\n")}\n`;
 }
 
 // The starting precondition every test shares: one taken entry, three queued.

@@ -11,13 +11,13 @@
 // run leaves recorded identities in place for the next run to reuse.
 
 import {
-  BacklogError,
-  composeIdentity,
   parseBacklog,
   renderBacklog,
   renderEntry,
 } from "./product-backlog-document.mjs";
 import { openHome, recordIdentity } from "./product-backlog-home.mjs";
+import { composeIdentity } from "./product-backlog-identity.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 const humanStop =
   "A human decides how each of these is resolved; nothing was recorded.";

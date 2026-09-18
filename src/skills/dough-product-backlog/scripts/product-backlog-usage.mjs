@@ -3,6 +3,7 @@
 // operation the tool does not have. Every refusal that hands back the usage
 // hands back this one description.
 
+import { directionHeading } from "./product-backlog-direction.mjs";
 import { queueHeading, takenHeading } from "./product-backlog-document.mjs";
 import { defaultBacklogPath } from "./product-backlog-store.mjs";
 
@@ -18,6 +19,8 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
        product-backlog.mjs refresh --identity <id>
                              [--title <title>] [--link <href>] [--plan <path>]
                              [--file <path>]
+       product-backlog.mjs direction (--text <text> | --clear)
+                             (--expect <text> | --expect-none) [--file <path>]
        product-backlog.mjs adopt --all [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
@@ -47,6 +50,15 @@ has already been renamed or moved. The entry keeps its identity, its list, and
 its position; the moved document's own recorded identity is what establishes
 that it is the same work. It renames nothing, moves no file, and repairs no
 link anywhere else.
+
+direction records the near-future direction the caller has already chosen,
+exactly as supplied: it writes "## ${directionHeading}" when the backlog carries
+none, replaces what that section says, or clears it away with --clear. It never
+writes, summarises, or reflows strategy text of its own, and it changes no entry
+in either list. The direction the request was written against is always stated:
+--expect names the text you read, and --expect-none says you read none. A
+request whose expectation no longer holds is refused with nothing written, so a
+direction someone else has since changed is never overwritten unknowingly.
 
 adopt records one identity for every active entry in the canonical homes its
 links name, reusing the ID each home already carries. It changes no membership,

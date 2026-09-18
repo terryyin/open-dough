@@ -323,8 +323,10 @@ Hypothesis: one metadata refresh; no new identity model.
 
 ### 7. Set the near-future direction explicitly
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='direction update' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='direction update' tests/support/product-backlog-direction.test.mjs tests/support/product-backlog-direction-refusals.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. Direction
+lives in its own test files, so the planned single-file command was superseded.
 
 Given supplied text and the expected prior direction, create, replace, or clear
 that section exactly as requested. Preserve both lists and unrelated text.
@@ -841,6 +843,64 @@ Recurring structural note:
   and two refactor passes have now declined to move naturally related code into
   it for that reason alone. If a later slice has to split the document model
   anyway, those deferred moves should land together rather than one at a time.
+
+### Slice 7 (done)
+
+New CLI verb `direction (--text <text> | --clear) (--expect <text> |
+--expect-none)`, which creates, replaces, or clears the
+`## Near-future direction` section. This completes the local operations; slices
+8–13 own reconciliation.
+
+Decisions and observations that bind later slices:
+
+- **`--expect ""` is refused, not read as "expect no direction."** An empty
+  string cannot be told apart from `--expect "$DIR"` where the variable was
+  never set, so accepting it would silently turn "I forgot to read it" into "I
+  expect nothing" — exactly the accident the precondition exists to catch.
+  "I read none" is its own flag, so neither state is the default.
+- **Supplied text is written verbatim and never tidied.** "Never synthesises or
+  edits" is enforced mechanically: the candidate is re-parsed and the direction
+  read back must equal the caller's bytes, so padding or text carrying its own
+  `## ` heading is refused rather than corrected. No model invocation is
+  involved in applying a direction.
+- **Clearing removes the heading with its body**, so the direction is genuinely
+  one value — text or nothing — rather than a tri-state of absent,
+  present-empty, and present-with-text.
+- **Slice 10 reads the direction through `directionOf(parseBacklog(source))`**,
+  where `""` means no direction for both an absent and an empty section.
+  `directionHeading` is exported from the same module. Do not reintroduce a
+  tri-state.
+- **Known boundary, not a defect:** a project spelling the heading differently
+  (for example `## Near-term direction`) reads as carrying no direction, and a
+  create would add a second section beside it. This matches the parser's
+  existing strictness posture from slice 1; the established format has one
+  spelling.
+
+The recurring structural note is now discharged. `product-backlog-document.mjs`
+was split along the seam the plan had already identified:
+
+- `product-backlog-refusal.mjs` (25 lines) — `BacklogError` and `requireField`,
+  extracted first to break the import cycle the plan predicted, and now the one
+  refusal vocabulary the whole tool shares.
+- `product-backlog-identity.mjs` (89 lines) — what an identity is:
+  `adoptionHint`, `ambiguousHome`, `splitHref`, `composeIdentity`,
+  `identityFor`, `tokenFor`.
+- `requireUnlistedHome` rejoined `requireDistinctWork` in the document model:
+  they are the same invariant — the backlog lists each work item once, by
+  identity and by canonical home — asked backwards of a parsed document and
+  forwards of a home about to be written. `placement.mjs` keeps only list
+  positions and line mechanics.
+- Where a `## ` section sits now has one owner, `sectionsNamed`, instead of the
+  direction module re-deriving it.
+
+The document model is 188 lines and every module is well under the size seam
+(largest is the CLI at 231). The import graph was independently verified
+acyclic across all 18 modules, the root maintainer helper still resolves its
+imports, and the contractual refusals were spot-checked through the real CLI
+after the split.
+
+Slice 14 now also has `product-backlog-direction.mjs`,
+`product-backlog-refusal.mjs`, and `product-backlog-identity.mjs` to declare.
 
 ## Coverage, stopping points, and remaining concerns
 

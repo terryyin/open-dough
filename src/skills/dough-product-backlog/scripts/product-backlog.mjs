@@ -8,13 +8,15 @@ import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
 import { adoptIdentities } from "./product-backlog-adopt.mjs";
 import { completeEntry } from "./product-backlog-complete.mjs";
-import { BacklogError } from "./product-backlog-document.mjs";
+import { setDirection } from "./product-backlog-direction.mjs";
 import { placeEntry } from "./product-backlog-place.mjs";
 import { refreshEntry } from "./product-backlog-refresh.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 import {
   reportAdd,
   reportAdopt,
   reportComplete,
+  reportDirection,
   reportPlace,
   reportRefresh,
   reportTake,
@@ -35,6 +37,10 @@ const options = {
   position: { type: "string" },
   plan: { type: "string" },
   "no-plan": { type: "boolean", default: false },
+  text: { type: "string" },
+  clear: { type: "boolean", default: false },
+  expect: { type: "string" },
+  "expect-none": { type: "boolean", default: false },
   return: { type: "boolean", default: false },
   all: { type: "boolean", default: false },
   file: { type: "string", default: defaultBacklogPath },
@@ -159,6 +165,23 @@ async function refresh(file, values) {
   console.log(reportRefresh(outcome, values.file));
 }
 
+// Every option this verb takes belongs to it alone, so what a direction
+// request means — including which of them must be stated together — is read
+// where the direction itself is owned rather than split across this boundary.
+async function direction(file, values) {
+  const request = {
+    text: values.text,
+    clearing: values.clear,
+    expected: values.expect,
+    expectingNone: values["expect-none"],
+  };
+  const outcome = await applyReportedChange(file, (source) =>
+    setDirection(source, request),
+  );
+
+  console.log(reportDirection(outcome, values.file));
+}
+
 async function adopt(file, values) {
   if (!values.all) {
     throw new BacklogError(
@@ -173,7 +196,7 @@ async function adopt(file, values) {
   console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, place, take, complete, refresh, adopt };
+const operations = { add, place, take, complete, refresh, direction, adopt };
 
 async function main(argv) {
   let parsed;

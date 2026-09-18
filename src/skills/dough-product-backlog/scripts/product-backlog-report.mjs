@@ -4,6 +4,7 @@
 // the file as it now stands rather than what the caller asked for. This is
 // the counterpart of the usage text, which describes the tool itself.
 
+import { directionHeading } from "./product-backlog-direction.mjs";
 import { queueHeading, takenHeading } from "./product-backlog-document.mjs";
 
 export function reportAdd(identity, file) {
@@ -47,6 +48,18 @@ export function reportRefresh(outcome, file) {
     `Refreshed the ${outcome.changed.join(" and ")} of "${identity}" in ` +
     `"## ${list}" in ${file}; its identity and its place are unchanged.`
   );
+}
+
+// What the direction now says is the caller's own text, so the report says
+// what became of the section rather than quoting it back at them.
+export function reportDirection(outcome, file) {
+  const said = {
+    set: `Set the "## ${directionHeading}" in ${file}`,
+    replaced: `Replaced the "## ${directionHeading}" in ${file}`,
+    cleared: `Cleared the "## ${directionHeading}" from ${file}`,
+    unchanged: `The "## ${directionHeading}" in ${file} already reads as requested`,
+  }[outcome.result];
+  return `${said}. Every entry in both lists is unchanged.`;
 }
 
 export function reportAdopt(outcome, file) {

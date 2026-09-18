@@ -7,7 +7,8 @@
 // This owns where an identity is written, not which identity a work item has.
 
 import { resolve } from "node:path";
-import { BacklogError, splitHref } from "./product-backlog-document.mjs";
+import { splitHref } from "./product-backlog-identity.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 import { joinSource, splitSource } from "./product-backlog-source.mjs";
 import { readFile, replaceFile } from "./product-backlog-store.mjs";
 

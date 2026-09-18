@@ -3,16 +3,16 @@
 // else in the document changes.
 
 import {
-  BacklogError,
   parseBacklog,
   renderBacklog,
   renderEntry,
+  requireUnlistedHome,
 } from "./product-backlog-document.mjs";
 import {
   insertEntryLine,
   queueIndexFor,
-  requireUnlistedHome,
 } from "./product-backlog-placement.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 function requireUnlistedWork(document, request) {
   const existing = document.entries.find(

@@ -12,17 +12,15 @@
 // and the position it already held.
 
 import {
-  BacklogError,
   parseBacklog,
   renderBacklog,
   renderEntry,
+  requireUnlistedHome,
 } from "./product-backlog-document.mjs";
 import { openHome, stillRecords } from "./product-backlog-home.mjs";
-import {
-  findEntry,
-  requireUnlistedHome,
-} from "./product-backlog-placement.mjs";
+import { findEntry } from "./product-backlog-placement.mjs";
 import { requireResolvedPlan } from "./product-backlog-plan.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // What a caller can do when the named identity is in neither list. A refresh
 // changes what an existing entry says, so it never writes an entry the

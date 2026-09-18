@@ -7,10 +7,8 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { addQueueEntry } from "../src/skills/dough-product-backlog/scripts/product-backlog-add.mjs";
-import {
-  BacklogError,
-  parseEntryLine,
-} from "../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { parseEntryLine } from "../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { BacklogError } from "../src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import {
   applyToBacklog,
   defaultBacklogPath,

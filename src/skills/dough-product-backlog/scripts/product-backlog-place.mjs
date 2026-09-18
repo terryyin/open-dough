@@ -11,7 +11,6 @@
 // what an entry says is a separate decision.
 
 import {
-  BacklogError,
   parseBacklog,
   queueHeading,
   renderBacklog,
@@ -23,6 +22,7 @@ import {
   queueIndexFor,
   removeEntryLine,
 } from "./product-backlog-placement.mjs";
+import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // What a caller can do when the named identity is in neither list. This
 // operation moves work the backlog already carries and never writes an entry
