@@ -135,3 +135,19 @@ export function recordIdentity(home, identity) {
   lines.splice(current.region.heading + 1, 0, "", identityLine(identity));
   replaceFile(current.path, joinSource({ ...current.document, lines }));
 }
+
+// Whether a document still claims an identity, asked of a reference that is
+// about to be dropped. A path that is gone, or that no longer reads as a
+// canonical home at all, claims nothing: only a home still recording this
+// exact identity would leave two documents claiming one work item.
+export function stillRecords(backlogDirectory, href, identity) {
+  try {
+    const home = openHome(backlogDirectory, href);
+    return Boolean(home.recorded) && home.recorded.identity === identity;
+  } catch (error) {
+    if (error instanceof BacklogError) {
+      return false;
+    }
+    throw error;
+  }
+}

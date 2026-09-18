@@ -8,12 +8,17 @@ import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
 import { adoptIdentities } from "./product-backlog-adopt.mjs";
 import { completeEntry } from "./product-backlog-complete.mjs";
-import {
-  BacklogError,
-  queueHeading,
-  takenHeading,
-} from "./product-backlog-document.mjs";
+import { BacklogError } from "./product-backlog-document.mjs";
 import { placeEntry } from "./product-backlog-place.mjs";
+import { refreshEntry } from "./product-backlog-refresh.mjs";
+import {
+  reportAdd,
+  reportAdopt,
+  reportComplete,
+  reportPlace,
+  reportRefresh,
+  reportTake,
+} from "./product-backlog-report.mjs";
 import {
   applyToBacklog,
   defaultBacklogPath,
@@ -68,9 +73,7 @@ async function add(file, values) {
     ...readPlacement(values),
   };
   await applyToBacklog(file, (source) => addQueueEntry(source, request));
-  console.log(
-    `Added "${request.identity}" to "## ${queueHeading}" in ${values.file}.`,
-  );
+  console.log(reportAdd(request.identity, values.file));
 }
 
 // Applies one change whose report needs more than the published bytes. The
@@ -84,14 +87,6 @@ async function applyReportedChange(file, operate) {
     return outcome.source;
   });
   return outcome;
-}
-
-function reportPlace(outcome, file) {
-  const { identity } = outcome.entry;
-  const from = outcome.returned
-    ? `Returned "${identity}" from "## ${takenHeading}" to`
-    : `Placed "${identity}" in`;
-  return `${from} "## ${queueHeading}" in ${file}, at the requested position.`;
 }
 
 async function place(file, values) {
@@ -119,18 +114,6 @@ function readPlan(values) {
   return values.plan;
 }
 
-function reportTake(outcome, file) {
-  const { identity } = outcome.entry;
-  if (outcome.result === "taken") {
-    return `Took "${identity}" into "## ${takenHeading}" in ${file}.`;
-  }
-  const ending =
-    outcome.result === "linked"
-      ? "; its plan link was added and its place kept."
-      : ", unchanged.";
-  return `"${identity}" is already in "## ${takenHeading}" in ${file}${ending}`;
-}
-
 async function take(file, values) {
   const request = {
     identity: values.identity,
@@ -149,33 +132,31 @@ async function complete(file, values) {
     completeEntry(source, { identity: values.identity }),
   );
 
-  const { identity, list, href } = outcome.entry;
-  console.log(
-    `Removed "${identity}" from "## ${list}" in ${values.file}. ` +
-      `Its canonical home ${href} was not changed.`,
-  );
+  console.log(reportComplete(outcome, values.file));
 }
 
-function reportAdopt(outcome, file) {
-  if (outcome.written.length === 0) {
-    return (
-      `All ${outcome.entries} active entries already record their identity; ` +
-      `${file} is unchanged.`
+// Dropping a reference is not on offer, so a caller who asks for it is told
+// rather than having the option quietly ignored.
+async function refresh(file, values) {
+  if (values["no-plan"]) {
+    throw new BacklogError(
+      `refresh repoints a reference the entry already carries and never ` +
+        `drops one, so --no-plan asks for something this operation does ` +
+        `not do.`,
     );
   }
-  const report = [
-    `Recorded ${outcome.written.length} identities for ${outcome.entries} active entries:`,
-    ...outcome.written.map((home) => `  ${home.identity} in ${home.relative}`),
-  ];
-  if (outcome.relabelled.length > 0) {
-    report.push(
-      `Entries now naming their identity in ${file}:`,
-      ...outcome.relabelled.map(
-        (entry) => `  ${entry.identity} — ${entry.title}`,
-      ),
-    );
-  }
-  return report.join("\n");
+  const request = {
+    identity: values.identity,
+    title: values.title,
+    href: values.link,
+    plan: values.plan,
+    backlogDirectory: dirname(file),
+  };
+  const outcome = await applyReportedChange(file, (source) =>
+    refreshEntry(source, request),
+  );
+
+  console.log(reportRefresh(outcome, values.file));
 }
 
 async function adopt(file, values) {
@@ -192,7 +173,7 @@ async function adopt(file, values) {
   console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, place, take, complete, adopt };
+const operations = { add, place, take, complete, refresh, adopt };
 
 async function main(argv) {
   let parsed;

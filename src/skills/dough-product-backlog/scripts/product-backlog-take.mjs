@@ -8,7 +8,6 @@
 // whether execution may start, who may execute the work, or where the caller
 // commits the claim, and it gives no run exclusive ownership of an item.
 
-import { resolve } from "node:path";
 import {
   BacklogError,
   parseBacklog,
@@ -21,10 +20,7 @@ import {
   findEntry,
   moveEntryLine,
 } from "./product-backlog-placement.mjs";
-import { readFile } from "./product-backlog-store.mjs";
-
-// How the established backlog spells an active plan link.
-const planLabel = "plan";
+import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
 // A quick story and a bounded correction take none: a correction's canonical
@@ -56,10 +52,10 @@ function resolvePlan(entry, request) {
         `with --no-plan.`,
     );
   }
-  readFile(
-    resolve(request.backlogDirectory, target),
-    `Unresolved plan: ${target} is not there, relative to the backlog. ` +
-      `Take the work once its plan is resolved, or take a quick story with ` +
+  requireResolvedPlan(
+    request.backlogDirectory,
+    target,
+    `Take the work once its plan is resolved, or take a quick story with ` +
       `--no-plan.`,
   );
   return { label: planLabel, target };

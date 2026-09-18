@@ -307,8 +307,10 @@ Hypothesis: one placement operation with validated origin-state preconditions.
 
 ### 6. Refresh an item's presentation without changing its identity
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='refresh reference' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='refresh reference' tests/support/product-backlog-refresh.test.mjs tests/support/product-backlog-refresh-refusals.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. Refresh lives
+in its own test files, so the planned single-file command was superseded.
 
 Given an explicitly renamed or relocated canonical story/plan, refresh its
 backlog title/link while carrying its ID. Preserve membership, order, and other
@@ -782,6 +784,63 @@ Decisions and observations that bind later slices:
   policy was added, as the boundaries require.
 - Slice 14 now also has `product-backlog-place.mjs` and
   `product-backlog-usage.mjs` to declare.
+
+### Slice 6 (done)
+
+New CLI verb `refresh --identity <id> [--title] [--link] [--plan]`, which
+rewrites one listed entry's title, canonical link, and/or active plan link in
+place while carrying the identity unchanged. This closes the loop slice 2
+opened: the identity recorded in a canonical home is what survives a rename,
+and entry equality treats two identities naming one canonical home as
+ambiguous, so a legitimate in-flight rename comes through here rather than
+through a second `add`.
+
+Decisions and observations that bind later slices:
+
+- **Refresh reads canonical homes and writes none.** Slice 2's recorded
+  identity is used purely as evidence that a move already happened. The module
+  contains no write call of any kind; the entry line is the only thing that
+  changes.
+- **Three guards keep one identity from being reachable twice:** the new home
+  must not already be listed; the new home must record that identity; and the
+  reference being dropped — old canonical home or old plan — must no longer
+  record it. That third guard covers an old and a new copy both sitting on
+  disk, and refuses with the project untouched rather than half-applying.
+- **`stillRecords` is deliberately lenient**: a path that is gone or no longer
+  readable as a home claims nothing. Anything stricter would turn ordinary
+  post-rename states into refusals.
+- **A path-identified work item cannot be relocated by refresh.** A bounded
+  correction's identity *is* its canonical plan path, so moving that document
+  changes its identity. That is an explicit refusal directing a human to
+  decide, never a silent re-identification.
+- **Deliberately unpromised by this verb:** adding a first plan link (refused,
+  pointing at `take --plan`), dropping a plan link (`--no-plan` refused),
+  changing an anchor, and any direction change.
+- **Reports moved to `product-backlog-report.mjs`.** Adding `refresh` pushed the
+  CLI to 263 lines, so the report builders were extracted alongside
+  `product-backlog-usage.mjs`, leaving the CLI as parse-args, operate, print.
+  Slices 7–13 add their reports there, not in the CLI.
+- Two shared seams now have one owner each: `requireUnlistedHome` in
+  `product-backlog-placement.mjs` (used by `add` and `refresh`) and
+  `product-backlog-plan.mjs` (`planLabel` plus the mechanical existence-only
+  plan check, used by `take` and `refresh`).
+- Slice 14 now also has `product-backlog-refresh.mjs`,
+  `product-backlog-report.mjs`, and `product-backlog-plan.mjs` to declare.
+
+Open item this slice exposed, owned by nobody yet:
+
+- **Relocating a bounded correction's canonical plan** has no owner. Because
+  such an item is identified by its plan path, moving that document changes its
+  identity, and refresh explicitly refuses rather than re-identifying it. If
+  this becomes real it is an identity/adoption decision, not a refresh, and it
+  needs a human decision before any slice takes it on.
+
+Recurring structural note:
+
+- `product-backlog-document.mjs` sits at ~245 lines, just under the size seam,
+  and two refactor passes have now declined to move naturally related code into
+  it for that reason alone. If a later slice has to split the document model
+  anyway, those deferred moves should land together rather than one at a time.
 
 ## Coverage, stopping points, and remaining concerns
 

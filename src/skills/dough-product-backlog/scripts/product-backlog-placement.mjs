@@ -1,10 +1,12 @@
 // Which entries a list holds, which entry an operation was asked to change,
-// where an entry line sits inside one of the backlog's two lists, and how a
-// line is written or taken out there without disturbing the text around it.
-// Adding an entry, moving one between lists, and removing one ask the same
-// questions, so they ask them here.
+// which canonical home is already spoken for, where an entry line sits inside
+// one of the backlog's two lists, and how a line is written or taken out there
+// without disturbing the text around it. Adding an entry, moving one between
+// lists, refreshing one, and removing one ask the same questions, so they ask
+// them here.
 
 import {
+  ambiguousHome,
   BacklogError,
   queueHeading,
   requireField,
@@ -29,6 +31,23 @@ export function findEntry(document, identity, hint) {
     );
   }
   return entry;
+}
+
+// One canonical home belongs to one work item, so no other entry may already
+// link the document an operation is about to name. Writing a new entry and
+// repointing an existing one both ask this; `carried` is the entry being
+// repointed, which never clashes with itself.
+export function requireUnlistedHome(document, href, carried) {
+  const listed = document.entries.find(
+    (other) => other !== carried && other.href === href,
+  );
+  if (listed) {
+    throw ambiguousHome(
+      `the canonical home "${href}" is already listed in ` +
+        `"## ${listed.list}" at line ${listed.index + 1} as identity ` +
+        `"${listed.identity}".`,
+    );
+  }
 }
 
 // The line a new entry takes at the end of a section, including a section that

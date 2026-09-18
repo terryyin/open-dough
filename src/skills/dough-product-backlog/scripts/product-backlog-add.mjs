@@ -3,7 +3,6 @@
 // else in the document changes.
 
 import {
-  ambiguousHome,
   BacklogError,
   parseBacklog,
   renderBacklog,
@@ -12,6 +11,7 @@ import {
 import {
   insertEntryLine,
   queueIndexFor,
+  requireUnlistedHome,
 } from "./product-backlog-placement.mjs";
 
 function requireUnlistedWork(document, request) {
@@ -25,16 +25,7 @@ function requireUnlistedWork(document, request) {
         `operation never re-identifies or moves existing work.`,
     );
   }
-  const sameHome = document.entries.find(
-    (entry) => entry.href === request.href,
-  );
-  if (sameHome) {
-    throw ambiguousHome(
-      `the canonical home "${request.href}" is already listed in ` +
-        `"## ${sameHome.list}" at line ${sameHome.index + 1} as identity ` +
-        `"${sameHome.identity}".`,
-    );
-  }
+  requireUnlistedHome(document, request.href);
 }
 
 export function addQueueEntry(source, request) {

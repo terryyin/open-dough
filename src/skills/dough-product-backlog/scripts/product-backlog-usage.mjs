@@ -15,6 +15,9 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
        product-backlog.mjs take --identity <id> (--plan <path> | --no-plan)
                              [--file <path>]
        product-backlog.mjs complete --identity <id> [--file <path>]
+       product-backlog.mjs refresh --identity <id>
+                             [--title <title>] [--link <href>] [--plan <path>]
+                             [--file <path>]
        product-backlog.mjs adopt --all [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
@@ -37,6 +40,13 @@ applying a completion the caller has already decided. It never decides whether
 work is complete, and it never deletes a story or plan file: closing those
 canonical homes stays with the caller's wrap-up. Removal happens only on this
 explicit request naming the identity.
+
+refresh updates what one listed entry says about itself — its title, the
+canonical document it links, or the active plan it links — after that document
+has already been renamed or moved. The entry keeps its identity, its list, and
+its position; the moved document's own recorded identity is what establishes
+that it is the same work. It renames nothing, moves no file, and repairs no
+link anywhere else.
 
 adopt records one identity for every active entry in the canonical homes its
 links name, reusing the ID each home already carries. It changes no membership,
