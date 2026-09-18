@@ -3,9 +3,10 @@
 // backlog file. It applies a decision; it never decides value, priority,
 // prerequisites, completion, or who may execute the work.
 
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
+import { adoptIdentities } from "./product-backlog-adopt.mjs";
 import { BacklogError, queueHeading } from "./product-backlog-document.mjs";
 import {
   applyToBacklog,
@@ -15,10 +16,16 @@ import {
 const usage = `Usage: product-backlog.mjs add --identity <id> --title <title> --link <href>
                              (--after <id> | --before <id> | --position first|last)
                              [--file <path>]
+       product-backlog.mjs adopt --all [--file <path>]
 
-Adds one already identified entry to "## ${queueHeading}" at the requested
-relative position. Identities are supplied, never allocated here. Paths are
-resolved against the current directory; --file defaults to
+add adds one already identified entry to "## ${queueHeading}" at the requested
+relative position. Identities are supplied, never allocated there.
+
+adopt records one identity for every active entry in the canonical homes its
+links name, reusing the ID each home already carries. It changes no membership,
+order, or direction, and never runs implicitly: --all is required.
+
+Paths are resolved against the current directory; --file defaults to
 ${defaultBacklogPath}.`;
 
 const options = {
@@ -28,6 +35,7 @@ const options = {
   after: { type: "string" },
   before: { type: "string" },
   position: { type: "string" },
+  all: { type: "boolean", default: false },
   file: { type: "string", default: defaultBacklogPath },
   help: { type: "boolean", default: false },
 };
@@ -56,6 +64,59 @@ function readPlacement(values) {
   };
 }
 
+async function add(file, values) {
+  const request = {
+    identity: values.identity,
+    title: values.title,
+    href: values.link,
+    ...readPlacement(values),
+  };
+  await applyToBacklog(file, (source) => addQueueEntry(source, request));
+  console.log(
+    `Added "${request.identity}" to "## ${queueHeading}" in ${values.file}.`,
+  );
+}
+
+function summarise(outcome, file) {
+  if (outcome.written.length === 0) {
+    return (
+      `All ${outcome.entries} active entries already record their identity; ` +
+      `${file} is unchanged.`
+    );
+  }
+  const report = [
+    `Recorded ${outcome.written.length} identities for ${outcome.entries} active entries:`,
+    ...outcome.written.map((home) => `  ${home.identity} in ${home.relative}`),
+  ];
+  if (outcome.relabelled.length > 0) {
+    report.push(
+      `Entries now naming their identity in ${file}:`,
+      ...outcome.relabelled.map(
+        (entry) => `  ${entry.identity} — ${entry.title}`,
+      ),
+    );
+  }
+  return report.join("\n");
+}
+
+async function adopt(file, values) {
+  if (!values.all) {
+    throw new BacklogError(
+      `adopt needs --all, so that recording identities for every active ` +
+        `entry is always an explicit request.\n\n${usage}`,
+    );
+  }
+  let outcome;
+  await applyToBacklog(file, (source) => {
+    outcome = adoptIdentities(source, dirname(file));
+    return outcome.source;
+  });
+
+  console.log(summarise(outcome, values.file));
+}
+
+const operations = { add, adopt };
+
 async function main(argv) {
   let parsed;
   try {
@@ -69,24 +130,13 @@ async function main(argv) {
     console.log(usage);
     return;
   }
-  if (positionals.length !== 1 || positionals[0] !== "add") {
+  const named = positionals.length === 1 ? positionals[0] : "";
+  if (!Object.hasOwn(operations, named)) {
     throw new BacklogError(
       `Unknown operation: ${positionals.join(" ") || "(none)"}\n\n${usage}`,
     );
   }
-
-  const request = {
-    identity: values.identity,
-    title: values.title,
-    href: values.link,
-    ...readPlacement(values),
-  };
-  await applyToBacklog(resolve(process.cwd(), values.file), (source) =>
-    addQueueEntry(source, request),
-  );
-  console.log(
-    `Added "${request.identity}" to "## ${queueHeading}" in ${values.file}.`,
-  );
+  await operations[named](resolve(process.cwd(), values.file), values);
 }
 
 try {

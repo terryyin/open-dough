@@ -4,13 +4,17 @@
 // for byte. This is the document model, not a general Markdown editing
 // framework; the operations that change a backlog live beside it.
 
+import { joinSource, splitSource } from "./product-backlog-source.mjs";
+
 export const takenHeading = "Taken";
 export const queueHeading = "Backlog list";
 
 const separator = " — ";
 const entryPattern = /^- \[(?<title>[^[\]]+)\]\((?<href>[^)\s]+)\)(?<rest>.*)$/;
+// The identity token and the active-plan link are each optional, so an entry
+// written before its identity was adopted still reads as the same work item.
 const detailPattern =
-  /^ — (?<token>[^\s()[\]]+)(?: \(\[(?<label>[^[\]]+)\]\((?<target>[^)\s]+)\)\))?$/;
+  /^(?: — (?<token>[^\s()[\]]+))?(?: \(\[(?<label>[^[\]]+)\]\((?<target>[^)\s]+)\)\))?$/;
 
 export class BacklogError extends Error {
   constructor(message) {
@@ -34,19 +38,28 @@ export function ambiguousHome(reason) {
   );
 }
 
-function splitHref(href) {
+// A backlog link names a canonical home and, when that home holds more than
+// one story, the anchor of the story inside it. Everything that reads or
+// records an identity takes a link apart here.
+export function splitHref(href) {
   const marker = href.indexOf("#");
   return marker === -1
     ? { path: href, anchor: "" }
     : { path: href.slice(0, marker), anchor: href.slice(marker + 1) };
 }
 
+// How an identity is spelled: the ID the canonical home carries, narrowed by
+// the story anchor when there is one. Deriving and adopting an identity both
+// compose it here, so the spelling has one owner.
+export function composeIdentity(token, anchor) {
+  return anchor ? `${token}#${anchor}` : token;
+}
+
 function identityFor(href, token) {
   if (!token) {
     return href;
   }
-  const { anchor } = splitHref(href);
-  return anchor ? `${token}#${anchor}` : token;
+  return composeIdentity(token, splitHref(href).anchor);
 }
 
 function readEntry(line, index, list) {
@@ -58,6 +71,7 @@ function readEntry(line, index, list) {
   }
   const { title, href, rest } = match.groups;
   let token = "";
+  let plan;
   if (rest !== "") {
     const detail = detailPattern.exec(rest);
     if (!detail) {
@@ -65,9 +79,12 @@ function readEntry(line, index, list) {
         `Unsupported entry detail in "## ${list}" at line ${index + 1}: ${line}`,
       );
     }
-    token = detail.groups.token;
+    token = detail.groups.token ?? "";
+    if (detail.groups.target !== undefined) {
+      plan = { label: detail.groups.label, target: detail.groups.target };
+    }
   }
-  return { identity: identityFor(href, token), title, href, list, index };
+  return { identity: identityFor(href, token), title, href, plan, list, index };
 }
 
 // Reads one established entry bullet, for callers that hold a written line
@@ -127,12 +144,7 @@ function requireDistinctWork(entries) {
 }
 
 export function parseBacklog(source) {
-  const newline = source.includes("\r\n") ? "\r\n" : "\n";
-  const hasFinalNewline = source.endsWith(newline);
-  const lines = source.split(/\r?\n/);
-  if (hasFinalNewline) {
-    lines.pop();
-  }
+  const { lines, newline, hasFinalNewline } = splitSource(source);
 
   const headings = [];
   lines.forEach((line, index) => {
@@ -150,8 +162,7 @@ export function parseBacklog(source) {
 }
 
 export function renderBacklog(document) {
-  const body = document.lines.join(document.newline);
-  return document.hasFinalNewline ? `${body}${document.newline}` : body;
+  return joinSource(document);
 }
 
 function requireField(value, field) {
@@ -209,7 +220,7 @@ function tokenFor(identity, href) {
   return identity;
 }
 
-export function renderEntry({ identity, title, href }) {
+export function renderEntry({ identity, title, href, plan }) {
   requireField(identity, "identity");
   requireField(title, "title");
   requireField(href, "link");
@@ -222,7 +233,8 @@ export function renderEntry({ identity, title, href }) {
 
   const token = tokenFor(identity, href);
   const detail = token === "" ? "" : `${separator}${token}`;
-  const line = `- [${title}](${href})${detail}`;
+  const active = plan ? ` ([${plan.label}](${plan.target}))` : "";
+  const line = `- [${title}](${href})${detail}${active}`;
 
   const rendered = readEntry(line, 0, queueHeading);
   if (rendered.identity !== identity) {

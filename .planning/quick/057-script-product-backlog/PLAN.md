@@ -227,8 +227,11 @@ their slices complete.
 
 ### 2. Adopt identities for an existing active backlog
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='adopt identity' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='adopt identity' tests/support/product-backlog-adopt.test.mjs tests/support/product-backlog-adopt-refusals.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. Adoption
+lives in its own test files for cohesion, so the planned single-file command
+matches no tests and was superseded.
 
 Given existing queued stories, Taken planned stories, and a bounded correction,
 explicit identity adoption/allocation records one identity for each work item in its established
@@ -582,6 +585,69 @@ Decisions and observations that bind later slices:
   delegating it. It keeps a dash-tolerant pairwise argument parse because every
   argument it takes is a Markdown bullet beginning with `-`, which `node:util`
   `parseArgs` rejects.
+
+### Slice 2 (done)
+
+New CLI verb `adopt --all`, which records a `**Identity:** <id>` line in each
+work item's canonical home: under the `### N. Title` inside a seed's anchored
+story section, or under a plan document's `# ` title. Identity is recoverable
+from the home as well as the backlog line, which is what lets it survive a
+rename or move; slice 6 then owns refreshing the link.
+
+Modules added: `product-backlog-adopt.mjs` (the journey — derive, validate the
+whole request, record homes one at a time, publish the backlog last),
+`product-backlog-home.mjs` (the single owner of *where* an identity is written
+in a canonical home), and `product-backlog-source.mjs` (line/newline handling
+shared by the backlog and canonical homes). `product-backlog-store.mjs` now
+owns `readFile` and `replaceFile` as well as the lock.
+
+Decisions and observations that bind later slices:
+
+- **No number is minted and no registry exists.** An anchored story reuses its
+  seed's existing immutable frontmatter `id:` plus the stable anchor. This
+  satisfies "reuse suitable existing immutable IDs" without a shared numbering
+  registry, as the boundaries require.
+- **A bounded correction's identity is its canonical plan path** — exactly
+  slice 1's token-less derivation. No seed is fabricated. Giving corrections a
+  `QUICK-NNN`-style token instead would be a product decision, not a refactor.
+- **The entry grammar was relaxed, and this binds slices 8–13.** The ` — TOKEN`
+  segment and the `([plan](...))` suffix are each optional, because a genuinely
+  pre-adoption entry has no token and adoption must be able to read the very
+  backlog it migrates. Consequence: a token-less entry's identity is its `href`,
+  while the same work after adoption is `SEED-NNN#anchor`. The safety net that
+  still recognises them as one work item is `requireDistinctWork`, which
+  compares **both** identity and canonical home. Merge slices must not weaken
+  that comparison, or a merge between an adopted and a non-adopted branch can
+  duplicate the same work.
+- **`renderEntry` now renders the active-plan suffix.** Slice 3's take/resume
+  must reuse it rather than adding a second way to write that suffix.
+- **Homes are written inside the backlog lock**, and `recordIdentity` re-reads
+  the home at write time and never replaces an identity already recorded there.
+  That is what makes the concurrent-collision report honest and what allows one
+  seed to be the canonical home of several stories.
+- **Interruption is a resumable journey, not a transaction engine.** Homes are
+  recorded one at a time and the backlog is published last, so a failure leaves
+  recorded identities in place, reports how many remain, and a re-run reuses
+  them. The plan forbids a general multi-file transaction engine and none was
+  added.
+
+Deliberately uncovered, and still owned elsewhere:
+
+- The plan's "Align seed/plan identity propagation in their existing
+  authoritative templates" is slice 14's guidance work.
+  `src/skills/dough-story-refinement/references/planning.md` and
+  `src/skills/dough-story-decomposition/references/seed-format.md` still do not
+  mention the `**Identity:**` line.
+- Adoption has not been run against this repository's own `.planning/` files.
+  Slice 2 delivers the capability; migrating this project's backlog is a
+  separate explicit act that execution has not authorized.
+- **Test environment limit:** the interruption case injects failure with an
+  unwritable directory and skips when running as uid 0. It is exercised on
+  developer machines and on GitHub Actions' `runner` user, but a root-running
+  CI would silently skip it.
+- Slice 14 now has these additional files to declare:
+  `product-backlog-adopt.mjs`, `product-backlog-home.mjs`,
+  `product-backlog-source.mjs`.
 
 ## Coverage, stopping points, and remaining concerns
 

@@ -1,8 +1,9 @@
-// Applies one validated change to a backlog file. Cooperating script runs are
-// serialized through a lock directory beside the file and always re-read the
-// file inside the lock, so a concurrent run cannot lose the other's update.
-// This coordinates script writers only; it cannot protect the file from an
-// arbitrary external writer that ignores the lock.
+// Reads and replaces the files this tool edits, and applies one validated
+// change to a backlog file. Cooperating script runs are serialized through a
+// lock directory beside the backlog and always re-read it inside the lock, so
+// a concurrent run cannot lose the other's update. This coordinates script
+// writers only; it cannot protect the file from an arbitrary external writer
+// that ignores the lock.
 
 import {
   mkdirSync,
@@ -44,12 +45,23 @@ async function acquire(lockPath) {
   }
 }
 
-function read(path) {
+// Replaces a whole document in one step, so an interrupted run leaves either
+// the previous content or the new content and never a half-written file.
+// Operations that also record identities in canonical homes reuse this.
+export function replaceFile(path, contents) {
+  const temporaryPath = `${path}.tmp-${process.pid}`;
+  writeFileSync(temporaryPath, contents, "utf8");
+  renameSync(temporaryPath, path);
+}
+
+// Reads a file this tool edits, refusing with `missing` rather than crashing
+// when it is not there. The backlog and every canonical home come in here.
+export function readFile(path, missing) {
   try {
     return readFileSync(path, "utf8");
   } catch (error) {
     if (error.code === "ENOENT") {
-      throw new BacklogError(`Backlog file not found: ${path}`);
+      throw new BacklogError(missing);
     }
     throw error;
   }
@@ -61,10 +73,8 @@ export async function applyToBacklog(path, change) {
   const lockPath = `${path}.lock`;
   await acquire(lockPath);
   try {
-    const next = change(read(path));
-    const temporaryPath = `${path}.tmp-${process.pid}`;
-    writeFileSync(temporaryPath, next, "utf8");
-    renameSync(temporaryPath, path);
+    const source = readFile(path, `Backlog file not found: ${path}`);
+    replaceFile(path, change(source));
   } finally {
     rmdirSync(lockPath);
   }
