@@ -21,67 +21,140 @@ isolation must not postpone integration until the story is complete.
 
 ### 5. Complete execution and wrap-up in fresh Claude Code background mode
 
-**Status:** Captured; first backlog priority. Not refined or planned.
+**Status:** Refined 2026-09-18; third backlog priority. Not planned.
 
-**For / why:** A developer starting Open Dough work in Claude Code background
-mode on a fresh setup can execute and wrap up a story successfully without
-Claude Code first having to learn that developer's preferred workflow.
+**Goal:** A developer running Open Dough work in Claude Code background mode can
+take a queued story, execute it, and close it, ending with committed closure on
+the branch they already have checked out. The developer keeps ownership of
+branch publication and any pull request. This contributes to the seed's parent
+goal because background mode is how a developer launches several agents at
+once, so Open Dough must be usable there before parallel execution is
+worth pursuing.
 
-**Observed problem:** Claude Code background mode starts work in its own Git
-worktree and integrates the result through a pull request by default. The
-current `dough-execute-plan` and `dough-story-wrap-up` guidance instead assumes
-that it owns execution-worktree creation and that Story Branch Mode finishes by
-locally integrating the execution branch into the target branch and pushing
-that target. Existing learned user behavior can hide this mismatch, so an
-already-personalized Claude Code setup is not sufficient evidence.
+**Observed problem:** With its default `worktree.bgIsolation` setting, Claude
+Code background mode starts work in a host-created Git worktree on a branch
+that is not the project's integration branch. Three current rules do not
+compose with that checkout:
 
-**Scope candidate:** Reproduce the workflow in a fresh Claude Code background
-setup, then adapt execution-location, retained-identity, delivery, integration,
-and cleanup behavior so the Open Dough lifecycle composes safely with the
-host-provided worktree and pull-request path. Keep one shared behavioral source
-and introduce only the smallest necessary host-specific adaptation. Do not
-depend on conversation history, learned preferences, manual rescue, or a
-nested/replacement worktree.
+1. `dough-execute-plan` requires the **Taken** claim to be committed on the
+   resolved integration branch, and explicitly stops queued current-branch
+   execution when that branch is not available. A host-provided feature-branch
+   checkout therefore stops before the backlog changes.
+2. Story Branch Mode would create a second, nested worktree inside the
+   host-provided one.
+3. Story Branch Mode wrap-up integrates the execution branch into `main`
+   locally and pushes `origin main`, which is unsafe from a host checkout the
+   developer expects to publish themselves.
 
-**Evaluation:** From a fresh setup with no learned workflow preference, start a
-representative story in Claude Code background mode. The agent uses the
-host-provided worktree, completes `dough-execute-plan`, and runs
-`dough-story-wrap-up` through the pull-request integration lifecycle without
-attempting an unsafe local-main integration, losing recoverable work, or
-claiming completion before required integration and cleanup are complete. The
-run produces native evidence of the useful outcome rather than relying on
-self-report or an existing personalized session.
+An earlier capture also asserted that background mode integrates results through
+a pull request by default. Review on 2026-09-18 did not confirm that: the
+observed background-mode instruction is to commit or push only when asked and to
+branch first when on the default branch, with a pull request named only as one
+possible reported outcome. This story therefore treats pull-request cooperation
+as unproven and out of scope rather than as a requirement.
 
-**Value / learning:** This establishes whether Open Dough can cooperate with a
-materially different native activation and integration mode instead of working
-only after Claude Code has inferred one maintainer's intent. It also reveals
-which execution and closure rules are truly shared and which require a bounded
-host adaptation.
+**Scope — required behavior:**
 
-**Effort hypothesis:** M, low confidence; the guidance change may be small, but
-fresh background-mode setup, pull-request lifecycle ownership, and cleanup
-timing need native observation.
+- Installed Open Dough guidance states the supported background-mode
+  configuration, `worktree.bgIsolation` set to `none`, so a fresh installation
+  runs in the developer's project checkout rather than a host-created worktree.
+- Background-mode execution uses the existing direct-current-branch execution
+  location: it records the current checkout and branch for both execution and
+  integration and creates no worktree.
+- The claim rule resolves for a checkout that is not on the resolved integration
+  branch: either the claim is recorded safely, or execution stops before
+  changing the backlog with a diagnostic naming the current branch, the
+  resolved integration branch, and the action required.
+- Wrap-up ends at committed closure, as direct-current-branch mode already
+  specifies, and reports the branch the developer must publish.
 
-**Depends on:** A fresh Claude Code background environment with repository and
-pull-request access. No product prerequisite is known.
+**Scope — rejection constraints:** Do not create a nested or replacement
+worktree inside a host-provided one; ADR 0002 requires recoverable work, and a
+second worktree layer hides which checkout the host and the developer own. Do
+not advance or push the integration branch from a host-provided checkout. Do not
+change Story Branch Mode or Trunk Mode behavior; ADR 0007 remains Proposed and
+this story is not authorization to alter the other lifecycles.
+
+**Deferred promises:** This delivery does not build or verify pull-request
+creation, merge, or post-merge cleanup; cooperation with the default
+`bgIsolation` worktree isolation beyond stopping safely; a host-worktree
+detector, registry, or worktree manager; host keep-or-remove worktree exit
+handling; Codex or Cursor background equivalents; cloud or remote background
+sessions; or cleanup of pre-existing stale worktrees.
+
+**Key examples:**
+
+1. *Documented configuration.* A developer installs Open Dough into a fresh
+   project and follows the installed guidance to configure background mode.
+   Starting a background session leaves the session working in the project
+   checkout, and `git worktree list` gains no host-created entry.
+2. *Claim from a non-integration branch.* A background session sits on a feature
+   branch while the resolved integration branch is `main`, and the developer
+   selects a queued story. Execution either records the claim on the resolved
+   integration branch through the recorded originating checkout, or stops with
+   the backlog unchanged and reports the current branch, the resolved
+   integration branch, and the required action. It does not stall silently and
+   does not commit the claim to the wrong branch.
+3. *Closure without publication.* A story executes to completion in
+   direct-current-branch mode. Wrap-up commits the before-cleanup revision and
+   the final closure, removes the **Taken** entry, and stops. Local `main` is
+   not advanced, nothing is pushed to `origin main`, no branch or worktree is
+   deleted, and the report names the branch the developer publishes.
+4. *Unsupported configuration, boundary.* A background session starts under the
+   default `bgIsolation` inside a host-created worktree. Open Dough reports the
+   unsupported configuration and stops rather than nesting a second worktree or
+   guessing an integration target.
+
+**Evaluation:** Run the examples above in a scratch repository from an
+installation with no prior workflow personalization, meaning default Claude Code
+settings for worktree isolation and no retained memory of this maintainer's
+preferences. Judge the outcome from the session's working directory, `git`
+refs and worktree list, the backlog file contents, and the presence or absence
+of pushes — not from the agent's self-report, per ADR 0005 section 4.
+
+**Value / learning:** The documentation slice establishes cheaply whether a
+supported configuration alone makes a fresh installation work, which would
+retire the worktree half of this problem. The remaining slices establish whether
+the existing direct-current-branch mode is a sufficient host adaptation, and
+resolve where a queue claim can be recorded when the executing checkout is not
+on the integration branch. That question is shared with the same-machine merge
+queue story.
+
+**Effort hypothesis:** S–M, medium confidence. Refinement removed the
+pull-request lifecycle unknown and identified an existing execution mode that
+already fits, so the remaining cost is the claim-location resolution and one
+native background-mode observation.
+
+**Depends on:** No hard product prerequisite. Terry Yin sequenced this story
+after [Update the product backlog without hand-editing the shared list](#script-product-backlog-list-updates)
+and [Queue trunk integration for agents on the same machine](#same-machine-merge-queue)
+on 2026-09-18, because both touch the same claim-commit seam: recording a claim
+on the integration branch from an executing checkout that is not on it is the
+shared-checkout contention the merge queue story owns, and the claim commit is
+itself a backlog edit.
 
 **Architecture and boundaries:** Follow
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-by preserving recoverable, continuously integrated user-centric work;
+by preserving recoverable work and leaving publication with its owner;
 [ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
 requires fresh native evidence because background mode is a materially
 different activation mode; and
 [ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-requires shared behavior with only necessary host adaptation. This capture does
-not choose whether Claude Code, Open Dough, or a human owns pull-request merge
-and post-merge cleanup; refinement must resolve that boundary from observed
-native behavior. ADR 0007 remains Proposed and is not adopted by this story.
+is satisfied here by a documented configuration and a mode-selection rule rather
+than a second behavior copy. Refinement resolved the previously open ownership
+question: the developer owns branch publication and any pull request, and Open
+Dough does not take that responsibility in this story. ADR 0007 remains Proposed
+and is not adopted by this story.
+
+**Safe stopping point:** After the documentation slice, a fresh installation has
+a supported background-mode configuration and never nests a worktree. Cancelling
+the later slices leaves every other execution mode unchanged.
 
 <a id="same-machine-merge-queue"></a>
 
 ### 2. Queue trunk integration for agents on the same machine
 
-**Status:** Captured; third backlog priority. Not refined or planned.
+**Status:** Captured; second backlog priority. Not refined or planned.
 
 **Goal:** A developer running multiple agents in separate worktrees on the same
 machine gets orderly integration into their shared trunk without manually
@@ -119,7 +192,7 @@ solution if suitable; this capture authorizes no queue implementation.
 
 ### 4. Update the product backlog without hand-editing the shared list
 
-**Status:** Captured; middle backlog priority. Not refined or planned.
+**Status:** Captured; first backlog priority. Not refined or planned.
 
 **For / why:** An Open Dough maintainer coordinating parallel agents can add,
 take, reorder, or complete work in the plain-text product backlog through a
