@@ -209,7 +209,7 @@ one-sided reorder without a second algorithm.
 
 ### 3. Report actual reconciled changes without false no-change claims
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend CLI stdout assertions and run `bash tests/product-backlog.sh`.
 
 For a one-sided queue reorder, the persisted priority and report must agree;
@@ -221,6 +221,43 @@ reports, using semantic signals rather than freezing incidental wording.
 Reuse the shared reconciliation outcome; do not build a second merge algorithm
 inside the reporter. Sizing: one externally observable reporting correction
 and its focused proof loop; no new machine protocol or audit log.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 83 tests, 83 pass, 0
+fail, 0 skipped. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects, asserted on actual stdout, exit code, and
+destination bytes. Inspected locations, all in the new
+`tests/support/product-backlog-merge-report.test.mjs`: "merge report names a
+one-sided reprioritization instead of claiming nothing changed", which observes
+the published order and that the report names the reprioritized work and no
+other; "merge report does not read work shifting up behind a removal as a
+reprioritization", which observes that the report names only the removal; and
+"merge report says neither branch changed the ancestor only when neither did",
+which keeps the no-change claim truthful. Assertions read the report's meaning —
+the identity named and the kind of change named — rather than whole lines, so
+wording can improve without a test standing in the way.
+
+The report now says `reprioritized "<id>" in "## Backlog list"` where the
+audited revision said "neither changed the ancestor", and names changed text
+above or below the two lists. `reportMerge` needed no change: it was already
+truthful once handed a truthful change list.
+
+DD-056 closure: the `added`, `changed`, `removed`, and no-change outputs now
+carry assertions alongside the already-asserted direction and removal lines. The
+implementation's mutation table reported all seven outputs biting, and the
+coordinator independently blanked the `reprioritized` line and observed the new
+report tests fail before restoring the source and re-confirming 83 passing.
+
+Learnings: `readVersion`'s epilogue starts at the next `##` heading after the
+queue, so free text appended below the last queue entry is parsed as an
+unsupported list line and refused; any later test exercising text below the
+lists must give it a heading. An item that is both value-changed and
+reprioritized emits two lines, which is truthful but has no scenario producing
+it in the suite. A relocation that changes only the link while the identity is
+retained will report as `changed "<id>", now in "## <list>"`, which slices 5 and
+6 may want to phrase more specifically. New merge-report assertions belong in
+`product-backlog-merge-report.test.mjs` rather than the three files near the
+250-line guidance.
 
 ### 4. Retain recorded identities independently of navigation
 Type: Behavior

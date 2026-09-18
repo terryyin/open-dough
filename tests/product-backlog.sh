@@ -20,6 +20,7 @@ node --test \
   tests/support/product-backlog-merge-items-refusals.test.mjs \
   tests/support/product-backlog-merge-order.test.mjs \
   tests/support/product-backlog-merge-order-refusals.test.mjs \
-  tests/support/product-backlog-merge-direction.test.mjs
+  tests/support/product-backlog-merge-direction.test.mjs \
+  tests/support/product-backlog-merge-report.test.mjs
 
 echo 'PASS: scripted product backlog additions, placements, claims, completions, reference refreshes, direction updates, identity adoption, three-version reconciliation, and write safety.'
