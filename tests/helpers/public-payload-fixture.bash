@@ -59,6 +59,7 @@ managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/resolving-candidates.md
   dough-manual-testing/SKILL.md
+  dough-manual-testing/references/exploration-workspace.md
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
   dough-story-wrap-up/SKILL.md

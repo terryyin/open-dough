@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# Version records, changelog validation, numeric compare, and managed-payload
-# baseline comparison. Sourced by open-dough-release.sh.
+# Release validation, record comparison, and managed-payload baseline checks.
 report_managed_payload_mismatch() {
-  local skill_root=$1
-  local managed_file=$2
+  local skill_root=$1 managed_file=$2
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
@@ -63,6 +61,7 @@ managed_payload_unchanged() {
     dough-test-optimization/references/optimization-tactics.md
     dough-test-optimization/references/resolving-candidates.md
     dough-manual-testing/SKILL.md
+    dough-manual-testing/references/exploration-workspace.md
     dough-execution-retrospective/SKILL.md
     dough-execution-retrospective/references/bounded-process-log.md
     dough-story-wrap-up/SKILL.md

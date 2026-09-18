@@ -17,119 +17,11 @@ isolation must not postpone integration until the story is complete.
 
 ## Stories
 
-<a id="separate-bug-exploration-from-execution"></a>
-
-### 6. Separate bug exploration from repair execution
-
-**Status:** Refined; first backlog priority. Planned.
-[Slice plan](../quick/056-separate-bug-exploration-from-execution/PLAN.md).
-
-**Goal:** A developer reporting a bug gets a stable, disposable workspace for
-standalone investigation, while any later repair starts through
-`dough-execute-plan` in a different branch and worktree from the planning state
-integrated into `main`.
-
-**Current gap:** `dough-manual-testing` already gives standalone exploration a
-temporary branch and paired worktree with retained identity, safe resume, and
-safe cleanup. `dough-bug-fixing` instead enters planless execution immediately,
-so investigation and repair share an execution identity and an inconclusive or
-larger attempt can leave planning evidence entangled with that repair workspace.
-
-**PFE and architecture:** Reuse the manual-testing workspace lifecycle for the
-same domain responsibility: a standalone, checkout-bound exploration session
-needs one verified branch/worktree identity, reuse on resume, an unchanged
-originating checkout during exploration, and safe cleanup or exact retention.
-Do not copy those rules into `dough-bug-fixing`. Modularize them into one focused
-runtime reference used by both skills, preserving current manual-testing
-behavior. Keep bug-specific artifact integration and the handoff to
-`dough-execute-plan` in `dough-bug-fixing`; they do not belong to manual
-testing. Add no workspace manager, new skill, registry, configuration, or
-per-tool behavior copy.
-
-This follows
-[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-by preserving recoverable work and integrating the selected planning state
-before later execution, and
-[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-by keeping the shared lifecycle in one authoritative runtime source. ADR 0007
-remains Proposed and is not adopted by this story.
-
-**Scope:** When standalone bug investigation needs a project checkout and no
-story, plan, caller selection, or other workflow already supplies one, create a
-temporary branch and paired worktree from the verified current revision before
-checkout-bound investigation. Retain and verify that workspace identity across
-the bounded investigation and any resume. An already-established checkout stays
-authoritative and gets no nested workspace.
-
-Use the temporary workspace only to establish the report's validity, evidence,
-and routing. Do not repair the product there. A supported no-change conclusion
-or a confirmed bounded repair closes exploration before returning its evidence;
-an authorized repair then invokes `dough-execute-plan` from the applicable
-integrated revision, which creates its own execution branch and worktree under
-its existing rules.
-
-If exploration creates or updates a canonical story, executable plan, or other
-durable planning evidence under existing authority, commit only those owned
-artifacts on the exploration branch. Integrate that commit into `main`, rebase
-the exploration branch onto the resulting `main`, and only then remove the
-clean worktree and delete its branch. Later execution starts from that updated
-`main`; it never reuses or nests the exploration workspace. If integration,
-rebase, or cleanup is unsafe or incomplete, retain and report the exact
-workspace identity and evidence and do not start repair.
-
-**Key examples:**
-
-- Given a standalone report with no established checkout, investigation creates
-  one temporary branch and worktree before reproducing the discrepancy. When a
-  bounded repair is confirmed, exploration is cleaned up and
-  `dough-execute-plan` performs the repair in a fresh execution workspace.
-- Given an investigation that establishes larger or inconclusive work and is
-  authorized to create its canonical story and plan, those artifacts are
-  committed and integrated into `main`; the exploration branch is rebased onto
-  that `main`, then its clean worktree and branch are removed. The queued work
-  remains unexecuted until a later execution request creates a fresh workspace.
-- Given evidence that the reported behavior is already correct, the skill
-  reports the supported no-change result and safely removes the exploration
-  workspace without creating a story, plan, or execution workspace.
-- Given interruption, dirty state, ambiguous ownership, or failed integration,
-  rebase, or cleanup, the skill retains and reports the exact exploration
-  branch, worktree, starting revision, and durable evidence. It neither forces
-  cleanup nor starts repair from that workspace.
-- Given bug investigation already owned by a story, active plan, explicit
-  caller-selected checkout, or another workflow, the skill reuses that checkout
-  and creates no nested temporary workspace.
-
-**Deferred promises and boundaries:** Preserve the existing ten-minute bound,
-report gathering, reproduction standard, routing outcomes, backlog priority,
-and execution/refactoring obligations except where separating exploration from
-execution necessarily changes their sequencing. Do not add automatic planning
-authority, publish or push `main`, change `dough-execute-plan` workspace
-semantics, isolate shared accounts/services/databases, alter manual-testing
-behavior, or generalize the shared reference beyond these two proven
-exploration consumers. Temporary reproduction artifacts are evidence, not
-product changes to smuggle into `main`; preserve only the durable evidence
-needed by the selected route.
-
-**Safe stopping point:** Standalone bug investigation has one recoverable and
-disposable workspace, manual testing retains the same behavior through one
-shared source, and every repair starts from integrated state in a separately
-owned execution workspace.
-
-**Effort hypothesis:** S–M, medium confidence. The workspace lifecycle already
-exists and the smallest cohesive change is a focused extraction plus a
-bug-fixing handoff. The main uncertainty is preserving the current bounded
-repair and larger/inconclusive routing semantics while moving repair into a
-fresh execution workspace.
-
-**Depends on:** No unfinished product prerequisite. Reuse the delivered
-manual-testing workspace behavior recoverable at `2df8c8e` and the existing
-`dough-execute-plan` workspace lifecycle.
-
 <a id="claude-code-background-mode"></a>
 
 ### 5. Complete execution and wrap-up in fresh Claude Code background mode
 
-**Status:** Captured; second backlog priority. Not refined or planned.
+**Status:** Captured; first backlog priority. Not refined or planned.
 
 **For / why:** A developer starting Open Dough work in Claude Code background
 mode on a fresh setup can execute and wrap up a story successfully without
@@ -189,7 +81,7 @@ native behavior. ADR 0007 remains Proposed and is not adopted by this story.
 
 ### 2. Queue trunk integration for agents on the same machine
 
-**Status:** Captured; fourth backlog priority. Not refined or planned.
+**Status:** Captured; third backlog priority. Not refined or planned.
 
 **Goal:** A developer running multiple agents in separate worktrees on the same
 machine gets orderly integration into their shared trunk without manually
