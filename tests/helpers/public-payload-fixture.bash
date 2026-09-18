@@ -14,6 +14,7 @@ managed_files=(
   dough-bug-fixing/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
+  dough-product-backlog/references/identity.md
   dough-product-backlog/references/merge-conflicts.md
   dough-maintain-findings/SKILL.md
   dough-story-decomposition/SKILL.md
