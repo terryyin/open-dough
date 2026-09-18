@@ -32,6 +32,15 @@ export const queued = [
 export const takenEntry =
   "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008 ([plan](quick/057-script-product-backlog/PLAN.md))";
 
+// The identity each line above carries, spelled out rather than derived, so a
+// test naming one of them does not take the product's own derivation as its
+// expectation. Every operation names work this way, so they live beside the
+// lines they belong to instead of being respelled per test file.
+export const trunkQueue = "SEED-008#same-machine-merge-queue";
+export const skipRetrospective = "SEED-001#default-skip-process-retrospective";
+export const architecture = "SEED-004#proudly-found-elsewhere-design";
+export const takenStory = "SEED-008#script-product-backlog-list-updates";
+
 export const backlog = `# Product backlog
 
 ## Near-future direction
@@ -57,7 +66,7 @@ export const addedLine = `- [${added.title}](${added.link}) — SEED-002`;
 
 export function addArguments(
   request = added,
-  placement = ["--after", "SEED-001#default-skip-process-retrospective"],
+  placement = ["--after", skipRetrospective],
 ) {
   return [
     "add",
@@ -104,6 +113,12 @@ export async function run(project, arguments_, environment = {}) {
   } catch (error) {
     return { code: error.code, stdout: error.stdout, stderr: error.stderr };
   }
+}
+
+// How many times a document holds `needle`, for the tests that establish an
+// entry is listed once, or not at all, rather than merely present or absent.
+export function occurrences(text, needle) {
+  return text.split(needle).length - 1;
 }
 
 // The backlog with the added entry at `index` places into the queue.

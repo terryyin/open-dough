@@ -3,12 +3,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  architecture,
   backlog,
+  occurrences,
   projectFile,
   queued,
   run,
   scratchProject,
+  skipRetrospective,
   takenEntry,
+  takenStory,
+  trunkQueue,
 } from "./product-backlog-fixture.mjs";
 
 const planPath = "quick/058-queue-trunk-integration/PLAN.md";
@@ -16,11 +21,6 @@ const otherPlan = "quick/059-strengthen-architectural-review/PLAN.md";
 const correctionPlan = "quick/060-repair-the-release-notes/PLAN.md";
 const correctionEntry = `- [Repair the release notes](${correctionPlan})`;
 const withCorrection = `${backlog}${correctionEntry}\n`;
-
-const trunkQueue = "SEED-008#same-machine-merge-queue";
-const skipRetrospective = "SEED-001#default-skip-process-retrospective";
-const architecture = "SEED-004#proudly-found-elsewhere-design";
-const takenStory = "SEED-008#script-product-backlog-list-updates";
 
 const claim = (identity, ...plan) => ["take", "--identity", identity, ...plan];
 const withPlan = (target) => ["--plan", target];
@@ -37,10 +37,6 @@ function afterTake(source, queuedLine, takenLine) {
   }
   lines.splice(at, 0, takenLine);
   return lines.join("\n");
-}
-
-function occurrences(text, needle) {
-  return text.split(needle).length - 1;
 }
 
 test("take moves queued work to the end of Taken with its plan link", async (t) => {

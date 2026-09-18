@@ -7,10 +7,14 @@ import {
   added,
   addArguments,
   addedLine,
+  architecture,
   backlog,
+  occurrences,
   queued,
   run,
   scratchProject,
+  skipRetrospective,
+  takenStory,
   withEntry,
 } from "./product-backlog-fixture.mjs";
 
@@ -18,11 +22,11 @@ test("add places one identified entry and preserves every other byte", async (t)
   const placements = [
     { placement: ["--position", "first"], index: 0 },
     {
-      placement: ["--before", "SEED-001#default-skip-process-retrospective"],
+      placement: ["--before", skipRetrospective],
       index: 1,
     },
     {
-      placement: ["--after", "SEED-001#default-skip-process-retrospective"],
+      placement: ["--after", skipRetrospective],
       index: 2,
     },
     { placement: ["--position", "last"], index: 3 },
@@ -75,7 +79,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
         "--link",
         added.link,
         "--after",
-        "SEED-001#default-skip-process-retrospective",
+        skipRetrospective,
       ],
       expect:
         /Missing identity: supply --identity\..*identity-adoption operation/s,
@@ -84,7 +88,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
       why: "identity already queued",
       arguments_: addArguments(
         {
-          identity: "SEED-004#proudly-found-elsewhere-design",
+          identity: architecture,
           title:
             "Strengthen architectural review after using the lightweight guidance",
           link: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
@@ -97,7 +101,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
       why: "identity already taken",
       arguments_: addArguments(
         {
-          identity: "SEED-008#script-product-backlog-list-updates",
+          identity: takenStory,
           title:
             "Update the product backlog without hand-editing the shared list",
           link: "seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates",
@@ -141,10 +145,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
     },
     {
       why: "anchor is a taken entry",
-      arguments_: addArguments(added, [
-        "--after",
-        "SEED-008#script-product-backlog-list-updates",
-      ]),
+      arguments_: addArguments(added, ["--after", takenStory]),
       expect: /Anchor identity .* is in "## Taken"/,
     },
     {
@@ -154,11 +155,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
     },
     {
       why: "two relative positions",
-      arguments_: addArguments(added, [
-        ...first,
-        "--after",
-        "SEED-001#default-skip-process-retrospective",
-      ]),
+      arguments_: addArguments(added, [...first, "--after", skipRetrospective]),
       expect: /Supply exactly one of --after, --before, or --position/,
     },
   ];
@@ -182,7 +179,7 @@ test("add refuses a repeated request without listing the work twice", async (t) 
   assert.equal(again.code, 1);
   assert.match(again.stderr, /already listed in "## Backlog list"/);
   assert.equal(project.read(), applied);
-  assert.equal(applied.split(addedLine).length - 1, 1);
+  assert.equal(occurrences(applied, addedLine), 1);
 });
 
 test("add refuses a malformed or already duplicated backlog unchanged", async (t) => {

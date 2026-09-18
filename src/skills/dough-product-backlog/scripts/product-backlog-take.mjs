@@ -12,30 +12,19 @@ import { resolve } from "node:path";
 import {
   BacklogError,
   parseBacklog,
-  queueHeading,
   renderBacklog,
   renderEntry,
-  requireField,
   takenHeading,
 } from "./product-backlog-document.mjs";
-import { appendIndex, moveEntryLine } from "./product-backlog-placement.mjs";
+import {
+  appendIndex,
+  findEntry,
+  moveEntryLine,
+} from "./product-backlog-placement.mjs";
 import { readFile } from "./product-backlog-store.mjs";
 
 // How the established backlog spells an active plan link.
 const planLabel = "plan";
-
-function findEntry(document, identity) {
-  requireField(identity, "identity");
-  const entry = document.entries.find((each) => each.identity === identity);
-  if (!entry) {
-    throw new BacklogError(
-      `Identity "${identity}" is in neither "## ${takenHeading}" nor ` +
-        `"## ${queueHeading}". This operation never writes an absent entry: ` +
-        `queue the work first, or supply the identity the backlog carries.`,
-    );
-  }
-  return entry;
-}
 
 // The plan link the taken entry carries, from the caller's explicit choice.
 // A quick story and a bounded correction take none: a correction's canonical
@@ -82,7 +71,12 @@ function resolvePlan(entry, request) {
 // resumed with the entry already as it should be and so "unchanged".
 export function takeEntry(source, request) {
   const document = parseBacklog(source);
-  const entry = findEntry(document, request.identity);
+  const entry = findEntry(
+    document,
+    request.identity,
+    `This operation never writes an absent entry: queue the work first, or ` +
+      `supply the identity the backlog carries.`,
+  );
   const plan = resolvePlan(entry, request);
   const line = renderEntry({
     identity: entry.identity,

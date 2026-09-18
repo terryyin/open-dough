@@ -6,6 +6,7 @@
 // that ignores the lock.
 
 import {
+  existsSync,
   mkdirSync,
   readFileSync,
   renameSync,
@@ -70,10 +71,21 @@ export function readFile(path, missing) {
 // Reads the file, applies `change` to its current bytes, and replaces the file
 // atomically. A refused change leaves the file untouched.
 export async function applyToBacklog(path, change) {
+  const missing = `Backlog file not found: ${path}`;
+  // The lock is made beside the backlog, so a path that is not there at all
+  // cannot be locked either. Establishing the file first keeps a mistyped path
+  // an ordinary refusal instead of a failure to create its lock, and neither
+  // the lock nor the directory a typo names is ever created. The read inside
+  // the lock stays the authoritative one: it refuses the same way if the file
+  // goes away while this run is waiting.
+  if (!existsSync(path)) {
+    throw new BacklogError(missing);
+  }
+
   const lockPath = `${path}.lock`;
   await acquire(lockPath);
   try {
-    const source = readFile(path, `Backlog file not found: ${path}`);
+    const source = readFile(path, missing);
     replaceFile(path, change(source));
   } finally {
     rmdirSync(lockPath);

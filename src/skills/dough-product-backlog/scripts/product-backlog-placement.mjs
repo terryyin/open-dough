@@ -1,9 +1,34 @@
-// Where an entry line sits inside one of the backlog's two lists, and how a
-// line is written there without disturbing the text around it. Adding an entry
-// and moving one between lists ask the same questions, so they ask them here.
+// Which entries a list holds, which entry an operation was asked to change,
+// where an entry line sits inside one of the backlog's two lists, and how a
+// line is written or taken out there without disturbing the text around it.
+// Adding an entry, moving one between lists, and removing one ask the same
+// questions, so they ask them here.
+
+import {
+  BacklogError,
+  queueHeading,
+  requireField,
+  takenHeading,
+} from "./product-backlog-document.mjs";
 
 export function entriesIn(document, name) {
   return document.entries.filter((entry) => entry.list === name);
+}
+
+// Names the one active entry an operation was asked to change. An absent
+// identity is a refusal rather than an empty result, so no operation invents
+// work the backlog does not carry or silently does nothing; `hint` says what
+// the caller of that particular operation can do about it.
+export function findEntry(document, identity, hint) {
+  requireField(identity, "identity");
+  const entry = document.entries.find((each) => each.identity === identity);
+  if (!entry) {
+    throw new BacklogError(
+      `Identity "${identity}" is in neither "## ${takenHeading}" nor ` +
+        `"## ${queueHeading}". ${hint}`,
+    );
+  }
+  return entry;
 }
 
 // The line a new entry takes at the end of a section, including a section that
@@ -39,4 +64,14 @@ export function insertEntryLine(document, index, line) {
 export function moveEntryLine(document, from, to, line) {
   document.lines.splice(from, 1);
   insertEntryLine(document, to > from ? to - 1 : to, line);
+}
+
+// Takes the entry line at `index` out, collapsing only the blank line that the
+// removed entry itself was holding apart from what follows its list. Every
+// other line, including the text around both lists, is left as it was.
+export function removeEntryLine(document, index) {
+  document.lines.splice(index, 1);
+  if (document.lines[index - 1] === "" && document.lines[index] === "") {
+    document.lines.splice(index, 1);
+  }
 }

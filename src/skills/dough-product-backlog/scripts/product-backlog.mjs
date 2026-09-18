@@ -7,6 +7,7 @@ import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
 import { adoptIdentities } from "./product-backlog-adopt.mjs";
+import { completeEntry } from "./product-backlog-complete.mjs";
 import {
   BacklogError,
   queueHeading,
@@ -23,6 +24,7 @@ const usage = `Usage: product-backlog.mjs add --identity <id> --title <title> --
                              [--file <path>]
        product-backlog.mjs take --identity <id> (--plan <path> | --no-plan)
                              [--file <path>]
+       product-backlog.mjs complete --identity <id> [--file <path>]
        product-backlog.mjs adopt --all [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
@@ -33,6 +35,12 @@ identity and adding the selected plan link; an entry already there is resumed in
 place. The plan decision is always stated: --plan names the active plan, and
 --no-plan takes a quick story, or a correction whose canonical home is already
 its plan. Taking work does not decide or grant execution authority.
+
+complete removes one identified entry from whichever active list holds it,
+applying a completion the caller has already decided. It never decides whether
+work is complete, and it never deletes a story or plan file: closing those
+canonical homes stays with the caller's wrap-up. Removal happens only on this
+explicit request naming the identity.
 
 adopt records one identity for every active entry in the canonical homes its
 links name, reusing the ID each home already carries. It changes no membership,
@@ -92,6 +100,19 @@ async function add(file, values) {
   );
 }
 
+// Applies one change whose report needs more than the published bytes. The
+// operation returns the backlog to publish alongside what it did; only the
+// bytes reach the write boundary, and the outcome comes back here so that the
+// report is written from a change already on disk.
+async function applyReportedChange(file, operate) {
+  let outcome;
+  await applyToBacklog(file, (source) => {
+    outcome = operate(source);
+    return outcome.source;
+  });
+  return outcome;
+}
+
 // The caller always states whether the work has an active plan, so a planned
 // story can never be taken without its link by leaving an option out.
 function readPlan(values) {
@@ -122,13 +143,23 @@ async function take(file, values) {
     plan: readPlan(values),
     backlogDirectory: dirname(file),
   };
-  let outcome;
-  await applyToBacklog(file, (source) => {
-    outcome = takeEntry(source, request);
-    return outcome.source;
-  });
+  const outcome = await applyReportedChange(file, (source) =>
+    takeEntry(source, request),
+  );
 
   console.log(reportTake(outcome, values.file));
+}
+
+async function complete(file, values) {
+  const outcome = await applyReportedChange(file, (source) =>
+    completeEntry(source, { identity: values.identity }),
+  );
+
+  const { identity, list, href } = outcome.entry;
+  console.log(
+    `Removed "${identity}" from "## ${list}" in ${values.file}. ` +
+      `Its canonical home ${href} was not changed.`,
+  );
 }
 
 function reportAdopt(outcome, file) {
@@ -160,16 +191,14 @@ async function adopt(file, values) {
         `entry is always an explicit request.\n\n${usage}`,
     );
   }
-  let outcome;
-  await applyToBacklog(file, (source) => {
-    outcome = adoptIdentities(source, dirname(file));
-    return outcome.source;
-  });
+  const outcome = await applyReportedChange(file, (source) =>
+    adoptIdentities(source, dirname(file)),
+  );
 
   console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, take, adopt };
+const operations = { add, take, complete, adopt };
 
 async function main(argv) {
   let parsed;

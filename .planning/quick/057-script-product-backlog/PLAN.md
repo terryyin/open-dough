@@ -270,8 +270,12 @@ Hypothesis: one state transition using the existing identity/write model.
 
 ### 4. Remove only the explicitly completed item
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='complete' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='complete' tests/support/product-backlog-complete.test.mjs`,
+plus `node --test --test-name-pattern='write safety' tests/support/product-backlog-write-safety.test.mjs`
+for the write-boundary defect fix below, and `bash tests/product-backlog.sh` as
+the discovered entry point. Completion lives in its own test file, so the
+planned single-file command was superseded.
 
 Given an explicitly selected completed ID, remove only that active entry from
 its current list. Preserve siblings and order in both lists. Cover standalone
@@ -688,6 +692,53 @@ Decisions and observations that bind later slices:
   rests on the existing lock proved by slice 1's write-safety cases.
 - Slice 14 now also has `product-backlog-take.mjs` and
   `product-backlog-placement.mjs` to declare.
+
+### Slice 4 (done)
+
+New CLI verb `complete --identity <id>`, which removes exactly the one named
+entry from whichever active list holds it. `product-backlog-placement.mjs` now
+also owns `findEntry` and `removeEntryLine`. The CLI gained
+`applyReportedChange`, so the three verbs that need an outcome back from the
+write boundary share one protocol.
+
+Decisions and observations that bind later slices:
+
+- **A repeated removal refuses; it does not report "already applied".** The
+  boundaries forbid a completed-item registry, so the script keeps no record of
+  removed work and genuinely cannot distinguish an earlier run's removal from a
+  mistyped identity. Claiming success would report a removal it did not make and
+  would mask a typo while the item the caller meant is still listed. The refusal
+  names both possibilities. **Consequence for slice 14:** installed guidance must
+  read that specific nonzero exit as "the outcome already holds", not as a
+  failure needing repair, so a wrap-up caller re-running closure after an
+  interruption is not sent into a repair path.
+- **The script never judges completion and never deletes a canonical home.** A
+  missing plan file, a missing seed, and a plan's status text establish nothing.
+  The proof asserts seed and plan files are byte-identical after every removal
+  and after every refusal. `dough-story-wrap-up` keeps its ownership of closure,
+  including seed, plan, and proof cleanup; this verb is the mechanical entry
+  removal it will call once slice 14 rewrites the guidance.
+- **Removal is never implicit.** It is reachable only through its own verb with
+  an explicit identity, proved by driving take, resume, and add and asserting
+  every title still occurs exactly once.
+
+Defect found and fixed in already-delivered slice 1 code:
+
+- `applyToBacklog` tried to create the lock beside the backlog before
+  establishing that the backlog was there, so a `--file` path whose directory
+  was absent crashed with a raw `ENOENT` from `mkdirSync` instead of refusing.
+  That contradicted the boundary requiring missing input to return a nonzero
+  outcome with actionable context, and it affected every verb. The guard now
+  refuses with `Backlog file not found: <path>` and creates nothing — no
+  directory, no file, no lock. The new write-safety case was confirmed to fail
+  against the pre-fix store with exactly the reported crash, so it pins the
+  defect rather than merely passing.
+- **Known limit, deliberately not expanded:** a `--file` path that exists but is
+  a *directory* still fails with an unhandled `EISDIR` from `readFileSync`
+  inside the lock. Fixing it would widen `readFile`'s error translation across
+  every caller including canonical homes. Slice 14's installed-use review
+  decides whether it needs the same treatment.
+- Slice 14 now also has `product-backlog-complete.mjs` to declare.
 
 ## Coverage, stopping points, and remaining concerns
 
