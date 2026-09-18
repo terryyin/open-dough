@@ -16,6 +16,7 @@ node --test \
   tests/support/product-backlog-direction-refusals.test.mjs \
   tests/support/product-backlog-adopt.test.mjs \
   tests/support/product-backlog-adopt-refusals.test.mjs \
+  tests/support/product-backlog-identity.test.mjs \
   tests/support/product-backlog-merge-items.test.mjs \
   tests/support/product-backlog-merge-items-refusals.test.mjs \
   tests/support/product-backlog-merge-order.test.mjs \

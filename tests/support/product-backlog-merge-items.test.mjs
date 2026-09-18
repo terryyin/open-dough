@@ -133,7 +133,7 @@ test("merge items reads one work item through its canonical home", async (t) => 
     backlogOf(
       [takenEntry],
       [
-        `- [Publish the release notes with the tag](${home}) — SEED-002`,
+        `- [Publish the release notes with the tag](${home}) — SEED-002#publish-the-release-notes`,
         retrospective,
       ],
     ),

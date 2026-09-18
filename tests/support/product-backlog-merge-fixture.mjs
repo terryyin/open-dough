@@ -38,9 +38,9 @@ export function versions(project, ancestor, one, other) {
 // Entries named by a single letter, so a list's order reads as its letters and
 // the lexical tie-break the Taken rule uses is visible in the expectation
 // rather than hidden in a real story title.
-export const item = (letter) =>
-  `- [Story ${letter}](seeds/SEED-003-ordering.md#story-${letter.toLowerCase()}) — SEED-003`;
 export const named = (letter) => `SEED-003#story-${letter.toLowerCase()}`;
+export const item = (letter) =>
+  `- [Story ${letter}](seeds/SEED-003-ordering.md#story-${letter.toLowerCase()}) — ${named(letter)}`;
 export const list = (letters) => [...letters].map(item);
 
 // One branch's version of a backlog, made the way a branch really makes one:

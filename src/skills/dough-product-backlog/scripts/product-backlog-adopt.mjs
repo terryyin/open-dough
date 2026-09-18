@@ -1,8 +1,12 @@
-// Records one identity for every active backlog entry in its canonical homes.
+// Records one identity for every active backlog entry in its canonical homes,
+// and writes that identity into the entry in full.
 //
 // Adoption reuses the ID a canonical home already carries — a seed's own ID
 // with the story's stable anchor, or the document's canonical path when the
 // item has no seed. It never invents a number and never consults a registry.
+// An entry that already means the right identity but spells it in the older
+// shorthand keeps that identity and is rewritten to record it in full, so the
+// value stops depending on where the link happens to point.
 // It also never queues, takes, reorders, or removes work: membership, order,
 // titles, links, and the direction keep the meaning they already had.
 //
@@ -26,10 +30,13 @@ function describe(entry) {
   return `line ${entry.index + 1} "${entry.title}"`;
 }
 
-// The identity this work item keeps. An anchored story reuses its seed's own
-// ID; anything else keeps the identity its written entry already reads as.
+// The identity this work item keeps. An entry already recording its identity
+// in full keeps it: allocation happened once, and a canonical home that has
+// since been renamed, moved, or re-anchored does not run it again. An anchored
+// story that has never recorded one takes its seed's own ID with the anchor it
+// is filed under; anything else keeps what its written entry already reads as.
 function adoptedIdentity(entry, home) {
-  if (home.anchor === "") {
+  if (home.anchor === "" || entry.recordsIdentityInFull) {
     return entry.identity;
   }
   if (home.documentId === "") {
@@ -72,12 +79,15 @@ function planEntry(backlogDirectory, entry) {
     }
   }
   // Written now so an unwritable entry line is refused before any home is
-  // recorded. Only the identity token changes; the title and links are kept.
-  const line =
-    entry.identity === identity
-      ? undefined
-      : renderEntry({ ...entry, identity });
-  return { entry, identity, homes, line };
+  // recorded. Only the recorded identity changes; the title and links are
+  // kept, and an entry already recording it in full is left byte for byte.
+  const written = renderEntry({ ...entry, identity });
+  return {
+    entry,
+    identity,
+    homes,
+    line: written === entry.line ? undefined : written,
+  };
 }
 
 // Two work items may never end up sharing an identity or a canonical home.

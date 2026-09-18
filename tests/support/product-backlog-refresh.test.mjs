@@ -55,7 +55,7 @@ test("refresh reference carries the identity to a renamed canonical home", async
     project.read(),
     backlogWith(
       lines.retrospective,
-      `- [${retitled}](${movedAnchor}) — SEED-001`,
+      `- [${retitled}](${movedAnchor}) — ${identities.retrospective}`,
     ),
   );
   assert.equal(
@@ -85,7 +85,7 @@ test("refresh reference retitles an entry without touching its link", async (t) 
     project.read(),
     backlogWith(
       lines.trunk,
-      `- [${retitled}](${seedEight}#same-machine-merge-queue) — SEED-008`,
+      `- [${retitled}](${seedEight}#same-machine-merge-queue) — ${identities.queue}`,
     ),
   );
   assert.deepEqual(withoutBacklog(project.snapshot()), withoutBacklog(before));
@@ -110,7 +110,7 @@ test("refresh reference repoints an entry at its relocated plan", async (t) => {
     project.read(),
     backlogWith(
       lines.taken,
-      `- [Update the product backlog without hand-editing the shared list](${seedEight}#script-product-backlog-list-updates) — SEED-008 ([plan](${movedPlan}))`,
+      `- [Update the product backlog without hand-editing the shared list](${seedEight}#script-product-backlog-list-updates) — ${identities.taken} ([plan](${movedPlan}))`,
     ),
   );
   assert.match(result.stdout, /Refreshed the plan link of .* in "## Taken"/);

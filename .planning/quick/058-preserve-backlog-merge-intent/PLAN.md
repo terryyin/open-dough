@@ -261,7 +261,7 @@ retained will report as `changed "<id>", now in "## <list>"`, which slices 5 and
 
 ### 4. Retain recorded identities independently of navigation
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the existing adoption CLI cases; run `bash tests/product-backlog.sh`.
 
 Explicitly adopt active entries into a representation that records their full
@@ -280,6 +280,65 @@ location change. Keep this to record/preserve semantics; mandatory script
 routing, installation, and native-use proof remain successor responsibilities.
 Sizing concern: round-trip and mixed-format compatibility cross existing callers;
 keep the change in the shared identity model, not per-command exceptions.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 87 tests, 87 pass, 0
+fail, 0 skipped. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects. Inspected locations, in the new
+`tests/support/product-backlog-identity.test.mjs`: "add records an identity the
+link no longer spells", which writes an entry whose link spells neither the
+identity's seed token nor its anchor, reads it back, and then reprioritizes it
+by that recorded identity; "adopt identity: an entry whose home has moved keeps
+its recorded identity", which observes the entry unchanged, the moved home's
+bytes unchanged, zero occurrences of a re-derived identity, and a second run
+leaving the project snapshot identical; and "adopt identity: a legacy shorthand
+entry keeps the identity it already meant". The coordinator additionally checked
+the round-trip invariant across all four branches of the model — what the writer
+records, the reader reads back as the same identity — and confirmed the two
+replaced refusal cases in `tests/support/product-backlog.test.mjs` are
+same-count and stricter in wording than the link-agreement cases they retire.
+
+Representation as delivered: an entry records its identity in full beside the
+link, so `— SEED-001#default-skip-process-retrospective` rather than
+`— SEED-001` with the anchor borrowed from the link. A recorded value holding
+`#` is the identity verbatim and is never recomposed; a value without one is the
+older shorthand, still read against the link's anchor so entries written before
+this slice name exactly the work they always named; an entry recording nothing
+is still identified by its link. Nothing is recorded when the link already
+spells the identity exactly. The link-agreement refusals are removed as the
+confirmed identity correction requires, and three ambiguity refusals replace
+them: an identity that cannot be written in an entry, an identity that is only
+an anchor, and an identity with no anchor written beside an anchored link, which
+could not be read back because it would be mistaken for the shorthand.
+
+Open question for a human, raised by this slice and deliberately not decided
+here: with link agreement gone, `add` performs no identity-versus-home check at
+all, because it never reads canonical homes. A mistyped identity that the old
+rule refused is now accepted. The record-based replacement — refusing when the
+linked home already records a different identity — would give `add` a new
+responsibility to read homes, which this slice's record-and-preserve boundary
+and the no-per-command-exceptions constraint both point away from. It plausibly
+belongs with slice 6's identity-ambiguity rules or the successor story.
+
+Learnings: `requireCarriedIdentity` in
+`src/skills/dough-product-backlog/scripts/product-backlog-refresh.mjs` still
+refuses relocating a path-identified correction plan, and its refusal test still
+passes; both were left untouched because slice 5 owns that boundary. Anchored
+relocation through `refresh` already succeeds as a consequence of the shared
+model, verified by disposable probe but deliberately left without a maintained
+test, which is slice 5's journey. Slice 6's rule that conflicting recorded
+identities must not be equated merely because their links coincide is not yet
+true: two entries sharing a link are still refused as a duplicate home
+regardless of identity, which is probably the right stop but is untested.
+`parseEntryLine` in `product-backlog-document.mjs` has no caller anywhere and
+predates this correction; slices 5 and 6 may reach for it, so it was flagged
+rather than removed. The adopt report now has three shapes, so a later slice
+must not reintroduce a no-change claim keyed only on the count of recorded
+identities. This repository's own `.planning/PRODUCT-BACKLOG.md` remains in the
+legacy shorthand and reads correctly; migration is explicit and was not applied
+to maintainer data. Installed managed copies under `.agents/skills/` and
+`.claude/skills/` still carry the pre-change payload, so cross-tool discovery of
+`references/identity.md` is unproven until a release payload is built.
 
 ### 5. Refresh a relocated home while retaining its identity
 Type: Behavior

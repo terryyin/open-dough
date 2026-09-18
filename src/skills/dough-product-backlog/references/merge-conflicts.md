@@ -11,8 +11,11 @@ without asking for confirmation.
    unpublished suffix. Git ours/theirs labels during rebase do not name intent.
    Compare each side with the ancestor and retain a brief per-identity account of
    changed membership, links, or ordering in the working context. Include sibling
-   work, not just the story being wrapped up. Match established story or correction
-   identities, including known story-to-plan links; a shared seed ID is insufficient.
+   work, not just the story being wrapped up. Match work items by their recorded
+   identity under [work item identity](identity.md), including known
+   story-to-plan links; a shared seed ID is insufficient, and a side that only
+   relinked a renamed or moved canonical home changed its navigation, not its
+   identity.
    Consult affected history or canonical homes only if identity or intent is
    unclear. Use history when cleanup deleted a needed canonical home; missing
    artifacts alone do not prove completion.

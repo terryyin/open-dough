@@ -111,12 +111,10 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
       expect: /already listed in "## Taken"/,
     },
     {
-      why: "identity anchor disagrees with the canonical home",
-      arguments_: addArguments(
-        { ...added, identity: "SEED-002#a-different-anchor" },
-        first,
-      ),
-      expect: /Ambiguous canonical home: identity .* names anchor/,
+      why: "identity records no anchor beside an anchored link",
+      arguments_: addArguments({ ...added, identity: "SEED-002" }, first),
+      expect:
+        /Ambiguous canonical home: identity "SEED-002" names no anchor but the link .* names "publish-the-release-notes"/,
     },
     {
       why: "canonical home already listed under another identity",
@@ -131,12 +129,12 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
       expect: /the canonical home .* is already listed in "## Backlog list"/,
     },
     {
-      why: "identity is not named by the canonical home",
+      why: "identity cannot be written in an entry at all",
       arguments_: addArguments(
-        { ...added, identity: "SEED-999#publish-the-release-notes" },
+        { ...added, identity: "SEED-002 (publish)" },
         first,
       ),
-      expect: /Ambiguous canonical home: identity .* does not/,
+      expect: /Ambiguous canonical home: identity .* cannot be written/,
     },
     {
       why: "unknown relative anchor",

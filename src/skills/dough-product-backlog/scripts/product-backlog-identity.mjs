@@ -1,9 +1,12 @@
-// What a work item's identity is. An identity is spelled from the canonical
-// home its entry links, so reading one off a written entry, composing one for
-// a new entry, and checking that a supplied one is actually named by the link
-// are all the same question asked from different sides. They are asked here,
-// so the spelling has one owner and a link and an identity that disagree are
-// always handed to a human in the same words.
+// What a work item's identity is. An identity is recorded once and then kept:
+// reading one off a written entry, composing one for a new entry, and spelling
+// one back into an entry are all the same question asked from different sides.
+// They are asked here, so the spelling has one owner.
+//
+// A recorded identity is independent of the link beside it. The link is
+// navigation — where the canonical home is right now — and moving or renaming
+// that home never re-identifies the work. That is why the entry records the
+// identity in full rather than leaving it to be reconstructed from the link.
 
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
@@ -27,62 +30,64 @@ export function splitHref(href) {
     : { path: href.slice(0, marker), anchor: href.slice(marker + 1) };
 }
 
-// How an identity is spelled: the ID the canonical home carries, narrowed by
-// the story anchor when there is one. Deriving and adopting an identity both
-// compose it here, so the spelling has one owner.
+// How an identity is spelled when it is first taken from a canonical home: the
+// ID that home carries, narrowed by the story anchor when there is one. Only
+// adoption composes an identity; everything afterwards carries the composed
+// value about unchanged.
 export function composeIdentity(token, anchor) {
   return anchor ? `${token}#${anchor}` : token;
 }
 
-// The identity a written entry reads as: its recorded token narrowed by the
-// link's anchor, or the bare link when no identity has been adopted yet.
-export function identityFor(href, token) {
-  if (!token) {
-    return href;
-  }
-  return composeIdentity(token, splitHref(href).anchor);
+// Whether a value recorded beside a link is the whole identity. One that
+// names an anchor is read back as itself, whatever the link says; one that
+// does not is the older shorthand, still read against the link's anchor. Every
+// caller asks the question here, so the two spellings are told apart once.
+export function recordsIdentityInFull(recorded) {
+  return recorded.includes("#");
 }
 
-// An identity must already be named by the canonical home it points at. This
-// establishes which token, if any, the written entry carries.
-export function tokenFor(identity, href) {
-  const { path, anchor } = splitHref(href);
-
-  if (identity.includes("#")) {
-    const { path: token, anchor: expected } = splitHref(identity);
-    if (expected !== anchor) {
-      throw ambiguousHome(
-        `identity "${identity}" names anchor "${expected}" but the link ` +
-          `names "${anchor || "no anchor"}".`,
-      );
-    }
-    if (token === "" || !path.includes(token)) {
-      throw ambiguousHome(
-        `identity "${identity}" names "${token}" but the link path ` +
-          `"${path}" does not.`,
-      );
-    }
-    return token;
+// The identity a written entry reads as. A recorded identity is written in
+// full, so it reads back as itself however the link has since changed. An
+// entry written before identities were recorded in full carries only the seed
+// token, which is still read against the link's anchor so that such an entry
+// names the same work item it always named. An entry that records nothing is
+// still identified by the link it carries, as it was before adoption.
+export function identityFor(href, recorded) {
+  if (!recorded) {
+    return href;
   }
+  if (recordsIdentityInFull(recorded)) {
+    return recorded;
+  }
+  return composeIdentity(recorded, splitHref(href).anchor);
+}
 
-  if (identity.includes("/")) {
-    if (identity !== href) {
-      throw ambiguousHome(
-        `path identity "${identity}" does not match the link "${href}".`,
-      );
-    }
+// What a written entry records for a given identity: the identity itself,
+// unless the link already spells it exactly, in which case there is nothing
+// to record beside it. This never asks the link to agree with the identity —
+// a relocated home is the ordinary case, not a refusal.
+export function recordedFor(identity, href) {
+  if (identity === href) {
     return "";
   }
-
-  if (anchor !== "") {
+  const { anchor } = splitHref(href);
+  if (/[\s()[\]]/.test(identity)) {
     throw ambiguousHome(
-      `identity "${identity}" names no anchor but the link names ` +
-        `"${anchor}".`,
+      `identity "${identity}" cannot be written in an entry, which holds no ` +
+        `whitespace, brackets, or parentheses.`,
     );
   }
-  if (!path.includes(identity)) {
+  if (identity.startsWith("#")) {
     throw ambiguousHome(
-      `identity "${identity}" is not named by the link path "${path}".`,
+      `identity "${identity}" names an anchor and no work item of its own.`,
+    );
+  }
+  if (!recordsIdentityInFull(identity) && anchor !== "") {
+    // An identity with no anchor, written beside a link that has one, would
+    // read back as the anchored identity an older entry spells that way.
+    throw ambiguousHome(
+      `identity "${identity}" names no anchor but the link "${href}" names ` +
+        `"${anchor}", so the entry could not be read back as "${identity}".`,
     );
   }
   return identity;
