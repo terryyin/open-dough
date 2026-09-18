@@ -1,13 +1,38 @@
 # Safely edit and reconcile the product backlog through scripts
 
-Status: planned. Created and slice-refined 2026-09-18. No execution has started.
+Status: executing. Created and slice-refined 2026-09-18. Execution started
+2026-09-18 under `/dough-execute-plan 57`.
+
+## Execution identity
+
+- Mode: Story Branch Mode.
+- Originating checkout and resolved integration branch:
+  `/Users/terryyin/git/open-dough`, `main`. The queue claim commit `4441586`
+  was recorded there.
+- Execution checkout and branch:
+  `/tmp/dough-057-script-product-backlog.SdZIJi/worktree`,
+  `dough/057-script-product-backlog`.
+- Integration checkout and branch for later integration:
+  `/Users/terryyin/git/open-dough`, `main`.
+- Authorized push destination: `origin`
+  (`git@github.com:terryyin/open-dough.git`), branch
+  `dough/057-script-product-backlog`.
+- CI observer: GitHub Actions, workflow `ci.yml`, display name `CI`, verified
+  push-triggered. Observer directory `/tmp/dough-ci-501/watch-KJZzNL`,
+  armed against `terryyin/open-dough` `dough/057-script-product-backlog`.
+- Replanning permission: preserved project default (replanning allowed); no
+  `--replan` or `--no-replan` was supplied.
+- Project commands: `npm run format` (formatting), `npm run lint`, `npm test`.
+  No Git commit hooks are installed in this repository.
 
 ## Source and outcome
 
 Source: [SEED-008, Update the product backlog without hand-editing the shared
 list](../../seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates),
 first item in the [product backlog](../../PRODUCT-BACKLOG.md).
-Terry Yin requested planning and refinement, not implementation.
+Terry Yin requested planning and refinement, not implementation. Execution
+was separately authorized afterwards by `/dough-execute-plan 57`, which the
+"When execution is separately authorized" gate below anticipates.
 
 For projects using Open Dough, an explicit backlog change is applied and
 validated without model reasoning, without accidentally losing queued or Taken
@@ -176,8 +201,11 @@ cleanup, with recovery in Git. Do not hand-synchronize installed managed skills.
 
 ### 1. Add an identified item without losing existing work
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='add|write safety' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='add|write safety' tests/support/product-backlog.test.mjs tests/support/product-backlog-write-safety.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. The planned
+single-file command was superseded when post-change refactoring split the write-
+safety cases into their own file; the named assertions are unchanged.
 
 Given a valid backlog and an already identified canonical work reference, an explicit insertion at a
 named relative position adds exactly one identified entry. Preserve all existing
@@ -493,6 +521,67 @@ Boundary: native tool calls and actual bytes/Git state. Hypothesis: one host
 adapter journey with bounded coexistence and coverage uncertainty. Complex
 enforcement requires a human decision; absence of proof remains pending. Do not
 infer native behavior from direct invocation of a hook with synthetic JSON.
+
+## Execution learnings
+
+### Slice 1 (done)
+
+Delivered modules, all under the Open Dough source root:
+
+- `src/skills/dough-product-backlog/scripts/product-backlog.mjs` — CLI boundary,
+  currently the `add` verb only. Unknown verbs exit 1 with usage, so later
+  verbs stay unpromised.
+- `product-backlog-document.mjs` — the single owner of the entry grammar,
+  identity derivation, sections, and parse/render.
+- `product-backlog-add.mjs` — the add operation and the relative-placement rule
+  that slice 5 reuses for movement.
+- `product-backlog-store.mjs` — the single owner of lock acquisition, reading
+  inside the lock, and atomic replacement.
+- `tests/support/product-backlog.test.mjs`,
+  `tests/support/product-backlog-write-safety.test.mjs`,
+  `tests/support/product-backlog-fixture.mjs`, and the discovered entry point
+  `tests/product-backlog.sh`.
+
+Accepted observations: placement is asserted by whole-file byte equality rather
+than spot checks; all ten refusal paths assert the file is byte-identical
+afterwards; write safety uses four genuinely concurrent CLI processes plus a
+case that holds the lock, replaces the file with newer bytes, releases it, and
+shows the waiting run applied to the newer content. The real
+`.planning/PRODUCT-BACKLOG.md` parses, yields its five expected identities
+including the Taken entry's plan-link suffix, and renders back byte-identically.
+
+Decisions and observations that bind later slices:
+
+- **Test discovery.** `scripts/test.sh` globs `tests/*.sh` and excludes
+  `tests/support/*`, so a Node test file is only reached through a thin
+  discovered shell entry point. `tests/execution-ci-runtime.sh` already
+  establishes that convention. Later slices add their Node test files to
+  `tests/product-backlog.sh` (or a sibling wrapper) or CI will not run them.
+- **Payload declaration is slice 14's.** The new scripts are deliberately absent
+  from `install.sh` and `src/install/open-dough-release-version.sh`. Declaring
+  them before slice 14 breaks `scripts/check-self-installation.sh`, which
+  compares installed copies against the tagged release tree.
+- **Identity spelling.** `SEED-NNN#anchor` for a seed-anchored story, or the
+  canonical path when an entry carries no token. The backlog line itself remains
+  the identity record; no separate registry was introduced, so slice 2's
+  adoption can reuse the same derivation.
+- **Entry equality covers identity and canonical home**, so two identities
+  naming the same canonical home are refused as an ambiguous home. Slice 6's
+  refresh and slices 8–9's merge inherit that invariant: a legitimate in-flight
+  rename must go through refresh rather than a second add.
+- **Parser strictness inside the two lists.** Only blank lines and entry bullets
+  are accepted; anything else refuses unchanged with its line number. That is
+  what makes "malformed sections" a real refusal, but a project keeping prose
+  notes inside `## Taken` or `## Backlog list` would be refused rather than
+  edited. The established format has no such prose. Revisit only if such a
+  backlog appears.
+- **The root maintainer helper now owns no rules.** `scripts/product-backlog-insert.mjs`
+  derives identities from the supplied bullets and delegates to the shared
+  modules, so there is one rule owner. It is functionally redundant with the
+  shared CLI and has no automated coverage; slice 14 still owns retiring or
+  delegating it. It keeps a dash-tolerant pairwise argument parse because every
+  argument it takes is a Markdown bullet beginning with `-`, which `node:util`
+  `parseArgs` rejects.
 
 ## Coverage, stopping points, and remaining concerns
 
