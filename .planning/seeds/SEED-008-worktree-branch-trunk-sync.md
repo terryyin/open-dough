@@ -205,7 +205,8 @@ solution if suitable; this capture authorizes no queue implementation.
 **Status:** Split on 2026-09-18 after the predecessor's slices 1-10 were marked
 complete. Delivery review subsequently found core defects; their corrections,
 including the human-confirmed relocation-safe identity contract, are owned by
-[Plan 058](../quick/058-preserve-backlog-merge-intent/PLAN.md).
+correction 058, whose completed plan is recoverable at
+`30dc6bd:.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`.
 This story retains original slices 11-17 with their proof commands, boundaries,
 and accumulated execution learnings by reference to the predecessor plan,
 recoverable at
@@ -234,7 +235,7 @@ it does not replace these seven remaining delivery responsibilities.
 **Goal:** The scripted backlog operations that now exist reach the developers and
 agents who need them, and hold at the moment they matter most — when an
 authorized merge, rebase, or cherry-pick leaves the shared list conflicted. Today
-the operations exist in this repository's source, are proven by 76 tests, and are
+the operations exist in this repository's source, are proven by 91 tests, and are
 installed nowhere: no installer declares them and no guidance mentions them. The
 observable outcome is that an ordinary install or update delivers them, that
 guidance directs an agent to the script instead of to hand-editing or intellectual

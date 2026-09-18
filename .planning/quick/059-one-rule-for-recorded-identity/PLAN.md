@@ -14,7 +14,7 @@ does not name, and a reconciliation that disputes an identity says so as an
 identity dispute rather than as an ordinary value clash. This corrects the
 delivered core of 058; it does not implement the queued Git/installation story.
 
-Original contract: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`,
+Original contract: `30dc6bd:.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`,
 especially its "Confirmed identity correction" and slices 4 and 6. Reviewed
 execution: `a242412`, `ba88351`, `da64969`, `848f793`, `b6f9515`, `8fae29f`,
 `ac92479`, against the baseline `2941a3d`. Correction 058's promises stand: a
