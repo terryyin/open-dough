@@ -84,7 +84,7 @@ export function mergeWork(group, versions) {
 // sequence. Comparing only what they share is what keeps an item one branch
 // took, added, or removed from reading as the other branch reordering a list
 // it never touched.
-function sameOrder(one, other) {
+export function sameOrder(one, other) {
   const shared = new Set(one.filter((key) => other.includes(key)));
   const held = one.filter((key) => shared.has(key));
   const also = other.filter((key) => shared.has(key));

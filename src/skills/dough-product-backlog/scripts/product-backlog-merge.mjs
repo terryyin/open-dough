@@ -13,13 +13,13 @@
 // This reconciles supplied files. It is not Git-aware: which files hold the
 // ancestor and the two branch versions is the caller's to establish.
 import {
-  mergeOrder,
   mergeValue,
   mergeWork,
   sameState,
 } from "./product-backlog-combine.mjs";
 import { directionHeading } from "./product-backlog-direction.mjs";
 import { queueHeading, takenHeading } from "./product-backlog-document.mjs";
+import { listOrder } from "./product-backlog-order.mjs";
 import { BacklogError, requireField } from "./product-backlog-refusal.mjs";
 import {
   publishableCandidate,
@@ -88,33 +88,25 @@ export function mergeBacklogs(request) {
       .map((entry) => keyOf.get(entry));
   const listed = {};
   for (const list of [takenHeading, queueHeading]) {
-    const order = mergeOrder(
-      orderIn(ancestor, list),
-      orderIn(one, list),
-      orderIn(other, list),
+    const held = new Set(
+      [...merged]
+        .filter(([, state]) => state !== null && state.list === list)
+        .map(([key]) => key),
     );
-    if (!("value" in order)) {
-      conflicts.push(
-        `"## ${list}": the versions put the entries they share in different ` +
-          `orders, and neither order is the one the ancestor had.`,
-      );
-      continue;
+    const outcome = listOrder(
+      list,
+      versions.map((version) => orderIn(version, list)),
+      held,
+      {
+        labels: branchLabels,
+        identityOf: (key) => merged.get(key).identity,
+      },
+    );
+    if ("value" in outcome) {
+      listed[list] = outcome.value;
+    } else {
+      conflicts.push(...outcome.conflicts);
     }
-    const members = [...merged]
-      .filter(([, state]) => state !== null && state.list === list)
-      .map(([key]) => key);
-    const held = new Set(members);
-    const established = order.value.filter((key) => held.has(key));
-    const placed = new Set(established);
-    // An entry neither branch's established order places — one newly listed,
-    // or one that moved between the lists — goes after them, by identity so
-    // that reversing the two branch arguments cannot change the result.
-    const rest = members
-      .filter((key) => !placed.has(key))
-      .sort((key, also) =>
-        merged.get(key).identity < merged.get(also).identity ? -1 : 1,
-      );
-    listed[list] = [...established, ...rest];
   }
 
   // The direction is one value, and so is everything a version holds outside

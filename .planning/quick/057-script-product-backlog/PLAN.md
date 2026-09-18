@@ -357,7 +357,7 @@ until slices 11–13 and caller delivery in slice 14.
 
 ### 9. Preserve compatible queue order during reconciliation
 Type: Behavior
-Status: planned
+Status: done (2026-09-18)
 Proof: `node --test --test-name-pattern='merge order' tests/support/product-backlog-merge.test.mjs`
 
 Given `[A,B,C]`, combine X between A/B and Y between B/C into `[A,X,B,Y,C]`.
@@ -980,6 +980,104 @@ acyclic across all 23 modules with no new edges.
 Slice 14 now also has `product-backlog-combine.mjs`,
 `product-backlog-merge.mjs`, `product-backlog-version.mjs`,
 `product-backlog-work.mjs`, and `product-backlog-request.mjs` to declare.
+
+### Slice 9 (done)
+
+The queue now keeps the place each branch gave a newly listed entry, so the
+plan's named case — `[A, B, C]` with X added after A on one branch and Y after
+B on the other — merges to `[A, X, B, Y, C]` rather than appending both. One
+new module, `product-backlog-order.mjs` (179 lines), owns the merged order of
+one list behind a single entry point `listOrder(list, orders, held, naming)`.
+
+Decisions and observations that bind later slices:
+
+- **The two lists order differently, and that difference is contractual.**
+  `references/merge-conflicts.md` step 4 scopes append-and-lexically-interleave
+  to **Taken** and ends with "Do not use this rule for queue priority"; step 3
+  keeps queue order positionally. Slice 8 applied one shape to both. Taken is
+  the display order of claimed work, so it can be settled here; a queue
+  position is a priority, so it cannot. Do not unify them.
+- **The one new concept is an entry's *placement*: the settled entry it comes
+  after, or the start of the list.** That placement is decided by the existing
+  `mergeValue` with `undefined` as the ancestral placement, because an entry
+  the settled order does not place has no ancestral position. Every case falls
+  out of that — a one-sided addition, an identical addition applied once, two
+  different placements refused — with no scenario recogniser. Extend what the
+  rule is asked about, never the rule.
+- **`undefined` and `null` are different placements.** `undefined` means this
+  version does not place the entry in this list; `null` means the head of the
+  list. Collapsing them is a silent priority change, not a simplification. The
+  literal phrase `at the start of the list` in the refusal is the only
+  user-visible evidence that `null` survived as a real value, and it is
+  asserted for exactly that reason.
+- **An undetermined queue position refuses, including the everyday case.** Two
+  branches that each append to the queue have both said "last", and nothing
+  establishes which outranks the other, so the merge names both entries and the
+  place they share and writes nothing. This will fire on ordinary concurrent
+  queueing once slices 11–13 wire it into Git. It is the designed behaviour —
+  queue position is priority, and priority is a human decision — not a defect
+  and not a repair trigger. Slices 11–13 must not treat it as one.
+- **Two behaviours fall out rather than being coded:** an addition whose anchor
+  the other branch removed slides to the nearest surviving predecessor, and an
+  entry that moved between the lists stops being a member of the old one, so it
+  cannot be emitted twice.
+- **The settled spine is the entries the ancestor listed in this list that
+  survive**, not whatever the chosen branch's order happened to contain. An
+  entry newly listed here — added, or moved from the other list — has no
+  settled place and is placed separately.
+
+Correcting the slice 8 record above: slice 8 said argument-order symmetry holds
+because entries no version places are sorted by identity. Slice 9 removed that
+mechanism. Symmetry still holds — it is asserted on whole-file bytes by `merge
+order gives the same bytes whichever branch is named first` — but it now rests
+on `mergeValue` being symmetric, `gapOrder`'s containment test returning the
+containing sequence whichever side holds it, and Taken's lexical tie-break. The
+only remaining lexical comparison is the one step 4 mandates for Taken.
+
+Three mutation results worth keeping, because each names a guard whose loss is
+otherwise invisible:
+
+- Making `mergeOrder` prefer the unchanged side is caught by the symmetry test
+  **and nothing else**; every value assertion still passes. Order asymmetry
+  does not show up in what a merge says, only in which argument was named
+  first.
+- Collapsing the head anchor (`let after = null` to the first settled key)
+  fails exactly the three head-placement tests and nothing else — verified
+  independently by the coordinator, 8 pass and 3 fail. Under it the head
+  conflict still *refuses*, but reports the wrong place, so only the literal
+  phrase assertion catches it.
+- Deleting `gapOrder`'s `sameOrder` guard makes the merge exit 0 and publish
+  one branch's ordering of two items both branches queued in the same place —
+  the tool choosing a priority, which is the one thing this design must never
+  do. No other test noticed.
+
+The post-change refactor split `product-backlog-combine.mjs` on the criterion
+that its stated concept could no longer describe its contents: slice 9 had
+extended its header to cover "where an entry that order does not place
+belongs", but `appendedOrder`'s tie-break is a product convention from
+`merge-conflicts.md`, not the ancestor-based rule. Combine returned to 110
+lines, byte-identical to its slice 8 state apart from exporting `sameOrder`,
+so `mergeValue`, `mergeWork` and `mergeOrder` stay adjacent — that adjacency is
+the design's load-bearing documentation and the reason the other available
+seam (all order merging together) was rejected. `product-backlog-merge.mjs`
+fell to 173 lines and now derives each version's list order once. The import
+graph is acyclic across 24 modules, with `order.mjs` imported only by
+`merge.mjs`.
+
+Deliberately not covered, with the reason: the `## Taken` spelling of the
+shared-order refusal. No verb reorders Taken — `take` appends, and `place`
+refuses Taken work without `--return`, which moves the entry to the queue — so
+that spelling is reachable only by hand-editing, and a test for it would assert
+a string substitution rather than a behaviour. A later slice that gives Taken
+an explicit reorder should bring the case with it.
+
+Slice 14 now also has `product-backlog-order.mjs` to declare, and should align
+`references/merge-conflicts.md` steps 3–5 with the refusals this slice
+produces: step 3 currently says nothing about an undetermined queue position,
+and step 5 covers it only generically as "competing order". The installed
+guidance must tell a human what to do when it fires — decide the two
+priorities, repair one version by hand, merge again — the way slice 4's
+"already applied" nonzero exit needs distinguishing from a failure.
 
 ## Coverage, stopping points, and remaining concerns
 
