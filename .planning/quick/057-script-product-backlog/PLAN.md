@@ -1,7 +1,20 @@
 # Safely edit and reconcile the product backlog through scripts
 
-Status: executing. Created and slice-refined 2026-09-18. Execution started
-2026-09-18 under `/dough-execute-plan 57`.
+Status: concluded 2026-09-18 at a deliberate boundary after slice 10.
+Created and slice-refined 2026-09-18; execution started 2026-09-18 under
+`/dough-execute-plan 57`.
+
+Slices 1-10 are delivered, proven, and pushed. Slices 11-17 remain written below
+as refined scope and now belong to
+[Gate Git backlog conflicts and deliver the scripted backlog](../../seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog),
+which sits at the top of the queue. Terry Yin judged the seventeen-slice plan too
+large to run to its end in one execution and asked for a safe split. The boundary
+was verified rather than assumed: no installer declares any of the delivered
+script modules, and `SKILL.md` with its `references/` are byte-identical to `main`,
+so concluding here changes nothing for any project using Open Dough. Re-plan the
+remainder before executing it; seven slices is again too large for one run, and
+what slices 11-17 must say has changed in places — the learnings below record
+where.
 
 ## Execution identity
 
@@ -388,7 +401,7 @@ Hypothesis: one scalar rule, no natural-language reconciliation.
 
 ### 11. Gate a Git merge and resume only after human repair
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-git.sh merge`
 
 Given an authorized merge affecting the backlog, derive
@@ -415,7 +428,7 @@ not prove replaying commits through a sequencer; slices 12–13 own those cases.
 
 ### 12. Gate backlog reconciliation during rebase
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-git.sh rebase`
 
 Given a rebase of the owned unpublished suffix, identify the actual current
@@ -438,7 +451,7 @@ reuse merge validation without introducing another integration lifecycle.
 
 ### 13. Gate backlog reconciliation during cherry-pick
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-git.sh cherry-pick`
 
 Given an authorized cherry-pick affecting the backlog, mechanically obtain the
@@ -456,7 +469,7 @@ no claim of coverage from the rebase test alone.
 
 ### 14. Deliver the scripted backlog through ordinary installed workflows
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-payload-update.sh`; representative guidance review
 
 A fresh installation and an ordinary update from a prior tagged fixture install
@@ -484,7 +497,7 @@ behavior remains explicitly owned below rather than certified by a wording test.
 
 ### 15. Use the protected scripted backlog in Codex
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-native.sh --native codex`
 
 With a fresh installed candidate and the actual supported Codex runtime, an
@@ -506,7 +519,7 @@ the guard passed. The core installed-use proof remains independently required.
 
 ### 16. Use the protected scripted backlog in Cursor
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-native.sh --native cursor`
 
 Apply the same installed protected-backlog journey through Cursor's actual Agent
@@ -523,7 +536,7 @@ boundary as slice 15; do not infer success from another host.
 
 ### 17. Use the protected scripted backlog in Claude Code
 Type: Behavior
-Status: planned
+Status: moved to SEED-008#gate-and-deliver-scripted-backlog (2026-09-18)
 Proof: `bash tests/product-backlog-native.sh --native claude`
 
 Apply the same installed journey through Claude Code's native Edit/Write route
@@ -1164,6 +1177,20 @@ using it needs `git` on PATH; without it the helper reports ENOENT and the test
 fails loudly rather than passing silently.
 
 ## Coverage, stopping points, and remaining concerns
+
+**What this plan delivered, and what it did not.** Slices 1-10 delivered the
+validated backlog operations and the three-version reconciliation core that
+decides them: 24 acyclic modules, 76 tests, CI green on every delivered slice.
+What they did not do is reach anybody. Nothing is declared in `install.sh` or
+`src/install/open-dough-release-version.sh`, no guidance mentions the scripts,
+and `SKILL.md` and `references/merge-conflicts.md` still describe intellectual
+conflict repair exactly as they did before this execution began. That is the
+property that made concluding here safe, and it is also the reason the successor
+story matters: until it runs, this work is proven and unused. The root helper
+`scripts/product-backlog-insert.mjs` still exists and still works; it owns no
+rule the new modules do not own better, but nothing operational references it,
+so leaving it in place breaks nothing.
+
 
 The first seven slices provide useful safe local operations. They do not finish
 the merge promise. Slices 8–13 establish reconciliation and its Git boundaries;
