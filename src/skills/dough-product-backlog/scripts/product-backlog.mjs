@@ -7,19 +7,32 @@ import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
 import { adoptIdentities } from "./product-backlog-adopt.mjs";
-import { BacklogError, queueHeading } from "./product-backlog-document.mjs";
+import {
+  BacklogError,
+  queueHeading,
+  takenHeading,
+} from "./product-backlog-document.mjs";
 import {
   applyToBacklog,
   defaultBacklogPath,
 } from "./product-backlog-store.mjs";
+import { takeEntry } from "./product-backlog-take.mjs";
 
 const usage = `Usage: product-backlog.mjs add --identity <id> --title <title> --link <href>
                              (--after <id> | --before <id> | --position first|last)
+                             [--file <path>]
+       product-backlog.mjs take --identity <id> (--plan <path> | --no-plan)
                              [--file <path>]
        product-backlog.mjs adopt --all [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
 relative position. Identities are supplied, never allocated there.
+
+take moves one identified entry to the end of "## ${takenHeading}", keeping its
+identity and adding the selected plan link; an entry already there is resumed in
+place. The plan decision is always stated: --plan names the active plan, and
+--no-plan takes a quick story, or a correction whose canonical home is already
+its plan. Taking work does not decide or grant execution authority.
 
 adopt records one identity for every active entry in the canonical homes its
 links name, reusing the ID each home already carries. It changes no membership,
@@ -35,6 +48,8 @@ const options = {
   after: { type: "string" },
   before: { type: "string" },
   position: { type: "string" },
+  plan: { type: "string" },
+  "no-plan": { type: "boolean", default: false },
   all: { type: "boolean", default: false },
   file: { type: "string", default: defaultBacklogPath },
   help: { type: "boolean", default: false },
@@ -77,7 +92,46 @@ async function add(file, values) {
   );
 }
 
-function summarise(outcome, file) {
+// The caller always states whether the work has an active plan, so a planned
+// story can never be taken without its link by leaving an option out.
+function readPlan(values) {
+  if ((values.plan !== undefined) === values["no-plan"]) {
+    throw new BacklogError(
+      `Supply exactly one of --plan <path> or --no-plan, so that taking work ` +
+        `always states whether it has an active plan.`,
+    );
+  }
+  return values.plan;
+}
+
+function reportTake(outcome, file) {
+  const { identity } = outcome.entry;
+  if (outcome.result === "taken") {
+    return `Took "${identity}" into "## ${takenHeading}" in ${file}.`;
+  }
+  const ending =
+    outcome.result === "linked"
+      ? "; its plan link was added and its place kept."
+      : ", unchanged.";
+  return `"${identity}" is already in "## ${takenHeading}" in ${file}${ending}`;
+}
+
+async function take(file, values) {
+  const request = {
+    identity: values.identity,
+    plan: readPlan(values),
+    backlogDirectory: dirname(file),
+  };
+  let outcome;
+  await applyToBacklog(file, (source) => {
+    outcome = takeEntry(source, request);
+    return outcome.source;
+  });
+
+  console.log(reportTake(outcome, values.file));
+}
+
+function reportAdopt(outcome, file) {
   if (outcome.written.length === 0) {
     return (
       `All ${outcome.entries} active entries already record their identity; ` +
@@ -112,10 +166,10 @@ async function adopt(file, values) {
     return outcome.source;
   });
 
-  console.log(summarise(outcome, values.file));
+  console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, adopt };
+const operations = { add, take, adopt };
 
 async function main(argv) {
   let parsed;

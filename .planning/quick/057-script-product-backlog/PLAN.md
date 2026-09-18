@@ -253,8 +253,10 @@ the focused uncertainty. Stop for human input on genuinely ambiguous legacy work
 
 ### 3. Claim and resume the same identified work once
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='take|resume' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='take|resume' tests/support/product-backlog-take.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. Take lives in
+its own test file, so the planned single-file command was superseded.
 
 Given a queued ID and the caller's selected plan where required, taking it moves
 it to the end of Taken with the same identity and appropriate active link.
@@ -648,6 +650,44 @@ Deliberately uncovered, and still owned elsewhere:
 - Slice 14 now has these additional files to declare:
   `product-backlog-adopt.mjs`, `product-backlog-home.mjs`,
   `product-backlog-source.mjs`.
+
+### Slice 3 (done)
+
+New CLI verb `take --identity <id> (--plan <path> | --no-plan)`. A claim moves
+the entry to the end of `## Taken` in one update; a resume rewrites it in place,
+so it is never duplicated or reordered and can gain a plan link it was missing
+without losing its position. `product-backlog-placement.mjs` was extracted from
+the add operation and now owns where an entry line sits in a list, the blank
+line before a following heading, and the move between lists; slice 5 extends it
+rather than forking it.
+
+Decisions and observations that bind later slices:
+
+- **`--plan` or `--no-plan` is mandatory and exclusive.** The script cannot
+  distinguish "quick story, needs no plan" from "planned story, caller omitted
+  the plan", and either guess writes a wrong entry. Requiring the caller to
+  state it keeps that decision with the caller, as the source demands, and gives
+  "unresolved required plan" a definite meaning. Accepting an omitted plan
+  silently would be a product decision, not a refactor.
+- **Taking never repoints an already recorded plan link.** That is a reference
+  refresh, which slice 6 owns; `--no-plan` against an entry that already links
+  a plan is refused as a contradiction rather than silently dropping the link.
+- **`--plan` naming the entry's own canonical home is refused.** A bounded
+  correction's home already is its plan, so a second link would name it twice.
+- **The plan check is mechanical and existence-only.** `--plan <target>` must
+  resolve to a file relative to the backlog's directory, with no judgment about
+  the plan's content. A link `take` accepts can still be refused later by
+  `adopt`, which additionally needs a `# ` title to record an identity under.
+- **The plan link label is the literal `plan`**, matching the established
+  backlog. A project using another label would need slice 6's refresh or a
+  future option.
+- **`requireField` in the document model is the shared missing-input refusal.**
+  Later verbs reuse it with an optional hint instead of respelling the message.
+- The script decides no execution authority, no claim commit location, and no
+  exclusive ownership of a work item across agents. Concurrency for `take`
+  rests on the existing lock proved by slice 1's write-safety cases.
+- Slice 14 now also has `product-backlog-take.mjs` and
+  `product-backlog-placement.mjs` to declare.
 
 ## Coverage, stopping points, and remaining concerns
 

@@ -29,6 +29,9 @@ export const queued = [
   "- [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004",
 ];
 
+export const takenEntry =
+  "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008 ([plan](quick/057-script-product-backlog/PLAN.md))";
+
 export const backlog = `# Product backlog
 
 ## Near-future direction
@@ -38,7 +41,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008 ([plan](quick/057-script-product-backlog/PLAN.md))
+${takenEntry}
 
 ## Backlog list
 
@@ -76,6 +79,15 @@ export function scratchProject(t, source = backlog) {
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, source, "utf8");
   return { directory, file, read: () => readFileSync(file, "utf8") };
+}
+
+// Supplies only the starting precondition: a file that one of the backlog's
+// links names, beside the backlog it is relative to.
+export function projectFile(project, relative, contents = "# A plan\n") {
+  const path = join(project.directory, dirname(backlogPath), relative);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, contents, "utf8");
+  return path;
 }
 
 export async function run(project, arguments_, environment = {}) {

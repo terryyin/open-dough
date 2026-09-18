@@ -10,23 +10,22 @@ import {
   renderBacklog,
   renderEntry,
 } from "./product-backlog-document.mjs";
+import {
+  appendIndex,
+  entriesIn,
+  insertEntryLine,
+} from "./product-backlog-placement.mjs";
 
 function queueInsertIndex(document, placement) {
-  const queued = document.entries.filter(
-    (entry) => entry.list === queueHeading,
-  );
+  const queued = entriesIn(document, queueHeading);
 
-  if (placement.position === "first" || placement.position === "last") {
-    if (queued.length > 0) {
-      const target =
-        placement.position === "first" ? queued[0] : queued[queued.length - 1];
-      return placement.position === "first" ? target.index : target.index + 1;
-    }
-    let index = document.queue.start;
-    if (document.lines[index] === "") {
-      index += 1;
-    }
-    return index;
+  if (placement.position === "first") {
+    return queued.length > 0
+      ? queued[0].index
+      : appendIndex(document, document.queue);
+  }
+  if (placement.position === "last") {
+    return appendIndex(document, document.queue);
   }
 
   const wanted = placement.after ?? placement.before;
@@ -73,15 +72,6 @@ export function addQueueEntry(source, request) {
   const line = renderEntry(request);
   requireUnlistedWork(document, request);
 
-  const index = queueInsertIndex(document, request);
-  document.lines.splice(index, 0, line);
-  const following = document.lines[index + 1];
-  if (
-    following !== undefined &&
-    following !== "" &&
-    !following.startsWith("- ")
-  ) {
-    document.lines.splice(index + 1, 0, "");
-  }
+  insertEntryLine(document, queueInsertIndex(document, request), line);
   return renderBacklog(document);
 }

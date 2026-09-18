@@ -158,20 +158,19 @@ export function parseBacklog(source) {
   const entries = [...readSection(lines, taken), ...readSection(lines, queue)];
   requireDistinctWork(entries);
 
-  return { lines, newline, hasFinalNewline, queue, entries };
+  return { lines, newline, hasFinalNewline, taken, queue, entries };
 }
 
 export function renderBacklog(document) {
   return joinSource(document);
 }
 
-function requireField(value, field) {
+// The one shape of a missing-input refusal. Each operation supplies the hint
+// that suits it, because what to do about a missing value differs between
+// writing a new entry and naming an entry the backlog already carries.
+export function requireField(value, field, hint = "") {
   if (typeof value !== "string" || value.trim() === "") {
-    throw new BacklogError(
-      field === "identity"
-        ? `Missing identity: supply --identity. ${adoptionHint}`
-        : `Missing ${field}: supply --${field}.`,
-    );
+    throw new BacklogError(`Missing ${field}: supply --${field}.${hint}`);
   }
 }
 
@@ -221,7 +220,7 @@ function tokenFor(identity, href) {
 }
 
 export function renderEntry({ identity, title, href, plan }) {
-  requireField(identity, "identity");
+  requireField(identity, "identity", ` ${adoptionHint}`);
   requireField(title, "title");
   requireField(href, "link");
   if (/[[\]]/.test(title)) {
