@@ -24,18 +24,20 @@ const cli = fileURLToPath(
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
 export const queued = [
-  "- [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008",
-  "- [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001",
-  "- [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004",
+  "- [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue",
+  "- [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective",
+  "- [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design",
 ];
 
 export const takenEntry =
-  "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008 ([plan](quick/057-script-product-backlog/PLAN.md))";
+  "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](quick/057-script-product-backlog/PLAN.md))";
 
-// The identity each line above carries, spelled out rather than derived, so a
+// The identity each line above records, spelled out rather than derived, so a
 // test naming one of them does not take the product's own derivation as its
 // expectation. Every operation names work this way, so they live beside the
-// lines they belong to instead of being respelled per test file.
+// lines they belong to instead of being respelled per test file. An entry
+// records its identity in full: the link beside it is where the canonical home
+// is now, and moving it never re-identifies the work.
 export const trunkQueue = "SEED-008#same-machine-merge-queue";
 export const skipRetrospective = "SEED-001#default-skip-process-retrospective";
 export const architecture = "SEED-004#proudly-found-elsewhere-design";
@@ -71,7 +73,7 @@ export const added = {
   title: "Publish the release notes with the tagged release",
   link: "seeds/SEED-002-release-the-guidance.md#publish-the-release-notes",
 };
-export const addedLine = `- [${added.title}](${added.link}) — SEED-002`;
+export const addedLine = `- [${added.title}](${added.link}) — ${added.identity}`;
 
 export function addArguments(
   request = added,
@@ -122,6 +124,17 @@ export async function run(project, arguments_, environment = {}) {
   } catch (error) {
     return { code: error.code, stdout: error.stdout, stderr: error.stderr };
   }
+}
+
+// The entry lines one list holds, read back out of a written backlog, for the
+// tests that establish where an entry sits or what a list still holds rather
+// than comparing the whole document.
+export function entries(source, name) {
+  const body = source.split(`## ${name}\n`)[1] ?? "";
+  return body
+    .split("\n## ")[0]
+    .split("\n")
+    .filter((line) => line.startsWith("- "));
 }
 
 // How many times a document holds `needle`, for the tests that establish an

@@ -44,7 +44,7 @@ test("write safety: concurrent cooperating runs keep every update", async (t) =>
 
   const lines = project.read().split("\n");
   for (const request of requests) {
-    const line = `- [${request.title}](${request.link}) — ${request.identity.split("#")[0]}`;
+    const line = `- [${request.title}](${request.link}) — ${request.identity}`;
     assert.equal(
       lines.filter((candidate) => candidate === line).length,
       1,
@@ -66,7 +66,7 @@ test("write safety: a waiting run applies to the newest file content", async (t)
   });
   await delay(400);
   const newerLine =
-    "- [Written while the lock was held](seeds/SEED-006-newer.md#newer) — SEED-006";
+    "- [Written while the lock was held](seeds/SEED-006-newer.md#newer) — SEED-006#newer";
   const newer = `${backlog}${newerLine}\n`;
   writeFileSync(project.file, newer, "utf8");
   rmSync(`${project.file}.lock`, { recursive: true });

@@ -94,6 +94,117 @@ third-party changes in the worktree and no account of what they were or why.
     class of finding that pass was asked to surface; whether it had found them
     cannot be determined from the record.
 
+## DD-058 — A new payload file was published without being declared, and only CI noticed
+
+Maintainer guidance says to edit client-payload guidance under `src/skills/` and
+never to hand-synchronize installed copies. It does not say that adding a *new*
+file there requires declaring it in the installer's manifest and the three other
+lists that must agree with it. A skill can therefore gain a reference that links
+to a file no installed project ever receives, with the source tree entirely
+self-consistent.
+
+### Occurrences
+
+- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+  - Timestamp: 2026-09-18T22:37:13+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: Slice 4 (`848f793`) added
+    `src/skills/dough-product-backlog/references/identity.md` and two links to
+    it from `dough-story-refinement/references/planning.md` and
+    `dough-story-decomposition/references/seed-format.md`, without adding it to
+    `managed_files` in `install.sh`, the file list in
+    `src/install/open-dough-release-version.sh`, the `managed_files` in
+    `tests/helpers/public-payload-fixture.bash`, or the two enumerations in
+    `docs/installation-and-updates.md` that
+    `tests/dough-update-guidance-payload.sh` holds the manifest against. CI run
+    35357372158 failed on `tests/story-payload-update.sh`; the repair commit
+    `b6f9515` was five one-line insertions.
+  - Observed effect: One failed CI run, one pause-stash-repair-restore cycle,
+    and a repair commit interleaved between two feature slices on the branch.
+    `AGENTS.md` was consulted during the slice and its "Layout" section named
+    only the source directory to edit.
+  - Inference: Qualified. The four declaration sites are discoverable by reading
+    `install.sh`, so the omission is consistent with guidance that names the
+    edit location but not the declaration obligation; whether a reminder in
+    `AGENTS.md` would have prevented it cannot be established from this record.
+
+## DD-059 — A shell assertion silently enforced nothing on the developer's bash
+
+`tests/story-payload-update.sh` walks every Markdown link in the installed story
+guidance and asserts each target exists. On macOS, which ships bash 3.2, a bare
+`[[ ]]` as the last command of a `while` body does not abort under `set -e`, so
+the assertion was already false locally and reported nothing. Only the Linux CI
+runner's bash 5 aborted — and because the failing command is a bare test, it
+aborted with no diagnostic at all.
+
+### Occurrences
+
+- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+  - Timestamp: 2026-09-18T23:13:21+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: `bash tests/story-payload-update.sh` exited 0 at the failing
+    revision `848f793` on macOS while CI failed on the same revision, printing
+    only `FAIL: tests/story-payload-update.sh` about 2.7s in. Reproduced
+    directly: `bash --version` reports 3.2.57, and
+    `set -euo pipefail; while IFS= read -r l; do [[ -f "/nope/$l" ]]; done < file`
+    survives. A bash-5-semantics re-walk of the same fixture targets reported
+    156 links checked, 12 unresolved, all on the undeclared file.
+  - Observed effect: The defect reached CI despite a passing local run of the
+    very test that owns it, and the CI failure carried no diagnostic, so
+    classification needed the branch's run history and a manifest inspection
+    rather than the log.
+  - Inference: Qualified. This is the same family as DD-055 and DD-056 — a proof
+    that passes while establishing nothing — but a distinct mechanism: not an
+    empty selection or an absent assertion, a present assertion the local shell
+    declines to enforce.
+  - Correction during the same retrospective, from decisive new evidence: the
+    condition is broader than the loop body first recorded. On bash 3.2.57 a
+    failing `[[ ]]` does not trigger `set -e` in any context tested — inside a
+    `while` body, inside a `for` body, inside an `if` body, and at top level —
+    while `false`, `[ ]`, `test`, and `grep -q` all abort correctly in the same
+    shell. The earlier loop-body framing was the first observed instance, not
+    the rule. A survey of this repository then found 128 bare `[[ ]]` assertion
+    lines across 27 shell test files, 13 of which sit inside a loop body. Every
+    one of those assertions is therefore inert for any developer on macOS's
+    system bash and enforcing only on the Linux runner's bash 5, so a local
+    green run of the shell suite is not evidence that its `[[ ]]` assertions
+    hold. The first occurrence note above is retained as written.
+
+## DD-060 — A CI repair was delivered without the refactor pass its own delivery gate requires
+
+The CI observation protocol routes a repair through the ordinary slice
+wrap-up, whose first delivery step is an independent post-change refactor pass.
+A coordinator can run the visible remainder of that sequence — formatting,
+staging, commit, push, observer registration — and skip the refactor step
+without any gate noticing, because nothing downstream depends on it having run.
+
+### Occurrences
+
+- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+  - Timestamp: 2026-09-18T23:13:21+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5
+  - Open Dough release: 0.3.25
+  - Evidence: Repair commit `b6f9515` was formatted, staged, committed, pushed
+    and registered with the observer, but no `dough-post-change-refactor` agent
+    was spawned for it, unlike all six slice commits in the same execution.
+    `references/ci-monitor.md` step 4 says "For a new repair, the coordinator
+    runs wrap-up", and `references/wrap-up.md` "Deliver the change" step 1 is
+    that refactor pass.
+  - Observed effect: The repair added one line each to `install.sh` and
+    `src/install/open-dough-release-version.sh`, which were both sitting at
+    exactly 250 lines, taking them to 251 and past this project's 250-line
+    refactor guidance. A refactor pass inspects file size for every file in the
+    diff, so the crossing would have been surfaced at that point; it was instead
+    found later by the retrospective.
+  - Inference: Qualified. The repair path reads as an interruption to be
+    recovered from rather than as an ordinary slice, which may make its delivery
+    gates easier to shorten; the record shows the omission but not the reason.
+
 ## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
 When an implementation agent is asked to prove a rule-required refusal/stop

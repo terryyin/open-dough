@@ -9,7 +9,8 @@ import {
   adoptionHint,
   ambiguousHome,
   identityFor,
-  tokenFor,
+  recordedFor,
+  recordsIdentityInFull,
 } from "./product-backlog-identity.mjs";
 import { BacklogError, requireField } from "./product-backlog-refusal.mjs";
 import { joinSource, splitSource } from "./product-backlog-source.mjs";
@@ -19,10 +20,11 @@ export const queueHeading = "Backlog list";
 
 const separator = " — ";
 const entryPattern = /^- \[(?<title>[^[\]]+)\]\((?<href>[^)\s]+)\)(?<rest>.*)$/;
-// The identity token and the active-plan link are each optional, so an entry
-// written before its identity was adopted still reads as the same work item.
+// The recorded identity and the active-plan link are each optional, so an
+// entry written before its identity was adopted, and one whose link already
+// spells its identity, both still read as the same work item.
 const detailPattern =
-  /^(?: — (?<token>[^\s()[\]]+))?(?: \(\[(?<label>[^[\]]+)\]\((?<target>[^)\s]+)\)\))?$/;
+  /^(?: — (?<recorded>[^\s()[\]]+))?(?: \(\[(?<label>[^[\]]+)\]\((?<target>[^)\s]+)\)\))?$/;
 
 function readEntry(line, index, list) {
   const match = entryPattern.exec(line);
@@ -32,7 +34,7 @@ function readEntry(line, index, list) {
     );
   }
   const { title, href, rest } = match.groups;
-  let token = "";
+  let recorded = "";
   let plan;
   if (rest !== "") {
     const detail = detailPattern.exec(rest);
@@ -41,12 +43,24 @@ function readEntry(line, index, list) {
         `Unsupported entry detail in "## ${list}" at line ${index + 1}: ${line}`,
       );
     }
-    token = detail.groups.token ?? "";
+    recorded = detail.groups.recorded ?? "";
     if (detail.groups.target !== undefined) {
       plan = { label: detail.groups.label, target: detail.groups.target };
     }
   }
-  return { identity: identityFor(href, token), title, href, plan, list, index };
+  return {
+    identity: identityFor(href, recorded),
+    title,
+    href,
+    plan,
+    list,
+    index,
+    // Whether the entry already carries its identity in full, and the line as
+    // it stands: together they tell such an entry from one that only reads as
+    // the same identity through the link beside it.
+    recordsIdentityInFull: recordsIdentityInFull(recorded),
+    line,
+  };
 }
 
 // Reads one established entry bullet, for callers that hold a written line
@@ -173,8 +187,8 @@ export function renderEntry({ identity, title, href, plan }) {
     throw new BacklogError(`Unsupported link characters: ${href}`);
   }
 
-  const token = tokenFor(identity, href);
-  const detail = token === "" ? "" : `${separator}${token}`;
+  const recorded = recordedFor(identity, href);
+  const detail = recorded === "" ? "" : `${separator}${recorded}`;
   const active = plan ? ` ([${plan.label}](${plan.target}))` : "";
   const line = `- [${title}](${href})${detail}${active}`;
 

@@ -12,8 +12,10 @@ Before editing, identify from human instructions or repository guidance:
 - Repository root and canonical backlog path.
 - Canonical seed locations, seed IDs, and heading or stable-anchor conventions
   when feature-story entries are affected.
-- Canonical executable-plan locations and plan identity conventions for
-  bounded-correction entries or taken planned stories when they are affected.
+- Canonical executable-plan locations for bounded-correction entries or taken
+  planned stories when they are affected.
+- [Work item identity](references/identity.md), which is the single contract
+  for what identifies an entry and what only navigates to it.
 - Decomposition, refinement, and slice-planning workflows, when needed.
 - Commit conventions, if a commit is authorized.
 
@@ -31,10 +33,9 @@ required workflow is unavailable, stop that activity and ask for its guidance.
   first. Preserve the order of entries already in **Taken** and append each
   newly taken entry.
 - In **Taken** and **Backlog list**, include only each exact work title linked to
-  its canonical active home and its established identity. A feature story uses
-  its heading or stable anchor plus seed ID. A bounded correction without a
-  supplied story links directly to its existing plan and uses the plan identity;
-  the linked path is sufficient when that is this project's identity convention.
+  its canonical active home and its recorded identity, as
+  [work item identity](references/identity.md) defines them. A bounded
+  correction without a supplied story links directly to its existing plan.
   Taken planned stories also link directly to their slice plans. Keep details,
   estimates, dependencies, and status in the canonical home.
 - Select work for the backlog list; do not inventory every candidate or turn
@@ -72,7 +73,9 @@ required workflow is unavailable, stop that activity and ask for its guidance.
   unrelated order. Do not derive priority from seed IDs or order within a seed.
 - Link from related documents; do not duplicate work details or list the same
   story or correction twice within or across **Taken** and **Backlog list**.
-- Preserve stable anchors when renaming or moving stories. Update incoming links.
+- When a story or correction is renamed or moved, update the entry's link and
+  carry its recorded identity across unchanged, under
+  [work item identity](references/identity.md). Update incoming links.
 - Add a feature story only with a named beneficiary and evaluable outcome. If
   either is unresolved, use this project's decomposition workflow and route
   selected-story detail to refinement, then slice planning. Add a bounded
@@ -93,8 +96,9 @@ authorized plan or explicitly selected planless quick story is starting.
 Refinement, planning, and an intention to execute leave it in the queue. If execution context or authorization fails before execution starts,
 leave the entry unchanged.
 
-Preserve the title, canonical link, and identity. Add any missing slice-plan
-link for a planned story, including on resume; stop if its plan is unresolved.
+Preserve the title, canonical link, and recorded identity. Add any missing
+slice-plan link for a planned story, including on resume; stop if its plan is
+unresolved.
 Quick stories need no plan, and corrections need no duplicate plan link.
 
 Move the entry to the end of **Taken** in one backlog update. On resume, do not

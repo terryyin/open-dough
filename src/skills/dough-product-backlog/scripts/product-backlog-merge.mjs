@@ -15,6 +15,7 @@
 import {
   mergeValue,
   mergeWork,
+  reorderedWork,
   sameState,
 } from "./product-backlog-combine.mjs";
 import { directionHeading } from "./product-backlog-direction.mjs";
@@ -64,6 +65,33 @@ function refuse(versions, conflicts) {
   );
 }
 
+// Everything one version holds outside the two lists: the direction, and the
+// human text above and below the lists that no backlog operation writes. Each
+// is one value carried across whole, named once here both for the refusal when
+// the branches give it different text and for the report when one of them
+// turns out to have changed it. A value named in only one of those places
+// would either refuse without saying why or publish without saying what.
+const wholeValues = {
+  direction: {
+    clash:
+      `"## ${directionHeading}": the versions give it different text, and ` +
+      `this tool never writes, summarises, or chooses strategy text.`,
+    change: `changed the "## ${directionHeading}"`,
+  },
+  preamble: {
+    clash:
+      `The text above the two lists differs between the versions, and no ` +
+      `backlog operation writes it.`,
+    change: "changed the text above the two lists",
+  },
+  epilogue: {
+    clash:
+      `The text below the two lists differs between the versions, and no ` +
+      `backlog operation writes it.`,
+    change: "changed the text below the two lists",
+  },
+};
+
 // Reconciles the three versions and returns the backlog to publish alongside
 // the transitions both branches turned out to have made.
 export function mergeBacklogs(request) {
@@ -71,10 +99,32 @@ export function mergeBacklogs(request) {
   const [ancestor, one, other] = versions;
   const { groups, keyOf } = groupWork(versions);
 
+  const orderIn = (version, list) =>
+    version.entries
+      .filter((entry) => entry.list === list)
+      .map((entry) => keyOf.get(entry));
+
+  // Which work an order gives another place in the queue than the ancestor
+  // gave it. A place in the queue is a priority, so it is part of what a
+  // version says about that work; the Taken list is the display order of
+  // claimed work rather than a priority, so a place in it says nothing about
+  // the work itself.
+  const ancestralQueue = orderIn(ancestor, queueHeading);
+  const reprioritizedBy = (order) => reorderedWork(ancestralQueue, order);
+
+  // Established once per branch, and then asked of each work item.
+  const reprioritizedIn = new Map(
+    [one, other].map((version) => [
+      version.label,
+      reprioritizedBy(orderIn(version, queueHeading)),
+    ]),
+  );
+  const reprioritized = (label, key) => reprioritizedIn.get(label).has(key);
+
   const conflicts = [];
   const merged = new Map();
   for (const group of groups) {
-    const outcome = mergeWork(group, versions);
+    const outcome = mergeWork(group, versions, reprioritized);
     if (outcome.conflict) {
       conflicts.push(outcome.conflict);
     } else {
@@ -82,10 +132,6 @@ export function mergeBacklogs(request) {
     }
   }
 
-  const orderIn = (version, list) =>
-    version.entries
-      .filter((entry) => entry.list === list)
-      .map((entry) => keyOf.get(entry));
   const listed = {};
   for (const list of [takenHeading, queueHeading]) {
     const held = new Set(
@@ -109,27 +155,14 @@ export function mergeBacklogs(request) {
     }
   }
 
-  // The direction is one value, and so is everything a version holds outside
-  // the two lists and the direction: human text no backlog operation writes,
-  // carried across as the bytes it already was.
+  // Each value outside the two lists, carried across as the bytes it was.
   const around = {};
-  const said = {
-    direction:
-      `"## ${directionHeading}": the versions give it different text, and ` +
-      `this tool never writes, summarises, or chooses strategy text.`,
-    preamble:
-      `The text above the two lists differs between the versions, and no ` +
-      `backlog operation writes it.`,
-    epilogue:
-      `The text below the two lists differs between the versions, and no ` +
-      `backlog operation writes it.`,
-  };
-  for (const value of Object.keys(said)) {
+  for (const [value, said] of Object.entries(wholeValues)) {
     const outcome = mergeValue(ancestor[value], one[value], other[value]);
     if ("value" in outcome) {
       around[value] = outcome.value;
     } else {
-      conflicts.push(said[value]);
+      conflicts.push(said.clash);
     }
   }
 
@@ -145,7 +178,12 @@ export function mergeBacklogs(request) {
 
   return {
     source: candidate,
-    changes: transitions(groups, ancestor, merged, around.direction),
+    changes: transitions(groups, ancestor, merged, {
+      ...around,
+      // The same account the merge itself is made of, asked once more of the
+      // queue about to be published rather than of either branch's.
+      reprioritized: reprioritizedBy(listed[queueHeading]),
+    }),
     entries: [...merged.values()].filter((state) => state !== null).length,
   };
 }
@@ -153,7 +191,12 @@ export function mergeBacklogs(request) {
 // What both branches turned out to have changed, read from the ancestor and
 // the merged result rather than from either branch's request, so a caller sees
 // the sibling removals and claims it is about to publish.
-function transitions(groups, ancestor, merged, direction) {
+//
+// Everything a merge decides is read here, not only each work item's own
+// values: a place in the queue is a priority, and the direction and the human
+// text around the lists are carried across whole. A change this did not read
+// would be published while the report said nothing had changed at all.
+function transitions(groups, ancestor, merged, published) {
   const changes = [];
   for (const group of groups) {
     const was = stateOf(group.states.get(ancestor.label));
@@ -162,12 +205,19 @@ function transitions(groups, ancestor, merged, direction) {
       changes.push(`added "${now.identity}" to "## ${now.list}"`);
     } else if (was !== null && now === null) {
       changes.push(`removed "${was.identity}" from "## ${was.list}"`);
-    } else if (was !== null && now !== null && !sameState(was, now)) {
-      changes.push(`changed "${now.identity}", now in "## ${now.list}"`);
+    } else if (was !== null && now !== null) {
+      if (!sameState(was, now)) {
+        changes.push(`changed "${now.identity}", now in "## ${now.list}"`);
+      }
+      if (published.reprioritized.has(group.key)) {
+        changes.push(`reprioritized "${now.identity}" in "## ${queueHeading}"`);
+      }
     }
   }
-  if (direction !== ancestor.direction) {
-    changes.push(`changed the "## ${directionHeading}"`);
+  for (const [value, said] of Object.entries(wholeValues)) {
+    if (published[value] !== ancestor[value]) {
+      changes.push(said.change);
+    }
   }
   return changes;
 }

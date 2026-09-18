@@ -117,7 +117,7 @@ test("take on resume neither duplicates nor reorders the entry", async (t) => {
   assert.equal(again.code, 0, again.stderr);
   assert.equal(project.read(), claimed);
   assert.match(again.stdout, /already in "## Taken".*unchanged\./);
-  assert.equal(occurrences(project.read(), "same-machine-merge-queue"), 1);
+  assert.equal(occurrences(project.read(), trunkQueue), 1);
 
   // Resuming the earlier claim adds its now resolved plan link in place: it
   // stays ahead of the story taken after it.
@@ -131,10 +131,7 @@ test("take on resume neither duplicates nor reorders the entry", async (t) => {
     claimed.replace(`${queued[2]}\n`, `${queued[2]} ([plan](${otherPlan}))\n`),
   );
   assert.match(linked.stdout, /plan link was added and its place kept/);
-  assert.equal(
-    occurrences(project.read(), "proudly-found-elsewhere-design"),
-    1,
-  );
+  assert.equal(occurrences(project.read(), architecture), 1);
 });
 
 test("take refuses missing, ambiguous, and unresolved requests unchanged", async (t) => {

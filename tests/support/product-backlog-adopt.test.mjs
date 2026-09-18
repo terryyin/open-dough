@@ -18,15 +18,7 @@ import {
   seedOne,
   takenLink,
 } from "./product-backlog-adoption-fixture.mjs";
-import { run } from "./product-backlog-fixture.mjs";
-
-function entries(source, name) {
-  const body = source.split(`## ${name}\n`)[1] ?? "";
-  return body
-    .split("\n## ")[0]
-    .split("\n")
-    .filter((line) => line.startsWith("- "));
-}
+import { entries, run } from "./product-backlog-fixture.mjs";
 
 function titles(source, name) {
   return entries(source, name).map((line) => line.slice(3).split("](")[0]);

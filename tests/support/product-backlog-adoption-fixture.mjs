@@ -1,8 +1,8 @@
 // Starting precondition for the identity-adoption tests: a scratch project
-// whose active backlog predates identities. Entries carry no identity token,
-// a Taken story links to its active plan, and one bounded correction has a
-// plan and no seed. The seeds and plans are realistic copies of this
-// repository's own shapes.
+// whose active backlog predates recorded identities. Three entries record
+// nothing and one carries the older shorthand, a Taken story links to its
+// active plan, and one bounded correction has a plan and no seed. The seeds
+// and plans are realistic copies of this repository's own shapes.
 
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -35,8 +35,18 @@ ${direction}
 - [Skip process retrospectives by default for new installations](${seedOne}#default-skip-process-retrospective) — SEED-001
 `;
 
-// The same four entries, in the same lists and the same order, each now naming
-// the identity its canonical home carries.
+export const identities = {
+  taken: "SEED-008#script-product-backlog-list-updates",
+  queue: "SEED-008#same-machine-merge-queue",
+  correction: correctionLink,
+  retrospective: "SEED-001#default-skip-process-retrospective",
+};
+
+// The same four entries, in the same lists and the same order, each now
+// recording in full the identity its canonical home carries. The retrospective
+// entry started with the older shorthand and keeps the identity that shorthand
+// already meant; the correction's link still spells its identity exactly, so
+// it records nothing beside it.
 export const adoptedBacklog = `# Product backlog
 
 ## Near-future direction
@@ -45,21 +55,14 @@ ${direction}
 
 ## Taken
 
-- [Update the product backlog without hand-editing the shared list](${seedEight}#script-product-backlog-list-updates) — SEED-008 ([plan](${takenLink}))
+- [Update the product backlog without hand-editing the shared list](${seedEight}#script-product-backlog-list-updates) — ${identities.taken} ([plan](${takenLink}))
 
 ## Backlog list
 
-- [Queue trunk integration for agents on the same machine](${seedEight}#same-machine-merge-queue) — SEED-008
+- [Queue trunk integration for agents on the same machine](${seedEight}#same-machine-merge-queue) — ${identities.queue}
 - [Complete hook-registration corrections and deferred Claude Code acceptance](${correctionLink})
-- [Skip process retrospectives by default for new installations](${seedOne}#default-skip-process-retrospective) — SEED-001
+- [Skip process retrospectives by default for new installations](${seedOne}#default-skip-process-retrospective) — ${identities.retrospective}
 `;
-
-export const identities = {
-  taken: "SEED-008#script-product-backlog-list-updates",
-  queue: "SEED-008#same-machine-merge-queue",
-  correction: correctionLink,
-  retrospective: "SEED-001#default-skip-process-retrospective",
-};
 
 export const headings = {
   taken:

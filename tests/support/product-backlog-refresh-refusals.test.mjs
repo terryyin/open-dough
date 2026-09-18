@@ -3,11 +3,9 @@
 // every canonical home are byte-identical afterwards: a refusal records
 // nothing, and the same identity is never left reachable twice.
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
 import { test } from "node:test";
 import {
   adoptedBacklog,
-  correctionLink,
   headings,
   homes,
   identities,
@@ -18,10 +16,10 @@ import {
 import { run } from "./product-backlog-fixture.mjs";
 import {
   adoptedProject,
+  afterMove,
   backlogWith,
   lines,
   movedAnchor,
-  movedCorrection,
   movedPlan,
   movedSeed,
   recording,
@@ -68,8 +66,7 @@ test("refresh reference refuses a canonical home the backlog already lists", asy
 });
 
 test("refresh reference refuses a home that does not record the identity", async (t) => {
-  const project = adoptedProject(t, { extra: { [movedSeed]: homes[seedOne] } });
-  rmSync(project.path(seedOne));
+  const project = afterMove(t, seedOne, movedSeed, homes[seedOne]);
 
   const unrecorded = await run(
     project,
@@ -118,24 +115,23 @@ test("refresh reference refuses while the old home still records the identity", 
   assert.deepEqual(project.snapshot(), before);
 });
 
-test("refresh reference refuses to repoint an item identified by its path", async (t) => {
-  const project = adoptedProject(t, {
-    extra: {
-      [movedCorrection]: recording(correctionLink, [
-        [headings.correction, identities.correction],
-      ]),
-    },
-  });
+test("refresh reference refuses a home its identity could not be read back from", async (t) => {
+  // Relocating a correction plan is ordinary, but this identity names no
+  // anchor, and written beside a link that names one it would read back as
+  // different work. That ambiguity is a human's to settle, not a guess.
+  const project = adoptedProject(t);
   const before = project.snapshot();
 
   const result = await run(
     project,
-    refresh(identities.correction, "--link", movedCorrection),
+    refresh(identities.correction, "--link", `${seedEight}#refuse-variants`),
   );
 
   assert.equal(result.code, 1, result.stdout);
-  assert.match(result.stderr, /is identified by the canonical path it links/);
-  assert.match(result.stderr, /never re-identifies work/);
+  assert.match(
+    result.stderr,
+    /Ambiguous canonical home: identity "quick\/032-refuse-managed-hook-command-variants\/PLAN.md" names no anchor but the link ".*" names "refuse-variants"/,
+  );
   assert.deepEqual(project.snapshot(), before);
 });
 
