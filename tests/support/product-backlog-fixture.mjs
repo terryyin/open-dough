@@ -41,21 +41,27 @@ export const skipRetrospective = "SEED-001#default-skip-process-retrospective";
 export const architecture = "SEED-004#proudly-found-elsewhere-design";
 export const takenStory = "SEED-008#script-product-backlog-list-updates";
 
-export const backlog = `# Product backlog
+// Everything the established backlog holds before its two lists.
+const preamble = `# Product backlog
 
 ## Near-future direction
 
 Enable agents to execute stories in parallel while collaborating through
 trunk-based development, with each agent working in its own Git worktree.
 
-## Taken
-
-${takenEntry}
-
-## Backlog list
-
-${queued.join("\n")}
 `;
+
+// The whole backlog a run is expected to leave behind, spelled from the two
+// lists rather than derived from the product's own rendering, so an expectation
+// cannot agree with a wrongly rendered document. A list holding nothing keeps
+// its heading and the single blank line before the next one.
+export function backlogOf(taken, queue) {
+  const held = taken.length > 0 ? `${taken.join("\n")}\n\n` : "";
+  return `${preamble}## Taken\n\n${held}## Backlog list\n\n${queue.join("\n")}\n`;
+}
+
+// The starting precondition every test shares: one taken entry, three queued.
+export const backlog = backlogOf([takenEntry], queued);
 
 export const added = {
   identity: "SEED-002#publish-the-release-notes",
@@ -121,10 +127,11 @@ export function occurrences(text, needle) {
   return text.split(needle).length - 1;
 }
 
-// The backlog with the added entry at `index` places into the queue.
+// The backlog with the added entry at the queue position `index` places it
+// into, counting from before the first queued entry.
 export function withEntry(index) {
-  const lines = backlog.split("\n");
-  const at = lines.indexOf(queued[0]) + index;
-  lines.splice(at, 0, addedLine);
-  return lines.join("\n");
+  return backlogOf(
+    [takenEntry],
+    [...queued.slice(0, index), addedLine, ...queued.slice(index)],
+  );
 }

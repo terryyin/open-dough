@@ -290,8 +290,10 @@ Hypothesis: one removal transition; wrap-up ownership remains unchanged.
 
 ### 5. Place selected work at an explicit queue position
 Type: Behavior
-Status: planned
-Proof: `node --test --test-name-pattern='place in queue' tests/support/product-backlog.test.mjs`
+Status: done (2026-09-18)
+Proof: `node --test --test-name-pattern='place in queue' tests/support/product-backlog-place.test.mjs`,
+and `bash tests/product-backlog.sh` as the discovered entry point. Placement
+lives in its own test file, so the planned single-file command was superseded.
 
 Given an identified item and an explicit destination relationship, place it in
 the queue without changing unrelated order. A queued item is reprioritized;
@@ -739,6 +741,47 @@ Defect found and fixed in already-delivered slice 1 code:
   every caller including canonical homes. Slice 14's installed-use review
   decides whether it needs the same treatment.
 - Slice 14 now also has `product-backlog-complete.mjs` to declare.
+
+### Slice 5 (done)
+
+New CLI verb `place --identity <id> (--after <id> | --before <id> |
+--position first|last) [--return]`. `queueIndexFor` moved into
+`product-backlog-placement.mjs` and is now the single owner of "where does an
+entry belong in the queue for this explicit destination"; `add` and `place` are
+its only callers. The CLI's self-description moved to
+`product-backlog-usage.mjs` to keep the composition root under the size seam.
+
+Decisions and observations that bind later slices:
+
+- **`--return` is required both ways.** Taken work without it is refused, and
+  queued work with it is refused as having nothing to return. Beyond honouring
+  the rule that returning taken work is an explicit backlog decision, this makes
+  the flag a validated origin-state precondition: a request written against a
+  stale reading of the backlog is refused rather than applied to whichever list
+  happens to hold the work now.
+- **A placed entry's line is carried across verbatim, including any recorded
+  plan link.** `place` moves work and decides nothing about the work's plan;
+  dropping the link on return would be the script deciding the plan is no longer
+  active. `renderEntry` therefore remains the only thing that ever *composes* an
+  entry line or its plan suffix.
+- **A queued entry carrying a plan suffix is now a reachable, valid state.**
+  Slices 8–9 must not treat "has a plan link" as a proxy for "is Taken"; list
+  membership is the only membership signal.
+- **The destination is resolved with the entry already lifted out** — remove,
+  re-render, re-parse, then `queueIndexFor` — rather than adjusting indexes
+  after a move. That is what genuinely keeps insertion and movement one rule
+  instead of two that happen to agree, and `parseBacklog(renderBacklog(document))`
+  re-runs `requireDistinctWork` and the parser's strictness on the candidate.
+  Slices 8–13 can reuse that as a cheap, already-exercised way to validate an
+  intermediate document before publishing it. Do not replace it with index
+  arithmetic.
+- **A placement an entry already satisfies succeeds with a byte-identical
+  file**, because the requested outcome holds.
+- `place` never moves an entry into `## Taken`; that stays `take`'s.
+- No dependency ranking, inferred priority, ID-based tie-break, or priority
+  policy was added, as the boundaries require.
+- Slice 14 now also has `product-backlog-place.mjs` and
+  `product-backlog-usage.mjs` to declare.
 
 ## Coverage, stopping points, and remaining concerns
 

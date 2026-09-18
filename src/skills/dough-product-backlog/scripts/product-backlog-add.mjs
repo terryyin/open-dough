@@ -6,43 +6,13 @@ import {
   ambiguousHome,
   BacklogError,
   parseBacklog,
-  queueHeading,
   renderBacklog,
   renderEntry,
 } from "./product-backlog-document.mjs";
 import {
-  appendIndex,
-  entriesIn,
   insertEntryLine,
+  queueIndexFor,
 } from "./product-backlog-placement.mjs";
-
-function queueInsertIndex(document, placement) {
-  const queued = entriesIn(document, queueHeading);
-
-  if (placement.position === "first") {
-    return queued.length > 0
-      ? queued[0].index
-      : appendIndex(document, document.queue);
-  }
-  if (placement.position === "last") {
-    return appendIndex(document, document.queue);
-  }
-
-  const wanted = placement.after ?? placement.before;
-  const anchor = queued.find((entry) => entry.identity === wanted);
-  if (!anchor) {
-    const elsewhere = document.entries.find(
-      (entry) => entry.identity === wanted,
-    );
-    throw new BacklogError(
-      elsewhere
-        ? `Anchor identity "${wanted}" is in "## ${elsewhere.list}"; this ` +
-            `operation only places entries in "## ${queueHeading}".`
-        : `Anchor identity "${wanted}" is not in "## ${queueHeading}".`,
-    );
-  }
-  return placement.after ? anchor.index + 1 : anchor.index;
-}
 
 function requireUnlistedWork(document, request) {
   const existing = document.entries.find(
@@ -72,6 +42,6 @@ export function addQueueEntry(source, request) {
   const line = renderEntry(request);
   requireUnlistedWork(document, request);
 
-  insertEntryLine(document, queueInsertIndex(document, request), line);
+  insertEntryLine(document, queueIndexFor(document, request), line);
   return renderBacklog(document);
 }

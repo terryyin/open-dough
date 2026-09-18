@@ -45,6 +45,40 @@ export function appendIndex(document, section) {
   return index;
 }
 
+// Where an entry belongs in "## Backlog list" for one explicit destination
+// relationship, asked of a document that does not hold that entry. Writing a
+// new entry and moving one that is already listed ask exactly this question, so
+// both order the queue by the same rule: a destination is a relationship to
+// another identity or to an end of the list, never the line number an entry
+// happens to occupy.
+export function queueIndexFor(document, placement) {
+  const queued = entriesIn(document, queueHeading);
+
+  if (placement.position === "first") {
+    return queued.length > 0
+      ? queued[0].index
+      : appendIndex(document, document.queue);
+  }
+  if (placement.position === "last") {
+    return appendIndex(document, document.queue);
+  }
+
+  const wanted = placement.after ?? placement.before;
+  const anchor = queued.find((entry) => entry.identity === wanted);
+  if (!anchor) {
+    const elsewhere = document.entries.find(
+      (entry) => entry.identity === wanted,
+    );
+    throw new BacklogError(
+      elsewhere
+        ? `Anchor identity "${wanted}" is in "## ${elsewhere.list}"; this ` +
+            `operation only places entries in "## ${queueHeading}".`
+        : `Anchor identity "${wanted}" is not in "## ${queueHeading}".`,
+    );
+  }
+  return placement.after ? anchor.index + 1 : anchor.index;
+}
+
 // Writes the line at `index`, keeping the blank line that separates the last
 // entry of a section from whatever follows it.
 export function insertEntryLine(document, index, line) {

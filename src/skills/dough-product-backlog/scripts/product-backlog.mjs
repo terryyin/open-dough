@@ -13,41 +13,13 @@ import {
   queueHeading,
   takenHeading,
 } from "./product-backlog-document.mjs";
+import { placeEntry } from "./product-backlog-place.mjs";
 import {
   applyToBacklog,
   defaultBacklogPath,
 } from "./product-backlog-store.mjs";
 import { takeEntry } from "./product-backlog-take.mjs";
-
-const usage = `Usage: product-backlog.mjs add --identity <id> --title <title> --link <href>
-                             (--after <id> | --before <id> | --position first|last)
-                             [--file <path>]
-       product-backlog.mjs take --identity <id> (--plan <path> | --no-plan)
-                             [--file <path>]
-       product-backlog.mjs complete --identity <id> [--file <path>]
-       product-backlog.mjs adopt --all [--file <path>]
-
-add adds one already identified entry to "## ${queueHeading}" at the requested
-relative position. Identities are supplied, never allocated there.
-
-take moves one identified entry to the end of "## ${takenHeading}", keeping its
-identity and adding the selected plan link; an entry already there is resumed in
-place. The plan decision is always stated: --plan names the active plan, and
---no-plan takes a quick story, or a correction whose canonical home is already
-its plan. Taking work does not decide or grant execution authority.
-
-complete removes one identified entry from whichever active list holds it,
-applying a completion the caller has already decided. It never decides whether
-work is complete, and it never deletes a story or plan file: closing those
-canonical homes stays with the caller's wrap-up. Removal happens only on this
-explicit request naming the identity.
-
-adopt records one identity for every active entry in the canonical homes its
-links name, reusing the ID each home already carries. It changes no membership,
-order, or direction, and never runs implicitly: --all is required.
-
-Paths are resolved against the current directory; --file defaults to
-${defaultBacklogPath}.`;
+import { usage } from "./product-backlog-usage.mjs";
 
 const options = {
   identity: { type: "string" },
@@ -58,6 +30,7 @@ const options = {
   position: { type: "string" },
   plan: { type: "string" },
   "no-plan": { type: "boolean", default: false },
+  return: { type: "boolean", default: false },
   all: { type: "boolean", default: false },
   file: { type: "string", default: defaultBacklogPath },
   help: { type: "boolean", default: false },
@@ -111,6 +84,27 @@ async function applyReportedChange(file, operate) {
     return outcome.source;
   });
   return outcome;
+}
+
+function reportPlace(outcome, file) {
+  const { identity } = outcome.entry;
+  const from = outcome.returned
+    ? `Returned "${identity}" from "## ${takenHeading}" to`
+    : `Placed "${identity}" in`;
+  return `${from} "## ${queueHeading}" in ${file}, at the requested position.`;
+}
+
+async function place(file, values) {
+  const request = {
+    identity: values.identity,
+    returning: values.return,
+    ...readPlacement(values),
+  };
+  const outcome = await applyReportedChange(file, (source) =>
+    placeEntry(source, request),
+  );
+
+  console.log(reportPlace(outcome, values.file));
 }
 
 // The caller always states whether the work has an active plan, so a planned
@@ -198,7 +192,7 @@ async function adopt(file, values) {
   console.log(reportAdopt(outcome, values.file));
 }
 
-const operations = { add, take, complete, adopt };
+const operations = { add, place, take, complete, adopt };
 
 async function main(argv) {
   let parsed;
