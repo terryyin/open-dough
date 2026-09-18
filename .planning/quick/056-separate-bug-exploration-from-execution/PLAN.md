@@ -90,12 +90,55 @@ documentation and is installed identically for supported tool roots. Do not add
 exact-prose assertions, a workspace manager test harness, or a native tool
 matrix for this conventional shared-guidance change.
 
+## Execution context
+
+- Story Branch Mode from claim commit `15ca615`.
+- Originating integration checkout: `/Users/terryyin/git/open-dough`, branch
+  `main`. Execution checkout: `/tmp/open-dough-056.o4TIt8/worktree`, branch
+  `codex/quick-056-bug-exploration-workspace`. Integration target: local and
+  remote `main` through ordinary story wrap-up.
+- Replanning remained allowed; no overrun or story-scope change occurred.
+- CI source: GitHub Actions workflow `ci.yml`, display name `CI`, observing the
+  pushed execution branch through Codex observer directory
+  `/tmp/dough-ci-501/watch-B3zVUb`, PID `45853`, cell `59`.
+
 ## Ordered slices
 
 ### 1. Investigate standalone bugs in a disposable workspace before repair
 Type: Behavior
-Status: planned
+Status: done
 Proof: the outside-in behavior review and focused commands above pass.
+
+Accepted proof:
+
+- Inspected `src/skills/dough-manual-testing/references/exploration-workspace.md`
+  as the single owner of checkout precedence, temporary branch/worktree
+  identity, resume verification, external-state boundaries, and safe cleanup
+  or exact retention. Both callers link to it; manual testing preserves its
+  prior behavior while bug fixing retains only its distinct sequencing.
+- Inspected `src/skills/dough-bug-fixing/SKILL.md` against all five examples:
+  standalone exploration precedes repair; no-change closes without execution;
+  larger or inconclusive work preserves and locally integrates only authorized
+  planning artifacts; unsafe closure blocks repair with exact retained state;
+  and workflow-owned checkouts are reused without nesting.
+- Inspected all four managed-payload declarations/documentation locations. The
+  new reference is installed in supported roots and included in release
+  comparison. No managed installed copy was edited.
+- `git diff --check` — pass.
+- `npm run lint` — pass, including after the post-change refactor.
+- `bash tests/install-all-tools.sh` — pass; disposable supported roots received
+  matching payload bytes and the update/repair cases completed.
+- `bash tests/compare-payload.sh` — pass; tagged release comparison and mismatch
+  behavior retained their expected signals.
+- Post-change refactor: `## REFACTOR COMPLETE`. It removed repeated caller
+  detail, preserved the proof boundaries, and left every changed file at or
+  below 250 lines.
+
+Outcome: delivered one authoritative exploration-workspace reference, preserved
+manual-testing behavior through it, and made bug fixing close standalone
+exploration before separate repair execution. Durable planning artifacts use
+the requested local-main integration, rebase, and safe-cleanup handoff. Payload
+declarations and installation documentation now deliver the reference.
 
 Behavior: Given a standalone bug report that needs checkout-bound investigation
 and has no established checkout, when the agent investigates and selects a
