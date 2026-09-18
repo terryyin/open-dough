@@ -374,7 +374,7 @@ with ambiguity a supported stop rather than a reason to add order metadata.
 
 ### 10. Preserve direction intent during reconciliation
 Type: Behavior
-Status: planned
+Status: done (2026-09-18)
 Proof: `node --test --test-name-pattern='merge direction' tests/support/product-backlog-merge.test.mjs`
 
 Combine a one-sided direction update with other item edits; apply identical
@@ -1078,6 +1078,90 @@ and step 5 covers it only generically as "competing order". The installed
 guidance must tell a human what to do when it fires — decide the two
 priorities, repair one version by hand, merge again — the way slice 4's
 "already applied" nonzero exit needs distinguishing from a failure.
+
+### 10. Preserve direction intent during reconciliation — learnings
+
+The direction needed no new code. It was already reconciled by the same
+`mergeValue(ancestor, one, other)` that decides the preamble and the epilogue,
+through the same loop, so the slice's source diff is empty by design. Adding a
+direction-specific path would have bought nothing and broken the one rule.
+What the slice delivered is proof, and the proof found two things the code had
+been getting right without anyone knowing.
+
+The plan's own proof command, `--test-name-pattern='merge direction'`, matched
+zero tests before this slice: every test was named `merge items` or `merge
+order`, so the command passed by running nothing. A proof line that names a
+group nobody has created yet is indistinguishable from a passing one. Worth
+checking on the remaining slices before trusting their proof commands.
+
+`transitions()` pushes `changed the "## Near-future direction"` into the merge
+report, and nothing asserted it. Deleting that block leaves all 25 pre-existing
+tests passing. The report exists so a caller can check what they are accepting,
+so an unreported direction change is a strategy rewrite accepted unseen. Both
+halves are now asserted: that it appears when a branch moved the direction, and
+that it is absent when neither did. A report naming the direction unconditionally
+is as useless as one that never does, and nothing caught that either.
+
+`mergeValue`'s identical-value arm had no coverage at all before this slice.
+Item states reach agreement through `mergeWork`'s `sameState`, never through
+`mergeValue`, so `merge items applies an identical change on both branches once`
+does not exercise it. Making that arm return the ancestor fails only the two new
+direction tests.
+
+Argument-order symmetry stopped being a stylistic contract here. Making the
+`one === ancestor` arm return the ancestor kills exactly one test and only in
+its swapped-argument run: the forward run passes because the direction-changing
+branch happens to be named first. The implementation's first draft ran one order
+and missed it. Any future test of a value merge should run both orders and
+compare whole-file bytes and stdout.
+
+The Git contrast needs unchanged lines between the two edits, and that is not a
+detail. Two edits to adjacent lines conflict in a line-by-line text merge by
+themselves, so a test built on the two-line `direction` would assert our refusal
+while proving nothing about the difference. On a four-line direction edited at
+both ends, `git merge-file` exits 0 and composes a direction telling agents to
+run stories one at a time while a human schedules stories in parallel — text
+neither branch wrote. The test asserts the text merge *succeeded* before
+asserting we refuse, so simplifying the edits closer together fails loudly with
+"a text merge refused these versions itself, so they prove no contrast" rather
+than quietly proving less.
+
+Both direction tests that had been sitting in the `merge items` group moved into
+this one rather than being copied: their content was direction behaviour, and
+slice 8's recorded proof claims membership, metadata, malformed input and
+delete-versus-return, not the direction. `merge items` drops from 14 to 12 and
+loses no assertion the remaining 12 do not make. Identical-replacement and
+identical-clearing earn separate places because a "clearing never counts as a
+change" special case passes one while breaking the deletion-versus-replacement
+refusal.
+
+Process limit worth recording: the independent refactor pass stalled after
+completing its edits but before reporting. Its work was accepted by direct
+inspection of the diff — it moved `chosen`, `spreadDirection` and the
+`textMerge` helper down beside the group that uses them, returning the shared
+fixture to unmodified, and collapsed eight repetitions of
+`backlogOf([takenEntry], queued, text)` into `saying(text)`. No report was
+received on anything it may have found unproved, or on its judgement of the
+deferred test-file split, so neither question was answered this slice. The
+mutation testing behind the claims above was run by the coordinator directly,
+before and after the refactor, so the refactor is known not to have weakened the
+swapped-argument assertion or the text-merge self-guard.
+
+For slice 14: `merge-conflicts.md` step 3 says only "preserve unrelated titles,
+links, direction text, and queue order", and step 5 covers incompatible changes
+generically. Neither tells a resolver what to do when both sides changed the
+direction, and neither warns that a textually clean merge of the direction
+section is not evidence of compatibility — which is exactly the failure this
+slice now documents. The guidance must say that any two differing direction
+values, including clearing against rewriting, stop for a human decision.
+
+For slices 11-13: the merge report now has assertions on both the presence and
+the absence of its direction line, so reshaping the report will be noticed.
+`textMerge` in the test file is the only Git call in this subsystem's tests and
+it is an observer used to draw a contrast — it is not the beginning of Git
+support and should not be refactored into shared Git plumbing. The one test
+using it needs `git` on PATH; without it the helper reports ENOENT and the test
+fails loudly rather than passing silently.
 
 ## Coverage, stopping points, and remaining concerns
 
