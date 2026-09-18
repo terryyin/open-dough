@@ -15,7 +15,9 @@ without asking for confirmation.
    identity under [work item identity](identity.md), including known
    story-to-plan links; a shared seed ID is insufficient, and a side that only
    relinked a renamed or moved canonical home changed its navigation, not its
-   identity.
+   identity. A shared link is insufficient too: two different recorded
+   identities do not become one work item because their links have come to name
+   the same canonical home, and which work such an entry is belongs to step 5.
    Consult affected history or canonical homes only if identity or intent is
    unclear. Use history when cleanup deleted a needed canonical home; missing
    artifacts alone do not prove completion.

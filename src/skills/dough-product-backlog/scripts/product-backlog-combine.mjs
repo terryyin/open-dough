@@ -9,6 +9,7 @@
 // side's change, which is what keeps an entry no branch touched from bringing
 // back an entry a branch removed.
 
+import { recordsOwnIdentity } from "./product-backlog-identity.mjs";
 import { stateOf, valueNames } from "./product-backlog-version.mjs";
 
 // The one rule, on one value.
@@ -32,6 +33,37 @@ export function sameState(one, other) {
   return Object.keys(valueNames).every((name) => one[name] === other[name]);
 }
 
+// The clash, if any, over which work item an entry is. An identity names the
+// work rather than saying something about it. An entry whose identity is the
+// link beside it has not been given one of its own yet, and gaining one is how
+// a branch that adopted an identity and a branch that has not are still
+// talking about one item. An identity a version did record is never replaced:
+// entries reach one another through a canonical home they both name, and a
+// home that has come to be named by a second recorded identity says nothing
+// about which work item it belongs to.
+function identityClash(versions, states, state) {
+  if (!("identity" in state)) {
+    return undefined;
+  }
+  const at = states.findIndex(
+    (held) =>
+      held !== null &&
+      recordsOwnIdentity(held.identity, held.href) &&
+      held.identity !== state.identity,
+  );
+  if (at === -1) {
+    return undefined;
+  }
+  const held = states[at];
+  return (
+    `"${held.identity}": ${versions[at].label} records it as the work at ` +
+    `"${held.href}", where the versions would otherwise merge to identity ` +
+    `"${state.identity}". A recorded identity is kept across a move, so two ` +
+    `of them do not become one work item by their links coming to coincide, ` +
+    `and these versions do not establish which work this entry is.`
+  );
+}
+
 // The same rule on one work item. Membership is not a value apart from the
 // rest: a branch that removed an item and a branch that changed it have stated
 // different intentions about the same work, and no lifecycle order decides
@@ -43,9 +75,10 @@ export function sameState(one, other) {
 // order rather than as one of the item's own values. `reprioritized` is that
 // account, asked of one version and one work item.
 export function mergeWork(group, versions, reprioritized) {
-  const [ancestor, one, other] = versions.map((version) =>
+  const states = versions.map((version) =>
     stateOf(group.states.get(version.label)),
   );
+  const [ancestor, one, other] = states;
   const named = (one ?? other ?? ancestor).identity;
   const [oneReprioritized, otherReprioritized] = versions
     .slice(1)
@@ -93,6 +126,14 @@ export function mergeWork(group, versions, reprioritized) {
           `has "${other[name]}".`,
       );
     }
+  }
+
+  // Asked only here, where both branches turn out to have changed the work:
+  // adopting an identity, recording one on one side alone, and removing the
+  // work have each already been decided above.
+  const clash = identityClash(versions, states, state);
+  if (clash) {
+    clashes.add(clash);
   }
   return clashes.size > 0 ? { conflict: [...clashes].join("\n") } : { state };
 }

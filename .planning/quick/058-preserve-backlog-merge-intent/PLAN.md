@@ -409,7 +409,7 @@ change outside a CI repair's scope and is left as a recommendation.
 
 ### 6. Reconcile a relocated item as the same work
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend reconciliation CLI cases; run `bash tests/product-backlog.sh`.
 
 From an identified ancestor, generate one branch with a refreshed moved home
@@ -420,6 +420,56 @@ Do not equate conflicting recorded IDs merely because their links coincide;
 identity ambiguity stops without publishing. Reuse the shared identity and
 three-way comparison rules, with no relocation-specific resolver or history log.
 Sizing: one cross-branch identity-preservation journey and refusal boundary.
+
+Accepted proof: `bash tests/product-backlog.sh` reported 91 tests, 91 pass, 0
+fail, 0 skipped. Boundary: the real CLI at
+`src/skills/dough-product-backlog/scripts/product-backlog.mjs` run as a child
+process against scratch projects. Inspected locations, in the new
+`tests/support/product-backlog-merge-identity.test.mjs`: "merge identity
+reconciles a relocated canonical home as the same work", which observes exit 0
+and the whole destination equal to the ancestor with exactly one entry line
+rewritten to the new link, carrying the original recorded identity and the other
+branch's title, each occurring exactly once, under both branch orderings; and
+"merge identity refuses two recorded identities whose links coincide", which
+observes exit 1, destination bytes equal to the ancestor, and stderr naming both
+competing identities. Both branch versions are produced by the real `refresh`
+commands. The coordinator independently disabled the new clause and observed the
+refusal test fail before restoring the source and re-confirming green.
+
+Behavior corrected: relocation already reconciled, but one path published
+wrongly. Where one branch said the work now lives at a link and the other said
+the work at that link is a different identity, the two chained through the
+shared home and `identity` merged as an ordinary value, so the relocated work's
+recorded ID vanished silently and the report named the surviving one. `mergeWork`
+now refuses when the merged identity would replace an identity some version
+recorded of its own, discriminated by `recordsOwnIdentity` — identity differing
+from the link beside it — and placed after the `sameState` early returns and the
+removal branch, so it fires only when both branches changed the work. Adoption
+still merges, a relocation recording a path identity still merges, and a
+one-sided recorded-ID edit still applies so a mistyped identity stays fixable.
+Three other candidate shapes were probed and were already refused correctly,
+including the duplicate-home stop slice 4 flagged as untested.
+
+The mixed-representation pairing slice 5 flagged was exercised explicitly and
+needed no change: a relocated correction plan's entry records a value where the
+ancestor recorded nothing, and because that value holds no anchor it travels the
+legacy-shorthand branch and recomposes to itself, so all three versions group
+through one identity.
+
+Learnings: a link includes its anchor, so two work items in one file under
+different anchors never chain in `groupWork`; coincident-link ambiguity requires
+a byte-identical link. `recordsIdentityInFull` asks how a recorded value is
+spelled and is not a safe test for "records an identity of its own", because a
+bounded correction's path identity carries no anchor; `recordsOwnIdentity` is
+the safe predicate and now says so at its definition. Identity is still merged
+twice by two different rules — as an ordinary value in `valueNames`, then
+policed by the new clause — so an identity dispute can surface with either
+wording; whether identity should be a merged value at all, or only a grouping
+key policed separately, is a design question larger than this correction.
+`groupWork` and the new clause both answer "which work item is this" at
+different layers, which is defensible but leaves two such refusals in two
+modules. The backlog `scripts/` directory is not declared payload at all — only
+`SKILL.md` and the two references are — so the scripted CLI is not yet promoted.
 
 ## Execution and review gates
 

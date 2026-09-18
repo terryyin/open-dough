@@ -62,12 +62,23 @@ export function identityFor(href, recorded) {
   return composeIdentity(recorded, splitHref(href).anchor);
 }
 
+// Whether an entry carries a name of its own for the work, rather than being
+// identified by the link beside it. A link that spells the identity exactly
+// leaves nothing to record, so such an entry names the work only as wherever
+// its home currently is, and it gains a name of its own by adopting one. This
+// is not `recordsIdentityInFull`, which asks how a recorded value is spelled:
+// an identity taken from a bounded correction's plan path is a name of its own
+// and carries no anchor at all.
+export function recordsOwnIdentity(identity, href) {
+  return identity !== href;
+}
+
 // What a written entry records for a given identity: the identity itself,
 // unless the link already spells it exactly, in which case there is nothing
 // to record beside it. This never asks the link to agree with the identity —
 // a relocated home is the ordinary case, not a refusal.
 export function recordedFor(identity, href) {
-  if (identity === href) {
+  if (!recordsOwnIdentity(identity, href)) {
     return "";
   }
   const { anchor } = splitHref(href);
