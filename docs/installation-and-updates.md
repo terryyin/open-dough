@@ -8,6 +8,7 @@ The payload in each root is exactly:
 - `dough-bug-fixing/SKILL.md`
 - `dough-adr-awareness/SKILL.md`
 - `dough-product-backlog/SKILL.md`
+- `dough-product-backlog/assets/claude-hooks-guard.json`
 - `dough-product-backlog/references/identity.md`
 - `dough-product-backlog/references/merge-conflicts.md`
 - `dough-product-backlog/scripts/product-backlog-add.mjs`
@@ -27,6 +28,7 @@ The payload in each root is exactly:
 - `dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs`
 - `dough-product-backlog/scripts/product-backlog-git-rebase.mjs`
 - `dough-product-backlog/scripts/product-backlog-git-repository.mjs`
+- `dough-product-backlog/scripts/product-backlog-guard-hook.mjs`
 - `dough-product-backlog/scripts/product-backlog-home.mjs`
 - `dough-product-backlog/scripts/product-backlog-identity.mjs`
 - `dough-product-backlog/scripts/product-backlog-merge.mjs`
@@ -188,6 +190,7 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-register-hooks.sh`
    - `src/install/open-dough-register-hooks.mjs`
    - `src/install/open-dough-register-hooks-merge.mjs`
+   - `src/install/open-dough-register-hooks-fragments.mjs`
    - `src/skills/dough-update/SKILL.md`
    - `src/skills/dough-bug-fixing/SKILL.md`
    - `src/skills/dough-adr-awareness/SKILL.md`

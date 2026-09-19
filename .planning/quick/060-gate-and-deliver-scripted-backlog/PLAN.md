@@ -459,37 +459,75 @@ backlog unreadable by its own tooling until corrected to the parser's
 
 ### 7. Establish lightweight native edit protection in Claude Code
 Type: Behavior
-Status: planned, conditional on host feasibility
-Proof: `bash tests/product-backlog-native.sh --native claude --case guard`
+Status: done
+Proof: `bash tests/product-backlog-native.sh`;
+`bash tests/product-backlog-native.sh --native claude --case guard`
 
 **Renumbered from 11; rescoped 2026-09-19 by owner authorization.** Formerly
 this slice applied "slice 7's" (Codex) guard outcome and feasibility boundary
 to Claude Code. Codex and Cursor's native slices (formerly 7-10) were
 extracted to
 [a separate, deferred story](../061-native-edit-protection-codex-cursor/PLAN.md)
-the owner will resume later; this plan no longer has a prior host's guard to
-apply, so this slice establishes Claude Code's own native editing-denial
-feasibility independently, from a first-principles investigation, not by
-inheriting another host's result.
+the owner will resume later; this slice established Claude Code's own native
+editing-denial feasibility independently, from a first-principles
+investigation, not by inheriting another host's result.
 
-First establish, in an isolated supported runtime, whether an ordinary native
-patch to the backlog can be denied before its bytes change while reads,
-scripts, unrelated edits, and human repair still work — verify current native
-capability at execution time empirically (spawn a real `claude` CLI
-invocation and observe it; a synthetic hook JSON or another host's assertion
-is not evidence). Claude Code's `PreToolUse` hook mechanism (already used by
-this project's own CI-observation hooks — see
-`src/skills/dough-execute-plan/assets/claude-hooks.json` and
-`src/skills/dough-execute-plan/scripts/ci-host-hook.mjs` for the existing
-registration pattern) is a plausible mechanism to investigate first, but
-confirm it can actually deny a tool call before assuming it. If feasible with
-a thin adapter, deliver that adapter and safe install/update registration
-(extending the manifests the same way slice 5 did), then prove native denial
-and repeat/update coexistence, reusing settings preservation where
-applicable. If absent or complex, report the exact boundary for human
-disposition without expanding enforcement. Slice 8 remains independently
-runnable; no guard pass is claimed. Hypothesis: one native editing boundary,
-separate from workflow use.
+Investigated hypothesis-first: fetched Claude Code's real `PreToolUse` hook
+contract (stdin carries `tool_name`/`tool_input`, denial is
+`hookSpecificOutput.permissionDecision: "deny"` on stdout with exit 0, or a
+bare exit 2), then confirmed it empirically with a scratch project before
+committing to any design. **Feasible, and delivered**: a real `claude --print
+--dangerously-skip-permissions --no-session-persistence` session asking to
+`Edit` the resolved backlog was denied before any bytes changed; `Write` is
+denied the same way; an `Edit` to an unrelated file, a `Read` of the guarded
+file, and a `Bash`-run shell redirection into the guarded file all still
+succeeded, exercised natively, not asserted. Repeat install/update is
+idempotent (exactly one `PreToolUse` wrapper).
+
+Delivered `dough-product-backlog/scripts/product-backlog-guard-hook.mjs` (the
+`PreToolUse` hook; exports `evaluateGuard()` for direct testing; reuses
+`defaultBacklogPath` from `product-backlog-store.mjs` as its single source of
+truth for the guarded path; fails open on malformed stdin, matching
+`ci-host-hook.mjs`'s existing convention) and
+`dough-product-backlog/assets/claude-hooks-guard.json` (the fragment,
+declared in the backlog domain skill, not `dough-execute-plan`, since it's a
+backlog-domain concern). Generalized
+`src/install/open-dough-register-hooks.mjs` from one fragment per host to a
+list, extracting the inventory into new
+`src/install/open-dough-register-hooks-fragments.mjs` (kept the orchestrator
+under the file-size convention); Claude now combines the existing required CI
+fragment with the new optional guard fragment, so an older source checkout
+without it still registers CI hooks unchanged. Cursor is untouched — the
+guard is Claude-only, matching this slice's scope; the actual settings-merge
+policy (`open-dough-register-hooks-merge.mjs`) was reused exactly as-is, not
+duplicated or reinvented. Extended `install.sh`'s declared manifest with the
+two new payload files, following slice 5's precedent (`docs/installation-and-
+updates.md`, `dough-update/SKILL.md`, and `tests/pin-and-inspect.sh` updated
+to match; `open-dough-release-version.sh` and the test fixture already derive
+from `install.sh`'s own declaration automatically).
+
+Proof: `tests/product-backlog-native.sh` (default mode: real install plus
+`evaluateGuard()` assertions, no agent) and `--native claude --case guard`
+(real spawned `claude --print` sessions against a fixture with the guard
+actually installed via real `install.sh`, asserting on real file bytes and
+captured output, not exit codes alone). A subsequent refactor pass found and
+fixed one real duplication (`readJsonFile()` had been reintroduced verbatim in
+`open-dough-register-hooks.mjs` instead of reusing the one already moved into
+the new fragments module) and confirmed no other refactor-check issues; all
+proof and the full previously-passing regression suite re-run clean after the
+fix.
+
+No override or bypass exists by design: a human editing the file directly, or
+any Bash-invoked process, is simply outside the hook's registered scope —
+confirmed empirically, not just asserted; adding an "unlock" flag would weaken
+the guard for no requirement in scope. `NotebookEdit`'s real field name
+(`file_path` vs. `notebook_path`) is unconfirmed against every Claude Code
+version; the guard defensively checks both, at no cost if only one is ever
+populated — irrelevant to a `.md` backlog, so not spent on a native
+invocation; an unexercised defensive branch, not a claimed proof. Slice 8
+remains independently runnable and can extend
+`tests/product-backlog-native.sh`'s existing `--case` dispatch with a `use`
+case without redesign.
 
 ### 8. Use the installed scripted workflow in Claude Code
 Type: Behavior

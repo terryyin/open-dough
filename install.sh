@@ -64,6 +64,7 @@ managed_files=(
   dough-bug-fixing/SKILL.md
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
+  dough-product-backlog/assets/claude-hooks-guard.json
   dough-product-backlog/references/identity.md
   dough-product-backlog/references/merge-conflicts.md
   dough-product-backlog/scripts/product-backlog-add.mjs
@@ -83,6 +84,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs
   dough-product-backlog/scripts/product-backlog-git-rebase.mjs
   dough-product-backlog/scripts/product-backlog-git-repository.mjs
+  dough-product-backlog/scripts/product-backlog-guard-hook.mjs
   dough-product-backlog/scripts/product-backlog-home.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
