@@ -4,6 +4,12 @@
 
 Enable agents to execute stories in parallel while collaborating through
 trunk-based development, with each agent working in its own Git worktree.
+Give developers visibility into a client project's status and progress through
+the user-story perspective of an Open Dough dashboard, showing how ideas move
+through development and become assimilated into the product.
+First, derive progress solely from Git state published to origin, treating
+developers as working on separate machines. Then add coordination and local
+operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
@@ -11,6 +17,9 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Backlog list
 
+- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work
+- [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
+- [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001
