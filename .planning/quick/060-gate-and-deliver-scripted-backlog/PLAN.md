@@ -145,8 +145,39 @@ contract; native traces are still required to prove an agent follows guidance.
 
 ### 1. Reconcile a real merge and accept a human resolution safely
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-git.sh merge`
+
+Delivered via a self-registering Git merge driver (local `.git/info/attributes`
++ `git config`, not the tracked `.gitattributes` — that promotion choice is
+deferred to slices 5/6), which Git invokes with real `%O %A %B` blobs for every
+two-sided change to the backlog path, clean or conflicted, feeding the existing
+`mergeBacklogs` core unmodified. New files:
+`product-backlog-git-merge.mjs` (CLI/orchestrator: fast-forward validation,
+`mergeOperation`, `continueOperation`), `product-backlog-git-repository.mjs`
+(Git plumbing primitives, `ensureDriverRegistered`, `repositoryRoot`),
+`product-backlog-git-candidate.mjs` (`validateCandidate`, `acceptStaged`),
+`product-backlog-git-driver.mjs` (the merge-driver entry point Git invokes,
+including the Git-facing conflict-marker/diagnostic rewrite). Proof:
+`tests/support/product-backlog-git-merge.test.mjs` (clean-result gating, 4
+cases) and `tests/support/product-backlog-git-merge-conflict.test.mjs`
+(conflict + human recovery, 3 cases), both real `git merge` in scratch repos,
+asserting on real index stages/`MERGE_HEAD`/refs/bytes — 7/7 pass. Pre-existing
+`tests/product-backlog.sh` (94 tests) unaffected.
+
+Learnings for slices 2-4: `validateCandidate`, `acceptStaged`,
+`ensureDriverRegistered`, and `repositoryRoot` are Git-generic, not
+merge-shaped, and are exported for direct reuse; only `mergeOperation`/
+`continueOperation` are merge-specific. Not covered here, left as an
+explicit gap rather than silently dropped: the `"blocked"` status (this
+path's own result accepted, but Git refuses to commit because an unrelated
+path is still conflicted) is implemented but untested — a real but
+lower-priority case for a later pass. The Git-facing diagnostic rewrite in
+the driver does line/substring surgery against the shared core's current
+refusal wording rather than a structural hook the core exposes; functions
+today, but is coupled to that wording (out of this slice's authority to
+restructure — it would touch the shared, heavily-tested
+`product-backlog-merge.mjs` used by other callers).
 
 An authorized merge obtains real ancestor/side blobs, runs the shared resolver,
 and gates the actual result before acceptance. Prove concurrent sibling closures,
