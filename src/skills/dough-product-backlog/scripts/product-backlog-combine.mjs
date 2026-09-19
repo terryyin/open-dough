@@ -33,35 +33,67 @@ export function sameState(one, other) {
   return Object.keys(valueNames).every((name) => one[name] === other[name]);
 }
 
-// The clash, if any, over which work item an entry is. An identity names the
-// work rather than saying something about it. An entry whose identity is the
-// link beside it has not been given one of its own yet, and gaining one is how
-// a branch that adopted an identity and a branch that has not are still
-// talking about one item. An identity a version did record is never replaced:
-// entries reach one another through a canonical home they both name, and a
-// home that has come to be named by a second recorded identity says nothing
-// about which work item it belongs to.
-function identityClash(versions, states, state) {
-  if (!("identity" in state)) {
-    return undefined;
-  }
-  const at = states.findIndex(
-    (held) =>
-      held !== null &&
-      recordsOwnIdentity(held.identity, held.href) &&
-      held.identity !== state.identity,
-  );
-  if (at === -1) {
-    return undefined;
-  }
-  const held = states[at];
+// The one wording for two branches that simply gave one value two different
+// readings, whichever value it is asked about.
+function differentValueClash(named, label, versions, one, other) {
   return (
-    `"${held.identity}": ${versions[at].label} records it as the work at ` +
-    `"${held.href}", where the versions would otherwise merge to identity ` +
-    `"${state.identity}". A recorded identity is kept across a move, so two ` +
-    `of them do not become one work item by their links coming to coincide, ` +
-    `and these versions do not establish which work this entry is.`
+    `"${named}": the versions give it different ${label} — ` +
+    `${versions[1].label} has "${one}" and ${versions[2].label} has "${other}".`
   );
+}
+
+// The one rule for a work item's identity, owning both ways this question is
+// disputed rather than splitting them between the generic per-value loop and
+// a check bolted onto its result. An identity names the work rather than
+// saying something about it, so it is not merged as an ordinary value:
+//
+// - A version that did record an identity of its own is never overruled by a
+//   link its home has only come to share with a different recorded identity.
+//   An entry whose identity is the link beside it has not been given one of
+//   its own yet, and gaining one is how a branch that adopted an identity and
+//   a branch that has not are still talking about one item; a home that has
+//   come to be named by a second recorded identity says nothing about which
+//   work item it belongs to.
+// - Failing that, an identity two branches changed differently is an ordinary
+//   changed-on-both-sides disagreement, refused the same way any other value
+//   is.
+//
+// Either way this returns one explanation, or accepts the identity the
+// three-way rule allows.
+function mergeIdentity(named, versions, states, ancestor, one, other) {
+  const merged = mergeValue(ancestor, one, other);
+  const at =
+    "value" in merged
+      ? states.findIndex(
+          (held) =>
+            held !== null &&
+            recordsOwnIdentity(held.identity, held.href) &&
+            held.identity !== merged.value,
+        )
+      : -1;
+  if (at !== -1) {
+    const held = states[at];
+    return {
+      conflict:
+        `"${held.identity}": ${versions[at].label} records it as the work at ` +
+        `"${held.href}", where the versions would otherwise merge to identity ` +
+        `"${merged.value}". A recorded identity is kept across a move, so two ` +
+        `of them do not become one work item by their links coming to coincide, ` +
+        `and these versions do not establish which work this entry is.`,
+    };
+  }
+  if ("value" in merged) {
+    return { value: merged.value };
+  }
+  return {
+    conflict: differentValueClash(
+      named,
+      valueNames.identity,
+      versions,
+      one,
+      other,
+    ),
+  };
 }
 
 // The same rule on one work item. Membership is not a value apart from the
@@ -115,26 +147,45 @@ export function mergeWork(group, versions, reprioritized) {
 
   const state = {};
   const clashes = new Set();
+
+  // Asked only here, where both branches turn out to have changed the work:
+  // adopting an identity, recording one on one side alone, and removing the
+  // work have each already been decided above. The identity's own rule
+  // decides it whole, rather than as one more value in the loop below.
+  const identityOutcome = mergeIdentity(
+    named,
+    versions,
+    states,
+    ancestor?.identity,
+    one.identity,
+    other.identity,
+  );
+  if ("value" in identityOutcome) {
+    state.identity = identityOutcome.value;
+  } else {
+    clashes.add(identityOutcome.conflict);
+  }
+
   for (const name of Object.keys(valueNames)) {
+    if (name === "identity") {
+      continue;
+    }
     const merged = mergeValue(ancestor?.[name], one[name], other[name]);
     if ("value" in merged) {
       state[name] = merged.value;
     } else {
       clashes.add(
-        `"${named}": the versions give it different ${valueNames[name]} — ` +
-          `${versions[1].label} has "${one[name]}" and ${versions[2].label} ` +
-          `has "${other[name]}".`,
+        differentValueClash(
+          named,
+          valueNames[name],
+          versions,
+          one[name],
+          other[name],
+        ),
       );
     }
   }
 
-  // Asked only here, where both branches turn out to have changed the work:
-  // adopting an identity, recording one on one side alone, and removing the
-  // work have each already been decided above.
-  const clash = identityClash(versions, states, state);
-  if (clash) {
-    clashes.add(clash);
-  }
   return clashes.size > 0 ? { conflict: [...clashes].join("\n") } : { state };
 }
 

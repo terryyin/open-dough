@@ -134,9 +134,25 @@ exceptions, stop and reassess before extending the work.
 
 ### 2. Decide an identity dispute in one place
 Type: Structure
-Status: planned
-Proof: `bash tests/product-backlog.sh` must keep every existing refusal and its
-observed diagnostic, with no assertion downgraded.
+Status: done
+Proof: `bash tests/product-backlog.sh` passes 94/94 (93 pre-existing + 1 new);
+every pre-existing refusal keeps its exact observed diagnostic.
+
+`mergeWork` in `product-backlog-combine.mjs` now decides `identity` through
+one function, `mergeIdentity`, called once ahead of the per-field
+`valueNames` loop (which now skips `identity`). It owns both dispute shapes:
+the home-coincidence conflict (wording kept byte-identical to the removed
+`identityClash`) and the ordinary changed-on-both-sides disagreement, sharing
+a `differentValueClash` helper with the per-field loop rather than repeating
+that wording inline. `valueNames`, `sameState`, and `transitions` are
+untouched and still read/compare `identity` exactly as before; `groupWork`'s
+own refusal is untouched. A test survey found the generic "different
+identities" wording was not exercised by any prior test — a new test,
+"merge identity refuses two branches giving one work item different
+identities outright," now covers it directly; the pre-existing
+home-coincidence test still passes with unchanged wording. No change was
+needed to `references/merge-conflicts.md` or `references/identity.md`;
+neither quotes the literal refusal text this slice touched.
 
 Stop merging `identity` as an ordinary value and let the identity rule own the
 question, so one dispute produces one explanation. Keep both currently reachable
