@@ -92,5 +92,5 @@ if ! git -C "${target}" archive --format=tar "v${recorded_version}" | tar -x -C 
 fi
 
 for dest in "${dests[@]}"; do
-  bash -x "${helper}" compare-payload "${dest}" "${tagged_tree}"
+  bash "${helper}" compare-payload "${dest}" "${tagged_tree}"
 done
