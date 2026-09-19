@@ -4,15 +4,15 @@ Status: planned. No execution has started or been authorized.
 
 ## Source and remaining outcome
 
-Source: extracted from
-[the gate-and-deliver scripted backlog plan](../060-gate-and-deliver-scripted-backlog/PLAN.md),
+Source: extracted from the gate-and-deliver scripted backlog plan,
+recoverable at `a3c732c:.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md`,
 by owner authorization during that plan's execution, on 2026-09-19. That
 plan's slices 1-6 (the scripted Git-gate core: merge/rebase/cherry-pick
-gating, install/update delivery, and caller routing) are delivered; its
-slices 7-10 below are unstarted and are extracted here verbatim in outcome,
-so that plan can finish with only its Claude Code slices (renumbered 7-8
-there). This plan's own slices 11-12 (Claude Code) are not part of this
-extraction; they remain in the originating plan.
+gating, install/update delivery, and caller routing) were delivered and its
+own remaining Claude Code slices (renumbered 7-8) were also delivered; that
+plan is now complete and its history deleted by wrap-up. This plan's own
+slices below (Codex/Cursor guard and use) were extracted verbatim in
+outcome and are unaffected by that closure.
 
 Outcome: an ordinary native patch to the product backlog can be denied before
 its bytes change, while reads, scripts, unrelated edits, and human repair
@@ -120,10 +120,15 @@ fit one uninterrupted execution — each host's guard and installed-use
 outcomes are independently safe stopping points, so a failed guard
 feasibility in one host cannot erase useful proof from the other.
 
-If the originating plan's Claude Code slices (delivered separately) establish
-a working guard/native-test pattern this plan can reuse directly rather than
-rediscovering it, prefer that reuse over independent invention — check that
-plan's delivered evidence before starting this one.
+The originating plan's Claude Code slices were delivered separately and did
+establish a working guard/native-test pattern: `src/skills/dough-product-backlog/scripts/product-backlog-guard-hook.mjs`
+(the `PreToolUse` guard, Claude-only), `src/install/open-dough-register-hooks-fragments.mjs`
+(the required/optional per-host fragment combination it extends), and
+`tests/product-backlog-native.sh` / `tests/support/product-backlog-native-guard.sh`
+/ `tests/support/product-backlog-native-use.sh` (the `--native <host> --case
+<case>` proof pattern this plan's own slices should extend with `codex`/
+`cursor`, not reinvent). Reuse these directly rather than rediscovering the
+pattern.
 
 Execution requires separate authorization. When authorized, retain the
 established project execution/refactor/delivery gates, run focused proof per

@@ -4,12 +4,14 @@ Status: planned. No execution has started or been authorized.
 
 ## Source and scope
 
-Execution retrospective of
-[the gate-and-deliver scripted backlog plan](../060-gate-and-deliver-scripted-backlog/PLAN.md)
+Execution retrospective of the gate-and-deliver scripted backlog plan
 (SEED-008), recoverable at the range
-`dac740b..39e9b9e` on `quick/060-gate-and-deliver-scripted-backlog`. Review
-date: 2026-09-19. That plan's 8 slices are all delivered and CI-confirmed
-green; this is a follow-up correction for file-size residue found during the
+`a3c732c:.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md`
+(and its Git range `dac740b..39e9b9e` on the now-deleted
+`quick/060-gate-and-deliver-scripted-backlog` branch history). Review
+date: 2026-09-19. That plan's 8 slices were all delivered and CI-confirmed
+green, and wrap-up has since integrated and deleted its spent history; this
+is a follow-up correction for file-size residue found during the
 retrospective's aggregate refactoring-smell assessment, not a reopening of
 its completed slices.
 

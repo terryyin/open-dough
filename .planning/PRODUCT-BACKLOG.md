@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008 ([plan](quick/060-gate-and-deliver-scripted-backlog/PLAN.md))
-
 ## Backlog list
 
 - [Prevent bash-version-masked shell test failures](quick/063-prevent-bash-version-masked-test-failures/PLAN.md)

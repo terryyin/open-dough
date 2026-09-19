@@ -4,8 +4,8 @@ Status: planned. No execution has started or been authorized.
 
 ## Source and scope
 
-Execution retrospective of
-[the gate-and-deliver scripted backlog plan](../060-gate-and-deliver-scripted-backlog/PLAN.md)
+Execution retrospective of the gate-and-deliver scripted backlog plan,
+recoverable at `a3c732c:.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md`
 (SEED-008), recovered as `DD-059` (two occurrences) and `DD-060` (two
 occurrences) in `DearDough.md`. Review date: 2026-09-19. At Terry Yin's
 direction, queued as its own story rather than folded silently into that
