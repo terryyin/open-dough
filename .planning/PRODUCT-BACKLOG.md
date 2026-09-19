@@ -13,10 +13,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
+
 ## Backlog list
 
 - [Split installer doc and host-hooks fixture files past the 250-line convention](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
-- [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
 - [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
