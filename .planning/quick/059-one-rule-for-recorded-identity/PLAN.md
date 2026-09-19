@@ -168,12 +168,33 @@ three-way comparison.
 
 ### 3. Remove the uncalled entry-line reader
 Type: Structure
-Status: planned
+Status: planned — stopped for human judgment, not attempted
 Proof: `bash tests/product-backlog.sh` unchanged in count and result.
 
 Delete `parseEntryLine` from `product-backlog-document.mjs` and confirm nothing
 imports it. Git retains it if a later caller ever wants it.
 Sizing: one deletion and one focused proof loop.
+
+**Stop, recorded during execution:** finding #3's evidence ("`parseEntryLine`
+has no caller anywhere in `src` or `tests`") is narrowly true but incomplete.
+`scripts/product-backlog-insert.mjs` — a repo-root maintainer entry point,
+outside both `src/` and `tests/` — imports and calls `parseEntryLine` twice to
+parse `--entry`/`--after` CLI arguments. Deleting the function as this slice
+literally instructs would break that script at its next invocation, uncaught
+by `bash tests/product-backlog.sh` (that suite does not exercise it). This
+project's own "Preserved scope and design" section says command routing and
+"promotion of the backlog `scripts/` directory ... remain the successor
+story's work," which reads as placing `scripts/product-backlog-insert.mjs`
+out of this correction's scope — so updating that script to drop its own
+`parseEntryLine` use is not something this slice is authorized to do, and
+deleting the function out from under it would be a real regression, not a
+safe structural cleanup. Execution stopped here without deleting anything or
+touching that script; `product-backlog-document.mjs` is unchanged. A human
+decides: drop this slice from correction 059 (leaving `parseEntryLine` in
+place), expand this correction's authorized scope to include updating
+`scripts/product-backlog-insert.mjs`, or return this slice to the backlog as
+its own bounded follow-up once the successor promotion story is ready to
+touch that script.
 
 ## Execution and review gates
 
