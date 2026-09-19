@@ -129,10 +129,10 @@ work; no new North Star topic or direction change is needed.
 | 12: rebase conflict and clean suffix | 2: conflicted replay recovery; 3: clean semantic reconciliation before publication, including multiple commits |
 | 13: cherry-pick | 4: actual pick/sequencer, selected parent, human continuation once |
 | 14: complete standalone runtime | 5: real install/update, both roots, actual offline command use, preserved project data/settings |
-| 14: ordinary callers and root helper | 6: representative claim, closure/retry and integration caller walkthroughs; native routing in 8/10/12 |
-| 15: Codex guard and ordinary use | 7: native edit boundary and registration; 8: installed scripted workflow and human stop/resume |
-| 16: Cursor guard and ordinary use | 9: native edit boundary/coexistence; 10: installed scripted workflow and human stop/resume |
-| 17: Claude Code guard and ordinary use | 11: native edit boundary/coexistence; 12: installed scripted workflow and human stop/resume |
+| 14: ordinary callers and root helper | 6: representative claim, closure/retry and integration caller walkthroughs; native routing in 8 (this plan) and the deferred story's 2/4 |
+| 15: Codex guard and ordinary use | extracted 2026-09-19 to [the deferred Codex/Cursor story](../061-native-edit-protection-codex-cursor/PLAN.md): its 1: native edit boundary and registration; 2: installed scripted workflow and human stop/resume |
+| 16: Cursor guard and ordinary use | extracted 2026-09-19 to the same deferred story: its 3: native edit boundary/coexistence; 4: installed scripted workflow and human stop/resume |
+| 17: Claude Code guard and ordinary use | 7 (renumbered from 11): native edit boundary/coexistence; 8 (renumbered from 12): installed scripted workflow and human stop/resume |
 
 Proposed commands below are proof owners to create during implementation, not
 existing or passing tests. Preserve inherited command entry points where useful.
@@ -457,98 +457,90 @@ story (written by hand in this execution's own claim commit) used an invalid
 backlog unreadable by its own tooling until corrected to the parser's
 `([plan](...))` form.
 
-### 7. Establish lightweight native edit protection in Codex
-Type: Behavior
-Status: planned, conditional on host feasibility
-Proof: `bash tests/product-backlog-native.sh --native codex --case guard`
-
-First establish, in an isolated supported runtime, whether an ordinary native
-patch can be denied before backlog bytes change while reads, scripts, unrelated
-edits, and human repair work. Verify current native capability at execution time;
-the old plan's hook assertion is not evidence. If feasible with a thin adapter,
-deliver that adapter and safe install/update registration, then prove native
-denial and repeat/update coexistence. Reuse settings preservation where applicable.
-If absent or complex, report the exact boundary for human disposition without
-expanding enforcement. Slice 8 remains independently runnable; no guard pass is
-claimed. Hypothesis: one native editing boundary, separate from workflow use.
-
-### 8. Use the installed scripted workflow in Codex
-Type: Behavior
-Status: planned
-Proof: `bash tests/product-backlog-native.sh --native codex --case use`
-
-After real update, a fresh native session follows installed guidance for an
-authorized backlog change, encounters a scripted integration refusal, and stops.
-After explicit human repair it validates and resumes. Observe actual script calls,
-bytes and Git state; the prompt must not prescribe the answer or command route.
-Use the guard when slice 7 delivered one. Reuse guard evidence unchanged rather
-than redoing its matrix. Hypothesis: one installed workflow journey; record host,
-version and candidate. Missing native access is pending proof, not a pass.
-
-### 9. Establish lightweight native edit protection in Cursor
-Type: Behavior
-Status: planned, conditional on host feasibility
-Proof: `bash tests/product-backlog-native.sh --native cursor --case guard`
-
-Apply slice 7's guard outcome and feasibility boundary to the actual Cursor Agent
-editing route. Adapt only the necessary event/tool interface; preserve CI hooks
-and prevent duplicate invocation through enabled Claude compatibility loading.
-Prove denied edits and allowed reads/scripts/unrelated edits/human repair after
-installation/update. No Tab coverage. Hypothesis: one host editing boundary;
-Codex's result does not establish this host's feasibility or behavior.
-
-### 10. Use the installed scripted workflow in Cursor
-Type: Behavior
-Status: planned
-Proof: `bash tests/product-backlog-native.sh --native cursor --case use`
-
-Run slice 8's shared installed workflow through Cursor's native agent, with actual
-tool and file/Git observations. Use any delivered guard, retain missing guard
-disposition explicitly, and prove human-only stop/resume independently of guard
-availability. Hypothesis: one host journey using the shared cases and assessment.
-
-### 11. Establish lightweight native edit protection in Claude Code
+### 7. Establish lightweight native edit protection in Claude Code
 Type: Behavior
 Status: planned, conditional on host feasibility
 Proof: `bash tests/product-backlog-native.sh --native claude --case guard`
 
-Apply slice 7's guard outcome and feasibility boundary to Claude Code's actual
-native editing routes. Verify pre-edit denial in the runtime before adding
-permanent registration. Preserve unrelated handlers, reads/scripts, human repair,
-and ordinary repeat/update behavior. Synthetic hook JSON alone is insufficient.
-Hypothesis: one host editing boundary through shared protected-path policy.
+**Renumbered from 11; rescoped 2026-09-19 by owner authorization.** Formerly
+this slice applied "slice 7's" (Codex) guard outcome and feasibility boundary
+to Claude Code. Codex and Cursor's native slices (formerly 7-10) were
+extracted to
+[a separate, deferred story](../061-native-edit-protection-codex-cursor/PLAN.md)
+the owner will resume later; this plan no longer has a prior host's guard to
+apply, so this slice establishes Claude Code's own native editing-denial
+feasibility independently, from a first-principles investigation, not by
+inheriting another host's result.
 
-### 12. Use the installed scripted workflow in Claude Code
+First establish, in an isolated supported runtime, whether an ordinary native
+patch to the backlog can be denied before its bytes change while reads,
+scripts, unrelated edits, and human repair still work — verify current native
+capability at execution time empirically (spawn a real `claude` CLI
+invocation and observe it; a synthetic hook JSON or another host's assertion
+is not evidence). Claude Code's `PreToolUse` hook mechanism (already used by
+this project's own CI-observation hooks — see
+`src/skills/dough-execute-plan/assets/claude-hooks.json` and
+`src/skills/dough-execute-plan/scripts/ci-host-hook.mjs` for the existing
+registration pattern) is a plausible mechanism to investigate first, but
+confirm it can actually deny a tool call before assuming it. If feasible with
+a thin adapter, deliver that adapter and safe install/update registration
+(extending the manifests the same way slice 5 did), then prove native denial
+and repeat/update coexistence, reusing settings preservation where
+applicable. If absent or complex, report the exact boundary for human
+disposition without expanding enforcement. Slice 8 remains independently
+runnable; no guard pass is claimed. Hypothesis: one native editing boundary,
+separate from workflow use.
+
+### 8. Use the installed scripted workflow in Claude Code
 Type: Behavior
 Status: planned
 Proof: `bash tests/product-backlog-native.sh --native claude --case use`
 
-Run slice 8's shared installed workflow in a fresh Claude Code native session,
-observing actual routing, refused integration, human repair and validated resume.
-Reuse sufficient unchanged guard/installation evidence. This is ordinary native
-use; background mode remains its separate story. Hypothesis: one host journey.
+**Renumbered from 12; rescoped 2026-09-19 by owner authorization**, for the
+same reason as slice 7 above: this no longer reuses "slice 8's" (Codex)
+shared installed-workflow journey or test shape, since that slice was
+deferred to the separate story. Establish the installed-workflow journey for
+Claude Code directly, reusing this project's existing delivery-to-use native
+test pattern (`tests/dough-adr-awareness-claude-delivery-to-use.sh` and its
+shared `tests/support/dough-adr-awareness-delivery-to-use.sh` harness) for
+structure rather than inventing a new native-runner mechanism.
+
+After real update, a fresh native Claude Code session follows installed
+guidance for an authorized backlog change, encounters a scripted integration
+refusal, and stops. After explicit human repair it validates and resumes.
+Observe actual adapter calls, bytes, and Git state; the prompt must not
+prescribe the answer or command route. Use the guard when slice 7 delivered
+one; if slice 7 found native denial infeasible or deferred, prove the
+human-only stop/resume path independently of guard availability, matching
+the deferred story's own slice 4 disposition for its hosts. Hypothesis: one
+installed workflow journey; record host, version, and candidate. Missing
+native access is pending proof, not a pass.
 
 ## Sizing, stopping points, and remaining concerns
 
-Result: 12 planned Behavior slices, replacing inherited 11-17. There are no
-completed slices in this plan and no supplied numeric target, hard limit, or
-timing exception. Do not import another story's timing policy. Twelve is below
-the skill's count-based resplit recommendation, but that does not make the story
-small. The increase exposes separate proof loops; it promises no effort reduction.
+Result: 8 planned Behavior slices, replacing inherited 11-17 and this plan's
+own prior 12-slice count. Slices 1-6 are delivered. Slices 7-8 (formerly
+11-12) are this plan's remaining claim after the owner extracted the Codex
+and Cursor native slices (formerly 7-10) to a separate, deferred story on
+2026-09-19; that extraction is a scope reduction, not a deferral disguised as
+completion — this plan's own outcome now covers only the Git-gate core,
+delivery, caller routing, and Claude Code's native protection/use, not all
+three hosts. There is no supplied numeric target, hard limit, or timing
+exception for the remaining slices.
 
-After 1-4, Git gates can be assessed without installation or host enforcement.
-After 5-6, deterministic delivery and calling guidance can be assessed while
-native acceptance remains explicitly pending. Each host's guard and installed-use
-outcomes are separate so failed guard feasibility cannot erase the useful core
-proof. These are safe pauses within one story, not completion or release claims.
-Do not require all slices to fit one uninterrupted execution.
+After 1-4, Git gates were assessable without installation or host
+enforcement. After 5-6, deterministic delivery and calling guidance were
+assessable while native acceptance remained explicitly pending. Slices 7-8
+retain conditional feasibility; missing native capability or complex
+registration requires the existing human decision, not automatic
+subdivision. Slice 8 needs actual native access and fresh, sufficient
+evidence. No blanket direct-execution readiness is claimed for that
+uncertainty.
 
-Slices 1-6 have bounded outcomes and explicit proof, with slice 3's clean-replay
-input strategy requiring the named representative Git observation before adapter
-expansion. Slices 7/9/11 retain conditional feasibility; missing native capability
-or complex registration requires the existing human decision, not more automatic
-subdivision. Slices 8/10/12 need actual native access and fresh/reusable sufficient
-evidence. No blanket direct-execution readiness is claimed for these uncertainties.
+Slices 1-6 have bounded outcomes and explicit, delivered proof, with slice
+3's clean-replay input strategy having required the named representative Git
+observation before adapter expansion, as recorded in that slice's own entry
+above.
 
 Execution requires separate authorization and the predecessor's delivered state.
 When authorized, retain the established project execution/refactor/delivery gates,
