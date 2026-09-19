@@ -3,105 +3,91 @@ id: SEED-020
 status: active
 planted: 2026-09-19
 planted_during: Execution retrospective of correction 058
-trigger_when: Before relying on a local shell-suite run as evidence
+trigger_when: Before relying on installed story dependency checks locally
 scope: small
 ---
 
-# SEED-020: Shell proof that enforces its assertions on every maintainer's shell
+# SEED-020: Detect missing installed story dependencies locally
 
 ## Why This Matters
 
-Open Dough maintainers run `npm test` locally before pushing, and this
-repository's proof is mostly shell: 48 test scripts under `tests/`, all using
-`set -e` so that a failed check stops the script.
+An Open Dough maintainer saw `tests/story-payload-update.sh` pass locally while
+Linux CI caught a missing installed guidance dependency during correction 058.
+The bare file-existence assertion relied on `set -e`; macOS's bundled Bash
+3.2.57 can continue after a failed `[[ ... ]]` and eventually exit successfully.
+The CI failure also omitted the referring file and missing target.
 
-On bash 3.2.57, the system bash that ships with macOS, a failing `[[ ... ]]`
-does not trigger `set -e` at all. This was verified directly during the
-retrospective of correction 058: `false`, `[ ]`, `test`, and `grep -q` each
-abort the script as expected in that shell, while `[[ ]]` alone continues, in a
-`while` body, in a `for` body, in an `if` body, and at top level. The same
-assertions abort correctly on the Linux runner's bash 5.
-
-A survey of this repository found **128 bare `[[ ... ]]` assertion lines across
-27 shell test files**. Every one of them is therefore inert for a maintainer on
-macOS and enforcing only in CI. A local green run of the shell suite is not
-evidence that those assertions hold.
-
-These assertions are not redundant and must not be removed: they are
-load-bearing in CI. One of them — the link-resolution check in
-`tests/story-payload-update.sh` — is what caught a real defect during correction
-058, where a new payload file was linked from installed guidance without being
-declared in the installer manifest. That defect reached CI precisely because the
-assertion that owns it said nothing locally.
-
-A second, compounding problem: because the failing command is a bare test, the
-script aborts with no message. CI run 35357372158 reported only
-`FAIL: tests/story-payload-update.sh` with no indication of which link, which
-file, or which expectation failed. Classifying it needed the branch's run
-history and a manual manifest inspection rather than the log.
-
-Recorded as DD-059 in `DearDough.md`, with its first occurrence and the
-corrected, broader characterization.
+A local reproduction on 2026-09-19 confirmed false `[[ ... ]]` checks followed
+by successful commands continue at top level and inside a loop on Bash 3.2.57.
+An explicit failure branch exits nonzero. This does not invalidate every local
+test: other assertions still enforce their checks, and a final failed command
+can itself determine a nonzero exit status. The original suite-wide count was
+not a validated scope estimate and is not this story's acceptance inventory.
+See DD-059 in `DearDough.md` for the historical incident.
 
 ## Alternatives and Decision
 
-**Recommended direction:** make each assertion report and fail on its own, so it
-enforces identically under bash 3.2 and bash 5 and names what it observed. The
-smallest shape that achieves both is an explicit failure branch, for example
-`[[ -f "${path}" ]] || { printf 'FAIL: %s\n' "${detail}" >&2; exit 1; }`, or a
-shared assertion helper in `tests/helpers/` that the scripts call.
+On 2026-09-19 Terry confirmed that tests must work with macOS's bundled Bash
+3.2 without requiring installation of a newer Bash, and selected a small repair
+first. Requiring modern Bash is therefore excluded as the solution. Relying on
+CI alone would continue the demonstrated delayed and poorly explained feedback.
 
-**Strongest simpler alternative:** require a modern bash and re-exec the suite
-under it, leaving the assertions as they are. This is one change rather than
-many, but it makes the proof depend on an environment precondition rather than
-on the tests being correct, leaves every assertion still silent about what it
-checked, and gives a maintainer whose shell is older no signal at all. Prefer it
-only if the enforcement change proves impractical at this scale.
-
-**Assumptions:** macOS with system bash remains a supported maintainer
-environment; CI continues to run Linux bash 5; no test currently relies on a
-failing `[[ ]]` being ignored.
+Keep this repair first because upcoming scripted-backlog delivery depends on
+complete installed guidance. Its bounded feedback improvement justifies a short
+interruption before returning to parallel agents and trunk integration; this is
+not a prerequisite to all other work and does not authorize a suite overhaul.
 
 ## Story Decomposition
 
 <a id="shell-assertions-enforce-and-report"></a>
 
-### 1. Shell assertions enforce and report on every supported shell
+### 1. Detect and explain missing installed story dependencies on macOS
 
-- **For / why:** For an Open Dough maintainer, so a green local shell-suite run
-  is real evidence and a red one says what failed.
-- **Evaluation:** With the change in place on macOS's bash 3.2, deliberately
-  falsifying a representative assertion in each affected file makes that script
-  exit nonzero and print what it expected — today it exits 0 and prints nothing.
-  The unmodified suite still passes on both bash 3.2 and CI's bash 5, with no
-  assertion removed and no coverage lost. `tests/story-payload-update.sh`, whose
-  inert assertion let the correction-058 payload defect through, is the
-  representative case.
-- **Value / learning:** Restores local proof for 128 assertions and reveals
-  whether any of them has been silently false while only CI enforced it.
-- **Effort hypothesis:** M — 27 files, mechanical per site, but the count is
-  large and each file needs its failure message to say something useful.
-  Confidence moderate; the survey is exact, the per-file message work is not.
-- **Depends on:** none.
-- **Safe stopping point:** Converting the assertions in a subset of files is
-  independently valuable — each converted file gains real local enforcement, and
-  the rest keep their current CI-only behavior. Nothing regresses part-way.
+**Goal:** An Open Dough maintainer detects a missing installed story dependency
+before pushing and can identify the referring file and unresolved target from
+the failure output.
 
-## Ordering and Scope Reduction
+**Scope:** Repair the existing link-target check in
+`tests/story-payload-update.sh`, including only shared behavior necessary for
+that check. A failed check must explicitly exit nonzero under Bash 3.2 and
+Linux CI's Bash 5, print the referring installed file and missing target, and
+propagate failure through the ordinary shell-suite runner. Preserve existing
+installation/update checks and their valid-case behavior.
 
-One story. If it is reduced, convert `tests/story-payload-update.sh` and the
-other installer-payload tests first: those are the ones that guard the
-completeness of the released payload under
-[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md), and
-the one demonstrated escape came from that group.
+**Constraint:** macOS's bundled Bash 3.2 remains supported; upgrading the
+maintainer's Bash is not a prerequisite for this outcome.
+
+**Deferred promises:** Suite-wide assertion conversion or auditing, a general
+assertion framework, test-performance changes, installer-manifest redesign, and
+native-agent validation. Other assertions retain their current behavior; this
+repair does not certify them. No other backlog item or near-future direction
+changes as part of this work.
+
+**Key examples:**
+
+1. Installed story guidance references a missing dependency → the existing
+   link check exits nonzero and names the referring file and missing target.
+2. The same defect is exercised through the ordinary suite runner → the runner
+   reports the failed script and exits nonzero, preserving the useful diagnostic.
+3. All required links resolve → the existing installation/update scenarios
+   still pass on the supported Bash environments.
+
+**Evaluation:** Use a deliberately broken dependency in a disposable fixture to
+observe the actual checker and suite-runner result; an isolated helper failure
+or a substitute script that simply exits nonzero is insufficient. Retain a
+passing valid-payload case. Distinguish local Bash 3.2 proof from Bash 5 proof;
+CI setup alone does not establish a passing CI result.
+
+**Sizing:** One coherent behavior and focused proof loop. No suite-wide file
+count or formal effort band is needed to justify the user-authorized quick path.
+
+**Depends on:** none.
+
+**Safe stopping point:** The demonstrated installed-link defect is detected
+locally with actionable output, even if broader assertion work is never taken.
 
 ## Open Decisions
 
-Whether to fix the assertions in place or introduce a shared assertion helper in
-`tests/helpers/` is an implementation choice for refinement, not a story
-selection question.
-
-## When to Surface
-
-Now. Until this is resolved, no local run of this repository's shell suite is
-evidence for any work, including work already in flight.
+None for this bounded story. Terry authorized direct execution if it fits one
+small story; otherwise write a slice plan. No separate execution plan is needed
+for the selected single behavior.

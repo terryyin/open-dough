@@ -7,7 +7,7 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Shell assertions enforce and report on every supported shell](seeds/SEED-020-shell-proof-enforces-its-assertions.md#shell-assertions-enforce-and-report) — SEED-020
+- [Detect and explain missing installed story dependencies on macOS](seeds/SEED-020-shell-proof-enforces-its-assertions.md#shell-assertions-enforce-and-report) — SEED-020
 
 ## Backlog list
 

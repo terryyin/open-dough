@@ -55,7 +55,11 @@ for platform in codex cursor claude; do
       while IFS= read -r link; do
         link=${link%%#*}
         [[ -n "${link}" ]] || continue
-        [[ -f "${target}/${root}/${managed_file%/*}/${link}" ]]
+        if [[ ! -f "${target}/${root}/${managed_file%/*}/${link}" ]]; then
+          printf 'FAIL: missing installed story dependency: %s -> %s\n' \
+            "${target}/${root}/${managed_file}" "${link}" >&2
+          exit 1
+        fi
       done < "${temporary_dir}/links"
     done
   done

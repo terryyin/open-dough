@@ -176,3 +176,15 @@ native invocation or behavior.
   stream-json` launches, decoded `type:result` responses, and retained stage
   artifacts. A truncated stream-json stage stays incomplete and does not start
   use. Does not repeat the Codex product-failure matrix.
+
+## Installed story dependency checks
+
+`bash tests/story-payload-update.sh` checks links in installed story guidance
+as part of its installation/update scenarios. A missing target fails explicitly
+and reports the referring installed file and unresolved target, including on
+macOS's bundled Bash 3.2 without an interpreter upgrade.
+
+`bash tests/story-payload-assertions.sh` exercises a deliberately missing
+installed dependency and a valid payload in disposable fixtures. It checks the
+real dependency checker and propagation through `scripts/test.sh`. This is
+focused coverage of that check, not certification of every shell assertion.
