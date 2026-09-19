@@ -174,6 +174,31 @@ aborted with no diagnostic at all.
     green run of the shell suite is not evidence that its `[[ ]]` assertions
     hold. The first occurrence note above is retained as written.
 
+- Execution: `.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
+  - Timestamp: 2026-09-19T18:37:57+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.25
+  - Evidence: `tests/install-ci-host-hooks.sh` exited 0 on every local run
+    (this machine's default `bash`, macOS system 3.2.57) across two separate
+    full-suite runs and a standalone run, while GitHub Actions' bash 5.2.21
+    failed it deterministically twice on the same commit (`d2e394e`), with
+    zero diagnostic output before the step's own generic exit-1 report.
+    Reproduced directly: `bash -c 'set -euo pipefail; [[ "a" == "b" ]]; echo
+    reached'` prints `reached` and exits 0 on `/bin/bash` here, but aborts
+    correctly under a Homebrew-installed `/opt/homebrew/bin/bash` (5.3.20).
+    The failing assertion itself was a real, previously-undetected defect in
+    the test's own fixture (corrected in the same commit).
+  - Observed effect: two additional full round-trip CI pushes (with
+    temporary `-x` tracing, reverted afterward) were needed to locate the
+    actual failing test, since local verification gave no signal anything
+    was wrong.
+  - Inference: Qualified. A second, independently-discovered instance of the
+    same bash 3.2/5 `set -e` divergence, in a different test file — this is
+    not a one-off. Using a real Homebrew-installed modern bash explicitly for
+    local shell-test verification is now this session's own adopted
+    practice, recorded separately as a durable lesson.
+
 ## DD-060 — A CI repair was delivered without the refactor pass its own delivery gate requires
 
 The CI observation protocol routes a repair through the ordinary slice
@@ -204,6 +229,30 @@ without any gate noticing, because nothing downstream depends on it having run.
   - Inference: Qualified. The repair path reads as an interruption to be
     recovered from rather than as an ordinary slice, which may make its delivery
     gates easier to shorten; the record shows the omission but not the reason.
+
+- Execution: `.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
+  - Timestamp: 2026-09-19T18:37:57+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.25
+  - Evidence: repair commit `de7d819` (fixing
+    `tests/helpers/host-hooks-fixture.bash` for a real CI-only defect, see
+    DD-059's matching occurrence) was formatted, staged, committed, pushed,
+    and registered with the observer, but no `dough-post-change-refactor`
+    agent was spawned for it — the coordinator instead ran
+    `shellcheck`/`shfmt` directly. Unlike slices 7 and 8 in the same
+    execution, both of which used a delegated refactor-pass agent.
+  - Observed effect: `tests/helpers/host-hooks-fixture.bash` was already 430
+    lines (a pre-existing violation, not caused by this repair) before the
+    commit and grew to 448 through it; a refactor pass would have surfaced
+    the file-size check regardless of the pre-existing violation, the same
+    way it did in this issue's first occurrence. The gap was instead found
+    later by this same retrospective and queued as a correction
+    (`.planning/quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md`).
+  - Inference: Qualified. A second, independent instance of the exact
+    mechanism this issue already names: repair-path delivery reads as an
+    interruption to recover from, making its own delivery gates easier to
+    informally shorten than an ordinary slice's.
 
 ## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
