@@ -91,6 +91,7 @@ inspected_helpers=(
   src/install/open-dough-register-hooks.sh
   src/install/open-dough-register-hooks.mjs
   src/install/open-dough-register-hooks-merge.mjs
+  src/install/open-dough-register-hooks-fragments.mjs
 )
 
 # Direct installation follows the public guide after a separate inspection.

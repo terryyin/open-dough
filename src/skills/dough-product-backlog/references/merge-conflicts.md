@@ -1,7 +1,103 @@
-# Resolve product backlog merge conflicts
+# Reconcile product backlog Git operations
 
-Within the calling workflow's authorization, resolve compatible backlog changes
-without asking for confirmation.
+An authorized merge, rebase, or cherry-pick that combines two sides of this
+project's product backlog (often `PRODUCT-BACKLOG.md`) across branches or
+commits is not an ordinary same-branch edit. Run it through this project's
+installed product backlog Git adapters; do not run a raw `git merge`,
+`git rebase`, or `git cherry-pick` that touches the backlog path and then
+decide what to do only if Git reports a conflict. A clean Git result can
+still combine the backlog wrongly — an earlier step can silently absorb a
+concurrent change that a later step then changes again, unopposed at every
+single step — so the adapters must be in the invocation path itself, not
+consulted only after the fact.
+
+An ordinary same-branch edit to the backlog (adding, taking, placing, or
+completing an entry on the branch already checked out, with nothing to
+combine from another ref) is not one of these operations and needs none of
+this file's guidance; follow this project's ordinary backlog-maintenance
+guidance instead.
+
+## Resolve and run the installed adapters
+
+Resolve this project's installed skill directory inside the checkout actually
+performing the Git operation, the same way other checkout-bound installed
+skill tooling is resolved: normally `.agents/skills/dough-product-backlog`
+for Codex/Cursor or `.claude/skills/dough-product-backlog` for Claude Code.
+Do not reuse an installed directory resolved for another checkout. Each
+adapter below lives under that directory's `scripts/` module — for example
+`.../dough-product-backlog/scripts/product-backlog-git-merge.mjs`. If no
+installed skill directory can be resolved there, or the resolved adapter
+refuses for a reason this file does not cover (for example, a conflict in a
+file that adapter does not own), use
+[the fallback domain knowledge](#fallback-domain-knowledge) below instead.
+
+Otherwise, run the operation actually being performed, supplying the
+backlog's real path with `--file` when it is not this project's default:
+
+- Merge: `product-backlog-git-merge.mjs merge --ref <ref> [--file <path>]`
+- Rebase: `product-backlog-git-rebase.mjs rebase --ref <ref> [--file <path>]`
+  (a caller whose real pre-operation tip or destination differs from the
+  currently checked-out branch and the supplied `--ref` — for example,
+  replaying only an unpublished suffix — supplies its own actual revisions
+  with `--pre-rebase-tip <ref>`/`--destination-at-start <ref>`)
+- Cherry-pick: `product-backlog-git-cherry-pick.mjs pick --ref <rev[ rev...]>
+  [--mainline <n>] [--file <path>]`
+
+Each of these self-registers Git's own merge driver for the backlog path in
+this checkout on first use, then performs the actual Git operation; it never
+selects a side, aborts, resets, or repairs a conflict on its own.
+
+## A real conflict: resolve by hand, then continue through the same adapter
+
+A `conflict`, `refused`, `refused-before-commit`, or `blocked` result leaves
+the affected Git state — refs, index, and worktree, including any unrelated
+conflicted path — exactly as Git left it, fully recoverable. Resolve the
+backlog's own unmerged path by hand using
+[the domain knowledge below](#fallback-domain-knowledge), `git add` the
+resolved file, then run the same adapter's own `continue` verb (for example
+`product-backlog-git-merge.mjs continue [--file <path>]`) — never a raw
+`git merge --continue`/`git rebase --continue`/`git cherry-pick --continue`.
+The adapter's `continue` validates what is actually staged for the backlog
+against its own invariants before it lets Git proceed; it never re-runs
+reconciliation over a decision a human's resolution may deliberately differ
+from. An unresolved path, or a staged candidate that fails validation, stays
+stopped exactly where it was.
+
+Cherry-pick has two additional stop shapes with no merge/rebase analogue: a
+picked merge commit missing `--mainline`, and Git's own "this step is now
+empty" stop. Resolve an empty step only through this same adapter's `continue`
+(supplying whatever the sequence needs), never a raw `git cherry-pick --skip`
+or `--allow-empty`: a raw skip can silently cascade through every remaining
+clean step of the same invocation, bypassing this gate for the rest of the
+sequence with no further point to intervene.
+
+## A clean but disputed result: validate, do not re-decide
+
+A rebase or cherry-pick sequence that finishes with no Git conflict anywhere
+on the backlog path is still checked once more, as a whole operation, before
+being reported as accepted. A `disputed` result means that check found the
+true pre-operation tip and the true destination-at-start disagree with the
+actual result. This is not a Git conflict: there is nothing staged to
+`git add` in the usual way, and the operation's own local commits are left
+exactly where the operation finished them — on the branch, unpublished, and
+fully recoverable.
+
+Repair the backlog by hand to the intended state, or decide the current
+result should stand as is; either way, run the same adapter's `validate` verb
+(for example `product-backlog-git-rebase.mjs validate [--file <path>]`)
+before the calling workflow continues or publishes. `validate` writes
+nothing and never re-runs the disputed reconciliation; it only confirms the
+branch's current bytes are a backlog this tooling can read. A merge has no
+`validate` verb: a single merge's own result is already checked by its own
+gate before it is ever offered for commit, so there is no separate
+whole-operation aggregate to revisit afterward.
+
+## Fallback domain knowledge
+
+Use this section by hand only when the installed adapters are genuinely
+unavailable or do not cover the conflict, and when resolving a real conflict
+the adapters already stopped (above). It states the same reconciliation rules
+those adapters apply automatically; it is not a different or looser standard.
 
 1. Before replacing conflict markers or staging the backlog, read its three Git
    versions: ancestor, current side, and incoming side (available in unmerged

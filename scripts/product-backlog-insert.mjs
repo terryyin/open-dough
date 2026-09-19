@@ -4,7 +4,7 @@
 // delegates the change to the shared operation in
 // src/skills/dough-product-backlog/scripts/.
 
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { addQueueEntry } from "../src/skills/dough-product-backlog/scripts/product-backlog-add.mjs";
 import { parseEntryLine } from "../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
@@ -45,13 +45,15 @@ async function main(argv) {
   const values = parseArguments(argv);
   const entry = parseEntryLine(values.entry);
   const anchor = parseEntryLine(values.after);
+  const file = resolve(repositoryRoot, values.file);
 
-  await applyToBacklog(resolve(repositoryRoot, values.file), (source) =>
+  await applyToBacklog(file, (source) =>
     addQueueEntry(source, {
       identity: entry.identity,
       title: entry.title,
       href: entry.href,
       after: anchor.identity,
+      backlogDirectory: dirname(file),
     }),
   );
   console.log(

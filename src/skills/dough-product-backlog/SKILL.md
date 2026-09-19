@@ -118,14 +118,29 @@ work to the queue requires an explicit backlog-maintenance decision.
   when the human asks only for backlog maintenance. The applicable seed, plan,
   and proof remain available for later story wrap-up.
 
-## Resolve Git conflicts
+## Direct edits may be denied in Claude Code
 
-When an authorized merge, rebase, or cherry-pick conflicts in the product
-backlog (often `PRODUCT-BACKLOG.md`), read and apply
-[backlog merge conflicts](references/merge-conflicts.md) before editing or staging
-its resolution. Complete its staged-result verification before continuing the Git
-operation. If the reference is unavailable, preserve the conflict and report the
-missing guidance.
+An installed Claude Code project may deny a direct `Edit`/`Write`/
+`MultiEdit`/`NotebookEdit` attempt on the resolved product backlog path,
+reporting the denial before any bytes change. This is expected: use the
+scripts above (`product-backlog.mjs` and its Git merge/rebase/cherry-pick
+adapters) instead of a direct hand-edit. Reads, edits to other files, and
+Bash-run commands (including a shell redirection into the backlog file) are
+unaffected. Codex and Cursor have no equivalent guard.
+
+## Merge, rebase, or cherry-pick the backlog across branches
+
+An authorized merge, rebase, or cherry-pick that combines two sides of the
+product backlog (often `PRODUCT-BACKLOG.md`) — not an ordinary same-branch
+add/take/place/complete — is run through this project's installed product
+backlog Git adapters from the start, before Git ever reports a conflict; a
+clean Git result can still combine the backlog wrongly. Read and follow
+[reconcile product backlog Git operations](references/merge-conflicts.md) for
+how to resolve the installed adapters, run the matching operation, resolve a
+real conflict, and validate a clean-but-disputed result, including its
+fallback for when the adapters are unavailable or do not cover the conflict.
+If neither the adapters nor that reference are available, preserve the
+conflict and report the missing guidance.
 
 ## Check and report
 

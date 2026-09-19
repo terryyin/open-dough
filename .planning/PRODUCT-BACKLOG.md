@@ -13,10 +13,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008 — [plan](quick/060-gate-and-deliver-scripted-backlog/PLAN.md)
-
 ## Backlog list
 
+- [Prevent bash-version-masked shell test failures](quick/063-prevent-bash-version-masked-test-failures/PLAN.md)
+- [Split installer doc and host-hooks fixture files past the 250-line convention](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
+- [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
 - [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress

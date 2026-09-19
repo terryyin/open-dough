@@ -57,12 +57,21 @@ export function replaceFile(path, contents) {
 
 // Reads a file this tool edits, refusing with `missing` rather than crashing
 // when it is not there. The backlog and every canonical home come in here.
+// A supplied path that names a directory is refused the same clean way,
+// rather than surfacing Node's raw `EISDIR`: this is the one bounded
+// filesystem-error case this tool covers, not general filesystem-error
+// handling.
 export function readFile(path, missing) {
   try {
     return readFileSync(path, "utf8");
   } catch (error) {
     if (error.code === "ENOENT") {
       throw new BacklogError(missing);
+    }
+    if (error.code === "EISDIR") {
+      throw new BacklogError(
+        `${path} is a directory, not a file. Supply the path to the file itself.`,
+      );
     }
     throw error;
   }

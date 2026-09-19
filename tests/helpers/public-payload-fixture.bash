@@ -9,59 +9,15 @@ internal_skill_names=(
   triage-retrospective-findings
 )
 
-managed_files=(
-  dough-update/SKILL.md
-  dough-bug-fixing/SKILL.md
-  dough-adr-awareness/SKILL.md
-  dough-product-backlog/SKILL.md
-  dough-product-backlog/references/identity.md
-  dough-product-backlog/references/merge-conflicts.md
-  dough-maintain-findings/SKILL.md
-  dough-story-decomposition/SKILL.md
-  dough-story-decomposition/references/problem-decomposition.md
-  dough-story-decomposition/references/seed-format.md
-  dough-story-refinement/SKILL.md
-  dough-story-refinement/references/planning.md
-  dough-resplit-story/SKILL.md
-  dough-slice-planning/SKILL.md
-  dough-slice-planning/references/architectural-thinking.md
-  dough-pfe/SKILL.md
-  dough-slice-plan-refinement/SKILL.md
-  dough-execute-plan/SKILL.md
-  dough-execute-plan/assets/claude-hooks.json
-  dough-execute-plan/assets/cursor-hooks.json
-  dough-execute-plan/manuals/custom-ci.md
-  dough-execute-plan/references/ci-monitor.md
-  dough-execute-plan/references/ci-notify-codex.md
-  dough-execute-plan/references/ci-notify-hosts.md
-  dough-execute-plan/references/delegation.md
-  dough-execute-plan/references/destructive-later-outcome-check.md
-  dough-execute-plan/references/disposable-research.md
-  dough-execute-plan/references/execution-decisions.md
-  dough-execute-plan/references/execution-location.md
-  dough-execute-plan/references/runtime-setup.md
-  dough-execute-plan/references/trunk-publication.md
-  dough-execute-plan/references/wrap-up.md
-  dough-execute-plan/scripts/ci-command-adapter.mjs
-  dough-execute-plan/scripts/ci-failures.mjs
-  dough-execute-plan/scripts/ci-host-hook.mjs
-  dough-execute-plan/scripts/ci-mailbox-location.mjs
-  dough-execute-plan/scripts/ci-mailbox-store.mjs
-  dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
-  dough-execute-plan/scripts/ci-mailbox.mjs
-  dough-execute-plan/scripts/ci-observer-stream.mjs
-  dough-execute-plan/scripts/ci-revisions.mjs
-  dough-execute-plan/scripts/ci-runs.mjs
-  dough-execute-plan/scripts/watch-ci-execution.mjs
-  dough-execute-plan/scripts/watch-ci.mjs
-  dough-post-change-refactor/SKILL.md
-  dough-post-change-refactor/references/refactor-checks.md
-  dough-test-optimization/SKILL.md
-  dough-test-optimization/references/optimization-tactics.md
-  dough-test-optimization/references/resolving-candidates.md
-  dough-manual-testing/SKILL.md
-  dough-manual-testing/references/exploration-workspace.md
-  dough-execution-retrospective/SKILL.md
-  dough-execution-retrospective/references/bounded-process-log.md
-  dough-story-wrap-up/SKILL.md
-)
+# install.sh's own managed_files=(...) declaration is the single source of
+# truth for the current client payload; read it rather than hand-duplicating
+# the list here, so this fixture cannot drift from the real installer.
+fixture_repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=src/install/open-dough-release-version.sh
+source "${fixture_repo_root}/src/install/open-dough-release-version.sh"
+declared_managed_files=$(read_managed_files_declaration "${fixture_repo_root}/install.sh") || return 1
+managed_files=()
+while IFS= read -r managed_file; do
+  managed_files+=("${managed_file}")
+done <<< "${declared_managed_files}"

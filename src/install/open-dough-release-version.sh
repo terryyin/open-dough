@@ -4,6 +4,26 @@ report_managed_payload_mismatch() {
   local skill_root=$1 managed_file=$2
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
+# Read-only extraction of an install.sh's inline managed_files=(...)
+# declaration. Refuse an unavailable/unrecognized declaration instead of
+# treating every source file as unmanaged. Historical installers use this
+# literal array, so this must keep working against an older checkout's
+# install.sh, not only this repository's current one.
+read_managed_files_declaration() {
+  local install_script=$1
+  local declared
+  if ! declared=$(awk '
+    /^managed_files=\(/ { in_payload = 1; next }
+    in_payload && /^\)/ { closed = 1; in_payload = 0 }
+    in_payload && $1 == "dough-update/SKILL.md" { core = 1 }
+    in_payload { print $1 }
+    END { exit !(closed && core) }
+  ' "${install_script}"); then
+    echo "Cannot read managed payload declaration: ${install_script}" >&2
+    return 1
+  fi
+  printf '%s\n' "${declared}"
+}
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
 # skill_root is its native root. No fetches or writes. Callers with a tagged
 # tree pass it as checkout; ordinary update fetches first.
@@ -11,72 +31,21 @@ managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
   local skill_root managed_file historical_files
-  local -a files=(
-    dough-update/SKILL.md
-    dough-bug-fixing/SKILL.md
-    dough-adr-awareness/SKILL.md
-    dough-product-backlog/SKILL.md
-    dough-product-backlog/references/identity.md
-    dough-product-backlog/references/merge-conflicts.md
-    dough-maintain-findings/SKILL.md
-    dough-story-decomposition/SKILL.md
-    dough-story-decomposition/references/problem-decomposition.md
-    dough-story-decomposition/references/seed-format.md
-    dough-story-refinement/SKILL.md
-    dough-story-refinement/references/planning.md
-    dough-resplit-story/SKILL.md
-    dough-slice-planning/SKILL.md
-    dough-slice-planning/references/architectural-thinking.md
-    dough-pfe/SKILL.md
-    dough-slice-plan-refinement/SKILL.md
-    dough-execute-plan/SKILL.md
-    dough-execute-plan/assets/claude-hooks.json
-    dough-execute-plan/assets/cursor-hooks.json
-    dough-execute-plan/manuals/custom-ci.md
-    dough-execute-plan/references/ci-monitor.md
-    dough-execute-plan/references/ci-notify-codex.md
-    dough-execute-plan/references/ci-notify-hosts.md
-    dough-execute-plan/references/delegation.md
-    dough-execute-plan/references/destructive-later-outcome-check.md
-    dough-execute-plan/references/disposable-research.md
-    dough-execute-plan/references/execution-decisions.md
-    dough-execute-plan/references/execution-location.md
-    dough-execute-plan/references/runtime-setup.md
-    dough-execute-plan/references/trunk-publication.md
-    dough-execute-plan/references/wrap-up.md
-    dough-execute-plan/scripts/ci-command-adapter.mjs
-    dough-execute-plan/scripts/ci-failures.mjs
-    dough-execute-plan/scripts/ci-host-hook.mjs
-    dough-execute-plan/scripts/ci-mailbox-location.mjs
-    dough-execute-plan/scripts/ci-mailbox-store.mjs
-    dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
-    dough-execute-plan/scripts/ci-mailbox.mjs
-    dough-execute-plan/scripts/ci-observer-stream.mjs
-    dough-execute-plan/scripts/ci-revisions.mjs
-    dough-execute-plan/scripts/ci-runs.mjs
-    dough-execute-plan/scripts/watch-ci-execution.mjs
-    dough-execute-plan/scripts/watch-ci.mjs
-    dough-post-change-refactor/SKILL.md
-    dough-post-change-refactor/references/refactor-checks.md
-    dough-test-optimization/SKILL.md
-    dough-test-optimization/references/optimization-tactics.md
-    dough-test-optimization/references/resolving-candidates.md
-    dough-manual-testing/SKILL.md
-    dough-manual-testing/references/exploration-workspace.md
-    dough-execution-retrospective/SKILL.md
-    dough-execution-retrospective/references/bounded-process-log.md
-    dough-story-wrap-up/SKILL.md
-  )
-  # Refuse an unavailable/unrecognized declaration instead of treating every
-  # source file as unmanaged. Historical installers use this literal array.
-  if ! historical_files=$(awk '
-    /^managed_files=\(/ { in_payload = 1; next }
-    in_payload && /^\)/ { closed = 1; in_payload = 0 }
-    in_payload && $1 == "dough-update/SKILL.md" { core = 1 }
-    in_payload { print $1 }
-    END { exit !(closed && core) }
-  ' "${checkout}/install.sh"); then
-    echo "Cannot read managed payload declaration: ${checkout}/install.sh" >&2
+  local self_root current_declaration
+  local -a files=()
+
+  # This file's own repository always ships install.sh's managed_files
+  # declaration alongside it in the same commit, so the current side of the
+  # comparison is read from that sibling rather than duplicated here by hand.
+  self_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+  if ! current_declaration=$(read_managed_files_declaration "${self_root}/install.sh"); then
+    return 1
+  fi
+  while IFS= read -r managed_file; do
+    files+=("${managed_file}")
+  done <<< "${current_declaration}"
+
+  if ! historical_files=$(read_managed_files_declaration "${checkout}/install.sh"); then
     return 1
   fi
   skill_root=$(dirname -- "${dest}")

@@ -3,59 +3,20 @@
 // Identifies managed entries by native event and exact command from the
 // authoritative fragments. Preserves unrelated handlers and matcher siblings;
 // refuses named conflicts without writing when a safe merge is unavailable.
-import {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  lstatSync,
-  mkdirSync,
-} from "node:fs";
+import { writeFileSync, existsSync, lstatSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { mergeDocument } from "./open-dough-register-hooks-merge.mjs";
-
-const HOSTS = [
-  {
-    id: "cursor",
-    relativePath: ".cursor/hooks.json",
-    fragmentName: "cursor-hooks.json",
-  },
-  {
-    id: "claude",
-    relativePath: ".claude/settings.json",
-    fragmentName: "claude-hooks.json",
-  },
-];
+import {
+  HOSTS,
+  loadHostFragment,
+  readJsonFile,
+} from "./open-dough-register-hooks-fragments.mjs";
 
 function usage() {
   console.error(
     "Usage: open-dough-register-hooks.mjs <preflight-destinations|preflight|apply|status> <target> <source-dir>",
   );
   process.exit(1);
-}
-
-function readJsonFile(path) {
-  const text = readFileSync(path, "utf8");
-  try {
-    return JSON.parse(text);
-  } catch {
-    const error = new Error(
-      `malformed-hooks-settings: ${path} is not valid JSON.`,
-    );
-    error.code = "malformed-hooks-settings";
-    throw error;
-  }
-}
-
-function loadFragment(sourceDir, fragmentName) {
-  const path = join(
-    sourceDir,
-    "src/skills/dough-execute-plan/assets",
-    fragmentName,
-  );
-  if (!existsSync(path)) {
-    throw new Error(`Client payload is incomplete: missing ${fragmentName}`);
-  }
-  return readJsonFile(path);
 }
 
 function lstatIfPresent(path) {
@@ -108,7 +69,7 @@ function planHost(targetRoot, sourceDir, host) {
   if (!safety.ok) {
     return { host, error: safety.message, code: "unsafe-hooks-destination" };
   }
-  const fragment = loadFragment(sourceDir, host.fragmentName);
+  const fragment = loadHostFragment(sourceDir, host);
   let existingDoc = null;
   if (existsSync(absolutePath)) {
     existingDoc = readJsonFile(absolutePath);
