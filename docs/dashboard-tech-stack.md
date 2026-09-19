@@ -4,6 +4,34 @@
 
 **Date:** 2026-09-19
 
+## First-story application
+
+[SEED-021 story 1](../.planning/seeds/SEED-021-observe-published-story-progress.md#see-published-work)
+was refined on 2026-09-19 for Open Dough's public GitHub `main`, launched locally.
+For that bounded overview, use the simpler static UI/browser-read option below,
+with React, strict TypeScript, Vite, runtime validation, and one new behavioral
+suite: Playwright on Chromium. Include type checking, lint, production build,
+and the browser suite in existing CI; preserve existing repository tests.
+No application read server, Vitest/component-test layer, browser matrix,
+sign-in, or hosted deployment is required by that story.
+
+The interface direction is an animated, zoomable **connected-stage view**.
+The first story needs a readable connection between Backlog and Taken, entry
+facts, evidence links, and refresh. Begin with semantic HTML work cards and
+controls, ordinary CSS layout, and simple SVG connectors if useful. Wrapping,
+reflow, and scrolling may be sufficient now. Add transforms, viewport state,
+or motion only for a demonstrated reading or orientation need. This is an initial
+implementation direction, not a canvas prohibition: choose a different renderer
+only for a demonstrated need, preserving accessible content and controls.
+Neither a graph-layout engine nor an animation framework is a prerequisite for
+two connected stages. If navigation or animation is introduced, keep its state
+separate from published facts, honor reduced motion, and retain normal browser
+page zoom. The same Playwright suite covers the actual reading/navigation and
+refresh behavior; no speculative test layer is added for the longer-term UX.
+
+The broader recommendations below remain options for later needs. They do not
+expand the selected story or require all test layers to be established up front.
+
 ## Recommendation
 
 Use **React + TypeScript + Vite**, **Zod** for runtime validation, **Vitest** for
@@ -28,8 +56,9 @@ repository and access conditions must settle this choice before implementation;
 private access is not assumed by this recommendation.
 
 Initially **one observed project is hardcoded in the dashboard project's
-code/configuration**. Its identity has not been supplied. The Open Dough source
-repository's own origin does not establish which project Terry wants observed.
+code/configuration**. Terry has selected Open Dough's public GitHub repository
+for the first story, with `main` as the observed integration branch and local
+launch. Additional repository/access choices below apply only to later scope.
 There is no project picker, registration service, or project catalog. Repository
 identity and supported record locations are deployment configuration; all
 authoritative progress remains in that observed project's Git repository.
@@ -304,18 +333,19 @@ available for diagnosis. This document adds no scripts or executable slice plan.
 
 ## Decisions still needed
 
-1. **Observed repository:** exact origin/host, trunk ref, record locations, and
-   which remote branches are relevant. Hardcode the selected project; do not
-   assume it is Open Dough or another known checkout.
-2. **Access and launch:** public/private visibility and single-user local versus
-   hosted use. These settle whether the Node reader is retained, how a read
-   credential is supplied, and which existing access boundary is available.
+1. **Later repository scope:** the first story fixes public
+   `terryyin/open-dough`, `main`, and `.planning/PRODUCT-BACKLOG.md`. Which remote
+   execution branches and additional records to inspect belongs to later stories.
+2. **Later access and launch:** local, unauthenticated public reads are selected
+   first. Private or hosted use would reopen the server/credential boundary;
+   neither is a prerequisite of the initial view.
 3. **Evidence contract:** supported story-home/refinement/plan formats, new
    owner/mode/branch fields, legacy handling, and cross-ref precedence. Until
    records establish these facts, show unknown or incomplete evidence.
-4. **First useful behavior:** concrete story-view interactions and freshness
-   expectations from the separate UX work. Do not infer a full graph, timeline,
-   historical completion catalog, or editing surface from this stack choice.
+4. **Presentation detail:** the UX direction selects connected stages, zoom,
+   focus, and meaningful animation. Exact geometry and rendering choices can be
+   refined during implementation. A dependency graph, timeline, historical
+   completion catalog, and editing surface remain outside the first story.
 
 These inputs constrain implementation, not this recommendation's completion.
 The proposed stack is deliberately small and replaceable; architecture status

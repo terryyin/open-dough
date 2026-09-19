@@ -98,6 +98,22 @@ flowchart LR
 These are logical responsibilities and information flows, not prescribed
 services, processes, deployment units, or storage technologies.
 
+### Spatial presentation remains derived
+
+The story perspective presents connected work stages with zoom, focus, and
+animation, as detailed in the requirements and UX/UI North Star. A visual stage
+groups supported workflow facts; drawing a connector does not establish a new
+persisted state, a dependency between stories, or a mandatory linear lifecycle.
+Story identity and source evidence remain stable independently of card placement.
+
+Viewport position, zoom, focused work, and animation are presentation state,
+separate from published project facts and later machine-local coordination
+evidence. Losing them loses no project progress. Motion can explain a change
+between observed snapshots; it cannot establish unobserved activity. This
+intention does not prescribe canvas, a graph library, or stored layout data.
+Build these interactions just in time for the selected story's reading goal;
+the visual direction does not justify advance navigation infrastructure.
+
 ### Observe coordination without owning it
 
 Workflow behavior maintains the records and coordinates integration; the
@@ -148,8 +164,8 @@ without building their machinery in advance.
 ## Open design and related decisions
 
 Exact story states, name rotation and reuse, messaging and takeover, recently
-finished story views, North Star placement, lock protocols, and UI layout remain
-open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
+finished story views, North Star placement, lock protocols, and detailed stage
+layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.
 
 This proposal builds on

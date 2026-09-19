@@ -20,14 +20,21 @@ does not accept that ADR, define a workflow state schema, or authorize execution
   including relevant remote branches and history. No developer clone, unpushed
   changes, local locks, or live agent sessions are required sources.
 - Observe one project, initially hardcoded in the Open Dough dashboard project.
-  The repository to observe has not been identified by this guide. Do not assume
-  that it is Open Dough or introduce project selection or registration.
+  Terry selected Open Dough's public GitHub `main` and local launch during
+  first-story refinement. Do not introduce project selection or registration.
 - The observed project's Git repository owns authoritative state. No application
   or server database or separately persisted project-state authority. Disposable
   browser storage is optional; losing it must not lose project facts.
 - Stories can exist outside the backlog. Expose recorded backlog membership,
   Taken, refinement, planning, assignment, execution mode, and slice completion
   without inventing missing metadata. Taken does not establish live activity.
+- The primary experience is an animated spatial stage with connected stages
+  of work, not just a list or table. Zoom out to understand the whole and zoom
+  in to inspect a story. Canvas is optional; this is an experience direction,
+  not a rendering-technology choice.
+- Apply this direction just in time: each interaction must serve the selected
+  story's goal and available evidence. The visual ambition does not require a
+  complete navigation or animation system in the first increment.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
 - Same-machine coordination and local evidence come later. Feature and
@@ -38,6 +45,16 @@ does not accept that ADR, define a workflow state schema, or authorize execution
 below are an initial design recommendation. Revise them when real use shows a
 clearer or smaller solution; do not treat them as additional user commitments.
 
+[The first story](../.planning/seeds/SEED-021-observe-published-story-progress.md#see-published-work)
+selects the published direction, connected Backlog and Taken stages, readable
+entry facts, source links, and refresh/read states.
+It omits fetched story/plan detail, outside-backlog discovery, and
+owner/mode/readiness/slice facts. A connected spatial overview belongs in this
+story. General pan/zoom, multiple detail levels, and animated card travel are
+not prerequisites: add the smallest navigation or motion only when it solves
+a reading or orientation problem in this scope. A readable stage with ordinary
+scrolling and source links is a valid first increment of this direction.
+
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
 for story and slice meaning and [ADR 0002 — Software development lifecycle
 principles](adrs/0002-software-development-lifecycle-principles-accepted.md) for
@@ -45,7 +62,7 @@ small valuable increments, clear domain concepts, and inexpensive change.
 Under [ADR 0000](adrs/0000-use-adrs-accepted.md), this temporary guide cannot
 override Accepted decisions. No exception is proposed.
 
-## Questions the first experience should answer
+## Questions the story perspective should answer
 
 1. Which stories are recorded, which are selected in the backlog, and which are
    Taken?
@@ -60,62 +77,119 @@ answer. Keep the initial interaction observational: browse, inspect, refresh,
 and follow source links. Assignment, reprioritization, and agent controls are
 outside this initial design.
 
-## Information hierarchy and interaction
+The first story answers the backlog/Taken and source questions. The other
+questions guide later increments; zoom must not invent facts to answer them.
+
+## Connected stages and spatial navigation
 
 Start with one **Stories** view. Put the observed project and repository identity
 in its header, followed by a compact “Published Git state” source summary and
 Refresh action. Identity is context, not a project picker. Keep source problems
-visible near this summary without displacing readable story information.
+visible near this summary without displacing readable story information. Keep
+direction, evidence, refresh, and view controls outside the zooming surface.
 
-Use a compact list with clear story titles. Group Taken work first, followed by
-other backlog stories in recorded priority order and stories outside the
-backlog. Make all groups reachable in the same view; avoid duplicating a story
-because its evidence appears on several branches. Preserve backlog position
-where it is recorded, including on Taken items. These groups aid scanning;
-they are not a newly prescribed lifecycle or a drag-and-drop board.
+Use one navigable stage containing connected regions for work stages. Initially,
+show **Backlog → Taken**, with work cards placed inside their recorded region.
+The connector means “work can be taken from the backlog,” not a dependency
+between stories, a required sequence of all lifecycle steps, or evidence that
+a particular story moved during this observation. Label that relationship.
+Taken includes claimed work, not a claim of live execution. These visual stages
+are separate from the two delivery stages in the requirements.
 
-Give each row a title and concise facts: backlog/Taken, recorded developer,
-mode, refinement/planning, and slice completion. Use secondary lines when a
-wide table would obscure titles. Leave detailed branch names and evidence in
-the drill-down. Add search or filtering only when the actual list justifies it;
-filters must not silently exclude stories outside the backlog.
+Use stable story identity to preserve orientation across refreshes. Preserve
+source order within each region, with visible backlog priority; do not sort by
+title, owner, or inferred activity. Do not add Refined, Planned, Running, or
+Done stages to fill out a pipeline before their meaning and evidence are
+selected. Later refinement and planning facts may be independent annotations,
+not exclusive destinations. A missing entry is not proof of completion.
 
-Selecting a story opens its detail with a clear way back to the same list
-position. A page or expandable section is sufficient; a side panel is optional.
-Do not require simultaneous panes. In detail, show:
+The initial layout hypothesis is a left-to-right flow with a visible connector,
+clear region boundaries, and story cards that stay attached to their stage as
+the user navigates. Reflow to a vertical connection on narrow screens if useful.
+The relationship between stages should be apparent, rather than presenting
+unrelated lists. A movable viewport is a later option when ordinary layout and
+scrolling stop serving the work. Exact geometry and styling can evolve.
 
-1. Story title, recorded purpose, and link to its canonical story source.
-2. Backlog membership/Taken and assignment, then refinement and planning facts.
-3. Execution mode and publication location, followed by the recorded slices in
-   plan order with their names and completion evidence.
-4. Sources supporting these facts: relevant origin refs, inspected revisions,
-   record locations, and retrieval information. Keep evidence next to an
-   affected fact when it is missing or contradictory.
+As density or richer evidence justifies zoom, support two useful levels of
+reading from the same snapshot:
 
-Illustrative content only; names, refs, and counts below are not project data:
+- **Overview:** fit the connected stages, their names, and entry counts into
+  view. Work remains visibly distributed across the stages; compact cards or
+  marks may stand in for full titles when fitting every title would be illegible.
+  Counts describe recorded entries, not completion percentages.
+- **Focused work:** selecting a work item brings it into readable view and
+  reveals its full title, identity, group/priority, and existing source links.
+  Zoom reveals existing information; it does not fetch new story or plan facts
+  in the first story. Keep the containing stage apparent and provide a clear
+  route back to the overview.
+
+When zoom is introduced, include named Zoom in, Zoom out, and Fit overview
+controls, with bounded zoom and pan so work cannot be lost indefinitely
+offscreen. Provide pointer pan on
+the background and a keyboard-equivalent way to reach offscreen work; keyboard
+focus brings a work card into view. Focused reading and Fit overview must also
+work on touch screens without precise gestures. Preserve browser page zoom and
+normal page scrolling; gestures may supplement, not replace, explicit controls.
+Do not require a minimap, physics simulation, freely draggable cards, or custom
+graph editor. Panning changes the view, never backlog order or membership.
+
+Illustrative first-increment layout; placeholders are not observed project data:
 
 ```text
 <Observed project> / Stories
 Published Git state · Retrieved <time, zone>               [Refresh]
+<Published near-future direction>
 
-Taken
-  <Story title>                                      [Open]
-  Developer: Not recorded · Trunk Mode
-  Refinement recorded · Plan recorded · 2 of 5 slices completed
+┌──────────────────── connected stage ──────────────────────┐
+│  BACKLOG                         TAKEN                    │
+│  ┌──────────────────┐            ┌───────────────────┐    │
+│  │ 1 · <work card>  │ ── take ─▶ │ <work card>       │    │
+│  │ 2 · <work card>  │            │ <work card>       │    │
+│  │ …               │            │                   │    │
+│  └──────────────────┘            └───────────────────┘    │
+└──────────────────────────────────────────────────────────┘
 
-Backlog                         Outside backlog
-  <Story title> ...                <Story title> ...
-
-Open → <Story title>                                  [Back]
-       <Recorded purpose>                         [Story source]
-       Taken · Developer: Not recorded · Trunk Mode
-       Progress source: origin/<trunk>, revision <sha>
-       Completed: <slice name>                      [Evidence]
-       No completion recorded: <slice name>
+Each work card → readable title, identity, stage/priority, source links
 ```
 
-The sketch expresses reading order and navigation, not a column or layout
-requirement. Stack groups and facts when space is limited.
+Do not hide already-readable entry information just to create a zoom interaction.
+The first story can use ordinary layout, wrapping, and scrolling; if a small
+focus or fit control materially helps, add it within that reading journey.
+Do not prebuild a viewport framework for future feature or structural views.
+
+As later stories deliver richer evidence, focused work can expose purpose,
+assignment/mode, independent refinement/planning facts, and named slices with
+completion evidence. Source revision and uncertainty stay attached to each
+fact. A readable anchored panel is an option for dense detail; it complements
+the stage rather than replacing spatial navigation with a list-and-detail app.
+Stories outside the backlog must become reachable when their discovery is in
+scope. Search or filtering can follow actual navigation needs.
+
+## Animation explains change
+
+When spatial navigation is introduced, animate viewport movement when focusing
+work or returning to the overview, using short, interruptible transitions to
+help preserve orientation. After a
+successful explicit refresh, motion can explain observed placement or order
+changes for the same identity between the previous and new snapshots. Start
+with a small transition if it clarifies that change; continuous card travel
+between stages and an animation engine are not first-story acceptance criteria.
+Apply the new facts as one coherent snapshot; the transition illustrates that
+change, not an
+intermediate authoritative state. Source links and controls remain usable.
+
+Do not animate a story traversing stages it was never observed in, infer a
+completion from disappearance, or show looping motion, pulsing agents, or
+continuous progress between refreshes. An unchanged snapshot should settle.
+New entries appear in their recorded place; removed entries leave the view
+without an invented destination. Preserve the user's viewport/focus where
+possible; if a focused entry disappears, return focus to a useful stage control
+and announce the change rather than resetting the whole scene silently.
+
+Honor reduced-motion preferences with immediate placement and focus changes.
+All meaning and navigation must remain available without animation. Exact
+durations and easing are implementation choices to tune through use, not a
+reason to introduce an animation engine now.
 
 ## Meaning and terminology
 
@@ -187,25 +261,43 @@ and one restrained accent for links and selection. Story titles carry the most
 weight; metadata is secondary but remains legible. Reserve warning/error styling
 for evidence or retrieval problems, not unknown ownership or old timestamps.
 Avoid decorative charts, percentage rings, avatars implying presence, and
-attention-grabbing animation. Text must carry every status conveyed by color.
+unrelated looping animation. Use motion for the navigation and observed changes
+above. Text must carry every status conveyed by color.
 
-Keep headings and lists/tables semantic, links and controls keyboard accessible,
+Keep stage headings and work groups semantic, links and controls keyboard accessible,
 focus visible, and navigation order consistent with the visual reading order.
 Name source links meaningfully. Announce refresh completion or errors without
 moving focus; return focus to the originating story after closing detail.
 Meet normal text contrast of at least 4.5:1 and control/focus contrast of 3:1.
 Do not hide essential meaning in hover-only tooltips.
 
-On narrow screens and at zoom, stack labeled facts in the same priority order;
-wrap long story titles and refs and retain a way to read full values. Avoid
-page-wide horizontal scrolling. Keep touch controls comfortably sized and do
-not require precise clicks on tiny status icons. Reading story progress must
-work without motion, color perception, or a pointer.
+On narrow screens, keep controls and source status reachable and reflow the
+connected stages when that is sufficient. If a viewport is introduced, let it
+pan to focused work. In readable work content, wrap
+long titles/refs and labeled facts; browser page zoom must not make controls
+unreachable. Avoid page-wide horizontal scrolling: panning is contained within
+the stage. Keep touch controls comfortably sized and do not require precise
+clicks on tiny marks. Semantic reading order follows the groups and source order
+regardless of card coordinates. Canvas, if selected, still owes equivalent
+accessible work content and controls. Reading progress must work without
+motion, color perception, or a pointer.
 
 ## Focused review and revision
 
 Review the first usable experience against these examples, using actual records
 when available. These are design review criteria, not an executable slice plan:
+
+- The first story opens connected Backlog and Taken stages. A reader can
+  understand their relationship, read each entry and follow its source links.
+  Normal scrolling or reflow is enough until a real navigation need appears.
+- A published queue-to-Taken change places that one card correctly on successful
+  refresh, with no duplicate or invented live status. Any animation clarifies
+  this result and respects reduced motion. Failed refresh leaves membership intact.
+- Keyboard, narrow-screen use, and browser page zoom preserve readable work and
+  access to evidence and refresh. If zoom/focus is added, a reader can return
+  to an overview without losing orientation.
+
+As later stories add the relevant facts, also review:
 
 - A reader locates a Taken story, explains its intended outcome, identifies the
   recorded developer/mode, and reaches evidence for a completed slice.

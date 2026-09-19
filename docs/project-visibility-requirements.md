@@ -79,6 +79,40 @@ implemented perspective for the foreseeable work. The feature and structural
 perspectives preserve the broader idea for later exploration; they are not
 prerequisites for the first useful view or commitments to build all three.
 
+### Connected stages and zoom
+
+Terry expects an **animated stage with connected stages of work**, rather than
+just a list. The direction includes zooming out for the whole picture and
+zooming or focusing in to read relevant work. Canvas is permitted but not
+required. Terry explicitly clarified that this UX ambition must follow the
+just-in-time principle: build interactions to support the current story's goal,
+not to complete the visual concept ahead of a need.
+
+Initially, existing backlog evidence supports connected **Backlog → Taken**
+regions, containing work cards in their recorded order. The connection shows
+the taking-work relationship; it does not establish dependencies between stories
+or a mandatory full lifecycle. Zoom exposes the title, identity, membership,
+priority where recorded, and source links already in the snapshot. It does not
+require adding metadata or interpreting story/plan contents in the first story.
+Richer stages and detail follow when their evidence and semantics are selected.
+The first story requires a readable connected overview and access to each
+entry's evidence. Ordinary layout, wrapping, and scrolling can serve that goal;
+general pan/zoom, multiple detail levels, and animated card travel are not
+prerequisites. Add the smallest navigation or transition only when it improves
+reading or orientation with this story's actual data.
+
+Motion should explain navigation and changes between successfully retrieved
+snapshots, such as the same work becoming Taken. It must not imply continuous
+agent activity or animate an imagined path through unobserved states. Missing
+work does not automatically move to Done. Reading and navigation must remain
+available by keyboard and on narrow screens. When zoom is introduced, provide
+a way to regain the overview; when motion is used, reduced-motion preferences
+retain the same information and navigation without animation.
+
+The [UX/UI North Star](dashboard-ux-ui-north-star.md#connected-stages-and-spatial-navigation)
+owns the revisable layout and interaction guidance. These visual work stages
+are distinct from the two capability-delivery stages below.
+
 ## Two stages of the direction
 
 ### Stage 1: published Git state across independent machines
@@ -117,9 +151,17 @@ exploratory mailbox and takeover mechanism prerequisites for Stage 1.
 ### Initial application constraints
 
 Initially, the observed client project is hardcoded in the Open Dough dashboard
-project. Authoritative state stays in that client's repository. There is no
+project. For the first story, Terry selected Open Dough's public GitHub `main`,
+with local launch and no sign-in or hosted deployment. Authoritative state stays
+in the observed repository. There is no
 application/server database or separate persistent project-state store;
 disposable browser storage for preferences or cache is permitted if useful.
+
+Hardcoding Open Dough is a first-story boundary, not a permanent product limit.
+[Use the dashboard for another Open Dough project](../.planning/seeds/SEED-021-observe-published-story-progress.md#observe-another-project)
+is queued next to establish use with a real second project without editing
+dashboard application code. Multi-project aggregation and a registration system
+are not implied by that outcome.
 
 The implementation should have very strong typing. The
 [dashboard technology recommendation](dashboard-tech-stack.md) proposes the UI,
@@ -215,6 +257,12 @@ These names identify agent developers; they need not be the names of human
 contributors. The list, allocation record, and assignment lifecycle need a
 design that supports repository-backed ownership visibility. Simultaneous
 allocation, availability, release, and safe reuse are unresolved details.
+
+This outcome is queued as
+[See who owns Taken work and where it is being executed](../.planning/seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner),
+after the initial overview and readiness/slice view, before execution-branch
+inspection. It includes workflow-produced assignment and dashboard display;
+it does not expand the first story or include the messaging idea below.
 
 ### Future messaging and handover
 
@@ -380,8 +428,8 @@ decisions:
   introducing a duplicate status representation that can drift.
 - Whether completed-work views should reconstruct deleted plans from Git
   history or require another durable summary.
-- How the dashboard accesses local evidence, and what the first useful visual
-  user-story view should contain.
+- How the dashboard accesses local evidence, and how later story facts expand
+  the connected-stage view without imposing a false linear lifecycle.
 - How story-to-feature and story-to-structure relationships would be recorded
   or derived, including the distinction between expected impact and observed
   changes, if those later perspectives are pursued.
@@ -401,6 +449,13 @@ scheduler, or dashboard control interface is selected by this document.
 The first remote-only dashboard increments are decomposed in
 [SEED-021](../.planning/seeds/SEED-021-observe-published-story-progress.md).
 They precede same-machine coordination; the seed does not authorize execution.
+The refined first story uses existing backlog membership and links; new entry
+metadata and persisted story states remain outside its selected overview scope.
+It begins the connected-stage direction with readable entry facts from the same
+snapshot rather than fetched story/plan detail. The broader zoom and animation
+ambition does not expand this outcome into a general navigation system.
+Its required setup includes one Playwright behavioral suite connected to current
+CI, alongside type checking, lint, and a production build.
 
 The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
 direction of parallel story execution through trunk-based development in
