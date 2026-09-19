@@ -198,6 +198,65 @@ queue. Distributed queues, hosted cloud-agent integration, a parallel-agent
 launcher, and global CI repair scheduling are not promised. Reuse an existing
 solution if suitable; this capture authorizes no queue implementation.
 
+<a id="planning-workspace-procedure"></a>
+
+### 6. Prepare stories and slice plans in a clear developer workspace workflow
+
+**Status:** Captured 2026-09-20; not refined or planned.
+
+**Goal:** A developer doing story decomposition, story refinement, slice
+planning, or plan refinement knows where to start the work, how to continue
+related planning in the same workspace, and how to publish the resulting
+records into the shared project without blocking other agents' integration.
+
+**Observed problem:** The September 19 discussion captured workspace intentions
+in the [project visibility requirements](../../docs/project-visibility-requirements.md#quick-edits-in-the-default-checkout),
+but they do not yet form a coherent developer procedure across the planning
+skills. Proposed ADR 0007 places planning on `main`, while proposed ADR 0008
+explicitly identifies the need to align that wording with owned workspaces.
+
+**Scope candidate:** Establish and align the developer-facing procedure and
+shared skill guidance for choosing or reusing an owned worktree, starting and
+continuing a bounded planning session, committing and integrating its records,
+publishing when required, and cleaning up temporary resources. Cover decomposition
+as well as refinement and slice planning. Distinguish prepared quick edits from
+work involving discussion, exploration, or waiting for a developer response.
+Explain responsibilities when the host already supplies a worktree and when
+local coordination still requires explicit human coordination. Surface the
+proposed ADR wording conflict for human resolution; do not accept or supersede
+an ADR implicitly.
+
+**Key example / evaluation:** While another agent executes a story, a developer
+starts decomposition, refines one resulting story, and makes its slice plan.
+The procedure identifies the workspace and branch to use, allows related work
+to reuse them, and keeps discussion from occupying the shared integration
+checkout. The developer can integrate and publish the planning records, then
+remove only disposable owned resources. A separate prepared backlog-field edit
+has a clear short path. Existing unrelated edits are preserved, and unpublished
+planning progress is honestly described as invisible to the remote-only dashboard.
+
+**Value / learning:** Developers can prepare upcoming work alongside execution
+without guessing workspace ownership or treating every skill call as a new
+worktree lifecycle.
+
+**Effort hypothesis:** M, low confidence until refinement checks the affected
+skills and host-owned workspace cases.
+
+**Depends on:** No unfinished implementation prerequisite. The procedure must be
+usable with explicit coordination before the same-machine integration queue
+exists; implementing the shared lock and queue remains owned by
+[Queue trunk integration for agents on the same machine](#same-machine-merge-queue).
+
+**Safe stopping point / boundaries:** Deliver a usable planning-work procedure
+and consistent guidance independently of dashboard or queue implementation.
+Do not introduce a dashboard control interface, lock service, or broader
+execution-mode redesign. This capture authorizes neither planning nor execution.
+
+**Origin:** Terry Yin's September 20 request to capture the September 19 concern
+as a story and place it third in the product backlog; requirements recorded in
+commit `903f905`. See also
+[ADR 0008's alignment note](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md).
+
 ## Research and Architectural Context
 
 Research on 2026-09-16 established precedent for frequent mainline integration
