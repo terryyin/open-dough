@@ -6,7 +6,7 @@ cd -- "${source_dir}"
 
 # With no suite named, `scripts/test.sh` discovers and runs this file like
 # every other `tests/*.sh` aggregator, so the default runs everything this
-# file currently owns. A named suite (`merge`, and later `rebase-conflict`,
+# file currently owns. A named suite (`merge`, `rebase-conflict`, and later
 # `rebase-clean`, `cherry-pick`, as later slices add them) is this file's own
 # proof entry point for one Git journey at a time.
 suite="${1:-all}"
@@ -18,12 +18,23 @@ run_merge() {
   echo 'PASS: real Git merges of the product backlog, reconciled and gated through the shared resolver.'
 }
 
+run_rebase_conflict() {
+  node --test \
+    tests/support/product-backlog-git-rebase.test.mjs \
+    tests/support/product-backlog-git-rebase-sequence.test.mjs
+  echo 'PASS: real conflicted Git rebase replays of the product backlog, reconciled and gated through the shared resolver, with the unpublished suffix replayed exactly once.'
+}
+
 case "${suite}" in
   merge)
     run_merge
     ;;
+  rebase-conflict)
+    run_rebase_conflict
+    ;;
   all)
     run_merge
+    run_rebase_conflict
     ;;
   *)
     echo "Unknown suite: ${suite}" >&2

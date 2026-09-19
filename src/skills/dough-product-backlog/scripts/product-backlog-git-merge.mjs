@@ -15,12 +15,12 @@
 // unrelated conflicted path — is left exactly as Git already had it, for a
 // human to resolve and then explicitly continue.
 import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { parseArgs } from "node:util";
+import { join } from "node:path";
 import {
   acceptStaged,
   validateCandidate,
 } from "./product-backlog-git-candidate.mjs";
+import { runGitOperationCli } from "./product-backlog-git-cli.mjs";
 import {
   ensureDriverRegistered,
   git,
@@ -29,7 +29,6 @@ import {
   repositoryRoot,
 } from "./product-backlog-git-repository.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
-import { defaultBacklogPath } from "./product-backlog-store.mjs";
 
 export { ensureDriverRegistered, repositoryRoot, validateCandidate };
 
@@ -143,58 +142,16 @@ export function continueOperation({ repoRoot, file }) {
   return commitAcceptedMerge(repoRoot, file, "staged candidate");
 }
 
-const options = {
-  file: { type: "string", default: defaultBacklogPath },
-  ref: { type: "string" },
-  cwd: { type: "string", default: "." },
-  help: { type: "boolean", default: false },
-};
-
 const usage =
   `Usage:\n` +
   `  product-backlog-git-merge.mjs merge --ref <ref> [--file <path>] [--cwd <dir>]\n` +
   `  product-backlog-git-merge.mjs continue [--file <path>] [--cwd <dir>]\n`;
 
-async function main(argv) {
-  const { values, positionals } = parseArgs({
-    args: argv,
-    options,
-    allowPositionals: true,
-  });
-  if (values.help) {
-    console.log(usage);
-    return;
-  }
-  const repoRoot = repositoryRoot(resolve(values.cwd));
-  const named = positionals.length === 1 ? positionals[0] : "";
-
-  let outcome;
-  if (named === "merge") {
-    if (!values.ref) {
-      throw new BacklogError(`Supply --ref <ref>.\n\n${usage}`);
-    }
-    outcome = mergeOperation({ repoRoot, file: values.file, ref: values.ref });
-  } else if (named === "continue") {
-    outcome = continueOperation({ repoRoot, file: values.file });
-  } else {
-    throw new BacklogError(
-      `Unknown operation: ${positionals.join(" ") || "(none)"}\n\n${usage}`,
-    );
-  }
-
-  const failing = ["conflict", "refused-before-commit", "refused", "blocked"];
-  console.log(outcome.message ?? outcome.status);
-  if (failing.includes(outcome.status)) {
-    process.exit(1);
-  }
-}
-
-try {
-  await main(process.argv.slice(2));
-} catch (error) {
-  if (error instanceof BacklogError) {
-    console.error(error.refusal);
-    process.exit(1);
-  }
-  throw error;
-}
+await runGitOperationCli({
+  argv: process.argv.slice(2),
+  primaryName: "merge",
+  usage,
+  primaryOperation: mergeOperation,
+  continueOperation,
+  failingStatuses: ["conflict", "refused-before-commit", "refused", "blocked"],
+});

@@ -179,34 +179,45 @@ today, but is coupled to that wording (out of this slice's authority to
 restructure — it would touch the shared, heavily-tested
 `product-backlog-merge.mjs` used by other callers).
 
-An authorized merge obtains real ancestor/side blobs, runs the shared resolver,
-and gates the actual result before acceptance. Prove concurrent sibling closures,
-a textual conflict, the historical clean duplicate case, and a clean direction
-dispute. Keep a non-fast-forward merge uncommitted until accepted; validate a
-fast-forward candidate before advancing the managed target. Failure leaves the
-caller continuation/publication sentinel untouched and unrelated conflicts intact.
-
-The same recovery journey owns the missing read-only candidate validation:
-invalid human bytes remain stopped; valid supplied bytes are accepted unchanged
-without rerunning disputed reconciliation. Inspect staged bytes as well as the
-worktree so a different staged candidate cannot pass accidentally.
-Hypothesis: one merge acceptance/recovery loop through the existing core. First
-demonstrate input capture in a scratch Git repository before expanding the adapter.
-If input capture and recovery demand separate machinery, reassess this slice.
-
 ### 2. Resume a conflicted rebase without losing the unpublished suffix
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-git.sh rebase-conflict`
 
-With at least two unpublished commits, a backlog conflict identifies the replayed
-commit, its parent, and the current destination by revisions, not intent inferred
-from ours/theirs names. Reconcile or stop with rebase/index/worktree evidence
-intact. Validate human repair before continuation; the remaining suffix is replayed
-once and remains unpublished after any failure. Reuse slice 1's validation and
-diagnostics. Include the production caller's retained suffix boundary.
-Hypothesis: one conflicted replay journey; clean replay acceptance is slice 3.
-Keep publication of clean results outside the delivered claim until slice 3.
+Delivered by reusing slice 1's driver/candidate machinery unmodified: the same
+self-registering merge driver Git invokes for `git merge` is invoked
+identically for `git rebase`'s per-commit replay (confirmed empirically against
+this project's installed Git, both the default "merge" backend and the legacy
+"apply" backend). New `product-backlog-git-rebase.mjs` (CLI/orchestrator:
+`rebaseOperation`, `continueOperation`) identifies the real replayed commit,
+its parent, and the current destination from Git's own rebase state — never
+from rebase's reversed "ours"/"theirs" conflict labels — via a new
+`rebaseState(repoRoot)` primitive added to `product-backlog-git-repository.mjs`
+(Git-generic, reusable by slices 3-4). A shared `product-backlog-git-cli.mjs`
+now owns the CLI-argument-parsing/dispatch shape both `product-backlog-git-merge.mjs`
+and `product-backlog-git-rebase.mjs` use, extracted during refactoring to
+remove duplication. Proof: `tests/support/product-backlog-git-rebase.test.mjs`
+and `tests/support/product-backlog-git-rebase-sequence.test.mjs` (split for
+file size), 4 cases total, real `git rebase` in scratch repos, asserting on
+real rebase state/refs/bytes — 4/4 pass. `tests/product-backlog-git.sh` now
+runs 11/11 (merge + rebase-conflict); pre-existing `tests/product-backlog.sh`
+(94 tests) unaffected.
+
+Learnings for slices 3-4: `rebaseState` doesn't care whether a replay
+conflicted, so slice 3 (clean rebase results) can reuse it directly for
+reporting around a clean multi-commit replay before its own semantic-acceptance
+gate. The being-rebased branch's own ref never moving until Git's own success,
+plus `ORIG_HEAD`, is a cheap, convincing way to prove nothing in the unpublished
+suffix was dropped or duplicated — useful for slice 3's clean-replay proof and
+slice 4's cherry-pick "replayed once" guarantee. The `noEditor`
+(`GIT_EDITOR`/`EDITOR=true`) pattern added to `git`/`gitLine`/`gitOutcome`'s
+optional `env` param will likely be needed again for cherry-pick's own
+`--continue`. Cherry-pick's state lives under `.git/sequencer/`, not verified
+here — slice 4 should redo the same empirical "read Git's real state" step
+rather than assume symmetry with rebase's file names. Not covered here, left
+as an explicit gap matching slice 1's own: the `"blocked"` status (this path's
+own result accepted, but the rebase can't proceed because something unrelated
+is unresolved) is implemented but untested.
 
 ### 3. Stop clean rebase results that combine incompatible backlog changes
 Type: Behavior
