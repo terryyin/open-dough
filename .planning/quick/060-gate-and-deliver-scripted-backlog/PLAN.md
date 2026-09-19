@@ -398,27 +398,64 @@ files this slice didn't otherwise touch.
 
 ### 6. Route ordinary backlog workflows through the installed contract
 Type: Behavior
-Status: planned
+Status: done
 Proof: representative guidance review under AGENTS.md;
 `bash tests/product-backlog-payload-update.sh`;
 `bash tests/product-backlog-git.sh`
 
-Maintenance, execution claims, Trunk integration and story closure resolve the
-installed script and their project path, call the selected operation, and respond
-to its result under one authoritative contract. Rewrite intellectual merge repair
-as input capture, scripted reconciliation, human stop and validation-only resume.
-Cover clean outcomes and all production call sites identified above; links alone
-must not leave the old conflict-only trigger in place.
+Rewrote the guidance at all 5 real call sites (edited under `src/skills/`, the
+declared source of truth per AGENTS.md, not the installed `.claude/skills/`
+copies) so an executing agent actually invokes the merge/rebase/cherry-pick
+adapters slices 1-4 built, instead of reading Git's three conflict stages and
+reconciling by hand: `dough-product-backlog/references/merge-conflicts.md`
+(full rewrite: primary path resolves the installed adapter and runs
+`merge`/`rebase`/`pick`, `continue` for a real conflict, `validate` for a
+clean-but-`disputed` rebase/cherry-pick result; the old manual steps survive
+as an explicit, clearly-scoped fallback for when adapters are unavailable or
+don't cover the conflict — preserved, not deleted, since the adapters
+implement the same domain knowledge, not different knowledge),
+`dough-product-backlog/SKILL.md`, `dough-execute-plan/SKILL.md` ("Take queued
+work" — its own backlog change is same-branch, needing no adapter itself; the
+real Git-level case is Trunk publication, covered next), `trunk-publication.md`
+("Resolve a publication rebase conflict" — the ordinary candidate rebase now
+routes through the installed rebase adapter), and `dough-story-wrap-up/SKILL.md`
+(Story Branch integration merge now routes through the installed merge
+adapter). Fixed `scripts/product-backlog-insert.mjs`'s confirmed-broken `add`
+call with the one-line fix the finding required: `backlogDirectory:
+dirname(file)`, matching `product-backlog.mjs`'s own pattern exactly; verified
+against the real defect (crash → clean refusal) and that the identity-mismatch
+refusal path still works.
 
-Walk an ordinary claim, interrupted closure with retained identity, and a clean
-integration refusal through those instructions. Preserve authority and identity
-propagation already supplied by 058/059. Repair `scripts/product-backlog-insert.mjs`'s
-now-broken `add` call — confirmed: an ordinary identity-and-anchor entry currently
-throws an uncaught `TypeError` — by routing it through the same installed contract
-as the other callers, rather than deleting it as unused. Guidance must allow human
-repair with guards enabled.
-Hypothesis: one shared caller contract; representative review checks invocation,
-required context, and useful result. Native behavioral proof belongs to 8/10/12.
+Representative guidance review walked the three required scenarios: an
+ordinary claim needs no adapter (same-branch, nothing to merge); an
+interrupted Story Branch integration merge stays safely stoppable indefinitely
+since the adapter leaves real Git state exactly as Git left it, resumed via
+`continue`; a Trunk publication rebase that finishes with zero per-step
+conflicts but a `disputed` aggregate result stops before any fast-forward or
+push, resumed via `validate` once repaired or explicitly accepted.
+
+Two real, explicitly-reported gaps carried forward rather than silently
+patched or hidden: `product-backlog-git-rebase.mjs` has no `--onto`-shaped
+verb, so Trunk's two rejected-push-retry rebases in "Recover a rejected push"
+still use the manual fallback — a real follow-on story, not this plan's claim;
+and `trunk-publication.md` (263 lines before this slice, 13 already over the
+250-line convention) grew to 276 after the one authorized paragraph's edit and
+a genuine line-wrap trim — left over budget deliberately rather than forcing
+a structural split: 13 other files carry direct anchor links into 8 of this
+file's specific headings, and restructuring it was correctly outside this
+narrow slice's authorized scope (its "other mechanics" were explicitly
+off-limits). A dedicated follow-on pass, not squeezed into a same-turn CI
+repair or an unrelated slice, should own that split and its 13 cross-reference
+updates.
+
+Along the way, also found and fixed (outside this slice's own claim, but
+necessary): a CI failure on slice 5's push, caused by slice 5's new payload
+files never being documented in `docs/installation-and-updates.md` (delivered
+as a separate repair commit); and this project's own "Taken" entry for this
+story (written by hand in this execution's own claim commit) used an invalid
+`— [plan](...)` form the shared parser rejects, leaving this repository's own
+backlog unreadable by its own tooling until corrected to the parser's
+`([plan](...))` form.
 
 ### 7. Establish lightweight native edit protection in Codex
 Type: Behavior
