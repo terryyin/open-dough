@@ -7,6 +7,7 @@
 // stages.
 import assert from "node:assert/strict";
 import {
+  addedHome,
   projectFile,
   run,
   scratchProject,
@@ -49,6 +50,9 @@ export const list = (letters) => [...letters].map(item);
 // reconciliation test is never reconciling an assumption about it.
 export async function branchFrom(t, ancestor, ...operations) {
   const branch = scratchProject(t, ancestor);
+  // Planted unconditionally: a branch that never adds `added` never opens it,
+  // and one that does needs its canonical home to already be there.
+  addedHome(branch);
   for (const operation of operations) {
     const made = await run(branch, operation);
     assert.equal(made.code, 0, made.stderr);

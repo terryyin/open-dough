@@ -14,8 +14,10 @@ import { setTimeout as delay } from "node:timers/promises";
 import {
   added,
   addArguments,
+  addedHome,
   addedLine,
   backlog,
+  projectFile,
   queued,
   run,
   scratchProject,
@@ -28,6 +30,17 @@ test("write safety: concurrent cooperating runs keep every update", async (t) =>
     title: `Concurrent story ${suffix}`,
     link: `seeds/SEED-00${suffix.charCodeAt(0) - 96}-concurrent.md#concurrent-${suffix}`,
   }));
+  // Each request's identity is exactly its seed's own "id:" composed with its
+  // anchor, so the canonical home each one links already names it.
+  for (const request of requests) {
+    const [file, anchor] = request.link.split("#");
+    const seedId = /SEED-\d+/.exec(file)[0];
+    projectFile(
+      project,
+      file,
+      `---\nid: ${seedId}\n---\n\n# Concurrent seed\n\n<a id="${anchor}"></a>\n\n### Concurrent story\n`,
+    );
+  }
 
   const results = await Promise.all(
     requests.map((request) =>
@@ -59,6 +72,7 @@ test("write safety: concurrent cooperating runs keep every update", async (t) =>
 
 test("write safety: a waiting run applies to the newest file content", async (t) => {
   const project = scratchProject(t);
+  addedHome(project);
   mkdirSync(`${project.file}.lock`);
 
   const waiting = run(project, addArguments(added, ["--position", "last"]), {
@@ -127,8 +141,11 @@ test("write safety: a backlog path that is not there locks nothing", async (t) =
     }
   }
 
-  // The backlog the project does have is untouched, and still usable.
+  // The backlog the project does have is untouched, and still usable. The
+  // canonical home is planted only now, after the directory listing above was
+  // checked, so this addition does not disturb what that check established.
   assert.equal(project.read(), backlog);
+  addedHome(project);
   const applied = await run(project, addArguments());
   assert.equal(applied.code, 0, applied.stderr);
   assert.equal(project.read().includes(addedLine), true);

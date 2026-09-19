@@ -38,6 +38,7 @@ async function add(file, values) {
     identity: values.identity,
     title: values.title,
     href: values.link,
+    backlogDirectory: dirname(file),
     ...readPlacement(values),
   };
   await applyToBacklog(file, (source) => addQueueEntry(source, request));

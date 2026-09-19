@@ -87,8 +87,31 @@ re-identification, and no link-agreement refusal returns.
 
 ### 1. Refuse work whose canonical home does not name its identity
 Type: Behavior
-Status: planned
-Proof: extend the real CLI suite, then run `bash tests/product-backlog.sh`.
+Status: done
+Proof: extended `tests/support/product-backlog.test.mjs` (now split into
+`tests/support/product-backlog-add-identity.test.mjs`) and five other add-call
+fixture sites; `bash tests/product-backlog.sh` passes 93/93.
+
+`add` now opens the canonical home through a new `requireNamedHome` in
+`product-backlog-add.mjs`, reading `namedIdentity`/`impliedIdentity` in
+`product-backlog-home.mjs` (the latter shared with `adopt`'s
+`adoptedIdentity`, replacing its own inline `composeIdentity` call). The check
+is skipped when the entry claims no name beyond its link
+(`recordsOwnIdentity` false — the ordinary bounded-correction case) and for
+whole-document homes (no anchor), matching `adopt`'s existing precedent and
+preserving `product-backlog-merge-identity.test.mjs`'s coverage of that
+ambiguity surfacing at merge time instead. This leaves one known scope
+boundary for slice 2 to be aware of: a synthetic identity attached to a
+whole-document home is still not verified against that home at `add` time.
+Both required cases are proven directly: the plan's own SEED-001/SEED-999
+regression (`add refuses an identity its canonical home does not name`) and
+relocation via an explicit `**Identity:**` record whose own anchor spells
+something else (`add accepts a home whose recorded identity matches although
+its own path spells none of it`), plus a previously vacuous relocation
+assertion in `product-backlog-identity.test.mjs` now exercised for real.
+`requireNewHome` in `product-backlog-refresh.mjs` was deliberately left
+unmerged with this: it requires an already-recorded identity with no
+implied-identity fallback, a different rule for a different operation.
 
 `add` must refuse an identity the linked canonical home does not record or
 otherwise name, leaving the backlog unchanged with a nonzero exit and a

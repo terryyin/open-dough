@@ -6,6 +6,7 @@ import { test } from "node:test";
 import {
   added,
   addArguments,
+  addedHome,
   addedLine,
   architecture,
   backlog,
@@ -84,6 +85,7 @@ test("direction update clears the section on an explicit request", async (t) => 
 
 test("direction update and item operations leave each other's part alone", async (t) => {
   const project = scratchProject(t);
+  addedHome(project);
   const [trunk, retrospective, review] = queued;
 
   // Each item operation is asserted by whole-file bytes against a backlog
