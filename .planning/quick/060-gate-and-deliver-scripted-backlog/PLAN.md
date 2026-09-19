@@ -278,15 +278,60 @@ are not yet used by any real caller (caller integration is slices 6/8/10/12).
 
 ### 4. Gate cherry-pick acceptance and human continuation
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-git.sh cherry-pick`
 
-An authorized pick supplies its actual parent/base and destination to the same
-resolver, on both conflicted and clean results. Prove refusal blocks continuation
-and publication, retains recoverable state, and accepts valid human repair once.
-An absent or ambiguous required parent/mainline stops explicitly; do not invent
-a mainline policy. Reuse common validation, with operation-specific state proof.
-Hypothesis: one pick acceptance loop; merge/rebase proof does not substitute.
+Confirmed empirically, diverging from rebase in two real ways: cherry-pick's
+index stages during a stop are NOT reversed (stage 2/"ours" is always the
+destination, stage 3/"theirs" always the picked commit — the same convention
+as an ordinary merge), and cherry-pick has two stop shapes with no rebase
+analogue — a picked merge commit missing `--mainline` (Git itself refuses with
+a distinct, detectable message; no mainline policy was invented) and Git's own
+"this step is now empty" stop (the destination already carries the step's net
+effect; requires an explicit human `--skip`/`--allow-empty`, handled as its
+own `"empty"` status rather than folded into "conflict" or "blocked"). A real
+bug was found and fixed during implementation: `CHERRY_PICK_HEAD` can be
+transiently absent while a pick sequence is genuinely still in progress (a
+human resolving the "empty" stop via raw `git commit --allow-empty` clears it
+before the sequencer's own `todo` advances); `cherryPickState` also checks
+`.git/sequencer/todo` to avoid misreporting "nothing in progress."
+
+A single-commit pick's driver invocation already receives the correct
+three-way triple, so `validateCandidate`/`acceptStaged` alone suffice there
+(confirming slice 3's own prediction). A multi-commit sequence
+(`git cherry-pick a b c`) was confirmed to reproduce the same masking
+mechanism slice 3 found for rebase, so it reuses `aggregateOutcome` unchanged
+via new `product-backlog-git-cherry-pick-aggregate.mjs`. New
+`product-backlog-git-cherry-pick.mjs` (CLI/orchestrator) and
+`product-backlog-git-cherry-pick-stop.mjs` (stop interpretation) complete the
+family alongside the merge/rebase adapters; `product-backlog-git-repository.mjs`
+gained `cherryPickState` and a shared `blockedStopMessage` helper (extracted
+during refactoring once rebase and cherry-pick independently produced the same
+"blocked" sentence). Proof: 9 real `git cherry-pick` cases across 3 test
+files — 25/25 across the whole `tests/product-backlog-git.sh` suite (merge +
+rebase-conflict + rebase-clean + cherry-pick). Pre-existing
+`tests/product-backlog.sh` (94 tests) unaffected.
+
+Explicit, reported (not silently dropped) gaps for later attention: the
+aggregate's "disputed" branch for a multi-commit pick is wired and tested on
+its "agrees" side, but no scratch-repo scenario reached an actual disputed
+result via one uninterrupted `git cherry-pick` call — every attempt hit either
+a real conflict or the "empty" stop first, so that refusal path is
+defense-in-depth, not confirmed load-bearing, for cherry-pick specifically.
+Separately: a human resolving the "empty" stop with raw `git cherry-pick
+--skip` (an ordinary, well-known Git idiom, more likely to be reached for
+than merge/rebase's own raw equivalents since it reads like routine Git
+rather than "this project's business") can silently cascade through all
+remaining clean steps in one call, bypassing this tool's gating — including
+the aggregate — for the rest of the sequence, with no further invocation
+point to intervene. Caller-routing slices (6/8/10/12) should give explicit
+guidance to always resolve a cherry-pick stop through this tool's own
+`continue`, never raw Git.
+
+**Slices 1-4 (all four Git gates) are now complete.** This is the plan's own
+documented safe pause point: Git-level merge/rebase/cherry-pick gating can be
+assessed independent of installation or native-host enforcement, which slices
+5-12 address next.
 
 ### 5. Install and update a complete standalone backlog runtime
 Type: Behavior

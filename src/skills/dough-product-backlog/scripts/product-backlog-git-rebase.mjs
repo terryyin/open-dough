@@ -36,6 +36,7 @@ import {
 import { acceptStaged } from "./product-backlog-git-candidate.mjs";
 import { runGitOperationCli } from "./product-backlog-git-cli.mjs";
 import {
+  blockedStopMessage,
   ensureDriverRegistered,
   gitLine,
   gitOutcome,
@@ -99,10 +100,7 @@ function interpretStop(repoRoot, file, outcome) {
   }
   return {
     status: "blocked",
-    message:
-      `The rebase stopped, but ${file} is not the unresolved path; ` +
-      `something unrelated needs human resolution first. This gate leaves ` +
-      `the rebase exactly as it is.\n${outcome.stderr}`,
+    message: blockedStopMessage("rebase", file, outcome.stderr),
   };
 }
 
