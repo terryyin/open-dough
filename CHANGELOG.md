@@ -1,3 +1,12 @@
+## 0.3.26 - 2026-09-20
+
+- Add an installed, script-backed product backlog workflow with stable recorded work-item identities and explicit add, place, take, complete, refresh, direction, and adoption operations. Reconcile concurrent backlog edits from their common ancestor while preserving compatible item, priority, direction, and reference changes and refusing ambiguous outcomes.
+- Route product-backlog merges, rebases, and cherry-picks through installed Git-aware adapters that validate both conflicted and deceptively clean results before publication. Deliver the complete transitive runtime to Codex, Cursor, and Claude Code, and add a Claude Code guard that directs native backlog edits through those scripts.
+- Separate bug exploration from repair execution with one shared temporary exploration-workspace lifecycle. Keep reproduction work isolated, close it before bounded repair begins, and integrate only authorized durable planning artifacts when larger or inconclusive work must be queued.
+- Harden installer and test infrastructure by sharing platform safety and record-writing helpers, validating installed story dependencies explicitly, splitting hook-fragment handling into its delivered runtime dependency, and requiring Bash 4+ so shell-test failures cannot be masked by the macOS Bash 3.2 runtime.
+
+Native acceptance for Codex, Cursor, and Claude Code was explicitly skipped at the maintainer's request for `0.3.26`. Acceptance for the scripted product-backlog workflow and Git adapters, Claude Code edit protection, revised exploration-workspace behavior, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.25 - 2026-09-17
 
 - Make Trunk Mode resolve queue claims through the configured integration branch and publish verified increments from its checkout. Require local main, the refreshed remote, and the execution branch to converge on the published revision; preserve unrelated unpublished commits; and recover a raced non-fast-forward push by rebasing only the owned suffix.
