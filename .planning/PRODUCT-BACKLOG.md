@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Prevent bash-version-masked shell test failures](quick/063-prevent-bash-version-masked-test-failures/PLAN.md)
-
 ## Backlog list
 
 - [Split installer doc and host-hooks fixture files past the 250-line convention](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
