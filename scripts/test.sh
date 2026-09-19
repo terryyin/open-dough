@@ -24,6 +24,6 @@ while IFS= read -r -d '' test_file; do
 done < "${test_list}"
 
 run_check 'scripts/check-self-installation.sh' \
-  bash "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
+  bash -x "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
 
 exit "${status}"
