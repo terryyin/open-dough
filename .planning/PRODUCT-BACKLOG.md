@@ -7,9 +7,10 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
+- [Shell assertions enforce and report on every supported shell](seeds/SEED-020-shell-proof-enforces-its-assertions.md#shell-assertions-enforce-and-report) — SEED-020
+
 ## Backlog list
 
-- [Shell assertions enforce and report on every supported shell](seeds/SEED-020-shell-proof-enforces-its-assertions.md#shell-assertions-enforce-and-report) — SEED-020
 - [Let one rule decide a recorded identity](quick/059-one-rule-for-recorded-identity/PLAN.md)
 - [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
