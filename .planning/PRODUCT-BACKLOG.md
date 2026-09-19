@@ -7,9 +7,10 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
+- [Let one rule decide a recorded identity](quick/059-one-rule-for-recorded-identity/PLAN.md)
+
 ## Backlog list
 
-- [Let one rule decide a recorded identity](quick/059-one-rule-for-recorded-identity/PLAN.md)
 - [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008
