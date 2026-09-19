@@ -23,14 +23,17 @@
 // the unpublished suffix stays exactly where it was for a human to resolve
 // and then explicitly continue.
 //
-// Whether a clean (non-conflicting) replay's result is itself semantically
-// acceptable is not decided here — that gate is slice 3's — so a clean
-// `rebase` or `continue` call that finishes without a Git conflict on this
-// path is reported as an ordinary, ungated completion.
+// A replay that finishes with no Git conflict anywhere in it is not
+// automatically trusted, either: it is gated once more by the whole-operation
+// aggregate comparison in `product-backlog-git-rebase-aggregate.mjs`
+// (`acceptCleanRebase`) before being reported as accepted — see that module
+// for the mechanism, the empirical cases that motivate it, and why
+// `continueOperation`'s own clean finish, below, is deliberately excluded.
 import {
-  acceptStaged,
-  validateCandidate,
-} from "./product-backlog-git-candidate.mjs";
+  acceptCleanRebase,
+  validateOperation,
+} from "./product-backlog-git-rebase-aggregate.mjs";
+import { acceptStaged } from "./product-backlog-git-candidate.mjs";
 import { runGitOperationCli } from "./product-backlog-git-cli.mjs";
 import {
   ensureDriverRegistered,
@@ -45,7 +48,7 @@ export {
   ensureDriverRegistered,
   rebaseState,
   repositoryRoot,
-  validateCandidate,
+  validateOperation,
 };
 
 // Continuing a rebase must never stop to open an editor: every step reuses
@@ -105,17 +108,39 @@ function interpretStop(repoRoot, file, outcome) {
 
 // One authorized rebase: every commit Git replays that touches the backlog
 // path is gated by the shared resolver (through the driver registered
-// above). Nothing here validates a clean result's own semantics — that is
-// slice 3's claim — so a replay that finishes without a Git conflict on this
-// path is reported as an ordinary completion.
-export function rebaseOperation({ repoRoot, file, ref }) {
+// above), and a replay that finishes without a single Git conflict on this
+// path is then gated once more by the whole-operation aggregate comparison
+// (`acceptCleanRebase`) before being reported as accepted.
+//
+// `preRebaseTip`/`destinationAtStart` default to what they genuinely are for
+// the ordinary shape of this call — the currently checked-out branch's own
+// HEAD right now, and `ref` resolved right now, captured before Git moves
+// anything — but a caller whose real boundaries differ (a rejected-push
+// retry rebasing only an unpublished suffix, an execution-branch replay onto
+// trunk) supplies its own actual revisions instead; this never assumes the
+// destination is always `main` or the pre-rebase tip is always `ORIG_HEAD`.
+export function rebaseOperation({
+  repoRoot,
+  file,
+  ref,
+  "pre-rebase-tip": explicitPreRebaseTip,
+  "destination-at-start": explicitDestinationAtStart,
+}) {
   ensureDriverRegistered(repoRoot, file);
+  const preRebaseTip =
+    explicitPreRebaseTip ?? gitLine(["rev-parse", "HEAD"], repoRoot);
+  const destinationAtStart =
+    explicitDestinationAtStart ?? gitLine(["rev-parse", ref], repoRoot);
+
   const outcome = gitOutcome(["rebase", ref], repoRoot, noEditor);
   if (outcome.code === 0) {
-    return {
-      status: "rebased",
-      message: `Rebased onto ${ref}; no Git conflict touched ${file}.`,
-    };
+    return acceptCleanRebase(
+      repoRoot,
+      file,
+      ref,
+      preRebaseTip,
+      destinationAtStart,
+    );
   }
   return interpretStop(repoRoot, file, outcome);
 }
@@ -159,8 +184,11 @@ export function continueOperation({ repoRoot, file }) {
 
 const usage =
   `Usage:\n` +
-  `  product-backlog-git-rebase.mjs rebase --ref <ref> [--file <path>] [--cwd <dir>]\n` +
-  `  product-backlog-git-rebase.mjs continue [--file <path>] [--cwd <dir>]\n`;
+  `  product-backlog-git-rebase.mjs rebase --ref <ref> ` +
+  `[--file <path>] [--cwd <dir>]\n` +
+  `    [--pre-rebase-tip <ref>] [--destination-at-start <ref>]\n` +
+  `  product-backlog-git-rebase.mjs continue [--file <path>] [--cwd <dir>]\n` +
+  `  product-backlog-git-rebase.mjs validate [--file <path>] [--cwd <dir>]\n`;
 
 await runGitOperationCli({
   argv: process.argv.slice(2),
@@ -168,5 +196,10 @@ await runGitOperationCli({
   usage,
   primaryOperation: rebaseOperation,
   continueOperation,
-  failingStatuses: ["conflict", "refused", "blocked"],
+  validateOperation,
+  failingStatuses: ["conflict", "refused", "blocked", "disputed"],
+  extraOptions: {
+    "pre-rebase-tip": { type: "string" },
+    "destination-at-start": { type: "string" },
+  },
 });

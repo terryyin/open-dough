@@ -221,24 +221,60 @@ is unresolved) is implemented but untested.
 
 ### 3. Stop clean rebase results that combine incompatible backlog changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-git.sh rebase-clean`
 
-A clean multi-commit replay is semantically checked using retained pre-rebase
-inputs before the managed caller publishes. Prove a clean direction dispute with
-no duplicate identity, the duplicate-move regression, and compatible changes whose
-final result retains both intentions. Exercise normal publication and the distinct
-rejected-push/execution-suffix paths using their actual revision boundaries.
+Confirmed empirically first (in a scratch repo, before writing production
+code): a multi-commit rebase can finish with no Git conflict at any step while
+the aggregate result is still wrong — an earlier commit's change coincidentally
+matches the destination's own concurrent change, silently absorbing the
+divergence, and a later commit changes the same value again, unopposed as far
+as any single step can see. Proved for both a direction dispute and the
+duplicate-move regression; also proved a genuinely compatible multi-commit
+rebase produces no false positive.
 
-Do not assume final-file parsing or one arbitrarily selected parent represents the
-whole replay. Demonstrate the chosen input/candidate comparison in real scratch
-Git first, including a human-resolved earlier replay. If aggregate comparison
-cannot preserve that resolution and suffix intent, stop to reassess the adapter;
-do not silently grow a general sequencer. Invalid local commits remain recoverable
-and unpublished. Human repair follows the existing caller's authorized recovery,
-with validation; no automatic history rewrite or reapplication of accepted work.
-Hypothesis: one publication decision, but input capture is the highest remaining
-Git sizing risk. Passing the conflict case alone proves none of this slice.
+Delivered via new `product-backlog-git-aggregate.mjs` (`aggregateOutcome`):
+Git-generic, takes explicit revisions (`preOperationTip`, `destinationAtStart`,
+`resultRef`) rather than hard-coding "main"/`ORIG_HEAD`, so a rejected-push
+retry or execution-branch replay caller (later slices) can reuse it unchanged.
+It computes the true merge-base of the two supplied revisions, re-runs
+`mergeBacklogs` once over the true whole-operation triple, and reports whether
+its accepted candidate matches what the operation actually left. New
+`product-backlog-git-rebase-aggregate.mjs` wires this into `rebaseOperation`'s
+own clean, unstopped `git rebase` finish, plus a read-only `validateOperation`
+for the human-override recovery path. `product-backlog-git-cli.mjs`'s shared
+dispatcher gained optional `extraOptions`/`validate` support, confirmed
+backward-compatible (merge's CLI surface unchanged).
+
+Deliberate, empirically-justified scope boundary: `continueOperation`'s clean
+finish (after a human already resolved a real Git conflict earlier in the same
+rebase) is NOT run through this gate — re-running the aggregate there, using
+the true pre-rebase tip which still carries the pre-resolution content, would
+falsely re-dispute a decision a human already accepted. Confirmed by a
+dedicated test. A narrower related gap, left open and reported rather than
+silently dropped: a rebase that stops only because an *unrelated* path
+conflicts, while the backlog itself replayed clean at every step, is also
+routed through `continueOperation` and so also escapes this gate — closing
+that would require tracking state across the whole rebase, not just the
+current stop, and was judged out of this slice's authority.
+
+Proof: `tests/support/product-backlog-git-rebase-clean.test.mjs` (the gate's
+refusal path: masked direction dispute, masked duplicate-move) and
+`tests/support/product-backlog-git-rebase-clean-accepted.test.mjs` (no false
+positive, human-resolved-suffix survives, disputed-result recovery via
+`validate`), split by refusal vs. acceptance — 5 cases, real `git rebase` in
+scratch repos, 16/16 across the whole `tests/product-backlog-git.sh` suite.
+Pre-existing `tests/product-backlog.sh` (94 tests) unaffected.
+
+Learnings for slice 4: cherry-picking a single commit has no "destination
+already advanced through N prior steps of this same operation," so this
+slice's specific masking mechanism likely has no analogue there. A
+cherry-pick *sequence* (multiple commits in one invocation) would have the
+same shape as a multi-commit rebase, though, and `aggregateOutcome` is already
+Git-generic enough to reuse directly if slice 4's proof needs it — verify
+empirically rather than assume either way. The `--pre-rebase-tip`/
+`--destination-at-start` CLI flags are wired through and default correctly but
+are not yet used by any real caller (caller integration is slices 6/8/10/12).
 
 ### 4. Gate cherry-pick acceptance and human continuation
 Type: Behavior

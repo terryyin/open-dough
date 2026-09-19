@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // The one CLI shape every Git-aware backlog adapter shares: parse the same
-// four options, resolve the real repository root, dispatch to this adapter's
-// own primary operation (`merge`, `rebase`, ...) or the shared `continue`,
-// print the outcome, and exit nonzero for whichever statuses this adapter
-// treats as failing — the same recovery discipline every adapter reports
-// through. Only the primary operation's name and handler, its usage text, and
-// its failing-status list are adapter-specific; everything else here was
-// identical, line for line, between `product-backlog-git-merge.mjs` and
-// `product-backlog-git-rebase.mjs` before this was shared.
+// four options plus whichever extra ones an adapter declares, resolve the
+// real repository root, dispatch to this adapter's own primary operation
+// (`merge`, `rebase`, ...), the shared `continue`, or an adapter's own
+// `validate`, print the outcome, and exit nonzero for whichever statuses this
+// adapter treats as failing — the same recovery discipline every adapter
+// reports through. Only the primary operation's name and handler, its usage
+// text, its failing-status list, and any adapter-specific options/verbs are
+// adapter-specific; everything else here was identical, line for line,
+// between `product-backlog-git-merge.mjs` and `product-backlog-git-rebase.mjs`
+// before this was shared.
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { repositoryRoot } from "./product-backlog-git-repository.mjs";
@@ -27,11 +29,13 @@ async function dispatch({
   usage,
   primaryOperation,
   continueOperation,
+  validateOperation,
   failingStatuses,
+  extraOptions,
 }) {
   const { values, positionals } = parseArgs({
     args: argv,
-    options,
+    options: { ...options, ...extraOptions },
     allowPositionals: true,
   });
   if (values.help) {
@@ -40,6 +44,14 @@ async function dispatch({
   }
   const repoRoot = repositoryRoot(resolve(values.cwd));
   const named = positionals.length === 1 ? positionals[0] : "";
+
+  // Whichever extra, adapter-declared options were actually parsed, passed
+  // through by their own names rather than assumed by this shared shape —
+  // `mergeOperation`/`continueOperation` simply never destructure a name this
+  // adapter did not declare.
+  const extra = Object.fromEntries(
+    Object.keys(extraOptions ?? {}).map((name) => [name, values[name]]),
+  );
 
   let outcome;
   if (named === primaryName) {
@@ -50,9 +62,12 @@ async function dispatch({
       repoRoot,
       file: values.file,
       ref: values.ref,
+      ...extra,
     });
   } else if (named === "continue") {
     outcome = continueOperation({ repoRoot, file: values.file });
+  } else if (named === "validate" && validateOperation) {
+    outcome = validateOperation({ repoRoot, file: values.file });
   } else {
     throw new BacklogError(
       `Unknown operation: ${positionals.join(" ") || "(none)"}\n\n${usage}`,
