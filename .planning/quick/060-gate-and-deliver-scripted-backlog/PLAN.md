@@ -6,9 +6,14 @@ Status: planned; reviewed 2026-09-19. No execution has started or been authorize
 
 Source: [SEED-008 story 6](../../seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog).
 The review assumes the predecessor, including corrections 058/059, is complete.
-Correction 059 is currently Taken in this checkout; that is another execution,
-not a reason to duplicate its work or claim its completion here. Before executing,
-use the delivered predecessor revision and retain its applicable proof.
+Correction 059 has since closed and merged (`8507488`), delivering its two
+core slices. Its third slice (deleting `parseEntryLine`) was dropped by owner
+authorization: execution found `scripts/product-backlog-insert.mjs` — a real
+caller outside `src/`/`tests/`, untested by `tests/product-backlog.sh` — still
+depends on it, and correction 059's own scope placed that script's promotion
+out of its authority. That handoff lands here; see the root insertion helper
+row below and slice 6. Before executing, use the delivered predecessor
+revision and retain its applicable proof.
 
 No active plan for this story existed at review. This is the sole current plan,
 replacing the inherited remainder at
@@ -42,7 +47,7 @@ PFE checked the current source and callers, not just the historical plan:
 | Delivery | Extend `install.sh`, `src/install/open-dough-release-version.sh`, and `tests/helpers/public-payload-fixture.bash` together. Reuse real tagged fixtures from `tests/story-payload-update.sh` and `tests/execution-payload-update.sh`. |
 | Native hooks | `src/install/open-dough-register-hooks.mjs` currently registers CI fragments for Cursor and Claude, not Codex edit protection. Reuse safe settings merging where it fits; do not assume this proves an edit hook or build a generic plugin framework. |
 | Native observation | Reuse existing `tests/support/native-*` isolation, bounded execution, and assessment support. ADR/update journeys prove their own mechanisms, not backlog behavior. Add shared backlog cases and only necessary host adapters. |
-| Root insertion helper | `scripts/product-backlog-insert.mjs` already delegates to shared modules. Retire the unused entry point during caller routing; do not describe it as a second merge-rule implementation. |
+| Root insertion helper | `scripts/product-backlog-insert.mjs` delegates to shared modules but is a real, currently used caller, not dead code — correction 059 confirmed this. It now throws an uncaught `TypeError` (not a `BacklogError`) for an ordinary add whose identity differs from its href and whose href carries an anchor, because correction 059's `requireNamedHome` calls `openHome` with a `backlogDirectory` this caller never supplies; confirmed by direct invocation, not merely inferred. Migrate it onto the routed contract during caller routing rather than retiring it as unused; do not describe this as a second merge-rule implementation. |
 
 The cumulative model remains one backlog and one set of domain rules. Git has
 operation-specific input selection; native hosts have different tool events.
@@ -225,8 +230,11 @@ must not leave the old conflict-only trigger in place.
 
 Walk an ordinary claim, interrupted closure with retained identity, and a clean
 integration refusal through those instructions. Preserve authority and identity
-propagation already supplied by 058/059. Remove the unused root insertion entry
-point after checking callers. Guidance must allow human repair with guards enabled.
+propagation already supplied by 058/059. Repair `scripts/product-backlog-insert.mjs`'s
+now-broken `add` call — confirmed: an ordinary identity-and-anchor entry currently
+throws an uncaught `TypeError` — by routing it through the same installed contract
+as the other callers, rather than deleting it as unused. Guidance must allow human
+repair with guards enabled.
 Hypothesis: one shared caller contract; representative review checks invocation,
 required context, and useful result. Native behavioral proof belongs to 8/10/12.
 
