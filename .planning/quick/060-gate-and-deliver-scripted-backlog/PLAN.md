@@ -531,49 +531,80 @@ case without redesign.
 
 ### 8. Use the installed scripted workflow in Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-native.sh --native claude --case use`
 
 **Renumbered from 12; rescoped 2026-09-19 by owner authorization**, for the
 same reason as slice 7 above: this no longer reuses "slice 8's" (Codex)
 shared installed-workflow journey or test shape, since that slice was
-deferred to the separate story. Establish the installed-workflow journey for
-Claude Code directly, reusing this project's existing delivery-to-use native
-test pattern (`tests/dough-adr-awareness-claude-delivery-to-use.sh` and its
-shared `tests/support/dough-adr-awareness-delivery-to-use.sh` harness) for
-structure rather than inventing a new native-runner mechanism.
+deferred to the separate story. Established the installed-workflow journey
+for Claude Code directly, reusing slice 7's `--native <host> --case <case>`
+dispatcher shape and evidence-preservation idiom (extended with a new `use`
+case) rather than the heavier ADR-awareness delivery-to-use harness, which
+carries multi-scenario/results-dir machinery this slice's single journey
+doesn't need.
 
-After real update, a fresh native Claude Code session follows installed
-guidance for an authorized backlog change, encounters a scripted integration
-refusal, and stops. After explicit human repair it validates and resumes.
-Observe actual adapter calls, bytes, and Git state; the prompt must not
-prescribe the answer or command route. Use the guard when slice 7 delivered
-one; if slice 7 found native denial infeasible or deferred, prove the
-human-only stop/resume path independently of guard availability, matching
-the deferred story's own slice 4 disposition for its hosts. Hypothesis: one
-installed workflow journey; record host, version, and candidate. Missing
-native access is pending proof, not a pass.
+A real two-branch Git fixture renames the same backlog entry two
+incompatible ways (adapted from this project's own non-native rename-dispute
+test case, run as real Git rather than in-process). A fresh native Claude
+Code session, prompted only in ordinary language naming neither a script nor
+a verb ("integrate close-b's backlog change... following this project's
+installed guidance"), discovered and ran the installed
+`product-backlog-git-merge.mjs` adapter itself, hit its real `conflict` stop,
+and reported it plainly without forcing past it. Verified this was the
+adapter and not a raw `git merge`: `.git/info/attributes` registered the
+`merge=dough-product-backlog` driver, `git config` pointed at the installed
+`product-backlog-git-driver.mjs`, and the on-disk conflict markers carried
+the adapter's own domain-specific "different titles" explanation, not Git's
+default markers. After the test script played the human (writing the
+resolved backlog and `git add`-ing it, no native session involved), a second
+fresh native session, told only that a human had resolved and staged the
+conflict, resumed through the same adapter's `continue` verb, producing a
+real two-parent merge commit holding the human-resolved bytes exactly.
+Native tool version and the candidate script are recorded in the proof
+output. The guard (slice 7) was confirmed not to interfere: both native
+sessions invoke the adapter via Bash/Node child process, never through the
+Edit/Write tools the guard's `PreToolUse` matcher intercepts.
+
+Along the way, found and fixed (outside this slice's own claim, but
+necessary): slice 7's own CI push failed on the real GitHub Actions runner
+(`tests/install-ci-host-hooks.sh`), never locally. Root cause:
+`tests/helpers/host-hooks-fixture.bash`'s `seed_exact_manual_registration`
+modeled only Claude's pre-slice-7 combined fragment, so a real install
+always found the seeded "exact manual registration" fixture out of date
+once slice 7 added the guard's optional PreToolUse fragment, breaking
+several "already current" assertions. Fixed by teaching
+`resolve_host_hook_fragments` to also resolve the guard fragment (tolerating
+its absence in older/synthetic checkouts, exactly matching the installer's
+own required/optional combination) and merging it into the seeded fixture
+and its assertion. Delivered as its own repair commit (`de7d819`), confirmed
+green on the real GitHub Actions runner before this slice's own commit.
+Separately, and reported transparently rather than silently worked around:
+this failure was invisible in every local run on this machine because the
+local `bash` resolves to macOS's system bash 3.2, which does not enforce
+`set -e` on a standalone failing `[[ ]]` test the way this project's target
+bash 5.x (and GitHub Actions' runner) does; the actual fix and the full
+suite's continued health were verified with a real Homebrew-installed
+modern bash instead.
 
 ## Sizing, stopping points, and remaining concerns
 
 Result: 8 planned Behavior slices, replacing inherited 11-17 and this plan's
-own prior 12-slice count. Slices 1-6 are delivered. Slices 7-8 (formerly
-11-12) are this plan's remaining claim after the owner extracted the Codex
+own prior 12-slice count. All 8 slices are delivered. Slices 7-8 (formerly
+11-12) were this plan's remaining claim after the owner extracted the Codex
 and Cursor native slices (formerly 7-10) to a separate, deferred story on
 2026-09-19; that extraction is a scope reduction, not a deferral disguised as
-completion — this plan's own outcome now covers only the Git-gate core,
+completion — this plan's own outcome covers only the Git-gate core,
 delivery, caller routing, and Claude Code's native protection/use, not all
-three hosts. There is no supplied numeric target, hard limit, or timing
+three hosts. There was no supplied numeric target, hard limit, or timing
 exception for the remaining slices.
 
 After 1-4, Git gates were assessable without installation or host
 enforcement. After 5-6, deterministic delivery and calling guidance were
-assessable while native acceptance remained explicitly pending. Slices 7-8
-retain conditional feasibility; missing native capability or complex
-registration requires the existing human decision, not automatic
-subdivision. Slice 8 needs actual native access and fresh, sufficient
-evidence. No blanket direct-execution readiness is claimed for that
-uncertainty.
+assessable while native acceptance remained explicitly pending. Slices 7-8's
+conditional feasibility resolved positively for Claude Code: native
+edit-denial and installed-workflow discovery both proved feasible and were
+delivered with real native evidence, not just a documented boundary.
 
 Slices 1-6 have bounded outcomes and explicit, delivered proof, with slice
 3's clean-replay input strategy having required the named representative Git

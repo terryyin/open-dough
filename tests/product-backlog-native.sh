@@ -1,29 +1,39 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2312
 # Native proof for the product backlog's Claude Code native-editing
-# protection ("guard") and, in a later slice, its installed-workflow use.
+# protection ("guard") and its installed-workflow use.
 #
 # Usage:
 #   tests/product-backlog-native.sh
 #   tests/product-backlog-native.sh --native claude --case guard
+#   tests/product-backlog-native.sh --native claude --case use
 #
 # The default mode is deterministic: a real install plus the guard's
 # decision function, with no real agent. --native claude --case guard spawns
 # real `claude --print` sessions against a fixture project with the guard
-# actually installed and registered.
+# actually installed and registered. --native claude --case use spawns real
+# `claude --print` sessions that discover and run the installed product
+# backlog Git merge adapter on a real two-branch conflict, then resume it
+# after explicit human repair.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/product-backlog-native-guard.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-guard.sh"
+# shellcheck source=tests/support/product-backlog-native-use.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-use.sh"
 
 usage() {
   cat >&2 << 'EOF'
 usage: tests/product-backlog-native.sh
    or: tests/product-backlog-native.sh --native claude --case guard
+   or: tests/product-backlog-native.sh --native claude --case use
 HOST is claude (Codex and Cursor are deferred to a separate plan).
-CASE is guard: Claude Code PreToolUse edit-denial for the product backlog.
+CASE is guard (Claude Code PreToolUse edit-denial for the product backlog)
+or use (the installed Git merge adapter's conflict stop and human-repaired
+resume, discovered by a fresh native session from ordinary-language guidance).
 EOF
 }
 
@@ -82,15 +92,25 @@ if [[ ${host_arg} != claude ]]; then
   usage
   exit 2
 fi
-if [[ ${case_id} != guard ]]; then
-  echo "error: unknown case '${case_id}' (known: guard)" >&2
-  usage
-  exit 2
-fi
+case ${case_id} in
+  guard | use) ;;
+  *)
+    echo "error: unknown case '${case_id}' (known: guard, use)" >&2
+    usage
+    exit 2
+    ;;
+esac
 
 command -v claude > /dev/null || {
   echo 'error: claude CLI not found on PATH' >&2
   exit 1
 }
 
-guard_run_native "${source_dir}"
+case ${case_id} in
+  guard) guard_run_native "${source_dir}" ;;
+  use) use_run_native "${source_dir}" ;;
+  *)
+    echo "error: internal error: unreachable case '${case_id}'" >&2
+    exit 2
+    ;;
+esac
