@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Focused real-installer journey for merging CI host hooks beside existing settings.
 # shellcheck disable=SC2312
-set -euo pipefail
+set -euxo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
