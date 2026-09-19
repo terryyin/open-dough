@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Prevent bash-version-masked shell test failures](quick/063-prevent-bash-version-masked-test-failures/PLAN.md)
+
 ## Backlog list
 
-- [Prevent bash-version-masked shell test failures](quick/063-prevent-bash-version-masked-test-failures/PLAN.md)
 - [Split installer doc and host-hooks fixture files past the 250-line convention](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
 - [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
 - [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work
