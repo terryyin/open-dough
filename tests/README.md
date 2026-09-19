@@ -1,4 +1,25 @@
-# Native ADR-awareness check wrappers
+# Tests
+
+Shell tests require **Bash 4 or newer**, with that `bash` first on `PATH`.
+macOS's bundled Bash 3.2 can silently ignore failing `[[ ... ]]` assertions
+under `set -e`. `npm test` (or `bash scripts/test.sh`) therefore checks the
+resolved child Bash before running any checks and refuses unsupported versions.
+Launching the runner with an explicit newer Bash path alone is insufficient:
+the tests also launch `bash` through `PATH`.
+
+Install a current Bash using your preferred package manager, then use its bin
+directory for both the full suite and direct focused tests, for example:
+
+```sh
+PATH="/path/to/current-bash/bin:$PATH" npm test
+PATH="/path/to/current-bash/bin:$PATH" bash tests/story-payload-assertions.sh
+```
+
+Direct test scripts rely on this prerequisite; the version guard lives in the
+suite runner. This is a contributor test requirement; the product installer
+continues to support Bash 3.2.
+
+## Native ADR-awareness check wrappers
 
 Exact flags implemented for selecting and inspecting the existing native
 checks. Native invocation and behavior claims stay pending

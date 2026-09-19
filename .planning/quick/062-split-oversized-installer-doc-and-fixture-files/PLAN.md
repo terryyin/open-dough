@@ -42,12 +42,11 @@ Goal: bring all three files under the 250-line convention through cohesive
 splits, preserving all existing content and behavior. This is a structural
 cleanup, not a behavior change; no new product capability is in scope.
 
-**At Terry Yin's direction, execute this together with
-[the bash-version masking correction](../063-prevent-bash-version-masked-test-failures/PLAN.md),
-also queued from the same retrospective.** Both are bounded, low-risk
-follow-ups from the same review; completing them together finishes that
-plan's full retrospective follow-up in one pass rather than two separate
-pickups.
+The Bash-version masking correction has been completed independently under the
+current instruction to settle the first backlog item proportionally. Its plan
+is recoverable at
+`946015e:.planning/quick/063-prevent-bash-version-masked-test-failures/PLAN.md`.
+This file-size cleanup remains queued with its own unchanged outcome.
 
 ## Decisions that constrain execution
 
