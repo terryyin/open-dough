@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2312
-# Native proof for the product backlog's Claude Code native-editing
+# Native proof for the product backlog's native-editing
 # protection ("guard") and its installed-workflow use.
 #
 # Usage:
 #   tests/product-backlog-native.sh
 #   tests/product-backlog-native.sh --native claude --case guard
+#   tests/product-backlog-native.sh --native codex --case guard
 #   tests/product-backlog-native.sh --native claude --case use
 #
 # The default mode is deterministic: a real install plus the guard's
@@ -15,23 +16,35 @@
 # `claude --print` sessions that discover and run the installed product
 # backlog Git merge adapter on a real two-branch conflict, then resume it
 # after explicit human repair.
+# --native codex --case guard spawns fresh isolated `codex exec` sessions with
+# the installed repo-local hook trusted for that bounded native run.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/product-backlog-native-guard.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-guard.sh"
+# shellcheck source=tests/support/product-backlog-native-guard-claude.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-guard-claude.sh"
+# shellcheck source=tests/support/product-backlog-native-guard-codex.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-guard-codex.sh"
 # shellcheck source=tests/support/product-backlog-native-use.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-use.sh"
+# shellcheck source=tests/support/native-codex.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-codex.sh"
 
 usage() {
   cat >&2 << 'EOF'
 usage: tests/product-backlog-native.sh
    or: tests/product-backlog-native.sh --native claude --case guard
+   or: tests/product-backlog-native.sh --native <claude|codex> --case guard
    or: tests/product-backlog-native.sh --native claude --case use
-HOST is claude (Codex and Cursor are deferred to a separate plan).
-CASE is guard (Claude Code PreToolUse edit-denial for the product backlog)
+HOST is claude or codex for guard; use is currently implemented for claude.
+CASE is guard (native PreToolUse edit-denial for the product backlog)
 or use (the installed Git merge adapter's conflict stop and human-repaired
 resume, discovered by a fresh native session from ordinary-language guidance).
 EOF
@@ -87,13 +100,20 @@ if [[ ${native_flag} -eq 0 ]]; then
   exit 0
 fi
 
-if [[ ${host_arg} != claude ]]; then
-  echo "error: unsupported or missing host '${host_arg}' (only claude is implemented here; Codex and Cursor are deferred to .planning/quick/061-native-edit-protection-codex-cursor/PLAN.md)" >&2
+if [[ ${host_arg} != claude && ${host_arg} != codex ]]; then
+  echo "error: unsupported or missing host '${host_arg}' (known: claude, codex)" >&2
   usage
   exit 2
 fi
 case ${case_id} in
-  guard | use) ;;
+  guard) ;;
+  use)
+    if [[ ${host_arg} != claude ]]; then
+      echo "error: case 'use' is not implemented for host '${host_arg}'" >&2
+      usage
+      exit 2
+    fi
+    ;;
   *)
     echo "error: unknown case '${case_id}' (known: guard, use)" >&2
     usage
@@ -101,13 +121,19 @@ case ${case_id} in
     ;;
 esac
 
-command -v claude > /dev/null || {
-  echo 'error: claude CLI not found on PATH' >&2
+command -v "${host_arg}" > /dev/null || {
+  echo "error: ${host_arg} CLI not found on PATH" >&2
   exit 1
 }
 
 case ${case_id} in
-  guard) guard_run_native "${source_dir}" ;;
+  guard)
+    if [[ ${host_arg} == codex ]]; then
+      guard_run_native_codex "${source_dir}"
+    else
+      guard_run_native "${source_dir}"
+    fi
+    ;;
   use) use_run_native "${source_dir}" ;;
   *)
     echo "error: internal error: unreachable case '${case_id}'" >&2

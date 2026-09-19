@@ -9,6 +9,7 @@ The payload in each root is exactly:
 - `dough-adr-awareness/SKILL.md`
 - `dough-product-backlog/SKILL.md`
 - `dough-product-backlog/assets/claude-hooks-guard.json`
+- `dough-product-backlog/assets/codex-hooks-guard.json`
 - `dough-product-backlog/references/identity.md`
 - `dough-product-backlog/references/merge-conflicts.md`
 - `dough-product-backlog/scripts/product-backlog-add.mjs`
@@ -100,9 +101,9 @@ The source files live under `src/skills/`. Installation preserves
 unrelated project files, home-level guidance, and any other tool's separate
 installation.
 
-Installation and ordinary update register the managed host-hook entries from the
-execution skill fragments into `.cursor/hooks.json` and `.claude/settings.json`
-when those fragments ship, preserving unrelated settings. Before asynchronous
+Installation and ordinary update register managed host-hook entries into
+`.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json` when
+their fragments ship, preserving unrelated settings. Before asynchronous
 CI observation, follow the installed
 `dough-execute-plan/references/runtime-setup.md` to select this project's
 workflow and verify host-bridge readiness; execute-plan starts and stops the
@@ -216,8 +217,8 @@ inspection and execution into an unattended one-shot command.
    Check that this executable call chain writes only the declared client
    payload files and their `SOURCE` then `VERSION` records under both captured
    target native roots, plus the managed host-hook registrations in
-   `.cursor/hooks.json` and `.claude/settings.json` when those fragments ship
-   with the release. Preserve source, unrelated guidance, unrelated settings
+   `.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json` when
+   those fragments ship with the release. Preserve source, unrelated guidance, unrelated settings
    entries, and home guidance. Stop if the payload is incomplete or the
    inspected behavior exceeds this scope. Bash, Git, and Node (for hook merge)
    suffice; no package installation is needed.

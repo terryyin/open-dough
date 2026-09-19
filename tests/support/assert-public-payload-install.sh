@@ -83,6 +83,7 @@ expected_files=$(
   {
     printf '%s\n' \
       './.agents/skills/existing-codex/SKILL.md' \
+      './.codex/hooks.json' \
       './.claude/settings.json' \
       './.claude/skills/existing-claude/SKILL.md' \
       './.cursor/hooks.json' \

@@ -8,10 +8,21 @@ import { join } from "node:path";
 
 // Each host merges one *combined* fragment into its settings file, built from
 // one or more authoritative source fragments. A fragment is `required` when
-// its absence means the client payload itself is incomplete (the existing CI
-// fragments); the product-backlog guard fragment is additive and optional so
-// an older source checkout without it still registers CI hooks unchanged.
+// its absence means the payload itself is incomplete. The Claude
+// product-backlog guard remains optional for an older source checkout that
+// predates it; the Codex guard is required once that host is declared.
 export const HOSTS = [
+  {
+    id: "codex",
+    relativePath: ".codex/hooks.json",
+    fragments: [
+      {
+        name: "codex-hooks-guard.json",
+        assetsDir: "src/skills/dough-product-backlog/assets",
+        required: true,
+      },
+    ],
+  },
   {
     id: "cursor",
     relativePath: ".cursor/hooks.json",

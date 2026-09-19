@@ -1,6 +1,51 @@
 # Establish native edit protection and scripted workflow use in Codex and Cursor
 
-Status: planned. No execution has started or been authorized.
+Status: in progress. Execution authorized 2026-09-20 for slices 1-2 only;
+slices 3-4 remain planned and outside this execution.
+
+## Execution identity
+
+- Mode: Story Branch Mode.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough` on
+  `main`; queue claim `eef7eec05e58181f3575976bc9ba7d96da8de2d7`.
+- Execution checkout: `/tmp/open-dough-061.WrMwJK/worktree` on
+  `codex/061-native-edit-protection`.
+- Authorized destination: `origin/codex/061-native-edit-protection`; later
+  integration remains `origin/main` through story wrap-up.
+- Replanning permission: no current override; preserve the plan's existing
+  planning authority and stop after slice 2.
+- CI observer: GitHub Actions workflow `ci.yml` / `CI`, target branch
+  `codex/061-native-edit-protection`, mailbox `/tmp/dough-ci-501/watch-xnwT5z`,
+  PID `31370`, Codex yielded cell `21`; armed from the execution checkout.
+
+## Execution learnings and accepted proof
+
+- Codex CLI `0.144.1` exposes stable synchronous `PreToolUse` hooks for
+  `apply_patch`; the patch text is available in `tool_input.command`, and a
+  deny decision prevents the patch before backlog bytes change. This supports
+  the planned thin adapter without shell parsing or broader enforcement.
+- Slice 1 promise: native Codex blocks `apply_patch` for the resolved whole
+  backlog while preserving unrelated patches, reads, shell-run scripts, human
+  repair, installation/update coexistence, and one managed registration.
+  Accepted boundary: the installed Codex hook fragment and shared guard,
+  exercised through a real installed Codex session. Inspected setup:
+  `tests/support/product-backlog-native-guard.sh` and
+  `tests/support/product-backlog-native-guard-codex.sh` fixture/install setup.
+  Inspected observations: the Codex adapter's unchanged-backlog assertion after
+  denial and its unrelated patch, read, script-write, and human-repair
+  assertions. Command:
+  `bash tests/product-backlog-native.sh --native codex --case guard`; result:
+  pass on `codex-cli 0.144.1`.
+- Supporting focused proof: `bash tests/product-backlog-native.sh` and
+  `bash tests/install-ci-host-hooks.sh`; result: pass. The native harness was
+  split by host adapter during refactoring; production and installer proof
+  boundaries remained unchanged and the moved native proof was rerun.
+- Broad proof: `npm run format` completed the repository lint/format checks;
+  `PATH=/opt/homebrew/bin:$PATH npm test` passed with explicit terminal status
+  `0`. Its first run exposed stale installed-topology expectations in the three
+  public-payload entry tests and the internal-omission test; adding the already
+  delivered `.codex/hooks.json` to those expected enumerations repaired the
+  owned gap, and the full suite then passed.
 
 ## Source and remaining outcome
 
@@ -60,7 +105,7 @@ Carried forward from the originating plan, applicable to native-host work:
 
 ### 1. Establish lightweight native edit protection in Codex
 Type: Behavior
-Status: planned, conditional on host feasibility
+Status: done
 Proof: `bash tests/product-backlog-native.sh --native codex --case guard`
 
 First establish, in an isolated supported runtime, whether an ordinary native

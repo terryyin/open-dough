@@ -161,7 +161,7 @@ function reverseObjectKeys(value) {
   );
 }
 
-for (const relativePath of [".cursor/hooks.json", ".claude/settings.json"]) {
+for (const relativePath of [".codex/hooks.json", ".cursor/hooks.json", ".claude/settings.json"]) {
   const path = `${target}/${relativePath}`;
   const document = JSON.parse(fs.readFileSync(path, "utf8"));
   fs.writeFileSync(path, JSON.stringify(reverseObjectKeys(document)));

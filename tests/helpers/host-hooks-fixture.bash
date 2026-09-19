@@ -6,17 +6,29 @@
 
 seed_empty_host_settings() {
   local target=$1
-  mkdir -p -- "${target}/.cursor" "${target}/.claude"
+  mkdir -p -- "${target}/.codex" "${target}/.cursor" "${target}/.claude"
+  printf '%s\n' '{"hooks":{},"sentinel":"keep Codex settings"}' > "${target}/.codex/hooks.json"
   printf '%s\n' '{"hooks":{},"sentinel":"keep Cursor settings"}' > "${target}/.cursor/hooks.json"
   printf '%s\n' '{"hooks":{},"sentinel":"keep Claude settings"}' > "${target}/.claude/settings.json"
 }
 
 seed_mergeable_host_settings() {
   local target=$1
-  mkdir -p -- "${target}/.cursor" "${target}/.claude"
+  mkdir -p -- "${target}/.codex" "${target}/.cursor" "${target}/.claude"
   node - "${target}" << 'EOF'
 const fs = require("node:fs");
 const target = process.argv[2];
+const codex = {
+  sentinel: "keep Codex settings",
+  hooks: {
+    PostToolUse: [
+      {
+        matcher: "Bash",
+        hooks: [{ type: "command", command: "echo unrelated-codex-event" }],
+      },
+    ],
+  },
+};
 const cursor = {
   version: 1,
   sentinel: "keep Cursor settings",
@@ -55,13 +67,15 @@ const claude = {
     ],
   },
 };
+fs.writeFileSync(`${target}/.codex/hooks.json`, `${JSON.stringify(codex, null, 2)}\n`);
 fs.writeFileSync(`${target}/.cursor/hooks.json`, `${JSON.stringify(cursor, null, 2)}\n`);
 fs.writeFileSync(`${target}/.claude/settings.json`, `${JSON.stringify(claude, null, 2)}\n`);
 EOF
 }
 
-# Sets cursor_fragment, claude_fragment, and claude_guard_fragment from a
-# release checkout or source root (default: current source_dir). Prefer an
+# Sets codex_guard_fragment, cursor_fragment, claude_fragment, and
+# claude_guard_fragment from a release checkout or source root (default:
+# current source_dir). Prefer an
 # older tagged checkout when modeling a release that changes managed entries;
 # do not invent arbitrary local variants. claude_guard_fragment is optional,
 # matching the installer's own required/optional fragment combination: a
@@ -75,16 +89,20 @@ resolve_host_hook_fragments() {
   cursor_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
   claude_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/claude-hooks.json"
   claude_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/claude-hooks-guard.json"
+  codex_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/codex-hooks-guard.json"
 }
 
 seed_exact_manual_registration() {
   local target=$1
-  local cursor_fragment claude_fragment claude_guard_fragment
+  local codex_guard_fragment cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   seed_mergeable_host_settings "${target}"
-  node - "${target}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
+  node - "${target}" "${codex_guard_fragment}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
 const fs = require("node:fs");
-const [target, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
+const [target, codexGuardFragmentPath, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
+const codexGuardFragment = fs.existsSync(codexGuardFragmentPath)
+  ? JSON.parse(fs.readFileSync(codexGuardFragmentPath, "utf8"))
+  : null;
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
 const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
@@ -92,6 +110,8 @@ const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
   : null;
 const cursorPath = `${target}/.cursor/hooks.json`;
 const claudePath = `${target}/.claude/settings.json`;
+const codexPath = `${target}/.codex/hooks.json`;
+const codex = JSON.parse(fs.readFileSync(codexPath, "utf8"));
 const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
 const claude = JSON.parse(fs.readFileSync(claudePath, "utf8"));
 cursor.version = cursorFragment.version;
@@ -115,6 +135,13 @@ if (claudeGuardFragment) {
     ...claudeGuardFragment.hooks.PreToolUse,
   ];
 }
+if (codexGuardFragment) {
+  codex.hooks.PreToolUse = [
+    ...(codex.hooks.PreToolUse || []),
+    ...codexGuardFragment.hooks.PreToolUse,
+  ];
+}
+fs.writeFileSync(codexPath, `${JSON.stringify(codex, null, 2)}\n`);
 fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
 fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
 EOF
@@ -280,8 +307,18 @@ assert_unrelated_preserved() {
   node - "${target}" << 'EOF'
 const fs = require("node:fs");
 const target = process.argv[2];
+const codex = JSON.parse(fs.readFileSync(`${target}/.codex/hooks.json`, "utf8"));
 const cursor = JSON.parse(fs.readFileSync(`${target}/.cursor/hooks.json`, "utf8"));
 const claude = JSON.parse(fs.readFileSync(`${target}/.claude/settings.json`, "utf8"));
+if (codex.sentinel !== "keep Codex settings") {
+  console.error("FAIL: Codex sentinel missing.");
+  process.exit(1);
+}
+const codexPost = codex.hooks?.PostToolUse;
+if (!Array.isArray(codexPost) || !codexPost.some((wrapper) => wrapper.matcher === "Bash" && wrapper.hooks?.[0]?.command === "echo unrelated-codex-event")) {
+  console.error("FAIL: Codex unrelated event handler was not preserved.");
+  process.exit(1);
+}
 if (cursor.sentinel !== "keep Cursor settings") {
   console.error("FAIL: Cursor sentinel missing.");
   process.exit(1);
@@ -323,7 +360,7 @@ EOF
 # no unrelated values to preserve.
 assert_cursor_managed_commands() {
   local target=$1
-  local cursor_fragment claude_fragment claude_guard_fragment
+  local codex_guard_fragment cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
 const fs = require("node:fs");
@@ -345,12 +382,15 @@ EOF
 # managed entries (default: current source_dir / latest under test).
 assert_managed_host_hooks() {
   local target=$1
-  local cursor_fragment claude_fragment claude_guard_fragment
+  local codex_guard_fragment cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
-  node - "${target}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
+  node - "${target}" "${codex_guard_fragment}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
-const [target, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
+const [target, codexGuardFragmentPath, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
+const codexGuardFragment = fs.existsSync(codexGuardFragmentPath)
+  ? JSON.parse(fs.readFileSync(codexGuardFragmentPath, "utf8"))
+  : null;
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
 const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
@@ -358,6 +398,11 @@ const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
   : null;
 const cursor = JSON.parse(fs.readFileSync(`${target}/.cursor/hooks.json`, "utf8"));
 const claude = JSON.parse(fs.readFileSync(`${target}/.claude/settings.json`, "utf8"));
+const codex = JSON.parse(fs.readFileSync(`${target}/.codex/hooks.json`, "utf8"));
+if (codex.sentinel !== "keep Codex settings") {
+  console.error("FAIL: Codex unrelated top-level value was not preserved.");
+  process.exit(1);
+}
 if (cursor.sentinel !== "keep Cursor settings") {
   console.error("FAIL: Cursor unrelated top-level value was not preserved.");
   process.exit(1);
@@ -383,6 +428,29 @@ function requireDeepEqual(actual, expected, message) {
   } catch {
     console.error(message);
     process.exit(1);
+  }
+}
+
+if (codexGuardFragment) {
+  for (const [event, fragmentEntries] of Object.entries(codexGuardFragment.hooks)) {
+    const managedHook = fragmentEntries[0].hooks[0];
+    const wrappers = codex.hooks?.[event];
+    if (!Array.isArray(wrappers)) {
+      console.error(`FAIL: Codex event ${event} is missing after install.`);
+      process.exit(1);
+    }
+    const exactWrappers = wrappers.filter((wrapper) =>
+      wrapper?.hooks?.some((hook) => hook.command === managedHook.command),
+    );
+    if (exactWrappers.length !== 1) {
+      console.error(`FAIL: Codex event ${event} must contain exactly one managed command; found ${exactWrappers.length}.`);
+      process.exit(1);
+    }
+    requireDeepEqual(
+      exactWrappers[0],
+      fragmentEntries[0],
+      `FAIL: Codex managed handler for ${event} does not match the fragment.`,
+    );
   }
 }
 

@@ -65,6 +65,7 @@ managed_files=(
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
   dough-product-backlog/assets/claude-hooks-guard.json
+  dough-product-backlog/assets/codex-hooks-guard.json
   dough-product-backlog/references/identity.md
   dough-product-backlog/references/merge-conflicts.md
   dough-product-backlog/scripts/product-backlog-add.mjs
