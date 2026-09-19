@@ -11,27 +11,6 @@ usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
 }
-report_incomplete_install() {
-  local selected_platform=$1 reason=$2
-  echo "${selected_platform}: ${reason} Installed files may be incomplete. The last successful record was left unchanged. Recover with an explicit --force reinstall." >&2
-  exit 1
-}
-write_certified_records() {
-  local destination=$1 restore_source='' source_path version_path status=0
-  source_path="${destination}/SOURCE"
-  version_path="${destination}/VERSION"
-  [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != record ]] || return 1
-  if [[ -f "${source_path}" ]]; then
-    restore_source=$(mktemp)
-    cp -- "${source_path}" "${restore_source}"
-  fi
-  if ! printf '%s\n' "${recorded_source}" > "${source_path}" || ! printf '%s\n' "${version}" > "${version_path}"; then
-    if [[ -n "${restore_source}" ]]; then cp -- "${restore_source}" "${source_path}" || true; else rm -f -- "${source_path}"; fi
-    status=1
-  fi
-  [[ -z "${restore_source}" ]] || rm -f -- "${restore_source}"
-  return "${status}"
-}
 target=''
 recorded_source=''
 platform=codex
@@ -87,6 +66,41 @@ managed_files=(
   dough-product-backlog/SKILL.md
   dough-product-backlog/references/identity.md
   dough-product-backlog/references/merge-conflicts.md
+  dough-product-backlog/scripts/product-backlog-add.mjs
+  dough-product-backlog/scripts/product-backlog-adopt.mjs
+  dough-product-backlog/scripts/product-backlog-combine.mjs
+  dough-product-backlog/scripts/product-backlog-complete.mjs
+  dough-product-backlog/scripts/product-backlog-direction.mjs
+  dough-product-backlog/scripts/product-backlog-document.mjs
+  dough-product-backlog/scripts/product-backlog-git-aggregate.mjs
+  dough-product-backlog/scripts/product-backlog-git-candidate.mjs
+  dough-product-backlog/scripts/product-backlog-git-cherry-pick-aggregate.mjs
+  dough-product-backlog/scripts/product-backlog-git-cherry-pick-stop.mjs
+  dough-product-backlog/scripts/product-backlog-git-cherry-pick.mjs
+  dough-product-backlog/scripts/product-backlog-git-cli.mjs
+  dough-product-backlog/scripts/product-backlog-git-driver.mjs
+  dough-product-backlog/scripts/product-backlog-git-merge.mjs
+  dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs
+  dough-product-backlog/scripts/product-backlog-git-rebase.mjs
+  dough-product-backlog/scripts/product-backlog-git-repository.mjs
+  dough-product-backlog/scripts/product-backlog-home.mjs
+  dough-product-backlog/scripts/product-backlog-identity.mjs
+  dough-product-backlog/scripts/product-backlog-merge.mjs
+  dough-product-backlog/scripts/product-backlog-order.mjs
+  dough-product-backlog/scripts/product-backlog-place.mjs
+  dough-product-backlog/scripts/product-backlog-placement.mjs
+  dough-product-backlog/scripts/product-backlog-plan.mjs
+  dough-product-backlog/scripts/product-backlog-refresh.mjs
+  dough-product-backlog/scripts/product-backlog-refusal.mjs
+  dough-product-backlog/scripts/product-backlog-report.mjs
+  dough-product-backlog/scripts/product-backlog-request.mjs
+  dough-product-backlog/scripts/product-backlog-source.mjs
+  dough-product-backlog/scripts/product-backlog-store.mjs
+  dough-product-backlog/scripts/product-backlog-take.mjs
+  dough-product-backlog/scripts/product-backlog-usage.mjs
+  dough-product-backlog/scripts/product-backlog-version.mjs
+  dough-product-backlog/scripts/product-backlog-work.mjs
+  dough-product-backlog/scripts/product-backlog.mjs
   dough-maintain-findings/SKILL.md
   dough-story-decomposition/SKILL.md
   dough-story-decomposition/references/problem-decomposition.md
@@ -157,36 +171,11 @@ while IFS=$'\t' read -r selected_platform destination; do
   platforms+=("${selected_platform}")
   destinations+=("${destination}")
   roots+=("${root}")
-  for path in "$(dirname -- "${root}")" "${root}"; do
-    [[ ! -L "${path}" ]] || {
-      echo "Unsafe destination: ${selected_platform} skill root ${root} uses a symlink at ${path}." >&2
-      exit 1
-    }
-    [[ ! -e "${path}" || -d "${path}" ]] || {
-      echo "Unsafe destination: ${selected_platform} skill root ${root} has a non-directory path component at ${path}." >&2
-      exit 1
-    }
-  done
+  assert_safe_destination_root "${selected_platform}" "${root}" || exit 1
   existing=0
   for managed_file in "${managed_files[@]}"; do
-    skill=${managed_file%%/*}
-    [[ ! -e "${root}/${skill}" ]] || existing=1
-    path="${root}"
-    directory=${managed_file%/*}
-    while [[ -n "${directory}" ]]; do
-      component=${directory%%/*}
-      path="${path}/${component}"
-      [[ ! -L "${path}" && (! -e "${path}" || -d "${path}") ]] || {
-        echo "Unsafe destination collision: expected a managed directory at ${path}." >&2
-        exit 1
-      }
-      if [[ "${directory}" == */* ]]; then directory=${directory#*/}; else directory=''; fi
-    done
-    path="${root}/${managed_file}"
-    [[ ! -L "${path}" && (! -e "${path}" || -f "${path}") ]] || {
-      echo "Unsafe destination collision: expected a managed file at ${path}." >&2
-      exit 1
-    }
+    ! destination_has_managed_skill "${root}" "${managed_file}" || existing=1
+    assert_no_managed_collision "${root}" "${managed_file}" || exit 1
   done
   current=0
   if [[ -f "${destination}/SOURCE" && -f "${destination}/VERSION" ]] \
@@ -237,7 +226,7 @@ for index in "${!platforms[@]}"; do
   verification_failed=0
   for managed_file in "${managed_files[@]}"; do cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || verification_failed=1; done
   [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
-  write_certified_records "${destination}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
+  write_certified_records "${destination}" "${recorded_source}" "${version}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
   echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
 done
 

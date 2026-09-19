@@ -335,21 +335,66 @@ assessed independent of installation or native-host enforcement, which slices
 
 ### 5. Install and update a complete standalone backlog runtime
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-payload-update.sh`
 
-A fresh install and an ordinary update from a prior tagged fixture deliver all
-transitive scripts and references into both managed roots. Invoke real installed
-mutation, reconciliation, and validation operations with the source unavailable,
-including a non-default path and launch from a subdirectory. Verify required
-imports actually load, not merely that selected files exist. Cover all three
-installation entry contexts while sharing the common payload assertions.
+Critical finding, confirmed empirically before any fix: `dough-product-backlog`'s
+scripts — all 35 of them (24 pre-existing, including the entry point, plus the
+11 new Git adapters from slices 1-4) — were entirely absent from every payload
+manifest. Only `SKILL.md` and two reference docs were ever declared. A real
+install/update delivered zero backlog scripts to any project; the whole
+automation, including everything slices 1-4 built, was maintainer-only. This
+predates this plan; slice 5 closes it.
 
-Project backlog/home bytes are unchanged by install/update; existing settings and
-ownership/refusal policies survive. Reuse existing edited/missing-managed-file and
-coexistence evidence when applicable. Include the bounded directory-input refusal
-and lock cleanup. Keep ordinary agent routing outside this slice's claim.
-Hypothesis: one install/update-to-offline-use loop through existing fixtures.
+Declared the full transitive set (verified via import-graph scan, one closed
+set, nothing missing or extra) in all three places that must agree:
+`install.sh`, `src/install/open-dough-release-version.sh`, and
+`tests/helpers/public-payload-fixture.bash`. Refactoring then eliminated the
+three-way duplication itself: `open-dough-release-version.sh` and the test
+fixture now derive their file list by reading `install.sh`'s own declaration
+(via an extracted `read_managed_files_declaration` helper) instead of carrying
+a hand-duplicated copy; `install.sh`'s own array stays inline deliberately —
+its historical-compatibility awk parser must keep reading already-tagged
+older releases' inline arrays unchanged, so extracting it into a sourced data
+file would add real risk to that tamper-detection path for a line-count win
+alone. `install.sh`'s destination-safety checks were extracted into
+`assert_safe_destination_root`/`destination_has_managed_skill`/
+`assert_no_managed_collision` in the already-shared `open-dough-platform.sh`
+to bring it under this project's 250-line file-size convention alongside the
+manifest fix.
+
+A real bug was found and fixed: `product-backlog-store.mjs`'s `readFile` only
+caught `ENOENT`, so a directory supplied where a file was expected crashed
+with an uncaught raw `EISDIR` Node stack trace (not a clean refusal) — fixed
+with one narrow `EISDIR` branch throwing `BacklogError`; the lock was already
+cleaned up correctly via the existing `finally`, so only the crash itself
+needed fixing. `product-backlog-git-candidate.mjs`/`product-backlog-git-aggregate.mjs`
+were checked for the same gap and confirmed already safe (their own Git-read
+paths already turn a directory input into a clean refusal).
+
+Proof: new `tests/product-backlog-payload-update.sh` + helper
+`tests/helpers/product-backlog-payload-runtime.bash` — fresh install and
+update deliver all files to both roots across Codex/Cursor/Claude Code
+(reusing the existing generic `assert_payload`); edited/missing-script
+refusal and `--force` restore (reusing `story-payload-update.sh`'s shape);
+project backlog bytes unchanged; and, with the release source moved away
+entirely, the *installed* `product-backlog.mjs` and
+`product-backlog-git-merge.mjs` actually run — a non-default `--file`, a
+launch from a subdirectory, and a real non-fast-forward Git merge through the
+installed driver — proving the transitive closure truly loads, not just that
+the files exist. A wide regression sweep of ~25 existing install/release/
+payload tests, plus the pre-existing `tests/product-backlog.sh` (94) and
+slices 1-4's `tests/product-backlog-git.sh` (25), all still pass.
+
+Note for slice 6 and any later cleanup: several already-committed sibling
+tests (`story-payload-update.sh`, `execution-payload-update.sh`,
+`retrospective-reference-payload.sh`, `update-adds-new-payload-skill.sh`)
+`sed`-strip a `managed_files=(...)` line out of
+`open-dough-release-version.sh` to build an older fixture; since that file no
+longer has an inline array, that particular `sed` target is now a harmless
+no-op (confirmed: all those tests still pass). Left as-is, out of this
+slice's scope since fixing it means editing already-committed baseline test
+files this slice didn't otherwise touch.
 
 ### 6. Route ordinary backlog workflows through the installed contract
 Type: Behavior
