@@ -1,6 +1,20 @@
 # Gate Git backlog conflicts and deliver the scripted backlog
 
-Status: planned; reviewed 2026-09-19. No execution has started or been authorized.
+Status: executing. Taken 2026-09-19 (`dac740b`).
+
+## Execution identity
+
+Mode: Story Branch Mode. Originating checkout/integration branch:
+`/Users/terryyin/git/open-dough` on `main`. Execution checkout:
+`/Users/terryyin/.claude/jobs/a85ae87d/tmp/worktree-060` on branch
+`quick/060-gate-and-deliver-scripted-backlog`, created from `dac740b`.
+Authorized push destination: `origin` (`git@github.com:terryyin/open-dough.git`),
+execution branch pushed there; integration into `main` is Story Branch wrap-up's
+responsibility, not delivered here. CI observer: GitHub Actions default,
+workflow `ci.yml` ("CI"), target branch `quick/060-gate-and-deliver-scripted-backlog`,
+observer directory `/tmp/dough-ci-501/watch-M3RhYt`. Replanning permission:
+not restricted by an explicit `--replan`/`--no-replan` or current instruction;
+existing (allowed) planning authority preserved.
 
 ## Source and remaining outcome
 
