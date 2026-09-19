@@ -168,7 +168,7 @@ three-way comparison.
 
 ### 3. Remove the uncalled entry-line reader
 Type: Structure
-Status: planned — stopped for human judgment, not attempted
+Status: dropped — owner-authorized, not attempted
 Proof: `bash tests/product-backlog.sh` unchanged in count and result.
 
 Delete `parseEntryLine` from `product-backlog-document.mjs` and confirm nothing
@@ -189,12 +189,12 @@ out of this correction's scope — so updating that script to drop its own
 `parseEntryLine` use is not something this slice is authorized to do, and
 deleting the function out from under it would be a real regression, not a
 safe structural cleanup. Execution stopped here without deleting anything or
-touching that script; `product-backlog-document.mjs` is unchanged. A human
-decides: drop this slice from correction 059 (leaving `parseEntryLine` in
-place), expand this correction's authorized scope to include updating
-`scripts/product-backlog-insert.mjs`, or return this slice to the backlog as
-its own bounded follow-up once the successor promotion story is ready to
-touch that script.
+touching that script; `product-backlog-document.mjs` is unchanged.
+
+**Owner decision:** dropped. `parseEntryLine` stays in place; correction 059
+closes with slices 1 and 2, its stated core promises. Git retains this
+plan's evidence if a later, explicitly scoped change wants to revisit
+`parseEntryLine` alongside `scripts/product-backlog-insert.mjs`'s promotion.
 
 ## Execution and review gates
 
