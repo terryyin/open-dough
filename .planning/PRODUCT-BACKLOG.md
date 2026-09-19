@@ -7,8 +7,6 @@ trunk-based development, with each agent working in its own Git worktree.
 
 ## Taken
 
-- [Let one rule decide a recorded identity](quick/059-one-rule-for-recorded-identity/PLAN.md)
-
 ## Backlog list
 
 - [Gate Git backlog conflicts and deliver the scripted backlog](seeds/SEED-008-worktree-branch-trunk-sync.md#gate-and-deliver-scripted-backlog) — SEED-008
