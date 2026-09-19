@@ -60,9 +60,13 @@ fs.writeFileSync(`${target}/.claude/settings.json`, `${JSON.stringify(claude, nu
 EOF
 }
 
-# Sets cursor_fragment and claude_fragment from a release checkout or source root
-# (default: current source_dir). Prefer an older tagged checkout when modeling a
-# release that changes managed entries; do not invent arbitrary local variants.
+# Sets cursor_fragment, claude_fragment, and claude_guard_fragment from a
+# release checkout or source root (default: current source_dir). Prefer an
+# older tagged checkout when modeling a release that changes managed entries;
+# do not invent arbitrary local variants. claude_guard_fragment is optional,
+# matching the installer's own required/optional fragment combination: a
+# modeled checkout that predates it, or a synthetic fixture that never
+# declared it, simply leaves the path unresolved to a real file.
 resolve_host_hook_fragments() {
   local fragment_root=$1
   if [[ $# -lt 1 || -z "${fragment_root}" ]]; then
@@ -70,18 +74,22 @@ resolve_host_hook_fragments() {
   fi
   cursor_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
   claude_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/claude-hooks.json"
+  claude_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/claude-hooks-guard.json"
 }
 
 seed_exact_manual_registration() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   seed_mergeable_host_settings "${target}"
-  node - "${target}" "${cursor_fragment}" "${claude_fragment}" << 'EOF'
+  node - "${target}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
 const fs = require("node:fs");
-const [target, cursorFragmentPath, claudeFragmentPath] = process.argv.slice(2);
+const [target, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
+const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
+  ? JSON.parse(fs.readFileSync(claudeGuardFragmentPath, "utf8"))
+  : null;
 const cursorPath = `${target}/.cursor/hooks.json`;
 const claudePath = `${target}/.claude/settings.json`;
 const cursor = JSON.parse(fs.readFileSync(cursorPath, "utf8"));
@@ -101,6 +109,12 @@ claude.hooks.Stop = [
   ...claude.hooks.Stop,
   ...claudeFragment.hooks.Stop,
 ];
+if (claudeGuardFragment) {
+  claude.hooks.PreToolUse = [
+    ...(claude.hooks.PreToolUse || []),
+    ...claudeGuardFragment.hooks.PreToolUse,
+  ];
+}
 fs.writeFileSync(cursorPath, `${JSON.stringify(cursor, null, 2)}\n`);
 fs.writeFileSync(claudePath, `${JSON.stringify(claude, null, 2)}\n`);
 EOF
@@ -109,7 +123,7 @@ EOF
 # Removes one managed Cursor stop handler so equal-version update can repair it.
 remove_one_cursor_managed_entry() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
 const fs = require("node:fs");
@@ -125,7 +139,7 @@ EOF
 
 seed_edited_managed_timeout() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   seed_exact_manual_registration "${target}" "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
@@ -151,7 +165,7 @@ seed_managed_command_with_local_argument() {
 
 seed_managed_command_with_suffix() {
   local target=$1 host=$2 suffix=$3
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${4-}"
   seed_exact_manual_registration "${target}" "${4-}"
   if [[ "${host}" == cursor ]]; then
@@ -189,7 +203,7 @@ EOF
 # managed variant.
 seed_similarly_named_unmanaged_script() {
   local target=$1 host=$2
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${3-}"
   seed_mergeable_host_settings "${target}"
   if [[ "${host}" == cursor ]]; then
@@ -227,7 +241,7 @@ EOF
 
 seed_duplicate_exact_managed_entry() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   seed_exact_manual_registration "${target}" "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
@@ -243,7 +257,7 @@ EOF
 
 seed_claude_managed_read_matcher() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   seed_exact_manual_registration "${target}" "${2-}"
   node - "${target}" "${claude_fragment}" << 'EOF'
@@ -309,7 +323,7 @@ EOF
 # no unrelated values to preserve.
 assert_cursor_managed_commands() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
   node - "${target}" "${cursor_fragment}" << 'EOF'
 const fs = require("node:fs");
@@ -331,14 +345,17 @@ EOF
 # managed entries (default: current source_dir / latest under test).
 assert_managed_host_hooks() {
   local target=$1
-  local cursor_fragment claude_fragment
+  local cursor_fragment claude_fragment claude_guard_fragment
   resolve_host_hook_fragments "${2-}"
-  node - "${target}" "${cursor_fragment}" "${claude_fragment}" << 'EOF'
+  node - "${target}" "${cursor_fragment}" "${claude_fragment}" "${claude_guard_fragment}" << 'EOF'
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
-const [target, cursorFragmentPath, claudeFragmentPath] = process.argv.slice(2);
+const [target, cursorFragmentPath, claudeFragmentPath, claudeGuardFragmentPath] = process.argv.slice(2);
 const cursorFragment = JSON.parse(fs.readFileSync(cursorFragmentPath, "utf8"));
 const claudeFragment = JSON.parse(fs.readFileSync(claudeFragmentPath, "utf8"));
+const claudeGuardFragment = fs.existsSync(claudeGuardFragmentPath)
+  ? JSON.parse(fs.readFileSync(claudeGuardFragmentPath, "utf8"))
+  : null;
 const cursor = JSON.parse(fs.readFileSync(`${target}/.cursor/hooks.json`, "utf8"));
 const claude = JSON.parse(fs.readFileSync(`${target}/.claude/settings.json`, "utf8"));
 if (cursor.sentinel !== "keep Cursor settings") {
@@ -394,7 +411,8 @@ for (const [event, fragmentEntries] of Object.entries(cursorFragment.hooks)) {
   );
 }
 
-for (const [event, fragmentEntries] of Object.entries(claudeFragment.hooks)) {
+const claudeExpectedHooks = { ...claudeFragment.hooks, ...(claudeGuardFragment?.hooks ?? {}) };
+for (const [event, fragmentEntries] of Object.entries(claudeExpectedHooks)) {
   const managedHook = fragmentEntries[0].hooks[0];
   const wrappers = claude.hooks?.[event];
   if (!Array.isArray(wrappers)) {
