@@ -15,9 +15,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
 
+- [Simplify installation, host-hook fixtures, and trunk publication around domain responsibilities](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
+
 ## Backlog list
 
-- [Simplify installation, host-hook fixtures, and trunk publication around domain responsibilities](quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md)
 - [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work
 - [Prepare stories and slice plans in a clear developer workspace workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
