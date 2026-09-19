@@ -17,6 +17,61 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ## Stories
 
+<a id="continue-test-optimization-plans"></a>
+
+### 24. Continue test optimization plans into execution or the backlog
+
+**Status:** Captured; unrefined.
+
+**Goal:** A developer who asks Open Dough to optimize tests gets durable forward
+progress after profiling and planning: the optimization plan either proceeds
+directly into authorized execution or becomes the next explicitly queued work,
+rather than being left as an inactive planning artifact.
+
+**Scope candidate:** Clarify the shared `dough-test-optimization` lifecycle at
+the point where its executable plan is complete. When the original request and
+resolved project context authorize implementation, continue through
+`dough-execute-plan` without requiring a second request merely to begin the
+planned optimization. When execution is not authorized or cannot start, use
+`dough-product-backlog` to queue the planned work before ending. Link the plan
+directly when it is the canonical active home for a bounded correction; when an
+existing feature story owns the work, queue that story and preserve its plan
+link according to the backlog contract.
+
+Preserve explicit profile-only requests, which produce findings rather than an
+executable optimization plan. Do not treat creating a plan as starting
+execution, move work to **Taken** before execution actually starts, invent a
+backlog when the project has none, or silently discard a plan whose execution
+prerequisites are missing.
+
+**Key examples:**
+
+- Given a developer asks to optimize a selected test scope and the resulting
+  plan is authorized and executable, test optimization invokes
+  `dough-execute-plan` and continues the work instead of stopping after writing
+  the plan.
+- Given the invocation authorizes planning but not implementation, test
+  optimization adds the planned work as the highest-priority queued item using
+  the project's canonical story or bounded-correction identity, and reports
+  that handoff.
+- Given a profile-only request, test optimization reports its findings and does
+  not manufacture a plan or backlog entry solely to satisfy the lifecycle
+  handoff.
+
+**Evaluation:** Representative default and planning-only invocations leave each
+created optimization plan in exactly one actionable state: execution has
+started through `dough-execute-plan`, or the work appears once in the product
+backlog with a valid canonical link. A profile-only invocation remains
+unchanged, and neither route duplicates the work across **Taken** and **Backlog
+list**.
+
+**Depends on:** None. Existing executable-plan, execution, and product-backlog
+contracts supply the two handoff destinations.
+
+**Safe stopping point:** Every created optimization plan is either being
+executed or is recoverable as explicitly prioritized product work; existing
+profile-only behavior and backlog ownership rules remain intact.
+
 <a id="proudly-found-elsewhere-design"></a>
 
 ### 19. Strengthen architectural review after using the lightweight guidance
