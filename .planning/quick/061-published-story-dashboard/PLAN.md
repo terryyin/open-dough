@@ -1,7 +1,20 @@
 # See the project's published work in a story dashboard
 
-Status: planned; refined 2026-09-19 for connected stages and just-in-time UX.
-No slices executed.
+Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
+and just-in-time UX. Slice 1 resolved without change; slice 2 is next.
+
+## Execution identity
+
+- Work item: `SEED-021#see-published-work`; claim commit `beafc8d` on local `main`.
+- Mode: Story Branch Mode. Replanning: existing planning authority preserved.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough`, branch
+  `main`, remote target `origin/main` (integration belongs to story wrap-up).
+- Execution checkout: `.worktrees/061-published-story-dashboard` under the
+  integration checkout, branch `claude/061-published-story-dashboard`, pushed to
+  `origin` under the same name.
+- CI source: GitHub Actions `ci.yml` / `CI` on the execution branch; Claude Code
+  observer `/tmp/dough-ci-501/watch-bx7k1Z`.
+- Delivery context: `npm run format` before staging; no commit hook is installed.
 
 ## Source and finish line
 
@@ -144,8 +157,19 @@ with the selected execution workflow. None runs during this planning request.
 
 ### 1. Read the published plan-link spelling through the shared backlog contract
 Type: Behavior
-Status: planned
+Status: resolved without change 2026-09-20 (explained empty change)
 Proof: `bash tests/product-backlog.sh`
+
+Reassessment: rerunning the reproduction above on 2026-09-20 resolved origin
+`main` to `420d91e69868ec6dc8afaf399139e162b7bf8b17`; the unchanged shared
+`parseBacklog` read all 13 published entries, and
+`git log -S' — [plan]('` shows the em-dash spelling left the published backlog
+at `5fb8979`. Scripted `take` now writes the parenthesized spelling. The seed
+makes a reader repair conditional on the published document needing one, so no
+reader change is made and "the published plan spelling" in slice 2 means the
+parenthesized one. Plan 060 no longer exists. An em-dash record in another
+project remains that later story's observation. The original intent below is
+kept for review; reversing this decision restores it as written.
 
 Extend the established entry reader to understand the published em-dash plan
 suffix as well as its current parenthesized suffix. Both describe the same
