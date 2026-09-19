@@ -4,7 +4,10 @@
 // and the reconciliation has to publish one item that is still the work it
 // was. Where two recorded identities have instead come to name one link, the
 // run is handed back to a human: which work that entry is is a decision these
-// versions do not establish.
+// versions do not establish. Where the two branches simply gave the same work
+// two different identities outright — no shared link making either look like
+// the same recorded name — that is the ordinary changed-on-both-sides
+// disagreement every other value gets, decided by the same identity rule.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -14,9 +17,11 @@ import {
   identities,
 } from "./product-backlog-adoption-fixture.mjs";
 import {
+  backlogOf,
   occurrences,
   run,
   scratchProject,
+  takenEntry,
 } from "./product-backlog-fixture.mjs";
 import { branchFrom, versions } from "./product-backlog-merge-fixture.mjs";
 import {
@@ -126,6 +131,43 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
   assert.match(
     refused.stderr,
     /do not become one work item by their links coming to coincide/,
+  );
+  assert.match(refused.stderr, /The backlog was not changed\./);
+});
+
+test("merge identity refuses two branches giving one work item different identities outright", async (t) => {
+  // Neither branch's recorded identity is contradicted by a link some other
+  // recorded identity has come to share — that is the coincidence case above.
+  // Here the two branches simply named the same home two different things, an
+  // ordinary changed-on-both-sides disagreement, decided the same way any
+  // other value's is.
+  const home =
+    "seeds/SEED-002-release-the-guidance.md#publish-the-release-notes";
+  const before = `- [Publish the release notes](${home})`;
+  const ancestor = backlogOf([takenEntry], [before]);
+  const project = scratchProject(t, ancestor);
+
+  const refused = await run(
+    project,
+    versions(
+      project,
+      ancestor,
+      backlogOf(
+        [takenEntry],
+        [`- [Publish the release notes](${home}) — SEED-100`],
+      ),
+      backlogOf(
+        [takenEntry],
+        [`- [Publish the release notes](${home}) — SEED-200`],
+      ),
+    ),
+  );
+
+  assert.equal(refused.code, 1);
+  assert.equal(project.read(), ancestor, "the destination was written");
+  assert.match(
+    refused.stderr,
+    /the versions give it different identities — the first branch version has "SEED-100#publish-the-release-notes" and the second branch version has "SEED-200#publish-the-release-notes"/,
   );
   assert.match(refused.stderr, /The backlog was not changed\./);
 });

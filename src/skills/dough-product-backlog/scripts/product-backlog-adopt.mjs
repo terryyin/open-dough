@@ -19,8 +19,11 @@ import {
   renderBacklog,
   renderEntry,
 } from "./product-backlog-document.mjs";
-import { openHome, recordIdentity } from "./product-backlog-home.mjs";
-import { composeIdentity } from "./product-backlog-identity.mjs";
+import {
+  impliedIdentity,
+  openHome,
+  recordIdentity,
+} from "./product-backlog-home.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
 const humanStop =
@@ -39,14 +42,14 @@ function adoptedIdentity(entry, home) {
   if (home.anchor === "" || entry.recordsIdentityInFull) {
     return entry.identity;
   }
-  if (home.documentId === "") {
+  const identity = impliedIdentity(home);
+  if (identity === undefined) {
     throw new BacklogError(
       `${home.relative} carries no "id:" of its own, so the identity of the ` +
         `story anchored at "${home.anchor}" cannot be established without a ` +
         `human decision.`,
     );
   }
-  const identity = composeIdentity(home.documentId, home.anchor);
   if (entry.identity !== entry.href && entry.identity !== identity) {
     throw new BacklogError(
       `the entry reads as identity "${entry.identity}" but ${home.relative} ` +

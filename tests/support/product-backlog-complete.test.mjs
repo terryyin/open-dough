@@ -7,6 +7,7 @@ import { test } from "node:test";
 import {
   added,
   addArguments,
+  addedHome,
   addedLine,
   architecture,
   backlog,
@@ -190,6 +191,7 @@ test("complete refuses missing input and an unusable backlog unchanged", async (
 test("complete happens only when asked, never as another operation's effect", async (t) => {
   const project = scratchProject(t);
   const homesUnchanged = canonicalHomes(project);
+  addedHome(project);
   const claimedPlan = "quick/058-queue-trunk-integration/PLAN.md";
   projectFile(project, claimedPlan);
   const titleOf = (line) => line.slice(0, line.indexOf("]"));

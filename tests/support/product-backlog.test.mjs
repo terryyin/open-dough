@@ -6,10 +6,12 @@ import { test } from "node:test";
 import {
   added,
   addArguments,
+  addedHome,
   addedLine,
   architecture,
   backlog,
   occurrences,
+  plantAddedHome,
   queued,
   run,
   scratchProject,
@@ -34,6 +36,7 @@ test("add places one identified entry and preserves every other byte", async (t)
 
   for (const { placement, index } of placements) {
     const project = scratchProject(t);
+    addedHome(project);
     const result = await run(project, addArguments(added, placement));
     assert.equal(result.code, 0, `${placement.join(" ")}: ${result.stderr}`);
     assert.equal(project.read(), withEntry(index), placement.join(" "));
@@ -45,6 +48,7 @@ test("add fills an empty queue and honors an explicit file path", async (t) => {
     t,
     backlog.replace(`${queued.join("\n")}\n`, ""),
   );
+  addedHome(empty);
   const result = await run(empty, addArguments(added, ["--position", "last"]));
   assert.equal(result.code, 0, result.stderr);
   assert.equal(
@@ -56,6 +60,9 @@ test("add fills an empty queue and honors an explicit file path", async (t) => {
   const moved = join(elsewhere.directory, "docs", "BACKLOG.md");
   mkdirSync(dirname(moved), { recursive: true });
   writeFileSync(moved, backlog, "utf8");
+  // The relocated backlog resolves its links from its own new directory, not
+  // from the project's default one, so the canonical home is planted there.
+  plantAddedHome(dirname(moved));
   const relocated = await run(elsewhere, [
     ...addArguments(added, ["--position", "first"]),
     "--file",
@@ -68,6 +75,7 @@ test("add fills an empty queue and honors an explicit file path", async (t) => {
 
 test("add refuses missing identity, collisions, and ambiguous homes unchanged", async (t) => {
   const project = scratchProject(t);
+  addedHome(project);
   const first = ["--position", "first"];
   const refusals = [
     {
@@ -169,6 +177,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
 
 test("add refuses a repeated request without listing the work twice", async (t) => {
   const project = scratchProject(t);
+  addedHome(project);
   const first = await run(project, addArguments());
   assert.equal(first.code, 0, first.stderr);
   const applied = project.read();

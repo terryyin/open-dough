@@ -20,6 +20,7 @@ import {
   backlogOf,
   entries,
   occurrences,
+  projectFile,
   queued,
   run,
   scratchProject,
@@ -30,7 +31,8 @@ test("add records an identity the link no longer spells", async (t) => {
   // The seed was renamed and the story's anchor changed after this identity
   // was allocated. The entry records the identity it was given; the link is
   // only where the canonical home is now, so neither the file name nor the
-  // anchor has to spell the identity back.
+  // anchor has to spell the identity back — only the home's own explicit
+  // record does, which is exactly what relocation looks like.
   const relocated = {
     identity: "SEED-002#publish-the-release-notes",
     title: "Publish the release notes with the tagged release",
@@ -38,6 +40,24 @@ test("add records an identity the link no longer spells", async (t) => {
   };
   const line = `- [${relocated.title}](${relocated.link}) — ${relocated.identity}`;
   const project = scratchProject(t);
+  projectFile(
+    project,
+    "seeds/release-the-guidance.md",
+    `---
+id: SEED-002
+---
+
+# Release the guidance
+
+<a id="tagged-release-notes"></a>
+
+### Publish the release notes with the tagged release
+
+**Identity:** ${relocated.identity}
+
+Ship the notes once tagging completes.
+`,
+  );
 
   const added_ = await run(
     project,

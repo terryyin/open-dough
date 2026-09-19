@@ -7,7 +7,7 @@
 // This owns where an identity is written, not which identity a work item has.
 
 import { resolve } from "node:path";
-import { splitHref } from "./product-backlog-identity.mjs";
+import { composeIdentity, splitHref } from "./product-backlog-identity.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 import { joinSource, splitSource } from "./product-backlog-source.mjs";
 import { readFile, replaceFile } from "./product-backlog-store.mjs";
@@ -115,6 +115,28 @@ export function openHome(backlogDirectory, href) {
     documentId: anchor === "" ? "" : documentIdFor(document.lines),
     recorded: recordedIn(document.lines, region, relative),
   };
+}
+
+// The identity an anchored home implies before anything is recorded there:
+// the seed's own document ID composed with the anchor — the same evidence a
+// work item's identity is first taken from. A whole-document home, or an
+// anchored home whose seed carries no "id:" of its own, implies none this
+// way. Both adoption and the canonical-home check at `add` read this same
+// implied identity when nothing has been recorded yet.
+export function impliedIdentity(home) {
+  if (home.anchor === "" || home.documentId === "") {
+    return undefined;
+  }
+  return composeIdentity(home.documentId, home.anchor);
+}
+
+// The identity a home names on its own, without writing anything: an explicit
+// `**Identity:**` record when the home carries one, or otherwise the identity
+// it implies. A whole-document home that has recorded nothing names none on
+// its own; there is no link-derived fallback here, because a link agreeing
+// with an identity is not the same as the home naming it.
+export function namedIdentity(home) {
+  return home.recorded ? home.recorded.identity : impliedIdentity(home);
 }
 
 // Writes the identity into the home. The home is read again here, because one

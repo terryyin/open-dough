@@ -75,6 +75,40 @@ export const added = {
 };
 export const addedLine = `- [${added.title}](${added.link}) — ${added.identity}`;
 
+// The canonical home `added` links: a seed whose own "id:" plus the story's
+// anchor already compose the identity `added` carries, so nothing needs to be
+// recorded there beyond the ordinary shape a fresh, unadopted story has.
+export const addedHomeSource = `---
+id: SEED-002
+---
+
+# Release the guidance
+
+<a id="publish-the-release-notes"></a>
+
+### Publish the release notes with the tagged release
+
+Ship the notes once tagging completes.
+`;
+
+// Plants the canonical home `added` links, resolved from `baseDirectory`
+// exactly as the product resolves it: relative to wherever the backlog file
+// an operation is run against actually sits. A test that relocates the
+// backlog file plants this at the relocated backlog's own directory, not at
+// the project's default one.
+export function plantAddedHome(baseDirectory, source = addedHomeSource) {
+  const path = join(baseDirectory, "seeds", "SEED-002-release-the-guidance.md");
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, source, "utf8");
+  return path;
+}
+
+// The common case: the canonical home planted beside a project's own backlog
+// file, at whichever path it currently reads from.
+export function addedHome(project) {
+  return plantAddedHome(dirname(project.file));
+}
+
 export function addArguments(
   request = added,
   placement = ["--after", skipRetrospective],
