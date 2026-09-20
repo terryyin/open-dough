@@ -28,11 +28,11 @@ EOF
 guard_settings_json() {
   local target=$1
   local host=${2:-claude}
-  if [[ ${host} == codex ]]; then
-    printf '%s/.codex/hooks.json\n' "${target}"
-    return
-  fi
-  printf '%s/.claude/settings.json\n' "${target}"
+  case ${host} in
+    codex) printf '%s/.codex/hooks.json\n' "${target}" ;;
+    cursor) printf '%s/.cursor/hooks.json\n' "${target}" ;;
+    *) printf '%s/.claude/settings.json\n' "${target}" ;;
+  esac
 }
 
 guard_assert_registered() {
@@ -48,6 +48,18 @@ guard_assert_registered() {
   if ! grep -Fq 'product-backlog-guard-hook.mjs' "${settings}"; then
     echo "FAIL: ${settings} does not register the product-backlog guard hook." >&2
     return 1
+  fi
+  if [[ ${host} == cursor ]]; then
+    if ! node -e '
+      const fs = require("node:fs");
+      const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      if (doc.version !== 1) {
+        console.error("FAIL: Cursor hooks.json is missing schema version 1.");
+        process.exit(1);
+      }
+    ' "${settings}"; then
+      return 1
+    fi
   fi
   for root in .agents/skills .claude/skills; do
     if [[ ! -f "${target}/${root}/dough-product-backlog/scripts/product-backlog-guard-hook.mjs" ]]; then
@@ -67,13 +79,17 @@ guard_assert_no_duplicate_pretooluse() {
   local count
   count=$(node -e '
     const fs = require("node:fs");
+    const host = process.argv[2];
     const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-    const wrappers = doc.hooks?.PreToolUse ?? [];
-    const commands = wrappers.flatMap((wrapper) => wrapper.hooks ?? []);
+    const eventName = host === "cursor" ? "preToolUse" : "PreToolUse";
+    const entries = doc.hooks?.[eventName] ?? [];
+    const commands = host === "cursor"
+      ? entries
+      : entries.flatMap((wrapper) => wrapper.hooks ?? []);
     process.stdout.write(String(commands.filter((hook) =>
       hook.command?.includes("product-backlog-guard-hook.mjs")
     ).length));
-  ' "$(guard_settings_json "${target}" "${host}")")
+  ' "$(guard_settings_json "${target}" "${host}")" "${host}")
   if [[ ${count} != 1 ]]; then
     echo "FAIL: expected exactly one managed PreToolUse handler, found ${count}." >&2
     return 1
@@ -143,6 +159,11 @@ const checks = [
     { command: "printf backlog >> .planning/PRODUCT-BACKLOG.md" },
     "allow",
   ],
+  ["Write", { path: backlog }, "deny"],
+  ["StrReplace", { file_path: backlog }, "deny"],
+  ["Delete", { path: backlog }, "deny"],
+  ["Write", { path: other }, "allow"],
+  ["StrReplace", { file_path: other }, "allow"],
 ];
 let failed = false;
 for (const [tool, toolInput, expect] of checks) {
@@ -188,12 +209,18 @@ guard_run_deterministic() {
   guard_assert_registered "${target}"
   guard_assert_decision_logic \
     "${target}/.claude/skills/dough-product-backlog/scripts" "${target}"
+  guard_assert_cursor_cli \
+    "${target}/.claude/skills/dough-product-backlog/scripts/product-backlog-guard-hook.mjs" \
+    "${target}"
 
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
     --platform claude > /dev/null
   guard_assert_no_duplicate_pretooluse "${target}"
+  guard_run_deterministic_cursor "${source_dir}" "${temporary_dir}"
 
   echo 'PASS: install registers the Claude Code PreToolUse product-backlog guard alongside the existing CI hooks, delivers its script and fragment to both roots, and repeat install/update stays idempotent.'
-  echo 'PASS: the guard denies Claude Edit/Write/MultiEdit and Codex apply_patch on the resolved backlog path, while leaving unrelated edits, Read, and Bash undecided.'
+  echo 'PASS: install registers the Cursor preToolUse product-backlog guard alongside the existing CI hooks, preserves unrelated Cursor configuration, and repeat install/update stays idempotent.'
+  echo 'PASS: the guard denies Claude Edit/Write/MultiEdit, Cursor Write/StrReplace/Delete, and Codex apply_patch on the resolved backlog path, while leaving unrelated edits, Read, and Bash undecided.'
+  echo 'PASS: Cursor native CLI emits permission deny/allow, and Claude-compatibility loading with cursor_version skips a second denial.'
   echo 'PENDING: native Claude Code denial and allow-paths; run --native claude --case guard.'
 }

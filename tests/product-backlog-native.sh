@@ -7,8 +7,10 @@
 #   tests/product-backlog-native.sh
 #   tests/product-backlog-native.sh --native claude --case guard
 #   tests/product-backlog-native.sh --native codex --case guard
+#   tests/product-backlog-native.sh --native cursor --case guard
 #   tests/product-backlog-native.sh --native claude --case use
 #   tests/product-backlog-native.sh --native codex --case use
+#   tests/product-backlog-native.sh --native cursor --case use
 #
 # The default mode is deterministic: a real install plus the guard's
 # decision function, with no real agent. --native claude --case guard spawns
@@ -19,6 +21,10 @@
 # after explicit human repair.
 # --native codex --case guard spawns fresh isolated `codex exec` sessions with
 # the installed repo-local hook trusted for that bounded native run.
+# --native cursor --case guard spawns fresh isolated `cursor agent --print`
+# sessions against a fixture project with the installed Cursor preToolUse
+# guard. --native cursor --case use runs the installed-workflow journey
+# through Cursor Agent.
 # --native codex --case use runs the same installed-workflow journey through
 # fresh isolated `codex exec` sessions and observes their actual script calls.
 set -euo pipefail
@@ -33,6 +39,9 @@ source "${source_dir}/tests/support/product-backlog-native-guard-claude.sh"
 # shellcheck source=tests/support/product-backlog-native-guard-codex.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-guard-codex.sh"
+# shellcheck source=tests/support/product-backlog-native-guard-cursor.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-guard-cursor.sh"
 # shellcheck source=tests/support/product-backlog-native-use.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-use.sh"
@@ -44,9 +53,9 @@ usage() {
   cat >&2 << 'EOF'
 usage: tests/product-backlog-native.sh
    or: tests/product-backlog-native.sh --native claude --case guard
-   or: tests/product-backlog-native.sh --native <claude|codex> --case <guard|use>
-HOST is claude or codex.
-CASE is guard (native PreToolUse edit-denial for the product backlog)
+   or: tests/product-backlog-native.sh --native <claude|codex|cursor> --case <guard|use>
+HOST is claude, codex, or cursor.
+CASE is guard (native PreToolUse/preToolUse edit-denial for the product backlog)
 or use (the installed Git merge adapter's conflict stop and human-repaired
 resume, discovered by a fresh native session from ordinary-language guidance).
 EOF
@@ -102,8 +111,8 @@ if [[ ${native_flag} -eq 0 ]]; then
   exit 0
 fi
 
-if [[ ${host_arg} != claude && ${host_arg} != codex ]]; then
-  echo "error: unsupported or missing host '${host_arg}' (known: claude, codex)" >&2
+if [[ ${host_arg} != claude && ${host_arg} != codex && ${host_arg} != cursor ]]; then
+  echo "error: unsupported or missing host '${host_arg}' (known: claude, codex, cursor)" >&2
   usage
   exit 2
 fi
@@ -123,11 +132,11 @@ command -v "${host_arg}" > /dev/null || {
 
 case ${case_id} in
   guard)
-    if [[ ${host_arg} == codex ]]; then
-      guard_run_native_codex "${source_dir}"
-    else
-      guard_run_native "${source_dir}"
-    fi
+    case ${host_arg} in
+      codex) guard_run_native_codex "${source_dir}" ;;
+      cursor) guard_run_native_cursor "${source_dir}" ;;
+      *) guard_run_native "${source_dir}" ;;
+    esac
     ;;
   use) use_run_native "${source_dir}" "${host_arg}" ;;
   *)

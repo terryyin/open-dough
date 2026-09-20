@@ -1,7 +1,6 @@
 # Establish native edit protection and scripted workflow use in Codex and Cursor
 
-Status: in progress at the authorized stopping point. Slices 1-2 are done;
-slices 3-4 remain planned and outside this execution.
+Status: in progress. Slices 1-3 are done; slice 4 remains planned.
 
 ## Execution identity
 
@@ -13,10 +12,15 @@ slices 3-4 remain planned and outside this execution.
 - Authorized destination: `origin/codex/061-native-edit-protection`; later
   integration remains `origin/main` through story wrap-up.
 - Replanning permission: no current override; preserve the plan's existing
-  planning authority and stop after slice 2.
+  planning authority.
 - CI observer: GitHub Actions workflow `ci.yml` / `CI`, target branch
-  `codex/061-native-edit-protection`, mailbox `/tmp/dough-ci-501/watch-xnwT5z`,
-  PID `31370`, Codex yielded cell `21`; armed from the execution checkout.
+  `codex/061-native-edit-protection`, mailbox `/tmp/dough-ci-501/watch-YGDVCo`,
+  armed from the execution checkout on the Cursor host. The previous Codex
+  observer at `/tmp/dough-ci-501/watch-xnwT5z` was already stopped
+  (`pendingCi: unobserved`). After replacement, GitHub already showed success
+  for `21a3ce7` and `245de8e`; the new observer emitted
+  `CI_COVERAGE_UNAVAILABLE` for `21a3ce7` after three discovery polls. That is
+  lost coverage of already-completed historical runs, not a test failure.
 
 ## Execution learnings and accepted proof
 
@@ -63,6 +67,36 @@ slices 3-4 remain planned and outside this execution.
 - Slice 2 preparation/broad proof: `npm run format` completed lint/format
   checks, and `PATH=/opt/homebrew/bin:$PATH npm test` passed with explicit
   terminal status `0` after the shared harness and runtime guidance changes.
+- Cursor Agent `2026.09.18-9a7762b` (`cursor agent --version`; CLI
+  `cursor --version` is `3.21.16`) exposes stable `preToolUse` for Agent
+  `Write` before bytes change. Returning `{permission:"deny"}` prevents the
+  edit. Cursor `hooks.json` must keep `version: 1` or `preToolUse` does not
+  enforce. Tool input may use `file_path` or `path`. `--sandbox enabled`
+  is sufficient for project hooks. This supports the planned thin adapter
+  without shell parsing, Tab coverage, or broader enforcement.
+- Slice 3 promise: native Cursor blocks `Write` to the resolved whole
+  backlog while preserving unrelated edits, reads, shell-run scripts, human
+  repair, installation/update coexistence, CI hooks, and one managed
+  registration. Accepted boundary: the installed Cursor `preToolUse` fragment
+  and shared guard, exercised through a real installed Cursor Agent session.
+  Tab is out of scope. Native sessions proved Write; StrReplace/Delete are
+  matcher and decision-logic coverage. Claude-compat `cursor_version` skip is
+  defensive; Cursor loading Claude's PreToolUse was not observed to fire.
+  Inspected setup: `tests/support/product-backlog-native-guard.sh` and
+  `tests/support/product-backlog-native-guard-cursor.sh` fixture/install
+  setup. Inspected observations: the Cursor adapter's unchanged-backlog
+  assertion after denial and its unrelated edit, read, script-write, and
+  human-repair assertions. Command:
+  `PATH=/opt/homebrew/bin:/Users/terryyin/.local/bin:$PATH bash tests/product-backlog-native.sh --native cursor --case guard`;
+  result: pass on `cursor agent 2026.09.18-9a7762b`.
+- Supporting focused proof: `PATH=/opt/homebrew/bin:$PATH bash tests/product-backlog-native.sh`
+  and `PATH=/opt/homebrew/bin:$PATH bash tests/install-ci-host-hooks.sh`;
+  result: pass. Refactoring moved Cursor install/CLI proof into the Cursor
+  adapter; the deterministic command was rerun. Native Write-denial proof
+  stayed on the same boundary and was not rerun.
+- Slice 3 preparation/broad proof: `npm run format` completed lint/format
+  checks, and `PATH=/opt/homebrew/bin:$PATH npm test` passed with explicit
+  terminal status `0`.
 
 ## Source and remaining outcome
 
@@ -150,8 +184,8 @@ version and candidate. Missing native access is pending proof, not a pass.
 
 ### 3. Establish lightweight native edit protection in Cursor
 Type: Behavior
-Status: planned, conditional on host feasibility
-Proof: `bash tests/product-backlog-native.sh --native cursor --case guard`
+Status: done
+Proof: `PATH=/opt/homebrew/bin:/Users/terryyin/.local/bin:$PATH bash tests/product-backlog-native.sh --native cursor --case guard`
 
 Apply slice 1's guard outcome and feasibility boundary to the actual Cursor Agent
 editing route. Adapt only the necessary event/tool interface; preserve CI hooks
@@ -173,14 +207,14 @@ availability. Hypothesis: one host journey using the shared cases and assessment
 ## Sizing, stopping points, and remaining concerns
 
 Four planned Behavior slices (renumbered 1-4 from the originating plan's
-7-10), no completed slices, no supplied numeric target or hard limit. Slices
-1 and 3 retain conditional feasibility; missing native capability or complex
-registration requires a human decision, not automatic subdivision. Slices 2
-and 4 need actual native access and fresh, sufficient evidence; no blanket
-direct-execution readiness is claimed. Do not require both hosts' slices to
-fit one uninterrupted execution — each host's guard and installed-use
-outcomes are independently safe stopping points, so a failed guard
-feasibility in one host cannot erase useful proof from the other.
+7-10); slices 1-3 are complete; no supplied numeric target or hard limit.
+Slice 3's Cursor feasibility is resolved: a thin `preToolUse` adapter was
+delivered. Slice 4 needs actual native access and fresh, sufficient
+evidence; no blanket direct-execution readiness is claimed. Slice 4 remains
+independently runnable with the delivered Cursor guard. Do not require both
+hosts' slices to fit one uninterrupted execution — each host's guard and
+installed-use outcomes are independently safe stopping points, so a failed
+guard feasibility in one host cannot erase useful proof from the other.
 
 The originating plan's Claude Code slices were delivered separately and did
 establish a working guard/native-test pattern: `src/skills/dough-product-backlog/scripts/product-backlog-guard-hook.mjs`
