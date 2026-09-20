@@ -9,8 +9,8 @@ Keep one domain rule: before isolated story implementation starts, its owned
 Taken claim must be published to the authorized integration target. Local
 commit, published membership, execution ownership, and CI coverage are different
 facts. The unpublished dashboard claim blocked a Trunk Mode delivery and stayed
-invisible to the remote dashboard; see
-[the claim story](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-shared-backlog-claims).
+invisible to the remote dashboard; the completed story that delivered this rule
+is recoverable at `897c420:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`.
 Use these concepts directly in guidance and retained execution context:
 
 | Concept | Meaning and existing owner |

@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
-- [Publish shared backlog claims before isolated execution](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-shared-backlog-claims) — SEED-008#publish-shared-backlog-claims ([plan](quick/064-publish-shared-backlog-claims/PLAN.md))
 
 ## Backlog list
 
