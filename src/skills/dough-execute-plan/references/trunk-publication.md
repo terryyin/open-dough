@@ -23,70 +23,51 @@ starting unclaimed queued work.
 ## Publish a verified increment
 
 After wrap-up proof, refactor, format, and commit succeed, publish the owned
-unpublished increment with the same steps below. Keep the same execution
-worktree. Planned, quick, and contextual Trunk Mode work share this rule.
-
-The owned unpublished suffix is the execution commit or consecutive commits
-not yet on the authorized remote trunk. The previously published base is
-that suffix's parent: the last recorded published revision when this
-execution has one. When remote trunk is still that parent, the increment is
-already based on current trunk: do not rewrite it; fast-forward the local
-target to that commit and publish it.
-
-When fetch shows a newer remote trunk than that parent, publish through the
-candidate steps so only that suffix is rebased onto current trunk.
-Previously published revisions remain ancestors; never rewrite them or
-another writer's commits.
+unpublished increment through [Publish the candidate](#publish-the-candidate).
+Keep the same execution worktree for planned, quick, and contextual work.
 
 ## Preconditions
 
-Apply exclusive-turn and target cleanliness checks only when this publication
-must mutate the shared integration checkout. They do not gate execution-checkout
-commits, proof, or formatting. Do not invent a merge queue, lock, or extra claim.
+Resolve source, mode, target branch, authorized remote, and the owned unpublished
+suffix. The suffix is the Taken commit for a claim, or consecutive execution
+commits not yet on authorized remote trunk for an increment. Its parent is the
+previously published base: the last recorded published revision when this
+execution has one. Rewrite only that suffix; never rewrite published revisions
+or another writer's commits, force-push, or push the execution branch.
 
-Resolve source, mode, target branch, authorized remote, and the owned
-unpublished suffix before mutating the shared integration checkout. For a
-queue claim, that suffix is the Taken commit only. For a verified increment,
-use the suffix defined in the increment rule.
+Before mutating the shared integration checkout, acquire an exclusive integration
+turn through available coordinator context and inspect the target. These checks
+do not gate execution-checkout commits, proof, or formatting. A clean directory
+or Git lock file does not establish exclusivity; coordinate with a declared owner
+or stop. Do not invent a merge queue, lock, or extra claim.
 
-Acquire an exclusive integration turn through available coordinator context
-before changing the shared integration checkout. A clean working directory is
-not exclusivity. Git lock files are not a transaction lock. Coordinate with a
-declared owner, or stop. Unclear ownership uses
-[human judgment](execution-decisions.md#stop-for-human-judgment). Apply the
-same ownership stop as [delivery staging](wrap-up.md#deliver-the-change) and
+Unknown ownership, dirty or ambiguous target state, or unrelated unpublished
+local commits stop publication without target mutation. Preserve exact refs,
+worktrees, index, and staged/unstaged content; do not stash, reset, unstage,
+revert, or silently publish unrelated work.
+Keep the owned suffix recoverable on the execution branch, or the local Taken
+commit before workspace creation. Report the competing writer or inspectable
+state and do not register publication or continue as delivered. Apply this same
+stop after a rejected push; do not undo its locally integrated suffix.
+Ownership uncertainty follows [human judgment](execution-decisions.md#stop-for-human-judgment),
+[delivery staging](wrap-up.md#deliver-the-change), and
 [resume](../SKILL.md#continue-or-recover-at-an-execution-boundary).
-
-A stop here mutates nothing on the target. Report the inspectable reason:
-the declared competing writer, and/or dirty, ambiguous, or unrelated-commit
-target state. Preserve unrelated staged and unstaged target content; do not
-stash, reset, unstage, or revert it. Leave the owned unpublished suffix SHA
-recoverable on the execution branch, or the local Taken commit when no
-workspace exists yet. Do not register publication or continue as delivered.
-After an exclusive turn, inspect the target; dirty or ambiguous state, known
-unrelated local commits, or unknown ownership still stop as above. Do not
-silently publish those commits. Ordinary candidate publication proceeds only
-after that turn and a usable target.
 
 ## Publish the candidate
 
-Rebase only owned unpublished execution work; never rewrite published trunk
-history or another writer's commits. No force push. An increment keeps the
-same execution worktree; a claim may have none yet.
+Apply [Preconditions](#preconditions) before this sequence. A claim may have no
+execution worktree yet; other publications retain theirs.
 
 1. Fetch the authorized remote for the target branch.
-2. Reconcile from the fetched target. Current trunk is the fetched remote
-   target, not a stale local target tip. A local target that is only behind
-   that remote is not a stop. If the local target has unpublished commits
-   that are not this execution's owned suffix, or ownership is ambiguous,
-   stop and preserve that state.
-3. Rebase only the owned unpublished suffix onto the current remote trunk.
-   For a claim, that is the Taken commit. For an increment, that is the
-   unpublished execution suffix. When that suffix is already based on
-   current trunk, leave its commits unchanged. When trunk advanced, rewrite
-   only that suffix onto it and replace the unpublished candidate SHA with
-   the rewritten SHA; the pre-rebase SHA is not the increment. Update the
-   execution branch to the rewritten candidate when a worktree already
+2. Reconcile from the fetched remote target, not a stale local target tip.
+   A local target that is only behind the remote is usable; unrelated
+   unpublished commits or ambiguous ownership stop under Preconditions.
+3. When fetched trunk is still the previously published base, leave the suffix
+   unchanged. When trunk advanced, rebase only that suffix onto it, following
+   the [backlog adapter routing](#resolve-a-publication-rebase-conflict) below
+   whenever it touches the product backlog. After a rewrite, replace the
+   unpublished candidate SHA; the pre-rebase SHA is not the increment. Update
+   the execution branch to the rewritten candidate when a worktree already
    exists; otherwise keep the candidate on the integration checkout until
    workspace setup uses it. A rebase conflict uses
    [publication rebase conflicts](#resolve-a-publication-rebase-conflict)
@@ -127,11 +108,9 @@ same execution worktree; a claim may have none yet.
 ## Publish wrap-up closure
 
 Story wrap-up treats each owned wrap-up commit on the execution checkout as a
-verified increment. Publish it immediately through
-[verified-increment publication](#publish-a-verified-increment) before the
-next wrap-up mutation that depends on that revision being recoverable on
-shared trunk. Do not merge an execution branch. Do not push the execution
-branch. Do not wait for CI.
+verified increment. Publish it immediately through [the common sequence](#publish-the-candidate)
+before the next wrap-up mutation that depends on its recovery from shared trunk.
+Do not merge the execution branch.
 
 Resolve observation ownership before the first wrap-up publication: recover
 the execution's observer when it still exists; if execution already stopped
@@ -150,20 +129,10 @@ removes only this execution's clean local worktree and local execution branch.
 
 ## Recover a rejected push
 
-A non-fast-forward rejection after local integration is not publication
-and is not permission to force-push or to publish the execution branch.
-Retain the rejected candidate SHA, previously published base, exclusive
-turn, and unpublished publication state through the race. The local
-target tip is the owned unpublished suffix, not a published revision.
-
-If exclusive ownership is now unknown, the target is dirty or ambiguous,
-or local trunk has unpublished commits that are not this execution's
-owned suffix, stop. Preserve the exact refs, worktree, and index, and
-report that retained state. Do not silently push those commits. Do not
-undo the local suffix.
-
-Otherwise refresh actual remote state and reconcile only the owned local
-suffix, then retry one ordinary push:
+A non-fast-forward rejection leaves the local target's owned suffix unpublished.
+Retain the rejected candidate SHA and previously published base, and recheck
+[Preconditions](#preconditions), including the exclusive turn. If they hold,
+reconcile only that suffix and retry one ordinary push:
 
 1. Fetch the authorized remote for the target branch. Current trunk is
    the fetched remote target.
@@ -196,7 +165,7 @@ take `--ours` or `--theirs`, skip the commit, or continue Git blindly.
 
 The ordinary rebase in [Publish the candidate](#publish-the-candidate) step 3 is run through this project's
 installed product backlog rebase adapter, not a raw `git rebase`, whenever it touches the product backlog
-(often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../dough-product-backlog/references/merge-conflicts.md)
+(often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md)
 for how to resolve and run it. Its own `conflict`/`refused`/`blocked` result already identifies the real
 replayed commit, its parent, and the current destination from Git's own rebase state, never from
 ours/theirs labels. Resolve the backlog's own unmerged path following that reference, `git add` it, then
@@ -209,7 +178,7 @@ nor that reference is available, preserve the conflict and report the missing gu
 [Recover a rejected push](#recover-a-rejected-push)'s two `--onto` rebases are not run through this
 adapter: its CLI has no equivalent for rebasing a range other than the currently checked-out branch onto a
 ref. Until that gap is closed, resolve a conflict touching the backlog on either of those two rebases with
-[the fallback domain knowledge](../dough-product-backlog/references/merge-conflicts.md#fallback-domain-knowledge)
+[the fallback domain knowledge](../../dough-product-backlog/references/merge-conflicts.md#fallback-domain-knowledge)
 instead, applied by hand exactly as below.
 
 For other product or code paths, read the three Git versions (ancestor,
