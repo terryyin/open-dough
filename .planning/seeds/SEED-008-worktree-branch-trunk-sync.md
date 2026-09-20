@@ -214,73 +214,176 @@ input, not selection of a lock, daemon, queue API, or automatic recovery design.
 
 ### 6. Prepare stories and slice plans in a clear developer workspace workflow
 
-**Status:** Captured 2026-09-20; not refined or planned.
+**Status:** Refined 2026-09-20.
+[Slice plan](../quick/065-prepare-stories-in-owned-worktrees/PLAN.md) prepared;
+execution not started.
 
-**Goal:** A developer doing story decomposition, story refinement, slice
-planning, or plan refinement knows where to start the work, how to continue
-related planning in the same workspace, and how to publish the resulting
-records into the shared project without blocking other agents' integration.
+**Goal:** A developer can decompose, refine, and plan upcoming stories alongside
+agents executing in worktrees, without leaving planning edits on the shared
+integration checkout or occupying it while discussing the work. Retained planning
+results reach the shared project through a bounded integration and publication
+operation.
 
-**Observed problem:** The September 19 discussion captured workspace intentions
-in the [project visibility requirements](../../docs/project-visibility-requirements.md#quick-edits-in-the-default-checkout),
-but they do not yet form a coherent developer procedure across the planning
-skills. Proposed ADR 0007 places planning on `main`, while proposed ADR 0008
-explicitly identifies the need to align that wording with owned workspaces.
+**Observed problem and why now:** Terry Yin reports on 2026-09-20 that this
+interruption occurs often: executing agents repeatedly need to integrate into
+`main`, but ongoing refinement or planning leaves that checkout occupied. The
+planning skills never established where their editing belongs. This is a current
+obstacle to parallel work, not speculative preparation for a future queue.
+Fixing it deserves priority over the second-project dashboard and richer progress
+views because it removes a recurring disruption to delivering that work. The
+later queue will serialize integrating agents; it cannot compensate for planning
+sessions leaving edits on the shared checkout.
 
-**Scope candidate:** Establish and align the developer-facing procedure and
-shared skill guidance for choosing or reusing an owned worktree, starting and
-continuing a bounded planning session, committing and integrating its records,
-publishing when required, and cleaning up temporary resources. Cover decomposition
-as well as refinement and slice planning. Distinguish prepared quick edits from
-work involving discussion, exploration, or waiting for a developer response.
-Explain responsibilities when the host already supplies a worktree and when
-local coordination still requires explicit human coordination. Surface the
-proposed ADR wording conflict for human resolution; do not accept or supersede
-an ADR implicitly.
+**Scope — required behavior:**
 
-**Key example / evaluation:** While another agent executes a story, a developer
-starts decomposition, refines one resulting story, and makes its slice plan.
-The procedure identifies the workspace and branch to use, allows related work
-to reuse them, and keeps discussion from occupying the shared integration
-checkout. The developer can integrate and publish the planning records, then
-remove only disposable owned resources. A separate prepared backlog-field edit
-has a clear short path. Existing unrelated edits are preserved, and unpublished
-planning progress is honestly described as invisible to the remote-only dashboard.
+- Story decomposition, story refinement, slice planning, and slice-plan
+  refinement establish an exclusively owned worktree before editing project
+  records. When invoked from the default integration checkout, move the editing
+  work into a suitable owned worktree. Do not treat the fact that Git's default
+  checkout is technically a worktree as satisfying this separation.
+- Reuse a suitable owned worktree for related preparation, including successive
+  skill invocations and continuation after discussion. Create one only when no
+  suitable workspace is available. A host-provided worktree can be reused when
+  its ownership, branch, and integration target are understood; do not nest a
+  second worktree merely because another skill is invoked.
+- Keep preparation, investigation, discussion, waiting for a developer response,
+  and all resulting preparation edits in that workspace. A small or already-decided
+  refinement or planning edit does not gain a direct-edit exception on the shared
+  integration checkout.
+- When the developer's conclusion is to keep the result, that decision authorizes
+  committing, integrating, and pushing the retained preparation changes to the
+  established project integration target. Do not require a separate push approval
+  for those changes. Preserve an explicit instruction to leave work unpublished,
+  and do not extend this authority to implementation, unrelated changes, or an
+  unknown publication destination. A pause or silence is not a keep decision.
+- Reconcile prepared work with current integration state and deliver it through
+  one bounded merge/rebase-and-publication operation for the retained result,
+  using the existing publication behavior and explicit coordination. This is
+  not a promise of a transactional Git operation, a single commit, or conflict-free
+  integration. If reconciliation needs further discussion, preserve the work
+  and recover or hand off the integration turn explicitly; do not leave another
+  planning session occupying the shared checkout.
+- Preserve unrelated edits and unfinished preparation. After successful
+  integration and required publication, remove only disposable resources owned
+  by this session. Host-owned or reused resources are not automatically disposable.
+  Unpublished preparation remains invisible to the remote-only dashboard.
+- Give the common workspace behavior one authoritative home and align the
+  affected preparation-skill entry points. Reuse the existing publication
+  sequence rather than creating a planning-specific version. Execution startup
+  and its Taken transition remain outside this story.
 
-**Value / learning:** Developers can prepare upcoming work alongside execution
-without guessing workspace ownership or treating every skill call as a new
-worktree lifecycle.
+**Scope — constraints and exclusions:** Terry Yin's September 20 clarification
+selects worktree editing for decomposition, refinement, and planning, including
+small preparation edits. This is not a universal prohibition on direct edits
+in the shared integration checkout.
 
-**Effort hypothesis:** M, low confidence until refinement checks the affected
-skills and host-owned workspace cases.
+Moving an item from the backlog list to Taken when executing a plan is explicitly
+excluded. That execution-startup operation is intended to edit `main` directly
+under the future shared integration lock, preventing competition with other
+participating writers. The later
+[local coordination story](#same-machine-merge-queue) owns that lock-protected
+path. This story neither moves Taken updates into preparation worktrees nor
+changes existing claim startup/resume or publication obligations. Until the lock
+is delivered, existing explicit coordination continues to apply; this refinement
+does not claim that automatic protection already exists.
 
-**Depends on:** No unfinished implementation prerequisite. The procedure must be
-usable with explicit coordination before the same-machine integration queue
-exists; implementing the shared lock and queue remains owned by
-[Queue trunk integration for agents on the same machine](#same-machine-merge-queue).
+Align overlapping guidance only for the preparation workflow. Preserve the
+separate prepared direct-edit path described in the
+[quick-edit requirements](../../docs/project-visibility-requirements.md#quick-edits-in-the-default-checkout)
+for execution-startup claims. Proposed ADRs 0007 and 0008 remain Proposed; their
+inconsistent planning-workspace wording must be surfaced for human-owned
+alignment, not implicitly accepted or superseded.
 
-**Safe stopping point / boundaries:** Deliver a usable planning-work procedure
-and consistent guidance independently of dashboard or queue implementation.
-Do not introduce a dashboard control interface, lock service, or broader
-execution-mode redesign. This capture authorizes neither planning nor execution.
+**Key examples:**
 
-**Origin:** Terry Yin's September 20 request to capture the September 19 concern
-as a story and place it third in the product backlog; requirements recorded in
-commit `903f905`. See also
+1. *Preparation alongside execution.* Agent A executes in its worktree and
+   repeatedly integrates increments. Agent B starts decomposition from `main`,
+   then refines a story and prepares its slice plan. Before editing, B establishes
+   an owned preparation worktree and reuses it throughout. Waiting for the
+   developer's answer leaves no B-owned planning edits on `main`; A can continue
+   its coordinated integrations.
+2. *Keep and publish.* The developer concludes that B's preparation should be
+   kept. B reconciles its retained changes with the now-current integration
+   branch and, during an explicitly coordinated turn, integrates and pushes them
+   without another push-approval question. Published records describe the agreed
+   result; A's intervening work remains present.
+3. *Existing workspace and a small edit.* A session already owns a suitable
+   worktree and makes a small refinement correction. It reuses that workspace,
+   creates no nested or per-invocation worktree, and does not edit the shared
+   checkout directly.
+4. *Unfinished or conflicting work.* Preparation stops with an unresolved scope
+   question, or integration exposes another developer's incompatible change.
+   The agent preserves both parties' work and reports the needed decision.
+   Unfinished preparation is neither silently published nor deleted, and a
+   blocked integration turn is recovered or handed off explicitly before another
+   writer proceeds.
+5. *Execution-startup boundary.* An agent begins executing a plan and must move
+   its backlog item to Taken. That operation is outside this preparation
+   workflow. This story does not require a worktree for the claim edit or alter
+   its existing behavior; direct editing on `main` under a shared lock belongs
+   to the later coordination delivery.
+
+**Evaluation:** Observe these journeys through the affected skills, checking
+actual checkout locations, uncommitted changes, Git history, published records,
+and retained resources. Updated prose alone does not establish the outcome.
+Use the project's existing cross-tool validation boundaries; do not infer host
+behavior from one tool's successful run or add a routine discovery matrix.
+
+**Simpler alternatives:** Keeping the current informal procedure leaves the
+reported recurring interruption unresolved. Preparing a small refinement edit and applying
+it directly on `main` retains an exception the developer has explicitly rejected
+for preparation work. The separate execution-startup claim is excluded.
+A new worktree per skill invocation adds needless setup and fragments related
+work. Reusing one owned preparation workspace, followed by existing integration
+and publication behavior, is the smallest selected response. An automated queue
+is not necessary to establish this editing boundary.
+
+**Deferred promises:** Execution-startup Taken edits and their lock protection;
+automatic serialization, locks, merge queues, fairness,
+timeout takeover, and automated crash recovery; dashboard controls or local
+visibility; a worktree registry or manager; comprehensive host/background-mode
+support; and broader execution-mode redesign. Existing explicit coordination is
+still necessary: this story does not claim that two integrating agents can never
+collide. Editing isolation also does not resolve conflicting product decisions.
+
+**Value / learning:** Remove an observed source of interrupted integration and
+establish whether shared skill guidance plus workspace reuse makes preparation
+coexist with execution without unnecessary setup. Useful even if the later queue
+or dashboard enhancements are deferred.
+
+**Effort hypothesis:** The original M estimate remains unverified; confidence is
+low until planning assesses the shared preparation-workspace guidance and
+its affected skill entry points. This refinement does not prescribe slices or a new mechanism.
+
+**Depends on:** No unfinished implementation prerequisite. Reuse the delivered
+publication behavior and explicit integration-turn coordination. Automated
+same-machine serialization remains owned by
+[Queue trunk integration for agents on the same machine](#same-machine-merge-queue),
+which must coordinate both integration of prepared worktree changes and
+permitted direct edits such as execution-startup Taken transitions.
+
+**Safe stopping point:** The preparation skills use owned worktrees and deliver
+retained records through existing coordinated integration/publication. Shared
+checkout editing no longer accumulates through planning discussions, even before
+an automated queue exists. This refinement authorizes no skill implementation
+or executable slice plan.
+
+**Origin and decisions:** Captured at Terry Yin's request on September 20 from
+the September 19 concern recorded in `903f905`. Terry's September 20 refinement
+supplies the recurring disruption evidence, selects worktree editing for all
+changes under this procedure, grants publication authority for results concluded
+to be kept, and leaves integration serialization to the later story. His
+subsequent clarification explicitly excludes execution-startup Taken updates
+and assigns their direct-on-main, lock-protected path to that later work. See also
 [ADR 0008's alignment note](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md).
 
-**Continuity reminder (2026-09-20):** Consume
-[claim publication's workspace boundary](../../src/skills/dough-execute-plan/references/execution-location.md)
-when refining the common workspace procedure. Replace task-specific location
-instructions with the agreed procedure for preparing work in an owned workspace
-and using the shared integration checkout only for a prepared, bounded change.
-Keep refinement/discussion outside the integration turn. Retain a short route
-for a prepared Taken update; do not require a separate planning workspace for
-every claim. Preserve claim publication before isolated implementation and use
-the same publication behavior rather than a planning-specific copy. Remove
-superseded location guidance and review claim startup/resume against the new
-procedure. This story can still use explicit coordination before the queue
-exists; it does not implement the queue or grant new push authority.
+**Architecture:** Follow Accepted
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+for current user value, recoverable work, and reuse of existing publication;
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+for one shared behavior written for the executing agent. Keep these maintainer
+references out of required runtime project context. The two Proposed lifecycle
+and dashboard ADRs do not impose a binding requirement to edit on `main`.
 
 ## Research and Architectural Context
 
