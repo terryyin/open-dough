@@ -6,16 +6,24 @@ import { expect, type Page } from "@playwright/test";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
+  const status = page.getByRole("status");
   return {
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
     taken: stages.getByRole("region", { name: "Taken", exact: true }),
+    // What joins Backlog to Taken, found by the words that name it.
+    connector: stages.getByText("Taking work", { exact: true }),
     direction: page.getByRole("region", { name: "Near-future direction" }),
     source: page.getByRole("region", { name: "Published Git state" }),
     refresh: page.getByRole("button", { name: "Refresh" }),
     // The same read control, as it is named after a failed attempt.
     retry: page.getByRole("button", { name: "Retry" }),
     problem: page.getByRole("alert"),
+    // The read status is always on the page, so that a change of its text is
+    // spoken; it says what the latest read is doing or what it read.
+    status,
+    // That status only while it says a read is under way.
+    reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
   };
 }

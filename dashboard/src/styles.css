@@ -1,7 +1,11 @@
 :root {
   --surface: #f6f6f3;
   --panel: #ffffff;
+  /* Decorative separation only; every group it outlines is also a headed
+     region or a list item, so nothing is told by this faint line alone. */
   --line: #c9c9c1;
+  /* An edge that has to be seen for a control to be recognised. */
+  --edge: #6f6f68;
   --text: #1d1d1b;
   --quiet: #55554f;
   --accent: #1b5fa8;
@@ -12,9 +16,12 @@
   background: var(--surface);
 }
 
+/* Long titles, identities, link targets, and revisions are read whole: they
+   wrap inside their group, are never cut short, and never widen the page. */
 body {
   margin: 0;
-  padding: 1.5rem;
+  padding: clamp(0.75rem, 4vw, 1.5rem);
+  overflow-wrap: anywhere;
 }
 
 h1,
@@ -34,18 +41,41 @@ h1 {
 }
 
 h2 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 h3 {
-  font-size: 1rem;
-  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+code,
+.card-identity,
+.link-target {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+/* One visible focus indication for every link, the read control, and the
+   groups that receive focus only when it is returned to them. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
 }
 
 .page-header {
-  display: grid;
-  gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.page-header > * + * {
+  margin-top: 1rem;
+}
+
+/* A polite region with nothing to say stays rendered, so that what it says
+   next is spoken, and takes no room on the page. */
+.page-header > .announcement:empty {
+  margin-top: 0;
 }
 
 .source dl {
@@ -54,9 +84,13 @@ h3 {
   gap: 0.25rem 1.5rem;
 }
 
-.source dl div {
-  display: flex;
-  gap: 0.4rem;
+.source dt,
+.source dd {
+  display: inline;
+}
+
+.source dt {
+  margin-right: 0.4rem;
 }
 
 .source dt,
@@ -71,9 +105,8 @@ h3 {
   font-size: 0.9rem;
 }
 
-.source dd,
-.card-identity {
-  overflow-wrap: anywhere;
+.source-note {
+  margin-top: 0.25rem;
 }
 
 .refresh {
@@ -87,31 +120,29 @@ h3 {
   cursor: pointer;
 }
 
+/* Reading is said in words beside the control; the dashed edge and quiet
+   fill only repeat it. */
 .refresh[aria-disabled="true"] {
-  border-color: var(--line);
+  border: 1px dashed var(--edge);
   color: var(--quiet);
   background: var(--surface);
   cursor: default;
 }
 
-.notice:empty {
-  display: none;
-}
-
-.stages:focus-visible,
-.card:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .read-problem {
-  border-left: 4px solid var(--problem);
-  padding: 0.5rem 1rem;
+  border: 1px solid var(--problem);
+  border-left-width: 4px;
+  border-radius: 0.35rem;
+  padding: 0.6rem 1rem;
   background: var(--panel);
 }
 
 .read-problem h2 {
   color: var(--problem);
+}
+
+.read-problem p {
+  margin-top: 0.35rem;
 }
 
 .direction {
@@ -120,93 +151,4 @@ h3 {
 
 .direction-text {
   white-space: pre-line;
-}
-
-.stages {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-.stage {
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  background: var(--panel);
-}
-
-.stage-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.cards {
-  list-style: none;
-  display: grid;
-  gap: 0.6rem;
-}
-
-.card {
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--accent);
-  border-radius: 0.35rem;
-  padding: 0.6rem 0.8rem;
-  background: var(--surface);
-}
-
-.card-links {
-  list-style: none;
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
-  overflow-wrap: anywhere;
-}
-
-.card-links a {
-  color: var(--accent);
-}
-
-.link-role {
-  font-weight: 600;
-}
-
-.link-target {
-  font-size: 0.9rem;
-}
-
-.connector {
-  margin-top: 2.5rem;
-  text-align: center;
-}
-
-.connector-arrow {
-  width: 100%;
-  height: 1rem;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 2;
-}
-
-.connector-label {
-  font-weight: 600;
-}
-
-@media (max-width: 48rem) {
-  .stages {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .connector {
-    margin-top: 0;
-  }
-
-  .connector-arrow {
-    width: 4rem;
-    transform: rotate(90deg);
-    margin: 1rem 0;
-  }
 }

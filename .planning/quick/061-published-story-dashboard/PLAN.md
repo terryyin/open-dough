@@ -1,7 +1,7 @@
 # See the project's published work in a story dashboard
 
-Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
-and just-in-time UX. Slice 1 resolved without change; slices 2–5 done; slice 6 is next.
+Status: all slices delivered 2026-09-20; awaiting retrospective and wrap-up; refined 2026-09-19 for connected stages
+and just-in-time UX. Slice 1 resolved without change; slices 2–6 done.
 
 ## Execution identity
 
@@ -395,8 +395,37 @@ normal and failed reads communicate their evidence limits and can recover.
 
 ### 6. Read and navigate the stage with keyboard and a narrow viewport
 Type: Behavior
-Status: planned
+Status: done 2026-09-20
 Proof: `npm run test:dashboard -- --grep 'accessible overview'`
+
+Delivered 2026-09-20. Accepted proof: six `accessible overview` tests in
+`dashboard/tests/accessible-overview.spec.ts` and
+`accessible-overview-keyboard.spec.ts`, measured through
+`dashboard/tests/pageLayout.ts`: long work reflows at 1280 and at 320x256 (the
+400% zoom equivalent) with no sideways page scroll, nothing past the window,
+and no clipped text; stacked order runs header, source, status, direction,
+Backlog, arrow, "Taking work", note, Taken; empty groups at 360x740 and a read
+problem at 320x256 stay reachable; a 40-entry backlog is read by page scrolling
+with the stage heading and count stuck; Tab stops only at the read control and
+every recorded link in DOM reading order with a visible outline, no trap, Enter
+follows a link, Space and Enter start a read; both live regions exist unhidden
+before their text arrives and the same elements carry reading, result, and
+empty-on-failure while focus stays put; the viewport meta leaves zoom alone.
+Whole suite 28 passed after refactoring; type check, build, and `npm run lint`
+exit 0. Coordinator viewed both generated screenshots (gitignored, no
+baselines): connected composition, wrapping, and connector read clearly.
+Reflow and scrolling sufficed, so no focus/fit, pan/zoom, or motion was added.
+
+Changes to earlier proof: the status region is now permanent, so seven earlier
+"no status" checks became "no status says Reading published work"; the same-SHA
+test replaces every occurrence of the time; slice 2's side-by-side check now
+shares the stacked check's 0.5 px rounding. A real defect was fixed: the narrow
+connector arrow overlapped its neighbours. Computed, not asserted: all text
+contrast is at least 4.67:1. Untested: real browser zoom, widths between 360
+and 768, the Taken heading staying stuck, Enter on an external link,
+assistive-technology speech, and mouse-wheel scrolling. For human review by
+eye: the completion sentence repeats the header's revision and time, and the
+desktop arrow is short.
 
 Complete the selected UX hierarchy and visual treatment across the stage
 journey. Keep long titles and identity/links legible, including when the backlog

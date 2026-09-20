@@ -77,7 +77,7 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
       );
       await expect(page.getByRole("button")).toHaveText(["Retry"]);
       await expect(retry).toBeFocused();
-      await expect(page.getByRole("status")).toHaveCount(0);
+      await expect(parts(page).reading).toHaveCount(0);
     });
 
     await test.step("A stays whole: membership, order, pinned link, revision, and its own retrieval time", async () => {

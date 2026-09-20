@@ -1,6 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { publishedSource } from "./publishedSource";
-import { readPublishedWork, type PublishedWork } from "./publishedWork";
+import {
+  readPublishedWork,
+  shortRevision,
+  type PublishedWork,
+} from "./publishedWork";
 import { ReadProblem } from "./readProblem";
 import { focusedWork, returnFocusTo, type FocusedWork } from "./workFocus";
 import { WorkStages } from "./WorkStages";
@@ -155,12 +159,25 @@ export function App() {
             {attempt.status === "failed" ? "Retry" : "Refresh"}
           </button>
         </section>
-        {reading && (
-          <p role="status">
-            Reading published work…
-            {work && " What is shown is still the snapshot retrieved earlier."}
-          </p>
-        )}
+        {/* Both polite regions stay rendered while they have nothing to say:
+            assistive technology speaks a change of text inside a region it
+            already knows, and may never speak one inserted with its text.
+            Neither takes focus. The result names only what was read. */}
+        <p role="status" className="announcement">
+          {reading && (
+            <>
+              Reading published work…
+              {work &&
+                " What is shown is still the snapshot retrieved earlier."}
+            </>
+          )}
+          {attempt.status === "read" && work && (
+            <>
+              Published work read at revision {shortRevision(work.revision)},
+              retrieved <Moment at={work.retrievedAt} />.
+            </>
+          )}
+        </p>
         {attempt.status === "failed" && (
           <div role="alert" className="read-problem">
             <h2>Published work could not be read</h2>
@@ -180,7 +197,7 @@ export function App() {
             </p>
           </div>
         )}
-        <p className="notice" aria-live="polite">
+        <p className="announcement" aria-live="polite">
           {notice}
         </p>
         {work && (

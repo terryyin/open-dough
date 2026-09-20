@@ -40,7 +40,7 @@ async function expectProblemAndNoSnapshot(page: Page, problemText: string) {
     "No published work is shown, because none has been read.",
   );
   await expect(page.getByRole("button")).toHaveText(["Retry"]);
-  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
@@ -143,15 +143,13 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
   origin.push(revisionA, backlogA);
   const releaseRef = origin.hold("main");
   await page.goto("/");
-  const { retry, problem } = parts(page);
-  await expect(page.getByRole("status")).toHaveText("Reading published work…");
+  const { retry, problem, status } = parts(page);
+  await expect(status).toHaveText("Reading published work…");
   await page.clock.pauseAt(new Date(opened.getTime() + 5_000));
 
   await test.step("before the bound the read is still awaited", async () => {
     await page.clock.runFor(20_000);
-    await expect(page.getByRole("status")).toHaveText(
-      "Reading published work…",
-    );
+    await expect(status).toHaveText("Reading published work…");
     await expect(problem).toHaveCount(0);
   });
 
@@ -229,7 +227,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     [],
   );
   await expect(problem).toHaveCount(0);
-  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(parts(page).reading).toHaveCount(0);
   await expect(page.getByRole("button")).toHaveText(["Refresh"]);
   await expect(refresh).toBeFocused();
   expect(pathsRead(origin)).toHaveLength(4);

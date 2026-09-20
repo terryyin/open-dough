@@ -59,6 +59,15 @@ export function rawFileAnswer(markdown: string): RawAnswer {
   };
 }
 
+// The backlog file origin publishes when nothing is recorded: both groups,
+// no entries, and no direction.
+export const emptyBacklog = `# Product backlog
+
+## Taken
+
+## Backlog list
+`;
+
 export function rateLimitedAnswer(status: 403 | 429 = 403): RawAnswer {
   return {
     status,

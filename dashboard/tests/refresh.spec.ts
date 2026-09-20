@@ -21,7 +21,7 @@ test("refresh published work replaces revision A with revision B as one result",
   const retrievedB = new Date("2026-09-20T09:45:00.000Z");
   await page.clock.setFixedTime(retrievedA);
   const origin = await openAtA(page);
-  const { stages, taken, refresh } = parts(page);
+  const { stages, taken, refresh, status } = parts(page);
   const snapshotA = {
     revision: revisionA,
     titles: titlesOfA,
@@ -36,7 +36,7 @@ test("refresh published work replaces revision A with revision B as one result",
   await refresh.click();
 
   await test.step("while reading, A stays shown as A and Refresh is unavailable", async () => {
-    await expect(page.getByRole("status")).toContainText(
+    await expect(status).toContainText(
       "Reading published work… What is shown is still the snapshot retrieved earlier.",
     );
     await expect(refresh).toBeDisabled();
@@ -69,7 +69,7 @@ test("refresh published work replaces revision A with revision B as one result",
   await test.step("removed work leaves; no further stage or reading state remains", async () => {
     await expect(page.getByText(workspaceStory)).toHaveCount(0);
     await expect(stages.getByRole("region")).toHaveCount(2);
-    await expect(page.getByRole("status")).toHaveCount(0);
+    await expect(parts(page).reading).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(refresh).toBeEnabled();
     await expect(refresh).toBeFocused();
@@ -143,13 +143,13 @@ test("refresh published work reads only when asked, and an unchanged revision ch
     { revision: revisionA, titles: titlesOfA, retrievedAt: retrievedAgain },
     [],
   );
-  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(parts(page).reading).toHaveCount(0);
   await expect(notice).toBeEmpty();
   // Nothing else is said: the page reads as before, but for the time.
   const timeAtSecondRead = await source.locator("time").innerText();
   expect(timeAtSecondRead).not.toBe(timeAtFirstRead);
   expect(await body.innerText()).toBe(
-    textAtFirstRead.replace(timeAtFirstRead, timeAtSecondRead),
+    textAtFirstRead.replaceAll(timeAtFirstRead, timeAtSecondRead),
   );
   expect(pathsRead(origin)).toHaveLength(4);
 });

@@ -1,4 +1,8 @@
-import type { PublishedWork, WorkEntry } from "./publishedWork";
+import {
+  shortRevision,
+  type PublishedWork,
+  type WorkEntry,
+} from "./publishedWork";
 import type { SourceLink } from "./sourceLink";
 import { stagesMarks, workCardMarks, workLinkMarks } from "./workFocus";
 
@@ -24,7 +28,7 @@ function RecordedLink({ role, link }: { role: string; link: SourceLink }) {
             {recorded}
           </a>
           <p className="link-note">
-            File in this snapshot, at revision {link.revision.slice(0, 7)}.
+            File in this snapshot, at revision {shortRevision(link.revision)}.
           </p>
         </li>
       );

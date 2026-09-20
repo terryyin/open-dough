@@ -62,7 +62,7 @@ test("refresh published work announces that the focused work is no longer listed
 
   await test.step("the next read withdraws the message", async () => {
     await refresh.click();
-    await expect(page.getByRole("status")).toHaveCount(0);
+    await expect(parts(page).reading).toHaveCount(0);
     await expect(notice).toBeEmpty();
     await expectMembership(page, titlesOfB);
     await expect(refresh).toBeFocused();

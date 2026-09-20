@@ -1,6 +1,12 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { expectMembership, parts } from "./dashboardPage";
-import { commitAnswer, publishOrigin, rawFileAnswer } from "./githubOrigin";
+import {
+  commitAnswer,
+  emptyBacklog,
+  publishOrigin,
+  rawFileAnswer,
+} from "./githubOrigin";
+import { expectSideBySideInOrder } from "./pageLayout";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 
@@ -23,23 +29,8 @@ Derive it solely from Git state published to origin.
 - [Show <em>markup</em> in a title as the text it is](seeds/SEED-030-titles.md#markup-as-text) — SEED-030#markup-as-text
 `;
 
-const emptyBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
-
 const claimsBeyondMembership =
   /\b(live|running|online|active|in progress|started|completed?|done|finished|owner|mode)\b/i;
-
-async function box(locator: Locator) {
-  const found = await locator.boundingBox();
-  if (!found) {
-    throw new Error(`No visible box for ${locator.toString()}`);
-  }
-  return found;
-}
 
 test("published overview shows connected Backlog and Taken work read at one revision", async ({
   page,
@@ -57,17 +48,22 @@ test("published overview shows connected Backlog and Taken work read at one revi
 
   await page.goto("/");
 
-  const { stages, backlog, taken, direction, source } = parts(page);
+  const {
+    stages,
+    backlog,
+    taken,
+    connector,
+    direction,
+    source,
+    status,
+    reading,
+  } = parts(page);
   await test.step("reading is shown before any work or count", async () => {
-    await expect(page.getByRole("status")).toHaveText(
-      "Reading published work…",
-    );
+    await expect(status).toHaveText("Reading published work…");
     await expect(stages).toHaveCount(0);
     await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
     releaseRef();
   });
-
-  const connector = stages.getByText("Taking work", { exact: true });
 
   await test.step("membership and recorded order", async () => {
     await expectMembership(page, {
@@ -81,7 +77,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
         "Show <em>markup</em> in a title as the text it is",
       ],
     });
-    await expect(page.getByRole("status")).toHaveCount(0);
+    await expect(reading).toHaveCount(0);
   });
 
   await test.step("identities come from the shared backlog reader", async () => {
@@ -123,13 +119,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
   await test.step("Backlog connects to Taken through taking work", async () => {
     await expect(connector).toBeVisible();
     await expect(stages.getByRole("region")).toHaveCount(2);
-    const [from, link, to] = await Promise.all([
-      box(backlog),
-      box(connector),
-      box(taken),
-    ]);
-    expect(from.x + from.width).toBeLessThanOrEqual(link.x);
-    expect(link.x + link.width).toBeLessThanOrEqual(to.x);
+    await expectSideBySideInOrder([backlog, connector, taken]);
     await expect(stages).toContainText("not a dependency between entries");
   });
 
@@ -185,12 +175,12 @@ test("published overview accepts successfully empty groups and no recorded direc
 
   await page.goto("/");
 
-  const { stages, backlog, taken, direction, source } = parts(page);
+  const { stages, backlog, taken, connector, direction, source } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
   await expect(backlog).toContainText("0 entries");
-  await expect(stages.getByText("Taking work", { exact: true })).toBeVisible();
+  await expect(connector).toBeVisible();
   await expect(stages.getByRole("article")).toHaveCount(0);
   await expect(direction).toContainText(
     "No near-future direction is recorded.",

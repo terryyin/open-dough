@@ -48,6 +48,12 @@ export type PublishedWork = {
   readonly backlog: readonly WorkEntry[];
 };
 
+// A revision as it is said inside a sentence. The source evidence and every
+// pinned link keep the whole revision.
+export function shortRevision(revision: string): string {
+  return revision.slice(0, 7);
+}
+
 function interpret(
   markdown: string,
   revision: string,
