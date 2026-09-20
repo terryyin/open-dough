@@ -13,10 +13,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Prepare stories and slice plans in a clear developer workspace workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure ([plan](quick/065-prepare-stories-in-owned-worktrees/PLAN.md))
+
 ## Backlog list
 
 - [Recognize realpath-equivalent CLI entry paths](quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md)
-- [Prepare stories and slice plans in a clear developer workspace workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
