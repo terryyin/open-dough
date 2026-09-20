@@ -1,6 +1,8 @@
 # Publish shared backlog claims before isolated execution
 
-Status: planned. Planning only; execution is not authorized or started.
+Status: in progress. Slice 1 done; slices 2-4 remain planned. Execution
+started 2026-09-20 in Story Branch Mode on branch
+`claude/064-publish-shared-backlog-claims`.
 Work identity: SEED-008#publish-shared-backlog-claims
 
 ## Source, goal, and scope
@@ -141,10 +143,27 @@ resolve its evidence under ADR 0005 rather than silently adding a test matrix.
 
 ### 1. Refuse an isolated claim before mutation when publication is unauthorized
 Type: Behavior
-Status: planned
+Status: done
 Proof: story example 2 through the actual startup caller; absent destination,
 authority or integration turn leaves backlog/index/refs unchanged and starts no
 implementation. A valid preflight continues under the existing mode contract.
+Accepted proof: `src/skills/dough-execute-plan/SKILL.md`'s "Take queued work"
+section now gates the existing Backlog-list-to-Taken mutation behind a new
+paragraph (Story Branch/Trunk only) requiring resolved claim-publication
+authority, destination, and an exclusive integration turn under
+[trunk publication's Preconditions](../../../src/skills/dough-execute-plan/references/trunk-publication.md#preconditions)
+before that mutation call is reached; missing any of the three leaves the
+move (and thus the queue, index, and refs) unchanged and reaches no
+implementation. Current-branch and no-claim contextual paths are explicitly
+untouched. Reviewed by inspecting the literal diff and tracing both the
+refusal and continuation paths through the edited prose; no test suite
+applies to this documentation-only slice.
+Learning: the post-change refactor pass found this edit pushes
+`src/skills/dough-execute-plan/SKILL.md` from 250 to 260 lines, over this
+project's 250-line refactor-check threshold. Splitting it now would mean
+doing slice 2's modularization early; the overrun is intentionally carried
+forward and must be resolved by slice 2's extraction of shared publication
+mechanics into `references/trunk-publication.md`.
 
 Resolve claim publication authority and destination before taking queued work
 in either isolated mode. Require the declared integration turn and existing

@@ -66,8 +66,9 @@ Resolve project context at the first boundary that needs it:
 - backlog path and selected entry for work selected from **Backlog list**;
 - selective formatter and commit hook contract before taking queued work and its claim commit;
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
-- authorized push destination before delivery, and for Trunk Mode before
-  publishing a queue claim or verified increment;
+- authorized push destination before delivery; for Story Branch or Trunk Mode, also resolved
+  claim-publication authority, destination, and integration turn before taking queued work, and
+  for Trunk Mode before publishing a queue claim or verified increment;
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
 
@@ -110,8 +111,17 @@ Before moving it, resolve selective formatting and the Taken-only commit's hook 
 An absent or understood check-only hook permits the transition. An unknown, mutating,
 failing, or disputed hook stops it with the queue unchanged until safely resolved through
 execution decisions. Resolution runs neither delivery formatting nor hook-owned lint;
-obtain push/CI context only when another current boundary needs it. Then follow
-[take queued work](../dough-product-backlog/SKILL.md#take-queued-work-for-execution).
+obtain push/CI context only when another current boundary needs it.
+
+For Story Branch or Trunk Mode, also resolve the claim's publication authority, its authorized
+push destination, and an exclusive integration turn under
+[trunk publication's Preconditions](references/trunk-publication.md#preconditions) before moving
+the entry; reuse permission already established for this execution rather than requesting it
+again. An unresolved authority, destination, or integration turn stops the move with the backlog,
+index, and refs unchanged, and starts no implementation. Caller-selected current-branch work keeps
+its existing contract and gains no new publication authority here.
+
+Then follow [take queued work](../dough-product-backlog/SKILL.md#take-queued-work-for-execution).
 An ambiguous move stops implementation.
 
 Already **Taken** means resume: preserve its position without duplication. Work absent
