@@ -25,7 +25,9 @@ The intended experience is an animated, zoomable stage with connected work
 stages, rather than just a list. Apply it just in time: the first increment
 needs a readable connected overview, not every interaction in that ambition.
 
-This seed proposes five user-visible increments. It is decomposition input,
+This seed proposed five user-visible increments. The first, a locally launched
+overview of published work, is delivered as the [story dashboard](../../dashboard/README.md);
+four remain. It is decomposition input,
 not an executable plan. UX/UI guidance and tech-stack selection are separate
 design tasks; their output informs refinement without becoming extra technical
 preparation stories.
@@ -47,14 +49,14 @@ preparation stories.
 The user has selected the visual-dashboard direction and remote-first boundary.
 The comparison above and the story cuts below are recommendations for review,
 not evidence that a dashboard has already proved more useful than repository
-browsing. The first story tests that assumption.
+browsing. The delivered overview lets that assumption be tested in use.
 
 ## Boundaries Shared by the Stories
 
 - Start with one client project hardcoded in the Open Dough dashboard project.
   Terry selected Open Dough's public GitHub origin, integration branch `main`,
   and local dashboard launch on 2026-09-19. No sign-in, hosted deployment,
-  project-registration service, or general project picker in the first story.
+  project-registration service, or general project picker in the delivered overview.
   Story 5 removes the Open Dough-only configuration boundary for another real
   project; it does not introduce a portfolio dashboard.
 - The dashboard reads published origin state only. No dependency on a
@@ -68,7 +70,7 @@ browsing. The first story tests that assumption.
   a prerequisite chosen by this seed.
 - Preserve story identity, queue order, and distinctions between missing,
   conflicting, and positively recorded information. Taken does not mean live.
-- Stories 1-3 observe existing records without assigning names or claiming work
+- The delivered overview and stories 2-3 observe existing records without assigning names or claiming work
   to make them readable. Story 4 explicitly owns the producer-to-display journey
   for new assignment information. None adds local locks, queues, or messaging.
   Unavailable metadata remains explicit rather than invented.
@@ -77,200 +79,6 @@ browsing. The first story tests that assumption.
   set. No percentage estimates of whole-story completion.
 
 ## Story Decomposition
-
-<a id="see-published-work"></a>
-
-### 1. See the project's published work in a story dashboard
-
-**Identity:** SEED-021#see-published-work
-
-**Status:** Refined and planned 2026-09-19; queued, not Taken.
-**Plan:** [061 — Published story dashboard](../quick/061-published-story-dashboard/PLAN.md).
-
-**Goal:** Terry opens a locally launched dashboard and can answer “What is the
-project aiming for, what work is Taken, and what is next?” from Open Dough's
-published backlog. He can see connected work stages and read their work cards.
-This tests whether spatial presentation helps him orient himself during
-single-agent Trunk Mode use. The first outcome is visibility of
-selected work, not a claim to measure implementation progress inside a story.
-
-**Scope — required behavior:**
-
-- Read `terryyin/open-dough` on GitHub, resolve published `main`, and read
-  `.planning/PRODUCT-BACKLOG.md` at that revision. Launch the dashboard locally;
-  no developer checkout is a source of displayed project facts.
-- Show the near-future direction when present, Taken entries in their recorded
-  order, and queued entries in priority order. Preserve titles and identities;
-  existing bounded corrections are ordinary work entries, not parse failures
-  merely because they have no story seed.
-- Present work as cards in connected **Backlog → Taken** stages. Label the
-  connector as the taking-work relationship, not a story dependency or proof
-  of live activity. Preserve each group's recorded order and backlog priority.
-  Do not invent further lifecycle stages to fill the diagram.
-- Keep the full title, identity, membership/priority, and existing source links
-  readable from the same snapshot, with the connected overview understandable.
-  Direction, source status, and refresh stay reachable. Use ordinary layout,
-  wrapping, reflow, and scrolling where sufficient; add a small focus/fit or
-  zoom interaction only if actual content presents a reading or orientation
-  problem. A general pan/zoom system is not an acceptance requirement.
-- Let the user follow existing canonical work and plan links to published source
-  records. Link to the inspected revision where applicable. Do not fetch and
-  interpret those documents to create a detail view in this story.
-- Load on opening and provide explicit Refresh. Show the source project/ref,
-  inspected revision, and successful retrieval time. Publish one coherent
-  backlog snapshot, not a mixture of records from changing `main` revisions.
-- Keep work identity stable on refresh. Any motion must clarify navigation or
-  observed change, settle when nothing changes, and respect reduced motion.
-  Do not build animated travel or intermediate stages merely to complete the
-  visual concept; no looping activity or inferred Done position for removed work.
-- Distinguish loading, successfully empty groups, and unavailable or invalid
-  source data. A failed refresh retains the last successful view with a clear
-  failure/stale indication and retry, rather than changing it to an empty queue
-  or presenting it as a newly successful read. Initial failure shows no invented
-  backlog. Missing direction is not a failure; an unreadable backlog is.
-- Deliver readable titles and clear spatial grouping, with keyboard access to
-  source links, refresh, and any navigation controls. Keep the connected view
-  usable on a narrow viewport, preserving browser page zoom and normal page
-  scrolling. Apply the UX North Star only to this overview and entry scope.
-
-**Backlog details and story states:** No new durable fields or lifecycle state
-machine are needed for this goal. Derive membership directly from `Taken` and
-`Backlog list`; these are displayed facts, not new values written to stories.
-Do not infer Running, Completed, refined, or slice-planned from that membership.
-Existing identity and links are sufficient to show and navigate an entry.
-
-Developer names, execution mode, and origin execution-branch fields are deferred
-until a story promises to use them. Likewise, explicit refinement/planning
-metadata and a broader story-state model remain later questions. This first
-view omits those fields rather than making a screen of unused “unknown” facts.
-No migration, identity adoption, or backlog writer change is required merely to
-display the current published document. If existing read parsing needs a bounded
-compatibility repair, it belongs here with preservation of existing callers;
-rewriting the project's records is not the fallback.
-
-**Technical setup included in delivery:**
-
-- Establish the minimal React, strict TypeScript, Vite, and runtime-validation
-  setup needed for the actual overview, using the stack recommendation. Type
-  check application code, tests, and configuration; validate consumed external
-  data instead of asserting its shape. Keep the existing npm toolchain and
-  extend applicable lint/format checks to the new source.
-- Semantic HTML cards with ordinary CSS layout and simple connectors are the
-  starting direction; canvas is optional and must preserve accessible reading
-  if selected. Introduce viewport/focus/animation state only when needed, kept
-  separate from snapshot interpretation. No graph editor, physics layout,
-  persisted coordinates, or advance support for future perspectives.
-- For this public fixed project, prefer browser reads of GitHub's REST API and
-  static UI assets. GitHub documents CORS support. Node may run build, local
-  serving, and test tools; no application read server or database is needed for
-  this first outcome. Verify actual unauthenticated browser access during
-  delivery; failure must be reported, not worked around by silently adding
-  sign-in, a token field, or private-project infrastructure.
-- Reuse the established backlog interpretation where it fits. The source
-  parser's current rejection of legacy Taken plan-link syntax is known from
-  decomposition; inspecting the actual published format is necessary before
-  choosing a reader. Do not duplicate mutation or reconciliation rules or
-  require delivery of the broader scripted-backlog installation story.
-- Provide documented commands for local launch, type checking, the behavioral
-  suite, and a production build. Commit compatible dependency/lockfile and
-  configuration changes with implementation. Keep the dashboard outside the
-  installed guidance payload; no release/installer story is introduced.
-
-**Testing and existing CI — included, not follow-up work:**
-
-Use one new behavioral suite: **Playwright on Chromium**, exercising the built
-UI, real remote-reading code, and real backlog interpretation. Substitute only
-the external GitHub response boundary with representative ref/file responses;
-do not supply preinterpreted dashboard rows that bypass the promised reader.
-Include connected-stage reading and the success, refresh, empty, and failure
-boundaries below in that suite, including reduced motion for any animation
-introduced. Use existing parser tests as applicable when shared code changes;
-retain existing repository tests. Do not add Vitest, a component-test layer, a
-separate API-test suite, or a cross-browser matrix for this story.
-
-Wire the dashboard suite into the existing GitHub Actions CI so ordinary pushes
-and pull requests run it alongside the existing checks. CI installs the needed
-browser, builds and serves the real app for the journey, reports failure, and
-retains useful failure diagnostics. It also runs explicit TypeScript checks and
-lint; these are static checks, not another behavioral test layer. The production
-build must succeed. Playwright execution alone does not establish type safety.
-No green result may skip the new suite because the existing shell discovery
-only finds `.sh` tests.
-
-Normal CI uses controlled responses and needs neither GitHub credentials nor
-live project contents. A bounded read-only browser observation against the real
-public origin additionally proves the selected access path works and the
-published format is understood; this is delivery evidence, not another test
-framework or a permanent live-network CI dependency. Native Codex/Cursor/Claude
-acceptance is not added for this browser-only capability.
-
-**Key examples:**
-
-1. *Real overview.* Origin `main` contains a direction, a Taken entry with an
-   existing plan link, and queued entries. Opening the dashboard shows those
-   facts as cards in connected stages in source order, with working source
-   navigation and the read revision.
-   A local unpushed backlog edit has no effect on the view.
-2. *Published change.* The user has loaded revision A. A queue-to-Taken change
-   reaches origin as revision B. Refresh shows B's membership and order together
-   and updates the source indication; the same work appears in Taken without a
-   duplicate or a guessed intermediate state. Any visual transition respects
-   reduced motion. An unchanged revision implies no new work or activity.
-3. *Empty versus unavailable.* A successfully read empty Taken section is
-   shown as empty. A network/rate-limit failure, missing backlog, or unsupported
-   document produces an actionable read problem, not an empty or complete
-   project. After an earlier successful load, that snapshot remains visibly old.
-4. *No new state needed.* An entry has no owner, mode, or refinement metadata.
-   It still appears correctly in its source group with its title and links.
-   Taken alone produces no live-status badge or completion claim.
-5. *Readable connected work.* With long titles, more entries than fit onscreen,
-   or a narrow viewport, the user can still understand Backlog's connection to
-   Taken, read each entry, and reach its source links using the keyboard.
-   Reflow and ordinary scrolling can satisfy this; if a bounded focus/zoom
-   interaction is needed, it preserves orientation and a way back. No fetched
-   story or slice details are required to make the stage useful.
-
-**Scope — rejection constraints:** Read published Git state only; do not edit
-the observed repository or depend on machine-local activity. No application
-database, separately authoritative status store, or required browser persistence.
-Never execute repository content or render fetched Markdown as trusted HTML.
-Do not silently discard malformed entries to make a partial backlog look complete.
-
-**Deferred promises:** Owner/mode/branch enrichment; new persisted story states;
-refinement and slice detail; discovering stories outside the backlog; execution
-branch/history traversal; recently finished work; feature/structure views;
-backlog editing, lock/queue or messaging; automatic polling, project selection,
-private repository access, sign-in, hosted deployment, and persistent caching.
-Dependency graphs, configurable workflow stages, and dragging cards to change
-work state are also deferred; connected-stage navigation does not require them.
-The North Star's richer zoom/pan and animation direction is pursued as actual
-reading and navigation needs emerge, not built as a first-story prerequisite.
-These are delivery exclusions, not arbitrary rejection rules for naturally
-supported source content.
-
-**Architecture and evidence:** Follow Accepted ADRs
-[0001](../../docs/adrs/0001-ubiquitous-language-accepted.md) for work concepts and
-[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-for one owner per interpretation and the smallest useful increment. ADR 0008
-remains Proposed. The public repository and `main` default were verified through
-GitHub metadata on 2026-09-19; Terry selected Open Dough and local launch in this
-refinement. See [GitHub CORS](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests)
-and [Playwright type checking](https://playwright.dev/docs/test-typescript) for
-the two relevant tool boundaries. This scope narrows the broader stack guide's
-optional server and multiple test layers; it does not adopt all of that guide.
-
-**Depends on / remaining uncertainty:** No new product prerequisite and no
-remaining product-input question for this story. Planning must resolve the
-smallest compatible read boundary for the actual backlog syntax and carry the
-browser access observation. These do not authorize schema expansion.
-
-**Safe stopping point:** A real, locally usable overview with passing CI remains
-valuable if the later stories are cancelled. Use it before adding more states
-or metadata. No executable plan or implementation is created by this refinement.
-
-**Effort hypothesis:** Unestimated; medium confidence. The initial app and CI
-setup are real delivery cost within this story, not separate preparation work.
-Backlog-read compatibility is the main remaining implementation uncertainty.
 
 <a id="inspect-recorded-story-progress"></a>
 
@@ -314,7 +122,7 @@ again. The overview deliberately holds no Markdown parsing, so refinement must
 name which existing reader owns story and slice-status meaning, or make that
 interpretation part of this story's scope.
 
-**Depends on:** Story 1's usable overview and origin access. This story reads
+**Depends on:** The delivered overview and its origin access. This story reads
 existing records; it does not depend on the installed scripted-backlog gate or
 new local locks. Remote execution-branch progress belongs to story 3.
 
@@ -323,7 +131,7 @@ The view identifies its integration-branch scope so missing branch-local
 progress is not presented as lack of work.
 
 **Effort hypothesis:** Unestimated; medium confidence. More source variation
-than story 1, but reuse of its access and presentation. Contradictory records
+than the delivered overview, but reuse of its access and presentation. Contradictory records
 and planless work are the key boundary checks, not reasons to normalize the
 whole project's workflow in this story.
 
@@ -432,7 +240,7 @@ rotation and can drift from claims; commit authors do not reliably establish
 current ownership. Keep the automated assignment bounded to actual Taken work,
 not a general developer-directory product.
 
-**Depends on:** Story 1's usable dashboard. Story 2 is prioritized first for
+**Depends on:** The delivered dashboard. Story 2 is prioritized first for
 single-agent value, not a hard implementation prerequisite. Existing workflow
 claims/publication are the starting point; compatibility with ongoing backlog
 delivery and publication behavior must be checked in refinement. The local
@@ -460,7 +268,7 @@ band is invented without project definitions.
 
 **Identity:** SEED-021#observe-another-project
 
-**Status:** Captured 2026-09-19; queued immediately after story 1, before
+**Status:** Captured 2026-09-19; queued immediately after the delivered overview, before
 readiness/slice detail. Not refined or planned.
 
 **Goal:** A developer using Open Dough in another project can point the
@@ -468,7 +276,7 @@ dashboard at that project's published repository and understand its current
 work without changing dashboard application code or moving project state into
 the Open Dough source repository.
 
-**Scope candidate:** Replace the first story's hardcoded observed project with
+**Scope candidate:** Replace the delivered overview's hardcoded observed project with
 the smallest usable way to supply one project's repository and necessary
 read context. Display its direction, Taken work, queue, and source links using
 that project's records. Keep the initial local-launch and read-only model.
@@ -513,7 +321,7 @@ on editing the dashboard and can hide source-specific assumptions. Prefer a
 small one-project setup route over either source editing or a project-management
 platform.
 
-**Depends on:** Story 1's working overview. Readiness detail, named ownership,
+**Depends on:** The delivered overview. Readiness detail, named ownership,
 and same-machine locks are not prerequisites.
 
 **Deferred promises:** Simultaneous multi-project views, project registration,
@@ -534,18 +342,18 @@ behavior and include the second-project journey in the existing test approach.
 
 ## Ordering and Scope Reduction
 
-Story 1 is the recommended first story: it supplies a usable dashboard and tests
-the central value hypothesis immediately. Story 5 then proves usefulness in
+The delivered overview supplies a usable dashboard for testing the central value
+hypothesis in use. Story 5 next proves usefulness in
 another project before we deepen source-specific assumptions. Story 2 deepens
 the single-agent Trunk Mode experiment. Next, story 4 makes responsibility and
 execution context explicit. Story 3 then follows that context into published
 work that has not reached trunk. This moves an important excluded outcome ahead
-of branch inspection without enlarging the already-refined first story.
+of branch inspection without enlarging the delivered overview.
 
 For a smaller finish line, drop story 3 first and use the dashboard for Trunk
 Mode. Defer story 4 next if single-agent use makes assignment unimportant, then
-story 2 if the overview itself supplies enough value. Stories 1 and 5 together
-are the smallest selected finish line for a usable overview beyond Open Dough.
+story 2 if the overview itself supplies enough value. The delivered overview and story 5
+together are the smallest selected finish line for a usable overview beyond Open Dough.
 Neither the feature/structure perspectives nor recently completed history are
 added merely to complete a catalog of potential views.
 
@@ -553,7 +361,7 @@ No separate generic story-state story is queued: story 2 already tests the user
 outcome that refinement/planning metadata would support. If existing records
 cannot support a truthful view, use that evidence to refine its scope or capture
 one bounded recording outcome. A state framework is not independently valuable
-merely because it was excluded from story 1. Recent-completion history remains
+merely because it was excluded from the delivered overview. Recent-completion history remains
 an unselected hypothesis for the same reason.
 
 These stories precede the existing same-machine integration queue story. No
@@ -562,7 +370,7 @@ an already-Taken execution is authorized by this decomposition.
 
 ## Open Decisions
 
-- The first story's project and launch are settled: public Open Dough on GitHub,
+- The delivered overview's project and launch are settled: public Open Dough on GitHub,
   `main`, launched locally. Other providers and private access remain outside
   the selected first outcome.
 - Review the proposed third story's explicit branch-inspection fallback after
@@ -573,7 +381,7 @@ an already-Taken execution is authorized by this decomposition.
   and backlog/publication compatibility before choosing its implementation.
 - Choose the real second project for story 5 and inspect its remote access and
   record conventions before defining its minimal setup experience.
-- Define effort bands if S/M/L estimates are wanted. All five stories remain
+- Define effort bands if S/M/L estimates are wanted. The remaining stories stay
   unestimated rather than importing another project's sizing policy.
 
 ## When to Surface

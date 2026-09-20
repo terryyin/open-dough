@@ -45,7 +45,7 @@ does not accept that ADR, define a workflow state schema, or authorize execution
 below are an initial design recommendation. Revise them when real use shows a
 clearer or smaller solution; do not treat them as additional user commitments.
 
-[The first story](../.planning/seeds/SEED-021-observe-published-story-progress.md#see-published-work)
+[The first overview](../dashboard/README.md)
 selects the published direction, connected Backlog and Taken stages, readable
 entry facts, source links, and refresh/read states.
 It omits fetched story/plan detail, outside-backlog discovery, and

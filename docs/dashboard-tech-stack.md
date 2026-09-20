@@ -6,14 +6,14 @@
 
 ## First-story application
 
-[SEED-021 story 1](../.planning/seeds/SEED-021-observe-published-story-progress.md#see-published-work)
-was refined on 2026-09-19 for Open Dough's public GitHub `main`, launched locally.
-For that bounded overview, use the simpler static UI/browser-read option below,
+The first overview, for Open Dough's public GitHub `main` and launched locally,
+is built and described in the [dashboard README](../dashboard/README.md).
+That bounded overview uses the simpler static UI/browser-read option below,
 with React, strict TypeScript, Vite, runtime validation, and one new behavioral
 suite: Playwright on Chromium. Include type checking, lint, production build,
 and the browser suite in existing CI; preserve existing repository tests.
 No application read server, Vitest/component-test layer, browser matrix,
-sign-in, or hosted deployment is required by that story.
+sign-in, or hosted deployment is required by that overview.
 
 The interface direction is an animated, zoomable **connected-stage view**.
 The first story needs a readable connection between Backlog and Taken, entry
