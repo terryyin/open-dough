@@ -370,6 +370,11 @@ an already-Taken execution is authorized by this decomposition.
 
 ## Open Decisions
 
+- Terry has not yet used the delivered overview on his own work. Whether the
+  connected spatial view helps him orient during single-agent Trunk Mode is the
+  seed's central value hypothesis and is still untested. Launch it with
+  `npm run dev:dashboard` and decide from that use before refining story 2 or
+  story 5; if it does not help, reconsider their order and scope first.
 - The delivered overview's project and launch are settled: public Open Dough on GitHub,
   `main`, launched locally. Other providers and private access remain outside
   the selected first outcome.
