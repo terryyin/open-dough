@@ -653,3 +653,87 @@ run that later fails is never surfaced as a failure, only as lost coverage.
     registering its run is the likely cause of the missed first poll window,
     not a defect in classifying a found run; whether widening the poll count
     or window would reliably close this specific gap was not tested here.
+
+## DD-066 — A nested execution worktree's `node_modules` was assumed absent instead of tested
+
+Two independent refactor-pass agents, working in a Story Branch execution
+worktree created under the integration checkout's own working directory
+(`.worktrees/<slug>/`), reported this project's selective-formatting command
+as unusable because the worktree itself has no `node_modules` directory. Both
+reports treated `ls node_modules` (or an equivalent local existence check) as
+proof the command could not run, without invoking the actual command. Because
+the worktree is a subdirectory of the checkout that does have `node_modules`
+installed, Node's own upward module-resolution walk finds and uses that
+parent directory's packages, so `npm run format` and its `eslint`/`prettier`
+dependents run correctly from inside the nested worktree with no setup step.
+
+### Occurrences
+
+- Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.26
+  - Evidence: the slice 5 refactor-pass report stated `node scripts/lint.mjs`
+    "could not run (`eslint`/`prettier` binaries not installed in this
+    worktree's `node_modules`, which is empty — 0 packages vs. 96 in the main
+    checkout)... This is an environment gap." The coordinator then ran
+    `npm run format` directly in that same worktree
+    (`/Users/terryyin/git/open-dough/.worktrees/065-prepare-stories-in-owned-worktrees`)
+    immediately afterward and observed a clean pass with no diff, confirming
+    the command works there.
+  - Observed effect: no incorrect guidance reached the delivered plan or
+    product, since the coordinator's own formatting step is independent of
+    the refactor pass's own tooling claim and was run and verified regardless.
+    The cost was a false "environment gap" statement carried in that agent's
+    report, which the coordinator had to notice and re-verify rather than
+    trust.
+  - Inference: Qualified. The same false observation recurred verbatim in the
+    slice 6 refactor-pass report on the same worktree, suggesting the
+    pattern is the check itself (local directory existence) rather than a
+    one-off environment fluke; whether a differently phrased delegation
+    instruction (e.g. "run the command, not a `node_modules` existence
+    check, before reporting a tooling gap") would prevent recurrence was not
+    tested here.
+
+## DD-067 — A fresh implementation agent re-authored an already-exported test fixture helper
+
+An implementation agent writing a new scripted Git demonstration for a
+preparation-workspace publication scenario duplicated two helper functions
+(`createPreparationFixture`, `advanceOriginFromAnotherWriter`) byte-for-byte,
+apart from a temp-directory prefix string, from a sibling test file two
+slices earlier in the same execution, instead of importing them. The
+delegation brief for that slice did instruct reusing "the fixture patterns
+already established" by name, but the agent read that as a pattern to follow
+rather than a concrete export to import, and the duplication was not caught
+until the following coordinator-run refactor pass.
+
+### Occurrences
+
+- Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.26
+  - Evidence: slice 3 (commit `cfef3bc`) introduced
+    `createPreparationFixture`/`advanceOriginFromAnotherWriter` as local
+    functions inside
+    `dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs`.
+    Slice 5's implementation agent's own report for
+    `preparation-keep-publish-resume.test.mjs` stated it built "the
+    preparation-specific workspace shape... locally because no existing
+    fixture already models preparation's own vocabulary" — inaccurate, since
+    that exact shape already existed in slice 3's file. The slice 5
+    refactor-pass report then confirmed the duplication ("byte-for-byte,
+    apart from the tmp-dir prefix string") and extracted both functions into
+    a new shared `preparation-keep-publish-test-fixtures.mjs`, updating both
+    call sites.
+  - Observed effect: one avoidable extraction cycle inside the refactor pass
+    (reported as part of a larger ~35-minute pass, not separately timed); no
+    duplication reached the delivered commit, since the refactor pass ran
+    before delivery every slice.
+  - Inference: Qualified. A single occurrence in this execution; the later
+    slice 6 implementation agent correctly imported the by-then-shared
+    fixture without repeating the pattern, so whether this generalizes
+    beyond "reuse existing X" phrasing not resolving to a concrete import
+    was not tested further here.
