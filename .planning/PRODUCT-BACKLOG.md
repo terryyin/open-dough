@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Establish native edit protection and scripted workflow use in Codex and Cursor](quick/061-native-edit-protection-codex-cursor/PLAN.md)
-
 ## Backlog list
 
 - [Recognize realpath-equivalent CLI entry paths](quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md)

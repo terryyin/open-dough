@@ -5,11 +5,11 @@ Status: planned. No execution has started or been authorized.
 ## Source and bounded outcome
 
 Execution retrospective of Plan 061, "Establish native edit protection and
-scripted workflow use in Codex and Cursor," currently recoverable at
-`.planning/quick/061-native-edit-protection-codex-cursor/PLAN.md`. Review date:
-2026-09-20. All four slices of that plan were already delivered and proved;
-this correction addresses a separate CLI-launch defect observed during
-wrap-up, not a reopening of those slices.
+scripted workflow use in Codex and Cursor," recoverable at
+`a3ae6df4515cce0fc61e56896687530253a201f9:.planning/quick/061-native-edit-protection-codex-cursor/PLAN.md`.
+Review date: 2026-09-20. All four slices of that plan were already delivered
+and proved; this correction addresses a separate CLI-launch defect observed
+during wrap-up, not a reopening of those slices.
 
 The checkout-bound entrypoints `ci-mailbox.mjs`, `watch-ci.mjs`, and
 `ci-host-hook.mjs` decide whether to run their CLI body by comparing
