@@ -123,12 +123,46 @@ separately rather than used to justify a broad implementation slice.
 
 ### 1. Prepare and continue records in one owned worktree
 Type: Behavior
-Status: planned
+Status: done
 Proof: Invoke each of the four preparation skills from the integration checkout
 in representative review; observe edits only in its owned worktree. Continue from
 refinement into planning and plan refinement, and start from a suitable existing
 host workspace. Observe reuse, no nested workspace, and unchanged integration
 checkout. A second writer's prepared increment can integrate during a question.
+
+Delivered: added
+`src/skills/dough-story-refinement/references/preparation-workspace.md`,
+composing `dough-manual-testing/references/exploration-workspace.md`'s
+selection/resume/close lifecycle with the new write-gating, role-based
+identity, reuse, tiny-correction-inclusion, Taken-transition-exclusion, and
+isolated-draft rules; routed `dough-story-decomposition/SKILL.md`,
+`dough-story-refinement/SKILL.md`, `dough-slice-planning/SKILL.md`, and
+`dough-slice-plan-refinement/SKILL.md` through it before their record writes;
+added the new file to `install.sh`'s `managed_files` array (the release-version
+script and payload fixture derive their lists from it dynamically, confirmed
+by reading both). Searched project documentation for stale "where planning
+happens" prose per the plan's instruction; found none needing a change beyond
+the skills themselves (the existing quick-edit-requirements doc already
+anchors the direct-edit exception this slice preserves). Noted, without
+editing, that Proposed ADR 0007 (`docs/adrs/0007-*.md:24`, "story refinement,
+and planning on `main`") is now stale against this rule; ADR 0007 remains
+Proposed and unedited per the plan.
+
+Accepted proof:
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh` — pass;
+  covers installed dependency-link resolution for every `dough-story-*`
+  managed file including the new reference and its links.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/execution-payload-update.sh` — pass;
+  confirms execution-payload wiring undisturbed.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/product-backlog-git.sh` — pass
+  (unaffected boundary, run because it is in the affected-dependency list).
+- `git diff --check` — clean.
+- Representative review of all four skills' gated write paths and the reuse/
+  no-nested-workspace/second-writer-integrates/role-based-identity claims
+  against the new reference's prose (inspected directly, not merely reported).
+- `dough-post-change-refactor` found no candidate: `## REFACTOR COMPLETE`,
+  outcome "none — already clean".
 
 Add the shared preparation-workspace entry, reusing exploration-workspace
 selection/resume. Route all four skills through it before edits, resolving the
