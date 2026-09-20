@@ -22,9 +22,9 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
-// Shared precondition step (trunk-publication.md's "Publish the candidate"
-// step 1): fetch the authorized remote and confirm the checkout observed the
-// pre-publication trunk before any reconciliation is attempted.
+// Shared precondition step (publish-the-candidate.md's "Publish the
+// candidate" step 1): fetch the authorized remote and confirm the checkout
+// observed the pre-publication trunk before any reconciliation is attempted.
 export async function fetchAndAssertOriginMain(integration, expectedSha) {
   await git(integration, "fetch", "origin");
   assert.equal(
@@ -34,7 +34,7 @@ export async function fetchAndAssertOriginMain(integration, expectedSha) {
   );
 }
 
-// Shared final-state proof for trunk-publication.md's "Publish the
+// Shared final-state proof for publish-the-candidate.md's "Publish the
 // candidate" step 6 and "Recover a rejected push" step 5: local main (the
 // integration checkout), the bare origin itself, and the execution branch
 // all agree on the same published SHA, main and origin/main have converged

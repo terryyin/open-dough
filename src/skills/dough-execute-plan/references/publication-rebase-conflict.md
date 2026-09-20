@@ -3,7 +3,7 @@
 A conflict while rebasing the owned unpublished suffix is not permission to
 take `--ours` or `--theirs`, skip the commit, or continue Git blindly.
 
-The ordinary rebase in [Publish the candidate](trunk-publication.md#publish-the-candidate) step 3 is run through this project's
+The ordinary rebase in [Publish the candidate](publish-the-candidate.md#publish-the-candidate) step 3 is run through this project's
 installed product backlog rebase adapter, not a raw `git rebase`, whenever it touches the product backlog
 (often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md)
 for how to resolve and run it. Its own `conflict`/`refused`/`blocked` result already identifies the real
@@ -15,7 +15,7 @@ way: repair the backlog by hand, or decide the current result should stand as is
 own `validate` before this section's own revalidation below and before publishing. If neither the adapter
 nor that reference is available, preserve the conflict and report the missing guidance.
 
-[Recover a rejected push](trunk-publication.md#recover-a-rejected-push)'s two `--onto` rebases are not run through this
+[Recover a rejected push](publish-the-candidate.md#recover-a-rejected-push)'s two `--onto` rebases are not run through this
 adapter: its CLI has no equivalent for rebasing a range other than the currently checked-out branch onto a
 ref. Until that gap is closed, resolve a conflict touching the backlog on either of those two rebases with
 [the fallback domain knowledge](../../dough-product-backlog/references/merge-conflicts.md#fallback-domain-knowledge)

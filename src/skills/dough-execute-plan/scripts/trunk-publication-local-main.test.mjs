@@ -92,7 +92,7 @@ test("stopping when local main has unrelated unpublished commits preserves both 
   // 1. Fetch the authorized remote for the target branch.
   await fetchAndAssertOriginMain(integration, trunkSha);
 
-  // 2. Reconcile from the fetched target, per trunk-publication.md's
+  // 2. Reconcile from the fetched target, per publish-the-candidate.md's
   // "Publish the candidate" step 2 and the Preconditions section: the local
   // target (main) has an unpublished commit that is neither the fetched
   // remote tip nor this execution's owned suffix (exec/story's candidate).
@@ -193,7 +193,7 @@ test("recovering a rejected push after a concurrent remote advance publishes the
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), disjointSha);
   assert.equal(await revParse(integration, "main"), candidateSha);
 
-  // 4. Recovery sequence from trunk-publication.md's "Recover a rejected
+  // 4. Recovery sequence from publish-the-candidate.md's "Recover a rejected
   // push": fetch, then rebase only the owned suffix (previously published
   // base trunkSha..main) onto the fetched trunk (disjointSha), on the
   // integration checkout.

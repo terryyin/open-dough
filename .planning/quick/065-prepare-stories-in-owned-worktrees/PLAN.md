@@ -181,12 +181,39 @@ is not claimed until slice 3.
 
 ### 2. Expose the existing publication procedure without changing its callers
 Type: Structure
-Status: planned
+Status: done
 Proof: Compare each current caller's obligations before/after the extraction;
 exercise the unchanged claim and increment sequences against a disposable origin,
 including an advanced remote and a rejected push. Run the affected execution
 payload check and backlog check above. Observe retained claim ordering,
 exact-candidate identity, local/remote agreement, and unchanged observer ownership.
+
+Delivered: extracted `Preconditions`, `Publish the candidate`, and
+`Recover a rejected push` out of `trunk-publication.md` into a new
+`dough-execute-plan/references/publish-the-candidate.md`, following the
+existing `publication-rebase-conflict.md` split precedent; `trunk-publication.md`
+keeps those headings as thin wrapper stubs so every existing inbound anchor
+still resolves unchanged (`dough-story-wrap-up`, `ci-monitor.md`, `wrap-up.md`,
+`execution-location.md`, `publication-rebase-conflict.md` all verified). Did
+not move `Resume an interrupted publication` or `Preserve remaining state`:
+their prose is genuinely interleaved with claim/increment/CI-observer
+vocabulary and separating them would require inventing generalized wording not
+in the source — left for whichever later slice needs a second caller (slice 3
+only needs ordinary publish). Added `publish-the-candidate.md` and the
+pre-existing, previously-unlisted `publication-rebase-conflict.md` to
+`install.sh`'s `managed_files`. Added scripted Git proof
+`publish-the-candidate.test.mjs` (claim publication with no execution
+worktree yet; proactive rebase-onto-candidate when remote advanced before any
+push), reusing `trunk-publication-local-main-test-fixtures.mjs`'s helpers.
+
+Accepted proof:
+- `node --test src/skills/dough-execute-plan/scripts/publish-the-candidate.test.mjs` — 2/2 pass.
+- `node --test src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs` — 3/3 pass (unmodified behavior; covers ordinary verified-increment publication, an unrelated-commit precondition stop, and rejected-push recovery).
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/execution-payload-update.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/product-backlog-git.sh` — pass (28 sub-tests, rebase-adapter routing this extraction's cross-links depend on is undisturbed).
+- `git diff --check` — clean.
+- Caller-obligation comparison across every `rg -n 'trunk-publication|publish-the-candidate|recover-a-rejected-push|resume-an-interrupted-publication' src/skills` hit: same anchors resolve, same steps required, same order, for every caller.
+- `dough-post-change-refactor`: fixed stale cross-file citations the extraction left behind (in the new file, `publication-rebase-conflict.md`, and two test-fixture comments) and the pre-existing missing-payload-entry gap for `publication-rebase-conflict.md`; re-ran all proof after editing. `## REFACTOR COMPLETE`.
 
 Separate only the reusable publication mechanics and recovery from execution's
 mode, claim, validation, and CI-observer policy. Keep existing anchors as wrappers
