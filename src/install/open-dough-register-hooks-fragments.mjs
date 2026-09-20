@@ -8,10 +8,23 @@ import { join } from "node:path";
 
 // Each host merges one *combined* fragment into its settings file, built from
 // one or more authoritative source fragments. A fragment is `required` when
-// its absence means the client payload itself is incomplete (the existing CI
-// fragments); the product-backlog guard fragment is additive and optional so
-// an older source checkout without it still registers CI hooks unchanged.
+// its absence means the payload itself is incomplete. The Claude
+// product-backlog guard remains optional for an older source checkout that
+// predates it; the Codex and Cursor guards are required once those hosts are
+// declared. Cursor's CI fragment and guard fragment use distinct events, so
+// combining them stays a union rather than a same-event collision.
 export const HOSTS = [
+  {
+    id: "codex",
+    relativePath: ".codex/hooks.json",
+    fragments: [
+      {
+        name: "codex-hooks-guard.json",
+        assetsDir: "src/skills/dough-product-backlog/assets",
+        required: true,
+      },
+    ],
+  },
   {
     id: "cursor",
     relativePath: ".cursor/hooks.json",
@@ -19,6 +32,11 @@ export const HOSTS = [
       {
         name: "cursor-hooks.json",
         assetsDir: "src/skills/dough-execute-plan/assets",
+        required: true,
+      },
+      {
+        name: "cursor-hooks-guard.json",
+        assetsDir: "src/skills/dough-product-backlog/assets",
         required: true,
       },
     ],
@@ -68,12 +86,18 @@ function loadFragment(sourceDir, fragment) {
 // Unions each source fragment's own hooks map into one combined fragment
 // document. Today's authoritative fragments never declare the same event
 // twice across sources for one host; a future collision fails loudly here
-// rather than silently keeping only one side.
+// rather than silently keeping only one side. Cursor documents require
+// `version`; keep it from the first fragment that declares it so combining
+// the CI fragment with the guard fragment does not drop the schema version.
 function combineFragments(fragments, host) {
   const hooks = {};
+  let version;
   for (const fragment of fragments) {
     if (fragment === null) {
       continue;
+    }
+    if (version === undefined && fragment.version !== undefined) {
+      version = fragment.version;
     }
     for (const [event, entries] of Object.entries(fragment.hooks ?? {})) {
       if (Object.hasOwn(hooks, event)) {
@@ -84,7 +108,7 @@ function combineFragments(fragments, host) {
       hooks[event] = entries;
     }
   }
-  return { hooks };
+  return version === undefined ? { hooks } : { version, hooks };
 }
 
 export function loadHostFragment(sourceDir, host) {

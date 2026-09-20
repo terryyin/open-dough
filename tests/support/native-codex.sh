@@ -48,6 +48,7 @@ native_codex_build_command() {
   local output_file=$2
   local prompt=$3
   local transcript=${4:-}
+  local bypass_hook_trust=${5:-}
   local inner=(
     codex exec --ephemeral --ignore-user-config
     -c "sqlite_home=\"${native_codex_state_dir}\""
@@ -58,6 +59,9 @@ native_codex_build_command() {
 
   if [[ -n ${transcript} ]]; then
     inner+=(--json)
+  fi
+  if [[ -n ${bypass_hook_trust} ]]; then
+    inner+=(--dangerously-bypass-hook-trust)
   fi
   inner+=(-C "${target}" -o "${output_file}" "${prompt}")
 

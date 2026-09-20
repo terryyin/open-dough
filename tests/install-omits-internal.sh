@@ -75,6 +75,7 @@ expect_files() {
     {
       printf '%s\n' \
         './.agents/skills/unrelated/SKILL.md' \
+        './.codex/hooks.json' \
         './.claude/settings.json' \
         './.claude/skills/other-skill/SKILL.md' \
         './.cursor/hooks.json' \

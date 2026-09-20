@@ -3,7 +3,7 @@ import fs from "node:fs";
 
 export const readJson = (path) => JSON.parse(fs.readFileSync(path, "utf8"));
 export const settingsPath = (target, host) =>
-  `${target}/.${host}/${host === "cursor" ? "hooks" : "settings"}.json`;
+  `${target}/.${host}/${host === "claude" ? "settings" : "hooks"}.json`;
 
 export function writeSettings(target, host, settings) {
   fs.mkdirSync(`${target}/.${host}`, { recursive: true });
@@ -23,12 +23,18 @@ export function readFragment(root, host) {
   );
 }
 
+function readGuardFragment(root, host) {
+  const path = `${root}/src/skills/dough-product-backlog/assets/${host}-hooks-guard.json`;
+  return fs.existsSync(path) ? readJson(path) : null;
+}
+
 export function readFragments(root) {
-  const guard = `${root}/src/skills/dough-product-backlog/assets/claude-hooks-guard.json`;
   return {
     cursor: readFragment(root, "cursor"),
+    cursorGuard: readGuardFragment(root, "cursor"),
     claude: readFragment(root, "claude"),
-    guard: fs.existsSync(guard) ? readJson(guard) : null,
+    claudeGuard: readGuardFragment(root, "claude"),
+    codexGuard: readGuardFragment(root, "codex"),
   };
 }
 

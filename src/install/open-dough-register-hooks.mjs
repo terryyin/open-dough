@@ -175,7 +175,7 @@ function apply(targetRoot, sourceDir) {
   }
   if (written.length === 0) {
     console.log(
-      "hooks: both host registrations already current; left unwritten.",
+      "hooks: all host registrations already current; left unwritten.",
     );
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Register Cursor and Claude Code CI host hooks from authoritative fragments.
+# Register Codex, Cursor, and Claude Code host hooks from authoritative fragments.
 # Sourced by install.sh and open-dough-release.sh. Requires Node for JSON merge;
 # checks availability before the caller mutates the target.
 # shellcheck disable=SC2310,SC2312
@@ -9,7 +9,7 @@ open_dough_register_hooks_helper() {
   printf '%s\n' "${source_root}/src/install/open-dough-register-hooks.mjs"
 }
 
-# True when this release still ships the authoritative Cursor and Claude fragments.
+# True when this release still ships the authoritative Cursor and Claude CI fragments.
 # Older tagged fixtures may strip execution assets from managed_files.
 host_hook_fragments_present() {
   local source_root=$1

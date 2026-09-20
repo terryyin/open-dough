@@ -129,7 +129,7 @@ for entry in codex cursor claude; do
     claude_mtime=$(file_mtime "${target}/.claude/settings.json")
     final_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
     [[ "${final_output}" == *'already current; left unwritten.'* ]]
-    [[ "${final_output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
+    [[ "${final_output}" == *'hooks: all host registrations already current; left unwritten.'* ]]
     [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
     assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
       "${payload_mtimes}" \

@@ -8,6 +8,7 @@ import {
 
 function empty(target) {
   for (const [host, label] of [
+    ["codex", "Codex"],
     ["cursor", "Cursor"],
     ["claude", "Claude"],
   ]) {
@@ -19,6 +20,17 @@ function empty(target) {
 }
 
 function mergeable(target) {
+  writeSettings(target, "codex", {
+    sentinel: "keep Codex settings",
+    hooks: {
+      PostToolUse: [
+        {
+          matcher: "Bash",
+          hooks: [{ type: "command", command: "echo unrelated-codex-event" }],
+        },
+      ],
+    },
+  });
   writeSettings(target, "cursor", {
     version: 1,
     sentinel: "keep Cursor settings",
@@ -61,10 +73,12 @@ function mergeable(target) {
 
 function exact(target, root) {
   mergeable(target);
-  const { cursor, claude, guard } = readFragments(root);
+  const { cursor, cursorGuard, claude, claudeGuard, codexGuard } =
+    readFragments(root);
   for (const [host, fragments] of [
-    ["cursor", [cursor]],
-    ["claude", [claude, guard]],
+    ["codex", [codexGuard]],
+    ["cursor", [cursor, cursorGuard]],
+    ["claude", [claude, claudeGuard]],
   ]) {
     const settings = readSettings(target, host);
     if (host === "cursor") {

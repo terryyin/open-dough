@@ -1,14 +1,22 @@
 import assert from "node:assert/strict";
 import {
   handlers,
-  readFragment,
   readFragments,
   readSettings,
 } from "./host-hook-settings.mjs";
 
 function unrelated(target) {
+  const codex = readSettings(target, "codex");
   const cursor = readSettings(target, "cursor");
   const claude = readSettings(target, "claude");
+  assert.equal(codex.sentinel, "keep Codex settings");
+  assert.ok(
+    codex.hooks?.PostToolUse?.some(
+      (wrapper) =>
+        wrapper.matcher === "Bash" &&
+        wrapper.hooks?.[0]?.command === "echo unrelated-codex-event",
+    ),
+  );
   assert.equal(cursor.sentinel, "keep Cursor settings");
   assert.equal(cursor.permissionMode, "default");
   assert.equal(
@@ -41,31 +49,60 @@ function unrelated(target) {
 // Deliberately weaker: absent settings-file repair has no unrelated sentinel.
 function cursorCommands(target, root) {
   const cursor = readSettings(target, "cursor");
-  for (const [event, entries] of Object.entries(
-    readFragment(root, "cursor").hooks,
-  )) {
-    assert.ok(
-      cursor.hooks?.[event]?.some(
-        (entry) => entry.command === entries[0].command,
-      ),
-      `Cursor managed command missing for ${event}`,
-    );
+  const { cursor: cursorFragment, cursorGuard } = readFragments(root);
+  for (const fragment of [cursorFragment, cursorGuard].filter(Boolean)) {
+    for (const [event, entries] of Object.entries(fragment.hooks)) {
+      assert.ok(
+        cursor.hooks?.[event]?.some(
+          (entry) => entry.command === entries[0].command,
+        ),
+        `Cursor managed command missing for ${event}`,
+      );
+    }
   }
 }
 
 function managed(target, root) {
   const fragments = readFragments(root);
   for (const [host, label] of [
+    ["codex", "Codex"],
     ["cursor", "Cursor"],
     ["claude", "Claude"],
   ]) {
     const settings = readSettings(target, host);
     assert.equal(settings.sentinel, `keep ${label} settings`);
     const expectedHooks =
-      host === "cursor"
-        ? fragments.cursor.hooks
-        : { ...fragments.claude.hooks, ...(fragments.guard?.hooks ?? {}) };
+      host === "codex"
+        ? (fragments.codexGuard?.hooks ?? {})
+        : host === "cursor"
+          ? {
+              ...fragments.cursor.hooks,
+              ...(fragments.cursorGuard?.hooks ?? {}),
+            }
+          : {
+              ...fragments.claude.hooks,
+              ...(fragments.claudeGuard?.hooks ?? {}),
+            };
     for (const [event, entries] of Object.entries(expectedHooks)) {
+      if (host === "codex") {
+        const expected = entries[0];
+        const matches = settings.hooks?.[event]?.filter((wrapper) =>
+          wrapper?.hooks?.some(
+            (entry) => entry.command === expected.hooks[0].command,
+          ),
+        );
+        assert.equal(
+          matches?.length,
+          1,
+          `${label} event ${event} must contain exactly one managed command`,
+        );
+        assert.deepEqual(
+          matches[0],
+          expected,
+          `${label} managed handler for ${event} differs`,
+        );
+        continue;
+      }
       const expected = host === "cursor" ? entries[0] : entries[0].hooks[0];
       assert.ok(
         Array.isArray(settings.hooks?.[event]),

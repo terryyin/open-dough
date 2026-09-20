@@ -67,6 +67,7 @@ seed_mergeable_host_settings "${merge_target}"
 output=$(bash "${source_dir}/install.sh" --target "${merge_target}" --source "${source_dir}" --platform cursor)
 [[ "${output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
 [[ "${output}" == *'hooks: registered Open Dough entries in .claude/settings.json.'* ]]
+[[ "${output}" == *'hooks: registered Open Dough entries in .codex/hooks.json.'* ]]
 assert_managed_host_hooks "${merge_target}"
 assert_unrelated_preserved "${merge_target}"
 
@@ -75,7 +76,7 @@ manual_target="${temporary_dir}/manual"
 prepare_target "${manual_target}"
 seed_exact_manual_registration "${manual_target}"
 output=$(bash "${source_dir}/install.sh" --target "${manual_target}" --source "${source_dir}")
-[[ "${output}" == *'hooks: both host registrations already current; left unwritten.'* ]]
+[[ "${output}" == *'hooks: all host registrations already current; left unwritten.'* ]]
 assert_managed_host_hooks "${manual_target}"
 assert_unrelated_preserved "${manual_target}"
 
@@ -99,10 +100,12 @@ EOF
 # Payload is new, so skill roots change; compare only settings files for no-op hooks.
 cursor_before=$(shasum -a 256 "${manual_target}/.cursor/hooks.json")
 claude_before=$(shasum -a 256 "${manual_target}/.claude/settings.json")
+codex_before=$(shasum -a 256 "${manual_target}/.codex/hooks.json")
 repeat_output=$(bash "${source_dir}/install.sh" --target "${manual_target}" --source "${source_dir}")
 [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
 [[ $(shasum -a 256 "${manual_target}/.cursor/hooks.json") == "${cursor_before}" ]]
 [[ $(shasum -a 256 "${manual_target}/.claude/settings.json") == "${claude_before}" ]]
+[[ $(shasum -a 256 "${manual_target}/.codex/hooks.json") == "${codex_before}" ]]
 assert_managed_host_hooks "${manual_target}"
 assert_unrelated_preserved "${manual_target}"
 

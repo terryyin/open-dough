@@ -4,12 +4,14 @@
 : "${source_dir:?source_dir must be set before sourcing this helper}"
 
 # Retain the public path resolver for callers selecting older/synthetic releases.
-# The Claude guard is optional; its resolved path need not exist.
+# Guard fragments are optional; their resolved paths need not exist.
 resolve_host_hook_fragments() {
   local fragment_root=${1:-${source_dir}}
   cursor_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/cursor-hooks.json"
+  cursor_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/cursor-hooks-guard.json"
   claude_fragment="${fragment_root}/src/skills/dough-execute-plan/assets/claude-hooks.json"
   claude_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/claude-hooks-guard.json"
+  codex_guard_fragment="${fragment_root}/src/skills/dough-product-backlog/assets/codex-hooks-guard.json"
 }
 
 seed_empty_host_settings() {
