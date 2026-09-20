@@ -1,6 +1,6 @@
 # Publish shared backlog claims before isolated execution
 
-Status: in progress. Slices 1-3 done; slice 4 remains planned. Execution
+Status: done. All 4 slices delivered. Execution
 started 2026-09-20 in Story Branch Mode on branch
 `claude/064-publish-shared-backlog-claims`.
 Work identity: SEED-008#publish-shared-backlog-claims
@@ -271,7 +271,7 @@ Do not ship successful publication with its failure/coverage reporting unfinishe
 
 ### 4. Resume from the claim's observed publication state
 Type: Behavior
-Status: planned
+Status: done
 Proof: story example 5 plus failure/ownership boundaries in examples 3–4, reviewed
 from resume; disposable remote state establishes the actual publication result.
 
@@ -285,6 +285,33 @@ verified workspace; it does not allocate a new claim or nested worktree. Keep
 publication evidence distinct from missing CI receipts and preserve existing
 Trunk increment recovery. Hypothesis: one state-reconciliation rule, medium
 confidence; existing resume table already supplies most cases.
+Accepted proof: `references/trunk-publication.md`'s "Resume an interrupted
+publication" now classifies a queue claim (published before or after
+workspace setup) alongside a Trunk Mode increment from the same table,
+recognizing an owner-published or ancestor-of-newer-trunk candidate without
+duplicate commit/push, and distinguishing a Story Branch trunk claim's
+intentionally unobserved coverage from a genuine missing CI registration.
+`SKILL.md`'s resume section now classifies "an interrupted claim or Trunk
+Mode increment." `## Resolve a publication rebase conflict`'s body was
+extracted verbatim to `references/publication-rebase-conflict.md` (heading
+and both external anchors kept in place) to keep `trunk-publication.md`
+under the 250-line threshold. Verified by: (a) a guidance-review walkthrough
+of example 5 and the resume-angle check on examples 3-4; (b) a disposable
+Git walkthrough covering a lost push response, an owner-published-further
+commit (retained candidate as ancestor of newer trunk), and an
+owner-published-exact-candidate case, each correctly classified as already
+published with no re-push/re-commit; (c) rerunning
+`trunk-publication-local-main.test.mjs` (3 pass) and
+`ci-target-branch-worktree.test.mjs` (1 pass). The refactor pass removed
+duplication the widening introduced (owner-published/ancestor detail
+consolidated into its one existing paragraph rather than repeated in the
+table) and independently re-verified that a claim can never be in the
+"Only committed" row's state, since `Take queued work` commits it directly
+on the local integration branch. It also found and I corrected one stale
+sentence predating this slice ("Story Branch Mode and current-branch mode
+never rebase or merge this commit"), left inaccurate by slice 3's delivered
+change; current-branch mode is the only mode that never publishes a claim.
+All four Promise-ownership rows are now satisfied.
 
 ## Promise ownership
 

@@ -165,83 +165,52 @@ state and report it. Do not loop.
 
 ## Resolve a publication rebase conflict
 
-A conflict while rebasing the owned unpublished suffix is not permission to
-take `--ours` or `--theirs`, skip the commit, or continue Git blindly.
-
-The ordinary rebase in [Publish the candidate](#publish-the-candidate) step 3 is run through this project's
-installed product backlog rebase adapter, not a raw `git rebase`, whenever it touches the product backlog
-(often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md)
-for how to resolve and run it. Its own `conflict`/`refused`/`blocked` result already identifies the real
-replayed commit, its parent, and the current destination from Git's own rebase state, never from
-ours/theirs labels. Resolve the backlog's own unmerged path following that reference, `git add` it, then
-run the adapter's own `continue` for this same rebase — never a raw `git rebase --continue`. A clean
-replay the adapter reports as `disputed` is not a Git conflict and has nothing staged to resolve the usual
-way: repair the backlog by hand, or decide the current result should stand as is, then run the adapter's
-own `validate` before this section's own revalidation below and before publishing. If neither the adapter
-nor that reference is available, preserve the conflict and report the missing guidance.
-
-[Recover a rejected push](#recover-a-rejected-push)'s two `--onto` rebases are not run through this
-adapter: its CLI has no equivalent for rebasing a range other than the currently checked-out branch onto a
-ref. Until that gap is closed, resolve a conflict touching the backlog on either of those two rebases with
-[the fallback domain knowledge](../../dough-product-backlog/references/merge-conflicts.md#fallback-domain-knowledge)
-instead, applied by hand exactly as below.
-
-For other product or code paths, read the three Git versions (ancestor,
-current side, and incoming side; index stages 1, 2, and 3). Identify the
-fetched trunk versus the unpublished suffix from the actual commits; Git's
-ours/theirs labels during rebase do not name intent. Compare each side with
-the ancestor and retain a brief account of what each contributor changed.
-
-When both sides' intent is understood and compatible, combine those changes.
-Apply identical edits once. An unchanged region does not override the other
-side. Do not choose an entire side. Continue the rebase only after the
-combined working tree matches that account, then revalidate as in candidate
-step 4: the combined change invalidates only the affected proof. Rebase
-success is not behavioral proof. Do not publish until that recheck succeeds.
-
-If identity, incompatible product intent, or a competing restriction remains
-unresolved, preserve the exact refs, worktree, and index, including conflict
-markers. Do not discard either side. Stop publication and report the specific
-missing decision:
-
-- Unclear value, domain meaning, architecture, or ambiguity that could
-  waste a commit uses
-  [human judgment](execution-decisions.md#stop-for-human-judgment).
-- A change that would drop or weaken a required rejection or other
-  contractual product constraint uses
-  [a disputed plan restriction](execution-decisions.md#resolve-a-disputed-plan-restriction).
-
-Do not register publication or continue as delivered. After a human
-decision, resume from the preserved conflict state rather than inventing a
-side.
+Follow [publication rebase conflict](publication-rebase-conflict.md) for backlog
+adapter routing, fallback domain knowledge for the two `--onto` rebases, ordinary
+conflict resolution, and the required stop when identity or product intent
+remains unresolved.
 
 ## Resume an interrupted publication
 
-After interruption during Trunk Mode delivery, classify the owned increment
-from actual refs, retained rewritten identities, and observer receipts.
-Continue the first unfinished obligation. Do not duplicate the commit, push
-an already-published candidate, or replace the execution worktree. Verify
+After interruption during a queue claim's publication or Trunk Mode delivery,
+classify the owned suffix — a claim or an increment — from actual refs,
+retained rewritten identities, and observer receipts, using whichever
+execution resources actually exist for this publication: a claim may have no
+execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
+already states for that case. Continue the
+first unfinished obligation. Do not duplicate the commit, push an
+already-published candidate, or replace the execution worktree. Verify
 identity first as in
 [execution location](execution-location.md). Fetch the authorized remote
 before treating a push as unfinished.
 
 Match the owned suffix to the retained rewritten candidate when that SHA
-exists. A pre-rebase SHA that is no longer the tip is not a second increment.
+exists. A pre-rebase SHA that is no longer the tip is not a second claim or
+increment.
 
 | Boundary | Actual state | Continue with |
 | --- | --- | --- |
-| Only committed | Execution branch has the owned suffix; neither local target nor fetched remote trunk contains that candidate | [Publish a verified increment](#publish-a-verified-increment) from its preconditions. Do not commit again. |
-| Integrated locally | Local target tip is the owned candidate; fetched remote trunk does not contain it | Exclusive-turn checks, then candidate push (step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
-| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it | Append that SHA to retained published revisions if identity omitted it. Do not push again. |
-| Missing CI registration | Remote trunk contains the published SHA; the existing observer's coverage or `register-push` receipt does not | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
+| Only committed | Execution branch has the owned suffix; neither local target nor fetched remote trunk contains that candidate. A claim before any workspace exists has no execution branch separate from local target, so it cannot be in this row's state; see "Integrated locally" for that case instead. | [Publish a verified increment](#publish-a-verified-increment) from its preconditions. Do not commit again. |
+| Integrated locally | Local target tip is the owned candidate; fetched remote trunk does not contain it. A claim before any workspace exists is in this state as soon as it is committed, since [Take queued work](../SKILL.md#take-queued-work) commits it directly on local target rather than on a separate execution branch. | Exclusive-turn checks, then candidate push (step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
+| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it (see the ancestor and owner-published notes below) | Append that SHA to retained published revisions if identity omitted it. Do not push again. |
+| Missing CI registration | Remote trunk contains the published SHA; the existing observer's coverage or `register-push` receipt does not. This row assumes an observer already covers that target; a Story Branch claim published to trunk before any observer is armed there is unobserved coverage, not a missing registration — see [Own one observer](ci-monitor.md#own-one-observer). | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
 
 A lost or unknown push response is not unpublished. If the exact candidate is
-already an ancestor of fetched remote trunk, treat it as already published.
+already an ancestor of fetched remote trunk, treat it as already published,
+including when a different authorized owner's own session is the one that
+published it.
 
-If mode, checkout, branch, or candidate SHA is missing, contradictory, or
-matches no unique owned suffix, preserve every existing worktree, branch, and
-index. Report the gap. Do not create a replacement worktree, switch branches,
-or guess which commit to publish.
+If mode, integration checkout, target branch, or candidate SHA is missing,
+contradictory, or matches no unique owned suffix, preserve every existing
+worktree, branch, and index. Report the gap. Do not create a replacement
+worktree, switch branches, or guess which commit to publish. For a claim
+before any workspace exists, a not-yet-created execution branch/worktree is
+expected and is not itself a missing-identity gap.
+
+Workspace-setup failure after a confirmed claim publication reuses that claim
+and any verified workspace: see [Preserve remaining state](#preserve-remaining-state)
+and [execution location](execution-location.md)'s setup-failure rule. It does
+not allocate a replacement claim or a nested worktree.
 
 ## Preserve remaining state
 
