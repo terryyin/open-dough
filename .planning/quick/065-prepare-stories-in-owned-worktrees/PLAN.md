@@ -279,11 +279,42 @@ records reach origin; cleanup may conservatively leave the workspace intact.
 
 ### 4. Retain and resume an undecided preparation session
 Type: Behavior
-Status: planned
+Status: done
 Proof: Pause a preparation session before keep, resume it after main advances,
 and observe the same draft/workspace without publication. A partial setup or
 identity mismatch preserves resources and stops affected edits. An explicit
 discard removes only the identified session-owned draft; unrelated edits remain.
+
+Delivered: added "Pause and resume a preparation session" to
+`preparation-workspace.md` (pausing leaves the draft untouched; resume
+re-triggers `exploration-workspace.md`'s existing identity verification;
+partial-setup/mismatch stops only the resumed write via the existing "Stop
+only the write that needs it"; no session registry). Extended the disposition
+rule from two to three explicit decisions (keep / no-publish / discard) and
+added "Inspect an advanced integration target without deciding" (looking at
+an advanced main is not itself a keep) and "Discard an identified draft"
+(removes only the identified session-owned content; preserves the workspace
+itself, unrelated edits, and other sessions' work; stops if content can't be
+unambiguously isolated). Updated the four skills' disposition sentences to
+"keep or discard decision". During refactor, `preparation-workspace.md` grew
+past this project's 250-line threshold, so the disposition/publication
+content (Decide/Inspect/Validate/Keep-and-publish/What-keep-does-not-do/
+Discard) was split into a new sibling file
+`dough-story-refinement/references/preparation-disposition.md`, added to
+`install.sh`'s `managed_files`; no external caller linked a specific anchor
+into the old combined file, so the move needed no wrapper stubs, only
+cross-file link updates.
+
+Accepted proof: prose review (no new Git mechanics — pause/resume reuses
+`exploration-workspace.md`'s already-proven identity verification; discard is
+ordinary content removal in an already-owned workspace) citing the exact
+sentences establishing each proof scenario; see conversation record for the
+full walkthrough.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh` — pass.
+- `node --test src/skills/dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs` — 2/2 pass (slice 3's Git-mechanics test, unaffected; only a docstring comment updated for the new filename).
+- `git diff --check` — clean.
+- `dough-post-change-refactor`: fixed one restated-duplication passage, performed the file-size split above (verified every anchor across both files resolves), fixed a stale filename in a test docstring. `## REFACTOR COMPLETE`.
 
 Reuse workspace identity verification and retention. Silence never becomes keep
 or discard. Discussion and waiting leave no preparation edits on shared main.

@@ -100,7 +100,8 @@ the story or change its backlog placement during slice-plan refinement.
 Report the plan path, replaced slices, resulting slice count, sizing exceptions,
 any resplit recommendation, and whether execution can resume. Apply
 [preparation workspace](../dough-story-refinement/references/preparation-workspace.md)'s
-keep decision, then close or retain the workspace, when this session ends.
+keep or discard decision, then close or retain the workspace, when this
+session ends.
 End with:
 
 `## SLICE PLAN REFINED`

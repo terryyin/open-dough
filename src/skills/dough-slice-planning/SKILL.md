@@ -153,7 +153,8 @@ triggering human or parent-agent instruction:
   [dough-execute-plan](../dough-execute-plan/SKILL.md)) when that path applies.
 
 Apply [preparation workspace](../dough-story-refinement/references/preparation-workspace.md)'s
-keep decision, then close or retain the workspace, when this session ends.
+keep or discard decision, then close or retain the workspace, when this
+session ends.
 
 After the matching case above, end with:
 

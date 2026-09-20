@@ -8,6 +8,10 @@ before any of them writes a seed, story, or plan record, including a small,
 already-decided correction. Reading, discussing, answering questions, or
 reviewing an existing seed or plan needs no workspace at all.
 
+Once a write is done, [decide what happens to the written
+result](preparation-disposition.md) covers keeping, leaving unpublished, or
+discarding it, before the workspace below is closed or retained.
+
 ## Determine whether a write needs a workspace
 
 Only the first write to a seed, story, or plan record in this preparation
@@ -50,7 +54,7 @@ resolves the integration checkout and branch and the authorized remote target
 for ordinary work in this project, defaulting the branch to `main` only when
 neither caller nor project supplies one. A later keep decision publishes onto
 this recorded target; see
-[Decide what happens to the written result](#decide-what-happens-to-the-written-result).
+[Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result).
 
 ## Continue related preparation
 
@@ -67,6 +71,36 @@ above, stop only the pending record write and report the exact gap: what was
 checked and what remains unresolved. Reading, discussing, or continuing to
 answer questions does not require resolving it first. Do not invent or guess a
 workspace to avoid reporting the gap.
+
+## Pause and resume a preparation session
+
+Pausing for a developer's answer, ending a conversation turn, or any other
+interruption before a keep or discard decision leaves the draft exactly as it
+is in its owned workspace: nothing is committed, published, or discarded
+merely by pausing. See
+[Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
+for what only an explicit instruction can trigger.
+
+On resume, before continuing to write into the workspace, apply [own a
+temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
+"Use and resume it" — the same verification
+[Select or reuse the workspace](#select-or-reuse-the-workspace) above already
+requires before any write. Resuming after a pause is one more trigger for it,
+not a different check.
+
+If that verification finds partial prior setup, an identity mismatch, or an
+otherwise ambiguous match, apply
+[Stop only the write that needs it](#stop-only-the-write-that-needs-it)
+above: stop only the resumed write and preserve every resource exactly as
+found. Do not silently replace the workspace, create a second one alongside
+it, or guess which candidate is the right one — the same rule that already
+governs an unresolved first-time workspace selection.
+
+This resume verification relies only on the workspace identity already
+recorded when the workspace was selected or created — story, plan, session,
+or host ownership. Do not add a session registry, log, or other persistent
+index to track preparation sessions across time; resume continues to depend
+purely on verifying that recorded identity against actual Git state.
 
 ## Tiny corrections are included; the Taken transition is not
 
@@ -89,114 +123,10 @@ push their own prepared or published increment onto the shared integration
 branch at any time, including while this preparation is mid-question. Nothing
 in this reference locks, blocks, or reserves that checkout.
 
-## Decide what happens to the written result
-
-Leave a written seed, story, or plan record in the owned workspace for the
-developer's review by default. Do not commit it to a shared or host checkout,
-integrate, or publish it merely because the write finished. Treat a "quick" or
-already-decided edit the same way — it is not authorization to skip this step.
-Two explicit developer decisions change that default:
-
-- **An explicit instruction to keep this preparation's retained result**
-  authorizes committing it in the owned workspace, reconciling it with the
-  current integration target, and publishing it through
-  [Keep and publish the retained result](#keep-and-publish-the-retained-result)
-  below. Only an explicit instruction counts as keep: continuing discussion,
-  pausing for more review, or silence is never a keep decision.
-- **An explicit instruction to leave the result unpublished** is preserved and
-  overrides any default publication. The record stays in the owned workspace
-  exactly as the developer left it; this reference performs no additional
-  commit, integration, or push.
-
-Absent either explicit instruction, continue leaving the draft isolated: no
-commit, integration, or publication happens under this reference.
-
-## Validate a keep instruction before acting
-
-Before committing or publishing anything, confirm — or require the calling
-skill (one of the four preparation skills above, at its disposition/report
-step) to have already confirmed — that the keep instruction:
-
-- names this preparation session's own retained seed, story, or plan
-  record, not implementation, unrelated changes, or another session's work;
-  and
-- has a known, unambiguous integration checkout, branch, and authorized
-  remote target to publish onto, per the identity recorded in
-  [Select or reuse the workspace](#select-or-reuse-the-workspace) above.
-
-A keep instruction that does not clearly identify its own retained result, or
-whose destination is unknown or ambiguous, stops before any commit or
-publication; report the exact gap. This is a real stop, not permission to
-guess a destination or assume "the usual place."
-
-## Keep and publish the retained result
-
-Apply this sequence only after a validated explicit keep instruction.
-
-1. **Commit the retained result.** If the developer's retained seed, story,
-   or plan record is not already committed in the owned workspace, commit
-   exactly the files the keep instruction names there — nothing else. This
-   produces the owned workspace's own unpublished suffix: one or more commits
-   on its branch, since its recorded starting revision, not yet on the
-   authorized remote target. Do not commit implementation, unrelated edits,
-   or another session's changes.
-2. **Use the recorded integration checkout and target.** Reuse the
-   integration checkout, branch, and authorized remote target recorded in
-   [Select or reuse the workspace](#select-or-reuse-the-workspace); do not
-   invent a different or preparation-specific destination. If that identity
-   is missing, contradictory, or ambiguous, stop before any commit or
-   publication and report the exact gap — a missing destination or unknown
-   integration ownership is a real stop, not permission to guess.
-3. **Publish through the existing procedure.** Apply
-   [publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md)
-   "Preconditions", "Publish the candidate", and, if a push is rejected,
-   "Recover a rejected push" — do not invent a second publication sequence or
-   a preparation-specific merge/rebase policy. For this caller:
-   - the owned unpublished suffix is the commit(s) from step 1;
-   - the integration checkout and authorized remote target are the ones
-     resolved in step 2;
-   - "Preconditions"' exclusive integration turn applies unchanged; this
-     reference adds no second coordination mechanism;
-   - validating the candidate (step 4 of "Publish the candidate") means
-     reconfirming that the suffix's commits are exactly the retained record
-     the keep instruction named and nothing else — there is no **Taken**
-     commit to confirm and no accepted implementation proof to reuse for a
-     planning record. An unchanged-trunk fast-forward needs no
-     re-validation; a rebase onto advanced trunk invalidates only content the
-     combined changes actually touch;
-   - no CI/execution observer is bound to a preparation workspace, so no
-     registration happens — see
-     [What keep does not do](#what-keep-does-not-do) below;
-   - an unresolved rejection, unrelated unpublished local commits, or
-     ambiguous target ownership stops exactly as that reference already
-     describes; report it and do not loop.
-
-After a successful push, the retained result is reachable at the authorized
-remote target, with any writer's intervening work still present in its
-history. When the developer instead gave an explicit no-push instruction (see
-[Decide what happens to the written result](#decide-what-happens-to-the-written-result)),
-this section is never entered: the retained result stays committed (or
-uncommitted, as the developer left it) in the owned workspace, recoverable and
-unpublished, and the authorized remote target is left unchanged.
-
-## What keep does not do
-
-Keep authorizes only committing and publishing this preparation's own
-retained seed, story, or plan record. It does not:
-
-- move a backlog entry to **Taken** or perform any part of
-  [take queued work](../../dough-execute-plan/SKILL.md#take-queued-work);
-- start implementation of the kept record;
-- start, arm, or register with a CI/execution observer — that remains
-  execution's own concern under
-  [Own one observer](../../dough-execute-plan/references/ci-monitor.md#own-one-observer),
-  not preparation's;
-- establish an execution identity, mode, or claim.
-
-This keeps "keep" a narrower operation than an execute-plan delivery: only the
-retained planning record reaches the authorized remote target. Planning-only
-execution limits are preserved — this capability never begins implementation
-or takes the story, whatever the kept record describes.
+When the write is finished, apply [decide what happens to the written
+result](preparation-disposition.md#decide-what-happens-to-the-written-result)
+before [closing or retaining the workspace](#close-or-retain-the-workspace)
+below.
 
 ## Close or retain the workspace
 

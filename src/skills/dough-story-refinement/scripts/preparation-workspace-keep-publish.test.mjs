@@ -13,7 +13,7 @@ import {
 } from "../../dough-execute-plan/scripts/trunk-publication-local-main-test-fixtures.mjs";
 
 // Slice 3 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
-// proves preparation-workspace.md's "Decide what happens to the written
+// proves preparation-disposition.md's "Decide what happens to the written
 // result" / "Keep and publish the retained result" rule: a developer's
 // explicit keep instruction commits (if needed), reconciles with current
 // origin, integrates locally, and pushes an owned preparation workspace's

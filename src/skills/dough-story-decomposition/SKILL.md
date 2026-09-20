@@ -55,8 +55,8 @@ skill commits, integrates, or publishes it only when that reference's keep
 decision authorizes it.
 
 Report the seed path, recommended first story, rejected simpler alternative,
-effort distribution, and open decisions. Apply that reference's keep decision,
-then close or retain the workspace, when this session ends. After writing the
-seed, end with:
+effort distribution, and open decisions. Apply that reference's keep or
+discard decision, then close or retain the workspace, when this session ends.
+After writing the seed, end with:
 
 `## STORY DECOMPOSITION WRITTEN`

@@ -111,6 +111,7 @@ managed_files=(
   dough-story-decomposition/references/seed-format.md
   dough-story-refinement/SKILL.md
   dough-story-refinement/references/planning.md
+  dough-story-refinement/references/preparation-disposition.md
   dough-story-refinement/references/preparation-workspace.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
