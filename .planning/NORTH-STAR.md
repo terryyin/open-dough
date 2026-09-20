@@ -32,9 +32,10 @@ When no matching CI observer covers a Story Branch claim on trunk, report that
 gap and preserve story-branch observation; do not register it under the wrong
 target or add a multi-target observer framework.
 
-The [workspace story](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure)
-will consolidate where preparation and discussion occur; prepared shared edits
-remain short operations. The
+The completed workspace story consolidated where preparation and discussion
+occur; prepared shared edits remain short operations, recoverable at
+`8638ac3:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure`.
+The
 [queue story](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
 will replace manual integration turns and blocked-turn handoff with common local
 coordination. Until then, persistent publication failure preserves the claim,

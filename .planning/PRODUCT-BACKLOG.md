@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Prepare stories and slice plans in a clear developer workspace workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure ([plan](quick/065-prepare-stories-in-owned-worktrees/PLAN.md))
-
 ## Backlog list
 
 - [Recognize realpath-equivalent CLI entry paths](quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md)
