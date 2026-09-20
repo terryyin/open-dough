@@ -11,7 +11,7 @@ import { WorkStages } from "./WorkStages";
 type Attempt =
   | { readonly status: "reading" }
   | { readonly status: "read" }
-  | { readonly status: "failed"; readonly problem: string };
+  | { readonly status: "failed"; readonly problem: string; readonly at: Date };
 
 type Retrieval = {
   // The last snapshot read successfully; a later read replaces it whole.
@@ -33,13 +33,18 @@ function describe(error: unknown): string {
     : "An unexpected problem stopped the read.";
 }
 
+function Moment({ at }: { readonly at: Date }) {
+  return <time dateTime={at.toISOString()}>{at.toLocaleString()}</time>;
+}
+
 export function App() {
   const [retrieval, setRetrieval] = useState<Retrieval>({
     work: undefined,
     attempt: { status: "reading" },
     notice: "",
   });
-  // Opening the page asks for the first read; only Refresh asks for another.
+  // Opening the page asks for the first read; only Refresh, named Retry after
+  // a failed attempt, asks for another. Nothing reads again by itself.
   const [readsAsked, setReadsAsked] = useState(1);
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
 
@@ -65,7 +70,11 @@ export function App() {
         if (!reading.signal.aborted) {
           setRetrieval((last) => ({
             ...last,
-            attempt: { status: "failed", problem: describe(error) },
+            attempt: {
+              status: "failed",
+              problem: describe(error),
+              at: new Date(),
+            },
           }));
         }
       },
@@ -123,9 +132,7 @@ export function App() {
                 <div>
                   <dt>Retrieved</dt>
                   <dd>
-                    <time dateTime={work.retrievedAt.toISOString()}>
-                      {work.retrievedAt.toLocaleString()}
-                    </time>
+                    <Moment at={work.retrievedAt} />
                   </dd>
                 </div>
               </>
@@ -136,14 +143,16 @@ export function App() {
             unknown.
           </p>
           {/* Unavailable while reading, yet still focusable: a disabled
-              button would drop keyboard focus to the page. */}
+              button would drop keyboard focus to the page. After a failed
+              attempt the same control is named for what pressing it means,
+              so one read action is offered, never two competing ones. */}
           <button
             type="button"
             className="refresh"
             aria-disabled={reading}
             onClick={refresh}
           >
-            Refresh
+            {attempt.status === "failed" ? "Retry" : "Refresh"}
           </button>
         </section>
         {reading && (
@@ -156,6 +165,19 @@ export function App() {
           <div role="alert" className="read-problem">
             <h2>Published work could not be read</h2>
             <p>{attempt.problem}</p>
+            <p>
+              This attempt failed at <Moment at={attempt.at} />.{" "}
+              {work ? (
+                <>
+                  What is shown is the earlier snapshot, retrieved at{" "}
+                  <Moment at={work.retrievedAt} />; this attempt added nothing
+                  to it.
+                </>
+              ) : (
+                "No published work is shown, because none has been read."
+              )}{" "}
+              Press Retry to read again.
+            </p>
           </div>
         )}
         <p className="notice" aria-live="polite">

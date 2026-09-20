@@ -13,6 +13,13 @@ No local checkout, unpushed change, or running agent is a source of
 what it shows: Taken means recorded as taken, not that anyone is working now.
 The observed project is fixed in `src/publishedSource.ts`.
 
+A read that fails, finds a backlog the shared reader refuses, or waits more
+than 30 seconds for GitHub (`readWaitLimitMs` in `src/publishedWork.ts`) ends
+as a read problem, never as an empty or partial backlog. The snapshot read
+earlier stays shown with its own revision and retrieval time, the problem says
+when the attempt failed, and the read control is named **Retry** until a read
+succeeds. Nothing retries by itself.
+
 What the backlog means is decided by the shared backlog reader under
 `src/skills/dough-product-backlog/scripts/`; the dashboard holds no Markdown
 parsing of its own. The dashboard is not part of the installed Open Dough

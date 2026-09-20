@@ -1,11 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { expectMembership, parts } from "./dashboardPage";
-import {
-  commitAnswer,
-  publishOrigin,
-  rateLimitedAnswer,
-  rawFileAnswer,
-} from "./githubOrigin";
+import { commitAnswer, publishOrigin, rawFileAnswer } from "./githubOrigin";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 
@@ -202,27 +197,4 @@ test("published overview accepts successfully empty groups and no recorded direc
   );
   await expect(source).toContainText(revision);
   await expect(page.getByRole("alert")).toHaveCount(0);
-});
-
-test("published overview shows a plain read problem and no invented backlog when the initial read fails", async ({
-  page,
-}) => {
-  await publishOrigin(page, { ref: rateLimitedAnswer() });
-
-  await page.goto("/");
-
-  const problem = page.getByRole("alert");
-  await expect(problem).toContainText("Published work could not be read");
-  await expect(problem).toContainText(
-    "GitHub answered HTTP 403 while reading main of terryyin/open-dough.",
-  );
-  await expect(page.getByRole("status")).toHaveCount(0);
-  const { stages, source } = parts(page);
-  await expect(stages).toHaveCount(0);
-  await expect(page.getByRole("article")).toHaveCount(0);
-  await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
-  await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
-  await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  await expect(source).toContainText("terryyin/open-dough");
-  await expect(source).not.toContainText("Revision");
 });

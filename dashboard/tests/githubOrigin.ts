@@ -20,12 +20,20 @@ type RawAnswer = {
   readonly body: string;
 };
 
+// The connection fails before any HTTP answer arrives.
+export const noConnection = { connection: "connectionfailed" } as const;
+
+type OriginAnswer = RawAnswer | typeof noConnection;
+
 export type Origin = {
   // What GitHub answers for `commits/main`.
-  readonly ref: RawAnswer;
+  readonly ref: OriginAnswer;
   // What GitHub answers for the backlog file, and at which revision it is
   // published. A read at any other revision reaches no route and fails.
-  readonly backlog?: { readonly revision: string; readonly answer: RawAnswer };
+  readonly backlog?: {
+    readonly revision: string;
+    readonly answer: OriginAnswer;
+  };
   // Holds the ref answer back until the test lets it go.
   readonly refHeldUntil?: Promise<void>;
 };
@@ -51,9 +59,9 @@ export function rawFileAnswer(markdown: string): RawAnswer {
   };
 }
 
-export function rateLimitedAnswer(): RawAnswer {
+export function rateLimitedAnswer(status: 403 | 429 = 403): RawAnswer {
   return {
-    status: 403,
+    status,
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify({
       message: "API rate limit exceeded for 203.0.113.7.",
@@ -82,7 +90,7 @@ export function notFoundAnswer(): RawAnswer {
 const answering =
   (
     observed: ObservedRequest[],
-    decide: (url: URL) => RawAnswer,
+    decide: (url: URL) => OriginAnswer,
     heldUntil: (url: URL) => Promise<void> | undefined = () => undefined,
   ) =>
   async (route: Route) => {
@@ -93,6 +101,10 @@ const answering =
     const url = new URL(route.request().url());
     const answer = decide(url);
     await heldUntil(url);
+    if ("connection" in answer) {
+      await route.abort(answer.connection);
+      return;
+    }
     await route.fulfill({
       status: answer.status,
       contentType: answer.contentType,
@@ -144,12 +156,17 @@ export type MovingOrigin = {
   // "main" the ref answer, for a revision the backlog file read at it. A held
   // answer was decided when its request arrived, not when it is released.
   hold(what: string): () => void;
+  // Answers from now on with this raw answer instead of the published one,
+  // until the returned restore is called: for "main" the ref request, for a
+  // revision the backlog file read at it.
+  answerWith(what: string, answer: OriginAnswer): () => void;
 };
 
 export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
   const requests: ObservedRequest[] = [];
   const backlogs = new Map<string, string>();
   const held = new Map<string, Promise<void>>();
+  const instead = new Map<string, OriginAnswer>();
   let main: string | undefined;
 
   const revisionIn = (url: URL) => url.searchParams.get("ref") ?? "";
@@ -159,7 +176,9 @@ export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
     mainRefApi,
     answering(
       requests,
-      () => (main === undefined ? notFoundAnswer() : commitAnswer(main)),
+      () =>
+        instead.get("main") ??
+        (main === undefined ? notFoundAnswer() : commitAnswer(main)),
       () => held.get("main"),
     ),
   );
@@ -169,9 +188,10 @@ export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
       requests,
       (url) => {
         const backlog = backlogs.get(revisionIn(url));
-        return backlog === undefined
-          ? notFoundAnswer()
-          : rawFileAnswer(backlog);
+        return (
+          instead.get(revisionIn(url)) ??
+          (backlog === undefined ? notFoundAnswer() : rawFileAnswer(backlog))
+        );
       },
       (url) => held.get(revisionIn(url)),
     ),
@@ -182,6 +202,12 @@ export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
     push(revision, backlog) {
       backlogs.set(revision, backlog);
       main = revision;
+    },
+    answerWith(what, answer) {
+      instead.set(what, answer);
+      return () => {
+        instead.delete(what);
+      };
     },
     hold(what) {
       let release: () => void = () => undefined;
@@ -197,4 +223,12 @@ export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
       };
     },
   };
+}
+
+// What origin was asked for, in order: the ref, or the file at a revision.
+export function pathsRead(origin: MovingOrigin): string[] {
+  return origin.requests.map((request) => {
+    const url = new URL(request.url);
+    return `${url.pathname.split("/").pop() ?? ""}${url.search}`;
+  });
 }

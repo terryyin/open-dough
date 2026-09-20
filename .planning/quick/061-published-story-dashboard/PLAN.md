@@ -1,7 +1,7 @@
 # See the project's published work in a story dashboard
 
 Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
-and just-in-time UX. Slice 1 resolved without change; slices 2–4 done; slice 5 is next.
+and just-in-time UX. Slice 1 resolved without change; slices 2–5 done; slice 6 is next.
 
 ## Execution identity
 
@@ -344,8 +344,37 @@ Safe stop: coherent successful refresh; failed-refresh recovery remains slice 5.
 
 ### 5. Preserve trustworthy information through read failure and retry
 Type: Behavior
-Status: planned
+Status: done 2026-09-20
 Proof: `npm run test:dashboard -- --grep 'read failure and retry'`
+
+Delivered 2026-09-20. Accepted proof: twelve `read failure and retry` tests in
+`dashboard/tests/read-failure.spec.ts` and `read-failure-refresh.spec.ts`.
+Seven opening failures (connection, HTTP 429, ref answer naming no commit,
+backlog 404 at the resolved SHA, malformed entry, the same work in both lists,
+unsupported entry field) each show a read problem and no stage, card, count,
+direction, or revision; an unknown section adds nothing; a stalled read ends at
+the 30-second bound under `page.clock` and nothing reads again by itself; a
+failed refresh keeps snapshot A whole with its own revision, pinned link, and
+retrieval time beside a separately timed failure, focus stays on the one read
+control, and Retry publishes B whole; Retry after failed openings publishes the
+first snapshot and withdraws the failure. Coordinator reran the whole suite
+after refactoring: 22 passed. Type check and `npm run lint` exit 0.
+
+The refactor pass removed slice 2's initial HTTP 403 test as a duplicate of
+these opening rows, moving its one extra assertion into
+`expectProblemAndNoSnapshot`; `--grep 'published overview'` now selects two
+tests, and HTTP 403 stays observed by the failed-refresh test.
+
+Decisions and gaps: one read control is named Retry after a failed attempt and
+Refresh otherwise, so focus survives and no control sits inside the alert. The
+shared reader's refusal text is relayed verbatim, including its CLI-oriented
+"Repair it by hand" sentence; filtering it would be dashboard-side message
+interpretation and is left for human review. Untested: a body stall after
+headers, the bound on the file request, HTTP 5xx, a non-JSON ref body, visible
+locale time text, assistive-technology speech, and the control's name while a
+retry is in flight. For slice 6: locate the read control by state through
+`parts(page)`; the alert now holds two `<time>` elements and a longer paragraph
+to check at narrow width.
 
 Complete the failure/recovery loop for initial and subsequent reads. Network,
 HTTP/rate-limit, missing backlog, malformed shape, and invalid/duplicate entries

@@ -88,15 +88,40 @@ function interpret(
   };
 }
 
+// How long one read may wait for GitHub. A read still unanswered by then ends
+// as a read problem, so a stalled connection leaves the person able to retry;
+// nothing retries for them.
+const readWaitLimitMs = 30_000;
+
 export async function readPublishedWork(
   signal: AbortSignal,
 ): Promise<PublishedWork> {
-  const revision = await resolveRevision(publishedSource, signal);
-  const markdown = await readBacklogAt(publishedSource, revision, signal);
-  return {
-    source: publishedSource,
-    revision,
-    retrievedAt: new Date(),
-    ...interpret(markdown, revision),
-  };
+  const waitLimit = new AbortController();
+  const waiting = setTimeout(() => {
+    waitLimit.abort();
+  }, readWaitLimitMs);
+  const untilEither = AbortSignal.any([signal, waitLimit.signal]);
+  try {
+    const revision = await resolveRevision(publishedSource, untilEither);
+    const markdown = await readBacklogAt(
+      publishedSource,
+      revision,
+      untilEither,
+    );
+    return {
+      source: publishedSource,
+      revision,
+      retrievedAt: new Date(),
+      ...interpret(markdown, revision),
+    };
+  } catch (error) {
+    if (waitLimit.signal.aborted && !signal.aborted) {
+      throw new ReadProblem(
+        `GitHub did not answer within ${readWaitLimitMs / 1000} seconds, so the read was given up.`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(waiting);
+  }
 }

@@ -28,7 +28,7 @@ function backlogOf(taken: string[], queued: string[]): string {
   return `# Product backlog\n\n## Taken\n\n${taken.join("\n")}\n\n## Backlog list\n\n${queued.join("\n")}\n`;
 }
 
-const backlogA = backlogOf(
+export const backlogA = backlogOf(
   [repairEntry],
   [dashboardEntry, workspaceEntry, queueEntry],
 );

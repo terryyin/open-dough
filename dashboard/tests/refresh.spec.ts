@@ -1,6 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
-import { expectMembership, parts } from "./dashboardPage";
-import type { MovingOrigin } from "./githubOrigin";
+import { expect, test } from "@playwright/test";
+import { expectWholeSnapshot, parts } from "./dashboardPage";
+import { pathsRead } from "./githubOrigin";
 import {
   backlogB,
   backlogC,
@@ -13,38 +13,6 @@ import {
   titlesOfB,
   workspaceStory,
 } from "./refreshJourney";
-
-// Everything the page shows about one revision, observed together.
-async function expectWholeSnapshot(
-  page: Page,
-  shown: { revision: string; titles: typeof titlesOfA; retrievedAt?: Date },
-  otherRevisions: string[],
-) {
-  const { stages, source } = parts(page);
-  await expectMembership(page, shown.titles);
-  await expect(source).toContainText(shown.revision);
-  if (shown.retrievedAt) {
-    await expect(source.locator("time")).toHaveAttribute(
-      "datetime",
-      shown.retrievedAt.toISOString(),
-    );
-  }
-  await expect(
-    stages.locator(`a[href*="/blob/${shown.revision}/"]`).first(),
-  ).toBeVisible();
-  for (const other of otherRevisions) {
-    await expect(page.locator("body")).not.toContainText(other);
-    await expect(page.locator("body")).not.toContainText(other.slice(0, 7));
-    await expect(stages.locator(`a[href*="${other}"]`)).toHaveCount(0);
-  }
-}
-
-function pathsRead(origin: MovingOrigin): string[] {
-  return origin.requests.map((request) => {
-    const url = new URL(request.url);
-    return `${url.pathname.split("/").pop() ?? ""}${url.search}`;
-  });
-}
 
 test("refresh published work replaces revision A with revision B as one result", async ({
   page,
