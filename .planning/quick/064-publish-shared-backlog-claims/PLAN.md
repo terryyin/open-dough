@@ -1,6 +1,6 @@
 # Publish shared backlog claims before isolated execution
 
-Status: in progress. Slice 1 done; slices 2-4 remain planned. Execution
+Status: in progress. Slices 1-2 done; slices 3-4 remain planned. Execution
 started 2026-09-20 in Story Branch Mode on branch
 `claude/064-publish-shared-backlog-claims`.
 Work identity: SEED-008#publish-shared-backlog-claims
@@ -158,12 +158,12 @@ implementation. Current-branch and no-claim contextual paths are explicitly
 untouched. Reviewed by inspecting the literal diff and tracing both the
 refusal and continuation paths through the edited prose; no test suite
 applies to this documentation-only slice.
-Learning: the post-change refactor pass found this edit pushes
+Learning: the post-change refactor pass found this edit pushed
 `src/skills/dough-execute-plan/SKILL.md` from 250 to 260 lines, over this
-project's 250-line refactor-check threshold. Splitting it now would mean
-doing slice 2's modularization early; the overrun is intentionally carried
-forward and must be resolved by slice 2's extraction of shared publication
-mechanics into `references/trunk-publication.md`.
+project's 250-line refactor-check threshold. Resolved in slice 2's refactor
+pass (see below) by extracting the unrelated, already loosely coupled
+"Finish or stop" section into `references/finish-or-stop.md`, bringing
+SKILL.md back to 223 lines.
 
 Resolve claim publication authority and destination before taking queued work
 in either isolated mode. Require the declared integration turn and existing
@@ -179,7 +179,7 @@ required context already exists but is currently requested later in Story Branch
 
 ### 2. Share publication mechanics without changing mode behavior
 Type: Structure
-Status: planned
+Status: done
 Proof: existing Trunk Mode claim/increment/closure caller walkthrough plus the
 publication Git suite; preserve destinations, retry, conflict and recovery behavior.
 
@@ -191,6 +191,25 @@ verification using actual existing resources. This structure immediately enables
 slice 3's second caller; do not extract a general integration framework.
 Hypothesis: one bounded responsibility clarification, medium confidence; most
 mechanics already exist. Stop if reuse requires a new execution engine.
+Accepted proof: `references/trunk-publication.md`'s "Publish the candidate"
+step 6 final-agreement check no longer unconditionally requires an execution
+branch; it now requires local target/fetched remote/retained SHA agreement
+always, plus execution-branch agreement only when one already exists for that
+publication (always for an increment, and for a claim published after
+workspace setup). Verified by walkthrough against every real caller (Trunk
+Mode claim publication, verified-increment publication, wrap-up closure,
+rejected-push recovery) confirming unchanged behavior there, and confirmed
+this expresses the check for a claim published before workspace setup
+without inventing a second algorithm. Reran both real-Git suites and both
+passed unchanged:
+`node --test src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+(3 pass) and
+`node --test src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs`
+(1 pass). The refactor pass also extracted `SKILL.md`'s self-contained
+"Finish or stop" section into `references/finish-or-stop.md` (heading and
+anchor kept in place in SKILL.md as a pointer, matching the existing
+"Choose the execution location" pattern), resolving slice 1's carried-forward
+file-size overrun: SKILL.md 260 → 223 lines.
 
 ### 3. Publish an isolated execution's claim before work starts
 Type: Behavior

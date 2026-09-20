@@ -100,10 +100,13 @@ execution worktree yet; other publications retain theirs.
    execution checkout, register that SHA with it. Registration failure is
    lost coverage: report it and do not claim the revision was observed. Do
    not wait for CI. Do not report or register success until local `main`,
-   the freshly fetched remote, the retained SHA, and the execution branch
-   all agree on the candidate SHA and `main...origin/main` is `0	0` on the
-   integration checkout; a mismatch among those four identities is an
-   unfinished publication, not a completed one.
+   the freshly fetched remote, and the retained SHA all agree on the
+   candidate SHA and `main...origin/main` is `0	0` on the integration
+   checkout. When an execution branch already exists for this publication —
+   always for an increment, and for a claim published after workspace
+   setup — it must also agree on that same candidate SHA. A mismatch among
+   the identities that apply to this publication is an unfinished
+   publication, not a completed one.
 
 ## Publish wrap-up closure
 
