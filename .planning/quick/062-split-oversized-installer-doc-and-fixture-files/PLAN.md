@@ -1,6 +1,6 @@
 # Simplify installation, host-hook fixtures, and trunk publication around domain responsibilities
 
-Status: planned. No execution has started or been authorized.
+Status: executing; all slice implementations verified, publication held for integration ownership. Authorized on 2026-09-20 with `62 --trunk`.
 
 ## Source, beneficiary, and bounded outcome
 
@@ -22,7 +22,7 @@ and any replacement modules within the 250-line convention.
 The owner's 2026-09-20 instruction authorizes replacing the earlier mandatory
 splits and verbatim-content preservation with semantic simplification: retain
 critical information, improve cohesion, and map directly to domain concepts.
-It does not authorize implementation. Keep this plan identity and queue position.
+That planning instruction did not authorize implementation; the subsequent `62 --trunk` invocation does. Keep this plan identity.
 
 ## Current evidence and diagnosis
 
@@ -222,6 +222,24 @@ During execution use the established refactor/delivery gates, focused proof abov
 and required broader checks `npm run lint` and `npm test` with Bash 4+ on PATH.
 No native integration mechanism changes here; reuse applicable native evidence
 under ADR 0005 rather than claiming static tests prove fresh native behavior.
-The revised plan is ready for direct execution when separately authorized;
-execution cannot resume in this planning-only request. Keep it queued, retain
-proof in this plan during execution, and leave spent-artifact cleanup to wrap-up.
+Retain proof during execution and leave spent-artifact cleanup to wrap-up.
+
+## Execution identity
+
+- Mode: Trunk Mode; integration checkout `/Users/terryyin/git/open-dough`, branch `main`, authorized target `origin/main`.
+- Execution checkout `/Users/terryyin/git/open-dough/.worktrees/062-simplify-installation`, branch `codex/062-simplify-installation`.
+- Published claim: `420d91e69868ec6dc8afaf399139e162b7bf8b17`; original base `03b7045`.
+- Plan 061 coordinator confirmed exclusive integration ownership for this execution; its work remains on its Story Branch.
+- No numeric slice limit; retain existing in-scope plan-refinement authority. Tests use `PATH=/opt/homebrew/bin:$PATH` for Bash 4+. No commit hooks, generators, or project CI overrides apply. Format with `npm run format`; broader checks are `npm run lint` and `npm test`.
+- CI: GitHub Actions `ci.yml` / `CI`, target `main`; observer `/tmp/dough-ci-501/watch-EICk3j`, PID 16091, session 44931, cell 13, coordinator plan062; checkout-bound runtime verified. Claim registered.
+
+## Accepted execution evidence
+
+- Slice 1: guide steps 1–6 preserve pinning, inspection, target/roots, force, verification and cleanup. Inspected guide listing and test lines 19–42: current sources and one newly declared dependency are discoverable; absent dependency fails. `PATH=/opt/homebrew/bin:$PATH bash tests/dough-update-guidance-payload.sh` passed. `PATH=/opt/homebrew/bin:$PATH bash tests/update-adds-new-payload-skill.sh` passed; inspected old/new tagged setup, both-root byte/version checks and collision no-write assertions. Guide links resolve. Family 300→243 lines (guide 183, test 60 after ShellCheck fixes). Agent-reading preservation rests on procedure review, not installer test exit status.
+- Integration ownership changed: external Claude dashboard task created `claude/061-published-story-dashboard` and local main claim `beafc8d` after this execution's claim. Publication is held pending ownership coordination; preserve its untracked worktree and unpublished claim.
+- Slice 3: source 276→245 lines; inspected consolidated Preconditions, candidate steps 3–6, conflict routing and resume table. Caller/scenario review covers startup, unchanged/advanced trunk, closure, rejected push/one retry, unresolved/disputed conflict, lost response, and missing registration; all preserved obligations remain actionable. `PATH=/opt/homebrew/bin:$PATH node --test src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs` passed 3 tests; inspected `createCleanTrunkFixture`, `assertPublicationAgreement`, unrelated-commit refusal and rejected-push rewrite observations. `PATH=/opt/homebrew/bin:$PATH bash tests/execution-payload-update.sh` passed; inspected tagged setup and `assert_upgraded_execution_payload`, unrelated preservation and no-write conflict assertions. `PATH=/opt/homebrew/bin:$PATH bash /tmp/open-dough-062-slice3-links.sh` passed; reviewed its Python checker and real disposable tagged installation: 19 incoming/22 outgoing links in source and both roots, nine unchanged anchors and equal installed bytes. Automated Git tests do not execute prose; caller review supplies semantic proof.
+- Slice 1 independent refactor: no candidates/edits, accepted proof unchanged, `git diff --check` passed; tests correctly skipped.
+- Slice 2: inspected the shell API, separate named scenarios and independent assertions, with shared JSON/native-shape access only. `PATH=/opt/homebrew/bin:$PATH bash tests/install-ci-host-hooks.sh`, `PATH=/opt/homebrew/bin:$PATH bash tests/install-all-tools.sh`, `PATH=/opt/homebrew/bin:$PATH bash tests/execution-payload-update.sh`, `PATH=/opt/homebrew/bin:$PATH bash tests/update-skip-verified.sh`, and `PATH=/opt/homebrew/bin:$PATH bash tests/install-preserves-open-dough-json.sh` passed. Inspected release/empty/manual setup and exact-count/content, preservation, repair-only-write, ordinary/force conflict and unsafe-target snapshot assertions. `PATH=/opt/homebrew/bin:$PATH node /tmp/dough-062-fixture-proof.mjs` passed; inspected retained pre-edit baselines `/tmp/dough-062-fixture.soZuZU`, semantic comparisons (with/without guard, matcher, 13 other scenarios) and independent both-host missing/duplicate/modified/sentinel mutations returning status 1. Formatted family 448→359 lines (shell 69; settings 40; scenarios 157; assertions 93).
+- Slices 2 and 3 independent refactors found no candidates/edits; proof unchanged, scoped whitespace checks passed and tests correctly skipped. Formatting exposed ShellCheck SC2034 for the preserved public resolver's output variables; documented their external use, with no behavioral edit.
+- Delivery preparation: `PATH=/opt/homebrew/bin:$PATH npm run format` and `PATH=/opt/homebrew/bin:$PATH npm run lint` passed. ShellCheck preparation also required literal-Markdown annotation and separate checked `wc` assignments in the guidance test; the full suite covers that adjusted assertion.
+- Broad proof: `PATH=/opt/homebrew/bin:$PATH npm test` completed with exit 0 (52 shell tests plus self-installation check); `/tmp/dough-062-npm-test.log`. No fresh native-agent acceptance claimed. All three implementations and refactor gates passed; slice status remains planned until coordinator publication completes.

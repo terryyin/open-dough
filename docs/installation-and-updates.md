@@ -2,103 +2,12 @@
 
 Open Dough installs one project-local client payload into two physical skill
 roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
-The payload in each root is exactly:
-
-- `dough-update/SKILL.md`
-- `dough-bug-fixing/SKILL.md`
-- `dough-adr-awareness/SKILL.md`
-- `dough-product-backlog/SKILL.md`
-- `dough-product-backlog/assets/claude-hooks-guard.json`
-- `dough-product-backlog/references/identity.md`
-- `dough-product-backlog/references/merge-conflicts.md`
-- `dough-product-backlog/scripts/product-backlog-add.mjs`
-- `dough-product-backlog/scripts/product-backlog-adopt.mjs`
-- `dough-product-backlog/scripts/product-backlog-combine.mjs`
-- `dough-product-backlog/scripts/product-backlog-complete.mjs`
-- `dough-product-backlog/scripts/product-backlog-direction.mjs`
-- `dough-product-backlog/scripts/product-backlog-document.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-aggregate.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-candidate.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-cherry-pick-aggregate.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-cherry-pick-stop.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-cherry-pick.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-cli.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-driver.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-merge.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-rebase.mjs`
-- `dough-product-backlog/scripts/product-backlog-git-repository.mjs`
-- `dough-product-backlog/scripts/product-backlog-guard-hook.mjs`
-- `dough-product-backlog/scripts/product-backlog-home.mjs`
-- `dough-product-backlog/scripts/product-backlog-identity.mjs`
-- `dough-product-backlog/scripts/product-backlog-merge.mjs`
-- `dough-product-backlog/scripts/product-backlog-order.mjs`
-- `dough-product-backlog/scripts/product-backlog-place.mjs`
-- `dough-product-backlog/scripts/product-backlog-placement.mjs`
-- `dough-product-backlog/scripts/product-backlog-plan.mjs`
-- `dough-product-backlog/scripts/product-backlog-refresh.mjs`
-- `dough-product-backlog/scripts/product-backlog-refusal.mjs`
-- `dough-product-backlog/scripts/product-backlog-report.mjs`
-- `dough-product-backlog/scripts/product-backlog-request.mjs`
-- `dough-product-backlog/scripts/product-backlog-source.mjs`
-- `dough-product-backlog/scripts/product-backlog-store.mjs`
-- `dough-product-backlog/scripts/product-backlog-take.mjs`
-- `dough-product-backlog/scripts/product-backlog-usage.mjs`
-- `dough-product-backlog/scripts/product-backlog-version.mjs`
-- `dough-product-backlog/scripts/product-backlog-work.mjs`
-- `dough-product-backlog/scripts/product-backlog.mjs`
-- `dough-maintain-findings/SKILL.md`
-- `dough-story-decomposition/SKILL.md`
-- `dough-story-decomposition/references/problem-decomposition.md`
-- `dough-story-decomposition/references/seed-format.md`
-- `dough-story-refinement/SKILL.md`
-- `dough-story-refinement/references/planning.md`
-- `dough-resplit-story/SKILL.md`
-- `dough-slice-planning/SKILL.md`
-- `dough-slice-planning/references/architectural-thinking.md`
-- `dough-pfe/SKILL.md`
-- `dough-slice-plan-refinement/SKILL.md`
-- `dough-execute-plan/SKILL.md`
-- `dough-execute-plan/assets/claude-hooks.json`
-- `dough-execute-plan/assets/cursor-hooks.json`
-- `dough-execute-plan/manuals/custom-ci.md`
-- `dough-execute-plan/references/ci-monitor.md`
-- `dough-execute-plan/references/ci-notify-codex.md`
-- `dough-execute-plan/references/ci-notify-hosts.md`
-- `dough-execute-plan/references/delegation.md`
-- `dough-execute-plan/references/destructive-later-outcome-check.md`
-- `dough-execute-plan/references/disposable-research.md`
-- `dough-execute-plan/references/execution-decisions.md`
-- `dough-execute-plan/references/execution-location.md`
-- `dough-execute-plan/references/runtime-setup.md`
-- `dough-execute-plan/references/trunk-publication.md`
-- `dough-execute-plan/references/wrap-up.md`
-- `dough-execute-plan/scripts/ci-command-adapter.mjs`
-- `dough-execute-plan/scripts/ci-failures.mjs`
-- `dough-execute-plan/scripts/ci-host-hook.mjs`
-- `dough-execute-plan/scripts/ci-mailbox-location.mjs`
-- `dough-execute-plan/scripts/ci-mailbox-store.mjs`
-- `dough-execute-plan/scripts/ci-mailbox-worker-process.mjs`
-- `dough-execute-plan/scripts/ci-mailbox.mjs`
-- `dough-execute-plan/scripts/ci-observer-stream.mjs`
-- `dough-execute-plan/scripts/ci-revisions.mjs`
-- `dough-execute-plan/scripts/ci-runs.mjs`
-- `dough-execute-plan/scripts/watch-ci-execution.mjs`
-- `dough-execute-plan/scripts/watch-ci.mjs`
-- `dough-post-change-refactor/SKILL.md`
-- `dough-post-change-refactor/references/refactor-checks.md`
-- `dough-test-optimization/SKILL.md`
-- `dough-test-optimization/references/optimization-tactics.md`
-- `dough-test-optimization/references/resolving-candidates.md`
-- `dough-manual-testing/SKILL.md`
-- `dough-manual-testing/references/exploration-workspace.md`
-- `dough-execution-retrospective/SKILL.md`
-- `dough-execution-retrospective/references/bounded-process-log.md`
-- `dough-story-wrap-up/SKILL.md`
-
-The source files live under `src/skills/`. Installation preserves
-unrelated project files, home-level guidance, and any other tool's separate
-installation.
+Each release's [`managed_files` declaration in `install.sh`](../install.sh)
+is the complete payload for each root; every declared path resolves under that
+release's `src/skills/`. Inspect the declaration in the pinned snapshot using
+the procedure below, rather than assuming a fixed list of skills or dependencies.
+Installation preserves unrelated project files, home-level guidance, and any
+other tool's separate installation.
 
 Installation and ordinary update register the managed host-hook entries from the
 execution skill fragments into `.cursor/hooks.json` and `.claude/settings.json`
@@ -121,7 +30,7 @@ shared by Codex, Cursor, and Claude Code. It lives at
 `.planning/open-dough.json`.
 That path is in the project being installed or updated, not in an installed
 skill directory and not in the Open Dough source checkout. The file is not part
-of the managed payload listed above.
+of the release-declared managed payload.
 
 A project opts in by creating the file. The installer does not prompt, merge,
 or create a default. The JSON contract — including defaults, invocation
@@ -191,27 +100,30 @@ inspection and execution into an unattended one-shot command.
    - `src/install/open-dough-register-hooks.mjs`
    - `src/install/open-dough-register-hooks-merge.mjs`
    - `src/install/open-dough-register-hooks-fragments.mjs`
-   - `src/skills/dough-update/SKILL.md`
-   - `src/skills/dough-bug-fixing/SKILL.md`
-   - `src/skills/dough-adr-awareness/SKILL.md`
-   - `src/skills/dough-product-backlog/SKILL.md`
-   - `src/skills/dough-product-backlog/references/identity.md`
-   - `src/skills/dough-product-backlog/references/merge-conflicts.md`
-   - `src/skills/dough-maintain-findings/SKILL.md`
-   - `src/skills/dough-story-decomposition/SKILL.md`
-   - `src/skills/dough-story-decomposition/references/problem-decomposition.md`
-   - `src/skills/dough-story-decomposition/references/seed-format.md`
-   - `src/skills/dough-story-refinement/SKILL.md`
-   - `src/skills/dough-story-refinement/references/planning.md`
-   - `src/skills/dough-resplit-story/SKILL.md`
-   - `src/skills/dough-slice-planning/SKILL.md`
-   - `src/skills/dough-slice-planning/references/architectural-thinking.md`
-   - `src/skills/dough-pfe/SKILL.md`
-   - `src/skills/dough-slice-plan-refinement/SKILL.md`
-   - `src/skills/dough-execute-plan/SKILL.md`
-   - `src/skills/dough-post-change-refactor/SKILL.md`
-   - Every supporting reference, script, and hook fragment in the payload
-     enumeration above, resolved under `src/skills/`.
+
+   Then inspect every source named by that snapshot's `managed_files` declaration,
+   including supporting references, scripts, manuals, and hook fragments. After
+   reading the helper above, use its `read_managed_files_declaration` function
+   to list the complete inspection set without executing the installer:
+
+   ```bash
+   (
+     set -euo pipefail
+     source "${snapshot}/src/install/open-dough-release-version.sh"
+     declared=$(read_managed_files_declaration "${snapshot}/install.sh")
+     while IFS= read -r managed_file; do
+       source_path="${snapshot}/src/skills/${managed_file}"
+       if [[ ! -f "${source_path}" ]]; then
+         printf 'Missing declared payload source: %s\n' "${source_path}" >&2
+         exit 1
+       fi
+       printf '%s\n' "${source_path}"
+     done <<< "${declared}"
+   )
+   ```
+
+   A failed listing stops inspection and installation. Read every listed file
+   before proceeding; listing paths alone is not a review of their contents.
 
    Check that this executable call chain writes only the declared client
    payload files and their `SOURCE` then `VERSION` records under both captured
