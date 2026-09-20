@@ -64,9 +64,12 @@ function interpret(
     document = parseBacklog(markdown);
     direction = directionOf(document);
   } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
+    // The reader's refusal is quoted whole as the reader's own report: some
+    // of it is advice to the tools that change a backlog, and choosing which
+    // of its words to pass on would be interpreting it here.
+    const reported = error instanceof Error ? error.message : String(error);
     throw new ReadProblem(
-      `The published backlog could not be interpreted: ${reason}`,
+      `The published backlog could not be interpreted. The shared backlog reader reports: “${reported}” This dashboard only reads; the project’s backlog needs correcting at its source.`,
     );
   }
   const backlog = interpretedBacklog.safeParse(document);
