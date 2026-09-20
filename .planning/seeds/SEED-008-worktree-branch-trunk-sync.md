@@ -275,6 +275,17 @@ every mode, but tells Story Branch Mode not to push its claim separately.
 Execution evidence is recoverable at
 `cad2ab8:.planning/quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md`.
 
+**Further evidence (2026-09-20):** The [story dashboard](../../dashboard/README.md)
+reads only origin. While claim `beafc8d` stayed unpublished, its first read of
+the real origin, during that story's own execution, showed the dashboard story
+as Backlog priority 1; it appeared under **Taken** only after the claim reached
+`origin/main`. Published-state visibility is only as truthful as the claims that
+reach origin when execution starts, which this story's publication boundary
+would provide. The execution also kept reporting its claim as local only after
+the owner had pushed it, because its retained identity is rechecked for the
+execution branch and not for the claim; see DD-064 in
+[DearDough.md](../../DearDough.md).
+
 **Scope:** Publish an owned claim on the resolved shared integration branch to
 its authorized remote before releasing the integration turn and beginning
 isolated implementation, in both Story Branch and Trunk modes. Preserve each
