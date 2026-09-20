@@ -198,6 +198,18 @@ queue. Distributed queues, hosted cloud-agent integration, a parallel-agent
 launcher, and global CI repair scheduling are not promised. Reuse an existing
 solution if suitable; this capture authorizes no queue implementation.
 
+**Continuity reminder (2026-09-20):** When refining this story, revisit
+[claim publication's interim coordination](#publish-shared-backlog-claims).
+Replace the manual integration-turn arrangement with the chosen common local
+coordination mechanism, including prepared direct edits and claim publication,
+not only implementation merges. Replace its manual blocked-turn recovery with
+the queue's explicit recovery/handoff policy; never release ownership merely
+because a timeout elapsed. Preserve the publication-before-implementation rule
+and the existing Git publication owner. Remove superseded manual-only guidance
+and duplicate coordination paths, and demonstrate that a claim and another
+writer cannot concurrently mutate the shared checkout. This is follow-up scope
+input, not selection of a lock, daemon, queue API, or automatic recovery design.
+
 <a id="planning-workspace-procedure"></a>
 
 ### 6. Prepare stories and slice plans in a clear developer workspace workflow
@@ -257,15 +269,34 @@ as a story and place it third in the product backlog; requirements recorded in
 commit `903f905`. See also
 [ADR 0008's alignment note](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md).
 
+**Continuity reminder (2026-09-20):** Consume
+[claim publication's workspace boundary](#publish-shared-backlog-claims)
+when refining the common workspace procedure. Replace task-specific location
+instructions with the agreed procedure for preparing work in an owned workspace
+and using the shared integration checkout only for a prepared, bounded change.
+Keep refinement/discussion outside the integration turn. Retain a short route
+for a prepared Taken update; do not require a separate planning workspace for
+every claim. Preserve claim publication before isolated implementation and use
+the same publication behavior rather than a planning-specific copy. Remove
+superseded location guidance and review claim startup/resume against the new
+procedure. This story can still use explicit coordination before the queue
+exists; it does not implement the queue or grant new push authority.
+
 <a id="publish-shared-backlog-claims"></a>
 
 ### 7. Publish shared backlog claims before isolated execution
 
-**Status:** Captured 2026-09-20; first backlog priority. Not planned.
+**Identity:** SEED-008#publish-shared-backlog-claims
 
-**Goal:** A developer running Story Branch and Trunk Mode tasks together can
-start either task without leaving its backlog claim unpublished on shared
-`main`, blocking another task's otherwise valid publication.
+**Status:** Refined and slice planned 2026-09-20; first backlog priority.
+Execution has not started.
+
+**Plan:** [Publish shared backlog claims](../quick/064-publish-shared-backlog-claims/PLAN.md).
+
+**Goal:** A developer selecting a story for isolated execution in Story Branch
+or Trunk Mode makes its Taken membership visible on origin before implementation
+begins, without leaving another task to obtain publication of its local claim.
+This provides shared visibility, not proof of exclusive distributed ownership.
 
 **Observed problem:** Plan 62's Trunk Mode delivery stopped when the Claude
 dashboard task left claim `beafc8d` on local `main` without pushing. The owner
@@ -286,40 +317,105 @@ the owner had pushed it, because its retained identity is rechecked for the
 execution branch and not for the claim; see DD-064 in
 [DearDough.md](../../DearDough.md).
 
-**Scope:** Publish an owned claim on the resolved shared integration branch to
-its authorized remote before releasing the integration turn and beginning
-isolated implementation, in both Story Branch and Trunk modes. Preserve each
-mode's subsequent implementation-delivery behavior. Keep ownership checks,
-backlog reconciliation, non-force publication, and recoverable failure handling.
-Align startup prerequisites, claim rules, workspace creation, recovery, and CI
-observation where they depend on this publication boundary. Resolve the existing
-direct-current-branch contract explicitly; do not silently expand its push authority.
+**Scope — required behavior:**
 
-**Key examples / evaluation:**
+- Both Story Branch and Trunk modes publish their owned Taken claim to the
+  resolved authorized integration target before isolated implementation starts.
+  Resolve authority, destination, and an explicit integration turn before the
+  backlog edit. Missing prerequisites leave the backlog unchanged.
+- Retain the current prepared claim in the integration checkout and create the
+  execution workspace from its confirmed published revision. Keep one existing
+  publication procedure; preserve each mode's subsequent delivery behavior and
+  direct-current-branch publication authority.
+- Preserve ownership checks, backlog reconciliation, non-force publication,
+  bounded retry, and recoverable failure. Persistent failure preserves the
+  claim and blocks implementation. Before another shared-checkout writer
+  proceeds, the declared owner establishes safe recovery or handoff manually.
+- On resume, verify retained claim identity against freshly fetched remote
+  evidence, including when the candidate is an ancestor of newer published
+  work. Recognize publication by another authorized owner; update stale reports
+  without duplicating claims or pushes. Taken membership alone is not authority
+  to resume an unknown execution.
+- Keep publication and CI observation distinct. Preserve existing Trunk Mode
+  claim coverage and Story Branch implementation-branch coverage. Report a
+  Story Branch claim on trunk as unobserved unless matching existing coverage
+  is established. Do not register it with a story-branch observer or introduce
+  a second observer automatically. Observation remains asynchronous.
 
-1. A Story Branch task takes an item on shared `main`; its claim reaches the
-   remote before isolated work starts. A concurrent Trunk task can then publish
-   without being blocked by that task's unpublished local claim.
-2. A Trunk task retains the same claim-before-implementation behavior. Neither
-   mode publishes another writer's unpublished commits or forces a push.
-3. A rejected or unavailable claim push preserves the exact claim and queue
-   state, reports the remaining publication obligation, and does not begin
-   implementation or create a duplicate claim on resume.
+**Scope — rejection constraints:** Ambiguous ownership, unrelated unpublished
+commits, dirty shared state, or unresolved integration permission stop the
+corresponding shared mutation. Preserve others' work; do not force publication,
+reset or stash it away, clear Taken on failure, or expire ownership on a timer.
+These constraints protect recoverability and ownership; they are not implied
+by the number of examples. No offline bypass of claim publication is included.
 
-**Investigation:** This is not a one-passage edit. Source locations include
-`src/skills/dough-execute-plan/SKILL.md` (push prerequisites, mode-specific
-claim rebasing, and the explicit no-push rule), `references/execution-location.md`
-(workspace starts after local commit), and `references/trunk-publication.md`
-(Trunk-only scope). No direct wording assertion for the no-push rule was found;
-related coverage includes `ci-target-branch-worktree.test.mjs`,
-`trunk-publication-local-main.test.mjs`, and `tests/execution-payload-update.sh`.
-Review their actual boundaries when planning; they do not execute this prose.
+**Key examples:**
 
-**Boundaries / safe stopping point:** One consistent claim-publication contract;
-no merge queue, lock service, unrelated backlog-workflow redesign, or changes to
-installed managed copies. Independent of the same-machine queue story above.
-The owner requested this first-priority story if the repair was not confined to
-one instruction without bound tests. Capturing it does not authorize execution.
+1. *Visible selection.* With an authorized destination and coordinated clean
+   checkout, a Story Branch task takes a queued item. A fresh read from another
+   clone sees Taken before implementation begins. Its claim no longer blocks a
+   Trunk task merely by remaining unpublished. Trunk Mode retains the same
+   publication-before-implementation behavior.
+2. *Unavailable prerequisite.* Claim publication lacks an authorized destination
+   or an integration turn. Startup stops before changing backlog/index state or
+   beginning implementation. Direct-current-branch selection retains its
+   existing contract rather than acquiring automatic push authority.
+3. *Remote advance.* Another developer publishes a different story's claim.
+   Publication reconciles against that state and retains both intentions,
+   without publishing unrelated local commits. An unresolved same-story
+   ownership conflict stops rather than treating identical Taken entries as
+   proof of ownership.
+4. *Failed publication.* An unavailable remote or repeated rejection after a
+   claim commit leaves it recoverable. No implementation begins; report the
+   outstanding publication and manual recovery/handoff obligation. Do not
+   promise immediate availability of the shared checkout.
+5. *Interrupted publication.* The push succeeded but its response was lost, or
+   the authorized owner later pushed the retained claim. Resume fetches origin,
+   recognizes the exact retained candidate even under newer commits, and
+   updates its report without recommitting or repushing. Missing identity
+   stops for clarification; workspace-setup failure reuses the same claim.
+6. *Honest coverage.* A Story Branch task publishes its claim to trunk and later
+   its implementation to the story branch. It distinguishes those targets and
+   reports the trunk claim's missing coverage unless matching coverage exists.
+   Trunk Mode still registers its claim with its trunk observer after setup.
+   Neither case waits for CI or represents publication as a green result.
+
+**Architecture:** Follow the shared
+[North Star: shared work publication with replaceable workspace coordination](../NORTH-STAR.md#shared-work-publication-with-replaceable-workspace-coordination).
+Backlog membership, execution identity/workspace, integration turn, publication,
+and CI coverage map directly to existing responsibilities. Location guidance
+selects where; coordination grants the integration turn; publication establishes
+what reached origin. These do not require new components or a generic framework.
+The publication rule remains when the two successors replace temporary policies.
+Accepted ADRs 0001, 0002, and 0006 constrain language, cohesion, simplicity, and a
+single authoritative behavioral home; Proposed ADRs 0007/0008 remain unadopted.
+
+**Continuity and temporary limitations:** Terry selected simplicity and explicit
+replacement ownership in this discussion and authorized planning on 2026-09-20.
+The [workspace story](#planning-workspace-procedure) consolidates scattered
+location instructions and keeps discussion outside integration turns. The
+[queue story](#same-machine-merge-queue) replaces manual turns and manual
+blocked-turn recovery. Both carry removal/replacement reminders. The current
+story does not require either successor, but does not solve their problems.
+
+**Deferred promises:** New ownership allocation, lock/queue implementation,
+automatic recovery/cancellation/takeover, dashboard changes, planning-workspace
+lifecycle, background-mode support, and new CI observation machinery. Preserve
+installed managed copies; implementation edits source guidance only.
+
+**Priority and simpler alternative:** Keep this repair first because the
+instructed workflow already caused interference and missing published Taken
+status. Manual owner publication worked but retains recurring intervention.
+This is aligned with remote-first visibility, not a hard prerequisite of later
+dashboard stories. Reassess priority if implementation requires coordination
+machinery rather than this bounded contract.
+
+**Evaluation and safe stopping point:** Judge the guidance by the representative
+behavior review in AGENTS.md, corroborated by focused real-Git and existing
+runtime/delivery checks with their limits stated in the linked plan. Published
+claims remain useful if later stories are cancelled. Failure remains manually
+recoverable; no claim of automatic coordination or native-agent proof follows
+from a passing Git fixture. Planning does not authorize implementation.
 
 ## Research and Architectural Context
 
