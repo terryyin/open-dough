@@ -300,6 +300,20 @@ no invented slices or required planning failure.
 visibility for Terry to use Trunk Mode with confidence, and expose actual
 metadata gaps before adding workflow fields or a new state machine.
 
+**Learning from the delivered overview (2026-09-20):** Reads are
+unauthenticated browser calls to GitHub's REST API, limited to 60 requests per
+hour from one address. One overview read costs two requests: the ref, then the
+backlog at that commit. Reading a seed and a plan for an inspected story adds at
+least two more per story on every refresh. Read detail on selection, at the
+snapshot's pinned revision, rather than for every card, and state the request
+budget of the key examples during refinement. A rate-limit answer already shows
+as a read problem that keeps the last snapshot. Each card already carries its
+canonical and plan links resolved to repository paths at the inspected revision
+(`dashboard/src/sourceLink.ts`); start from those rather than deriving paths
+again. The overview deliberately holds no Markdown parsing, so refinement must
+name which existing reader owns story and slice-status meaning, or make that
+interpretation part of this story's scope.
+
 **Depends on:** Story 1's usable overview and origin access. This story reads
 existing records; it does not depend on the installed scripted-backlog gate or
 new local locks. Remote execution-branch progress belongs to story 3.
@@ -467,6 +481,19 @@ before prescribing configuration or delivery details. Support the selected
 project's actual records and clearly identify unsupported or unreadable input;
 do not require it to adopt the source repository's incidental layout or migrate
 its data merely to make the dashboard work.
+
+**Learning from the delivered overview (2026-09-20):** The dashboard shows a
+read problem, never a partial view, for any backlog the shared reader refuses.
+Open Dough's own published backlog once recorded a Taken plan as
+` — [plan](path)`; the shared reader still refuses that spelling and reads only
+the parenthesized ` ([plan](path))` form that scripted `take` writes. During
+refinement, read the chosen project's actual published backlog through the
+shared reader first. If it is refused, choose between a bounded compatibility
+change in that one reader and the project adopting the current spelling; do not
+add a second grammar to the dashboard. The observed project is one constant in
+`dashboard/src/publishedSource.ts` (repository, ref, backlog path), and source
+links resolve against that backlog path's directory and the repository root, so
+a different backlog location changes link resolution as well as the read.
 
 **Key example / evaluation:** A developer follows the documented launch/setup
 route for the chosen second project without editing dashboard source. The view

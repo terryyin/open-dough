@@ -20,6 +20,22 @@ earlier stays shown with its own revision and retrieval time, the problem says
 when the attempt failed, and the read control is named **Retry** until a read
 succeeds. Nothing retries by itself.
 
+Each card offers the entry's recorded canonical link and, when recorded, its
+plan link. A repository-relative target resolves against the backlog file's
+directory (a leading `/` starts at the repository root) into GitHub source
+pinned to the inspected commit, keeping its anchor. An `http(s)` address stays
+an external reference that is not tied to the revision. Anything else stays
+readable as text with the reason it is not offered as a link: another scheme,
+a path that climbs out of the repository, or a target whose last segment names
+no file, such as an anchor alone. Titles, direction, and targets are always
+rendered as text. No story or plan content is fetched.
+
+Keyboard focus follows a work item across a refresh by its identity. Reading,
+the read result, and a work item that is no longer listed are announced through
+live regions that stay in the page; a read problem is announced as an alert.
+The page reflows to a single column and needs no sideways scrolling down to a
+320 px wide window, which is also 400% browser zoom.
+
 What the backlog means is decided by the shared backlog reader under
 `src/skills/dough-product-backlog/scripts/`; the dashboard holds no Markdown
 parsing of its own. The dashboard is not part of the installed Open Dough
