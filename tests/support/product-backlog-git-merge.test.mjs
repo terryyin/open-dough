@@ -17,6 +17,7 @@ import {
   commitBranch,
   headSha,
   isMidMerge,
+  linkedWorktree,
   occurrences,
   parentCount,
   run,
@@ -48,6 +49,40 @@ test("merge resolves concurrent sibling closures through a real Git merge, with 
   assert.equal(unresolvedPaths(repo), "", "nothing was left unmerged");
   assert.equal(isMidMerge(repo), false, "the merge was committed");
   assert.equal(parentCount(repo), 2, "a real merge commit was made");
+});
+
+test("merge reconciles through the registered driver when run from a linked Git worktree", async (t) => {
+  // The same compatible sibling closures as above, but the checkout the
+  // adapter runs in is a linked worktree, where `.git` is a file rather than
+  // a directory. A plain text merge conflicts on these adjacent closures, so
+  // the empty Taken is only reachable through the registered driver.
+  const ancestor = backlogOf([itemA, itemB], [itemC]);
+  const repo = scratchRepo(t, ancestor);
+  commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
+  commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
+  const closeB = repo.git(["rev-parse", "close-b"]).trim();
+  const worktree = linkedWorktree(t, repo, "close-a");
+
+  const merged = await run(worktree, ["merge", "--ref", "close-b"]);
+
+  assert.equal(merged.code, 0, merged.stdout + merged.stderr);
+  assert.match(merged.stdout, /accepted/);
+  assert.equal(worktree.read(), backlogOf([], [itemC]));
+  assert.equal(unresolvedPaths(worktree), "", "nothing was left unmerged");
+  assert.equal(isMidMerge(worktree), false, "the merge was committed");
+  assert.equal(parentCount(worktree), 2, "a real merge commit was made");
+  assert.equal(
+    worktree.git(["rev-parse", "HEAD^2"]).trim(),
+    closeB,
+    "the merge commit's second parent is the merged ref",
+  );
+  assert.match(
+    worktree.git(["check-attr", "merge", "--", ".planning/PRODUCT-BACKLOG.md"]),
+    /merge: dough-product-backlog/,
+    "the driver is in effect for the backlog path in this worktree",
+  );
+  assert.equal(headSha(repo), repo.git(["rev-parse", "main"]).trim());
+  assert.equal(isMidMerge(repo), false, "the primary checkout was not merged");
 });
 
 test("merge stops the historical clean-duplicate case a plain text merge lets through", async (t) => {

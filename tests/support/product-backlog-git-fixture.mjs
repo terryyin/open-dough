@@ -15,7 +15,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
@@ -53,6 +53,13 @@ export function scratchRepo(t, backlog) {
   writeFileSync(file, backlog, "utf8");
   git(directory, ["add", "-A"]);
   git(directory, ["commit", "-q", "-m", "ancestor"]);
+  return checkoutAt(directory);
+}
+
+// The handle every helper below takes: one checkout's own directory, its own
+// backlog file, and real Git run from inside it.
+function checkoutAt(directory) {
+  const file = join(directory, backlogPath);
   return {
     directory,
     file,
@@ -60,6 +67,17 @@ export function scratchRepo(t, backlog) {
     write: (contents) => writeFileSync(file, contents, "utf8"),
     git: (args) => git(directory, args),
   };
+}
+
+// A real linked worktree (`git worktree add`) of the scratch repository with
+// `branch` checked out, as the same handle `scratchRepo` returns, so every
+// helper here runs against it unchanged.
+export function linkedWorktree(t, repo, branch) {
+  const parent = mkdtempSync(join(tmpdir(), "dough-backlog-git-worktree-"));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  const directory = join(parent, "checkout");
+  repo.git(["worktree", "add", "-q", directory, branch]);
+  return checkoutAt(directory);
 }
 
 // A named branch holding one further real commit: the repository's own
@@ -97,13 +115,13 @@ export function stageResolution(repo, contents) {
   repo.git(["add", "--", backlogPath]);
 }
 
-// Runs the real Git-aware CLI as a child process, the same way the ordinary
-// CLI fixture runs `product-backlog.mjs`.
-export async function run(repo, arguments_) {
+// Runs one of the real Git-aware CLIs as a child process, the same way the
+// ordinary CLI fixture runs `product-backlog.mjs`.
+export async function runCli(script, repo, arguments_) {
   try {
     const { stdout, stderr } = await exec(
       process.execPath,
-      [cli, ...arguments_, "--cwd", repo.directory],
+      [script, ...arguments_, "--cwd", repo.directory],
       { cwd: repo.directory },
     );
     return { code: 0, stdout, stderr };
@@ -112,19 +130,10 @@ export async function run(repo, arguments_) {
   }
 }
 
-// The same shape, against the rebase-specific CLI rather than the merge one.
-export async function runRebase(repo, arguments_) {
-  try {
-    const { stdout, stderr } = await exec(
-      process.execPath,
-      [rebaseCli, ...arguments_, "--cwd", repo.directory],
-      { cwd: repo.directory },
-    );
-    return { code: 0, stdout, stderr };
-  } catch (error) {
-    return { code: error.code, stdout: error.stdout, stderr: error.stderr };
-  }
-}
+export const run = (repo, arguments_) => runCli(cli, repo, arguments_);
+
+export const runRebase = (repo, arguments_) =>
+  runCli(rebaseCli, repo, arguments_);
 
 export function unresolvedPaths(repo) {
   return repo.git(["ls-files", "-u"]).trim();
@@ -139,15 +148,26 @@ export function isMidMerge(repo) {
   }
 }
 
-// Rebase state lives under `.git/rebase-merge` (this installed Git's default
+// Where Git really keeps one named piece of its own state for this checkout,
+// asked of Git rather than assumed to be under `<directory>/.git/`: in a
+// linked worktree `.git` is a file, and that state lives elsewhere.
+export function gitStatePath(repo, name) {
+  const path = repo.git(["rev-parse", "--git-path", name]).trim();
+  return resolve(repo.directory, path);
+}
+
+// Rebase state lives under `rebase-merge` (this installed Git's default
 // backend for an ordinary, non-interactive `git rebase`) or the older
-// `.git/rebase-apply`, never `MERGE_HEAD` — `isMidMerge` would report `false`
+// `rebase-apply`, never `MERGE_HEAD` — `isMidMerge` would report `false`
 // throughout a rebase even while one is genuinely stopped mid-replay.
+function rebaseStateDirectory(repo) {
+  return ["rebase-merge", "rebase-apply"]
+    .map((name) => gitStatePath(repo, name))
+    .find((path) => existsSync(path));
+}
+
 export function isMidRebase(repo) {
-  return (
-    existsSync(join(repo.directory, ".git", "rebase-merge")) ||
-    existsSync(join(repo.directory, ".git", "rebase-apply"))
-  );
+  return rebaseStateDirectory(repo) !== undefined;
 }
 
 // The commit a stopped rebase is actually replaying, its real parent, and
@@ -155,9 +175,7 @@ export function isMidRebase(repo) {
 // adapter reads it, so a test can assert the gate's message names real
 // revisions rather than merely containing some sha-shaped string.
 export function rebaseStop(repo) {
-  const directory = existsSync(join(repo.directory, ".git", "rebase-merge"))
-    ? join(repo.directory, ".git", "rebase-merge")
-    : join(repo.directory, ".git", "rebase-apply");
+  const directory = rebaseStateDirectory(repo);
   const name = existsSync(join(directory, "stopped-sha"))
     ? "stopped-sha"
     : "original-commit";

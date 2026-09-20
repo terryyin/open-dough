@@ -13,6 +13,7 @@ import {
   checkout,
   commitBranch,
   isMidMerge,
+  linkedWorktree,
   parentCount,
   run,
   scratchRepo,
@@ -92,6 +93,30 @@ test("merge's human recovery validates a supplied result without rerunning dispu
   assert.equal(repo.read(), decided);
   assert.equal(isMidMerge(repo), false, "the merge was committed");
   assert.equal(parentCount(repo), 2);
+});
+
+test("merge's human recovery continues a merge stopped in a linked Git worktree", async (t) => {
+  // `continue` recognises the stopped merge by `MERGE_HEAD`, which in a
+  // linked worktree is that worktree's own state rather than a file under a
+  // `.git` directory in the checkout.
+  const repo = scratchRepo(t, backlogOf([], [itemC]));
+  commitBranch(repo, "rename-c1", backlogOf([], ["- [Item C1](seeds/C.md#c)"]));
+  commitBranch(repo, "rename-c2", backlogOf([], ["- [Item C2](seeds/C.md#c)"]));
+  const worktree = linkedWorktree(t, repo, "rename-c1");
+  const stopped = await run(worktree, ["merge", "--ref", "rename-c2"]);
+  assert.equal(stopped.code, 1);
+  assert.equal(isMidMerge(worktree), true, "this worktree is mid-merge");
+  assert.notEqual(unresolvedPaths(worktree), "");
+
+  const decided = backlogOf([], ["- [Item C, resolved by hand](seeds/C.md#c)"]);
+  stageResolution(worktree, decided);
+  const accepted = await run(worktree, ["continue"]);
+
+  assert.equal(accepted.code, 0, accepted.stdout + accepted.stderr);
+  assert.match(accepted.stdout, /accepted/);
+  assert.equal(worktree.read(), decided);
+  assert.equal(isMidMerge(worktree), false, "the merge was committed");
+  assert.equal(parentCount(worktree), 2);
 });
 
 test("merge's human recovery refuses a staged candidate that does not match the worktree", async (t) => {

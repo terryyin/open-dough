@@ -17,6 +17,7 @@ import {
   commitOn,
   headSha,
   isMidRebase,
+  linkedWorktree,
   parentCount,
   rebaseStop,
   refSha,
@@ -29,6 +30,9 @@ import {
 
 const itemC = "- [Item C](seeds/C.md#c)";
 const itemD = "- [Item D](seeds/D.md#d)";
+const destRenamedC = "- [Item C, dest renamed](seeds/C.md#c)";
+const featureRenamedC = "- [Item C, feature renamed](seeds/C.md#c)";
+const resolvedC = "- [Item C, resolved by hand](seeds/C.md#c)";
 
 // Builds the shared starting shape every case here rebases: `main` holds the
 // ancestor; `dest` is one further real commit on `main` (the destination
@@ -41,23 +45,10 @@ const itemD = "- [Item D](seeds/D.md#d)";
 function buildConflictingFeature(t) {
   const ancestor = backlogOf([], [itemC]);
   const repo = scratchRepo(t, ancestor);
-  commitBranch(
-    repo,
-    "dest",
-    backlogOf([], ["- [Item C, dest renamed](seeds/C.md#c)"]),
-    "dest renames C",
-  );
+  commitBranch(repo, "dest", backlogOf([], [destRenamedC]), "dest renames C");
   repo.git(["checkout", "-q", "-b", "feature"]);
-  commitOn(
-    repo,
-    backlogOf([], ["- [Item C, feature renamed](seeds/C.md#c)"]),
-    "feature renames C",
-  );
-  commitOn(
-    repo,
-    backlogOf([], ["- [Item C, feature renamed](seeds/C.md#c)", itemD]),
-    "feature adds D",
-  );
+  commitOn(repo, backlogOf([], [featureRenamedC]), "feature renames C");
+  commitOn(repo, backlogOf([], [featureRenamedC, itemD]), "feature adds D");
   return repo;
 }
 
@@ -95,14 +86,8 @@ test("rebase stops a genuine textual conflict on the first replayed commit, iden
   // destination and stage 3 ("theirs") is the commit being replayed, the
   // reverse of what those words mean during an ordinary merge.
   assert.equal(stage(repo, 1), backlogOf([], [itemC]));
-  assert.equal(
-    stage(repo, 2),
-    backlogOf([], ["- [Item C, dest renamed](seeds/C.md#c)"]),
-  );
-  assert.equal(
-    stage(repo, 3),
-    backlogOf([], ["- [Item C, feature renamed](seeds/C.md#c)"]),
-  );
+  assert.equal(stage(repo, 2), backlogOf([], [destRenamedC]));
+  assert.equal(stage(repo, 3), backlogOf([], [featureRenamedC]));
 
   // No partial write: the worktree file is real conflict markers holding
   // both full sides.
@@ -146,7 +131,7 @@ test("rebase's human recovery validates a supplied result without rerunning disp
   // accepted exactly as supplied, and the remaining commit — which only adds
   // Item D, untouched by the dispute — is then replayed automatically,
   // completing the rebase.
-  const decided = backlogOf([], ["- [Item C, resolved by hand](seeds/C.md#c)"]);
+  const decided = backlogOf([], [resolvedC]);
   stageResolution(repo, decided);
   const accepted = await runRebase(repo, ["continue"]);
 
@@ -155,7 +140,7 @@ test("rebase's human recovery validates a supplied result without rerunning disp
   assert.equal(isMidRebase(repo), false, "the rebase finished");
   assert.equal(
     repo.read(),
-    backlogOf([], ["- [Item C, resolved by hand](seeds/C.md#c)", itemD]),
+    backlogOf([], [resolvedC, itemD]),
     "the human decision stands, and D's addition was combined onto it",
   );
 
@@ -215,4 +200,40 @@ test("rebase's human recovery refuses a staged candidate that does not match the
     true,
     "still stopped, nothing replayed further",
   );
+});
+
+test("rebase stops on real revisions and continues to completion when run from a linked Git worktree", async (t) => {
+  // In a linked worktree `.git` is a file, and the rebase's own state
+  // directory is that worktree's, not a directory under the checkout. The
+  // stop can only name the replayed commit, and `continue` can only find the
+  // rebase it resumes, by reading that state where Git really keeps it.
+  const repo = buildConflictingFeature(t);
+  const firstCommit = repo.git(["rev-parse", "feature^"]).trim();
+  const destTip = refSha(repo, "dest");
+  repo.git(["checkout", "-q", "main"]);
+  const worktree = linkedWorktree(t, repo, "feature");
+
+  const stopped = await runRebase(worktree, ["rebase", "--ref", "dest"]);
+
+  assert.equal(stopped.code, 1);
+  assert.equal(isMidRebase(worktree), true, "this worktree is mid-rebase");
+  assert.notEqual(unresolvedPaths(worktree), "", "the path is left unmerged");
+  const output = stopped.stdout + stopped.stderr;
+  assert.ok(output.includes(firstCommit), "names the replayed commit's sha");
+  assert.ok(output.includes(destTip), "names the real destination");
+
+  const decided = backlogOf([], [resolvedC]);
+  stageResolution(worktree, decided);
+  const accepted = await runRebase(worktree, ["continue"]);
+
+  assert.equal(accepted.code, 0, accepted.stdout + accepted.stderr);
+  assert.match(accepted.stdout + accepted.stderr, /rebase completed/);
+  assert.equal(isMidRebase(worktree), false, "the rebase finished");
+  assert.equal(worktree.read(), backlogOf([], [resolvedC, itemD]));
+  assert.equal(
+    worktree.git(["merge-base", "feature", "dest"]).trim(),
+    destTip,
+    "feature now sits on top of dest",
+  );
+  assert.equal(refSha(worktree, "feature"), headSha(worktree));
 });
