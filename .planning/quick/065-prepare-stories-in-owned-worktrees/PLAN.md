@@ -328,12 +328,53 @@ publication or automatic cleanup.
 
 ### 5. Recover an interrupted preparation publication
 Type: Behavior
-Status: planned
+Status: done
 Proof: Interrupt after local integration, and separately after a successful push
 whose response is lost. Resume through the shared publication recovery and
 observe no duplicate commits/pushes or replacement worktree. A conflicting story
 scope change preserves both sides and names the human decision needed; a dirty
 or unknown shared target stops before mutation.
+
+Delivered: finished the extraction slice 2 deliberately deferred — moved the
+generalized "Resume an interrupted publication" classification table and
+"Preserve remaining state" into `publish-the-candidate.md` (claim/increment
+kept only as illustrative examples, matching the file's established
+convention), leaving `trunk-publication.md`'s matching headings as thin
+execution-specific wrapper stubs (CI-registration Story-Branch-claim caveat
+and workspace-setup-failure paragraph preserved verbatim). Added
+"Resume an interrupted keep-and-publish" to `preparation-disposition.md`,
+mapping preparation's owned suffix/previously-published-base/target onto the
+shared table, defining what "previously published" means for a first-time
+vs. resumed keep, covering conflicting scope change (cites
+`execution-decisions.md#stop-for-human-judgment`) and blocked-turn
+handoff-never-timeout, and explicitly distinguishing this from slice 4's
+pre-decision pause/resume. Added scripted Git proof
+`preparation-keep-publish-resume.test.mjs`; refactor deduplicated its fixture
+setup with slice 3's test into a new shared
+`preparation-keep-publish-test-fixtures.mjs`.
+
+Accepted proof:
+- `node --test` across `publish-the-candidate.test.mjs`,
+  `trunk-publication-local-main.test.mjs`,
+  `preparation-workspace-keep-publish.test.mjs`,
+  `preparation-keep-publish-resume.test.mjs` — 10/10 pass: interruption after
+  local integration (trunk unchanged, and trunk advanced requiring rebase)
+  resumes to exactly one push with no duplicate commit/worktree; interruption
+  after a push whose confirmation was lost is recognized as already-published
+  from fetched remote state alone, with no second push; execution's own
+  slice-2 proof unaffected.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/execution-payload-update.sh` — pass.
+- Caller-obligation comparison: every existing inbound anchor to
+  `trunk-publication.md#resume-an-interrupted-publication` /
+  `#preserve-remaining-state` (`SKILL.md`, `execution-location.md`,
+  `wrap-up.md`, `ci-monitor.md`) resolves unchanged with equivalent meaning.
+- `git diff --check` — clean.
+- `dough-post-change-refactor`: confirmed generalization fidelity and wrapper
+  fidelity, deduplicated new-test fixture setup against slice 3's test into a
+  shared fixtures file, confirmed file size and section placement/coherence.
+  `## REFACTOR COMPLETE`.
 
 Connect preparation's retained base/candidate/target to common publication
 recovery, including changed candidate identity after a rebase. Keep further

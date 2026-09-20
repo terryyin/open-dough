@@ -1,16 +1,16 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { test } from "node:test";
 import {
   assertPublicationAgreement,
-  exec,
   fetchAndAssertOriginMain,
   git,
   lsRemoteSha,
   revParse,
 } from "../../dough-execute-plan/scripts/trunk-publication-local-main-test-fixtures.mjs";
+import {
+  advanceOriginFromAnotherWriter,
+  createPreparationFixture,
+} from "./preparation-keep-publish-test-fixtures.mjs";
 
 // Slice 3 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
 // proves preparation-disposition.md's "Decide what happens to the written
@@ -22,90 +22,13 @@ import {
 // another writer. An explicit no-push/leave-unpublished instruction takes the
 // same starting point and leaves origin untouched, with the retained result
 // still recoverable locally. This reuses the shared low-level Git fixture
-// helpers from publish-the-candidate.test.mjs's own fixtures file rather than
-// inventing new ones; the preparation-specific workspace shape (an
-// "integration" checkout plus a separately named, separately branched
-// "preparation" worktree holding only a planning-record commit, never an
-// "exec/story" execution branch or a Taken commit) is built locally because
-// no existing fixture already models preparation's own vocabulary.
-
-// Builds a disposable repository modeling preparation's own case: a bare
-// origin at trunkSha, an "integration" checkout (this preparation's recorded
-// integration checkout, per "Select or reuse the workspace"), and a
-// "preparation" worktree -- a temporary branch/worktree pair created from
-// trunkSha, per [own a temporary exploration workspace] "Select the
-// checkout" -- holding one committed retained seed-draft record, matching
-// "Keep and publish the retained result" step 1's already-committed case.
-async function createPreparationFixture() {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "preparation-workspace-keep-")),
-  );
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-  const preparation = join(fixture, "preparation");
-  const preparationBranch = "prep/seed-1-refinement";
-
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  await git(integration, "add", "trunk.txt");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-  const trunkSha = await revParse(integration, "main");
-
-  await git(
-    integration,
-    "worktree",
-    "add",
-    preparation,
-    "-b",
-    preparationBranch,
-    trunkSha,
-  );
-  await git(preparation, "config", "user.name", "Preparation Workspace");
-  await git(preparation, "config", "user.email", "preparation@example.test");
-
-  writeFileSync(
-    join(preparation, "seed-draft.md"),
-    "SEED-1: refined goal and scope\n",
-  );
-  await git(preparation, "add", "seed-draft.md");
-  await git(preparation, "commit", "-m", "Refine SEED-1 draft");
-  const preparationSha = await revParse(preparation, preparationBranch);
-
-  return {
-    fixture,
-    origin,
-    integration,
-    preparation,
-    preparationBranch,
-    trunkSha,
-    preparationSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
-}
-
-// Simulates "let another writer advance origin": a disjoint commit pushed
-// from a third, unrelated checkout, discovered by preparation's own fetch
-// before any push is attempted -- matching "Publish the candidate" step 3's
-// proactive-rebase path, not rejected-push recovery.
-async function advanceOriginFromAnotherWriter(origin) {
-  const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
-  await exec("git", ["clone", origin, thirdCheckout]);
-  await git(thirdCheckout, "config", "user.name", "Another Writer");
-  await git(thirdCheckout, "config", "user.email", "another@example.test");
-  writeFileSync(join(thirdCheckout, "other-writer.txt"), "their work\n");
-  await git(thirdCheckout, "add", "other-writer.txt");
-  await git(thirdCheckout, "commit", "-m", "another writer's own increment");
-  await git(thirdCheckout, "push", "origin", "main");
-  const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
-  rmSync(thirdCheckout, { recursive: true, force: true });
-  return disjointSha;
-}
+// helpers from publish-the-candidate.test.mjs's own fixtures file, and the
+// preparation-specific workspace fixture (an "integration" checkout plus a
+// separately named, separately branched "preparation" worktree holding only
+// a planning-record commit, never an "exec/story" execution branch or a
+// Taken commit) shared with preparation-keep-publish-resume.test.mjs's Slice
+// 5 proof of the same workspace shape's resume behavior, rather than
+// inventing or duplicating either.
 
 test("an explicit keep instruction rebases the retained preparation record onto current origin, integrates it locally, and pushes it -- preserving the other writer's intervening commit", async (t) => {
   const {
@@ -116,7 +39,7 @@ test("an explicit keep instruction rebases the retained preparation record onto 
     trunkSha,
     preparationSha,
     cleanup,
-  } = await createPreparationFixture();
+  } = await createPreparationFixture("preparation-workspace-keep-");
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
@@ -230,7 +153,7 @@ test("an explicit no-push instruction leaves origin unchanged and the retained p
     trunkSha,
     preparationSha,
     cleanup,
-  } = await createPreparationFixture();
+  } = await createPreparationFixture("preparation-workspace-keep-");
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);

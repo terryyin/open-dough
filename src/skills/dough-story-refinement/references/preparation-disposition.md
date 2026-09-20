@@ -123,6 +123,64 @@ this section is never entered: the retained result stays committed (or
 uncommitted, as the developer left it) in the owned workspace, recoverable and
 unpublished, and the authorized remote target is left unchanged.
 
+## Resume an interrupted keep-and-publish
+
+A resumed preparation session may find [Keep and publish the retained
+result](#keep-and-publish-the-retained-result) interrupted — after local
+integration but before push, or after a push whose confirmation response was
+lost. This is recovery from a publication already under way, distinct from
+[Pause and resume a preparation session](preparation-workspace.md#pause-and-resume-a-preparation-session)'s
+case of a session paused before any keep decision was made at all; do not
+conflate the two. Reuse the same workspace, integration checkout, and target
+[Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace)
+already recorded — never a replacement workspace or checkout to "start over."
+
+Apply [publish the candidate's resume](../../dough-execute-plan/references/publish-the-candidate.md#resume-an-interrupted-publication)
+to classify the actual state from real Git and remote refs — never from a
+stored status field or any new preparation-specific tracking mechanism — and
+continue only the first unfinished obligation. For this caller:
+
+- the owned unpublished suffix is step 1's commit(s), in the owned workspace;
+- the previously published base is the last SHA this preparation session
+  itself recorded as published, when it has one. A first-time keep for this
+  session has none: the suffix's parent is simply the workspace's own
+  recorded starting revision from
+  [Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace),
+  not a previously published revision. A resumed or retried publication that
+  already recorded a published SHA — including one this classification itself
+  discovers, below — treats that SHA as the previously published base for
+  anything still unpublished;
+- the integration checkout and target are step 2's recorded identity,
+  unchanged by resuming;
+- candidate identity after a rebase is exactly the retained rewritten SHA
+  from [Publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md#publish-the-candidate)
+  step 3; classify against that current SHA, never a stale pre-rebase one;
+- the shared table's "Missing registration" row never applies here:
+  preparation binds no CI/execution observer to a publication, per
+  [What keep does not do](#what-keep-does-not-do) below, so there is nothing
+  to register.
+
+Never duplicate the commit or the push, and never create a replacement
+workspace or worktree.
+
+**Conflicting scope change.** If resuming reveals that the human's story or
+plan scope changed in a way that conflicts with what was about to be
+published — not merely that origin advanced, which is ordinary reconciliation
+already covered by
+[Publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md#publish-the-candidate) —
+preserve both the preparation's own retained draft and whatever is now on the
+integration target, and name the exact human decision needed rather than
+guessing which side wins. This is the same stop already used for any
+unresolved value, design, or scope decision:
+[Stop for human judgment](../../dough-execute-plan/references/execution-decisions.md#stop-for-human-judgment).
+
+**Blocked-turn handoff, never timeout.** If
+[Preconditions](../../dough-execute-plan/references/publish-the-candidate.md#preconditions)'
+exclusive integration turn cannot be acquired or completed, that is an
+explicit recovery/handoff requirement, exactly like any other interrupted
+publication. Nothing here introduces, or should be read to imply, a
+timeout-based automatic release of that turn.
+
 ## What keep does not do
 
 Keep authorizes only committing and publishing this preparation's own

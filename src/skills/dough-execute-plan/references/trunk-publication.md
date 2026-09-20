@@ -98,39 +98,20 @@ remains unresolved.
 ## Resume an interrupted publication
 
 After interruption during a queue claim's publication or Trunk Mode delivery,
+apply [publish the candidate's resume](publish-the-candidate.md#resume-an-interrupted-publication):
 classify the owned suffix — a claim or an increment — from actual refs,
 retained rewritten identities, and observer receipts, using whichever
-execution resources actually exist for this publication: a claim may have no
-execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
-already states for that case. Continue the
-first unfinished obligation. Do not duplicate the commit, push an
-already-published candidate, or replace the execution worktree. Verify
-identity first as in
-[execution location](execution-location.md). Fetch the authorized remote
-before treating a push as unfinished.
+execution resources actually exist for this publication, and continue only
+the first unfinished obligation. Do not duplicate the commit, push an
+already-published candidate, or replace the execution worktree. A claim may
+have no execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
+already states for that case.
 
-Match the owned suffix to the retained rewritten candidate when that SHA
-exists. A pre-rebase SHA that is no longer the tip is not a second claim or
-increment.
-
-| Boundary | Actual state | Continue with |
-| --- | --- | --- |
-| Only committed | Execution branch has the owned suffix; neither local target nor fetched remote trunk contains that candidate. A claim before any workspace exists has no execution branch separate from local target, so it cannot be in this row's state; see "Integrated locally" for that case instead. | [Publish a verified increment](#publish-a-verified-increment) from its preconditions. Do not commit again. |
-| Integrated locally | Local target tip is the owned candidate; fetched remote trunk does not contain it. A claim before any workspace exists is in this state as soon as it is committed, since [Take queued work](../SKILL.md#take-queued-work) commits it directly on local target rather than on a separate execution branch. | Exclusive-turn checks, then candidate push ([publish the candidate](publish-the-candidate.md#publish-the-candidate) step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
-| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it (see the ancestor and owner-published notes below) | Append that SHA to retained published revisions if identity omitted it. Do not push again. |
-| Missing CI registration | Remote trunk contains the published SHA; the existing observer's coverage or `register-push` receipt does not. This row assumes an observer already covers that target; a Story Branch claim published to trunk before any observer is armed there is unobserved coverage, not a missing registration — see [Own one observer](ci-monitor.md#own-one-observer). | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
-
-A lost or unknown push response is not unpublished. If the exact candidate is
-already an ancestor of fetched remote trunk, treat it as already published,
-including when a different authorized owner's own session is the one that
-published it.
-
-If mode, integration checkout, target branch, or candidate SHA is missing,
-contradictory, or matches no unique owned suffix, preserve every existing
-worktree, branch, and index. Report the gap. Do not create a replacement
-worktree, switch branches, or guess which commit to publish. For a claim
-before any workspace exists, a not-yet-created execution branch/worktree is
-expected and is not itself a missing-identity gap.
+In that shared table, "Missing registration" is this project's CI
+registration: a published SHA absent from the existing observer's coverage or
+`register-push` receipt — except a Story Branch claim published to trunk
+before any observer is armed there is unobserved coverage, not a missing
+registration; see [Own one observer](ci-monitor.md#own-one-observer).
 
 Workspace-setup failure after a confirmed claim publication reuses that claim
 and any verified workspace: see [Preserve remaining state](#preserve-remaining-state)
@@ -139,6 +120,7 @@ not allocate a replacement claim or a nested worktree.
 
 ## Preserve remaining state
 
-Setup or publication failure preserves remaining state. It is not permission
-to start unclaimed queued work, start implementation from an unpublished
-claim, or substitute Story Branch Mode publication.
+Apply [publish the candidate's preserved state](publish-the-candidate.md#preserve-remaining-state).
+For this caller, that state is not permission to start unclaimed queued work,
+start implementation from an unpublished claim, or substitute Story Branch
+Mode publication.

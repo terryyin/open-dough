@@ -124,3 +124,51 @@ reconcile only that suffix and retry one ordinary push:
 
 A second rejection or other persistent failure stops. Preserve remaining
 state and report it. Do not loop.
+
+## Resume an interrupted publication
+
+After a publication is interrupted, classify the owned unpublished suffix
+from actual refs, retained rewritten identities, and any bound observer's
+receipts, using whichever resources actually exist for this caller's
+publication: some callers' owned suffix has no separate branch or checkout
+until later setup (for example a Taken commit for a queue claim before
+execution workspace creation, as [Publish the candidate](#publish-the-candidate)
+already states for that case). Continue only the first unfinished obligation.
+Do not duplicate the commit, push an already-published candidate, or replace
+the caller's checkout or worktree. Verify the caller's own recorded checkout
+identity first — execution does this as in
+[execution location](execution-location.md). Fetch the authorized remote
+before treating a push as unfinished.
+
+Match the owned suffix to the retained rewritten candidate when that SHA
+exists. A pre-rebase SHA that is no longer the tip is not a second owned
+suffix — for example, not a second claim or increment.
+
+| Boundary | Actual state | Continue with |
+| --- | --- | --- |
+| Only committed | The caller's own branch or checkout, when it has one separate from the integration checkout, has the owned suffix; neither the integration checkout's local target nor fetched remote trunk contains that candidate. A caller whose owned suffix has no separate branch/checkout until later setup (for example a queue claim before execution workspace creation) cannot be in this row's state; see "Integrated locally" for that case instead. | [Publish the candidate](#publish-the-candidate) from step 1. Do not commit again. |
+| Integrated locally | The integration checkout's local target tip is the owned candidate; fetched remote trunk does not contain it. A caller whose owned suffix has no separate branch/checkout until later setup is in this state as soon as it is committed there, since the local target is the only place that commit exists. | Exclusive-turn checks, then candidate push ([Publish the candidate](#publish-the-candidate) step 6). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). |
+| Already published | Fetched remote trunk contains the candidate, or the retained rewritten SHA that replaced it (see the ancestor and owner-published notes below) | Append that SHA to retained published revisions if identity omitted it. Do not push again. |
+| Missing registration | Fetched remote trunk contains the published SHA; an observer already bound to this caller's publication has coverage or a receipt that does not yet reflect it. This row assumes a bound observer exists; a caller that binds none has nothing to register here (see [Publish the candidate](#publish-the-candidate) step 6). | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
+
+A lost or unknown push response is not unpublished. If the exact candidate is
+already an ancestor of fetched remote trunk, treat it as already published,
+including when a different authorized owner's own session is the one that
+published it.
+
+If mode, integration checkout, target branch, or candidate SHA is missing,
+contradictory, or matches no unique owned suffix, preserve every existing
+worktree, branch, and index. Report the gap. Do not create a replacement
+worktree, switch branches, or guess which commit to publish. For a caller
+whose owned suffix has no separate branch/checkout until later setup, a
+not-yet-created checkout is expected there and is not itself a
+missing-identity gap.
+
+## Preserve remaining state
+
+Setup or publication failure preserves remaining state exactly as found:
+existing worktrees or checkouts, branches, commits, and index content stay
+untouched. It is not permission to start new unclaimed or unauthorized work,
+begin implementation or further edits from an unpublished result, or
+substitute a different publication mode or destination than the one already
+recorded for this caller.
