@@ -6,8 +6,8 @@
 /* Backlog, the taking of work, and Taken, left to right in reading order. */
 .stages {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr);
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr);
+  gap: 1rem 0;
   align-items: start;
 }
 
@@ -75,12 +75,23 @@
   text-align: center;
 }
 
+/* Side by side, the connector's column is all that lies between the two
+   stages, and the arrow runs across it from just short of Backlog's edge to
+   just short of Taken's, so that it joins them; the words beneath keep clear
+   of both. The head is drawn up to the arrow's own edge, so it is not clipped
+   there. */
 .connector-arrow {
-  width: 100%;
+  width: calc(100% - 4px);
   height: 1rem;
+  overflow: visible;
   fill: none;
   stroke: var(--accent);
   stroke-width: 2;
+}
+
+.connector-label,
+.connector-note {
+  padding: 0 1rem;
 }
 
 .connector-label {
@@ -112,6 +123,11 @@
 
   .connector {
     margin-top: 0;
+  }
+
+  .connector-label,
+  .connector-note {
+    padding: 0;
   }
 
   .connector-arrow {

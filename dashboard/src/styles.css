@@ -78,6 +78,20 @@ code,
   margin-top: 0;
 }
 
+/* Said to assistive technology and not shown: still rendered and still in
+   the accessibility tree, clipped to a single pixel out of the page's flow so
+   that it takes no room. Kept on one line so that it is spoken as a sentence,
+   not as the letters a one-pixel column would break it into. */
+.page-header > .spoken-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .source dl {
   display: flex;
   flex-wrap: wrap;

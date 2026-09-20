@@ -162,8 +162,17 @@ export function App() {
         {/* Both polite regions stay rendered while they have nothing to say:
             assistive technology speaks a change of text inside a region it
             already knows, and may never speak one inserted with its text.
-            Neither takes focus. The result names only what was read. */}
-        <p role="status" className="announcement">
+            Neither takes focus. The result names only what was read; the
+            source evidence above already shows it, so it is spoken and not
+            shown twice, while a read under way is said in sight. */}
+        <p
+          role="status"
+          className={
+            attempt.status === "read"
+              ? "announcement spoken-only"
+              : "announcement"
+          }
+        >
           {reading && (
             <>
               Reading published work…

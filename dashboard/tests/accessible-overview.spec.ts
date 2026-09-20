@@ -53,12 +53,25 @@ test("accessible overview reflows long published work for a narrow window and pa
     status,
   } = parts(page);
   const connectorMeaning = stages.getByText("not a dependency between entries");
+  const arrow = stages.locator("svg").first();
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 
   await test.step("a wide window reads the long work whole, side by side", async () => {
     await expectNoSidewaysScrollAndWholeText(page);
     await expectSideBySideInOrder([backlog, connector, taken]);
+    // The arrow joins the stages: it lies between them, and the line it draws
+    // crosses most of what separates them.
+    await expectSideBySideInOrder([backlog, arrow, taken]);
+    const [from, drawn, to] = await Promise.all([
+      box(backlog),
+      box(arrow.locator("line")),
+      box(taken),
+    ]);
+    const between = to.x - (from.x + from.width);
+    expect(between).toBeGreaterThan(100);
+    expect(drawn.width).toBeGreaterThanOrEqual(0.7 * between);
+    expect(drawn.width).toBeLessThanOrEqual(between);
     await page.screenshot({
       path: testInfo.outputPath("long-work-wide.png"),
       fullPage: true,
@@ -78,7 +91,7 @@ test("accessible overview reflows long published work for a narrow window and pa
       status,
       direction,
       backlog,
-      stages.locator("svg"),
+      arrow,
       connector,
       connectorMeaning,
       taken,

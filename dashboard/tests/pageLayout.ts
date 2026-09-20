@@ -4,23 +4,40 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 
+// Text held in a box of one pixel is shown to no one by sight: it is kept for
+// assistive technology, which is given it whole. Neither whole-page measurement
+// counts it; were it to widen the page, the sideways-scroll check would say so.
+const keptFromSight = `(element) => {
+  for (let at = element; at; at = at.parentElement) {
+    const box = at.getBoundingClientRect();
+    if (box.width <= 1 && box.height <= 1 && at.textContent !== "") return true;
+  }
+  return false;
+}`;
+
 // Elements that reach past either side of the window.
 const pastTheWindow = `(() => {
+  const keptFromSight = ${keptFromSight};
   const limit = document.documentElement.clientWidth;
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
       const box = element.getBoundingClientRect();
-      return box.width > 0 && (box.left < -0.5 || box.right > limit + 0.5);
+      return (
+        box.width > 0 &&
+        (box.left < -0.5 || box.right > limit + 0.5) &&
+        !keptFromSight(element)
+      );
     })
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
 })()`;
 
 // Elements whose content is wider than they are, cut short, or ended with an
 // ellipsis: text that a reader could not read whole.
-const notReadWhole = `(() =>
-  [...document.body.querySelectorAll("*")]
+const notReadWhole = `(() => {
+  const keptFromSight = ${keptFromSight};
+  return [...document.body.querySelectorAll("*")]
     .filter((element) => {
-      if (!(element instanceof HTMLElement)) return false;
+      if (!(element instanceof HTMLElement) || keptFromSight(element)) return false;
       const style = getComputedStyle(element);
       return (
         (element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1) ||
@@ -30,8 +47,8 @@ const notReadWhole = `(() =>
         style.whiteSpace === "nowrap"
       );
     })
-    .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60))
-)()`;
+    .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
+})()`;
 
 export async function expectNoSidewaysScrollAndWholeText(page: Page) {
   expect(

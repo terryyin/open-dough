@@ -112,13 +112,13 @@ export function WorkStages({ work }: { work: PublishedWork }) {
     <section className="stages" aria-label="Work stages" {...stagesMarks}>
       <Stage name="Backlog" entries={work.backlog} prioritized />
       <div className="connector">
-        <svg
-          className="connector-arrow"
-          viewBox="0 0 64 16"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path d="M0 8 H56 M48 2 L56 8 L48 14" />
+        {/* No viewBox: the line is as long as the arrow is given room, and
+            the head keeps its own size at the line's end. */}
+        <svg className="connector-arrow" aria-hidden="true" focusable="false">
+          <line x1="0" y1="50%" x2="100%" y2="50%" />
+          <svg x="100%" y="50%" overflow="visible">
+            <path d="M-8 -6 L0 0 L-8 6" />
+          </svg>
         </svg>
         <p className="connector-label">Taking work</p>
         <p className="connector-note">

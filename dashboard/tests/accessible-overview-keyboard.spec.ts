@@ -5,6 +5,7 @@ import {
   publishMovingOrigin,
   rateLimitedAnswer,
 } from "./githubOrigin";
+import { box } from "./pageLayout";
 import {
   backlogB,
   openAtA,
@@ -130,6 +131,8 @@ test("accessible overview announces reading, the read result, and a failure whil
       true,
       true,
     ]);
+    // The source evidence already shows the result, so it is not shown twice.
+    expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
   await page.keyboard.press("Tab");
@@ -144,6 +147,9 @@ test("accessible overview announces reading, the read result, and a failure whil
       "Reading published work… What is shown is still the snapshot retrieved earlier.",
     );
     await expect(status).toHaveAttribute("data-known", "[role='status']");
+    // A read under way is said nowhere else, so it is said in sight.
+    await expect(status).toBeInViewport({ ratio: 1 });
+    expect((await box(status)).height).toBeGreaterThanOrEqual(16);
     await expect(refresh).toHaveAttribute("aria-disabled", "true");
     await expect(refresh).toBeFocused();
     releaseFileAtB();
@@ -163,6 +169,11 @@ test("accessible overview announces reading, the read result, and a failure whil
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
     await expect(notice).toBeEmpty();
+    expect(await box(status)).toMatchObject({ width: 1, height: 1 });
+    expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
+      true,
+      true,
+    ]);
     await expect(refresh).toBeFocused();
   });
 

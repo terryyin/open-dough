@@ -88,7 +88,10 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
   {
     when: "the same work is recorded in Taken and again in Backlog",
     origin: publishedAs(backlogWith([claimsEntry, repairEntry])),
-    problem: "The backlog already lists the same work twice: lines 9 and 14.",
+    // The reader's words whole, as its report, then the dashboard's own: said
+    // once here, while the other refusals are told apart by the reader's words.
+    problem:
+      "The published backlog could not be interpreted. The shared backlog reader reports: “The backlog already lists the same work twice: lines 9 and 14. Repair it by hand before running this operation.” This dashboard only reads; the project’s backlog needs correcting at its source.",
   },
   {
     when: "an entry carries a field the shared reader does not support",
