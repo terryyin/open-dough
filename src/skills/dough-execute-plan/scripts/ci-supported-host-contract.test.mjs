@@ -15,6 +15,7 @@ test("supported hosts share one execution observer instead of a per-SHA watcher"
     reference("references/wrap-up.md"),
     reference("references/ci-monitor.md"),
     reference("references/ci-notify-hosts.md"),
+    reference("references/finish-or-stop.md"),
   ].join("\n");
 
   assert.equal("watchCi" in watcher, false);

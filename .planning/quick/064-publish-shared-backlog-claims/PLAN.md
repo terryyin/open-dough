@@ -210,6 +210,20 @@ passed unchanged:
 anchor kept in place in SKILL.md as a pointer, matching the existing
 "Choose the execution location" pattern), resolving slice 1's carried-forward
 file-size overrun: SKILL.md 260 → 223 lines.
+CI repair: this extraction moved the sentence "stop observers without waiting
+for CI" out of `SKILL.md`, breaking
+`src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs`,
+which joins several `references/*.md` files with `SKILL.md` into one
+"contract" string and regex-matches across all of them, but had not been
+updated to include the new `finish-or-stop.md`. Diagnosed from real CI
+failure on run 35486945925 (SHA `be94345`, discovered against slice 3's
+push). Fixed by adding `reference("references/finish-or-stop.md")` to that
+test's existing join list — the test's own established pattern already
+treats the guidance as one contract spread across multiple files; no other
+test asserted on the extracted section's other content
+(`PLAN EXECUTION COMPLETE`, `QUICK EXECUTION COMPLETE`, `--skip-retro`).
+Confirmed via the targeted test and a full `npm test` run (exit 0, no
+regressions).
 
 ### 3. Publish an isolated execution's claim before work starts
 Type: Behavior
