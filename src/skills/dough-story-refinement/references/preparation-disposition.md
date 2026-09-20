@@ -123,6 +123,14 @@ this section is never entered: the retained result stays committed (or
 uncommitted, as the developer left it) in the owned workspace, recoverable and
 unpublished, and the authorized remote target is left unchanged.
 
+Step 6's own agreement check above — not merely reaching this sequence, and
+not merely local integration without a confirmed push — is what [Close or
+retain the workspace](preparation-workspace.md#close-or-retain-the-workspace)
+treats as a confirmed keep-and-publish before any cleanup. An attempt
+interrupted before that agreement is reached is not one, however the session
+ends; see [Resume an interrupted keep-and-publish](#resume-an-interrupted-keep-and-publish)
+below.
+
 ## Resume an interrupted keep-and-publish
 
 A resumed preparation session may find [Keep and publish the retained
@@ -233,4 +241,7 @@ If the identified content cannot be unambiguously isolated from other work in
 the workspace — for example, an uncommitted mix of this session's edits and
 another session's uncommitted edits touching the same file — stop and report
 the exact conflict rather than guessing which content belongs to which
-session.
+session. A discard that stops here is not a confirmed disposition: [Close or
+retain the workspace](preparation-workspace.md#close-or-retain-the-workspace)
+applies cleanup only after discard actually removes the identified content,
+never merely because an attempt was made.

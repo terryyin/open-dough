@@ -130,8 +130,74 @@ below.
 
 ## Close or retain the workspace
 
-When a preparation session using one of the four skills above concludes,
-apply [own a temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
+Cleanup runs only after one of this session's three decisions under [Decide
+what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
+is actually **confirmed**, never merely attempted or merely because the
+session is ending:
+
+- a **keep-and-publish** that reached
+  [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result)
+  step 6's own agreement check — local `main`, the freshly fetched remote,
+  and the retained candidate SHA on the integration checkout all agreeing,
+  with `main...origin/main` reporting `0	0`;
+- an explicit **discard** that actually removed the identified draft under
+  [Discard an identified draft](preparation-disposition.md#discard-an-identified-draft),
+  not one that stopped because the content could not be unambiguously
+  isolated; or
+- an explicit **no-publish** instruction under [Decide what happens to the
+  written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
+  given together with the developer's explicit confirmation that this
+  preparation session itself is finished, not merely paused for later
+  resumption. An ordinary no-publish instruction on its own leaves the
+  session resumable under [Pause and resume a preparation
+  session](#pause-and-resume-a-preparation-session) above and confirms no
+  disposition for cleanup purposes.
+
+Failed or unconfirmed publication never triggers cleanup. A keep-and-publish
+interrupted before step 6's agreement is reached — see [Resume an
+interrupted keep-and-publish](preparation-disposition.md#resume-an-interrupted-keep-and-publish) —
+is not a confirmed disposition merely because the session is ending or the
+conversation is being closed out. Treat it as still unresolved and preserve
+every resource exactly as found, so the resume/retry path above remains
+reachable. Pausing, going quiet, or any other interruption before a decision
+is confirmed is never itself a trigger, exactly as it is never itself a keep
+or discard decision.
+
+Once a confirmed disposition applies, apply [own a temporary exploration
+workspace](../../dough-manual-testing/references/exploration-workspace.md)
 "Close or retain it": remove only a clean, unambiguous, session-created
 workspace; retain and report a reused, host-owned, or otherwise unsafe one
-instead of forcing its removal.
+instead of forcing its removal. A clean working directory is a necessary
+check there, not by itself proof of ownership: a workspace can be clean
+because a keep-and-publish just succeeded in it while still being the same
+reused or host-owned workspace [Select or reuse the
+workspace](#select-or-reuse-the-workspace) above recorded — one that may
+still hold other in-progress work belonging to a different story, plan, or
+session, the same "other in-progress work ... that must survive" concept
+[Discard an identified draft](preparation-disposition.md#discard-an-identified-draft)
+already preserves for discard. Removal depends on the session-created-versus-
+reused/host-owned identity that step already recorded, not on cleanliness
+alone; do not infer ownership from a clean directory, an empty `git status`,
+or the absence of other visible edits.
+
+When cleanup is unsafe, report the exact workspace path and branch, and why
+it is being retained — reused, host-owned, holds other in-progress work, or
+otherwise unsafe or ambiguous — the same report [own a temporary exploration
+workspace](../../dough-manual-testing/references/exploration-workspace.md)
+"Close or retain it" already requires. State this alongside, not instead of,
+any disposition report already owed to the developer.
+
+Preparation work that never reached a confirmed keep-and-publish — still
+isolated in an owned workspace, discarded, or left unpublished by a
+confirmed no-publish/session-finished instruction — has no presence in any
+progress view this project derives only from published remote state (an
+origin-only dashboard, where one exists): that view reflects what reached
+the authorized remote target, not what a preparation session still holds
+locally, exactly as an unpublished Taken claim stays invisible to it. Report
+that gap explicitly rather than letting local absence from such a view read
+as lost or completed work.
+
+This composes with, and does not replace or weaken, [own a temporary
+exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)'s
+own close/retain criteria; manual testing and bug fixing keep relying on
+that reference's behavior unchanged.

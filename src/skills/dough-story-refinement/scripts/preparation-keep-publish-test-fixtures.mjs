@@ -73,6 +73,53 @@ export async function createPreparationFixture(tmpPrefix) {
   };
 }
 
+// Slice 6's own literal encoding of "Close or retain the workspace"'s
+// composed rule -- the real Git mechanics [own a temporary exploration
+// workspace] "Close or retain it" already specifies (`git worktree remove`,
+// then safe branch deletion), gated on the confirmed-disposition and
+// session-created-vs-reused facts the prose says are recorded out-of-band by
+// "Select or reuse the workspace" and the disposition steps, not derived by
+// scanning file content. Shared by preparation-workspace-close-or-retain.test.mjs
+// and preparation-workspace-unconfirmed-disposition.test.mjs, which prove the
+// confirmed-cleanup and never-without-confirmation halves of the same rule.
+export async function closeOrRetainWorkspace({
+  integration,
+  preparation,
+  preparationBranch,
+  confirmedDisposition,
+  sessionCreated,
+}) {
+  if (!confirmedDisposition) {
+    return {
+      removed: false,
+      path: preparation,
+      branch: preparationBranch,
+      reason:
+        "no confirmed disposition (publication unconfirmed, interrupted, or no decision made)",
+    };
+  }
+  if (!sessionCreated) {
+    return {
+      removed: false,
+      path: preparation,
+      branch: preparationBranch,
+      reason: "reused or host-owned workspace, not created by this session",
+    };
+  }
+  const status = (await git(preparation, "status", "--porcelain")).stdout;
+  if (status !== "") {
+    return {
+      removed: false,
+      path: preparation,
+      branch: preparationBranch,
+      reason: "workspace is not clean",
+    };
+  }
+  await git(integration, "worktree", "remove", preparation);
+  await git(integration, "branch", "-d", preparationBranch);
+  return { removed: true, path: preparation, branch: preparationBranch };
+}
+
 // Simulates "let another writer advance origin": a disjoint commit pushed
 // from a third, unrelated checkout. Each caller's own comment at its call
 // site says what that timing means for its own scenario (a proactive

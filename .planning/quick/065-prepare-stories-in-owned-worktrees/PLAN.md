@@ -1,6 +1,7 @@
 # Prepare stories and slice plans without occupying shared main
 
-Status: executing. Execution authorized 2026-09-20.
+Status: all six slices delivered 2026-09-20. Execution authorized 2026-09-20.
+Retained for retrospective and story wrap-up.
 
 Execution identity: Story Branch Mode. Integration checkout/branch:
 `/Users/terryyin/git/open-dough` on `main` (Taken claim `5128d91`, unpushed
@@ -391,11 +392,56 @@ Safe stopping point: failed publication is recoverable; no cleanup is attempted.
 
 ### 6. Close a preparation session without deleting reusable work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Complete keep/integrate/push for a session-created disposable workspace,
 then observe safe removal of only that workspace and branch. Complete the same
 journey in a reused or host-owned workspace containing unrelated unfinished work;
 observe that it remains. Failed or unconfirmed publication never triggers cleanup.
+
+Delivered: "Close or retain the workspace" now gates cleanup on one of three
+**confirmed** dispositions — keep-and-publish reaching `publish-the-candidate.md`
+step 6's own agreement check, a discard that actually removed the identified
+content, or an explicit no-publish instruction combined with an explicit
+session-finished confirmation (an ordinary no-publish alone stays resumable
+under slice 4's pause/resume, deliberately not a cleanup trigger). States
+explicitly that failed/interrupted publication never triggers cleanup however
+the session ends, that a clean directory alone never proves ownership (the
+recorded session-created-vs-reused/host-owned identity from workspace
+selection does), that retained paths/branch/reason are reported when unsafe,
+and that unpublished preparation has no presence in any origin-derived
+progress view this project has (verified accurate against the delivered,
+origin-only story dashboard). Composes with, does not weaken,
+`exploration-workspace.md`'s own close/retain criteria (left untouched; other
+callers unaffected). Added two short forward-references in
+`preparation-disposition.md`. Completed a representative end-to-end behavior
+review across all four preparation skills, reusing slices 1-5's accepted
+evidence and adding only the two genuinely new observations (deferred-resume
+never triggers cleanup; a reused workspace with another session's unrelated
+work is retained, not swept).
+
+Accepted proof:
+- `node --test` across `publish-the-candidate.test.mjs`,
+  `trunk-publication-local-main.test.mjs`,
+  `preparation-workspace-keep-publish.test.mjs`,
+  `preparation-keep-publish-resume.test.mjs`,
+  `preparation-workspace-close-or-retain.test.mjs`,
+  `preparation-workspace-unconfirmed-disposition.test.mjs` — 14/14 pass: a
+  session-created workspace is removed (workspace and branch only) after a
+  confirmed keep-and-publish; a reused/host-owned workspace holding another
+  session's unrelated commit is retained, with that commit untouched, after
+  the same keep-and-publish for this session's own draft; an interrupted
+  keep-and-publish and a session where no keep decision was ever made both
+  leave the workspace retained and reported, with no cleanup.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh` — pass.
+- `git diff --check` — clean.
+- `dough-post-change-refactor`: split the new test file along its own
+  confirmed/unconfirmed seam and extracted its shared close-or-retain helper
+  into the existing fixtures file; verified every anchor across both edited
+  reference files resolves; confirmed the dashboard wording against
+  NORTH-STAR.md and SEED-021. `## REFACTOR COMPLETE`.
+
+This completes all six ordered slices of SEED-008#planning-workspace-procedure.
 
 Compose the existing workspace cleanup with the confirmed preparation publication
 boundary. Ensure retained versus disposable ownership is explicit, and that
