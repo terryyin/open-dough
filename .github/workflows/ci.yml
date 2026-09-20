@@ -49,3 +49,39 @@ jobs:
           shfmt --version
       - name: Run ${{ matrix.check }}
         run: npm run "${{ matrix.check }}"
+
+  # The dashboard's browser suite is not a shell test, so `npm test` never
+  # discovers it. It runs here as its own check, against controlled GitHub
+  # responses: no credentials and no live project contents.
+  dashboard:
+    name: dashboard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Type-check the dashboard
+        run: npm run typecheck:dashboard
+      - name: Build the dashboard
+        run: npm run build:dashboard
+      - name: Run the dashboard browser suite
+        run: npm run test:dashboard
+      - name: Keep Playwright failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dashboard-playwright-diagnostics
+          path: |
+            dashboard/playwright-report/
+            dashboard/test-results/
+          if-no-files-found: ignore
+          retention-days: 7

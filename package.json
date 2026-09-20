@@ -4,14 +4,30 @@
   "scripts": {
     "test": "bash scripts/test.sh",
     "lint": "node scripts/lint.mjs",
-    "format": "node scripts/lint.mjs --fix"
+    "format": "node scripts/lint.mjs --fix",
+    "dev:dashboard": "vite --config dashboard/vite.config.mts",
+    "typecheck:dashboard": "tsc --build dashboard/tsconfig.json",
+    "build:dashboard": "vite build --config dashboard/vite.config.mts",
+    "preview:dashboard": "vite preview --config dashboard/vite.config.mts",
+    "test:dashboard": "playwright test --config dashboard/playwright.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
     "eslint": "10.10.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.12.0",
-    "prettier": "3.9.6"
+    "prettier": "3.9.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vite": "8.3.0",
+    "zod": "4.6.5"
   },
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"

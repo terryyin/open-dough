@@ -1,0 +1,162 @@
+:root {
+  --surface: #f6f6f3;
+  --panel: #ffffff;
+  --line: #c9c9c1;
+  --text: #1d1d1b;
+  --quiet: #55554f;
+  --accent: #1b5fa8;
+  --problem: #9b1c1c;
+  font-family: system-ui, sans-serif;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--surface);
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+h3 {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.page-header {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.source dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+
+.source dl div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.source dt,
+.source-note,
+.quiet,
+.stage-count,
+.card-priority,
+.card-identity,
+.connector-note {
+  color: var(--quiet);
+  font-size: 0.9rem;
+}
+
+.source dd,
+.card-identity {
+  overflow-wrap: anywhere;
+}
+
+.read-problem {
+  border-left: 4px solid var(--problem);
+  padding: 0.5rem 1rem;
+  background: var(--panel);
+}
+
+.read-problem h2 {
+  color: var(--problem);
+}
+
+.direction {
+  max-width: 60rem;
+}
+
+.direction-text {
+  white-space: pre-line;
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.stage {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: var(--panel);
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.cards {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 0.35rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface);
+}
+
+.connector {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.connector-arrow {
+  width: 100%;
+  height: 1rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.connector-label {
+  font-weight: 600;
+}
+
+@media (max-width: 48rem) {
+  .stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .connector {
+    margin-top: 0;
+  }
+
+  .connector-arrow {
+    width: 4rem;
+    transform: rotate(90deg);
+    margin: 1rem 0;
+  }
+}

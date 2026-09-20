@@ -1,7 +1,7 @@
 # See the project's published work in a story dashboard
 
 Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
-and just-in-time UX. Slice 1 resolved without change; slice 2 is next.
+and just-in-time UX. Slice 1 resolved without change; slice 2 done; slice 3 is next.
 
 ## Execution identity
 
@@ -191,10 +191,29 @@ read both observed spellings; no dashboard completion is claimed.
 
 ### 2. Open the published work overview locally and verify it in CI
 Type: Behavior
-Status: planned
+Status: done 2026-09-20
 Proof: `npm run test:dashboard -- --grep 'published overview'`;
 `npm run typecheck:dashboard`; `npm run build:dashboard`; actual local browser
 read via `npm run dev:dashboard`; resulting ordinary CI check
+
+Delivered 2026-09-20. Accepted proof: the grep command selects all three tests
+in `dashboard/tests/published-work.spec.ts` (connected overview, empty groups
+without direction, initial HTTP 403 read problem); `dashboard/tests/githubOrigin.ts`
+supplies only raw ref/file HTTP answers and aborts other hosts. Type check,
+build, `npm run lint`, and `npm test` under bash 5.3 exit 0. An unauthenticated
+Chromium read of the real origin resolved `420d91e6…` with HTTP 200 and open
+CORS, showing 2 Taken and 11 Backlog entries. The new CI `dashboard` job is
+unobserved until this push's run reports.
+
+Learnings for later slices: the snapshot (`dashboard/src/publishedWork.ts`)
+validates only `identity`, `title`, and `list`; slice 3 adds `href` and `plan`
+there and builds URLs from `source` plus `revision`. `App.tsx` holds one
+`reading | read | failed` retrieval union driven by an abortable
+`readPublishedWork(signal)`; slices 4–5 reshape it to keep the last snapshot
+beside a pending or failed attempt. Cards are keyed by identity. A slice's grep
+phrase selects only tests whose titles contain it, so title every test a slice
+owns with that phrase. Playwright serves a fresh production build on strict
+port 4188; `preview:dashboard` exists for that.
 
 Deliver the first end-to-end origin-to-screen path using the fixed public
 repository, `main`, and backlog path. Add only the application/tool/test setup
