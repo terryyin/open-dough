@@ -1,6 +1,6 @@
 # Establish native edit protection and scripted workflow use in Codex and Cursor
 
-Status: in progress. Slices 1-3 are done; slice 4 remains planned.
+Status: complete. Slices 1-4 are done.
 
 ## Execution identity
 
@@ -97,6 +97,26 @@ Status: in progress. Slices 1-3 are done; slice 4 remains planned.
 - Slice 3 preparation/broad proof: `npm run format` completed lint/format
   checks, and `PATH=/opt/homebrew/bin:$PATH npm test` passed with explicit
   terminal status `0`.
+- Slice 4 promise: a fresh native Cursor session discovers and runs the
+  installed backlog merge adapter for an ordinary-language integration
+  request, stops at the adapter's real refusal, and after explicit human
+  repair a second fresh session resumes through the adapter to a completed
+  two-parent merge. Accepted boundary: the installed guidance plus shared
+  native-use fixture, with Cursor stream-json tool-call observation. The
+  delivered Cursor guard is registered after install and is not claimed as
+  a pass from this journey. Inspected setup and observations:
+  `tests/support/product-backlog-native-use.sh` creates the installed
+  two-branch fixture; `tests/support/product-backlog-native-use-hosts.sh`
+  asserts Cursor `tool_call` args for the installed `merge --ref close-b`
+  and `continue` calls; shared Git mid-merge state, adapter-authored
+  conflict bytes, external human repair/staging, exact final bytes, a
+  clean index, and two parents. Command:
+  `PATH=/opt/homebrew/bin:/Users/terryyin/.local/bin:$PATH bash tests/product-backlog-native.sh --native cursor --case use`;
+  result: pass on `cursor agent 2026.09.18-9a7762b` with `--sandbox enabled`.
+- Slice 4 supporting/broad proof: `PATH=/opt/homebrew/bin:$PATH bash tests/product-backlog-native.sh`
+  passed after the host-adapter split. `npm run format` completed
+  lint/format checks, and `PATH=/opt/homebrew/bin:$PATH npm test` passed
+  with explicit terminal status `0`.
 
 ## Source and remaining outcome
 
@@ -196,8 +216,8 @@ Codex's result does not establish this host's feasibility or behavior.
 
 ### 4. Use the installed scripted workflow in Cursor
 Type: Behavior
-Status: planned
-Proof: `bash tests/product-backlog-native.sh --native cursor --case use`
+Status: done
+Proof: `PATH=/opt/homebrew/bin:/Users/terryyin/.local/bin:$PATH bash tests/product-backlog-native.sh --native cursor --case use`
 
 Run slice 2's shared installed workflow through Cursor's native agent, with actual
 tool and file/Git observations. Use any delivered guard, retain missing guard
@@ -207,14 +227,10 @@ availability. Hypothesis: one host journey using the shared cases and assessment
 ## Sizing, stopping points, and remaining concerns
 
 Four planned Behavior slices (renumbered 1-4 from the originating plan's
-7-10); slices 1-3 are complete; no supplied numeric target or hard limit.
-Slice 3's Cursor feasibility is resolved: a thin `preToolUse` adapter was
-delivered. Slice 4 needs actual native access and fresh, sufficient
-evidence; no blanket direct-execution readiness is claimed. Slice 4 remains
-independently runnable with the delivered Cursor guard. Do not require both
-hosts' slices to fit one uninterrupted execution — each host's guard and
-installed-use outcomes are independently safe stopping points, so a failed
-guard feasibility in one host cannot erase useful proof from the other.
+7-10); all four are complete; no supplied numeric target or hard limit.
+Slices 1 and 3 delivered thin native edit adapters (Codex `apply_patch`,
+Cursor `preToolUse` Write). Slices 2 and 4 proved installed-workflow use
+on those hosts with actual native access.
 
 The originating plan's Claude Code slices were delivered separately and did
 establish a working guard/native-test pattern: `src/skills/dough-product-backlog/scripts/product-backlog-guard-hook.mjs`

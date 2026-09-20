@@ -44,18 +44,6 @@ use_commit_all() {
     -c user.email='fixture@example.invalid' commit --quiet -m "${message}"
 }
 
-use_assert_codex_call() {
-  local transcript=$1
-  local invocation=$2
-  local label=$3
-  if ! grep -F '"type":"item.started"' "${transcript}" \
-    | grep -Fq "${invocation}"; then
-    printf 'FAIL: native Codex transcript did not show the installed merge adapter %s call.\n' \
-      "${label}" >&2
-    return 1
-  fi
-}
-
 use_native_cleanup() {
   local status=$?
   local output
@@ -65,7 +53,7 @@ use_native_cleanup() {
   fi
   printf '\nFAIL: preserving native %s installed-workflow-use evidence after status %s.\n' \
     "${use_host_name}" "${status}" >&2
-  for output in "${temporary_dir}"/native-use-*-output.md; do
+  for output in "${temporary_dir}"/native-use-*; do
     [[ -f ${output} ]] || continue
     printf '%s\n' "--- $(basename -- "${output}") ---" >&2
     cat "${output}" >&2
@@ -86,6 +74,10 @@ use_run_native() {
       use_host_name='Codex'
       use_skill_root='.agents/skills'
       ;;
+    cursor)
+      use_host_name='Cursor'
+      use_skill_root='.agents/skills'
+      ;;
     *)
       echo "FAIL: unsupported native use host '${host}'." >&2
       return 2
@@ -100,8 +92,8 @@ use_run_native() {
 
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
     --platform "${host}" > /dev/null
-  if [[ ${host} == codex ]]; then
-    guard_assert_registered "${target}" codex
+  if [[ ${host} == codex || ${host} == cursor ]]; then
+    guard_assert_registered "${target}" "${host}"
   fi
 
   git -C "${target}" init --quiet -b main
@@ -128,17 +120,8 @@ use_run_native() {
     local output_file=$1
     local prompt=$2
     local transcript=${3:-}
-    if [[ ${host} == codex ]]; then
-      native_codex_run \
-        "${target}" "${output_file}" "${prompt}" "${transcript}" \
-        bypass-hook-trust
-      return
-    fi
-    (
-      cd -- "${target}" || exit
-      claude --print --dangerously-skip-permissions --no-session-persistence \
-        "${prompt}"
-    ) > "${output_file}" 2>&1
+    use_run_host_session "${host}" "${target}" \
+      "${output_file}" "${prompt}" "${transcript}"
   }
 
   local merge_output="${temporary_dir}/native-use-merge-output.md"
@@ -147,11 +130,9 @@ use_run_native() {
     "Branch 'close-b' in this repository has its own change to this project's backlog that needs to be combined into the branch checked out right now. Integrate close-b's backlog change into the current branch, following this project's installed guidance for combining backlog changes across branches. Report plainly what happens, including whether you reach a stop that needs a human decision, and do not force past any such stop." \
     "${merge_transcript}"
 
-  if [[ ${host} == codex ]]; then
-    use_assert_codex_call "${merge_transcript}" \
-      '.agents/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs merge --ref close-b' \
-      merge
-  fi
+  use_assert_host_adapter_call "${host}" "${merge_transcript}" \
+    "${use_skill_root}/dough-product-backlog/scripts/product-backlog-git-merge.mjs merge --ref close-b" \
+    merge
 
   if ! grep -Eiq 'conflict|stop|human' "${merge_output}"; then
     echo 'FAIL: native output did not report a conflict/stop needing a human decision.' >&2
@@ -209,11 +190,9 @@ EOF
     "The backlog integration from branch close-b was stopped earlier by a real conflict. A human has now resolved the backlog file by hand and staged it with git add. Resume and complete that same integration now, following this project's installed guidance, and report plainly whether it completed." \
     "${continue_transcript}"
 
-  if [[ ${host} == codex ]]; then
-    use_assert_codex_call "${continue_transcript}" \
-      '.agents/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs continue' \
-      continue
-  fi
+  use_assert_host_adapter_call "${host}" "${continue_transcript}" \
+    "${use_skill_root}/dough-product-backlog/scripts/product-backlog-git-merge.mjs continue" \
+    continue
 
   if [[ -f "${target}/.git/MERGE_HEAD" ]]; then
     echo 'FAIL: native session did not complete the merge -- MERGE_HEAD still present.' >&2
@@ -238,7 +217,7 @@ EOF
     exit 1
   fi
 
-  native_tool_version=$(${host} --version)
+  native_tool_version=$(use_native_tool_version "${host}")
   printf 'Native tool version: %s\n' "${native_tool_version}"
   printf 'Candidate: %s\n' \
     "${use_skill_root}/dough-product-backlog/scripts/product-backlog-git-merge.mjs"

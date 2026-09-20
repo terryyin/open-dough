@@ -45,6 +45,9 @@ source "${source_dir}/tests/support/product-backlog-native-guard-cursor.sh"
 # shellcheck source=tests/support/product-backlog-native-use.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-use.sh"
+# shellcheck source=tests/support/product-backlog-native-use-hosts.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-use-hosts.sh"
 # shellcheck source=tests/support/native-codex.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-codex.sh"
