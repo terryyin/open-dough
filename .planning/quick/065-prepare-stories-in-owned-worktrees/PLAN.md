@@ -1,6 +1,17 @@
 # Prepare stories and slice plans without occupying shared main
 
-Status: planned. Planning and refinement only; implementation is not authorized.
+Status: executing. Execution authorized 2026-09-20.
+
+Execution identity: Story Branch Mode. Integration checkout/branch:
+`/Users/terryyin/git/open-dough` on `main` (Taken claim `5128d91`, unpushed
+until story wrap-up). Execution checkout/branch:
+`.worktrees/065-prepare-stories-in-owned-worktrees` on
+`quick/065-prepare-stories-in-owned-worktrees`, based on that same commit.
+Authorized push destination: `origin` (`git@github.com:terryyin/open-dough.git`),
+execution branch pushed there at each slice delivery; `main` is pushed only by
+story wrap-up. CI: GitHub Actions default (`ci.yml` / `CI`), observer directory
+`/tmp/dough-ci-501/watch-SfcVio`, bound to the execution checkout and this
+coordinator session, observing pushes to `quick/065-prepare-stories-in-owned-worktrees`.
 
 ## Source and outcome
 
