@@ -257,6 +257,57 @@ as a story and place it third in the product backlog; requirements recorded in
 commit `903f905`. See also
 [ADR 0008's alignment note](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md).
 
+<a id="publish-shared-backlog-claims"></a>
+
+### 7. Publish shared backlog claims before isolated execution
+
+**Status:** Captured 2026-09-20; first backlog priority. Not planned.
+
+**Goal:** A developer running Story Branch and Trunk Mode tasks together can
+start either task without leaving its backlog claim unpublished on shared
+`main`, blocking another task's otherwise valid publication.
+
+**Observed problem:** Plan 62's Trunk Mode delivery stopped when the Claude
+dashboard task left claim `beafc8d` on local `main` without pushing. The owner
+pushed it, and plan 62 rebased cleanly and published. This followed the current
+instruction: `dough-execute-plan` commits claims on the integration branch in
+every mode, but tells Story Branch Mode not to push its claim separately.
+
+**Scope:** Publish an owned claim on the resolved shared integration branch to
+its authorized remote before releasing the integration turn and beginning
+isolated implementation, in both Story Branch and Trunk modes. Preserve each
+mode's subsequent implementation-delivery behavior. Keep ownership checks,
+backlog reconciliation, non-force publication, and recoverable failure handling.
+Align startup prerequisites, claim rules, workspace creation, recovery, and CI
+observation where they depend on this publication boundary. Resolve the existing
+direct-current-branch contract explicitly; do not silently expand its push authority.
+
+**Key examples / evaluation:**
+
+1. A Story Branch task takes an item on shared `main`; its claim reaches the
+   remote before isolated work starts. A concurrent Trunk task can then publish
+   without being blocked by that task's unpublished local claim.
+2. A Trunk task retains the same claim-before-implementation behavior. Neither
+   mode publishes another writer's unpublished commits or forces a push.
+3. A rejected or unavailable claim push preserves the exact claim and queue
+   state, reports the remaining publication obligation, and does not begin
+   implementation or create a duplicate claim on resume.
+
+**Investigation:** This is not a one-passage edit. Source locations include
+`src/skills/dough-execute-plan/SKILL.md` (push prerequisites, mode-specific
+claim rebasing, and the explicit no-push rule), `references/execution-location.md`
+(workspace starts after local commit), and `references/trunk-publication.md`
+(Trunk-only scope). No direct wording assertion for the no-push rule was found;
+related coverage includes `ci-target-branch-worktree.test.mjs`,
+`trunk-publication-local-main.test.mjs`, and `tests/execution-payload-update.sh`.
+Review their actual boundaries when planning; they do not execute this prose.
+
+**Boundaries / safe stopping point:** One consistent claim-publication contract;
+no merge queue, lock service, unrelated backlog-workflow redesign, or changes to
+installed managed copies. Independent of the same-machine queue story above.
+The owner requested this first-priority story if the repair was not confined to
+one instruction without bound tests. Capturing it does not authorize execution.
+
 ## Research and Architectural Context
 
 Research on 2026-09-16 established precedent for frequent mainline integration

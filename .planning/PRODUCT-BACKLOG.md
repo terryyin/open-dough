@@ -20,6 +20,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Publish shared backlog claims before isolated execution](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-shared-backlog-claims) — SEED-008#publish-shared-backlog-claims
 - [Prepare stories and slice plans in a clear developer workspace workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
