@@ -508,6 +508,33 @@ explicit contract in the focused CI runtime suite.
   - Inference: Selecting focused proof from file type instead of tracing the
     changed contract to maintained tests caused avoidable CI repair churn.
 
+- Execution: `SEED-008#publish-shared-backlog-claims @ 06504a5`
+  - Timestamp: 2026-09-20T11:22:27+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.26
+  - Evidence: Slice 2 (`8e6c41d`) extracted `SKILL.md`'s "Finish or stop"
+    section, including the phrase "stop observers without waiting for CI",
+    into a new `references/finish-or-stop.md` to satisfy the file-size
+    refactor check. `ci-supported-host-contract.test.mjs` regex-matches that
+    exact phrase across a fixed join of `SKILL.md` plus several
+    `references/*.md` files, which was not updated to include the new file.
+    CI runs `35486408307` (`8e6c41d`) and `35486945925` (`be94345`, built on
+    top) both failed on this assertion; repair `7217999` added
+    `reference("references/finish-or-stop.md")` to the test's join list.
+  - Observed effect: two commits shipped failing CI in sequence, and both the
+    refactor pass that performed the extraction and the coordinator's own
+    proof acceptance for that slice missed it, since the diff and its rerun
+    tests (`trunk-publication-local-main.test.mjs`,
+    `ci-target-branch-worktree.test.mjs`) were both unaffected and green.
+  - Inference: A second, independent recurrence of the same mechanism in the
+    same test file: a file-size-driven Markdown extraction was judged for
+    internal consistency and cross-reference correctness but not checked
+    against the focused CI runtime suite that treats the extracted content as
+    a fixed-file contract. Qualified: this project's own file-size refactor
+    check does not name checking for such tests, so the omission is
+    consistent with an unnamed check rather than a skipped one.
+
 ## ODF-006 — Oversized context reads obscure narrow execution inputs
 
 Former local code: DD-006.
@@ -562,3 +589,34 @@ not started; later execution-branch pushes were unobserved.
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
 
+## DD-065 — A genuinely failed CI run was reported as merely uncovered, not failed
+
+The observer reports coverage unavailable, not failure, when three discovery
+polls complete without finding the pushed SHA's run. GitHub Actions can still
+be about to run, or already running, that exact SHA when the third poll
+completes; the observer does not retry discovery for that SHA afterward, so a
+run that later fails is never surfaced as a failure, only as lost coverage.
+
+### Occurrences
+
+- Execution: `SEED-008#publish-shared-backlog-claims @ 06504a5`
+  - Timestamp: 2026-09-20T11:33:00+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.26
+  - Evidence: `register-push` for `8e6c41d` (pushed 2026-09-20T11:22:27+08:00)
+    was followed by a `CI_COVERAGE_UNAVAILABLE` hook event ("No CI attempt for
+    pushed revision after 3 discovery polls."). `gh run list` at that moment
+    showed run `35486408307` for that exact SHA already `in_progress`; it
+    later completed `failure`. The observer's final `stop` report (after the
+    next push's real `CI_FAILURE` event triggered manual investigation) still
+    listed `8e6c41d` as `state: "uncovered"`, never as failed.
+  - Observed effect: The coordinator only learned `8e6c41d` had failed CI by
+    independently running `gh run list` while diagnosing a later commit's
+    correctly-delivered `CI_FAILURE` event; without that unrelated
+    investigation, the first failing revision's CI result would have gone
+    unnoticed for the rest of the execution.
+  - Inference: Qualified. Discovery latency between a push and GitHub Actions
+    registering its run is the likely cause of the missed first poll window,
+    not a defect in classifying a found run; whether widening the poll count
+    or window would reliably close this specific gap was not tested here.
