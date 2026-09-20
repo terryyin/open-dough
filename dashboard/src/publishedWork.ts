@@ -12,6 +12,7 @@ import {
 import { readBacklogAt, resolveRevision } from "./githubSource";
 import { publishedSource, type PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
+import { resolveSourceLink, type SourceLink } from "./sourceLink";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -21,12 +22,21 @@ const interpretedBacklog = z.object({
       identity: z.string().min(1),
       title: z.string().min(1),
       list: z.enum([takenHeading, queueHeading]),
+      href: z.string().min(1),
+      plan: z.object({ target: z.string().min(1) }).optional(),
     }),
   ),
 });
 const interpretedDirection = z.string();
 
-export type WorkEntry = { readonly identity: string; readonly title: string };
+export type WorkEntry = {
+  readonly identity: string;
+  readonly title: string;
+  // Where the entry's recorded links lead at this snapshot's revision. An
+  // entry records one canonical link and may record the plan it is taken with.
+  readonly canonical: SourceLink;
+  readonly plan?: SourceLink;
+};
 
 export type PublishedWork = {
   readonly source: PublishedSource;
@@ -40,6 +50,7 @@ export type PublishedWork = {
 
 function interpret(
   markdown: string,
+  revision: string,
 ): Pick<PublishedWork, "direction" | "taken" | "backlog"> {
   let document: unknown;
   let direction: unknown;
@@ -62,7 +73,14 @@ function interpret(
   const entriesIn = (list: string): WorkEntry[] =>
     backlog.data.entries
       .filter((entry) => entry.list === list)
-      .map(({ identity, title }) => ({ identity, title }));
+      .map(({ identity, title, href, plan }) => ({
+        identity,
+        title,
+        canonical: resolveSourceLink(href, publishedSource, revision),
+        ...(plan && {
+          plan: resolveSourceLink(plan.target, publishedSource, revision),
+        }),
+      }));
   return {
     direction: recorded.data,
     taken: entriesIn(takenHeading),
@@ -79,6 +97,6 @@ export async function readPublishedWork(
     source: publishedSource,
     revision,
     retrievedAt: new Date(),
-    ...interpret(markdown),
+    ...interpret(markdown, revision),
   };
 }

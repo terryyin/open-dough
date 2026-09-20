@@ -1,7 +1,7 @@
 # See the project's published work in a story dashboard
 
 Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
-and just-in-time UX. Slice 1 resolved without change; slice 2 done; slice 3 is next.
+and just-in-time UX. Slice 1 resolved without change; slices 2–3 done; slice 4 is next.
 
 ## Execution identity
 
@@ -246,8 +246,29 @@ explicitly outstanding.
 
 ### 3. Open the source behind a displayed work item
 Type: Behavior
-Status: planned
+Status: done 2026-09-20
 Proof: `npm run test:dashboard -- --grep 'source navigation'`
+
+Delivered 2026-09-20. Accepted proof: three `source navigation` tests in
+`dashboard/tests/source-navigation.spec.ts` (pinned repository, revision, path,
+and anchor for story, plan, and bounded-correction links; external references
+kept apart; unsafe or invalid targets shown as text with no link and nothing
+executed), set up only by a raw backlog answer through `githubOrigin.ts`. Whole
+suite 6 passed; type check and `npm run lint` exit 0. One rule lives in
+`dashboard/src/sourceLink.ts`: only a constructed GitHub URL or a parsed
+http(s) address becomes an `href`. A leading `/` resolves from the repository
+root. A path whose last segment is not a name of its own (anchor only, `seeds/`,
+`seeds/..`) is unusable; this was returned to implementation after the first
+report wrongly claimed it and the code linked the `.planning` directory. That
+correction followed the refactor pass and was coordinator-inspected without a
+second pass. Untested: a `?query` in a relative link is encoded into the file
+name, and the `splitHref` shape guard.
+
+Learnings: snapshot links carry their own `revision`, so replacing the snapshot
+re-pins every link and a retained snapshot keeps valid old links. The tests
+project has no DOM lib. Following a snapshot link leaves the page, so a
+click-through assertion must end its test. `source-navigation.spec.ts` is at
+238 lines; later slices use their own spec files.
 
 Make recorded canonical and optional plan links usable. Resolve repository-relative
 links against the backlog's directory into GitHub source URLs at the inspected

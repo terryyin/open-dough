@@ -1,7 +1,50 @@
 import type { PublishedWork, WorkEntry } from "./publishedWork";
+import type { SourceLink } from "./sourceLink";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
+}
+
+// One recorded link, shown the same way whatever kind of entry records it. The
+// recorded target is always readable as text; it becomes a link only when it
+// leads to a file of this snapshot or to an ordinary web address.
+function RecordedLink({ role, link }: { role: string; link: SourceLink }) {
+  const recorded = (
+    <>
+      <span className="link-role">{role}</span>{" "}
+      <span className="link-target">{link.recorded}</span>
+    </>
+  );
+  switch (link.kind) {
+    case "snapshot":
+      return (
+        <li>
+          <a href={link.url}>{recorded}</a>
+          <p className="link-note">
+            File in this snapshot, at revision {link.revision.slice(0, 7)}.
+          </p>
+        </li>
+      );
+    case "external":
+      return (
+        <li>
+          <a href={link.url} rel="noopener noreferrer">
+            {recorded}
+          </a>
+          <p className="link-note">
+            External reference. It is not a file in this snapshot and is not
+            tied to the inspected revision.
+          </p>
+        </li>
+      );
+    case "unusable":
+      return (
+        <li>
+          <span>{recorded}</span>
+          <p className="link-note">Not offered as a link. {link.reason}</p>
+        </li>
+      );
+  }
 }
 
 function Stage({
@@ -32,6 +75,13 @@ function Stage({
                 )}
                 <h3>{entry.title}</h3>
                 <p className="card-identity">{entry.identity}</p>
+                <ul className="card-links" aria-label="Source links">
+                  <RecordedLink
+                    role="Canonical record"
+                    link={entry.canonical}
+                  />
+                  {entry.plan && <RecordedLink role="Plan" link={entry.plan} />}
+                </ul>
               </article>
             </li>
           ))}

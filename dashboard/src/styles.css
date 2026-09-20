@@ -23,7 +23,8 @@ h3,
 p,
 dl,
 dd,
-ol {
+ol,
+ul {
   margin: 0;
   padding: 0;
 }
@@ -64,7 +65,8 @@ h3 {
 .stage-count,
 .card-priority,
 .card-identity,
-.connector-note {
+.connector-note,
+.link-note {
   color: var(--quiet);
   font-size: 0.9rem;
 }
@@ -126,6 +128,26 @@ h3 {
   border-radius: 0.35rem;
   padding: 0.6rem 0.8rem;
   background: var(--surface);
+}
+
+.card-links {
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.card-links a {
+  color: var(--accent);
+}
+
+.link-role {
+  font-weight: 600;
+}
+
+.link-target {
+  font-size: 0.9rem;
 }
 
 .connector {
