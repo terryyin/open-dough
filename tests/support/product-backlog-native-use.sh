@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2154,SC2312 # Sourcing script sets set -euo pipefail; globals cross functions.
-# Shared setup and assertions for the product backlog's Claude Code
+# Shared setup and assertions for the product backlog's native
 # installed-workflow-use proof (tests/product-backlog-native.sh --case use).
 #
-# A fresh native Claude Code session is asked, in ordinary language naming
-# neither a script nor a verb, to integrate one branch's backlog change into
-# another. It must discover and run the installed
+# A fresh native session is asked, in ordinary language naming neither a script
+# nor a verb, to integrate one branch's backlog change into another. It must
+# discover and run the installed
 # product-backlog-git-merge.mjs adapter for itself, hit its real `conflict`
 # stop on a genuine two-sided rename dispute, and report it plainly without
 # forcing past it. After explicit human repair -- here, this test script
@@ -16,10 +16,8 @@
 use_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 use_driver_config_key='merge.dough-product-backlog.driver'
 
-# The whole backlog file for a given title of the shared "Item C" entry.
-# Writing the complete known shape directly (rather than search-and-replace
-# on the existing file) avoids brittle pattern-matching over the entry's own
-# Markdown brackets/parens.
+# Write the whole backlog for a given "Item C" title; the complete known shape
+# avoids brittle search-and-replace over the entry's own Markdown syntax.
 use_write_backlog() {
   local target=$1
   local item_c_title=$2
@@ -46,6 +44,18 @@ use_commit_all() {
     -c user.email='fixture@example.invalid' commit --quiet -m "${message}"
 }
 
+use_assert_codex_call() {
+  local transcript=$1
+  local invocation=$2
+  local label=$3
+  if ! grep -F '"type":"item.started"' "${transcript}" \
+    | grep -Fq "${invocation}"; then
+    printf 'FAIL: native Codex transcript did not show the installed merge adapter %s call.\n' \
+      "${label}" >&2
+    return 1
+  fi
+}
+
 use_native_cleanup() {
   local status=$?
   local output
@@ -53,8 +63,8 @@ use_native_cleanup() {
     rm -rf -- "${temporary_dir}"
     return
   fi
-  printf '\nFAIL: preserving native Claude Code installed-workflow-use evidence after status %s.\n' \
-    "${status}" >&2
+  printf '\nFAIL: preserving native %s installed-workflow-use evidence after status %s.\n' \
+    "${use_host_name}" "${status}" >&2
   for output in "${temporary_dir}"/native-use-*-output.md; do
     [[ -f ${output} ]] || continue
     printf '%s\n' "--- $(basename -- "${output}") ---" >&2
@@ -65,7 +75,22 @@ use_native_cleanup() {
 
 use_run_native() {
   local source_dir=$1
+  local host=$2
   local target
+  case ${host} in
+    claude)
+      use_host_name='Claude Code'
+      use_skill_root='.claude/skills'
+      ;;
+    codex)
+      use_host_name='Codex'
+      use_skill_root='.agents/skills'
+      ;;
+    *)
+      echo "FAIL: unsupported native use host '${host}'." >&2
+      return 2
+      ;;
+  esac
   # Not `local`: use_native_cleanup's EXIT trap reads this after this
   # function returns.
   temporary_dir=$(mktemp -d)
@@ -74,7 +99,10 @@ use_run_native() {
   use_write_backlog "${target}" 'Item C'
 
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
-    --platform claude > /dev/null
+    --platform "${host}" > /dev/null
+  if [[ ${host} == codex ]]; then
+    guard_assert_registered "${target}" codex
+  fi
 
   git -C "${target}" init --quiet -b main
   use_commit_all "${target}" 'fixture: installed baseline with backlog'
@@ -92,9 +120,20 @@ use_run_native() {
 
   trap use_native_cleanup EXIT
 
-  run_native_use_claude() {
+  if [[ ${host} == codex ]]; then
+    native_codex_prepare "${temporary_dir}" "${source_dir}"
+  fi
+
+  run_native_use() {
     local output_file=$1
     local prompt=$2
+    local transcript=${3:-}
+    if [[ ${host} == codex ]]; then
+      native_codex_run \
+        "${target}" "${output_file}" "${prompt}" "${transcript}" \
+        bypass-hook-trust
+      return
+    fi
     (
       cd -- "${target}" || exit
       claude --print --dangerously-skip-permissions --no-session-persistence \
@@ -103,8 +142,16 @@ use_run_native() {
   }
 
   local merge_output="${temporary_dir}/native-use-merge-output.md"
-  run_native_use_claude "${merge_output}" \
-    "Branch 'close-b' in this repository has its own change to this project's backlog that needs to be combined into the branch checked out right now. Integrate close-b's backlog change into the current branch, following this project's installed guidance for combining backlog changes across branches. Report plainly what happens, including whether you reach a stop that needs a human decision, and do not force past any such stop."
+  local merge_transcript="${temporary_dir}/native-use-merge-transcript.jsonl"
+  run_native_use "${merge_output}" \
+    "Branch 'close-b' in this repository has its own change to this project's backlog that needs to be combined into the branch checked out right now. Integrate close-b's backlog change into the current branch, following this project's installed guidance for combining backlog changes across branches. Report plainly what happens, including whether you reach a stop that needs a human decision, and do not force past any such stop." \
+    "${merge_transcript}"
+
+  if [[ ${host} == codex ]]; then
+    use_assert_codex_call "${merge_transcript}" \
+      '.agents/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs merge --ref close-b' \
+      merge
+  fi
 
   if ! grep -Eiq 'conflict|stop|human' "${merge_output}"; then
     echo 'FAIL: native output did not report a conflict/stop needing a human decision.' >&2
@@ -157,8 +204,16 @@ EOF
   git -C "${target}" add -- "${use_backlog_rel}"
 
   local continue_output="${temporary_dir}/native-use-continue-output.md"
-  run_native_use_claude "${continue_output}" \
-    "The backlog integration from branch close-b was stopped earlier by a real conflict. A human has now resolved the backlog file by hand and staged it with git add. Resume and complete that same integration now, following this project's installed guidance, and report plainly whether it completed."
+  local continue_transcript="${temporary_dir}/native-use-continue-transcript.jsonl"
+  run_native_use "${continue_output}" \
+    "The backlog integration from branch close-b was stopped earlier by a real conflict. A human has now resolved the backlog file by hand and staged it with git add. Resume and complete that same integration now, following this project's installed guidance, and report plainly whether it completed." \
+    "${continue_transcript}"
+
+  if [[ ${host} == codex ]]; then
+    use_assert_codex_call "${continue_transcript}" \
+      '.agents/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs continue' \
+      continue
+  fi
 
   if [[ -f "${target}/.git/MERGE_HEAD" ]]; then
     echo 'FAIL: native session did not complete the merge -- MERGE_HEAD still present.' >&2
@@ -183,12 +238,12 @@ EOF
     exit 1
   fi
 
-  native_tool_version=$(claude --version)
+  native_tool_version=$(${host} --version)
   printf 'Native tool version: %s\n' "${native_tool_version}"
   printf 'Candidate: %s\n' \
-    '.claude/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs'
+    "${use_skill_root}/dough-product-backlog/scripts/product-backlog-git-merge.mjs"
   printf '%s\n' \
-    "PASS: a fresh native Claude Code session discovered and ran the installed product-backlog-git-merge.mjs adapter, not a raw git merge, for an ordinary-language backlog integration request naming neither the script nor its verb." \
+    "PASS: a fresh native ${use_host_name} session discovered and ran the installed product-backlog-git-merge.mjs adapter, not a raw git merge, for an ordinary-language backlog integration request naming neither the script nor its verb." \
     "PASS: the session reached the adapter's real conflict stop -- Git genuinely mid-merge, the backlog path genuinely unresolved in the index, real adapter-authored conflict markers on disk -- and reported it plainly instead of forcing past it." \
     "PASS: after explicit human repair, a second fresh native session resumed through the same adapter's continue verb and completed a real two-parent merge commit holding the human-resolved bytes exactly."
 }

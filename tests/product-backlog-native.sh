@@ -8,6 +8,7 @@
 #   tests/product-backlog-native.sh --native claude --case guard
 #   tests/product-backlog-native.sh --native codex --case guard
 #   tests/product-backlog-native.sh --native claude --case use
+#   tests/product-backlog-native.sh --native codex --case use
 #
 # The default mode is deterministic: a real install plus the guard's
 # decision function, with no real agent. --native claude --case guard spawns
@@ -18,6 +19,8 @@
 # after explicit human repair.
 # --native codex --case guard spawns fresh isolated `codex exec` sessions with
 # the installed repo-local hook trusted for that bounded native run.
+# --native codex --case use runs the same installed-workflow journey through
+# fresh isolated `codex exec` sessions and observes their actual script calls.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -41,9 +44,8 @@ usage() {
   cat >&2 << 'EOF'
 usage: tests/product-backlog-native.sh
    or: tests/product-backlog-native.sh --native claude --case guard
-   or: tests/product-backlog-native.sh --native <claude|codex> --case guard
-   or: tests/product-backlog-native.sh --native claude --case use
-HOST is claude or codex for guard; use is currently implemented for claude.
+   or: tests/product-backlog-native.sh --native <claude|codex> --case <guard|use>
+HOST is claude or codex.
 CASE is guard (native PreToolUse edit-denial for the product backlog)
 or use (the installed Git merge adapter's conflict stop and human-repaired
 resume, discovered by a fresh native session from ordinary-language guidance).
@@ -106,14 +108,7 @@ if [[ ${host_arg} != claude && ${host_arg} != codex ]]; then
   exit 2
 fi
 case ${case_id} in
-  guard) ;;
-  use)
-    if [[ ${host_arg} != claude ]]; then
-      echo "error: case 'use' is not implemented for host '${host_arg}'" >&2
-      usage
-      exit 2
-    fi
-    ;;
+  guard | use) ;;
   *)
     echo "error: unknown case '${case_id}' (known: guard, use)" >&2
     usage
@@ -134,7 +129,7 @@ case ${case_id} in
       guard_run_native "${source_dir}"
     fi
     ;;
-  use) use_run_native "${source_dir}" ;;
+  use) use_run_native "${source_dir}" "${host_arg}" ;;
   *)
     echo "error: internal error: unreachable case '${case_id}'" >&2
     exit 2

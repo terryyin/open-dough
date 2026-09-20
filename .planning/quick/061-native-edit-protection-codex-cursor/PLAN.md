@@ -1,6 +1,6 @@
 # Establish native edit protection and scripted workflow use in Codex and Cursor
 
-Status: in progress. Execution authorized 2026-09-20 for slices 1-2 only;
+Status: in progress at the authorized stopping point. Slices 1-2 are done;
 slices 3-4 remain planned and outside this execution.
 
 ## Execution identity
@@ -46,6 +46,23 @@ slices 3-4 remain planned and outside this execution.
   public-payload entry tests and the internal-omission test; adding the already
   delivered `.codex/hooks.json` to those expected enumerations repaired the
   owned gap, and the full suite then passed.
+- Slice 2 promise: a fresh native Codex session discovers and runs the installed
+  backlog merge adapter for an ordinary-language integration request, stops at
+  the adapter's real refusal, and after explicit human repair a second fresh
+  session resumes through the adapter to a completed two-parent merge. Accepted
+  boundary: the installed guidance plus shared native-use fixture. Inspected
+  setup and observations: `tests/support/product-backlog-native-use.sh` creates
+  the installed two-branch fixture and asserts Codex JSONL command events for
+  the installed `merge --ref close-b` and `continue` calls, real Git mid-merge
+  state and adapter-authored conflict bytes, external human repair/staging,
+  exact final bytes, a clean index, and two parents. Command:
+  `PATH=/opt/homebrew/bin:$PATH bash tests/product-backlog-native.sh --native codex --case use`;
+  result: pass on `codex-cli 0.144.1`. The unchanged payload/update proof from
+  slice 1 establishes delivery through real update without duplicating that
+  machinery in the native-use journey.
+- Slice 2 preparation/broad proof: `npm run format` completed lint/format
+  checks, and `PATH=/opt/homebrew/bin:$PATH npm test` passed with explicit
+  terminal status `0` after the shared harness and runtime guidance changes.
 
 ## Source and remaining outcome
 
@@ -120,7 +137,7 @@ pass is claimed. Hypothesis: one native editing boundary, separate from workflow
 
 ### 2. Use the installed scripted workflow in Codex
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/product-backlog-native.sh --native codex --case use`
 
 After real update, a fresh native session follows installed guidance for an

@@ -118,15 +118,16 @@ work to the queue requires an explicit backlog-maintenance decision.
   when the human asks only for backlog maintenance. The applicable seed, plan,
   and proof remain available for later story wrap-up.
 
-## Direct edits may be denied in Claude Code
+## Direct edits may be denied in Claude Code or Codex
 
 An installed Claude Code project may deny a direct `Edit`/`Write`/
 `MultiEdit`/`NotebookEdit` attempt on the resolved product backlog path,
-reporting the denial before any bytes change. This is expected: use the
-scripts above (`product-backlog.mjs` and its Git merge/rebase/cherry-pick
-adapters) instead of a direct hand-edit. Reads, edits to other files, and
-Bash-run commands (including a shell redirection into the backlog file) are
-unaffected. Codex and Cursor have no equivalent guard.
+and an installed Codex project may deny an `apply_patch` attempt there. Both
+report the denial before any bytes change. This is expected: use the scripts
+above (`product-backlog.mjs` and its Git merge/rebase/cherry-pick adapters)
+instead of a direct hand-edit. Reads, edits to other files, and shell-run
+commands (including shell redirection into the backlog file) are unaffected.
+Cursor has no equivalent guard.
 
 ## Merge, rebase, or cherry-pick the backlog across branches
 
