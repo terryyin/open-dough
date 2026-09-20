@@ -1,5 +1,38 @@
 # DearDough Process Findings
 
+## DD-066 — A literal CLI-entry URL comparison silently skipped symlink-equivalent launches
+
+Three checkout-bound Node entrypoints decided whether to run by comparing the
+literal module URL with the URL made from `process.argv[1]`. On macOS, invoking
+the script through `/tmp` can load that same file through its canonical
+`/private/tmp` path. The unequal strings cause the process to exit successfully
+without running the CLI body, so an execution can mistake silence for a valid
+command result.
+
+### Occurrences
+
+- Execution: `.planning/quick/061-native-edit-protection-codex-cursor/PLAN.md @ d6cb926`
+  - Timestamp: 2026-09-20
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: modified; revision d6cb926; base 0.3.25
+  - Evidence: `src/skills/dough-execute-plan/scripts/ci-mailbox.mjs`,
+    `watch-ci.mjs`, and `ci-host-hook.mjs` each guard their CLI body with
+    `import.meta.url === pathToFileURL(process.argv[1]).href`. The execution
+    worktree was addressed as `/tmp/open-dough-061.WrMwJK/worktree`, while the
+    filesystem resolved it under `/private/tmp/...`; the two URLs named the
+    same entry file but compared unequal, so the requested CLI body was not
+    entered.
+  - Observed effect: a checkout-bound CI command could return status 0 with no
+    command output or hook handling. This is not ODF-052: that occurrence
+    printed a mailbox receipt and then failed to attach, whereas this path
+    comparison prevents the receipt-producing or hook-processing body itself
+    from running.
+  - Inference: the three callers need one bounded, realpath-equivalent
+    direct-entry decision plus process proof that observes each CLI body rather
+    than accepting exit status alone. Follow-up correction:
+    `.planning/quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md`.
+
 ## DD-055 — A plan's proof command can select an empty test set and report success
 
 The plan format states each slice's proof as a runnable command. When that
@@ -427,4 +460,3 @@ not started; later execution-branch pushes were unobserved.
     the receipt; a probe directory is not an execution observer. Following the
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
-
