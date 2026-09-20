@@ -29,6 +29,25 @@ passed.
     selected test passed" the same observable result. Qualified: this affects
     pattern-selected proofs only, not file-level or script-level proof commands.
 
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Between commits `a74bee9` (2026-09-20T07:51:26+08:00) and
+    `d0a9495` (2026-09-20T08:19:16+08:00). Slice 2's planned proof was
+    `npm run test:dashboard -- --grep 'published overview'`. The slice owned
+    three Playwright tests in `dashboard/tests/published-work.spec.ts`; only
+    one title contained the phrase, so the command ran 1 test and passed while
+    the empty-groups and initial-read-failure promises went unselected.
+  - Observed effect: The refactor pass noticed the mismatch and retitled the
+    two tests; the coordinator then told every later implementation agent that
+    each test a slice owns must carry the plan's phrase in its title, and
+    slices 3 to 6 selected 3, 5, 12, and 6 tests with their planned commands.
+  - Inference: A variant of the same mechanism, partial rather than empty
+    selection: a name-pattern proof never states how many tests it should
+    select, so "passed" does not show that the slice's promises were exercised.
+
 ## DD-056 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
 
 Tests for a command whose contract includes a human-readable summary asserted
@@ -253,6 +272,122 @@ without any gate noticing, because nothing downstream depends on it having run.
     mechanism this issue already names: repair-path delivery reads as an
     interruption to recover from, making its own delivery gates easier to
     informally shorten than an ordinary slice's.
+
+## DD-061 — A delegated report's untested behavior claim was relayed to the developer as fact
+
+Proof acceptance inspects the locations an implementation report names. A
+report can also describe behavior in prose that no named assertion observes.
+When the coordinator repeats that prose in its own summary, the developer
+receives an unverified claim with the coordinator's authority attached.
+
+### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Between commits `d0a9495` (2026-09-20T08:19:16+08:00) and
+    `c0d0a91` (2026-09-20T08:33:16+08:00). The slice 3 implementation report
+    said a bare `#anchor` link target "is treated as naming no file →
+    unusable". No test covered it, and `repositoryPath("")` in
+    `dashboard/src/sourceLink.ts` returned `[".planning"]`, so the page offered
+    the `.planning` directory as a pinned file. The coordinator's message to
+    the developer stated the claim and added "Both are covered by the fixture".
+  - Observed effect: The independent refactor agent reasoned the contradiction
+    from code; the coordinator reproduced it against the shared reader,
+    corrected its statement in the next message, and returned the gap to the
+    implementation agent, which fixed it and added two assertions. From slice
+    4 on, delegation required every behavior claim to name its observing
+    assertion or be listed as untested; those reports carried explicit
+    untested lists and no later contradiction was found.
+  - Inference: Qualified. Accepting proof by location does not cover a
+    report's unanchored prose, and the delegation return contract asks for
+    "uncovered promises" but not for unexercised claims about added decisions.
+    One execution; the countermeasure's effect is observed, not measured.
+
+## DD-062 — A correction returned after the refactor pass was delivered without a refactor pass of its own
+
+Slice delivery runs implementation, proof acceptance, then one independent
+refactor pass. When that pass exposes contradictory proof, the change returns
+to implementation. The delivery sequence does not say whether the corrected
+change needs the refactor pass again, so the coordinator decides case by case.
+
+### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: 2026-09-20T08:33:16+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Commit `c0d0a91`. The slice 3 refactor pass returned
+    `## REFACTOR COMPLETE` and a contradiction (see DD-061). The implementation
+    agent then changed `repositoryPath` in `dashboard/src/sourceLink.ts` and
+    two fixture rows. The coordinator inspected that delta itself, recorded the
+    deviation in the plan and in its report, and spawned no second
+    `dough-post-change-refactor` agent. `references/wrap-up.md` step 1 names
+    one pass and is silent on a post-pass correction.
+  - Observed effect: No defect is attributed to the omission; the delta was one
+    guard and two test rows, and it removed a redundant check.
+  - Inference: Possibly the same mechanism as DD-060 (an out-of-sequence change
+    makes its delivery gate easy to shorten), but the trigger differs and here
+    the omission was a stated judgment, so the match is uncertain and this is
+    recorded separately.
+
+## DD-063 — A CI observer that died mid-execution stayed reported as attached until shutdown
+
+The observer is a detached process. After it dies, push registration still
+writes a coverage receipt and the host hook still reports the observer as
+attached, so lost coverage is first visible when the coordinator stops it.
+
+### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: 2026-09-20T09:40:05+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bx7k1Z`. The worker's last
+    receipt writes are all at 2026-09-20T08:40:30+08:00; `c0d0a91` stayed
+    `pending` although its GitHub run completed successfully. The data volume
+    then filled (ENOSPC stopped slice 4 and the coordinator's own shell).
+    Receipts for `e6ad710`, `53f6640`, and `1858a78` were written by
+    `register-push` only and stayed `unchecked`. Every hook invocation kept
+    adding "CI observer attached to this coordinator". `stop` returned
+    `coverage.state: lost` at the timestamp above.
+  - Observed effect: Three pushes had no CI observation while the coordinator
+    believed they did. All of them passed when checked with `gh run list`, so
+    nothing was missed this time.
+  - Inference: Qualified. The worker most likely exited when the disk filled;
+    the record shows when it stopped writing, not why. Neither `register-push`
+    nor the hook checks that the recorded worker is still running.
+
+## DD-064 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
+
+Story Branch Mode commits its claim on the integration branch and is told not
+to push it. On a shared integration checkout that leaves local `main` ahead of
+origin for the whole execution.
+
+### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: 2026-09-20T07:49:42+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Claim commit `beafc8d`. `SEED-008#publish-shared-backlog-claims`
+    records that plan 62's Trunk Mode publication stopped on it until the owner
+    pushed it; `git branch -r --contains beafc8d` now lists `origin/main`.
+    This execution's reports kept describing the claim as local only, including
+    after the interruption recovery, which verified the execution checkout but
+    not the integration branch's publication state.
+  - Observed effect: Another execution was blocked until a human intervened,
+    and the dashboard built here showed this story as Backlog priority 1 on the
+    real origin while it was being executed. Follow-up is already queued first
+    in the backlog as `SEED-008#publish-shared-backlog-claims`.
+  - Inference: Follows the current instruction rather than breaking it. The
+    stale "local only" reports are a separate, smaller gap: retained execution
+    identity is rechecked for the execution branch, not for the claim.
 
 ## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
