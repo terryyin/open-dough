@@ -7,7 +7,9 @@ entries, as connected stages.
 It reads `.planning/PRODUCT-BACKLOG.md` from `main` of the public
 `terryyin/open-dough` repository on GitHub, in the browser and without
 credentials. It resolves `main` to one commit and reads the backlog at that
-commit. No local checkout, unpushed change, or running agent is a source of
+commit. It reads once on opening and again only when **Refresh** is pressed;
+nothing is polled, and each read replaces the whole view with one revision.
+No local checkout, unpushed change, or running agent is a source of
 what it shows: Taken means recorded as taken, not that anyone is working now.
 The observed project is fixed in `src/publishedSource.ts`.
 
@@ -41,4 +43,4 @@ journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'`.
 
 GitHub allows 60 unauthenticated API requests per hour from one address; each
-load of the dashboard uses two.
+load of the dashboard, and each Refresh, uses two.

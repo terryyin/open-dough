@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { parts } from "./dashboardPage";
 import { commitAnswer, publishOrigin, rawFileAnswer } from "./githubOrigin";
 
 const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
@@ -43,7 +44,7 @@ async function openDashboard(page: Page) {
     backlog: { revision, answer: rawFileAnswer(linkedBacklog) },
   });
   await page.goto("/");
-  const stages = page.getByRole("region", { name: "Work stages" });
+  const { stages } = parts(page);
   await expect(stages.getByRole("article")).toHaveCount(11);
   return { stages, outside };
 }
@@ -223,9 +224,9 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
         name: `<img src=x onerror="document.title='title ran'">Run a script from a link`,
       }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("region", { name: "Near-future direction" }),
-    ).toContainText(`<img src=x onerror="document.title='direction ran'">`);
+    await expect(parts(page).direction).toContainText(
+      `<img src=x onerror="document.title='direction ran'">`,
+    );
     await expect(page.locator("img, script:not([src])")).toHaveCount(0);
     const anchors = await page.locator("a[href]").all();
     const schemes = await Promise.all(

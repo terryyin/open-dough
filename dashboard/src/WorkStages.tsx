@@ -1,5 +1,6 @@
 import type { PublishedWork, WorkEntry } from "./publishedWork";
 import type { SourceLink } from "./sourceLink";
+import { stagesMarks, workCardMarks, workLinkMarks } from "./workFocus";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
@@ -19,7 +20,9 @@ function RecordedLink({ role, link }: { role: string; link: SourceLink }) {
     case "snapshot":
       return (
         <li>
-          <a href={link.url}>{recorded}</a>
+          <a href={link.url} {...workLinkMarks(role)}>
+            {recorded}
+          </a>
           <p className="link-note">
             File in this snapshot, at revision {link.revision.slice(0, 7)}.
           </p>
@@ -28,7 +31,7 @@ function RecordedLink({ role, link }: { role: string; link: SourceLink }) {
     case "external":
       return (
         <li>
-          <a href={link.url} rel="noopener noreferrer">
+          <a href={link.url} rel="noopener noreferrer" {...workLinkMarks(role)}>
             {recorded}
           </a>
           <p className="link-note">
@@ -69,7 +72,11 @@ function Stage({
         <ol className="cards">
           {entries.map((entry, index) => (
             <li key={entry.identity}>
-              <article className="card" aria-label={entry.title}>
+              <article
+                className="card"
+                aria-label={entry.title}
+                {...workCardMarks(entry.identity)}
+              >
                 {prioritized && (
                   <p className="card-priority">Priority {index + 1}</p>
                 )}
@@ -93,10 +100,12 @@ function Stage({
 
 // Two recorded groups and the one relationship between them. Membership and
 // order come straight from the snapshot; nothing here sorts, infers further
-// stages, or marks work as active.
+// stages, or marks work as active. Cards are keyed by work identity so the same
+// work is one card across snapshots, and carry the marks `workFocus` defines so
+// keyboard focus can follow that work.
 export function WorkStages({ work }: { work: PublishedWork }) {
   return (
-    <section className="stages" aria-label="Work stages">
+    <section className="stages" aria-label="Work stages" {...stagesMarks}>
       <Stage name="Backlog" entries={work.backlog} prioritized />
       <div className="connector">
         <svg

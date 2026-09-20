@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
+import { expectMembership, parts } from "./dashboardPage";
 import {
   commitAnswer,
   publishOrigin,
@@ -61,7 +62,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
 
   await page.goto("/");
 
-  const stages = page.getByRole("region", { name: "Work stages" });
+  const { stages, backlog, taken, direction, source } = parts(page);
   await test.step("reading is shown before any work or count", async () => {
     await expect(page.getByRole("status")).toHaveText(
       "Reading published work…",
@@ -71,20 +72,20 @@ test("published overview shows connected Backlog and Taken work read at one revi
     releaseRef();
   });
 
-  const backlog = stages.getByRole("region", { name: "Backlog", exact: true });
-  const taken = stages.getByRole("region", { name: "Taken", exact: true });
   const connector = stages.getByText("Taking work", { exact: true });
 
   await test.step("membership and recorded order", async () => {
-    await expect(taken.getByRole("heading", { level: 3 })).toHaveText([
-      "Repair the installer's update report",
-      "See the project's published work in a story dashboard",
-    ]);
-    await expect(backlog.getByRole("heading", { level: 3 })).toHaveText([
-      "Prepare stories in a clear developer workspace workflow",
-      "Queue trunk integration for agents on the same machine",
-      "Show <em>markup</em> in a title as the text it is",
-    ]);
+    await expectMembership(page, {
+      taken: [
+        "Repair the installer's update report",
+        "See the project's published work in a story dashboard",
+      ],
+      backlog: [
+        "Prepare stories in a clear developer workspace workflow",
+        "Queue trunk integration for agents on the same machine",
+        "Show <em>markup</em> in a title as the text it is",
+      ],
+    });
     await expect(page.getByRole("status")).toHaveCount(0);
   });
 
@@ -138,16 +139,12 @@ test("published overview shows connected Backlog and Taken work read at one revi
   });
 
   await test.step("direction and source evidence sit outside the stage", async () => {
-    const direction = page.getByRole("region", {
-      name: "Near-future direction",
-    });
     await expect(direction).toContainText(
       "Give developers visibility into a project's published work.",
     );
     await expect(direction).toContainText(
       "Derive it solely from Git state published to origin.",
     );
-    const source = page.getByRole("region", { name: "Published Git state" });
     await expect(source).toContainText("terryyin/open-dough");
     await expect(source).toContainText("main");
     await expect(source).toContainText(revision);
@@ -193,21 +190,17 @@ test("published overview accepts successfully empty groups and no recorded direc
 
   await page.goto("/");
 
-  const stages = page.getByRole("region", { name: "Work stages" });
-  const backlog = stages.getByRole("region", { name: "Backlog", exact: true });
-  const taken = stages.getByRole("region", { name: "Taken", exact: true });
+  const { stages, backlog, taken, direction, source } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
   await expect(backlog).toContainText("0 entries");
   await expect(stages.getByText("Taking work", { exact: true })).toBeVisible();
   await expect(stages.getByRole("article")).toHaveCount(0);
-  await expect(
-    page.getByRole("region", { name: "Near-future direction" }),
-  ).toContainText("No near-future direction is recorded.");
-  await expect(
-    page.getByRole("region", { name: "Published Git state" }),
-  ).toContainText(revision);
+  await expect(direction).toContainText(
+    "No near-future direction is recorded.",
+  );
+  await expect(source).toContainText(revision);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
@@ -224,14 +217,12 @@ test("published overview shows a plain read problem and no invented backlog when
     "GitHub answered HTTP 403 while reading main of terryyin/open-dough.",
   );
   await expect(page.getByRole("status")).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "Work stages" })).toHaveCount(
-    0,
-  );
+  const { stages, source } = parts(page);
+  await expect(stages).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  const source = page.getByRole("region", { name: "Published Git state" });
   await expect(source).toContainText("terryyin/open-dough");
   await expect(source).not.toContainText("Revision");
 });

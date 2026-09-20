@@ -76,6 +76,34 @@ h3 {
   overflow-wrap: anywhere;
 }
 
+.refresh {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.35rem;
+  font: inherit;
+  color: var(--panel);
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.refresh[aria-disabled="true"] {
+  border-color: var(--line);
+  color: var(--quiet);
+  background: var(--surface);
+  cursor: default;
+}
+
+.notice:empty {
+  display: none;
+}
+
+.stages:focus-visible,
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .read-problem {
   border-left: 4px solid var(--problem);
   padding: 0.5rem 1rem;

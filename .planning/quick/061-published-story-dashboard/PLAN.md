@@ -1,7 +1,7 @@
 # See the project's published work in a story dashboard
 
 Status: executing since 2026-09-20; refined 2026-09-19 for connected stages
-and just-in-time UX. Slice 1 resolved without change; slices 2–3 done; slice 4 is next.
+and just-in-time UX. Slice 1 resolved without change; slices 2–4 done; slice 5 is next.
 
 ## Execution identity
 
@@ -287,8 +287,35 @@ links, regardless of later refresh features.
 
 ### 4. Refresh to one coherent published revision
 Type: Behavior
-Status: planned
+Status: done 2026-09-20
 Proof: `npm run test:dashboard -- --grep 'refresh published work'`
+
+Delivered 2026-09-20. Accepted proof: five `refresh published work` tests in
+`dashboard/tests/refresh.spec.ts` and `refresh-focus.spec.ts` (A to B as one
+result with A kept unchanged while reading, one ref request in flight, and an
+exact four-request log; B stays whole when `main` advances to C during B's file
+read; no read without Refresh, and a same-SHA refresh changes only the
+retrieval time; focus follows the same work's link into Taken; an announced
+fallback to the stage when the focused work is no longer listed). Setup is the
+raw-answer `publishMovingOrigin` stand-in in `dashboard/tests/githubOrigin.ts`.
+Whole suite 11 passed; type check and `npm run lint` exit 0. No motion was
+added. Implementation paused on an exhausted disk and resumed after space was
+freed; all proof was rerun afterwards. CI passed for slices 2 and 3
+(`d0a9495`, `c0d0a91`), including the new `dashboard` job.
+
+Learnings: `App.tsx` keeps `work` (last good snapshot) apart from `attempt`
+and `notice`. Untested today and owned by slice 5: a failed refresh keeps the
+old snapshot and shows the existing alert, but marks nothing stale, has no
+bounded wait, and Refresh after an initial failure is an unlabelled retry.
+`publishMovingOrigin` answers 404 for unknown revisions but cannot yet push an
+arbitrary raw error answer. Refresh uses `aria-disabled` so focus survives;
+pending presses in tests need the keyboard or a forced click. Focus promises go
+through `dashboard/src/workFocus.ts`, which also owns the focus marks; page
+locators live in `dashboard/tests/dashboardPage.ts`. For slice 6, reasoned from
+code and untested: the `aria-live` notice is `display: none` while empty and
+the reading `role="status"` is rendered conditionally, so assistive technology
+may not speak either; keep live regions rendered and collapse spacing another
+way.
 
 Add explicit Refresh. A successful refresh resolves `main` again, reads at that
 SHA, then replaces the old snapshot as one result, updating source links,
