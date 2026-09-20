@@ -272,6 +272,8 @@ dashboard task left claim `beafc8d` on local `main` without pushing. The owner
 pushed it, and plan 62 rebased cleanly and published. This followed the current
 instruction: `dough-execute-plan` commits claims on the integration branch in
 every mode, but tells Story Branch Mode not to push its claim separately.
+Execution evidence is recoverable at
+`cad2ab8:.planning/quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md`.
 
 **Scope:** Publish an owned claim on the resolved shared integration branch to
 its authorized remote before releasing the integration turn and beginning

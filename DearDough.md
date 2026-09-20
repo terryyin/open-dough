@@ -247,8 +247,7 @@ without any gate noticing, because nothing downstream depends on it having run.
     commit and grew to 448 through it; a refactor pass would have surfaced
     the file-size check regardless of the pre-existing violation, the same
     way it did in this issue's first occurrence. The gap was instead found
-    later by this same retrospective and queued as a correction
-    (`.planning/quick/062-split-oversized-installer-doc-and-fixture-files/PLAN.md`).
+    later by this same retrospective.
   - Inference: Qualified. A second, independent instance of the exact
     mechanism this issue already names: repair-path delivery reads as an
     interruption to recover from, making its own delivery gates easier to
