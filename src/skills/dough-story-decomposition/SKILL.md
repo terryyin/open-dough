@@ -50,11 +50,13 @@ required workspace under
 [preparation workspace](../dough-story-refinement/references/preparation-workspace.md);
 this discussion and decomposition work needs no workspace on its own. Then use
 [seed format](references/seed-format.md) to update the supplied seed or create
-a new seed in that workspace. Leave the seed there for review; this skill does
-not commit, integrate, or publish it.
+a new seed in that workspace. Leave the seed there for review by default; this
+skill commits, integrates, or publishes it only when that reference's keep
+decision authorizes it.
 
 Report the seed path, recommended first story, rejected simpler alternative,
-effort distribution, and open decisions. Close or retain the workspace per
-that reference when this session ends. After writing the seed, end with:
+effort distribution, and open decisions. Apply that reference's keep decision,
+then close or retain the workspace, when this session ends. After writing the
+seed, end with:
 
 `## STORY DECOMPOSITION WRITTEN`

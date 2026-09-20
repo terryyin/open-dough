@@ -36,9 +36,13 @@ export async function fetchAndAssertOriginMain(integration, expectedSha) {
 
 // Shared final-state proof for publish-the-candidate.md's "Publish the
 // candidate" step 6 and "Recover a rejected push" step 5: local main (the
-// integration checkout), the bare origin itself, and the execution branch
-// all agree on the same published SHA, main and origin/main have converged
-// (0/0), and the integration checkout is left clean.
+// integration checkout) and the bare origin itself agree on the same
+// published SHA, main and origin/main have converged (0/0), and the
+// integration checkout is left clean. When an execution worktree applies
+// (always for an increment), pass `execution` so its branch is checked
+// against the same SHA too; a caller with no execution checkout at all (for
+// example a preparation workspace's keep-and-publish, which never has an
+// `exec/story` branch) omits it.
 export async function assertPublicationAgreement(
   { origin, integration, execution },
   publishedSha,
@@ -46,7 +50,9 @@ export async function assertPublicationAgreement(
 ) {
   assert.equal(await revParse(integration, "main"), publishedSha);
   assert.equal(await revParse(integration, "origin/main"), publishedSha);
-  assert.equal(await revParse(execution, "exec/story"), publishedSha);
+  if (execution !== undefined) {
+    assert.equal(await revParse(execution, "exec/story"), publishedSha);
+  }
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), publishedSha);
 
   const counts = (

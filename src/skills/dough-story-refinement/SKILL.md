@@ -49,5 +49,5 @@ or reuse the required workspace under
 discussion and clarifying questions need no workspace on their own.
 
 Report the story links, material constraints and deferred promises, and
-unresolved decisions. Close or retain the workspace per that reference when
-this session ends.
+unresolved decisions. Apply that reference's keep decision, then close or
+retain the workspace, when this session ends.

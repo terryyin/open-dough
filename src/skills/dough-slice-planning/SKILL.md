@@ -152,9 +152,8 @@ triggering human or parent-agent instruction:
   progress. Prefer the project's established execution path (for example
   [dough-execute-plan](../dough-execute-plan/SKILL.md)) when that path applies.
 
-Close or retain the workspace per
-[preparation workspace](../dough-story-refinement/references/preparation-workspace.md)
-when this session ends.
+Apply [preparation workspace](../dough-story-refinement/references/preparation-workspace.md)'s
+keep decision, then close or retain the workspace, when this session ends.
 
 After the matching case above, end with:
 

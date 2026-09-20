@@ -230,7 +230,7 @@ scope. Safe stopping point: existing execution behavior unchanged.
 
 ### 3. Integrate and push a retained preparation result
 Type: Behavior
-Status: planned
+Status: done
 Proof: In an isolated preparation journey, let another writer advance origin;
 then conclude that the prepared result should be kept. Observe that only retained
 changes are committed, rebased onto current origin, integrated locally, and
@@ -238,6 +238,33 @@ pushed without another approval question. Confirm candidate identity and retaine
 intervening work; no Taken transition, implementation, or execution observer is
 started. Repeat the disposition with an explicit no-push instruction and observe
 that origin stays unchanged.
+
+Delivered: `preparation-workspace.md` now records this preparation's
+integration checkout/target during workspace selection, and replaced the
+unconditional "leave drafts isolated" rule with "Decide what happens to the
+written result" (explicit keep, explicit no-publish, or default-stays-isolated
+— silence/pause is never keep), "Validate a keep instruction before acting",
+"Keep and publish the retained result" (commit the retained record if needed,
+reuse the recorded integration checkout/target, call slice 2's
+`publish-the-candidate.md` Preconditions/Publish-the-candidate/Recover-a-
+rejected-push verbatim), and "What keep does not do" (no Taken transition, no
+implementation, no CI/execution-observer). Updated the four skills'
+disposition sentences to apply the keep decision before close/retain;
+`dough-story-decomposition/SKILL.md`'s prior unconditional "does not commit"
+claim is now conditional. Added scripted Git proof
+`preparation-workspace-keep-publish.test.mjs`, reusing
+`trunk-publication-local-main-test-fixtures.mjs` helpers (that shared file's
+`assertPublicationAgreement` gained an optional `execution` parameter during
+refactor, backward-compatible with its existing callers).
+
+Accepted proof:
+- `node --test src/skills/dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs` — 2/2 pass: keep-and-push rebases onto an advanced origin, preserves the other writer's intervening commit as the rebased candidate's parent, and converges local/origin/candidate; explicit no-push leaves origin and local integration target unchanged with the retained commit still recoverable in the owned workspace.
+- `node --test src/skills/dough-execute-plan/scripts/publish-the-candidate.test.mjs src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs` — 5/5 pass (regression check on the shared fixture helper's now-optional `execution` parameter).
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh` — pass.
+- `PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh` — pass.
+- `git diff --check` — clean.
+- Inspection: "no Taken transition, implementation, or execution observer" verified by reading "What keep does not do", which explicitly forbids all three and points to `ci-monitor.md#own-one-observer` as remaining execution's concern.
+- `dough-post-change-refactor`: confirmed no restated duplication of publish-the-candidate.md's mechanics, no stale unconditional no-publish wording left in the other three skills, no naming collision with **Taken**, deduplicated the new test's convergence assertions against the shared `assertPublicationAgreement` helper. `## REFACTOR COMPLETE`. One mechanical lint failure (two unused imports left over from that dedup) fixed directly by the coordinator before formatting.
 
 Add the keep decision and caller validation to the shared preparation lifecycle;
 call slice 2's common publication and existing explicit integration-turn protocol.
