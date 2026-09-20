@@ -1,0 +1,122 @@
+/* The connected stages: Backlog, the taking of work, and Taken. The page
+   around them, and the text styles their cards share with it, are in
+   styles.css. main.tsx loads that first, so that a rule here decides where
+   both say something equally specific, as a card's corners do under focus. */
+
+/* Backlog, the taking of work, and Taken, left to right in reading order. */
+.stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.stage {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0 1rem 1rem;
+  background: var(--panel);
+}
+
+.stage-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0 1rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 0 0.5rem;
+  background: var(--panel);
+}
+
+.cards {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* Title first, then what identifies the work, then where it is recorded. */
+.card {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 0.35rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface);
+}
+
+.card-priority {
+  font-weight: 600;
+}
+
+.card-identity {
+  margin-top: 0.15rem;
+}
+
+.card-links {
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+}
+
+.card-links a {
+  color: var(--accent);
+}
+
+.link-role {
+  font-weight: 600;
+}
+
+.connector {
+  margin-top: 3.5rem;
+  text-align: center;
+}
+
+.connector-arrow {
+  width: 100%;
+  height: 1rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.connector-label {
+  font-weight: 600;
+}
+
+/* A long stage keeps its name and count in sight while its cards scroll with
+   the page, where the window is tall enough to spare the room; focus brought
+   back up the page stops below that heading rather than under it. */
+@media (min-height: 30rem) {
+  .stage-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .card,
+  .card a {
+    scroll-margin-top: 5rem;
+  }
+}
+
+/* A narrow window, or a wide one under browser zoom: the same three parts in
+   the same order, top to bottom, with the arrow pointing down. */
+@media (max-width: 48rem) {
+  .stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .connector {
+    margin-top: 0;
+  }
+
+  .connector-arrow {
+    width: 3rem;
+    height: 3rem;
+    transform: rotate(90deg);
+  }
+}

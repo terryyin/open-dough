@@ -7,8 +7,9 @@ realized topics after checking affected stories. Accepted ADRs remain authoritat
 
 For the first dashboard, keep the existing pure backlog document, identity, and
 direction readers as the owners of those meanings. Their current import graph
-has no filesystem dependency; the published legacy plan-link spelling needs a
-bounded compatibility change there, not a second dashboard grammar. Within a
+has no filesystem dependency. A published spelling those readers refuse is a
+read problem, or a bounded compatibility change there, never a second dashboard
+grammar. Within a
 small `dashboard/` application, distinguish reading a GitHub ref and its pinned
 backlog content, projecting the shared reader's result into a typed snapshot
 with source evidence, and rendering that snapshot plus transient retrieval state.
