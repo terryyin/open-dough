@@ -141,11 +141,16 @@ complete it before dispatch. Staging/commit failure stops isolated execution:
 preserve and report backlog/index state. No-change cases produce no empty claim
 commit.
 
-Story Branch Mode creates the execution branch/worktree from that local commit
-only after success; do not push the claim separately. Trunk Mode publishes the
-claim per [trunk publication](references/trunk-publication.md#publish-a-queue-claim)
-before implementation. Later workspace-setup failure leaves the published or
-locally committed **Taken** entry for retry; do not treat that as a new claim.
+Story Branch Mode and Trunk Mode both publish that local commit per
+[trunk publication](references/trunk-publication.md#publish-a-queue-claim)
+before creating the execution branch/worktree; do not invent a second
+publication procedure for either mode. Only a confirmed published revision
+starts workspace creation, and only workspace creation precedes implementation.
+A persistent publication failure leaves the claim locally recoverable and
+unpublished per [trunk publication's preserved state](references/trunk-publication.md#preserve-remaining-state):
+it creates no execution branch/worktree and starts no implementation, pending
+manual recovery or handoff. Later workspace-setup failure leaves the published
+or locally committed **Taken** entry for retry; do not treat that as a new claim.
 
 ## Choose the execution location
 

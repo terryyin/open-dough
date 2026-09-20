@@ -18,7 +18,9 @@ claim on the resolved integration branch, publish it with the steps below, then
 create the local execution branch/worktree from the published revision. Do not
 start implementation from an unpublished claim. An unavailable destination or
 failed publication leaves the exact remaining state and does not authorize
-starting unclaimed queued work.
+starting unclaimed queued work. CI coverage for this claim, including a Story
+Branch claim's unobserved trunk target, follows
+[Own one observer](ci-monitor.md#own-one-observer).
 
 ## Publish a verified increment
 

@@ -1,6 +1,6 @@
 # Publish shared backlog claims before isolated execution
 
-Status: in progress. Slices 1-2 done; slices 3-4 remain planned. Execution
+Status: in progress. Slices 1-3 done; slice 4 remains planned. Execution
 started 2026-09-20 in Story Branch Mode on branch
 `claude/064-publish-shared-backlog-claims`.
 Work identity: SEED-008#publish-shared-backlog-claims
@@ -213,9 +213,33 @@ file-size overrun: SKILL.md 260 → 223 lines.
 
 ### 3. Publish an isolated execution's claim before work starts
 Type: Behavior
-Status: planned
+Status: done
 Proof: story examples 1, 3–4 and 6 through startup guidance review and the disposable
 claim-before-workspace walkthrough; corroborate unchanged runtime/delivery boundaries.
+Accepted proof: `SKILL.md`'s "Take queued work" now makes Story Branch and Trunk
+Mode both publish the local claim commit through the one shared
+[trunk publication](../../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-a-queue-claim)
+procedure before creating the execution branch/worktree (previously only Trunk
+Mode published before implementation); `execution-location.md` gates workspace
+creation on confirmed publication, not the local commit, for both modes;
+`ci-monitor.md` reports a Story Branch claim on trunk as `pendingCi: unobserved`
+unless matching coverage already exists, without a second observer or
+registering it with the story-branch observer, preserving Trunk Mode's existing
+claim registration untouched. Verified by: (a) a guidance-review walkthrough
+tracing examples 1, 3, 4, and 6 through the actual caller chain, confirming
+Trunk Mode's existing wording and behavior are byte-identical where reused; (b)
+a disposable manual Git walkthrough (bare origin, integration checkout,
+independent reading clone) that published a locally committed Taken entry
+through the real "Publish the candidate" steps and confirmed an independent
+clone saw the exact published revision on origin before any execution
+branch/worktree existed anywhere, then created the workspace from that
+confirmed revision; (c) rerunning
+`node --test src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs`
+(3 pass) and
+`node --test src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs`
+(1 pass), unaffected as expected for a documentation-only change. Slice 4 still
+owns extending "Resume an interrupted publication" to a claim published before
+workspace setup (story example 5); that section is untouched.
 
 Given selected queued work in Story Branch or Trunk Mode with slice 1 preflight
 satisfied, startup records only its owned claim, publishes through the common
