@@ -116,23 +116,25 @@ the visual direction does not justify advance navigation infrastructure.
 
 ### Observe coordination without owning it
 
-Workflow behavior maintains the records and coordinates integration; the
-dashboard observes the resulting evidence. A GUI must not be required for
-agents to cooperate or for the project to retain its progress.
+Keep record maintenance and integration coordination in the workflow. Let the
+dashboard observe their evidence without requiring a GUI for agent cooperation.
 
-For multiple agents on one machine, participating writers share one integration
-lock across their worktrees. Both integration and short, prepared edits in the
-default checkout use that lock. Work of uncertain duration uses an owned
-workspace so discussion or exploration does not hold up shared integration.
-The detailed quick-edit and recovery requirements remain in the requirements
-document.
+For participating writers on one machine, use one shared integration lock for
+integration and short, prepared edits in the default checkout. Exclude seed,
+story, and plan preparation from that shortcut, even for tiny corrections:
+follow the [owned-workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+Keep the execution-startup Taken transition separate from preparation.
+Use an owned workspace for other work of uncertain duration too; never hold
+the integration lock during discussion or exploration.
 
-This lock has local scope. Coordination across machines continues through Git
-publication and reconciliation. Humans and tools may bypass the local lock,
-so ownership alone cannot guarantee exclusive access. Integration must account
-for observable intervening changes, preserve others' work, and pause when safe
-continuation cannot be established. Universal exclusion of nonparticipants is
-not promised.
+Show only published evidence in the origin-only view; do not infer completion
+or loss from an unpublished draft's absence.
+
+Coordinate across machines through Git publication and reconciliation.
+Account for intervening changes even while holding the local lock: other
+writers may bypass it. Preserve others' work and pause when safe integration
+cannot be established. Use the [requirements](../project-visibility-requirements.md)
+for detailed quick-edit and recovery behavior.
 
 ### Incremental scope
 
@@ -175,10 +177,7 @@ particularly its story and slice concepts, and
 particularly whole-product understanding, continuous integration, direct domain
 mapping, and incremental learning. No exception to either is proposed.
 
-[ADR 0007 — Software development lifecycles](./0007-software-development-lifecycles.md)
-remains Proposed. Its placement of refinement and planning on `main` needs
-alignment with the workspace intentions here if those proposals advance; this
-record neither accepts nor supersedes it.
-
-Consultation, announcement, and acceptance remain human-owned under
-[ADR 0000](./0000-use-adrs-accepted.md) and the [ADR advice process](./README.md).
+Treat [ADR 0007](./0007-software-development-lifecycles.md) as a proposal;
+follow ADR 0002 while its delayed-integration conflict remains unresolved.
+Leave acceptance, supersession, and exceptions to humans under the
+[ADR advice process](./README.md).
