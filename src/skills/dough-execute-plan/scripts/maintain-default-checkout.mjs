@@ -1,7 +1,6 @@
-// Git mechanics (not guidance-following) for
-// maintain-default-checkout.md "Refresh eligibility".
+// Git mechanics for maintain-default-checkout.md "Refresh eligibility".
 // Fast-forwards only a clean checkout this caller owns and that is strictly
-// behind fetched trunk. Native agent behavior is not this module.
+// behind fetched trunk. Installed guidance is the agent's contract.
 import { existsSync } from "node:fs";
 import {
   captureCheckout,

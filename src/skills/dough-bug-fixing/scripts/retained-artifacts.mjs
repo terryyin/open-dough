@@ -1,6 +1,7 @@
 // Git mechanics for bug remaining-work retention. Removes only the caller's
 // named disposable paths, then either leaves the durable record as a local
 // draft or commits and publishes that record from the owned workspace.
+// Preparation disposition remains the publication owner.
 import { rmSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import {

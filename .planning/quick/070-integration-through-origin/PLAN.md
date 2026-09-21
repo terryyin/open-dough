@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 13 next.
+Status: in progress; slice 14 next.
 
 ## Learnings
 
@@ -209,6 +209,17 @@ observations: without keep the disposable path is gone, the backlog and unrelate
 result: pass (8/8) after refactor
 ```
 
+### Accepted proof — slice 13
+
+Promise: an ordinary update from a supported prior installation installs the migrated publication references and runtime modules into both skill layouts and preserves planted project configuration.
+
+```text
+command: PATH="/opt/homebrew/bin:$PATH" bash tests/execution-payload-update.sh; PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-update.sh; PATH="/opt/homebrew/bin:$PATH" bash tests/story-payload-assertions.sh
+boundary: ordinary candidate update and installed payload
+setup: fixtures plant a 0.1.1 install that omits the migrated modules, plus `.planning/open-dough.json`; the story case plants a colliding host file
+observations: install.sh managed_files lists the publication modules; install_declared_payload copies them; assert_installed_publication_modules imports those modules in both layouts; assert_project_configuration keeps the planted open-dough.json; edited or colliding managed files stay refused until --force; a missing story link fails assertions and passes after restore
+```
+
 ## Execution identity
 
 - Mode: Story Branch Mode
@@ -325,21 +336,23 @@ Avoid constructing a generic workflow engine merely to consolidate prose.
 
 ## Completeness inventory
 
-This is the active plan's coverage map; update it when execution discovers an
-additional affected caller. All listed journeys are part of the one outcome.
+This is the active plan's coverage map. Each journey names its current source
+owner and the proof that observes it. All listed journeys are part of the one
+outcome.
 
-| Journey / representation | Inspected source owner | Slice ownership |
+| Journey / representation | Current source owner | Proof |
 | --- | --- | --- |
-| Remote candidate, retries, and resume | execute-plan `publish-the-candidate.md`, `publication-rebase-conflict.md`, `trunk-publication.md` | 1–4 |
-| Default checkout and explicit direct edits | publication preconditions; execution/preparation location and cleanup guidance | 1, 5 |
-| Workspace selection and Taken claim | execute-plan `SKILL.md`, `execution-location.md`; product-backlog take and Git adapters | 6–7 |
-| Planned, planless, contextual, correction, and repair delivery | execute-plan `wrap-up.md`, `ci-monitor.md`, `runtime-setup.md`; bug-fixing, retrospective, test-optimization handoffs | 8 |
-| Trunk final closure and resources | story-wrap-up, execute-plan trunk closure and wrap-up observer | 9 |
-| Story Branch progress and final integration | execute-plan branch delivery; story-wrap-up merge/push and cleanup | 8, 10 |
-| Explicit current-branch and existing host-owned contexts | execution-location, direct-current-branch closure and report | 11 |
-| Decomposition/refinement/planning/plan-refinement disposition | shared preparation workspace and disposition references | 2, 4–5 |
-| Bug investigation and durable remaining-work artifacts | bug-fixing remaining-work route; exploration workspace lifecycle | 12 |
-| Authoritative source, manifests, delivered references, docs, tests, names, comments | installer/release payload declarations, tests, ADR/requirements links, public guidance | every affected slice; 13 |
+| Remote candidate, retries, and resume | `publish-the-candidate.md`, `publication-rebase-conflict.md`, `trunk-publication.md`; runtime `history-preserving-publication.mjs`, `publication-resume.mjs`, `execution-increment-publication.mjs` | P; `publication-resume.test.mjs`; `publication-resume-story-branch.test.mjs`; `preparation-publication-resume.test.mjs` |
+| Default checkout and explicit direct edits | `maintain-default-checkout.md` and `maintain-default-checkout.mjs` | `publication-checkout-maintenance.test.mjs` |
+| Workspace selection and Taken claim | `execution-location.md`, execute-plan `SKILL.md`, `workspace-publication.mjs` with its push, select, and ownership modules, and the product-backlog take adapter | W; `workspace-publication-race.test.mjs`; execution worktree preparation tests |
+| Planned, planless, contextual, correction, and repair delivery | `trunk-publication.md`, `wrap-up.md`, `ci-monitor.md`, `runtime-setup.md`; `execution-increment-publication.mjs` | `execution-increment-publication.test.mjs`; `execution-increment-delivery.test.mjs` |
+| Trunk final closure and resources | story wrap-up; `closure-publication.mjs`; `closure-resources.mjs` | C |
+| Story Branch progress and final integration | story wrap-up; `history-preserving-publication.mjs`; `closure-resources.mjs` | `closure-story-integration.test.mjs`; `closure-story-branch-cleanup.test.mjs` |
+| Explicit current-branch and existing host-owned contexts | `current-branch-publication.mjs`; `execution-location.md`; current-branch closure in `closure-publication.mjs` | `current-branch-publication.test.mjs`; `current-branch-local-operation.test.mjs`; `closure-current-branch.test.mjs` |
+| Decomposition, refinement, planning, and plan-refinement disposition | `preparation-workspace.md`; `preparation-disposition.md` | R |
+| Bug investigation and durable remaining-work artifacts | bug-fixing `SKILL.md`; `retained-artifacts.mjs`; preparation disposition; exploration workspace lifecycle | B |
+| Shared Git helpers those runtime modules load | `publication-test-fixtures.mjs` | imported with the owners above |
+| Authoritative source, manifests, delivered references, docs, tests, names, and comments | `install.sh` `managed_files`, including `finish-or-stop.md` and `oversized-slice.md` | `bash tests/execution-payload-update.sh`; `bash tests/story-payload-update.sh`; `bash tests/story-payload-assertions.sh` |
 | Native agent use and preservation | shared native harness and observable fixture state | 14 |
 
 The manual-testing exploration lifecycle and internal release-version workflow
@@ -675,7 +688,7 @@ publication behavior.
 ### 13. Receive the complete contract through an ordinary payload update
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a project with a supported prior installation, an ordinary candidate
 update delivers the coherent references and runtime dependencies required by

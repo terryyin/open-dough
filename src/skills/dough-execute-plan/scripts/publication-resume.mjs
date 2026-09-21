@@ -1,7 +1,6 @@
-// Git mechanics (not guidance-following) for
-// publish-the-candidate.md "Resume an interrupted publication".
-// One classification shared by execution and preparation proofs.
-// Native agent recovery is not this module.
+// Git mechanics for publish-the-candidate.md "Resume an interrupted publication".
+// One classification shared by execution and preparation. Installed guidance
+// is the agent's contract for recovery.
 import {
   captureCheckout,
   git,

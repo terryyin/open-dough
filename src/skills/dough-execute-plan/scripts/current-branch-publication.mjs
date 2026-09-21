@@ -1,11 +1,10 @@
-// Git mechanics (not guidance-following) for explicit current-branch work
-// and an already-supported host-owned execution. Both stay in the recorded
-// checkout: no worktree is created and the branch is not switched.
-// Codex, Cursor, and Claude already supply that checkout and, when the
-// caller has publication authority, the authorized target. This module does
-// not add a host. A local commit or local merge stays a local operation.
-// Publish authority uses publishExecutionIncrement from this checkout.
-// Native agent behavior is not this module.
+// Git mechanics for explicit current-branch work and an already-supported
+// host-owned execution. Both stay in the recorded checkout: no worktree is
+// created and the branch is not switched. Codex, Cursor, and Claude already
+// supply that checkout and, when the caller has publication authority, the
+// authorized target. Publish authority uses publishExecutionIncrement from
+// this checkout. A local commit or local merge stays a local operation.
+// Installed guidance is the agent's contract.
 import { realpathSync } from "node:fs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {

@@ -1,9 +1,8 @@
 // Git mechanics for one validated execution increment or owned repair.
 // The caller supplies the owned workspace, the owned unpublished suffix,
 // the authorized remote target, and how the accepted result is registered.
-// This pushes only that target. It does not stash, refresh the default
-// checkout, or start an observer.
-// Native agent behavior is not this module.
+// This pushes only that target. Stash, checkout refresh, and observer startup
+// stay with their own owners. Installed guidance is the agent's contract.
 import {
   git,
   lsRemoteSha,

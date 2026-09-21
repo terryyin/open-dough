@@ -1,10 +1,10 @@
-// Git mechanics (not guidance-following) for Trunk Mode wrap-up closure.
-// Each owned closure commit is published through publishExecutionIncrement,
-// or classified through resumeInterruptedPublication when it is already the
-// retained candidate. This module does not push or delete a remote execution
-// branch. Current-branch closure stays in the recorded checkout and follows
-// the caller's publication authority through deliverRecordedCheckout.
-// Native agent behavior is not this module.
+// Git mechanics for Trunk Mode wrap-up closure. Each owned closure commit
+// is published through publishExecutionIncrement, or classified through
+// resumeInterruptedPublication when it is already the retained candidate.
+// The remote execution branch stays unpublished and undeleted. Current-branch
+// closure stays in the recorded checkout and follows the caller's publication
+// authority through deliverRecordedCheckout. Installed guidance is the agent's
+// contract.
 import { existsSync } from "node:fs";
 import { deliverRecordedCheckout } from "../../dough-execute-plan/scripts/current-branch-publication.mjs";
 import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";

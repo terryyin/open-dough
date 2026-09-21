@@ -1,8 +1,7 @@
 // Git mechanics for publish-the-candidate.md "Preserve published history".
 // One owned workspace merges an already-published tip onto fetched trunk,
-// pushes that candidate SHA, and recomputes the merge once after a rejected
-// push. This is not a second publication sequence: the push is pushExactRef.
-// Native agent behavior is not this module.
+// pushes that candidate SHA through pushExactRef, and recomputes the merge
+// once after a rejected push. Installed guidance is the agent's contract.
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";

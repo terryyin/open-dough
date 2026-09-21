@@ -1,7 +1,7 @@
 // Git mechanics for publishing one Taken claim from an owned workspace.
 // Select or reuse the workspace, commit the claim there, publish that SHA,
 // then run project-command readiness when required. Implementation runs only
-// after the claim is on the remote. Native invocation order is separate.
+// after the claim is on the remote. Installed guidance is the agent's contract.
 import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {

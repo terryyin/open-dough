@@ -1,7 +1,7 @@
-// Git mechanics (not guidance-following) for execution-resource cleanup.
-// Eligible local removal is `git worktree remove` plus `git branch -d`.
-// Trunk Mode does not delete a remote execution branch. Story Branch Mode
-// deletes that remote branch only when its tip is an ancestor of remote trunk.
+// Git mechanics for execution-resource cleanup. Eligible local removal is
+// `git worktree remove` plus `git branch -d`. Trunk Mode leaves the remote
+// execution branch in place. Story Branch Mode deletes that remote branch only
+// when its tip is an ancestor of remote trunk.
 import { existsSync, realpathSync } from "node:fs";
 import {
   git,

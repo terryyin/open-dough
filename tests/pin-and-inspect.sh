@@ -83,6 +83,7 @@ pinned_commit=${commit}
 # Installer helpers inspected before a direct install (keep in sync with guide/skill).
 inspected_helpers=(
   install.sh
+  src/install/open-dough-install-payload.sh
   src/install/open-dough-release.sh
   src/install/open-dough-release-apply.sh
   src/install/open-dough-platform.sh

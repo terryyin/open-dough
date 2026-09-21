@@ -1,3 +1,4 @@
+// Shared Git helpers for the publication runtime modules and their proofs.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
