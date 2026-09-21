@@ -1,6 +1,6 @@
 # Prepare each execution worktree for project commands
 
-Status: planned; execution not started.
+Status: executing; slice 1 delivered.
 
 ## Source and outcome
 
@@ -169,7 +169,7 @@ tests/execution-payload-update.sh`, `bash scripts/test.sh`, and `git diff
 ### 1. Gate implementation on a command-usable execution checkout
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a newly selected execution checkout with an established locked
 project setup, when execution reaches the boundary before implementation
@@ -354,19 +354,84 @@ addition. It does not justify a general runner framework or separate host policy
 No other slice-specific concerns were identified. There is no supplied numeric
 slice target, hard limit, S/M/L definition, or repeated-overrun threshold, so
 none is invented. Each slice has one behavior/proof loop and a safe stopping
-point. Execution has not begun and is not authorized by this planning request.
+point. Slice 1 is delivered on `cursor/069-prepare-execution-worktree`.
+Slices 2–4 remain planned.
+
+## Accepted proof
+
+Slice 1 — fresh locked worktree is command-usable before implementation;
+failed install stops recoverably; availability is not a `node_modules`
+directory check.
+
+- Promise: setup then applicable command in the selected checkout before
+  delegation; missing/ambiguous/failed preparation stops with checkout,
+  command, and failure.
+- Boundary: `execution-location.md` setup lifecycle before implementation
+  delegation (not CI runtime, not host reuse, not non-Node).
+- Command:
+  `node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs`
+- Setup: `createLockedNodeFixture` — git origin plus sibling worktree,
+  `file:` fixture-cli unavailable before `npm ci`, CONTRIBUTING
+  locked-setup/prove, origin-marker and origin-install-marker, failing
+  `preinstall` variant. Directory-presence counterexample uses a disposable
+  dir with `node_modules`.
+- Observations:
+  - `execution-location owns project-command readiness before delegation`:
+    source-contract regexes on `SKILL.md`, `execution-location.md`, and
+    `runtime-setup.md`.
+  - `a fresh locked worktree becomes command-usable before delegation`:
+    setup then command traces with cwd=execution, then delegate;
+    `fixture-cli-ok`; execution owns `node_modules`; origin marker and both
+    lockfile digests unchanged.
+  - `failed preparation stops before delegation, proof, or CI readiness`:
+    no delegate/format/proof/ci-ready/command; report names checkout,
+    `npm ci`, and failure; traces empty.
+  - `a node_modules presence check fails the assessor`:
+    `directoryPresenceObservation` is rejected.
+- Result: pass (inspected after implementation; refactor split fixtures
+  into fixture/gate/assessor modules and reran the same command, 4/4).
+
+## Learnings
+
+Cheap slice-1 proof is three test-only concepts: locked fixture, substitute
+readiness actor, and assessor. The actor is not product runtime. Slice 4
+still owns native host journeys. Host-established reuse and wrapper-driven
+non-Node remain slices 2 and 3; slice 1 wording stays project-owned so they
+can extend it.
 
 ## Preparation and current state
 
-Owned preparation checkout:
-`/Users/terryyin/.codex/worktrees/refine-worktree-dependencies/open-dough`.
-Branch: `codex/refine-worktree-dependencies`.
-Starting revision: `56d499a8f033886dc44631ad2f3652733e0a45c1`.
-Integration checkout: `/Users/terryyin/git/open-dough`, branch `main`.
-Recorded remote target: `origin/main`.
-
-This preparation has created no execution identity, Taken claim, implementation
-branch, native acceptance run, or CI observer. Terry authorized committing and
+Planning provenance (complete; not an execution workspace):
+owned preparation checkout
+`/Users/terryyin/.codex/worktrees/refine-worktree-dependencies/open-dough`,
+branch `codex/refine-worktree-dependencies`, starting revision
+`56d499a8f033886dc44631ad2f3652733e0a45c1`. Terry authorized committing and
 publishing the retained backlog entry, refined story, and slice plan to `main`,
-then removing this preparation worktree and branch, on 2026-09-21. This
-preparation publication does not authorize implementation.
+then removing that preparation worktree and branch, on 2026-09-21.
+
+## Execution identity
+
+- Mode: Story Branch Mode (default; no `--trunk`)
+- Replanning permission: allowed (no `--no-replan`)
+- Originating / integration checkout: `/Users/terryyin/git/open-dough`
+- Integration branch: `main`
+- Authorized remote target: `origin/main` (`git@github.com:terryyin/open-dough.git`)
+- Queue claim published revision: `3543fad2167169092ac47ba5afbbeba4d0a0d40b`
+- Claim CI: `pendingCi: unobserved` (Story Branch claim published to trunk
+  before a story-branch observer exists)
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/069-prepare-execution-worktree`
+- Execution branch: `cursor/069-prepare-execution-worktree`
+- Authorized story-branch destination: `origin/cursor/069-prepare-execution-worktree`
+- Slice budget: none supplied; do not invent a numeric target, hard limit, or
+  overrun threshold
+- Focused proof for slice 1:
+  `node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs`
+- Runtime wrapper: none; run Node and Bash commands directly from the execution
+  checkout
+- Selective formatter (coordinator delivery): `npm run format`
+- Commit hook contract: absent (only sample Git hooks); check-only lint is not
+  registered
+- CI observer directory: `/tmp/dough-ci-501/watch-JBYBsB`
+  (armed from the execution checkout against
+  `terryyin/open-dough` / `cursor/069-prepare-execution-worktree`;
+  `DOUGH_CI_WORKFLOW=ci.yml`, `DOUGH_CI_WORKFLOW_NAME=CI`)
