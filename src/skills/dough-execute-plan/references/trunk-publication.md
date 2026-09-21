@@ -53,9 +53,12 @@ Apply [Preconditions](#preconditions), then run
 [publish the candidate](publish-the-candidate.md#publish-the-candidate) from
 the owned workspace. A claim may have no execution worktree yet; other
 publications retain theirs. Register an accepted SHA with any bound observer
-only after the publisher's remote confirmation. Report checkout maintenance
-separately under
-[maintain the default checkout](maintain-default-checkout.md).
+only after the publisher's remote confirmation. After that confirmation,
+attempt a refresh under
+[Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
+Report the publication acceptance and that maintenance result separately.
+A deferred or stopped refresh does not erase the accepted publication and
+does not authorize another push.
 
 ## Publish wrap-up closure
 
@@ -104,7 +107,10 @@ resources actually exist for this publication. Continue only the first
 unfinished obligation that resume names. Do not duplicate the commit, push
 an already-published candidate, or replace the execution worktree. A claim may
 have no execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
-already states for that case.
+already states for that case. After that publication obligation is
+accepted, attempt
+[Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
+The resume classification itself still only inspects the checkout.
 
 In that shared table, "Missing registration" is this project's CI
 registration: a published SHA absent from the existing observer's coverage or

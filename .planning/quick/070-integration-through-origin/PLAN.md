@@ -1,17 +1,20 @@
 # Integration through origin
 
-Status: in progress; slice 5 next.
+Status: in progress; slice 6 next.
 
 ## Learnings
 
-- Publication remote facts stay in `publish-the-candidate.md`; default-checkout
-  access, preservation, and independent maintenance outcome live in
-  `maintain-default-checkout.md`. Callers defer to both; full opportunistic
-  refresh decision remains for slice 5.
+- Publication remote facts stay in `publish-the-candidate.md`. Default-checkout
+  access, preservation, inspection, and refresh eligibility live in
+  `maintain-default-checkout.md`. Inspection during publication does not
+  fast-forward. A refresh attempt fast-forwards only a clean checkout whose
+  declared owner is the caller and whose `HEAD` is a strict ancestor of fetched
+  trunk. Proof is `publication-checkout-maintenance.test.mjs`.
 - Publication and preparation Git proof is
   `publication.test.mjs`, `publication-resume.test.mjs`,
   `publication-racing-suffix.test.mjs`,
   `publication-racing-suffix-replay.test.mjs`,
+  `publication-checkout-maintenance.test.mjs`,
   `preparation-publication.test.mjs`, and
   `preparation-publication-resume.test.mjs`. Those suites exercise Git
   mechanics, not guidance-following.
@@ -19,7 +22,8 @@ Status: in progress; slice 5 next.
   fast-forward the default checkout. `git branch -d` then treats a
   session-created branch as merged only after its upstream is the fetched
   authorized remote; a lagging default-checkout `HEAD` is not an unmerged
-  branch. Slice 5 still owns whether a clean checkout is refreshed.
+  branch. A later refresh attempt, not that publication, fast-forwards a
+  clean eligible checkout.
 - Resume classifies the retained candidate by ancestry of the SHA kept
   immediately before the push, not by the remote tip. After a rewrite that
   SHA is the rewritten one. A lost success plus a later writer's commit is
@@ -87,6 +91,19 @@ boundary: Git mechanics
 setup: fixtures; the lost-success case pushes the rewritten SHA, drops the response, then another writer advances origin
 observations: publication-resume.test.mjs asserts the later tip's parent is rewrittenSha, the pre-rebase SHA is not an ancestor, published revisions record only rewrittenSha, and a later resume push count is 0; preparation-publication-resume.test.mjs removes the worktree only after already-published, and an unconfirmed keep leaves origin at trunk
 result: pass (5/5); refactor reused this proof after moving message and worktree counters
+```
+
+### Accepted proof — slice 5
+
+Promise: an eligible clean checkout this caller owns fast-forwards to fetched trunk. A pending edit, unpublished commit, another writer, or an in-progress lock is preserved. Remote publication stays accepted when refresh is deferred. Diverged history stays stopped even when the tree is also dirty.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs
+boundary: Git mechanics
+setup: createCleanTrunkFixture; tests plant the human edit, local commit, other owner, index lock, and a second remote advance; the preservation test then plants a human edit on the already diverged checkout
+observations: eligible-clean result is "advanced" with an empty status; pending-edit and another-writer stay deferred with the checkout unchanged; dirty diverged is "stopped"/"diverged" and assertCheckoutUnchanged; the busy test accepts candidateSha while inspection is deferred, then a later handoff advances to laterSha whose parent is that candidate
+guidance walk: maintain-default-checkout.md direct-edit holds access through commit, publication, and release
+result: pass (3/3) after the refactor rerun that classifies ancestry before a pending edit
 ```
 
 ## Execution identity
@@ -249,7 +266,7 @@ The following capability-named test entry points are proposed outputs, to be
 added or formed by renaming/consolidating the affected existing suites. Keep
 one shared fixture and assessor per domain responsibility:
 
-- **P:** `node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs`
+- **P:** `node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs`
 - **W:** `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
 - **R:** `node --test src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs`
 - **C:** `node --test src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs`
@@ -365,7 +382,7 @@ stopping point: resume preserves and correctly reports each publication state.
 ### 5. Maintain the default checkout under local ownership
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a refresh or bounded direct edit, established local ownership and current
 checkout state determine safe mutation. Eligible clean checkouts fast-forward;

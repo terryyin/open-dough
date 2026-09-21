@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { promisify } from "node:util";
 
 export const exec = promisify(execFile);
@@ -13,6 +13,13 @@ export async function git(cwd, ...args) {
 
 export async function revParse(cwd, ref) {
   return (await git(cwd, "rev-parse", ref)).stdout.trim();
+}
+
+export async function indexLockPath(checkout) {
+  const printed = (
+    await git(checkout, "rev-parse", "--git-path", "index.lock")
+  ).stdout.trim();
+  return isAbsolute(printed) ? printed : join(checkout, printed);
 }
 
 export async function messageCount(repo, ref, message) {
@@ -66,9 +73,10 @@ export function assertCheckoutUnchanged(before, after) {
   assert.deepEqual(after, before);
 }
 
-// Inspection-only maintenance result for an accepted remote revision. A clean
-// checkout already at that revision is already current; any other state,
-// including a pending human edit, is deferred. This does not fast-forward.
+// Inspection-only maintenance result recorded by owned-workspace publication.
+// A clean checkout already at that revision is already current; any other
+// state, including a pending human edit, is deferred. This does not
+// fast-forward. Refresh eligibility is maintain-default-checkout.mjs.
 export function maintenanceFromInspection(checkoutState, remoteSha) {
   if (checkoutState.head === remoteSha && checkoutState.status === "") {
     return "already current";

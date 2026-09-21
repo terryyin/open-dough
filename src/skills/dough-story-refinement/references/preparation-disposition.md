@@ -101,8 +101,12 @@ Apply this sequence only after a validated explicit keep instruction.
    remote accepts the candidate, record the separate
    [maintenance outcome](../../dough-execute-plan/references/maintain-default-checkout.md#independent-maintenance-outcome)
    by that owner's inspection. Do not refresh the default checkout in this
-   sequence. An unresolved rejection stops as the publisher describes; report
-   it and do not loop.
+   sequence. After acceptance, attempt
+   [Refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility).
+   This publication does not acquire default-checkout access, so without a
+   declared owner that is this caller the attempt is deferred and does not
+   fast-forward. Report that result separately from acceptance. An unresolved
+   rejection stops as the publisher describes; report it and do not loop.
 
 After a successful push, the retained result is on the authorized remote
 target, including other writers' reconciled commits. Report that acceptance
@@ -135,9 +139,12 @@ rewritten SHA when a rewrite was retained. When that resume still has to
 publish, the previously published base is the last SHA this session recorded
 as published or, for a first keep, the workspace's recorded starting
 revision. Preparation binds no observer, so
-the "Missing registration" row does not apply. Resume does not refresh the
-default checkout and does not remove this workspace. Record the separate
-maintenance inspection. Cleanup stays in
+the "Missing registration" row does not apply. Resume classification does
+not refresh the default checkout and does not remove this workspace. Record
+the separate maintenance inspection. Once that classification has recorded
+acceptance, attempt
+[Refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility)
+as in step 3, still without acquiring default-checkout access. Cleanup stays in
 [Close or retain the workspace](preparation-workspace.md#close-or-retain-the-workspace)
 and runs only after remote acceptance.
 

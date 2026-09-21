@@ -95,8 +95,10 @@ Apply [Preconditions](#preconditions) before this sequence.
    revision was observed. Do not wait for CI. Then record the separate
    [maintenance outcome](maintain-default-checkout.md#independent-maintenance-outcome)
    by inspecting the default checkout and not refreshing it in this
-   sequence. A deferred or unfinished maintenance result is not an
-   unfinished publication.
+   sequence. A caller attempts refresh only after this sequence, under
+   [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
+   Acceptance here is independent of that attempt. A deferred or unfinished
+   maintenance result is not an unfinished publication.
 
 ## Recover a rejected push
 

@@ -14,7 +14,9 @@ current-branch work continues from that same committed revision, which is
 never published. When no claim applies, including authorized contextual
 planless work, use verified current HEAD and create no story, plan, or queue
 entry; still create the local execution workspace from that HEAD unless the caller selected the current
-branch. Resolve names and safe location from project conventions and ordinary
+branch. When that HEAD is the default checkout, verify it first under
+[Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
+Resolve names and safe location from project conventions and ordinary
 host Git facilities. Missing conventions, unsafe location, or creation failure
 stops setup; preserve and report the claim and created resources. Use no
 parallel registry, configuration format, or worktree manager.
@@ -55,7 +57,11 @@ verified increment through [trunk publication](trunk-publication.md) and
 does not push the execution branch. That rule uses
 [publish the candidate](publish-the-candidate.md) from the owned workspace.
 [Maintain the default checkout](maintain-default-checkout.md) applies when
-that checkout is mutated. Pass identity/location explicitly to agents and
+that checkout is mutated. Before using its commit as a new task base, verify
+freshness with
+[Refresh eligibility](maintain-default-checkout.md#refresh-eligibility)
+and use that commit only when the result is advanced or already current.
+Pass identity/location explicitly to agents and
 host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
