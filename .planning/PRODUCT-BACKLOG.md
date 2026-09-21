@@ -16,6 +16,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Migrate existing workflows to integration through origin](seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration) — SEED-008#migrate-git-branching-and-integration
+- [Prepare each execution worktree for project commands](seeds/SEED-008-worktree-branch-trunk-sync.md#prepare-execution-worktree) — SEED-008#prepare-execution-worktree
 - [Reduce CI observer overhead across execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#reduce-ci-observer-overhead) — SEED-008#reduce-ci-observer-overhead
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
