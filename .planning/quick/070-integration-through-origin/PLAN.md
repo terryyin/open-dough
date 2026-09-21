@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 10 next.
+Status: in progress; slice 11 next.
 
 ## Learnings
 
@@ -171,6 +171,18 @@ boundary: Git mechanics
 setup: fixtures build a bare origin, an execution worktree, and a checkout-bound observer; the happy path plants refs/heads/exec/story before closure
 observations: both closure receipts are on refs/heads/main and that remote execution ref is unchanged; refresh is deferred/pending-edit or stopped/unexpected-branch without moving the accepted SHA; cleanup waits for observer.stop() then removes the local worktree and branch; retry is already-absent with the same remote commit count; preservation reasons are active checkout-bound observer, another workspace, dirty checkout, and unique unpublished work; resume publishes once then stops the observer before removal, and an already-published closure has pushCount 0
 result: pass (6/6) after the refactor split
+```
+
+### Accepted proof — slice 10
+
+Promise: Story Branch closure publishes a history-preserving candidate from the owned workspace onto remote trunk. A racing trunk advance keeps both published histories. The integration checkout's unrelated commit and human edit stay unpublished. Retry does not merge or push again. The remote execution branch is deleted only after its tip is on trunk.
+
+```text
+command: bash tests/closure-publication.sh
+boundary: Git mechanics
+setup: fixtures build a bare origin; the racing case advances trunk and plants an unrelated commit plus a human edit on the integration checkout; cleanup supplies remoteExecutionBranch only for Story Branch
+observations: racing receipt is refs/heads/main, not the closure SHA or the superseded merge; closure, sibling backlog, and racing.txt are on trunk; unrelated.txt and human-edit files are absent; integration checkout is unchanged; retry is already-accepted with pushCount 0; eligible cleanup removes local worktree, local branch, and refs/heads/exec/story; a tip not on trunk stays with reason remote execution tip is not integrated
+result: pass (10/10) after the refactor split; backlog merge tests skipped as unchanged
 ```
 
 ## Execution identity
@@ -572,7 +584,7 @@ Trunk Mode completes or resumes closure truthfully.
 ### 10. Integrate a published Story Branch closure through remote trunk
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a published story and an authorized integration boundary, prepare a
 validated candidate in an owned workspace that preserves published history and

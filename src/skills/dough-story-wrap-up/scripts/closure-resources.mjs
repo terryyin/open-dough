@@ -1,8 +1,12 @@
-// Git mechanics (not guidance-following) for Trunk Mode execution-resource
-// cleanup. Eligible removal is `git worktree remove` plus `git branch -d`
-// only. This module does not delete a remote execution branch.
+// Git mechanics (not guidance-following) for execution-resource cleanup.
+// Eligible local removal is `git worktree remove` plus `git branch -d`.
+// Trunk Mode does not delete a remote execution branch. Story Branch Mode
+// deletes that remote branch only when its tip is an ancestor of remote trunk.
 import { existsSync, realpathSync } from "node:fs";
-import { git } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import {
+  git,
+  lsRemoteSha,
+} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 
 export const trunkTarget = "refs/heads/main";
 
@@ -79,6 +83,18 @@ function cleaned(worktree, branch) {
   };
 }
 
+function unverifiedRemoval(reason, execution, branch, worktree, branchResult) {
+  return {
+    removed: false,
+    partial: true,
+    worktree,
+    branch: branchResult,
+    reason,
+    path: execution,
+    branchName: branch,
+  };
+}
+
 function hostsThisWorktree(observer, execution) {
   if (!observer?.bound || observer.stopped) {
     return false;
@@ -121,6 +137,7 @@ export async function removeExecutionResources({
   observer,
   sessionOwned,
   closureShas,
+  remoteBranch,
 }) {
   if (hostsThisWorktree(observer, execution)) {
     return preserved("active checkout-bound observer", execution, branch);
@@ -145,9 +162,31 @@ export async function removeExecutionResources({
     }
   }
   await git(integration, "fetch", "origin");
+  const remoteExecutionBranch =
+    typeof remoteBranch === "string" && remoteBranch !== "" ? remoteBranch : "";
+  const originUrl = remoteExecutionBranch
+    ? (await git(integration, "remote", "get-url", "origin")).stdout.trim()
+    : "";
+  const remoteRef = remoteExecutionBranch
+    ? `refs/heads/${remoteExecutionBranch}`
+    : "";
+  const remoteTip = remoteExecutionBranch
+    ? await lsRemoteSha(originUrl, remoteRef)
+    : "";
+  if (
+    remoteExecutionBranch &&
+    remoteTip &&
+    !(await isAncestor(integration, remoteTip, "origin/main"))
+  ) {
+    return preserved(
+      "remote execution tip is not integrated",
+      execution,
+      branch,
+    );
+  }
   const shas = Array.isArray(closureShas) ? closureShas : [];
   const published =
-    shas.length === 2 &&
+    (remoteExecutionBranch ? shas.length >= 1 : shas.length === 2) &&
     shas.every((sha) => isNonEmpty(sha)) &&
     (await everyAncestor(integration, shas, "origin/main"));
   const branchRef = `refs/heads/${branch}`;
@@ -163,32 +202,42 @@ export async function removeExecutionResources({
   if (listed) {
     await git(integration, "worktree", "remove", execution);
     if (await findWorktree(integration, execution)) {
-      return {
-        removed: false,
-        partial: true,
-        worktree: "preserved",
-        branch: "preserved",
-        reason: "worktree removal was not verified",
-        path: execution,
-        branchName: branch,
-      };
+      return unverifiedRemoval(
+        "worktree removal was not verified",
+        execution,
+        branch,
+        "preserved",
+        "preserved",
+      );
     }
   }
-  if (!branchPresent) {
-    return cleaned(listed ? "removed" : "already-absent", "already-absent");
+  if (branchPresent) {
+    await git(integration, "branch", "--set-upstream-to=origin/main", branch);
+    await git(integration, "branch", "-d", branch);
+    if (await refExists(integration, branchRef)) {
+      return unverifiedRemoval(
+        "local branch removal was not verified",
+        execution,
+        branch,
+        listed ? "removed" : "already-absent",
+        "preserved",
+      );
+    }
   }
-  await git(integration, "branch", "--set-upstream-to=origin/main", branch);
-  await git(integration, "branch", "-d", branch);
-  if (await refExists(integration, branchRef)) {
-    return {
-      removed: false,
-      partial: true,
-      worktree: listed ? "removed" : "already-absent",
-      branch: "preserved",
-      reason: "local branch removal was not verified",
-      path: execution,
-      branchName: branch,
-    };
+  if (remoteExecutionBranch && remoteTip) {
+    await git(integration, "push", "origin", "--delete", remoteExecutionBranch);
+    if (await lsRemoteSha(originUrl, remoteRef)) {
+      return unverifiedRemoval(
+        "remote branch removal was not verified",
+        execution,
+        branch,
+        listed ? "removed" : "already-absent",
+        branchPresent ? "removed" : "already-absent",
+      );
+    }
   }
-  return cleaned(listed ? "removed" : "already-absent", "removed");
+  return cleaned(
+    listed ? "removed" : "already-absent",
+    branchPresent ? "removed" : "already-absent",
+  );
 }

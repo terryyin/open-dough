@@ -190,35 +190,24 @@ then continues with resource cleanup below. Story Branch Mode continues with int
 
 ## Integrate committed Story Branch Mode closure
 
-Save the committed final-closure tip and integrate it into the recorded target
-from its checkout using the retained identity and this project's local merge
-conventions. Preserve unrelated target work; unresolved identity or unsafe integration
-leaves execution resources intact with the blocker reported. Do not rebase or wait for CI.
+Save the committed final-closure tip. It is already published on the remote
+execution branch. Publish it from the owned execution workspace through
+[Preserve published history](../dough-execute-plan/references/publish-the-candidate.md#preserve-published-history).
+The integration checkout's unrelated commits and pending human edit stay out of
+the published trunk commit.
 
-When the final-closure tip is not already integrated (below), perform this merge through the integration
-checkout's installed product backlog merge adapter, not a raw `git merge`, whenever it touches the product
-backlog (often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../dough-product-backlog/references/merge-conflicts.md)
-from the integration checkout's installed guidance for how to resolve and run it. A `conflict`/`refused`/`refused-before-commit`/`blocked` result leaves the unmerged backlog path exactly as
-Git left it. Resolve it following that reference, `git add` it, then run the adapter's own `continue` for
-this same merge — never a raw `git merge --continue`/manual commit — and complete its staged-result
-verification before the merge is committed; selected-work cleanup and final-tip ancestry alone do not prove
-sibling backlog changes survived. If neither the adapter nor that reference is available, leave the backlog
-conflict unresolved and report the missing guidance. Resolve other conflicts from both sides' intended
-behavior, surrounding code, history, and available work context. Verify with appropriate checks and
-complete the merge. When evidence cannot justify a coherent resolution, stop and preserve the conflict for
-a human decision; report the incompatible intentions or missing decision, conflicted paths, and Git state.
+When the merge touches the product backlog, use the owned workspace's installed
+merge adapter as that procedure requires. A stopped result stays as Git left
+it. Resolve it through
+[a real conflict](../dough-product-backlog/references/merge-conflicts.md#a-real-conflict-resolve-by-hand-then-continue-through-the-same-adapter).
+If the adapter and that reference are unavailable, report the gap and leave the
+conflict. Stop when no coherent resolution is justified. Selected-work cleanup
+alone does not prove a sibling backlog change survived.
 
-Integration requires the saved final-closure tip to be an ancestor of the recorded
-target containing the committed closure. Recognize an integrated tip without merging
-again. Unresolved integration preserves the execution branch and worktree and blocks
-completion.
-
-When the recorded target is `main`, push the integrated target to `origin` with
-`git push origin main` from the target checkout after verifying integration. This
-also applies to an already-integrated tip on retry. Require a successful push before
-resource cleanup or claiming completion. If the push fails, retain the execution
-resources and report the push failure separately from successful local integration;
-do not force-push.
+Require that procedure's accepted receipt before resource cleanup. The receipt
+is the accepted candidate SHA and the remote trunk ref. A superseded candidate
+is not the receipt. Unresolved integration preserves the execution resources
+and blocks completion. Do not force-push.
 
 ## Remove execution resources safely
 
@@ -241,8 +230,8 @@ happened, Trunk Mode published closure SHAs and remaining CI coverage, assimilat
 knowledge, deleted paths, Story Branch saved tip and integration/push results when
 the target is `main`, worktree and branch cleanup results (remote deletion only when
 verified absent), preserved material and resources, and any gap. Distinguish a new
-merge from an already-integrated tip, integration from refused cleanup, local
-integration from a successful `origin` push, and completed wrap-up from a refusal
+merge from an already-integrated tip, integration from refused cleanup, an
+accepted trunk receipt from a superseded candidate, and completed wrap-up from a refusal
 that left files intact.
 
 End successful closure with `## STORY WRAP-UP COMPLETE`. Missing context, unfinished

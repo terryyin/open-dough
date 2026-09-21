@@ -45,6 +45,23 @@ Those checks do not gate a remote push from a separate owned workspace. A
 maintenance stop does not register a publication the remote has not accepted,
 and does not undo one it has.
 
+## Preserve published history
+
+The sequence below rebases an unpublished suffix. A caller integrating an
+already-published tip supplies that tip instead of a suffix. In the owned
+workspace, merge it onto the fetched authorized target. Fast-forward when
+that tip already contains the fetched target; otherwise create a merge
+commit so both published histories remain. Do not rebase those published
+commits. When the merge touches the product backlog, run
+`product-backlog-git-merge.mjs merge --ref <published-tip> --cwd <owned-workspace>`
+rather than a raw `git merge`, following
+[reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md).
+Push, confirmation, and the receipt stay the candidate SHA and its target.
+A rejected push recomputes this merge once onto the newly fetched target
+and pushes once. A superseded candidate is not the receipt. Resume treats
+an ancestor of the fetched target as already accepted and does not merge
+or push again.
+
 ## Publish the candidate
 
 Apply [Preconditions](#preconditions) before this sequence.
@@ -58,7 +75,9 @@ Apply [Preconditions](#preconditions) before this sequence.
    caller cannot name a unique suffix, stop under
    [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
    instead of guessing which commit to publish.
-3. When the fetched authorized remote target is still the previously published
+3. An unpublished suffix follows this step. An already-published tip follows
+   [Preserve published history](#preserve-published-history) instead of this
+   rebase. When the fetched authorized remote target is still the previously published
    base, or that target ref does not exist yet, leave the suffix unchanged.
    When that target advanced, rebase only that suffix onto the fetched target
    in the owned workspace. The range is commits after the previously published
@@ -125,8 +144,10 @@ retry one ordinary push:
 2. In the owned workspace, replay the same owned-suffix range as
    [candidate step 3](#publish-the-candidate), using the base retained in
    step 5 as the cutoff: only commits after that base, onto that fetched target.
-   When the suffix touches the product backlog, that is the adapter
-   invocation, not a raw `git rebase`. Do not rebase from the rejected
+   A history-preserving merge recomputes that merge onto the fetched target
+   instead of rebasing, through the merge adapter when the backlog is touched.
+   When an unpublished suffix touches the product backlog, that replay is the
+   rebase adapter, not a raw `git rebase`. Do not rebase from the rejected
    candidate, and do not rebase the default checkout unless it is the owned
    branch. Either mistake can drop the suffix or rewrite another writer's
    commits. A conflict, refusal, or disputed adapter result stops here.
