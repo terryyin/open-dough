@@ -7,6 +7,8 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/release-fixture.bash"
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/publication-update-proof.bash"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -33,6 +35,7 @@ tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 for platform in codex cursor claude; do
   target="${temporary_dir}/${platform}"
   prepare_target "${target}"
+  write_project_configuration "${target}"
   bash "${older}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null
   # A new managed reference must not overwrite an unrelated pre-existing file.
   collision="${target}/.claude/skills/dough-story-refinement/references/planning.md"
@@ -62,6 +65,7 @@ for platform in codex cursor claude; do
         fi
       done < "${temporary_dir}/links"
     done
+    assert_installed_publication_modules "${target}/${root}"
   done
   # Successful operations traverse the same physical roots for every entry hint,
   # so one representative owns the shared payload-protection matrix.
@@ -92,6 +96,7 @@ for platform in codex cursor claude; do
     done
   fi
   assert_sentinels "${target}"
+  assert_project_configuration "${target}"
 done
 
-echo 'PASS: all entry contexts upgrade older payloads with story dependencies; their shared roots refuse edited or missing references without writes and restore them by explicit force.'
+echo 'PASS: all entry contexts upgrade older payloads with story dependencies; both installed layouts load closure and publication modules; their shared roots refuse edited or missing references without writes and restore them by explicit force; project configuration stays in place.'

@@ -765,33 +765,6 @@ explicit contract in the focused CI runtime suite.
     check does not name checking for such tests, so the omission is
     consistent with an unnamed check rather than a skipped one.
 
-## ODF-006 — Oversized context reads obscure narrow execution inputs
-
-Former local code: DD-006.
-
-Bundling large skill references and planning documents into one output exceeded
-output limits during a small guidance change, obscuring requested context and
-prompting further reads. This concerns input selection, not a reason to omit
-required review or proof.
-
-### Occurrences
-
-- Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: This execution conversation's combined read of SEED-010 and
-    `dough-execute-plan/references/{delegation,execution-decisions,wrap-up,ci-monitor}.md`
-    returned truncated output. The next combined reconciliation/triage/context
-    read was also truncated; execution-decisions was subsequently loaded again.
-    Bundled document reads in this retrospective repeated the truncation.
-  - Observed effect: Requested guidance was not fully visible in those outputs,
-    and additional context reads were performed for the same single-slice work.
-  -     Inference: Load required references once, then select sections for concrete
-    unresolved questions and size outputs to fit. This should reduce avoidable
-    rereading while preserving required context; net time and token cost were
-    not measured. No decisive match to an existing local issue was found.
-
 ## ODF-052 — Cursor mailbox probe did not attach CI_MONITOR_READY
 
 Former local code: DD-047.
@@ -993,5 +966,5 @@ command text the agent is told to run, not via the launching shell's `PATH`.
 ## Retention
 
 - Highest allocated local number: 89
-- Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`
+- Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

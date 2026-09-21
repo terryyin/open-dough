@@ -19,12 +19,12 @@ default-checkout freshness, and CI coverage each retain their own evidence.
 | Checkout freshness | The observed local relationship to fetched trunk and any deferred refresh. |
 | CI coverage | Observation of a specific published revision on a particular target, owned by the existing observer. |
 
-[Migrate existing workflows to integration through origin](seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
-owns applying this contract to implemented callers, recovery, guidance, and proof.
-Use one publication sequence with caller-specific authority and destinations.
-Preserve preparation disposition, story-branch publication ownership, and CI
-attribution in existing plans or conversation context. Report a coverage gap
-when the configured observer covers a different target from a published claim.
+Publication, default-checkout maintenance, claim-before-implementation, and
+mode destinations are established in the installed execute-plan publication and
+checkout-maintenance guidance. Preserve preparation disposition, story-branch
+publication ownership, and CI attribution in active plans or conversation
+context. Report a coverage gap when the configured observer covers a different
+target from a published claim.
 
 [Default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
 owns automated access and interruption recovery for that workspace. Each trunk

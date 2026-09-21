@@ -5,6 +5,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
+source "${source_dir}/tests/helpers/publication-update-proof.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
@@ -32,6 +33,7 @@ fixture_source=$(cd -- "${fixture}" && pwd -P)
 install_older_verified() {
   local target=$1
   prepare_target "${target}"
+  write_project_configuration "${target}"
   bash "${older}/install.sh" --target "${target}" --source "${fixture}" > /dev/null
   for root in .agents/skills .claude/skills; do
     contents=$(cat "${target}/${root}/dough-update/VERSION")
@@ -44,6 +46,7 @@ install_older_verified() {
 
 assert_upgraded_execution_payload() {
   local target=$1
+  local root canonical_root
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-execution
     # Exercise the installed runtime entrypoint in the platform layout.
@@ -53,9 +56,33 @@ assert_upgraded_execution_payload() {
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
+    assert_installed_contract_links "${target}/${root}" \
+      dough-execute-plan/SKILL.md \
+      dough-execute-plan/references/execution-decisions.md \
+      dough-bug-fixing/SKILL.md
+    assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
   assert_sentinels "${target}"
+  assert_project_configuration "${target}"
+}
+
+assert_installed_contract_links() {
+  local root=$1
+  local file link
+  shift
+  for file in "$@"; do
+    sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${root}/${file}" > "${temporary_dir}/links"
+    while IFS= read -r link; do
+      link=${link%%#*}
+      [[ -n "${link}" ]] || continue
+      [[ "${link}" == http:* || "${link}" == https:* ]] && continue
+      if [[ ! -f "${root}/${file%/*}/${link}" ]]; then
+        printf 'FAIL: missing installed dependency: %s -> %s\n' "${file}" "${link}" >&2
+        exit 1
+      fi
+    done < "${temporary_dir}/links"
+  done
 }
 
 # Ordinary no-URL update from remembered SOURCE: no registered hooks → register.
@@ -168,6 +195,7 @@ assert_update_refuses_host_hook_conflict() {
     [[ "${contents}" == '0.1.1' ]]
     [[ ! -e "${target}/${root}/dough-execute-plan" ]]
   done
+  assert_project_configuration "${target}"
 }
 
 conflict_target="${temporary_dir}/conflict project"
@@ -176,4 +204,4 @@ seed_edited_managed_timeout "${conflict_target}" "${newer}"
 assert_update_refuses_host_hook_conflict "${conflict_target}"
 assert_update_refuses_host_hook_conflict "${conflict_target}" --force
 
-echo 'PASS: execution payload upgrades both roots from remembered SOURCE, runs relocated entrypoints, protects runtime collisions/edits, restores by force, registers or adopts managed hooks without disturbing unrelated settings, and refuses host-hook conflicts before replacement.'
+echo 'PASS: execution payload upgrades both roots from remembered SOURCE, installs publication references and runtime modules, runs relocated entrypoints, protects runtime collisions/edits, restores by force, registers or adopts managed hooks without disturbing unrelated settings, preserves project configuration, and refuses host-hook conflicts before replacement.'

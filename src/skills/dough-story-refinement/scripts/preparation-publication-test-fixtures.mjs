@@ -1,17 +1,34 @@
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   exec,
   git,
-  lsRemoteSha,
   revParse,
-} from "../../dough-execute-plan/scripts/trunk-publication-local-main-test-fixtures.mjs";
+  worktreeCount,
+} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 
-// Shared by preparation-workspace-keep-publish.test.mjs (Slice 3) and
-// preparation-keep-publish-resume.test.mjs (Slice 5): both prove behavior
-// against the same preparation workspace shape, so the shape is built here
-// once rather than duplicated per test file.
+export { worktreeCount };
+
+// Reads one file from the bare origin by cloning it. The clone is removed
+// before the text is returned.
+export async function cloneFile(origin, file) {
+  const dir = (await exec("mktemp", ["-d"])).stdout.trim();
+  await exec("git", ["clone", origin, dir]);
+  const text = readFileSync(join(dir, file), "utf8");
+  rmSync(dir, { recursive: true, force: true });
+  return text;
+}
+
+// Shared preparation-workspace fixture for the preparation publication tests.
+// Git mechanics only: an integration checkout plus a separately branched
+// preparation worktree holding one retained-record commit.
 
 // Builds a disposable repository modeling preparation's own case: a bare
 // origin at trunkSha, an "integration" checkout (this preparation's recorded
@@ -73,15 +90,11 @@ export async function createPreparationFixture(tmpPrefix) {
   };
 }
 
-// Slice 6's own literal encoding of "Close or retain the workspace"'s
-// composed rule -- the real Git mechanics [own a temporary exploration
-// workspace] "Close or retain it" already specifies (`git worktree remove`,
-// then safe branch deletion), gated on the confirmed-disposition and
-// session-created-vs-reused facts the prose says are recorded out-of-band by
-// "Select or reuse the workspace" and the disposition steps, not derived by
-// scanning file content. Shared by preparation-workspace-close-or-retain.test.mjs
-// and preparation-workspace-unconfirmed-disposition.test.mjs, which prove the
-// confirmed-cleanup and never-without-confirmation halves of the same rule.
+// Git mechanics for "Close or retain the workspace": `git worktree remove`,
+// then safe branch deletion. Safe deletion follows the fetched authorized
+// remote, because the default checkout may still lag after publication.
+// The confirmed-disposition and session-created facts are supplied by the
+// caller, not derived by scanning file content.
 export async function closeOrRetainWorkspace({
   integration,
   preparation,
@@ -116,25 +129,34 @@ export async function closeOrRetainWorkspace({
     };
   }
   await git(integration, "worktree", "remove", preparation);
+  // Safe deletion follows the fetched authorized remote, not the default
+  // checkout's HEAD. `git branch -d` treats a branch as merged when that tip
+  // is in its upstream, so point the upstream at origin/main first. Do not
+  // force-delete a branch the remote does not contain.
+  await git(integration, "fetch", "origin");
+  try {
+    await git(
+      integration,
+      "merge-base",
+      "--is-ancestor",
+      preparationBranch,
+      "origin/main",
+    );
+  } catch {
+    return {
+      removed: false,
+      path: preparation,
+      branch: preparationBranch,
+      reason:
+        "worktree removed but branch is not contained in the fetched authorized remote target",
+    };
+  }
+  await git(
+    integration,
+    "branch",
+    "--set-upstream-to=origin/main",
+    preparationBranch,
+  );
   await git(integration, "branch", "-d", preparationBranch);
   return { removed: true, path: preparation, branch: preparationBranch };
-}
-
-// Simulates "let another writer advance origin": a disjoint commit pushed
-// from a third, unrelated checkout. Each caller's own comment at its call
-// site says what that timing means for its own scenario (a proactive
-// pre-push rebase for Slice 3, or an interruption-window advance for
-// Slice 5's resume proof).
-export async function advanceOriginFromAnotherWriter(origin) {
-  const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
-  await exec("git", ["clone", origin, thirdCheckout]);
-  await git(thirdCheckout, "config", "user.name", "Another Writer");
-  await git(thirdCheckout, "config", "user.email", "another@example.test");
-  writeFileSync(join(thirdCheckout, "other-writer.txt"), "their work\n");
-  await git(thirdCheckout, "add", "other-writer.txt");
-  await git(thirdCheckout, "commit", "-m", "another writer's own increment");
-  await git(thirdCheckout, "push", "origin", "main");
-  const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
-  rmSync(thirdCheckout, { recursive: true, force: true });
-  return disjointSha;
 }

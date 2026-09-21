@@ -74,10 +74,9 @@ Published queue changes and Taken claims use that workflow's remote destination;
 default-checkout freshness is maintained separately.
 
 **Depends on:** Existing executable-plan, execution, and product-backlog
-contracts supply the two handoff destinations. The
-[Git migration story](SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
-owns their shared publication behavior; this story owns continuation and queue
-placement at the optimization handoff.
+contracts supply the two handoff destinations. Installed execute-plan
+publication guidance owns their shared publication behavior; this story owns
+continuation and queue placement at the optimization handoff.
 
 **Safe stopping point:** Every created optimization plan is either being
 executed or is recoverable as explicitly prioritized product work; existing
