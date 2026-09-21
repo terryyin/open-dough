@@ -124,6 +124,63 @@ test("documented Codex host binding reports bounded unavailability from one fail
   assert.equal(notifications[0].reason.length, 1000);
 });
 
+test("documented Codex host binding reports lost observation, not finished, when the stream ends without a terminal result", async () => {
+  const key = "ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR";
+  const mailbox = "/tmp/observer/watch-2";
+  const receipt = `CI_OBSERVER ${JSON.stringify({ directory: mailbox, pid: 11 })}\n`;
+  const failure = `${JSON.stringify({ sequence: 1, event: { type: "CI_FAILURE", runId: 41 } })}\n`;
+  const launches = [];
+  const notifications = [];
+  const texts = [];
+  const stores = [];
+  let writes = 0;
+
+  const result = await runDocumentedCodexHostBinding({
+    load: () => undefined,
+    store: (storedKey, value) => stores.push([storedKey, value]),
+    text: (value) => texts.push(value),
+    notify: (event) => notifications.push(event),
+    yield_control: async () => {},
+    tools: {
+      exec_command: async (request) => {
+        launches.push(request);
+        return { output: receipt, session_id: "sess-2" };
+      },
+      write_stdin: async (request) => {
+        writes += 1;
+        assert.equal(request.session_id, "sess-2");
+        if (writes === 1) return { output: failure, session_id: "sess-2" };
+        // The stream ends here (real process exit, host disconnect, or
+        // truncated capture) with no CI_OBSERVER_RESULT line ever parsed.
+        return { output: "", session_id: undefined };
+      },
+    },
+  });
+
+  assert.deepEqual(result, { completed: true });
+  assert.equal(launches.length, 1);
+  assert.equal(writes, 2);
+  assert.equal(texts.length, 1);
+  assert.equal(texts[0].status, "watching");
+  assert.equal(texts[0].directory, mailbox);
+  assert.equal(texts[0].pid, 11);
+
+  // The prior failure was still delivered; loss does not swallow it.
+  assert.deepEqual(notifications[0], { type: "CI_FAILURE", runId: 41 });
+  assert.equal(notifications.length, 2);
+  assert.equal(notifications[1].type, "CI_MONITOR_UNAVAILABLE");
+  assert.equal(notifications[1].key, key);
+  assert.match(notifications[1].reason, /terminal/);
+
+  assert.equal(stores.length, 1);
+  assert.equal(stores[0][0], key);
+  assert.equal(stores[0][1].status, "lost");
+  assert.equal(stores[0][1].sessionId, undefined);
+  assert.equal(stores[0][1].directory, mailbox);
+  assert.equal(stores[0][1].pid, 11);
+  assert.equal(stores[0][1].terminal, undefined);
+});
+
 test("documented Codex host binding does not relaunch a finished observer", async () => {
   let launches = 0;
   const result = await runDocumentedCodexHostBinding({

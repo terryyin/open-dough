@@ -1,6 +1,6 @@
 # Keep registered CI revisions truthfully observed
 
-Status: in execution; Story Branch Mode; slice 1 delivered, slice 2 next.
+Status: in execution; Story Branch Mode; slices 1–2 delivered, slice 3 next.
 
 ## Source and outcome
 
@@ -203,7 +203,27 @@ remain explicitly unfinished.
 ### 2. Report a Codex stream ending without terminal evidence as lost observation
 
 Type: Behavior
-Status: planned
+Status: delivered
+
+Delivered 2026-09-21. `references/ci-notify-codex.md`'s documented launch cell now
+stores `status: 'lost'` and sends `CI_MONITOR_UNAVAILABLE` when the stream ends
+without ever parsing a `CI_OBSERVER_RESULT` line, instead of defaulting to
+`'finished'`. A real parsed terminal result keeps its previous meaning
+(`stopped`/`finished`); the existing thrown-error path is unchanged. Proof
+exercises both a synthetic-chunk cell evaluation and a real disposable process
+exit (via the existing `completingFixture` lifecycle fixture bridged into the
+documented cell), so a real OS exit — not only synthetic input — drives the
+classification. Post-change refactor extracted the new real-process test and
+its `bridgeCodexStream` helper into new `ci-codex-observation-loss-lifecycle.test.mjs`
+(mirroring slice 1's `*-worker-loss-lifecycle.test.mjs` split precedent) to keep
+`ci-codex-lifecycle.test.mjs` under the project's 250-line limit; that file is
+otherwise unchanged from before this slice.
+
+Focused command:
+`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex-stop.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-observation-loss-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs`
+Result: pass, 12/12 (independently rerun by the coordinator both before and
+after refactor). Broader confirmation also rerun:
+`bash tests/execution-ci-runtime.sh` (116/116). `git diff --check` clean.
 
 Behavior: Given an established Codex observer stream, when the host observes its
 exit without matching terminal evidence, the coordinator receives an unavailable
@@ -223,8 +243,8 @@ Exercise a disposable stream process exit through the existing lifecycle fixture
 so synthetic chunks alone are not the sole exit proof. Preserve independent
 observers and nonblocking local shutdown behavior.
 
-Focused command:
-`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex-stop.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs`
+Focused command (post-refactor file set; extends the same real boundaries):
+`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex-stop.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-observation-loss-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs`
 
 Sizing: one stream-end classification and proof loop; medium confidence. Reuse
 the existing documented-cell evaluator instead of rewriting the binding in tests.
@@ -321,6 +341,31 @@ No numeric target, hard limit, S/M/L definition or repeated-overrun threshold wa
 supplied; none is invented. No sizing exceptions or story resplit recommendation.
 No completed slices were replaced. Execution has not begun and is not authorized
 by this planning request. Do not treat this assessment as proof of behavior.
+
+## CI repair disposition: slice 1's delivered SHA
+
+`8a7c770` (slice 1's delivered commit) reported `CI_FAILURE` on the `test` job,
+step `scripts/check-self-installation.sh`, both on first discovery (run
+35563951915 attempt 1) and on one targeted rerun (attempt 2) — same step, no
+stdout from the script itself beyond "Running scripts/check-self-installation.sh"
+before `Process completed with exit code 1`, meaning none of that script's own
+explicit error messages (missing tag, materialize failure, record disagreement,
+managed-payload mismatch) fired.
+
+Disposition: CI infrastructure/environment, not a defect in this delivery.
+Evidence: (1) `check-self-installation.sh` only compares each installed managed
+copy (`.claude/skills`, `.agents/skills`) against the `v0.3.27` git-tagged
+archive; slice 1 touched neither those installed copies nor `install.sh`. (2)
+The exact failing commit, checked out fresh (both a plain local clone and a
+matched `ubuntu:24.04` Docker container reproducing the runner's git 2.43,
+mawk 1.3.4, GNU tar 1.35), passes this check cleanly. (3) The actual CI
+checkout log confirms `v0.3.27` and all other tags were fetched normally. (4)
+The immediately preceding CI run on the unchanged parent commit (`a81a305`)
+passed the identical check. (5) The plan's own existing evidence (ODF-065)
+already names ENOSPC as a suspected cause of this CI environment's flakiness;
+zero-output abrupt termination here is consistent with a resource-related kill
+rather than a normal assertion failure. No repair action taken; this is not a
+defect this story's slices address. Continuing execution.
 
 ## Preparation and current state
 
