@@ -164,7 +164,7 @@ medium confidence, with existing single-source assumptions enumerated above.
 ### 2. Prepare the local authenticated read boundary
 
 Type: Structure
-Status: planned
+Status: done
 
 Structure: Add the bounded local `gh` acquisition and same middleware registration
 for dev/preview, isolated from browser imports. This directly enables slice 3;
@@ -312,9 +312,53 @@ Proof: `npm run test:dashboard -- --grep 'project selection'` (2/2),
 (30/30), `npm run lint` (clean) — all rerun and inspected by the coordinator
 after refactor, not merely reported.
 
-Actual private GitHub access is proven only by the planning read above. The
-local middleware and its dev/preview/test composition still require slices 2–3
-proof. Keep successful execution evidence and consequential learnings here;
+Slice 2 delivered 2026-09-21 on the same branch. Added a Node-only local
+authenticated read boundary, mounted as a Vite plugin (`privateReadPlugin` in
+`dashboard/server/privateRead.ts`, orchestrating `localOrigin.ts`'s loopback/
+Host/Origin refusal and `ghRead.ts`'s two pinned `gh api` calls) at
+`GET /__private-read?source=<catalogId>`, registered identically for dev and
+preview in `dashboard/vite.config.mts`. Responds only `{revision, backlog}` or
+a generic `{error}`, always `Cache-Control: no-store`; refuses before any `gh`
+call for a non-loopback/cross-origin/non-GET/unknown-source request. Pygardon
+is still absent from the browser-visible catalog — slice 3 only needs to add
+its `PublishedSource` entry and a same-origin fetch to this endpoint; no
+further server change should be required.
+
+Two defects were found and fixed during coordinator verification before
+delivery, both worth remembering for later slices in this project:
+1. The plugin originally returned its subprocess-cleanup function from
+   `configureServer`/`configurePreviewServer`. In this project's installed
+   Vite (8.3.0), that return value is a "post hook" called once at startup,
+   never at close — confirmed by reading Vite's compiled source, not just its
+   `.d.ts` comments. Fixed by wiring cleanup through the dedicated
+   `closeServer`/`closePreviewServer` plugin hooks instead. An end-to-end test
+   that also destroys the client connection cannot isolate this: Vite's own
+   graceful `server.close()` already destroys open sockets, which
+   independently triggers the (separately proven) request-disconnect path
+   regardless of whether the close-hook wiring works. Proving this specific
+   wiring needed a lower-level test that constructs the plugin directly and
+   calls only its `closeServer` hook, with no client disconnect and no real
+   Vite server involved (`dashboard/tests/private-read-subprocess-lifecycle.spec.ts`).
+2. A test that calls `npm run build:dashboard` (or otherwise runs `vite
+   build`) during the suite must never write to the default `dashboard/dist`:
+   `dashboard/playwright.config.ts`'s shared `webServer` builds and serves that
+   same directory via `vite preview` for every other spec file for the whole
+   run (`fullyParallel: true`), so a concurrent rebuild races it and causes
+   nondeterministic failures in unrelated tests, not the one that ran the
+   build. Fixed by building/serving the preview-mode boundary test into its
+   own per-run `--outDir` (`dashboard/tests/support/privateReadServer.ts`'s
+   `buildDashboardTo`). A single green full-suite run does not prove such a
+   race is absent; this needed repeated runs to surface and to confirm fixed.
+
+Proof: `npx playwright test ... private-read-boundary.spec.ts
+private-read-subprocess-lifecycle.spec.ts` (11/11), `npm run typecheck:dashboard`
+(clean), `npm run test:dashboard` full suite run three times in a row (41/41
+each time), `npm run lint` (clean) — all independently rerun by the
+coordinator, including reproducing defect 1 by temporarily reverting the fix
+and confirming the isolating test fails without it.
+
+Actual private GitHub access is proven only by the planning read above.
+Keep successful execution evidence and consequential learnings here;
 operational agent/CI state belongs in the execution conversation. Keep this
 plan through retrospective and story wrap-up.
 

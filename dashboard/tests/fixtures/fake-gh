@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+"use strict";
+
+// A synthetic `gh` this suite puts first on PATH for one isolated,
+// non-shared private-read-boundary server (see ../support/privateReadServer).
+// It never touches the network or real credentials: every answer comes from
+// a small JSON control file the test writes before each request, so the
+// test controls exactly what the production middleware's two `gh api` calls
+// receive back, and can hold one call open to prove cancellation.
+//
+// Every invocation is also appended, argv and all, to a log file the test
+// reads afterward -- including invocations that end up hanging or failing --
+// so refusal-before-launch and pinned-argument assertions have something to
+// inspect.
+
+const fs = require("fs");
+
+const args = process.argv.slice(2);
+const logPath = process.env.FAKE_GH_LOG;
+const controlPath = process.env.FAKE_GH_CONTROL;
+const pidPath = process.env.FAKE_GH_PIDFILE;
+
+if (logPath) {
+  fs.appendFileSync(logPath, `${JSON.stringify(args)}\n`);
+}
+if (pidPath) {
+  fs.writeFileSync(pidPath, String(process.pid));
+}
+
+function readControl() {
+  if (!controlPath) {
+    return { mode: "normal" };
+  }
+  try {
+    return JSON.parse(fs.readFileSync(controlPath, "utf8"));
+  } catch {
+    return { mode: "normal" };
+  }
+}
+
+const control = readControl();
+const joinedArgs = args.join(" ");
+const kind = /\/commits\//.test(joinedArgs)
+  ? "ref"
+  : /\/contents\//.test(joinedArgs)
+    ? "content"
+    : "unknown";
+
+if (control.mode === "hang") {
+  process.on("SIGTERM", () => {
+    if (pidPath) {
+      fs.writeFileSync(`${pidPath}.exited`, "SIGTERM");
+    }
+    process.exit(0);
+  });
+  process.on("SIGINT", () => {
+    if (pidPath) {
+      fs.writeFileSync(`${pidPath}.exited`, "SIGINT");
+    }
+    process.exit(0);
+  });
+  // Keep the event loop alive without ever answering, until a signal above
+  // (or the test's own bound) ends this process.
+  setInterval(() => {}, 60_000);
+  return;
+}
+
+if (control.mode === "error") {
+  process.stderr.write(control.errorMessage || "gh: synthetic failure\n");
+  process.exitCode = 1;
+} else if (kind === "ref") {
+  process.stdout.write(`${control.revision || "0".repeat(40)}\n`);
+} else if (kind === "content") {
+  process.stdout.write(control.backlog || "");
+} else {
+  process.stderr.write("fake gh: unrecognized invocation\n");
+  process.exitCode = 1;
+}
