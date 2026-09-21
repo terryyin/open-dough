@@ -114,39 +114,68 @@ per-story documents, partial wrap-up, and early termination remain excluded.
 
 **Identity:** SEED-004#require-current-proof-before-live-transitions
 
-**Status:** Queued; unrefined.
+**Status:** Refined and planned 2026-09-21; remains queued, execution not started.
 
-**For / why:** A developer whose agent changes a live installation can rely on
-its named regression evidence being current before each dependent transition,
-including when another execution has changed the implementation since a prior pass.
+**Plan:** [Current proof before live transitions](../quick/067-current-proof-before-live-transitions/PLAN.md).
 
-**Scope:** Preserve the active plan's required proof at the live-transition
-boundary. Reuse evidence when its implementation and relevant conditions still
-match; obtain the missing observation when they changed. Live inspect/curl checks
-cover their own operational observations. If required regression proof is missing,
-failed, or unavailable, stop the dependent transition and report the exact gap.
-Keep project-specific commands and CI exclusions project-owned; introduce no
-mandatory full-suite rerun or approval for unrelated work.
+**Goal:** A developer whose agent changes a live installation can rely on the
+active plan's required regression evidence applying to the actual candidate and
+relevant conditions before the dependent action, including after concurrent work.
 
-**Evaluation:** A representative live-transition plan names a regression command
-that passes, then a concurrent change invalidates it before a later transition.
-The agent discovers the stale proof and runs the applicable command before that
-transition, exposing a failure even when CI excludes the test. A matching retained
-pass can be reused; a failed or unavailable obligation leaves the dependent live
-transition unperformed and clearly reported. Evaluate this in disposable state.
+**Why now:** Two recorded executions omitted or reused invalidated named proof.
+Parallel trunk work makes an earlier pass vulnerable to another execution's
+relevant changes. This bounded reliability response is not a dashboard prerequisite;
+its priority does not justify building general deployment or evidence machinery.
+The existing proof-reuse rule is appropriate; the missing application is the live
+action boundary, including actions performed within a delegated slice.
+
+**Scope:** Planned live changes with already-established proof obligations.
+A live transition changes an installation, such as a restart, configuration change,
+upgrade, migration, or updater enrollment; read-only checks alone do not qualify.
+Reuse matching evidence; obtain missing observations when implementation, candidate,
+tests, dependencies, configuration, or relevant conditions invalidate the pass.
+Unknown correspondence requires proof or stopping the dependent action. A different
+commit alone does not invalidate unchanged covered behavior. Operational checks
+prove their own observations and cannot replace regression prerequisites.
+
+Missing, failed, or unavailable required proof leaves only the dependent action
+stopped, with the exact gap reported. Preserve existing action authority and
+project-owned commands/CI exclusions. Resolve stale-test versus product failures
+through existing diagnosis; do not dismiss an obligation because CI is green.
+Post-transition observations keep their proper timing. No atomic deployment
+coordination guarantee is promised.
+
+**Key examples:**
+
+- Named regression never ran, operational check passes → live action reached →
+  run the named command first; failure/unavailability leaves the action unperformed.
+  A subsequent valid pass permits the already-authorized action.
+- Regression passed for candidate A, concurrent integration changes relevant
+  behavior in B → later live action on B → reassess and run the applicable test,
+  exposing failure even if CI excludes it; leave the action stopped.
+- Only documentation changed and covered implementation/setup still match →
+  later live action → reuse the retained pass without a redundant suite run.
+- A pass belongs to another candidate/checkout without demonstrated correspondence
+  → action reached → establish applicable proof or report the gap and stop it.
+
+**Deferred promises:** Discovering obligations for planless changes; full-suite
+reruns by default; new approvals, deployment locks, rollback, evidence databases,
+CI-observer repair, and dashboard work. These are delivery exclusions, not rejection
+rules for naturally supported behavior. No production exercise is needed for proof.
 
 **Supporting finding:** [ODF-080](../../docs/maintainer/finding-names.md#odf-080--live-transitions-proceed-without-current-named-regression-proof).
-Execution evidence and qualified impact remain in the catalog.
+The record does not establish that omitted proof caused the reported outage.
 
-**Completion:** Demonstrate the outcomes above and update ODF-080 with the actual
-response, implementation commit, recoverable story locator, and first containing
-release (or explicitly pending release). Do not mark effectiveness proven merely
-because guidance shipped.
+**Completion:** Demonstrate the examples in disposable state through representative
+behavior review, preserving the distinction between walkthrough, native proof, and
+field effectiveness. Record the actual response, implementation commit, recoverable
+story locator, and first containing release or explicitly pending release in ODF-080.
+Shipping guidance alone does not establish effectiveness.
 
-**Depends on:** None. Existing proof-ownership and execution boundaries suffice.
+**Depends on:** None; reuse existing proof ownership and execution boundaries.
 
-**Safe stopping point:** The dependent live action has current proof or remains
-stopped with recoverable work; other authorized work can continue.
+**Safe stopping point:** The dependent action has applicable proof or remains
+stopped with recoverable work; unrelated authorized work can continue.
 
 <a id="keep-ci-observation-truthful"></a>
 
