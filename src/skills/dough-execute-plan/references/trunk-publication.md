@@ -91,9 +91,9 @@ state and report it.
 ## Resolve a publication rebase conflict
 
 Follow [publication rebase conflict](publication-rebase-conflict.md) for backlog
-adapter routing, fallback domain knowledge for the owned-branch `--onto`
-rebase, ordinary conflict resolution, and the required stop when identity or
-product intent remains unresolved.
+adapter routing of the owned-suffix rebase, ordinary conflict resolution, and
+the required stop when identity or product intent remains unresolved. Fallback
+domain knowledge applies only when that adapter is unavailable.
 
 ## Resume an interrupted publication
 

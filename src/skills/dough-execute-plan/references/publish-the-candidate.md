@@ -58,21 +58,30 @@ Apply [Preconditions](#preconditions) before this sequence.
    [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
    instead of guessing which commit to publish.
 3. When fetched trunk is still the previously published base, leave the suffix
-   unchanged. When trunk advanced, rebase only that suffix onto it in the
-   owned workspace, following
-   [publication rebase conflicts](publication-rebase-conflict.md)
-   whenever the rebase touches the product backlog. After a rewrite, the
-   pre-rebase SHA is not the candidate. A rebase conflict uses that same
-   reference before continuing Git. Do not rebase the default checkout's
-   branch unless it is the owned branch.
+   unchanged. When trunk advanced, rebase only that suffix onto fetched trunk
+   in the owned workspace. The range is commits after the previously published
+   base on the owned branch:
+   `git -C <owned-workspace> rebase --onto <fetched-remote-trunk> <previously-published-base> <owned-branch>`.
+   When that replay touches the product backlog, run the same range through
+   the installed rebase adapter instead of that raw `git rebase`:
+   `product-backlog-git-rebase.mjs rebase --onto <fetched-remote-trunk> --ref <previously-published-base> --branch <owned-branch> --cwd <owned-workspace>`,
+   following
+   [publication rebase conflicts](publication-rebase-conflict.md). After a
+   rewrite, the pre-rebase SHA is not the candidate. A conflict, refusal, or
+   disputed adapter result stops before the push and preserves the state Git
+   left. Do not rebase the default checkout's branch unless it is the owned
+   branch.
 4. Validate the candidate using the check the caller supplied for this
    suffix. An unchanged base does not invalidate accepted proof. A rebase
    onto newer trunk invalidates only proof the combined changes affect;
    reverify that behavior and reuse the rest. Do not treat rebase success
    as behavioral proof, rerun unrelated checks, or wait for CI.
-5. Immediately before pushing, retain the full candidate SHA and the
-   previously published base. Push that exact candidate from the owned
-   workspace:
+5. Immediately before pushing, retain the full candidate SHA and the base
+   the owned suffix extends. When this candidate has not been rewritten,
+   that base is the previously published base. When step 3 replayed the
+   suffix, that base is the fetched trunk it was replayed onto, not the
+   older revision and not the candidate tip. Push that exact candidate
+   from the owned workspace:
    `git -C <owned-workspace> push <remote> <candidate>:<target-branch>`.
    Do not fast-forward the default checkout, force-push, or move that
    checkout's branch with `merge`, `update-ref`, or `branch -f`.
@@ -92,7 +101,12 @@ Apply [Preconditions](#preconditions) before this sequence.
 ## Recover a rejected push
 
 A non-fast-forward rejection leaves the owned suffix unpublished. Retain the
-rejected candidate SHA and previously published base. Recheck
+rejected candidate SHA and the base that suffix extends, the base retained
+in step 5. After a rewrite, that base is the fetched trunk the suffix was
+replayed onto. Do not use the rejected tip as the cutoff: that range is
+empty and drops the suffix. Do not use an older published revision the
+rewritten suffix no longer extends directly: that range includes another
+writer's commits. Recheck
 [Preconditions](#preconditions). If the owned workspace is the default
 checkout, recheck
 [default-checkout access and preservation](maintain-default-checkout.md)
@@ -101,23 +115,28 @@ that checkout. When the applicable checks hold, reconcile only the suffix and
 retry one ordinary push:
 
 1. Fetch the authorized remote. Current trunk is the fetched remote target.
-2. In the owned workspace, replay only commits after the previously published
-   base onto that fetched trunk:
-   `git -C <owned-workspace> rebase --onto <fetched-remote-trunk> <previously-published-base> <owned-branch>`.
-   Do not rebase from the rejected candidate, and do not rebase the default
-   checkout unless it is the owned branch. Either mistake can drop the suffix
-   or rewrite another writer's commits.
+2. In the owned workspace, replay the same owned-suffix range as
+   [candidate step 3](#publish-the-candidate), using the base retained in
+   step 5 as the cutoff: only commits after that base, onto fetched trunk.
+   When the suffix touches the product backlog, that is the adapter
+   invocation, not a raw `git rebase`. Do not rebase from the rejected
+   candidate, and do not rebase the default checkout unless it is the owned
+   branch. Either mistake can drop the suffix or rewrite another writer's
+   commits. A conflict, refusal, or disputed adapter result stops here.
+   Preserve the refs, worktree, and index Git left, report that result, and
+   do not push.
 3. The rewritten owned-branch tip is the candidate. The rejected SHA is not.
-   Do not move the default checkout onto it. A conflict uses
-   [publication rebase conflicts](publication-rebase-conflict.md).
+   Do not move the default checkout onto it.
 4. Revalidate as in candidate step 4. The rebase invalidates only proof the
-   combined changes affect.
+   combined changes affect. A failed recheck stops before the retry push and
+   preserves the rewritten candidate.
 5. Push the rewritten candidate once, as in candidate step 5. After confirmed
    remote acceptance, record that SHA and the separate maintenance outcome as
    in candidate step 6.
 
-A second rejection or other persistent failure stops. Preserve remaining
-state and report it. Do not loop.
+A second rejection or other persistent failure stops. Preserve the rewritten
+candidate and the remote as they are. Report the persistent contention. Do
+not rebase or push again.
 
 ## Resume an interrupted publication
 

@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 3 next.
+Status: in progress; slice 4 next.
 
 ## Learnings
 
@@ -8,14 +8,24 @@ Status: in progress; slice 3 next.
   access, preservation, and independent maintenance outcome live in
   `maintain-default-checkout.md`. Callers defer to both; full opportunistic
   refresh decision remains for slice 5.
-- Publication and preparation Git proof is now
-  `publication.test.mjs` and `preparation-publication.test.mjs`. Those
-  suites exercise Git mechanics, not guidance-following.
+- Publication and preparation Git proof is
+  `publication.test.mjs`, `publication-racing-suffix.test.mjs`,
+  `publication-racing-suffix-replay.test.mjs`, and
+  `preparation-publication.test.mjs`. Those suites exercise Git mechanics,
+  not guidance-following.
 - Owned-workspace publication pushes the candidate SHA and does not
   fast-forward the default checkout. `git branch -d` then treats a
   session-created branch as merged only after its upstream is the fetched
   authorized remote; a lagging default-checkout `HEAD` is not an unmerged
   branch. Slice 5 still owns whether a clean checkout is refreshed.
+- An owned-suffix replay is
+  `rebase --onto <fetched-trunk> --ref <base-the-suffix-extends> --branch <owned-branch>`
+  through the backlog rebase adapter when the suffix touches the backlog.
+  After a rewrite, that base is the trunk just replayed onto, not the older
+  published revision and not the candidate tip. `--pre-rebase-tip` and
+  `--destination-at-start` name aggregate endpoints only. One replay and one
+  retry push follow the initial rejection; a conflict during that replay, or
+  a second rejection, stops with the Git state left in place.
 
 ### Accepted proof — slice 1
 
@@ -42,6 +52,18 @@ setup: fixtures create the remotes and workspaces; tests plant the human edit an
 observations: publication.test.mjs pending-human-edit test asserts remote candidate SHA, parent trunk, unchanged checkout HEAD/bytes, deferred maintenance, and an origin tree without unrelated.txt or human-* files; preparation-publication.test.mjs keep test asserts seed-draft.md content on a second clone, the other writer as parent, unchanged checkout, and worktree removal only after confirmed publication
 guidance walk: preparation-disposition.md step 3 and publish-the-candidate.md step 5; decomposition, refinement, slice planning, and plan refinement share that disposition
 result: pass (11/11)
+```
+
+### Accepted proof — slice 3
+
+Promise: a rejected push replays only the owned suffix once, rechecks the combined backlog, and pushes once. A conflicting backlog change or a second rejection keeps that Git state and does not try again.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs tests/support/product-backlog-git-rebase-onto.test.mjs tests/support/product-backlog-git-rebase.test.mjs tests/support/product-backlog-git-rebase-clean.test.mjs tests/support/product-backlog-git-rebase-clean-accepted.test.mjs tests/support/product-backlog-git-rebase-sequence.test.mjs
+boundary: Git mechanics
+setup: fixtures; a second clone advances origin before the rejected push, and again before a second rejection
+observations: publication-racing-suffix.test.mjs asserts parent is the other writer's commit, the log range is only "verified increment", the affected backlog check sees sibling B and owned D, and the checkout is unchanged; the conflict test leaves exec/story on the rejected candidate; the second-rejection test does not absorb the later remote commit; publication-racing-suffix-replay.test.mjs uses the trunk just replayed onto as the next cutoff; product-backlog-git-rebase-onto.test.mjs replays only the owned suffix
+result: pass (4/4 racing cases after the split; adapter suite reused, 21/21 before the split)
 ```
 
 ## Execution identity
@@ -204,7 +226,7 @@ The following capability-named test entry points are proposed outputs, to be
 added or formed by renaming/consolidating the affected existing suites. Keep
 one shared fixture and assessor per domain responsibility:
 
-- **P:** `node --test src/skills/dough-execute-plan/scripts/publication.test.mjs`
+- **P:** `node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs`
 - **W:** `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
 - **R:** `node --test src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs`
 - **C:** `node --test src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs`
@@ -275,7 +297,7 @@ migrations stay explicitly unfinished in this plan.
 ### 3. Reconcile a racing remote update in the owned workspace
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a validated unpublished candidate, when another writer advances the target
 before push, the publication owner fetches, reconciles only the owned change,
