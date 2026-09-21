@@ -175,7 +175,7 @@ implementation/refactor return, and exact observer identity. Preserve unrelated 
 owned work. Reuse proof only while promise, boundary, implementation, setup, and observations match.
 
 Resume at the first delivery obligation not established by evidence. An incomplete
-or oversized return still needs [oversized-slice handling](references/execution-decisions.md#refine-an-oversized-slice)
+or oversized return still needs [oversized-slice handling](references/oversized-slice.md)
 before proof acceptance. Otherwise implementation returns still need proof
 acceptance/refactoring; completed refactors need remaining delivery;
 uncommitted plan edits need staging/commit. Classify an interrupted claim or
@@ -201,9 +201,9 @@ Missing/contradictory execution identity requires the recovery decision above.
 3. When planned refinement is needed and learning escalation permits, invoke
    [slice-plan refinement](../dough-slice-plan-refinement/SKILL.md) in place, then restart
    at step 1, unless replanning is disabled; then apply
-   [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice)
+   [oversized-slice decisions](references/oversized-slice.md)
    and stop without retry. If quick work no longer fits one coherent slice, apply
-   [oversized-slice decisions](references/execution-decisions.md#refine-an-oversized-slice).
+   [oversized-slice decisions](references/oversized-slice.md).
    A no-replan return stops without planning or retry. When replanning is allowed, use
    [ordinary slice planning](../dough-slice-planning/SKILL.md) for remaining work,
    and restart as planned execution. Before

@@ -1,6 +1,7 @@
 # Require current regression proof before live transitions
 
-Status: in execution; Trunk Mode; slice 1 delivered, slice 2 remaining.
+Status: both slices delivered (Trunk Mode); ODF-080 response recorded; no
+release/version bump made. Retained for retrospective and story wrap-up.
 
 ## Source and outcome
 
@@ -181,7 +182,7 @@ repaired), an always-passing `operational_check.sh`, a dumb `live_command.sh`
 ### 2. Reassess an earlier pass against the actual live candidate
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given retained passing proof, when a later planned live action is reached,
 the agent reuses that pass only when it still applies to the actual candidate and
@@ -201,6 +202,51 @@ and setup remain identical: observe justified reuse and the authorized action,
 without a redundant regression run. A pass for A presented while B will be acted
 on must not be accepted without correspondence. Missing correspondence has the
 same obtain-or-stop outcome; no new uncertainty-specific machinery is required.
+
+Delivered: extended the same `execution-decisions.md` section (no new heading)
+to require a retained pass to still correspond to the actual candidate and
+conditions, citing [own executable proof](../../../src/skills/dough-story-refinement/references/planning.md#own-executable-proof)
+for what "matching" means rather than redefining currency; a relevant change
+requires reassessment, an irrelevant one (e.g. documentation-only) does not; a
+retained-pass mismatch is folded into the existing obtain-or-stop failure path
+rather than a second decision. `delegation.md` needed no further edit — its
+Slice 1 bullet already links to the extended section by anchor. Updated
+`docs/maintainer/finding-names.md`'s ODF-080 entry with Status/Response/
+Released-in fields (source commit `e9829bc6088567742fefd2a726f6bbe7da9bc039`
+for slice 1; this slice's own commit recorded below) and reconciled its
+pre-existing, now-stale `queued, not resolved` Follow-up marker to point at
+that Status/Response block instead of contradicting it.
+
+Post-change refactor for this slice: `execution-decisions.md` crossed the
+250-line file-size threshold (268 lines) as a direct result of this slice's
+own addition (it was exactly 250 before). Split its self-contained, unrelated
+"Refine an oversized slice" section verbatim into a new file,
+`src/skills/dough-execute-plan/references/oversized-slice.md` (68 lines),
+leaving a pointer in its place, and updated the 4 external callers of that
+anchor (`dough-bug-fixing/SKILL.md`, `dough-execute-plan/SKILL.md` ×3) to the
+new file — link-only changes, no behavior change, per the file-size check's
+own "update imports, keep the public API stable" instruction.
+`docs/maintainer/finding-names.md` (2417 lines, pre-existing bulk, ~1% growth
+from this slice) was assessed and deliberately left unsplit: an append-only
+historical maintainer log not materially aggravated by this change; flagged
+for a separate maintainer-track decision rather than acted on here.
+
+Accepted proof (maintainer walkthrough, disposable fixture under `/tmp/`,
+deleted after use — not a native/field run): `regression.sh` compares a
+`logic.txt` fixture against a promised contract line; `operational_check.sh`
+and `ci_visible_subset.sh` always pass; `live_command.sh` is a dumb append,
+no gating logic of its own.
+- Candidate A: `regression.sh` passed (exit 0); pass retained.
+- Candidate B (relevant change to `logic.txt`): `regression.sh` failed
+  (exit 1) even though `operational_check.sh` and `ci_visible_subset.sh` both
+  still passed (exit 0); live action withheld, `action.log` unchanged; gap
+  reported naming the mismatch with candidate A's retained pass.
+- Documentation-only variant of candidate A (irrelevant change, `logic.txt`
+  byte-identical, confirmed via `diff`): `regression.sh` was NOT rerun;
+  candidate A's retained pass was cited instead; live action performed,
+  `action.log` gained one new entry.
+- `git diff --check`: exit 0, no output (checked by the implementer, the
+  refactor pass, and the coordinator).
 
 Sizing: one proof-applicability decision with positive/negative boundary examples;
 medium confidence. Reuse slice 1's disposable setup and action log. Safe stopping

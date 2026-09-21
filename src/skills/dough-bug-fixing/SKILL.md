@@ -142,7 +142,7 @@ a checkout.
 Do not repeat execute-plan preservation, rollback, or retry. Link the
 execution-preserved evidence already written under this project's
 executable-plan root (see [refine an oversized
-slice](../dough-execute-plan/references/execution-decisions.md#refine-an-oversized-slice)
+slice](../dough-execute-plan/references/oversized-slice.md)
 and [resolve execution
 context](../dough-slice-planning/SKILL.md#resolve-execution-context)). Carry the
 gathered expectation, actual behavior, remaining uncertainty, and acceptance

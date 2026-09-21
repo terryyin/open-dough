@@ -2017,6 +2017,27 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-071
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Two distinct executions: plans 150 and 160. Plan 160 reports v0.3.27; preserve that supplied release without inferring when adoption occurred. The approximately eleven-minute outage accompanied the live exercise; the record does not establish that the omitted test caused it. This is not a pre-change benchmark/baseline omission.
 
+- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Response:** `src/skills/dough-execute-plan/references/execution-decisions.md`'s
+  "Require current regression proof before a live action" section gates an
+  authorized live action on an accepted current observation of the plan's
+  named regression prerequisite, and now also requires that observation to
+  still correspond to the actual candidate and conditions being acted on —
+  a relevant change requires reassessment, an irrelevant one does not — citing
+  [own executable proof](../../src/skills/dough-story-refinement/references/planning.md#own-executable-proof)
+  for what "current"/matching evidence means rather than a timestamp or
+  whole-repository SHA identity. `src/skills/dough-execute-plan/references/delegation.md`
+  carries that same condition to the delegated actor at action time. Source
+  commit `e9829bc6088567742fefd2a726f6bbe7da9bc039` on `main` (Slice 1,
+  establishing the missing-proof gate); Slice 2 (candidate-correspondence
+  reassessment and this response record) pending its own delivery commit.
+  Story and plan recoverable at
+  `.planning/quick/067-current-proof-before-live-transitions/PLAN.md`,
+  identity `SEED-004#require-current-proof-before-live-transitions`.
+  Shipping this guidance does not itself prove it prevents recurrence.
+- **Released in:** Pending — no release/version bump has been made for this
+  guidance yet.
+
 ### Occurrences
 
 - Execution: `.planning/quick/150-installation-configuration-home/PLAN.md` (first implementation commit `f2e8af823`)
@@ -2069,7 +2090,7 @@ consult both lists when matching findings or allocating identities.
     someone runs it by hand).
 
 
-- **Follow-up:** [SEED-004#require-current-proof-before-live-transitions](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions), **queued, not resolved**. Selected by the authorized 2026-09-21 runbook maintenance cycle.
+- **Follow-up:** [SEED-004#require-current-proof-before-live-transitions](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions), **addressed in source, not yet released** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
 
 ## ODF-081 — Wrong-checkout edits are captured by another execution
 
