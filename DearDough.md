@@ -773,7 +773,7 @@ mailbox reports `unread: 1` at stop with no error.
     the event was never delivered because no native-session tool output
     ever contained that mailbox's receipt line. The correct design, already
     used by this same plan's earlier Slice 4 evidence
-    (`evidence/cursor-claude-compatibility/README.md`), has the *native
+    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`), has the *native
     session's own prompt* run the readiness probe and the `start` command,
     so the receipt appears in its own `Shell` tool output at the exact hook
     invocation that establishes ownership.
@@ -817,7 +817,8 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     fixture stand-in) while `TOKEN=env-inherit-check-xyz` printed correctly;
     a follow-up `echo PATH=$PATH` inside the same kind of session showed a
     fixed system `PATH` unrelated to the launching shell's. The plan's own
-    prior Slice 4 evidence (`evidence/cursor-claude-compatibility/README.md`)
+    prior Slice 4 evidence
+    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`)
     already worked around this by putting the `PATH=...` prefix inline on
     the observer `start` command text itself, but did not record that this
     was necessary because outer `PATH` does not propagate while other
