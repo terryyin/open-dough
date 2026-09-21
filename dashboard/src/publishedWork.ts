@@ -10,7 +10,8 @@ import {
   takenHeading,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readBacklogAt, resolveRevision } from "./githubSource";
-import { publishedSource, type PublishedSource } from "./publishedSource";
+import type { PublishedSource } from "./publishedSource";
+import { readPrivateSnapshot } from "./privateRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 
@@ -57,6 +58,7 @@ export function shortRevision(revision: string): string {
 function interpret(
   markdown: string,
   revision: string,
+  source: PublishedSource,
 ): Pick<PublishedWork, "direction" | "taken" | "backlog"> {
   let document: unknown;
   let direction: unknown;
@@ -85,9 +87,9 @@ function interpret(
       .map(({ identity, title, href, plan }) => ({
         identity,
         title,
-        canonical: resolveSourceLink(href, publishedSource, revision),
+        canonical: resolveSourceLink(href, source, revision),
         ...(plan && {
-          plan: resolveSourceLink(plan.target, publishedSource, revision),
+          plan: resolveSourceLink(plan.target, source, revision),
         }),
       }));
   return {
@@ -102,7 +104,26 @@ function interpret(
 // nothing retries for them.
 const readWaitLimitMs = 30_000;
 
+// The transport is chosen by the catalog's own recorded `access`
+// (`./publishedSource.ts`), never re-derived from the repository name or
+// anything else. Both transports end in the same shape -- one resolved
+// revision and its raw backlog text -- so everything after this point
+// (`interpret`, above) is one projection regardless of which one answered.
+async function readRevisionAndMarkdown(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<{ readonly revision: string; readonly markdown: string }> {
+  if (source.access === "private") {
+    const snapshot = await readPrivateSnapshot(source, signal);
+    return { revision: snapshot.revision, markdown: snapshot.backlog };
+  }
+  const revision = await resolveRevision(source, signal);
+  const markdown = await readBacklogAt(source, revision, signal);
+  return { revision, markdown };
+}
+
 export async function readPublishedWork(
+  source: PublishedSource,
   signal: AbortSignal,
 ): Promise<PublishedWork> {
   const waitLimit = new AbortController();
@@ -111,17 +132,15 @@ export async function readPublishedWork(
   }, readWaitLimitMs);
   const untilEither = AbortSignal.any([signal, waitLimit.signal]);
   try {
-    const revision = await resolveRevision(publishedSource, untilEither);
-    const markdown = await readBacklogAt(
-      publishedSource,
-      revision,
+    const { revision, markdown } = await readRevisionAndMarkdown(
+      source,
       untilEither,
     );
     return {
-      source: publishedSource,
+      source,
       revision,
       retrievedAt: new Date(),
-      ...interpret(markdown, revision),
+      ...interpret(markdown, revision, source),
     };
   } catch (error) {
     if (waitLimit.signal.aborted && !signal.aborted) {

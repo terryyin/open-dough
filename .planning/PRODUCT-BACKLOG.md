@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project ([plan](quick/066-view-three-projects/PLAN.md))
 - [Require current regression proof before live transitions](seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions) — SEED-004#require-current-proof-before-live-transitions ([plan](quick/067-current-proof-before-live-transitions/PLAN.md))
 
 ## Backlog list

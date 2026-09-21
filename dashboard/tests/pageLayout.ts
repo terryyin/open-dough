@@ -38,9 +38,17 @@ const notReadWhole = `(() => {
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
       if (!(element instanceof HTMLElement) || keptFromSight(element)) return false;
+      const tooNarrowForItsContent =
+        element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1;
+      // A native form control (the project selector) renders and clips its
+      // own value by platform widget rules, not by authored overflow or
+      // white-space; browsers give it "overflow: clip" and "white-space: pre"
+      // by default regardless of authored CSS. Whether its content actually
+      // fits is still checked; the authored-CSS heuristics below are not.
+      if (element.matches("select, input, textarea")) return tooNarrowForItsContent;
       const style = getComputedStyle(element);
       return (
-        (element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1) ||
+        tooNarrowForItsContent ||
         style.textOverflow === "ellipsis" ||
         style.overflowX !== "visible" ||
         style.overflowY !== "visible" ||

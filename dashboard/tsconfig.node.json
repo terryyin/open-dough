@@ -5,5 +5,5 @@
     "lib": ["ES2023"],
     "types": ["node"]
   },
-  "include": ["vite.config.mts", "playwright.config.ts", "tests"]
+  "include": ["vite.config.mts", "playwright.config.ts", "server", "tests"]
 }

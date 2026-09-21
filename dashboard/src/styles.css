@@ -92,6 +92,22 @@ code,
   white-space: nowrap;
 }
 
+.project-select {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-select select {
+  font: inherit;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.35rem;
+  background: var(--panel);
+  color: var(--text);
+}
+
 .source dl {
   display: flex;
   flex-wrap: wrap;
