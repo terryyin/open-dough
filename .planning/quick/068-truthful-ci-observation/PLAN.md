@@ -254,7 +254,49 @@ loss; late-run delivery remains owned by slice 3.
 ### 3. Deliver a registered revision's late-discovered failure
 
 Type: Behavior
-Status: planned
+Status: delivered
+
+Delivered 2026-09-21. Diagnosis-first outcome, as the plan anticipated: the
+existing GitHub-acquisition/coverage/host-delivery mechanism already retries an
+uncovered revision and delivers a real later verdict — `observeRevisionCoverage`
+unconditionally overwrites `"uncovered"` state when a matching run later
+appears, `createGitHubRunAcquisition` includes any not-seen-at-startup run on
+later polls, and `watchCiExecution` runs `observeCoverage`/`acquireFailure`
+from the same per-poll result. No production behavior change was made; none
+was warranted. A new faithful end-to-end test (`ci-revision-coverage-late-github-failure.test.mjs`,
+controlling only the `gh` transport seam, driving the real functions) proves
+this for the GitHub path specifically (previously proven only for a
+custom-adapter and a single-poll GitHub gap): a 3-poll discovery gap, then a
+run appearing `in_progress` then `failure`, delivers real `CI_FAILURE` to the
+owning coordinator; an unresolved sibling revision stays `"uncovered"` at
+shutdown without downgrading the delivered verdict; a second, differently-owned
+revision's independent failure stays isolated to its own coordinator. One small
+`references/ci-monitor.md` clarification was added: `CI_COVERAGE_UNAVAILABLE`
+is a temporary discovery gap, not ended observation — confirm a revision's
+actual final state from coverage/records at the observer's own stop, not from
+an early `CI_COVERAGE_UNAVAILABLE` alone.
+
+Remaining evidenced-but-unfixed boundary (explicitly out of this slice's scope,
+per "No timing-policy exception assumed"): `ci-runs.mjs`'s bounded listing
+(`--limit 20` ongoing / `--limit 100` startup) can still silently miss a run on
+a busy/shared branch with enough concurrent pushes to push it out of that
+window before it's ever seen — a plausible, distinct candidate cause for
+ODF-069's historical misses (occurrence 1 was on a shared branch with
+concurrent pushes), not reproduced or repaired here. See the ODF-065/ODF-069
+response recording below.
+
+Post-change refactor: collapsed a locally-reinvented GitHub run-response
+builder into the existing shared `run()` in `watch-ci-test-fixtures.mjs`, and
+split the new 289-line test file (over the 250-line limit) into
+`ci-revision-coverage-late-github-failure.test.mjs` (192 lines, the single
+proof scenario) and a new sibling `ci-revision-coverage-late-github-failure-test-fixtures.mjs`
+(94 lines, the GitHub-transport fakes and polling helpers). The coordinator
+additionally fixed one mechanical `prefer-const` lint finding the refactor
+pass hadn't run `npm run lint` to catch (four cleanup-safety `let` bindings
+assigned once but declared early so an early-registered `t.after` can guard
+partially-failed setup) with a documented `eslint-disable-next-line`, matching
+this codebase's existing single-line-disable-with-rationale convention;
+retested after the fix.
 
 Behavior: Given a registered revision absent during initial discovery, when its
 run later becomes discoverable and fails while observation remains active, the
@@ -285,8 +327,12 @@ B unresolved without waiting for remote completion or downgrading A's verdict.
 Retain the existing custom-adapter late-success proof and adapter delivery controls.
 Do not synthesize the failure event or update the coverage record from the fixture.
 
-Focused command:
-`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-coverage.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-startup.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs`
+Focused command (post-refactor file set):
+`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-revision-coverage.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-late-github-failure.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-coverage.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-startup.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-notify-codex.test.mjs`
+Result: pass, 21/21 (independently rerun by the coordinator before refactor,
+after refactor, and after the prefer-const fix). Broader confirmation also
+rerun: `bash tests/execution-ci-runtime.sh` (117/117). `git diff --check` and
+`npm run lint` clean.
 
 Extend the existing host process fixture to carry the acquired event to the owner;
 run any new test explicitly and through `tests/execution-ci-runtime.sh`. Reuse the
@@ -342,7 +388,18 @@ supplied; none is invented. No sizing exceptions or story resplit recommendation
 No completed slices were replaced. Execution has not begun and is not authorized
 by this planning request. Do not treat this assessment as proof of behavior.
 
-## CI repair disposition: slice 1's delivered SHA
+## CI repair disposition: slices 1 and 2's delivered SHAs
+
+Recurred identically on slice 2's delivered SHA `1ab85d4` (run 35565673278,
+attempt 1): same job (`test`), same step (`scripts/check-self-installation.sh`),
+same zero-output-then-exit-1 signature. The diff between `8a7c770` and `1ab85d4`
+(slice 2's actual change, `ci-notify-codex.md`/`ci-notify-codex*.test.mjs`) is
+disjoint from slice 1's diff and, like slice 1, touches nothing this check reads
+— reinforcing rather than weakening the disposition below: the same failure mode
+recurring across two unrelated diffs on this branch points at the runner/branch
+environment, not either commit's content. No further per-SHA investigation
+repeated; same disposition applies. Not retried a second time for this SHA
+given attempt 1's original evidence already covers this exact signature.
 
 `8a7c770` (slice 1's delivered commit) reported `CI_FAILURE` on the `test` job,
 step `scripts/check-self-installation.sh`, both on first discovery (run
