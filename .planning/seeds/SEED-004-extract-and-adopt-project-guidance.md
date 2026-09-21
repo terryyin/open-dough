@@ -183,11 +183,26 @@ stopped with recoverable work; unrelated authorized work can continue.
 
 **Identity:** SEED-004#keep-ci-observation-truthful
 
-**Status:** Queued; unrefined.
+**Status:** Refined and planned 2026-09-21; queued, execution not started.
+
+**Plan:** [Truthful CI observation](../quick/068-truthful-ci-observation/PLAN.md).
 
 **For / why:** A developer running parallel executions needs truthful CI coverage
 for each registered revision, so a missed or dead observer cannot conceal a failing
 revision behind an attachment message or an early unavailable result.
+
+**Decisions (2026-09-21):** Terry accepted the bounded reliability response and
+requested slice planning and refinement. Retain the existing first queued position:
+an actual failed revision escaped observation, warranting a small interruption to
+dashboard work. This is not a dashboard prerequisite or authority for an open-ended
+monitoring project. Manual CI inspection is an available workaround but defeats
+the intended asynchronous feedback and leaves detection to developer attention.
+
+**Goal:** During active observation, the owning agent receives discovered CI
+failures for its registered revisions and learns when observation has been lost.
+Prompt loss reporting means the next supported coordinator interaction, not
+instantaneous interruption. Registration, attachment, live observation, and a
+successful CI verdict are different facts.
 
 **Scope:** Bound this response to observation after successful startup: registered
 revisions whose runs appear late, and a worker that stops while execution continues.
@@ -197,6 +212,27 @@ coverage loss promptly and retain the ability to report a later discovered verdi
 while observation is active. Preserve asynchronous execution and exact revision
 ownership. Runtime-path discovery, unsupported workflow targets, provider deployment,
 and a new integration scheduler are outside this story.
+
+Keep pending discovery, observed failure, and unavailable observation distinct.
+Process existence alone is not proof of healthy observation. Stalled-but-alive
+detection, automatic restart, indefinite observation after shutdown, dashboard CI
+displays, and synchronous CI waiting are deferred. Existing shutdown bounds apply;
+remaining unobserved revisions are named without manufacturing verdicts. These
+are delivery exclusions, not new rejection rules.
+
+**Key examples:**
+
+- A successfully started detached worker dies while registration receipts remain
+  writable → next owning coordinator interaction → report lost observation,
+  preserve unread evidence, and do not reassure through a new attachment message.
+- An active Codex stream ends without terminal evidence → the host observes its
+  exit → report lost observation rather than treating absence of a result as
+  successful completion; intentional shutdown with evidence remains distinct.
+- A registered revision has no visible run during initial discovery → the run
+  later appears and fails while observation remains active → deliver its exact
+  revision verdict to the owning coordinator and retain it in final coverage.
+- No verdict becomes available before observation ends → shutdown → explicitly
+  report the unresolved revision; do not wait indefinitely or call it successful.
 
 **Evaluation:** Through the existing observer and host delivery boundaries, a
 registered run appears after the initial discovery window and later fails; its
