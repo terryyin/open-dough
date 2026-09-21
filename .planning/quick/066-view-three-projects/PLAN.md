@@ -238,7 +238,7 @@ If slice 1 already supplies the rule, retain it and add only missing proof.
 ### 5. Recover from unavailable private access without losing project context
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an unavailable Pygardon read, see a project-specific actionable
 failure; after restoring existing access, Retry reads that project's published
@@ -422,6 +422,31 @@ request is unobservable to the page — there is no later moment at which a
 late answer could still take effect. Slice 5's held-read proof should reuse
 slice 2's `startPrivateReadServer` hang/control-file mechanism for Pygardon's
 failure/retry lifecycle rather than inventing a second holding pattern.
+
+Slice 5 delivered 2026-09-21 on the same branch, completing all five slices.
+Proof-only, like slice 4: the failure/retry mechanism shared between both
+transports since slice 3 (`App.tsx`'s `Attempt`/`ReadProblem` model, the
+server's generic 502 collapsing of every `gh`-invocation failure category,
+`ProjectSelect.tsx`'s always-enabled selector) already satisfied every
+promise — no production code changed. New coverage only:
+`dashboard/tests/private-project-recovery.spec.ts`, proving the full
+failure→public-selection-remains-available→restore→Retry→later-failed-Refresh
+journey and the bounded-timeout-as-ordinary-failure journey. The coordinator
+independently reproduced one of the two non-vacuousness checks (temporarily
+making `selectSource` retain the previous project's `work` instead of
+clearing it) and confirmed both new tests fail deterministically, then
+restored and reran green. `dashboard/README.md` gained the one real gap this
+slice found: a factual recovery-action paragraph (check `gh auth status`,
+confirm `gh api repos/terryyin/pygardon/commits/main`, then Retry), worded to
+report only that a read didn't complete, never that the repository doesn't
+exist.
+
+All eight rows of this plan's promise-coverage table now have delivered,
+independently-verified proof; the coordinator cross-checked each row against
+the actual delivered specs before treating the plan as complete. All three
+projects are viewable, selection is race-safe, and failure recovery works for
+both transports. `npm run test:dashboard` passes at 50/50, reran three times
+in a row by the coordinator.
 
 Keep successful execution evidence and consequential learnings here;
 operational agent/CI state belongs in the execution conversation. Keep this

@@ -33,7 +33,18 @@ than 30 seconds for GitHub (`readWaitLimitMs` in `src/publishedWork.ts`) ends
 as a read problem, never as an empty or partial backlog. The snapshot read
 earlier stays shown with its own revision and retrieval time, the problem says
 when the attempt failed, and the read control is named **Retry** until a read
-succeeds. Nothing retries by itself.
+succeeds. Nothing retries by itself. Selecting another project stays available
+throughout: a failed or still-reading Pygardon never blocks switching to Open
+Dough or Doughnut, and returning to Pygardon starts a fresh read rather than
+replaying the failure.
+
+If reading Pygardon fails, the read problem reports only that the read did not
+complete -- never that the repository does not exist, since an inaccessible
+read is not proof of that. Check `gh auth status`, then confirm
+`gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
+does, press **Retry**. There is no dashboard sign-in, no token-entry UI, and no
+automatic retry or login: the dashboard only reuses whatever access the
+launching person's own `gh` already has.
 
 Each card offers the entry's recorded canonical link and, when recorded, its
 plan link. A repository-relative target resolves against the backlog file's
