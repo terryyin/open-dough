@@ -1,3 +1,12 @@
+## 0.3.27 - 2026-09-21
+
+- Add a local, accessible published-work dashboard that reads one pinned GitHub revision, presents connected Backlog and Taken stages, links cards to revision-pinned source, and preserves the last trustworthy snapshot through bounded read failures, retries, and refreshes.
+- Publish an isolated execution's shared backlog claim before work begins, refuse mutation when publication is unauthorized, recover from the observed publication state, and consolidate reusable candidate publication and rebase-conflict handling across execution and planning workflows.
+- Give decomposition, refinement, and slice-planning sessions one owned preparation workspace with explicit keep-and-publish, discard, retain, interruption-recovery, and close-or-retain dispositions so useful preparation is not lost or ambiguously published.
+- Harden cross-tool delivery by protecting Codex and Cursor backlog edits through installed hooks, supporting backlog Git adapters from linked worktrees, recognizing realpath-equivalent direct CI entry points, and deriving installation/update inspection from the declared release payload. Complete the previously pending native Cursor/Claude compatibility proof for managed hook coexistence.
+
+No additional native acceptance was run for `0.3.27` at the maintainer's request. Native acceptance for the new dashboard, shared-claim publication, preparation-workspace behavior, and other newly changed behavior remains pending and is not reported as passing.
+
 ## 0.3.26 - 2026-09-20
 
 - Add an installed, script-backed product backlog workflow with stable recorded work-item identities and explicit add, place, take, complete, refresh, direction, and adoption operations. Reconcile concurrent backlog edits from their common ancestor while preserving compatible item, priority, direction, and reference changes and refusing ambiguous outcomes.
