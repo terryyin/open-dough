@@ -1,132 +1,16 @@
 # Near-term watch list
 
-Internal Open Dough findings with released responses and no recorded post-fix
-recurrence of the same mechanism in the evidence assessed on 2026-09-17.
-These identities moved from [finding names](finding-names.md); their codes remain
-allocated. Preserve their evidence and former source mappings when matching new
-feedback. Related symptoms alone do not establish recurrence of these identities.
+Internal Open Dough findings with released responses and verified relevant use.
+Assessed on 2026-09-21 (Asia/Singapore) against the three current DearDough logs.
+Codes remain allocated; consult [finding names](finding-names.md) and Git history
+before matching or allocating identities. Silence is not proof of effectiveness.
+Released responses without a supported relevant-use date remain active in the
+catalog with an explicit unknown watch start.
 
-The harvested executions extend through Open Dough 0.3.23. Absence of a recorded
-recurrence does not establish effectiveness or a known number of successful uses.
-Older occurrences with unknown execution releases remain explicitly qualified
-in finding names. Released responses without verified relevant use remain active
-there rather than starting a watch from tag or file age alone.
-
-On the owner's instruction, matching entries were removed from current source
-DearDough logs where present; source locators below describe historical reports.
-The catalog evidence is retained here. ODF-011 was already absent from Doughnut's
-current log. Newly watched entries were removed from Pygardon and Doughnut as
-applicable; Open Dough's current log contains none of the watched identities.
-
-## ODF-011 — Pre-satisfied test seams hide provisioning-order defects
-
-- **Meaning:** Boundary tests that inject an already-satisfied provisioning precondition can bypass the side effect that establishes it and conceal incorrect production call ordering until live integration proof.
-- **Source mappings:** Doughnut Project / DD-005
-- **References:** Doughnut Project `DearDough.md`, DD-005; release `0.3.12`; `be7234f7f2`; pre-fix `47df168656`; fix `b0dad96aaa`; `scripts/e2e-runner.test.mjs`.
-
-- **Status:** Near-term watch; released response, no recorded post-fix recurrence of this mechanism; effectiveness unverified.
-- **Response:** Clarified that fixture-supplied allocation does not prove
-  product-owned provisioning, while preserving narrower useful proof.
-  Guidance change: `e710426`. Story 20 and its review are recoverable through
-  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
-- **Released in:** 0.3.14 (`e710426`; first containing tag `v0.3.14`).
-- **Watch start:** 2026-09-13, release 0.3.16, Doughnut plan 115 at
-  `2be6138738`; its proof planning exercised the released ownership guidance.
-- **Review after:** 2026-09-20.
-- **Last assessed:** 2026-09-17; Open Dough, Pygardon, and Doughnut current logs
-  checked. ODF-045 is a related caller-purpose proof gap, not recurrence of the
-  pre-satisfied provisioning mechanism. The seven-day window has not elapsed.
-
-### Occurrences
-
-- Execution: `SEED-015 Story 8 / quick-105-runner-owned-e2e-lifecycle / be7234f7f2`
-  - Source: Doughnut Project / DD-005; canonical `DearDough.md` occurrence
-  - Tool: Cursor
-  - Open Dough release: 0.3.12
-  - Evidence: Boundary tests injected a pre-resolved runtime target or used the
-    primary checkout, while production resolved an isolated checkout target
-    before starting the lifetime that provisions it. Live proof failed on the
-    missing allocation; pre-fix tests had no fresh-provisioning-path case, and
-    `b0dad96aaa` added that coverage and corrected the order.
-  - Observed effect: Live proof failed once, required a defect fix and cache
-    cleanup after a crashed build, and passed only after rerun; the boundary
-    suite had remained green because its seam elided provisioning.
-
-## ODF-014 — Local failure proof was accepted as public completion proof
-
-- **Meaning:** A bounded inner failure-policy test does not establish terminal completion at the public caller when additional waits and joins remain outside the tested bound.
-- **Source mappings:** Pygardon / DD-003
-- **References:** Pygardon `DearDough.md`, DD-003; release `0.3.6`, snapshot `f5fd66e60`; local proof `b6d24ac22`; later public-path proof `2e06e144f`; distinct from ODF-011's seam-elided provisioning issue.
-
-- **Status:** Near-term watch; released response, no recorded post-fix recurrence of this mechanism; effectiveness unverified.
-- **Response:** Clarified that an inner operation finishing does not prove
-  public caller completion, and that missing proof leaves the promise incomplete.
-  Guidance change: `e710426`. Story 20 and its review are recoverable through
-  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
-- **Released in:** 0.3.14 (`e710426`; first containing tag `v0.3.14`).
-- **Watch start:** 2026-09-13, release 0.3.14, Pygardon plan 119 at
-  `f70a3b976`; its public job-status proof exercised caller-completion evidence.
-- **Review after:** 2026-09-20.
-- **Last assessed:** 2026-09-17; all three current logs checked. No same
-  inner-operation-versus-public-caller recurrence is recorded, but the
-  seven-day window has not elapsed.
-
-### Occurrences
-
-- Execution: `.planning/quick/109-green-linux-arm64-release-check/PLAN.md at 488dc39e0`
-  - Source: Pygardon / DD-003; canonical `DearDough.md` occurrence
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.6; tracked execution snapshot `f5fd66e60`
-  - Evidence: `b6d24ac22` bounded a synthetic remaining-PID wait, while
-    `CiCommand.force_stop` and helper/public waits still joined output readers
-    outside that bound. The status response described unbounded cleanup as
-    fixed. Later `2e06e144f` proved public stop/run settlement for the
-    demonstrated signal-dispatch stall.
-  - Observed effect: The focused deadline test passed while the plan still
-    recorded a live public force-stop thread under the combined ARM64 control.
-  - Inference: The original claim extrapolated beyond its proof. The later
-    public-path evidence is intentionally narrower and does not certify every
-    retained-child-pipe cleanup failure.
-
-## ODF-017 — Certified installations omit required skill references
-
-- **Meaning:** A manually maintained release manifest can omit a file required by an installed skill while the updater still certifies the incomplete installation as current.
-- **Source mappings:** Pygardon / DD-006
-- **References:** Pygardon `DearDough.md`, DD-006; modified revision `995bcbed2`, base `0.3.9`; Open Dough tag `v0.3.9` at `26cbba94f`; distinct from ODF-005's installed-versus-unreleased authority conflict.
-
-- **Status:** Near-term watch; released response, no recorded post-fix recurrence of this mechanism; effectiveness unverified.
-- **Response:** Clarified that success claims cover observed behavior, so
-  version metadata alone does not certify a usable invocation. This guidance
-  response is distinct from the missing-reference repair shipped in `v0.3.11`.
-  Guidance change: `e710426`. Story 20 and its review are recoverable through
-  `34ba340:.planning/quick/039-match-success-claims-to-proof/PLAN.md`.
-- **Released in:** 0.3.11 for the missing-reference repair (`4053954`); 0.3.14 for the proof-claim guidance (`e710426`). Verified by first containing tags `v0.3.11` and `v0.3.14`.
-- **Watch start:** 2026-09-12, release 0.3.13, Pygardon plan 113 retrospective
-  recorded at `f12fcc91`; successful bounded process logging establishes use of
-  the repaired retrospective dependency after 0.3.11.
-- **Review after:** 2026-09-19.
-- **Last assessed:** 2026-09-17; all three current logs checked. Later
-  retrospective records demonstrate continued use without this missing-file
-  mechanism, but the seven-day window has not elapsed.
-
-### Occurrences
-
-- Execution: `.planning/quick/111-ibkr-companion-session-proof/PLAN.md at 2bc034868`
-  - Source: Pygardon / DD-006; canonical `DearDough.md` occurrence
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: modified; revision `995bcbed2`; base 0.3.9
-  - Evidence: `dough-execution-retrospective/SKILL.md` required
-    `references/bounded-process-log.md`; tag `v0.3.9` contained that file but
-    its `install.sh` omitted it from `managed_files`, and an ordinary update
-    reported both local skill roots current without restoring it.
-  - Observed effect: The retrospective could identify findings but could not
-    perform its required bounded write until the release copy was restored
-    explicitly in both roots.
-  - Inference: Following intra-skill references in release completeness checks,
-    or generating the manifest from the shipped tree, would prevent this
-    false-current state more reliably than a hand-maintained list.
+Matching source-log entries are removed after their evidence is retained here.
+Review dates are seven calendar days after the verified use date; scope and
+provenance limits remain on each entry. No application tests were run for this
+record-maintenance review.
 
 ## ODF-007 — Implementation agents fail to await their own background verification
 
@@ -144,8 +28,10 @@ applicable; Open Dough's current log contains none of the watched identities.
   `473550c16e`; repeated implementation/refactor delegation completed with no
   recorded premature wait return.
 - **Review after:** 2026-09-23.
-- **Last assessed:** 2026-09-17; all three current logs checked. Relevant use is
-  only one day old.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); All three current logs checked. Relevant
+  v0.3.22 delegation and matching guidance verified at Doughnut 473550c16e. Host-
+  terminated agents (ODF-059) are a different mechanism; no premature verification-return
+  recurrence is supported. Review remains due September 23.
 
 ### Occurrences
 
@@ -182,11 +68,9 @@ applicable; Open Dough's current log contains none of the watched identities.
   `818a4f1:.planning/quick/047-cover-actual-user-outcome/PLAN.md`.
 - **Released in:** 0.3.18 (`0dbff99`; first containing tag `v0.3.18`).
 - **Watch start:** 2026-09-16, release 0.3.23, Pygardon production-database
-  transfer plan 142 at `9152848a8`; the story exercised physical predecessor
-  and destination transfer proof.
+  transfer plan 142, accepted source/candidate proof at `15ac40382` and live source-to-service proof at `cb4c67c25`; the installed planning guidance matches v0.3.23. The earlier `9152848a8` locator held only the plan.
 - **Review after:** 2026-09-23.
-- **Last assessed:** 2026-09-17; all three current logs checked. Relevant use is
-  one day old; no same preservation-identity recurrence is recorded.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); All three current DearDough logs checked. Relevant transfer use and v0.3.23 installed planning bytes verified at cb4c67c25; historical d09f0a6ae replay is not recurrence. Seven days have not elapsed.
 
 ### Occurrences
 
@@ -201,6 +85,9 @@ applicable; Open Dough's current log contains none of the watched identities.
     native store containing roughly 22 GB.
   - Observed effect: Missing native-to-Docker migration surfaced only at final
     owner feedback.
+
+
+- **Retained source detail:** Pygardon replay names the preserved native store `~/.config/pygardon/production`; original slice 9 baselined the new Docker volume and slice 14 demonstrated its A→B continuity. The reported missing native transfer is the same historical d09f0a6ae execution, not new evidence after the response.
 
 ## ODF-036 — Completed delegated work leaves stale background watches
 
@@ -218,8 +105,11 @@ applicable; Open Dough's current log contains none of the watched identities.
   `473550c16e`; repeated delegated proof/refactor work recorded no stale
   post-completion notifications.
 - **Review after:** 2026-09-23.
-- **Last assessed:** 2026-09-17; all three current logs checked. Relevant use is
-  one day old.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); All three current logs checked. Relevant
+  v0.3.22 delegation and matching guidance verified at Doughnut 473550c16e. ODF-038
+  concerns coordinator polling; ODF-071 concerns native-session receipt ownership. Neither
+  establishes stale delegated-command watches after completion. Review remains due
+  September 23.
 
 ### Occurrences
 
@@ -233,38 +123,6 @@ applicable; Open Dough's current log contains none of the watched identities.
     the agent had returned their complete results.
   - Observed effect: Seven extra coordinator turns interleaved with unrelated
     refactor work.
-
-## ODF-041 — Required pre-change baseline is deferred until final acceptance
-
-- **Meaning:** Implementation starts before a plan-mandated full-suite baseline and environment record, leaving final comparison dependent on reconstructing the original state later.
-- **Source mappings:** Pygardon / DD-042
-- **References:** Pygardon historical `DearDough.md`, DD-042; `b1c3b5c83`; response `b383f63`.
-
-- **Status:** Near-term watch; released response, no recorded post-fix recurrence of this mechanism; effectiveness unverified.
-- **Response:** A pre-change observation is now an explicit prerequisite to the
-  dependent change, with comparable retained evidence allowed and missing proof
-  stopping only the affected path. Story 21 and plan recoverable at
-  `818a4f1:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
-  `818a4f1:.planning/quick/047-cover-actual-user-outcome/PLAN.md`.
-- **Released in:** 0.3.18 (`b383f63`; first containing tag `v0.3.18`).
-- **Watch start:** 2026-09-14, release 0.3.18, Pygardon plan 132 at
-  `c4efd7b5c`; its required full baseline ran before implementation, with the
-  environment failure diagnosed and corrected first.
-- **Review after:** 2026-09-21.
-- **Last assessed:** 2026-09-17; all three current logs checked. No same late
-  baseline recurrence is recorded; only three days have elapsed.
-
-### Occurrences
-
-- Execution: `.planning/quick/127-fast-service-and-packaged-tests/PLAN.md @ b1c3b5c83`
-  - Timestamp: unknown
-  - Source: Pygardon / DD-042; historical canonical occurrence
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.16
-  - Evidence: The required full baseline was absent until final acceptance,
-    when the original checkout happened to remain at the pre-slice revision.
-  - Observed effect: Before/after proof depended on late reconstruction.
 
 ## ODF-043 — Proof serialization mismatches require report-only retries
 
@@ -282,8 +140,10 @@ applicable; Open Dough's current log contains none of the watched identities.
 - **Watch start:** 2026-09-16, release 0.3.22, Doughnut plan 129 at
   `473550c16e`; repeated delegated handoffs recorded no format-only retry.
 - **Review after:** 2026-09-23.
-- **Last assessed:** 2026-09-17; all three current logs checked. Relevant use is
-  one day old.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); All three current logs checked. Relevant
+  v0.3.22 handoffs and matching guidance verified at Doughnut 473550c16e. Reportless host
+  termination (ODF-059) is not a retry solely for report formatting. No same-mechanism
+  recurrence is supported; review remains due September 23.
 
 ### Occurrences
 
@@ -313,8 +173,11 @@ applicable; Open Dough's current log contains none of the watched identities.
   `473550c16e`; its consumer assessment explicitly separated web, Git, note,
   folder, and reference-rewrite caller purposes.
 - **Review after:** 2026-09-23.
-- **Last assessed:** 2026-09-17; all three current logs checked. Relevant use is
-  one day old and no same dominant-purpose omission is recorded.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); All three current logs checked. Doughnut
+  plan 129 at 473550c16e explicitly distinguishes production caller purposes; installed
+  guidance matches v0.3.22. Pygardon ODF-075 misses a test-support consumer through stale
+  suite assumptions, not incompatible production query purposes. Review remains due
+  September 23.
 
 ### Occurrences
 
@@ -327,3 +190,167 @@ applicable; Open Dough's current log contains none of the watched identities.
   - Evidence: Consumer analysis classified a shared query for Git retention but
     missed `LearningSessionService.record`, which graded trashed notes.
   - Observed effect: All planned suites passed and a correction plan was needed.
+
+## ODF-056 — Literal CLI entry paths silently skip symlink-equivalent launches
+
+- **Meaning:** CLI entry guards compare literal URLs for the same file under different symlink spellings, exiting successfully without entering the command body.
+- **Source mappings:** Open Dough / DD-066 (literal CLI); Doughnut / DD-065
+- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Both reports name the same literal import.meta.url/argv comparison. Doughnut ownership review `2381cf9e60` verified the installed v0.3.26 runtime and an isolated v0.3.27 probe; Open Dough correction `eff69eb` changes all three entrypoints. Historical Doughnut execution releases remain unknown; these are not demonstrated post-fix recurrences.
+
+### Occurrences
+
+- Execution: `.planning/quick/061-native-edit-protection-codex-cursor/PLAN.md @ d6cb926`
+  - Source: Open Dough / DD-066; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-20
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: modified; revision d6cb926; base 0.3.25
+  - Evidence: `src/skills/dough-execute-plan/scripts/ci-mailbox.mjs`,
+    `watch-ci.mjs`, and `ci-host-hook.mjs` each guard their CLI body with
+    `import.meta.url === pathToFileURL(process.argv[1]).href`. The execution
+    worktree was addressed as `/tmp/open-dough-061.WrMwJK/worktree`, while the
+    filesystem resolved it under `/private/tmp/...`; the two URLs named the
+    same entry file but compared unequal, so the requested CLI body was not
+    entered.
+  - Observed effect: a checkout-bound CI command could return status 0 with no
+    command output or hook handling. This is not ODF-052: that occurrence
+    printed a mailbox receipt and then failed to attach, whereas this path
+    comparison prevents the receipt-producing or hook-processing body itself
+    from running.
+  - Inference: the three callers need one bounded, realpath-equivalent
+    direct-entry decision plus process proof that observes each CLI body rather
+    than accepting exit status alone.
+  - Delivered: `src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs`
+    (`isDirectCliEntry`, a literal-URL fast path falling back to
+    `fs.realpathSync` comparison, fail-closed on error), wired into all three
+    callers in `eff69eb9ed1268bd2428f11abacb3abc7711e025`, with real-symlink
+    process-level proof for each entrypoint. The correction plan that carried
+    this work is recoverable at the wrap-up's before-cleanup commit,
+    `.planning/quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md`.
+
+- Execution: SEED-024 story 1 / quick/135-irreversible-relationship-reduction
+  - Source: Doughnut / DD-065; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-17, evening +08:00 (during CI-observer arming before
+    slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: unknown
+  - Evidence: `node .claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs probe`
+    run from the execution worktree root produced no stdout and exit code 0;
+    an inline `node -e` script importing the same file's `probeMailbox` export
+    directly worked and returned a directory; `node .agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs probe`
+    then printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-oZWLUN"}`
+    and the PostToolUse hook added `CI_MONITOR_READY` context, confirming the
+    realpath invocation was the fix.
+  - Observed effect: no lost coverage — the silent no-op was caught by testing
+    an inline import before trusting the CLI, and the observer was armed
+    successfully via the realpath before any slice was delegated — but it
+    cost extra diagnostic steps, and a less cautious run could have proceeded
+    believing CI observation was set up when it was not.
+  - Inference: the CLI entry guard should compare canonicalized/realpath forms
+    of `process.argv[1]` and the module path (or otherwise detect direct
+    invocation more robustly than exact string equality against a path that
+    may traverse a project-standard symlink), since this project's own setup
+    deliberately creates that exact symlink in every checkout.
+
+- Execution: SEED-028 story 1 / quick/140-admin-job-status-local-time / 1694c122d9
+  - Source: Doughnut / DD-065; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-18 (session date)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: unknown
+  - Evidence: `node '.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs' probe`
+    run from the execution worktree root produced no stdout and exit code 0,
+    with no `CI_MONITOR_READY` PostToolUse context added. `node '.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs' probe`
+    then printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-mL5Kzr"}`
+    and the hook added `CI_MONITOR_READY`.
+  - Observed effect: worse than the prior occurrence — this coordinator
+    concluded CI observation was genuinely unavailable from the silent no-op
+    alone, reported that limitation to the user, and had already pushed
+    slice 1's commit unobserved before checking this log's existing DD-065
+    entry, recognizing the exact match, retrying via the realpath, and
+    starting the observer late (after the push it should have covered).
+    No coverage was permanently lost (the observer's startup snapshot still
+    discovered the already-pushed commit's run), but the sequence shows the
+    silent-no-op failure mode reliably reproduces a false "unavailable"
+    conclusion for a coordinator that does not already know to check this
+    log before trusting the probe's silence.
+  - Inference: same root cause and same fix as the original finding; the
+    false-unavailable conclusion this occurrence reached is itself further
+    evidence for fixing the CLI guard rather than relying on operators to
+    recall this log entry.
+
+- Execution: SEED-033 story 1 / quick/144-compact-spelling-results / 55fc4ba255
+  - Source: Doughnut / DD-065; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-18 (session date)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: unknown
+  - Evidence: `node .claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs probe`
+    run from the execution worktree root (with both a bare relative path and
+    an absolute path) produced no stdout and exit code 0, with no
+    `CI_MONITOR_READY` PostToolUse context added; a standalone inline script
+    confirmed `pathToFileURL` resolution matched in isolation, so the silence
+    was not an obvious invocation mistake. `node '.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs' probe`
+    then printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-mAT38C"}`
+    and the hook added `CI_MONITOR_READY`.
+  - Observed effect: same false-unavailable pattern as the second occurrence —
+    this coordinator concluded the bridge was unavailable for this
+    non-interactive/background-job session, reported that limitation, and had
+    already pushed slice 1's commit unobserved before reaching the
+    retrospective's process review, which is what surfaced this log's
+    existing DD-065 entry and prompted retrying via the realpath. The
+    observer's startup snapshot still discovered the already-pushed commit's
+    run once armed and the SHA was registered after the fact, so no coverage
+    was permanently lost, but two independent coordinators have now reached
+    the same wrong "unavailable" conclusion from the same silent no-op before
+    reading this log.
+  - Inference: same root cause and fix as the prior occurrences. The repeat
+    across three separate executions (two different coordinators reaching the
+    false-unavailable conclusion) strengthens the case that this needs the
+    CLI guard fixed rather than continuing to rely on retrospective review to
+    catch it after the fact.
+
+- Execution: quick/260920-frontend-proof-type-checking / 7b1d80b4e8
+  - Source: Doughnut / DD-065; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-19 (session date)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: unknown
+  - Evidence: `node ./.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs
+    start --execution nerds-odd-e/doughnut worktree-260920-frontend-proof-type-checking`
+    run from the execution worktree root (after this session had already
+    entered a Nix shell there, which creates the `.claude/skills/<name>`
+    symlinks) produced no stdout and exit code 0, with no
+    `CI_OBSERVER`/`CI_MONITOR_READY` context added. Individually reading that
+    same path with `sed`/`grep`/`cp` returned real file content matching
+    `.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs`, while a bare
+    `ls -la .claude/skills` from the worktree root (no subpath) showed zero
+    entries beside `.` and `..` — the per-file reads and the directory
+    listing disagreed about whether the path existed.
+    `node ./.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs start ...`
+    then printed the expected `CI_OBSERVER {"directory":...}` receipt and the
+    PostToolUse hook added its context.
+  - Observed effect: no lost coverage — diagnosed via an inline import script
+    that printed the module's actual exports before trusting the CLI's
+    silence, then armed and registered the already-pushed commit via the
+    realpath before shutting the observer down — but cost several extra
+    diagnostic tool calls after the branch had already been pushed, during a
+    background/non-interactive session with no live user to consult.
+  - Inference: same root cause and fix as the prior three occurrences. The
+    disagreement between successful individual-file reads and an empty bare
+    directory listing for the same `.claude/skills` path is a new wrinkle
+    worth naming: it means confirming the target file is readable is not
+    sufficient confirmation that the CLI invocation through that path will
+    behave correctly, which makes runtime-setup.md's own "do not reuse the
+    installed directory that supplied the initially loaded skill" caution
+    easy to satisfy on a shallow check while still hitting this failure mode.
+
+
+- **Status:** Near-term watch; released response, effectiveness beyond the checked boundary unverified.
+- **Response:** `eff69eb` adds realpath-equivalent direct-entry detection to ci-mailbox, watch-ci, and ci-host-hook; correction recoverable at `60cd47d:.planning/quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md`.
+- **Released in:** 0.3.27; first containing tag v0.3.27, verified against the helper and all three caller diffs.
+- **Watch start:** 2026-09-21, isolated use of released v0.3.27 through Doughnut's skill symlink, reported in ownership review `2381cf9e60:DearDough.md`; receipt CI_OBSERVER observed. This is boundary exercise, not installation into Doughnut.
+- **Review after:** 2026-09-28.
+- **Last assessed:** 2026-09-21 (Asia/Singapore); all three current logs checked. Historical executions retain their reported modified/unknown releases. The distinct missing-directory problem ODF-085 remains active. No supported post-v0.3.27 recurrence of this guard failure is present.
+- **Evidence note:** The 2026-09-21 ownership review reproduced the failure with unchanged installed v0.3.26, verified no custom CI adapter/observer override, then obtained exit 0 plus CI_OBSERVER with the isolated released v0.3.27 runtime. This review is boundary evidence, not a fifth Doughnut execution occurrence.

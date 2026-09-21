@@ -1,45 +1,8 @@
 # DearDough Process Findings
 
-## DD-066 — A literal CLI-entry URL comparison silently skipped symlink-equivalent launches
+## ODF-057 — A plan's proof command can select an empty test set and report success
 
-Three checkout-bound Node entrypoints decided whether to run by comparing the
-literal module URL with the URL made from `process.argv[1]`. On macOS, invoking
-the script through `/tmp` can load that same file through its canonical
-`/private/tmp` path. The unequal strings cause the process to exit successfully
-without running the CLI body, so an execution can mistake silence for a valid
-command result.
-
-### Occurrences
-
-- Execution: `.planning/quick/061-native-edit-protection-codex-cursor/PLAN.md @ d6cb926`
-  - Timestamp: 2026-09-20
-  - Tool: Cursor
-  - Model: unknown
-  - Open Dough release: modified; revision d6cb926; base 0.3.25
-  - Evidence: `src/skills/dough-execute-plan/scripts/ci-mailbox.mjs`,
-    `watch-ci.mjs`, and `ci-host-hook.mjs` each guard their CLI body with
-    `import.meta.url === pathToFileURL(process.argv[1]).href`. The execution
-    worktree was addressed as `/tmp/open-dough-061.WrMwJK/worktree`, while the
-    filesystem resolved it under `/private/tmp/...`; the two URLs named the
-    same entry file but compared unequal, so the requested CLI body was not
-    entered.
-  - Observed effect: a checkout-bound CI command could return status 0 with no
-    command output or hook handling. This is not ODF-052: that occurrence
-    printed a mailbox receipt and then failed to attach, whereas this path
-    comparison prevents the receipt-producing or hook-processing body itself
-    from running.
-  - Inference: the three callers need one bounded, realpath-equivalent
-    direct-entry decision plus process proof that observes each CLI body rather
-    than accepting exit status alone.
-  - Delivered: `src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs`
-    (`isDirectCliEntry`, a literal-URL fast path falling back to
-    `fs.realpathSync` comparison, fail-closed on error), wired into all three
-    callers in `eff69eb9ed1268bd2428f11abacb3abc7711e025`, with real-symlink
-    process-level proof for each entrypoint. The correction plan that carried
-    this work is recoverable at the wrap-up's before-cleanup commit,
-    `.planning/quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md`.
-
-## DD-055 — A plan's proof command can select an empty test set and report success
+Former local code: DD-055.
 
 The plan format states each slice's proof as a runnable command. When that
 command selects tests by name pattern, a pattern naming a group that does not
@@ -87,7 +50,9 @@ passed.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
-## DD-056 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
+## ODF-058 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
+
+Former local code: DD-056.
 
 Tests for a command whose contract includes a human-readable summary asserted
 the exit status and the resulting file bytes, but not the summary text. That
@@ -123,7 +88,9 @@ summary line can be wrong, or silently absent, without any test failing.
     This is additional evidence for the same execution and assertion gap;
     correction ownership is `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`.
 
-## DD-057 — Delegated refactor pass stalled after editing and before reporting
+## ODF-059 — Delegated refactor pass stalled after editing and before reporting
+
+Former local code: DD-057.
 
 An independent post-change refactor agent finished its edits but stopped
 without returning a report, leaving the coordinator with uncommitted
@@ -152,7 +119,9 @@ third-party changes in the worktree and no account of what they were or why.
     class of finding that pass was asked to surface; whether it had found them
     cannot be determined from the record.
 
-## DD-058 — A new payload file was published without being declared, and only CI noticed
+## ODF-060 — A new payload file was published without being declared, and only CI noticed
+
+Former local code: DD-058.
 
 Maintainer guidance says to edit client-payload guidance under `src/skills/` and
 never to hand-synchronize installed copies. It does not say that adding a *new*
@@ -188,7 +157,9 @@ self-consistent.
     edit location but not the declaration obligation; whether a reminder in
     `AGENTS.md` would have prevented it cannot be established from this record.
 
-## DD-059 — A shell assertion silently enforced nothing on the developer's bash
+## ODF-061 — A shell assertion silently enforced nothing on the developer's bash
+
+Former local code: DD-059.
 
 `tests/story-payload-update.sh` walks every Markdown link in the installed story
 guidance and asserts each target exists. On macOS, which ships bash 3.2, a bare
@@ -257,7 +228,9 @@ aborted with no diagnostic at all.
     local shell-test verification is now this session's own adopted
     practice, recorded separately as a durable lesson.
 
-## DD-060 — A CI repair was delivered without the refactor pass its own delivery gate requires
+## ODF-062 — A CI repair was delivered without the refactor pass its own delivery gate requires
+
+Former local code: DD-060.
 
 The CI observation protocol routes a repair through the ordinary slice
 wrap-up, whose first delivery step is an independent post-change refactor pass.
@@ -311,7 +284,9 @@ without any gate noticing, because nothing downstream depends on it having run.
     interruption to recover from, making its own delivery gates easier to
     informally shorten than an ordinary slice's.
 
-## DD-061 — A delegated report's untested behavior claim was relayed to the developer as fact
+## ODF-063 — A delegated report's untested behavior claim was relayed to the developer as fact
+
+Former local code: DD-061.
 
 Proof acceptance inspects the locations an implementation report names. A
 report can also describe behavior in prose that no named assertion observes.
@@ -344,7 +319,9 @@ receives an unverified claim with the coordinator's authority attached.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
-## DD-062 — A correction returned after the refactor pass was delivered without a refactor pass of its own
+## ODF-064 — A correction returned after the refactor pass was delivered without a refactor pass of its own
+
+Former local code: DD-062.
 
 Slice delivery runs implementation, proof acceptance, then one independent
 refactor pass. When that pass exposes contradictory proof, the change returns
@@ -372,7 +349,9 @@ change needs the refactor pass again, so the coordinator decides case by case.
     the omission was a stated judgment, so the match is uncertain and this is
     recorded separately.
 
-## DD-063 — A CI observer that died mid-execution stayed reported as attached until shutdown
+## ODF-065 — A CI observer that died mid-execution stayed reported as attached until shutdown
+
+Former local code: DD-063.
 
 The observer is a detached process. After it dies, push registration still
 writes a coverage receipt and the host hook still reports the observer as
@@ -400,7 +379,9 @@ attached, so lost coverage is first visible when the coordinator stops it.
     the record shows when it stopped writing, not why. Neither `register-push`
     nor the hook checks that the recorded worker is still running.
 
-## DD-064 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
+## ODF-066 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
+
+Former local code: DD-064.
 
 Story Branch Mode commits its claim on the integration branch and is told not
 to push it. On a shared integration checkout that leaves local `main` ahead of
@@ -427,7 +408,9 @@ origin for the whole execution.
     stale "local only" reports are a separate, smaller gap: retained execution
     identity is rechecked for the execution branch, not for the claim.
 
-## DD-054 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
+## ODF-067 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
+
+Former local code: DD-054.
 
 When an implementation agent is asked to prove a rule-required refusal/stop
 behavior (e.g. "publication must not advance past an unrelated commit") with
@@ -469,7 +452,9 @@ without the agent flagging it as a limitation.
     `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
     prevent the first draft.
 
-## DD-053 — Take-queued-work claim staging assumes exclusive backlog ownership
+## ODF-068 — Take-queued-work claim staging assumes exclusive backlog ownership
+
+Former local code: DD-053.
 
 The take-queued-work guidance says to stage the backlog path as a whole when
 committing an isolated **Taken** claim. It does not address a concurrent
@@ -628,7 +613,9 @@ not started; later execution-branch pushes were unobserved.
     unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
     hook failed to bind `generation_id` was not proved.
 
-## DD-065 — A genuinely failed CI run was reported as merely uncovered, not failed
+## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
+
+Former local code: DD-065.
 
 The observer reports coverage unavailable, not failure, when three discovery
 polls complete without finding the pushed SHA's run. GitHub Actions can still
@@ -660,7 +647,9 @@ run that later fails is never surfaced as a failure, only as lost coverage.
     not a defect in classifying a found run; whether widening the poll count
     or window would reliably close this specific gap was not tested here.
 
-## DD-066 — A nested execution worktree's `node_modules` was assumed absent instead of tested
+## ODF-070 — A nested execution worktree's `node_modules` was assumed absent instead of tested
+
+Former local code: DD-066.
 
 Two independent refactor-pass agents, working in a Story Branch execution
 worktree created under the integration checkout's own working directory
@@ -702,49 +691,9 @@ dependents run correctly from inside the nested worktree with no setup step.
     check, before reporting a tooling gap") would prevent recurrence was not
     tested here.
 
-## DD-067 — A fresh implementation agent re-authored an already-exported test fixture helper
+## ODF-071 — A coordinator-started nested observer for a native acceptance session is silently orphaned
 
-An implementation agent writing a new scripted Git demonstration for a
-preparation-workspace publication scenario duplicated two helper functions
-(`createPreparationFixture`, `advanceOriginFromAnotherWriter`) byte-for-byte,
-apart from a temp-directory prefix string, from a sibling test file two
-slices earlier in the same execution, instead of importing them. The
-delegation brief for that slice did instruct reusing "the fixture patterns
-already established" by name, but the agent read that as a pattern to follow
-rather than a concrete export to import, and the duplication was not caught
-until the following coordinator-run refactor pass.
-
-### Occurrences
-
-- Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.26
-  - Evidence: slice 3 (commit `cfef3bc`) introduced
-    `createPreparationFixture`/`advanceOriginFromAnotherWriter` as local
-    functions inside
-    `dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs`.
-    Slice 5's implementation agent's own report for
-    `preparation-keep-publish-resume.test.mjs` stated it built "the
-    preparation-specific workspace shape... locally because no existing
-    fixture already models preparation's own vocabulary" — inaccurate, since
-    that exact shape already existed in slice 3's file. The slice 5
-    refactor-pass report then confirmed the duplication ("byte-for-byte,
-    apart from the tmp-dir prefix string") and extracted both functions into
-    a new shared `preparation-keep-publish-test-fixtures.mjs`, updating both
-    call sites.
-  - Observed effect: one avoidable extraction cycle inside the refactor pass
-    (reported as part of a larger ~35-minute pass, not separately timed); no
-    duplication reached the delivered commit, since the refactor pass ran
-    before delivery every slice.
-  - Inference: Qualified. A single occurrence in this execution; the later
-    slice 6 implementation agent correctly imported the by-then-shared
-    fixture without repeating the pattern, so whether this generalizes
-    beyond "reuse existing X" phrasing not resolving to a concrete import
-    was not tested further here.
-
-## DD-068 — A coordinator-started nested observer for a native acceptance session is silently orphaned
+Former local code: DD-068.
 
 The CI-mailbox binding that lets a hook deliver a queued event only forms
 when the *observed* session's own tool output contains the `CI_OBSERVER`
@@ -793,7 +742,9 @@ mailbox reports `unread: 1` at stop with no error.
     "Start once and continue immediately" section would prevent recurrence
     was not tested here.
 
-## DD-069 — Cursor's Shell tool does not inherit the launching process's `PATH`, only its other environment variables
+## ODF-072 — Cursor's Shell tool does not inherit the launching process's `PATH`, only its other environment variables
+
+Former local code: DD-069.
 
 `cursor agent --print` reconstructs its own `Shell`-tool `PATH` (a fixed,
 login-shell-like list) rather than inheriting the `PATH` set on the process
