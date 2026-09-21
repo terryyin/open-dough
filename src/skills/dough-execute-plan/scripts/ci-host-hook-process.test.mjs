@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import {
   checkoutRoot,
@@ -9,6 +12,7 @@ import {
 import {
   context,
   failure,
+  hookPath,
   input,
   interruptHostHookWhileWriting,
   runHostHook,
@@ -68,4 +72,23 @@ test("Claude Code redelivers an event when the hook process is interrupted befor
       assert.match(context(delivered), /CI_FAILURE/);
     },
   });
+});
+
+test("a symlink-equivalent entry path still parses stdin and delivers CI diagnostic output", async (t) => {
+  const linkDir = mkdtempSync(join(tmpdir(), "ci-host-hook-symlink-"));
+  const entry = join(linkDir, "ci-host-hook-entry.mjs");
+  symlinkSync(hookPath, entry);
+  t.after(() => rmSync(linkDir, { recursive: true, force: true }));
+
+  const options = { ...setup(checkoutRoot), path: entry };
+  const directory = createMailbox({}, options);
+  await runHostHook("claude", input("claude", directory), options);
+  publishMailboxEvent(directory, failure);
+
+  const delivered = await runHostHook("claude", input("claude"), options);
+
+  assert.deepEqual(Object.keys(delivered), ["hookSpecificOutput"]);
+  assert.equal(delivered.hookSpecificOutput.hookEventName, "PostToolUse");
+  assert.match(context(delivered), /CI_FAILURE/);
+  assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 1 });
 });

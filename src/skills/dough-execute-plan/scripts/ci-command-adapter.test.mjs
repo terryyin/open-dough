@@ -8,6 +8,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -78,10 +79,10 @@ async function waitForCalls(path, count) {
   throw new Error(`Adapter did not reach ${count} calls`);
 }
 
-async function runObserverUntil(path, count, fixture) {
+async function runObserverUntil(path, count, fixture, entry = observer) {
   const child = spawn(
     process.execPath,
-    [observer, "--execution", "owner/project", "feature/custom", "60000"],
+    [entry, "--execution", "owner/project", "feature/custom", "60000"],
     {
       cwd: fixture.root,
       env: {
@@ -109,6 +110,25 @@ test("normal observer CLI selects the configured command", async (t) => {
     ciAdapter: [process.execPath, adapter],
   }));
   const stdout = await runObserverUntil(fixture.calls, 1, fixture);
+
+  assert.equal(stdout, "");
+  assert.equal(existsSync(fixture.ghCalls), false);
+  assert.deepEqual(JSON.parse(readFileSync(fixture.requests, "utf8")), {
+    operation: "discover",
+    check: { repo: "owner/project", branch: "feature/custom" },
+  });
+});
+
+test("a symlink-equivalent entry path still selects the configured command", async (t) => {
+  const fixture = projectFixture(t, (adapter) => ({
+    ciAdapter: [process.execPath, adapter],
+  }));
+  const linkDir = mkdtempSync(join(tmpdir(), "ci-command-adapter-symlink-"));
+  const entry = join(linkDir, "watch-ci-entry.mjs");
+  symlinkSync(observer, entry);
+  t.after(() => rmSync(linkDir, { recursive: true, force: true }));
+
+  const stdout = await runObserverUntil(fixture.calls, 1, fixture, entry);
 
   assert.equal(stdout, "");
   assert.equal(existsSync(fixture.ghCalls), false);

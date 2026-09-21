@@ -1,6 +1,23 @@
 # Recognize realpath-equivalent CLI entry paths
 
-Status: planned. No execution has started or been authorized.
+Status: complete. Slice 1 is done.
+
+## Execution identity
+
+- Mode: Story Branch Mode.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough` on
+  `main`; queue claim `a9b6b2e`.
+- Execution checkout:
+  `/Users/terryyin/git/open-dough/.claude/worktrees/claude+064-recognize-realpath-equivalent-cli-entry`
+  on `claude/064-recognize-realpath-equivalent-cli-entry`.
+- Authorized destination: `origin/claude/064-recognize-realpath-equivalent-cli-entry`;
+  later integration remains `origin/main` through story wrap-up.
+- Replanning permission: no current override; preserved existing planning
+  authority (unused — the slice completed without an overrun).
+- CI observer: GitHub Actions workflow `ci.yml` / `CI`, target branch
+  `claude/064-recognize-realpath-equivalent-cli-entry`, mailbox
+  `/tmp/dough-ci-501/watch-oK9AzN`, armed from the execution checkout on the
+  Claude Code host.
 
 ## Source and bounded outcome
 
@@ -66,7 +83,7 @@ the CLI body from running, so no receipt or hook processing can occur at all.
 
 ### 1. Run checkout-bound CLIs through realpath-equivalent entry paths
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: When any of the three affected scripts is launched with an argv path
 that is symlink-equivalent to the loaded module path, it enters its existing CLI
@@ -82,6 +99,50 @@ or controlled validation result for `watch-ci.mjs`, and parsed-input/output or
 error behavior for `ci-host-hook.mjs`. Retain canonical invocation coverage and
 negative import/unrelated-path coverage. Run the focused test files, then
 `npm run lint` and `PATH=/opt/homebrew/bin:$PATH npm test`.
+
+Delivered: extracted the shared decision into
+`src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs`
+(`isDirectCliEntry(moduleUrl, argvPath)` — literal-URL fast path, falling back
+to `fs.realpathSync` comparison, fail-closed on error), matching the existing
+`realpathSync` idiom already used in `ci-mailbox-location.mjs` for a related
+identity comparison (no new mechanism introduced). `ci-mailbox.mjs`,
+`watch-ci.mjs`, and `ci-host-hook.mjs` now call it in place of the inline
+literal comparison; no other behavior in those files changed. `install.sh`'s
+`managed_files` manifest gained the new source path so the installed payload
+carries the module the other three now import.
+
+Accepted proof:
+```
+proof:
+  command: node --test src/skills/dough-execute-plan/scripts/ci-direct-entry.test.mjs
+  covers: isDirectCliEntry canonical match, real-symlink match, unrelated path, no-argv import, unresolvable-path fail-closed
+  boundary: src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs
+  observations:
+    - ci-direct-entry.test.mjs "a symlink-equivalent argv path ... is direct entry": asserts true across a real fs.symlinkSync boundary
+    - ci-direct-entry.test.mjs "an unrelated script path ... is not direct entry": asserts false
+  setup: each test creates disposable files/symlinks under a temp dir; no mocked boolean
+  result: pass (5/5)
+
+  command: node --test src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs
+  covers: each of the three CLI entrypoints actually running its body when spawned through a real symlink-equivalent entry path
+  boundary: ci-mailbox.mjs probe command; watch-ci.mjs configured-adapter discovery call; ci-host-hook.mjs stdin-parsing/CI diagnostic delivery
+  observations:
+    - ci-mailbox-launch.test.mjs "a symlink-equivalent entry path still runs the probe CLI body": spawns ci-mailbox.mjs through a real symlink, asserts a genuine CI_OBSERVER receipt, result.json status finished, and a recorded CI_MONITOR_READY event
+    - ci-command-adapter.test.mjs "a symlink-equivalent entry path still selects the configured command": spawns watch-ci.mjs through a real symlink, asserts the configured adapter received the discover request
+    - ci-host-hook-process.test.mjs "a symlink-equivalent entry path still parses stdin and delivers CI diagnostic output": spawns ci-host-hook.mjs through a real symlink, asserts parsed hookSpecificOutput containing the CI_FAILURE diagnostic
+  setup: each test creates a real fs.symlinkSync entry path pointing at the canonical script; no exit-status-only assertion
+  result: pass (24/24 across the four files, including retained canonical and negative-import/unrelated-path cases)
+```
+
+Regression check (pre-fix baseline): stashing the fix and rerunning the new
+`ci-mailbox-launch.test.mjs` symlink test reproduced the original silent
+no-op (empty stdout), confirming the test exercises the real defect before
+the fix restored it.
+
+Full-suite gates: `npm run lint` clean; `PATH=/opt/homebrew/bin:$PATH npm test`
+green (one pre-existing, environment-load-dependent flake in
+`ci-codex-lifecycle.test.mjs`, reproduced identically on the pre-fix baseline
+and passing in isolation — unrelated to this change).
 
 Implementation boundary: reuse one existing or newly extracted direct-entry
 identity decision across the three callers, using filesystem-canonical identity

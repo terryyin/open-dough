@@ -8,7 +8,9 @@ import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
 
 const exec = promisify(execFile);
-const hook = fileURLToPath(new URL("./ci-host-hook.mjs", import.meta.url));
+export const hookPath = fileURLToPath(
+  new URL("./ci-host-hook.mjs", import.meta.url),
+);
 
 export function setup(root = "/test/example") {
   const storage = mkdtempSync(join(tmpdir(), "ci-hook-test-"));
@@ -40,8 +42,12 @@ export const input = (host, directory, overrides = {}) => ({
 export const context = (output) =>
   output.additional_context ?? output.hookSpecificOutput?.additionalContext;
 
-export async function runHostHook(host, hookInput, { storage }) {
-  const child = exec(process.execPath, [hook, host], {
+export async function runHostHook(
+  host,
+  hookInput,
+  { storage, path = hookPath },
+) {
+  const child = exec(process.execPath, [path, host], {
     env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage },
     maxBuffer: 4 * 1024 * 1024,
   });
@@ -54,7 +60,7 @@ export async function interruptHostHookWhileWriting(
   hookInput,
   { storage },
 ) {
-  const child = spawn(process.execPath, [hook, host], {
+  const child = spawn(process.execPath, [hookPath, host], {
     env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage },
     stdio: ["pipe", "pipe", "pipe"],
   });

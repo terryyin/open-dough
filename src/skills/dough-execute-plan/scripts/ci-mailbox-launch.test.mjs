@@ -4,10 +4,11 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import {
   createMailbox,
@@ -25,6 +26,34 @@ import {
   spawnIdleNode,
 } from "./ci-mailbox-process-test-fixtures.mjs";
 import { waitForFile } from "./watch-ci-test-fixtures.mjs";
+
+test("a symlink-equivalent entry path still runs the probe CLI body", async (t) => {
+  const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-symlink-storage-"));
+  const linkDir = mkdtempSync(join(tmpdir(), "ci-mailbox-symlink-entry-"));
+  const entry = join(linkDir, "ci-mailbox-entry.mjs");
+  symlinkSync(launcher, entry);
+  t.after(() => {
+    rmSync(storage, { recursive: true, force: true });
+    rmSync(linkDir, { recursive: true, force: true });
+  });
+  const env = { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage };
+
+  const { stdout } = await exec(process.execPath, [entry, "probe"], {
+    env,
+    timeout: 5000,
+  });
+
+  assert.match(stdout, /^CI_OBSERVER /);
+  const { directory } = JSON.parse(stdout.slice("CI_OBSERVER ".length));
+  assert.equal(resolve(dirname(directory)), resolve(storage));
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
+    status: "finished",
+  });
+  assert.deepEqual(
+    readMailboxEvents(directory).map(({ event }) => event),
+    [{ type: "CI_MONITOR_READY" }],
+  );
+});
 
 test("execution launcher returns before startup discovery and appends its eventual failure", async (t) => {
   const { directory, mailbox, stdout, deliver } = await setupProcessMailbox(t, [
