@@ -64,7 +64,17 @@ Changing the supported registration contract requires a separate human decision.
 
 ### 1. Verify one delivery when Cursor imports the project Claude hook
 Type: Behavior
-Status: planned
+Status: done
+
+Verdict: established on Cursor 3.21.16 against source commit
+`f6d3c6c35a0758813160e124b4d0678bdb3bf34f` (disposable fixture installer
+commit `6dac7ad8e30569b7e914ddb6ac2ff210697a910e`). Cursor's imported
+`.claude/settings.json` `PostToolUse` hook fires with `cursor_version`
+present; the Claude adapter's guard declines it (`{}`); the native
+`.cursor/hooks.json` adapter delivered the controlled failure exactly once;
+mailbox shutdown reported `recordedThrough: 1`, `deliveredThrough: 1`,
+`unread: 0`; both settings files stayed byte-identical. Full evidence at
+`evidence/cursor-claude-compatibility-resolved/README.md`.
 
 Behavior: Given a freshly installed disposable project containing the managed
 Cursor and Claude hook configurations, with Cursor's third-party import enabled,
