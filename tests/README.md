@@ -19,6 +19,13 @@ Direct test scripts rely on this prerequisite; the version guard lives in the
 suite runner. This is a contributor test requirement; the product installer
 continues to support Bash 3.2.
 
+The runner discovers only `tests/*.sh` outside `tests/support/`. A
+`node --test` suite, including one beside a skill's scripts under
+`src/skills/`, runs in `npm test` and CI only when one of those shell entries
+invokes it. Entries that glob a directory's `*.test.mjs`, such as
+`tests/execution-ci-runtime.sh` and `tests/workspace-publication-callers.sh`,
+pick up suites added there; entries that list files need each new suite added.
+
 ## Native ADR-awareness check wrappers
 
 Exact flags implemented for selecting and inspecting the existing native
