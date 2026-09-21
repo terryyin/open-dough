@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Recognize realpath-equivalent CLI entry paths](quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md)
-
 ## Backlog list
 
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
