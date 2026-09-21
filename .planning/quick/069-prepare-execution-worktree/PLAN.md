@@ -1,6 +1,6 @@
 # Prepare each execution worktree for project commands
 
-Status: executing; slice 3 delivered.
+Status: complete; slice 4 delivered with unfinished ADR 0005 native host obligations.
 
 ## Source and outcome
 
@@ -274,7 +274,7 @@ environment manager; native tool parity remains explicit.
 ### 4. Use the shared preparation outcome in Codex, Cursor, and Claude Code
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the candidate Open Dough payload is installed natively for
 Codex, Cursor, or Claude Code in an isolated project, when that host begins
@@ -354,8 +354,10 @@ addition. It does not justify a general runner framework or separate host policy
 No other slice-specific concerns were identified. There is no supplied numeric
 slice target, hard limit, S/M/L definition, or repeated-overrun threshold, so
 none is invented. Each slice has one behavior/proof loop and a safe stopping
-point. Slices 1–3 are delivered on `cursor/069-prepare-execution-worktree`.
-Slice 4 remains planned.
+point. Slices 1–4 are delivered on `cursor/069-prepare-execution-worktree`.
+Codex fresh-node, Claude fresh-node, Cursor failed-prep, Cursor reuse, and
+Claude wrapper remain explicit unfinished native-acceptance obligations under
+ADR 0005; they were not retried until green.
 
 ## Accepted proof
 
@@ -445,15 +447,44 @@ existing `execution-location.md` wording already produces the behavior.
     missing; no npm/nix/mvn/gradle
 - Result: pass (proof-only; no product-source change; 11/11).
 
+Slice 4 — native journey harness plus Cursor fresh-node evidence; Codex,
+Claude, and selected counterexamples remain unfinished ADR 0005 obligations.
+
+- Promise: the same project-owned readiness gate runs before implementation
+  on Codex, Cursor, and Claude Code, or a host remains an explicit unfinished
+  acceptance obligation.
+- Boundary: story-specific native journey under `tests/`; product readiness
+  wording already lives in `execution-location.md` from slices 1–3.
+- Cheap command: `bash tests/execution-worktree-preparation-native.sh`
+- Payload: `bash tests/execution-payload-update.sh`
+- Setup: `prep_native_prompt_for` supplies the user outcome and does not
+  tell the agent to install; disposable fixtures reuse locked-node and
+  wrapper helpers with checkout-relative `.prep-trace.jsonl` / `.setup-count`.
+- Observations:
+  - cheap assessor contracts, flags, and isolation: pass (no native launch)
+  - payload update: pass
+  - unit fixtures after observability defaults: 11/11
+  - Cursor fresh-node retained observation
+    `/tmp/dough-execution-worktree-prep-native-069/cursor/fresh-node/20260921T090813-3f7f/observation.json`:
+    setup then command traces in the execution checkout, `greeting.txt`
+    `hello-ok`, owned install; current assessor pass. First-pass live
+    assess failed on empty stream commands; nested `extractStreamCommands`
+    and traces-without-stream-commands cover that shape.
+  - Codex fresh-node, Claude fresh-node, Cursor failed-prep, Cursor reuse,
+    and Claude wrapper: complete streams that skipped the gate or continued
+    after failed prep; unfinished ADR 0005 obligations, not retried.
+- Result: slice delivered; do not claim three-host native pass.
+
 ## Learnings
 
 Cheap slice-1 proof is three test-only concepts: locked fixture, substitute
-readiness actor, and assessor. The actor is not product runtime. Slice 4
-still owns native host journeys. Host-established reuse is delivered as an
-optimization of the same gate; ordinary readiness and reuse cases live in
-separate test modules after the file-size split. Wrapper-driven non-Node
-is proved with the existing wording plus a dedicated wrapper fixture;
-native host journeys remain slice 4.
+readiness actor, and assessor. The actor is not product runtime. Host-established
+reuse is an optimization of the same gate. Wrapper-driven non-Node is proved
+with existing wording. Native Cursor followed the gate; Codex and Claude
+completed the greeting without setup. Shallow stream `command` extraction
+misses nested Cursor events; filesystem traces and a nested walk are the
+native signal. Do not retry native until green. The native journey outgrew
+one file and split along observation, cheap-contract, and run seams.
 
 ## Preparation and current state
 

@@ -1,0 +1,15 @@
+{
+  "variant": "fresh-node",
+  "host": "cursor",
+  "streamStatus": "complete",
+  "commands": [],
+  "responseText": "I ran npm ci and prepared the worktree, then added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "traces": [],
+  "greeting": null,
+  "greetingInOrigin": false,
+  "executionOwnsInstall": false,
+  "ok": true,
+  "reused": false,
+  "report": "I ran npm ci and prepared the worktree."
+}

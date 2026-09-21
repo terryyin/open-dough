@@ -1,0 +1,40 @@
+{
+  "variant": "reuse",
+  "host": "cursor",
+  "streamStatus": "complete",
+  "commands": ["npm run prove", "write greeting.txt hello-ok"],
+  "responseText": "Reused the prepared checkout and added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "traces": [
+    { "type": "setup", "cwd": "/tmp/exec" },
+    { "type": "command", "cwd": "/tmp/exec" }
+  ],
+  "invocations": [
+    {
+      "role": "command",
+      "command": "npm run prove",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "fixture-cli-ok\n",
+      "stderr": ""
+    },
+    {
+      "role": "delegate",
+      "command": "write greeting.txt",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "greeting": "hello-ok\n",
+  "greetingInOrigin": false,
+  "executionOwnsInstall": true,
+  "originMarkerUnchanged": true,
+  "originLockUnchanged": true,
+  "executionLockUnchanged": true,
+  "ok": true,
+  "reused": true,
+  "setupCount": 1,
+  "report": "Reused the prepared checkout."
+}

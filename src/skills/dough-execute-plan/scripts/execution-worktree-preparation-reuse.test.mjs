@@ -7,15 +7,17 @@ import { promisify } from "node:util";
 import { assessWorktreePreparation } from "./execution-worktree-preparation-assessor.mjs";
 import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
 import {
-  changeDependencyState,
   createLockedNodeFixture,
-  createNestedUnpreparedCheckout,
-  hostPrepareCheckout,
   integritySnapshot,
   lockfileDigest,
   observePreparation,
   setupTraceCount,
 } from "./execution-worktree-preparation-test-fixtures.mjs";
+import {
+  changeDependencyState,
+  createNestedUnpreparedCheckout,
+  hostPrepareCheckout,
+} from "./execution-worktree-preparation-reuse-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 

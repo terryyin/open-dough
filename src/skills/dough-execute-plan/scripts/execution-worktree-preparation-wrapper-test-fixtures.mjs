@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
 import {
   git,
+  prepTraceRel,
   readTraces,
 } from "./execution-worktree-preparation-test-fixtures.mjs";
 
@@ -37,23 +38,17 @@ function looksLikeNpmOrNix(command) {
   return /(?:^|[\s/\\])(?:npm|nix)(?:\s|$)/i.test(command ?? "");
 }
 
-function writeWrapper(origin) {
+function writeWrapper(origin, artifactCache) {
   writeFileSync(
     join(origin, "wrapper"),
     `#!/bin/sh
 set -eu
 # Setup: ./wrapper prepare
 # Command: ./wrapper prove
-# Immutable artifacts: $ARTIFACT_CACHE (machine-level)
+# Immutable artifacts: ARTIFACT_CACHE (machine-level; baked default)
 # Generated output: ./target/ (worktree-local)
-if [ -z "\${PREP_TRACE:-}" ]; then
-  echo "PREP_TRACE is required" >&2
-  exit 1
-fi
-if [ -z "\${ARTIFACT_CACHE:-}" ]; then
-  echo "ARTIFACT_CACHE is required" >&2
-  exit 1
-fi
+PREP_TRACE=\${PREP_TRACE:-${prepTraceRel}}
+ARTIFACT_CACHE=\${ARTIFACT_CACHE:-${artifactCache}}
 trace() {
   printf '%s\\n' "{\\"type\\":\\"$1\\",\\"cwd\\":\\"$(pwd)\\",\\"cache\\":\\"$ARTIFACT_CACHE\\"}" >> "$PREP_TRACE"
 }
@@ -84,7 +79,7 @@ esac
 }
 
 function writeCheckedInConvention(origin) {
-  writeFileSync(join(origin, ".gitignore"), "target/\n");
+  writeFileSync(join(origin, ".gitignore"), `target/\n${prepTraceRel}\n`);
   writeFileSync(
     join(origin, "CONTRIBUTING.md"),
     [
@@ -132,9 +127,10 @@ export function observeWrapperPreparation(fixture, result) {
 // outside origin and execution, generated output under target/.
 export async function createWrapperDrivenFixture({
   missingConvention = false,
+  directory,
 } = {}) {
   const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "execution-worktree-wrapper-")),
+    directory ?? mkdtempSync(join(tmpdir(), "execution-worktree-wrapper-")),
   );
   const origin = join(fixture, "origin");
   const execution = join(fixture, "execution");
@@ -154,7 +150,7 @@ export async function createWrapperDrivenFixture({
   await git(origin, "init", "-b", "main");
   await git(origin, "config", "user.name", "Origin Checkout");
   await git(origin, "config", "user.email", "origin@example.test");
-  writeWrapper(origin);
+  writeWrapper(origin, artifactCache);
   if (missingConvention) {
     writeFileSync(
       join(origin, "pom.xml"),

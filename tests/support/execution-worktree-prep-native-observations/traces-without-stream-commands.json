@@ -1,0 +1,21 @@
+{
+  "variant": "fresh-node",
+  "host": "cursor",
+  "streamStatus": "complete",
+  "commands": [],
+  "responseText": "Prepared the checkout and added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "traces": [
+    { "type": "setup", "cwd": "/tmp/exec" },
+    { "type": "command", "cwd": "/tmp/exec" }
+  ],
+  "greeting": "hello-ok\n",
+  "greetingInOrigin": false,
+  "executionOwnsInstall": true,
+  "originMarkerUnchanged": true,
+  "originLockUnchanged": true,
+  "executionLockUnchanged": true,
+  "ok": true,
+  "reused": false,
+  "report": "Prepared the checkout and added greeting.txt."
+}

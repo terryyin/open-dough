@@ -7,8 +7,6 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
-  cpSync,
-  copyFileSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,6 +16,8 @@ import { promisify } from "node:util";
 const exec = promisify(execFile);
 
 const originInstallMarker = ".origin-install-marker";
+export const prepTraceRel = ".prep-trace.jsonl";
+export const setupCountRel = ".setup-count";
 
 export async function git(cwd, ...args) {
   return exec("git", args, { cwd });
@@ -111,38 +111,13 @@ export function setupTraceCount(tracePath) {
   return readTraces(tracePath).filter((entry) => entry.type === "setup").length;
 }
 
-export async function hostPrepareCheckout(cwd, env) {
-  await exec("npm", ["ci"], {
-    cwd,
-    env,
-    timeout: 60_000,
-  });
-}
-
-export function changeDependencyState(checkout) {
-  const lockPath = join(checkout, "package-lock.json");
-  const lock = JSON.parse(readFileSync(lockPath, "utf8"));
-  lock._fixtureDependencyState = "changed";
-  writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
-}
-
-export function createNestedUnpreparedCheckout(origin) {
-  const nested = join(origin, ".worktrees", "nested-exec");
-  mkdirSync(nested, { recursive: true });
-  for (const name of ["CONTRIBUTING.md", "package.json", "package-lock.json"]) {
-    copyFileSync(join(origin, name), join(nested, name));
-  }
-  cpSync(join(origin, "scripts"), join(nested, "scripts"), { recursive: true });
-  cpSync(join(origin, "packages"), join(nested, "packages"), {
-    recursive: true,
-  });
-  return nested;
-}
-
 function writeFixtureProject(origin, { failingInstall }) {
   mkdirSync(join(origin, "packages", "fixture-cli"), { recursive: true });
   mkdirSync(join(origin, "scripts"));
-  writeFileSync(join(origin, ".gitignore"), "node_modules/\n");
+  writeFileSync(
+    join(origin, ".gitignore"),
+    `node_modules/\n${prepTraceRel}\n${setupCountRel}\n`,
+  );
   writeFileSync(
     join(origin, "CONTRIBUTING.md"),
     ["Locked setup: `npm ci`", "Applicable command: `npm run prove`", ""].join(
@@ -187,14 +162,20 @@ function writeFixtureProject(origin, { failingInstall }) {
   );
   writeFileSync(
     join(origin, "scripts/trace.mjs"),
-    `import { appendFileSync } from "node:fs";
+    `import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 
-const stream = process.env.PREP_TRACE;
-if (!stream) throw new Error("PREP_TRACE is required");
+const stream = process.env.PREP_TRACE ?? ${JSON.stringify(prepTraceRel)};
 appendFileSync(
   stream,
   \`\${JSON.stringify({ type: process.argv[2], cwd: process.cwd() })}\\n\`,
 );
+if (process.argv[2] === "setup") {
+  const countPath = ${JSON.stringify(setupCountRel)};
+  const current = existsSync(countPath)
+    ? Number(readFileSync(countPath, "utf8")) || 0
+    : 0;
+  writeFileSync(countPath, \`\${current + 1}\\n\`);
+}
 `,
   );
 }
@@ -203,9 +184,12 @@ appendFileSync(
 // execution worktree, a locked local-file dependency whose executable is
 // unavailable before `npm ci`, install and command traces, an
 // originating-checkout marker, lockfile digests, and a failing-install variant.
-export async function createLockedNodeFixture({ failingInstall = false } = {}) {
+export async function createLockedNodeFixture({
+  failingInstall = false,
+  directory,
+} = {}) {
   const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "execution-worktree-prep-")),
+    directory ?? mkdtempSync(join(tmpdir(), "execution-worktree-prep-")),
   );
   const origin = join(fixture, "origin");
   const execution = join(fixture, "execution");
