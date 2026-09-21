@@ -97,13 +97,19 @@ test("contextual execution and queued execution keep their own continuations", (
 
   assert.match(
     execution,
-    /Only after\s+that publication is confirmed do Story Branch and Trunk modes create their/,
+    /select or reuse the owned workspace from\s+fetched remote trunk before the Taken claim/,
+  );
+  assert.match(execution, /Do not wait for\s+the claim/);
+  assert.match(execution, /publication provenance/);
+  assert.match(
+    execution,
+    /Recheck remote membership before replaying a\s+competing claim/,
   );
   assert.match(
     execution,
-    /Queued Story Branch and Trunk Mode supply the published claim revision/,
+    /Identical \*\*Taken\*\* text is not evidence this execution\s+owns the claim/,
   );
-  assert.match(execution, /Do not select the workspace before\s+the claim/);
+  assert.match(execution, /stays published/);
 
   assert.match(
     execution,

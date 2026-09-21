@@ -4,17 +4,15 @@ Planned and planless work default to Story Branch Mode: one execution branch and
 Git worktree for the selected work. Explicit `--trunk` uses Trunk Mode: still
 one retained local execution branch and worktree, with claim and increment
 publication as in [trunk publication](trunk-publication.md). Explicit caller selection uses the
-current branch instead. Establish any queue claim first under
-[Take queued work](../SKILL.md#take-queued-work), which commits it locally on
-the integration branch, then, for Story Branch and Trunk Mode, publishes it per
-[trunk publication](trunk-publication.md#publish-a-queue-claim). Only after
-that publication is confirmed do Story Branch and Trunk modes create their
-branch/worktree from the published revision before delegation; caller-selected
-current-branch work continues from that same committed revision, which is
-never published. When no claim applies, including authorized contextual
-planless work, use verified current HEAD and create no story, plan, or queue
-entry; still create the local execution workspace from that HEAD unless the caller selected the current
-branch. When that HEAD is the default checkout, verify it first under
+current branch instead. Story Branch and Trunk Mode select or reuse the owned
+workspace before the Taken claim, then publish that claim from the workspace
+per [trunk publication](trunk-publication.md#publish-a-queue-claim) and
+[Take queued work](../SKILL.md#take-queued-work). Caller-selected current-branch
+work commits its claim on the current checkout, which is never published.
+When no claim applies, including authorized contextual planless work,
+use verified current HEAD and create no story, plan, or queue entry; still
+create the local execution workspace from that HEAD unless the caller selected
+the current branch. When that HEAD is the default checkout, verify it first under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
 
 Select or create that workspace through
@@ -24,18 +22,25 @@ Select or create that workspace through
 recipe here. This execution chooses when selection runs and which verified
 base it supplies:
 
-- Queued Story Branch and Trunk Mode supply the published claim revision, and
-  only after that publication is confirmed. Do not select the workspace before
-  the claim.
+- Queued Story Branch and Trunk Mode select or reuse the owned workspace from
+  fetched remote trunk before the Taken claim is committed. Do not wait for
+  the claim, and do not use the claim revision as that base. After the
+  workspace exists, commit the claim there and publish its SHA before
+  implementation. A matching retained execution resumes its own claim.
+  Ownership is that retained context together with the claim candidate's
+  publication provenance. Recheck remote membership before replaying a
+  competing claim. Identical **Taken** text is not evidence this execution
+  owns the claim. Another execution's published claim is a recoverable
+  conflict. Ambiguous ownership keeps the conflict.
 - Contextual planless work with no claim supplies verified current HEAD, after
   the default-checkout freshness check above when that HEAD is the default
   checkout. Create no story, plan, or queue entry.
 - Caller-selected current-branch work records that checkout and creates no
   worktree.
 
-If selection stops, preserve and report the claim and any created resources.
-Do not start implementation. The shared lifecycle does not publish the claim
-or refresh the default checkout; those stay with
+If selection stops, preserve and report any partial workspace. Do not publish
+a claim from it and do not start implementation. The shared lifecycle does not
+publish the claim or refresh the default checkout; those stay with
 [trunk publication](trunk-publication.md) and
 [maintain the default checkout](maintain-default-checkout.md).
 
@@ -45,10 +50,13 @@ execution checkout path and branch, and the integration checkout path are
 separate local roles. The authorized remote target is target selection and is
 not one of those paths.
 
-After the selected checkout exists, prepare it as part of the same setup
-lifecycle as worktree creation so this project's ordinary commands are usable
-there before implementation delegation. The same readiness rule applies when
-caller-selected current-branch work newly supplies an unprepared checkout.
+After the selected checkout exists, and after a queued claim's SHA is confirmed
+on the authorized remote when this execution publishes one, prepare the checkout
+as part of the same setup lifecycle so this project's ordinary commands are
+usable there before implementation delegation. The same readiness rule applies
+when caller-selected current-branch work newly supplies an unprepared checkout,
+and when contextual work has no claim to publish first.
+
 Resolve the required setup from this project's checked-in conventions and
 locked dependency metadata, not from an Open Dough configuration key. When
 those sources establish a deterministic locked install, perform it in the
@@ -64,12 +72,14 @@ output, and project-local caches in the selected checkout. Supported
 package-manager download or artifact caches may remain machine-level.
 
 Creation, this preparation, and the command check are one setup lifecycle.
-Execution may cross the implementation boundary only when the command
-succeeds from the selected checkout. A missing, ambiguous, or failed
-required preparation stops before implementation delegation, formatting,
-proof commands, or CI-readiness claims. Preserve the checkout and report
-its path, the command selected or the missing convention, and the failure
-needed for recovery. Host facilities may establish or invoke the same
+Execution may cross the implementation boundary only when any required command
+succeeds from the selected checkout and, for a queued Story Branch or Trunk
+Mode claim, that claim's SHA is on the authorized remote. A missing, ambiguous,
+or failed required preparation stops before implementation delegation, formatting,
+proof commands, or CI-readiness claims. A remote claim that already succeeded
+stays published. Preserve the checkout and report its path, the published claim
+SHA when one exists, the command selected or the missing convention, and the
+failure needed for recovery. Host facilities may establish or invoke the same
 project-owned outcome; they do not define a separate preparation policy.
 
 Reuse that host-established outcome only when its evidence names this exact
@@ -107,7 +117,8 @@ On resume, verify the shared lifecycle's recorded worktree path, branch,
 starting revision, and created-versus-reused ownership when that fact was
 recorded, then verify mode, HEAD ancestry, retained published revisions, and
 the unpublished candidate SHA against actual worktree state.
-**Taken** alone supplies no location. Reuse a matching execution checkout.
+**Taken** alone supplies no location. Reuse a matching execution checkout
+only when the queued claim rule above agrees this execution owns it.
 Rewritten unpublished identities follow
 [interrupted publication](trunk-publication.md#resume-an-interrupted-publication).
 Missing, ambiguous, contradictory, unsafe, or partial identity/setup requires

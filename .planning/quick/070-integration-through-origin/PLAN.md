@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 7 next.
+Status: in progress; slice 8 next.
 
 ## Learnings
 
@@ -49,6 +49,15 @@ Status: in progress; slice 7 next.
   selection does not choose claim order. Slice 7 reorders the Taken claim
   around the owned workspace and must not restore that exclusive-turn
   paragraph.
+- A queued Taken claim is committed in the owned workspace after that
+  workspace is selected from fetched trunk, then published from there before
+  implementation. Project-command readiness runs after that remote
+  confirmation. A failed readiness leaves the published SHA and the workspace.
+  Ownership is retained execution context together with the introducing
+  commit's `Claim-Publisher` trailer. Identical Taken text does not decide
+  it. A competing identity stays a conflict without replay; distinct
+  identities replay once through the backlog rebase adapter. Proof is
+  `workspace-publication.test.mjs` and `workspace-publication-race.test.mjs`.
 
 ### Accepted proof — slice 1
 
@@ -124,6 +133,20 @@ boundary: guidance structure plus Git mechanics for preparation and worktree rea
 setup: guidance tests read source; readiness fixtures build a disposable checkout; preparation fixtures build a bare origin
 observations: workspace-ownership-lifecycle.test.mjs asserts the workspace is created only after publication is confirmed and execution-location does not contain git worktree add; readiness tests run setup in the selected checkout before delegation; preparation keep still publishes while a human edit stays put
 result: pass (21/21); refactor reused this proof
+```
+
+Slice 7 replaces the claim-before-workspace order recorded above.
+
+### Accepted proof — slice 7
+
+Promise: queued Story Branch and Trunk work selects the owned workspace from fetched trunk, publishes the Taken claim from that workspace, and only then starts implementation. Distinct claims both land. A competing claim keeps one owner and a recoverable conflict.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs tests/support/product-backlog-take.test.mjs tests/support/product-backlog-git-rebase-onto.test.mjs
+boundary: Git mechanics plus guidance structure
+setup: fixtures build a bare origin, an integration checkout, and queued backlog entries
+observations: workspace-publication.test.mjs trace is selected, committed, prepared, implementation, and onImplement sees the remote tip equal the published SHA before implementation-started exists; a competing publisher gets ownership other with provenance exec-a and no REBASE_HEAD; execution-location.md selects the workspace from fetched trunk before the claim is committed
+result: pass (17/17); refactor reused the Git cases and reran the guidance test 3/3
 ```
 
 ## Execution identity
@@ -449,7 +472,7 @@ stopping point: reusable ownership with unchanged caller outcomes.
 ### 7. Publish a Taken claim from an owned workspace
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given queued work, select/reuse the owned execution workspace, prepare commands
 as required, and publish the claim to remote trunk before implementation begins.

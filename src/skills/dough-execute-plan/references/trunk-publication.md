@@ -8,14 +8,15 @@ commits. Do not invent a second publication sequence.
 
 This rule does not create execution authority, wait for CI, or push the
 execution branch. Observation is armed from the execution checkout against the
-authorized target branch. A queue claim may be published before that workspace
-exists; retain its published SHA and register it after the observer is armed.
+authorized target branch. A queue claim is published from the owned workspace
+before implementation; retain its published SHA and register it after the
+observer is armed. Later environment preparation does not unpublish that SHA.
 
 ## Publish a queue claim
 
-After [Take queued work](../SKILL.md#take-queued-work) commits the local Taken
-claim on the resolved integration branch, publish it with the steps below, then
-create the local execution branch/worktree from the published revision. Do not
+After the owned execution workspace exists and
+[Take queued work](../SKILL.md#take-queued-work) commits the Taken claim there,
+publish that claim SHA with the steps below, before implementation. Do not
 start implementation from an unpublished claim. An unavailable destination or
 failed publication leaves the exact remaining state and does not authorize
 starting unclaimed queued work. CI coverage for this claim, including a Story
@@ -33,12 +34,11 @@ Keep the same execution worktree for planned, quick, and contextual work.
 Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions).
 For this caller the owned suffix is the Taken commit for a claim, or
 consecutive execution commits not yet on authorized remote trunk for an
-increment. The owned workspace is the execution worktree when one already
-exists; a claim committed on the integration checkout before that worktree
-exists uses that checkout. For a claim, the supplied validation confirms the
-selected entry is **Taken** on the candidate and that no empty commit was
-invented. For an increment, it reuses accepted proof whose promise, boundary,
-implementation, setup, and observations still match.
+increment. The owned workspace is the execution worktree. A queue claim is
+committed and published from that worktree. For a claim, the supplied
+validation confirms the selected entry is **Taken** on the candidate and that
+no empty commit was invented. For an increment, it reuses accepted proof whose
+promise, boundary, implementation, setup, and observations still match.
 [Default-checkout access and preservation](maintain-default-checkout.md)
 apply only when this publication mutates that checkout. A maintenance stop
 follows
@@ -51,10 +51,10 @@ It does not erase a remote acceptance the publisher has already recorded.
 
 Apply [Preconditions](#preconditions), then run
 [publish the candidate](publish-the-candidate.md#publish-the-candidate) from
-the owned workspace. A claim may have no execution worktree yet; other
-publications retain theirs. Register an accepted SHA with any bound observer
-only after the publisher's remote confirmation. After that confirmation,
-attempt a refresh under
+the owned workspace. A claim uses the execution workspace selected before its
+commit; other publications retain theirs. Register an accepted SHA with any
+bound observer only after the publisher's remote confirmation. After that
+confirmation, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
 Report the publication acceptance and that maintenance result separately.
 A deferred or stopped refresh does not erase the accepted publication and
@@ -87,7 +87,14 @@ when cleanup would mutate or discard a dirty or ambiguous checkout.
 
 ## Recover a rejected push
 
-Apply [recover a rejected push](publish-the-candidate.md#recover-a-rejected-push).
+Before replaying a queue claim, recheck that identity's membership on the
+fetched remote. Resume when retained execution context and the published
+candidate's provenance agree this execution owns it, and do not push again.
+A competing claim whose provenance names another execution is a recoverable
+conflict: preserve this workspace and do not replay. Identical **Taken** text
+is not that provenance. Ambiguous ownership keeps the conflict. When the
+identity is still absent, apply
+[recover a rejected push](publish-the-candidate.md#recover-a-rejected-push).
 A second rejection or other persistent failure stops; preserve remaining
 state and report it.
 
@@ -105,10 +112,10 @@ apply [publish the candidate's resume](publish-the-candidate.md#resume-an-interr
 The owned suffix is a claim or an increment, using whichever execution
 resources actually exist for this publication. Continue only the first
 unfinished obligation that resume names. Do not duplicate the commit, push
-an already-published candidate, or replace the execution worktree. A claim may
-have no execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
-already states for that case. After that publication obligation is
-accepted, attempt
+an already-published candidate, or replace the execution worktree. The claim
+uses the workspace selected before its commit, as
+[Publish the candidate](#publish-the-candidate) already states for that case.
+After that publication obligation is accepted, attempt
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
 The resume classification itself still only inspects the checkout.
 
@@ -118,10 +125,11 @@ registration: a published SHA absent from the existing observer's coverage or
 before any observer is armed there is unobserved coverage, not a missing
 registration; see [Own one observer](ci-monitor.md#own-one-observer).
 
-Workspace-setup failure after a confirmed claim publication reuses that claim
-and any verified workspace: see [Preserve remaining state](#preserve-remaining-state)
-and [execution location](execution-location.md)'s setup-failure rule. It does
-not allocate a replacement claim or a nested worktree.
+Workspace or environment-preparation failure after a confirmed claim
+publication keeps that published SHA and reuses the claim and any verified
+workspace: see [Preserve remaining state](#preserve-remaining-state) and
+[execution location](execution-location.md)'s setup-failure rule. It does not
+allocate a replacement claim or a nested worktree.
 
 ## Preserve remaining state
 

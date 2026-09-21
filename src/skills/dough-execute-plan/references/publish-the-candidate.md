@@ -19,18 +19,18 @@ and workspace, then uses the sequence below.
 
 Resolve the owned workspace, the authorized remote target, and the owned
 unpublished suffix. The suffix is that workspace's commits not yet on the
-authorized remote target: the Taken commit when a claim still lives only on
-the integration checkout, or the caller's consecutive unpublished commits
-when a separate workspace already holds them. Its parent is the previously
-published base when this caller has recorded one. Rewrite only that suffix.
+authorized remote target. For a queue claim, that suffix is the Taken commit
+in the execution workspace. For an increment, it is the caller's consecutive
+unpublished commits in the workspace that already holds them. Its parent is the
+previously published base when this caller has recorded one. Rewrite only that
+suffix.
 Never rewrite published revisions or another writer's commits, force-push, or
 publish a branch other than the authorized target.
 
 The owned workspace is where the suffix is reconciled and from where it is
-pushed. A preparation keep uses the preparation workspace. An increment that
-already has an execution worktree uses that worktree. A queue claim committed
-on the integration checkout before a separate workspace exists uses that
-checkout.
+pushed. A preparation keep uses the preparation workspace. An execution
+increment uses the execution worktree. A queue claim is committed and pushed
+from the execution workspace selected before that claim.
 
 A pending human edit on the default checkout does not block publication from
 a different owned workspace. Do not stage, unstage, reset, stash, or otherwise
@@ -166,7 +166,7 @@ caller that already owns it.
 | Boundary | Actual state | Continue with |
 | --- | --- | --- |
 | Not on the remote | The retained candidate is not an ancestor of fetched remote history. The owned workspace still has that commit. | [Publish the candidate](#publish-the-candidate) from step 1. When that SHA still fast-forwards onto fetched trunk, push it and do not commit again. When it does not fast-forward, use [rejected-push recovery](#recover-a-rejected-push); do not treat the candidate as published. Do not fast-forward the default checkout. When an observer is already bound, step 6's registration is part of finishing the publication that this push accepts. |
-| Candidate only on the default checkout | That checkout's target tip is the owned candidate, and the remote does not contain it. This is the claim that was committed there before a separate workspace existed. | Push that exact SHA ([Publish the candidate](#publish-the-candidate) step 5). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). Preserve any pending human edit; the SHA push does not include it. |
+| Candidate only on the default checkout | That checkout's target tip is the owned candidate, and the remote does not contain it. The owned workspace for this suffix is that checkout. | Push that exact SHA ([Publish the candidate](#publish-the-candidate) step 5). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). Preserve any pending human edit; the SHA push does not include it. |
 | Already published | The retained candidate — the rewritten SHA, when a rewrite was retained — is an ancestor of fetched remote history. The remote tip may be a later writer's commit. | Append that SHA to retained published revisions when identity omitted it. Do not push. This recognition is not registration, maintenance, or cleanup. |
 | Missing registration | The candidate is already an ancestor and its SHA is retained, but an observer already bound to this caller has no receipt for it. A caller that binds no observer has nothing to register. | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. Leave maintenance and cleanup unperformed. |
 

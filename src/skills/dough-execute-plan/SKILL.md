@@ -68,9 +68,10 @@ Resolve project context at the first boundary that needs it:
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
 - authorized push destination before delivery; for Story Branch or Trunk Mode, also
   [trunk publication's Preconditions](references/trunk-publication.md#preconditions) before
-  taking queued work, and for Trunk Mode before publishing a queue claim or verified increment —
-  those preconditions resolve publication inputs and defer shared-checkout access and
-  preservation to [maintain the default checkout](references/maintain-default-checkout.md);
+  selecting the owned workspace and taking queued work, and before publishing a
+  queue claim or a Trunk Mode verified increment — those preconditions resolve
+  publication inputs and defer shared-checkout access and preservation to
+  [maintain the default checkout](references/maintain-default-checkout.md);
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
 
@@ -87,77 +88,84 @@ before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Befo
 arming observation, read [CI observation](references/ci-monitor.md) and only the
 current host's notification adapter. Arm from the execution checkout against the
 authorized target branch; do not wait for CI. Before creating the execution workspace, read
-[execution location](references/execution-location.md). Before a Trunk Mode
-claim or increment publication, read [trunk publication](references/trunk-publication.md).
+[execution location](references/execution-location.md). Before a queue claim or
+Trunk Mode increment publication, read [trunk publication](references/trunk-publication.md).
 Use [targeted retrieval and disposable research](references/disposable-research.md)
 for omitted/truncated passages or bounded investigations; another step alone needs no reload.
 
 ## Take queued work
 
-This section's own backlog change is a same-branch commit on the resolved
-integration checkout, moving an entry to **Taken** with nothing to merge, rebase,
-or cherry-pick from another ref — so it needs none of the installed product
-backlog Git adapters or [reconcile product backlog Git operations](../dough-product-backlog/references/merge-conflicts.md) by itself.
-Publishing that claim through trunk publication may be a real rebase, for
-Story Branch or Trunk Mode alike, covered by
-[trunk publication](references/trunk-publication.md#resolve-a-publication-rebase-conflict); current-branch mode never publishes a claim, so it never rebases or merges this commit.
-
-After resolving execution source and authority, inspect the backlog before plan-status
-changes, observer recovery/startup, delegation, or implementation. Moving a selected
-**Backlog list** entry to **Taken** is execution's first project-state change. In
-every mode, commit only that backlog change on the resolved integration branch
-(`main` when the project supplies no other integration branch) before creating or
-using an execution branch or worktree; mode affects only later workspace and
-publication behavior.
-
-Before moving it, resolve selective formatting and the Taken-only commit's hook contract.
-An absent or understood check-only hook permits the transition. An unknown, mutating,
-failing, or disputed hook stops it with the queue unchanged until safely resolved through
-execution decisions. Resolution runs neither delivery formatting nor hook-owned lint;
-obtain push/CI context only when another current boundary needs it.
-
-For Story Branch or Trunk Mode, also resolve
-[trunk publication's Preconditions](references/trunk-publication.md#preconditions) — the claim's
-publication authority, authorized push destination, and
-[default-checkout access](references/maintain-default-checkout.md#establish-access-before-local-mutation) — before
-moving the entry; reuse permission already established for this execution rather than requesting
-it again. An unresolved precondition stops the move with the backlog, index, and refs unchanged,
-and starts no implementation. Caller-selected current-branch work keeps its existing contract and
-gains no new publication authority here.
-
-Then follow [take queued work](../dough-product-backlog/SKILL.md#take-queued-work-for-execution).
-An ambiguous move stops implementation.
-
-Already **Taken** means resume: preserve its position without duplication. Work absent
-from both active lists needs no fabricated entry. Planning/refinement never takes work.
-Leave taken work through pauses, failures, completion, and retrospective; wrap-up removes it.
-
-For a queue claim, preflight the originating integration checkout: verify the
-resolved integration branch, backlog path, tracked/staged changes, and ownership
-of an isolated claim commit. Ambiguous branch or ownership leaves the queue
-unchanged; apply
-[preserve pending local work](references/maintain-default-checkout.md#preserve-pending-local-work)
-rather than stashing, resetting, overwriting, or silently unstaging existing
-work. Queued current-branch
-execution requires the resolved integration branch; otherwise stop before changing
-the backlog.
-
-After moving, stage only the backlog path, inspect the staged diff, and commit the claim
-locally on the integration branch. Claim setup may record provisional identity;
-complete it before dispatch. Staging/commit failure stops isolated execution:
-preserve and report backlog/index state. No-change cases produce no empty claim
+The Taken edit is a same-branch commit in the checkout that holds it: the owned
+execution workspace for Story Branch and Trunk Mode, or the resolved integration
+checkout for caller-selected current-branch work. That commit moves an entry to
+**Taken** with nothing to merge, rebase, or cherry-pick from another ref, so the
+edit itself needs none of the installed product backlog Git adapters or
+[reconcile product backlog Git operations](../dough-product-backlog/references/merge-conflicts.md).
+Publishing that claim from the owned workspace may be a real rebase, for Story
+Branch or Trunk Mode alike, covered by
+[trunk publication](references/trunk-publication.md#resolve-a-publication-rebase-conflict).
+Current-branch mode never publishes a claim, so it never rebases or merges this
 commit.
 
-Story Branch Mode and Trunk Mode both publish that local commit per
+After resolving execution source and authority, inspect the backlog before
+plan-status changes, observer recovery/startup, delegation, or implementation.
+For Story Branch and Trunk Mode, select or reuse the owned workspace under
+[execution location](references/execution-location.md) before the Taken commit,
+using fetched remote trunk as the base. Current-branch work uses the checkout
+it already recorded and creates no worktree. The Taken commit in that checkout
+is the backlog change.
+
+Before the Taken commit, resolve selective formatting and that commit's hook
+contract. An absent or understood check-only hook permits the transition. An
+unknown, mutating, failing, or disputed hook stops it with the queue unchanged
+until safely resolved through execution decisions. Resolution runs neither
+delivery formatting nor hook-owned lint; obtain push/CI context only when
+another current boundary needs it. Keep a workspace already selected when the
+hook stops the commit.
+
+For Story Branch or Trunk Mode, also resolve
+[trunk publication's Preconditions](references/trunk-publication.md#preconditions) —
+the claim's publication authority and authorized push destination — before
+selecting the workspace or moving the entry. Reuse permission already
+established for this execution. An unresolved precondition stops the move with
+the backlog, index, and refs unchanged, and starts no implementation.
+[Default-checkout access](references/maintain-default-checkout.md#establish-access-before-local-mutation)
+applies when this claim or a later refresh mutates that checkout. Caller-selected
+current-branch work keeps its existing contract and gains no new publication
+authority here.
+
+Then follow [take queued work](../dough-product-backlog/SKILL.md#take-queued-work-for-execution)
+in the checkout that holds the claim. An ambiguous move stops implementation.
+
+Resume a remote **Taken** entry when retained execution context and publication
+provenance agree this execution owns it. Preserve its position without
+duplication. Work absent from both active lists needs no fabricated entry.
+Planning/refinement never takes work. Leave taken work through pauses,
+failures, completion, and retrospective; wrap-up removes it.
+
+For a queue claim, preflight the checkout that will hold the commit: verify its
+branch, backlog path, tracked/staged changes, and that the isolated claim commit
+is the only staged backlog change. Ambiguous branch or ownership leaves the
+queue unchanged; apply
+[preserve pending local work](references/maintain-default-checkout.md#preserve-pending-local-work)
+rather than stashing, resetting, overwriting, or silently unstaging existing
+work. Queued current-branch execution requires the resolved integration branch;
+otherwise stop before changing the backlog.
+
+After moving, stage only the backlog path, inspect the staged diff, and commit
+the claim in that checkout. Claim setup may record provisional identity;
+complete it before dispatch. Staging/commit failure stops isolated execution:
+preserve and report backlog/index state and any workspace already selected.
+No-change cases produce no empty claim commit.
+
+Story Branch Mode and Trunk Mode both publish that commit's SHA from the owned
+workspace per
 [trunk publication](references/trunk-publication.md#publish-a-queue-claim)
-before creating the execution branch/worktree; do not invent a second
-publication procedure for either mode. Only a confirmed published revision
-starts workspace creation, and only workspace creation precedes implementation.
-A persistent publication failure leaves the claim locally recoverable and
-unpublished per [trunk publication's preserved state](references/trunk-publication.md#preserve-remaining-state):
-it creates no execution branch/worktree and starts no implementation, pending
-manual recovery or handoff. Later workspace-setup failure leaves the published
-or locally committed **Taken** entry for retry; do not treat that as a new claim.
+before implementation; do not invent a second publication procedure for either
+mode. Only a confirmed published revision starts implementation. Prepare
+required project commands after that confirmation under
+[execution location](references/execution-location.md). Publication and later
+preparation failure follow those references: no implementation and no new claim.
 
 ## Choose the execution location
 
