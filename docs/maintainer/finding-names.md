@@ -2028,12 +2028,13 @@ consult both lists when matching findings or allocating identities.
   for what "current"/matching evidence means rather than a timestamp or
   whole-repository SHA identity. `src/skills/dough-execute-plan/references/delegation.md`
   carries that same condition to the delegated actor at action time. Source
-  commit `e9829bc6088567742fefd2a726f6bbe7da9bc039` on `main` (Slice 1,
-  establishing the missing-proof gate); Slice 2 (candidate-correspondence
-  reassessment and this response record) pending its own delivery commit.
-  Story and plan recoverable at
-  `.planning/quick/067-current-proof-before-live-transitions/PLAN.md`,
-  identity `SEED-004#require-current-proof-before-live-transitions`.
+  commits `e9829bc6088567742fefd2a726f6bbe7da9bc039` (Slice 1, establishing
+  the missing-proof gate) and `9b1391db3c0e024272a2eed8fd8c8d278f3488a0`
+  (Slice 2, candidate-correspondence reassessment and this response record),
+  both on `main`. Story and plan recoverable at
+  `9b1391db3c0e024272a2eed8fd8c8d278f3488a0:.planning/quick/067-current-proof-before-live-transitions/PLAN.md`
+  (deleted from the current snapshot by story wrap-up), identity
+  `SEED-004#require-current-proof-before-live-transitions`.
   Shipping this guidance does not itself prove it prevents recurrence.
 - **Released in:** Pending — no release/version bump has been made for this
   guidance yet.

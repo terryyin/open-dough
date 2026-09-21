@@ -1,5 +1,60 @@
 # DearDough Process Findings
 
+## DD-074 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
+
+Neither [execution location](.claude/skills/dough-execute-plan/references/execution-location.md)
+nor [runtime setup](.claude/skills/dough-execute-plan/references/runtime-setup.md)
+nor [slice wrap-up](.claude/skills/dough-execute-plan/references/wrap-up.md)
+mentions installing project dependencies when creating a new `git worktree
+add` execution workspace. For this Node project, a freshly created worktree
+under `~/.claude-worktrees/open-dough/<slug>` (a sibling of the integration
+checkout, not nested inside it, so Node's upward `node_modules` resolution
+cannot reach the main checkout's install) has no `node_modules` at all. The
+first attempt at [deliver the change](.claude/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change)
+step 4's selective-formatting command failed with `eslint: spawnSync eslint
+ENOENT` / `prettier: spawnSync prettier ENOENT` before the coordinator
+diagnosed the cause and ran `npm ci` in that worktree, after which formatting
+succeeded. This is the converse of ODF-070's case: that finding's nested
+`.worktrees/<slug>/` worktree already had working access to the parent
+checkout's `node_modules` via Node's own resolution walk, so the correct fix
+there was "test the command, don't assume it fails." Here the worktree
+genuinely has no reachable install, so testing the command still fails, and
+the actual missing step is installing dependencies as part of workspace
+creation — a distinct gap ODF-070's response does not cover.
+
+### Occurrences
+
+- Execution: `.planning/quick/067-current-proof-before-live-transitions/PLAN.md @ 9b1391db3c0e024272a2eed8fd8c8d278f3488a0`,
+  first related implementation commit `e9829bc6088567742fefd2a726f6bbe7da9bc039`
+  - Timestamp: unknown (2026-09-21)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: after creating the Trunk Mode worktree at
+    `/Users/terryyin/.claude-worktrees/open-dough/067-current-proof-before-live-transitions`
+    with `git worktree add ... claude/067-current-proof-before-live-transitions
+    f59df38`, the first `npm run format` there printed `eslint: spawnSync
+    eslint ENOENT`, `prettier: spawnSync prettier ENOENT`, and `Format
+    failed: unresolved findings or tool failures remain.` `ls node_modules`
+    confirmed the directory did not exist, while the integration checkout's
+    own `node_modules` (`/Users/terryyin/git/open-dough/node_modules`) had
+    102 entries. Running `npm ci` in the new worktree installed 149 packages;
+    the same `npm run format` command then completed cleanly.
+  - Observed effect: one wasted delivery-step attempt and diagnostic
+    detour (identifying the ENOENT cause, comparing against the integration
+    checkout, then installing) before delivery could proceed; no incorrect
+    guidance reached the delivered plan or product, since the coordinator
+    caught and resolved the gap itself before commit.
+  - Inference: Qualified, single occurrence, but structurally certain to
+    recur for any Node (or other dependency-manager) project using this
+    project's sibling-worktree convention, since no reviewed reference
+    mentions an install step. Adding one sentence to [execution
+    location](.claude/skills/dough-execute-plan/references/execution-location.md)'s
+    "After successful setup" step — install this project's dependencies in a
+    newly created worktree before first use, when the project's package
+    manager requires it — would let a future executor avoid rediscovering
+    this; not tested here.
+
 ## DD-073 — Delegated agents' own passing proof twice missed framework-internal and browser-only behavior gaps
 
 A delegated implementation agent's focused and full-suite proof passed, yet
