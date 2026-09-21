@@ -173,8 +173,8 @@ ADR 0007 should reference this record for branching and integration mechanics.
 observe remote publication and local checkout maintenance as separate facts;
 its shared integration-lock language would need alignment with this boundary.
 
-[Migrate existing workflows to integration through origin](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
-owns applying this contract to implemented guidance, behavior, and proof.
+Installed execute-plan publication and default-checkout maintenance guidance
+own the implemented contract for callers, recovery, and proof.
 [Default-checkout coordination](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
 owns automated local access and recovery. The
 [visibility requirements](../project-visibility-requirements.md) distinguish

@@ -437,9 +437,9 @@ The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
 direction of parallel story execution through trunk-based development in
 separate worktrees. The existing
 [default-checkout coordination story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-captures local access for direct edits and refreshes. The
-[migration story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
-applies the shared remote publication contract to implemented workflows.
+captures local access for direct edits and refreshes. Installed execute-plan
+publication and default-checkout maintenance guidance apply the shared remote
+publication contract to implemented workflows.
 These requirements supply refinement context; the backlog owns priority and
 execution records own delivery evidence.
 

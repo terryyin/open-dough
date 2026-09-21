@@ -592,6 +592,22 @@ attached, so lost coverage is first visible when the coordinator stops it.
     the record shows when it stopped writing, not why. Neither `register-push`
     nor the hook checks that the recorded worker is still running.
 
+- Execution: `.planning/quick/070-integration-through-origin/PLAN.md`, first
+  related implementation commit `a8eab76edb1df66ab618af5b09c6411b975dbbe7`
+  - Timestamp: unknown (2026-09-21–2026-09-22)
+  - Tool: Cursor
+  - Open Dough release: 0.3.27
+  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bap1mT`. Of 14 registered
+    story-branch SHAs, only `a8eab76`, `63eaab8`, and `8cf8007` reached
+    `state:success`; the other 11 including tip `1044dd0` stayed
+    `unchecked` with `missingPolls:0` when stop returned
+    `{"status":"finished"}`. `register-push` kept writing coverage receipts
+    after observation stopped.
+  - Observed effect: Wrap-up inherits `pendingCi: unobserved` for the tip and
+    most increments despite repeated registration during delivery.
+  - Inference: Qualified. Same register-push-without-live-worker pattern as
+    this issue; the worker's exit after the third success was not diagnosed.
+
 ## ODF-066 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
 
 Former local code: DD-064.
@@ -665,6 +681,23 @@ without the agent flagging it as a limitation.
     `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
     prevent the first draft.
 
+- Execution: `.planning/quick/070-integration-through-origin/PLAN.md`, first
+  related implementation commit `a8eab76edb1df66ab618af5b09c6411b975dbbe7`
+  - Timestamp: unknown (2026-09-21–2026-09-22)
+  - Tool: Cursor
+  - Open Dough release: 0.3.27
+  - Evidence: Coordinator send-backs on slice 12 (disposable-path removal and
+    pending-disposition text performed inside the test rather than by
+    `retainBugTriageArtifacts`) and slice 14 (`ownership_override=foreign`
+    planted after a complete claim-race stream so live assessment could pass
+    without Git evidence). Both were corrected before delivery.
+  - Observed effect: Two extra delegation round-trips before those proofs were
+    accepted; planted outcomes did not reach the branch.
+  - Inference: Qualified. Same shape as this issue's tautology: setup or the
+    harness supplied the decisive observation instead of the product/Git
+    boundary. Slice 8's resume-target gap was a missing destination promise,
+    not this planting pattern.
+
 ## ODF-068 — Take-queued-work claim staging assumes exclusive backlog ownership
 
 Former local code: DD-053.
@@ -698,28 +731,6 @@ other session's unreviewed draft content into this execution's claim commit.
     claim time; when it does, whole-path staging would misattribute unreviewed
     content into the claim commit. A hunk- or content-aware staging fallback
     for this case is not currently documented.
-
-## ODF-001 — Mixed execution changes obscure commit provenance
-
-Former local code: DD-001.
-
-The execution's product changes were committed together with a much larger,
-separately described cleanup, so the commit does not identify the Taken-work
-outcome as one of its responsibilities.
-
-### Occurrences
-
-- Execution: `SEED-004#show-stories-as-taken-during-execution @ 519bb4a`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Evidence: `519bb4a` changes 147 files; the Taken outcome occupies eight
-    files, while the commit subject describes only removal of Quick 040 and
-    DearDough material.
-  - Observed effect: The retrospective had to isolate the eight relevant
-    patches instead of reviewing the commit as one uncontaminated execution.
-  - Inference: Separate commits for independently completed work would make
-    review scope, attribution, and recovery clearer.
 
 ## ODF-003 — File-type assumptions skipped affected maintained proof
 
@@ -771,33 +782,6 @@ explicit contract in the focused CI runtime suite.
     a fixed-file contract. Qualified: this project's own file-size refactor
     check does not name checking for such tests, so the omission is
     consistent with an unnamed check rather than a skipped one.
-
-## ODF-006 — Oversized context reads obscure narrow execution inputs
-
-Former local code: DD-006.
-
-Bundling large skill references and planning documents into one output exceeded
-output limits during a small guidance change, obscuring requested context and
-prompting further reads. This concerns input selection, not a reason to omit
-required review or proof.
-
-### Occurrences
-
-- Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: This execution conversation's combined read of SEED-010 and
-    `dough-execute-plan/references/{delegation,execution-decisions,wrap-up,ci-monitor}.md`
-    returned truncated output. The next combined reconciliation/triage/context
-    read was also truncated; execution-decisions was subsequently loaded again.
-    Bundled document reads in this retrospective repeated the truncation.
-  - Observed effect: Requested guidance was not fully visible in those outputs,
-    and additional context reads were performed for the same single-slice work.
-  -     Inference: Load required references once, then select sections for concrete
-    unresolved questions and size outputs to fit. This should reduce avoidable
-    rereading while preserving required context; net time and token cost were
-    not measured. No decisive match to an existing local issue was found.
 
 ## ODF-052 — Cursor mailbox probe did not attach CI_MONITOR_READY
 
@@ -996,3 +980,9 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     to its existing disposable-command guidance would let a future executor
     reuse this fact instead of re-deriving it from a fresh diagnostic
     session; not tested here.
+
+## Retention
+
+- Highest allocated local number: 88
+- Recovery: `HEAD:DearDough.md` before this retrospective write (tip `1044dd0969c419faa0c23b17a9a6f844015c4bc8`); removed ODF-001 and ODF-006 for ceiling room
+- Occurrence history is partial
