@@ -227,6 +227,89 @@ in its owned workspace, with durable commits and explicit publication ownership.
 **Effort hypothesis:** Unestimated pending the fresh host observation and
 claim/closure authority refinement.
 
+<a id="reduce-ci-observer-overhead"></a>
+
+### Reduce CI observer overhead across execution and wrap-up
+
+**Identity:** SEED-008#reduce-ci-observer-overhead
+
+**Status:** Captured on 2026-09-21; queued at the developer's requested second
+priority. Not resolved; refinement and planning pending.
+
+**For / why:** Terry and agents executing Open Dough plans need useful,
+truthful asynchronous CI observation without repeated manual bookkeeping or
+interpreting routine discovery delays as lost coverage. Frequent Trunk Mode
+publications make this shared execution cost especially visible.
+
+**Reported evidence:** Terry supplied these observations from a Pygardon plan
+execution in the 2026-09-21 backlog discussion. The execution identity, host,
+installed release, and raw event transcript were not supplied; the repetition
+and timing below are reported observations, not independently measured facts.
+
+- Probe → start → register-push was reported repeated after every slice, seven
+  or more times, including retyping the exact `/tmp/dough-ci-501/watch-XXXX`
+  directory. Current Open Dough guidance requires probing and starting once
+  per execution and reusing the observer; only registration is required after
+  each confirmed push. Distinguish unnecessary repeated setup from the real
+  registration and handle-management burden during refinement.
+- Several pushes reportedly emitted `CI_COVERAGE_UNAVAILABLE` after three
+  discovery polls, followed minutes later by a real result for the same SHA.
+  Each early notification needed to be treated as provisional, adding repeated
+  interpretation overhead. The three-poll notification comes from shared Open
+  Dough runtime; Pygardon's CI latency may amplify it.
+- Trunk Mode wrap-up reportedly armed another observer for one closure commit
+  and stopped it immediately afterward. Current closure guidance explicitly
+  requires this when execution already stopped its observer, leaving a short
+  useful observation window for the extra setup work.
+
+**Related finding:** [ODF-069 — CI discovery gaps obscure later terminal
+results](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results)
+is partially addressed, not resolved. Commit `5630b28`, now merged into `main`
+but not released at capture, proves later results can arrive and clarifies
+that an early coverage notification is provisional. It does not change the
+three-poll threshold or remove notification noise. The catalog's separate
+GitHub bounded-listing concern is not established as the cause of this
+Pygardon report; later-result delivery here is not evidence of a missed verdict.
+
+**Outcome / scope candidate:** Simplify the shared observer lifecycle and
+publication interaction across execution and closure. Reduce repeated manual
+registration/handle work, communicate ordinary discovery delay without noisy
+coverage-loss implications, and make closure observation useful relative to
+its setup cost. Preserve exact published-SHA attribution, owning-session
+delivery, actionable failure handling, and honest pending/lost coverage.
+
+**Key examples / evaluation:**
+
+1. A seven-slice execution with frequent pushes retains one observation
+   identity through ordinary and repair publications without repeated manual
+   setup or retyping its mailbox path for each slice. Every confirmed published
+   SHA remains attributable and recoverable after interruption.
+2. A run appears after the existing three-poll window. The coordinator receives
+   an unambiguous provisional state without repeated false alarms; a later
+   failure still reaches its owner. A run that never appears and an observer
+   that dies remain distinguishable and truthfully reported at closure.
+3. Execution continues into a short Trunk Mode wrap-up. The resulting lifecycle
+   avoids a start/register/immediate-stop cycle with negligible observation
+   value, while explicitly reporting which closure revisions were observed and
+   which remain pending. Routine delivery does not wait for CI completion.
+
+**Boundaries / open decisions:** Choose the concrete registration interface,
+discovery-notification policy, and closure lifetime during refinement using
+the existing runtime and the supplied execution evidence. Do not assume that
+increasing a poll count, suppressing every warning, or adding a persistent
+service is the solution. Keep shared behavior coherent across Codex, Cursor,
+and Claude Code and both execution modes. Diagnose any Pygardon adapter defect
+separately if evidence establishes one. Update ODF-069's disposition only to
+the extent that delivered proof addresses its recorded problem.
+
+**Depends on:** Existing publication and CI ownership contracts. Coordinate
+with the preceding origin-integration migration story's affected callers;
+this record creates no additional prerequisite or execution plan.
+
+**Safe stopping point:** Multi-slice execution and closure demonstrate lower
+bookkeeping and notification overhead without losing failure delivery or
+overstating coverage. **Effort hypothesis:** Unestimated pending refinement.
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
