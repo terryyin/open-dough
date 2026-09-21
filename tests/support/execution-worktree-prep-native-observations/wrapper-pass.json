@@ -1,0 +1,53 @@
+{
+  "variant": "wrapper",
+  "host": "claude",
+  "streamStatus": "complete",
+  "commands": [
+    "./wrapper prepare",
+    "./wrapper prove",
+    "write greeting.txt hello-ok"
+  ],
+  "responseText": "Added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "traces": [
+    { "type": "setup", "cwd": "/tmp/exec", "cache": "/tmp/cache" },
+    { "type": "command", "cwd": "/tmp/exec", "cache": "/tmp/cache" }
+  ],
+  "invocations": [
+    {
+      "role": "setup",
+      "command": "./wrapper prepare",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "role": "command",
+      "command": "./wrapper prove",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "role": "delegate",
+      "command": "write greeting.txt",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "greeting": "hello-ok\n",
+  "greetingInOrigin": false,
+  "wrapperDriven": true,
+  "generatedOutputInWorktree": true,
+  "sharedArtifactCacheOutsideWorktree": true,
+  "copiedOriginArtifacts": false,
+  "usedNpmOrNix": false,
+  "originMarkerUnchanged": true,
+  "ok": true,
+  "reused": false,
+  "report": "Added greeting.txt."
+}

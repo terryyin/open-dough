@@ -1,0 +1,47 @@
+{
+  "variant": "fresh-node",
+  "host": "cursor",
+  "streamStatus": "complete",
+  "commands": ["write greeting.txt hello-ok", "npm ci", "npm run prove"],
+  "responseText": "Added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "traces": [
+    { "type": "setup", "cwd": "/tmp/exec" },
+    { "type": "command", "cwd": "/tmp/exec" }
+  ],
+  "invocations": [
+    {
+      "role": "delegate",
+      "command": "write greeting.txt",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "role": "setup",
+      "command": "npm ci",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "role": "command",
+      "command": "npm run prove",
+      "cwd": "/tmp/exec",
+      "code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "greeting": "hello-ok\n",
+  "greetingInOrigin": false,
+  "executionOwnsInstall": true,
+  "originMarkerUnchanged": true,
+  "originLockUnchanged": true,
+  "executionLockUnchanged": true,
+  "ok": true,
+  "reused": false,
+  "report": "Added greeting.txt."
+}

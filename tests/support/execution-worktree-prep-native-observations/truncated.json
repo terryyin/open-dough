@@ -1,0 +1,11 @@
+{
+  "variant": "fresh-node",
+  "host": "claude",
+  "streamStatus": "truncated",
+  "streamReason": "truncated terminal stream",
+  "commands": ["npm ci"],
+  "responseText": "Added greeting.txt.",
+  "executionCheckout": "/tmp/exec",
+  "greeting": "hello-ok\n",
+  "ok": true
+}

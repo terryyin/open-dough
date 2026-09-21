@@ -1,0 +1,26 @@
+{
+  "variant": "failed-prep",
+  "host": "codex",
+  "streamStatus": "complete",
+  "commands": ["npm ci"],
+  "responseText": "Failed to prepare execution checkout /tmp/exec\nCommand: npm ci\nerror: preinstall failed\n",
+  "executionCheckout": "/tmp/exec",
+  "traces": [],
+  "invocations": [
+    {
+      "role": "setup",
+      "command": "npm ci",
+      "cwd": "/tmp/exec",
+      "code": 1,
+      "stdout": "",
+      "stderr": "failed"
+    }
+  ],
+  "greeting": null,
+  "greetingInOrigin": false,
+  "ok": false,
+  "report": "Failed to prepare execution checkout /tmp/exec\nCommand: npm ci\nerror: preinstall failed\n",
+  "originMarkerUnchanged": true,
+  "originLockUnchanged": true,
+  "executionLockUnchanged": true
+}

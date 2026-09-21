@@ -19,7 +19,50 @@ host Git facilities. Missing conventions, unsafe location, or creation failure
 stops setup; preserve and report the claim and created resources. Use no
 parallel registry, configuration format, or worktree manager.
 
-After successful setup and before delegation, retain one execution identity in
+After the selected checkout exists, prepare it as part of the same setup
+lifecycle as worktree creation so this project's ordinary commands are usable
+there before implementation delegation. The same readiness rule applies when
+caller-selected current-branch work newly supplies an unprepared checkout.
+Resolve the required setup from this project's checked-in conventions and
+locked dependency metadata, not from an Open Dough configuration key. When
+those sources establish a deterministic locked install, perform it in the
+selected checkout without rewriting lockfiles. A committed lockfile with
+contributor or CI convention for `npm ci` is one such case; do not require
+npm, or treat a lockfile's presence as an Open Dough recognizer, for a
+project that uses different tooling. Then run an applicable project command
+from that checkout. Do not infer availability from the presence or absence
+of `node_modules` or a similar local directory. Do not copy or symlink
+mutable installation from another checkout, and do not treat parent-directory
+resolution as the contract. Keep mutable installed dependencies, generated
+output, and project-local caches in the selected checkout. Supported
+package-manager download or artifact caches may remain machine-level.
+
+Creation, this preparation, and the command check are one setup lifecycle.
+Execution may cross the implementation boundary only when the command
+succeeds from the selected checkout. A missing, ambiguous, or failed
+required preparation stops before implementation delegation, formatting,
+proof commands, or CI-readiness claims. Preserve the checkout and report
+its path, the command selected or the missing convention, and the failure
+needed for recovery. Host facilities may establish or invoke the same
+project-owned outcome; they do not define a separate preparation policy.
+
+Reuse that host-established outcome only when its evidence names this exact
+selected checkout and the checkout's current locked dependency state, and an
+applicable project command then succeeds there. Keep the evidence in the
+current execution context and the command result; write no registry, stamp
+file, or host-specific reuse policy. A host callback may supply evidence,
+but it cannot redefine what prepared means. Preparation that names a
+different checkout, a changed dependency state, or an unusable command is
+not reused; parent-directory resolution, a copied installation, or a
+symlink is not reuse evidence. In those cases perform this project's setup
+in the selected checkout and run the command as above. Verified reuse is
+the same readiness gate, not a second preparation path.
+
+[Runtime setup](runtime-setup.md) remains the owner of checkout-bound CI
+observer runtime only. Do not arm observation as part of this gate, and do
+not make CI setup the owner of development dependencies.
+
+After that setup succeeds and before delegation, retain one execution identity in
 the existing plan when one exists, and in the conversation:
 
 - originating checkout and resolved integration branch, where the claim was
@@ -65,7 +108,8 @@ apply and are not satisfied by a push alone. Pass identity/location
 explicitly to agents and host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
-and use it as working directory. Before arming, apply
+and use it as working directory. Arm only after the project-command readiness
+gate above has passed. Before arming, apply
 [runtime setup](runtime-setup.md) identity and stop rules; the initially loaded
 skill's copy is not a fallback. CI source is the authorized target branch;
 edits and repair stay in this checkout.
