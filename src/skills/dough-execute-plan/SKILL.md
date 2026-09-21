@@ -162,8 +162,10 @@ or locally committed **Taken** entry for retry; do not treat that as a new claim
 ## Choose the execution location
 
 Follow [execution location](references/execution-location.md) for mode,
-workspace creation, retained identity, resume, push destination, and
-checkout-bound runtime.
+workspace creation, project-command readiness, reuse of host-established
+preparation for the selected checkout, execution resume, push destination, and
+checkout-bound runtime. That reference applies the shared checkout ownership
+lifecycle for selection, local checkout role, and target selection.
 
 ## Continue or recover at an execution boundary
 

@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 6 next.
+Status: in progress; slice 7 next.
 
 ## Learnings
 
@@ -41,6 +41,14 @@ Status: in progress; slice 6 next.
   `--destination-at-start` name aggregate endpoints only. One replay and one
   retry push follow the initial rejection; a conflict during that replay, or
   a second rejection, stops with the Git state left in place.
+- Plan 069's readiness rule at `a74d22d` is unchanged through the `ec4046d`
+  merge and is composed into `execution-location.md`. That commit's
+  exclusive-turn publication paragraph is not composed: this branch publishes
+  from the owned workspace through `publish-the-candidate.md` and keeps
+  refresh eligibility on `maintain-default-checkout.md`. Shared checkout
+  selection does not choose claim order. Slice 7 reorders the Taken claim
+  around the owned workspace and must not restore that exclusive-turn
+  paragraph.
 
 ### Accepted proof — slice 1
 
@@ -104,6 +112,18 @@ setup: createCleanTrunkFixture; tests plant the human edit, local commit, other 
 observations: eligible-clean result is "advanced" with an empty status; pending-edit and another-writer stay deferred with the checkout unchanged; dirty diverged is "stopped"/"diverged" and assertCheckoutUnchanged; the busy test accepts candidateSha while inspection is deferred, then a later handoff advances to laterSha whose parent is that candidate
 guidance walk: maintain-default-checkout.md direct-edit holds access through commit, publication, and release
 result: pass (3/3) after the refactor rerun that classifies ancestry before a pending edit
+```
+
+### Accepted proof — slice 6
+
+Promise: checkout selection, local checkout role, and target selection have one lifecycle. Execution keeps mode, project-command readiness, and resume. A queued claim is still published before the workspace is created.
+
+```text
+command: node --test src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-wrapper.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
+boundary: guidance structure plus Git mechanics for preparation and worktree readiness
+setup: guidance tests read source; readiness fixtures build a disposable checkout; preparation fixtures build a bare origin
+observations: workspace-ownership-lifecycle.test.mjs asserts the workspace is created only after publication is confirmed and execution-location does not contain git worktree add; readiness tests run setup in the selected checkout before delegation; preparation keep still publishes while a human edit stays put
+result: pass (21/21); refactor reused this proof
 ```
 
 ## Execution identity
@@ -407,7 +427,7 @@ stopping point: baseline maintenance works with explicit coordination.
 ### 6. Give workspace selection one reusable ownership lifecycle
 
 Type: Structure
-Status: planned
+Status: done
 
 Consolidate reusable checkout ownership, retained identity, and safe selection
 with the existing exploration/workspace lifecycle. Keep execution mode,

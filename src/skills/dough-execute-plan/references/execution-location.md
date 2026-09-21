@@ -16,20 +16,82 @@ planless work, use verified current HEAD and create no story, plan, or queue
 entry; still create the local execution workspace from that HEAD unless the caller selected the current
 branch. When that HEAD is the default checkout, verify it first under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
-Resolve names and safe location from project conventions and ordinary
-host Git facilities. Missing conventions, unsafe location, or creation failure
-stops setup; preserve and report the claim and created resources. Use no
-parallel registry, configuration format, or worktree manager.
 
-After successful setup and before delegation, retain one execution identity in
-the existing plan when one exists, and in the conversation:
+Select or create that workspace through
+[own a temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
+"Select the checkout" and
+"Record local checkout role and target selection". Do not duplicate that
+recipe here. This execution chooses when selection runs and which verified
+base it supplies:
 
-- originating checkout and resolved integration branch, where the claim was
-  recorded if any;
-- execution checkout and branch for implementation and delivery;
-- integration checkout and branch for later integration or publication, and the
-  authorized remote target, defaulting the branch to `main` only when neither
-  caller nor project supplies one;
+- Queued Story Branch and Trunk Mode supply the published claim revision, and
+  only after that publication is confirmed. Do not select the workspace before
+  the claim.
+- Contextual planless work with no claim supplies verified current HEAD, after
+  the default-checkout freshness check above when that HEAD is the default
+  checkout. Create no story, plan, or queue entry.
+- Caller-selected current-branch work records that checkout and creates no
+  worktree.
+
+If selection stops, preserve and report the claim and any created resources.
+Do not start implementation. The shared lifecycle does not publish the claim
+or refresh the default checkout; those stay with
+[trunk publication](trunk-publication.md) and
+[maintain the default checkout](maintain-default-checkout.md).
+
+Record the local checkout role and target selection through that reference,
+using the actual established paths. The originating checkout path, the
+execution checkout path and branch, and the integration checkout path are
+separate local roles. The authorized remote target is target selection and is
+not one of those paths.
+
+After the selected checkout exists, prepare it as part of the same setup
+lifecycle as worktree creation so this project's ordinary commands are usable
+there before implementation delegation. The same readiness rule applies when
+caller-selected current-branch work newly supplies an unprepared checkout.
+Resolve the required setup from this project's checked-in conventions and
+locked dependency metadata, not from an Open Dough configuration key. When
+those sources establish a deterministic locked install, perform it in the
+selected checkout without rewriting lockfiles. A committed lockfile with
+contributor or CI convention for `npm ci` is one such case; do not require
+npm, or treat a lockfile's presence as an Open Dough recognizer, for a
+project that uses different tooling. Then run an applicable project command
+from that checkout. Do not infer availability from the presence or absence
+of `node_modules` or a similar local directory. Do not copy or symlink
+mutable installation from another checkout, and do not treat parent-directory
+resolution as the contract. Keep mutable installed dependencies, generated
+output, and project-local caches in the selected checkout. Supported
+package-manager download or artifact caches may remain machine-level.
+
+Creation, this preparation, and the command check are one setup lifecycle.
+Execution may cross the implementation boundary only when the command
+succeeds from the selected checkout. A missing, ambiguous, or failed
+required preparation stops before implementation delegation, formatting,
+proof commands, or CI-readiness claims. Preserve the checkout and report
+its path, the command selected or the missing convention, and the failure
+needed for recovery. Host facilities may establish or invoke the same
+project-owned outcome; they do not define a separate preparation policy.
+
+Reuse that host-established outcome only when its evidence names this exact
+selected checkout and the checkout's current locked dependency state, and an
+applicable project command then succeeds there. Keep the evidence in the
+current execution context and the command result; write no registry, stamp
+file, or host-specific reuse policy. A host callback may supply evidence,
+but it cannot redefine what prepared means. Preparation that names a
+different checkout, a changed dependency state, or an unusable command is
+not reused; parent-directory resolution, a copied installation, or a
+symlink is not reuse evidence. In those cases perform this project's setup
+in the selected checkout and run the command as above. Verified reuse is
+the same readiness gate, not a second preparation path.
+
+[Runtime setup](runtime-setup.md) remains the owner of checkout-bound CI
+observer runtime only. Do not arm observation as part of this gate, and do
+not make CI setup the owner of development dependencies.
+
+After that setup succeeds and before delegation, retain execution resume
+context in the existing plan when one exists, and in the conversation, in
+addition to the shared local checkout role and target selection:
+
 - selected mode;
 - retained published revisions when Trunk Mode has published any — this
   execution's review attribution in the existing plan or conversation, not a
@@ -37,12 +99,14 @@ the existing plan when one exists, and in the conversation:
   newer trunk. [Trunk publication](trunk-publication.md) updates those fields;
   do not invent another ledger.
 
-Caller-selected current-branch work records that checkout/branch for both
-locations and creates no worktree. It is incompatible with Trunk Mode;
-contradictory selection stops before setup.
+Caller-selected current-branch work records that checkout path as both the
+execution checkout and the integration checkout and creates no worktree. It is
+incompatible with Trunk Mode; contradictory selection stops before setup.
 
-On resume, verify retained identity against actual branch, HEAD ancestry, mode,
-retained published revisions, unpublished candidate SHA, and worktree state;
+On resume, verify the shared lifecycle's recorded worktree path, branch,
+starting revision, and created-versus-reused ownership when that fact was
+recorded, then verify mode, HEAD ancestry, retained published revisions, and
+the unpublished candidate SHA against actual worktree state.
 **Taken** alone supplies no location. Reuse a matching execution checkout.
 Rewritten unpublished identities follow
 [interrupted publication](trunk-publication.md#resume-an-interrupted-publication).
@@ -65,7 +129,8 @@ Pass identity/location explicitly to agents and
 host adapters.
 
 Resolve checkout-bound installed runtime from the selected execution checkout
-and use it as working directory. Before arming, apply
+and use it as working directory. Arm only after the project-command readiness
+gate above has passed. Before arming, apply
 [runtime setup](runtime-setup.md) identity and stop rules; the initially loaded
 skill's copy is not a fallback. CI source is the authorized target branch;
 edits and repair stay in this checkout.

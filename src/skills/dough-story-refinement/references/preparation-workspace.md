@@ -24,39 +24,37 @@ or confirm the workspace immediately before making it.
 ## Select or reuse the workspace
 
 Apply [own a temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
-"Select the checkout" and "Use and resume it" as this preparation's Git
-lifecycle; do not duplicate its recipe here. First check whether the current
-story, active plan, session, or a host-supplied workspace already owns a
-suitable checkout for this preparation. Use it, and do not create a nested or
-per-invocation workspace merely because a different one of the four skills
-above is now writing. When no suitable owned workspace exists, start one using
-that reference's create step, from a suitable existing host workspace when one
-is available, otherwise from the verified current revision of the checkout
-this preparation was invoked from.
+"Select the checkout", "Record local checkout role and target selection",
+and "Use and resume it" as this preparation's Git lifecycle; do not duplicate
+its recipe here. First check whether the current story, active plan, session,
+or a host-supplied workspace already owns a suitable checkout for this
+preparation. Use it, and do not create a nested or per-invocation workspace
+merely because a different one of the four skills above is now writing. When
+no suitable owned workspace exists, start one using that reference's create
+step, from a suitable existing host workspace when one is available, otherwise
+from the verified current revision of the checkout this preparation was
+invoked from.
 
-Shared checkout identity is decided by role, not by Git merely reporting a
-worktree: a directory `git worktree list` shows is not automatically this
-preparation's workspace. Verify that a candidate workspace is actually owned
-by the current story, plan, session, or host — the same verification that
-reference's resume step performs — before writing into it. Treat an
-unverifiable or ambiguous match the same as a missing workspace.
+Verify a candidate against that reference before writing into it. The suitable
+owner is the current story, plan, session, or host. An unverifiable or
+ambiguous match is a missing workspace.
 
 Resolve this project's own conventions for the write — seed directory and
 ID/filename rules, plan root and layout, required metadata, and installed
 skill guidance — from the intended, owned checkout, not from wherever the
 invocation started.
 
-Alongside that owned workspace identity, record this preparation's
-integration checkout: the checkout it was invoked from, or a reused host
-workspace's own already-recorded integration checkout when one applies — the
-project's established checkout for ordinary work, never the owned preparation
-workspace itself. Record its authorized remote target the same way
-[execution location](../../dough-execute-plan/references/execution-location.md)
-resolves the integration checkout and branch and the authorized remote target
-for ordinary work in this project, defaulting the branch to `main` only when
-neither caller nor project supplies one. A later keep decision publishes onto
-this recorded target; see
+Record local checkout role and target selection through that reference, using
+the actual established paths. The owned workspace path is the preparation
+workspace. The integration checkout path is the checkout this preparation was
+invoked from, or a reused host workspace's already-recorded integration
+checkout — the project's established checkout for ordinary work, never the
+owned preparation workspace itself. Target selection is the authorized remote
+target, recorded separately from that path. A later keep decision publishes
+onto this recorded target; see
 [Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result).
+Preparation's continuation after this selection is the record write and that
+disposition. It does not apply execution mode or project-command readiness.
 
 ## Continue related preparation
 
@@ -98,11 +96,12 @@ found. Do not silently replace the workspace, create a second one alongside
 it, or guess which candidate is the right one — the same rule that already
 governs an unresolved first-time workspace selection.
 
-This resume verification relies only on the workspace identity already
-recorded when the workspace was selected or created — story, plan, session,
-or host ownership. Do not add a session registry, log, or other persistent
-index to track preparation sessions across time; resume continues to depend
-purely on verifying that recorded identity against actual Git state.
+This resume verification relies only on the local checkout role already
+recorded when the workspace was selected or created — the actual paths and
+story, plan, session, or host ownership. Do not add a session registry, log,
+or other persistent index to track preparation sessions across time; resume
+continues to depend purely on verifying that recorded role against actual
+Git state.
 
 ## Tiny corrections are included; the Taken transition is not
 

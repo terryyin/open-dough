@@ -2,8 +2,8 @@
 
 Apply this reference once [prepare records in an owned
 workspace](preparation-workspace.md) has established this preparation's owned
-workspace and recorded its integration checkout, branch, and authorized
-remote target in that reference's [Select or reuse the
+workspace and recorded its local checkout role and target selection in
+that reference's [Select or reuse the
 workspace](preparation-workspace.md#select-or-reuse-the-workspace). It covers
 only what happens to an already-written seed, story, or plan record. After
 applying it, the calling skill returns to [Close or retain the
@@ -42,7 +42,8 @@ commit, integration, publication, or removal happens under this reference.
 ## Inspect an advanced integration target without deciding
 
 A resumed (or still-active) preparation session may fetch or inspect the
-current state of the integration checkout and target recorded in
+current state of the recorded integration checkout and the authorized remote
+target in
 [Select or reuse the
 workspace](preparation-workspace.md#select-or-reuse-the-workspace) — to see
 what changed while paused, or to inform a discussion with the developer —
@@ -64,10 +65,11 @@ step) to have already confirmed — that the keep instruction:
 - names this preparation session's own retained seed, story, or plan
   record, not implementation, unrelated changes, or another session's work;
   and
-- has a known, unambiguous integration checkout, branch, and authorized
-  remote target to publish onto, per the identity recorded in
-  [Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace)
-  above.
+- has a known, unambiguous local checkout role and a separate target
+  selection, per the record in
+  [Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace).
+  Publish onto the authorized remote target. Do not treat the integration
+  checkout path as the publication destination.
 
 A keep instruction that does not clearly identify its own retained result, or
 whose destination is unknown or ambiguous, stops before any commit or
@@ -85,13 +87,14 @@ Apply this sequence only after a validated explicit keep instruction.
    its branch, since its recorded starting revision, not yet on the
    authorized remote target. Do not commit implementation, unrelated edits,
    or another session's changes.
-2. **Use the recorded target.** Reuse the integration checkout, branch, and
-   authorized remote target recorded in
+2. **Use the recorded target.** Reuse the local checkout role and the target
+   selection recorded in
    [Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace).
-   The checkout identifies the default checkout for the separate maintenance
-   outcome. It is not a stage the candidate must pass through. If that
-   identity is missing, contradictory, or ambiguous, stop before any commit
-   or publication and report the exact gap.
+   The integration checkout path is the default checkout for the separate
+   maintenance outcome. The authorized remote target is the publication
+   destination. The checkout is not a stage the candidate must pass through.
+   If either record is missing, contradictory, or ambiguous, stop before any
+   commit or publication and report the exact gap.
 3. **Publish from the owned workspace.** Apply
    [publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md)
    from this preparation workspace. Do not invent a second publication
@@ -193,7 +196,7 @@ session's work. This is the same identification requirement
 [Validate a keep instruction before acting](#validate-a-keep-instruction-before-acting)
 already applies to a keep instruction's own retained-record check. Discard
 needs no destination check: it never publishes anywhere, so that section's
-integration-checkout/target requirement does not apply here.
+local checkout role and target selection requirement does not apply here.
 
 Discard removes only the specific session-owned draft or edit the developer
 identified — the seed, story, or plan content this session wrote, whether it
