@@ -95,12 +95,13 @@ Apply this sequence only after a validated explicit keep instruction.
    [publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md)
    "Preconditions", "Publish the candidate", and, if a push is rejected,
    "Recover a rejected push" — do not invent a second publication sequence or
-   a preparation-specific merge/rebase policy. For this caller:
+   a preparation-specific merge/rebase policy. Integration-checkout access and
+   preservation use
+   [maintain the default checkout](../../dough-execute-plan/references/maintain-default-checkout.md);
+   this reference adds no second coordination mechanism. For this caller:
    - the owned unpublished suffix is the commit(s) from step 1;
    - the integration checkout and authorized remote target are the ones
      resolved in step 2;
-   - "Preconditions"' exclusive integration turn applies unchanged; this
-     reference adds no second coordination mechanism;
    - validating the candidate (step 4 of "Publish the candidate") means
      reconfirming that the suffix's commits are exactly the retained record
      the keep instruction named and nothing else — there is no **Taken**
@@ -111,9 +112,10 @@ Apply this sequence only after a validated explicit keep instruction.
    - no CI/execution observer is bound to a preparation workspace, so no
      registration happens — see
      [What keep does not do](#what-keep-does-not-do) below;
-   - an unresolved rejection, unrelated unpublished local commits, or
-     ambiguous target ownership stops exactly as that reference already
-     describes; report it and do not loop.
+   - an unresolved rejection or a
+     [preservation stop](../../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work)
+     stops exactly as those shared owners already describe; report it and do
+     not loop.
 
 After a successful push, the retained result is reachable at the authorized
 remote target, with any writer's intervening work still present in its
@@ -182,12 +184,12 @@ guessing which side wins. This is the same stop already used for any
 unresolved value, design, or scope decision:
 [Stop for human judgment](../../dough-execute-plan/references/execution-decisions.md#stop-for-human-judgment).
 
-**Blocked-turn handoff, never timeout.** If
-[Preconditions](../../dough-execute-plan/references/publish-the-candidate.md#preconditions)'
-exclusive integration turn cannot be acquired or completed, that is an
-explicit recovery/handoff requirement, exactly like any other interrupted
+**Blocked-access handoff, never timeout.** If
+[default-checkout access](../../dough-execute-plan/references/maintain-default-checkout.md#establish-access-before-local-mutation)
+cannot be acquired or completed for the recorded integration checkout, that is
+an explicit recovery/handoff requirement, exactly like any other interrupted
 publication. Nothing here introduces, or should be read to imply, a
-timeout-based automatic release of that turn.
+timeout-based automatic release of that access.
 
 ## What keep does not do
 

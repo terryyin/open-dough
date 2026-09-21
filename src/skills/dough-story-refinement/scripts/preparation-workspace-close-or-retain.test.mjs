@@ -13,7 +13,8 @@ import {
   createPreparationFixture,
 } from "./preparation-keep-publish-test-fixtures.mjs";
 
-// Slice 6 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
+// Git mechanics (not guidance-following): Slice 6 of
+// .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
 // proves preparation-workspace.md's "Close or retain the workspace" rule:
 // cleanup runs only after a *confirmed* disposition, and even then only
 // removes a workspace this session itself created; a reused or host-owned

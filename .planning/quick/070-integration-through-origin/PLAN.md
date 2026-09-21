@@ -1,6 +1,43 @@
 # Integration through origin
 
-Status: planned; execution has not started.
+Status: in progress; slice 2 next.
+
+## Learnings
+
+- Publication remote facts stay in `publish-the-candidate.md`; default-checkout
+  access, preservation, and independent maintenance outcome live in
+  `maintain-default-checkout.md`. Callers defer to both; full opportunistic
+  refresh decision remains for slice 5.
+- Existing publication/preparation Git suites remain the proof entry points
+  until the planned capability rename; they exercise Git mechanics, not
+  guidance-following.
+
+### Accepted proof — slice 1
+
+Promise: publication and default-checkout maintenance have distinct owners;
+existing external Git outcomes stay the same.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/publish-the-candidate.test.mjs src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs src/skills/dough-story-refinement/scripts/preparation-keep-publish-resume.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-close-or-retain.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-unconfirmed-disposition.test.mjs
+boundary: Git mechanics on disposable remotes/worktrees
+setup: none (suites build fixtures)
+observations: publish-the-candidate claim/rebase; trunk-publication clean FF, unrelated-local stop, rejected-push recovery; preparation keep/no-push, resume, cleanup gated on confirmed publication
+guidance walk: preparation-disposition.md and trunk-publication.md defer to publish-the-candidate.md and maintain-default-checkout.md; cleanup uses maintain-default-checkout preserve
+result: pass (14/14)
+```
+
+## Execution identity
+
+- Mode: Story Branch Mode
+- Originating / integration checkout: `/Users/terryyin/git/open-dough` on `main`
+- Authorized remote target: `origin/main`
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/070-integration-through-origin`
+- Execution branch: `cursor/070-integration-through-origin`
+- Claim published revision: `ca99ff262ef1939276046164de6781bca642f453` (trunk claim; Story Branch `pendingCi: unobserved`)
+- Retained published revisions (this execution): `ca99ff262ef1939276046164de6781bca642f453`
+- CI observer: `/tmp/dough-ci-501/watch-bap1mT` observing `terryyin/open-dough` branch `cursor/070-integration-through-origin` (GitHub Actions workflow `ci.yml` / `CI`)
+- Replanning permission: allowed (existing planning authority retained; no `--no-replan`)
+- Concurrent Taken work: SEED-008#prepare-execution-worktree on `cursor/069-prepare-execution-worktree` (coordinate exclusive integration turns when publishing to trunk)
 
 ## Source and outcome
 
@@ -176,7 +213,7 @@ run. Release/tag selection remains the release workflow's responsibility.
 ### 1. Give publication and checkout maintenance distinct owners
 
 Type: Structure
-Status: planned
+Status: done
 
 Separate the shared publisher's candidate/remote facts from default-checkout
 access, refresh, and local preservation. Keep the existing external workflow

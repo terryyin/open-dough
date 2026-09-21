@@ -227,7 +227,7 @@ Trunk Mode's wrap-up closure publications and wrap-up observer shutdown, remove
 this execution's clean local worktree and local execution branch. Use retained
 identity and non-force operations. Preserve unrelated resources, unique or
 unpublished work, a dirty checkout, and a worktree that still hosts an active
-checkout-bound observer. Trunk Mode never deletes a remote execution branch.
+checkout-bound observer under [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work). Trunk Mode never deletes a remote execution branch.
 Story Branch Mode deletes the remote branch only when its tip is integrated in
 the remote target. Verify removal, accept already-absent resources on retry,
 report blocked or partial cleanup without repeating already-completed closure,

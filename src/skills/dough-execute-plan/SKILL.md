@@ -68,7 +68,9 @@ Resolve project context at the first boundary that needs it:
 - navigation, focused tests, runtime wrapper, and workflow precedence for the selected slice;
 - authorized push destination before delivery; for Story Branch or Trunk Mode, also
   [trunk publication's Preconditions](references/trunk-publication.md#preconditions) before
-  taking queued work, and for Trunk Mode before publishing a queue claim or verified increment;
+  taking queued work, and for Trunk Mode before publishing a queue claim or verified increment —
+  those preconditions resolve publication inputs and defer shared-checkout access and
+  preservation to [maintain the default checkout](references/maintain-default-checkout.md);
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
 
@@ -116,7 +118,8 @@ obtain push/CI context only when another current boundary needs it.
 
 For Story Branch or Trunk Mode, also resolve
 [trunk publication's Preconditions](references/trunk-publication.md#preconditions) — the claim's
-publication authority, authorized push destination, and exclusive integration turn — before
+publication authority, authorized push destination, and
+[default-checkout access](references/maintain-default-checkout.md#establish-access-before-local-mutation) — before
 moving the entry; reuse permission already established for this execution rather than requesting
 it again. An unresolved precondition stops the move with the backlog, index, and refs unchanged,
 and starts no implementation. Caller-selected current-branch work keeps its existing contract and
@@ -132,7 +135,10 @@ Leave taken work through pauses, failures, completion, and retrospective; wrap-u
 For a queue claim, preflight the originating integration checkout: verify the
 resolved integration branch, backlog path, tracked/staged changes, and ownership
 of an isolated claim commit. Ambiguous branch or ownership leaves the queue
-unchanged; preserve existing work without stashing, resetting, overwriting, or silently unstaging it. Queued current-branch
+unchanged; apply
+[preserve pending local work](references/maintain-default-checkout.md#preserve-pending-local-work)
+rather than stashing, resetting, overwriting, or silently unstaging existing
+work. Queued current-branch
 execution requires the resolved integration branch; otherwise stop before changing
 the backlog.
 

@@ -12,7 +12,8 @@ import {
   createPreparationFixture,
 } from "./preparation-keep-publish-test-fixtures.mjs";
 
-// Slice 5 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
+// Git mechanics (not guidance-following): Slice 5 of
+// .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
 // proves preparation-disposition.md's "Resume an interrupted
 // keep-and-publish" rule: a resumed preparation session classifies its own
 // actual state -- never a stored status field -- through the shared
@@ -58,7 +59,7 @@ test("resuming after interruption between local integration and push, trunk unch
   // publish-the-candidate.md#resume-an-interrupted-publication's table.
   // Local target tip (preparationSha) is the owned candidate; fetched remote
   // trunk does not yet contain it -- "Integrated locally". Continue with:
-  // exclusive-turn checks, then candidate push (step 6) directly. Do not
+  // default-checkout access, then candidate push (step 6) directly. Do not
   // rebase or commit again.
   await fetchAndAssertOriginMain(integration, trunkSha);
   assert.equal(
@@ -113,7 +114,7 @@ test("resuming after interruption between local integration and push, trunk adva
 
   const worktreesBeforeResume = await worktreeCount(integration);
 
-  // Resume: "Integrated locally"'s continue-with is exclusive-turn checks
+  // Resume: "Integrated locally"'s continue-with is default-checkout access
   // then candidate push (step 6) directly -- not a proactive fetch/rebase.
   // The push genuinely races the disjoint advance and must be rejected.
   await assert.rejects(

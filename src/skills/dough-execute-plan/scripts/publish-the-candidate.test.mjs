@@ -16,7 +16,7 @@ import {
 
 const exec = promisify(execFile);
 
-// Slice 2 of
+// Git mechanics (not guidance-following): Slice 2 of
 // .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md extracted
 // publish-the-candidate.md's mechanics out of trunk-publication.md without
 // changing any caller's required behavior. trunk-publication-local-main.test.mjs

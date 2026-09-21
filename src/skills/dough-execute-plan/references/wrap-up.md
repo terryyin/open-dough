@@ -129,7 +129,9 @@ and continues that unfinished obligation only.
    A rejected push after local integration follows
    [rejected-push recovery](trunk-publication.md#recover-a-rejected-push)
    and registers only the SHA that path records after a confirmed ordinary
-   push. A [Trunk Mode publication stop](trunk-publication.md#preconditions),
+   push.    A [Trunk Mode publication stop](trunk-publication.md#preconditions),
+   including a
+   [default-checkout preservation stop](maintain-default-checkout.md#preserve-pending-local-work),
    [rebase conflict stop](trunk-publication.md#resolve-a-publication-rebase-conflict),
    or a recovery stop leaves that execution commit unpublished and
    recoverable; do not register it or treat delivery as complete.

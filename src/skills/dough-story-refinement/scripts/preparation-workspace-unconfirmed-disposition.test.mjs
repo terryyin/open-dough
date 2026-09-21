@@ -11,7 +11,8 @@ import {
   createPreparationFixture,
 } from "./preparation-keep-publish-test-fixtures.mjs";
 
-// Slice 6 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
+// Git mechanics (not guidance-following): Slice 6 of
+// .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
 // proves preparation-workspace.md's "Close or retain the workspace" rule:
 // "Failed or unconfirmed publication never triggers cleanup." This file
 // covers that never-without-confirmation half -- whether a keep-and-publish

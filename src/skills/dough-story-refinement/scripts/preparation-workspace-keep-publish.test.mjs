@@ -12,7 +12,8 @@ import {
   createPreparationFixture,
 } from "./preparation-keep-publish-test-fixtures.mjs";
 
-// Slice 3 of .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
+// Git mechanics (not guidance-following): Slice 3 of
+// .planning/quick/065-prepare-stories-in-owned-worktrees/PLAN.md
 // proves preparation-disposition.md's "Decide what happens to the written
 // result" / "Keep and publish the retained result" rule: a developer's
 // explicit keep instruction commits (if needed), reconciles with current

@@ -33,11 +33,10 @@ Keep the same execution worktree for planned, quick, and contextual work.
 Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions):
 resolve source, mode, target branch, authorized remote, and the owned
 unpublished suffix — the Taken commit for a claim, or consecutive execution
-commits not yet on authorized remote trunk for an increment — then acquire an
-exclusive integration turn and inspect the target before mutating the shared
-integration checkout. Unknown ownership, dirty or ambiguous target state, or
-unrelated unpublished local commits stop publication without target mutation,
-following [human judgment](execution-decisions.md#stop-for-human-judgment),
+commits not yet on authorized remote trunk for an increment — then apply
+[default-checkout access and preservation](maintain-default-checkout.md)
+before mutating the shared integration checkout. A maintenance stop follows
+[human judgment](execution-decisions.md#stop-for-human-judgment),
 [delivery staging](wrap-up.md#deliver-the-change), and
 [resume](../SKILL.md#continue-or-recover-at-an-execution-boundary).
 
@@ -52,7 +51,10 @@ touches the product backlog), validate the candidate, fast-forward the
 integration checkout named in [execution location](execution-location.md)
 with `git -C <integration-checkout> merge --ff-only <candidate>`, and push the
 exact candidate before registering it with any bound observer. A claim may
-have no execution worktree yet; other publications retain theirs.
+have no execution worktree yet; other publications retain theirs. Local
+fast-forward and preservation remain under
+[maintain the default checkout](maintain-default-checkout.md); remote
+acceptance is the publisher's fact.
 
 ## Publish wrap-up closure
 
@@ -74,15 +76,19 @@ it and continue.
 A publication stop leaves the commit recoverable on the execution branch.
 Do not delete spent history, remove resources, or claim closure. After the
 final-closure publication and wrap-up observer shutdown succeed, wrap-up
-removes only this execution's clean local worktree and local execution branch.
+removes only this execution's clean local worktree and local execution branch,
+applying
+[preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
+when cleanup would mutate or discard a dirty or ambiguous checkout.
 
 ## Recover a rejected push
 
 Apply [recover a rejected push](publish-the-candidate.md#recover-a-rejected-push):
 retain the rejected candidate SHA and previously published base, recheck
-[Preconditions](#preconditions) including the exclusive turn, and — if they
-hold — reconcile only the owned suffix onto freshly fetched trunk (replaying
-only commits after the previously published base, never from the rejected
+[Preconditions](#preconditions) including
+[default-checkout access](maintain-default-checkout.md), and — if they hold —
+reconcile only the owned suffix onto freshly fetched trunk (replaying only
+commits after the previously published base, never from the rejected
 candidate) and retry one ordinary push, moving the execution branch and
 revalidating as in candidate step 4 before that retry. A second rejection or
 other persistent failure stops; preserve remaining state and report it. Do
@@ -120,7 +126,9 @@ not allocate a replacement claim or a nested worktree.
 
 ## Preserve remaining state
 
-Apply [publish the candidate's preserved state](publish-the-candidate.md#preserve-remaining-state).
+Apply [publish the candidate's preserved state](publish-the-candidate.md#preserve-remaining-state),
+which defers local preservation to
+[maintain the default checkout](maintain-default-checkout.md#preserve-pending-local-work).
 For this caller, that state is not permission to start unclaimed queued work,
 start implementation from an unpublished claim, or substitute Story Branch
 Mode publication.

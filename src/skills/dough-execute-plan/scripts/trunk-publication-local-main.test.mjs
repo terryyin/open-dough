@@ -1,3 +1,6 @@
+// Git mechanics (not guidance-following): trunk publication via
+// publish-the-candidate on disposable remotes/worktrees — clean FF,
+// unrelated-local stop, and rejected-push recovery.
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

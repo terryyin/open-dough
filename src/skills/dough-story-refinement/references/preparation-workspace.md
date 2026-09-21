@@ -158,10 +158,11 @@ interrupted before step 6's agreement is reached — see [Resume an
 interrupted keep-and-publish](preparation-disposition.md#resume-an-interrupted-keep-and-publish) —
 is not a confirmed disposition merely because the session is ending or the
 conversation is being closed out. Treat it as still unresolved and preserve
-every resource exactly as found, so the resume/retry path above remains
-reachable. Pausing, going quiet, or any other interruption before a decision
-is confirmed is never itself a trigger, exactly as it is never itself a keep
-or discard decision.
+every resource exactly as found under
+[preserve pending local work](../../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work),
+so the resume/retry path above remains reachable. Pausing, going quiet, or any
+other interruption before a decision is confirmed is never itself a trigger,
+exactly as it is never itself a keep or discard decision.
 
 Once a confirmed disposition applies, apply [own a temporary exploration
 workspace](../../dough-manual-testing/references/exploration-workspace.md)

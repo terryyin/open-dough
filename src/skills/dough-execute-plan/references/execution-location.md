@@ -52,15 +52,16 @@ Run delegation, refactoring, generation, formatting, staging, commits, pushes,
 and CI repair from the selected execution location. Story Branch Mode pushes
 its execution branch to the authorized destination. Trunk Mode publishes each
 verified increment through [trunk publication](trunk-publication.md) and
-does not push the execution branch. That rule's exclusive-turn and target
-cleanliness checks apply only to shared-target mutation — any operation that
-advances the authorized target branch's ref, including a same-command SHA
-push issued from the execution worktree — and not to execution-checkout
-commits, proof, or formatting, which stay ungated. Which checkout's shell
-issues that push does not change the mutation target: the target branch's
-ref and the integration checkout that tracks it are still gated, so the
-inspection and fast-forward named in
-[publish the candidate](trunk-publication.md#publish-the-candidate) still
+does not push the execution branch. Shared default-checkout mutation —
+including any operation that advances the authorized target branch's ref or
+fast-forwards the integration checkout that tracks it — uses
+[maintain the default checkout](maintain-default-checkout.md) for access and
+preservation, and [publish the candidate](publish-the-candidate.md) for remote
+acceptance. Those checks do not gate execution-checkout commits, proof, or
+formatting. Which checkout's shell issues a push does not change the mutation
+target: the target branch's ref and the integration checkout that tracks it
+remain under that maintenance owner, so the inspection and fast-forward named
+in [publish the candidate](trunk-publication.md#publish-the-candidate) still
 apply and are not satisfied by a push alone. Pass identity/location
 explicitly to agents and host adapters.
 
