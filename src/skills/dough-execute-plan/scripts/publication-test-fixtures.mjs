@@ -22,6 +22,68 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
+// Push one exact candidate SHA from the workspace that owns it. This does not
+// check out or fast-forward the default checkout.
+export async function pushCandidate(workspace, sha) {
+  await git(workspace, "push", "origin", `${sha}:refs/heads/main`);
+}
+
+// Pending human edit: staged content, an unstaged change to a tracked file,
+// and an untracked file. Publication must leave all three untouched.
+export async function plantHumanEdit(checkout) {
+  writeFileSync(join(checkout, "human-staged.txt"), "human index\n");
+  await git(checkout, "add", "human-staged.txt");
+  writeFileSync(
+    join(checkout, "trunk.txt"),
+    "base\nhuman changed tracked file\n",
+  );
+  writeFileSync(join(checkout, "human-unstaged.txt"), "human working tree\n");
+}
+
+export async function captureCheckout(checkout) {
+  return {
+    head: await revParse(checkout, "HEAD"),
+    status: (await git(checkout, "status", "--porcelain")).stdout,
+    staged: (await git(checkout, "diff", "--cached")).stdout,
+    unstaged: (await git(checkout, "diff")).stdout,
+    index: (await git(checkout, "ls-files", "-s")).stdout,
+  };
+}
+
+export function assertCheckoutUnchanged(before, after) {
+  assert.deepEqual(after, before);
+}
+
+// Inspection-only maintenance result for an accepted remote revision. A clean
+// checkout already at that revision is already current; any other state,
+// including a pending human edit, is deferred. This does not fast-forward.
+export function maintenanceFromInspection(checkoutState, remoteSha) {
+  if (checkoutState.head === remoteSha && checkoutState.status === "") {
+    return "already current";
+  }
+  return "deferred";
+}
+
+export async function assertRemoteCandidate(origin, candidateSha) {
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), candidateSha);
+}
+
+// Another writer advances the authorized remote with one disjoint commit from
+// a separate clone. The clone is removed after the push.
+export async function advanceOriginFromAnotherWriter(origin) {
+  const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
+  await exec("git", ["clone", origin, thirdCheckout]);
+  await git(thirdCheckout, "config", "user.name", "Another Writer");
+  await git(thirdCheckout, "config", "user.email", "another@example.test");
+  writeFileSync(join(thirdCheckout, "other-writer.txt"), "their work\n");
+  await git(thirdCheckout, "add", "other-writer.txt");
+  await git(thirdCheckout, "commit", "-m", "another writer's own increment");
+  await git(thirdCheckout, "push", "origin", "main");
+  const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
+  rmSync(thirdCheckout, { recursive: true, force: true });
+  return disjointSha;
+}
+
 // Shared precondition step (publish-the-candidate.md's "Publish the
 // candidate" step 1): fetch the authorized remote and confirm the checkout
 // observed the pre-publication trunk before any reconciliation is attempted.
@@ -34,15 +96,10 @@ export async function fetchAndAssertOriginMain(integration, expectedSha) {
   );
 }
 
-// Shared final-state proof for publish-the-candidate.md's "Publish the
-// candidate" step 6 and "Recover a rejected push" step 5: local main (the
-// integration checkout) and the bare origin itself agree on the same
-// published SHA, main and origin/main have converged (0/0), and the
-// integration checkout is left clean. When an execution worktree applies
-// (always for an increment), pass `execution` so its branch is checked
-// against the same SHA too; a caller with no execution checkout at all (for
-// example a preparation workspace's keep-and-publish, which never has an
-// `exec/story` branch) omits it.
+// Shared final-state proof when the owned candidate already is the default
+// checkout's branch tip (a claim committed there). Owned-workspace publication
+// uses assertRemoteCandidate plus assertCheckoutUnchanged instead: remote
+// acceptance does not require this checkout to move.
 export async function assertPublicationAgreement(
   { origin, integration, execution },
   publishedSha,
@@ -70,18 +127,12 @@ export async function assertPublicationAgreement(
   assert.equal(status, "", cleanStatusMessage);
 }
 
-// Builds the fixture named in Slice 1 of
-// .planning/quick/033-synchronize-local-main-after-trunk-publication/PLAN.md:
-// a disposable repository whose primary checkout (the shared "integration
-// checkout") is clean `main` at the same SHA as `origin/main` (a local bare
-// repo), plus an execution worktree whose unpublished suffix is already
-// based on that trunk. Exported so every test in
-// trunk-publication-local-main.test.mjs can build on the same clean-trunk
-// starting point before diverging it.
+// Builds the fixture used by publication.test.mjs: a disposable repository
+// whose primary checkout is clean `main` at the same SHA as `origin/main`
+// (a local bare repo), plus an execution worktree whose unpublished suffix
+// is already based on that trunk.
 export async function createCleanTrunkFixture() {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "trunk-publication-local-main-")),
-  );
+  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "publication-")));
   const origin = join(fixture, "remote.git");
   const integration = join(fixture, "integration");
   const execution = join(fixture, "execution");

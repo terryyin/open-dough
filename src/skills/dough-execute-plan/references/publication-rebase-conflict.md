@@ -15,9 +15,9 @@ way: repair the backlog by hand, or decide the current result should stand as is
 own `validate` before this section's own revalidation below and before publishing. If neither the adapter
 nor that reference is available, preserve the conflict and report the missing guidance.
 
-[Recover a rejected push](publish-the-candidate.md#recover-a-rejected-push)'s two `--onto` rebases are not run through this
+[Recover a rejected push](publish-the-candidate.md#recover-a-rejected-push)'s `--onto` rebase of the owned branch is not run through this
 adapter: its CLI has no equivalent for rebasing a range other than the currently checked-out branch onto a
-ref. Until that gap is closed, resolve a conflict touching the backlog on either of those two rebases with
+ref. Until that gap is closed, resolve a conflict touching the backlog on that rebase with
 [the fallback domain knowledge](../../dough-product-backlog/references/merge-conflicts.md#fallback-domain-knowledge)
 instead, applied by hand exactly as below.
 

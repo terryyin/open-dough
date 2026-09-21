@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 2 next.
+Status: in progress; slice 3 next.
 
 ## Learnings
 
@@ -8,9 +8,14 @@ Status: in progress; slice 2 next.
   access, preservation, and independent maintenance outcome live in
   `maintain-default-checkout.md`. Callers defer to both; full opportunistic
   refresh decision remains for slice 5.
-- Existing publication/preparation Git suites remain the proof entry points
-  until the planned capability rename; they exercise Git mechanics, not
-  guidance-following.
+- Publication and preparation Git proof is now
+  `publication.test.mjs` and `preparation-publication.test.mjs`. Those
+  suites exercise Git mechanics, not guidance-following.
+- Owned-workspace publication pushes the candidate SHA and does not
+  fast-forward the default checkout. `git branch -d` then treats a
+  session-created branch as merged only after its upstream is the fetched
+  authorized remote; a lagging default-checkout `HEAD` is not an unmerged
+  branch. Slice 5 still owns whether a clean checkout is refreshed.
 
 ### Accepted proof — slice 1
 
@@ -18,12 +23,25 @@ Promise: publication and default-checkout maintenance have distinct owners;
 existing external Git outcomes stay the same.
 
 ```text
-command: node --test src/skills/dough-execute-plan/scripts/publish-the-candidate.test.mjs src/skills/dough-execute-plan/scripts/trunk-publication-local-main.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-keep-publish.test.mjs src/skills/dough-story-refinement/scripts/preparation-keep-publish-resume.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-close-or-retain.test.mjs src/skills/dough-story-refinement/scripts/preparation-workspace-unconfirmed-disposition.test.mjs
+command: node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
 boundary: Git mechanics on disposable remotes/worktrees
 setup: none (suites build fixtures)
-observations: publish-the-candidate claim/rebase; trunk-publication clean FF, unrelated-local stop, rejected-push recovery; preparation keep/no-push, resume, cleanup gated on confirmed publication
-guidance walk: preparation-disposition.md and trunk-publication.md defer to publish-the-candidate.md and maintain-default-checkout.md; cleanup uses maintain-default-checkout preserve
-result: pass (14/14)
+observations: publication.test.mjs claim, owned-suffix rebase, unrelated-local stop, one rejected-push recovery; preparation keep/leave-unpublished/discard and cleanup only after confirmed publication
+guidance walk: preparation-disposition.md and trunk-publication.md defer to publish-the-candidate.md and maintain-default-checkout.md
+result: pass (11/11) after slice 2 renamed these suites; original 14/14 covered the same outcomes before that rename
+```
+
+### Accepted proof — slice 2
+
+Promise: an explicit keep publishes the retained record from the owned workspace; a pending human edit on the default checkout stays out of that candidate and is reported as deferred maintenance. Leave-unpublished and discard stay local.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
+boundary: Git mechanics on disposable remotes/worktrees
+setup: fixtures create the remotes and workspaces; tests plant the human edit and unrelated commit before the push
+observations: publication.test.mjs pending-human-edit test asserts remote candidate SHA, parent trunk, unchanged checkout HEAD/bytes, deferred maintenance, and an origin tree without unrelated.txt or human-* files; preparation-publication.test.mjs keep test asserts seed-draft.md content on a second clone, the other writer as parent, unchanged checkout, and worktree removal only after confirmed publication
+guidance walk: preparation-disposition.md step 3 and publish-the-candidate.md step 5; decomposition, refinement, slice planning, and plan refinement share that disposition
+result: pass (11/11)
 ```
 
 ## Execution identity
@@ -232,7 +250,7 @@ publication outcome.
 ### 2. Publish retained preparation from its owned workspace
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given an owned preparation workspace and an explicit keep instruction, publishing
 its retained records produces an accepted candidate in the authorized remote

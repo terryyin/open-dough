@@ -30,31 +30,32 @@ Keep the same execution worktree for planned, quick, and contextual work.
 
 ## Preconditions
 
-Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions):
-resolve source, mode, target branch, authorized remote, and the owned
-unpublished suffix — the Taken commit for a claim, or consecutive execution
-commits not yet on authorized remote trunk for an increment — then apply
-[default-checkout access and preservation](maintain-default-checkout.md)
-before mutating the shared integration checkout. A maintenance stop follows
+Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions).
+For this caller the owned suffix is the Taken commit for a claim, or
+consecutive execution commits not yet on authorized remote trunk for an
+increment. The owned workspace is the execution worktree when one already
+exists; a claim committed on the integration checkout before that worktree
+exists uses that checkout. For a claim, the supplied validation confirms the
+selected entry is **Taken** on the candidate and that no empty commit was
+invented. For an increment, it reuses accepted proof whose promise, boundary,
+implementation, setup, and observations still match.
+[Default-checkout access and preservation](maintain-default-checkout.md)
+apply only when this publication mutates that checkout. A maintenance stop
+follows
 [human judgment](execution-decisions.md#stop-for-human-judgment),
 [delivery staging](wrap-up.md#deliver-the-change), and
 [resume](../SKILL.md#continue-or-recover-at-an-execution-boundary).
+It does not erase a remote acceptance the publisher has already recorded.
 
 ## Publish the candidate
 
 Apply [Preconditions](#preconditions), then run
-[publish the candidate](publish-the-candidate.md#publish-the-candidate): fetch
-the authorized remote, reconcile from it, rebase only the owned suffix when
-trunk advanced (following
-[backlog adapter routing](#resolve-a-publication-rebase-conflict) whenever it
-touches the product backlog), validate the candidate, fast-forward the
-integration checkout named in [execution location](execution-location.md)
-with `git -C <integration-checkout> merge --ff-only <candidate>`, and push the
-exact candidate before registering it with any bound observer. A claim may
-have no execution worktree yet; other publications retain theirs. Local
-fast-forward and preservation remain under
-[maintain the default checkout](maintain-default-checkout.md); remote
-acceptance is the publisher's fact.
+[publish the candidate](publish-the-candidate.md#publish-the-candidate) from
+the owned workspace. A claim may have no execution worktree yet; other
+publications retain theirs. Register an accepted SHA with any bound observer
+only after the publisher's remote confirmation. Report checkout maintenance
+separately under
+[maintain the default checkout](maintain-default-checkout.md).
 
 ## Publish wrap-up closure
 
@@ -83,23 +84,16 @@ when cleanup would mutate or discard a dirty or ambiguous checkout.
 
 ## Recover a rejected push
 
-Apply [recover a rejected push](publish-the-candidate.md#recover-a-rejected-push):
-retain the rejected candidate SHA and previously published base, recheck
-[Preconditions](#preconditions) including
-[default-checkout access](maintain-default-checkout.md), and — if they hold —
-reconcile only the owned suffix onto freshly fetched trunk (replaying only
-commits after the previously published base, never from the rejected
-candidate) and retry one ordinary push, moving the execution branch and
-revalidating as in candidate step 4 before that retry. A second rejection or
-other persistent failure stops; preserve remaining state and report it. Do
-not loop.
+Apply [recover a rejected push](publish-the-candidate.md#recover-a-rejected-push).
+A second rejection or other persistent failure stops; preserve remaining
+state and report it.
 
 ## Resolve a publication rebase conflict
 
 Follow [publication rebase conflict](publication-rebase-conflict.md) for backlog
-adapter routing, fallback domain knowledge for the two `--onto` rebases, ordinary
-conflict resolution, and the required stop when identity or product intent
-remains unresolved.
+adapter routing, fallback domain knowledge for the owned-branch `--onto`
+rebase, ordinary conflict resolution, and the required stop when identity or
+product intent remains unresolved.
 
 ## Resume an interrupted publication
 

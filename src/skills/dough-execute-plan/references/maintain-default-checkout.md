@@ -23,15 +23,16 @@ state, or stopped for unclear ownership.
 ## Establish access before local mutation
 
 Before mutating the default checkout's working tree, index, or checked-out
-branch — including a local fast-forward of that checkout during a
-publication that still uses it — acquire exclusive local access through
-available coordinator context and inspect the checkout. A clean directory
-or Git lock file does not establish exclusivity; coordinate with a
-declared owner or stop. Do not invent a merge queue, lock, or extra claim.
+branch — including a later refresh that advances that branch — acquire
+exclusive local access through available coordinator context and inspect the
+checkout. A clean directory or Git lock file does not establish exclusivity;
+coordinate with a declared owner or stop. Do not invent a merge queue, lock,
+or extra claim.
 
 These checks gate shared default-checkout mutation. They do not gate
-commits, proof, or formatting on a separate owned execution or preparation
-workspace.
+commits, proof, formatting, or a remote push from a separate owned
+execution or preparation workspace. Publishing that workspace does not
+acquire this checkout's access.
 
 ## Preserve pending local work
 
@@ -41,10 +42,10 @@ exact refs, worktrees, index, and staged/unstaged content; do not stash,
 reset, unstage, revert, or silently include unrelated work in a refresh or
 in a publication that mutates this checkout.
 
-Report the competing writer or inspectable state. When the caller was
-attempting publication through this checkout, leave the owned unpublished
-suffix recoverable on its recorded branch or checkout and do not treat
-publication as delivered.
+Report the competing writer or inspectable state. When the unpublished
+suffix lives on this checkout, leave it recoverable and do not treat a
+remote that lacks it as published. When the suffix lives in a separate
+owned workspace, this preservation does not block that workspace's push.
 
 Apply the same preservation after a rejected push that left an owned
 suffix unpublished on this checkout: do not undo that locally integrated
@@ -59,10 +60,13 @@ before using this checkout's commit as a new task base). A new owned
 workspace may start from fetched remote trunk without advancing the
 default checkout.
 
-Until a caller procedure requires opportunistic refresh, keep the current
-external contract: apply [Establish access before local
+Owned-workspace publication records this outcome by inspection and does not
+refresh the checkout. Report **already current** when the checkout is clean
+and its `HEAD` is the accepted remote revision. Report **deferred** when it
+holds a pending human edit, staged or unstaged, or is otherwise not at that
+revision; name the preserved `HEAD`, index, and working tree. Do not
+fast-forward it while recording that result. A later procedure that requests
+a refresh still applies [Establish access before local
 mutation](#establish-access-before-local-mutation) and [Preserve pending
-local work](#preserve-pending-local-work) whenever publication or another
-local edit mutates this checkout. Do not treat a deferred refresh as
-permission to skip those checks while the shared publisher still mutates
-the checkout.
+local work](#preserve-pending-local-work) before any local edit. Eligibility
+for that refresh is not decided by the publication that just succeeded.

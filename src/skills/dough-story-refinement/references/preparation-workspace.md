@@ -9,8 +9,10 @@ already-decided correction. Reading, discussing, answering questions, or
 reviewing an existing seed or plan needs no workspace at all.
 
 Once a write is done, [decide what happens to the written
-result](preparation-disposition.md) covers keeping, leaving unpublished, or
-discarding it, before the workspace below is closed or retained.
+result](preparation-disposition.md) is the only disposition for that record.
+Decomposition, refinement, planning, and plan refinement all use it for keep,
+leaving the result unpublished, or discarding it. None of them publishes by
+another path. Then close or retain the workspace below.
 
 ## Determine whether a write needs a workspace
 
@@ -135,11 +137,11 @@ what happens to the written result](preparation-disposition.md#decide-what-happe
 is actually **confirmed**, never merely attempted or merely because the
 session is ending:
 
-- a **keep-and-publish** that reached
-  [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result)
-  step 6's own agreement check — local `main`, the freshly fetched remote,
-  and the retained candidate SHA on the integration checkout all agreeing,
-  with `main...origin/main` reporting `0	0`;
+- a **keep-and-publish** whose candidate the fetched authorized remote
+  contains, per
+  [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result).
+  The default checkout need not match that SHA. A deferred maintenance result
+  does not withhold this confirmation;
 - an explicit **discard** that actually removed the identified draft under
   [Discard an identified draft](preparation-disposition.md#discard-an-identified-draft),
   not one that stopped because the content could not be unambiguously
@@ -154,21 +156,24 @@ session is ending:
   disposition for cleanup purposes.
 
 Failed or unconfirmed publication never triggers cleanup. A keep-and-publish
-interrupted before step 6's agreement is reached — see [Resume an
-interrupted keep-and-publish](preparation-disposition.md#resume-an-interrupted-keep-and-publish) —
-is not a confirmed disposition merely because the session is ending or the
-conversation is being closed out. Treat it as still unresolved and preserve
-every resource exactly as found under
+interrupted before the authorized remote contains the candidate — see [Resume
+an interrupted keep-and-publish](preparation-disposition.md#resume-an-interrupted-keep-and-publish) —
+is not a confirmed disposition merely because the session is ending. Treat it
+as still unresolved and preserve every resource exactly as found under
 [preserve pending local work](../../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work),
-so the resume/retry path above remains reachable. Pausing, going quiet, or any
-other interruption before a decision is confirmed is never itself a trigger,
-exactly as it is never itself a keep or discard decision.
+including a pending human edit on the default checkout. Pausing, going quiet,
+or ending the conversation before a decision is confirmed is never itself a
+trigger, exactly as it is never itself a keep or discard decision.
 
 Once a confirmed disposition applies, apply [own a temporary exploration
 workspace](../../dough-manual-testing/references/exploration-workspace.md)
 "Close or retain it": remove only a clean, unambiguous, session-created
 workspace; retain and report a reused, host-owned, or otherwise unsafe one
-instead of forcing its removal. A clean working directory is a necessary
+instead of forcing its removal. Delete a removed session-created branch only
+when its tip is contained in the fetched authorized remote target. That
+containment is what makes deletion safe; the default checkout being behind
+that target does not make the branch unmerged, and it does not authorize a
+force delete. A clean working directory is a necessary
 check there, not by itself proof of ownership: a workspace can be clean
 because a keep-and-publish just succeeded in it while still being the same
 reused or host-owned workspace [Select or reuse the
