@@ -139,7 +139,9 @@ managed_files=(
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
   dough-execute-plan/scripts/ci-host-hook.mjs
+  dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs
+  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
   dough-execute-plan/scripts/ci-mailbox-store.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
   dough-execute-plan/scripts/ci-mailbox.mjs
@@ -209,9 +211,7 @@ while IFS=$'\t' read -r selected_platform destination; do
 done < <(all_destinations_for "${target}")
 
 needs_payload_writes=0
-for action in "${actions[@]}"; do
-  [[ "${action}" == skip ]] || needs_payload_writes=1
-done
+for action in "${actions[@]}"; do [[ "${action}" == skip ]] || needs_payload_writes=1; done
 if host_hook_fragments_present "${source_dir}"; then
   preflight_host_hooks "${source_dir}" "${target}" || exit 1
 fi
