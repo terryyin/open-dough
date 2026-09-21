@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project ([plan](quick/066-view-three-projects/PLAN.md))
+- [Require current regression proof before live transitions](seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions) — SEED-004#require-current-proof-before-live-transitions ([plan](quick/067-current-proof-before-live-transitions/PLAN.md))
 
 ## Backlog list
 
-- [Require current regression proof before live transitions](seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions) — SEED-004#require-current-proof-before-live-transitions
 - [Keep registered CI revisions truthfully observed](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful) — SEED-004#keep-ci-observation-truthful
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
