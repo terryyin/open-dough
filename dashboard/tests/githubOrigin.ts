@@ -1,29 +1,48 @@
 // Stands in for GitHub at the HTTP boundary only: a test supplies the raw
 // answers origin would give for the ref and for the backlog file, and the real
 // reader, shared backlog interpretation, and UI do everything after that.
+// Raw-answer construction (successful, rate-limited, not-found, connection
+// failure) lives in ./originAnswers; this module wires those answers to
+// routes for one or more concurrently observed repositories.
 
 import type { Page, Route } from "@playwright/test";
+import {
+  commitAnswer,
+  notFoundAnswer,
+  rawFileAnswer,
+  type OriginAnswer,
+} from "./originAnswers";
 
-const repositoryApi = "https://api.github.com/repos/terryyin/open-dough";
-const mainRefApi = `${repositoryApi}/commits/main`;
-const backlogFileApi = `${repositoryApi}/contents/.planning/PRODUCT-BACKLOG.md`;
+export {
+  commitAnswer,
+  emptyBacklog,
+  noConnection,
+  notFoundAnswer,
+  rateLimitedAnswer,
+  rawFileAnswer,
+  type OriginAnswer,
+  type RawAnswer,
+} from "./originAnswers";
+
+// The project this dashboard opens by default. Callers that observe another
+// project pass its repository explicitly; this default keeps every existing
+// single-project journey unchanged.
+export const defaultRepository = "terryyin/open-dough";
+
+function apiUrls(repository: string) {
+  const repositoryApi = `https://api.github.com/repos/${repository}`;
+  return {
+    mainRefApi: `${repositoryApi}/commits/main`,
+    backlogFileApi: `${repositoryApi}/contents/.planning/PRODUCT-BACKLOG.md`,
+  };
+}
+
 const cors = { "access-control-allow-origin": "*" };
 
 export type ObservedRequest = {
   readonly url: string;
   readonly headers: Readonly<Record<string, string>>;
 };
-
-type RawAnswer = {
-  readonly status: number;
-  readonly contentType: string;
-  readonly body: string;
-};
-
-// The connection fails before any HTTP answer arrives.
-export const noConnection = { connection: "connectionfailed" } as const;
-
-type OriginAnswer = RawAnswer | typeof noConnection;
 
 export type Origin = {
   // What GitHub answers for `commits/main`.
@@ -37,61 +56,6 @@ export type Origin = {
   // Holds the ref answer back until the test lets it go.
   readonly refHeldUntil?: Promise<void>;
 };
-
-export function commitAnswer(sha: string): RawAnswer {
-  return {
-    status: 200,
-    contentType: "application/json; charset=utf-8",
-    body: JSON.stringify({
-      sha,
-      node_id: "C_kwDOfixture",
-      commit: { message: "Fixture commit", tree: { sha: "0".repeat(40) } },
-      parents: [],
-    }),
-  };
-}
-
-export function rawFileAnswer(markdown: string): RawAnswer {
-  return {
-    status: 200,
-    contentType: "application/vnd.github.raw+json; charset=utf-8",
-    body: markdown,
-  };
-}
-
-// The backlog file origin publishes when nothing is recorded: both groups,
-// no entries, and no direction.
-export const emptyBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
-
-export function rateLimitedAnswer(status: 403 | 429 = 403): RawAnswer {
-  return {
-    status,
-    contentType: "application/json; charset=utf-8",
-    body: JSON.stringify({
-      message: "API rate limit exceeded for 203.0.113.7.",
-      documentation_url:
-        "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting",
-    }),
-  };
-}
-
-export function notFoundAnswer(): RawAnswer {
-  return {
-    status: 404,
-    contentType: "application/json; charset=utf-8",
-    body: JSON.stringify({
-      message: "Not Found",
-      documentation_url:
-        "https://docs.github.com/rest/repos/contents#get-repository-content",
-      status: "404",
-    }),
-  };
-}
 
 // One request answered as origin would answer it: observed and decided when
 // it arrives, held back if the test asked for that, then sent as the raw
@@ -123,17 +87,27 @@ const answering =
   };
 
 // Nothing in this suite reaches a real network host. Registered before the
-// GitHub routes so those, being more recent, win.
+// GitHub routes so those, being more recent, win. A test observing several
+// projects publishes more than one origin on the same page; this closes the
+// same page only once, so a later repository's specific routes are not
+// shadowed by a second catch-all registered after them.
+const closedHosts = new WeakSet<Page>();
 async function closeOtherHosts(page: Page) {
+  if (closedHosts.has(page)) {
+    return;
+  }
+  closedHosts.add(page);
   await page.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
 }
 
 export async function publishOrigin(
   page: Page,
   origin: Origin,
+  repository: string = defaultRepository,
 ): Promise<ObservedRequest[]> {
   const observed: ObservedRequest[] = [];
   const { ref, refHeldUntil, backlog } = origin;
+  const { mainRefApi, backlogFileApi } = apiUrls(repository);
 
   await closeOtherHosts(page);
   await page.route(
@@ -171,12 +145,16 @@ export type MovingOrigin = {
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
 
-export async function publishMovingOrigin(page: Page): Promise<MovingOrigin> {
+export async function publishMovingOrigin(
+  page: Page,
+  repository: string = defaultRepository,
+): Promise<MovingOrigin> {
   const requests: ObservedRequest[] = [];
   const backlogs = new Map<string, string>();
   const held = new Map<string, Promise<void>>();
   const instead = new Map<string, OriginAnswer>();
   let main: string | undefined;
+  const { mainRefApi, backlogFileApi } = apiUrls(repository);
 
   const revisionIn = (url: URL) => url.searchParams.get("ref") ?? "";
 

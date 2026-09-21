@@ -69,18 +69,19 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { backlog, taken, refresh } = parts(page);
+  const { project, backlog, taken, refresh } = parts(page);
 
-  // Reading order is the order of the page's source: the read control, then
-  // Backlog's links by priority, then Taken's. In a wide window Taken stands
-  // beside Backlog's first card, so position on screen would order them
-  // differently.
+  // Reading order is the order of the page's source: the project selector,
+  // then the read control, then Backlog's links by priority, then Taken's.
+  // In a wide window Taken stands beside Backlog's first card, so position on
+  // screen would order them differently.
   const stops = [
+    project,
     refresh,
     ...(await backlog.getByRole("link").all()),
     ...(await taken.getByRole("link").all()),
   ];
-  expect(stops).toHaveLength(1 + 2 + 3);
+  expect(stops).toHaveLength(1 + 1 + 2 + 3);
 
   await test.step("Tab stops at the read control and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -104,6 +105,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
+    // Two non-link stops precede the first link: the project selector, then
+    // the read control.
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     const [leaving] = await Promise.all([
       page.waitForRequest((request) => request.isNavigationRequest()),
@@ -135,6 +139,8 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
+  // The project selector is the first stop; the read control is the second.
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await expect(refresh).toBeFocused();
 

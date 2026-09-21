@@ -141,7 +141,7 @@ push, release, implementation, or Taken transition.
 ### 1. Select a public project's published overview
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given the default Open Dough view, select Doughnut and then Open Dough;
 the selected project's direction, membership/order, source evidence, and pinned
@@ -292,11 +292,31 @@ human-owned. Preserve completed proof and unrelated working changes.
 
 ## Current learnings and execution state
 
-No implementation or slice proof has run. Actual private GitHub access is proven
-only by the planning read above. The local middleware and its dev/preview/test
-composition still require slices 2–3 proof. Keep successful execution evidence
-and consequential learnings here; operational agent/CI state belongs in the
-execution conversation. Keep this plan through retrospective and story wrap-up.
+Slice 1 delivered 2026-09-21 on branch `claude/066-view-three-projects`. The
+fixed `publishedSource` became a two-entry public catalog (`open-dough`,
+`doughnut`) in `dashboard/src/publishedSource.ts`; `source` now threads through
+`publishedWork.ts` (`readPublishedWork`/`interpret`) instead of a module-level
+constant. `App.tsx` gained a labeled, keyboard-reachable project `<select>`
+that clears retrieval/failure/held-focus state and starts a fresh read on
+selection; extracted into `ProjectSelect.tsx`, `SourceStatus.tsx`, and
+`Moment.tsx` during post-change refactor to keep `App.tsx` under the file-size
+convention. `dashboard/tests/githubOrigin.ts` now parameterizes by repository
+(`originAnswers.ts` split out for the same reason) so a test can mock two
+public origins on one page; `pageLayout.ts`'s narrow-layout overflow check now
+exempts native form controls from the authored-CSS heuristics while still
+checking real overflow. Pygardon is intentionally absent from the catalog —
+slice 3 adds it once its private read boundary exists.
+
+Proof: `npm run test:dashboard -- --grep 'project selection'` (2/2),
+`npm run typecheck:dashboard` (clean), `npm run test:dashboard` full suite
+(30/30), `npm run lint` (clean) — all rerun and inspected by the coordinator
+after refactor, not merely reported.
+
+Actual private GitHub access is proven only by the planning read above. The
+local middleware and its dev/preview/test composition still require slices 2–3
+proof. Keep successful execution evidence and consequential learnings here;
+operational agent/CI state belongs in the execution conversation. Keep this
+plan through retrospective and story wrap-up.
 
 ## Slice-plan refinement assessment, 2026-09-21
 

@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { publishedSource } from "./publishedSource";
+import { defaultSource, type PublishedSource } from "./publishedSource";
 import {
   readPublishedWork,
   shortRevision,
   type PublishedWork,
 } from "./publishedWork";
+import { Moment } from "./Moment";
+import { ProjectSelect } from "./ProjectSelect";
 import { ReadProblem } from "./readProblem";
+import { SourceStatus } from "./SourceStatus";
 import { focusedWork, returnFocusTo, type FocusedWork } from "./workFocus";
 import { WorkStages } from "./WorkStages";
 
@@ -37,24 +40,25 @@ function describe(error: unknown): string {
     : "An unexpected problem stopped the read.";
 }
 
-function Moment({ at }: { readonly at: Date }) {
-  return <time dateTime={at.toISOString()}>{at.toLocaleString()}</time>;
-}
-
 export function App() {
+  // The project this dashboard is currently observing. Selecting another
+  // project replaces this whole, never merges into what is already shown.
+  const [source, setSource] = useState<PublishedSource>(defaultSource);
   const [retrieval, setRetrieval] = useState<Retrieval>({
     work: undefined,
     attempt: { status: "reading" },
     notice: "",
   });
   // Opening the page asks for the first read; only Refresh, named Retry after
-  // a failed attempt, asks for another. Nothing reads again by itself.
+  // a failed attempt, asks for another. Selecting a different project also
+  // starts a fresh read, through the `source` dependency below. Nothing
+  // reads again by itself.
   const [readsAsked, setReadsAsked] = useState(1);
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
 
   useEffect(() => {
     const reading = new AbortController();
-    readPublishedWork(reading.signal).then(
+    readPublishedWork(source, reading.signal).then(
       (work) => {
         if (reading.signal.aborted) {
           return;
@@ -86,7 +90,7 @@ export function App() {
     return () => {
       reading.abort();
     };
-  }, [readsAsked]);
+  }, [readsAsked, source]);
 
   const { work, attempt, notice } = retrieval;
 
@@ -111,54 +115,36 @@ export function App() {
     setReadsAsked((asked) => asked + 1);
   };
 
+  // Selecting a project replaces the observation whole: the previous
+  // project's snapshot, failure, and held focus are cleared rather than kept
+  // under the new label, and a fresh read starts through the `source`
+  // dependency above. Work identities are meaningful within one project and
+  // never carry focus into another.
+  const selectSource = (next: PublishedSource) => {
+    if (next.id === source.id) {
+      return;
+    }
+    heldFocus.current = undefined;
+    setSource(next);
+    setRetrieval({
+      work: undefined,
+      attempt: { status: "reading" },
+      notice: "",
+    });
+  };
+
   return (
     <>
       <header className="page-header">
         <h1>Published work</h1>
-        <section className="source" aria-label="Published Git state">
-          <dl>
-            <div>
-              <dt>Project</dt>
-              <dd>{publishedSource.repository}</dd>
-            </div>
-            <div>
-              <dt>Ref</dt>
-              <dd>{publishedSource.ref}</dd>
-            </div>
-            {work && (
-              <>
-                <div>
-                  <dt>Revision</dt>
-                  <dd>
-                    <code>{work.revision}</code>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Retrieved</dt>
-                  <dd>
-                    <Moment at={work.retrievedAt} />
-                  </dd>
-                </div>
-              </>
-            )}
-          </dl>
-          <p className="source-note">
-            Only published changes are visible. Current agent activity is
-            unknown.
-          </p>
-          {/* Unavailable while reading, yet still focusable: a disabled
-              button would drop keyboard focus to the page. After a failed
-              attempt the same control is named for what pressing it means,
-              so one read action is offered, never two competing ones. */}
-          <button
-            type="button"
-            className="refresh"
-            aria-disabled={reading}
-            onClick={refresh}
-          >
-            {attempt.status === "failed" ? "Retry" : "Refresh"}
-          </button>
-        </section>
+        <ProjectSelect source={source} onSelect={selectSource} />
+        <SourceStatus
+          source={source}
+          work={work}
+          reading={reading}
+          failed={attempt.status === "failed"}
+          onRefresh={refresh}
+        />
         {/* Both polite regions stay rendered while they have nothing to say:
             assistive technology speaks a change of text inside a region it
             already knows, and may never speak one inserted with its text.
