@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Require current regression proof before live transitions](seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions) — SEED-004#require-current-proof-before-live-transitions ([plan](quick/067-current-proof-before-live-transitions/PLAN.md))
-- [Keep registered CI revisions truthfully observed](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful) — SEED-004#keep-ci-observation-truthful ([plan](quick/068-truthful-ci-observation/PLAN.md))
 
 ## Backlog list
 

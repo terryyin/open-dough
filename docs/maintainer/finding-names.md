@@ -1509,8 +1509,6 @@ consult both lists when matching findings or allocating identities.
     nor the hook checks that the recorded worker is still running.
 
 
-- **Follow-up:** [SEED-004#keep-ci-observation-truthful](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful), **implemented, not yet released**.
-
 - **Status:** Addressed in source; not yet released; effectiveness unverified.
 - **Response:** `ci-host-hook.mjs` now checks the recorded worker's PID and exact
   spawned-command identity (read-only, never signaling) at both receipt
@@ -1691,10 +1689,9 @@ consult both lists when matching findings or allocating identities.
     of these four false negatives.
 
 
-- **Follow-up:** [SEED-004#keep-ci-observation-truthful](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful), **partially addressed, not resolved**.
-
 - **Status:** Partially addressed in source; not yet released; underlying cause
-  not repaired.
+  not repaired. No active follow-up is queued for the remaining bounded-listing
+  boundary; a future triage may queue one.
 - **Response:** Diagnosed, not repaired. A new faithful end-to-end test
   (`ci-revision-coverage-late-github-failure.test.mjs`) proves the existing
   `observeRevisionCoverage`/`createGitHubRunAcquisition`/`watchCiExecution`
