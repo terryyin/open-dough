@@ -3,6 +3,29 @@
 Status: all three slices delivered; ODF-065/ODF-069 response recorded; ready
 for wrap-up (Story Branch Mode branch not yet integrated to `main`).
 
+## Retrospective: ADR 0005 native-evidence assessment
+
+The plan's proof strategy required assessing recoverable native evidence per
+affected host requirement, and none of slices 1–3's returns wrote that
+assessment out explicitly. Performing it now, retroactively, from the gathered
+evidence (no new proof invented): slices 1 and 2 changed only which message a
+coordinator receives and when, not the delivery mechanism itself — `ci-host-hook.mjs`
+still surfaces context through the same, already-established `additionalContext`/
+`hookSpecificOutput` binding for Claude and Cursor, and the Codex documented cell
+still uses the same existing `store`/`notify` binding. Per ADR 0005 §2 ("keep
+deterministic checks in CI... test maintained runner and assessment logic with
+substitute processes"), the configured-hook replay (real installed
+`.claude/settings.json`/`.cursor/hooks.json` command, real subprocess) and
+documented-cell evaluation each slice already ran are this project's established
+form of that deterministic proof for this exact mechanism family, not a
+lesser substitute for it. Neither slice invalidated a host contract, so §2's
+proof is sufficient and no fresh native disposable journey was required under
+§3's "obtain a bounded fresh native disposable journey... where the host
+contract is invalidated." Slice 3 added no new host-facing message. This
+satisfies the plan's proof-strategy gate; no acceptance story is needed for
+this work. (Uncommitted at retrospective time; folds into the next commit that
+touches this plan, or story wrap-up.)
+
 ## Source and outcome
 
 Identity: SEED-004#keep-ci-observation-truthful

@@ -1,5 +1,159 @@
 # DearDough Process Findings
 
+## DD-087 — "Own one observer"'s branch-resolution wording reads ambiguously for Story Branch Mode
+
+[CI observation's "Own one observer"](.claude/skills/dough-execute-plan/references/ci-monitor.md#own-one-observer)
+says the observer's branch is "the target from the push destination, not the
+execution checkout's current branch," then: "Story Branch Mode observes the
+branch it pushes." For Story Branch Mode those are the *same* branch, so the
+first clause alone reads as pointing at some other branch (most readily
+`main`, resolved moments earlier for the Taken claim). The coordinator armed
+the observer against `main` first, then re-derived the correct target from
+the mode-specific clause and stopped/restarted before any push was registered.
+
+### Occurrences
+
+- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
+  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
+  - Timestamp: 2026-09-21T13:15:42+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: `ci-mailbox.mjs start --execution terryyin/open-dough main` ran
+    right after Story Branch Mode workspace creation; the coordinator then
+    reread "Own one observer" and stopped that observer
+    (`{"directory":"...watch-nhxpny","coverage":{"state":"ended","pendingCi":"unobserved"}}`,
+    zero evidence recorded) before any push was registered, then started a
+    correct one against `claude/068-truthful-ci-observation`.
+  - Observed effect: one wasted observer start/stop cycle; no coverage was
+    lost, since the mistake was caught before any SHA was registered.
+  - Inference: Qualified, single occurrence, but the wording is structurally
+    ambiguous, not specific to this execution: a less careful executor could
+    register real pushes against the wrong-branch observer and get silent
+    `pendingCi: unobserved` instead of catching it first. Stating the Story
+    Branch Mode case explicitly — its target is its own execution branch,
+    the same as the checkout's current branch; only Trunk Mode's target
+    differs from it — would remove the ambiguity; not tested here.
+
+## DD-088 — `scripts/check-self-installation.sh` fails on GitHub Actions with no diagnostic output, unrelated to the pushed diff
+
+This repository's own CI (`test` job) failed twice within one execution, on
+two content-disjoint commits, at the same step —
+`scripts/check-self-installation.sh` — printing only "Running
+scripts/check-self-installation.sh" then "Process completed with exit code
+1," none of that script's own error messages. It only compares each
+installed managed copy against the `v0.3.27` git-tagged archive; neither
+commit touched anything it reads. Both commits, checked out fresh (a plain
+clone and an `ubuntu:24.04` Docker container matching the runner's git/awk/tar
+versions), passed cleanly, and the CI log confirmed tags were fetched
+normally. Matches ODF-065's existing ENOSPC inference for this CI pool, but
+is a distinct symptom (a GitHub Actions step, not this project's own
+CI-observer worker dying) worth its own record.
+
+### Occurrences
+
+- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
+  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
+  - Timestamp: 2026-09-21T13:36–13:52+08:00 (two runs, ~16 minutes apart)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: run `35563951915` (commit `8a7c770`) failed identically on
+    attempt 1 and a targeted attempt 2 rerun; run `35565673278` (commit
+    `1ab85d4`, disjoint diff) failed the same way on attempt 1, all in the
+    GitHub Actions `test` job at this step. `gh run view ... --log-failed`
+    showed zero script-level output before the exit-1 annotation each time.
+  - Observed effect: two CI investigations (classification, log inspection,
+    local/Docker reproduction, one targeted rerun) before disposing both as
+    CI-infrastructure; no repair made or needed.
+  - Inference: Qualified. Two occurrences of the identical zero-output
+    signature across unrelated diffs, right after a passing run on the
+    unchanged parent commit, argue against a code-content cause and for a
+    runner-environment cause, consistent with ODF-065's ENOSPC inference for
+    this pool. Whether an actual repair (more disk headroom, or making
+    failure paths emit output under abrupt termination) is warranted was not
+    assessed; this occurrence only disposes the two observed failures.
+
+## DD-074 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
+
+Neither [execution location](.claude/skills/dough-execute-plan/references/execution-location.md)
+nor [runtime setup](.claude/skills/dough-execute-plan/references/runtime-setup.md)
+nor [slice wrap-up](.claude/skills/dough-execute-plan/references/wrap-up.md)
+mentions installing project dependencies when creating a new `git worktree
+add` execution workspace. For this Node project, a freshly created worktree
+under `~/.claude-worktrees/open-dough/<slug>` (a sibling of the integration
+checkout, not nested inside it, so Node's upward `node_modules` resolution
+cannot reach the main checkout's install) has no `node_modules` at all. The
+first attempt at [deliver the change](.claude/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change)
+step 4's selective-formatting command failed with `eslint: spawnSync eslint
+ENOENT` / `prettier: spawnSync prettier ENOENT` before the coordinator
+diagnosed the cause and ran `npm ci` in that worktree, after which formatting
+succeeded. This is the converse of ODF-070's case: that finding's nested
+`.worktrees/<slug>/` worktree already had working access to the parent
+checkout's `node_modules` via Node's own resolution walk, so the correct fix
+there was "test the command, don't assume it fails." Here the worktree
+genuinely has no reachable install, so testing the command still fails, and
+the actual missing step is installing dependencies as part of workspace
+creation — a distinct gap ODF-070's response does not cover.
+
+### Occurrences
+
+- Execution: `.planning/quick/067-current-proof-before-live-transitions/PLAN.md @ 9b1391db3c0e024272a2eed8fd8c8d278f3488a0`,
+  first related implementation commit `e9829bc6088567742fefd2a726f6bbe7da9bc039`
+  - Timestamp: unknown (2026-09-21)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: after creating the Trunk Mode worktree at
+    `/Users/terryyin/.claude-worktrees/open-dough/067-current-proof-before-live-transitions`
+    with `git worktree add ... claude/067-current-proof-before-live-transitions
+    f59df38`, the first `npm run format` there printed `eslint: spawnSync
+    eslint ENOENT`, `prettier: spawnSync prettier ENOENT`, and `Format
+    failed: unresolved findings or tool failures remain.` `ls node_modules`
+    confirmed the directory did not exist, while the integration checkout's
+    own `node_modules` (`/Users/terryyin/git/open-dough/node_modules`) had
+    102 entries. Running `npm ci` in the new worktree installed 149 packages;
+    the same `npm run format` command then completed cleanly.
+  - Observed effect: one wasted delivery-step attempt and diagnostic
+    detour (identifying the ENOENT cause, comparing against the integration
+    checkout, then installing) before delivery could proceed; no incorrect
+    guidance reached the delivered plan or product, since the coordinator
+    caught and resolved the gap itself before commit.
+  - Inference: Qualified, single occurrence, but structurally certain to
+    recur for any Node (or other dependency-manager) project using this
+    project's sibling-worktree convention, since no reviewed reference
+    mentions an install step. Adding one sentence to [execution
+    location](.claude/skills/dough-execute-plan/references/execution-location.md)'s
+    "After successful setup" step — install this project's dependencies in a
+    newly created worktree before first use, when the project's package
+    manager requires it — would let a future executor avoid rediscovering
+    this; not tested here.
+
+- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
+  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
+  - Timestamp: 2026-09-21T13:15:42+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: after creating the Story Branch Mode worktree at
+    `/Users/terryyin/.claude-worktrees/open-dough/068-truthful-ci-observation`
+    with `git worktree add ... -b claude/068-truthful-ci-observation
+    a81a305e90dcc56d7af894086b14aece7c7492e4`, the first `npm run format`
+    there (during slice 1's delivery) printed the same `eslint: spawnSync
+    eslint ENOENT` / `prettier: spawnSync prettier ENOENT` /
+    `Format failed: unresolved findings or tool failures remain.` `ls
+    node_modules` confirmed the directory did not exist. Running `npm
+    install` installed the dependencies; the same `npm run format` command
+    then completed cleanly.
+  - Observed effect: one wasted delivery-step attempt before the coordinator
+    diagnosed the cause and installed dependencies; no incorrect guidance
+    reached the delivered plan or product.
+  - Inference: Second occurrence, confirming this finding's original
+    "structurally certain to recur" prediction across a different story and
+    a different install command (`npm install` rather than `npm ci`) in the
+    same project. The guidance gap identified above remains unaddressed at
+    this occurrence's release (0.3.27).
+
 ## DD-073 — Delegated agents' own passing proof twice missed framework-internal and browser-only behavior gaps
 
 A delegated implementation agent's focused and full-suite proof passed, yet
