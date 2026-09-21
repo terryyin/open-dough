@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { createMailbox, recordWorkerIdentity } from "./ci-mailbox.mjs";
 
 export const exec = promisify(execFile);
 export const launcher = fileURLToPath(
@@ -101,6 +102,29 @@ export function releaseRun(directory, overrides = {}) {
   };
   writeFileSync(join(directory, "release.tmp"), JSON.stringify([run]));
   renameSync(join(directory, "release.tmp"), join(directory, "release"));
+}
+
+// A mailbox whose recorded worker identity is a live but unrelated process,
+// used by tests proving a reused/mismatched PID is never signaled or reused
+// as reassurance. Each caller gets its own storage directory to remain an
+// isolation control for other observers.
+export async function mailboxWithUnrelatedWorker(t) {
+  const storage = mkdtempSync(join(tmpdir(), "ci-unrelated-worker-test-"));
+  const directory = createMailbox(
+    {
+      mode: "execution",
+      repo: "owner/repo",
+      branch: "main",
+      maxDurationMs: 60000,
+    },
+    { storage },
+  );
+  const unrelated = await spawnIdleNode(t);
+  t.after(() => {
+    rmSync(storage, { recursive: true, force: true });
+  });
+  recordWorkerIdentity(directory, { pid: unrelated.pid });
+  return { directory, storage, unrelated };
 }
 
 export async function spawnIdleNode(t, trailingArguments = []) {

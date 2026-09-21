@@ -11,11 +11,9 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import {
-  createMailbox,
   publishMailboxEvent,
   readMailboxEvents,
   readWorkerIdentity,
-  recordWorkerIdentity,
 } from "./ci-mailbox.mjs";
 import {
   exec,
@@ -204,40 +202,6 @@ test("missing terminal publication stops only the retained worker and reports lo
   });
   assert.throws(() => process.kill(pid, 0), { code: "ESRCH" });
   assert.doesNotThrow(() => process.kill(unrelated.pid, 0));
-});
-
-test("a reused worker pid is not signaled when it does not belong to the mailbox", async (t) => {
-  const storage = mkdtempSync(join(tmpdir(), "ci-reused-pid-test-"));
-  const directory = createMailbox(
-    {
-      mode: "execution",
-      repo: "owner/repo",
-      branch: "main",
-      maxDurationMs: 60000,
-    },
-    { storage },
-  );
-  const unrelated = await spawnIdleNode(t);
-  t.after(() => {
-    rmSync(storage, { recursive: true, force: true });
-  });
-  const retained = { type: "CI_FAILURE", runId: 41, attempt: 1 };
-  publishMailboxEvent(directory, retained);
-  recordWorkerIdentity(directory, { pid: unrelated.pid });
-
-  await assert.rejects(
-    exec(process.execPath, [launcher, "stop", directory], {
-      env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage },
-      timeout: 10000,
-    }),
-    /does not match this mailbox/,
-  );
-
-  assert.doesNotThrow(() => process.kill(unrelated.pid, 0));
-  assert.equal(existsSync(join(directory, "result.json")), false);
-  assert.deepEqual(readMailboxEvents(directory), [
-    { sequence: 1, event: retained },
-  ]);
 });
 
 test("stop and publication race retains prior unread evidence without continuation", async (t) => {

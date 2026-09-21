@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep registered CI revisions truthfully observed](seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful) — SEED-004#keep-ci-observation-truthful ([plan](quick/068-truthful-ci-observation/PLAN.md))
-
 ## Backlog list
 
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress

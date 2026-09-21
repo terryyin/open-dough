@@ -1509,7 +1509,17 @@ consult both lists when matching findings or allocating identities.
     nor the hook checks that the recorded worker is still running.
 
 
-- **Follow-up:** [SEED-004#keep-ci-observation-truthful](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful), **queued, not resolved**. Selected by the authorized 2026-09-21 runbook maintenance cycle.
+- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Response:** `ci-host-hook.mjs` now checks the recorded worker's PID and exact
+  spawned-command identity (read-only, never signaling) at both receipt
+  attachment and the ordinary bindings-delivery loop, so a dead detached
+  worker is reported lost — not reassuringly attached — at the next ordinary
+  coordinator interaction, independent of another push, while a normal
+  completed stop is never mislabeled as death. Source commit `8a7c770` on
+  branch `claude/068-truthful-ci-observation`; story and plan recoverable at
+  `.planning/quick/068-truthful-ci-observation/PLAN.md` (slice 1) on that
+  branch, not yet merged to `main`.
+- **Released in:** pending; not yet on `main` or tagged.
 
 ## ODF-066 — Unpublished Story Branch claims block shared integration
 
@@ -1679,7 +1689,31 @@ consult both lists when matching findings or allocating identities.
     of these four false negatives.
 
 
-- **Follow-up:** [SEED-004#keep-ci-observation-truthful](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#keep-ci-observation-truthful), **queued, not resolved**. Selected by the authorized 2026-09-21 runbook maintenance cycle.
+- **Status:** Partially addressed in source; not yet released; underlying cause
+  not repaired. No active follow-up is queued for the remaining bounded-listing
+  boundary; a future triage may queue one.
+- **Response:** Diagnosed, not repaired. A new faithful end-to-end test
+  (`ci-revision-coverage-late-github-failure.test.mjs`) proves the existing
+  `observeRevisionCoverage`/`createGitHubRunAcquisition`/`watchCiExecution`
+  mechanism already retries a registered revision left `"uncovered"` after the
+  initial discovery window and delivers a real later verdict — including a
+  later failure — to the owning coordinator, confirming this report's own
+  counterevidence rather than the "discovery never retries" reading. A small
+  `references/ci-monitor.md` clarification was added: `CI_COVERAGE_UNAVAILABLE`
+  is a temporary gap, not ended observation, and a coordinator should confirm a
+  revision's actual state from coverage/records at the observer's own stop.
+  This does not repair the evidenced remaining cause: `ci-runs.mjs`'s bounded
+  run listing (`--limit 20` ongoing / `--limit 100` startup) can still miss a
+  run on a busy/shared branch under enough concurrent-push queueing pressure —
+  plausibly the actual mechanism in both recorded occurrences below, since both
+  involved multiple close-together pushes on a shared branch. Widening that
+  limit or adding retry machinery was explicitly out of this slice's scope
+  ("No timing-policy exception assumed") pending a targeted diagnosis of that
+  specific boundary. Do not treat this finding as resolved. Source commit
+  `5630b28` on branch `claude/068-truthful-ci-observation`; story and plan
+  recoverable at `.planning/quick/068-truthful-ci-observation/PLAN.md` (slice
+  3) on that branch, not yet merged to `main`.
+- **Released in:** pending; not yet on `main` or tagged.
 
 ## ODF-070 — Tool availability is inferred from a local dependency directory
 
