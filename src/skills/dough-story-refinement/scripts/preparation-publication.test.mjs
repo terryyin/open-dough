@@ -3,7 +3,7 @@
 // leave-unpublished keep that local disposition and do not publish it.
 // Native agent evidence is not this file.
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -11,7 +11,6 @@ import {
   assertCheckoutUnchanged,
   assertRemoteCandidate,
   captureCheckout,
-  exec,
   git,
   lsRemoteSha,
   maintenanceFromInspection,
@@ -20,18 +19,11 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  cloneFile,
   closeOrRetainWorkspace,
   createPreparationFixture,
   worktreeCount,
 } from "./preparation-publication-test-fixtures.mjs";
-
-async function cloneFile(origin, file) {
-  const dir = (await exec("mktemp", ["-d"])).stdout.trim();
-  await exec("git", ["clone", origin, dir]);
-  const text = readFileSync(join(dir, file), "utf8");
-  rmSync(dir, { recursive: true, force: true });
-  return text;
-}
 
 test("a keep instruction publishes the retained record from the owned workspace while a human edit on the default checkout stays deferred", async (t) => {
   const {

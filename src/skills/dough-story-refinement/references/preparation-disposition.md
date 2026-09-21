@@ -5,16 +5,22 @@ workspace](preparation-workspace.md) has established this preparation's owned
 workspace and recorded its local checkout role and target selection in
 that reference's [Select or reuse the
 workspace](preparation-workspace.md#select-or-reuse-the-workspace). It covers
-only what happens to an already-written seed, story, or plan record. After
-applying it, the calling skill returns to [Close or retain the
-workspace](preparation-workspace.md#close-or-retain-the-workspace).
+only what happens to an already-written seed, story, plan, or bug-triage
+record. A bug-triage record is the authorized canonical story, executable
+plan, or backlog change left after disposable reproduction changes are
+removed. Unrelated exploration content is not that record. After applying
+it, the calling skill returns to [Close or retain the
+workspace](preparation-workspace.md#close-or-retain-the-workspace). Bug
+fixing supplies the explicit keep, leave-unpublished, or discard instruction
+and does not choose the backlog home here.
 
 ## Decide what happens to the written result
 
-Leave a written seed, story, or plan record in the owned workspace for the
-developer's review by default. Do not commit it to a shared or host checkout
-or publish it merely because the write finished. Treat a "quick" or
-already-decided edit the same way — it is not authorization to skip this step.
+Leave a written seed, story, plan, or bug-triage record in the owned
+workspace for the developer's review by default. Do not commit it to a
+shared or host checkout or publish it merely because the write finished.
+Treat a "quick" or already-decided edit the same way — it is not
+authorization to skip this step.
 Three explicit developer decisions change that default:
 
 - **An explicit instruction to keep this preparation's retained result**
@@ -38,6 +44,8 @@ Three explicit developer decisions change that default:
 
 Absent an explicit instruction, continue leaving the draft isolated: no
 commit, integration, publication, or removal happens under this reference.
+The draft stays recoverable in the owned workspace, and the result states
+that pending disposition.
 
 ## Inspect an advanced integration target without deciding
 
@@ -59,11 +67,13 @@ discussion, not the start of that sequence — do not treat it as one.
 
 Before committing or publishing anything, confirm — or require the calling
 skill (one of the four preparation skills [prepare records in an owned
-workspace](preparation-workspace.md) applies to, per its disposition/report
-step) to have already confirmed — that the keep instruction:
+workspace](preparation-workspace.md) applies to, or bug fixing for a
+bug-triage record, per its disposition/report step) to have already
+confirmed — that the keep instruction:
 
-- names this preparation session's own retained seed, story, or plan
-  record, not implementation, unrelated changes, or another session's work;
+- names this session's own retained seed, story, plan, or bug-triage
+  record, not implementation, unrelated exploration content, disposable
+  reproduction changes, or another session's work;
   and
 - has a known, unambiguous local checkout role and a separate target
   selection, per the record in
@@ -81,12 +91,13 @@ guess a destination or assume "the usual place."
 Apply this sequence only after a validated explicit keep instruction.
 
 1. **Commit the retained result.** If the developer's retained seed, story,
-   or plan record is not already committed in the owned workspace, commit
-   exactly the files the keep instruction names there — nothing else. This
-   produces the owned workspace's unpublished suffix: one or more commits on
-   its branch, since its recorded starting revision, not yet on the
-   authorized remote target. Do not commit implementation, unrelated edits,
-   or another session's changes.
+   plan, or bug-triage record is not already committed in the owned
+   workspace, commit exactly the files the keep instruction names there —
+   nothing else. This produces the owned workspace's unpublished suffix: one
+   or more commits on its branch, since its recorded starting revision, not
+   yet on the authorized remote target. Do not commit implementation,
+   unrelated exploration content, disposable reproduction changes, or another
+   session's changes.
 2. **Use the recorded target.** Reuse the local checkout role and the target
    selection recorded in
    [Select or reuse the workspace](preparation-workspace.md#select-or-reuse-the-workspace).
@@ -169,8 +180,8 @@ mutation of that checkout into a failed publication.
 
 ## What keep does not do
 
-Keep authorizes only committing and publishing this preparation's own
-retained seed, story, or plan record. It does not:
+Keep authorizes only committing and publishing this session's own retained
+seed, story, plan, or bug-triage record. It does not:
 
 - move a backlog entry to **Taken** or perform any part of
   [take queued work](../../dough-execute-plan/SKILL.md#take-queued-work);
@@ -190,18 +201,19 @@ or takes the story, whatever the kept record describes.
 
 Apply this section only after a validated explicit discard instruction, per
 [Decide what happens to the written result](#decide-what-happens-to-the-written-result)
-above: one that identifies this preparation session's own retained seed,
-story, or plan content, not implementation, unrelated changes, or another
-session's work. This is the same identification requirement
+above: one that identifies this session's own retained seed, story, plan, or
+bug-triage content, not implementation, unrelated exploration content,
+disposable reproduction changes, or another session's work. This is the same
+identification requirement
 [Validate a keep instruction before acting](#validate-a-keep-instruction-before-acting)
 already applies to a keep instruction's own retained-record check. Discard
 needs no destination check: it never publishes anywhere, so that section's
 local checkout role and target selection requirement does not apply here.
 
 Discard removes only the specific session-owned draft or edit the developer
-identified — the seed, story, or plan content this session wrote, whether it
-is still uncommitted or already committed-but-unpublished in the owned
-workspace. It does not remove:
+identified — the seed, story, plan, or bug-triage content this session wrote,
+whether it is still uncommitted or already committed-but-unpublished in the
+owned workspace. It does not remove:
 
 - **the owned workspace itself.** A reused or host-owned workspace may hold
   other in-progress work — another story, plan, or session's own edits —

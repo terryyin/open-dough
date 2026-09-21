@@ -1,4 +1,10 @@
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -9,6 +15,16 @@ import {
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 
 export { worktreeCount };
+
+// Reads one file from the bare origin by cloning it. The clone is removed
+// before the text is returned.
+export async function cloneFile(origin, file) {
+  const dir = (await exec("mktemp", ["-d"])).stdout.trim();
+  await exec("git", ["clone", origin, dir]);
+  const text = readFileSync(join(dir, file), "utf8");
+  rmSync(dir, { recursive: true, force: true });
+  return text;
+}
 
 // Shared preparation-workspace fixture for the preparation publication tests.
 // Git mechanics only: an integration checkout plus a separately branched

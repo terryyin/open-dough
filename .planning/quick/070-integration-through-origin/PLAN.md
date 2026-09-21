@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 12 next.
+Status: in progress; slice 13 next.
 
 ## Learnings
 
@@ -195,6 +195,18 @@ boundary: Git mechanics
 setup: fixtures build a bare origin; human-edit cases plant staged, unstaged, and untracked files; the host-owned case uses the execution worktree
 observations: local-only receipt is null and refs/heads/main is unchanged; publish-authorized receipt is that SHA on refs/heads/main with maintenance deferred/pending-edit and the human edit still present; local commit and local merge stay classification local, and the merge commit has two parents; host-owned branch stays exec/story; another declared owner is another-writer with HEAD unchanged
 result: pass (11/11) after the refactor split
+```
+
+### Accepted proof — slice 12
+
+Promise: bug remaining-work retention removes only named disposable paths, keeps the durable record and unrelated exploration content, and follows preparation disposition. An explicit keep publishes from the owned workspace. A draft stays local with a pending disposition. A reused workspace is not removed.
+
+```text
+command: node --test src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs
+boundary: Git mechanics
+setup: fixtures build a preparation workspace; the test plants a backlog record, a disposable reproduction file, and unrelated exploration content, then calls retainBugTriageArtifacts
+observations: without keep the disposable path is gone, the backlog and unrelated file remain, disposition is pending, and refs/heads/main is unchanged; with keep the commit names only .planning/PRODUCT-BACKLOG.md, the remote has that file and not the disposable path or human-staged.txt, and the integration checkout is unchanged; a reused workspace stays with reason reused or host-owned
+result: pass (8/8) after refactor
 ```
 
 ## Execution identity
@@ -640,7 +652,7 @@ stopping point: supported explicit caller contexts use the common model.
 ### 12. Retain bug-triage artifacts through preparation disposition
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given durable authorized records from bug investigation, remove only disposable
 reproduction changes and retain the records under preparation's disposition.
