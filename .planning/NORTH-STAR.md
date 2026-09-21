@@ -80,3 +80,16 @@ following [ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md) and
 Keep later assignment, feature, structure, and local-lock models out until their
 selected behavior needs them. UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
+
+
+For the three-project story, Terry accepted existing local GitHub authentication
+for private Pygardon on 2026-09-21; a pinned CLI read confirmed access. Keep that
+credential/process responsibility in a narrow loopback read boundary of the
+existing local dashboard launch, shared by dev and built preview. It returns
+published revision and raw backlog data for the same browser interpretation;
+public reads retain their existing unauthenticated path. Credentials never enter
+browser assets. Catalog identity bounds the local reader's requests; no arbitrary
+proxy or new state authority is needed. Selection is transient UI state, with
+one project's observation visible at a time. This direction constrains story 5
+and any later authenticated story-detail reading; it does not create coordination
+between the observed projects or adopt Proposed ADR 0008.
