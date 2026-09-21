@@ -30,7 +30,13 @@ command result.
     from running.
   - Inference: the three callers need one bounded, realpath-equivalent
     direct-entry decision plus process proof that observes each CLI body rather
-    than accepting exit status alone. Follow-up correction:
+    than accepting exit status alone.
+  - Delivered: `src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs`
+    (`isDirectCliEntry`, a literal-URL fast path falling back to
+    `fs.realpathSync` comparison, fail-closed on error), wired into all three
+    callers in `eff69eb9ed1268bd2428f11abacb3abc7711e025`, with real-symlink
+    process-level proof for each entrypoint. The correction plan that carried
+    this work is recoverable at the wrap-up's before-cleanup commit,
     `.planning/quick/064-recognize-realpath-equivalent-cli-entry/PLAN.md`.
 
 ## DD-055 — A plan's proof command can select an empty test set and report success
