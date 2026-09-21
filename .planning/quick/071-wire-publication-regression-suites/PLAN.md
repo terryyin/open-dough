@@ -4,14 +4,15 @@ Status: planned; execution has not started.
 
 ## Source and outcome
 
-Identity: bounded retrospective correction from
-SEED-008#migrate-git-branching-and-integration /
-`.planning/quick/070-integration-through-origin/PLAN.md`
-("Integration through origin").
+Identity: bounded retrospective correction from SEED-008#migrate-git-branching-and-integration
+(spent history recoverable at
+`52a7e630037aa0bca1295a3399758aba15aba29e:.planning/quick/070-integration-through-origin/PLAN.md`,
+"Integration through origin").
 
 Provenance: first related implementation commit
 `a8eab76edb1df66ab618af5b09c6411b975dbbe7`; tip reviewed
-`1044dd0969c419faa0c23b17a9a6f844015c4bc8`.
+`1044dd0969c419faa0c23b17a9a6f844015c4bc8`; before-cleanup
+`52a7e630037aa0bca1295a3399758aba15aba29e`.
 
 A developer running this project's ordinary `npm test` /
 `scripts/test.sh` regression path exercises the migrated preparation

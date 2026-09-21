@@ -257,9 +257,8 @@ rotation and can drift from claims; commit authors do not reliably establish
 current ownership. Keep the automated assignment bounded to actual Taken work,
 not a general developer-directory product.
 
-**Depends on:** The delivered dashboard and
-[Migrate existing workflows to integration through origin](SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration),
-which supplies claim publication and recovery. Story 2 precedes this story for
+**Depends on:** The delivered dashboard and installed execute-plan publication
+guidance, which supply claim publication and recovery. Story 2 precedes this story for
 single-agent learning value. Reuse the delivered backlog mutation and identity
 contracts when adding assignment semantics.
 

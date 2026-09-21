@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Migrate existing workflows to integration through origin](seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration) — SEED-008#migrate-git-branching-and-integration ([plan](quick/070-integration-through-origin/PLAN.md))
-
 ## Backlog list
 
 - [Wire migrated publication suites into the default runner](quick/071-wire-publication-regression-suites/PLAN.md) — .planning/quick/071-wire-publication-regression-suites/PLAN.md

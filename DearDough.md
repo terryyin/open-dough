@@ -592,22 +592,6 @@ attached, so lost coverage is first visible when the coordinator stops it.
     the record shows when it stopped writing, not why. Neither `register-push`
     nor the hook checks that the recorded worker is still running.
 
-- Execution: `.planning/quick/070-integration-through-origin/PLAN.md`, first
-  related implementation commit `a8eab76edb1df66ab618af5b09c6411b975dbbe7`
-  - Timestamp: unknown (2026-09-21–2026-09-22)
-  - Tool: Cursor
-  - Open Dough release: 0.3.27
-  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bap1mT`. Of 14 registered
-    story-branch SHAs, only `a8eab76`, `63eaab8`, and `8cf8007` reached
-    `state:success`; the other 11 including tip `1044dd0` stayed
-    `unchecked` with `missingPolls:0` when stop returned
-    `{"status":"finished"}`. `register-push` kept writing coverage receipts
-    after observation stopped.
-  - Observed effect: Wrap-up inherits `pendingCi: unobserved` for the tip and
-    most increments despite repeated registration during delivery.
-  - Inference: Qualified. Same register-push-without-live-worker pattern as
-    this issue; the worker's exit after the third success was not diagnosed.
-
 ## ODF-066 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
 
 Former local code: DD-064.
@@ -680,23 +664,6 @@ without the agent flagging it as a limitation.
     "don't let setup supply the outcome" wording in
     `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
     prevent the first draft.
-
-- Execution: `.planning/quick/070-integration-through-origin/PLAN.md`, first
-  related implementation commit `a8eab76edb1df66ab618af5b09c6411b975dbbe7`
-  - Timestamp: unknown (2026-09-21–2026-09-22)
-  - Tool: Cursor
-  - Open Dough release: 0.3.27
-  - Evidence: Coordinator send-backs on slice 12 (disposable-path removal and
-    pending-disposition text performed inside the test rather than by
-    `retainBugTriageArtifacts`) and slice 14 (`ownership_override=foreign`
-    planted after a complete claim-race stream so live assessment could pass
-    without Git evidence). Both were corrected before delivery.
-  - Observed effect: Two extra delegation round-trips before those proofs were
-    accepted; planted outcomes did not reach the branch.
-  - Inference: Qualified. Same shape as this issue's tautology: setup or the
-    harness supplied the decisive observation instead of the product/Git
-    boundary. Slice 8's resume-target gap was a missing destination promise,
-    not this planting pattern.
 
 ## ODF-068 — Take-queued-work claim staging assumes exclusive backlog ownership
 
@@ -984,5 +951,5 @@ command text the agent is told to run, not via the launching shell's `PATH`.
 ## Retention
 
 - Highest allocated local number: 88
-- Recovery: `HEAD:DearDough.md` before this retrospective write (tip `1044dd0969c419faa0c23b17a9a6f844015c4bc8`); removed ODF-001 and ODF-006 for ceiling room
+- Recovery: before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md` (includes 070 occurrence rows removed in final closure)
 - Occurrence history is partial
