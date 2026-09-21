@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 14 next.
+Status: complete; all slices delivered.
 
 ## Learnings
 
@@ -220,6 +220,18 @@ setup: fixtures plant a 0.1.1 install that omits the migrated modules, plus `.pl
 observations: install.sh managed_files lists the publication modules; install_declared_payload copies them; assert_installed_publication_modules imports those modules in both layouts; assert_project_configuration keeps the planted open-dough.json; edited or colliding managed files stay refused until --force; a missing story link fails assertions and passes after restore
 ```
 
+### Accepted proof — slice 14
+
+Promise: credential-free publication native harness assesses observable remote acceptance, human-edit preservation, claim ownership, and stream completeness; planted claim-race ownership is gone. Live Cursor and Codex publish-boundary (and Cursor local-only) have fresh proof; Claude OAuth and remaining host-assigned live journeys are outstanding acceptance obligations.
+
+```text
+command: bash tests/git-publication-native.sh
+boundary: native publication assessor and substitute runner
+setup: fixtures plant bare origin, owned workspace candidate, and human edit on the integration checkout; substitutes perform real push or skip-push for the selected journey
+observations: assessor rejects missing remote acceptance, captured human edits, wrong ownership, claim-race foreign ownership with remote acceptance, and incomplete/stale streams; substitute journeys cover publish-boundary on codex/cursor/claude plus local-only, claim-race, uncertain-recovery, preparation, trunk-closure, story-branch-closure, and bug-disposition; ownership comes only from post-session Git observation
+outstanding: live Claude publish-boundary (OAuth expired); remaining live host-assigned journeys beyond Cursor/Codex publish-boundary and Cursor local-only
+```
+
 ## Execution identity
 
 - Mode: Story Branch Mode
@@ -353,7 +365,7 @@ outcome.
 | Bug investigation and durable remaining-work artifacts | bug-fixing `SKILL.md`; `retained-artifacts.mjs`; preparation disposition; exploration workspace lifecycle | B |
 | Shared Git helpers those runtime modules load | `publication-test-fixtures.mjs` | imported with the owners above |
 | Authoritative source, manifests, delivered references, docs, tests, names, and comments | `install.sh` `managed_files`, including `finish-or-stop.md` and `oversized-slice.md` | `bash tests/execution-payload-update.sh`; `bash tests/story-payload-update.sh`; `bash tests/story-payload-assertions.sh` |
-| Native agent use and preservation | shared native harness and observable fixture state | 14 |
+| Native agent use and preservation | `tests/git-publication-native.sh` with assessor, fixture observe, substitute agent, and host runner | `bash tests/git-publication-native.sh`; live `--native` host journeys with outstanding Claude OAuth |
 
 The manual-testing exploration lifecycle and internal release-version workflow
 have separate owners for evidence retention and release/tag authority. Review
@@ -718,7 +730,7 @@ release qualification.
 ### 14. Use the installed publication contract in supported native sessions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given that updated candidate in a fresh supported host session, an ordinary
 skill invocation follows the shared Git contract and produces the intended

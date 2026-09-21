@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Journey prompt, authority, and fixture-kind selection for publication native runs.
+
+git_publication_prompt_for() {
+  local journey=$1
+  case ${journey} in
+    local-only)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. In the owned workspace at this checkout, retain the authorized verified increment under explicit local-only authority. Do not publish to the remote. Preserve any pending human edit on the separate default checkout. Report the local retention and that publication remains pending."
+      ;;
+    claim-race)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Attempt to take and publish a queued claim from this owned workspace. Another checkout may already hold a published claim. Observe claim ownership before implementation, preserve pending human edits elsewhere, and report a recoverable conflict when ownership is not yours."
+      ;;
+    uncertain-recovery)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Resume publication of the retained candidate in this owned workspace after an uncertain prior response. Another writer may have advanced the remote. Check whether the candidate is already accepted in remote history before pushing again. Preserve pending human edits on the default checkout."
+      ;;
+    preparation)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Publish the retained preparation result from this owned workspace onto the authorized remote trunk. A pending human edit exists on the separate default checkout; leave it untouched and report maintenance separately from remote acceptance."
+      ;;
+    trunk-closure)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Close Trunk Mode work by publishing the owned candidate from this workspace to remote trunk before local cleanup. Preserve pending human edits on the default checkout. Report remote acceptance and deferred maintenance."
+      ;;
+    story-branch-closure)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Close Story Branch work by publishing a history-preserving candidate from this owned workspace onto remote trunk. Preserve pending human edits on the default checkout. Report remote acceptance."
+      ;;
+    bug-disposition)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. With explicit keep authority, publish the durable bug-triage record from this owned workspace. Preserve pending human edits on the default checkout. Report remote acceptance."
+      ;;
+    *)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. From this owned workspace, publish the verified unpublished candidate onto the authorized remote trunk. A separate default checkout holds a pending human edit; do not stage, reset, stash, or include that edit. Report whether the remote accepted the candidate and that local maintenance is separate."
+      ;;
+  esac
+}
+
+git_publication_authority_for() {
+  case $1 in
+    local-only) printf 'local-only\n' ;;
+    *) printf 'publish\n' ;;
+  esac
+}
+
+git_publication_create_fixture_for() {
+  local journey=$1
+  local parent=${2:-${TMPDIR:-/tmp}}
+  case ${journey} in
+    claim-race) git_publication_fixture_create_claim_race "${parent}" ;;
+    uncertain-recovery)
+      git_publication_fixture_create_uncertain_recovery "${parent}"
+      ;;
+    *) git_publication_fixture_create_publish_boundary "${parent}" ;;
+  esac
+}
