@@ -71,7 +71,7 @@ may exist outside the backlog. Backlog/Taken, refinement, planning, assignment,
 execution mode, and slice completion are separate facts with separate evidence.
 Taken never means a live agent is running. An absent owner remains unrecorded.
 
-Same-machine worktrees, locks, queues, and live activity belong to a later
+Default-checkout coordination, local freshness, and live activity belong to a later
 stage. Feature and structural perspectives are independent future possibilities,
 not entities or services to scaffold now. Recently finished work is also not a
 reason to build a historical analytics platform in the first increment.

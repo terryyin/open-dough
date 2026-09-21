@@ -3,7 +3,7 @@ id: SEED-021
 status: active
 planted: 2026-09-19
 planted_during: Dashboard direction and ADR 0008 discussion
-trigger_when: Building a usable story dashboard before same-machine coordination
+trigger_when: Building a usable story dashboard from published progress
 scope: unknown
 ---
 
@@ -54,6 +54,13 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 ## Boundaries Shared by the Stories
 
+- Follow the Git branching and integration direction in
+  [ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md), which remains
+  Proposed. Remote trunk supplies shared backlog context; a recorded remote
+  story branch supplies Story Branch Mode progress. Publication evidence is the
+  accepted revision in remote history. Default-checkout freshness and ownership
+  are separate machine-local facts, relevant to the later operational view.
+
 - Start with one client project hardcoded in the Open Dough dashboard project.
   Terry selected Open Dough's public GitHub origin, integration branch `main`,
   and local dashboard launch on 2026-09-19. No sign-in, hosted deployment,
@@ -61,10 +68,10 @@ browsing. The delivered overview lets that assumption be tested in use.
   The dashboard now also observes Doughnut and Pygardon as human-selected
   projects, whose metadata may remain hardcoded; this does not introduce a
   portfolio dashboard.
-- The dashboard reads published origin state only. No dependency on a
-  developer's clone, worktree paths, unpushed work, lock state, or active agent
-  session. Story 4 adds workflow-produced ownership records visible after
-  publication; it does not make the dashboard a writer.
+- The dashboard reads published origin state. Its required evidence is available
+  from the remote repository across both independent clones and same-machine
+  worktrees. Story 4 owns workflow-produced assignment records; the dashboard
+  observes their published contents.
 - No application/server database or separate persistent project-state authority.
   Disposable browser storage for preferences or cache is allowed, not required.
 - Use strong typing across the implementation and validate externally read
@@ -72,10 +79,10 @@ browsing. The delivered overview lets that assumption be tested in use.
   a prerequisite chosen by this seed.
 - Preserve story identity, queue order, and distinctions between missing,
   conflicting, and positively recorded information. Taken does not mean live.
-- The delivered overview and stories 2-3 observe existing records without assigning names or claiming work
-  to make them readable. Story 4 explicitly owns the producer-to-display journey
-  for new assignment information. None adds local locks, queues, or messaging.
-  Unavailable metadata remains explicit rather than invented.
+- The delivered overview and stories 2-3 observe existing records. Story 4 owns
+  the producer-to-display journey for new assignment information. Unavailable
+  metadata remains explicit. Local checkout activity belongs to the later
+  operational view.
 - Feature and structural perspectives, recent-completion history views,
   automatic takeover, and local operational visualization remain outside this
   set. No percentage estimates of whole-story completion.
@@ -103,8 +110,9 @@ data stays unknown. A planless story remains inspectable.
 **Evaluation:** A Taken story whose linked plan still records all slices as
 planned shows those two facts separately, rather than claiming execution is
 running. After a slice completion is published on trunk, refreshing the selected
-story reveals the recorded change and its source. A story without a plan shows
-no invented slices or required planning failure.
+story reveals the recorded change and its source, including while the publishing
+agent's default checkout has a deferred refresh. A planless story displays its
+recorded purpose and execution facts with planning state identified as planless.
 
 **Value / learning:** Determine whether source-backed detail gives enough
 visibility for Terry to use Trunk Mode with confidence, and expose actual
@@ -125,8 +133,8 @@ name which existing reader owns story and slice-status meaning, or make that
 interpretation part of this story's scope.
 
 **Depends on:** The delivered overview and its origin access. This story reads
-existing records; it does not depend on the installed scripted-backlog gate or
-new local locks. Remote execution-branch progress belongs to story 3.
+existing remote records. Story 3 owns remote execution-branch progress;
+default-checkout coordination is separately scoped in SEED-008.
 
 **Safe stopping point:** Trunk-published story progress is useful on its own.
 The view identifies its integration-branch scope so missing branch-local
@@ -169,8 +177,9 @@ Explicit branch inspection is the proposed smaller interim alternative to
 requiring changes to all workflow writers first; revisit it if real records
 already supply sufficient branch associations.
 
-**Depends on:** Story 2's source-backed story detail. Requires a real published
-story branch for evaluation, not a lock service or a new backlog write path.
+**Depends on:** Story 2's source-backed story detail and a real published story
+branch for evaluation. Use the remote branch association and publication
+boundary defined by ADR 0009.
 
 **Safe stopping point:** Both integration-branch and execution-branch evidence
 are inspectable, with their distinct publication boundaries clear. Missing
@@ -198,8 +207,9 @@ reconstructing ownership from conversations, commit authors, or branch names.
 publication to the dashboard. An agent starting story work selects an available
 developer name from a circularly rotating list and records that assignment in
 the Taken entry, together with its execution mode and, for Story Branch Mode,
-the origin execution branch. Trunk Mode needs no remote story-branch field.
-The dashboard shows those published facts with their source evidence.
+the origin execution branch. Trunk Mode identifies remote trunk as its
+publication destination. The dashboard shows those published facts with their
+source evidence.
 
 The workflow must retain the assignment on resume, keep it distinct from the
 story's stable identity, and release it through explicit closure or cancellation
@@ -210,11 +220,13 @@ developers with the same assignment name. A rejected or uncertain claim cannot
 be reported as successfully owned work. Reused names must not make earlier
 assignments or messages appear to belong to a new execution.
 
-This is useful in Stage 1 with independently owned checkouts on separate
-machines. It must coordinate through published Git state, not depend on the
-future same-machine integration lock. It does not authorize concurrent mutation
-of one shared default checkout. Exact claim reconciliation and allocation
-mechanisms remain design questions rather than a prescribed new service.
+The same claim contract serves owned worktrees on one machine and independent
+clones on several machines. Publish the assignment with the Taken claim to
+remote trunk before implementation starts. A concurrent remote update requires
+rechecking name availability and reconciling the claim before retrying. An
+uncertain response is resolved from remote history and the retained claim
+identity. Local default-checkout maintenance follows its own ownership rules.
+Exact assignment allocation and reconciliation details remain refinement work.
 
 **Included delivery boundary:** Necessary backlog-field support, workflow
 recording/publication and assignment lifecycle, delivery of changed guidance
@@ -227,8 +239,11 @@ entries without metadata and do not mass-assign their owners.
 **Key example / evaluation:** Starting an authorized story selects an available
 name, publishes its Taken assignment and mode, and refreshing the dashboard
 shows who owns it. Another developer can claim different work under a different
-available name. Resuming the first story keeps its assignment; explicit closure
-allows later safe reuse according to the rotation. For a branch-mode execution,
+available name. Two simultaneous claim attempts reconcile against remote trunk
+and result in distinct active assignments. A developer's pending edit in the
+default checkout remains intact while a claim published from an owned worktree
+becomes visible in the dashboard. Resuming the first story keeps its assignment;
+explicit closure allows later safe reuse according to the rotation. For a branch-mode execution,
 the recorded origin branch is visible as context without claiming its changes
 are on trunk. Entries without these fields remain readable as unrecorded.
 
@@ -242,11 +257,11 @@ rotation and can drift from claims; commit authors do not reliably establish
 current ownership. Keep the automated assignment bounded to actual Taken work,
 not a general developer-directory product.
 
-**Depends on:** The delivered dashboard. Story 2 is prioritized first for
-single-agent value, not a hard implementation prerequisite. Existing workflow
-claims/publication are the starting point; compatibility with ongoing backlog
-delivery and publication behavior must be checked in refinement. The local
-integration queue is not a prerequisite.
+**Depends on:** The delivered dashboard and
+[Migrate existing workflows to integration through origin](SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration),
+which supplies claim publication and recovery. Story 2 precedes this story for
+single-agent learning value. Reuse the delivered backlog mutation and identity
+contracts when adding assignment semantics.
 
 **Deferred promises:** Messaging, commit mailboxes, presence indicators,
 automatic timeouts/takeover, human account management, local workspace discovery,
@@ -288,9 +303,10 @@ one bounded recording outcome. A state framework is not independently valuable
 merely because it was excluded from the delivered overview. Recent-completion history remains
 an unselected hypothesis for the same reason.
 
-These stories precede the existing same-machine integration queue story. No
-dashboard implementation, story execution, lock implementation, or change to
-an already-Taken execution is authorized by this decomposition.
+The migration story establishes the shared Git publication contract. These
+dashboard stories then add published detail and assignment visibility, followed
+by the default-checkout coordination story. The product backlog owns priority;
+this seed supplies non-executable story scope.
 
 ## Open Decisions
 
@@ -308,8 +324,8 @@ an already-Taken execution is authorized by this decomposition.
 
 ## When to Surface
 
-Now, before adding same-machine integration coordination, while Terry trials
-single-agent Trunk Mode. Revisit scope after using each delivered view.
+While Terry trials Trunk Mode and the common publication contract, use each
+delivered view to reconsider the next visibility outcome.
 
 ## Breadcrumbs
 
@@ -326,7 +342,7 @@ single-agent Trunk Mode. Revisit scope after using each delivered view.
   The [strongly typed stack recommendation](../../docs/dashboard-tech-stack.md)
   informs implementation choices; its broader test examples and discovery
   possibilities do not expand the selected story's outcome.
-- [Same-machine integration](SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-  remains later work; its mechanism is not a prerequisite of this remote-first
-  set. Story 4 records assignments through independently owned workflow
-  checkouts; the dashboard remains read-only.
+- [Default-checkout coordination](SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+  owns direct edits, refresh access, and local recovery. Story 4 records
+  assignments through owned workflow workspaces and remote publication;
+  the dashboard reads the resulting evidence.

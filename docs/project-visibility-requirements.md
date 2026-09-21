@@ -129,20 +129,21 @@ sessions cannot supply required information. The dashboard may fetch or cache
 remote Git data; it must not need access to a developer's clone. Its view shows
 published progress, not necessarily the latest work occurring on a machine.
 
-This stage can show concurrent work published from independent machines. It
-does not require the same-machine lock or queue. Synchronization continues
-through Git and reconciliation of independently published changes.
+This stage shows concurrent work published from independent clones or local
+worktrees. Synchronization uses the common remote Git publication contract;
+the dashboard reads its published evidence.
 
 ### Stage 2: multiple agents sharing one machine
 
-Extend coordination and visibility to multiple agents working in separate
-worktrees of the same local repository. Address shared integration-workspace
-access and use machine-local operational evidence to show the additional detail
-of activity on that machine.
+Extend local coordination and visibility to multiple agents working in separate
+worktrees of the same repository. Coordinate direct edits and refreshes of the
+default checkout and use machine-local evidence to show its ownership and
+freshness. Each owned workspace publishes through the same remote Git contract
+used across independent machines.
 
-This stage includes the local integration-lock requirement described below;
-the precise queue and lock mechanisms remain to be designed. The remote Git
-view remains useful independently, with local information supplementing it.
+This stage includes default-checkout coordination as described below. Its
+mechanism remains to be designed. The remote Git view remains independently
+useful, with local information supplementing published progress.
 
 These stages describe the intended order of capability development. They do
 not commit to building the feature or structural perspectives, or make the
@@ -157,11 +158,11 @@ in the observed repository. There is no
 application/server database or separate persistent project-state store;
 disposable browser storage for preferences or cache is permitted if useful.
 
-Hardcoding Open Dough is a first-story boundary, not a permanent product limit.
-[Use the dashboard for another Open Dough project](../.planning/seeds/SEED-021-observe-published-story-progress.md#observe-another-project)
-is queued next to establish use with a real second project without editing
-dashboard application code. Multi-project aggregation and a registration system
-are not implied by that outcome.
+The delivered [story dashboard](../dashboard/README.md) observes Open Dough,
+Doughnut, and Pygardon, one selected project at a time. Its project catalog and
+access boundary supply published records for the selected project. Further
+story detail and assignment visibility are scoped in
+[SEED-021](../.planning/seeds/SEED-021-observe-published-story-progress.md).
 
 The implementation should have very strong typing. The
 [dashboard technology recommendation](dashboard-tech-stack.md) proposes the UI,
@@ -286,118 +287,93 @@ Some operational state belongs to a development machine and its local
 repository. It need not be committed to Git. Git-ignored files are one possible
 representation; the storage mechanism is not selected here.
 
-The first identified example is exclusive access to the local main/default
-integration workspace:
+The first identified example is exclusive access to the default local checkout
+for direct edits and refreshes. Participating writers share one local ownership
+mechanism across worktrees:
 
-- Before an agent edits that workspace or performs integration there, including
-  merge or rebase operations, it must acquire the shared integration lock.
-- An agent that cannot acquire the lock must wait.
-- Only one participating writer at a time may perform these operations on the
-  shared local integration workspace, including when agents execute in separate
-  worktrees. Direct edits and integration use the same lock, shared across those
-  worktrees.
+- Acquire access before inspecting and mutating the checkout, index, or branch
+  for a direct edit or refresh.
+- Retain access through the owned operation until safe release or explicit
+  recovery/handoff.
+- Writers awaiting this checkout continue independent work and remote
+  publication from their own workspaces.
 
-The purpose is to prevent unnecessary collisions caused by agents changing the
-same local integration workspace simultaneously. This local coordination is
-expected to become relevant in the upcoming same-machine trunk-integration
-work; this document does not implement or replan that work.
+The remote trunk is the integration authority under the direction in
+[ADR 0009](adrs/0009-git-branching-and-integration.md). Reconciliation and
+publication happen in owned workspaces. Local ownership protects the default
+checkout's files and Git state.
 
-The lock is local coordination, not a distributed lock across developers or
-machines. Synchronizing changes from other machines still requires ordinary
-Git reconciliation through pull/rebase or pull/merge and conflict resolution
-where necessary. Local serialization does not remove conflicts between the
-content of independently developed changes.
+### Refreshing the default checkout
+
+After each trunk publication, attempt a coordinated refresh. A clean checkout
+that is only behind fetched trunk advances by fast-forward. Pending edits,
+unpublished commits, active operations, or unclear ownership preserve their
+state and produce a visible deferred-refresh result. Publication success and
+checkout freshness are reported separately.
+
+Before using the default checkout's revision as a new task's base, verify it
+against freshly fetched trunk. A task can create its owned worktree directly
+from the fetched base while checkout maintenance is pending. Including local
+unpublished work requires a deliberate ownership and dependency decision.
 
 ### Quick edits in the default checkout
 
-Allow short, prepared changes directly in the default checkout on `main` (or
-the configured integration branch) under the same integration lock. An agent
-holding that lock for an edit prevents other participating agents from
-integrating into the checkout; they wait while continuing independent work in
-their own worktrees where possible.
+Allow short, prepared changes directly in the default checkout under the same
+local ownership mechanism used for refreshes. Inspect the current state, apply
+the bounded change, verify and commit the owned result, and leave a recoverable
+state at release. Preserve other writers' staged and working-tree content.
+The direct-edit owner follows the shared remote publication contract and its
+established publication authority.
 
-Acquire the lock before editing, recheck the checkout's current state, apply
-the bounded change, verify and commit the owned result, and leave the checkout
-clean before releasing it normally. The lock covers the whole interval of
-uncommitted work, not just the commit or final integration command. A clean
-checkout must be achieved by completing owned work, never by removing someone
-else's changes. Existing publication obligations still apply; this document
-does not redefine their lock boundary.
-
-“Quick” describes the operation's shape rather than an assumed duration:
+“Quick” describes the operation's shape:
 
 - The intended change is already decided and bounded.
-- No user response, exploratory investigation, or extended planning is needed
-  while the lock is held.
+- Required discussion and investigation are complete before acquiring access.
 - The change can be verified and committed promptly.
 
 Updating a known backlog field is a representative quick action. Story
-refinement or slice planning that involves discussion or uncertain work should
-use an exclusively owned worktree. Thinking and preparation can happen before
-acquiring the lock, but the prepared edit must be checked against the state
-found after acquisition.
+refinement and slice planning use owned workspaces. Reuse a suitable workspace
+through related preparation, publish explicitly retained results to remote
+trunk, then clean up when publication and session ownership permit it.
+The origin-based dashboard observes the published records.
 
-Reuse a suitable owned worktree for related work; a separate temporary worktree
-per skill invocation is not required. A bounded refinement/planning session can
-use a temporary local branch and worktree, integrate its commits into `main`,
-and remove those resources after successful integration and any required
-publication. The temporary branch need not itself be pushed. Its unpublished
-progress is consequently invisible to the Stage 1 dashboard.
+If a direct edit is interrupted or needs further discussion, preserve its work
+and establish a safe recovery or handoff before another writer mutates the
+checkout. A timeout can identify an operation needing attention; release
+requires evidence that ownership has been resolved.
 
-If a quick edit becomes blocked, exceeds its bounded scope, or is interrupted,
-preserve the work and establish a safe recovery or handoff before allowing
-another writer to proceed. A timeout may flag a stalled operation; it must not
-by itself release ownership while the previous writer could still be active.
-The exact recovery protocol remains open.
+### Coexistence with human edits and other tools
 
-### Developers who do not follow the lock
+Human developers and other tools can change the default checkout independently
+of the participating agents' coordination mechanism. Inspect its state after
+acquiring access and revalidate before a mutation where practical. Preserve
+unowned edits, staged content, unfinished Git operations, and unexpected branch
+or revision changes; report the observed ownership issue and resume after it is
+resolved. Re-read current state when resuming and reconcile the owned work with
+fresh remote history.
 
-Human developers may be unaware of the lock and edit, stage, or commit directly
-on `main`. Other tools may also bypass it. The lock coordinates participants;
-holding it is not proof that the checkout is untouched by everyone else.
-Open Dough must coexist with this ordinary development behavior without losing
-or silently incorporating another person's work.
+Representative cases include a human's staged edit before refresh, a commit
+made while an agent awaits checkout access, and an edit made during an agent's
+owned operation. Each case preserves the human's work and the agent's prepared
+result, with a visible maintenance outcome. Another agent's owned worktree can
+continue publishing independently.
 
-Required behavior for the later local-coordination implementation:
-
-- Inspect the checkout after acquiring the lock and revalidate relevant state
-  before accepting an integration or committing a direct edit. Detect existing
-  unowned edits, staged changes, unfinished Git operations, and unexpected
-  branch or revision changes where observable.
-- When safe ownership or integration conditions are unclear, pause the affected
-  operation. Preserve the human's work and the agent's prepared commits, explain
-  what was observed, and identify what must be settled before retrying.
-- Do not automatically stash, reset, discard, overwrite, unstage, or include
-  unrelated human changes in an agent's commit to make the checkout usable.
-- Once the checkout is available again, re-read its state and reconcile against
-  the current branch tip. Do not continue from assumptions made before the
-  intervening work or overwrite commits made by the human.
-
-Representative situations include a human leaving an uncommitted edit before
-the agent acquires the lock, making a commit while the agent waits, or changing
-the checkout while the agent believes it holds exclusive access. The first
-requires preserving the edit and reporting the blocked operation; the second
-requires considering the new commit before integration; the third requires
-detecting interference where possible and stopping safely for reconciliation.
-
-An advisory lock and state checks cannot guarantee exclusion of arbitrary
-nonparticipating writers, including writes between a check and the next action.
-The design must state that limit honestly. Stronger enforcement, detection
-mechanisms, retry behavior, and the recovery interaction remain design questions;
-universal filesystem enforcement is not selected here.
+An advisory mechanism coordinates its participants. Detection of external edits
+is limited by observable state and races between inspection and mutation.
+Refinement owns the precise checks, waiting behavior, and recovery interaction.
 
 ## Combining the two sources in the dashboard
 
 The dashboard should provide useful project visibility from repository state
 alone. When it also has access to a machine's local operational state, it should
 use that evidence to provide more detailed information about activity on that
-machine, such as integration ownership or waiting where those facts are
-recorded.
+machine, such as default-checkout ownership, deferred refresh, or waiting where
+those facts are recorded.
 
 | Source | Intended information | Availability |
 | --- | --- | --- |
 | Git origin | Durable published backlog and execution progress | Without access to a developer's local clone |
-| Machine-local state | Operational details such as local integration lock ownership | When that machine's state is accessible |
+| Machine-local state | Default-checkout ownership, freshness, and deferred refresh | When that machine's state is accessible |
 
 The local layer supplements the repository layer; durable project progress
 should not become dependent on the local layer.
@@ -418,8 +394,8 @@ decisions:
   does not establish that an agent is currently running.
 - How to show freshness and missing evidence. A remote view cannot see
   unpublished local changes, and unavailable local state does not mean idle.
-- Where to store one lock shared across worktrees, how to acquire it atomically,
-  and how to recover safely after interruption.
+- Where to store default-checkout ownership shared across worktrees, how to
+  acquire it atomically, and how to recover safely after interruption.
 - How to detect and recover from edits by writers who bypass the lock, including
   races during an operation and safe handoff when a quick edit becomes blocked.
 - Whether waiting needs an explicit queue, including ordering and fairness.
@@ -460,10 +436,12 @@ CI, alongside type checking, lint, and a production build.
 The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
 direction of parallel story execution through trunk-based development in
 separate worktrees. The existing
-[same-machine integration story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-captures orderly integration into a shared local trunk. These requirements
-provide discussion input; they do not change backlog priorities or declare
-that story implemented.
+[default-checkout coordination story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+captures local access for direct edits and refreshes. The
+[migration story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
+applies the shared remote publication contract to implemented workflows.
+These requirements supply refinement context; the backlog owns priority and
+execution records own delivery evidence.
 
 [ADR 0002 — Software development lifecycle principles](adrs/0002-software-development-lifecycle-principles-accepted.md)
 supports learning through small valuable increments and decentralized

@@ -16,16 +16,16 @@ Trunk Mode, and publication on a story branch in Story Branch Mode. Multiple
 agents on one machine and developers on different machines must reconcile
 their work with the same shared product history.
 
-Current publication guidance first advances a shared local integration checkout
-and then pushes to origin. This makes that checkout's state and availability a
-prerequisite for another workspace's publication. It requires coordination of
-local edits and integration, as well as the remote reconciliation already
-needed across machines.
+Remote reconciliation is required across machines and worktrees. Each owned
+workspace can prepare and validate a candidate against fetched remote history
+and publish it to the designated destination. The default local checkout also
+serves direct edits and task startup, so it needs its own ownership, refresh,
+and recovery rules.
 
-Git does not require the local source branch of a push to have the destination
-branch's name. An agent can prepare a candidate on its own branch and publish
-it directly to remote trunk. Workspace isolation, shared integration, and
-maintenance of the default local checkout are separate responsibilities.
+Workspace isolation, shared integration, and maintenance of the default local
+checkout are separate responsibilities. Keeping those boundaries explicit
+lets the same Git contract serve independent writers while preserving local
+work and useful checkout freshness.
 
 [ADR 0007](./0007-software-development-lifecycles.md) concerns the lifecycle of
 work from preparation through closure. This proposal defines the Git practices
@@ -173,15 +173,13 @@ ADR 0007 should reference this record for branching and integration mechanics.
 observe remote publication and local checkout maintenance as separate facts;
 its shared integration-lock language would need alignment with this boundary.
 
-The current [publication procedure](../../src/skills/dough-execute-plan/references/publish-the-candidate.md)
-requires advancing local `main` before pushing and matching local and remote
-tips before reporting success. The
-[same-machine merge-queue story](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-and [visibility requirements](../project-visibility-requirements.md) also assume
-that integration checkout. If this proposal is accepted, revise those rules and
-reassess that story's scope rather than layering a second publication path over
-them. This draft does not change existing execution guidance or authorize its
-implementation.
+[Migrate existing workflows to integration through origin](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
+owns applying this contract to implemented guidance, behavior, and proof.
+[Default-checkout coordination](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+owns automated local access and recovery. The
+[visibility requirements](../project-visibility-requirements.md) distinguish
+published progress from local operational evidence. These records express the
+selected planning direction; execution follows its own authorization.
 
 No Accepted ADR is superseded by this proposal. Human consultation, acceptance,
 and communication follow the [ADR process](./README.md). Maintainer guidance and

@@ -45,8 +45,8 @@ The following is proposed architectural intent, not an accepted decision.
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
 | Feature | Implemented external behavior that users care about, with maintained definition and design, protected by automated tests. It describes capability rather than a promise that a particular user's goal has been satisfied. |
 | Structure | The logical organization of the product's implementation, expressed through its domain model and mapped to packages, folders, files, and functions. |
-| Local workspace | A checkout in which a developer prepares changes. Several worktrees can share one local repository and integration target. |
-| Integration lock | Machine-local ownership of access to the shared integration workspace, coordinating participating writers. It is neither story ownership nor proof of agent liveness. |
+| Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
+| Default-checkout ownership | Machine-local access for direct edits and refreshes of the default checkout, with its own recovery and freshness evidence. |
 
 A story changes the product; features and structure remain descriptions of the
 product after the story is complete. These are three related dimensions, not
@@ -83,7 +83,7 @@ story-branch field. Local branch and worktree locations belong to the local
 operational view rather than required remote backlog metadata.
 
 Machine-local evidence later supplements this view with workspace and
-integration activity. Its absence means that local activity is unknown.
+default-checkout activity. Its absence means that local activity is unknown.
 Published progress remains visible independently of that local evidence.
 
 ```mermaid
@@ -119,22 +119,22 @@ the visual direction does not justify advance navigation infrastructure.
 Keep record maintenance and integration coordination in the workflow. Let the
 dashboard observe their evidence without requiring a GUI for agent cooperation.
 
-For participating writers on one machine, use one shared integration lock for
-integration and short, prepared edits in the default checkout. Exclude seed,
-story, and plan preparation from that shortcut, even for tiny corrections:
-follow the [owned-workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
-Keep the execution-startup Taken transition separate from preparation.
-Use an owned workspace for other work of uncertain duration too; never hold
-the integration lock during discussion or exploration.
+Follow the branching and integration direction in
+[ADR 0009](./0009-git-branching-and-integration.md), which remains Proposed.
+Owned workspaces publish to remote destinations; remote trunk is the shared
+integration authority. The dashboard observes accepted remote revisions for
+published progress and uses machine-local evidence for checkout activity.
 
-Show only published evidence in the origin-only view; do not infer completion
-or loss from an unpublished draft's absence.
+For participating writers on one machine, coordinate default-checkout access
+for direct edits and refreshes. Preparation uses an owned workspace under the
+[workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+A deferred local refresh preserves pending work and remains visible separately
+from successful remote publication. Independent publication follows the same
+Git reconciliation contract across worktrees and machines.
 
-Coordinate across machines through Git publication and reconciliation.
-Account for intervening changes even while holding the local lock: other
-writers may bypass it. Preserve others' work and pause when safe integration
-cannot be established. Use the [requirements](../project-visibility-requirements.md)
-for detailed quick-edit and recovery behavior.
+Use the [requirements](../project-visibility-requirements.md) for local-edit,
+freshness, and recovery examples. Recheck observable checkout state around
+local mutations and preserve changes from human developers and other tools.
 
 ### Incremental scope
 

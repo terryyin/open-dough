@@ -11,234 +11,236 @@ scope: unknown
 
 ## Why This Matters
 
-Developers want agents to work in separate worktrees while sharing small,
-verified changes through the team's trunk throughout a story. Workspace
-isolation must not postpone integration until the story is complete.
+Developers and agents prepare changes in owned workspaces and share validated
+increments through the project's remote trunk. The same publication contract
+serves worktrees on one machine and clones on different machines. The default
+local checkout stays useful for starting tasks and making bounded direct edits,
+with its freshness and ownership managed separately from remote publication.
+
+The selected direction is described in
+[ADR 0009 — Git branching and integration](../../docs/adrs/0009-git-branching-and-integration.md).
+Terry authorized this backlog alignment on 2026-09-21. The ADR retains Proposed
+status; this seed records desired outcomes for implementation planning.
 
 ## Stories
 
-<a id="claude-code-background-mode"></a>
+<a id="migrate-git-branching-and-integration"></a>
 
-### 5. Complete execution and wrap-up in fresh Claude Code background mode
+### Migrate existing workflows to integration through origin
 
-**Status:** Refined 2026-09-18; third backlog priority. Not planned.
+**Identity:** SEED-008#migrate-git-branching-and-integration
 
-**Goal:** A developer running Open Dough work in Claude Code background mode can
-take a queued story, execute it, and close it, ending with committed closure on
-the branch they already have checked out. The developer keeps ownership of
-branch publication and any pull request. This contributes to the seed's parent
-goal because background mode is how a developer launches several agents at
-once, so Open Dough must be usable there before parallel execution is
-worth pursuing.
+**Status:** Captured; selected for the backlog. Refinement and planning pending.
 
-**Observed problem:** With its default `worktree.bgIsolation` setting, Claude
-Code background mode starts work in a host-created Git worktree on a branch
-that is not the project's integration branch. Three current rules do not
-compose with that checkout:
-
-1. `dough-execute-plan` requires the **Taken** claim to be committed on the
-   resolved integration branch, and explicitly stops queued current-branch
-   execution when that branch is not available. A host-provided feature-branch
-   checkout therefore stops before the backlog changes.
-2. Story Branch Mode would create a second, nested worktree inside the
-   host-provided one.
-3. Story Branch Mode wrap-up integrates the execution branch into `main`
-   locally and pushes `origin main`, which is unsafe from a host checkout the
-   developer expects to publish themselves.
-
-An earlier capture also asserted that background mode integrates results through
-a pull request by default. Review on 2026-09-18 did not confirm that: the
-observed background-mode instruction is to commit or push only when asked and to
-branch first when on the default branch, with a pull request named only as one
-possible reported outcome. This story therefore treats pull-request cooperation
-as unproven and out of scope rather than as a requirement.
+**Goal:** A developer using any implemented Open Dough workflow gets consistent
+branch ownership, reconciliation, and publication through the project's
+specified remote, with recoverable work and a separately maintained default
+checkout. This supports parallel work across both local worktrees and machines.
 
 **Scope — required behavior:**
 
-- Installed Open Dough guidance states the supported background-mode
-  configuration, `worktree.bgIsolation` set to `none`, so a fresh installation
-  runs in the developer's project checkout rather than a host-created worktree.
-- Background-mode execution uses the existing direct-current-branch execution
-  location: it records the current checkout and branch for both execution and
-  integration and creates no worktree.
-- The claim rule resolves for a checkout that is not on the resolved integration
-  branch: either the claim is recorded safely, or execution stops before
-  changing the backlog with a diagnostic naming the current branch, the
-  resolved integration branch, and the action required.
-- Wrap-up ends at committed closure, as direct-current-branch mode already
-  specifies, and reports the branch the developer must publish.
+- Apply one remote publication contract across implemented preparation,
+  execution startup and Taken claims, planned and planless execution,
+  retrospective corrections, wrap-up, and interrupted-work recovery. Include
+  every affected caller and supported execution context, using its established
+  publication authority and destination.
+- In Trunk Mode, prepare validated increments on the owned local execution
+  branch, reconcile its unpublished commits with freshly fetched remote trunk,
+  and publish the candidate to that trunk. In Story Branch Mode, publish progress
+  to the recorded remote story branch and integrate at its authorized lifecycle
+  boundary, preserving published history. Direct-current-branch and host-owned
+  contexts retain their publication owner and explicit task authority.
+- Publish shared workflow records through an owned path. A Taken claim reaches
+  remote trunk before isolated implementation begins. Preserve work identity,
+  backlog reconciliation semantics, preparation disposition, and CI attribution
+  to the actual published revision and target.
+- Resolve concurrent remote updates through fetch, reconciliation, affected
+  validation, and ordinary publication. Recover an ambiguous push by inspecting
+  remote history. Record publication success when the candidate is present in
+  the destination's history, including after a subsequent writer advances it.
+- After trunk publication, attempt a safely coordinated default-checkout refresh.
+  Advance a clean checkout by fast-forward; preserve pending edits, unpublished
+  commits, and active operations and report deferred refresh. Start new owned
+  workspaces from a verified fetched base. Use existing explicit local ownership
+  coordination for direct edits and refreshes; the separate coordination story
+  owns automating that access and recovery.
+- Replace affected source guidance, implementation, references, examples,
+  fixtures, and tests as one coherent behavior change. Remove superseded paths
+  and assertions. Write the resulting documents, AI instructions, test names,
+  and assertions around the intended contract and observable outcomes. Keep
+  change history recoverable in Git; retain durable safety and ownership rules
+  in language that explains their present purpose.
+- Follow the release-owned delivery path for installed guidance. Update the
+  shared source and any affected host adaptations, and establish sufficient
+  behavior and delivery evidence for Codex, Cursor, and Claude Code under
+  ADR 0005. Reuse applicable proof and target fresh native checks at changed
+  delivery boundaries.
 
-**Scope — rejection constraints:** Do not create a nested or replacement
-worktree inside a host-provided one; ADR 0002 requires recoverable work, and a
-second worktree layer hides which checkout the host and the developer own. Do
-not advance or push the integration branch from a host-provided checkout. Do not
-change Story Branch Mode or Trunk Mode behavior; ADR 0007 remains Proposed and
-this story is not authorization to alter the other lifecycles.
+**Key examples / evaluation:**
 
-**Deferred promises:** This delivery does not build or verify pull-request
-creation, merge, or post-merge cleanup; cooperation with the default
-`bgIsolation` worktree isolation beyond stopping safely; a host-worktree
-detector, registry, or worktree manager; host keep-or-remove worktree exit
-handling; Codex or Cursor background equivalents; cloud or remote background
-sessions; or cleanup of pre-existing stale worktrees.
+1. Two worktrees and a second developer's clone prepare increments from the same
+   trunk revision. Their accepted publications preserve all changes, with each
+   later candidate reconciled against intervening remote history and checked
+   for affected behavior.
+2. An execution publishes a validated increment while the default checkout
+   contains a developer's unfinished edit. Remote history contains the candidate;
+   the edit remains intact; the report identifies publication success and
+   deferred local refresh. A later safe refresh brings the checkout current.
+3. A queued story's Taken claim is published from an owned workspace and becomes
+   visible to an origin reader before implementation starts. Concurrent claims
+   preserve the backlog's identity and selection rules.
+4. A preparation session publishes its explicitly retained result; a Trunk Mode
+   execution publishes increments and closure; a Story Branch execution publishes
+   branch progress and later integrates through its authorized lifecycle. Each
+   uses the shared contract with attributable revisions and recoverable state.
+5. A push succeeds but its response is lost, and another writer advances trunk.
+   Resume discovers the candidate in remote history, records that publication,
+   and completes the remaining refresh or CI-registration obligation.
+6. Representative installed invocations follow the intended ownership and
+   publication rules. Documentation and tests describe the supported behavior
+   in its own terms, and each maintained assertion protects a current promise.
 
-**Key examples:**
+**Depends on:** Existing branch modes, backlog mutation/reconciliation, and
+publication/CI ownership. Use ADR 0009's selected direction when refining this
+migration and preserve the separate human-owned ADR acceptance process.
 
-1. *Documented configuration.* A developer installs Open Dough into a fresh
-   project and follows the installed guidance to configure background mode.
-   Starting a background session leaves the session working in the project
-   checkout, and `git worktree list` gains no host-created entry.
-2. *Claim from a non-integration branch.* A background session sits on a feature
-   branch while the resolved integration branch is `main`, and the developer
-   selects a queued story. Execution either records the claim on the resolved
-   integration branch through the recorded originating checkout, or stops with
-   the backlog unchanged and reports the current branch, the resolved
-   integration branch, and the required action. It does not stall silently and
-   does not commit the claim to the wrong branch.
-3. *Closure without publication.* A story executes to completion in
-   direct-current-branch mode. Wrap-up commits the before-cleanup revision and
-   the final closure, removes the **Taken** entry, and stops. Local `main` is
-   not advanced, nothing is pushed to `origin main`, no branch or worktree is
-   deleted, and the report names the branch the developer publishes.
-4. *Unsupported configuration, boundary.* A background session starts under the
-   default `bgIsolation` inside a host-created worktree. Open Dough reports the
-   unsupported configuration and stops rather than nesting a second worktree or
-   guessing an integration target.
+**Safe stopping point:** All implemented publication journeys use the coherent
+contract, supported by updated guidance and proof. Developers can use explicit
+local coordination while the dedicated default-checkout coordination story
+remains queued.
 
-**Evaluation:** Run the examples above in a scratch repository from an
-installation with no prior workflow personalization, meaning default Claude Code
-settings for worktree isolation and no retained memory of this maintainer's
-preferences. This maintainer's own machine already sets `bgIsolation` to
-`none`, so reproducing the default behavior means reverting that setting rather
-than using the existing setup. Judge the outcome from the session's working
-directory, `git`
-refs and worktree list, the backlog file contents, and the presence or absence
-of pushes — not from the agent's self-report, per ADR 0005 section 4.
-
-**Value / learning:** The documentation slice establishes cheaply whether a
-supported configuration alone makes a fresh installation work, which would
-retire the worktree half of this problem. The remaining slices establish whether
-the existing direct-current-branch mode is a sufficient host adaptation, and
-resolve where a queue claim can be recorded when the executing checkout is not
-on the integration branch. That question is shared with the same-machine merge
-queue story.
-
-**Effort hypothesis:** S–M, medium confidence. Refinement removed the
-pull-request lifecycle unknown and identified an existing execution mode that
-already fits, so the remaining cost is the claim-location resolution and one
-native background-mode observation.
-
-**Depends on:** No hard product prerequisite. Terry Yin sequenced this story
-after the now-delivered scripted product backlog updates
-and [Queue trunk integration for agents on the same machine](#same-machine-merge-queue)
-on 2026-09-18, because both touch the same claim-commit seam: recording a claim
-on the integration branch from an executing checkout that is not on it is the
-shared-checkout contention the merge queue story owns, and the claim commit is
-itself a backlog edit.
-
-**Architecture and boundaries:** Follow
-[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-by preserving recoverable work and leaving publication with its owner;
-[ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-requires fresh native evidence because background mode is a materially
-different activation mode; and
-[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-is satisfied here by a documented configuration and a mode-selection rule rather
-than a second behavior copy. Refinement resolved the previously open ownership
-question: the developer owns branch publication and any pull request, and Open
-Dough does not take that responsibility in this story. ADR 0007 remains Proposed
-and is not adopted by this story.
-
-**Open decision:** The product backlog's near-future direction still reads
-"each agent working in its own Git worktree," while this story's chosen answer
-is that a background-mode agent works in the developer's existing checkout and
-creates no worktree. Refinement did not change that direction; a human decides
-whether the direction wording, this story's approach, or neither needs revising.
-This affects how this story is justified, not what it delivers.
-
-**Safe stopping point:** After the documentation slice, a fresh installation has
-a supported background-mode configuration and never nests a worktree. Cancelling
-the later slices leaves every other execution mode unchanged.
+**Effort hypothesis:** Unestimated; breadth lies in the shared publication
+callers and their recovery/delivery proof. Refine that inventory before slicing.
 
 <a id="same-machine-merge-queue"></a>
 
-### 2. Queue trunk integration for agents on the same machine
+### Coordinate direct edits and refreshes of the default checkout
 
-**Status:** Captured; second backlog priority. Not refined or planned.
+**Identity:** SEED-008#same-machine-merge-queue
 
-**Goal:** A developer running multiple agents in separate worktrees on the same
-machine gets orderly integration into their shared trunk without manually
-arbitrating each agent's turn or letting agents mutate the integration checkout
-at the same time.
+**Status:** Captured; refinement and planning pending.
 
-**Scope candidate:** Introduce a same-machine merge queue for Trunk Mode.
-Agents submit ready increments; one integration runs at a time, reconciles with
-current trunk, and reports its result to the submitting agent. Preserve the
-local execution branches, trunk publication, and CI ownership established by
-Trunk Mode. Failed or interrupted integration must preserve the submitted work
-and leave a visible state that can be recovered without duplicate publication.
+**Goal:** A developer running several agents on one machine gets safe,
+recoverable access to the default checkout for short direct edits and refreshes,
+while agents continue publishing from their owned workspaces to remote trunk.
 
-**Key example / evaluation:** Two agents submit increments from different
-worktrees while sharing one integration target. Both increments eventually
-reach trunk, each is reconciled against preceding integrated work, and neither
-agent concurrently modifies the integration checkout. An integration that
-cannot proceed reports its blocked state without losing either submission.
+**Scope candidate:** Automate exclusive access to one repository's default
+checkout across participating worktrees. Direct edits and refreshes use the same
+coordination mechanism, covering inspection, working-tree and index mutations,
+commit, and safe release or explicit handoff. Recheck current state after
+acquiring access, preserve human work, and make deferred refresh and recoverable
+interruption visible. Apply the migration story's refresh rules and existing
+Git publication ownership.
 
-**Depends on:** completed Introduce Trunk Mode for plan execution, recoverable
-from `ef6a59c:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#introduce-trunk-mode`.
-Trunk Mode remains usable through explicit coordination without this queue.
+**Key examples / evaluation:**
 
-**Deferred decisions:** Queue ordering/fairness, whether a blocked submission
-allows later independent work through, admission and cancellation interfaces,
-crash recovery, and how an agent knows who owns an integration. Resolve these
-when refining this story; no daemon, storage format, or locking design is chosen.
+- Agent A holds the default checkout for a bounded edit. Agent B publishes a
+  validated increment from its worktree to remote trunk and reports its local
+  refresh as deferred. Once A completes or hands off its owned operation, a
+  coordinated refresh reconciles with the current state and advances when safe.
+- Two agents request a default-checkout refresh. One writer operates at a time;
+  the next reads the resulting state and reports the current revision.
+- A human has staged an unrelated edit in the default checkout. A requested
+  refresh preserves the staged and working-tree content, reports the pending
+  ownership issue, and resumes after that work is resolved.
+- An operation is interrupted. The next participant can identify its ownership
+  and preserved work, then recover or receive an explicit handoff before
+  mutating the checkout.
 
-**Boundaries:** One machine and one repository's shared integration target per
-queue. Distributed queues, hosted cloud-agent integration, a parallel-agent
-launcher, and global CI repair scheduling are not promised. Reuse an existing
-solution if suitable; this capture authorizes no queue implementation.
+**Depends on:**
+[Migrate existing workflows to integration through origin](#migrate-git-branching-and-integration).
+That story supplies publication and baseline checkout maintenance; this story
+supplies automated same-machine access and recovery.
 
-**Continuity reminder (2026-09-20):** When refining this story, revisit
-[claim publication's interim coordination](../../src/skills/dough-execute-plan/references/trunk-publication.md#preconditions).
-Replace the manual integration-turn arrangement with the chosen common local
-coordination mechanism, including prepared direct edits and claim publication,
-not only implementation merges. Replace its manual blocked-turn recovery with
-the queue's explicit recovery/handoff policy; never release ownership merely
-because a timeout elapsed. Preserve the publication-before-implementation rule
-and the existing Git publication owner. Remove superseded manual-only guidance
-and duplicate coordination paths, and demonstrate that a claim and another
-writer cannot concurrently mutate the shared checkout. This is follow-up scope
-input, not selection of a lock, daemon, queue API, or automatic recovery design.
+**Deferred decisions:** Atomic acquisition, ownership representation, waiting
+and fairness, interruption recovery, and detection of intervening human edits.
+Choose mechanisms during refinement using demonstrated local contention and
+existing suitable solutions. Any remote publication scheduling proposal needs
+its own observed contention evidence and scope decision.
 
-## Research and Architectural Context
+**Safe stopping point:** Participating writers coordinate default-checkout
+operations and preserve interrupted work. Remote publication remains available
+from each owned workspace under the common Git contract.
 
-Research on 2026-09-16 established precedent for frequent mainline integration
-from local branches, including after each healthy commit. It did not establish
-that this exact worktree lifecycle is a mainstream built-in mode, or measure its
-agent overhead. [Fowler's branching patterns](https://martinfowler.com/articles/branching-patterns.html)
-and [Git rebase](https://git-scm.com/docs/git-rebase) inform the selected approach.
-This resolves the original feasibility concern sufficiently for refinement;
-host-specific behavior still needs evidence when implemented.
+<a id="claude-code-background-mode"></a>
 
-[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-principle 2, supports continuous integration and resolving conflicts through
-shared intent. [ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-governs proof and native acceptance. [ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-requires one shared behavior with only necessary host adaptation, written for
-the executing project. Follow [maintainer guidance](../../AGENTS.md) when authoring.
+### Complete execution and wrap-up in fresh Claude Code background mode
+
+**Identity:** SEED-008#claude-code-background-mode
+
+**Status:** Refined outcome aligned on 2026-09-21; host-specific details require
+renewed refinement before planning.
+
+**Goal:** A developer using Claude Code background mode can take authorized work,
+execute it in the session's owned checkout, and finish with committed closure
+on its execution branch. The developer retains ownership of execution-branch
+publication and any pull request.
+
+**Scope — required behavior:**
+
+- Reuse a suitable host-provided worktree and branch as the execution workspace.
+  Establish its ownership, starting revision, and authorized remote destinations
+  from the session and project. Explain the supported configuration through
+  installed guidance and prove it in a fresh native session.
+- Resolve shared Taken-claim publication separately from execution-branch
+  publication. With claim authority established, reconcile and publish the
+  claim to remote trunk through an owned path before implementation starts.
+  Surface missing authority or target context as a concrete prerequisite for
+  the selected work, preserving the prepared state.
+- Continue execution and wrap-up in the established workspace. Retain recovery
+  identity and close the story through the supported developer-owned publication
+  boundary. Report the committed branch, pending publication, and any shared
+  record reconciliation needed when the developer publishes or integrates it.
+- When a supported session uses the default checkout for direct work, apply
+  the common checkout ownership and refresh rules. Express configuration and
+  workspace choice through the shared execution contract and the necessary
+  Claude-specific adaptation.
+
+**Key examples / evaluation:**
+
+1. A fresh native background session provides an isolated checkout. Open Dough
+   records that checkout and branch, publishes an authorized claim through the
+   remote contract, and performs implementation in that workspace.
+2. Execution-branch publication belongs to the developer while shared-claim
+   publication is authorized. The session publishes the claim, commits work and
+   closure on the execution branch, and identifies the developer's remaining
+   publication and integration obligations with the correct destinations.
+3. Claim publication authority is unresolved. The session preserves its prepared
+   changes and reports the authority needed before it can start claimed work.
+4. Remote trunk advances during setup. Claim publication reconciles the changed
+   remote state, and execution starts from the resulting verified base.
+
+Evaluate with a fresh installation and actual Claude Code background settings.
+Observe checkout ownership, branch refs, remote history, backlog records, and
+closure commits under ADR 0005. Resolve host commit/push restrictions and the
+shared-record closure handoff during renewed refinement. Broader host lifecycle
+management, cloud sessions, and pull-request automation remain future scope.
+
+**Depends on:**
+[Migrate existing workflows to integration through origin](#migrate-git-branching-and-integration).
+The queued local-coordination story supplies automated access when operating in
+the default checkout; isolated host-worktree execution uses the remote contract.
+
+**Safe stopping point:** The proven native session can execute and close work
+in its owned workspace, with durable commits and explicit publication ownership.
+
+**Effort hypothesis:** Unestimated pending the fresh host observation and
+claim/closure authority refinement.
+
+## Architectural Context
+
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+supports continuous integration and resolving conflicts through shared intent.
+[ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+governs behavior and native acceptance evidence.
+[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+requires shared behavior written for the executing project, with necessary host
+adaptation. Follow the [maintainer guideline](../../AGENTS.md) when authoring.
 
 [ADR 0007 — Software development lifecycles](../../docs/adrs/0007-software-development-lifecycles.md)
-remains Proposed. Its Story Branch Mode waits until closure to integrate;
-Trunk Mode introduces another mode without accepting or superseding that draft.
-The existing source guidance assumes execution-branch publication and end-only
-integration; changing those assumptions for Trunk Mode is within this story,
-not grounds for silently changing the behavior of the other modes.
-
-## Breadcrumbs
-
-- Original seed: `5e424b7`, 2026-09-08; removed in `ac4519b`, 2026-09-09;
-  recovered on 2026-09-16.
-- Related historical seed: `5e424b7:.planning/seeds/SEED-002-trunk-based-multi-agent-collaboration.md`.
-- Terry Yin named Trunk Mode and requested first backlog priority on 2026-09-16;
-  subsequent research and discussion selected rebase followed by trunk
-  publication. This seed is planning input, not implementation authorization.
+owns lifecycle discussion;
+[ADR 0009 — Git branching and integration](../../docs/adrs/0009-git-branching-and-integration.md)
+owns the proposed Git contract. Both retain Proposed status. ADR 0007 records
+the unresolved relationship between Story Branch Mode's delayed integration and
+Accepted ADR 0002; human resolution of that question remains separate from this
+Git migration.

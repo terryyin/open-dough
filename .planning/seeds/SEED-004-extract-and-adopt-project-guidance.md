@@ -21,6 +21,8 @@ follows the established Codex, Cursor, and Claude Code conventions.
 
 ### 24. Continue test optimization plans into execution or the backlog
 
+**Identity:** SEED-004#continue-test-optimization-plans
+
 **Status:** Captured; unrefined.
 
 **Goal:** A developer who asks Open Dough to optimize tests gets durable forward
@@ -65,8 +67,17 @@ backlog with a valid canonical link. A profile-only invocation remains
 unchanged, and neither route duplicates the work across **Taken** and **Backlog
 list**.
 
-**Depends on:** None. Existing executable-plan, execution, and product-backlog
-contracts supply the two handoff destinations.
+**Git context:** Preparation and execution reuse a suitable owned workspace.
+The handoff carries its identity, mode, and publication authority into the
+shared workflow under [ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md).
+Published queue changes and Taken claims use that workflow's remote destination;
+default-checkout freshness is maintained separately.
+
+**Depends on:** Existing executable-plan, execution, and product-backlog
+contracts supply the two handoff destinations. The
+[Git migration story](SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration)
+owns their shared publication behavior; this story owns continuation and queue
+placement at the optimization handoff.
 
 **Safe stopping point:** Every created optimization plan is either being
 executed or is recoverable as explicitly prioritized product work; existing
