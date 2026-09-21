@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { promisify } from "node:util";
@@ -70,6 +76,35 @@ export async function plantHumanEdit(checkout) {
     "base\nhuman changed tracked file\n",
   );
   writeFileSync(join(checkout, "human-unstaged.txt"), "human working tree\n");
+}
+
+export async function remoteHeads(origin) {
+  const { stdout } = await exec("git", ["ls-remote", "--heads", origin]);
+  return stdout.trim();
+}
+
+export async function recordedCheckoutIdentity(checkout) {
+  const porcelain = (await git(checkout, "worktree", "list", "--porcelain"))
+    .stdout;
+  return {
+    toplevel: await revParse(checkout, "--show-toplevel"),
+    branch: (await git(checkout, "branch", "--show-current")).stdout.trim(),
+    worktrees: porcelain
+      .split("\n")
+      .filter(
+        (line) => line.startsWith("worktree ") || line.startsWith("branch "),
+      )
+      .join("\n"),
+  };
+}
+
+export async function plantedHumanEditBytes(checkout) {
+  return {
+    staged: readFileSync(join(checkout, "human-staged.txt"), "utf8"),
+    tracked: readFileSync(join(checkout, "trunk.txt"), "utf8"),
+    untracked: readFileSync(join(checkout, "human-unstaged.txt"), "utf8"),
+    status: (await git(checkout, "status", "--porcelain")).stdout,
+  };
 }
 
 export async function captureCheckout(checkout) {

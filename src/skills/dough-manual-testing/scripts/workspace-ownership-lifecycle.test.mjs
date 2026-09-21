@@ -141,7 +141,7 @@ test("contextual execution and queued execution keep their own continuations", (
 
   assert.match(
     execution,
-    /\[publish the candidate\]\(publish-the-candidate\.md\) from the owned workspace/,
+    /\[increment and repair publication\]\(trunk-publication\.md#publish-an-execution-increment-or-repair\)/,
   );
   assert.doesNotMatch(execution, /exclusive-turn/);
 });

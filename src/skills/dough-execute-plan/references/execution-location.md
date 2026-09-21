@@ -36,7 +36,11 @@ base it supplies:
   the default-checkout freshness check above when that HEAD is the default
   checkout. Create no story, plan, or queue entry.
 - Caller-selected current-branch work records that checkout and creates no
-  worktree.
+  worktree. An already-supported host-owned execution stays in that same
+  recorded checkout and does not switch branches. Publication follows the
+  caller's established authority in
+  [slice wrap-up](wrap-up.md#deliver-the-change). Codex, Cursor, and Claude
+  keep the checkout and authorized target their adapters already record.
 
 If selection stops, preserve and report any partial workspace. Do not publish
 a claim from it and do not start implementation. The shared lifecycle does not
@@ -111,8 +115,9 @@ addition to the shared local checkout role and target selection:
   another ledger.
 
 Caller-selected current-branch work records that checkout path as both the
-execution checkout and the integration checkout and creates no worktree. It is
-incompatible with Trunk Mode; contradictory selection stops before setup.
+execution checkout and the integration checkout and creates no worktree.
+Host-owned execution uses that recorded checkout too. It is incompatible
+with Trunk Mode; contradictory selection stops before setup.
 
 On resume, verify the shared lifecycle's recorded worktree path, branch,
 starting revision, and created-versus-reused ownership when that fact was
@@ -132,10 +137,14 @@ owned repair both publish through
 [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair),
 which also names where that candidate is pushed.
 [Maintain the default checkout](maintain-default-checkout.md) applies when
-that checkout is mutated. Before using its commit as a new task base, verify
+that checkout is mutated, including when the selected execution checkout is
+that default checkout. Before using its commit as a new task base, verify
 freshness with
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility)
 and use that commit only when the result is advanced or already current.
+An explicit contextual selection of this checkout's unpublished work keeps
+that local base when refresh is deferred or stopped. That selection does not
+grant publication authority.
 Pass identity/location explicitly to agents and
 host adapters.
 

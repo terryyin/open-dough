@@ -21,6 +21,18 @@ function singleOwner(owner) {
   return typeof owner === "string" && owner.trim() !== "";
 }
 
+// Refresh eligibility's declared-owner rule, before any fetch or mutation.
+// Another caller applies the same refusal when it would mutate this checkout.
+export function declaredOwnerRefusal(declaredOwner, requester) {
+  if (!singleOwner(declaredOwner) || !singleOwner(requester)) {
+    return "unclear-ownership";
+  }
+  if (declaredOwner !== requester) {
+    return "another-writer";
+  }
+  return null;
+}
+
 function decision(result, reason, state, remoteSha) {
   return { result, reason, remoteSha, ...state };
 }
@@ -69,11 +81,9 @@ export async function refreshDefaultCheckout({
       }
     : await captureCheckout(checkout);
 
-  if (!singleOwner(declaredOwner) || !singleOwner(requester)) {
-    return decision("deferred", "unclear-ownership", state, null);
-  }
-  if (declaredOwner !== requester) {
-    return decision("deferred", "another-writer", state, null);
+  const ownerRefusal = declaredOwnerRefusal(declaredOwner, requester);
+  if (ownerRefusal) {
+    return decision("deferred", ownerRefusal, state, null);
   }
   if (ongoing) {
     return decision("deferred", "ongoing-operation", state, null);

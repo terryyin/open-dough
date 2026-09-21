@@ -121,10 +121,22 @@ and continue that unfinished obligation only.
    invalidate preparation, rerun formatting before restaging and retrying.
 8. Immediately before publishing, resolve the owned unpublished suffix in the
    execution workspace. Publish it through
-   [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair).
-   Caller-selected current-branch work still pushes its committed revision to
-   the authorized destination recorded for that caller; this increment owner
-   does not replace that authority. A rejected push follows
+   [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair)
+   when this caller has publication authority.
+   Caller-selected current-branch work and an already-supported host-owned
+   execution stay in the recorded checkout. Create no worktree and do not
+   switch branches. Without that authority, commit there and report the
+   revision as committed and pending publication. Do not push. Remote refs
+   stay unchanged, and the checkout identity stays the recorded path.
+   With that authority, publish from that same checkout through the increment
+   owner above. The receipt is the accepted SHA and the authorized target.
+   A pending human edit on that checkout stays out of the published commit.
+   When the selected checkout is the default checkout, apply
+   [default-checkout preservation](maintain-default-checkout.md#preserve-pending-local-work)
+   before mutating it. A local commit or a local merge stays a local
+   operation; do not report it as remote publication. Codex, Cursor, and
+   Claude keep the recorded checkout and authorized target their existing
+   adapters already supply. A rejected push follows
    [rejected-push recovery](trunk-publication.md#recover-a-rejected-push).
    A [publication stop](trunk-publication.md#preconditions),
    including a

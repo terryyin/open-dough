@@ -184,9 +184,14 @@ closure must be committed in either execution mode; uncommitted cleanup is not
 completion. Report unresolved ownership or commit failures without claiming
 closure.
 
-Direct-current-branch mode ends with committed closure. Trunk Mode publishes the
-final-closure commit through [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure),
-then continues with resource cleanup below. Story Branch Mode continues with integration and resource cleanup below.
+Direct-current-branch mode stays in the recorded checkout and creates no
+worktree. Local-only closure commits there and reports that revision as
+committed and pending publication; it does not push. Publish-authorized
+closure uses [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure)
+from that checkout. The receipt is the accepted SHA and the authorized target.
+Trunk Mode publishes the final-closure commit through that same publication,
+then continues with resource cleanup below. Story Branch Mode continues with
+integration and resource cleanup below.
 
 ## Integrate committed Story Branch Mode closure
 
@@ -231,9 +236,11 @@ knowledge, deleted paths, Story Branch saved tip and integration/push results wh
 the target is `main`, worktree and branch cleanup results (remote deletion only when
 verified absent), preserved material and resources, and any gap. Distinguish a new
 merge from an already-integrated tip, integration from refused cleanup, an
-accepted trunk receipt from a superseded candidate, and completed wrap-up from a refusal
+accepted trunk receipt from a superseded candidate, committed pending
+publication from an accepted receipt, and completed wrap-up from a refusal
 that left files intact.
 
 End successful closure with `## STORY WRAP-UP COMPLETE`. Missing context, unfinished
 work, unresolved recovery/integration, required push, unpublished Trunk Mode closure,
-an active wrap-up observer, or resource cleanup blocks that marker.
+an active wrap-up observer, or resource cleanup blocks that marker. Local-only
+current-branch pending publication is not a required push.

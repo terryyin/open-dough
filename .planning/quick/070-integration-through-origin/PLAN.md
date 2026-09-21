@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 11 next.
+Status: in progress; slice 12 next.
 
 ## Learnings
 
@@ -183,6 +183,18 @@ boundary: Git mechanics
 setup: fixtures build a bare origin; the racing case advances trunk and plants an unrelated commit plus a human edit on the integration checkout; cleanup supplies remoteExecutionBranch only for Story Branch
 observations: racing receipt is refs/heads/main, not the closure SHA or the superseded merge; closure, sibling backlog, and racing.txt are on trunk; unrelated.txt and human-edit files are absent; integration checkout is unchanged; retry is already-accepted with pushCount 0; eligible cleanup removes local worktree, local branch, and refs/heads/exec/story; a tip not on trunk stays with reason remote execution tip is not integrated
 result: pass (10/10) after the refactor split; backlog merge tests skipped as unchanged
+```
+
+### Accepted proof — slice 11
+
+Promise: current-branch and host-owned work stay in the recorded checkout. Local-only delivery commits and reports pending publication. A publish happens only when the operation and the authority both say so, from that same checkout. A local commit or merge stays local even when a destination and publish authority are present.
+
+```text
+command: node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/current-branch-publication.test.mjs src/skills/dough-execute-plan/scripts/current-branch-local-operation.test.mjs src/skills/dough-story-wrap-up/scripts/closure-current-branch.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs
+boundary: Git mechanics
+setup: fixtures build a bare origin; human-edit cases plant staged, unstaged, and untracked files; the host-owned case uses the execution worktree
+observations: local-only receipt is null and refs/heads/main is unchanged; publish-authorized receipt is that SHA on refs/heads/main with maintenance deferred/pending-edit and the human edit still present; local commit and local merge stay classification local, and the merge commit has two parents; host-owned branch stays exec/story; another declared owner is another-writer with HEAD unchanged
+result: pass (11/11) after the refactor split
 ```
 
 ## Execution identity
@@ -607,7 +619,7 @@ point: Story Branch publication and closure share remote authority.
 ### 11. Preserve explicit current-branch publication authority
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given explicit current-branch or an already-supported host-owned execution,
 work remains in its recorded checkout and follows the caller's established

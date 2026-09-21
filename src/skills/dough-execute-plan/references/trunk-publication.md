@@ -36,6 +36,11 @@ that candidate to remote trunk. It does not push the execution branch. Story
 Branch Mode pushes that candidate to the recorded remote execution branch and
 does not push it to remote trunk. Keep the same execution worktree. Register
 the receipt recorded by [Publish the candidate](#publish-the-candidate).
+Caller-selected current-branch work and host-owned execution enter this
+sequence only from the recorded checkout, and only when that caller already
+supplied publication authority. Without it, do not push; report the commit
+as pending publication. A local commit or local merge does not enter this
+sequence.
 
 ## Preconditions
 
