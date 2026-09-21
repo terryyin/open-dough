@@ -1,6 +1,6 @@
 # Keep registered CI revisions truthfully observed
 
-Status: planned; execution not started.
+Status: in execution; Story Branch Mode; slice 1 delivered, slice 2 next.
 
 ## Source and outcome
 
@@ -143,7 +143,27 @@ under ADR 0005; implementation completion cannot silently waive it.
 ### 1. Expose a dead detached observer at the next coordinator interaction
 
 Type: Behavior
-Status: planned
+Status: delivered
+
+Delivered 2026-09-21. `mailboxWorkerLoss` (new, `ci-mailbox.mjs`) is a read-only
+aggregator: it reuses `checkMailboxWorkerLiveness` (new, `ci-mailbox-worker-process.mjs`,
+reusing the same PID+command identity rule as termination without ever signaling
+a process) to detect a dead worker with no recorded terminal result, and records
+loss via `recordLostTerminalResult` (generalized, `ci-mailbox-store.mjs`, now
+takes a distinct `reason` and preserves `unproved` revisions). `ci-host-hook.mjs`
+calls it from both the receipt-attachment path and the ordinary bindings-delivery
+loop, so detection does not depend on a fresh push. A normal stop still leaves
+`coverage.state: "ended"`, never `"lost"`.
+
+Post-change refactor split the touched files at the project's 250-line limit and
+collapsed test-setup duplication: `ci-mailbox-store.mjs` now delegates revision-coverage
+functions to new `ci-mailbox-revision-coverage.mjs` and the atomic-write helper to
+new `ci-mailbox-json-file.mjs` (public exports unchanged); the worker-loss tests and
+Claude/Cursor host-adapter fixtures moved into new sibling files (`ci-mailbox-worker-loss.test.mjs`,
+`ci-claude-lifecycle-test-fixtures.mjs`/`ci-claude-worker-loss-lifecycle.test.mjs`,
+`ci-cursor-lifecycle-test-fixtures.mjs`/`ci-cursor-worker-loss-lifecycle.test.mjs`).
+The focused command below is updated to the post-split file set; the same 21
+behaviors it originally covered still pass under it.
 
 Behavior: Given a successfully bound detached observer whose worker dies while
 mailbox writes remain possible, the next ordinary owning coordinator interaction
@@ -165,8 +185,14 @@ coordinator must not consume it; an unrelated observer remains alive. A normally
 stopped observer must not be mislabeled as unexpectedly dead. Exercise the shared
 decision once and Claude/Cursor output/ownership differences through their adapters.
 
-Focused command (extend these existing tests at their real boundaries):
-`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs src/skills/dough-execute-plan/scripts/ci-claude-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-cursor-lifecycle.test.mjs`
+Focused command (post-refactor file set; extends the same real boundaries):
+`node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-worker-loss.test.mjs src/skills/dough-execute-plan/scripts/ci-claude-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-claude-worker-loss-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-cursor-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-cursor-worker-loss-lifecycle.test.mjs`
+Result: pass, 21/21 (independently rerun by the coordinator both before and after
+refactor). Broader confirmation also rerun: `ci-mailbox.test.mjs`,
+`ci-revision-coverage.test.mjs`, `ci-codex-lifecycle.test.mjs`,
+`ci-codex-stop-lifecycle.test.mjs`, `ci-observer-stream.test.mjs`,
+`ci-host-hook.test.mjs` (32/32), and `bash tests/execution-ci-runtime.sh` (114/114).
+`git diff --check` clean.
 
 Sizing: one loss-detection decision and real-process proof loop; medium confidence.
 PID reuse/mismatched identity must yield uncertainty rather than reassure or kill
@@ -298,15 +324,26 @@ by this planning request. Do not treat this assessment as proof of behavior.
 
 ## Preparation and current state
 
-Owned preparation checkout: `/Users/terryyin/git/open-dough-ci-planning`.
-Branch: `codex/plan-truthful-ci`.
-Starting revision: `e9829bc6088567742fefd2a726f6bbe7da9bc039`.
-Integration checkout: `/Users/terryyin/git/open-dough`, branch `main`.
-Recorded remote target: `origin/main`, `git@github.com:terryyin/open-dough.git`.
-No execution mode, Taken claim, or observer has been established for this story.
+Planning preparation checkout `/Users/terryyin/git/open-dough-ci-planning` (branch
+`codex/plan-truthful-ci`) was merged onto main and removed on 2026-09-21, as
+authorized. That preparation is closed; the following identity is execution's own.
 
-Terry authorized merging the retained seed and plan onto main and removing this
-session's preparation worktree and branch on 2026-09-21. Publish the retained
-records and verify local/remote agreement before cleanup. This is preparation
-delivery only; implementation remains unstarted. Product tests and native
-behavioral checks have not been run during planning.
+Execution mode: Story Branch Mode.
+Taken claim commit: `a81a305e90dcc56d7af894086b14aece7c7492e4` (backlog entry moved
+to Taken and published to `origin/main` before workspace creation).
+Execution checkout: `/Users/terryyin/.claude-worktrees/open-dough/068-truthful-ci-observation`,
+branch `claude/068-truthful-ci-observation`, created from the published claim SHA above.
+Integration checkout: `/Users/terryyin/git/open-dough`, branch `main`, remote
+`git@github.com:terryyin/open-dough.git` — used for the Taken claim (already
+published) and later story-wrap-up integration; not the per-slice push target.
+Per-slice delivery push destination (Story Branch Mode): `origin`, branch
+`claude/068-truthful-ci-observation` (the execution branch itself). It does not
+merge into `main` here; that happens at story wrap-up.
+CI observer: GitHub default (`ci.yml` / display name `CI`), repository
+`terryyin/open-dough`, target branch `claude/068-truthful-ci-observation` (the
+Story Branch Mode push destination, per "Own one observer"), directory
+`/tmp/dough-ci-501/watch-r1Rzs7`, armed from the execution checkout above on
+2026-09-21. An earlier observer armed against `main` in error was stopped
+cleanly before any registration (`pendingCi: unobserved`, no coverage lost);
+the Taken claim publication to `main` remains unobserved by this execution, as
+expected for a Story Branch claim.

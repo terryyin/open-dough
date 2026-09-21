@@ -1,99 +1,18 @@
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 import { publishMailboxEvent, receiptPrefix } from "./ci-mailbox.mjs";
+import {
+  configuredHook,
+  claudeInput,
+  createClaudeReplay,
+} from "./ci-claude-lifecycle-test-fixtures.mjs";
 import {
   waitForFile,
   writeBlockingGithubListCommand,
 } from "./watch-ci-test-fixtures.mjs";
-
-const exec = promisify(execFile);
-const checkout = fileURLToPath(new URL("../../../../", import.meta.url));
-const launcher = fileURLToPath(new URL("./ci-mailbox.mjs", import.meta.url));
-const hooks = JSON.parse(
-  readFileSync(new URL("../assets/claude-hooks.json", import.meta.url)),
-).hooks;
-
-function claudeInput(event, receipt = "", overrides = {}) {
-  const base = {
-    session_id: "claude-coordinator",
-    hook_event_name: event,
-    transcript_path: "/test/claude-coordinator.jsonl",
-  };
-  if (event === "PostToolUse")
-    Object.assign(base, {
-      tool_name: "Bash",
-      tool_response: { stdout: receipt },
-    });
-  return { ...base, ...overrides };
-}
-
-async function configuredHook(event, input, env) {
-  const command = hooks[event][0].hooks[0].command.replace(
-    "$CLAUDE_PROJECT_DIR/.claude/skills/dough-execute-plan/scripts/ci-host-hook.mjs",
-    fileURLToPath(new URL("./ci-host-hook.mjs", import.meta.url)),
-  );
-  const child = exec("sh", ["-c", command], {
-    env: { ...env, CLAUDE_PROJECT_DIR: checkout },
-  });
-  child.child.stdin.end(JSON.stringify(input));
-  return JSON.parse((await child).stdout);
-}
-
-function createClaudeReplay(env) {
-  let observer;
-  let launches = 0;
-
-  return {
-    async readiness(receipt = "") {
-      const { stdout } = await exec(process.execPath, [launcher, "probe"], {
-        cwd: checkout,
-        env,
-      });
-      return configuredHook(
-        "PostToolUse",
-        claudeInput("PostToolUse", receipt || stdout),
-        env,
-      );
-    },
-    async setup() {
-      if (observer) return observer;
-      launches += 1;
-      const { stdout } = await exec(
-        process.execPath,
-        [launcher, "start", "--execution", "owner/repo", "main", "60000"],
-        { cwd: checkout, env },
-      );
-      const directory = JSON.parse(
-        stdout.slice(receiptPrefix.length),
-      ).directory;
-      const attachment = await configuredHook(
-        "PostToolUse",
-        claudeInput("PostToolUse", stdout),
-        env,
-      );
-      observer = { directory, attachment };
-      return observer;
-    },
-    boundary(overrides = {}) {
-      const event = overrides.hook_event_name ?? "PostToolUse";
-      return configuredHook(event, claudeInput(event, "", overrides), env);
-    },
-    launches: () => launches,
-    async stop() {
-      if (!observer) return;
-      return exec(process.execPath, [launcher, "stop", observer.directory], {
-        cwd: checkout,
-        env,
-      });
-    },
-  };
-}
 
 test("Claude Code reuses one execution observer through pushes and stops its exact mailbox", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-claude-lifecycle-test-"));
