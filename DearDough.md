@@ -1,5 +1,64 @@
 # DearDough Process Findings
 
+## DD-073 — Delegated agents' own passing proof twice missed framework-internal and browser-only behavior gaps
+
+A delegated implementation agent's focused and full-suite proof passed, yet
+the claimed behavior was wrong, three separate times within one execution.
+In each case the gap was invisible to the kind of test the agent wrote
+because it depended on something a same-process, synthetic, or raw-HTTP test
+cannot observe: an external framework's actual internal hook-calling order
+(not its `.d.ts` comments), a real browser's own computed request headers, or
+a shared mutable resource other parallel test workers also depend on. The
+coordinator's own mandated re-verification (rerunning the literal proof
+command directly, then a revert-and-confirm-failure check) caught each one
+before delivery; a report accepted at face value would have shipped all
+three.
+
+### Occurrences
+
+- Execution: `.planning/quick/066-view-three-projects/PLAN.md`, first related
+  commit `815fa149d1b39cfd72783c9885b6c9756577be81`
+  - Timestamp: unknown (2026-09-21)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5 (coordinator and every delegated implementation
+    agent)
+  - Open Dough release: 0.3.26
+  - Evidence:
+    1. Slice 2's `privateReadPlugin()` returned its subprocess-cleanup
+       function from Vite's `configureServer`/`configurePreviewServer`. The
+       agent's own test asserting cleanup "on server shutdown" passed, but
+       only because that same test also independently destroyed the client
+       connection, which triggered an already-proven, unrelated
+       disconnect-handling path. Reading `node_modules/vite/dist/node/chunks/node.js`
+       directly (not the type declarations) showed that return value is
+       invoked once at startup, never at close; the coordinator's own literal
+       rerun after the fix, plus a revert of the fix that made the corrected
+       isolating test fail deterministically, is what established this.
+    2. Slice 3's real same-origin browser `fetch` sends no `Origin` header
+       for a GET request (per the Fetch spec); slice 2's raw-`node:http` test
+       had set `Origin` explicitly by hand, so it never noticed the
+       boundary's unconditional `Origin` check would refuse every actual
+       browser read. Only slice 3's first genuine end-to-end browser test
+       surfaced this.
+    3. A preview-mode test's `npm run build:dashboard` call wrote into the
+       same default `dashboard/dist` the suite's shared `webServer` was
+       concurrently building and serving for every other spec
+       (`fullyParallel: true`). A single green full-suite run did not reveal
+       this; only the coordinator's practice of rerunning the full suite two
+       or three times in a row (adopted after this specific incident, then
+       continued for the remaining slices) surfaced two different unrelated
+       tests failing on two different runs.
+  - Observed effect: none of the three defects reached the delivered branch,
+    but each survived at least one round of the implementing agent's own
+    reported "pass" before the coordinator's direct reproduction caught it.
+  - Inference: for a claim resting on external-framework internals, a real
+    browser's own request semantics, or a resource shared across parallel
+    test workers, an agent's locally passing proof does not establish the
+    claim; the coordinator's existing proof-acceptance and non-vacuousness
+    obligations are what actually closed the gap here, every time they were
+    applied, and are worth naming explicitly to a delegated agent when a
+    slice's promise touches one of those three categories.
+
 ## DD-066 — A literal CLI-entry URL comparison silently skipped symlink-equivalent launches
 
 Three checkout-bound Node entrypoints decided whether to run by comparing the
