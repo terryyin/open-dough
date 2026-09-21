@@ -7,6 +7,8 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
+  cpSync,
+  copyFileSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -91,6 +93,7 @@ export function observePreparation(fixture, result) {
   const after = integritySnapshot(fixture.origin, fixture.execution);
   return {
     ok: result.ok,
+    reused: result.reused === true,
     executionCheckout: fixture.execution,
     convention: result.convention,
     traces: readTraces(fixture.tracePath),
@@ -102,6 +105,38 @@ export function observePreparation(fixture, result) {
     ),
     ...integrityUnchanged(fixture.before, after),
   };
+}
+
+export function setupTraceCount(tracePath) {
+  return readTraces(tracePath).filter((entry) => entry.type === "setup").length;
+}
+
+export async function hostPrepareCheckout(cwd, env) {
+  await exec("npm", ["ci"], {
+    cwd,
+    env,
+    timeout: 60_000,
+  });
+}
+
+export function changeDependencyState(checkout) {
+  const lockPath = join(checkout, "package-lock.json");
+  const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+  lock._fixtureDependencyState = "changed";
+  writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
+}
+
+export function createNestedUnpreparedCheckout(origin) {
+  const nested = join(origin, ".worktrees", "nested-exec");
+  mkdirSync(nested, { recursive: true });
+  for (const name of ["CONTRIBUTING.md", "package.json", "package-lock.json"]) {
+    copyFileSync(join(origin, name), join(nested, name));
+  }
+  cpSync(join(origin, "scripts"), join(nested, "scripts"), { recursive: true });
+  cpSync(join(origin, "packages"), join(nested, "packages"), {
+    recursive: true,
+  });
+  return nested;
 }
 
 function writeFixtureProject(origin, { failingInstall }) {

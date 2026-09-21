@@ -46,6 +46,18 @@ its path, the command selected or the missing convention, and the failure
 needed for recovery. Host facilities may establish or invoke the same
 project-owned outcome; they do not define a separate preparation policy.
 
+Reuse that host-established outcome only when its evidence names this exact
+selected checkout and the checkout's current locked dependency state, and an
+applicable project command then succeeds there. Keep the evidence in the
+current execution context and the command result; write no registry, stamp
+file, or host-specific reuse policy. A host callback may supply evidence,
+but it cannot redefine what prepared means. Preparation that names a
+different checkout, a changed dependency state, or an unusable command is
+not reused; parent-directory resolution, a copied installation, or a
+symlink is not reuse evidence. In those cases perform this project's setup
+in the selected checkout and run the command as above. Verified reuse is
+the same readiness gate, not a second preparation path.
+
 [Runtime setup](runtime-setup.md) remains the owner of checkout-bound CI
 observer runtime only. Do not arm observation as part of this gate, and do
 not make CI setup the owner of development dependencies.

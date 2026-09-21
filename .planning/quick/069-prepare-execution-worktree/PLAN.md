@@ -1,6 +1,6 @@
 # Prepare each execution worktree for project commands
 
-Status: executing; slice 1 delivered.
+Status: executing; slice 2 delivered.
 
 ## Source and outcome
 
@@ -208,7 +208,7 @@ host-established reuse and cross-ecosystem/native coverage remain explicit.
 ### 2. Reuse only preparation established for the selected checkout
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a host has already prepared the exact selected checkout for its
 current dependency state, when execution verifies an applicable project command
@@ -232,7 +232,7 @@ can see an enclosing installation must not be accepted as prepared unless the
 selected checkout itself satisfies the project-owned readiness outcome.
 
 Focused command:
-`node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs`
+`node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs`
 
 Sizing: one reuse decision and its negative identity controls; medium
 confidence because host evidence shapes are intentionally not standardized.
@@ -264,7 +264,7 @@ commands or origin-checkout artifact copying. A missing wrapper convention must
 exercise slice 1's recoverable stop rather than trigger ecosystem guessing.
 
 Focused command:
-`node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs`
+`node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs`
 
 Sizing: one extension of the common readiness model to a materially different
 project convention; high confidence once slice 1's rule exists. Safe stopping
@@ -354,8 +354,8 @@ addition. It does not justify a general runner framework or separate host policy
 No other slice-specific concerns were identified. There is no supplied numeric
 slice target, hard limit, S/M/L definition, or repeated-overrun threshold, so
 none is invented. Each slice has one behavior/proof loop and a safe stopping
-point. Slice 1 is delivered on `cursor/069-prepare-execution-worktree`.
-Slices 2–4 remain planned.
+point. Slices 1–2 are delivered on `cursor/069-prepare-execution-worktree`.
+Slices 3–4 remain planned.
 
 ## Accepted proof
 
@@ -391,13 +391,42 @@ directory check.
 - Result: pass (inspected after implementation; refactor split fixtures
   into fixture/gate/assessor modules and reran the same command, 4/4).
 
+Slice 2 — host-established preparation of the exact selected checkout and
+current dependency state is reused without a second clean install; other
+checkout evidence, stale lockfile state, and nested parent resolution are
+not reused.
+
+- Promise: reuse only matching host evidence; otherwise the ordinary
+  readiness gate runs in the selected checkout.
+- Boundary: same `execution-location.md` setup lifecycle; reuse is not a
+  second preparation path.
+- Command:
+  `node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs`
+- Setup: `createLockedNodeFixture`; `hostPrepareCheckout`; host evidence
+  `{ checkout, dependencyState }` vs `lockfileDigest`; nested
+  `.worktrees/nested-exec` under origin with a parent `npm run prove` probe.
+- Observations:
+  - source-contract reuse wording in `execution-location.md` / `SKILL.md`
+  - `host-established preparation of the selected checkout is reused`:
+    setup count stays 1; command then delegate; `fixture-cli-ok`
+  - `preparation evidence naming another worktree is not reused`: setup
+    then command in the selected checkout
+  - `changed dependency state is not reused`: second setup in the selected
+    checkout
+  - `a nested checkout is not prepared by an enclosing installation`:
+    `reused` false; setup then command in nested; nested owns install
+- Result: pass (inspected after implementation; refactor split reuse tests
+  into `execution-worktree-preparation-reuse.test.mjs`; mechanical `eqeqeq`
+  repair on nullish checks; 8/8).
+
 ## Learnings
 
 Cheap slice-1 proof is three test-only concepts: locked fixture, substitute
 readiness actor, and assessor. The actor is not product runtime. Slice 4
-still owns native host journeys. Host-established reuse and wrapper-driven
-non-Node remain slices 2 and 3; slice 1 wording stays project-owned so they
-can extend it.
+still owns native host journeys. Host-established reuse is delivered as an
+optimization of the same gate; ordinary readiness and reuse cases live in
+separate test modules after the file-size split. Wrapper-driven non-Node
+remains slice 3.
 
 ## Preparation and current state
 

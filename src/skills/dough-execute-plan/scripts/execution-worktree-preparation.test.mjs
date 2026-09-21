@@ -39,6 +39,7 @@ test("execution-location owns project-command readiness before delegation", () =
     skillBody,
     /Follow \[execution location\]\(references\/execution-location\.md\)/,
   );
+  assert.match(skillBody, /reuse of host-established/);
 
   assert.match(location, /one setup lifecycle/);
   assert.match(location, /checked-in conventions and\s+locked dependency/);
@@ -68,6 +69,18 @@ test("execution-location owns project-command readiness before delegation", () =
     location,
     /Arm only after the project-command readiness\s+gate above has passed/,
   );
+  assert.match(location, /Reuse that host-established outcome/);
+  assert.match(location, /exact\s+selected checkout/);
+  assert.match(location, /current locked dependency state/);
+  assert.match(location, /write no registry, stamp\s+file/);
+  assert.match(location, /host callback may supply evidence/);
+  assert.match(location, /cannot redefine what prepared means/);
+  assert.match(location, /parent-directory resolution/);
+  assert.match(
+    location,
+    /copied installation, or a\s+symlink is not reuse evidence/,
+  );
+  assert.match(location, /same readiness gate, not a second preparation path/);
   assert.doesNotMatch(location, /always `npm ci`/);
   assert.doesNotMatch(location, /open-dough\.json/);
   assert.doesNotMatch(runtime, /npm ci/);
@@ -91,6 +104,7 @@ test("a fresh locked worktree becomes command-usable before delegation", async (
   const assessment = assessWorktreePreparation(observation);
 
   assert.equal(result.ok, true, result.report);
+  assert.equal(result.reused, false);
   assert.equal(assessment.status, "pass", assessment.reason);
   assert.deepEqual(
     observation.traces.map(({ type, cwd }) => ({ type, cwd })),

@@ -14,6 +14,82 @@ export function directoryPresenceObservation(executionCheckout) {
   };
 }
 
+function assessOwnedCommand(observation, command) {
+  const execution = observation.executionCheckout;
+  if (command.code !== 0 || command.cwd !== execution) {
+    return {
+      status: "fail",
+      reason: "applicable project command did not succeed in the checkout",
+    };
+  }
+  if (!observation.executionOwnsInstall) {
+    return {
+      status: "fail",
+      reason: "execution checkout does not own its mutable installation",
+    };
+  }
+  if (
+    !observation.originMarkerUnchanged ||
+    !observation.originLockUnchanged ||
+    !observation.executionLockUnchanged
+  ) {
+    return {
+      status: "fail",
+      reason: "origin marker or a lockfile digest changed",
+    };
+  }
+  return null;
+}
+
+function assessReusedPreparation(observation) {
+  const execution = observation.executionCheckout;
+  const traces = observation.traces ?? [];
+  const invocations = observation.invocations ?? [];
+  const setups = traces.filter((entry) => entry.type === "setup");
+  if (setups.length !== 1) {
+    return {
+      status: "fail",
+      reason: "reused preparation did not keep a single setup",
+    };
+  }
+  if (setups[0].cwd !== execution) {
+    return {
+      status: "fail",
+      reason: "reused preparation's setup was not in the selected checkout",
+    };
+  }
+  if (invocations.some((entry) => entry.role === "setup")) {
+    return {
+      status: "fail",
+      reason: "reused preparation ran setup again",
+    };
+  }
+  const commandInvocation = invocations.findIndex(
+    (entry) => entry.role === "command",
+  );
+  if (commandInvocation === -1) {
+    return {
+      status: "fail",
+      reason: "missing project-command invocation",
+    };
+  }
+  const firstDelegate = invocations.findIndex(
+    (entry) => entry.role === "delegate",
+  );
+  if (firstDelegate !== -1 && firstDelegate < commandInvocation) {
+    return {
+      status: "fail",
+      reason: "implementation delegated before the project command",
+    };
+  }
+  const owned = assessOwnedCommand(observation, invocations[commandInvocation]);
+  if (owned) return owned;
+  return {
+    status: "pass",
+    reason: "reused host-established preparation",
+  };
+}
+
 export function assessWorktreePreparation(observation) {
   if (observation.evidence === "node_modules") {
     return {
@@ -60,6 +136,10 @@ export function assessWorktreePreparation(observation) {
       };
     }
     return { status: "pass", reason: "failed preparation stopped recoverably" };
+  }
+
+  if (observation.reused) {
+    return assessReusedPreparation(observation);
   }
 
   const setupTrace = traces.find((entry) => entry.type === "setup");
@@ -109,29 +189,8 @@ export function assessWorktreePreparation(observation) {
       reason: "implementation delegated before the project command",
     };
   }
-  const command = invocations[commandInvocation];
-  if (command.code !== 0 || command.cwd !== execution) {
-    return {
-      status: "fail",
-      reason: "applicable project command did not succeed in the checkout",
-    };
-  }
-  if (!observation.executionOwnsInstall) {
-    return {
-      status: "fail",
-      reason: "execution checkout does not own its mutable installation",
-    };
-  }
-  if (
-    !observation.originMarkerUnchanged ||
-    !observation.originLockUnchanged ||
-    !observation.executionLockUnchanged
-  ) {
-    return {
-      status: "fail",
-      reason: "origin marker or a lockfile digest changed",
-    };
-  }
+  const owned = assessOwnedCommand(observation, invocations[commandInvocation]);
+  if (owned) return owned;
   return {
     status: "pass",
     reason: "setup then project command before delegation",
