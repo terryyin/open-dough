@@ -74,6 +74,21 @@ CI-observer worker dying) worth its own record.
     failure paths emit output under abrupt termination) is warranted was not
     assessed; this occurrence only disposes the two observed failures.
 
+## DD-089 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
+
+Released execution-location guidance requires setup then a project command before implementation. Cheap checks prove a substitute actor and wording. Native execute-plan sessions still completed greeting.txt without that gate, except Cursor fresh-node after traces were used. Shallow stream command extraction missed nested Cursor events.
+
+### Occurrences
+
+- Execution: `.planning/quick/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
+  - Timestamp: 2026-09-21T09:08:13Z
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: modified; revision `98bfa80bb45a2a0156318230c75f7964ec0291e6`; base `0.3.27`
+  - Evidence: Cursor fresh-node `/tmp/dough-execution-worktree-prep-native-069/cursor/fresh-node/20260921T090813-3f7f/` first assessment fail (empty commands, traces present); current assessor pass on observation.json. Codex/Claude fresh-node, Cursor failed-prep/reuse, Claude wrapper: complete streams, greeting written, no gate. Prompt asks for hello-ok and does not tell the agent to install.
+  - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
+  - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
+
 ## DD-074 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
 
 Neither [execution location](.claude/skills/dough-execute-plan/references/execution-location.md)
@@ -699,28 +714,6 @@ other session's unreviewed draft content into this execution's claim commit.
     content into the claim commit. A hunk- or content-aware staging fallback
     for this case is not currently documented.
 
-## ODF-001 — Mixed execution changes obscure commit provenance
-
-Former local code: DD-001.
-
-The execution's product changes were committed together with a much larger,
-separately described cleanup, so the commit does not identify the Taken-work
-outcome as one of its responsibilities.
-
-### Occurrences
-
-- Execution: `SEED-004#show-stories-as-taken-during-execution @ 519bb4a`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Evidence: `519bb4a` changes 147 files; the Taken outcome occupies eight
-    files, while the commit subject describes only removal of Quick 040 and
-    DearDough material.
-  - Observed effect: The retrospective had to isolate the eight relevant
-    patches instead of reviewing the commit as one uncontaminated execution.
-  - Inference: Separate commits for independently completed work would make
-    review scope, attribution, and recovery clearer.
-
 ## ODF-003 — File-type assumptions skipped affected maintained proof
 
 Former local code: DD-003.
@@ -996,3 +989,9 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     to its existing disposable-command guidance would let a future executor
     reuse this fact instead of re-deriving it from a fresh diagnostic
     session; not tested here.
+
+## Retention
+
+- Highest allocated local number: 89
+- Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`
+- Occurrence history is partial

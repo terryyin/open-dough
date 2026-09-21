@@ -1721,6 +1721,19 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-066 (nested execution)
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The other Open Dough DD-066 is ODF-056; heading meaning and execution 45234b9 disambiguate this alias. Two reports from one execution count once. Low priority: the coordinator ran the command successfully and no incorrect change shipped.
 
+- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Response:** `src/skills/dough-execute-plan/references/execution-location.md`
+  prepares a selected execution checkout as part of worktree setup, then
+  establishes usability by running an applicable project command from that
+  checkout. Availability is not inferred from `node_modules` or a similar
+  local directory, and parent-directory resolution is not the dependency
+  contract. Source commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`. Story
+  and plan recoverable at
+  `98bfa80bb45a2a0156318230c75f7964ec0291e6:.planning/quick/069-prepare-execution-worktree/PLAN.md`,
+  identity `SEED-008#prepare-execution-worktree`. Shipping this guidance does not
+  itself prove native hosts follow it.
+- **Released in:** pending; not yet on `main` or tagged.
+
 ### Occurrences
 
 - Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
