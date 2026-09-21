@@ -65,3 +65,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0006](./0006-write-skills-for-executing-agents-accepted.md) | Accepted | Write skills for executing agents |
 | [0007](./0007-software-development-lifecycles.md) | Proposed | Software development lifecycles |
 | [0008](./0008-project-dashboard-domain-and-architecture.md) | Proposed | Project dashboard domain and architecture |
+| [0009](./0009-git-branching-and-integration.md) | Proposed | Git branching and integration |
