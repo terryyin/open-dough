@@ -57,8 +57,8 @@ browsing. The delivered overview lets that assumption be tested in use.
   Terry selected Open Dough's public GitHub origin, integration branch `main`,
   and local dashboard launch on 2026-09-19. No sign-in, hosted deployment,
   project-registration service, or general project picker in the delivered overview.
-  Story 5 removes the Open Dough-only configuration boundary for another real
-  project; it does not introduce a portfolio dashboard.
+  Story 5 extends the view to the three human-selected projects, whose
+  metadata may remain hardcoded; it does not introduce a portfolio dashboard.
 - The dashboard reads published origin state only. No dependency on a
   developer's clone, worktree paths, unpushed work, lock state, or active agent
   session. Story 4 adds workflow-produced ownership records visible after
@@ -268,77 +268,105 @@ band is invented without project definitions.
 
 **Identity:** SEED-021#observe-another-project
 
-**Status:** Captured 2026-09-19; queued immediately after the delivered overview, before
-readiness/slice detail. Not refined or planned.
+**Status:** Refined 2026-09-21; planned, remains first queued.
 
-**Goal:** A developer using Open Dough in another project can point the
-dashboard at that project's published repository and understand its current
-work without changing dashboard application code or moving project state into
-the Open Dough source repository.
+**Plan:** [View three projects independently](../quick/066-view-three-projects/PLAN.md).
 
-**Scope candidate:** Replace the delivered overview's hardcoded observed project with
-the smallest usable way to supply one project's repository and necessary
-read context. Display its direction, Taken work, queue, and source links using
-that project's records. Keep the initial local-launch and read-only model.
-Switching the supplied project must not leave the previous project's data or
-source identity presented as the new project's state.
+**Goal:** Terry has one place to see the published work of Open Dough,
+Doughnut, and Pygardon, each independently, because all three consume his time.
+This is not shared work or coordination among projects. Select a project to
+understand its direction, Taken work, and prioritized backlog using the existing
+overview.
 
-Prove the journey with one real project other than Open Dough, chosen during
-refinement. Inspect its origin, access, integration branch, and backlog location
-before prescribing configuration or delivery details. Support the selected
-project's actual records and clearly identify unsupported or unreadable input;
-do not require it to adopt the source repository's incidental layout or migrate
-its data merely to make the dashboard work.
+**Decisions (2026-09-21):** Terry selected these three projects and permitted
+hardcoding their metadata in Open Dough source. This replaces the earlier
+requirement for generic setup without application-source edits. Terry explicitly
+accepted using existing authenticated GitHub CLI access for private Pygardon.
+The project names in conversation map to these existing repositories:
 
-**Learning from the delivered overview (2026-09-20):** The dashboard shows a
-read problem, never a partial view, for any backlog the shared reader refuses.
-Open Dough's own published backlog once recorded a Taken plan as
-` — [plan](path)`; the shared reader still refuses that spelling and reads only
-the parenthesized ` ([plan](path))` form that scripted `take` writes. During
-refinement, read the chosen project's actual published backlog through the
-shared reader first. If it is refused, choose between a bounded compatibility
-change in that one reader and the project adopting the current spelling; do not
-add a second grammar to the dashboard. The observed project is one constant in
-`dashboard/src/publishedSource.ts` (repository, ref, backlog path), and source
-links resolve against that backlog path's directory and the repository root, so
-a different backlog location changes link resolution as well as the read.
+| Project | GitHub repository | Access | Ref and backlog |
+| --- | --- | --- | --- |
+| Open Dough | `terryyin/open-dough` | Public | `main`, `.planning/PRODUCT-BACKLOG.md` |
+| Doughnut | `nerds-odd-e/doughnut` | Public | `main`, `.planning/PRODUCT-BACKLOG.md` |
+| Pygardon | `terryyin/pygardon` | Private, existing local authentication | `main`, `.planning/PRODUCT-BACKLOG.md` |
 
-**Key example / evaluation:** A developer follows the documented launch/setup
-route for the chosen second project without editing dashboard source. The view
-shows that project's published membership, order, and links. Open Dough remains
-usable through the same route. A failure to read the selected project does not
-fall back to Open Dough data under the new name. Both observations use origin
-state without scanning developer clones or writing client records.
+**Scope:** A small selector in one locally launched dashboard, showing one
+project's existing overview at a time. Open Dough is the initial selection.
+Read only published origin state, pin each observation to one revision, and
+preserve each project's direction, membership, order, and source links. No
+project's work is moved into another repository. Empty Taken lists and absent
+direction remain valid observations. Taken does not imply live agent activity.
 
-**Value / learning:** Establish that this is useful tooling for projects using
-Open Dough, rather than an interface coupled to Open Dough's own development.
-Expose real portability assumptions before deepening the view around one
-repository's records.
+Selection changes the source and visible observation together. Clear the old
+project's view during a new selection; do not retain it under the new name.
+Late responses and overlapping identities from other projects cannot alter the
+selected project's snapshot or move focus to another project's work. Preserve
+same-project refresh behavior: a failed refresh retains the clearly identified
+previous snapshot. An initial read failure shows no invented or partial work.
+Retry is explicit. Reading Pygardon successfully is required; listing its name
+with a permanent access error is insufficient.
 
-**Simpler alternative:** Change a hardcoded repository constant and rebuild for
-each user. This can prove an internal example, but leaves ordinary use dependent
-on editing the dashboard and can hide source-specific assumptions. Prefer a
-small one-project setup route over either source editing or a project-management
-platform.
+**UI:** A labeled keyboard-operable project selector remains available while
+reads are pending or fail. Source evidence identifies the repository, ref,
+revision, and retrieval time. Loading/failure announcements identify the selected
+project. Keep the existing connected Backlog/Taken view and narrow-screen use.
+No simultaneous combined view or project-level summary cards are promised.
 
-**Depends on:** The delivered overview. Readiness detail, named ownership,
-and same-machine locks are not prerequisites.
+**Key examples:**
 
-**Deferred promises:** Simultaneous multi-project views, project registration,
-accounts, a general hosting-provider abstraction, arbitrary workflow formats,
-hosted deployment, local monitoring, and a new authentication platform. Private
-access is not silently promised or excluded: establish the chosen project's
-actual access needs in refinement and keep any necessary read access bounded
-to that user journey.
+- Open the dashboard, select Doughnut, and see its own published direction,
+  ordered work, and revision-pinned source links; return to Open Dough through
+  the same selector.
+- Select Pygardon with existing authorized local GitHub access: its actual
+  published Taken work and queue appear without a separate dashboard sign-in.
+- Select Doughnut, then Pygardon before Doughnut responds: a late Doughnut
+  success or failure cannot replace Pygardon's observation. The same story
+  identity in two repositories does not make them the same work.
+- Without usable Pygardon access, see an actionable project-specific read
+  failure and remain able to select a public project. Restore access and Retry
+  to read Pygardon; an unsuccessful same-project refresh preserves only that
+  project's earlier snapshot.
+- A missing or unsupported backlog is a read problem, distinct from a valid
+  empty backlog. No local clone is consulted and no observed records are written.
 
-**Safe stopping point:** The existing overview works for Open Dough and a second
-real project through a documented setup route, even if richer views are never
-built. State remains in each observed repository; no database is introduced.
+**Why now:** Terry needs one place for the independent projects consuming his
+time. This supplies immediate use of the existing overview beyond Open Dough,
+consistent with the remote-first visibility direction. It is a value priority,
+not a technical prerequisite for richer story detail. Separate repository pages
+remain a simpler alternative but do not provide the selected common entry point.
+The user has clarified this value and requested planning; a previous proposed
+requirement to trial the overview before refining this story is superseded.
+Whether the overview improves day-to-day understanding remains a learning outcome,
+not a claimed result or a blocker to this selected story.
 
-**Effort hypothesis:** Unestimated; medium-to-low confidence until the second
-project and access path are selected. The meaningful unknown is record/access
-compatibility, not the effort of replacing a constant. Preserve first-story
-behavior and include the second-project journey in the existing test approach.
+**Observed context:** On 2026-09-21 the current shared `parseBacklog` reader
+accepted published backlogs from all three repositories. Public Open Dough and
+Doughnut reads succeeded without credentials; authenticated Pygardon access
+succeeded. Pygardon had two Taken entries, the public projects had none. These
+are source observations, not completed UI proof. Pinned-read evidence is retained
+in the plan. No format migration or new backlog grammar is indicated.
+
+**Depends on:** The delivered overview and existing GitHub read access. Richer
+readiness/slice details, named ownership, execution-branch inspection, and
+same-machine coordination are independent later work.
+
+**Deferred promises:** Cross-project shared work, dependencies, coordination,
+combined portfolio views, global prioritization, time tracking, project
+registration/editing/discovery, arbitrary configuration or hosting providers,
+hosted deployment, a new account/authentication platform, local monitoring,
+automatic polling, selection persistence/deep links, richer story details, and
+ownership production. These are omitted commitments, not extra rejection rules.
+Necessary authenticated access to Pygardon is included.
+
+**Safe stopping point:** Terry can inspect each of the three projects from one
+local dashboard even if no later dashboard story is delivered.
+
+**Open decisions:** None required for this story's scope. User evaluation of
+usefulness can inform later dashboard priorities.
+
+**Effort hypothesis:** Bounded project selection and one local private-read
+boundary. Slice sizing and proof ownership are in the linked plan; no numeric
+time policy is supplied.
 
 ## Ordering and Scope Reduction
 
@@ -370,11 +398,10 @@ an already-Taken execution is authorized by this decomposition.
 
 ## Open Decisions
 
-- Terry has not yet used the delivered overview on his own work. Whether the
-  connected spatial view helps him orient during single-agent Trunk Mode is the
-  seed's central value hypothesis and is still untested. Launch it with
-  `npm run dev:dashboard` and decide from that use before refining story 2 or
-  story 5; if it does not help, reconsider their order and scope first.
+- Terry clarified the immediate value of story 5 on 2026-09-21 and authorized
+  planning: one place to inspect three independent projects consuming his time.
+  Practical usefulness is still to be learned from use; no pre-refinement trial
+  is required for this selected story.
 - The delivered overview's project and launch are settled: public Open Dough on GitHub,
   `main`, launched locally. Other providers and private access remain outside
   the selected first outcome.
@@ -384,8 +411,8 @@ an already-Taken execution is authorized by this decomposition.
   assuming the new assignment story covers every historical execution.
 - Refine story 4's name availability, concurrent claim handling, release/reuse,
   and backlog/publication compatibility before choosing its implementation.
-- Choose the real second project for story 5 and inspect its remote access and
-  record conventions before defining its minimal setup experience.
+- Story 5 uses three hardcoded projects and existing local GitHub authentication
+  for Pygardon, as Terry explicitly accepted. Its scope decisions are settled.
 - Define effort bands if S/M/L estimates are wanted. The remaining stories stay
   unestimated rather than importing another project's sizing policy.
 
