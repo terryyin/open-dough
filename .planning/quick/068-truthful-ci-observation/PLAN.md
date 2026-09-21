@@ -1,6 +1,7 @@
 # Keep registered CI revisions truthfully observed
 
-Status: in execution; Story Branch Mode; slices 1–2 delivered, slice 3 next.
+Status: all three slices delivered; ODF-065/ODF-069 response recorded; ready
+for wrap-up (Story Branch Mode branch not yet integrated to `main`).
 
 ## Source and outcome
 
