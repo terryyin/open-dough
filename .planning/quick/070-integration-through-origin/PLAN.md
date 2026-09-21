@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 9 next.
+Status: in progress; slice 10 next.
 
 ## Learnings
 
@@ -159,6 +159,18 @@ boundary: Git mechanics plus guidance structure
 setup: fixtures build a bare origin and an execution workspace; Story Branch resume uses refs/heads/cursor/story-execution; the repair test stashes unfinished staged, unstaged, and untracked paths before the repair commit
 observations: Trunk increment's rewritten SHA is on refs/heads/main and the pre-rebase SHA is not the receipt; Story Branch increment is on the recorded ref and refs/heads/main is unchanged; resume of an unpublished Story Branch candidate pushes once to that ref with that receipt target; already-published resume has pushCount 0; repair commit contains repair.txt and not the unfinished paths, and stash apply --index restores them with HEAD still the repair SHA; delivery test counts the destination sentences once in trunk-publication.md
 result: pass (11/11) after refactor; earlier bash tests/execution-ci-runtime.sh pass (148/148) before the resume-script edit, whose callers are in the 11/11
+```
+
+### Accepted proof — slice 9
+
+Promise: Trunk Mode publishes before-cleanup and final-closure commits to remote trunk, reports refresh separately, and removes only this execution's clean local worktree and local branch after the observer stops. A retry does not publish again. Dirty state, another workspace, unique unpublished work, and an active observer stay, with an explicit reason.
+
+```text
+command: node --test --test-concurrency=1 src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-publication-refresh.test.mjs src/skills/dough-story-wrap-up/scripts/closure-resource-cleanup.test.mjs src/skills/dough-story-wrap-up/scripts/closure-publication-resume.test.mjs src/skills/dough-story-wrap-up/scripts/closure-publication-resume-published.test.mjs
+boundary: Git mechanics
+setup: fixtures build a bare origin, an execution worktree, and a checkout-bound observer; the happy path plants refs/heads/exec/story before closure
+observations: both closure receipts are on refs/heads/main and that remote execution ref is unchanged; refresh is deferred/pending-edit or stopped/unexpected-branch without moving the accepted SHA; cleanup waits for observer.stop() then removes the local worktree and branch; retry is already-absent with the same remote commit count; preservation reasons are active checkout-bound observer, another workspace, dirty checkout, and unique unpublished work; resume publishes once then stops the observer before removal, and an already-published closure has pushCount 0
+result: pass (6/6) after the refactor split
 ```
 
 ## Execution identity
@@ -324,7 +336,7 @@ one shared fixture and assessor per domain responsibility:
 - **P:** `node --test src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs`
 - **W:** `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
 - **R:** `node --test src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs`
-- **C:** `node --test src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs`
+- **C:** `bash tests/closure-publication.sh`
 - **B:** `node --test src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs`
 - **N:** `bash tests/git-publication-native.sh` (credential-free runner/assessor checks)
 
@@ -537,7 +549,7 @@ all execution entry routes share attributable increment and repair publication.
 ### 9. Complete Trunk Mode closure with recoverable resource cleanup
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given completed Trunk Mode work, publish before-cleanup and final-closure
 revisions through the common owner, finish the existing observer obligation,
