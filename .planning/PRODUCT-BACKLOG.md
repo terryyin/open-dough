@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project ([plan](quick/066-view-three-projects/PLAN.md))
+
 ## Backlog list
 
-- [Use the dashboard for another Open Dough project](seeds/SEED-021-observe-published-story-progress.md#observe-another-project) — SEED-021#observe-another-project
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
