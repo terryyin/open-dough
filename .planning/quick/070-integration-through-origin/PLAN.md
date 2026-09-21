@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 4 next.
+Status: in progress; slice 5 next.
 
 ## Learnings
 
@@ -9,15 +9,26 @@ Status: in progress; slice 4 next.
   `maintain-default-checkout.md`. Callers defer to both; full opportunistic
   refresh decision remains for slice 5.
 - Publication and preparation Git proof is
-  `publication.test.mjs`, `publication-racing-suffix.test.mjs`,
-  `publication-racing-suffix-replay.test.mjs`, and
-  `preparation-publication.test.mjs`. Those suites exercise Git mechanics,
-  not guidance-following.
+  `publication.test.mjs`, `publication-resume.test.mjs`,
+  `publication-racing-suffix.test.mjs`,
+  `publication-racing-suffix-replay.test.mjs`,
+  `preparation-publication.test.mjs`, and
+  `preparation-publication-resume.test.mjs`. Those suites exercise Git
+  mechanics, not guidance-following.
 - Owned-workspace publication pushes the candidate SHA and does not
   fast-forward the default checkout. `git branch -d` then treats a
   session-created branch as merged only after its upstream is the fetched
   authorized remote; a lagging default-checkout `HEAD` is not an unmerged
   branch. Slice 5 still owns whether a clean checkout is refreshed.
+- Resume classifies the retained candidate by ancestry of the SHA kept
+  immediately before the push, not by the remote tip. After a rewrite that
+  SHA is the rewritten one. A lost success plus a later writer's commit is
+  already published: record it, register it when an observer is already
+  bound, and do not push. Maintenance stays an inspection result and cleanup
+  stays with its caller. Unpublished fast-forward resume pushes that SHA
+  once. A remote advance while the candidate is still absent stays
+  rejected-push recovery, not this classification. Proof is
+  `publication-resume.test.mjs` and `preparation-publication-resume.test.mjs`.
 - An owned-suffix replay is
   `rebase --onto <fetched-trunk> --ref <base-the-suffix-extends> --branch <owned-branch>`
   through the backlog rebase adapter when the suffix touches the backlog.
@@ -64,6 +75,18 @@ boundary: Git mechanics
 setup: fixtures; a second clone advances origin before the rejected push, and again before a second rejection
 observations: publication-racing-suffix.test.mjs asserts parent is the other writer's commit, the log range is only "verified increment", the affected backlog check sees sibling B and owned D, and the checkout is unchanged; the conflict test leaves exec/story on the rejected candidate; the second-rejection test does not absorb the later remote commit; publication-racing-suffix-replay.test.mjs uses the trunk just replayed onto as the next cutoff; product-backlog-git-rebase-onto.test.mjs replays only the owned suffix
 result: pass (4/4 racing cases after the split; adapter suite reused, 21/21 before the split)
+```
+
+### Accepted proof — slice 4
+
+Promise: resume classifies the retained candidate from remote ancestry. A lost success followed by another writer's advance is already published and is not pushed again. An unpublished candidate is pushed once.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/publication-resume.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
+boundary: Git mechanics
+setup: fixtures; the lost-success case pushes the rewritten SHA, drops the response, then another writer advances origin
+observations: publication-resume.test.mjs asserts the later tip's parent is rewrittenSha, the pre-rebase SHA is not an ancestor, published revisions record only rewrittenSha, and a later resume push count is 0; preparation-publication-resume.test.mjs removes the worktree only after already-published, and an unconfirmed keep leaves origin at trunk
+result: pass (5/5); refactor reused this proof after moving message and worktree counters
 ```
 
 ## Execution identity
@@ -320,7 +343,7 @@ the main risk. Safe stopping point: bounded remote contention is recoverable.
 ### 4. Resume from observed remote publication state
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given an interrupted publication, resume classifies the retained candidate from
 remote history and completes the first unfinished obligation. A lost success

@@ -15,6 +15,18 @@ export async function revParse(cwd, ref) {
   return (await git(cwd, "rev-parse", ref)).stdout.trim();
 }
 
+export async function messageCount(repo, ref, message) {
+  const log = (await git(repo, "log", "--format=%s", ref)).stdout
+    .trim()
+    .split("\n");
+  return log.filter((line) => line === message).length;
+}
+
+export async function worktreeCount(repo) {
+  const { stdout } = await git(repo, "worktree", "list", "--porcelain");
+  return stdout.split("\n\n").filter((block) => block.trim() !== "").length;
+}
+
 // Resolves a ref on a bare remote directly (not the checkout's cached
 // remote-tracking ref), so proof about "the bare origin itself" is genuine.
 export async function lsRemoteSha(remote, ref) {
@@ -70,14 +82,21 @@ export async function assertRemoteCandidate(origin, candidateSha) {
 
 // Another writer advances the authorized remote with one disjoint commit from
 // a separate clone. The clone is removed after the push.
-export async function advanceOriginFromAnotherWriter(origin) {
+export async function advanceOriginFromAnotherWriter(
+  origin,
+  {
+    file = "other-writer.txt",
+    body = "their work\n",
+    message = "another writer's own increment",
+  } = {},
+) {
   const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
   await exec("git", ["clone", origin, thirdCheckout]);
   await git(thirdCheckout, "config", "user.name", "Another Writer");
   await git(thirdCheckout, "config", "user.email", "another@example.test");
-  writeFileSync(join(thirdCheckout, "other-writer.txt"), "their work\n");
-  await git(thirdCheckout, "add", "other-writer.txt");
-  await git(thirdCheckout, "commit", "-m", "another writer's own increment");
+  writeFileSync(join(thirdCheckout, file), body);
+  await git(thirdCheckout, "add", file);
+  await git(thirdCheckout, "commit", "-m", message);
   await git(thirdCheckout, "push", "origin", "main");
   const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
   rmSync(thirdCheckout, { recursive: true, force: true });

@@ -98,12 +98,11 @@ domain knowledge applies only when that adapter is unavailable.
 ## Resume an interrupted publication
 
 After interruption during a queue claim's publication or Trunk Mode delivery,
-apply [publish the candidate's resume](publish-the-candidate.md#resume-an-interrupted-publication):
-classify the owned suffix — a claim or an increment — from actual refs,
-retained rewritten identities, and observer receipts, using whichever
-execution resources actually exist for this publication, and continue only
-the first unfinished obligation. Do not duplicate the commit, push an
-already-published candidate, or replace the execution worktree. A claim may
+apply [publish the candidate's resume](publish-the-candidate.md#resume-an-interrupted-publication).
+The owned suffix is a claim or an increment, using whichever execution
+resources actually exist for this publication. Continue only the first
+unfinished obligation that resume names. Do not duplicate the commit, push
+an already-published candidate, or replace the execution worktree. A claim may
 have no execution branch/worktree yet, as [Publish the candidate](#publish-the-candidate)
 already states for that case.
 

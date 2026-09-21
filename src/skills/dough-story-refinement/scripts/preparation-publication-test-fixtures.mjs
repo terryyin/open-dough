@@ -5,7 +5,10 @@ import {
   exec,
   git,
   revParse,
+  worktreeCount,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+
+export { worktreeCount };
 
 // Shared preparation-workspace fixture for the preparation publication tests.
 // Git mechanics only: an integration checkout plus a separately branched
@@ -140,9 +143,4 @@ export async function closeOrRetainWorkspace({
   );
   await git(integration, "branch", "-d", preparationBranch);
   return { removed: true, path: preparation, branch: preparationBranch };
-}
-
-export async function worktreeCount(integration) {
-  const { stdout } = await git(integration, "worktree", "list", "--porcelain");
-  return stdout.split("\n\n").filter((block) => block.trim() !== "").length;
 }

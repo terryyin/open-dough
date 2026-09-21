@@ -140,23 +140,33 @@ not rebase or push again.
 
 ## Resume an interrupted publication
 
-After an interruption, classify the owned suffix from actual refs and retained
-rewritten identities. Fetch the authorized remote before treating a push as
-unfinished. Continue only the first unfinished obligation. Do not duplicate
-the commit, push an already-published candidate, or replace the caller's
-workspace. A pending human edit on the default checkout does not change this
-classification and is not destroyed while resuming.
+After an interruption, classify the owned suffix from fetched remote history
+and the candidate SHA retained immediately before the push. A rewrite updates
+that retained SHA before the push, so a lost response does not put a
+pre-rebase SHA back in its place. Fetch the authorized remote, then test
+ancestry — not tip equality:
+
+`git merge-base --is-ancestor <candidate> <fetched-remote-target>`
+
+The candidate is published when that command succeeds, including when another
+writer has since added commits on top of it. Do not rebase that candidate,
+push it again, or push a superseded pre-rebase SHA. A lost or unknown push
+response is this published case whenever the retained candidate is an
+ancestor. It is not a rejected push.
+
+Continue only the first unfinished obligation below. Do not duplicate the
+commit or replace the caller's workspace. A pending human edit on the default
+checkout does not change this classification and is not destroyed while
+resuming. Checkout maintenance and resource cleanup are not obligations of
+this step: record maintenance by inspection only, and leave cleanup to the
+caller that already owns it.
 
 | Boundary | Actual state | Continue with |
 | --- | --- | --- |
-| Not on the remote | The owned workspace has the suffix, and fetched remote history does not contain that candidate. | [Publish the candidate](#publish-the-candidate) from step 1. Do not commit again, and do not fast-forward the default checkout first. |
+| Not on the remote | The retained candidate is not an ancestor of fetched remote history. The owned workspace still has that commit. | [Publish the candidate](#publish-the-candidate) from step 1. When that SHA still fast-forwards onto fetched trunk, push it and do not commit again. When it does not fast-forward, use [rejected-push recovery](#recover-a-rejected-push); do not treat the candidate as published. Do not fast-forward the default checkout. When an observer is already bound, step 6's registration is part of finishing the publication that this push accepts. |
 | Candidate only on the default checkout | That checkout's target tip is the owned candidate, and the remote does not contain it. This is the claim that was committed there before a separate workspace existed. | Push that exact SHA ([Publish the candidate](#publish-the-candidate) step 5). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). Preserve any pending human edit; the SHA push does not include it. |
-| Already published | Fetched remote history contains the candidate, or the retained rewritten SHA that replaced it. | Append that SHA to retained published revisions if identity omitted it. Do not push again. Record default-checkout maintenance separately; it may still be deferred. |
-| Missing registration | Fetched remote history contains the published SHA; an observer already bound to this caller does not yet reflect it. A caller that binds no observer has nothing to register. | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. |
-
-A lost or unknown push response is not unpublished. If the exact candidate is
-already an ancestor of fetched remote history, treat it as already published,
-including when another authorized session published it.
+| Already published | The retained candidate — the rewritten SHA, when a rewrite was retained — is an ancestor of fetched remote history. The remote tip may be a later writer's commit. | Append that SHA to retained published revisions when identity omitted it. Do not push. This recognition is not registration, maintenance, or cleanup. |
+| Missing registration | The candidate is already an ancestor and its SHA is retained, but an observer already bound to this caller has no receipt for it. A caller that binds no observer has nothing to register. | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. Leave maintenance and cleanup unperformed. |
 
 If the owned workspace, target, or candidate SHA is missing, contradictory, or
 matches no unique owned suffix, preserve every existing worktree, branch, and

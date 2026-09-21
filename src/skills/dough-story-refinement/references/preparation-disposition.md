@@ -130,10 +130,16 @@ not create a replacement.
 Apply [publish the candidate's resume](../../dough-execute-plan/references/publish-the-candidate.md#resume-an-interrupted-publication)
 from real Git and remote refs, and continue only the first unfinished
 obligation. The suffix is step 1's commit(s) in the owned workspace. The
-previously published base is the last SHA this session recorded as published,
-or, for a first keep, the workspace's recorded starting revision. Classify
-against the current candidate SHA, never a stale pre-rebase one. Preparation
-binds no observer, so the "Missing registration" row does not apply.
+candidate is the SHA retained immediately before the push, which is the
+rewritten SHA when a rewrite was retained. When that resume still has to
+publish, the previously published base is the last SHA this session recorded
+as published or, for a first keep, the workspace's recorded starting
+revision. Preparation binds no observer, so
+the "Missing registration" row does not apply. Resume does not refresh the
+default checkout and does not remove this workspace. Record the separate
+maintenance inspection. Cleanup stays in
+[Close or retain the workspace](preparation-workspace.md#close-or-retain-the-workspace)
+and runs only after remote acceptance.
 
 Never duplicate the commit or the push, and never create a replacement
 workspace.
