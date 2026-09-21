@@ -29,6 +29,12 @@ const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
 export type PrivateReadServer = {
   readonly baseURL: string;
   readonly origin: string;
+  // The isolated directory `vite build` wrote into for this one preview-mode
+  // server, so a test can inspect the actual static assets served -- for
+  // example, to confirm no credential-like marker was ever written into
+  // them. `undefined` in dev mode, which serves source on the fly and writes
+  // no build output at all.
+  readonly outDir: string | undefined;
   setControl(control: FakeGhControl): void;
   ghCalls(): string[][];
   ghPid(): number | undefined;
@@ -102,6 +108,13 @@ export async function startPrivateReadServer(options: {
   readonly mode: "dev" | "preview";
   readonly port: number;
   readonly readTimeoutMs?: number;
+  // Extra environment for the spawned Vite process only, merged over the
+  // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
+  // credential-shaped value somewhere the production code's own subprocess
+  // invocation (`../../server/ghRead.ts`, which forwards its whole
+  // environment to `gh`) would see it, without touching this process's own
+  // real environment.
+  readonly extraEnv?: Readonly<Record<string, string>>;
 }): Promise<PrivateReadServer> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-private-read-"));
   const gh = installFakeGh(tempRoot);
@@ -113,12 +126,14 @@ export async function startPrivateReadServer(options: {
     FAKE_GH_LOG: gh.logPath,
     FAKE_GH_CONTROL: gh.controlPath,
     FAKE_GH_PIDFILE: gh.pidPath,
+    ...options.extraEnv,
   };
   if (options.readTimeoutMs !== undefined) {
     env["DOUGH_PRIVATE_READ_TIMEOUT_MS"] = String(options.readTimeoutMs);
   }
 
   let args: string[];
+  let outDir: string | undefined;
   if (options.mode === "dev") {
     // Dev mode compiles on the fly; it never reads or writes `dist`, so it
     // needs no isolated `outDir`.
@@ -132,7 +147,7 @@ export async function startPrivateReadServer(options: {
   } else {
     // Isolated per test run: built fresh into this call's own `tempRoot`,
     // never the shared `dashboard/dist` (see `buildDashboardTo` above).
-    const outDir = path.join(tempRoot, "dist");
+    outDir = path.join(tempRoot, "dist");
     buildDashboardTo(outDir);
     args = [
       "preview",
@@ -170,6 +185,7 @@ export async function startPrivateReadServer(options: {
   return {
     baseURL,
     origin: baseURL,
+    outDir,
     setControl(control) {
       writeControl(gh.controlPath, control);
     },

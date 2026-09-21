@@ -41,6 +41,22 @@ export function verifyLocalOrigin(req: IncomingMessage): void {
       "This endpoint only answers on the local loopback host.",
     );
   }
+  // A real browser's own same-origin `fetch` (this endpoint's only intended
+  // caller) carries no `Origin` header at all: the Fetch standard only adds
+  // one for a cross-origin request or a non-GET/HEAD method, neither of
+  // which this endpoint uses. What every current browser does send on any
+  // `fetch` is the Fetch Metadata `Sec-Fetch-Site` header, which the browser
+  // itself computes and a page's own script cannot set or override, so it is
+  // checked first; `same-origin` is the value a browser gives only when the
+  // requesting page's origin actually is this endpoint's origin. A client
+  // that sends no such header (curl, `node:http`, or an older browser) falls
+  // through to the `Origin`/`Host` comparison below, which still refuses a
+  // cross-origin browser request: a cross-origin `fetch` carries both an
+  // `Origin` header and `Sec-Fetch-Site: cross-site`, so it is refused either
+  // way.
+  if (req.headers["sec-fetch-site"] === "same-origin") {
+    return;
+  }
   const origin = req.headers.origin;
   if (typeof origin !== "string") {
     throw new RefusedRead(403, "This endpoint requires a same-origin request.");

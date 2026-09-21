@@ -193,7 +193,7 @@ reassess this slice before adding duplicate implementations.
 ### 3. Read Pygardon with existing authentication
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a locally launched dashboard with working existing GitHub access,
 select Pygardon and see its published direction, Taken entries, queue, and pinned
@@ -357,7 +357,45 @@ each time), `npm run lint` (clean) — all independently rerun by the
 coordinator, including reproducing defect 1 by temporarily reverting the fix
 and confirming the isolating test fails without it.
 
-Actual private GitHub access is proven only by the planning read above.
+Slice 3 delivered 2026-09-21 on the same branch. Pygardon (`terryyin/pygardon`,
+private) is now in the catalog with an `access: "public" | "private"`
+discriminator on `PublishedSource`; `publishedWork.ts`'s `readPublishedWork`
+branches on it via `readRevisionAndMarkdown`, converging both transports on
+the same `interpret()` projection and 30s abort wiring. The browser side lives
+in `dashboard/src/privateRead.ts` (zod-validates the endpoint's `{revision,
+backlog}`/`{error}` answer, reusing `ReadProblem` for every failure category —
+no second failure model) and `privateReadPath.ts` (the shared `/__private-read`
+path literal, with zero Node imports so the browser bundle and the server
+module can both import it without pulling `child_process` into the client).
+All three projects are now viewable, satisfying this plan's safe stopping
+point. `dashboard/README.md` was corrected (it still said "the observed
+project is fixed" after slice 1's catalog/selector landed) and now documents
+Pygardon's transport, its `gh`-access prerequisite, and dev/preview launch
+parity.
+
+A real defect in slice 2's already-"done" boundary was found and fixed only
+by this slice's real-browser proof: a genuine same-origin `fetch` never sends
+an `Origin` header for a GET request (Fetch spec), so `localOrigin.ts`'s
+unconditional `Origin` requirement would have refused every actual browser
+read of a private source, despite passing all of slice 2's raw-HTTP tests
+(which set `Origin` explicitly). Fixed by accepting the browser-computed,
+page-unforgeable `Sec-Fetch-Site: same-origin` header first, falling back to
+the `Origin`/`Host` check for non-browser clients; a cross-origin `fetch`
+still carries `Sec-Fetch-Site: cross-site` and is still refused. Lesson for
+any later boundary work in this project: a raw-HTTP test that sets headers by
+hand cannot prove a real browser would send them — a same-origin-restricted
+endpoint meant for browser `fetch` needs at least one real-browser proof
+before being called done.
+
+Proof: `npm run typecheck:dashboard` (clean), the three private-read spec
+files together (15/15, including the two new `Sec-Fetch-Site` regression
+cases and both dev/preview `private project overview` journeys), full suite
+run three times in a row (45/45 each time), `npm run lint` (clean) — all
+independently reran by the coordinator, including reading the `Sec-Fetch-Site`
+fix against the Fetch/Fetch-Metadata specs' actual semantics before accepting
+it as security-preserving (loopback binding + exact scheme/host/port match,
+not merely "same site").
+
 Keep successful execution evidence and consequential learnings here;
 operational agent/CI state belongs in the execution conversation. Keep this
 plan through retrospective and story wrap-up.

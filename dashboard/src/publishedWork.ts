@@ -11,6 +11,7 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readBacklogAt, resolveRevision } from "./githubSource";
 import type { PublishedSource } from "./publishedSource";
+import { readPrivateSnapshot } from "./privateRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 
@@ -103,6 +104,24 @@ function interpret(
 // nothing retries for them.
 const readWaitLimitMs = 30_000;
 
+// The transport is chosen by the catalog's own recorded `access`
+// (`./publishedSource.ts`), never re-derived from the repository name or
+// anything else. Both transports end in the same shape -- one resolved
+// revision and its raw backlog text -- so everything after this point
+// (`interpret`, above) is one projection regardless of which one answered.
+async function readRevisionAndMarkdown(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<{ readonly revision: string; readonly markdown: string }> {
+  if (source.access === "private") {
+    const snapshot = await readPrivateSnapshot(source, signal);
+    return { revision: snapshot.revision, markdown: snapshot.backlog };
+  }
+  const revision = await resolveRevision(source, signal);
+  const markdown = await readBacklogAt(source, revision, signal);
+  return { revision, markdown };
+}
+
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
@@ -113,8 +132,10 @@ export async function readPublishedWork(
   }, readWaitLimitMs);
   const untilEither = AbortSignal.any([signal, waitLimit.signal]);
   try {
-    const revision = await resolveRevision(source, untilEither);
-    const markdown = await readBacklogAt(source, revision, untilEither);
+    const { revision, markdown } = await readRevisionAndMarkdown(
+      source,
+      untilEither,
+    );
     return {
       source,
       revision,

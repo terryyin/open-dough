@@ -21,8 +21,14 @@ import {
 } from "./ghRead";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { sourceById } from "../src/publishedSource";
+import { privateReadEndpoint } from "../src/privateReadPath";
 
-export const privateReadEndpoint = "/__private-read";
+// Re-exported so existing importers of this module (this boundary's own
+// tests) keep one place to find the endpoint path; `../src/privateReadPath.ts`
+// is now its one source, so the browser-side reader
+// (`../src/privateRead.ts`) can share the exact same literal without
+// importing this Node-only module.
+export { privateReadEndpoint };
 
 type Outcome =
   | { readonly kind: "ok"; readonly revision: string; readonly backlog: string }

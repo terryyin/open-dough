@@ -114,6 +114,32 @@ test.describe("private read boundary (dev launch mode)", () => {
     ]);
   });
 
+  // A real browser's own same-origin `fetch` (this endpoint's only intended
+  // caller) never carries an `Origin` header -- confirmed against this exact
+  // production middleware from a real Chromium page in
+  // ./private-project-overview.spec.ts, which this narrower case reproduces
+  // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
+  // which `../server/localOrigin.ts` now accepts in place of `Origin`.
+  test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__private-read?source=${knownSourceId}`,
+      headers: { "Sec-Fetch-Site": "same-origin" },
+    });
+    expect(response.status).toBe(200);
+    expect(server.ghCalls()).toHaveLength(callsBefore + 2);
+  });
+
+  test("still refuses Sec-Fetch-Site: cross-site even without an Origin header", async () => {
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__private-read?source=${knownSourceId}`,
+      headers: { "Sec-Fetch-Site": "cross-site" },
+    });
+    expect(response.status).toBe(403);
+    expect(server.ghCalls()).toHaveLength(callsBefore);
+  });
+
   test("never forwards gh's raw stderr or a credential-like marker into the failure response", async () => {
     const callsBefore = server.ghCalls().length;
     server.setControl({
