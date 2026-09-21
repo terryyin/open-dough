@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Wire migrated publication suites into the default runner](quick/071-wire-publication-regression-suites/PLAN.md) — .planning/quick/071-wire-publication-regression-suites/PLAN.md
+
 ## Backlog list
 
-- [Wire migrated publication suites into the default runner](quick/071-wire-publication-regression-suites/PLAN.md) — .planning/quick/071-wire-publication-regression-suites/PLAN.md
 - [Reduce CI observer overhead across execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#reduce-ci-observer-overhead) — SEED-008#reduce-ci-observer-overhead
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
