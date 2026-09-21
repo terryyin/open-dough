@@ -743,3 +743,92 @@ until the following coordinator-run refactor pass.
     fixture without repeating the pattern, so whether this generalizes
     beyond "reuse existing X" phrasing not resolving to a concrete import
     was not tested further here.
+
+## DD-068 — A coordinator-started nested observer for a native acceptance session is silently orphaned
+
+The CI-mailbox binding that lets a hook deliver a queued event only forms
+when the *observed* session's own tool output contains the `CI_OBSERVER`
+receipt line for that mailbox (`ci-host-hook.mjs`'s `selectCiEvents` scans
+`Shell`/`Bash` `tool_output` for the receipt and only then writes the
+`owner`/`bindings` files). A coordinator that starts the observer itself,
+outside the native session it intends to observe, produces a mailbox with no
+owner: the native session's later hook invocations never see that receipt in
+their own tool output, so the queued event is never delivered, and the
+mailbox reports `unread: 1` at stop with no error.
+
+### Occurrences
+
+- Execution: `.planning/quick/032-refuse-managed-hook-command-variants/PLAN.md @ 29dadf3`
+  - Timestamp: 2026-09-21T09:06+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: modified; revision 29dadf3; base 0.3.26
+  - Evidence: the coordinator ran
+    `node .agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs start
+    --execution fixture/dough-032-compat main` directly from a Bash tool
+    call in its own conversation (mailbox `/tmp/dough-ci-501/watch-yj19Ms`),
+    confirmed the controlled failure was recorded
+    (`events/000000000001.json`), then stopped it and received
+    `"evidence":{"recordedThrough":1,"deliveredThrough":0,"unread":1}` —
+    the event was never delivered because no native-session tool output
+    ever contained that mailbox's receipt line. The correct design, already
+    used by this same plan's earlier Slice 4 evidence
+    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`), has the *native
+    session's own prompt* run the readiness probe and the `start` command,
+    so the receipt appears in its own `Shell` tool output at the exact hook
+    invocation that establishes ownership.
+  - Observed effect: one wasted observer start/stop cycle plus a source-code
+    read of `ci-mailbox-location.mjs` and `ci-host-hook.mjs` to discover the
+    binding rule, before the acceptance session was redesigned to start its
+    own observer. No incorrect result was delivered; the redesigned run
+    (session `1330b4c2-7b3e-4be6-a1cc-ad13ed781a38`) then bound and
+    delivered correctly.
+  - Inference: Qualified, single occurrence. The Quick 032 Slice 4 evidence
+    already encoded the correct pattern but did not state the underlying
+    rule (ownership binds to the tool call that emits the receipt, not to
+    whichever process started the observer), so a later executor without
+    that evidence in context has to rediscover it from source. Whether
+    stating this rule directly in
+    `.claude/skills/dough-execute-plan/references/ci-notify-hosts.md`'s
+    "Start once and continue immediately" section would prevent recurrence
+    was not tested here.
+
+## DD-069 — Cursor's Shell tool does not inherit the launching process's `PATH`, only its other environment variables
+
+`cursor agent --print` reconstructs its own `Shell`-tool `PATH` (a fixed,
+login-shell-like list) rather than inheriting the `PATH` set on the process
+that launched `cursor agent`; ordinary environment variables set the same
+way (not `PATH`) do propagate to that Shell tool's subprocess. A stand-in
+binary meant to intercept a command the agent runs (for example a controlled
+`gh`) must have its directory prepended to `PATH` inline, inside the exact
+command text the agent is told to run, not via the launching shell's `PATH`.
+
+### Occurrences
+
+- Execution: `.planning/quick/032-refuse-managed-hook-command-variants/PLAN.md @ 29dadf3`
+  - Timestamp: 2026-09-21T09:08+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: modified; revision 29dadf3; base 0.3.26
+  - Evidence: launching
+    `PATH="<fixture>/bin:/opt/homebrew/bin:..." CONTROLLED_GH_TOKEN=env-inherit-check-xyz
+    cursor agent --print ... "which gh && echo TOKEN=$CONTROLLED_GH_TOKEN"`
+    returned `gh` resolved to `/Users/terryyin/.nix-profile/bin/gh` (not the
+    fixture stand-in) while `TOKEN=env-inherit-check-xyz` printed correctly;
+    a follow-up `echo PATH=$PATH` inside the same kind of session showed a
+    fixed system `PATH` unrelated to the launching shell's. The plan's own
+    prior Slice 4 evidence
+    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`)
+    already worked around this by putting the `PATH=...` prefix inline on
+    the observer `start` command text itself, but did not record that this
+    was necessary because outer `PATH` does not propagate while other
+    environment variables do.
+  - Observed effect: one extra diagnostic native session run to isolate
+    which of `PATH` vs. arbitrary environment variables actually propagates,
+    before the acceptance prompt was written with the `PATH=` prefix placed
+    inline in the exact command text.
+  - Inference: Qualified, single occurrence. Recording this distinction in
+    `.claude/skills/dough-execute-plan/references/ci-notify-hosts.md` next
+    to its existing disposable-command guidance would let a future executor
+    reuse this fact instead of re-deriving it from a fresh diagnostic
+    session; not tested here.
