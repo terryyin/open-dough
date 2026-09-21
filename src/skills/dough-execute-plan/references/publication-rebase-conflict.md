@@ -19,7 +19,7 @@ nor that reference is available, preserve the conflict and report the missing gu
 
 For other product or code paths, read the three Git versions (ancestor,
 current side, and incoming side; index stages 1, 2, and 3). Identify the
-fetched trunk versus the unpublished suffix from the actual commits; Git's
+fetched authorized remote target versus the unpublished suffix from the actual commits; Git's
 ours/theirs labels during rebase do not name intent. Compare each side with
 the ancestor and retain a brief account of what each contributor changed.
 

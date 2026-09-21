@@ -1,6 +1,6 @@
 # Integration through origin
 
-Status: in progress; slice 8 next.
+Status: in progress; slice 9 next.
 
 ## Learnings
 
@@ -147,6 +147,18 @@ boundary: Git mechanics plus guidance structure
 setup: fixtures build a bare origin, an integration checkout, and queued backlog entries
 observations: workspace-publication.test.mjs trace is selected, committed, prepared, implementation, and onImplement sees the remote tip equal the published SHA before implementation-started exists; a competing publisher gets ownership other with provenance exec-a and no REBASE_HEAD; execution-location.md selects the workspace from fetched trunk before the claim is committed
 result: pass (17/17); refactor reused the Git cases and reran the guidance test 3/3
+```
+
+### Accepted proof — slice 8
+
+Promise: a validated increment or owned repair publishes through one owner. Trunk Mode lands the candidate on remote trunk and does not push the execution branch. Story Branch Mode lands it on the recorded remote execution branch and leaves remote trunk unchanged. The receipt is the accepted SHA and that target. An interrupted resume uses the same target. A repair stashes unfinished work around that publication and restores it.
+
+```text
+command: node --test src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-execute-plan/scripts/publication-resume.test.mjs src/skills/dough-execute-plan/scripts/publication-resume-story-branch.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
+boundary: Git mechanics plus guidance structure
+setup: fixtures build a bare origin and an execution workspace; Story Branch resume uses refs/heads/cursor/story-execution; the repair test stashes unfinished staged, unstaged, and untracked paths before the repair commit
+observations: Trunk increment's rewritten SHA is on refs/heads/main and the pre-rebase SHA is not the receipt; Story Branch increment is on the recorded ref and refs/heads/main is unchanged; resume of an unpublished Story Branch candidate pushes once to that ref with that receipt target; already-published resume has pushCount 0; repair commit contains repair.txt and not the unfinished paths, and stash apply --index restores them with HEAD still the repair SHA; delivery test counts the destination sentences once in trunk-publication.md
+result: pass (11/11) after refactor; earlier bash tests/execution-ci-runtime.sh pass (148/148) before the resume-script edit, whose callers are in the 11/11
 ```
 
 ## Execution identity
@@ -501,7 +513,7 @@ from its published claim; shared backlog meaning remains coherent.
 ### 8. Publish execution increments and repair results through the common owner
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a prepared execution workspace, a validated increment or owned repair is
 published to the mode's authorized destination and registered using the accepted

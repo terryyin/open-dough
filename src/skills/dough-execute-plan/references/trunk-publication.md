@@ -1,44 +1,54 @@
-# Publish onto shared trunk
+# Publish execution results
 
-Use this rule for Trunk Mode work that must reach the authorized remote trunk
-without publishing the execution branch. Startup uses it to publish a queue
-claim. Slice delivery and story wrap-up use the same Git steps for each
-verified increment, including wrap-up's before-cleanup and final-closure
-commits. Do not invent a second publication sequence.
+Startup uses this rule to publish a queue claim. Slice delivery uses it to
+publish a validated increment or an owned CI repair. Story wrap-up uses the
+same Git steps for each owned closure commit, including before-cleanup and
+final-closure commits. Do not invent a second publication sequence.
 
-This rule does not create execution authority, wait for CI, or push the
-execution branch. Observation is armed from the execution checkout against the
-authorized target branch. A queue claim is published from the owned workspace
-before implementation; retain its published SHA and register it after the
-observer is armed. Later environment preparation does not unpublish that SHA.
+This rule does not create execution authority or wait for CI. Observation is
+armed from the execution checkout against the authorized target branch.
 
 ## Publish a queue claim
 
 After the owned execution workspace exists and
 [Take queued work](../SKILL.md#take-queued-work) commits the Taken claim there,
-publish that claim SHA with the steps below, before implementation. Do not
-start implementation from an unpublished claim. An unavailable destination or
-failed publication leaves the exact remaining state and does not authorize
+publish that claim SHA to remote trunk with the steps below, before
+implementation. Do not start implementation from an unpublished claim. Retain
+its published SHA and register it after the observer is armed. Later
+environment preparation does not unpublish that SHA. An unavailable destination
+or failed publication leaves the exact remaining state and does not authorize
 starting unclaimed queued work. CI coverage for this claim, including a Story
 Branch claim's unobserved trunk target, follows
 [Own one observer](ci-monitor.md#own-one-observer).
 
-## Publish a verified increment
+## Publish an execution increment or repair
 
 After wrap-up proof, refactor, format, and commit succeed, publish the owned
-unpublished increment through [Publish the candidate](#publish-the-candidate).
-Keep the same execution worktree for planned, quick, and contextual work.
+unpublished suffix through [Publish the candidate](#publish-the-candidate).
+Planned slices, planless and contextual work, bug repair, and a retrospective
+correction all use this delivery. An owned CI repair uses it too. Pause,
+stash, and restore stay in
+[CI observation](ci-monitor.md#handle-a-notification); do not add a second
+repair push.
+
+Trunk Mode builds the candidate from the local execution branch and pushes
+that candidate to remote trunk. It does not push the execution branch. Story
+Branch Mode pushes that candidate to the recorded remote execution branch and
+does not push it to remote trunk. Keep the same execution worktree. Register
+the receipt recorded by [Publish the candidate](#publish-the-candidate).
 
 ## Preconditions
 
 Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions).
 For this caller the owned suffix is the Taken commit for a claim, or
-consecutive execution commits not yet on authorized remote trunk for an
-increment. The owned workspace is the execution worktree. A queue claim is
-committed and published from that worktree. For a claim, the supplied
-validation confirms the selected entry is **Taken** on the candidate and that
-no empty commit was invented. For an increment, it reuses accepted proof whose
-promise, boundary, implementation, setup, and observations still match.
+consecutive execution commits not yet on the authorized remote target for an
+increment or repair. [Publish a queue claim](#publish-a-queue-claim) names the
+claim target. [Publish an execution increment or repair](#publish-an-execution-increment-or-repair)
+names the increment or repair target. The owned workspace is the execution
+worktree. For a claim, the supplied validation confirms the selected entry is
+**Taken** on the candidate and that no empty commit was invented. For an increment or
+repair, it reuses accepted proof whose promise, boundary, implementation,
+setup, and observations still match.
 [Default-checkout access and preservation](maintain-default-checkout.md)
 apply only when this publication mutates that checkout. A maintenance stop
 follows
@@ -52,20 +62,26 @@ It does not erase a remote acceptance the publisher has already recorded.
 Apply [Preconditions](#preconditions), then run
 [publish the candidate](publish-the-candidate.md#publish-the-candidate) from
 the owned workspace. A claim uses the execution workspace selected before its
-commit; other publications retain theirs. Register an accepted SHA with any
-bound observer only after the publisher's remote confirmation. After that
-confirmation, attempt a refresh under
+commit; other publications retain theirs. Register the accepted revision and
+the target it was accepted on with any observer already bound to that target,
+only after the publisher's remote confirmation. A pre-rebase unpublished SHA
+is not the receipt. After confirmation of a publication whose target is
+remote trunk, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
-Report the publication acceptance and that maintenance result separately.
+A publication whose target is the remote execution branch does not refresh
+the default checkout. Report the publication acceptance and any maintenance
+result separately.
 A deferred or stopped refresh does not erase the accepted publication and
 does not authorize another push.
 
 ## Publish wrap-up closure
 
 Story wrap-up treats each owned wrap-up commit on the execution checkout as a
-verified increment. Publish it immediately through [the common sequence](#publish-the-candidate)
-before the next wrap-up mutation that depends on its recovery from shared trunk.
-Do not merge the execution branch.
+verified increment whose target remains remote trunk. Publish it immediately
+through [the common sequence](#publish-the-candidate) before the next wrap-up
+mutation that depends on its recovery from shared trunk. That closure target
+is not the Story Branch increment destination above. Do not merge the
+execution branch.
 
 Resolve observation ownership before the first wrap-up publication: recover
 the execution's observer when it still exists; if execution already stopped
@@ -107,17 +123,19 @@ domain knowledge applies only when that adapter is unavailable.
 
 ## Resume an interrupted publication
 
-After interruption during a queue claim's publication or Trunk Mode delivery,
-apply [publish the candidate's resume](publish-the-candidate.md#resume-an-interrupted-publication).
+After interruption during a queue claim's publication or an increment or
+repair publication, apply
+[publish the candidate's resume](publish-the-candidate.md#resume-an-interrupted-publication)
+against that publication's authorized remote target.
 The owned suffix is a claim or an increment, using whichever execution
 resources actually exist for this publication. Continue only the first
 unfinished obligation that resume names. Do not duplicate the commit, push
 an already-published candidate, or replace the execution worktree. The claim
 uses the workspace selected before its commit, as
 [Publish the candidate](#publish-the-candidate) already states for that case.
-After that publication obligation is accepted, attempt
-[Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
-The resume classification itself still only inspects the checkout.
+After that publication obligation is accepted, apply the refresh rule in
+[Publish the candidate](#publish-the-candidate). The resume classification
+itself still only inspects the checkout.
 
 In that shared table, "Missing registration" is this project's CI
 registration: a published SHA absent from the existing observer's coverage or
@@ -137,5 +155,5 @@ Apply [publish the candidate's preserved state](publish-the-candidate.md#preserv
 which defers local preservation to
 [maintain the default checkout](maintain-default-checkout.md#preserve-pending-local-work).
 For this caller, that state is not permission to start unclaimed queued work,
-start implementation from an unpublished claim, or substitute Story Branch
-Mode publication.
+start implementation from an unpublished claim, or substitute a different
+destination than the one recorded for this publication.

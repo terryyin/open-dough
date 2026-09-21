@@ -12,8 +12,9 @@ A calling procedure supplies the owned workspace, the owned unpublished
 suffix, the authorized remote target, and how it registers or validates the
 pushed result. Nothing below requires execution's mode selection, Taken-claim
 semantics, or CI-observer policy. [Trunk publication](trunk-publication.md) is
-`dough-execute-plan`'s caller for claims and increments: it names the suffix
-and workspace, then uses the sequence below.
+`dough-execute-plan`'s caller for claims, increments, and owned repairs: it
+names the suffix, workspace, and authorized remote target, then uses the
+sequence below.
 
 ## Preconditions
 
@@ -57,14 +58,15 @@ Apply [Preconditions](#preconditions) before this sequence.
    caller cannot name a unique suffix, stop under
    [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
    instead of guessing which commit to publish.
-3. When fetched trunk is still the previously published base, leave the suffix
-   unchanged. When trunk advanced, rebase only that suffix onto fetched trunk
+3. When the fetched authorized remote target is still the previously published
+   base, or that target ref does not exist yet, leave the suffix unchanged.
+   When that target advanced, rebase only that suffix onto the fetched target
    in the owned workspace. The range is commits after the previously published
    base on the owned branch:
-   `git -C <owned-workspace> rebase --onto <fetched-remote-trunk> <previously-published-base> <owned-branch>`.
+   `git -C <owned-workspace> rebase --onto <fetched-remote-target> <previously-published-base> <owned-branch>`.
    When that replay touches the product backlog, run the same range through
    the installed rebase adapter instead of that raw `git rebase`:
-   `product-backlog-git-rebase.mjs rebase --onto <fetched-remote-trunk> --ref <previously-published-base> --branch <owned-branch> --cwd <owned-workspace>`,
+   `product-backlog-git-rebase.mjs rebase --onto <fetched-remote-target> --ref <previously-published-base> --branch <owned-branch> --cwd <owned-workspace>`,
    following
    [publication rebase conflicts](publication-rebase-conflict.md). After a
    rewrite, the pre-rebase SHA is not the candidate. A conflict, refusal, or
@@ -73,13 +75,13 @@ Apply [Preconditions](#preconditions) before this sequence.
    branch.
 4. Validate the candidate using the check the caller supplied for this
    suffix. An unchanged base does not invalidate accepted proof. A rebase
-   onto newer trunk invalidates only proof the combined changes affect;
+   onto a newer target invalidates only proof the combined changes affect;
    reverify that behavior and reuse the rest. Do not treat rebase success
    as behavioral proof, rerun unrelated checks, or wait for CI.
 5. Immediately before pushing, retain the full candidate SHA and the base
    the owned suffix extends. When this candidate has not been rewritten,
    that base is the previously published base. When step 3 replayed the
-   suffix, that base is the fetched trunk it was replayed onto, not the
+   suffix, that base is the fetched target it was replayed onto, not the
    older revision and not the candidate tip. Push that exact candidate
    from the owned workspace:
    `git -C <owned-workspace> push <remote> <candidate>:<target-branch>`.
@@ -90,7 +92,10 @@ Apply [Preconditions](#preconditions) before this sequence.
    not require the default checkout's `HEAD`, index, or working tree to
    match. When this caller keeps published revisions, append that SHA; do
    not add a pre-rebase SHA or treat a later moving `HEAD` as the
-   publication. When an observer is already bound, register that SHA.
+   publication. The receipt is that accepted SHA and the target it was
+   accepted on. When an observer is already bound to that target, register
+   that SHA. Do not register a pre-rebase SHA, and do not register the SHA
+   with an observer bound to a different target.
    Registration failure is lost coverage: report it and do not claim the
    revision was observed. Do not wait for CI. Then record the separate
    [maintenance outcome](maintain-default-checkout.md#independent-maintenance-outcome)
@@ -104,7 +109,7 @@ Apply [Preconditions](#preconditions) before this sequence.
 
 A non-fast-forward rejection leaves the owned suffix unpublished. Retain the
 rejected candidate SHA and the base that suffix extends, the base retained
-in step 5. After a rewrite, that base is the fetched trunk the suffix was
+in step 5. After a rewrite, that base is the fetched target the suffix was
 replayed onto. Do not use the rejected tip as the cutoff: that range is
 empty and drops the suffix. Do not use an older published revision the
 rewritten suffix no longer extends directly: that range includes another
@@ -116,10 +121,10 @@ before rebasing that checkout. A separate owned workspace does not wait on
 that checkout. When the applicable checks hold, reconcile only the suffix and
 retry one ordinary push:
 
-1. Fetch the authorized remote. Current trunk is the fetched remote target.
+1. Fetch the authorized remote. The current target is that fetched remote target.
 2. In the owned workspace, replay the same owned-suffix range as
    [candidate step 3](#publish-the-candidate), using the base retained in
-   step 5 as the cutoff: only commits after that base, onto fetched trunk.
+   step 5 as the cutoff: only commits after that base, onto that fetched target.
    When the suffix touches the product backlog, that is the adapter
    invocation, not a raw `git rebase`. Do not rebase from the rejected
    candidate, and do not rebase the default checkout unless it is the owned
@@ -165,7 +170,7 @@ caller that already owns it.
 
 | Boundary | Actual state | Continue with |
 | --- | --- | --- |
-| Not on the remote | The retained candidate is not an ancestor of fetched remote history. The owned workspace still has that commit. | [Publish the candidate](#publish-the-candidate) from step 1. When that SHA still fast-forwards onto fetched trunk, push it and do not commit again. When it does not fast-forward, use [rejected-push recovery](#recover-a-rejected-push); do not treat the candidate as published. Do not fast-forward the default checkout. When an observer is already bound, step 6's registration is part of finishing the publication that this push accepts. |
+| Not on the remote | The retained candidate is not an ancestor of fetched remote history. The owned workspace still has that commit. | [Publish the candidate](#publish-the-candidate) from step 1. When that SHA still fast-forwards onto the fetched target, push it and do not commit again. When it does not fast-forward, use [rejected-push recovery](#recover-a-rejected-push); do not treat the candidate as published. Do not fast-forward the default checkout. When an observer is already bound to that target, step 6's registration is part of finishing the publication that this push accepts. |
 | Candidate only on the default checkout | That checkout's target tip is the owned candidate, and the remote does not contain it. The owned workspace for this suffix is that checkout. | Push that exact SHA ([Publish the candidate](#publish-the-candidate) step 5). Do not rebase or commit again unless a newer remote requires [rejected-push recovery](#recover-a-rejected-push). Preserve any pending human edit; the SHA push does not include it. |
 | Already published | The retained candidate — the rewritten SHA, when a rewrite was retained — is an ancestor of fetched remote history. The remote tip may be a later writer's commit. | Append that SHA to retained published revisions when identity omitted it. Do not push. This recognition is not registration, maintenance, or cleanup. |
 | Missing registration | The candidate is already an ancestor and its SHA is retained, but an observer already bound to this caller has no receipt for it. A caller that binds no observer has nothing to register. | Register that SHA with the existing observer. Do not push, and do not start a replacement observer. Leave maintenance and cleanup unperformed. |

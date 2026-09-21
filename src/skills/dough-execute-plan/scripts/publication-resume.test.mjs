@@ -25,8 +25,8 @@ function createObserverStub() {
   return {
     bound: true,
     receipts,
-    register(sha) {
-      receipts.push({ sha, target: "refs/heads/main" });
+    register(sha, target = "refs/heads/main") {
+      receipts.push({ sha, target });
     },
   };
 }

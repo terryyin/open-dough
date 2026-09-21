@@ -69,7 +69,7 @@ Resolve project context at the first boundary that needs it:
 - authorized push destination before delivery; for Story Branch or Trunk Mode, also
   [trunk publication's Preconditions](references/trunk-publication.md#preconditions) before
   selecting the owned workspace and taking queued work, and before publishing a
-  queue claim or a Trunk Mode verified increment — those preconditions resolve
+  queue claim, validated increment, or owned repair — those preconditions resolve
   publication inputs and defer shared-checkout access and preservation to
   [maintain the default checkout](references/maintain-default-checkout.md);
 - generation triggers and commands when affected; and
@@ -88,8 +88,9 @@ before delivery, read [delivery](references/wrap-up.md#deliver-the-change). Befo
 arming observation, read [CI observation](references/ci-monitor.md) and only the
 current host's notification adapter. Arm from the execution checkout against the
 authorized target branch; do not wait for CI. Before creating the execution workspace, read
-[execution location](references/execution-location.md). Before a queue claim or
-Trunk Mode increment publication, read [trunk publication](references/trunk-publication.md).
+[execution location](references/execution-location.md). Before a queue claim,
+validated increment, or owned repair publication, read
+[trunk publication](references/trunk-publication.md).
 Use [targeted retrieval and disposable research](references/disposable-research.md)
 for omitted/truncated passages or bounded investigations; another step alone needs no reload.
 
@@ -194,11 +195,10 @@ Resume at the first delivery obligation not established by evidence. An incomple
 or oversized return still needs [oversized-slice handling](references/oversized-slice.md)
 before proof acceptance. Otherwise implementation returns still need proof
 acceptance/refactoring; completed refactors need remaining delivery;
-uncommitted plan edits need staging/commit. Classify an interrupted claim or
-Trunk Mode increment with
+uncommitted plan edits need staging/commit. Classify an interrupted claim,
+increment, or repair with
 [interrupted publication](references/trunk-publication.md#resume-an-interrupted-publication)
-before any further commit or push. Story Branch Mode still pushes local commits
-absent from its authorized destination. Plan status or a compact report proves none
+before any further commit or push. Plan status or a compact report proves none
 of those later boundaries. When pushed commit, retained delivery result, and
 required registration agree, select the next dependency-ready slice.
 Missing/contradictory execution identity requires the recovery decision above.
@@ -232,8 +232,10 @@ Missing/contradictory execution identity requires the recovery decision above.
 4. On return, recheck execution decisions; handle incomplete/oversized work there before
    delivery, including a no-replan overrun. Otherwise [accept proof](references/wrap-up.md#accept-proof) and confirm
    uncommitted work or an explained empty change.
-5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. After
-   successful delivery, restart for remaining planned slices; a delivered
+5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. That
+   delivery publishes through
+   [increment and repair publication](references/trunk-publication.md#publish-an-execution-increment-or-repair).
+   After successful delivery, restart for remaining planned slices; a delivered
    quick slice has no successor.
 
 Planned slices may run concurrently only with disjoint file changes, mutable state, and

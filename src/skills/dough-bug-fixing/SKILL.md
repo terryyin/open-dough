@@ -85,7 +85,10 @@ checkout already belongs to an active execute-plan repair, return the evidence
 to that owning execution instead of invoking a nested one. Pass `--no-replan`
 and a ten-minute hard limit. Carry the gathered expectation, actual behavior,
 evidence, and gaps. Do not plan, invent a story, or start a local
-implement-and-refactor loop.
+implement-and-refactor loop. That execution publishes the validated repair
+through
+[increment and repair publication](../dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair).
+Do not push the repair through a separate procedure.
 
 Debug with available knowledge as needed. Do not require a separate debugging
 skill.

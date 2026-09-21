@@ -103,11 +103,12 @@ context in the existing plan when one exists, and in the conversation, in
 addition to the shared local checkout role and target selection:
 
 - selected mode;
-- retained published revisions when Trunk Mode has published any — this
-  execution's review attribution in the existing plan or conversation, not a
-  second ledger — and the unpublished candidate SHA after a rewrite onto
-  newer trunk. [Trunk publication](trunk-publication.md) updates those fields;
-  do not invent another ledger.
+- retained published revisions — the accepted SHA and the target it was
+  accepted on — when this execution has published any. This is the execution's
+  review attribution in the existing plan or conversation, not a second ledger.
+  Also retain the unpublished candidate SHA after a rewrite.
+  [Trunk publication](trunk-publication.md) updates those fields; do not invent
+  another ledger.
 
 Caller-selected current-branch work records that checkout path as both the
 execution checkout and the integration checkout and creates no worktree. It is
@@ -125,12 +126,11 @@ Missing, ambiguous, contradictory, unsafe, or partial identity/setup requires
 an exact recovery decision: preserve resources rather than guessing, nesting
 worktrees, or switching branches.
 
-Run delegation, refactoring, generation, formatting, staging, commits, pushes,
-and CI repair from the selected execution location. Story Branch Mode pushes
-its execution branch to the authorized destination. Trunk Mode publishes each
-verified increment through [trunk publication](trunk-publication.md) and
-does not push the execution branch. That rule uses
-[publish the candidate](publish-the-candidate.md) from the owned workspace.
+Run delegation, refactoring, generation, formatting, staging, commits, and
+CI repair from the selected execution location. A validated increment and an
+owned repair both publish through
+[increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair),
+which also names where that candidate is pushed.
 [Maintain the default checkout](maintain-default-checkout.md) applies when
 that checkout is mutated. Before using its commit as a new task base, verify
 freshness with

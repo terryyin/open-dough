@@ -41,10 +41,23 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
-// Push one exact candidate SHA from the workspace that owns it. This does not
-// check out or fast-forward the default checkout.
+// Authorized publication target as the workspace's remote-tracking ref.
+export function originTrackingRef(targetRef) {
+  if (!targetRef.startsWith("refs/heads/")) {
+    throw new Error(`authorized target must be a branch ref: ${targetRef}`);
+  }
+  return `origin/${targetRef.slice("refs/heads/".length)}`;
+}
+
+// Push one exact candidate SHA to the caller's authorized target. This does
+// not check out or fast-forward the default checkout, and it does not update
+// any other remote ref.
+export async function pushExactRef(workspace, sha, targetRef) {
+  await git(workspace, "push", "origin", `${sha}:${targetRef}`);
+}
+
 export async function pushCandidate(workspace, sha) {
-  await git(workspace, "push", "origin", `${sha}:refs/heads/main`);
+  await pushExactRef(workspace, sha, "refs/heads/main");
 }
 
 // Pending human edit: staged content, an unstaged change to a tracked file,

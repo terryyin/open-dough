@@ -6,9 +6,12 @@ import {
   captureCheckout,
   git,
   maintenanceFromInspection,
-  pushCandidate,
+  originTrackingRef,
+  pushExactRef,
   revParse,
 } from "./publication-test-fixtures.mjs";
+
+const defaultTargetRef = "refs/heads/main";
 
 async function isAncestor(workspace, ancestor, descendant) {
   try {
@@ -19,11 +22,11 @@ async function isAncestor(workspace, ancestor, descendant) {
   }
 }
 
-function hasReceipt(observer, sha) {
+function hasReceipt(observer, sha, targetRef) {
   return (
     observer?.bound === true &&
     observer.receipts.some(
-      (receipt) => receipt.sha === sha && receipt.target === "refs/heads/main",
+      (receipt) => receipt.sha === sha && receipt.target === targetRef,
     )
   );
 }
@@ -57,6 +60,7 @@ export async function resumeInterruptedPublication({
   supersededShas = [],
   publishedRevisions,
   observer = null,
+  targetRef = defaultTargetRef,
 }) {
   if (supersededShas.includes(candidateSha)) {
     throw new Error(
@@ -64,18 +68,15 @@ export async function resumeInterruptedPublication({
     );
   }
 
+  const remoteTarget = originTrackingRef(targetRef);
   const preserved = await ownedCommitIdentity(ownedWorkspace);
   await git(ownedWorkspace, "fetch", "origin");
-  const accepted = await isAncestor(
-    ownedWorkspace,
-    candidateSha,
-    "origin/main",
-  );
+  const accepted = await isAncestor(ownedWorkspace, candidateSha, remoteTarget);
 
   if (!accepted) {
-    await pushCandidate(ownedWorkspace, candidateSha);
+    await pushExactRef(ownedWorkspace, candidateSha, targetRef);
     await git(ownedWorkspace, "fetch", "origin");
-    if (!(await isAncestor(ownedWorkspace, candidateSha, "origin/main"))) {
+    if (!(await isAncestor(ownedWorkspace, candidateSha, remoteTarget))) {
       throw new Error("push did not accept the retained candidate");
     }
     assertOwnedCommitsPreserved(
@@ -83,7 +84,7 @@ export async function resumeInterruptedPublication({
       await ownedCommitIdentity(ownedWorkspace),
     );
     appendIdentity(publishedRevisions, candidateSha);
-    const registration = registerIfBound(observer, candidateSha);
+    const registration = registerIfBound(observer, candidateSha, targetRef);
     const maintenance = await inspectMaintenance(
       ownedWorkspace,
       defaultCheckout,
@@ -99,12 +100,12 @@ export async function resumeInterruptedPublication({
       cleanup: "not-performed",
       preservedHead: preserved.head,
       preservedCommitCount: preserved.count,
-      remaining: remainingAfter(observer, candidateSha, maintenance),
+      remaining: remainingAfter(observer, candidateSha, targetRef, maintenance),
     };
   }
 
   for (const stale of supersededShas) {
-    if (await isAncestor(ownedWorkspace, stale, "origin/main")) {
+    if (await isAncestor(ownedWorkspace, stale, remoteTarget)) {
       throw new Error("a pre-rebase SHA must not be the published candidate");
     }
   }
@@ -133,16 +134,19 @@ export async function resumeInterruptedPublication({
       registration: observer?.bound
         ? { attempted: false, reason: "not-this-obligation" }
         : { attempted: false, reason: "no-observer" },
-      remaining: remainingAfter(observer, candidateSha, maintenance),
+      remaining: remainingAfter(observer, candidateSha, targetRef, maintenance),
     };
   }
 
-  if (observer?.bound === true && !hasReceipt(observer, candidateSha)) {
+  if (
+    observer?.bound === true &&
+    !hasReceipt(observer, candidateSha, targetRef)
+  ) {
     return {
       ...published,
       completedObligation: "register",
-      registration: registerIfBound(observer, candidateSha),
-      remaining: remainingAfter(observer, candidateSha, maintenance),
+      registration: registerIfBound(observer, candidateSha, targetRef),
+      remaining: remainingAfter(observer, candidateSha, targetRef, maintenance),
     };
   }
 
@@ -152,7 +156,7 @@ export async function resumeInterruptedPublication({
     registration: observer?.bound
       ? { attempted: false, reason: "already-recorded" }
       : { attempted: false, reason: "no-observer" },
-    remaining: remainingAfter(observer, candidateSha, maintenance),
+    remaining: remainingAfter(observer, candidateSha, targetRef, maintenance),
   };
 }
 
@@ -171,19 +175,19 @@ async function inspectMaintenance(ownedWorkspace, defaultCheckout) {
   );
 }
 
-function registerIfBound(observer, sha) {
+function registerIfBound(observer, sha, targetRef) {
   if (!observer?.bound) {
     return { attempted: false, reason: "no-observer" };
   }
-  observer.register(sha);
-  return { attempted: true, sha, target: "refs/heads/main" };
+  observer.register(sha, targetRef);
+  return { attempted: true, sha, target: targetRef };
 }
 
-function remainingAfter(observer, sha, maintenance) {
+function remainingAfter(observer, sha, targetRef, maintenance) {
   return {
     registration: !observer?.bound
       ? "not-applicable"
-      : hasReceipt(observer, sha)
+      : hasReceipt(observer, sha, targetRef)
         ? "satisfied"
         : "remaining",
     maintenance,
