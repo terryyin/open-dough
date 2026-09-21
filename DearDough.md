@@ -16,8 +16,8 @@ three.
 
 ### Occurrences
 
-- Execution: `.planning/quick/066-view-three-projects/PLAN.md`, first related
-  commit `815fa149d1b39cfd72783c9885b6c9756577be81`
+- Execution: `.planning/quick/066-view-three-projects/PLAN.md @ ecdbe39fc8d2d1ae014f9d281a8f040c2ef922c0`,
+  first related commit `815fa149d1b39cfd72783c9885b6c9756577be81`
   - Timestamp: unknown (2026-09-21)
   - Tool: Claude Code
   - Model: claude-sonnet-5 (coordinator and every delegated implementation
