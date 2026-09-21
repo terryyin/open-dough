@@ -1,6 +1,6 @@
 # Wire migrated publication suites into the default runner
 
-Status: planned; execution has not started.
+Status: done; all slices delivered.
 
 ## Source and outcome
 
@@ -63,12 +63,36 @@ credential-free native harness via `tests/git-publication-native.sh`.
    needed, a one-line comment pointing at R/B inventory labels). No
    skill guidance or runtime module behavior changes.
 
+## Execution identity
+
+- Mode: Story Branch Mode
+- Originating / integration checkout: `/Users/terryyin/git/open-dough` on `main`
+- Authorized remote target: `origin/main`
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/071-wire-publication-regression-suites`
+- Execution branch: `claude/071-wire-publication-regression-suites`
+- Claim published revision: `736d5de031a163d61c4cd57db52ab1024273d4a3` (trunk claim; Story Branch `pendingCi: unobserved`)
+- Retained published revisions (this execution): `736d5de031a163d61c4cd57db52ab1024273d4a3`
+- CI observer: `/tmp/dough-ci-501/watch-ka1DKK` observing `terryyin/open-dough` branch `claude/071-wire-publication-regression-suites` (GitHub Actions workflow `ci.yml` / `CI`)
+- Replanning permission: existing planning authority retained (no `--no-replan`); `--skip-retro` requested
+
+## Current decisions
+
+- The wrapper globs `*.test.mjs` per skill directory, like
+  `tests/execution-ci-runtime.sh`, instead of listing the four files, so a
+  suite added to those directories is not orphaned. At delivery the globs
+  resolve to exactly the four suites above.
+- The wrapper is capability-named (`tests/workspace-publication-callers.sh`)
+  and carries no comment pointing at R/B inventory labels: those are spent
+  plan-070 planning vocabulary.
+- Considered and excluded as unapproved scope: a guard failing when any
+  tracked `*.test.mjs` is unreachable from `scripts/test.sh`.
+
 ## Ordered slices
 
 ### 1. Discover and run the migrated caller suites from scripts/test.sh
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add one thin `tests/*.sh` entry (or extend an existing same-purpose
 runner if one already owns these skills) that invokes:
@@ -88,12 +112,17 @@ re-implement publication behavior.
 Proof:
 
 ```text
-command: PATH="/opt/homebrew/bin:$PATH" bash <new-or-extended-tests-sh>
+command: PATH="/opt/homebrew/bin:$PATH" bash tests/workspace-publication-callers.sh
 boundary: regression discovery for migrated R/B/ownership Git suites
 setup: none beyond ordinary checkout dependencies
 observations: all four suites execute and PASS; a temporary assertion
   flip in one suite fails the runner and is restored
-result: (record on execution)
+result: pass under Bash 5.3.20 — exit 0, 14 tests / 14 pass; with the
+  `maintenanceFromInspection(...) "deferred"` assertion in
+  `preparation-publication.test.mjs` temporarily flipped, exit 1 with
+  13 pass / 1 fail; restored, exit 0. `scripts/test.sh`'s
+  `find tests -type f -name '*.sh' ! -path 'tests/support/*'` lists the
+  wrapper. Post-change refactor: no edits.
 ```
 
 Sizing: one wiring gate, high confidence. Safe stopping point: ordinary
