@@ -217,7 +217,7 @@ medium confidence. Safe stopping point: all three projects are viewable.
 ### 4. Keep the selected project authoritative during overlapping reads
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an outstanding read, select another project; a late success or
 failure from the previous selection cannot replace the selected project's
@@ -395,6 +395,33 @@ independently reran by the coordinator, including reading the `Sec-Fetch-Site`
 fix against the Fetch/Fetch-Metadata specs' actual semantics before accepting
 it as security-preserving (loopback binding + exact scheme/host/port match,
 not merely "same site").
+
+Slice 4 delivered 2026-09-21 on the same branch. Proof-only: slice 1's
+existing mechanism (one `AbortController` per read effect, an
+`if (reading.signal.aborted) return;` check before every `setRetrieval` in
+both the success and failure branches, and `selectSource`'s synchronous
+state-clear) already satisfied every promise of this slice for both
+transports — no production code changed. New coverage only:
+`dashboard/tests/project-read-isolation.spec.ts`, proving a late success, a
+late failure, and an A→B→A return with a shared work identity all resolve
+correctly, plus that the selector stays keyboard-operable and focus stays in
+the selection context throughout. The coordinator independently confirmed
+this wasn't a vacuous pass by temporarily removing the effect's
+`reading.abort()` cleanup and rerunning: all three new tests failed
+deterministically (stale/wrong project shown), then restored and reran green.
+Pygardon's private transport was deliberately not exercised in this new
+proof — the isolation rule lives in `App.tsx`'s generic effect/abort wiring,
+which both transports already funnel through identically via
+`readPublishedWork`'s `signal` parameter, so a second, more expensive
+private-transport instance would not exercise any additional code path for
+this slice's promise.
+
+Learning carried to slice 5: an aborted `fetch` is cancelled at the browser
+network layer immediately, so a later-arriving mocked answer for an aborted
+request is unobservable to the page — there is no later moment at which a
+late answer could still take effect. Slice 5's held-read proof should reuse
+slice 2's `startPrivateReadServer` hang/control-file mechanism for Pygardon's
+failure/retry lifecycle rather than inventing a second holding pattern.
 
 Keep successful execution evidence and consequential learnings here;
 operational agent/CI state belongs in the execution conversation. Keep this
