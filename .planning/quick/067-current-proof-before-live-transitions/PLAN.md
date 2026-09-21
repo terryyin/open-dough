@@ -1,6 +1,6 @@
 # Require current regression proof before live transitions
 
-Status: planned; preparation only, execution not started.
+Status: in execution; Trunk Mode; slice 1 delivered, slice 2 remaining.
 
 ## Source and outcome
 
@@ -126,7 +126,7 @@ Do not widen local checks absent a changed boundary or unresolved concern.
 ### 1. Establish missing regression proof before a live action
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an active plan naming a regression prerequisite with no accepted
 observation, when the agent reaches an authorized live action, it obtains the
@@ -150,6 +150,33 @@ Sizing: one prerequisite decision and proof loop; medium confidence. No framewor
 or host adapter. The setup observes the decision without mechanically enforcing it.
 Safe stopping point: missing-proof cases are handled; freshness beyond this case
 remains owned by slice 2 and must not be claimed complete.
+
+Delivered: added `## Require current regression proof before a live action` to
+`src/skills/dough-execute-plan/references/execution-decisions.md` (after
+"Diagnose failed proof", reusing its contract rather than duplicating it) and one
+new "Give the agent:" bullet to `src/skills/dough-execute-plan/references/delegation.md`
+carrying the condition to the delegated actor at action time.
+`src/skills/dough-execute-plan/SKILL.md` and `references/wrap-up.md` needed no
+edit: "Execute the next slice" step 2 already applies execution decisions
+generically, and wrap-up's proof acceptance is unaffected. Post-change refactor
+found `none — already clean` (duplication, naming, shotgun-surgery, and
+cross-file coherence checks all passed; `.agents/skills/`/`.claude/skills/`
+installed copies untouched).
+
+Accepted proof (maintainer walkthrough, disposable fixture under `/tmp/`,
+deleted after use — not a native/field run): a fake `regression.sh` (fails until
+repaired), an always-passing `operational_check.sh`, a dumb `live_command.sh`
+(appends to `action.log`, no gating logic of its own), and an unrelated
+`read_only_check.sh`.
+- Regression failing: `operational_check.sh` passed, `regression.sh` failed
+  (exit 1); live action withheld, `action.log` stayed empty; unrelated
+  `read_only_check.sh` still ran (exit 0).
+- Repaired: `regression.sh` passed (exit 0); only then `live_command.sh` ran,
+  appending `did-it <timestamp>` to `action.log`.
+- Unavailable variant: `regression.sh` renamed away (exit 127 on invocation);
+  live action withheld again, `action.log` unchanged (still one line).
+- `git diff --check`: exit 0, no output (checked by both the implementer and
+  the refactor pass).
 
 ### 2. Reassess an earlier pass against the actual live candidate
 
@@ -222,12 +249,25 @@ and independently safe work if an execution attempt requires refinement.
 
 ## Preparation and current state
 
-No implementation, behavioral proof, release, or backlog transition has occurred.
-Preparation workspace: `/Users/terryyin/git/open-dough-proof-planning`, branch
+Preparation history: `/Users/terryyin/git/open-dough-proof-planning`, branch
 `codex/plan-current-live-proof`, based on
-`bc468321292b79af040d85d6fa9073a16982d17e`.
-Integration checkout: `/Users/terryyin/git/open-dough`, branch `main`, configured
-target `origin/main` at `git@github.com:terryyin/open-dough.git`. Terry authorized integration, publication, and removal of the temporary workspace
-and branch after reviewing this plan. The paths above identify preparation history,
-not a required execution workspace. Actual publication and cleanup are verified
-and reported in the conversation; this plan establishes no execution identity.
+`bc468321292b79af040d85d6fa9073a16982d17e`; that workspace and branch were
+already removed before this execution started, after the plan itself was
+integrated onto `main` (commit `7afd084`).
+
+Execution identity (Trunk Mode, `/dough-execute-plan 67 --trunk`):
+- Originating/integration checkout: `/Users/terryyin/git/open-dough`, branch
+  `main`, authorized remote `origin` (`git@github.com:terryyin/open-dough.git`).
+- Queue claim: backlog entry `SEED-004#require-current-proof-before-live-transitions`
+  taken and committed on `main`, then published to `origin/main` as `f59df38`
+  before workspace creation.
+- Execution checkout: `/Users/terryyin/.claude-worktrees/open-dough/067-current-proof-before-live-transitions`,
+  branch `claude/067-current-proof-before-live-transitions`, created from the
+  published claim `f59df38`.
+- CI observer: GitHub Actions default (`ci.yml` / display name `CI`),
+  repository `terryyin/open-dough`, target branch `main`, mailbox directory
+  `/tmp/dough-ci-501/watch-Bp7TE3`; claim `f59df38` registered with it.
+- Replanning permission: no explicit `--replan`/`--no-replan` given; treated as
+  allowed (no restriction was previously recorded for this plan).
+- Retained published revisions: `f59df38` (claim). Slice 1's increment is
+  accepted and delivered pending this update's own publication.

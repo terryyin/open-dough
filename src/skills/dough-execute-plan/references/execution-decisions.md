@@ -132,6 +132,39 @@ for human judgment. A recorded explanation never waives required proof or the
 CI repair protocol; an infrastructure finding cannot excuse a separate assertion
 failure.
 
+## Require current regression proof before a live action
+
+Given an active plan naming a regression prerequisite with no accepted current
+observation, when the agent reaches an authorized live action within the
+slice — one that changes a live installation, for example a restart, deployed
+configuration change, upgrade, migration, or updater enrollment — obtain that
+proof before performing the action, or leave the action unperformed and report
+the exact obligation and gap. Read-only observation is not a live action and
+is not gated by this decision.
+
+Run the named regression command and treat its result under [Diagnose failed
+proof](#diagnose-failed-proof); do not invent a second proof or failure
+contract for this decision. A passing result authorizes the dependent live
+action; retain the literal command and result as the observation that
+authorized it.
+
+An independently passing operational or health check — for example a curl
+probe or container health check — never substitutes for the missing
+regression prerequisite, even while it keeps passing throughout. Operational
+checks retain their own observations and timing: do not require a
+post-transition observation before the transition it can only observe, and do
+not treat it as satisfying this prerequisite.
+
+If the named command fails, is absent, or is unavailable, leave the live
+action unperformed; do not proceed on an explanation or on unrelated green CI.
+Report the exact command/obligation and gap in the existing plan or
+conversation, and continue other unrelated authorized work in the same slice.
+Once the command is rerun and passes, perform the live action.
+
+This decision does not itself grant deployment permission and adds no new
+post-action observation requirement: existing deployment authority and
+post-action observations are unchanged.
+
 ## Choose replanning permission
 
 Resolve this at entry and retain it for [delegation](delegation.md) and resume.
