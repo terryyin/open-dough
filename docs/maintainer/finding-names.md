@@ -1729,8 +1729,9 @@ consult both lists when matching findings or allocating identities.
   local directory, and parent-directory resolution is not the dependency
   contract. Source commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`. Story
   and plan recoverable at
-  `98bfa80bb45a2a0156318230c75f7964ec0291e6:.planning/quick/069-prepare-execution-worktree/PLAN.md`,
-  identity `SEED-008#prepare-execution-worktree`. Shipping this guidance does not
+  `a168a39f64a75c579a713674a5dda5ca46bed6ea:.planning/quick/069-prepare-execution-worktree/PLAN.md`
+  (removed from the current snapshot by story wrap-up), identity
+  `SEED-008#prepare-execution-worktree`. Shipping this guidance does not
   itself prove native hosts follow it.
 - **Released in:** pending; not yet on `main` or tagged.
 

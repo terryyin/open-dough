@@ -80,7 +80,7 @@ Released execution-location guidance requires setup then a project command befor
 
 ### Occurrences
 
-- Execution: `.planning/quick/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
+- Execution: `a168a39f64a75c579a713674a5dda5ca46bed6ea:.planning/quick/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
   - Timestamp: 2026-09-21T09:08:13Z
   - Tool: Cursor
   - Model: Cursor Grok 4.6

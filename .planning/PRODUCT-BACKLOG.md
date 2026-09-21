@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Prepare each execution worktree for project commands](seeds/SEED-008-worktree-branch-trunk-sync.md#prepare-execution-worktree) — SEED-008#prepare-execution-worktree ([plan](quick/069-prepare-execution-worktree/PLAN.md))
-
 ## Backlog list
 
 - [Migrate existing workflows to integration through origin](seeds/SEED-008-worktree-branch-trunk-sync.md#migrate-git-branching-and-integration) — SEED-008#migrate-git-branching-and-integration
