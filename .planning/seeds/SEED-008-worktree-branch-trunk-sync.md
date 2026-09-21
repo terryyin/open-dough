@@ -30,87 +30,146 @@ status; this seed records desired outcomes for implementation planning.
 
 **Identity:** SEED-008#migrate-git-branching-and-integration
 
-**Status:** Captured; selected for the backlog. Refinement and planning pending.
+**Status:** Refined on 2026-09-21. Slice plan:
+[070 — Integration through origin](../quick/070-integration-through-origin/PLAN.md).
 
-**Goal:** A developer using any implemented Open Dough workflow gets consistent
-branch ownership, reconciliation, and publication through the project's
-specified remote, with recoverable work and a separately maintained default
-checkout. This supports parallel work across both local worktrees and machines.
+**Goal:** A developer can run independent tasks in owned workspaces and publish
+validated changes to the project's shared remote history while preserving other
+tasks' pending local work. Every implemented Open Dough workflow uses a coherent
+Git contract, with useful recovery and separately maintained default-checkout
+freshness.
+
+**Why now:** The near-future direction calls for parallel trunk-based execution
+and visibility from published Git state. Completing this migration establishes
+the publication boundary those workflows use and the narrower local-access
+responsibility the queued checkout-coordination story will automate. Terry
+confirmed completeness and architectural cohesion as priorities on 2026-09-21.
+The CI-overhead and dashboard-detail stories retain their own outcomes; their
+order reflects selected learning priority, rather than a technical dependency
+of every dashboard feature on this migration.
 
 **Scope — required behavior:**
 
-- Apply one remote publication contract across implemented preparation,
-  execution startup and Taken claims, planned and planless execution,
-  retrospective corrections, wrap-up, and interrupted-work recovery. Include
-  every affected caller and supported execution context, using its established
-  publication authority and destination.
-- In Trunk Mode, prepare validated increments on the owned local execution
-  branch, reconcile its unpublished commits with freshly fetched remote trunk,
-  and publish the candidate to that trunk. In Story Branch Mode, publish progress
-  to the recorded remote story branch and integrate at its authorized lifecycle
-  boundary, preserving published history. Direct-current-branch and host-owned
-  contexts retain their publication owner and explicit task authority.
-- Publish shared workflow records through an owned path. A Taken claim reaches
-  remote trunk before isolated implementation begins. Preserve work identity,
-  backlog reconciliation semantics, preparation disposition, and CI attribution
-  to the actual published revision and target.
-- Resolve concurrent remote updates through fetch, reconciliation, affected
-  validation, and ordinary publication. Recover an ambiguous push by inspecting
-  remote history. Record publication success when the candidate is present in
-  the destination's history, including after a subsequent writer advances it.
-- After trunk publication, attempt a safely coordinated default-checkout refresh.
-  Advance a clean checkout by fast-forward; preserve pending edits, unpublished
-  commits, and active operations and report deferred refresh. Start new owned
-  workspaces from a verified fetched base. Use existing explicit local ownership
-  coordination for direct edits and refreshes; the separate coordination story
-  owns automating that access and recovery.
-- Replace affected source guidance, implementation, references, examples,
-  fixtures, and tests as one coherent behavior change. Remove superseded paths
-  and assertions. Write the resulting documents, AI instructions, test names,
-  and assertions around the intended contract and observable outcomes. Keep
-  change history recoverable in Git; retain durable safety and ownership rules
-  in language that explains their present purpose.
-- Follow the release-owned delivery path for installed guidance. Update the
-  shared source and any affected host adaptations, and establish sufficient
-  behavior and delivery evidence for Codex, Cursor, and Claude Code under
-  ADR 0005. Reuse applicable proof and target fresh native checks at changed
-  delivery boundaries.
+- Apply the contract to all implemented Git publication and integration
+  journeys: retained preparation, startup and Taken claims, planned and planless
+  execution, contextual instructions and bug repairs, retrospective corrections,
+  asynchronous CI repair, closure, resource cleanup, and interrupted-work
+  recovery. Include bug-triage retention of durable planning artifacts and every
+  supported direct-current-branch or host-owned context. Inventory their
+  affected callers, guidance, helpers, fixtures, tests, and delivery references.
+- Select or reuse an owned workspace from a verified base. Ordinary independent
+  work uses freshly fetched remote trunk. An explicitly selected dependency on
+  local unpublished work retains that ownership and base decision. Prepare the
+  selected checkout for project commands under the worktree-preparation story's
+  contract before commands require those tools.
+- Publish a queued story's Taken claim from an owned workspace to remote trunk
+  before implementation. Distinct concurrent claims preserve both stories and
+  queue order. Competing claims for the same story establish one published
+  owner; the other participant preserves its state and reports the conflict.
+  Explicit current-branch work retains its caller's publication authority.
+- Trunk Mode rebases its owned unpublished suffix onto fetched trunk and
+  publishes validated increments to that target. Story Branch Mode publishes
+  progress to its recorded remote branch and integrates through the caller's
+  authorized lifecycle boundary, preserving published history and the project's
+  established merge policy. Shared preparation records use their explicit
+  keep/draft/discard disposition and authorized destination.
+- Reconcile concurrent remote advances, recheck affected behavior, and retry
+  ordinary publication within the existing bounded retry policy. Preserve
+  unresolved work and explain substantive conflicts or persistent failure.
+  Recover uncertain responses by inspecting remote history for the retained
+  candidate; an accepted candidate remains published after later advances.
+- After trunk publication, attempt an opportunistic default-checkout refresh
+  under explicit local ownership. Advance a clean, eligible checkout through
+  normal Git operations. Preserve pending edits, staged content, unpublished
+  commits, active operations, and uncertain ownership; report deferred refresh
+  separately. The same ownership rule covers bounded direct edits. Independent
+  publication can complete while checkout maintenance remains pending.
+- Attribute CI observation and repair to the accepted revision and remote
+  destination. Preserve the existing observer identity and asynchronous
+  lifecycle. Retain recoverable changes and active checkout-bound resources
+  until the owning workflow's cleanup conditions hold.
+- Strengthen the architecture around domain responsibilities before migrating
+  callers, then review and refactor the implicated concepts after each slice.
+  Give workspace ownership, candidate preparation, remote publication and
+  recovery, checkout maintenance, backlog meaning, and CI observation clear
+  owners. Link callers to shared rules and pass their specific authority,
+  destinations, and proof. Consolidate duplicated decisions across the affected
+  product, including necessary adjacent representations and orchestration.
+- Replace affected implementation, source guidance, references, examples,
+  fixtures, and tests completely. Write current behavior affirmatively. Remove
+  superseded material as its replacement lands; keep evolution recoverable in
+  Git. Each maintained assertion protects a present behavior or safety promise,
+  with terminology mapped consistently to the domain model.
+- Deliver through the established shared-source payload and host adaptations.
+  Verify affected behavior and release delivery for Codex, Cursor, and Claude
+  Code under ADR 0005, reusing applicable evidence and obtaining missing proof
+  at the changed boundary.
 
 **Key examples / evaluation:**
 
-1. Two worktrees and a second developer's clone prepare increments from the same
-   trunk revision. Their accepted publications preserve all changes, with each
-   later candidate reconciled against intervening remote history and checked
-   for affected behavior.
-2. An execution publishes a validated increment while the default checkout
-   contains a developer's unfinished edit. Remote history contains the candidate;
-   the edit remains intact; the report identifies publication success and
-   deferred local refresh. A later safe refresh brings the checkout current.
-3. A queued story's Taken claim is published from an owned workspace and becomes
-   visible to an origin reader before implementation starts. Concurrent claims
-   preserve the backlog's identity and selection rules.
-4. A preparation session publishes its explicitly retained result; a Trunk Mode
-   execution publishes increments and closure; a Story Branch execution publishes
-   branch progress and later integrates through its authorized lifecycle. Each
-   uses the shared contract with attributable revisions and recoverable state.
-5. A push succeeds but its response is lost, and another writer advances trunk.
-   Resume discovers the candidate in remote history, records that publication,
-   and completes the remaining refresh or CI-registration obligation.
-6. Representative installed invocations follow the intended ownership and
-   publication rules. Documentation and tests describe the supported behavior
-   in its own terms, and each maintained assertion protects a current promise.
+1. **Independent publication:** Two local worktrees and another developer's
+   clone prepare changes from one trunk revision. Their accepted publications
+   preserve the contributors' changes and revalidate affected combined behavior.
+   A concurrent human edit in the default checkout remains intact; its deferred
+   refresh is reported alongside successful remote publication.
+2. **Claim before implementation:** Two agents claim different queued stories
+   from owned workspaces. Both claims become visible remotely with stable
+   identities and preserved queue order. Competing attempts on the same story
+   produce one published claim and an actionable conflict for the other task.
+3. **Lifecycle completeness:** Retained preparation, execution increments,
+   repair, and closure each publish to the caller's authorized destination.
+   Story Branch progress remains identifiable on its remote branch until its
+   authorized integration. Explicit local-only work remains recoverable in its
+   owned checkout with pending publication stated accurately.
+4. **Observed recovery:** A push succeeds, its response is lost, and another
+   writer advances the destination. Resume recognizes the accepted candidate in
+   remote history and completes only the outstanding observation, maintenance,
+   or cleanup obligations.
+5. **Local maintenance:** A clean checkout fast-forwards safely. A checkout with
+   human edits or unpublished commits preserves them and reports deferred
+   refresh. Once ownership and pending work are resolved, refresh uses the then
+   current remote state.
+6. **Architectural cohesion:** A walkthrough from preparation, execution, and
+   closure reaches the same owner for publication success and recovery. Mode
+   differences select candidate construction and destination. A change to the
+   publication rule has one authoritative behavioral home, while the affected
+   callers and tests retain traceable coverage.
+7. **Useful delivery:** A supported host follows the installed candidate
+   guidance and produces observable Git, backlog, and preservation outcomes.
+   Evidence distinguishes actual agent behavior from a scripted Git feasibility
+   exercise. A fresh reader can explain the supported contract using current
+   guidance and tests.
 
-**Depends on:** Existing branch modes, backlog mutation/reconciliation, and
-publication/CI ownership. Use ADR 0009's selected direction when refining this
-migration and preserve the separate human-owned ADR acceptance process.
+**Architecture and scope boundary:** Use ADR 0009's Git model and the existing
+[North Star](../NORTH-STAR.md#remote-publication-and-default-checkout-ownership).
+Architectural work includes the restructuring needed for this complete current
+outcome and coherent adjacent concepts. Automated checkout locks/queues,
+observer-overhead improvements, dashboard features, new host capabilities,
+changes to lifecycle integration timing, and general hosted-review automation
+remain with their own selected work. Existing project protection, human
+publication authority, work identity, and recovery obligations remain intact.
 
-**Safe stopping point:** All implemented publication journeys use the coherent
-contract, supported by updated guidance and proof. Developers can use explicit
-local coordination while the dedicated default-checkout coordination story
-remains queued.
+**Dependencies and coordination:** Reuse the existing backlog reconciliation,
+publication, workspace, and CI components. The Taken worktree-preparation story
+owns project-command readiness; preserve or compose its result when updating
+workspace selection. Its active owner retains its work and plan. Coordinate
+integration of overlapping execution-location changes through current Git
+state. ADRs 0007 and 0009 retain Proposed status; this authorized refinement
+and Git plan preserve the separate human-owned lifecycle and ADR decisions.
 
-**Effort hypothesis:** Unestimated; breadth lies in the shared publication
-callers and their recovery/delivery proof. Refine that inventory before slicing.
+**Safe stopping point:** All implemented journeys have current callers,
+guidance, recovery, and proof for the shared contract. Default-checkout
+maintenance can use explicit ownership while automated coordination remains
+queued. Release acceptance distinguishes functional completion from outstanding
+native evidence under ADR 0005.
+
+**Open questions:** None at story scope. The plan resolves responsibility
+placement and proof ownership; concrete mechanisms follow the executing
+project's supported Git and host facilities.
+
+**Effort hypothesis:** A cross-cutting migration with bounded shared concepts.
+The caller inventory and proof-owned slices establish its implementation scope;
+file count alone is insufficient evidence of architectural quality or effort.
 
 <a id="prepare-execution-worktree"></a>
 
