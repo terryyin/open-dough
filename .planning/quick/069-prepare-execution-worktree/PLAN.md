@@ -1,6 +1,6 @@
 # Prepare each execution worktree for project commands
 
-Status: executing; slice 2 delivered.
+Status: executing; slice 3 delivered.
 
 ## Source and outcome
 
@@ -243,7 +243,7 @@ remain explicit.
 ### 3. Follow a non-Node project's own preparation convention
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a non-Node project supplies a checked-in wrapper-driven setup
 and ordinary command, when Open Dough prepares a fresh execution worktree, it
@@ -354,8 +354,8 @@ addition. It does not justify a general runner framework or separate host policy
 No other slice-specific concerns were identified. There is no supplied numeric
 slice target, hard limit, S/M/L definition, or repeated-overrun threshold, so
 none is invented. Each slice has one behavior/proof loop and a safe stopping
-point. Slices 1–2 are delivered on `cursor/069-prepare-execution-worktree`.
-Slices 3–4 remain planned.
+point. Slices 1–3 are delivered on `cursor/069-prepare-execution-worktree`.
+Slice 4 remains planned.
 
 ## Accepted proof
 
@@ -419,6 +419,32 @@ not reused.
   into `execution-worktree-preparation-reuse.test.mjs`; mechanical `eqeqeq`
   repair on nullish checks; 8/8).
 
+Slice 3 — a wrapper-driven non-Node project uses the same readiness gate;
+existing `execution-location.md` wording already produces the behavior.
+
+- Promise: project-owned wrapper setup and command; shared artifact cache;
+  worktree-local generated output; no npm/Nix or origin artifact copy;
+  missing convention stops without ecosystem guessing.
+- Boundary: same `execution-location.md` setup lifecycle; no ecosystem
+  branch.
+- Command:
+  `node --test src/skills/dough-execute-plan/scripts/execution-worktree-preparation.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs src/skills/dough-execute-plan/scripts/execution-worktree-preparation-wrapper.test.mjs`
+- Setup: `createWrapperDrivenFixture` — origin plus sibling worktree;
+  CONTRIBUTING names `./wrapper prepare` / `./wrapper prove`; seeded
+  machine-level `artifact-cache/repository/immutable-lib.jar`; origin-only
+  `target/origin-only`; missing-convention variant adds decoy `pom.xml` and
+  omits CONTRIBUTING.
+- Observations:
+  - wording already covers generated output, machine-level caches,
+    do-not-require-npm, and missing convention; gate has no npm/Nix/Maven
+    recognizer
+  - wrapper success: `./wrapper prepare` then `./wrapper prove` then
+    delegate; `target/built` worktree-local with seeded artifact; origin
+    artifacts not copied; no `node_modules`
+  - missing convention: empty invocations; report names checkout and
+    missing; no npm/nix/mvn/gradle
+- Result: pass (proof-only; no product-source change; 11/11).
+
 ## Learnings
 
 Cheap slice-1 proof is three test-only concepts: locked fixture, substitute
@@ -426,7 +452,8 @@ readiness actor, and assessor. The actor is not product runtime. Slice 4
 still owns native host journeys. Host-established reuse is delivered as an
 optimization of the same gate; ordinary readiness and reuse cases live in
 separate test modules after the file-size split. Wrapper-driven non-Node
-remains slice 3.
+is proved with the existing wording plus a dedicated wrapper fixture;
+native host journeys remain slice 4.
 
 ## Preparation and current state
 

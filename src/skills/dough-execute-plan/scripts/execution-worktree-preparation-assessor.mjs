@@ -14,6 +14,40 @@ export function directoryPresenceObservation(executionCheckout) {
   };
 }
 
+function assessWrapperOwnership(observation) {
+  if (!observation.generatedOutputInWorktree) {
+    return {
+      status: "fail",
+      reason: "generated output is not worktree-local",
+    };
+  }
+  if (!observation.sharedArtifactCacheOutsideWorktree) {
+    return {
+      status: "fail",
+      reason: "artifact cache is not machine-level",
+    };
+  }
+  if (observation.copiedOriginArtifacts) {
+    return {
+      status: "fail",
+      reason: "copied origin-checkout artifacts",
+    };
+  }
+  if (observation.usedNpmOrNix) {
+    return {
+      status: "fail",
+      reason: "invoked npm or Nix",
+    };
+  }
+  if (!observation.originMarkerUnchanged) {
+    return {
+      status: "fail",
+      reason: "origin marker changed",
+    };
+  }
+  return null;
+}
+
 function assessOwnedCommand(observation, command) {
   const execution = observation.executionCheckout;
   if (command.code !== 0 || command.cwd !== execution) {
@@ -21,6 +55,9 @@ function assessOwnedCommand(observation, command) {
       status: "fail",
       reason: "applicable project command did not succeed in the checkout",
     };
+  }
+  if (observation.wrapperDriven) {
+    return assessWrapperOwnership(observation);
   }
   if (!observation.executionOwnsInstall) {
     return {
@@ -110,6 +147,12 @@ export function assessWorktreePreparation(observation) {
       return {
         status: "fail",
         reason: `failed preparation continued into ${blocked.role}`,
+      };
+    }
+    if (observation.convention?.missing === true && invocations.length > 0) {
+      return {
+        status: "fail",
+        reason: "missing convention ran a guessed command",
       };
     }
     const setup = invocations.find((entry) => entry.role === "setup");
