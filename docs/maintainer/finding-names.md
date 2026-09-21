@@ -2091,7 +2091,7 @@ consult both lists when matching findings or allocating identities.
     someone runs it by hand).
 
 
-- **Follow-up:** [SEED-004#require-current-proof-before-live-transitions](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions), **addressed in source, not yet released** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
+- **Follow-up:** SEED-004#require-current-proof-before-live-transitions (story section recoverable at `4c6619a86b9d104c85e1ec602a304bb9fa589787:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions`, removed from the current snapshot by story wrap-up), **addressed in source, not yet released** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
 
 ## ODF-081 — Wrong-checkout edits are captured by another execution
 
