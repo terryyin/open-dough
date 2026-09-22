@@ -172,11 +172,15 @@ Edit the same plan in place. Preserve completed slices and resume-useful history
 replace obsolete planned detail rather than appending a competing breakdown,
 and record only learnings that affect remaining work. Apply
 [slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
-and its cumulative design assessment, sizing, and escalation rules before
-recording readiness. After the plan rewrite for a work item with a
-recorded identity, reassess through
+and its cumulative design assessment, sizing, and escalation rules when changing
+remaining-slice design. After a preparation plan rewrite (slice planning or
+slice-plan refinement) for a work item with a recorded identity, reassess through
 [assess readiness at preparation completion](../../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion);
-do not grant Take or execution from that record.
+do not grant Take or execution from that record. After an ordinary execution
+delivery update that records slice status or accepted proof without that
+preparation rewrite, follow
+[plan evidence during delivery](../../dough-product-backlog/references/record-preparation.md#plan-evidence-during-delivery)
+and do not renew readiness.
 
 When evidence changes an execution assumption, apply [execution reassessment](../../dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work).
 Retain only consequential information needed later; leave raw diagnostics at their

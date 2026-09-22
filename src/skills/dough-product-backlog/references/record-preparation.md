@@ -7,10 +7,11 @@ readiness prose, or a parallel state file.
 
 [dough-story-decomposition](../../dough-story-decomposition/SKILL.md),
 [dough-story-refinement](../../dough-story-refinement/SKILL.md),
-[dough-slice-planning](../../dough-slice-planning/SKILL.md), and
-[dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) link
-here from their write steps. Keep competing recording rules out of those
-callers.
+[dough-slice-planning](../../dough-slice-planning/SKILL.md),
+[dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md),
+[dough-execute-plan](../../dough-execute-plan/SKILL.md), and
+[dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md) link here from their
+write or claim steps. Keep competing recording rules out of those callers.
 
 ## Resolve the recorder
 
@@ -119,6 +120,67 @@ file. Omit both for planless. Supply one or more `--reason` values for
 Report the recorder's result and evidence. A refusal leaves the home unchanged;
 report it and do not hand-edit a substitute assessment. Completing this step
 still does not Take the item, move the queue, or start execution.
+
+## Execution and resume
+
+Authorized execution and resume consume a recorded assessment as evidence of
+preparation review. They do not treat it as current authorization, substitute
+it for the triggering instruction, add a mandatory readiness gate on Take, or
+auto-start work from a ready badge. Membership in **Taken** or **Backlog list**
+never implies or renews ready.
+
+[dough-execute-plan](../../dough-execute-plan/SKILL.md) and
+[dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md) follow this section.
+Do not invent a second readiness rule, status grammar, or parallel state file
+in those callers.
+
+### Take and resume write nothing about readiness
+
+Take and resume change only the backlog claim under
+[take queued work](../SKILL.md#take-queued-work-for-execution). They must not
+run `record-state`, hand-edit a story-state block, write `--assessment ready`,
+or infer ready from queue membership, a plan link, or resume alone. Reading a
+story never triggers a write.
+
+### Plan evidence during delivery
+
+When delivery updates an active plan — slice `Status: done`, accepted proof,
+learnings, or revised remaining slices — publish that plan evidence through the
+existing delivery path. Do not call `record-state` with `--assessment ready` (or
+otherwise renew readiness) merely because a slice finished. The shared reader's
+digest basis treats a changed plan as mismatched: `read-state` reports
+`needs-reassessment` until an agent actually reviews the current content and
+records a new assessment through
+[assess readiness at preparation completion](#assess-readiness-at-preparation-completion).
+
+Preserve recorded done status and accepted proof in the plan. They are
+completion evidence, not a readiness renewal.
+
+### Scope-changing execution writes
+
+When authorized execution or replanning changes story or plan scope (including
+in-place plan refinement of remaining work), leave the prior ready assessment
+mismatched until a real new assessment is recorded. Existing invalidation and
+replanning paths own the prose rewrite; this procedure only forbids treating
+the stale ready claim as current. After reviewing the changed content, record
+ready or not-ready with the current digests — never by copying the old basis or
+auto-renewing on the write that caused the mismatch.
+
+### Context-only quick execution
+
+A contextual instruction with no story or plan creates no canonical home, no
+plan file, no story-state block, and no queue entry. Successful quick execution
+keeps scope, decisions, progress, and proof in the conversation. Do not
+fabricate a seed, plan, or `record-state` write to satisfy this procedure.
+
+### Wrap-up cleanup
+
+Closure deletes spent source and plan history under
+[dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md). Story-state blocks
+live inside those canonical homes; removing the home removes the block. There
+is no separate catalog tombstone. Preserve ordinary source/plan cleanup and
+Git history recovery. Do not invent a substitute readiness or progress record
+during wrap-up.
 
 ## Canonical homes
 

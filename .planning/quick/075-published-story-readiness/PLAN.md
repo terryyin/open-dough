@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–5 done; slice 6 is next.
+Status: executing; slices 1–6 done; slice 7 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 4: `e0af858e08983131c98e1e06d78fb5993066b901`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 5: `8f752f6498f04dd7279cdc88e3b300032587e478`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`, slice 4 `e0af858e08983131c98e1e06d78fb5993066b901`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -284,12 +284,14 @@ shared procedure and are used by both planning and plan-refinement callers.
 
 ### 6. Execution changes retain truthful readiness and slice evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: An execution/resume walkthrough changes an assessed plan's scope and records
 a slice result; the shared reader reports reassessment needed until an actual new
 assessment is recorded, while preserving done status and accepted proof. Taking or
 resuming alone neither renews readiness nor derives it from membership. A context-only
 quick instruction still creates no canonical record.
+
+Accepted: `record-preparation.md` section Execution and resume. Scratch `/tmp/slice6-exec-DH6paE` re-read with `read-state`: `assessment.status` is `needs-reassessment` while `recorded` stays `ready`; `quick/075-walkthrough/PLAN.md` keeps `Status: done` and `Accepted:`; the story is in Taken. `/tmp/slice6-ctx-yORMfX` contains only `.planning/product-backlog.md`.
 
 Behavior: Authorized execution changes story/plan content → existing delivery or
 replanning boundary → updated plan evidence is published without stale readiness.
