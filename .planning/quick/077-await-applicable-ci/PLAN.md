@@ -1,6 +1,6 @@
 # Await applicable CI with bounded, quiet completion
 
-Status: executing; taken by the current `dough-execute-plan` invocation.
+Status: complete; all planned slices delivered and retrospective completed.
 
 Execution context:
 
@@ -8,9 +8,9 @@ Execution context:
 - Owned execution workspace: `/Users/terryyin/.codex/worktrees/await-applicable-ci-077/open-dough` on `codex/await-applicable-ci-077`, created by this execution from `e2d778aa20bf06cdcb15c7e637a2ff46d89cc78c` (`origin/main`).
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`; its pre-existing local plan-075 commits are preserved. After claim publication it diverges from `origin/main`, so default-checkout refresh is stopped.
 - Authorized targets: queue claim on `origin/main`; validated increments on `origin/codex/await-applicable-ci-077`.
-- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer; slices 2 `6bfb782f5d7dc96b7f56aafa86d5dfb836a704f6` and 3 `d51b4e6d500a384a22f075a570a62c2072991a64` accepted on that story branch after observer coverage was lost, so they have no hosted-CI verdict.
+- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer; slices 2 `6bfb782f5d7dc96b7f56aafa86d5dfb836a704f6`, 3 `d51b4e6d500a384a22f075a570a62c2072991a64`, and 4 `2bcf6d737a62b3f21d1fa43edab8d47c58805867` accepted on that story branch after observer coverage was lost, so they have no hosted-CI verdict.
 - Checkout preparation: `npm ci` followed by `npm run lint` completed successfully for the current lockfile.
-- CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, was bound to `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime. After slice 1 registration it ended unavailable following repeated `api.github.com` connection failures; remaining story-branch publications have lost CI coverage and must not be reported as observed or passing.
+- CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, was bound to `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime. Its final local wait recorded exact success for registered slice 1 SHA `c53527c6af9eeb877f1ce70489ce41b420b100fb` from run `35715986845` attempt 1. The observer later ended unavailable following repeated `api.github.com` connection failures; slices 2–4 were not registered after coverage was lost and must not be reported as observed or passing. Exact shutdown confirmation returned terminal status `finished`.
 - Replanning permission: retain the preparation authority already established for this plan; no numeric slice hard limit or exception was supplied.
 
 ## Source, authority, and outcome
@@ -476,25 +476,22 @@ reader, and caller lifecycle changes. Target setup is required by existing
 publication semantics, not a new coordinator. Four slices extend that model
 without per-phase watchers or state registries.
 
-Boundary review: consolidate old slices 1–2 into the complete applicable-verdict
-command. Retain review handoff, Trunk closure, and Story Branch target transition
-as separate outcomes: each has a different caller/lifecycle risk and useful
-recovery boundary. All statuses remain planned; no completed proof was removed.
-No numeric sizing exceptions or story resplit are needed.
+Execution retained the four slice boundaries: the complete applicable-verdict
+command, execution/review handoff, Trunk closure, and Story Branch target
+transition each produced a distinct useful outcome and proof boundary. Every
+slice is done; no numeric sizing exception or resplit was needed.
 
-Verification obligations: slices 2–4 still require native proof of agent ordering;
-fixtures supply CI responses, never the waiting or handoff decision. Slice 1
-owns new installed-runtime proof. These are explicitly mapped acceptance work,
-not unresolved design concerns or presumed passes. The retained ten-minute
-planning default needs no new configuration or duration-selection workflow.
-No remaining blocking scope, design, or proof-mapping concern was identified.
+Verification supplied real installed-runtime behavior for slice 1, native agent
+ordering for slices 2–4, deterministic counterexamples, and the aggregate
+205-test CI runtime regression. Fixtures controlled provider availability but
+never supplied the waiting or handoff decision. The retained ten-minute default
+introduced no configuration surface.
 
-Record refined/planned preparation and current readiness through the installed
-backlog recorder in the canonical story home, using this plan and the current
-home digests. The assessment is ready for direct execution; it does not Take
-the story, move the backlog, or authorize implementation. Future plan delivery
-changes invalidate the basis until a genuine reassessment occurs; they must not
-automatically renew readiness.
-
-No implementation has started in the inspected repository evidence. Retained
-feasibility results prove only their stated boundary, not these planned slices.
+The automatic execution retrospective reviewed the original story, aggregate
+commits, current architecture, tests, direction, and recorded process. It found
+no implementation defect, architecture drift, correction-plan need, or new
+process-log entry. Native fixture defects were corrected and replacement
+evidence retained during execution. Product direction remains aligned; the
+separate self-ending and script-driven observer stories keep their existing
+scope and priority. Story closure and backlog completion remain for the later
+wrap-up workflow, not this execution.
