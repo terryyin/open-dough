@@ -1,7 +1,7 @@
 # Publish an exact candidate to a new remote branch
 
-Status: implementation and proof complete; delivery in progress; bounded
-retrospective correction.
+Status: complete; all planned slices delivered; retrospective skipped at the
+maintainer's direction.
 
 **Identity:** quick/078-qualify-new-branch-push-ref/PLAN.md
 ```json dough-story-state
@@ -21,6 +21,9 @@ retrospective correction.
   `origin/main`; CI coverage is intentionally unobserved because the claim
   changes only `.planning/**` and the Story Branch observer belongs to the
   execution target.
+- Published implementation: `9a68e0f6653b3ad226d5e520322e9d6d8638a936`
+  accepted on `origin/refs/heads/codex/quick-078-publish-ref` and registered
+  with the Story Branch observer.
 - Preparation: `npm ci` completed from the locked dependency state; the focused
   publication tests passed before implementation.
 - CI observer: GitHub Actions workflow `ci.yml` (`CI`) for
