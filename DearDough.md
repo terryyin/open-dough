@@ -1,40 +1,5 @@
 # DearDough Process Findings
 
-## DD-087 — "Own one observer"'s branch-resolution wording reads ambiguously for Story Branch Mode
-
-[CI observation's "Own one observer"](.claude/skills/dough-execute-plan/references/ci-monitor.md#own-one-observer)
-says the observer's branch is "the target from the push destination, not the
-execution checkout's current branch," then: "Story Branch Mode observes the
-branch it pushes." For Story Branch Mode those are the *same* branch, so the
-first clause alone reads as pointing at some other branch (most readily
-`main`, resolved moments earlier for the Taken claim). The coordinator armed
-the observer against `main` first, then re-derived the correct target from
-the mode-specific clause and stopped/restarted before any push was registered.
-
-### Occurrences
-
-- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
-  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
-  - Timestamp: 2026-09-21T13:15:42+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.27
-  - Evidence: `ci-mailbox.mjs start --execution terryyin/open-dough main` ran
-    right after Story Branch Mode workspace creation; the coordinator then
-    reread "Own one observer" and stopped that observer
-    (`{"directory":"...watch-nhxpny","coverage":{"state":"ended","pendingCi":"unobserved"}}`,
-    zero evidence recorded) before any push was registered, then started a
-    correct one against `claude/068-truthful-ci-observation`.
-  - Observed effect: one wasted observer start/stop cycle; no coverage was
-    lost, since the mistake was caught before any SHA was registered.
-  - Inference: Qualified, single occurrence, but the wording is structurally
-    ambiguous, not specific to this execution: a less careful executor could
-    register real pushes against the wrong-branch observer and get silent
-    `pendingCi: unobserved` instead of catching it first. Stating the Story
-    Branch Mode case explicitly — its target is its own execution branch,
-    the same as the checkout's current branch; only Trunk Mode's target
-    differs from it — would remove the ambiguity; not tested here.
-
 ## DD-088 — `scripts/check-self-installation.sh` fails on GitHub Actions with no diagnostic output, unrelated to the pushed diff
 
 This repository's own CI (`test` job) failed twice within one execution, on
@@ -993,8 +958,35 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
+## DD-091 — The documented exact-candidate push cannot create a new remote branch
+
+`publish-the-candidate.md` tells the executor to push a raw candidate SHA to
+`<target-branch>`. Git requires a fully qualified destination when that remote
+branch does not yet exist, even though the publication runtime and its tests
+already represent authorized targets as `refs/heads/...`.
+
+### Occurrences
+
+- Execution: `.planning/quick/075-use-canonical-backlog-take/PLAN.md`, first
+  related implementation commit `e77aead21cc3a05139d8000962059e29d283fc8c`
+  - Timestamp: unknown (2026-09-22, during plan 075 delivery)
+  - Tool: Codex
+  - Open Dough release: modified; revision
+    `fee00b1c1c9749a17c4962d44f5f87bd31ded5b4`; base `0.3.29`
+  - Evidence: `git push origin
+    <candidate>:codex/use-canonical-backlog-take-075` failed because the
+    destination was not a full refname; the same candidate succeeded as
+    `<candidate>:refs/heads/codex/use-canonical-backlog-take-075`. The first
+    failed attempt in this delivery was a separate zsh interpolation mistake.
+  - Observed effect: two failed publication attempts before the validated
+    increment reached its authorized Story Branch target; no remote ref was
+    changed by either failed attempt.
+  - Inference: The second failure is deterministic for a raw SHA and absent
+    destination branch. Aligning the prose with the existing fully qualified
+    runtime target removes executor judgment and the repair retry.
+
 ## Retention
 
-- Highest allocated local number: 90
-- Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 91
+- Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
