@@ -58,22 +58,33 @@ export function App() {
 
   useEffect(() => {
     const reading = new AbortController();
-    readPublishedWork(source, reading.signal).then(
-      (work) => {
-        if (reading.signal.aborted) {
-          return;
-        }
+    let acceptedMembership = false;
+    const acceptProgress = (partial: PublishedWork) => {
+      if (reading.signal.aborted) {
+        return;
+      }
+      if (!acceptedMembership) {
+        acceptedMembership = true;
         const held = focusedWork();
         heldFocus.current = held;
         setRetrieval({
-          work,
+          work: partial,
           attempt: { status: "read" },
           notice:
-            held && !lists(work, held.identity)
+            held && !lists(partial, held.identity)
               ? `${held.title} is no longer listed in the published work.`
               : "",
         });
-      },
+        return;
+      }
+      setRetrieval((last) => ({
+        ...last,
+        work: partial,
+        attempt: { status: "read" },
+      }));
+    };
+    readPublishedWork(source, reading.signal, acceptProgress).then(
+      acceptProgress,
       (error: unknown) => {
         if (!reading.signal.aborted) {
           setRetrieval((last) => ({

@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–6 done; slice 7 is next.
+Status: executing; slices 1–7 done; slice 8 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 5: `8f752f6498f04dd7279cdc88e3b300032587e478`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`, slice 4 `e0af858e08983131c98e1e06d78fb5993066b901`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 6: `89fea1501d78f7c479f3a56e3315cb6b9142dc6b`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`, slice 4 `e0af858e08983131c98e1e06d78fb5993066b901`, slice 5 `8f752f6498f04dd7279cdc88e3b300032587e478`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -300,13 +300,15 @@ source/plan cleanup and Git history. No new mandatory readiness gate or auto-sta
 
 ### 7. See published preparation and readiness on public-project cards
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright journey obtains fixture records through the real CLI, commits them
 to an isolated Git repository, and serves those exact revision bytes at the GitHub
 HTTP boundary. Opening the dashboard shows labeled colors and independent facts
 without hand-constructed display state. An unpushed edit is invisible. Assert
 pinned revision, identity/order, distinct-file request counts, and no extra read
 when opening already-loaded content. Include both public catalog projects.
+
+Accepted: `npm run test:dashboard -- --grep 'story readiness'` passed after the card split (1 test, `dashboard/tests/story-readiness.spec.ts`). Setup is `storyReadinessFixture.ts`: real `record-state`, then `commitAll`, then an unpushed sentence. Observations: labeled badges, five public paths for three stories and two plans, no extra read when opening already-loaded facts, Doughnut planless plus ready and legacy Not recorded, unpushed text count 0. `node --test tests/support/story-state-browser-import.test.mjs` guards the pure reader import.
 
 Behavior: Published preparation and assessment → open/Refresh → per-card facts from
 one revision. Extend public reading, shared interpretation, typed projection, and

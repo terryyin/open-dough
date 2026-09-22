@@ -4,6 +4,7 @@ import {
   type WorkEntry,
 } from "./publishedWork";
 import type { SourceLink } from "./sourceLink";
+import { BadgeLegend, PreparationFacts } from "./PreparationCard";
 import { stagesMarks, workCardMarks, workLinkMarks } from "./workFocus";
 
 function count(entries: readonly WorkEntry[]): string {
@@ -86,6 +87,7 @@ function Stage({
                 )}
                 <h3>{entry.title}</h3>
                 <p className="card-identity">{entry.identity}</p>
+                <PreparationFacts preparation={entry.preparation} />
                 <ul className="card-links" aria-label="Source links">
                   <RecordedLink
                     role="Canonical record"
@@ -108,25 +110,31 @@ function Stage({
 // work is one card across snapshots, and carry the marks `workFocus` defines so
 // keyboard focus can follow that work.
 export function WorkStages({ work }: { work: PublishedWork }) {
+  const showsPreparation = [...work.taken, ...work.backlog].some(
+    (entry) => entry.preparation !== undefined,
+  );
   return (
-    <section className="stages" aria-label="Work stages" {...stagesMarks}>
-      <Stage name="Backlog" entries={work.backlog} prioritized />
-      <div className="connector">
-        {/* No viewBox: the line is as long as the arrow is given room, and
-            the head keeps its own size at the line's end. */}
-        <svg className="connector-arrow" aria-hidden="true" focusable="false">
-          <line x1="0" y1="50%" x2="100%" y2="50%" />
-          <svg x="100%" y="50%" overflow="visible">
-            <path d="M-8 -6 L0 0 L-8 6" />
+    <>
+      {showsPreparation && <BadgeLegend />}
+      <section className="stages" aria-label="Work stages" {...stagesMarks}>
+        <Stage name="Backlog" entries={work.backlog} prioritized />
+        <div className="connector">
+          {/* No viewBox: the line is as long as the arrow is given room, and
+              the head keeps its own size at the line's end. */}
+          <svg className="connector-arrow" aria-hidden="true" focusable="false">
+            <line x1="0" y1="50%" x2="100%" y2="50%" />
+            <svg x="100%" y="50%" overflow="visible">
+              <path d="M-8 -6 L0 0 L-8 6" />
+            </svg>
           </svg>
-        </svg>
-        <p className="connector-label">Taking work</p>
-        <p className="connector-note">
-          Work is taken from the Backlog. This is not a dependency between
-          entries.
-        </p>
-      </div>
-      <Stage name="Taken" entries={work.taken} prioritized={false} />
-    </section>
+          <p className="connector-label">Taking work</p>
+          <p className="connector-note">
+            Work is taken from the Backlog. This is not a dependency between
+            entries.
+          </p>
+        </div>
+        <Stage name="Taken" entries={work.taken} prioritized={false} />
+      </section>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 // The snapshot the dashboard shows: what one published backlog revision says,
 // and the evidence of where and when it was read. What a backlog means stays
-// with the shared backlog reader; nothing here parses Markdown.
+// with the shared backlog reader; story preparation facts come from the shared
+// story-state reader. Nothing here parses Markdown itself.
 
 import { z } from "zod";
 import { directionOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-direction.mjs";
@@ -11,9 +12,16 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readBacklogAt, resolveRevision } from "./githubSource";
 import type { PublishedSource } from "./publishedSource";
+import {
+  enrichPublicPreparation,
+  type PublishedWorkProgress,
+} from "./publicPreparation";
 import { readPrivateSnapshot } from "./privateRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
+import type { WorkPreparation } from "./storyPreparation";
+
+export type { PublishedWorkProgress } from "./publicPreparation";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -37,6 +45,9 @@ export type WorkEntry = {
   // entry records one canonical link and may record the plan it is taken with.
   readonly canonical: SourceLink;
   readonly plan?: SourceLink;
+  // Preparation facts from the same revision. Undefined while a private
+  // source awaits its later authenticated path; public reads start as loading.
+  readonly preparation?: WorkPreparation;
 };
 
 export type PublishedWork = {
@@ -59,6 +70,7 @@ function interpret(
   markdown: string,
   revision: string,
   source: PublishedSource,
+  preparation: WorkPreparation | undefined,
 ): Pick<PublishedWork, "direction" | "taken" | "backlog"> {
   let document: unknown;
   let direction: unknown;
@@ -91,6 +103,7 @@ function interpret(
         ...(plan && {
           plan: resolveSourceLink(plan.target, source, revision),
         }),
+        ...(preparation !== undefined && { preparation }),
       }));
   return {
     direction: recorded.data,
@@ -125,6 +138,7 @@ async function readRevisionAndMarkdown(
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
+  onPartial?: PublishedWorkProgress,
 ): Promise<PublishedWork> {
   const waitLimit = new AbortController();
   const waiting = setTimeout(() => {
@@ -136,12 +150,21 @@ export async function readPublishedWork(
       source,
       untilEither,
     );
-    return {
+    // Public sources load preparation after membership; private sources leave
+    // preparation unset until the authenticated record path attaches later.
+    const initialPreparation: WorkPreparation | undefined =
+      source.access === "public" ? { status: "loading" } : undefined;
+    const work: PublishedWork = {
       source,
       revision,
       retrievedAt: new Date(),
-      ...interpret(markdown, revision, source),
+      ...interpret(markdown, revision, source, initialPreparation),
     };
+    onPartial?.(work);
+    if (source.access !== "public") {
+      return work;
+    }
+    return await enrichPublicPreparation(work, untilEither, onPartial);
   } catch (error) {
     if (waitLimit.signal.aborted && !signal.aborted) {
       throw new ReadProblem(

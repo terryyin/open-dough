@@ -23,6 +23,7 @@ node --test \
   tests/support/story-state-refusals.test.mjs \
   tests/support/story-state-assessment.test.mjs \
   tests/support/story-state-assessment-refusals.test.mjs \
+  tests/support/story-state-browser-import.test.mjs \
   tests/support/product-backlog-merge-items.test.mjs \
   tests/support/product-backlog-merge-items-refusals.test.mjs \
   tests/support/product-backlog-merge-order.test.mjs \

@@ -84,6 +84,24 @@ function repositoryPath(
   return resolved;
 }
 
+// The repository path a snapshot link names, when it names one. Used to fetch
+// that file at the pinned revision without re-deriving the path from GitHub's
+// HTML URL shape.
+export function snapshotRepositoryPath(
+  link: SourceLink,
+  backlogPath: string,
+): string | undefined {
+  if (link.kind !== "snapshot") {
+    return undefined;
+  }
+  const parts = linkParts.safeParse(splitHref(link.recorded));
+  if (!parts.success) {
+    return undefined;
+  }
+  const file = repositoryPath(parts.data.path, backlogPath);
+  return file?.join("/");
+}
+
 export function resolveSourceLink(
   recorded: string,
   source: PublishedSource,
