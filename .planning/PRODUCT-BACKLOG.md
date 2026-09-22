@@ -18,6 +18,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Balance slice granularity without trivializing execution](seeds/SEED-023-balanced-slice-granularity.md#balance-slice-granularity) — SEED-023#balance-slice-granularity
 - [Wait for the latest applicable CI result before advancing execution](seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing) — SEED-008#wait-for-applicable-ci-before-advancing
 - [Take planned work through the canonical backlog operation](seeds/SEED-022-valid-backlog-writes.md#prevent-malformed-backlog-publication) — SEED-022#prevent-malformed-backlog-publication
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer
