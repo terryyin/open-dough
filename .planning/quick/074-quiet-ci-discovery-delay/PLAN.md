@@ -1,13 +1,13 @@
 # Stop waking the agent for CI runs that have not been discovered yet
 
-Status: taken; slices 1–2 delivered; slice 3 next.
+Status: taken; slices 1–3 delivered; slice 4 next.
 
 ## Execution
 
 - Mode: Story Branch. Replanning allowed.
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`.
 - Execution checkout: `/Users/terryyin/.cursor-worktrees/open-dough/074-quiet-ci-discovery-delay`, branch `cursor/074-quiet-ci-discovery-delay`, created this session from `f48b8569d97210eae8a6ada951dda9954ec5c28c`.
-- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim; coverage unobserved). `9f86ddafee0fd2bd0f782c9214121bf2b6f8e409` accepted on `origin/cursor/074-quiet-ci-discovery-delay` (slice 1) and registered with the observer.
+- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim; coverage unobserved). On `origin/cursor/074-quiet-ci-discovery-delay`: `9f86ddafee0fd2bd0f782c9214121bf2b6f8e409` (slice 1), `8a0035706c0cfe4a3e98325f5848d59a10408d94` (slice 2). Both registered with the observer.
 - Default-checkout refresh: advanced to that claim SHA.
 - CI observer: `/tmp/dough-ci-501/watch-DIUxCS`, GitHub Actions `ci.yml` / `CI`, target branch `cursor/074-quiet-ci-discovery-delay`.
 
@@ -227,7 +227,7 @@ with the vocabulary. Covers example 5.
 ### 3. One advisory per observer after a long discovery gap
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: worker test with controlled `now` — register three revisions with no
 matching runs; advance past the bound; assert exactly one advisory event
 naming all three; register a fourth, advance far past the bound again; assert
@@ -276,3 +276,7 @@ ordinary delivery, or not at all if the session ends. Covers examples 3
 ## Learnings
 
 Slice 1: accepted quiet-timeline proof in `ci-revision-coverage.test.mjs` (three registrations, polls with no run, empty event log, later successes) and late-failure first/only `CI_FAILURE` in `ci-revision-coverage-late-github-failure.test.mjs`. Harness lives in `ci-revision-coverage-test-fixtures.mjs`. `observeRevisionCoverage` still takes `request` for the later advisory.
+
+Slice 2: accepted stop proof in `ci-revision-coverage-stop-states.test.mjs` (one pending, one undiscovered, `pendingCi: "unobserved"` on the stop receipt and `result.json`). Lost-worker test still expects `undiscovered`. Production listing already followed slice 1's unresolved states.
+
+Slice 3: accepted `ci-revision-coverage-discovery-delay.test.mjs` — one `CI_DISCOVERY_DELAYED` after the 10-minute bound naming all overdue SHAs, marker `discovery-advisory.json`, no second advisory, early success stays silent.

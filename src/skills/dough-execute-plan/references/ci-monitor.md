@@ -120,7 +120,8 @@ until that missing history is accounted for.
    `CI_MONITOR_UNAVAILABLE` means observation failed, not that CI passed or the
    server caused a test failure; report lost coverage once and continue.
    A revision without a discovered run is quiet until its verdict arrives or
-   observation ends.
+   observation ends; after a long discovery gap the observer may emit one
+   informational `CI_DISCOVERY_DELAYED` advisory and keep observing.
    `CI_INCOMPLETE` needs a bounded inspection of cancellation/skipping; ignore
    proven supersession, not an unexplained missing result. If a failed run's
    cause is uncertain, enter the analysis/repair path below.

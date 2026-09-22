@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 
+export const discoveryDelayBoundMs = 10 * 60 * 1000;
+export const discoveryAdvisoryMarkerName = "discovery-advisory.json";
+
 const revisionDirectory = (directory) => join(directory, "coverage");
 
 function revisionPath(directory, sha) {
@@ -58,34 +61,64 @@ function observedRevision(revision, attempt) {
     sha: revision.sha,
     state,
     checkedBy: { runId: attempt.databaseId, attemptId: attempt.attempt },
+    registeredAt: revision.registeredAt,
   };
+}
+
+function discoveryAdvisoryMarkerPath(directory) {
+  return join(directory, discoveryAdvisoryMarkerName);
+}
+
+export function discoveryAdvisoryEmitted(directory) {
+  return existsSync(discoveryAdvisoryMarkerPath(directory));
 }
 
 export function observeRevisionCoverage(
   directory,
   runs,
-  // Callers pass the observation request; coverage keeps it on this seam.
-  // eslint-disable-next-line no-unused-vars -- request retained for event context
   request,
+  observedAt = Date.now(),
 ) {
   const events = [];
   for (const revision of readRevisionCoverage(directory)) {
     const matches = runs.filter(
       ({ headSha }) => headSha?.toLowerCase() === revision.sha,
     );
+    const registeredAt = revision.registeredAt ?? observedAt;
     let next;
     const attempt = preferredAttempt(matches);
     if (attempt) {
-      next = observedRevision(revision, attempt);
+      next = observedRevision({ ...revision, registeredAt }, attempt);
     } else if (["success", "failure", "incomplete"].includes(revision.state)) {
       next = revision;
     } else {
       next = {
         sha: revision.sha,
         state: "undiscovered",
+        registeredAt,
       };
     }
     publishJson(revisionDirectory(directory), `${revision.sha}.json`, next);
+  }
+
+  if (!discoveryAdvisoryEmitted(directory)) {
+    const undiscovered = readRevisionCoverage(directory).filter(
+      ({ state }) => state === "undiscovered",
+    );
+    const overdue = undiscovered.some(
+      ({ registeredAt }) =>
+        registeredAt !== undefined &&
+        observedAt - registeredAt > discoveryDelayBoundMs,
+    );
+    if (overdue) {
+      events.push({
+        type: "CI_DISCOVERY_DELAYED",
+        repo: request.repo,
+        branch: request.branch,
+        revisions: undiscovered.map(({ sha }) => sha).sort(),
+      });
+      publishJson(directory, discoveryAdvisoryMarkerName, { emitted: true });
+    }
   }
   return events;
 }

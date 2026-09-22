@@ -49,14 +49,15 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
     },
   ]);
   await advancePoll(9);
-  assert.deepEqual(
-    mailbox.readRevisionCoverage(directory).find(({ sha }) => sha === shaA),
-    {
-      sha: shaA,
-      state: "pending",
-      checkedBy: { runId: "run:A", attemptId: "attempt/pending" },
-    },
-  );
+  const pendingA = mailbox
+    .readRevisionCoverage(directory)
+    .find(({ sha }) => sha === shaA);
+  assert.equal(pendingA.state, "pending");
+  assert.deepEqual(pendingA.checkedBy, {
+    runId: "run:A",
+    attemptId: "attempt/pending",
+  });
+  assert.equal(typeof pendingA.registeredAt, "number");
   assert.deepEqual(
     mailbox
       .readRevisionCoverage(directory)

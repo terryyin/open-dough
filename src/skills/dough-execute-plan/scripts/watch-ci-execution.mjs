@@ -111,7 +111,7 @@ export async function watchCiExecution({
       } else {
         consecutiveErrors = 0;
       }
-      for (const coverageEvent of await observeCoverage(matching))
+      for (const coverageEvent of await observeCoverage(matching, now()))
         await emit(coverageEvent);
       const incomplete = actionable.find(
         (run) =>

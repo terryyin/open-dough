@@ -102,8 +102,8 @@ export async function runMailboxWorker(
         ...request,
         signal: abort.signal,
         emit: recordEvent,
-        observeCoverage: (runs) =>
-          observeRevisionCoverage(directory, runs, request),
+        observeCoverage: (runs, observedAt) =>
+          observeRevisionCoverage(directory, runs, request, observedAt),
         registeredRevisions: async () =>
           readRevisionCoverage(directory).map(({ sha }) => sha),
       });

@@ -41,7 +41,13 @@ export function coverageStates(mailbox, directory) {
 
 // Real custom-adapter worker harness: controllable sleep and attempt JSON only.
 // Never injects expected coverage events; the worker produces them.
-export async function createRevisionCoverageFixture(t) {
+// Optional `now` shares one clock with watchCiExecution → observeCoverage.
+// Pair a large `maxDurationMs` with a controlled clock so budget expiry does
+// not fire when the test advances wall time past the discovery bound.
+export async function createRevisionCoverageFixture(
+  t,
+  { now, maxDurationMs = 60_000 } = {},
+) {
   const fixture = realpathSync(
     mkdtempSync(join(tmpdir(), "ci-revision-coverage-")),
   );
@@ -87,7 +93,7 @@ export async function createRevisionCoverageFixture(t) {
       mode: "execution",
       repo: "owner/project",
       branch: "feature/custom",
-      maxDurationMs: 60_000,
+      maxDurationMs,
     },
     { root: project, storage },
   );
@@ -117,7 +123,12 @@ export async function createRevisionCoverageFixture(t) {
     root: project,
     storage,
     observe: (request) =>
-      watcher.watchCiExecution({ ...request, root: project, sleep }),
+      watcher.watchCiExecution({
+        ...request,
+        root: project,
+        sleep,
+        ...(now ? { now } : {}),
+      }),
   });
   await waitFor(
     () => Number(readFileSync(adapterCalls, "utf8")) === 1,
