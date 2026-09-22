@@ -8,6 +8,7 @@ source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
 source "${source_dir}/tests/helpers/publication-update-proof.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
+source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 fixture="${temporary_dir}/source"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
@@ -203,5 +204,10 @@ install_older_verified "${conflict_target}"
 seed_edited_managed_timeout "${conflict_target}" "${newer}"
 assert_update_refuses_host_hook_conflict "${conflict_target}"
 assert_update_refuses_host_hook_conflict "${conflict_target}" --force
+
+# Installed runtime remains complete and can obtain a worker-generated verdict
+# after the remembered release source is no longer available.
+mv -- "${fixture}" "${temporary_dir}/source-unavailable"
+assert_installed_wait_entrypoints "${target}"
 
 echo 'PASS: execution payload upgrades both roots from remembered SOURCE, installs publication references and runtime modules, runs relocated entrypoints, protects runtime collisions/edits, restores by force, registers or adopts managed hooks without disturbing unrelated settings, preserves project configuration, and refuses host-hook conflicts before replacement.'

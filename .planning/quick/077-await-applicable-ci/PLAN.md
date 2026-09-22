@@ -1,6 +1,17 @@
 # Await applicable CI with bounded, quiet completion
 
-Status: planned; not taken; implementation is not authorized.
+Status: executing; taken by the current `dough-execute-plan` invocation.
+
+Execution context:
+
+- Mode: Story Branch Mode.
+- Owned execution workspace: `/Users/terryyin/.codex/worktrees/await-applicable-ci-077/open-dough` on `codex/await-applicable-ci-077`, created by this execution from `e2d778aa20bf06cdcb15c7e637a2ff46d89cc78c` (`origin/main`).
+- Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`; its pre-existing local plan-075 commits are preserved. After claim publication it diverges from `origin/main`, so default-checkout refresh is stopped.
+- Authorized targets: queue claim on `origin/main`; validated increments on `origin/codex/await-applicable-ci-077`.
+- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`.
+- Checkout preparation: `npm ci` followed by `npm run lint` completed successfully for the current lockfile.
+- CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, watching `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime.
+- Replanning permission: retain the preparation authority already established for this plan; no numeric slice hard limit or exception was supplied.
 
 ## Source, authority, and outcome
 
@@ -9,8 +20,9 @@ Identity: `SEED-008#wait-for-applicable-ci-before-advancing`
 Source: [refined story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing).
 Terry authorized feasibility analysis, story refinement, slice planning, and
 plan refinement on 2026-09-22, then explicitly kept and published that result
-as `4d52800`. The current instruction authorizes checking and refreshing this
-plan; it does not authorize implementation. This refresh is a preparation draft.
+as `4d52800`. The later refresh instruction authorized only preparation and was
+published as `e2d778a`; Terry's current `dough-execute-plan 77` instruction
+authorizes implementation and delivery of this plan.
 
 Outcome: the same agent can review delivered implementation while its existing
 CI observer runs. At review completion (or execution completion when review is
@@ -125,7 +137,7 @@ new installed-runtime proof below, not a stronger claim about these old tests.
 ### 1. Await the applicable published revision without agent polling
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a caller has a validated execution mailbox and registered SHA → it
 invokes one local wait → the command quietly follows that revision's effective
@@ -172,6 +184,32 @@ Commands after implementation:
 `node --test src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs`,
 the three retained feasibility-test files above, and
 `bash tests/execution-payload-update.sh`.
+
+Accepted proof:
+
+- `node --test src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs`
+  passed 18/18 after refactoring. The stable entrypoint loads cohesive exact,
+  bounded-exception, and inherited-coverage cases. The inspected real CLI and
+  worker fixtures prove quiet exact success/failure, distinct terminal and
+  exceptional outcomes, unchanged delivery acknowledgment and observer lifetime,
+  no provider call by the reader, ignored-only ancestry, exact precedence, and
+  unrelated-publication isolation.
+- `node --test src/skills/dough-execute-plan/scripts/ci-mailbox-worker-loss.test.mjs`
+  passed 4/4 after worker-loss detection moved behind its existing public export.
+- `node --test src/skills/dough-execute-plan/scripts/ci-revision-coverage-not-required-shutdown.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-ignored-only-failure.test.mjs src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs`
+  passed 3/3. Its existing coverage boundaries remained unchanged by refactoring.
+- `bash tests/execution-payload-update.sh` passed after helper extraction. The
+  installed `.agents` and `.claude` entrypoints each consumed a worker-generated
+  verdict after the remembered release source was removed.
+- `bash -n tests/execution-payload-update.sh tests/helpers/installed-wait-entrypoint-fixture.bash`,
+  `git diff --check`, and the project formatter/linter passed. The formatter
+  exposed one fixture-local `prefer-const` issue, which was corrected without
+  changing the behavior boundary.
+
+Learning: keep `ci-mailbox-await.test.mjs` as the public proof entrypoint while
+cohesive case modules stay below the project's 250-line refactor ceiling. The
+wait reuses persisted coverage and worker identity only; hosted-CI latency
+remains outside this deterministic slice proof.
 
 Safe stopping point: one installed command handles the complete existing
 coverage model; existing callers and per-slice delivery are unchanged.
