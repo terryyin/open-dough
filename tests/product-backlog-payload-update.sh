@@ -11,16 +11,17 @@
 # offline "actually run the installed copy" proof (an ordinary op, a real
 # Git-aware merge, the bounded EISDIR refusal, and installed
 # record-state/read-state producing published bytes the shared reader
-# observes) lives in tests/helpers/product-backlog-payload-runtime.bash, run
-# at the end of this file against the Claude Code root once the release
-# source is unavailable. Slice 12 extends that offline proof to the
-# story-state recorder modules and record-preparation.md declared here.
+# observes) lives in the product-backlog-payload runtime helpers, run at the
+# end of this file against the Claude Code root once the release source is
+# unavailable. Slice 12 extends that offline proof to the story-state recorder
+# modules and record-preparation.md declared here.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/helpers/product-backlog-payload-runtime.bash"
+source "${source_dir}/tests/helpers/product-backlog-payload-state-runtime.bash"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -187,6 +188,7 @@ run_offline_git_merge_proof "${scripts_root}" "${claude_target}"
 run_offline_record_state_and_reader_proof \
   "${scripts_root}" \
   "${installed_skill}" \
-  "${claude_target}"
+  "${claude_target}" \
+  "${temporary_dir}"
 
 echo 'PASS: install and update deliver the product backlog'\''s full transitive script set into both managed roots across Codex, Cursor, and Claude Code; story-state recorder modules and record-preparation.md are delivered; edited or missing backlog scripts refuse and restore by force; project backlog bytes are untouched; and, with the release source unavailable, the installed product-backlog.mjs, product-backlog-git-merge.mjs, and record-state/read-state actually run -- a non-default --file, a launch subdirectory, a real non-fast-forward Git merge through the installed driver, a clean lock-free refusal of a directory supplied for --file, and published fixture bytes the shared reader observes as refined/planned/ready.'
