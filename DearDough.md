@@ -963,8 +963,38 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     reuse this fact instead of re-deriving it from a fresh diagnostic
     session; not tested here.
 
+## DD-090 — A GitHub observer that gives up after persistent errors gives `register-push` no distinguishable "ended" signal
+After three consecutive polling errors, `watch-ci-execution.mjs` deliberately
+ends observation, and `ci-mailbox.mjs` records one `CI_MONITOR_UNAVAILABLE`
+event plus a normal `{"status":"finished"}` result — legitimate, but
+distinct from the "lost its worker" crash case `ci-notify-hosts.md` already
+documents a hook message for. A coordinator that keeps calling
+`register-push` against that same directory afterward gets an
+ordinary-looking `CI_OBSERVER {"revision":{"state":"unchecked",...}}`
+receipt and a repeated "CI observer attached" hook message — nothing
+distinguishes "still polling" from "ended, will never poll this SHA."
+
+### Occurrences
+
+- Execution: `.planning/quick/076-path-filter-aware-ci-observation/PLAN.md @ a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865`
+  - Timestamp: 2026-09-22T07:12+00:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: modified; revision a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865; base 0.3.28
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-Q6ZEF0`'s event 3
+    (`CI_MONITOR_UNAVAILABLE`, TLS timeout) and `result.json` (`finished`)
+    both predate two later `register-push` calls (mtimes ~10/~30 min
+    after); `ps` confirmed the worker pid was gone.
+  - Observed effect: two SHAs registered against an ended observer with no
+    distinguishing signal; the gap surfaced only via a manual `gh`
+    cross-check near execution end.
+  - Inference: Qualified, single occurrence; mechanism is deterministic and
+    the triggering network instability recurred repeatedly this session, so
+    recurrence is plausible. Not tested: a distinct "CI observer ended"
+    hook message, mirroring "lost its worker."
+
 ## Retention
 
-- Highest allocated local number: 89
+- Highest allocated local number: 90
 - Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
