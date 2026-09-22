@@ -1,7 +1,8 @@
 // Preparation facts carried inside a story-state block: schema version,
-// refinement, and approach. Assessment fields stay out of this module until
-// their owning slice records them. Read and write paths share one approach
-// shape rule and map shape errors to stored-block or CLI refusal wording.
+// refinement, and approach. Assessment fields are composed beside these by
+// the shared story-state reader/writer. Read and write paths share one
+// approach shape rule and map shape errors to stored-block or CLI refusal
+// wording.
 
 import { namedIdentity } from "./product-backlog-home-reader.mjs";
 import { BacklogError, requireField } from "./product-backlog-refusal.mjs";

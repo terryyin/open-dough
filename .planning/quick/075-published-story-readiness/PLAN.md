@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–2 done; slice 3 is next.
+Status: executing; slices 1–3 done; slice 4 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 1: `59518327d8f4baa03285e86128070bfbd15be358`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 2: `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 1 remains `59518327d8f4baa03285e86128070bfbd15be358`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -240,11 +240,13 @@ legacy absence are distinct results, not false values.
 
 ### 3. Record an assessment against the content actually reviewed
 Type: Behavior
-Status: planned
+Status: done
 Proof: CLI read returns a basis; ready/not-ready recording round-trips its reason
 and approach. Changing the story or plan makes ready outdated, and submitting the
 old basis refuses without edits. A planless story needs no fabricated plan. A
 correction whose canonical home is its plan has a stable non-self-referential basis.
+
+Accepted: command, pass after the test split: `node --test tests/support/story-state-assessment.test.mjs tests/support/story-state-assessment-refusals.test.mjs tests/support/story-state.test.mjs tests/support/story-state-refusals.test.mjs` (10 tests). Setup is the story-state fixture scratch project; seeds start without a ready or needs-reassessment result. Observations: read returns a 64-character document basis; ready and not-ready round-trip; a later edit reports `needs-reassessment` and a stale submit matches `Nothing was written`; planless ready has no plan digest; a correction home's `digestSource` matches the stored document digest after the write.
 
 Behavior: Agent assessment plus expected basis → record operation → evidence-bound
 readiness, with mechanical consistency checks and no automatic execution. Digest
@@ -405,6 +407,8 @@ framework or separate per-project grammar is needed. The conservative digest rul
 trades occasional reassessment for avoiding an unreliable semantic change detector.
 
 Slice 1 learning: later consumers, including slice 2, import `readHome` from `product-backlog-home-reader.mjs`. The filesystem wrapper keeps `openHome` / `recordIdentity` and re-exports only `impliedIdentity` and `namedIdentity`.
+
+CI disposition: runs 35686421011 (`5951832`) and 35687189269 (`592bf8d`) cancelled the test job at the 20-minute job limit, with the same `sleep` orphan signature already present on planning-only `d7b91f3` (run 35685361715). Local `npm test` on this branch finishes in about two minutes. Not a slice repair. A later cancel with that same signature is the same disposition.
 
 Remaining implementation risks are precise: canonical-file concurrency (slice 2),
 legacy plan interpretation (slice 8), and private path authorization/process lifetime

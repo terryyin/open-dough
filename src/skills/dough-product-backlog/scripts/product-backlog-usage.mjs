@@ -27,7 +27,12 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
        product-backlog.mjs record-state --identity <id> --link <href>
                              --refinement not-refined|refined
                              --approach unselected|planned|planless
-                             [--plan <path>] [--file <path>]
+                             [--plan <path>]
+                             [--assessment ready|not-ready
+                              --expect-document <sha256>
+                              [--expect-plan <sha256>]
+                              [--reason <text>...]]
+                             [--file <path>]
        product-backlog.mjs read-state --link <href> [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
@@ -80,15 +85,23 @@ reported with nothing written, for a human to decide. It prefers neither
 branch, unions no lines, and is not Git-aware: establishing which files hold
 the three versions stays with the caller.
 
-record-state writes one versioned preparation block into the canonical home
---link names: refinement and approach only. A planned approach stores --plan
-relative to that home file. It replaces only the selected story's block,
-serializes cooperating writers per canonical file, and changes no backlog
-queue bytes. It never records readiness assessment.
+record-state writes one versioned story-state block into the canonical home
+--link names: refinement, approach, and optional readiness assessment. A
+planned approach stores --plan relative to that home file and requires that
+plan to exist; planless needs no plan file. An assessment takes
+--assessment ready|not-ready, the caller's --expect-document (and
+--expect-plan for a distinct planned file), and for not-ready at least one
+--reason. Ready requires refined plus planned or planless and no reasons.
+The recorder rereads current content digests, refuses a stale expected basis
+without edits, and never grants execution authority. It replaces only the
+selected story's block, serializes cooperating writers per canonical file,
+and changes no backlog queue bytes.
 
-read-state prints the shared reader's normalized preparation facts for the
-home --link names as JSON. Legacy absence is "not-recorded"; an unsupported
-schema version is "unsupported-version". It never writes.
+read-state prints the shared reader's normalized preparation facts,
+assessment view, and current content basis for the home --link names as
+JSON. Legacy absence is "not-recorded"; an unsupported schema version is
+"unsupported-version"; a stored assessment whose basis no longer matches is
+"needs-reassessment". It never writes.
 
 Paths are resolved against the current directory; --file defaults to
 ${defaultBacklogPath}. Canonical home links and planned paths are resolved

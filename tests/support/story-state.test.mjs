@@ -40,6 +40,16 @@ test("story-state: shared reader imports no filesystem or Node-only module", asy
       path.endsWith("product-backlog-story-state-preparation.mjs"),
     ),
   );
+  assert.ok(
+    [...visited].some((path) =>
+      path.endsWith("product-backlog-story-state-basis.mjs"),
+    ),
+  );
+  assert.ok(
+    [...visited].some((path) =>
+      path.endsWith("product-backlog-story-state-assessment.mjs"),
+    ),
+  );
   for (const specifier of specifiers) {
     assert.equal(
       specifier.startsWith("node:"),

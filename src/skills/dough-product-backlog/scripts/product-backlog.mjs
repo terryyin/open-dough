@@ -170,12 +170,23 @@ async function merge(file, values) {
 }
 
 async function recordState(file, values) {
+  const expectedBasis =
+    values["expect-document"] === undefined &&
+    values["expect-plan"] === undefined
+      ? undefined
+      : {
+          document: values["expect-document"],
+          plan: values["expect-plan"],
+        };
   const outcome = await recordPreparation(dirname(file), {
     identity: values.identity,
     href: values.link,
     refinement: values.refinement,
     approach: values.approach,
     plan: values.plan,
+    assessment: values.assessment,
+    reasons: values.reason,
+    expectedBasis,
   });
   console.log(reportRecordState(outcome));
 }

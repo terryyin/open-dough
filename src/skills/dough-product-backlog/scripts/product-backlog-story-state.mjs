@@ -1,16 +1,24 @@
 // One versioned story-state block inside a canonical home: preparation facts
-// for refinement and approach. Reading and writing the block from already-
-// loaded text lives here so CLI and browser share one meaning without a
-// second Markdown status grammar and without importing filesystem access.
+// and an optional readiness assessment bound to content digests. Reading and
+// writing the block from already-loaded text lives here so CLI and browser
+// share one meaning without a second Markdown status grammar and without
+// importing filesystem access.
 //
-// Assessment (ready / not-ready, basis digests, reasons) is owned by a later
-// slice; this module records and returns only preparation facts. Missing
-// structured fields are Not recorded — never inferred from free-form Status
-// prose. Unsupported schema version and legacy absence are distinct results.
+// Missing structured fields are Not recorded — never inferred from free-form
+// Status prose. Unsupported schema version and legacy absence are distinct
+// results. Needs reassessment is reported on basis mismatch without rewriting
+// the source. Recording never grants execution authority.
 
 import { namedIdentity, readHome } from "./product-backlog-home-reader.mjs";
 import { BacklogError, requireField } from "./product-backlog-refusal.mjs";
 import { joinSource } from "./product-backlog-source.mjs";
+import {
+  assessmentFromPayload,
+  normalizeAssessmentView,
+  requireAssessmentConsistency,
+  requireExpectedBasis,
+} from "./product-backlog-story-state-assessment.mjs";
+import { computeBasis } from "./product-backlog-story-state-basis.mjs";
 import {
   findStoryStateBlocks,
   parseStoryStatePayload,
@@ -26,6 +34,10 @@ import {
 
 export { storyStateFence } from "./product-backlog-story-state-block.mjs";
 export { storyStateSchemaVersion };
+export {
+  computeBasis,
+  digestSource,
+} from "./product-backlog-story-state-basis.mjs";
 
 function insertionIndex(home) {
   if (home.recorded) {
@@ -34,9 +46,20 @@ function insertionIndex(home) {
   return home.region.heading + 1;
 }
 
-// Reads preparation facts from already-loaded canonical-home text. Legacy
-// absence and unsupported version stay distinct from recorded facts.
-export function readStoryState(source, href) {
+function currentBasisFor(source, approach, options = {}) {
+  if (approach?.kind !== "planned") {
+    return computeBasis(source);
+  }
+  if (options.planIsCanonical === true) {
+    return computeBasis(source, source);
+  }
+  return computeBasis(source, options.planSource);
+}
+
+// Reads preparation facts and assessment view from already-loaded
+// canonical-home text. Legacy absence and unsupported version stay distinct
+// from recorded facts. Always returns the current content basis.
+export function readStoryState(source, href, options = {}) {
   const home = readHome(source, href);
   const blocks = findStoryStateBlocks(home.document.lines, home.region);
   if (blocks.length === 0) {
@@ -46,6 +69,8 @@ export function readStoryState(source, href) {
       href: home.href,
       key: home.key,
       source: { path: home.relative, href: home.href },
+      basis: currentBasisFor(source, undefined, options),
+      assessment: { status: "absent" },
     };
   }
   if (blocks.length > 1) {
@@ -60,19 +85,34 @@ export function readStoryState(source, href) {
   const payload = parseStoryStatePayload(block.body, location);
   const sourceInfo = storyStateSourceLocation(home, block.open, block.close);
   const normalized = normalizeRecordedPreparation(payload, sourceInfo);
+  if (normalized.status !== "recorded") {
+    return {
+      ...normalized,
+      identity: namedIdentity(home),
+      href: home.href,
+      key: home.key,
+      basis: currentBasisFor(source, undefined, options),
+      assessment: { status: "absent" },
+    };
+  }
+  const recordedAssessment = assessmentFromPayload(payload);
+  const basis = currentBasisFor(source, normalized.approach, options);
   return {
     ...normalized,
     identity: namedIdentity(home),
     href: home.href,
     key: home.key,
+    basis,
+    assessment: normalizeAssessmentView(recordedAssessment, basis),
   };
 }
 
-// Applies one preparation record to already-loaded canonical-home text,
-// replacing only the selected story's state block. Leaves other stories and
-// prose intact. Refuses duplicate blocks, unsupported existing schema, and
-// identity mismatch without returning a candidate document.
-export function recordStoryState(source, request) {
+// Applies one preparation and optional assessment record to already-loaded
+// canonical-home text, replacing only the selected story's state block.
+// Leaves other stories and prose intact. A stale expected basis, duplicate
+// blocks, unsupported existing schema, or identity mismatch leaves the
+// candidate untouched.
+export function recordStoryState(source, request, options = {}) {
   requireField(request.href, "link");
   const home = readHome(source, request.href);
   requirePreparationIdentity(home, request.identity);
@@ -99,17 +139,58 @@ export function recordStoryState(source, request) {
     }
   }
 
+  const planIsCanonical = options.planIsCanonical === true;
+  const approachForBasis = {
+    kind: payload.approach,
+    plan: payload.plan,
+  };
+  const currentBasis = currentBasisFor(source, approachForBasis, {
+    planSource: options.planSource,
+    planIsCanonical,
+  });
+
+  if (request.assessment !== undefined) {
+    const assessed = requireAssessmentConsistency(
+      payload.refinement,
+      payload.approach,
+      request.assessment,
+      request.reasons,
+    );
+    const basis = requireExpectedBasis(
+      request.expectedBasis,
+      currentBasis,
+      payload.approach,
+      planIsCanonical,
+    );
+    payload.assessment = assessed.status;
+    payload.reasons = assessed.reasons;
+    payload.basis = basis;
+  } else if (
+    request.reasons !== undefined ||
+    request.expectedBasis !== undefined
+  ) {
+    throw new BacklogError(
+      `Supply --assessment ready|not-ready when recording reasons or an ` +
+        `expected basis.`,
+    );
+  }
+
   const lines = [...home.document.lines];
   const written = storyStateBlockLines(payload);
   if (blocks.length === 1) {
     const { open, close } = blocks[0];
     lines.splice(open, close - open + 1, ...written);
   } else {
-    lines.splice(insertionIndex(home), 0, "", ...written);
+    // Insert the fence with no surrounding blank so the first record does not
+    // change digestable document bytes outside the excluded state block.
+    lines.splice(insertionIndex(home), 0, ...written);
   }
 
   const next = joinSource({ ...home.document, lines });
-  const readBack = readStoryState(next, request.href);
+  const readBack = readStoryState(next, request.href, {
+    planSource: options.planSource,
+    planIsCanonical,
+  });
   if (readBack.status !== "recorded") {
     throw new BacklogError(
       `Recorded story-state for ${home.key} did not read back as recorded ` +
@@ -124,6 +205,17 @@ export function recordStoryState(source, request) {
     throw new BacklogError(
       `Recorded story-state for ${home.key} did not read back as supplied.`,
     );
+  }
+  if (payload.assessment !== undefined) {
+    if (
+      readBack.assessment.status !== payload.assessment ||
+      JSON.stringify(readBack.assessment.reasons) !==
+        JSON.stringify(payload.reasons)
+    ) {
+      throw new BacklogError(
+        `Recorded assessment for ${home.key} did not read back as supplied.`,
+      );
+    }
   }
 
   return {

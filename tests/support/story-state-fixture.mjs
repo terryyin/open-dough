@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { projectFile } from "./product-backlog-fixture.mjs";
+import { projectFile, run } from "./product-backlog-fixture.mjs";
 
 export const seedRelative = "seeds/SEED-021-two-stories.md";
 
@@ -86,9 +86,53 @@ export function recordArgs(story, facts) {
   if (facts.plan !== undefined) {
     args.push("--plan", facts.plan);
   }
+  if (facts.assessment !== undefined) {
+    args.push("--assessment", facts.assessment);
+  }
+  if (facts.expectDocument !== undefined) {
+    args.push("--expect-document", facts.expectDocument);
+  }
+  if (facts.expectPlan !== undefined) {
+    args.push("--expect-plan", facts.expectPlan);
+  }
+  for (const reason of facts.reasons ?? []) {
+    args.push("--reason", reason);
+  }
   return args;
 }
 
 export function readArgs(story) {
   return ["read-state", "--link", story.link];
+}
+
+export const correctionRelative = "quick/075-correction/PLAN.md";
+
+export const correction = {
+  identity: "CORR-075-correction",
+  link: correctionRelative,
+};
+
+export function correctionPlan() {
+  return `# Correction plan
+
+**Identity:** ${correction.identity}
+
+Bounded retrospective correction living at its plan path.
+
+### 1. Adjust guidance
+Type: Behavior
+Status: planned
+`;
+}
+
+export function planningFile(project, relative) {
+  return readFileSync(join(project.directory, ".planning", relative), "utf8");
+}
+
+export async function readState(project, story) {
+  const result = await run(project, readArgs(story));
+  if (result.code !== 0) {
+    throw new Error(result.stderr || `read-state exited ${result.code}`);
+  }
+  return JSON.parse(result.stdout);
 }
