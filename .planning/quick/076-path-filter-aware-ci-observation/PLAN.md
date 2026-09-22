@@ -163,7 +163,7 @@ or mutate coverage. This immediately enables slice 2.
 
 ### 2. An ignored-only revision is explicitly not required and stays quiet
 Type: Behavior
-Status: planned
+Status: done
 Proof: A real temporary repository contains the accepted workflow filter and a
 successful GitHub attempt for revision A. Register ignored-only descendant B;
 drive the real worker through its fake-`gh` seam and assert B records
@@ -171,6 +171,10 @@ drive the real worker through its fake-`gh` seam and assert B records
 across repeated polls, and shutdown does not list B as unproved. A mixed or
 indeterminate descendant stays undiscovered, and a late exact B attempt replaces
 reuse with its own verdict.
+
+Accepted: `node --test src/skills/dough-execute-plan/scripts/ci-revision-coverage-not-required.test.mjs` passed, driving the real `runMailboxWorker`/`watchCiExecution` through a fake-`gh` closure that distinguishes the ordinary per-poll run listing from the new bounded-history listing by inspecting actual `gh` argv (never injecting the coverage record or event). Named assertions in `ci-revision-coverage-not-required.test.mjs`: ignored-only descendant B of unregistered ancestor A (A only visible via bounded history, not the ordinary poll) records `{state:"not_required", basis:{sha:shaA}}` after the first poll; mixed descendant C stays `"undiscovered"`; `readMailboxEvents` stays `[]` across three polls; a later exact GitHub run for B's own SHA flips it to `state:"success"` with real `checkedBy`, overriding the prior basis; shutdown's `terminal.coverage.unproved` contains only C, never B. Full regression: `node --test src/skills/dough-execute-plan/scripts/*.test.mjs` — 181/181 pass. `npm run lint` clean. Implementation: `ci-mailbox-revision-coverage.mjs`'s `observeRevisionCoverage` calls the slice-1 classifier with locally-known candidate SHAs first, only falling back to an injected, memoized-per-poll `discoverAncestorCandidates()` (backed by `ci-runs.mjs`'s new `discoverApplicabilityCandidateRuns`, wired only for the default GitHub adapter in `watch-ci-execution.mjs`) when local candidates prove no ancestor; an exact match is still checked unconditionally first, so a late exact attempt always overrides `not_required`. `not_required` joins the existing sticky terminal states and is excluded from `unresolvedRevisionStates`, so no changes were needed in `ci-mailbox-store.mjs` for either the discovery-delay advisory or shutdown's `unproved` list.
+
+Learning: `not_required`'s coverage record intentionally carries only `{sha, state, basis:{sha}, registeredAt}` — no `checkedBy`/runId for the ancestor attempt A itself. Slice 3 (failure inspection) will need its own lookup of A's actual run/attempt from `basis.sha`, since A is often not separately registered in this mailbox (it's ordinary branch CI history predating this execution's pushes, not something this execution pushed). `ci-runs.mjs`'s new `discoverApplicabilityCandidateRuns` deliberately returns run-shaped objects (`databaseId`, `attempt`, `status`, `conclusion`, `url`, not just SHA strings) so slice 3 can reuse it for that lookup rather than only a bare SHA — confirm this is the intended seam before slice 3 builds its own.
 
 Behavior: configured workflow plus an applicable successful ancestor → register
 an ignored-only descendant → no current run is expected, no discovery advisory

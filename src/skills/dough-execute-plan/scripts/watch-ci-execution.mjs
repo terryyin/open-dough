@@ -11,6 +11,7 @@ import {
 import {
   ciWorkflowFile,
   createGitHubRunAcquisition,
+  discoverApplicabilityCandidateRuns,
   readGitHubActions,
 } from "./ci-runs.mjs";
 
@@ -65,6 +66,27 @@ export async function watchCiExecution({
         timeoutMs: adapterTimeoutMs,
       })
     : createGitHubFailureAcquisition({ repo, gh });
+  // GitHub-only: CI-path applicability reuses a proved ancestor attempt, and
+  // that ancestor is not always among the runs the ordinary poll already
+  // surfaced (older completed runs intentionally drop out of `matching` once
+  // seen, per createGitHubRunAcquisition's own startup/observed-run pruning).
+  // A custom adapter does not own GitHub workflow-path applicability, so it
+  // gets no candidate discovery here; ci-mailbox-revision-coverage.mjs then
+  // has nothing to broaden with and an ignored-only revision simply stays
+  // undiscovered, unchanged from before this wiring existed.
+  const discoverAncestorCandidates = adapter
+    ? undefined
+    : async () =>
+        (
+          await discoverApplicabilityCandidateRuns({
+            repo,
+            branch,
+            gh,
+            signal: observationSignal,
+          })
+        )
+          .map((candidate) => candidate.headSha?.toLowerCase())
+          .filter(Boolean);
   let consecutiveErrors = 0;
 
   const unavailable = (reason) => ({
@@ -111,7 +133,11 @@ export async function watchCiExecution({
       } else {
         consecutiveErrors = 0;
       }
-      for (const coverageEvent of await observeCoverage(matching, now()))
+      for (const coverageEvent of await observeCoverage(
+        matching,
+        now(),
+        discoverAncestorCandidates,
+      ))
         await emit(coverageEvent);
       const incomplete = actionable.find(
         (run) =>
