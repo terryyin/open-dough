@@ -227,8 +227,8 @@ aligned with the developer, refinement pending before planning. Its original
 premise that final publications are deliberately left unobserved was superseded
 by the later wait-for-applicable-CI story below.
 
-**For / why:** Once execution waits for the latest applicable CI result at its
-phase boundaries, the observer still should not require explicit closing
+**For / why:** Once execution resolves its bounded wait for applicable CI at completion
+boundaries, the observer still should not require explicit closing
 bookkeeping. Today the agent stops it, reads its report, and may arm, register,
 and stop another observer around Trunk Mode closure commits. That lifecycle
 attention adds no product evidence beyond the applicable terminal result.
@@ -237,7 +237,7 @@ attention adds no product evidence beyond the applicable terminal result.
 terminal and no registration arrives within a bounded idle period, or at its
 budget — and writes its terminal result for anyone who looks. Execution and
 Trunk Mode wrap-up run no observer stop or coverage-report bookkeeping after
-the applicable terminal result has been handled; delivered failures are still
+the applicable result or exceptional wait outcome has been handled; delivered failures are still
 handled. Guidance in finish-or-stop, Trunk Mode wrap-up publication, and story
 wrap-up loses its explicit closing steps; an explicit stop remains available
 for cancellation.
@@ -299,70 +299,129 @@ still arrive. **Effort hypothesis:** M.
 
 **Identity:** SEED-008#wait-for-applicable-ci-before-advancing
 
-**Status:** Refined and queued second on 2026-09-22; planning pending.
+**Status:** Refinement investigated on 2026-09-22; draft for review;
+[slice plan](../quick/077-await-applicable-ci/PLAN.md) written. Queue position
+remains owned by the product backlog.
 
-**Goal:** A developer receives a plan execution, retrospective, and wrap-up
-whose latest CI-applicable product state has actually passed validation. The
-agent spends the small additional wait relative to a typical 32-minute-to-hours
-execution instead of ending a phase while the decisive five-to-ten-minute CI
-result is still unknown.
+**Goal:** A developer normally receives the latest applicable CI verdict before
+execution and review finish, without spending agent tokens on routine waiting.
+Exceptional outcomes end the wait and remain explicit; this is bounded
+observation, not a promise to retry until CI succeeds.
+
+**Purpose and priority:** Published work can otherwise be closed while its
+validation is still pending, leaving the developer to recover that obligation.
+This supports dependable parallel execution through trunk. It does not prevent
+an already-published failure from reaching trunk. Establish the waiting contract
+before automating observer lifecycle, but do not infer top priority from that
+dependency: the canonical backlog-taking story has repeated dashboard-breaking
+evidence, and the current Ubuntu CI defect also competes for immediate attention.
+No queue reorder is decided by this refinement.
 
 **Scope — required behavior:**
 
-- Before plan execution advances into its retrospective, wait for the terminal
-  verdict applicable to the latest published execution revision. If the latest
-  commit is path-only and `not_required`, follow its recorded earlier applicable
-  attempt rather than waiting for a workflow run GitHub will never create.
-- Apply the same rule after any retrospective or wrap-up publication and before
-  the next phase or final completion. A proved `not_required` publication whose
-  applicable attempt is already terminal adds no wait. A publication containing
-  any CI-requiring change, including conflict resolution that changes code,
-  waits for its own terminal CI result.
-- Advance only after applicable CI succeeds. A failure remains actionable under
-  the existing repair workflow; pending, incomplete, undiscovered, or exhausted
-  observation never becomes success merely because the execution phase wants to
-  finish.
-- Reuse the execution's one observer and its applicability/attempt ledger. Do
-  not start a second watcher or poll GitHub independently at each phase boundary.
+- Follow the last CI-applicable publication from this execution, on its recorded
+  publication target. A later ignored-only `not_required` publication follows
+  its recorded earlier applicable attempt. Do not chase unrelated writers'
+  newer trunk publications or wait for a skipped run that will never exist.
+- Allow the same agent to start retrospective work while the existing non-model
+  CI observer continues. Handle an arriving result at a safe boundary; do not
+  interrupt useful review just to check status. If review finishes first, wait
+  for the result within the final-wait cap before completing the
+  execution/review handoff. With retrospective skipped, wait at execution's
+  completion boundary instead.
+- Use the simple overlap supported by the existing background observer: the
+  same agent reviews, then invokes one quiet local wait only if necessary. No
+  second agent, review scheduler, or new coordination framework is needed.
+- A subsequent retrospective or wrap-up publication that requires CI creates
+  the same bounded wait before its completion. In particular, source changes
+  made while resolving a merge conflict require the resulting published
+  revision's CI on its actual target; pre-merge branch success is insufficient.
+  An ignored-only publication with an already resolved applicable attempt adds
+  no wait. Reuse an observer while its target matches. On Story Branch integration,
+  use the same observer implementation bound to trunk after branch observation
+  ends; never retarget an existing mailbox or borrow branch evidence for trunk.
+- End waiting on success, failure, observation timeout, unavailable observation,
+  or cancellation. Keep those outcomes distinct. An incomplete terminal result
+  is unresolved validation, not success. Exceptions let execution proceed out of
+  this waiting step without retries to obtain green. Failure remains available
+  to existing failure handling; this story neither suppresses it nor creates an
+  automatic repair/retry-until-success loop. Cancelling the whole execution is
+  still cancellation, not permission to resume it.
+- Report the applicable revision/target and verdict or unresolved reason. Workflow
+  progress after an exceptional outcome never claims CI passed. If existing
+  authorized repair changes reviewed code, revisit affected review conclusions
+  rather than restarting the whole retrospective or retaining invalid conclusions.
+- Reuse the existing observer and coverage/attempt representation. Routine
+  discovery and waiting run without model calls, periodic agent status turns,
+  or independent GitHub polling. Agent involvement is for a consequential result
+  or exception. Use a fixed 10-minute final-wait cap (provisional planning
+  assumption, not yet a human-selected duration), also ending when observation
+  itself ends. Start this cap when the wait is invoked; never reset it on local
+  status checks or discovery advisories. Do not add a project configuration
+  surface or token-accounting system.
 
 **Key examples / evaluation:**
 
-1. Plan execution publishes code revision A and then documentation-only revision
-   B while A's CI is pending. B is `not_required`; execution waits for A to pass
-   before starting the retrospective.
-2. A has already passed when a retrospective publishes only `.planning/**` or
-   `docs/**` changes. That publication is `not_required` with terminal basis A,
-   so retrospective completion proceeds without waiting for a nonexistent run.
-3. Wrap-up publishes only path-filtered records after the latest applicable run
-   passed. It completes without a new CI wait.
-4. Wrap-up resolves an integration conflict and changes a non-ignored source
-   file. The resulting revision requires CI, and wrap-up does not report final
-   completion until that exact run passes.
-5. The latest applicable attempt fails, remains pending or incomplete, or cannot
-   be discovered within the observer's bounded budget. The phase does not
-   advance as though validation passed; failure repair or explicit unresolved
-   evidence remains visible.
+1. Code revision A is followed by ignored-only B. While A is pending, the agent
+   performs retrospective work. If A passes during review, review finishes
+   normally; if review finishes first, the agent quietly awaits A within the
+   final-wait cap. No B run or unrelated contributor's run is awaited.
+2. Retrospective and wrap-up publish only ignored paths after A passed. Neither
+   publication adds a wait or a routine agent notification.
+3. Wrap-up resolves a conflict by changing source and publishes C. It awaits
+   C's applicable CI on the integration target, even if branch CI already passed.
+4. CI reports failure while review is running. The agent consumes it at a safe
+   boundary and leaves the wait for existing failure handling. Any authorized
+   repair invalidates only affected review conclusions; the wait itself never
+   retries until green.
+5. Exercise timeout, unavailable observation, cancellation, and incomplete
+   terminal evidence separately. Each ends waiting with its own explicit outcome
+   and no false pass. Observation cancellation releases the wait; execution
+   cancellation ends execution. None causes a periodic agent polling loop.
+6. With retrospective skipped, pending applicable CI is awaited at execution
+   completion under the same bounds and exceptional outcomes.
 
-**Boundaries and deferred promises:** This story changes when existing execution,
-retrospective, and wrap-up phases may advance; it does not change GitHub path
-policy, duplicate the observer, define a new CI provider protocol, or remove
-observer lifecycle commands. The path-filter-aware story supplies the required
-`not_required` and applicable-attempt semantics. The later self-ending and
-script-driven observer stories may remove closing, starting, and registration
-commands without weakening this terminal-validation gate.
+**Boundaries and deferred promises:** No changes to GitHub path policy, CI
+providers, branch protection, deployment validation, dashboard CI presentation,
+per-slice waiting, or observer automatic start/register/stop behavior. The
+self-ending and script-driven stories retain their separate outcomes. No new
+review orchestration or automatic re-review of unaffected work is promised.
+Installed managed copies change only through a later release.
 
-**Architecture:** Reuse the observer's single coverage representation and
-existing failure-repair path. This follows ADR 0002's fast-feedback and stop-and-
-fix principles and ADR 0005's rule that missing validation remains unfinished.
-No Accepted ADR conflict or exception was found.
+**Architecture:** Reuse existing observation and failure handling. Accepted
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+favors low transaction cost, fast feedback, and retaining mechanisms only while
+their benefit justifies their cost. Ending observation on failure does not
+remove existing stop-and-fix responsibilities. Under Accepted
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md), bounded
+waiting and explicit unresolved evidence never establish missing validation or
+release acceptance. This refinement changes waiting, not those quality claims.
 
-**Depends on:** `SEED-008#path-filter-aware-ci-observation`, because a path-only
-latest commit must resolve to its earlier applicable attempt rather than a
-nonexistent run. **Safe stopping point:** every phase finishes with the latest
-applicable product state validated, while path-only publications add no needless
-wait. **Effort hypothesis:** S–M; the observer already retains attempts and
-failures, but execution, retrospective, and wrap-up have separate completion
-guidance that must share one gate.
+**Feasibility finding (2026-09-22):** Overlap is small enough to include. The
+existing worker runs independently, updates coverage on disk, and retains
+ignored-only ancestry as `basis.sha` and `basis.state`. Success is deliberately
+silent, so notification arrival cannot be the completion condition. Add a quiet
+wait over that existing evidence; do not wait for the worker itself to exit.
+The current five-second `waitForTerminalResult` is a shutdown receipt wait,
+not a CI wait. The observer's eight-hour budget is its whole-execution lifetime,
+not automatically an appropriate final-wait limit. The separate provisional
+10-minute cap avoids turning an ordinary final wait into hours of inactivity.
+
+The retrospective currently forbids committing or pushing. Preserve that
+boundary: its findings do not themselves create a publication or repair loop.
+Execution retains CI handling responsibility while retrospective analyzes the
+finished implementation. Retrospective must accept delivered implementation
+with CI still pending without claiming validation complete. Existing failure
+handling remains with the execution owner; review only affected conclusions
+again if a separately authorized repair changes the reviewed product.
+
+**Depends on:** The existing path-filter-aware coverage semantics supplying
+`not_required` and the earlier applicable attempt. **Safe stopping point:**
+execution observes the applicable verdict when available within its bound and
+otherwise proceeds with the exceptional outcome explicit, without a model-driven
+waiting loop. **Effort hypothesis:** M: one local wait operation and lifecycle caller changes,
+including trunk observation after Story Branch integration. No new observer
+architecture or North Star change is needed.
 
 ## Architectural Context
 
