@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–9 done; slice 10 is next.
+Status: executing; slices 1–10 done; slice 11 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 8: `3b75c363db7d061997536f589d0fdcfd12cf3dd8`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 7 remains `f8093cd62c31b76c832b55502078e3116328ad0b`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 9: `42d8ee6cf1822fe8022b0f02072d05c580e4739c`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 8 remains `3b75c363db7d061997536f589d0fdcfd12cf3dd8`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -348,12 +348,14 @@ shared interpretation rather than adding per-project fallback grammars.
 
 ### 10. Inspect private-project records through existing authentication
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the synthetic-gh tests through actual dev and preview servers: select
 Pygardon, read canonical/plan files pinned to the backlog revision, and observe the
 same badges and detail. Arbitrary path/repository requests are refused; credential
 markers remain absent. Held extra reads terminate on disconnect, timeout, and server
 shutdown, and switching to a public project remains usable.
+
+Accepted: `npm run test:dashboard -- --grep 'story readiness private'` passed with 2 tests (dev and preview) after the private-read split. Setup is real `record-state` committed into synthetic `gh` files. Observations in `dashboard/tests/story-readiness-private.spec.ts`: badges, `0 of 5` then `2 of 5`, allowlisted paths, credential marker absent from the browser and preview assets. Arbitrary path refusal and held extra-read cancellation stay in the existing private-read boundary and lifecycle specs.
 
 Behavior: Private project selection/Refresh → bounded authenticated read → shared
 story interpretation and display. Extend the existing private read path, not a

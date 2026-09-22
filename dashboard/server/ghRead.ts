@@ -1,10 +1,10 @@
 // The `gh`-invocation concern for the local authenticated read boundary
-// (`./privateRead.ts`): the two read-only `gh api` calls a backlog read
-// needs (resolve ref, then read content pinned to that resolved commit),
-// each with a fixed argument array -- never a shell string, and never a
-// caller-supplied repository or path. Kept apart from `./localOrigin.ts`'s
-// request-refusal concern: everything here already trusts that the request
-// was allowed to reach this point.
+// (`./privateRead.ts`): the two read-only `gh api` calls a backlog or
+// reachability-checked record read needs (resolve ref, then read content
+// pinned to that resolved commit), each with a fixed argument array -- never
+// a shell string, and never a caller-supplied repository. Kept apart from
+// `./localOrigin.ts`'s request-refusal concern: everything here already
+// trusts that the request was allowed to reach this point.
 
 import { execFile } from "node:child_process";
 
@@ -43,7 +43,7 @@ function runGh(args: readonly string[], signal: AbortSignal): Promise<string> {
   });
 }
 
-const shaPattern = /^[0-9a-f]{40}$/;
+export const commitShaPattern = /^[0-9a-f]{40}$/;
 
 export async function resolveRevisionViaGh(
   repository: string,
@@ -55,13 +55,17 @@ export async function resolveRevisionViaGh(
     signal,
   );
   const sha = stdout.trim();
-  if (!shaPattern.test(sha)) {
+  if (!commitShaPattern.test(sha)) {
     throw new Error("gh did not answer the ref read with a commit sha.");
   }
   return sha;
 }
 
-export async function readBacklogViaGh(
+// One pinned file at a known repository path. Callers that need the catalog
+// backlog use the source's own `backlogPath`; extra canonical/plan reads use
+// paths already checked against that revision's records
+// (`./privatePathAllowlist.ts`).
+export async function readRepositoryFileViaGh(
   repository: string,
   path: string,
   revision: string,

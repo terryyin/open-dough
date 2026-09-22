@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import { privateReadPlugin } from "./server/privateRead";
+import { privateReadPlugin } from "./server/privateReadPlugin";
 
 const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
 // The one product source the dashboard shares: the backlog reader that owns

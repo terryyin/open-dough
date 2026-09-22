@@ -1,8 +1,8 @@
-// Loads preparation, purpose, and plan-slice facts for a public published-work
-// snapshot after membership is already known. Private sources skip this path
-// until their authenticated record read attaches later. Plan text fetched for
-// readiness is reused for detail; opening already-read detail costs no extra
-// request.
+// Loads preparation, purpose, and plan-slice facts for a published-work
+// snapshot after membership is already known. File transport follows the
+// catalog source's access (`./repositoryFileReads.ts`): public GitHub or the
+// local authenticated boundary. Plan text fetched for readiness is reused for
+// detail; opening already-read detail costs no extra request.
 
 import type { PublishedWork, WorkEntry } from "./publishedWork";
 import {
@@ -102,7 +102,7 @@ function peekEntries(
   });
 }
 
-export async function enrichPublicPreparation(
+export async function enrichPreparation(
   work: PublishedWork,
   signal: AbortSignal,
   onPartial: PublishedWorkProgress | undefined,

@@ -1,7 +1,10 @@
-// Bounded, cached reads of distinct repository files for one public snapshot.
+// Bounded, cached reads of distinct repository files for one published-work
+// snapshot. Public sources use the unauthenticated GitHub path; private
+// sources reuse the local authenticated boundary for the same path set.
 
 import { cachedFile, rememberFile } from "./fileContentCache";
 import { readRepositoryFileAt } from "./githubSource";
+import { readPrivateFileAt } from "./privateRead";
 import type { PublishedSource } from "./publishedSource";
 
 const fileReadConcurrency = 4;
@@ -44,12 +47,10 @@ async function readCachedFile(
   if (hit !== undefined) {
     return hit;
   }
-  const text = await readRepositoryFileAt(
-    source,
-    repositoryPath,
-    revision,
-    signal,
-  );
+  const text =
+    source.access === "private"
+      ? await readPrivateFileAt(source, repositoryPath, revision, signal)
+      : await readRepositoryFileAt(source, repositoryPath, revision, signal);
   rememberFile(source.repository, revision, repositoryPath, text);
   return text;
 }

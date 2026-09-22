@@ -3,7 +3,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "../node_modules/.tmp/dashboard-node.tsbuildinfo",
     "lib": ["ES2023"],
-    "types": ["node"]
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": false
   },
   "include": ["vite.config.mts", "playwright.config.ts", "server", "tests"]
 }

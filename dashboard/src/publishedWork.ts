@@ -13,9 +13,9 @@ import {
 import { readBacklogAt, resolveRevision } from "./githubSource";
 import type { PublishedSource } from "./publishedSource";
 import {
-  enrichPublicPreparation,
+  enrichPreparation,
   type PublishedWorkProgress,
-} from "./publicPreparation";
+} from "./preparationEnrichment";
 import { readPrivateSnapshot } from "./privateRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
@@ -23,7 +23,7 @@ import type { WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
 import type { WorkPurpose } from "./storyPurpose";
 
-export type { PublishedWorkProgress } from "./publicPreparation";
+export type { PublishedWorkProgress } from "./preparationEnrichment";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -47,8 +47,9 @@ export type WorkEntry = {
   // entry records one canonical link and may record the plan it is taken with.
   readonly canonical: SourceLink;
   readonly plan?: SourceLink;
-  // Preparation facts from the same revision. Undefined while a private
-  // source awaits its later authenticated path; public reads start as loading.
+  // Preparation facts from the same revision. Starts as loading while
+  // dependent canonical and plan files are read through the source's own
+  // transport (public GitHub or the local authenticated boundary).
   readonly preparation?: WorkPreparation;
   // Recorded Goal from the canonical home at this revision.
   readonly purpose?: WorkPurpose;
@@ -162,21 +163,17 @@ export async function readPublishedWork(
       source,
       untilEither,
     );
-    // Public sources load preparation after membership; private sources leave
-    // preparation unset until the authenticated record path attaches later.
-    const initialPreparation: WorkPreparation | undefined =
-      source.access === "public" ? { status: "loading" } : undefined;
+    // Membership first, then the same preparation enrichment for both
+    // transports: public files through GitHub, private through the local
+    // authenticated boundary's reachability-checked path reads.
     const work: PublishedWork = {
       source,
       revision,
       retrievedAt: new Date(),
-      ...interpret(markdown, revision, source, initialPreparation),
+      ...interpret(markdown, revision, source, { status: "loading" }),
     };
     onPartial?.(work);
-    if (source.access !== "public") {
-      return work;
-    }
-    return await enrichPublicPreparation(work, untilEither, onPartial);
+    return await enrichPreparation(work, untilEither, onPartial);
   } catch (error) {
     if (waitLimit.signal.aborted && !signal.aborted) {
       throw new ReadProblem(

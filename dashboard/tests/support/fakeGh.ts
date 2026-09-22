@@ -31,6 +31,11 @@ export type FakeGhControl = {
   readonly mode?: "normal" | "hang" | "error";
   readonly revision?: string;
   readonly backlog?: string;
+  // Optional per-path bodies for contents reads. When absent, every contents
+  // call receives `backlog` (membership-only fixtures). When present, the
+  // decoded repository path selects the body; unknown paths still fall back
+  // to `backlog` so older tests keep working.
+  readonly files?: Readonly<Record<string, string>>;
   readonly errorMessage?: string;
 };
 
