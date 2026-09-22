@@ -1,3 +1,12 @@
+## 0.3.28 - 2026-09-22
+
+- Expand the published-work dashboard from one public repository to selectable Open Dough, Doughnut, and Pygardon views. Read the private Pygardon backlog through a local `gh`-authenticated boundary, isolate overlapping project reads, preserve each last trustworthy snapshot through failures, and support the same behavior in development and built previews without exposing credentials to the browser.
+- Unify preparation, execution, bug-triage, and wrap-up publication around the remote Git authority. Require command-usable owned workspaces before delegation, publish claims, verified increments, retained preparation, and closure from the owning checkout, recover rejected or ambiguous pushes without overwriting concurrent work, and maintain the default checkout as a separate best-effort responsibility.
+- Keep CI evidence truthful at live-action and delivery boundaries. Reassess retained regression proof against the actual candidate, report dead detached Cursor and Claude observers or an ended Codex stream as lost coverage, and ensure late-discovered GitHub failures still reach the coordinator that owns their revision.
+- Harden and speed deterministic delivery checks by shipping the publication and closure runtime dependencies, centralizing declared-payload comparison and copying, wiring workspace-publication callers into the default suite, and running independent shell checks concurrently while preserving readable failure output.
+
+No additional native acceptance was run for `0.3.28` at the maintainer's request. Native evidence already completed within the included stories is retained; acceptance for other newly changed behavior and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.27 - 2026-09-21
 
 - Add a local, accessible published-work dashboard that reads one pinned GitHub revision, presents connected Backlog and Taken stages, links cards to revision-pinned source, and preserves the last trustworthy snapshot through bounded read failures, retries, and refreshes.
