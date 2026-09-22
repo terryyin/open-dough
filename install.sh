@@ -162,8 +162,11 @@ managed_files=(
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
   dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
+  dough-execute-plan/scripts/ci-path-applicability.mjs
+  dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
   dough-execute-plan/scripts/ci-revisions.mjs
   dough-execute-plan/scripts/ci-runs.mjs
+  dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/current-branch-publication.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
