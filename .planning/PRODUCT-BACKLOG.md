@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Publish an exact candidate to a new remote branch](quick/078-qualify-new-branch-push-ref/PLAN.md)
+
 ## Backlog list
 
-- [Publish an exact candidate to a new remote branch](quick/078-qualify-new-branch-push-ref/PLAN.md)
 - [Fix scripts/check-self-installation.sh failing on Ubuntu CI](seeds/SEED-023-self-installation-check-fails-on-ubuntu-ci.md#fix-self-installation-check-ubuntu-failure) — SEED-023#fix-self-installation-check-ubuntu-failure
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer
 - [Arm and feed CI observation from scripts without agent commands](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
