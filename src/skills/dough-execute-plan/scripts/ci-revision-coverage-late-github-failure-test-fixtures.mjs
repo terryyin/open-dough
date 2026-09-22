@@ -9,9 +9,8 @@ import { run } from "./watch-ci-test-fixtures.mjs";
 // and reuse that seam's shared `run()` response shape rather than a parallel
 // one.
 
-// No matching run for the first three polls (the existing initial discovery
-// window / missingRevisionPollLimit), then the run becomes discoverable
-// in_progress, then completes as a failure.
+// No matching run for the first three polls (quiet discovery delay), then the
+// run becomes discoverable in_progress, then completes as a failure.
 export function lateFailureGithub({ sha, databaseId, branch }) {
   let listCalls = 0;
   let stage = "gap";

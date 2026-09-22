@@ -156,7 +156,7 @@ for (const host of ["cursor", "claude"])
     });
     const terminal = observerReceipt(stopped.stdout).terminal;
     assert.deepEqual(terminal.coverage.unproved, [
-      { sha: repairSha, state: "unchecked" },
+      { sha: repairSha, state: "undiscovered" },
     ]);
     assert.deepEqual(terminal.evidence, {
       recordedThrough: 1,
@@ -202,6 +202,6 @@ test("Codex stream carries the same custom failure as data and preserves unread 
   );
   assert.equal(terminal.evidence.unread, 1);
   assert.deepEqual(terminal.coverage.unproved, [
-    { sha: repairSha, state: "unchecked" },
+    { sha: repairSha, state: "undiscovered" },
   ]);
 });

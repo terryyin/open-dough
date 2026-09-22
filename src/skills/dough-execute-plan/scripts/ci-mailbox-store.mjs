@@ -56,12 +56,7 @@ function mailboxEvidence(directory) {
   return { recordedThrough, deliveredThrough, unread };
 }
 
-const unresolvedRevisionStates = [
-  "unchecked",
-  "pending",
-  "uncovered",
-  "incomplete",
-];
+const unresolvedRevisionStates = ["undiscovered", "pending", "incomplete"];
 
 function unresolvedRevisions(directory) {
   return readRevisionCoverage(directory)

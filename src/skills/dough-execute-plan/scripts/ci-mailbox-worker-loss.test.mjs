@@ -117,8 +117,8 @@ test("a detached worker that dies is reported lost at the next ordinary interact
   assert.deepEqual(
     [...terminal.coverage.unproved].sort((a, b) => a.sha.localeCompare(b.sha)),
     [
-      { sha, state: "unchecked" },
-      { sha: otherSha, state: "unchecked" },
+      { sha, state: "undiscovered" },
+      { sha: otherSha, state: "undiscovered" },
     ].sort((a, b) => a.sha.localeCompare(b.sha)),
   );
   assert.deepEqual(readMailboxEvents(mailbox), [

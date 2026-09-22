@@ -3,7 +3,6 @@ import { join } from "node:path";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 
-const missingRevisionPollLimit = 3;
 const revisionDirectory = (directory) => join(directory, "coverage");
 
 function revisionPath(directory, sha) {
@@ -19,8 +18,7 @@ export function registerPushedRevision(directory, sha) {
   if (!existsSync(path))
     publishJson(revisionDirectory(directory), `${normalized}.json`, {
       sha: normalized,
-      state: "unchecked",
-      missingPolls: 0,
+      state: "undiscovered",
     });
   return readRevisionCoverage(directory).find(
     (revision) => revision.sha === normalized,
@@ -57,14 +55,19 @@ function observedRevision(revision, attempt) {
   else if (attempt.conclusion === "success") state = "success";
   else if (attempt.conclusion === "cancelled") state = "incomplete";
   return {
-    ...revision,
+    sha: revision.sha,
     state,
-    missingPolls: 0,
     checkedBy: { runId: attempt.databaseId, attemptId: attempt.attempt },
   };
 }
 
-export function observeRevisionCoverage(directory, runs, request) {
+export function observeRevisionCoverage(
+  directory,
+  runs,
+  // Callers pass the observation request; coverage keeps it on this seam.
+  // eslint-disable-next-line no-unused-vars -- request retained for event context
+  request,
+) {
   const events = [];
   for (const revision of readRevisionCoverage(directory)) {
     const matches = runs.filter(
@@ -77,23 +80,10 @@ export function observeRevisionCoverage(directory, runs, request) {
     } else if (["success", "failure", "incomplete"].includes(revision.state)) {
       next = revision;
     } else {
-      const missingPolls = (revision.missingPolls ?? 0) + 1;
       next = {
-        ...revision,
-        state:
-          missingPolls >= missingRevisionPollLimit
-            ? "uncovered"
-            : revision.state,
-        missingPolls,
+        sha: revision.sha,
+        state: "undiscovered",
       };
-      if (next.state === "uncovered" && revision.state !== "uncovered")
-        events.push({
-          type: "CI_COVERAGE_UNAVAILABLE",
-          repo: request.repo,
-          branch: request.branch,
-          sha: revision.sha,
-          reason: `No CI attempt for pushed revision after ${missingRevisionPollLimit} discovery polls.`,
-        });
     }
     publishJson(revisionDirectory(directory), `${revision.sha}.json`, next);
   }

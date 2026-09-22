@@ -119,13 +119,8 @@ until that missing history is accounted for.
    Flakiness is a defect even if a rerun passes. Never rerun until green as a fix.
    `CI_MONITOR_UNAVAILABLE` means observation failed, not that CI passed or the
    server caused a test failure; report lost coverage once and continue.
-   `CI_COVERAGE_UNAVAILABLE` is different: it means a registered revision had no
-   discoverable run yet, not that observation ended. While the same observer
-   remains active it keeps checking that revision and still delivers a real
-   verdict — including a later failure — if one becomes discoverable; do not
-   treat it as a final, unrepairable gap or stop the observer over it. Confirm
-   a revision's actual final state from coverage/records at that observer's own
-   stop, not from an early `CI_COVERAGE_UNAVAILABLE` notification alone.
+   A revision without a discovered run is quiet until its verdict arrives or
+   observation ends.
    `CI_INCOMPLETE` needs a bounded inspection of cancellation/skipping; ignore
    proven supersession, not an unexplained missing result. If a failed run's
    cause is uncertain, enter the analysis/repair path below.

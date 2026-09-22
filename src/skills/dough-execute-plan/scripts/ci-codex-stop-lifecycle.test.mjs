@@ -86,7 +86,7 @@ test("documented Codex stop ends only its observer with multiple pending revisio
   assert.equal(terminal.coverage.pendingCi, "unobserved");
   assert.deepEqual(
     terminal.coverage.unproved,
-    pending.map((sha) => ({ sha, state: "unchecked" })),
+    pending.map((sha) => ({ sha, state: "undiscovered" })),
   );
   assert.deepEqual(terminal.evidence, {
     recordedThrough: 1,

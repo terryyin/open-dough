@@ -107,24 +107,15 @@ test("a late-discovered GitHub failure for a registered revision reaches its own
   await advancePoll(2);
   await advancePoll(3);
 
-  // The temporary discovery limitation: neither revision has a matching run
-  // yet after the existing three-poll discovery window.
+  // Many polls with no matching run: stay quiet and undiscovered.
   assert.deepEqual(
     readRevisionCoverage(directory).map(({ sha, state }) => ({ sha, state })),
     [
-      { sha: shaA, state: "uncovered" },
-      { sha: shaB, state: "uncovered" },
+      { sha: shaA, state: "undiscovered" },
+      { sha: shaB, state: "undiscovered" },
     ],
   );
-  const gapEvents = readMailboxEvents(directory).map(({ event }) => event);
-  assert.deepEqual(
-    gapEvents.map(({ type, sha }) => [type, sha]),
-    [
-      ["CI_COVERAGE_UNAVAILABLE", shaA],
-      ["CI_COVERAGE_UNAVAILABLE", shaB],
-    ],
-  );
-  assert.match(gapEvents[0].reason, /3 discovery polls/);
+  assert.deepEqual(readMailboxEvents(directory), []);
 
   await advancePoll(4); // exposes the running attempt for A only
   assert.equal(
@@ -133,8 +124,9 @@ test("a late-discovered GitHub failure for a registered revision reaches its own
   );
   assert.equal(
     readRevisionCoverage(directory).find(({ sha }) => sha === shaB).state,
-    "uncovered",
+    "undiscovered",
   );
+  assert.deepEqual(readMailboxEvents(directory), []);
 
   await advancePoll(5); // exposes the failed attempt for A; B never appears
   assert.equal(
@@ -142,15 +134,12 @@ test("a late-discovered GitHub failure for a registered revision reaches its own
     "failure",
   );
   const events = readMailboxEvents(directory).map(({ event }) => event);
+  // CI_FAILURE for the late run is the first and only event for that revision.
   assert.deepEqual(
     events.map(({ type, sha }) => [type, sha]),
-    [
-      ["CI_COVERAGE_UNAVAILABLE", shaA],
-      ["CI_COVERAGE_UNAVAILABLE", shaB],
-      ["CI_FAILURE", shaA],
-    ],
+    [["CI_FAILURE", shaA]],
   );
-  assert.equal(events.at(-1).runId, 501);
+  assert.equal(events[0].runId, 501);
 
   await waitFor(
     () =>
@@ -186,7 +175,7 @@ test("a late-discovered GitHub failure for a registered revision reaches its own
     readFileSync(join(directory, "result.json"), "utf8"),
   );
   assert.deepEqual(terminal.coverage.unproved, [
-    { sha: shaB, state: "uncovered" },
+    { sha: shaB, state: "undiscovered" },
   ]);
   assert.equal(
     readRevisionCoverage(directory).find(({ sha }) => sha === shaA).state,

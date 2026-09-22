@@ -135,7 +135,7 @@ test("a stop requested before worker startup does not start observation", async 
   });
 });
 
-test("shutdown reports a registered but unchecked revision as unproved", async (t) => {
+test("shutdown reports a registered but undiscovered revision as unproved", async (t) => {
   const { directory, options } = createTestMailbox(t, { mode: "execution" });
   const sha = "d".repeat(40);
   registerPushedRevision(directory, sha);
@@ -149,7 +149,7 @@ test("shutdown reports a registered but unchecked revision as unproved", async (
     coverage: {
       state: "ended",
       pendingCi: "unobserved",
-      unproved: [{ sha, state: "unchecked" }],
+      unproved: [{ sha, state: "undiscovered" }],
     },
     evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
   });

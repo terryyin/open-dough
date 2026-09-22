@@ -1,6 +1,15 @@
 # Stop waking the agent for CI runs that have not been discovered yet
 
-Status: planned; not taken; no execution authorized by this plan.
+Status: taken; slice 1 delivered; slice 2 next.
+
+## Execution
+
+- Mode: Story Branch. Replanning allowed.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+- Execution checkout: `/Users/terryyin/.cursor-worktrees/open-dough/074-quiet-ci-discovery-delay`, branch `cursor/074-quiet-ci-discovery-delay`, created this session from `f48b8569d97210eae8a6ada951dda9954ec5c28c`.
+- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim). Claim coverage is unobserved; the story-branch observer covers the execution branch, not this trunk claim.
+- Default-checkout refresh: advanced to that claim SHA.
+- CI observer: `/tmp/dough-ci-501/watch-DIUxCS`, GitHub Actions `ci.yml` / `CI`, target branch `cursor/074-quiet-ci-discovery-delay`.
 
 ## Source and outcome
 
@@ -180,7 +189,7 @@ the expected answer in the prompt. A missing observation stays pending.
 ### 1. A registered revision without a discovered run stays quiet
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `ci-revision-coverage.test.mjs` timeline — register several revisions,
 let the fake provider return no matching run for many polls, then return
 verdicts; assert the mailbox event log contains no coverage event across the
@@ -266,4 +275,4 @@ ordinary delivery, or not at all if the session ends. Covers examples 3
 
 ## Learnings
 
-None yet.
+Slice 1: accepted quiet-timeline proof in `ci-revision-coverage.test.mjs` (three registrations, polls with no run, empty event log, later successes) and late-failure first/only `CI_FAILURE` in `ci-revision-coverage-late-github-failure.test.mjs`. Harness lives in `ci-revision-coverage-test-fixtures.mjs`. `observeRevisionCoverage` still takes `request` for the later advisory.
