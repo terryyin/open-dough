@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Publish an exact candidate to a new remote branch](quick/078-qualify-new-branch-push-ref/PLAN.md)
-
 ## Backlog list
 
 - [Fix scripts/check-self-installation.sh failing on Ubuntu CI](seeds/SEED-023-self-installation-check-fails-on-ubuntu-ci.md#fix-self-installation-check-ubuntu-failure) — SEED-023#fix-self-installation-check-ubuntu-failure
