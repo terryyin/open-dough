@@ -8,9 +8,9 @@ Execution context:
 - Owned execution workspace: `/Users/terryyin/.codex/worktrees/await-applicable-ci-077/open-dough` on `codex/await-applicable-ci-077`, created by this execution from `e2d778aa20bf06cdcb15c7e637a2ff46d89cc78c` (`origin/main`).
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`; its pre-existing local plan-075 commits are preserved. After claim publication it diverges from `origin/main`, so default-checkout refresh is stopped.
 - Authorized targets: queue claim on `origin/main`; validated increments on `origin/codex/await-applicable-ci-077`.
-- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`.
+- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer.
 - Checkout preparation: `npm ci` followed by `npm run lint` completed successfully for the current lockfile.
-- CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, watching `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime.
+- CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, was bound to `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime. After slice 1 registration it ended unavailable following repeated `api.github.com` connection failures; remaining story-branch publications have lost CI coverage and must not be reported as observed or passing.
 - Replanning permission: retain the preparation authority already established for this plan; no numeric slice hard limit or exception was supplied.
 
 ## Source, authority, and outcome
@@ -221,7 +221,7 @@ separate useful outcome or new learning. Existing ancestry tests bound that risk
 ### 2. Complete review and execution after one bounded observation
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: implementation is delivered with CI pending → the same coordinator
 starts retrospective work while its observer runs → review completion invokes
@@ -259,6 +259,48 @@ ADR 0005. New overlap behavior cannot inherit proof merely from old publication
 success. Add targeted case selection to the existing runner only as needed to
 avoid running unrelated journeys; record its literal command and observations
 in this plan when implemented.
+
+Accepted proof:
+
+- `bash tests/git-publication-native.sh --native codex --case execution-review/pending`
+  passed with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.CZPa1hZuVw/results/codex/execution-review/pending/20260922T105643-31d0`.
+  Independent observations place review start before exactly one wait and CI
+  release, then record applicable success, observer shutdown, and one final marker.
+- `bash tests/git-publication-native.sh --native cursor --case execution-review/ready`
+  passed with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.ehjeVGbBQO/results/cursor/execution-review/ready/20260922T110041-430a`.
+  Coverage became terminal during review; transcript evidence shows one bounded
+  await at handoff, followed by shutdown and the final marker without a needless
+  pending interval.
+- `bash tests/git-publication-native.sh --native claude --case execution-review/skip-retro`
+  passed with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.d2MEJRrtyY/results/claude/execution-review/skip-retro/20260922T110219-2b83`.
+  No review ran; execution completion performed one await and then reported
+  success, stopped observation, and emitted the completion marker.
+- `bash tests/git-publication-native.sh --native codex --case execution-review/failure`
+  passed with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.clCZkIWn0d/results/codex/execution-review/failure/20260922T110642-2901`.
+  Review overlapped pending coverage, one await returned failure, the observer
+  stopped, and no false execution-complete marker was emitted.
+- `node --test src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs`
+  passed 3/3; the shared host lifecycle suite passed 21/21; and
+  `bash tests/git-publication-native.sh` passed its credential-free assessor.
+  `bash tests/execution-payload-update.sh`,
+  `bash tests/retrospective-reference-payload.sh`, shell syntax checks,
+  `git diff --check`, and the project formatter/linter also passed.
+- Independent refactoring extracted the retrospective process-finding guidance
+  and native completion fixture while preserving the tested lifecycle. All owned
+  changed files remain below the project's 250-line refactor threshold.
+
+Learning: native failures first exposed a retrospective marker that ended the
+execution before waiting, a process-liveness race, invalid discovery revisions,
+PATH-based overcounting, and a false completion marker after CI failure. The
+accepted runner now registers the real fixture revision, counts the transcript's
+tool invocation, and requires no completion marker on failure. CI observation for
+this real story branch remains unavailable after the recorded provider connection
+failure, so this slice has deterministic and native proof but no live hosted-CI
+verdict.
 
 Safe stopping point: execution/review has bounded CI completion in both review
 and skip-review paths; wrap-up still has its old boundaries until slices 3 and 4.

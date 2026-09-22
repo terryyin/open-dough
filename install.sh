@@ -135,6 +135,7 @@ managed_files=(
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md
+  dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
   dough-execute-plan/references/ci-notify-hosts.md
@@ -190,6 +191,7 @@ managed_files=(
   dough-manual-testing/references/exploration-workspace.md
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
+  dough-execution-retrospective/references/process-finding-recording.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/scripts/closure-publication.mjs
   dough-story-wrap-up/scripts/closure-resources.mjs

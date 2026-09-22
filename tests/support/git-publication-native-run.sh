@@ -88,6 +88,41 @@ git_publication_run_native_command() {
   fi
 }
 
+git_publication_write_evidence_identity() {
+  case $1 in
+    publication)
+      printf 'helper-identity: tests/support/git-publication-native-run.sh\n'
+      native_result_print_adapter_identity
+      printf 'fixture-identity: tests/support/git-publication-native-fixture.sh\n'
+      printf 'assessor-identity: tests/support/git-publication-native-assess.sh\n'
+      native_result_input_hash_line tests/git-publication-native.sh
+      native_result_input_hash_line tests/support/git-publication-native-assess.sh
+      native_result_input_hash_line tests/support/git-publication-native-fixture.sh
+      native_result_input_hash_line tests/support/git-publication-native-run.sh
+      native_result_input_hash_line tests/support/git-publication-native-prompt.sh
+      native_result_input_hash_line tests/support/native-run-supervise.sh
+      native_result_input_hash_line src/skills/dough-execute-plan/references/publish-the-candidate.md
+      ;;
+    execution-review)
+      printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'
+      native_result_print_adapter_identity
+      printf 'fixture-identity: tests/support/ci-completion-native-fixture.sh\n'
+      printf 'assessor-identity: tests/support/ci-completion-native-run.sh\n'
+      native_result_input_hash_line tests/git-publication-native.sh
+      native_result_input_hash_line tests/support/git-publication-native-host.sh
+      native_result_input_hash_line tests/support/ci-completion-native-run.sh
+      native_result_input_hash_line tests/support/ci-completion-native-fixture.sh
+      native_result_input_hash_line tests/support/git-publication-native-run.sh
+      native_result_input_hash_line tests/support/native-run-supervise.sh
+      native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
+      native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
+      native_result_input_hash_line src/skills/dough-execute-plan/references/finish-or-stop.md
+      native_result_input_hash_line src/skills/dough-execution-retrospective/SKILL.md
+      ;;
+    *) return 2 ;;
+  esac
+}
+
 git_publication_retain_attempt() {
   local source_dir=$1
   local prompt=$2
@@ -95,6 +130,7 @@ git_publication_retain_attempt() {
   local output_file=$4
   local native_stderr=$5
   local observations_file=$6
+  local evidence_profile=${7-publication}
 
   before_digest=publication-native
   after_digest=publication-native
@@ -125,24 +161,11 @@ git_publication_retain_attempt() {
     printf 'fixture-commit: %s\n' "${source_commit}"
     printf 'prompt-identity: %s\n' \
       "$(printf '%s' "${prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
-    printf 'helper-identity: tests/support/git-publication-native-run.sh\n'
-    native_result_print_adapter_identity
-    printf 'fixture-identity: tests/support/git-publication-native-fixture.sh\n'
-    printf 'assessor-identity: tests/support/git-publication-native-assess.sh\n'
+    git_publication_write_evidence_identity "${evidence_profile}"
     printf 'artifact-events: events.jsonl\n'
     printf 'artifact-response: response.md\n'
     printf 'artifact-stderr: stderr.log\n'
     printf 'artifact-observations: observations.txt\n'
-    native_result_input_hash_line tests/git-publication-native.sh
-    native_result_input_hash_line \
-      tests/support/git-publication-native-assess.sh
-    native_result_input_hash_line \
-      tests/support/git-publication-native-fixture.sh
-    native_result_input_hash_line tests/support/git-publication-native-run.sh
-    native_result_input_hash_line tests/support/git-publication-native-prompt.sh
-    native_result_input_hash_line tests/support/native-run-supervise.sh
-    native_result_input_hash_line \
-      src/skills/dough-execute-plan/references/publish-the-candidate.md
   } > "${native_result_attempt_dir}/record"
   printf 'result-path: %s\n' "${native_result_attempt_dir}"
 }

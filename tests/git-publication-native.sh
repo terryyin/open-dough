@@ -6,6 +6,7 @@
 #   tests/git-publication-native.sh --native codex
 #   tests/git-publication-native.sh --native cursor
 #   tests/git-publication-native.sh --native claude
+#   tests/git-publication-native.sh --native HOST --case CASE
 #
 # Default mode is credential-free: assessor counterexamples plus substitute
 # processes through the shared supervisor/stream/retention path. --native HOST
@@ -26,25 +27,41 @@ source "${source_dir}/tests/support/git-publication-native-suites.sh"
 # shellcheck source=tests/support/git-publication-native-host.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-host.sh"
+# shellcheck source=tests/support/ci-completion-native-run.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/ci-completion-native-run.sh"
 
 usage() {
   cat >&2 << 'EOF'
 usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
+   or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
+   or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
 Credential-free default exercises the publication assessor and substitute
 runner. --native HOST requires that host's CLI and runs the host's assigned
-fresh-proof journeys against an installed candidate.
+fresh-proof journeys against an installed candidate. --case selects one live
+journey and rejects unknown cases before fixture setup.
 EOF
 }
 
 native_flag=0
 host_arg=''
+case_arg=''
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --native)
       native_flag=1
       shift
+      ;;
+    --case)
+      if [[ $# -lt 2 ]]; then
+        echo 'error: missing --case value' >&2
+        usage
+        exit 2
+      fi
+      case_arg=$2
+      shift 2
       ;;
     --help | -h)
       usage
@@ -68,8 +85,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${native_flag} -eq 0 ]]; then
-  if [[ -n ${host_arg} ]]; then
-    echo 'error: a host requires --native' >&2
+  if [[ -n ${host_arg} || -n ${case_arg} ]]; then
+    echo 'error: a host and --case require --native' >&2
     usage
     exit 2
   fi
@@ -84,4 +101,10 @@ if [[ ${host_arg} != codex && ${host_arg} != cursor && ${host_arg} != claude ]];
   exit 2
 fi
 
-run_native_host "${host_arg}"
+if [[ -n ${case_arg} ]] && ! native_case_known "${case_arg}"; then
+  echo "error: unknown native case '${case_arg}'" >&2
+  usage
+  exit 2
+fi
+
+run_native_host "${host_arg}" "${case_arg}"

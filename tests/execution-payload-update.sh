@@ -59,8 +59,10 @@ assert_upgraded_execution_payload() {
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
     assert_installed_contract_links "${target}/${root}" \
       dough-execute-plan/SKILL.md \
+      dough-execute-plan/references/ci-monitor.md \
       dough-execute-plan/references/execution-decisions.md \
-      dough-bug-fixing/SKILL.md
+      dough-bug-fixing/SKILL.md \
+      dough-execution-retrospective/SKILL.md
     assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
