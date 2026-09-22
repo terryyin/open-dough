@@ -4,7 +4,7 @@ status: active
 planted: 2026-09-22
 planted_during: Maintainer observation of over-granular slice plans
 trigger_when: Slice planning or refinement turns meaningful work into too many trivial slices
-scope: medium
+scope: small
 ---
 
 # SEED-023: Balance slice granularity around meaningful progress
@@ -32,37 +32,85 @@ that completing it represents meaningful progress.
 
 **Identity:** SEED-023#balance-slice-granularity
 
-**Status:** Captured; unrefined.
+**Status:** Refined on 2026-09-22; execution planning is not authorized.
 
 **Goal:** A developer planning work with Open Dough gets a proportionate set of
 executable slices: enough separation to manage risk and preserve useful stopping
 points, without extra slices whose only effect is to fragment cohesive work and
 increase execution overhead.
 
-**Scope candidate:** Recalibrate `dough-slice-planning` and
-`dough-slice-plan-refinement` so that splitting and consolidation are guided by
-meaningful behavior, structural change, proof, learning, and safe stopping
-points rather than smallness as an end in itself. Preserve outside-in proof and
-the ability to isolate genuinely independent risks. Make refinement able to
-combine an over-split plan as well as split a slice that carries too many
-distinct outcomes or risks. Do not introduce a universal slice count, line
-count, or effort threshold as a substitute for judgment.
+**Scope:** Rephrase the existing shared slice-decomposition guidance and the
+`dough-slice-plan-refinement` skill so agents choose proportionate boundaries
+instead of treating smaller slices as the default refinement result.
+
+- Keep the shared slice-decomposition reference authoritative for both initial
+  planning and later refinement. Replace its over-splitting cues; do not add a
+  second balancing rule to `dough-slice-planning`.
+- Define a useful slice boundary by cohesive progress: one working change can
+  be implemented, proved, and cleaned up together, with a meaningful result or
+  safe decision point. Split independent outcomes, proof loops, risks, or
+  recoverable stopping points; keep tightly coupled work together when a split
+  would leave no useful result or learning.
+- Make plan refinement explicitly able to consolidate, split, or retain slices.
+  Remove wording that frames refinement only as subdivision, including the
+  discovery description and Ready/Refine decision language.
+- Preserve Behavior/Structure distinctions, outside-in proof ownership,
+  cumulative-design review, supplied sizing limits and overrun handling, story
+  escalation, and execution-authorization boundaries.
+- Replace and shorten affected runtime wording. Add no new instruction file or
+  rule section, and do not increase the combined word count of the changed
+  instruction passages.
+
+**Excluded:** A universal slice count, duration, or effort target; a minimum
+slice size; automatic consolidation based on count alone; changes to story
+decomposition, execution, workspace, publication, installation, or release
+behavior; and retroactive rewriting of existing plans such as Plan 075.
 
 **Key examples:**
 
-- A cohesive behavior and its directly supporting structure can remain one
-  slice when separating them would create intermediate work with no useful
-  observable result or decision point.
-- A slice still splits when it combines independent behavior, unresolved design
-  choices, or proof that can fail and be acted on separately.
-- Refining an already over-granular plan reduces trivial handoffs and repeated
-  setup while preserving the evidence and safe stopping points that matter.
+- Given one user-visible change whose success and error observations use the
+  same implementation path and proof loop, planning keeps them in one slice
+  when separating them would create no independently useful result.
+- Given two outcomes that can be implemented, proved, and acted on separately,
+  planning keeps two slices even if they touch the same component.
+- Given an over-split plan whose file-, layer-, or setup-oriented slices become
+  useful only together, refinement consolidates them around the working outcome
+  and retains the proof and safe stopping point that matter.
+- Given a credible integration risk, independent proof loop, supplied hard
+  limit, or execution overrun, refinement still splits or escalates rather than
+  using consolidation to hide the concern.
 
-**Evaluation:** Representative planning and refinement cases produce fewer
-trivial slices without replacing them with oversized, multi-outcome steps. A
-reviewer can explain each remaining boundary in terms of independently useful
-progress, risk, proof, learning, or recovery—not merely a preference for more
-steps—and can identify when consolidation would erase a consequential boundary.
+**Evaluation:** A representative initial-planning use keeps one cohesive change
+together, and a representative refinement use consolidates an intentionally
+over-split plan. A counterexample with independent outcomes or proof loops stays
+split. In each result, the agent explains remaining boundaries through useful
+progress, proof, risk, learning, or recovery rather than step count. Source
+review confirms that the shared decomposition rule remains the single authority,
+the refinement skill no longer presumes subdivision, no new guidance section or
+file was added, and the changed runtime passages contain no more words than
+before.
+
+**Existing solution / PFE:** The authoritative solution already exists in
+`src/skills/dough-story-decomposition/references/problem-decomposition.md` under
+slice decomposition, which `dough-slice-planning` and refinement both consume.
+Change that shared rule and the refinement skill's directional wording rather
+than duplicating a counter-rule in planning. The current Plan 075 review is a
+representative signal: it assessed twelve slices and considered only whether
+further subdivision was needed; twelve is evidence of the directional bias,
+not a new numeric threshold.
+
+**Effort hypothesis:** S, medium confidence. The product change is a bounded
+wording reduction in two authoritative sources; confidence depends on whether
+representative agent use demonstrates the intended balance without weakening
+real split and escalation signals.
+
+**Depends on:** No product prerequisite. Use the existing representative skill
+behavior review; cross-tool discovery or delivery verification is unnecessary
+because this story does not change skill layout or delivery mechanics.
+
+**Safe stopping point:** Planning and refinement express one concise,
+proportionate boundary rule. Existing proof, sizing, escalation, and authority
+safeguards remain intact, and no existing plan must be migrated.
 
 **Architecture alignment:** This story applies the small-increment and
 least-complexity principles in
@@ -76,3 +124,8 @@ judgment where several plans are valid, as required by
 This is the first queued story at the maintainer's direction. Although it is
 outside the dashboard-focused near-future direction, it addresses recurring
 planning overhead that affects subsequent planned work across the product.
+
+## Open Decisions
+
+None blocking refinement. Exact replacement sentences belong to execution;
+their behavior and concision constraints are fixed above.
