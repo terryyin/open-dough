@@ -71,6 +71,7 @@ managed_files=(
   dough-product-backlog/assets/cursor-hooks-guard.json
   dough-product-backlog/references/identity.md
   dough-product-backlog/references/merge-conflicts.md
+  dough-product-backlog/references/record-preparation.md
   dough-product-backlog/scripts/product-backlog-add.mjs
   dough-product-backlog/scripts/product-backlog-adopt.mjs
   dough-product-backlog/scripts/product-backlog-combine.mjs
@@ -89,12 +90,14 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-git-rebase.mjs
   dough-product-backlog/scripts/product-backlog-git-repository.mjs
   dough-product-backlog/scripts/product-backlog-guard-hook.mjs
+  dough-product-backlog/scripts/product-backlog-home-reader.mjs
   dough-product-backlog/scripts/product-backlog-home.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
   dough-product-backlog/scripts/product-backlog-order.mjs
   dough-product-backlog/scripts/product-backlog-place.mjs
   dough-product-backlog/scripts/product-backlog-placement.mjs
+  dough-product-backlog/scripts/product-backlog-plan-reader.mjs
   dough-product-backlog/scripts/product-backlog-plan.mjs
   dough-product-backlog/scripts/product-backlog-refresh.mjs
   dough-product-backlog/scripts/product-backlog-refusal.mjs
@@ -102,6 +105,13 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-request.mjs
   dough-product-backlog/scripts/product-backlog-source.mjs
   dough-product-backlog/scripts/product-backlog-store.mjs
+  dough-product-backlog/scripts/product-backlog-story-purpose.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-assessment.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-basis.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-block.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-home.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
+  dough-product-backlog/scripts/product-backlog-story-state.mjs
   dough-product-backlog/scripts/product-backlog-take.mjs
   dough-product-backlog/scripts/product-backlog-usage.mjs
   dough-product-backlog/scripts/product-backlog-version.mjs
@@ -112,6 +122,7 @@ managed_files=(
   dough-story-decomposition/references/problem-decomposition.md
   dough-story-decomposition/references/seed-format.md
   dough-story-refinement/SKILL.md
+  dough-story-refinement/references/executable-proof.md
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-disposition.md
   dough-story-refinement/references/preparation-workspace.md

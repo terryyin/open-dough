@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 11: `d60d4b683b9ceb863d91a2185f8fd1df761a3327`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 10 remains `df045a78996a333126b3cc000c7f056548ac838f`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published CI repair: `a4320cc3854ee7bb31494a67996c6a0abab9f115`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 11 remains `d60d4b683b9ceb863d91a2185f8fd1df761a3327`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -379,13 +379,15 @@ contract for the new UI, not a new animation or interaction framework.
 
 ### 12. Installed workflows can produce the records the dashboard reads
 Type: Behavior
-Status: planned
+Status: done
 Proof: Install/update isolated Codex, Cursor, and Claude layouts through actual
 payload operations, then invoke the installed recorder from those layouts. Publish
 the resulting fixture bytes and use the shared reader/dashboard journey to observe
 the facts. Verify configuration and unrelated guidance preservation. Conduct the
 representative skill behavior review separately from mechanical installation proof;
 record native reuse or outstanding requirements honestly under ADR 0005.
+
+Accepted: `bash tests/story-payload-update.sh`, `bash tests/product-backlog-payload-update.sh`, and `bash tests/install-all-tools.sh` exited 0 (Bash 5.3). `install.sh` now ships the story-state modules, `record-preparation.md`, and `executable-proof.md`. An isolated Cursor install invoked `record-state` and `read-state` and returned refinement refined, approach planned, with no assessment. The payload suite also ran that recorder after removing the release source and checked the shared reader on the published bytes. Native Codex, Cursor, and Claude Code host behavior was not exercised (ADR 0005). Post-change refactor: none — already clean.
 
 Behavior: Project installs/updates the candidate payload → ordinary preparation
 uses locally installed guidance/helpers → published records remain readable by the
@@ -411,7 +413,7 @@ maintained docs. No production release/tag or hand-edited installed copies.
 
 ## Assessment and learnings
 
-All slices are planned; no product proof has been run or accepted here. No numeric
+Slices 1–12 are done. Native Codex, Cursor, and Claude Code host proof was not exercised. No numeric
 slice target or hard limit was supplied; use cohesive outcomes and bounded proof
 loops, including focused verification and refactor. Do not borrow another project's
 limits from retrospective examples.

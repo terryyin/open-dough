@@ -71,7 +71,9 @@ for platform in codex cursor claude; do
   # so one representative owns the shared payload-protection matrix.
   if [[ "${platform}" == cursor ]]; then
     for reference in dough-story-decomposition/references/problem-decomposition.md \
-      dough-story-decomposition/references/seed-format.md dough-story-refinement/references/planning.md; do
+      dough-story-decomposition/references/seed-format.md \
+      dough-story-refinement/references/executable-proof.md \
+      dough-story-refinement/references/planning.md; do
       for change in edit remove; do
         path="${target}/.claude/skills/${reference}"
         if [[ "${change}" == edit ]]; then
