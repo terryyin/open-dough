@@ -110,6 +110,34 @@ worktree and local execution branch, applying
 [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
 when cleanup would mutate or discard a dirty or ambiguous checkout.
 
+## Observe Story Branch integration
+
+Story Branch wrap-up changes publication targets. Before integrating its saved,
+published final-closure tip, close the observer bound to the remote execution
+branch through its existing completion lifecycle: await that tip when it is the
+last accepted registered revision, handle the result, then stop that exact
+observer. A green execution-branch receipt covers only that branch and never
+releases later trunk observation.
+
+From the retained execution workspace, recover one matching observer already
+bound to the authorized trunk target or use the existing setup to start one
+there. Establish it before integration publication. Do not retarget the old
+mailbox, register a revision against a differently targeted observer, or create
+a duplicate observer for the same repository, target, and coordinator. When the
+old observer cannot be awaited or stopped, or the trunk bridge cannot be
+established, retain explicit unavailable coverage; do not invent success or
+silently discard an observer that may still own the checkout.
+
+Publish the history-preserving integration through the common candidate
+sequence. After remote confirmation, register only the accepted integrated SHA
+with the trunk observer. A saved branch tip or superseded merge candidate is
+not that receipt. Apply
+[the shared completion wait](ci-monitor.md#await-the-applicable-revision-at-completion)
+once to the accepted integrated SHA, handle its verdict or bounded exception,
+then explicitly stop the trunk observer. Resource cleanup follows successful
+shutdown and the existing ownership checks; publication recovery retains the
+same observer and repeats neither target setup nor an already accepted push.
+
 ## Recover a rejected push
 
 Before replaying a queue claim, recheck that identity's membership on the

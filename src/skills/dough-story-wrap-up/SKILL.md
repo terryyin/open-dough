@@ -196,11 +196,12 @@ integration and resource cleanup below.
 
 ## Integrate committed Story Branch Mode closure
 
-Save the committed final-closure tip. It is already published on the remote
-execution branch. Publish it from the owned execution workspace through
-[Preserve published history](../dough-execute-plan/references/publish-the-candidate.md#preserve-published-history).
-The integration checkout's unrelated commits and pending human edit stay out of
-the published trunk commit.
+Save the final-closure tip already published on the remote execution branch.
+Follow [Story Branch integration observation](../dough-execute-plan/references/trunk-publication.md#observe-story-branch-integration)
+for the target transition, publication, accepted integrated-SHA wait, and
+shutdown. Its publication uses [Preserve published history](../dough-execute-plan/references/publish-the-candidate.md#preserve-published-history)
+from the owned execution workspace, excluding the integration checkout's
+unrelated commits and pending human edit.
 
 When the merge touches the product backlog, use the owned workspace's installed
 merge adapter as that procedure requires. A stopped result stays as Git left

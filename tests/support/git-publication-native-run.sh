@@ -122,6 +122,9 @@ git_publication_write_evidence_identity() {
     trunk-closure)
       trunk_closure_write_evidence_identity
       ;;
+    story-branch-closure)
+      story_closure_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }

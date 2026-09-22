@@ -8,7 +8,7 @@ Execution context:
 - Owned execution workspace: `/Users/terryyin/.codex/worktrees/await-applicable-ci-077/open-dough` on `codex/await-applicable-ci-077`, created by this execution from `e2d778aa20bf06cdcb15c7e637a2ff46d89cc78c` (`origin/main`).
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`; its pre-existing local plan-075 commits are preserved. After claim publication it diverges from `origin/main`, so default-checkout refresh is stopped.
 - Authorized targets: queue claim on `origin/main`; validated increments on `origin/codex/await-applicable-ci-077`.
-- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer; slice 2 `6bfb782f5d7dc96b7f56aafa86d5dfb836a704f6` accepted on that story branch after observer coverage was lost, so it has no hosted-CI verdict.
+- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer; slices 2 `6bfb782f5d7dc96b7f56aafa86d5dfb836a704f6` and 3 `d51b4e6d500a384a22f075a570a62c2072991a64` accepted on that story branch after observer coverage was lost, so they have no hosted-CI verdict.
 - Checkout preparation: `npm ci` followed by `npm run lint` completed successfully for the current lockfile.
 - CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, was bound to `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime. After slice 1 registration it ended unavailable following repeated `api.github.com` connection failures; remaining story-branch publications have lost CI coverage and must not be reported as observed or passing.
 - Replanning permission: retain the preparation authority already established for this plan; no numeric slice hard limit or exception was supplied.
@@ -379,7 +379,7 @@ Sizing: one existing closure path and one native proof loop; medium confidence.
 ### 4. Observe the integrated Story Branch result on trunk
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Story Branch wrap-up integrates and publishes a source-changing result
 → observation follows the accepted trunk SHA → the shared bounded wait resolves
@@ -406,6 +406,43 @@ Commands: selected story-branch-closure native journey,
 `bash tests/install-ci-host-hooks.sh` only if host packaging/binding changed.
 Record the literal native case-selector command when implemented. Assess native
 behavior and host integration evidence separately under ADR 0005.
+
+Accepted proof:
+
+- `bash tests/git-publication-native.sh --native claude --case story-branch-closure/source-conflict`
+  passed after independent refactoring with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.NU7d2aN7HR/results/claude/story-branch-closure/source-conflict/20260922T135819-4d32`.
+  Inspected evidence records a real two-parent source-conflict merge from branch
+  `e189d2997c24b741d532b90360e938da5313e55f` and prior trunk
+  `48ea6d3262b2cd59ccb8dc5f3b74bed225683647` to accepted integrated SHA
+  `5c6627da3076b98af8c7ce797375f408d7ca6d67`, with the correct resolved source.
+  Exactly two real observers target `exec/story` and `main`; the observed order is
+  branch await → branch shutdown → trunk setup → integration publication → exact
+  trunk registration → trunk await → independent CI release → success → trunk
+  shutdown → cleanup. The remote branch is absent, the pending human edit is
+  preserved, and the transcript did not inspect the harness.
+- `bash tests/execution-ci-runtime.sh` passed 205/205 in 70.1 seconds. Its result
+  remains reusable after refactoring because no runtime, host-hook, mailbox, or
+  packaging boundary changed. `tests/install-ci-host-hooks.sh` was therefore not
+  run.
+- `bash tests/git-publication-native.sh` passed its credential-free assessor and
+  substitute suite, including rejection of green branch-tip substitution,
+  retargeted or duplicate observers, and harness-contaminated transcripts. Shell
+  syntax checks, `git diff --check`, and the project formatter/linter passed.
+- Independent refactoring made the detailed Story Branch integration procedure
+  authoritative, excluded readiness probes from real-observer counts while
+  preserving duplicate detection, and selected exactly one non-probe trunk
+  observer during cleanup. All implicated files stay at or below 250 lines.
+
+Learning: rejected attempts exposed a controller bound shorter than native host
+startup, owner-index/readiness-probe misclassification as observers, fail-open
+assessor predicates, first-mailbox cleanup selection, and a prose assertion too
+narrow for equivalent truthful wording. The accepted proof uses a 420-second
+journey-local controller under the existing 900-second supervisor, counts only
+real request mailboxes, fails closed, and separates mechanical lifecycle evidence
+from prose. The real story-branch observer remains unavailable separately, so no
+hosted-CI verdict is claimed for this slice.
+
 Safe stopping point: all selected execution, review, and closure outcomes are
 covered; observer automation stays independent.
 Sizing: one target transition and one integration proof loop, medium confidence.

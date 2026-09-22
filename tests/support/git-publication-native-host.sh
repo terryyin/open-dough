@@ -12,7 +12,7 @@ host_fresh_journeys() {
     codex) printf '%s\n' publish-boundary claim-race ;;
     cursor) printf '%s\n' publish-boundary trunk-closure/source \
       trunk-closure/ignored-only local-only ;;
-    claude) printf '%s\n' publish-boundary story-branch-closure \
+    claude) printf '%s\n' publish-boundary story-branch-closure/source-conflict \
       preparation bug-disposition uncertain-recovery ;;
     *) return 2 ;;
   esac
@@ -39,7 +39,8 @@ run_native_host() {
 
   while IFS= read -r journey; do
     [[ -n ${journey} ]] || continue
-    if [[ ${journey} == execution-review/* || ${journey} == trunk-closure/* ]]; then
+    if [[ ${journey} == execution-review/* || ${journey} == trunk-closure/* ||
+      ${journey} == story-branch-closure/* ]]; then
       printf '\n--- journey %s ---\n' "${journey}"
       set +e
       case ${journey} in
@@ -50,6 +51,9 @@ run_native_host() {
         trunk-closure/*)
           trunk_closure_run_journey "${source_dir}" "${host}" \
             "${journey#trunk-closure/}" "${results_dir}"
+          ;;
+        story-branch-closure/*)
+          story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
           ;;
         *) return 2 ;;
       esac
@@ -121,6 +125,9 @@ native_case_known() {
       return 0
       ;;
     trunk-closure/source | trunk-closure/ignored-only)
+      return 0
+      ;;
+    story-branch-closure/source-conflict)
       return 0
       ;;
     *) return 1 ;;
