@@ -79,8 +79,9 @@ browsing. The delivered overview lets that assumption be tested in use.
   a prerequisite chosen by this seed.
 - Preserve story identity, queue order, and distinctions between missing,
   conflicting, and positively recorded information. Taken does not mean live.
-- The delivered overview and stories 2-3 observe existing records. Story 4 owns
-  the producer-to-display journey for new assignment information. Unavailable
+- The delivered overview observes existing records. Story 2 owns readiness
+  recording through display; story 3 extends inspection to an execution branch.
+  Story 4 owns the producer-to-display journey for new assignment information. Unavailable
   metadata remains explicit. Local checkout activity belongs to the later
   operational view.
 - Feature and structural perspectives, recent-completion history views,
@@ -95,55 +96,130 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 **Identity:** SEED-021#inspect-recorded-story-progress
 
-**Status:** Decomposed; not refined or planned.
+**Status:** Refined on 2026-09-22; slice plan prepared for review. No execution
+is authorized. [Plan](../quick/075-published-story-readiness/PLAN.md).
 
-**For / why:** Terry can select current work and understand what has been
-recorded about its readiness and implementation, without opening several
-documents and conflating their different statuses.
+**Goal:** Terry can decide which queued story needs preparation and understand
+what a Taken story has published, without reconstructing seed and plan files.
+Workflow operations produce trustworthy story facts that the dashboard displays;
+colored badges alone do not fulfill this outcome.
 
-**Outcome:** From the overview, inspect the story's purpose, recorded refinement
-and planning state, and linked plan's slices and completion evidence from the
-published integration branch. Show owner and execution mode when supported by
-the records. Keep membership, planning, and execution facts distinct; missing
-data stays unknown. A planless story remains inspectable.
+**Why now / priority:** This advances the remote-first Trunk Mode experiment in
+the near-future direction before adding ownership and local coordination. Keep
+its existing position after the two CI-observer improvements; those address
+recurring execution overhead but are not prerequisites. Earlier ownership or
+checkout coordination would be more valuable if concurrent assignment or local
+contention became the immediate problem. Existing source links remain the simpler
+alternative, but cannot provide the requested overview of preparation. Success
+means Terry can identify a story needing refinement and explain published slice
+progress without assembling multiple documents; visual usefulness remains a
+hypothesis to evaluate, not a consequence of shipping more UI.
 
-**Evaluation:** A Taken story whose linked plan still records all slices as
-planned shows those two facts separately, rather than claiming execution is
-running. After a slice completion is published on trunk, refreshing the selected
-story reveals the recorded change and its source, including while the publishing
-agent's default checkout has a deferred refresh. A planless story displays its
-recorded purpose and execution facts with planning state identified as planless.
+**Scope:** One complete chain from workflow-maintained story records through Git
+publication to a read-only dashboard, for the existing three observed projects.
 
-**Value / learning:** Determine whether source-backed detail gives enough
-visibility for Terry to use Trunk Mode with confidence, and expose actual
-metadata gaps before adding workflow fields or a new state machine.
+- Preserve stable identity and the story's canonical home. Backlog membership,
+  refinement, planning approach, readiness assessment, and slice progress remain
+  separate facts. Store each fact once and reuse its meaning in writer and reader.
+  The catalog here concerns stories and their plans, not features or structure.
+- Record refinement explicitly as not refined or refined. Refined means goal,
+  scope, and key examples are understood. Record whether a plan exists, planless
+  execution is deliberately selected, or no approach is recorded; missing a plan
+  never proves planless intent. Existence of a plan does not certify readiness.
+- The preparing agent records ready or not ready, with the assessed source basis
+  and blocking reasons when applicable. Ready requires understood scope, a
+  selected execution approach, and no blocking concern. Planned work also needs
+  bounded slices and proof covering the outcome. Planless selection follows the
+  existing explicit skip-planning authority. Assessment adds no human approval
+  gate and no authority to start, take work, or change priority.
+- Changes to assessed story or plan content require reassessment. A reader can
+  detect an outdated assessment without trusting that an editor cleared a flag.
+  The writer refuses a stale assessment submission rather than blessing unseen
+  changes. Ordinary progress updates retain their own slice evidence; they must
+  not silently renew readiness. Exact normalization and storage are implementation
+  choices constrained by the plan's minimal contract.
+- Overview cards show labeled color badges: Not refined (gray), Refined (blue),
+  Slice planned (purple), and Ready for execution (green). Preparation and
+  readiness remain separately inspectable; a ready badge does not erase a
+  planless approach. Unknown, unavailable, conflicting, and needs-reassessment
+  states remain explicit and never masquerade as not refined. Text conveys every
+  color distinction, with accessible contrast and keyboard access.
+- Selecting a card shows purpose, preparation and readiness evidence, and the
+  linked plan's slice names, recorded status, and available completion evidence.
+  Counts describe recorded slices, not effort or percentage of story value.
+  Taken, all slices done, and readiness do not establish live activity or closure.
+- Read all facts from the same pinned trunk revision; deduplicate canonical files
+  and plans needed for overview facts. Fetch additional detail only when needed.
+  Preserve source links, explicit refresh, project isolation, and dated prior
+  observations after failure. A detail failure does not erase the readable queue.
+- Include the shared data reader/writer and changes to the preparation/execution
+  guidance that owns the facts, with payload delivery checks. Older records remain
+  inspectable; structured facts are adopted during ordinary authorized workflow
+  use, with no speculative status backfill or migration of other repositories.
 
-**Learning from the delivered overview (2026-09-20):** Reads are
-unauthenticated browser calls to GitHub's REST API, limited to 60 requests per
-hour from one address. One overview read costs two requests: the ref, then the
-backlog at that commit. Reading a seed and a plan for an inspected story adds at
-least two more per story on every refresh. Read detail on selection, at the
-snapshot's pinned revision, rather than for every card, and state the request
-budget of the key examples during refinement. A rate-limit answer already shows
-as a read problem that keeps the last snapshot. Each card already carries its
-canonical and plan links resolved to repository paths at the inspected revision
-(`dashboard/src/sourceLink.ts`); start from those rather than deriving paths
-again. The overview deliberately holds no Markdown parsing, so refinement must
-name which existing reader owns story and slice-status meaning, or make that
-interpretation part of this story's scope.
+**Key examples:**
 
-**Depends on:** The delivered overview and its origin access. This story reads
-existing remote records. Story 3 owns remote execution-branch progress;
-default-checkout coordination is separately scoped in SEED-008.
+1. An explicitly unrefined queued story appears gray. Refinement establishes
+   goal, scope, and examples and records refined; after publication and refresh
+   its card is blue, with the same identity and queue position.
+2. An agent writes a plan with a blocking decision: after publication the card
+   shows Slice planned, and detail shows Not ready with the reason. Resolving
+   the concern and recording an assessment makes Ready for execution visible
+   after publication, without moving the story to Taken or starting execution.
+3. A ready story's scope or assessed plan changes without reassessment: refresh
+   shows Needs reassessment. An assessment submitted against older content is
+   refused without modifying records. Reassessment restores ready only if justified.
+4. A human explicitly selects planless execution for an understood story. The
+   agent records that approach and assesses readiness. The dashboard can show
+   Ready for execution and Planless together; an older story lacking a plan link
+   instead shows the absence of planning evidence.
+5. A Taken story has five planned slices. It remains Taken with zero recorded
+   complete, without an activity claim. After a workflow records two completed
+   slices with accepted proof and publishes trunk, refresh shows two of five
+   recorded complete and their evidence, regardless of default-checkout freshness.
+6. Several cards share a seed; all retain their own facts. A malformed record or
+   unreadable plan affects only its dependent facts. An older seed without the
+   new record stays inspectable as Not recorded. Conflicting identities or plan
+   associations are shown explicitly, without choosing a source by recency.
+7. Switching from a slow private-project detail read to a public project cannot
+   mix results. Failed refresh retains dated prior evidence; Retry can recover.
+   Public and private paths interpret identical record semantics.
 
-**Safe stopping point:** Trunk-published story progress is useful on its own.
-The view identifies its integration-branch scope so missing branch-local
-progress is not presented as lack of work.
+**Architecture:** Follow Accepted ADR 0002's state and workflow ownership rule
+(as amended at Terry's direction in this session), ADR 0001's identity concepts,
+and ADRs 0003–0006 for source guidance and delivery. ADR 0008 remains Proposed
+and describes presentation. Reuse the existing backlog contracts and published
+source boundaries; the dashboard acquires no state-writing authority.
 
-**Effort hypothesis:** Unestimated; medium confidence. More source variation
-than the delivered overview, but reuse of its access and presentation. Contradictory records
-and planless work are the key boundary checks, not reasons to normalize the
-whole project's workflow in this story.
+**Deferred promises:** Ownership allocation or new execution-mode metadata,
+execution-branch inspection, automatic work selection/start, a generic lifecycle
+engine, local activity/coordination, polling, historical completion views,
+feature/structure catalogs, dashboard editing, and whole-story percentages.
+Existing recorded owner/mode information can remain reachable through source
+links; adding dedicated displays belongs to the ownership story. Releasing or
+updating live installations is separate from preparing and validating this change.
+
+**Read cost:** At one revision, the public overview uses one ref read, one backlog
+read, S unique canonical-file reads, and P unique associated-plan reads: 2 + S + P,
+counting a file only once across both sets. Plans are needed when establishing
+planning/readiness, not just on selection. Three stories sharing one seed and two
+plans cost five requests; inspecting their already-read detail adds none. No
+polling or automatic retries. This replaces the earlier selection-only assumption.
+Bound concurrent reads and preserve the existing timeout/error behavior. Private
+reads use the existing authenticated boundary with the same deduplication.
+
+**Depends on / safe stopping point:** The delivered overview supplies access and
+membership. Complete producer-to-display readiness and trunk slice progress are
+useful without assignment or branch inspection. No generic catalog infrastructure
+is a separately deliverable prerequisite.
+
+**Open decisions:** None blocking this refinement. Field encoding, operation names,
+and component layout are implementation choices under the plan's contract. The
+broader sibling-story decisions below remain deferred.
+
+**Effort hypothesis:** Crosses workflow, shared record interpretation, and both
+read transports; moderate sizing confidence. No project S/M/L definitions or
+numeric slice limits were supplied. Judge slices by bounded outcomes and proof.
 
 <a id="follow-published-story-branch"></a>
 
@@ -295,10 +371,9 @@ is the smallest selected finish line for a usable overview beyond Open Dough.
 Neither the feature/structure perspectives nor recently completed history are
 added merely to complete a catalog of potential views.
 
-No separate generic story-state story is queued: story 2 already tests the user
-outcome that refinement/planning metadata would support. If existing records
-cannot support a truthful view, use that evidence to refine its scope or capture
-one bounded recording outcome. A state framework is not independently valuable
+No separate generic story-state story is queued: story 2 owns the workflow-maintained refinement and readiness facts together
+with their visible outcome. Its refinement includes the necessary recording contract where existing
+records cannot support a truthful view. A state framework is not independently valuable
 merely because it was excluded from the delivered overview. Recent-completion history remains
 an unselected hypothesis for the same reason.
 
