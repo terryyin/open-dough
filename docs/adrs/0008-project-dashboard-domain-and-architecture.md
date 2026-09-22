@@ -54,10 +54,9 @@ a containment hierarchy. There is no required one-to-one mapping between a
 story, a feature, and a structural element. Story-based filtering can expose
 relevant features and structure without assigning each exclusively to a story.
 
-Backlog membership, refinement, slice planning, and execution progress are
-meaningful facts to expose. Their exact state model remains open; this proposal
-does not impose a single linear lifecycle. Recorded facts must remain distinct
-from inferred live activity and from expected future impact.
+Present the story state defined by [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md)
+without implying live activity. Distinguish missing, outdated, and conflicting
+evidence from an explicit negative result.
 
 ### Durable project state and local operational state
 
@@ -165,7 +164,7 @@ without building their machinery in advance.
 
 ## Open design and related decisions
 
-Exact story states, name rotation and reuse, messaging and takeover, recently
+Record formats, name rotation and reuse, messaging and takeover, recently
 finished story views, North Star placement, lock protocols, and detailed stage
 layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.
