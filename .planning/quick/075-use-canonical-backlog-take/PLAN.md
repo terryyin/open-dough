@@ -127,12 +127,22 @@ and perform the AGENTS.md behavior review: invocation context, required inputs,
 and the representative native outcome. Do not synchronize `.agents/skills/` or
 `.claude/skills/` by hand.
 
+## Execution state
+
+- Mode: Story Branch Mode.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough`.
+- Owned execution checkout: `/Users/terryyin/.codex/worktrees/use-canonical-backlog-take-075/open-dough`, branch `codex/use-canonical-backlog-take-075`, created from `21585f0c7d406544273aaf84a7fb95de8fb91659`.
+- Authorized increment target: `origin/codex/use-canonical-backlog-take-075`.
+- Published claim: `fee00b1c1c9749a17c4962d44f5f87bd31ded5b4` accepted on `origin/main`; its CI coverage is unobserved because Story Branch Mode observes the increment target.
+- Checkout preparation: `npm ci` and `npm run lint` passed after claim publication.
+- CI observer: Codex yielded cell `34`, session `42498`, PID `31488`, directory `/tmp/dough-ci-501/watch-kh6Ka6`; coordinator `root`; GitHub workflow `ci.yml` / `CI`; repository `terryyin/open-dough`; branch `codex/use-canonical-backlog-take-075`.
+
 ## Ordered slices
 
 ### 1. Planned execution claims the queue through the installed writer
 
 Type: Behavior
-Status: planned
+Status: done
 
 Proof: extend the installed-workflow native harness with the take fixture and
 fresh Claude Code journey described above. Keep
@@ -160,6 +170,28 @@ Safe stopping point: the observed planned queue-to-Taken path has one existing
 format owner and fresh native evidence, while every excluded backlog and
 execution path is unchanged.
 
+Accepted proof (2026-09-22):
+
+- `bash tests/product-backlog.sh` passed all 110 deterministic writer and
+  story-state tests.
+- `bash tests/product-backlog-native.sh --native claude --case take` passed
+  with Claude Code 2.1.278 after a fresh ordinary-language session invoked one
+  installed Take command carrying both the story identity and plan. Its
+  transcript, shared-reader result, and canonical story comparison proved the
+  canonical Taken link, absence of hand-built backlog writes and `record-state`,
+  and byte-for-byte preservation of readiness state.
+- `bash tests/product-backlog-payload-update.sh` and
+  `bash tests/install-all-tools.sh` passed the shared payload, update,
+  coexistence, and all-host installation boundaries. The shared
+  installation/discovery mechanism did not change, so the existing Codex and
+  Cursor native evidence remains applicable under ADR 0005; no additional
+  host-specific Take run is pending.
+- `git diff --check`, shell syntax checks, the project formatting pass, and the
+  AGENTS.md invocation-context, required-input, and representative-outcome
+  review passed.
+- Affected guidance totals 100 lines, down from 103 in `v0.3.28` and 106 in
+  the `0.3.29` starting source.
+
 ## Proof ownership
 
 | Promise | Slice | Observation |
@@ -177,3 +209,6 @@ execution path is unchanged.
   this plan was first written. The take action must preserve that state and
   must not turn queue membership into a readiness signal; this remains part of
   the same queue-claim proof loop rather than a second slice.
+- Native command assessment must keep the selected identity and plan on the
+  same installed Take invocation; aggregating arguments across separate calls
+  would overstate the behavior proved.

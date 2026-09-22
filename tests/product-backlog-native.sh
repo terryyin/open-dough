@@ -11,6 +11,7 @@
 #   tests/product-backlog-native.sh --native claude --case use
 #   tests/product-backlog-native.sh --native codex --case use
 #   tests/product-backlog-native.sh --native cursor --case use
+#   tests/product-backlog-native.sh --native claude --case take
 #
 # The default mode is deterministic: a real install plus the guard's
 # decision function, with no real agent. --native claude --case guard spawns
@@ -27,6 +28,8 @@
 # through Cursor Agent.
 # --native codex --case use runs the same installed-workflow journey through
 # fresh isolated `codex exec` sessions and observes their actual script calls.
+# --native claude --case take asks a fresh session to start a resolved plan,
+# then observes its installed writer call and the resulting claim.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -48,6 +51,9 @@ source "${source_dir}/tests/support/product-backlog-native-use.sh"
 # shellcheck source=tests/support/product-backlog-native-use-hosts.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-use-hosts.sh"
+# shellcheck source=tests/support/product-backlog-native-take.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-take.sh"
 # shellcheck source=tests/support/native-codex.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-codex.sh"
@@ -57,10 +63,13 @@ usage() {
 usage: tests/product-backlog-native.sh
    or: tests/product-backlog-native.sh --native claude --case guard
    or: tests/product-backlog-native.sh --native <claude|codex|cursor> --case <guard|use>
+   or: tests/product-backlog-native.sh --native claude --case take
 HOST is claude, codex, or cursor.
 CASE is guard (native PreToolUse/preToolUse edit-denial for the product backlog)
 or use (the installed Git merge adapter's conflict stop and human-repaired
-resume, discovered by a fresh native session from ordinary-language guidance).
+resume, discovered by a fresh native session from ordinary-language guidance),
+or take (a fresh Claude Code session starts a planned story through the
+installed backlog writer).
 EOF
 }
 
@@ -121,8 +130,15 @@ if [[ ${host_arg} != claude && ${host_arg} != codex && ${host_arg} != cursor ]];
 fi
 case ${case_id} in
   guard | use) ;;
+  take)
+    if [[ ${host_arg} != claude ]]; then
+      echo "error: case 'take' requires host 'claude'" >&2
+      usage
+      exit 2
+    fi
+    ;;
   *)
-    echo "error: unknown case '${case_id}' (known: guard, use)" >&2
+    echo "error: unknown case '${case_id}' (known: guard, use, take)" >&2
     usage
     exit 2
     ;;
@@ -142,6 +158,7 @@ case ${case_id} in
     esac
     ;;
   use) use_run_native "${source_dir}" "${host_arg}" ;;
+  take) take_run_native "${source_dir}" ;;
   *)
     echo "error: internal error: unreachable case '${case_id}'" >&2
     exit 2
