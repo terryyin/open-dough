@@ -2,7 +2,13 @@ name: CI
 
 on:
   push:
+    paths-ignore:
+      - ".planning/**"
+      - "docs/**"
   pull_request:
+    paths-ignore:
+      - ".planning/**"
+      - "docs/**"
   workflow_dispatch:
 
 permissions:

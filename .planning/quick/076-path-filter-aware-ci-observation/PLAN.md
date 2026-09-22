@@ -142,13 +142,17 @@ do not inject the expected coverage record or event.
 
 ### 1. Resolve CI applicability from the workflow and Git history
 Type: Structure
-Status: planned
+Status: done
 Proof: Focused pure tests read the accepted literal workflow form from a real
 temporary repository at a named revision and classify descendant tree changes:
 only `.planning/**`/`docs/**` is reusable; a mixed path, non-ancestor, deletion
 or rename involving a non-ignored path, unsupported YAML form, or unreadable
 revision is indeterminate. Existing observer tests remain green because the
 classifier is not yet wired into coverage.
+
+Accepted: `node --test src/skills/dough-execute-plan/scripts/ci-path-applicability.test.mjs src/skills/dough-execute-plan/scripts/ci-path-applicability-indeterminate.test.mjs src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-late-github-failure.test.mjs` passed 15/15 against real temporary Git repositories (no mocked Git, no injected coverage records). `ci-workflow-path-policy.mjs` (`readCiPathIgnorePolicy`) reads the narrow literal `paths-ignore` form and fails closed for aliases, expressions, extra keys, unsupported globs, and a missing `on:` block, verified directly against this repository's own `.github/workflows/ci.yml`. `ci-path-applicability.mjs` (`classifyRevisionApplicability`, `readWorkflowContentAtRevision`) resolves `required` (no filter, or a clean non-ignored diff), `not_required` with `{ basis: { sha } }` (ignored-only descendant of a proved ancestor), or `indeterminate` (mixed paths, non-ancestor basis, non-ignored delete/rename even alone, unsupported policy, unreadable revision, or no candidate SHAs) — deletions/renames touching any non-ignored path never count as ignored-only. `.github/workflows/ci.yml`'s `push`/`pull_request` triggers now carry `paths-ignore: ['.planning/**', 'docs/**']`; `workflow_dispatch` is unchanged. The existing late-GitHub-failure observer journey (`ci-revision-coverage-late-github-failure.test.mjs`) remains green, confirming the classifier is not yet wired into coverage.
+
+Learning: the plan's "a mixed path ... is indeterminate" line left the required/indeterminate boundary underspecified for a diff containing both ignored and non-ignored changes. Slice 1 resolved it as: a clean, unambiguous non-ignored diff (or an event with no `paths-ignore` filter at all) is `required`; anything mixed relative to the chosen ancestor is `indeterminate` rather than an assumed `required`, since the comparison basis may span more than the registered revision's own change. Both `required` and `indeterminate` currently behave identically downstream (neither yields a `not_required` basis), so this is not yet behavior-critical, but slice 4's terminal-reporting language may want to distinguish them — worth a sanity check before slice 4 if guidance text starts naming `required` specifically. `classifyRevisionApplicability` expects its caller to supply already-discovered `candidateShas` (e.g. from `ci-runs.mjs` discovery) and does its own ancestor-filtering/nearest-selection internally; it does not call `gh` itself — slice 2's coverage wiring needs to supply that list.
 
 Structure: Add the narrow dependency-free workflow-policy reader and conservative
 Git comparison beside the existing GitHub acquisition/coverage path. Configure
