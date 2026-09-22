@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Stop waking the agent for CI runs that have not been discovered yet](seeds/SEED-008-worktree-branch-trunk-sync.md#quiet-ci-discovery-delay) — SEED-008#quiet-ci-discovery-delay ([plan](quick/074-quiet-ci-discovery-delay/PLAN.md))
-
 ## Backlog list
 
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer
