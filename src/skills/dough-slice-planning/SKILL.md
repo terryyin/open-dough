@@ -115,6 +115,9 @@ slice. [dough-slice-plan-refinement](../dough-slice-plan-refinement/SKILL.md)
 owns resolving remaining concerns when the coordinator or invoking workflow
 separately requests it; do not invoke it as part of writing this plan.
 
+After the plan file exists for a work item with a recorded identity, apply
+[record preparation facts](../dough-product-backlog/references/record-preparation.md).
+
 ## Report concern evidence
 
 After constructing the plan, report remaining concerns rather than a workflow

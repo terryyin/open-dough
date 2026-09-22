@@ -16,6 +16,9 @@ Before editing, identify from human instructions or repository guidance:
   planned stories when they are affected.
 - [Work item identity](references/identity.md), which is the single contract
   for what identifies an entry and what only navigates to it.
+- [Record preparation facts](references/record-preparation.md), when
+  decomposition, refinement, or slice planning writes structured preparation
+  into a canonical home through `record-state`.
 - Decomposition, refinement, and slice-planning workflows, when needed.
 - Commit conventions, if a commit is authorized.
 

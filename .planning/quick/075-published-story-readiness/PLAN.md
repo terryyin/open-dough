@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–3 done; slice 4 is next.
+Status: executing; slices 1–4 done; slice 5 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 2: `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 1 remains `59518327d8f4baa03285e86128070bfbd15be358`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 3: `98da9ee3005baf179b474314f7c5545bc1cb113f`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -254,11 +254,13 @@ normalization and validation have one shared meaning in CLI and browser.
 
 ### 4. Refinement and planning produce their preparation facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Representative guidance walkthrough starts with a captured story, refines
 it, and writes a plan with a remaining concern; the actual recorder creates
 refined/planned facts without a ready claim, queue transition, or execution.
 Check affected call paths for both ordinary and whole-document canonical homes.
+
+Accepted: shared procedure `src/skills/dough-product-backlog/references/record-preparation.md`, linked from decomposition, refinement, and slice planning. Scratch `/tmp/slice4-prep-FRyTQR` after recorder writes: `seeds/SEED-WALK-prep.md` holds refined/planned with plan `../quick/075-walkthrough/PLAN.md` and no assessment field; `quick/075-correction-walk/PLAN.md` holds refined/planned with plan `PLAN.md` and no assessment field; backlog Taken is empty. Setup started from not-recorded homes.
 
 Behavior: Authorized decomposition/refinement/planning → their existing write
 boundary → corresponding structured fact is recorded. Add one shared recording
