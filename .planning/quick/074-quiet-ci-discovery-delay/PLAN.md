@@ -1,13 +1,13 @@
 # Stop waking the agent for CI runs that have not been discovered yet
 
-Status: taken; slice 1 delivered; slice 2 next.
+Status: taken; slices 1–2 delivered; slice 3 next.
 
 ## Execution
 
 - Mode: Story Branch. Replanning allowed.
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`.
 - Execution checkout: `/Users/terryyin/.cursor-worktrees/open-dough/074-quiet-ci-discovery-delay`, branch `cursor/074-quiet-ci-discovery-delay`, created this session from `f48b8569d97210eae8a6ada951dda9954ec5c28c`.
-- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim). Claim coverage is unobserved; the story-branch observer covers the execution branch, not this trunk claim.
+- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim; coverage unobserved). `9f86ddafee0fd2bd0f782c9214121bf2b6f8e409` accepted on `origin/cursor/074-quiet-ci-discovery-delay` (slice 1) and registered with the observer.
 - Default-checkout refresh: advanced to that claim SHA.
 - CI observer: `/tmp/dough-ci-501/watch-DIUxCS`, GitHub Actions `ci.yml` / `CI`, target branch `cursor/074-quiet-ci-discovery-delay`.
 
@@ -211,7 +211,7 @@ ends. Covers examples 1 and 2.
 ### 2. The terminal report separates in-progress from never-discovered
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: worker test that registers two revisions, lets the provider show one
 run in progress and none for the other, requests stop, and asserts
 `result.json` `coverage.unproved` shows `pending` for the first and
