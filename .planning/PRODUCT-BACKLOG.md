@@ -13,11 +13,12 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress ([plan](quick/075-published-story-readiness/PLAN.md))
+
 ## Backlog list
 
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer
 - [Arm and feed CI observation from scripts without agent commands](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
-- [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
