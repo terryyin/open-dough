@@ -15,10 +15,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress ([plan](quick/075-published-story-readiness/PLAN.md))
 - [Skip path-only CI without hiding the applicable verdict](seeds/SEED-008-worktree-branch-trunk-sync.md#path-filter-aware-ci-observation) — SEED-008#path-filter-aware-ci-observation ([plan](quick/076-path-filter-aware-ci-observation/PLAN.md))
+- [Balance slice granularity without trivializing execution](seeds/SEED-023-balanced-slice-granularity.md#balance-slice-granularity) — SEED-023#balance-slice-granularity
 
 ## Backlog list
 
-- [Balance slice granularity without trivializing execution](seeds/SEED-023-balanced-slice-granularity.md#balance-slice-granularity) — SEED-023#balance-slice-granularity
 - [Wait for the latest applicable CI result before advancing execution](seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing) — SEED-008#wait-for-applicable-ci-before-advancing
 - [Take planned work through the canonical backlog operation](seeds/SEED-022-valid-backlog-writes.md#prevent-malformed-backlog-publication) — SEED-022#prevent-malformed-backlog-publication
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer
