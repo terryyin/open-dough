@@ -225,7 +225,7 @@ git_publication_run_journey() {
   observations_file="${artifact_root}/observations.txt"
   # Ownership and remote acceptance come only from post-session Git state.
   git_publication_fixture_observe "${journey}" "${authority}" \
-    "${stream_status}" > "${observations_file}"
+    "${stream_status}" "${transcript}" > "${observations_file}"
 
   response_file=${output_file}
   if [[ ${stream_status} != 'complete' ]]; then

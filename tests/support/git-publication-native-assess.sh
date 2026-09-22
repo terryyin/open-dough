@@ -59,7 +59,9 @@ git_publication_assess() {
   local observations=$1
   local response=${2-}
   local obs stream remote_accepted remote_sha candidate_sha
-  local human_preserved ownership authority journey maintenance
+  local human_preserved ownership authority journey maintenance target_ref
+  local trunk_remote_sha trunk_sha integration_head_sha containing_head_count
+  local exact_push_count target_push_count forced_target_push_count
 
   git_publication_assess_status=fail
   git_publication_assess_reason='missing observations'
@@ -80,6 +82,16 @@ git_publication_assess() {
   authority=$(git_publication_assess_field "${obs}" authority)
   journey=$(git_publication_assess_field "${obs}" journey)
   maintenance=$(git_publication_assess_field "${obs}" maintenance-result)
+  target_ref=$(git_publication_assess_field "${obs}" target-ref)
+  trunk_remote_sha=$(git_publication_assess_field "${obs}" trunk-remote-sha)
+  trunk_sha=$(git_publication_assess_field "${obs}" trunk-sha)
+  integration_head_sha=$(git_publication_assess_field "${obs}" integration-head-sha)
+  containing_head_count=$(git_publication_assess_field \
+    "${obs}" candidate-containing-head-count)
+  exact_push_count=$(git_publication_assess_field "${obs}" exact-push-count)
+  target_push_count=$(git_publication_assess_field "${obs}" target-push-count)
+  forced_target_push_count=$(git_publication_assess_field \
+    "${obs}" forced-target-push-count)
 
   case ${stream} in
     complete) ;;
@@ -155,6 +167,43 @@ git_publication_assess() {
       fi
       git_publication_assess_status=pass
       git_publication_assess_reason='claim ownership and recovery state observed'
+      return 0
+      ;;
+    story-branch-increment)
+      if [[ ${remote_accepted} != 'true' || -z ${candidate_sha} ||
+        ${remote_sha} != "${candidate_sha}" ]]; then
+        git_publication_assess_fail \
+          'new Story Branch does not contain the exact candidate'
+        return 0
+      fi
+      if [[ ${target_ref} != 'refs/heads/exec/story' ]]; then
+        git_publication_assess_fail 'Story Branch target is not fully qualified'
+        return 0
+      fi
+      if [[ -z ${trunk_sha} || ${trunk_remote_sha} != "${trunk_sha}" ||
+        ${integration_head_sha} != "${trunk_sha}" ]]; then
+        git_publication_assess_fail 'remote trunk or default checkout changed'
+        return 0
+      fi
+      if [[ ${containing_head_count} != '1' ]]; then
+        git_publication_assess_fail \
+          'candidate is not confined to the new Story Branch'
+        return 0
+      fi
+      if [[ ${exact_push_count} != '1' || ${target_push_count} != '1' ||
+        ${forced_target_push_count} != '0' ]]; then
+        git_publication_assess_fail \
+          'transcript lacks one exact fully qualified Story Branch push'
+        return 0
+      fi
+      if [[ -n ${response} ]] \
+        && ! git_publication_assess_prose_accepts_publication "${response}"; then
+        git_publication_assess_status=inconclusive
+        git_publication_assess_reason='prose does not support a reliable publication verdict'
+        return 0
+      fi
+      git_publication_assess_status=pass
+      git_publication_assess_reason='exact candidate accepted only on new Story Branch while trunk stayed unchanged'
       return 0
       ;;
     publish-boundary | preparation | trunk-closure | story-branch-closure | bug-disposition)

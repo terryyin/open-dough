@@ -1,12 +1,33 @@
 # Publish an exact candidate to a new remote branch
 
-Status: planned; bounded retrospective correction; queued first; no execution
-authorized by this plan.
+Status: implementation and proof complete; delivery in progress; bounded
+retrospective correction.
 
 **Identity:** quick/078-qualify-new-branch-push-ref/PLAN.md
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"be5dc90def31d75eeaf89d1487167d979a175465b8a2afd353c4568236ab0653"}}
 ```
+
+## Execution state
+
+- Mode: Story Branch Mode.
+- Owned workspace: `/Users/terryyin/.codex/worktrees/quick-078-publish-ref/open-dough`.
+- Execution branch: `codex/quick-078-publish-ref`, created by this execution
+  from `e4d9b24930b67198928a1b0eea8d36a6975d572f`.
+- Integration checkout: `/Users/terryyin/git/open-dough`.
+- Authorized targets: queue claim on `origin/main`; execution increments on
+  `origin/refs/heads/codex/quick-078-publish-ref`.
+- Published claim: `3001eca1e4b0805f440230b0e2b1567a73f8bf12` accepted on
+  `origin/main`; CI coverage is intentionally unobserved because the claim
+  changes only `.planning/**` and the Story Branch observer belongs to the
+  execution target.
+- Preparation: `npm ci` completed from the locked dependency state; the focused
+  publication tests passed before implementation.
+- CI observer: GitHub Actions workflow `ci.yml` (`CI`) for
+  `terryyin/open-dough` branch `codex/quick-078-publish-ref`, mailbox
+  `/tmp/dough-ci-501/watch-GDIKnw`, PID `41901`, Codex stream session `15470`.
+- Replanning permission: preserve existing planning authority; no overrun
+  replanning was requested.
 
 ## Source and outcome
 
@@ -111,7 +132,7 @@ host-specific command path keeps that host's evidence pending.
 ### 1. First Story Branch publication uses a fully qualified target
 
 Type: Behavior
-Status: planned
+Status: done
 
 Proof: extend the existing native Git-publication fixture, prompt, and assessor
 with the first Story Branch example above; keep the focused deterministic
@@ -125,6 +146,31 @@ on the new branch without changing trunk or requiring a refname-repair retry.
 Safe stopping point: every publication mode still uses one exact-target
 contract, and the newly created Story Branch is proven through the real Git
 boundary and a fresh native agent journey.
+
+Accepted proof:
+
+- `node --test src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-execute-plan/scripts/publication-resume-story-branch.test.mjs`
+  passed 5/5. The existing deterministic publication boundary still creates a
+  new Story Branch and preserves the fully qualified target through resume.
+- `bash tests/git-publication-native.sh --native codex --case story-branch-increment`
+  passed after one evidence-driven assessor correction: Codex reports a command
+  at both lifecycle start and completion, so command counting now uses only
+  `item.started` execution events. The accepted run observed exactly one
+  candidate-to-`refs/heads/exec/story` push, no force or repair retry, the
+  candidate on only that branch, and unchanged remote trunk and default
+  checkout.
+- `bash tests/execution-ci-runtime.sh` passed 205/205, preserving the wider
+  publication and observer runtime boundary.
+- `bash tests/product-backlog-payload-update.sh` passed, proving the changed
+  shared guidance is delivered through the supported installed payloads.
+- `bash tests/git-publication-native.sh`, the post-refactor focused harness,
+  `bash -n` for its changed shell entrypoints, `git diff --check`, and the
+  project formatter/linter passed.
+
+Learning: native Codex transcripts repeat command payloads across lifecycle
+events; assess actual executions from command-start events rather than counting
+every copy of the payload. The existing shared publication owner remains the
+only contract that needs the fully qualified destination.
 
 ## Concerns and readiness
 

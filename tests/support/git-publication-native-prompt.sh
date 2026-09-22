@@ -28,6 +28,10 @@ git_publication_prompt_for() {
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. Close Story Branch work by publishing a history-preserving candidate from this owned workspace onto remote trunk. Preserve pending human edits on the default checkout. Report remote acceptance."
       ;;
+    story-branch-increment)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance. Publish the validated first Story Branch increment at this owned workspace's current HEAD to the authorized remote origin and target branch exec/story. That target branch does not exist yet. Leave remote trunk and the separate default checkout unchanged, and report the accepted revision."
+      ;;
     bug-disposition)
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. With explicit keep authority, publish the durable bug-triage record from this owned workspace. Preserve pending human edits on the default checkout. Report remote acceptance."

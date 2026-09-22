@@ -127,12 +127,26 @@ git_publication_fixture_observe() {
   local journey=$1
   local authority=$2
   local stream_status=$3
-  local remote_sha human_after human_preserved ownership
-  local remote_accepted maintenance
+  local transcript=${4-}
+  local target_ref=refs/heads/main
+  local remote_sha trunk_remote_sha human_after human_preserved ownership
+  local remote_accepted maintenance containing_head_count exact_push_count
+  local target_push_count forced_target_push_count integration_head_sha commands
+
+  if [[ ${journey} == 'story-branch-increment' ]]; then
+    target_ref=refs/heads/exec/story
+  fi
 
   remote_sha=$(
+    git ls-remote "${git_publication_fixture_origin}" "${target_ref}" \
+      | awk '{print $1}'
+  )
+  trunk_remote_sha=$(
     git ls-remote "${git_publication_fixture_origin}" refs/heads/main \
       | awk '{print $1}'
+  )
+  integration_head_sha=$(
+    git -C "${git_publication_fixture_integration}" rev-parse HEAD
   )
   human_after=$(
     git_publication_fixture_capture_human \
@@ -159,6 +173,36 @@ git_publication_fixture_observe() {
     maintenance=deferred
   fi
 
+  containing_head_count=0
+  commands=
+  if [[ ${journey} == 'story-branch-increment' ]]; then
+    containing_head_count=$(
+      git --git-dir="${git_publication_fixture_origin}" for-each-ref \
+        --contains "${git_publication_fixture_candidate_sha}" \
+        --format='%(refname)' refs/heads | wc -l | tr -d ' '
+    )
+    commands=$(
+      if [[ -n ${transcript} && -r ${transcript} ]]; then
+        jq -r 'select(.type == "item.started") | .item | select(.type == "command_execution") | .command // empty' \
+          "${transcript}" 2> /dev/null || true
+      fi
+    )
+  fi
+  exact_push_count=$(
+    grep -Fo "${git_publication_fixture_candidate_sha}:refs/heads/exec/story" \
+      <<< "${commands}" | wc -l | tr -d ' '
+  )
+  target_push_count=$(
+    grep -F 'exec/story' <<< "${commands}" \
+      | grep -Eo '(^|[[:space:]])push([[:space:]]|$)' \
+      | wc -l | tr -d ' '
+  )
+  forced_target_push_count=$(
+    grep -F 'exec/story' <<< "${commands}" \
+      | grep -E '(^|[[:space:]])push([[:space:]]|$)' \
+      | grep -Ec '(^|[[:space:]])(--force|-f)([=[:space:]]|$)' || true
+  )
+
   case ${journey} in
     local-only)
       ownership=n/a
@@ -178,8 +222,15 @@ git_publication_fixture_observe() {
     printf 'stream-status: %s\n' "${stream_status}"
     printf 'remote-accepted: %s\n' "${remote_accepted}"
     printf 'remote-sha: %s\n' "${remote_sha}"
+    printf 'target-ref: %s\n' "${target_ref}"
+    printf 'trunk-remote-sha: %s\n' "${trunk_remote_sha}"
     printf 'candidate-sha: %s\n' "${git_publication_fixture_candidate_sha}"
     printf 'trunk-sha: %s\n' "${git_publication_fixture_trunk_sha}"
+    printf 'integration-head-sha: %s\n' "${integration_head_sha}"
+    printf 'candidate-containing-head-count: %s\n' "${containing_head_count}"
+    printf 'exact-push-count: %s\n' "${exact_push_count}"
+    printf 'target-push-count: %s\n' "${target_push_count}"
+    printf 'forced-target-push-count: %s\n' "${forced_target_push_count}"
     printf 'human-edit-preserved: %s\n' "${human_preserved}"
     printf 'claim-ownership: %s\n' "${ownership}"
     printf 'maintenance-result: %s\n' "${maintenance}"

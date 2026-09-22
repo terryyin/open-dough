@@ -24,6 +24,9 @@ source "${source_dir}/tests/support/git-publication-native-run.sh"
 # shellcheck source=tests/support/git-publication-native-suites.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-suites.sh"
+# shellcheck source=tests/support/git-publication-native-substitute-suite.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/git-publication-native-substitute-suite.sh"
 # shellcheck source=tests/support/git-publication-native-host.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-host.sh"
@@ -42,6 +45,7 @@ usage() {
 usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
+   or: tests/git-publication-native.sh --native codex --case story-branch-increment
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
    or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only
    or: tests/git-publication-native.sh --native HOST --case story-branch-closure/source-conflict

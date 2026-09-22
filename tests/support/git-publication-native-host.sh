@@ -120,6 +120,7 @@ native_case_known() {
       publication/local-only | publication/uncertain-recovery | \
       publication/preparation | publication/trunk-closure | \
       publication/story-branch-closure | publication/bug-disposition | \
+      story-branch-increment | \
       execution-review/pending | execution-review/ready | \
       execution-review/failure | execution-review/skip-retro)
       return 0

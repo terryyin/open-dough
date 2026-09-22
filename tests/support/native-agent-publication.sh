@@ -62,6 +62,11 @@ stream_kind=${NATIVE_AGENT_STREAM:-complete}
 journey=${NATIVE_PUBLICATION_JOURNEY:-publish-boundary}
 
 write_codex_complete() {
+  if [[ ${journey} == 'story-branch-increment' ]]; then
+    jq -n -c --arg command \
+      "git -C ${workspace} push origin ${candidate_sha}:refs/heads/exec/story" \
+      '{type:"item.started",item:{id:"item_push",type:"command_execution",command:$command}}'
+  fi
   jq -n -c \
     '{type:"item.completed",item:{id:"item_0",type:"agent_message",text:"Recorded publication stage completed."}}'
   printf '%s\n' '{"type":"turn.completed"}'
@@ -126,6 +131,16 @@ case ${journey} in
     response=$(
       printf '%s\n' \
         "Recovery: the retained candidate is already an ancestor of the accepted remote history after another writer's advance. No second push. Human edits on the default checkout remain preserved."
+    )
+    ;;
+  story-branch-increment)
+    if [[ -z ${NATIVE_PUBLICATION_SKIP_PUSH:-} ]]; then
+      git -C "${workspace}" push --quiet origin \
+        "${candidate_sha}:refs/heads/exec/story"
+    fi
+    response=$(
+      printf '%s\n' \
+        "Published the owned candidate ${candidate_sha}. The remote accepted that revision on the new Story Branch exec/story. Remote trunk and the default checkout stayed unchanged."
     )
     ;;
   preparation | trunk-closure | story-branch-closure | bug-disposition | publish-boundary | *)

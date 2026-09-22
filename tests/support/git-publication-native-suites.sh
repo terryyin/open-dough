@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Credential-free assessor/substitute suites for tests/git-publication-native.sh.
+# Credential-free assessor suite for tests/git-publication-native.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by the sourced entry/runner.
 
 git_publication_suite_write_obs() {
@@ -22,6 +22,14 @@ git_publication_suite_obs() {
   local human_preserved=true
   local ownership=owned
   local maintenance=deferred
+  local target_ref=refs/heads/main
+  local trunk_remote_sha=trunk000
+  local trunk_sha=trunk000
+  local integration_head_sha=trunk000
+  local containing_head_count=1
+  local exact_push_count=0
+  local target_push_count=0
+  local forced_target_push_count=0
   local override
   for override in "$@"; do
     case ${override} in
@@ -34,6 +42,18 @@ git_publication_suite_obs() {
       human-edit-preserved=*) human_preserved=${override#human-edit-preserved=} ;;
       claim-ownership=*) ownership=${override#claim-ownership=} ;;
       maintenance-result=*) maintenance=${override#maintenance-result=} ;;
+      target-ref=*) target_ref=${override#target-ref=} ;;
+      trunk-remote-sha=*) trunk_remote_sha=${override#trunk-remote-sha=} ;;
+      trunk-sha=*) trunk_sha=${override#trunk-sha=} ;;
+      integration-head-sha=*) integration_head_sha=${override#integration-head-sha=} ;;
+      candidate-containing-head-count=*)
+        containing_head_count=${override#candidate-containing-head-count=}
+        ;;
+      exact-push-count=*) exact_push_count=${override#exact-push-count=} ;;
+      target-push-count=*) target_push_count=${override#target-push-count=} ;;
+      forced-target-push-count=*)
+        forced_target_push_count=${override#forced-target-push-count=}
+        ;;
       *)
         printf 'error: unknown observation override %s\n' "${override}" >&2
         return 2
@@ -46,7 +66,15 @@ git_publication_suite_obs() {
     "stream-status: ${stream}" \
     "remote-accepted: ${remote_accepted}" \
     "remote-sha: ${remote_sha}" \
+    "target-ref: ${target_ref}" \
+    "trunk-remote-sha: ${trunk_remote_sha}" \
     "candidate-sha: ${candidate_sha}" \
+    "trunk-sha: ${trunk_sha}" \
+    "integration-head-sha: ${integration_head_sha}" \
+    "candidate-containing-head-count: ${containing_head_count}" \
+    "exact-push-count: ${exact_push_count}" \
+    "target-push-count: ${target_push_count}" \
+    "forced-target-push-count: ${forced_target_push_count}" \
     "human-edit-preserved: ${human_preserved}" \
     "claim-ownership: ${ownership}" \
     "maintenance-result: ${maintenance}"
@@ -123,98 +151,41 @@ run_assessor_counterexamples() {
   git_publication_assess "${work}/local-only.txt" "${work}/local-only.md"
   git_publication_suite_expect_assess pass
 
-  echo 'PASS: publication assessor accepts equivalent publication wording and local-only retention; rejects missing remote acceptance, captured human edits, wrong claim ownership, claim-race foreign ownership with remote acceptance, and incomplete or stale streams.'
-}
+  git_publication_suite_obs "${work}/story-branch.txt" \
+    journey=story-branch-increment target-ref=refs/heads/exec/story \
+    trunk-remote-sha=trunk000 trunk-sha=trunk000 \
+    integration-head-sha=trunk000 exact-push-count=1 target-push-count=1
+  git_publication_assess "${work}/story-branch.txt" "${work}/valid-response.md"
+  git_publication_suite_expect_assess pass \
+    'exact candidate accepted only on new Story Branch'
 
-run_substitute_host_journeys() {
-  local work sentinel_bin run_log host journey
-  local artifact status
-  work=$(mktemp -d)
-  sentinel_bin="${work}/bin"
-  run_log="${work}/run.log"
-  mkdir -p -- "${sentinel_bin}"
-  for host in codex cursor claude; do
-    cp -- "${source_dir}/tests/support/native-agent-publication.sh" \
-      "${sentinel_bin}/${host}"
-    chmod a+x "${sentinel_bin}/${host}"
-  done
+  git_publication_suite_obs "${work}/story-short-then-exact.txt" \
+    journey=story-branch-increment target-ref=refs/heads/exec/story \
+    trunk-remote-sha=trunk000 trunk-sha=trunk000 \
+    integration-head-sha=trunk000 exact-push-count=1 target-push-count=2
+  git_publication_assess "${work}/story-short-then-exact.txt" \
+    "${work}/valid-response.md"
+  git_publication_suite_expect_assess fail \
+    'transcript lacks one exact fully qualified Story Branch push'
 
-  export PATH="${sentinel_bin}:${PATH}"
-  # Credential-free counterexamples do not retain attempt directories.
-  native_case_results_dir=
+  git_publication_suite_obs "${work}/story-moved-trunk.txt" \
+    journey=story-branch-increment target-ref=refs/heads/exec/story \
+    trunk-remote-sha=changed trunk-sha=trunk000 \
+    integration-head-sha=trunk000 exact-push-count=1 target-push-count=1
+  git_publication_assess "${work}/story-moved-trunk.txt" \
+    "${work}/valid-response.md"
+  git_publication_suite_expect_assess fail \
+    'remote trunk or default checkout changed'
 
-  for host in codex cursor claude; do
-    artifact=$(mktemp -d "${work}/${host}-publish.XXXXXX")
-    : > "${run_log}"
-    set +e
-    NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
-      git_publication_run_journey "${source_dir}" "${host}" \
-      publish-boundary "${artifact}"
-    status=$?
-    set -e
-    if [[ ${status} -ne 0 ]]; then
-      echo "FAIL: substitute ${host} publish-boundary exited ${status}." >&2
-      cat "${artifact}/stderr.log" >&2 || true
-      cat "${artifact}/response.md" >&2 || true
-      exit 1
-    fi
-    if [[ ${git_publication_assess_status} != 'pass' ]]; then
-      echo "FAIL: substitute ${host} publish-boundary assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
-      cat "${artifact}/observations.txt" >&2 || true
-      cat "${artifact}/response.md" >&2 || true
-      exit 1
-    fi
-    if ! grep -Fq "${host}" "${run_log}"; then
-      echo "FAIL: substitute ${host} left no invocation log." >&2
-      cat "${run_log}" >&2
-      exit 1
-    fi
-  done
+  git_publication_suite_obs "${work}/story-two-heads.txt" \
+    journey=story-branch-increment target-ref=refs/heads/exec/story \
+    trunk-remote-sha=trunk000 trunk-sha=trunk000 \
+    integration-head-sha=trunk000 candidate-containing-head-count=2 \
+    exact-push-count=1 target-push-count=1
+  git_publication_assess "${work}/story-two-heads.txt" \
+    "${work}/valid-response.md"
+  git_publication_suite_expect_assess fail \
+    'candidate is not confined to the new Story Branch'
 
-  artifact=$(mktemp -d "${work}/codex-trunc.XXXXXX")
-  set +e
-  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_AGENT_STREAM=truncated \
-    git_publication_run_journey "${source_dir}" codex publish-boundary \
-    "${artifact}"
-  status=$?
-  set -e
-  unset NATIVE_AGENT_STREAM
-  [[ ${status} -ne 0 ]]
-  git_publication_suite_expect_assess fail 'incomplete or stale native stream'
-
-  artifact=$(mktemp -d "${work}/codex-skip.XXXXXX")
-  set +e
-  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_PUBLICATION_SKIP_PUSH=1 \
-    git_publication_run_journey "${source_dir}" codex publish-boundary \
-    "${artifact}"
-  status=$?
-  set -e
-  unset NATIVE_PUBLICATION_SKIP_PUSH
-  [[ ${status} -eq 0 ]]
-  git_publication_suite_expect_assess fail 'missing remote acceptance'
-
-  for journey in local-only claim-race uncertain-recovery preparation \
-    trunk-closure story-branch-closure bug-disposition; do
-    artifact=$(mktemp -d "${work}/journey-${journey}.XXXXXX")
-    set +e
-    NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
-      git_publication_run_journey "${source_dir}" cursor "${journey}" \
-      "${artifact}"
-    status=$?
-    set -e
-    if [[ ${status} -ne 0 ]]; then
-      echo "FAIL: substitute cursor ${journey} exited ${status}." >&2
-      cat "${artifact}/stderr.log" >&2 || true
-      exit 1
-    fi
-    if [[ ${git_publication_assess_status} != 'pass' ]]; then
-      echo "FAIL: substitute cursor ${journey} assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
-      cat "${artifact}/observations.txt" >&2
-      cat "${artifact}/response.md" >&2 || true
-      exit 1
-    fi
-  done
-
-  echo 'PASS: credential-free publication runner exercises complete streams on Codex, Cursor, and Claude Code substitutes; rejects truncated streams and missing remote acceptance; and covers local-only, claim-race, uncertain-recovery, preparation, trunk-closure, story-branch-closure, and bug-disposition journeys.'
-  echo 'EVIDENCE: mechanical Git observations plus substitute adapter streams; not live native agent behavior. Live host proof remains under --native.'
+  echo 'PASS: publication assessor accepts equivalent publication wording, local-only retention, and one exact new Story Branch push; rejects missing remote acceptance, captured human edits, wrong claim ownership, claim-race foreign ownership with remote acceptance, malformed push retries, changed trunk, and incomplete or stale streams.'
 }
