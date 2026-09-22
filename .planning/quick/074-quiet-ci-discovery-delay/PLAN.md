@@ -7,7 +7,7 @@ Status: taken; slices 1–4 delivered.
 - Mode: Story Branch. Replanning allowed.
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`.
 - Execution checkout: `/Users/terryyin/.cursor-worktrees/open-dough/074-quiet-ci-discovery-delay`, branch `cursor/074-quiet-ci-discovery-delay`, created this session from `f48b8569d97210eae8a6ada951dda9954ec5c28c`.
-- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim; coverage unobserved). On `origin/cursor/074-quiet-ci-discovery-delay`: `9f86ddafee0fd2bd0f782c9214121bf2b6f8e409` (slice 1), `8a0035706c0cfe4a3e98325f5848d59a10408d94` (slice 2), `d57783c8d7a742cfa6856d68141034226a73f3b2` (slice 3). Each registered with the observer.
+- Published revisions: `a604ebe8a03edf6a3f63e06e0fa117c505cd1c71` accepted on `origin/main` (queue claim; coverage unobserved). On `origin/cursor/074-quiet-ci-discovery-delay`: `9f86ddafee0fd2bd0f782c9214121bf2b6f8e409` (slice 1), `8a0035706c0cfe4a3e98325f5848d59a10408d94` (slice 2), `d57783c8d7a742cfa6856d68141034226a73f3b2` (slice 3), `7b7054e9a38098426a9bd88da24b3e607a104e7e` (slice 4). Each registered with the observer.
 - Default-checkout refresh: advanced to that claim SHA.
 - CI observer: `/tmp/dough-ci-501/watch-DIUxCS`, GitHub Actions `ci.yml` / `CI`, target branch `cursor/074-quiet-ci-discovery-delay`.
 
