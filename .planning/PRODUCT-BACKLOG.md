@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Wait for the latest applicable CI result before advancing execution](seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing) — SEED-008#wait-for-applicable-ci-before-advancing ([plan](quick/077-await-applicable-ci/PLAN.md))
-
 ## Backlog list
 
 - [Fix scripts/check-self-installation.sh failing on Ubuntu CI](seeds/SEED-023-self-installation-check-fails-on-ubuntu-ci.md#fix-self-installation-check-ubuntu-failure) — SEED-023#fix-self-installation-check-ubuntu-failure
