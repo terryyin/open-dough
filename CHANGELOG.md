@@ -1,3 +1,11 @@
+## 0.3.30 - 2026-09-23
+
+- Route planned story claims through the canonical product-backlog writer so execution preserves identity and plan links, refuses ambiguous moves, and leaves preparation readiness under its existing owner instead of hand-building backlog entries.
+- Add one bounded wait for the applicable published revision at execution and wrap-up completion. Let retrospective review overlap pending CI, retain exact success, failure, timeout, and unavailable-observation evidence, and delay final handoff or resource cleanup until that result is handled for Story Branch and Trunk Mode.
+- Publish exact candidates to fully qualified remote branch refs, including the first push of a new Story Branch, while preserving the existing history, ownership, and non-force publication safeguards.
+
+No additional native acceptance was run for `0.3.30` at the maintainer's request. Native evidence already completed within the included stories is retained; acceptance for other newly changed behavior and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.29 - 2026-09-22
 
 - Show published story preparation and execution progress directly in the dashboard. Associate canonical plans with backlog entries, distinguish content-bound readiness from stale or failed evidence, display recorded slice progress and remaining work, and keep private-project reads behind the existing authenticated boundary.
