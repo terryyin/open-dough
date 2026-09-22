@@ -1,3 +1,12 @@
+## 0.3.29 - 2026-09-22
+
+- Show published story preparation and execution progress directly in the dashboard. Associate canonical plans with backlog entries, distinguish content-bound readiness from stale or failed evidence, display recorded slice progress and remaining work, and keep private-project reads behind the existing authenticated boundary.
+- Make CI observation path-filter aware. Resolve workflow applicability from the delivered revision and Git history, keep ignored-only revisions quiet, require only checks that can cover the changed paths, and declare the runtime dependencies needed to make those decisions in installed guidance.
+- Reduce CI-observer interruption without hiding uncertainty. Keep newly published revisions quiet while discovery is still plausible, emit one bounded advisory after an extended gap, distinguish pending checks from checks that were never discovered, and preserve host shutdown behavior.
+- Tighten execution and planning guidance around owned workspaces, publication recovery, regression-proof prerequisites, and balanced Behavior/Structure slices so work remains independently provable without accumulating avoidable orchestration or special cases.
+
+No additional native acceptance was run for `0.3.29` at the maintainer's request. Native evidence already completed within the included stories is retained; acceptance for other newly changed behavior and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.28 - 2026-09-22
 
 - Expand the published-work dashboard from one public repository to selectable Open Dough, Doughnut, and Pygardon views. Read the private Pygardon backlog through a local `gh`-authenticated boundary, isolate overlapping project reads, preserve each last trustworthy snapshot through failures, and support the same behavior in development and built previews without exposing credentials to the browser.
