@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–8 done; slice 9 is next.
+Status: executing; slices 1–9 done; slice 10 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 7: `f8093cd62c31b76c832b55502078e3116328ad0b`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments include slice 6 `89fea1501d78f7c479f3a56e3315cb6b9142dc6b`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 8: `3b75c363db7d061997536f589d0fdcfd12cf3dd8`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 7 remains `f8093cd62c31b76c832b55502078e3116328ad0b`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -332,12 +332,14 @@ plan structure, and a done slice lacking accepted evidence remain understandable
 
 ### 9. Keep evidence gaps and refreshes truthful
 Type: Behavior
-Status: planned
+Status: done
 Proof: Browser journey changes the assessed content without reassessment, introduces
 a conflicting plan association, and fails one plan retrieval; each card retains
 supported facts and names its dependent gap. Failed refresh keeps prior evidence
 labeled with its original revision; Retry recovers. Switching projects during a
 held read cannot leak its late result. Assert no polling or unbounded retries.
+
+Accepted: `npm run test:dashboard -- --grep 'story readiness'` passed with 2 tests after the gap split. Setup appends seed prose or commits a disagreeing backlog plan link and does not plant the gap labels. Observations: `dashboard/tests/story-readiness-gaps.spec.ts` and `storyReadinessGaps.ts` / `storyReadinessRefresh.ts` — Needs reassessment, Plan association conflict, Readiness unavailable, prior revision retained, Retry, project switch, and no polling.
 
 Behavior: Changed, missing, conflicting, or unavailable source → inspect/Refresh →
 truthful scoped uncertainty without inventing unrefined, inactive, or completed.

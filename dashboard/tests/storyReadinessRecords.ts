@@ -163,6 +163,20 @@ export const legacy = {
   title: "Legacy story without structured state",
 };
 
+export const malformed = {
+  identity: "SEED-075#malformed-state",
+  link: "seeds/SEED-075-malformed.md#malformed-state",
+  title: "Story with a malformed state block",
+};
+
+export const externalPlan = {
+  identity: "SEED-075#external-plan-link",
+  link: "seeds/SEED-075-external.md#external-plan-link",
+  title: "Story whose backlog plan is external only",
+};
+
+export const externalPlanUrl = "https://example.com/plans/external-only.md";
+
 export const planlessSeed = `---
 id: SEED-075-planless
 ---
@@ -195,4 +209,38 @@ id: SEED-075-legacy
 **Status:** Captured in free-form prose only.
 
 Older record without a story-state block.
+`;
+
+export const malformedSeed = `---
+id: SEED-075-malformed
+---
+
+# Malformed fixture
+
+<a id="malformed-state"></a>
+
+### Story with a malformed state block
+
+**Identity:** ${malformed.identity}
+
+**Status:** Has a fence that is not valid JSON.
+
+\`\`\`json dough-story-state
+{not valid json
+\`\`\`
+`;
+
+export const externalPlanSeed = `---
+id: SEED-075-external
+---
+
+# External plan link fixture
+
+<a id="external-plan-link"></a>
+
+### Story whose backlog plan is external only
+
+**Identity:** ${externalPlan.identity}
+
+**Status:** Refined with an external backlog plan link only.
 `;

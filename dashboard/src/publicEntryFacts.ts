@@ -1,8 +1,12 @@
 // Interprets purpose and plan-slice facts for one public published-work entry
 // once its canonical and plan texts are already loaded. Preparation readiness
-// and slice reading share one associated-plan resolution.
+// and slice reading share one associated-plan resolution. Backlog plan links
+// remain navigation/claim data; when both a backlog plan and a recorded
+// story-state plan exist they must resolve to the same path, and disagreement
+// is reported rather than preferred.
 
 import type { WorkEntry } from "./publishedWork";
+import { planAssociationConflict } from "./planAssociation";
 import { resolveBesideFile } from "./repositoryPath";
 import {
   interpretStoryState,
@@ -12,15 +16,20 @@ import {
 import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan";
 import { interpretStoryPurpose, type WorkPurpose } from "./storyPurpose";
 
-function recordedWithoutPlanAssessment(
+export { planAssociationConflict } from "./planAssociation";
+
+function recordedWithAssessment(
   peek: Extract<WorkPreparation, { readonly status: "recorded" }>,
-  problem: string,
+  assessment: Extract<
+    WorkPreparation,
+    { readonly status: "recorded" }
+  >["assessment"],
 ): WorkPreparation {
   return {
     status: "recorded",
     refinement: peek.refinement,
     approach: peek.approach,
-    assessment: { status: "unavailable", problem },
+    assessment,
   };
 }
 
@@ -122,6 +131,12 @@ export function planSlicesFor(
   if (preparation.approach.kind !== "planned") {
     return { status: "absent" };
   }
+  if (preparation.assessment.status === "plan-association-conflict") {
+    return {
+      status: "unavailable",
+      problem: preparation.assessment.problem,
+    };
+  }
   const associated = associatedPlanSource(
     path,
     preparation.approach.plan,
@@ -142,6 +157,7 @@ export function preparationForPeek(
   canonicalText: ReadonlyMap<string, string>,
   planText: ReadonlyMap<string, string>,
   planProblems: ReadonlyMap<string, string>,
+  backlogPath: string,
 ): WorkPreparation {
   if (peek.status !== "recorded") {
     return peek;
@@ -154,6 +170,18 @@ export function preparationForPeek(
       problem: "The canonical record could not be read.",
     };
   }
+  const associationConflict = planAssociationConflict(
+    entry,
+    backlogPath,
+    path,
+    peek,
+  );
+  if (associationConflict !== undefined) {
+    return recordedWithAssessment(peek, {
+      status: "plan-association-conflict",
+      problem: associationConflict,
+    });
+  }
   if (peek.approach.kind !== "planned") {
     return interpretStoryState(text, href);
   }
@@ -165,7 +193,10 @@ export function preparationForPeek(
     planProblems,
   );
   if (associated.status === "unavailable") {
-    return recordedWithoutPlanAssessment(peek, associated.problem);
+    return recordedWithAssessment(peek, {
+      status: "unavailable",
+      problem: associated.problem,
+    });
   }
   if (associated.planIsCanonical) {
     return interpretStoryState(text, href, { planIsCanonical: true });

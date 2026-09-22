@@ -73,7 +73,11 @@ export type WorkPreparation =
             readonly recorded: "ready" | "not-ready";
             readonly reasons: readonly string[];
           }
-        | { readonly status: "unavailable"; readonly problem: string };
+        | { readonly status: "unavailable"; readonly problem: string }
+        | {
+            readonly status: "plan-association-conflict";
+            readonly problem: string;
+          };
     };
 
 // Preparation badge: one of the labeled colors. Ready is a separate badge.
@@ -107,6 +111,28 @@ export function readyBadge(
     return { label: "Ready for execution" };
   }
   return undefined;
+}
+
+export type WorkAssessment = Extract<
+  WorkPreparation,
+  { readonly status: "recorded" }
+>["assessment"];
+
+// Card and detail share one assessment wording; badges stay separate.
+export function assessmentSummaryText(assessment: WorkAssessment): string {
+  if (assessment.status === "absent") {
+    return "Absent";
+  }
+  if (assessment.status === "ready") {
+    return "Ready for execution";
+  }
+  if (assessment.status === "not-ready") {
+    return `Not ready (${assessment.reasons.join("; ")})`;
+  }
+  if (assessment.status === "needs-reassessment") {
+    return `Needs reassessment (recorded ${assessment.recorded})`;
+  }
+  return assessment.problem;
 }
 
 export type InterpretedPreparation = Exclude<

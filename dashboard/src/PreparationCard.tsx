@@ -2,32 +2,15 @@
 // facts that open already-loaded content without another source read.
 
 import {
+  assessmentSummaryText,
   preparationBadge,
   readyBadge,
+  type WorkAssessment,
   type WorkPreparation,
 } from "./storyPreparation";
 
-function AssessmentSummary({
-  assessment,
-}: {
-  assessment: Extract<
-    WorkPreparation,
-    { readonly status: "recorded" }
-  >["assessment"];
-}) {
-  if (assessment.status === "absent") {
-    return "Absent";
-  }
-  if (assessment.status === "ready") {
-    return "Ready for execution";
-  }
-  if (assessment.status === "not-ready") {
-    return `Not ready (${assessment.reasons.join("; ")})`;
-  }
-  if (assessment.status === "needs-reassessment") {
-    return `Needs reassessment (recorded ${assessment.recorded})`;
-  }
-  return assessment.problem;
+function AssessmentSummary({ assessment }: { assessment: WorkAssessment }) {
+  return assessmentSummaryText(assessment);
 }
 
 function ApproachSummary({
@@ -112,6 +95,11 @@ export function PreparationFacts({
         {assessment.status === "needs-reassessment" && (
           <span className="badge badge-needs-reassessment">
             Needs reassessment
+          </span>
+        )}
+        {assessment.status === "plan-association-conflict" && (
+          <span className="badge badge-needs-reassessment">
+            Plan association conflict
           </span>
         )}
         {assessment.status === "unavailable" && (

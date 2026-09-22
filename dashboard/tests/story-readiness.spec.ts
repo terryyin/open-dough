@@ -15,7 +15,9 @@ import {
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
+  externalPlan,
   legacy,
+  malformed,
   plannedBlocked,
   plannedReady,
   planless,
@@ -167,7 +169,12 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       await project.selectOption("doughnut");
       await expectMembership(page, {
         taken: [],
-        backlog: [planless.title, legacy.title],
+        backlog: [
+          planless.title,
+          legacy.title,
+          malformed.title,
+          externalPlan.title,
+        ],
       });
       await expect(source).toContainText(doughnut.revision);
 
@@ -197,7 +204,8 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
 
       const doughnutPaths = contentPathsRead(doughnutOrigin);
       expect(doughnutPaths[0]).toBe("main");
-      expect(doughnutPaths).toHaveLength(4);
+      // main + backlog + planless seed + legacy + malformed + external seeds.
+      expect(doughnutPaths).toHaveLength(6);
     });
   } finally {
     for (const cleanup of cleanups.reverse()) {

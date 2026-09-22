@@ -6,7 +6,11 @@
 import { execFileSync } from "node:child_process";
 import type { Page, Route } from "@playwright/test";
 import { commitAnswer, type ObservedRequest } from "./githubOrigin";
-import { rawFileAnswer } from "./originAnswers";
+import {
+  notFoundAnswer,
+  rawFileAnswer,
+  type OriginAnswer,
+} from "./originAnswers";
 
 const cors = { "access-control-allow-origin": "*" };
 
@@ -38,6 +42,8 @@ export type CommittedOrigin = {
   readonly repository: string;
   readonly repoDir: string;
   hold(repositoryPath: string): () => void;
+  // Answers "main" or a repository path with this raw answer until restore.
+  answerWith(what: string, answer: OriginAnswer): () => void;
   advanceTo(revision: string): void;
 };
 
@@ -53,6 +59,7 @@ export async function publishCommittedOrigin(
   let revision = options.revision;
   const requests: ObservedRequest[] = [];
   const held = new Map<string, Promise<void>>();
+  const instead = new Map<string, OriginAnswer>();
   const repositoryApi = `https://api.github.com/repos/${repository}`;
   const mainRefApi = `${repositoryApi}/commits/main`;
   const contentsPrefix = `${repositoryApi}/contents/`;
@@ -63,6 +70,21 @@ export async function publishCommittedOrigin(
       url: route.request().url(),
       headers: await route.request().allHeaders(),
     });
+    await held.get("main");
+    const overridden = instead.get("main");
+    if (overridden !== undefined) {
+      if ("connection" in overridden) {
+        await route.abort(overridden.connection);
+        return;
+      }
+      await route.fulfill({
+        status: overridden.status,
+        contentType: overridden.contentType,
+        headers: cors,
+        body: overridden.body,
+      });
+      return;
+    }
     const answer = commitAnswer(revision);
     await route.fulfill({
       status: answer.status,
@@ -86,13 +108,28 @@ export async function publishCommittedOrigin(
       );
       const repositoryPath = decodeURIComponent(encoded);
       await held.get(repositoryPath);
+      const overridden = instead.get(repositoryPath);
+      if (overridden !== undefined) {
+        if ("connection" in overridden) {
+          await route.abort(overridden.connection);
+          return;
+        }
+        await route.fulfill({
+          status: overridden.status,
+          contentType: overridden.contentType,
+          headers: cors,
+          body: overridden.body,
+        });
+        return;
+      }
       const body = showAt(repoDir, revision, repositoryPath);
       if (body === undefined) {
+        const missing = notFoundAnswer();
         await route.fulfill({
-          status: 404,
-          contentType: "application/json; charset=utf-8",
+          status: missing.status,
+          contentType: missing.contentType,
           headers: cors,
-          body: JSON.stringify({ message: "Not Found", status: "404" }),
+          body: missing.body,
         });
         return;
       }
@@ -124,6 +161,12 @@ export async function publishCommittedOrigin(
       return () => {
         held.delete(repositoryPath);
         release();
+      };
+    },
+    answerWith(what, answer) {
+      instead.set(what, answer);
+      return () => {
+        instead.delete(what);
       };
     },
     advanceTo(next) {

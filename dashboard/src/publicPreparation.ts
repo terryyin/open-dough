@@ -6,6 +6,7 @@
 
 import type { PublishedWork, WorkEntry } from "./publishedWork";
 import {
+  planAssociationConflict,
   planSlicesFor,
   preparationForPeek,
   purposeFor,
@@ -133,13 +134,20 @@ export async function enrichPublicPreparation(
   );
 
   const planPaths = new Map<string, string>();
-  for (const { path, peek } of peeks) {
+  for (const { entry, path, peek } of peeks) {
     if (
       path === undefined ||
       peek === undefined ||
       peek.status !== "recorded" ||
       peek.approach.kind !== "planned"
     ) {
+      continue;
+    }
+    if (
+      planAssociationConflict(entry, source.backlogPath, path, peek) !==
+      undefined
+    ) {
+      // Disagreement is reported; neither plan is preferred for readiness.
       continue;
     }
     const resolved = resolveBesideFile(path, peek.approach.plan);
@@ -169,6 +177,7 @@ export async function enrichPublicPreparation(
       canonicalText,
       planText,
       planProblems,
+      source.backlogPath,
     );
     byIdentity.set(entry.identity, {
       preparation,

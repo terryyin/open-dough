@@ -10,7 +10,10 @@ import {
   type PlanSlice,
   type WorkPlanSlices,
 } from "./storyPlan";
-import type { WorkPreparation } from "./storyPreparation";
+import {
+  assessmentSummaryText,
+  type WorkPreparation,
+} from "./storyPreparation";
 import type { WorkPurpose } from "./storyPurpose";
 
 function PurposeBlock({ purpose }: { purpose: WorkPurpose | undefined }) {
@@ -60,18 +63,7 @@ function AssessmentBlock({
   }
 
   const { assessment, refinement, approach } = preparation;
-  let assessmentText: string;
-  if (assessment.status === "absent") {
-    assessmentText = "Absent";
-  } else if (assessment.status === "ready") {
-    assessmentText = "Ready for execution";
-  } else if (assessment.status === "not-ready") {
-    assessmentText = `Not ready (${assessment.reasons.join("; ")})`;
-  } else if (assessment.status === "needs-reassessment") {
-    assessmentText = `Needs reassessment (recorded ${assessment.recorded})`;
-  } else {
-    assessmentText = assessment.problem;
-  }
+  const assessmentText = assessmentSummaryText(assessment);
 
   let approachText: string;
   if (approach.kind === "planned") {
