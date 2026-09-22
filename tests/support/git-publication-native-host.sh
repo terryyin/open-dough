@@ -10,8 +10,9 @@ host_fresh_journeys() {
   fi
   case $1 in
     codex) printf '%s\n' publish-boundary claim-race ;;
-    cursor) printf '%s\n' publish-boundary trunk-closure local-only ;;
-    claude) printf '%s\n' publish-boundary story-branch-closure \
+    cursor) printf '%s\n' publish-boundary trunk-closure/source \
+      trunk-closure/ignored-only local-only ;;
+    claude) printf '%s\n' publish-boundary story-branch-closure/source-conflict \
       preparation bug-disposition uncertain-recovery ;;
     *) return 2 ;;
   esac
@@ -19,6 +20,7 @@ host_fresh_journeys() {
 
 run_native_host() {
   local host=$1
+  local selected_case=${2-}
   local journey artifact work results_dir status outstanding=0
   command -v "${host}" > /dev/null || {
     echo "error: ${host} CLI not found on PATH" >&2
@@ -37,6 +39,31 @@ run_native_host() {
 
   while IFS= read -r journey; do
     [[ -n ${journey} ]] || continue
+    if [[ ${journey} == execution-review/* || ${journey} == trunk-closure/* ||
+      ${journey} == story-branch-closure/* ]]; then
+      printf '\n--- journey %s ---\n' "${journey}"
+      set +e
+      case ${journey} in
+        execution-review/*)
+          ci_completion_run_journey "${source_dir}" "${host}" \
+            "${journey#execution-review/}" "${results_dir}"
+          ;;
+        trunk-closure/*)
+          trunk_closure_run_journey "${source_dir}" "${host}" \
+            "${journey#trunk-closure/}" "${results_dir}"
+          ;;
+        story-branch-closure/*)
+          story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
+          ;;
+        *) return 2 ;;
+      esac
+      status=$?
+      set -e
+      if [[ ${status} -ne 0 ]]; then
+        outstanding=1
+      fi
+      continue
+    fi
     artifact=$(mktemp -d "${work}/${journey}.XXXXXX")
     printf '\n--- journey %s ---\n' "${journey}"
     set +e
@@ -66,7 +93,13 @@ run_native_host() {
     else
       printf 'FRESH PROOF: %s %s\n' "${host}" "${journey}"
     fi
-  done < <(host_fresh_journeys "${host}")
+  done < <(
+    if [[ -n ${selected_case} ]]; then
+      printf '%s\n' "${selected_case#publication/}"
+    else
+      host_fresh_journeys "${host}"
+    fi
+  )
 
   printf '\nJustified reuse notes:\n'
   printf '%s\n' \
@@ -78,5 +111,25 @@ run_native_host() {
     echo "PENDING: one or more ${host} native publication journeys lack passing fresh proof."
     exit 1
   fi
-  echo "PASS: ${host} native publication journeys assessed from observable state."
+  echo "PASS: ${host} selected native journeys assessed from observable state."
+}
+
+native_case_known() {
+  case $1 in
+    publication/publish-boundary | publication/claim-race | \
+      publication/local-only | publication/uncertain-recovery | \
+      publication/preparation | publication/trunk-closure | \
+      publication/story-branch-closure | publication/bug-disposition | \
+      execution-review/pending | execution-review/ready | \
+      execution-review/failure | execution-review/skip-retro)
+      return 0
+      ;;
+    trunk-closure/source | trunk-closure/ignored-only)
+      return 0
+      ;;
+    story-branch-closure/source-conflict)
+      return 0
+      ;;
+    *) return 1 ;;
+  esac
 }

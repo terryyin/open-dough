@@ -14,6 +14,7 @@ test("supported hosts share one execution observer instead of a per-SHA watcher"
     reference("SKILL.md"),
     reference("references/wrap-up.md"),
     reference("references/ci-monitor.md"),
+    reference("references/ci-completion-wait.md"),
     reference("references/ci-notify-hosts.md"),
     reference("references/finish-or-stop.md"),
   ].join("\n");
@@ -28,5 +29,13 @@ test("supported hosts share one execution observer instead of a per-SHA watcher"
     contract,
     /reuse(?:s|d)? (?:it|the same observer).*repair push/is,
   );
-  assert.match(contract, /stop observers without waiting\s+for CI/);
+  assert.match(
+    contract,
+    /execution\/review completion boundary below is the only routine CI wait/,
+  );
+  assert.match(contract, /await-revision '\/EXACT\/RECORDED\/MAILBOX'/);
+  assert.match(
+    contract,
+    /this stop (?:binding|command) never substitutes\s+for\s+that wait/,
+  );
 });

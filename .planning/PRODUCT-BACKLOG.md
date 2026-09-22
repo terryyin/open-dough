@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Wait for the latest applicable CI result before advancing execution](seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing) — SEED-008#wait-for-applicable-ci-before-advancing ([plan](quick/077-await-applicable-ci/PLAN.md))
-
 ## Backlog list
 
 - [Publish an exact candidate to a new remote branch](quick/078-qualify-new-branch-push-ref/PLAN.md)
