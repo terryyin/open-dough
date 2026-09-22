@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Wait for the latest applicable CI result before advancing execution](seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing) — SEED-008#wait-for-applicable-ci-before-advancing ([plan](quick/077-await-applicable-ci/PLAN.md))
-- [Take planned work through the canonical backlog operation](seeds/SEED-022-valid-backlog-writes.md#prevent-malformed-backlog-publication) — SEED-022#prevent-malformed-backlog-publication ([plan](quick/075-use-canonical-backlog-take/PLAN.md))
 
 ## Backlog list
 

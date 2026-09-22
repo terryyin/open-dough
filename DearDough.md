@@ -958,33 +958,6 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
-## DD-091 — The documented exact-candidate push cannot create a new remote branch
-
-`publish-the-candidate.md` tells the executor to push a raw candidate SHA to
-`<target-branch>`. Git requires a fully qualified destination when that remote
-branch does not yet exist, even though the publication runtime and its tests
-already represent authorized targets as `refs/heads/...`.
-
-### Occurrences
-
-- Execution: `.planning/quick/075-use-canonical-backlog-take/PLAN.md`, first
-  related implementation commit `e77aead21cc3a05139d8000962059e29d283fc8c`
-  - Timestamp: unknown (2026-09-22, during plan 075 delivery)
-  - Tool: Codex
-  - Open Dough release: modified; revision
-    `fee00b1c1c9749a17c4962d44f5f87bd31ded5b4`; base `0.3.29`
-  - Evidence: `git push origin
-    <candidate>:codex/use-canonical-backlog-take-075` failed because the
-    destination was not a full refname; the same candidate succeeded as
-    `<candidate>:refs/heads/codex/use-canonical-backlog-take-075`. The first
-    failed attempt in this delivery was a separate zsh interpolation mistake.
-  - Observed effect: two failed publication attempts before the validated
-    increment reached its authorized Story Branch target; no remote ref was
-    changed by either failed attempt.
-  - Inference: The second failure is deterministic for a raw SHA and absent
-    destination branch. Aligning the prose with the existing fully qualified
-    runtime target removes executor judgment and the repair retry.
-
 ## Retention
 
 - Highest allocated local number: 91

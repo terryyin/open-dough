@@ -1,18 +1,20 @@
 # Publish an exact candidate to a new remote branch
 
-Status: planned; bounded retrospective correction; not queued; no execution
+Status: planned; bounded retrospective correction; queued first; no execution
 authorized by this plan.
 
 **Identity:** quick/078-qualify-new-branch-push-ref/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a37434340aa3ec8f2dd0a83cc29134b532aff03c8be54ce6404e56647a5851f8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"be5dc90def31d75eeaf89d1487167d979a175465b8a2afd353c4568236ab0653"}}
 ```
 
 ## Source and outcome
 
-Source execution: plan 075,
-`SEED-022#prevent-malformed-backlog-publication`, published implementation
-`e77aead21cc3a05139d8000962059e29d283fc8c`.
+Source execution: plan 075 at
+`9336d64c612c1ae30ef9e8114f4e18acac4bce92:.planning/quick/075-use-canonical-backlog-take/PLAN.md`,
+selected story at
+`9336d64c612c1ae30ef9e8114f4e18acac4bce92:.planning/seeds/SEED-022-valid-backlog-writes.md#prevent-malformed-backlog-publication`,
+published implementation `e77aead21cc3a05139d8000962059e29d283fc8c`.
 
 Beneficiary: a developer whose executing agent publishes the first validated
 increment of Story Branch work.
