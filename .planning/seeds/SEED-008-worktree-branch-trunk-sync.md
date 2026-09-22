@@ -223,23 +223,24 @@ root.
 **Identity:** SEED-008#self-ending-ci-observer
 
 **Status:** Captured on 2026-09-22 (story B of the split above); outcome
-aligned with the developer, refinement pending before planning.
+aligned with the developer, refinement pending before planning. Its original
+premise that final publications are deliberately left unobserved was superseded
+by the later wait-for-applicable-CI story below.
 
-**For / why:** Execution's final push and Trunk Mode's closure pushes are, by
-design, not observed to completion: the session ends before their results
-arrive. Today the agent still stops the observer, reads its report, writes
-"pending CI as unobserved", and in Trunk Mode wrap-up arms, registers, and
-stops a second observer for closure commits. None of that attention changes
-the outcome.
+**For / why:** Once execution waits for the latest applicable CI result at its
+phase boundaries, the observer still should not require explicit closing
+bookkeeping. Today the agent stops it, reads its report, and may arm, register,
+and stop another observer around Trunk Mode closure commits. That lifecycle
+attention adds no product evidence beyond the applicable terminal result.
 
 **Outcome:** The observer ends itself — when every registered revision is
 terminal and no registration arrives within a bounded idle period, or at its
-budget — and writes its terminal result for anyone who looks. Execution's
-finish and Trunk Mode wrap-up run no observer stop, arm, or registration and
-write no coverage report; delivered failures are still handled. Closure and
-final pushes are unobserved by design and not narrated as such. Guidance in
-finish-or-stop, Trunk Mode wrap-up publication, and story wrap-up loses its
-observer steps; an explicit stop remains available for cancellation.
+budget — and writes its terminal result for anyone who looks. Execution and
+Trunk Mode wrap-up run no observer stop or coverage-report bookkeeping after
+the applicable terminal result has been handled; delivered failures are still
+handled. Guidance in finish-or-stop, Trunk Mode wrap-up publication, and story
+wrap-up loses its explicit closing steps; an explicit stop remains available
+for cancellation.
 
 **Constraints and open decisions:** Choose the idle bound during refinement;
 an orphaned observer must stay bounded and harmless to the CI API. Keep story
@@ -247,9 +248,10 @@ A's advisory and terminal-report semantics. Decide whether a session-end
 hook, where a host offers one, should end the observer sooner; do not require
 one for correctness.
 
-**Depends on:** no product prerequisite; ordered after story A by the
-developer's decision. **Safe stopping point:** the agent still starts and
-registers the observer but never closes it. **Effort hypothesis:** S.
+**Depends on:** the wait-for-applicable-CI story below establishes when an
+execution phase may advance; ordered after it by the developer's decision.
+**Safe stopping point:** the agent still starts and registers the observer but
+never closes it. **Effort hypothesis:** S.
 
 <a id="script-driven-ci-observation"></a>
 
@@ -290,6 +292,164 @@ target, and checkout root that the hook reads.
 **Depends on:** story B, since an observer nobody starts must end itself.
 **Safe stopping point:** the agent's observer vocabulary is empty; failures
 still arrive. **Effort hypothesis:** M.
+
+<a id="path-filter-aware-ci-observation"></a>
+
+### Skip path-only CI without hiding the applicable verdict
+
+**Identity:** SEED-008#path-filter-aware-ci-observation
+
+**Status:** Refined and accepted by Terry on 2026-09-22; queued first and planned in
+[076-path-filter-aware-ci-observation](../quick/076-path-filter-aware-ci-observation/PLAN.md).
+Not taken.
+
+**Goal:** An agent publishing changes confined to `.planning/**` and `docs/**`
+receives no CI-discovery notification or skipped-run interpretation, while a
+failure from the last CI-applicable revision remains visible and actionable.
+The project avoids the expensive GitHub Actions jobs without manufacturing a
+green result for code that was not tested.
+
+**Scope — required behavior:**
+
+- Configure this repository's `push` and `pull_request` GitHub Actions triggers
+  with `paths-ignore` for `.planning/**` and `docs/**`; keep manual dispatch.
+  GitHub creates no workflow run when every changed path is ignored and still
+  creates one when any other path changes.
+- In the default GitHub observer, treat the configured workflow's literal
+  `push.paths-ignore` list as the policy for whether a registered revision
+  needs a run. Do not hard-code a second Open Dough path list. Unsupported or
+  unreadable workflow policy, missing ancestry, or a non-ignored path fails
+  closed: the revision remains unproved until an exact run appears.
+- Record an ignored-only revision explicitly as `not_required`, with the
+  applicable earlier CI attempt and verdict retained as its basis. An exact
+  run for the registered revision takes precedence if one exists. Never turn
+  `not_required` itself into success.
+- Keep ignored-only success and pending coverage quiet. A failure or incomplete
+  result from the applicable earlier revision retains its existing actionable
+  meaning and attribution; a later ignored-only publication neither
+  acknowledges nor erases it.
+- A proved `not_required` revision is terminal for coverage and does not appear
+  as an undiscovered revision or produce `CI_DISCOVERY_DELAYED`. The observer
+  remains a non-model process and emits no event for the ordinary ignored-only
+  case, so the host bridge supplies no new agent context or token-consuming
+  turn for it.
+
+**Key examples / evaluation:**
+
+1. Revision A changes runtime code and passes CI. Revision B changes only
+   `.planning/**` and `docs/**`. GitHub creates no B run; the observer records B
+   as `not_required` based on A's success, emits nothing, and stops with no
+   unproved entry for B.
+2. Revision A fails CI, then B changes only ignored paths. GitHub creates no B
+   run; the observer retains A as the applicable failure and delivers that
+   failure once. B never appears as success and does not clear the failure.
+3. Revision A's run is pending, then B changes only ignored paths. The observer
+   follows A's attempt rather than waiting for a nonexistent B run; a later A
+   verdict becomes B's applicable verdict without an interim notification.
+4. A publication changes `docs/guide.md` and `src/runtime.mjs`, or the observer
+   cannot prove the workflow policy or ancestry. The revision remains run-required
+   and unproved until an exact attempt is discovered; it is never exempted by
+   partial evidence.
+5. A delayed exact run appears for a revision provisionally eligible for the
+   ignored-path rule. The exact attempt wins and supplies the revision's actual
+   verdict.
+
+**Boundaries and deferred promises:** This story changes the repository CI
+trigger and the default GitHub observer's coverage semantics. It does not change
+custom command-adapter outcomes, add branch protection or required checks,
+generalize arbitrary GitHub Actions expressions, or make path filtering a
+public workflow language. It does not remove the agent's current probe, start,
+register, or stop commands: the self-ending and script-driven stories retain
+those outcomes. Installed managed copies change only through a later release.
+This repository currently has no branch protection or ruleset; if a filterable
+workflow later becomes required, GitHub's pending-check behavior needs its own
+policy decision.
+
+**Existing solution decision:** Change the existing revision-coverage ledger to
+own `not_required` and its applicable attempt, reuse GitHub run acquisition for
+the earlier attempt, and extend the existing registration/worker seam only as
+needed to evaluate the pushed revision. The workflow file remains the path-policy
+source. Do not add a parallel watcher or route this GitHub applicability rule
+through the custom-provider adapter.
+
+**Depends on:** the delivered quiet-discovery behavior, which already keeps an
+undiscovered revision silent while evidence may still arrive. It has no dependency
+on the later self-ending or script-driven observer stories. **Safe stopping
+point:** path-only publications are quiet and truthfully inherit applicable CI;
+the agent still performs the existing lifecycle commands. **Effort hypothesis:**
+M — confidence is medium because applicable-ancestor failure attribution crosses
+coverage selection and failure delivery, but the responsible seams already exist.
+
+<a id="wait-for-applicable-ci-before-advancing"></a>
+
+### Wait for the latest applicable CI result before advancing execution
+
+**Identity:** SEED-008#wait-for-applicable-ci-before-advancing
+
+**Status:** Refined and queued second on 2026-09-22; planning pending.
+
+**Goal:** A developer receives a plan execution, retrospective, and wrap-up
+whose latest CI-applicable product state has actually passed validation. The
+agent spends the small additional wait relative to a typical 32-minute-to-hours
+execution instead of ending a phase while the decisive five-to-ten-minute CI
+result is still unknown.
+
+**Scope — required behavior:**
+
+- Before plan execution advances into its retrospective, wait for the terminal
+  verdict applicable to the latest published execution revision. If the latest
+  commit is path-only and `not_required`, follow its recorded earlier applicable
+  attempt rather than waiting for a workflow run GitHub will never create.
+- Apply the same rule after any retrospective or wrap-up publication and before
+  the next phase or final completion. A proved `not_required` publication whose
+  applicable attempt is already terminal adds no wait. A publication containing
+  any CI-requiring change, including conflict resolution that changes code,
+  waits for its own terminal CI result.
+- Advance only after applicable CI succeeds. A failure remains actionable under
+  the existing repair workflow; pending, incomplete, undiscovered, or exhausted
+  observation never becomes success merely because the execution phase wants to
+  finish.
+- Reuse the execution's one observer and its applicability/attempt ledger. Do
+  not start a second watcher or poll GitHub independently at each phase boundary.
+
+**Key examples / evaluation:**
+
+1. Plan execution publishes code revision A and then documentation-only revision
+   B while A's CI is pending. B is `not_required`; execution waits for A to pass
+   before starting the retrospective.
+2. A has already passed when a retrospective publishes only `.planning/**` or
+   `docs/**` changes. That publication is `not_required` with terminal basis A,
+   so retrospective completion proceeds without waiting for a nonexistent run.
+3. Wrap-up publishes only path-filtered records after the latest applicable run
+   passed. It completes without a new CI wait.
+4. Wrap-up resolves an integration conflict and changes a non-ignored source
+   file. The resulting revision requires CI, and wrap-up does not report final
+   completion until that exact run passes.
+5. The latest applicable attempt fails, remains pending or incomplete, or cannot
+   be discovered within the observer's bounded budget. The phase does not
+   advance as though validation passed; failure repair or explicit unresolved
+   evidence remains visible.
+
+**Boundaries and deferred promises:** This story changes when existing execution,
+retrospective, and wrap-up phases may advance; it does not change GitHub path
+policy, duplicate the observer, define a new CI provider protocol, or remove
+observer lifecycle commands. The path-filter-aware story supplies the required
+`not_required` and applicable-attempt semantics. The later self-ending and
+script-driven observer stories may remove closing, starting, and registration
+commands without weakening this terminal-validation gate.
+
+**Architecture:** Reuse the observer's single coverage representation and
+existing failure-repair path. This follows ADR 0002's fast-feedback and stop-and-
+fix principles and ADR 0005's rule that missing validation remains unfinished.
+No Accepted ADR conflict or exception was found.
+
+**Depends on:** `SEED-008#path-filter-aware-ci-observation`, because a path-only
+latest commit must resolve to its earlier applicable attempt rather than a
+nonexistent run. **Safe stopping point:** every phase finishes with the latest
+applicable product state validated, while path-only publications add no needless
+wait. **Effort hypothesis:** S–M; the observer already retains attempts and
+failures, but execution, retrospective, and wrap-up have separate completion
+guidance that must share one gate.
 
 ## Architectural Context
 
