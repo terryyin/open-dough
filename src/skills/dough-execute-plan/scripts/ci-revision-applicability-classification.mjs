@@ -16,14 +16,23 @@ export function preferredAttempt(attempts) {
   );
 }
 
+// Shared lifecycle categorization for a GitHub run/attempt object: used both
+// for an exact registered-revision match (observedRevision below) and, for
+// slice 4, to resolve a `not_required` revision's applicable ancestor to its
+// own real state (see resolveAncestorRun's caller in
+// ci-mailbox-revision-coverage.mjs) without inventing a verdict for the
+// registered revision itself.
+export function attemptState(attempt) {
+  if (attempt.status !== "completed") return "pending";
+  if (attempt.conclusion === "success") return "success";
+  if (attempt.conclusion === "cancelled") return "incomplete";
+  return "failure";
+}
+
 export function observedRevision(revision, attempt) {
-  let state = "failure";
-  if (attempt.status !== "completed") state = "pending";
-  else if (attempt.conclusion === "success") state = "success";
-  else if (attempt.conclusion === "cancelled") state = "incomplete";
   return {
     sha: revision.sha,
-    state,
+    state: attemptState(attempt),
     checkedBy: { runId: attempt.databaseId, attemptId: attempt.attempt },
     registeredAt: revision.registeredAt,
   };

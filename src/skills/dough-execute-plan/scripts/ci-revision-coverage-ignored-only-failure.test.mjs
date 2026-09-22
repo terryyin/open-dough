@@ -138,13 +138,13 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   assert.deepEqual(coverageOf(shaB), {
     sha: shaB,
     state: "not_required",
-    basis: { sha: shaA },
+    basis: { sha: shaA, state: "pending" },
     registeredAt: coverageOf(shaB).registeredAt,
   });
   assert.deepEqual(coverageOf(shaC), {
     sha: shaC,
     state: "not_required",
-    basis: { sha: shaA },
+    basis: { sha: shaA, state: "pending" },
     registeredAt: coverageOf(shaC).registeredAt,
   });
   assert.deepEqual(readMailboxEvents(directory), []);
@@ -152,8 +152,8 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   await advancePoll();
   await advancePoll();
   // Repeated pending polls stay quiet and B/C's reuse basis does not flap.
-  assert.deepEqual(coverageOf(shaB).basis, { sha: shaA });
-  assert.deepEqual(coverageOf(shaC).basis, { sha: shaA });
+  assert.deepEqual(coverageOf(shaB).basis, { sha: shaA, state: "pending" });
+  assert.deepEqual(coverageOf(shaC).basis, { sha: shaA, state: "pending" });
   assert.equal(coverageOf(shaB).state, "not_required");
   assert.equal(coverageOf(shaC).state, "not_required");
   assert.deepEqual(readMailboxEvents(directory), []);
@@ -167,11 +167,12 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   assert.equal(failure.sha, shaA);
   assert.equal(failure.runId, 801);
   // B and C are never represented as success, nor as themselves having
-  // failed their own run; they still only identify A as their basis.
+  // failed their own run; they still only identify A as their basis, whose
+  // resolved state now reflects A's real failure.
   assert.equal(coverageOf(shaB).state, "not_required");
-  assert.deepEqual(coverageOf(shaB).basis, { sha: shaA });
+  assert.deepEqual(coverageOf(shaB).basis, { sha: shaA, state: "failure" });
   assert.equal(coverageOf(shaC).state, "not_required");
-  assert.deepEqual(coverageOf(shaC).basis, { sha: shaA });
+  assert.deepEqual(coverageOf(shaC).basis, { sha: shaA, state: "failure" });
 
   // Further polling never redelivers the same failure.
   await advancePoll();
@@ -183,7 +184,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   registerPushedRevision(directory, shaD);
   await advancePoll();
   await waitFor(() => coverageOf(shaD)?.state === "not_required", "D basis");
-  assert.deepEqual(coverageOf(shaD).basis, { sha: shaA });
+  assert.deepEqual(coverageOf(shaD).basis, { sha: shaA, state: "failure" });
   assert.equal(failureEvents().length, 1);
 
   await waitFor(

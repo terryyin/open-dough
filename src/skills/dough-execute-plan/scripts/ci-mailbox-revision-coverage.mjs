@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
+  attemptState,
   classifyUndiscoveredRevision,
   findAncestorRun,
   observedRevision,
@@ -120,15 +121,25 @@ export async function observeRevisionCoverage(
   // which feeds it into the same failure-acquisition call used for ordinary
   // registered revisions — reusing that call's existing per-run/job dedup so
   // a shared failure is still delivered exactly once.
+  //
+  // The same resolved run also lets this poll record A's real lifecycle
+  // state (pending/success/failure/incomplete, via attemptState) onto the
+  // not_required revision's own `basis.state` below, so a shutdown/terminal
+  // report reading only the on-disk coverage record (no live `gh` call, see
+  // ci-mailbox-store.mjs) can tell a still-pending applicable ancestor apart
+  // from a proved terminal one without ever inventing a verdict for the
+  // registered revision itself.
   const ancestorRunsBySha = new Map();
   async function resolveAncestorRun(sha) {
-    if (!sha || ancestorRunsBySha.has(sha)) return;
+    if (!sha) return undefined;
+    if (ancestorRunsBySha.has(sha)) return ancestorRunsBySha.get(sha);
     const found = await findAncestorRun({
       sha,
       runs,
       getBroadenedCandidateRuns,
     });
     if (found) ancestorRunsBySha.set(sha, found);
+    return found;
   }
 
   for (const revision of readRevisionCoverage(directory)) {
@@ -167,8 +178,19 @@ export async function observeRevisionCoverage(
         registeredAt,
       };
     }
-    if (next.state === "not_required")
-      await resolveAncestorRun(next.basis?.sha);
+    if (next.state === "not_required") {
+      const ancestorRun = await resolveAncestorRun(next.basis?.sha);
+      // Refresh the basis's resolved state every poll (never sticky): an
+      // ancestor found pending on an earlier poll and now terminal must not
+      // keep reporting stale evidence. When the ancestor cannot currently be
+      // resolved at all, leave any previously recorded basis.state alone
+      // rather than erasing known evidence.
+      if (ancestorRun)
+        next = {
+          ...next,
+          basis: { sha: next.basis.sha, state: attemptState(ancestorRun) },
+        };
+    }
     publishJson(revisionDirectory(directory), `${revision.sha}.json`, next);
   }
 

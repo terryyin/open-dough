@@ -154,7 +154,7 @@ test("an ignored-only descendant of a successful ancestor records not_required a
   assert.deepEqual(coverageOf(shaB), {
     sha: shaB,
     state: "not_required",
-    basis: { sha: shaA },
+    basis: { sha: shaA, state: "success" },
     registeredAt: coverageOf(shaB).registeredAt,
   });
   assert.equal(coverageOf(shaC).state, "undiscovered");
@@ -171,7 +171,7 @@ test("an ignored-only descendant of a successful ancestor records not_required a
   assert.deepEqual(coverageOf(shaB), {
     sha: shaB,
     state: "not_required",
-    basis: { sha: shaA },
+    basis: { sha: shaA, state: "success" },
     registeredAt: coverageOf(shaB).registeredAt,
   });
   assert.equal(coverageOf(shaC).state, "undiscovered");
