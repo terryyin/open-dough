@@ -298,10 +298,13 @@ still arrive. **Effort hypothesis:** M.
 ### Wait for the latest applicable CI result before advancing execution
 
 **Identity:** SEED-008#wait-for-applicable-ci-before-advancing
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/077-await-applicable-ci/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0d200bffb9b4d500c5eae586662ad8a46f3e065a9e2af663ff7000c79d79d06","plan":"e11b2ec5feb6373d9363f03f1d9161ad97514b9a39e9b4be0c251663f4c0404d"}}
+```
 
-**Status:** Refinement investigated on 2026-09-22; draft for review;
-[slice plan](../quick/077-await-applicable-ci/PLAN.md) written. Queue position
-remains owned by the product backlog.
+**Status:** Refinement and plan retained in `4d52800`; plan refreshed against
+`e2af6d2`. [Slice plan](../quick/077-await-applicable-ci/PLAN.md) remains
+unexecuted; queue position remains owned by the product backlog.
 
 **Goal:** A developer normally receives the latest applicable CI verdict before
 execution and review finish, without spending agent tokens on routine waiting.
@@ -354,8 +357,9 @@ No queue reorder is decided by this refinement.
 - Reuse the existing observer and coverage/attempt representation. Routine
   discovery and waiting run without model calls, periodic agent status turns,
   or independent GitHub polling. Agent involvement is for a consequential result
-  or exception. Use a fixed 10-minute final-wait cap (provisional planning
-  assumption, not yet a human-selected duration), also ending when observation
+  or exception. Use the retained 10-minute final-wait planning default
+  (kept with the plan; no separate duration preference supplied), ending earlier
+  when observation
   itself ends. Start this cap when the wait is invoked; never reset it on local
   status checks or discovery advisories. Do not add a project configuration
   surface or token-accounting system.
@@ -404,7 +408,7 @@ silent, so notification arrival cannot be the completion condition. Add a quiet
 wait over that existing evidence; do not wait for the worker itself to exit.
 The current five-second `waitForTerminalResult` is a shutdown receipt wait,
 not a CI wait. The observer's eight-hour budget is its whole-execution lifetime,
-not automatically an appropriate final-wait limit. The separate provisional
+not automatically an appropriate final-wait limit. The retained
 10-minute cap avoids turning an ordinary final wait into hours of inactivity.
 
 The retrospective currently forbids committing or pushing. Preserve that

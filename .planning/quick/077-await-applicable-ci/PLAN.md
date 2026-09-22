@@ -8,7 +8,9 @@ Identity: `SEED-008#wait-for-applicable-ci-before-advancing`
 
 Source: [refined story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#wait-for-applicable-ci-before-advancing).
 Terry authorized feasibility analysis, story refinement, slice planning, and
-plan refinement on 2026-09-22. This does not authorize execution or publication.
+plan refinement on 2026-09-22, then explicitly kept and published that result
+as `4d52800`. The current instruction authorizes checking and refreshing this
+plan; it does not authorize implementation. This refresh is a preparation draft.
 
 Outcome: the same agent can review delivered implementation while its existing
 CI observer runs. At review completion (or execution completion when review is
@@ -26,10 +28,11 @@ existing handling; the waiter never retries until green.
 - Use one observer per active target/owner, and the same coordinator during
   review. A local wait reader is not a second CI observer: it reads the existing
   mailbox, makes no provider calls, and neither registers nor consumes events.
-- Provisional duration: 10 minutes from the final wait invocation, or earlier
-  termination of observation. This is an explicit planning assumption awaiting
-  Terry's optional preference, not an accepted human decision. The existing
-  observer's eight-hour lifetime remains unchanged. Use an internal injectable
+- Retained planning default: 10 minutes from the final wait invocation, or
+  earlier termination of observation. Terry kept the plan containing this
+  assumption; no separate duration preference was supplied. Preserve that
+  default without treating the optional preference as a new blocking decision.
+  The observer's eight-hour lifetime remains unchanged. Use an internal injectable
   clock/deadline for deterministic tests, not a new configuration framework.
 - Success, failure, timeout, unavailable observation, cancellation, and terminal
   incomplete evidence have distinct results. An advisory about delayed discovery
@@ -56,7 +59,24 @@ existing handling; the waiter never retries until green.
 
 ## Existing solution assessment and architecture
 
-Inspected at `7954674c7dc05d60532953458f93be998ef86b10`:
+Rechecked against local and fetched `origin/main` at
+`e2af6d2ffdd33872670752c2227480ba5a62b0ae` (release 0.3.29 installed):
+
+- The story is second in Backlog list, Taken is empty, and all plan slices
+  remain planned. The only committed plan change is its preparation in `4d52800`.
+  Available Git refs/worktrees show no implementation of this plan: the
+  `await-revision` command is absent and finish-or-stop still shuts down without
+  waiting before retrospective. This is repository evidence, not a claim about
+  work in inaccessible clones.
+- No `src/skills/` code changed since that preparation. `0f85d44` declared the
+  existing applicability modules in the installer, `311be78` released 0.3.29,
+  and `e2af6d2` refreshed managed installed guidance/runtime. These delivered
+  existing prerequisites; they did not implement this plan.
+- Installed preparation guidance now requires a digest-based readiness record
+  and asks that cohesive slice boundaries be consolidated. Apply those rules
+  below without changing backlog membership or execution authority.
+
+Existing solution decisions remain supported:
 
 | Existing owner | Evidence and decision |
 | --- | --- |
@@ -69,8 +89,9 @@ Inspected at `7954674c7dc05d60532953458f93be998ef86b10`:
 | `tests/git-publication-native.sh` and `tests/support/native-run-*.sh` | Reuse disposable Git origins, candidate installs, host launch, stream capture, and bounded supervision for native proof. Current publication assessors do not prove CI waiting; extend only the relevant journeys and observations. |
 
 Paths abbreviated as `scripts/` and `references/` above are relative to
-`src/skills/dough-execute-plan/`. All production changes belong in shared
-`src/skills/`, with minimal host adaptation.
+`src/skills/dough-execute-plan/`. Shared behavioral changes belong in `src/skills/`, with minimal host
+adaptation. Any new runtime module must also be declared in `install.sh`
+and delivered by the existing installer; never hand-sync managed copies.
 
 Follow the existing [North Star's CI coverage responsibility](../../NORTH-STAR.md),
 Accepted [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
@@ -84,7 +105,8 @@ or Accepted ADR exception is required.
 
 ## Feasibility evidence, not implementation proof
 
-Ran from this preparation workspace at the inspected revision:
+Previously ran in the original preparation workspace at
+`7954674c7dc05d60532953458f93be998ef86b10`:
 
 ```sh
 node --test src/skills/dough-execute-plan/scripts/ci-revision-coverage-not-required-shutdown.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-ignored-only-failure.test.mjs src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs
@@ -94,75 +116,71 @@ Result: 3 tests passed. Inspected setup drives a real temporary Git repository
 and mailbox worker, substitutes GitHub responses, and observes persisted
 coverage/events. Evidence supports inherited pending/failure attribution,
 shutdown retention, and target isolation. It does not prove the new wait command,
-review overlap, or actual hosted CI latency. No infrastructure experiment beyond
-these matching local seams is required for planning.
+review overlap, or actual hosted CI latency. The source implementation and these test files are unchanged at the refreshed
+basis, so retain this evidence without rerunning it. Installer changes need the
+new installed-runtime proof below, not a stronger claim about these old tests.
 
 ## Ordered slices
 
-### 1. Await an exact published revision without polling through the agent
+### 1. Await the applicable published revision without agent polling
 
 Type: Behavior
 Status: planned
 
 Behavior: a caller has a validated execution mailbox and registered SHA → it
-invokes one local revision-wait command → the command stays quiet while pending
-and returns once with the observed verdict or bounded exceptional outcome,
-without stopping the observer, contacting CI, acknowledging events, or renewing
-its deadline.
+invokes one local wait → the command quietly follows that revision's effective
+coverage and returns once with its verdict or bounded exception. It neither
+stops the observer nor contacts CI, acknowledges events, or renews the deadline.
 
-Extend the existing mailbox CLI with `await-revision DIRECTORY SHA`. Keep the
-bounded local wait and result projection near the mailbox/coverage owners; no
-second coverage ledger. Validate mailbox ownership and selected registration.
-Use race-safe local notification/recheck (or a bounded local timer) and existing
-worker evidence. Missing registration, unreadable evidence, dead/ended observation,
-and absent readiness must not become success. Treat explicit cancellation of
-this command separately from cancellation of the whole execution. Define one
-structured result containing the requested SHA, target, outcome, and reason or
-applicable evidence; don't make ordinary exceptional results look like crashes.
+Extend the existing mailbox CLI with `await-revision DIRECTORY SHA`. Validate
+mailbox ownership and registration. Use one effective-verdict projection for
+exact evidence and `not_required` evidence's existing `basis.sha/state`; do not
+add an ancestor search or duplicate path-policy interpretation. An exact attempt
+already recorded by coverage takes precedence. Unknown basis stays unresolved;
+an unrelated writer's newer trunk SHA never replaces the selected revision.
 
-Proof: add a focused process-level `ci-mailbox-await.test.mjs` beside the existing
-mailbox tests. Invoke the real CLI while the actual mailbox worker observes
-controlled provider responses. Cover already terminal and pending-to-terminal
-success/failure, timeout, observer unavailability/death, cancellation, incomplete
-CI, missing registration, and a nonterminal discovery advisory. Observe silent
-stdout before one result, finite exit, unchanged event acknowledgment, a live
-worker after a normal return, and no extra provider calls made by the wait
-reader. Use deterministic short test deadlines; don't wait ten minutes in tests.
+Use race-safe local notification/recheck or a bounded local timer and existing
+worker evidence. Missing/unreadable evidence, dead/ended observation, timeout,
+cancellation, and terminal incomplete CI must produce distinct truthful
+outcomes. A discovery-delay advisory does not itself end the wait. Explicit
+wait cancellation does not cancel the execution. Return the requested SHA,
+actual target, effective evidence, and verdict or unresolved reason once.
+Leave delivery acknowledgment with the bridge and preserve later diagnostics
+when failure coverage precedes its event.
 
-Command after implementation:
-`node --test src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs`.
-Safe stopping point: an unused bounded command works for exact revisions;
-existing callers and per-slice delivery remain unchanged.
-Sizing: one mailbox consumer and one process proof loop, medium confidence.
+Proof: add `ci-mailbox-await.test.mjs` beside the mailbox tests. Invoke the real
+CLI against the actual mailbox worker with controlled provider responses.
+Cover already-terminal and pending-to-terminal exact success/failure plus all
+bounded exceptions, missing registration, and a nonterminal advisory. Observe
+silence before one result, finite exit, unchanged acknowledgment, retained
+observer lifetime, and no provider calls from the wait reader.
 
-### 2. Resolve ignored-only publication waits through existing applicable evidence
+Extend that same fixture with real Git/path-policy setup from
+`ci-revision-coverage-not-required-shutdown.test.mjs`: ignored-only B follows
+pending A to success/failure, even when A is not registered. Include missing
+basis, a later observed exact B attempt, and another writer's publication.
+Use deterministic short test deadlines, not ten-minute test sleeps.
 
-Type: Behavior
-Status: planned
+Declare any introduced module in the existing payload manifest. Extend
+`tests/execution-payload-update.sh` to invoke the installed wait entrypoint from
+both managed skill roots after install/update, with the release source no longer
+available. Observe a real worker-generated verdict, not merely module presence
+or a `probe` receipt. Reuse the process fixture and host delivery mechanism;
+this proof owns the installation dependency risk exposed by `0f85d44`.
 
-Behavior: registered B is `not_required` with applicable ancestor A → the same
-wait command follows coverage's existing basis → pending A keeps the wait open,
-terminal A supplies its actual outcome, and unresolved A ends only through the
-same bounded exceptions. An exact B attempt already observed by the coverage
-owner takes precedence. Unrelated later trunk revisions do not change selection.
+Commands after implementation:
+`node --test src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs`,
+the three retained feasibility-test files above, and
+`bash tests/execution-payload-update.sh`.
 
-Use one effective-verdict projection for exact and inherited evidence; do not
-rerun path classification or introduce an ancestor search in the waiter. Preserve
-source attribution when A is not registered in this mailbox. Unknown basis stays
-unknown. This is an extension of the same state model, not a second waiter.
+Safe stopping point: one installed command handles the complete existing
+coverage model; existing callers and per-slice delivery are unchanged.
+Sizing: medium; one mailbox consumer and integrated proof, including packaging.
+The former exact/inherited slices are consolidated because they are two inputs
+to this single rule; shipping a temporarily incomplete projection yields no
+separate useful outcome or new learning. Existing ancestry tests bound that risk.
 
-Proof: extend the process test with the real Git/path-policy setup from
-`ci-revision-coverage-not-required-shutdown.test.mjs` and controlled GitHub
-responses. Observe B waiting on pending A and exiting on A's success/failure;
-prove no B discovery request is added by the waiter and no success is fabricated.
-Include missing basis, an exact B attempt, and an unrelated writer's publication.
-Keep the existing inherited-failure and target-isolation tests green.
-
-Command: the slice 1 test plus the three feasibility-test files above.
-Safe stopping point: all supported coverage states share one quiet wait operation.
-Sizing: small extension to one reader with an existing integrated fixture.
-
-### 3. Complete review and execution after one bounded observation
+### 2. Complete review and execution after one bounded observation
 
 Type: Behavior
 Status: planned
@@ -205,12 +223,12 @@ avoid running unrelated journeys; record its literal command and observations
 in this plan when implemented.
 
 Safe stopping point: execution/review has bounded CI completion in both review
-and skip-review paths; wrap-up still has its old boundaries until slices 4 and 5.
+and skip-review paths; wrap-up still has its old boundaries until slices 3 and 4.
 Sizing: medium; one lifecycle handoff with two existing notification mechanisms.
 Native model/API time is external verification cost, not grounds for expanding
 scope or repeatedly rerunning unsuccessful proof.
 
-### 4. Await Trunk Mode closure before cleanup
+### 3. Await Trunk Mode closure before cleanup
 
 Type: Behavior
 Status: planned
@@ -229,19 +247,19 @@ between each intermediate recovery-record publication. No automatic lifecycle.
 Proof: extend the existing trunk-closure native journey with independently
 controlled CI and observe accepted SHA, registration, wait result, shutdown,
 and cleanup order. Exercise one source-requiring closure and one ignored-only
-closure. Keep existing local-only checks. Reuse slices 1–2 for the complete
+closure. Keep existing local-only checks. Reuse slice 1 for the complete
 exception/applicability matrix instead of repeating it in every native host.
-Use the same native runner extension as slice 3; the fixture must not inject
+Use the same native runner extension as slice 2; the fixture must not inject
 coverage or completion on behalf of the agent.
 
 Commands: selected trunk-closure native journey and
 `bash tests/git-publication-native.sh` for deterministic assessor checks.
 Record the exact bounded case-selector invocation after extending the runner.
 Safe stopping point: Trunk Mode closure has the promised bounded observation;
-Story Branch integration retains its old behavior until slice 5.
+Story Branch integration retains its old behavior until slice 4.
 Sizing: one existing closure path and one native proof loop; medium confidence.
 
-### 5. Observe the integrated Story Branch result on trunk
+### 4. Observe the integrated Story Branch result on trunk
 
 Type: Behavior
 Status: planned
@@ -256,7 +274,7 @@ observer implementation bound to trunk from the retained execution workspace
 before integration publication. Register the accepted candidate, never the old
 branch tip or superseded candidate. Do not retarget a mailbox or create a second
 simultaneous observer for the same target. Preserve publication recovery,
-cleanup ownership, and explicit unavailability. Reuse slice 4's closure wait.
+cleanup ownership, and explicit unavailability. Reuse slice 3's closure wait.
 
 Proof: extend the existing story-branch-closure native journey. Create a real Git
 conflict whose resolution changes source; the accepted integrated SHA differs
@@ -280,12 +298,12 @@ Sizing: one target transition and one integration proof loop, medium confidence.
 | Source promise | Owner | Decisive observation |
 | --- | --- | --- |
 | Quiet bounded exact verdict and distinct exceptions | 1 | Real CLI result/exit, silence, unchanged acknowledgment and provider calls |
-| Last applicable execution publication, skipped ancestry, no unrelated moving target | 2 | Worker-generated coverage and actual await result with real Git ancestry |
-| Review overlap, wait only at handoff, skip-retro | 3 | Native transcript ordering against independently controlled coverage |
-| Existing failure handling and selective reconsideration | 3 | Late-failure native result and authority/affected-review behavior assessment |
-| Wrap-up source conflict and target change | 5 | Accepted integration SHA, matching target coverage, wait before cleanup |
-| Ignored-only closure, truthful unresolved outcomes, local-only preservation | 2, 4, 5 | Effective-verdict proof plus closure journey |
-| Minimal shared cross-tool delivery | 3, 4, 5 | Per-host evidence/reuse assessment; no inferred native pass from static checks |
+| Last applicable execution publication, skipped ancestry, no unrelated moving target | 1 | Worker-generated coverage and actual await result with real Git ancestry |
+| Review overlap, wait only at handoff, skip-retro | 2 | Native transcript ordering against independently controlled coverage |
+| Existing failure handling and selective reconsideration | 2 | Late-failure native result and authority/affected-review behavior assessment |
+| Wrap-up source conflict and target change | 4 | Accepted integration SHA, matching target coverage, wait before cleanup |
+| Ignored-only closure, truthful unresolved outcomes, local-only preservation | 1, 3, 4 | Effective-verdict proof plus closure journey |
+| Minimal shared cross-tool delivery | 1–4 | Per-host evidence/reuse assessment; no inferred native pass from static checks |
 
 For each slice: focused proof, independent post-change refactoring under the
 execution workflow, selective formatting/lint, then CI-safe commit/delivery.
@@ -299,25 +317,30 @@ execution retrospective and story wrap-up.
 
 ## Plan assessment and learnings
 
-Cumulative design: one worker, one coverage representation, one quiet wait reader,
-and caller lifecycle changes. Different target setup is required by existing
-publication semantics, not a new coordinator. The five slices add examples to
-that model without adding per-phase watchers or state registries.
+Cumulative design: one worker, one coverage representation, one quiet wait
+reader, and caller lifecycle changes. Target setup is required by existing
+publication semantics, not a new coordinator. Four slices extend that model
+without per-phase watchers or state registries.
 
-Remaining verification risks: slices 3–5 need fresh native evidence for changed
-ordering; existing process tests alone cannot establish agent behavior. Their
-fixtures must provide CI responses, never the wait/handoff decision. The
-10-minute duration is a provisional assumption, clearly separable from the
-implementation structure. No other unresolved product-scope decision was found.
+Boundary review: consolidate old slices 1–2 into the complete applicable-verdict
+command. Retain review handoff, Trunk closure, and Story Branch target transition
+as separate outcomes: each has a different caller/lifecycle risk and useful
+recovery boundary. All statuses remain planned; no completed proof was removed.
+No numeric sizing exceptions or story resplit are needed.
 
-Refinement: split the original closure slice into 4 (existing trunk lifecycle)
-and 5 (Story Branch target transition). They have different setup/observation
-risks and can prove useful outcomes independently. All five slices now have a
-cohesive Behavior gate and one owned proof loop. No numeric sizing exceptions
-or story resplit are needed. Assessment: ready for direct execution under the
-stated duration assumption; this is an assessment, not execution authority.
-Native availability and the required observations remain execution-time proof
-obligations, never presumed passes.
+Verification obligations: slices 2–4 still require native proof of agent ordering;
+fixtures supply CI responses, never the waiting or handoff decision. Slice 1
+owns new installed-runtime proof. These are explicitly mapped acceptance work,
+not unresolved design concerns or presumed passes. The retained ten-minute
+planning default needs no new configuration or duration-selection workflow.
+No remaining blocking scope, design, or proof-mapping concern was identified.
 
-No implementation has started. Feasibility evidence above is retained only for
-its observed boundary; it is not proof that these planned slices are complete.
+Record refined/planned preparation and current readiness through the installed
+backlog recorder in the canonical story home, using this plan and the current
+home digests. The assessment is ready for direct execution; it does not Take
+the story, move the backlog, or authorize implementation. Future plan delivery
+changes invalidate the basis until a genuine reassessment occurs; they must not
+automatically renew readiness.
+
+No implementation has started in the inspected repository evidence. Retained
+feasibility results prove only their stated boundary, not these planned slices.
