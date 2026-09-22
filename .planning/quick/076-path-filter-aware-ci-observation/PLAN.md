@@ -183,7 +183,7 @@ basis. Exact attempts take precedence; inconclusive classification fails closed.
 
 ### 3. An ignored-only revision cannot hide an applicable failure
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the late-GitHub-failure worker journey with failed revision A and
 ignored-only registered descendants B and C. Assert one `CI_FAILURE` for A reaches
 the owning coordinator, B and C identify A as their applicable basis without
@@ -191,6 +191,12 @@ success, unrelated-owner evidence stays isolated, and later polls or registratio
 do not duplicate or acknowledge the failure. Repeat the path with A pending and
 then failing to prove the worker follows the applicable attempt rather than
 waiting for nonexistent descendant runs.
+
+Accepted: `node --test src/skills/dough-execute-plan/scripts/ci-revision-coverage-late-github-failure.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-ignored-only-failure.test.mjs` passed (2/2). New test (extracted to its own file during refactor, `ci-revision-coverage-ignored-only-failure.test.mjs`): revisions A (real attempt), B and C (ignored-only descendants registered up front), D (ignored-only descendant registered only after A's failure is already delivered). While A is pending, B and C already show `{state:"not_required", basis:{sha:shaA}}` without success; when A fails, exactly one `CI_FAILURE` (runId 801) is delivered, B/C never flip to success or an own-failure state, further polling never redelivers it, and registering D afterward resolves D to the same basis without a second delivery; an unrelated owner's own failure stays isolated in both directions; shutdown's `terminal.coverage.unproved` is empty (B, C, D are all proved, never unproved) even though their shared basis failed rather than succeeded. Full regression: `node --test --test-concurrency=1 src/skills/dough-execute-plan/scripts/*.test.mjs` — 182/182 pass serialized. `npm run lint` clean. Implementation: `observeRevisionCoverage` now also resolves, once per poll and deduplicated by SHA, the real GitHub run object behind any `not_required` revision's `basis.sha` (checking this poll's already-known runs first, then the same memoized bounded-history discovery slice 2 wired in), and returns `{events, ancestorRuns}`. `watch-ci-execution.mjs` runs coverage selection before failure acquisition and folds any resolved `ancestorRuns` into the same `acquireFailure` call used for ordinary registered revisions, reusing `ci-failures.mjs`'s existing per-run/job dedup unchanged — `ci-failures.mjs` itself needed no change. `discoverAncestorCandidates` now returns run-shaped objects (not flattened SHAs) since coverage selection needs the full run, not just the SHA.
+
+Note: a local full-suite run under node's default parallel concurrency showed one flaky failure (`ci-codex-lifecycle.test.mjs`, an unrelated real-detached-process timing test with a fixed wall-clock budget) that does not reproduce standalone or under `--test-concurrency=1`; confirmed as CPU-contention from the larger test suite, not a logic defect — recorded here since it may recur as this file directory keeps growing. Separately, this slice's CI push (SHA `290a3ce`, actually slice 2's commit) was cancelled at the platform's 20-minute job timeout; several other unrelated branches showed failures/cancellations in the same narrow window, which is bounded evidence of shared CI-infrastructure contention from concurrent activity on this repository at the time, not a defect in this story's changes — recorded per the CI-observation protocol rather than repaired.
+
+Learning: a cancelled (not merely pending/failed) ancestor attempt does not propagate to its ignored-only descendants — only pending/failure/success were implemented, matching this slice's literal proof text. `ancestorRuns` is available at the point `watch-ci-execution.mjs` handles `CI_INCOMPLETE`, so extending this is not blocked, but it is undecided new behavior, not something slice 3 left broken. Slice 4 should decide, when writing terminal/guidance wording, whether a cancelled applicable ancestor needs the same treatment or can remain out of scope.
 
 Behavior: registered ignored-only descendants of a pending or failed applicable
 revision → observe attempts and failures → the ancestor attempt remains actionable

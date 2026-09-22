@@ -2,7 +2,12 @@ import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
-import { classifyRevisionApplicability } from "./ci-path-applicability.mjs";
+import {
+  classifyUndiscoveredRevision,
+  findAncestorRun,
+  observedRevision,
+  preferredAttempt,
+} from "./ci-revision-applicability-classification.mjs";
 
 // States that, once recorded, are not reclassified on a later poll unless an
 // exact attempt for that revision's own SHA appears (checked first, always).
@@ -54,30 +59,6 @@ export function readRevisionCoverage(directory) {
     .map((name) => JSON.parse(readFileSync(join(coverage, name), "utf8")));
 }
 
-function preferredAttempt(attempts) {
-  return (
-    attempts.find(
-      ({ status, conclusion }) =>
-        status === "completed" && conclusion === "success",
-    ) ??
-    attempts.find(({ status }) => status !== "completed") ??
-    attempts[0]
-  );
-}
-
-function observedRevision(revision, attempt) {
-  let state = "failure";
-  if (attempt.status !== "completed") state = "pending";
-  else if (attempt.conclusion === "success") state = "success";
-  else if (attempt.conclusion === "cancelled") state = "incomplete";
-  return {
-    sha: revision.sha,
-    state,
-    checkedBy: { runId: attempt.databaseId, attemptId: attempt.attempt },
-    registeredAt: revision.registeredAt,
-  };
-}
-
 function discoveryAdvisoryMarkerPath(directory) {
   return join(directory, discoveryAdvisoryMarkerName);
 }
@@ -86,45 +67,12 @@ export function discoveryAdvisoryEmitted(directory) {
   return existsSync(discoveryAdvisoryMarkerPath(directory));
 }
 
-// Classifies one still-undiscovered revision's CI-path applicability against
-// already-known candidate SHAs, and only pays for the broader (`gh`-backed)
-// ancestor search when the narrow local candidates could not prove any
-// ancestor at all. Never called for a revision that already has an exact
-// attempt or an existing terminal verdict — see the call site below.
-async function classifyUndiscoveredRevision({
-  repoDir,
-  event,
-  workflowPath,
-  registeredSha,
-  localCandidateShas,
-  getBroadenedCandidateShas,
-}) {
-  let classification = classifyRevisionApplicability({
-    repoDir,
-    event,
-    workflowPath,
-    registeredSha,
-    candidateShas: localCandidateShas,
-  });
-  if (
-    classification.result === "indeterminate" &&
-    classification.reason === "no-ancestor-basis" &&
-    getBroadenedCandidateShas
-  ) {
-    const broadened = await getBroadenedCandidateShas();
-    if (broadened.length) {
-      classification = classifyRevisionApplicability({
-        repoDir,
-        event,
-        workflowPath,
-        registeredSha,
-        candidateShas: [...new Set([...localCandidateShas, ...broadened])],
-      });
-    }
-  }
-  return classification;
-}
-
+// `discoverAncestorCandidates`, when supplied, returns run-shaped candidates
+// (see ci-runs.mjs's discoverApplicabilityCandidateRuns), not bare SHAs: this
+// function derives classification's SHA list from them, and separately keeps
+// the run-shaped list itself so a `not_required` basis can be resolved to its
+// actual attempt for failure inspection below — the ancestor A is frequently
+// not registered in this mailbox at all (see resolveAncestorRun).
 export async function observeRevisionCoverage(
   directory,
   runs,
@@ -145,13 +93,43 @@ export async function observeRevisionCoverage(
         .filter((sha) => isFullGitRevision(sha)),
     ),
   ];
-  let broadenedCandidateShas;
-  const getBroadenedCandidateShas = discoverAncestorCandidates
+  let broadenedCandidateRuns;
+  const getBroadenedCandidateRuns = discoverAncestorCandidates
     ? async () => {
-        broadenedCandidateShas ??= (await discoverAncestorCandidates()) ?? [];
-        return broadenedCandidateShas;
+        broadenedCandidateRuns ??= (await discoverAncestorCandidates()) ?? [];
+        return broadenedCandidateRuns;
       }
     : undefined;
+  const getBroadenedCandidateShas = discoverAncestorCandidates
+    ? async () => [
+        ...new Set(
+          (await getBroadenedCandidateRuns())
+            .map((run) => run.headSha?.toLowerCase())
+            .filter((sha) => isFullGitRevision(sha)),
+        ),
+      ]
+    : undefined;
+
+  // A `not_required` revision's own coverage record intentionally carries
+  // only its basis SHA (see registerPushedRevision/the not_required branch
+  // below) — its ancestor A is ordinary branch history, usually never
+  // registered in this mailbox itself. To keep A's eventual failure
+  // actionable for every ignored-only descendant that shares it, resolve A's
+  // real run object (local `runs` first, then the broadened/bounded-history
+  // list) once per poll and hand the deduplicated result back to the caller,
+  // which feeds it into the same failure-acquisition call used for ordinary
+  // registered revisions — reusing that call's existing per-run/job dedup so
+  // a shared failure is still delivered exactly once.
+  const ancestorRunsBySha = new Map();
+  async function resolveAncestorRun(sha) {
+    if (!sha || ancestorRunsBySha.has(sha)) return;
+    const found = await findAncestorRun({
+      sha,
+      runs,
+      getBroadenedCandidateRuns,
+    });
+    if (found) ancestorRunsBySha.set(sha, found);
+  }
 
   for (const revision of readRevisionCoverage(directory)) {
     const matches = runs.filter(
@@ -189,6 +167,8 @@ export async function observeRevisionCoverage(
         registeredAt,
       };
     }
+    if (next.state === "not_required")
+      await resolveAncestorRun(next.basis?.sha);
     publishJson(revisionDirectory(directory), `${revision.sha}.json`, next);
   }
 
@@ -211,5 +191,5 @@ export async function observeRevisionCoverage(
       publishJson(directory, discoveryAdvisoryMarkerName, { emitted: true });
     }
   }
-  return events;
+  return { events, ancestorRuns: [...ancestorRunsBySha.values()] };
 }
