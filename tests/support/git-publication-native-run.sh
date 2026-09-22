@@ -119,6 +119,9 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line src/skills/dough-execute-plan/references/finish-or-stop.md
       native_result_input_hash_line src/skills/dough-execution-retrospective/SKILL.md
       ;;
+    trunk-closure)
+      trunk_closure_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }

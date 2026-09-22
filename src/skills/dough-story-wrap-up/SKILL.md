@@ -218,8 +218,9 @@ and blocks completion. Do not force-push.
 ## Remove execution resources safely
 
 After Story Branch Mode's verified integration and required target push, or after
-Trunk Mode's wrap-up closure publications and wrap-up observer shutdown, remove
-this execution's clean local worktree and local execution branch. Use retained
+Trunk Mode's final accepted closure has its bounded CI result handled and its
+wrap-up observer shut down, remove this execution's clean local worktree and
+local execution branch. Use retained
 identity and non-force operations. Preserve unrelated resources, unique or
 unpublished work, a dirty checkout, and a worktree that still hosts an active
 checkout-bound observer under [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work). Trunk Mode never deletes a remote execution branch.
@@ -232,7 +233,8 @@ and skip cleanup in direct-current-branch mode.
 
 Report the selected work and identity, completion judgment, mode and retained
 checkout/branch/target, before-cleanup and final-closure commits when deletion
-happened, Trunk Mode published closure SHAs and remaining CI coverage, assimilated
+happened, Trunk Mode published closure SHAs, bounded wait receipt, remaining CI
+coverage, assimilated
 knowledge, deleted paths, Story Branch saved tip and integration/push results when
 the target is `main`, worktree and branch cleanup results (remote deletion only when
 verified absent), preserved material and resources, and any gap. Distinguish a new

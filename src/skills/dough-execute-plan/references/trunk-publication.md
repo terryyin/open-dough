@@ -89,20 +89,24 @@ is not the Story Branch increment destination above. Do not merge the
 execution branch.
 
 Resolve observation ownership before the first wrap-up publication: recover
-the execution's observer when it still exists; if execution already stopped
-it, arm one observer from the same execution checkout against the authorized
-target using [CI observation](ci-monitor.md). Register each confirmed
-published SHA with that observer. After the last wrap-up publication this
-invocation will perform, stop only that observer through the host adapter,
-report the exact published closure SHAs and remaining coverage, and do not
-wait. An unavailable bridge or registration failure is lost coverage: report
-it and continue.
+the matching execution observer when it still exists; if observation already
+ended, use the existing setup to arm one observer from the same execution
+checkout against the authorized target using [CI observation](ci-monitor.md).
+Register each confirmed published SHA with that observer. After the last
+wrap-up publication this invocation will perform, apply
+[the shared completion wait](ci-monitor.md#await-the-applicable-revision-at-completion)
+once to that final accepted SHA. Handle its verdict or bounded exception before
+stopping only that observer through the host adapter, then report the exact
+published closure SHAs, wait receipt, and remaining coverage. An unavailable
+bridge or registration failure is lost coverage: report it truthfully and
+continue without inventing successful observation.
 
 A publication stop leaves the commit recoverable on the execution branch.
-Do not delete spent history, remove resources, or claim closure. After the
-final-closure publication and wrap-up observer shutdown succeed, wrap-up
-removes only this execution's clean local worktree and local execution branch,
-applying
+Do not delete spent history, remove resources, or claim closure. Wait only
+after the final applicable wrap-up publication, never between intermediate
+recovery-record publications. After its bounded result is handled and wrap-up
+observer shutdown succeeds, wrap-up removes only this execution's clean local
+worktree and local execution branch, applying
 [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
 when cleanup would mutate or discard a dirty or ambiguous checkout.
 

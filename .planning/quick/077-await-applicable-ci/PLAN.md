@@ -8,7 +8,7 @@ Execution context:
 - Owned execution workspace: `/Users/terryyin/.codex/worktrees/await-applicable-ci-077/open-dough` on `codex/await-applicable-ci-077`, created by this execution from `e2d778aa20bf06cdcb15c7e637a2ff46d89cc78c` (`origin/main`).
 - Originating and integration checkout: `/Users/terryyin/git/open-dough` on `main`; its pre-existing local plan-075 commits are preserved. After claim publication it diverges from `origin/main`, so default-checkout refresh is stopped.
 - Authorized targets: queue claim on `origin/main`; validated increments on `origin/codex/await-applicable-ci-077`.
-- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer.
+- Published revisions: queue claim `b279a798da3c070d33707553e8e80014f9ae547b` accepted on `origin/main`; slice 1 `c53527c6af9eeb877f1ce70489ce41b420b100fb` accepted on `origin/codex/await-applicable-ci-077` and registered with the story-branch observer; slice 2 `6bfb782f5d7dc96b7f56aafa86d5dfb836a704f6` accepted on that story branch after observer coverage was lost, so it has no hosted-CI verdict.
 - Checkout preparation: `npm ci` followed by `npm run lint` completed successfully for the current lockfile.
 - CI observer: Codex coordinator `codex-root-plan-077`, key `ci-watch-execution:terryyin/open-dough:codex/await-applicable-ci-077:codex-root-plan-077`, mailbox `/tmp/dough-ci-501/watch-DIfyas`, PID `20518`, was bound to `terryyin/open-dough` target `codex/await-applicable-ci-077` through GitHub workflow `ci.yml` / `CI` from the checkout-bound installed runtime. After slice 1 registration it ended unavailable following repeated `api.github.com` connection failures; remaining story-branch publications have lost CI coverage and must not be reported as observed or passing.
 - Replanning permission: retain the preparation authority already established for this plan; no numeric slice hard limit or exception was supplied.
@@ -311,7 +311,7 @@ scope or repeatedly rerunning unsuccessful proof.
 ### 3. Await Trunk Mode closure before cleanup
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Trunk Mode wrap-up publishes its accepted final result → its existing
 trunk observer supplies the same bounded wait → wrap-up reports the verdict or
@@ -335,6 +335,43 @@ coverage or completion on behalf of the agent.
 Commands: selected trunk-closure native journey and
 `bash tests/git-publication-native.sh` for deterministic assessor checks.
 Record the exact bounded case-selector invocation after extending the runner.
+
+Accepted proof:
+
+- `bash tests/git-publication-native.sh --native cursor --case trunk-closure/source`
+  passed after refactoring with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.wkMqdwmB6p/results/cursor/trunk-closure/source/20260922T130129-7c68`.
+  Inspected evidence records the exact accepted remote/candidate SHA, one
+  registration, one wait, independently released successful CI, one shutdown,
+  cleanup, and strict publication → registration → await → CI release → success
+  → shutdown → cleanup order. The transcript did not inspect the harness.
+- `bash tests/git-publication-native.sh --native cursor --case trunk-closure/ignored-only`
+  passed after refactoring with retained result
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.dzANl9k2gA/results/cursor/trunk-closure/ignored-only/20260922T130352-37ca`.
+  Inspected evidence records exact `not_required` coverage with successful basis,
+  zero candidate provider calls, one registration/wait/shutdown, immediate
+  resolution, and cleanup only after shutdown; the transcript did not inspect
+  the harness.
+- `bash tests/git-publication-native.sh` passed the credential-free assessor,
+  including retained local-only proof and counterexamples for missing wait,
+  early shutdown, and invented ignored-only provider evidence.
+  `node --test src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`
+  passed 3/3. Shell syntax checks, `git diff --check`, and the project
+  formatter/linter passed.
+- Independent refactoring consolidated execution-review and Trunk-closure
+  native dispatch behind one lifecycle wrapper. Because that dispatcher is in
+  the evidence identity, both live cases above were rerun; all implicated files
+  remain within the project's 250-line ceiling.
+
+Learning: corrected native attempts exposed generated-shim quoting, a controller
+bound shorter than host startup, a fake provider that blocked beyond the
+observer subprocess budget, and a passing transcript contaminated by external
+harness inspection. The accepted fixture returns baseline provider evidence
+immediately, releases candidate CI independently, rejects harness inspection,
+and uses the existing 900-second native supervisor with a 360-second
+journey-local controller bound. The real story-branch observer remains
+unavailable separately, so no hosted-CI verdict is claimed for this slice.
+
 Safe stopping point: Trunk Mode closure has the promised bounded observation;
 Story Branch integration retains its old behavior until slice 4.
 Sizing: one existing closure path and one native proof loop; medium confidence.

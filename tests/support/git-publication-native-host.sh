@@ -10,7 +10,8 @@ host_fresh_journeys() {
   fi
   case $1 in
     codex) printf '%s\n' publish-boundary claim-race ;;
-    cursor) printf '%s\n' publish-boundary trunk-closure local-only ;;
+    cursor) printf '%s\n' publish-boundary trunk-closure/source \
+      trunk-closure/ignored-only local-only ;;
     claude) printf '%s\n' publish-boundary story-branch-closure \
       preparation bug-disposition uncertain-recovery ;;
     *) return 2 ;;
@@ -38,11 +39,20 @@ run_native_host() {
 
   while IFS= read -r journey; do
     [[ -n ${journey} ]] || continue
-    if [[ ${journey} == execution-review/* ]]; then
+    if [[ ${journey} == execution-review/* || ${journey} == trunk-closure/* ]]; then
       printf '\n--- journey %s ---\n' "${journey}"
       set +e
-      ci_completion_run_journey "${source_dir}" "${host}" \
-        "${journey#execution-review/}" "${results_dir}"
+      case ${journey} in
+        execution-review/*)
+          ci_completion_run_journey "${source_dir}" "${host}" \
+            "${journey#execution-review/}" "${results_dir}"
+          ;;
+        trunk-closure/*)
+          trunk_closure_run_journey "${source_dir}" "${host}" \
+            "${journey#trunk-closure/}" "${results_dir}"
+          ;;
+        *) return 2 ;;
+      esac
       status=$?
       set -e
       if [[ ${status} -ne 0 ]]; then
@@ -108,6 +118,9 @@ native_case_known() {
       publication/story-branch-closure | publication/bug-disposition | \
       execution-review/pending | execution-review/ready | \
       execution-review/failure | execution-review/skip-retro)
+      return 0
+      ;;
+    trunk-closure/source | trunk-closure/ignored-only)
       return 0
       ;;
     *) return 1 ;;

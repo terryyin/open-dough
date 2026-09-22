@@ -16,6 +16,10 @@ const finish = read("dough-execute-plan/references/finish-or-stop.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const codex = read("dough-execute-plan/references/ci-notify-codex.md");
 const detached = read("dough-execute-plan/references/ci-notify-hosts.md");
+const trunkPublication = read(
+  "dough-execute-plan/references/trunk-publication.md",
+);
+const storyWrapUp = read("dough-story-wrap-up/SKILL.md");
 
 test("review overlaps pending CI and one common wait owns final handoff", () => {
   assert.match(
@@ -75,4 +79,29 @@ test("host adapters keep quiet delivery and perform shutdown only after the shar
   }
   assert.match(codex, /do not `write_stdin`\s+the stream PTY/);
   assert.match(detached, /Pending polls and successful CI add no\s+context/);
+});
+
+test("Trunk Mode closure waits for the final accepted revision before shutdown and cleanup", () => {
+  assert.match(
+    trunkPublication,
+    /last[\s\S]+wrap-up publication[\s\S]+shared completion wait[\s\S]+final accepted SHA/,
+  );
+  assert.match(
+    trunkPublication,
+    /verdict or bounded exception before[\s\S]+stopping only that observer/,
+  );
+  assert.match(
+    trunkPublication,
+    /never between intermediate[\s\S]+recovery-record publications/,
+  );
+  assert.match(
+    trunkPublication,
+    /unavailable[\s\S]+report it truthfully[\s\S]+without inventing successful observation/,
+  );
+  assert.match(
+    storyWrapUp,
+    /final accepted closure[\s\S]+bounded CI result handled[\s\S]+observer shut down[\s\S]+remove/,
+  );
+  assert.match(storyWrapUp, /bounded wait receipt/);
+  assert.match(storyWrapUp, /Local-only[\s\S]+does not push/);
 });

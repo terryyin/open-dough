@@ -30,6 +30,9 @@ source "${source_dir}/tests/support/git-publication-native-host.sh"
 # shellcheck source=tests/support/ci-completion-native-run.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/ci-completion-native-run.sh"
+# shellcheck source=tests/support/trunk-closure-native-run.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/trunk-closure-native-run.sh"
 
 usage() {
   cat >&2 << 'EOF'
@@ -37,6 +40,7 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
+   or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only
 Credential-free default exercises the publication assessor and substitute
 runner. --native HOST requires that host's CLI and runs the host's assigned
 fresh-proof journeys against an installed candidate. --case selects one live
@@ -91,6 +95,7 @@ if [[ ${native_flag} -eq 0 ]]; then
     exit 2
   fi
   run_assessor_counterexamples
+  run_trunk_closure_assessor_counterexamples
   run_substitute_host_journeys
   exit 0
 fi
