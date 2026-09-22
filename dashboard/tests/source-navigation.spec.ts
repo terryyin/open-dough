@@ -125,10 +125,14 @@ test("source navigation opens canonical and plan records at the inspected revisi
     );
   });
 
-  await test.step("showing links reads no story or plan content", () => {
+  await test.step("showing links reads in-repository canonical files and no external or unsafe target", () => {
     expect(outside.map((url) => new URL(url).pathname)).toEqual([
       "/repos/terryyin/open-dough/commits/main",
       "/repos/terryyin/open-dough/contents/.planning/PRODUCT-BACKLOG.md",
+      "/repos/terryyin/open-dough/contents/.planning/quick/059-installer-update-report/PLAN.md",
+      "/repos/terryyin/open-dough/contents/.planning/seeds/SEED-021-observe-published-story-progress.md",
+      "/repos/terryyin/open-dough/contents/docs/adrs/0001-ubiquitous-language-accepted.md",
+      "/repos/terryyin/open-dough/contents/docs/release%20notes/2026.md",
     ]);
   });
 

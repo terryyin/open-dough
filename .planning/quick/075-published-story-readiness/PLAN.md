@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 10: `df045a78996a333126b3cc000c7f056548ac838f`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 9 remains `42d8ee6cf1822fe8022b0f02072d05c580e4739c`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 11: `d60d4b683b9ceb863d91a2185f8fd1df761a3327`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 10 remains `df045a78996a333126b3cc000c7f056548ac838f`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -424,7 +424,9 @@ trades occasional reassessment for avoiding an unreliable semantic change detect
 
 Slice 1 learning: later consumers, including slice 2, import `readHome` from `product-backlog-home-reader.mjs`. The filesystem wrapper keeps `openHome` / `recordIdentity` and re-exports only `impliedIdentity` and `namedIdentity`.
 
-CI disposition: runs 35686421011 (`5951832`) and 35687189269 (`592bf8d`) cancelled the test job at the 20-minute job limit, with the same `sleep` orphan signature already present on planning-only `d7b91f3` (run 35685361715). Local `npm test` on this branch finishes in about two minutes. Not a slice repair. A later cancel with that same signature is the same disposition.
+CI disposition: runs 35686421011 (`5951832`) and 35687189269 (`592bf8d`) cancelled the test job at the 20-minute job limit, with the same `sleep` orphan signature already present on planning-only `d7b91f3` (run 35685361715). Local `npm test` on this branch finishes in about two minutes. Not a slice repair. A later cancel with that same signature is the same disposition, including run 35697374868 (`d60d4b6`).
+
+Dashboard runs 35691722486 (`f8093cd`), 35692670601 (`3b75c36`), 35694203239 (`42d8ee6`), 35695927585 (`df045a7`), and 35697374868 (`d60d4b6`) failed for one cause at current HEAD: overview cards now expose Inspect story and read in-repository canonical files, while older page-wide button and "no file body" assertions still described the pre-preparation overview. The repair keeps Retry/Refresh focus and the retained snapshot, and names the canonical reads. External and unsafe targets stay unread.
 
 Remaining implementation risks are precise: canonical-file concurrency (slice 2),
 legacy plan interpretation (slice 8), and private path authorization/process lifetime

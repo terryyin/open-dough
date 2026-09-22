@@ -134,7 +134,11 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveText(["Refresh"]);
+  await expect(page.getByRole("button")).toHaveText([
+    "Refresh",
+    "Inspect story",
+    "Inspect story",
+  ]);
 });
 
 test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only when asked", async ({
@@ -231,7 +235,13 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveText(["Refresh"]);
+  await expect(page.getByRole("button")).toHaveText([
+    "Refresh",
+    "Inspect story",
+    "Inspect story",
+    "Inspect story",
+    "Inspect story",
+  ]);
   await expect(refresh).toBeFocused();
   expect(pathsRead(origin)).toHaveLength(4);
 });
