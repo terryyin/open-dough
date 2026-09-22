@@ -965,6 +965,6 @@ command text the agent is told to run, not via the launching shell's `PATH`.
 
 ## Retention
 
-- Highest allocated local number: 89
+- Highest allocated local number: 90
 - Recovery: `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

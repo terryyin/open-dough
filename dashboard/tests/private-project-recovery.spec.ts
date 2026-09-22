@@ -138,7 +138,12 @@ test.describe("private project recovery", () => {
         });
         await expect(source).toContainText(doughnutRevision);
         await expect(problem).toHaveCount(0);
-        await expect(page.getByRole("button")).toHaveText(["Refresh"]);
+        await expect(
+          page.getByRole("button", { name: "Refresh" }),
+        ).toBeVisible();
+        await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(
+          0,
+        );
       });
 
       await test.step("returning to Pygardon while access is still unavailable starts a fresh, still-failing read -- not stale Doughnut data", async () => {
@@ -164,7 +169,12 @@ test.describe("private project recovery", () => {
         await expect(direction).toContainText(pygardonDirection);
         await expect(source).toContainText(pygardonRevision);
         await expect(problem).toHaveCount(0);
-        await expect(page.getByRole("button")).toHaveText(["Refresh"]);
+        await expect(
+          page.getByRole("button", { name: "Refresh" }),
+        ).toBeVisible();
+        await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(
+          0,
+        );
       });
 
       await test.step("a later failed Refresh keeps only Pygardon's previous snapshot, with the failure reported alongside it", async () => {
@@ -183,7 +193,10 @@ test.describe("private project recovery", () => {
         await expect(source).toContainText(pygardonRevision);
         await expect(page.locator("body")).not.toContainText(doughnutTitle);
         await expect(page.locator("body")).not.toContainText(openDoughTitle);
-        await expect(page.getByRole("button")).toHaveText(["Retry"]);
+        await expect(page.getByRole("button", { name: "Retry" })).toBeVisible();
+        await expect(page.getByRole("button", { name: "Refresh" })).toHaveCount(
+          0,
+        );
       });
     } finally {
       await server?.close();

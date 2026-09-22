@@ -75,7 +75,13 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
         "datetime",
         retrievedA.toISOString(),
       );
-      await expect(page.getByRole("button")).toHaveText(["Retry"]);
+      await expect(page.getByRole("button")).toHaveText([
+        "Retry",
+        "Inspect story",
+        "Inspect story",
+        "Inspect story",
+        "Inspect story",
+      ]);
       await expect(retry).toBeFocused();
       await expect(parts(page).reading).toHaveCount(0);
     });
@@ -112,7 +118,13 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
         `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/quick/061-published-story-dashboard/PLAN.md`,
       );
       await expect(problem).toHaveCount(0);
-      await expect(page.getByRole("button")).toHaveText(["Refresh"]);
+      await expect(page.getByRole("button")).toHaveText([
+        "Refresh",
+        "Inspect story",
+        "Inspect story",
+        "Inspect story",
+        "Inspect story",
+      ]);
       await expect(refresh).toBeFocused();
     });
   });

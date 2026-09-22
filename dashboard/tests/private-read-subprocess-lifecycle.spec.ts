@@ -10,7 +10,8 @@
 // This spec covers the boundary's subprocess lifecycle. Its HTTP contract --
 // refusal, successful resolve-then-read, and failure reporting -- is covered
 // separately in ./private-read-boundary.spec.ts, which shares this suite's
-// harness (./support/privateReadServer.ts).
+// harness (./support/privateReadServer.ts). Membership and extra-path reads
+// share the same cancellation ownership; cases differ only by URL shape.
 //
 // This spec's servers are not the shared webServer (playwright.config.ts)
 // the parallel public-origin specs use: each is a separate process, on its
@@ -22,13 +23,14 @@ import { mkdtempSync, rmSync } from "node:fs";
 import http from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { privateReadPlugin } from "../server/privateRead";
+import { privateReadPlugin } from "../server/privateReadPlugin";
 import {
   installFakeGh,
   processAlive,
   readPid,
   writeControl,
 } from "./support/fakeGh";
+import { privateReadKinds, privateReadUrl } from "./support/privateReadUrl";
 import {
   startPrivateReadServer,
   waitUntil,
@@ -53,23 +55,25 @@ test.describe("private read boundary: cancels the held subprocess on client disc
     await server.close();
   });
 
-  test("terminates the held gh subprocess when the request is abandoned (client disconnect)", async () => {
-    server.setControl({ mode: "hang" });
-    const abandoned = abandonedRequest({
-      url: `${server.baseURL}/__private-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
+  for (const { kind, label } of privateReadKinds) {
+    test(`terminates a held ${label} when the request is abandoned (client disconnect)`, async () => {
+      server.setControl({ mode: "hang" });
+      const abandoned = abandonedRequest({
+        url: privateReadUrl(server.baseURL, kind),
+        headers: { Origin: server.origin },
+      });
+      const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(becameAlive).toBe(true);
+      abandoned.cutAfter(0);
+      const died = await waitUntil(() => !processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(died).toBe(true);
+      expect(server.ghExitedBy()).toBe("SIGTERM");
     });
-    const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(becameAlive).toBe(true);
-    abandoned.cutAfter(0);
-    const died = await waitUntil(() => !processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(died).toBe(true);
-    expect(server.ghExitedBy()).toBe("SIGTERM");
-  });
+  }
 });
 
 test.describe("private read boundary: bounded timeout without changing the production bound", () => {
@@ -93,51 +97,48 @@ test.describe("private read boundary: bounded timeout without changing the produ
     await server.close();
   });
 
-  test("ends a stalled gh subprocess at the read's own bound, even without a client disconnect", async () => {
-    server.setControl({ mode: "hang" });
-    const response = await rawRequest({
-      url: `${server.baseURL}/__private-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
+  for (const { kind, label } of privateReadKinds) {
+    test(`ends a stalled ${label} at the read's own bound`, async () => {
+      server.setControl({ mode: "hang" });
+      const response = await rawRequest({
+        url: privateReadUrl(server.baseURL, kind),
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(502);
+      const died = await waitUntil(() => !processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(died).toBe(true);
     });
-    expect(response.status).toBe(502);
-    const died = await waitUntil(() => !processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(died).toBe(true);
-  });
+  }
 });
 
 test.describe("private read boundary: subprocess ownership across server shutdown", () => {
-  test("ends every held gh subprocess when the server itself closes, end to end", async () => {
-    const server = await startPrivateReadServer({ mode: "dev", port: 4292 });
-    server.setControl({ mode: "hang" });
-    // Left outstanding on purpose: this test's own client never disconnects
-    // it. Only `server.close()` below acts. (An earlier version of this test
-    // also destroyed this connection itself after closing the server, which
-    // confounded the result: that alone -- the request-disconnect path
-    // already proven above -- was enough to end the subprocess, so the test
-    // passed even while the production `closeServer`/`closePreviewServer`
-    // wiring was broken. The next test below isolates that wiring
-    // specifically; this one proves only the end-to-end user-facing
-    // guarantee that no owned subprocess survives a real shutdown, by
-    // whichever combination of production paths brings that about -- Vite's
-    // own `server.close()` also destroys any still-open request socket as
-    // part of closing its HTTP server, which independently triggers this
-    // boundary's request-disconnect path too.)
-    abandonedRequest({
-      url: `${server.baseURL}/__private-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
+  // Left outstanding on purpose: each test's client never disconnects it.
+  // Only `server.close()` acts. An earlier membership case also destroyed
+  // the connection after close, which confounded the result with the
+  // request-disconnect path. The next describe isolates plugin-hook wiring;
+  // these prove no owned subprocess survives a real shutdown.
+  for (const { kind, label } of privateReadKinds) {
+    test(`ends a held ${label} when the server itself closes`, async () => {
+      const port = kind === "membership" ? 4292 : 4302;
+      const server = await startPrivateReadServer({ mode: "dev", port });
+      server.setControl({ mode: "hang" });
+      abandonedRequest({
+        url: privateReadUrl(server.baseURL, kind),
+        headers: { Origin: server.origin },
+      });
+      const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(becameAlive).toBe(true);
+      await server.close();
+      const died = await waitUntil(() => !processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(died).toBe(true);
     });
-    const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(becameAlive).toBe(true);
-    await server.close();
-    const died = await waitUntil(() => !processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(died).toBe(true);
-  });
+  }
 });
 
 // A minimal stand-in for `Connect.Server`: `privateReadPlugin()`'s
@@ -155,8 +156,8 @@ test.describe("private read boundary: closeServer/closePreviewServer hook wiring
   // `configurePreviewServer`'s return value as a close hook (that return
   // value is a startup "post hook", called once at startup, never at
   // close). `privateReadPlugin()` must instead register its cleanup via the
-  // dedicated `closeServer`/`closePreviewServer` plugin hooks. The test
-  // above cannot isolate that fact on its own, because Vite's own graceful
+  // dedicated `closeServer`/`closePreviewServer` plugin hooks. The tests
+  // above cannot isolate that fact on their own, because Vite's own graceful
   // `server.close()` also destroys any still-open request socket, which
   // independently triggers this boundary's already-proven
   // `req.on("close")` cancellation path. So this test calls the plugin's

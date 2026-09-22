@@ -21,6 +21,7 @@ import {
   publishOrigin,
   rawFileAnswer,
 } from "./githubOrigin";
+import { zoomedWindow } from "./accessibleReading";
 import {
   box,
   expectInside,
@@ -29,9 +30,6 @@ import {
   expectStackedInOrder,
 } from "./pageLayout";
 
-// A 1280 by 1024 window under 400% browser zoom lays the page out in this many
-// CSS pixels, so the narrow journey is also the zoomed one.
-const zoomedWindow = { width: 320, height: 256 };
 const narrowWindow = { width: 360, height: 740 };
 
 test("accessible overview reflows long published work for a narrow window and page zoom", async ({
@@ -228,6 +226,9 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastLink.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
+      // Each card offers Inspect before its Canonical link, so two Shift+Tab
+      // steps reach the previous card's recorded link.
+      await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Shift+Tab");
       const link = backlog
         .getByRole("article", { name: queuedTitle(place), exact: true })

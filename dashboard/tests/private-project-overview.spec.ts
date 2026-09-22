@@ -16,9 +16,12 @@
 // leak into -- or race with -- those tests.
 
 import { expect, test } from "@playwright/test";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { expectMembership, parts } from "./dashboardPage";
+import {
+  assertNoCredentialMarker,
+  collectFiles,
+} from "./support/credentialAbsence";
 import {
   startPrivateReadServer,
   type PrivateReadServer,
@@ -33,6 +36,26 @@ const queuedTitle = "Pygardon's own queued story";
 const queuedIdentity = "PYG-2#queued";
 const directionText =
   "Show Pygardon's own published direction, read through existing local authentication.";
+const takenPath = ".planning/quick/100-pygardon-story/PLAN.md";
+const queuedPath = ".planning/seeds/SEED-100-pygardon.md";
+
+const takenRecord = `# Taken story
+
+**Identity:** ${takenIdentity}
+
+Whole-document correction home without a story-state block.
+`;
+
+const queuedRecord = `# Queued seed
+
+<a id="queued"></a>
+
+### Queued story
+
+**Identity:** ${queuedIdentity}
+
+Legacy seed without a story-state block.
+`;
 
 const backlog = `# Product backlog
 
@@ -56,25 +79,6 @@ ${directionText}
 // never reads or echoes this value; a real `gh` invocation would carry
 // something like it without ever needing to.
 const credentialMarker = "gho_should-never-reach-a-browser-9f8e7d6c5b4a";
-
-function collectFiles(dir: string): string[] {
-  const found: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      found.push(...collectFiles(full));
-    } else {
-      found.push(full);
-    }
-  }
-  return found;
-}
-
-function assertNoCredentialMarker(haystacks: readonly string[]): void {
-  for (const haystack of haystacks) {
-    expect(haystack).not.toContain(credentialMarker);
-  }
-}
 
 function runScenario(mode: "dev" | "preview", port: number): void {
   test(`private project overview: selecting Pygardon renders its direction, Taken, queue, and source links through existing gh authentication (${mode} launch mode)`, async ({
@@ -106,7 +110,16 @@ function runScenario(mode: "dev" | "preview", port: number): void {
         port,
         extraEnv: { GH_TOKEN: credentialMarker },
       });
-      server.setControl({ mode: "normal", revision, backlog });
+      server.setControl({
+        mode: "normal",
+        revision,
+        backlog,
+        files: {
+          ".planning/PRODUCT-BACKLOG.md": backlog,
+          [takenPath]: takenRecord,
+          [queuedPath]: queuedRecord,
+        },
+      });
 
       await page.goto(server.baseURL);
       const { project, direction, source } = parts(page);
@@ -142,24 +155,45 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           "href",
           `https://github.com/${pygardonRepository}/blob/${revision}/.planning/seeds/SEED-100-pygardon.md#queued`,
         );
+        // Wait until allowlisted record reads finish before asserting gh calls.
+        await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+        await expect(
+          takenCard.getByText("Not recorded", { exact: true }),
+        ).toBeVisible();
       });
 
-      await test.step("exactly two read-only gh calls happened, the second pinned to the first's resolved revision", () => {
+      await test.step("gh resolve and contents calls stay pinned to the catalog repository and allowlisted paths only", () => {
         const calls = server?.ghCalls() ?? [];
-        expect(calls).toHaveLength(2);
-        const [refCall, contentCall] = calls as [string[], string[]];
-        expect(refCall).toEqual([
+        expect(calls[0]).toEqual([
           "api",
           `repos/${pygardonRepository}/commits/main`,
           "--jq",
           ".sha",
         ]);
-        expect(contentCall).toEqual([
-          "api",
-          "-H",
-          "Accept: application/vnd.github.raw+json",
-          `repos/${pygardonRepository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,
-        ]);
+        const contentArgs = calls.slice(1).map((argv) => argv.join(" "));
+        for (const joined of contentArgs) {
+          expect(joined).toContain(`repos/${pygardonRepository}/contents/`);
+          expect(joined).toContain(`?ref=${revision}`);
+          expect(joined).not.toContain("repos/evil/");
+        }
+        const contentPaths = contentArgs.map((joined) => {
+          const match = /\/contents\/([^?\s]+)/.exec(joined);
+          if (match === null || match[1] === undefined) {
+            throw new Error(`expected contents path in: ${joined}`);
+          }
+          return decodeURIComponent(match[1]);
+        });
+        expect(contentPaths).toContain(".planning/PRODUCT-BACKLOG.md");
+        expect(contentPaths).toContain(takenPath);
+        expect(contentPaths).toContain(queuedPath);
+        expect(
+          contentPaths.every(
+            (path) =>
+              path === ".planning/PRODUCT-BACKLOG.md" ||
+              path === takenPath ||
+              path === queuedPath,
+          ),
+        ).toBe(true);
       });
 
       await test.step("no credential-like marker reaches the browser's requests, responses, or storage", async () => {
@@ -170,7 +204,7 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           "({ local: JSON.stringify(window.localStorage), session: JSON.stringify(window.sessionStorage) })",
         );
         const pageContent = await page.content();
-        assertNoCredentialMarker([
+        assertNoCredentialMarker(credentialMarker, [
           ...requestSnapshots,
           ...responseBodies,
           storage.local,
@@ -190,7 +224,7 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           const fileContents = collectFiles(outDir).map((file) =>
             readFileSync(file).toString("utf8"),
           );
-          assertNoCredentialMarker(fileContents);
+          assertNoCredentialMarker(credentialMarker, fileContents);
         });
       }
     } finally {

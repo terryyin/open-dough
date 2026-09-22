@@ -157,6 +157,68 @@ test.describe("private read boundary (dev launch mode)", () => {
     // attempted with whatever partial/undefined revision that would imply.
     expect(server.ghCalls()).toHaveLength(callsBefore + 1);
   });
+
+  test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
+    server.setControl({
+      mode: "normal",
+      revision,
+      backlog,
+      files: {
+        ".planning/PRODUCT-BACKLOG.md": backlog,
+      },
+    });
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__private-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(404);
+    expect(response.body).not.toContain(secretMarker);
+    const calls = server.ghCalls().slice(callsBefore);
+    // Allowlist may read the backlog to decide, but must never fetch the
+    // arbitrary path itself.
+    expect(
+      calls.every(
+        (argv) => !argv.join(" ").includes("/contents/.planning/secrets/"),
+      ),
+    ).toBe(true);
+  });
+
+  test("reads an allowlisted canonical path pinned to the supplied revision", async () => {
+    const seedPath = ".planning/seeds/SEED-boundary.md";
+    const seedBody = "# Seed\n\n**Identity:** SEED-boundary#story\n";
+    const backlogWithSeed = `# Product backlog
+
+## Taken
+
+## Backlog list
+
+- [Boundary story](seeds/SEED-boundary.md#story) — SEED-boundary#story
+`;
+    server.setControl({
+      mode: "normal",
+      revision,
+      backlog: backlogWithSeed,
+      files: {
+        ".planning/PRODUCT-BACKLOG.md": backlogWithSeed,
+        [seedPath]: seedBody,
+      },
+    });
+    const response = await rawRequest({
+      url: `${server.baseURL}/__private-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(seedPath)}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("no-store");
+    const body = JSON.parse(response.body) as {
+      revision: string;
+      path: string;
+      text: string;
+    };
+    expect(body.revision).toBe(revision);
+    expect(body.path).toBe(seedPath);
+    expect(body.text).toBe(seedBody);
+  });
 });
 
 test.describe("private read boundary (preview launch mode)", () => {

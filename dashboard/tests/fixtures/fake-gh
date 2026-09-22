@@ -5,13 +5,16 @@
 // non-shared private-read-boundary server (see ../support/privateReadServer).
 // It never touches the network or real credentials: every answer comes from
 // a small JSON control file the test writes before each request, so the
-// test controls exactly what the production middleware's two `gh api` calls
-// receive back, and can hold one call open to prove cancellation.
+// test controls exactly what the production middleware's resolve and content
+// `gh api` calls receive back, and can hold one call open to prove
+// cancellation.
 //
-// Every invocation is also appended, argv and all, to a log file the test
-// reads afterward -- including invocations that end up hanging or failing --
-// so refusal-before-launch and pinned-argument assertions have something to
-// inspect.
+// Content answers are keyed by repository path when `files` is present;
+// otherwise the single `backlog` body answers every contents read (the
+// older membership-only fixture shape). Every invocation is also appended,
+// argv and all, to a log file the test reads afterward -- including
+// invocations that end up hanging or failing -- so refusal-before-launch
+// and pinned-argument assertions have something to inspect.
 
 const fs = require("fs");
 
@@ -36,6 +39,25 @@ function readControl() {
   } catch {
     return { mode: "normal" };
   }
+}
+
+function contentsPath(joinedArgs) {
+  const match = /\/contents\/([^?\s]+)/.exec(joinedArgs);
+  if (!match) {
+    return undefined;
+  }
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function contentBody(control, path) {
+  if (path && control.files && Object.prototype.hasOwnProperty.call(control.files, path)) {
+    return control.files[path];
+  }
+  return control.backlog || "";
 }
 
 const control = readControl();
@@ -71,7 +93,7 @@ if (control.mode === "error") {
 } else if (kind === "ref") {
   process.stdout.write(`${control.revision || "0".repeat(40)}\n`);
 } else if (kind === "content") {
-  process.stdout.write(control.backlog || "");
+  process.stdout.write(contentBody(control, contentsPath(joinedArgs)));
 } else {
   process.stderr.write("fake gh: unrecognized invocation\n");
   process.exitCode = 1;

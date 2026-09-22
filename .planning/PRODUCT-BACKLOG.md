@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress ([plan](quick/075-published-story-readiness/PLAN.md))
 - [Skip path-only CI without hiding the applicable verdict](seeds/SEED-008-worktree-branch-trunk-sync.md#path-filter-aware-ci-observation) — SEED-008#path-filter-aware-ci-observation ([plan](quick/076-path-filter-aware-ci-observation/PLAN.md))
 
 ## Backlog list

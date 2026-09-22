@@ -1,4 +1,8 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
+import {
+  expectFocusedAndIndicated,
+  politeRegionsOfferedThenMarked,
+} from "./accessibleReading";
 import { expectMembership, parts } from "./dashboardPage";
 import {
   pathsRead,
@@ -14,54 +18,6 @@ import {
   titlesOfB,
 } from "./refreshJourney";
 
-// What the browser draws around the element that holds keyboard focus.
-async function focusIndication(page: Page) {
-  return page.evaluate<{
-    visible: boolean;
-    style: string;
-    width: number;
-  }>(`(() => {
-    const focused = document.activeElement;
-    const style = getComputedStyle(focused);
-    return {
-      visible: focused.matches(":focus-visible"),
-      style: style.outlineStyle,
-      width: parseFloat(style.outlineWidth),
-    };
-  })()`);
-}
-
-async function expectFocusedAndIndicated(page: Page, stop: Locator) {
-  await expect(stop).toBeFocused();
-  const indication = await focusIndication(page);
-  expect(indication.visible).toBe(true);
-  expect(indication.style).not.toBe("none");
-  expect(indication.width).toBeGreaterThanOrEqual(2);
-}
-
-// Whether assistive technology is offered each polite region at all, whatever
-// it currently says: rendered, and not hidden by itself or anything around it.
-// Each region is marked too, so that later text is known to arrive in the
-// same element rather than in one inserted along with its text.
-const politeRegionsOfferedThenMarked = `(() =>
-  ["[role='status']", "[aria-live='polite']"].map((selector) => {
-    const region = document.querySelector(selector);
-    region.dataset.known = selector;
-    for (let at = region; at; at = at.parentElement) {
-      const style = getComputedStyle(at);
-      if (
-        style.display === "none" ||
-        style.visibility !== "visible" ||
-        at.hidden ||
-        at.getAttribute("aria-hidden") === "true"
-      ) {
-        return false;
-      }
-    }
-    return true;
-  })
-)()`;
-
 test("accessible overview is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
   page,
 }) => {
@@ -72,18 +28,27 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const { project, backlog, taken, refresh } = parts(page);
 
   // Reading order is the order of the page's source: the project selector,
-  // then the read control, then Backlog's links by priority, then Taken's.
-  // In a wide window Taken stands beside Backlog's first card, so position on
-  // screen would order them differently.
+  // then the read control, then each card's Inspect control and its recorded
+  // links by stage (Backlog, then Taken). In a wide window Taken stands beside
+  // Backlog's first card, so position on screen would order them differently.
+  const stopsFor = async (stage: Locator) => {
+    const stops: Locator[] = [];
+    for (const card of await stage.getByRole("article").all()) {
+      stops.push(card.getByRole("button", { name: "Inspect story" }));
+      stops.push(...(await card.getByRole("link").all()));
+    }
+    return stops;
+  };
   const stops = [
     project,
     refresh,
-    ...(await backlog.getByRole("link").all()),
-    ...(await taken.getByRole("link").all()),
+    ...(await stopsFor(backlog)),
+    ...(await stopsFor(taken)),
   ];
-  expect(stops).toHaveLength(1 + 1 + 2 + 3);
+  // project + refresh + four Inspect controls + five recorded links.
+  expect(stops).toHaveLength(1 + 1 + 4 + 5);
 
-  await test.step("Tab stops at the read control and every recorded link, and nowhere else", async () => {
+  await test.step("Tab stops at the read control, Inspect, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, stop);
@@ -105,8 +70,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
-    // Two non-link stops precede the first link: the project selector, then
-    // the read control.
+    // Project already holds focus after the reverse walk; Refresh and the
+    // first card's Inspect precede its Canonical link.
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     const [leaving] = await Promise.all([

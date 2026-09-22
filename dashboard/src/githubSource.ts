@@ -59,17 +59,26 @@ export async function resolveRevision(
   return commit.data.sha;
 }
 
+export async function readRepositoryFileAt(
+  source: PublishedSource,
+  repositoryPath: string,
+  revision: string,
+  signal: AbortSignal,
+): Promise<string> {
+  const path = repositoryPath.split("/").map(encodeURIComponent).join("/");
+  const response = await get(
+    `${api}/repos/${source.repository}/contents/${path}?ref=${revision}`,
+    "application/vnd.github.raw+json",
+    `${repositoryPath} at ${revision}`,
+    signal,
+  );
+  return response.text();
+}
+
 export async function readBacklogAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
 ): Promise<string> {
-  const path = source.backlogPath.split("/").map(encodeURIComponent).join("/");
-  const response = await get(
-    `${api}/repos/${source.repository}/contents/${path}?ref=${revision}`,
-    "application/vnd.github.raw+json",
-    `${source.backlogPath} at ${revision}`,
-    signal,
-  );
-  return response.text();
+  return readRepositoryFileAt(source, source.backlogPath, revision, signal);
 }

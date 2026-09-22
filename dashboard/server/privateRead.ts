@@ -1,37 +1,36 @@
-// The local, authenticated read boundary for a Vite dev or preview launch:
-// one narrow HTTP endpoint that resolves a catalog source's ref and reads its
-// backlog file through the local `gh` CLI's existing authentication, instead
-// of the browser's unauthenticated public path (`../src/githubSource.ts`).
-// This module is Node-only server wiring, mounted from `vite.config.mts`;
-// nothing in the browser bundle imports it, and nothing it answers with
-// carries credentials, raw process stderr, or an arbitrary repository/path.
-//
-// The catalog (`../src/publishedSource.ts`) is the one source of project
-// identity; this boundary answers only for a source already named there.
-// Request refusal lives in `./localOrigin.ts`; the `gh` invocations
-// themselves live in `./ghRead.ts`. This module is the orchestration that
-// connects them to a mounted HTTP endpoint.
+// Local authenticated read boundary for Vite: resolves a catalog source's
+// ref and reads its backlog (or one reachability-checked canonical/plan path)
+// through local `gh`. Request refusal: `./localOrigin.ts`; gh calls:
+// `./ghRead.ts`; path reachability: `./privatePathAllowlist.ts`. Node-only;
+// never returns credentials, raw stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Connect, Plugin } from "vite";
+import type { Connect } from "vite";
 import {
-  readBacklogViaGh,
+  commitShaPattern,
+  readRepositoryFileViaGh,
   readTimeoutMs,
   resolveRevisionViaGh,
 } from "./ghRead";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
+import {
+  parseSafeRepositoryPath,
+  pathReachableFromRevision,
+} from "./privatePathAllowlist";
 import { sourceById } from "../src/publishedSource";
 import { privateReadEndpoint } from "../src/privateReadPath";
 
-// Re-exported so existing importers of this module (this boundary's own
-// tests) keep one place to find the endpoint path; `../src/privateReadPath.ts`
-// is now its one source, so the browser-side reader
-// (`../src/privateRead.ts`) can share the exact same literal without
-// importing this Node-only module.
+// Shared with the browser reader via `../src/privateReadPath.ts`.
 export { privateReadEndpoint };
 
 type Outcome =
   | { readonly kind: "ok"; readonly revision: string; readonly backlog: string }
+  | {
+      readonly kind: "ok-file";
+      readonly revision: string;
+      readonly path: string;
+      readonly text: string;
+    }
   | {
       readonly kind: "refused";
       readonly status: number;
@@ -39,9 +38,33 @@ type Outcome =
     }
   | { readonly kind: "failed" };
 
+async function withTrackedGh<T>(
+  req: IncomingMessage,
+  tracked: Set<AbortController>,
+  run: (signal: AbortSignal) => Promise<T>,
+): Promise<T> {
+  const controller = new AbortController();
+  tracked.add(controller);
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, readTimeoutMs());
+  const onClose = () => {
+    controller.abort();
+  };
+  req.on("close", onClose);
+  try {
+    return await run(controller.signal);
+  } finally {
+    clearTimeout(timer);
+    req.off("close", onClose);
+    tracked.delete(controller);
+  }
+}
+
 // Only a request naming a catalog source already known to
 // `../src/publishedSource.ts` is answered; there is no arbitrary
-// repository, path, or shell command acceptance here.
+// repository, path, or shell command acceptance here. Extra file reads must
+// name a pinned revision and a path reachable from that revision's records.
 async function answer(
   req: IncomingMessage,
   tracked: Set<AbortController>,
@@ -68,49 +91,95 @@ async function answer(
     return { kind: "refused", status: 404, message: "Unknown catalog source." };
   }
 
-  const controller = new AbortController();
-  tracked.add(controller);
-  const timer = setTimeout(() => {
-    controller.abort();
-  }, readTimeoutMs());
-  const onClose = () => {
-    controller.abort();
-  };
-  req.on("close", onClose);
+  const revisionParam = url.searchParams.get("revision");
+  const pathParam = url.searchParams.get("path");
+  const wantsFile = revisionParam !== null || pathParam !== null;
+  if (wantsFile) {
+    if (revisionParam === null || pathParam === null) {
+      return {
+        kind: "refused",
+        status: 400,
+        message: "A pinned revision and repository path are both required.",
+      };
+    }
+    if (!commitShaPattern.test(revisionParam)) {
+      return {
+        kind: "refused",
+        status: 400,
+        message: "The pinned revision is not a commit sha.",
+      };
+    }
+    const repositoryPath = parseSafeRepositoryPath(pathParam);
+    if (repositoryPath === undefined) {
+      return {
+        kind: "refused",
+        status: 400,
+        message: "The repository path is not usable.",
+      };
+    }
+
+    try {
+      return await withTrackedGh(req, tracked, async (signal) => {
+        const reachable = await pathReachableFromRevision(
+          source,
+          revisionParam,
+          repositoryPath,
+          signal,
+        );
+        if (!reachable) {
+          return {
+            kind: "refused" as const,
+            status: 404,
+            message: "That path is not reachable from this source revision.",
+          };
+        }
+        const text = await readRepositoryFileViaGh(
+          source.repository,
+          repositoryPath,
+          revisionParam,
+          signal,
+        );
+        return {
+          kind: "ok-file" as const,
+          revision: revisionParam,
+          path: repositoryPath,
+          text,
+        };
+      });
+    } catch {
+      return { kind: "failed" };
+    }
+  }
+
   try {
-    const revision = await resolveRevisionViaGh(
-      source.repository,
-      source.ref,
-      controller.signal,
-    );
-    const backlog = await readBacklogViaGh(
-      source.repository,
-      source.backlogPath,
-      revision,
-      controller.signal,
-    );
-    return { kind: "ok", revision, backlog };
+    return await withTrackedGh(req, tracked, async (signal) => {
+      const revision = await resolveRevisionViaGh(
+        source.repository,
+        source.ref,
+        signal,
+      );
+      const backlog = await readRepositoryFileViaGh(
+        source.repository,
+        source.backlogPath,
+        revision,
+        signal,
+      );
+      return { kind: "ok" as const, revision, backlog };
+    });
   } catch {
     // Never forward a `gh` failure's raw stderr: it may name local paths,
     // request context, or (in principle) echo configuration. The person
     // sees only a safe, generic report.
     return { kind: "failed" };
-  } finally {
-    clearTimeout(timer);
-    req.off("close", onClose);
-    tracked.delete(controller);
   }
 }
 
 function respond(res: ServerResponse, outcome: Outcome): void {
-  // The requester may already be gone (a disconnect is one of this
-  // boundary's three cancellation triggers): writing to a closed response
-  // would throw rather than reach anyone, so there is nothing left to answer.
+  // Disconnect is a cancellation trigger; a closed response has no audience.
   if (res.writableEnded || res.destroyed) {
     return;
   }
-  // A private answer is never cached: it may differ per invocation, and it
-  // must never linger in an intermediary given what authorized it.
+  // Never cache: answers may differ per invocation and must not linger.
   const headers = {
     "Cache-Control": "no-store",
     "Content-Type": "application/json",
@@ -119,6 +188,17 @@ function respond(res: ServerResponse, outcome: Outcome): void {
     res.writeHead(200, headers);
     res.end(
       JSON.stringify({ revision: outcome.revision, backlog: outcome.backlog }),
+    );
+    return;
+  }
+  if (outcome.kind === "ok-file") {
+    res.writeHead(200, headers);
+    res.end(
+      JSON.stringify({
+        revision: outcome.revision,
+        path: outcome.path,
+        text: outcome.text,
+      }),
     );
     return;
   }
@@ -153,41 +233,10 @@ export function installPrivateReadMiddleware(
     });
   };
   middlewares.use(handler);
-  // The caller (`privateReadPlugin`, below) hands this to Vite's
-  // `closeServer`/`closePreviewServer` plugin hooks: a held `gh` subprocess
-  // must end with the owning server rather than being merely orphaned and
-  // discarded. It is NOT the return value of `configureServer`/
-  // `configurePreviewServer` -- in this project's installed Vite (8.3.0),
-  // that return value is a "post hook" Vite calls once, synchronously, right
-  // after startup finishes registering its own middlewares, never at close.
   return () => {
     for (const controller of tracked) {
       controller.abort();
     }
     tracked.clear();
-  };
-}
-
-export function privateReadPlugin(): Plugin {
-  // Set by whichever of the two launch-mode hooks below actually runs (dev
-  // XOR preview, never both in one process); read by the matching close
-  // hook. Vite's `configureServer`/`configurePreviewServer` return value is
-  // a startup post-hook, not a close hook, so shutdown cleanup is wired
-  // through the dedicated `closeServer`/`closePreviewServer` hooks instead.
-  let cleanup: (() => void) | undefined;
-  return {
-    name: "dough-private-read",
-    configureServer(server) {
-      cleanup = installPrivateReadMiddleware(server.middlewares);
-    },
-    configurePreviewServer(server) {
-      cleanup = installPrivateReadMiddleware(server.middlewares);
-    },
-    closeServer() {
-      cleanup?.();
-    },
-    closePreviewServer() {
-      cleanup?.();
-    },
   };
 }
