@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: planned; not taken; implementation is not authorized.
+Status: executing; slice 1 done; slice 2 is next.
 
 ## Source and outcome
 
@@ -15,6 +15,18 @@ Outcome: Terry sees preparation and readiness across the backlog, and can inspec
 published slice progress. The workflow produces the authoritative facts; the
 reader and dashboard share their meaning. Preserve the story's examples and
 exclusions, including the existing three-project public/private behavior.
+
+## Execution
+
+- Mode: Story Branch Mode. Replanning permission is the existing planning authority; this invocation supplied neither `--replan` nor `--no-replan`.
+- Originating checkout: `/Users/terryyin/git/open-dough`.
+- Integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+- Owned workspace: `/Users/terryyin/git/open-dough/.worktrees/075-published-story-readiness`, branch `cursor/075-published-story-readiness`, created this session from fetched `origin/main` `e720864646f4d4020a60b9df927488502ba265da`.
+- Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
+- Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
+- Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
+- Increment target: `origin` `cursor/075-published-story-readiness`. No increment has been published.
+- CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
 
@@ -198,10 +210,12 @@ shell test entrypoint. New browser journeys join the existing Playwright suite.
 
 ### 1. Share canonical story interpretation across record consumers
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing identity/add/refresh/adoption checks retain their outcomes after
 extracting pure region/identity interpretation; importing that reader uses no
 filesystem or Node-only module.
+
+Accepted: `readHome` lives in `product-backlog-home-reader.mjs`; `product-backlog-home.mjs` loads and writes files and does not re-export `readHome`. `identityLine` is shared by the reader. Commands, both pass after the refactor edits: `node --test tests/support/product-backlog-identity.test.mjs tests/support/product-backlog-add-identity.test.mjs tests/support/product-backlog-refresh.test.mjs tests/support/product-backlog-refresh-refusals.test.mjs tests/support/product-backlog-adopt.test.mjs tests/support/product-backlog-adopt-refusals.test.mjs` (25 tests; setup is those existing suites) and `node --test tests/support/product-backlog-home-reader.test.mjs` (assertion `importing the pure home reader pulls in no filesystem or Node-only module`).
 
 Structure: Separate the pure canonical-home reader from its current filesystem
 wrapper, preserving the existing anchored and whole-document contracts. This
@@ -387,6 +401,8 @@ execution maintenance, and combining public and authenticated reads. The sequenc
 separates those outcomes, with each using the same record contract. No generic
 framework or separate per-project grammar is needed. The conservative digest rule
 trades occasional reassessment for avoiding an unreliable semantic change detector.
+
+Slice 1 learning: later consumers, including slice 2, import `readHome` from `product-backlog-home-reader.mjs`. The filesystem wrapper keeps `openHome` / `recordIdentity` and re-exports only `impliedIdentity` and `namedIdentity`.
 
 Remaining implementation risks are precise: canonical-file concurrency (slice 2),
 legacy plan interpretation (slice 8), and private path authorization/process lifetime
