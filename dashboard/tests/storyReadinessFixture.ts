@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   commitAll,
+  commitPaths,
   recordAssessed,
   recordState,
   scratchRepo,
@@ -24,6 +25,7 @@ import {
   planReadyBody,
   planReadyPath,
   planReadyRelative,
+  planReadyTwoDoneBody,
   seedRelative,
   threeStorySeed,
   unrefined,
@@ -34,6 +36,8 @@ export {
   plannedBlocked,
   plannedReady,
   planless,
+  planReadyPath,
+  planReadyTwoDoneBody,
   seedRelative,
   unrefined,
 } from "./storyReadinessRecords";
@@ -41,6 +45,7 @@ export {
 export type ReadinessRepo = {
   readonly directory: string;
   readonly revision: string;
+  advanceTo(revision: string): void;
 };
 
 export function buildOpenDoughReadinessRepo(
@@ -89,7 +94,7 @@ Show published preparation and readiness on public-project cards.
     assessment: "ready",
   });
 
-  const revision = commitAll(directory, "Publish readiness fixture");
+  let revision = commitAll(directory, "Publish readiness fixture");
 
   // Unpushed local edit: must remain invisible when the journey serves the
   // committed revision at the GitHub HTTP boundary.
@@ -100,7 +105,29 @@ Show published preparation and readiness on public-project cards.
     "utf8",
   );
 
-  return { directory, revision };
+  return {
+    directory,
+    get revision() {
+      return revision;
+    },
+    advanceTo(next) {
+      revision = next;
+    },
+  };
+}
+
+// Second publication: records two of five slices done with accepted proof in
+// the plan text the shared reader interprets. Does not hand-build display state.
+// Only the plan path is committed so the unpushed seed edit stays unpublished.
+export function publishTwoSlicesDone(repo: ReadinessRepo): string {
+  writePlanning(repo.directory, planReadyPath, planReadyTwoDoneBody);
+  const next = commitPaths(
+    repo.directory,
+    [`.planning/${planReadyPath}`],
+    "Record two of five slices done with accepted proof",
+  );
+  repo.advanceTo(next);
+  return next;
 }
 
 export function buildDoughnutReadinessRepo(
@@ -134,6 +161,14 @@ Doughnut's own published readiness overview.
     assessment: "ready",
   });
 
-  const revision = commitAll(directory, "Publish doughnut readiness fixture");
-  return { directory, revision };
+  let revision = commitAll(directory, "Publish doughnut readiness fixture");
+  return {
+    directory,
+    get revision() {
+      return revision;
+    },
+    advanceTo(next) {
+      revision = next;
+    },
+  };
 }

@@ -62,22 +62,94 @@ Goal, scope, and examples for the blocked story.
 
 **Status:** Ready for a later execution request.
 
+**Goal:** Show recorded slice progress for a Taken story without inventing
+completion or treating a prospective proof recipe as a passed result.
+
 Goal, scope, and examples for the ready story.
 `;
 
 export const planBlockedBody = `# Blocked plan
 
+## Ordered slices
+
 ### 1. Decide the remaining concern
 Type: Behavior
 Status: planned
+Proof: Resolve the blocking decision in the plan.
 `;
 
-export const planReadyBody = `# Ready plan
+type ReadyPlanSlice = {
+  readonly index: number;
+  readonly name: string;
+  readonly type: string;
+  readonly proof: string;
+  readonly accepted?: string;
+};
 
-### 1. Deliver the ready outcome
-Type: Behavior
-Status: planned
-`;
+// One ordered-slices list for the ready Taken story. The planned and two-done
+// plan bodies share these definitions; only recorded completion differs.
+const readyPlanSlices: readonly ReadyPlanSlice[] = [
+  {
+    index: 1,
+    name: "Establish shared plan reading",
+    type: "Structure",
+    proof: "Shared reader interprets ordered slices without filesystem access.",
+    accepted:
+      "Shared plan reader unit checks passed for interpreted slices and uninterpretable layout.",
+  },
+  {
+    index: 2,
+    name: "Show recorded completion in detail",
+    type: "Behavior",
+    proof:
+      "Detail lists slice names, status, and accepted evidence when present.",
+    accepted:
+      "Dashboard detail shows two of five recorded complete with accepted evidence text from this plan.",
+  },
+  {
+    index: 3,
+    name: "Keep readiness distinct from completion",
+    type: "Behavior",
+    proof: "Taken and ready remain separate from recorded slice completion.",
+  },
+  {
+    index: 4,
+    name: "Preserve unsupported plan layout",
+    type: "Behavior",
+    proof: "Unsupported layout stays uninterpretable rather than zero slices.",
+  },
+  {
+    index: 5,
+    name: "Pin source links beside progress",
+    type: "Behavior",
+    proof: "Detail offers pinned canonical and plan links only.",
+  },
+];
+
+function readyPlanBody(doneThrough: number): string {
+  const slices = readyPlanSlices
+    .map((slice) => {
+      const done = slice.index <= doneThrough;
+      const accepted =
+        done && slice.accepted !== undefined
+          ? `Accepted: ${slice.accepted}\n`
+          : "";
+      return `### ${slice.index}. ${slice.name}
+Type: ${slice.type}
+Status: ${done ? "done" : "planned"}
+Proof: ${slice.proof}
+${accepted}`;
+    })
+    .join("\n");
+  return `# Ready plan
+
+## Ordered slices
+
+${slices}`;
+}
+
+export const planReadyBody = readyPlanBody(0);
+export const planReadyTwoDoneBody = readyPlanBody(2);
 
 export const planless = {
   identity: "SEED-075#planless-ready",

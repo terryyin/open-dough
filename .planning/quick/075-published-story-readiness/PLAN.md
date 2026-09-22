@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–7 done; slice 8 is next.
+Status: executing; slices 1–8 done; slice 9 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 6: `89fea1501d78f7c479f3a56e3315cb6b9142dc6b`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`, slice 4 `e0af858e08983131c98e1e06d78fb5993066b901`, slice 5 `8f752f6498f04dd7279cdc88e3b300032587e478`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 7: `f8093cd62c31b76c832b55502078e3116328ad0b`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments include slice 6 `89fea1501d78f7c479f3a56e3315cb6b9142dc6b`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -317,11 +317,13 @@ The fixture supplies remote transport, not the state-producing behavior under te
 
 ### 8. Inspect the story and its recorded slice progress
 Type: Behavior
-Status: planned
+Status: done
 Proof: Browser selects a Taken story with five planned slices, then refreshes after
 an isolated Git publication records two done with accepted proof. Detail shows the
 purpose, two of five recorded complete, slice names/status/evidence, and pinned
 links; prospective proof alone is never described as a passed result.
+
+Accepted: `npm run test:dashboard -- --grep 'story readiness'` passed after the detail split. Setup is `publishTwoSlicesDone`, which writes two `Status: done` slices with `Accepted:` lines and commits only that plan. Observations in `dashboard/tests/storyReadinessDetail.ts`: `0 of 5 recorded complete` with no `Accepted evidence:`, then `2 of 5 recorded complete` with accepted evidence and a prospective proof recipe. Plan-reader and purpose tests are listed in `tests/product-backlog.sh`.
 
 Behavior: Card selection → detail → supported purpose, assessment and slice facts.
 Add the shared plan reader and accessible detail region. Keep Taken, readiness,

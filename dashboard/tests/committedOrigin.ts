@@ -38,6 +38,7 @@ export type CommittedOrigin = {
   readonly repository: string;
   readonly repoDir: string;
   hold(repositoryPath: string): () => void;
+  advanceTo(revision: string): void;
 };
 
 export async function publishCommittedOrigin(
@@ -48,7 +49,8 @@ export async function publishCommittedOrigin(
     readonly repository: string;
   },
 ): Promise<CommittedOrigin> {
-  const { repoDir, revision, repository } = options;
+  const { repoDir, repository } = options;
+  let revision = options.revision;
   const requests: ObservedRequest[] = [];
   const held = new Map<string, Promise<void>>();
   const repositoryApi = `https://api.github.com/repos/${repository}`;
@@ -106,7 +108,9 @@ export async function publishCommittedOrigin(
 
   return {
     requests,
-    revision,
+    get revision() {
+      return revision;
+    },
     repository,
     repoDir,
     hold(repositoryPath) {
@@ -121,6 +125,9 @@ export async function publishCommittedOrigin(
         held.delete(repositoryPath);
         release();
       };
+    },
+    advanceTo(next) {
+      revision = next;
     },
   };
 }

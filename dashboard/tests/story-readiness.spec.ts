@@ -1,10 +1,17 @@
-// Slice 7: published preparation and readiness on public-project cards.
+// Slice 7–8: published preparation, readiness, and inspectable slice progress.
 // Setup obtains records through the real CLI, commits them, and serves those
 // exact revision bytes at the GitHub HTTP boundary — not a display fixture.
+// A second commit records two of five slices done with accepted proof in plan
+// text; the shared reader interprets that outcome.
 
 import { expect, test } from "@playwright/test";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
+import {
+  expectPlanlessDetailAbsentPlan,
+  expectReadyDetailTwoCompleteAfterPublish,
+  expectReadyDetailZeroComplete,
+} from "./storyReadinessDetail";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
@@ -12,6 +19,7 @@ import {
   plannedBlocked,
   plannedReady,
   planless,
+  publishTwoSlicesDone,
   unrefined,
 } from "./storyReadinessFixture";
 
@@ -44,7 +52,7 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
     });
 
     await page.goto("/");
-    const { project, source, backlog, taken } = parts(page);
+    const { project, source, backlog, taken, refresh } = parts(page);
 
     await test.step("membership and order arrive before inventing not-refined", async () => {
       await expectMembership(page, {
@@ -139,6 +147,22 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       expect(openDoughOrigin.requests.length).toBe(before);
     });
 
+    await test.step("inspecting Taken detail shows purpose and zero of five recorded complete without extra reads", async () => {
+      await expectReadyDetailZeroComplete(taken, openDoughOrigin);
+    });
+
+    await test.step("after publishing two done slices with accepted proof, refresh shows two of five", async () => {
+      await expectReadyDetailTwoCompleteAfterPublish(
+        page,
+        taken,
+        source,
+        refresh,
+        openDough,
+        openDoughOrigin,
+        publishTwoSlicesDone,
+      );
+    });
+
     await test.step("Doughnut shows planless ready and legacy not recorded", async () => {
       await project.selectOption("doughnut");
       await expectMembership(page, {
@@ -168,6 +192,8 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       await expect(
         legacyCard.getByText("Not refined", { exact: true }),
       ).toHaveCount(0);
+
+      await expectPlanlessDetailAbsentPlan(backlog);
 
       const doughnutPaths = contentPathsRead(doughnutOrigin);
       expect(doughnutPaths[0]).toBe("main");

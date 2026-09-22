@@ -20,6 +20,8 @@ import { readPrivateSnapshot } from "./privateRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
+import type { WorkPlanSlices } from "./storyPlan";
+import type { WorkPurpose } from "./storyPurpose";
 
 export type { PublishedWorkProgress } from "./publicPreparation";
 
@@ -48,6 +50,12 @@ export type WorkEntry = {
   // Preparation facts from the same revision. Undefined while a private
   // source awaits its later authenticated path; public reads start as loading.
   readonly preparation?: WorkPreparation;
+  // Recorded Goal from the canonical home at this revision.
+  readonly purpose?: WorkPurpose;
+  // Ordered slices from the associated plan at this revision when planning
+  // facts are known. Absent when no plan applies; never invents zero slices
+  // for an unsupported layout.
+  readonly planSlices?: WorkPlanSlices;
 };
 
 export type PublishedWork = {
@@ -103,7 +111,11 @@ function interpret(
         ...(plan && {
           plan: resolveSourceLink(plan.target, source, revision),
         }),
-        ...(preparation !== undefined && { preparation }),
+        ...(preparation !== undefined && {
+          preparation,
+          purpose: { status: "loading" as const },
+          planSlices: { status: "loading" as const },
+        }),
       }));
   return {
     direction: recorded.data,

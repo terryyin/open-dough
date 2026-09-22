@@ -109,7 +109,26 @@ export function recordAssessed(
 
 export function commitAll(directory: string, message: string): string {
   execFileSync("git", ["-C", directory, "init"], { encoding: "utf8" });
+  return commitChanges(directory, message);
+}
+
+export function commitChanges(directory: string, message: string): string {
   execFileSync("git", ["-C", directory, "add", "-A"], { encoding: "utf8" });
+  return commitIndex(directory, message);
+}
+
+export function commitPaths(
+  directory: string,
+  repositoryPaths: readonly string[],
+  message: string,
+): string {
+  execFileSync("git", ["-C", directory, "add", "--", ...repositoryPaths], {
+    encoding: "utf8",
+  });
+  return commitIndex(directory, message);
+}
+
+function commitIndex(directory: string, message: string): string {
   execFileSync(
     "git",
     [

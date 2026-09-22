@@ -1,47 +1,51 @@
-// Loads preparation and readiness for a public published-work snapshot after
-// membership is already known. Private sources skip this path until their
-// authenticated record read attaches later.
+// Loads preparation, purpose, and plan-slice facts for a public published-work
+// snapshot after membership is already known. Private sources skip this path
+// until their authenticated record read attaches later. Plan text fetched for
+// readiness is reused for detail; opening already-read detail costs no extra
+// request.
 
 import type { PublishedWork, WorkEntry } from "./publishedWork";
+import {
+  planSlicesFor,
+  preparationForPeek,
+  purposeFor,
+} from "./publicEntryFacts";
 import { loadRepositoryTexts } from "./repositoryFileReads";
 import { resolveBesideFile } from "./repositoryPath";
 import { snapshotRepositoryPath } from "./sourceLink";
-import {
-  interpretStoryState,
-  peekRecordedApproach,
-  type WorkPreparation,
-} from "./storyPreparation";
+import { peekRecordedApproach, type WorkPreparation } from "./storyPreparation";
+import type { WorkPlanSlices } from "./storyPlan";
+import type { WorkPurpose } from "./storyPurpose";
 
 export type PublishedWorkProgress = (work: PublishedWork) => void;
 
-function withPreparation(
+type EntryFacts = {
+  readonly preparation: WorkPreparation;
+  readonly purpose: WorkPurpose;
+  readonly planSlices: WorkPlanSlices;
+};
+
+function withFacts(
   work: PublishedWork,
-  byIdentity: ReadonlyMap<string, WorkPreparation>,
+  byIdentity: ReadonlyMap<string, EntryFacts>,
 ): PublishedWork {
   const apply = (entries: readonly WorkEntry[]): WorkEntry[] =>
     entries.map((entry) => {
-      const preparation = byIdentity.get(entry.identity);
-      if (preparation === undefined) {
+      const facts = byIdentity.get(entry.identity);
+      if (facts === undefined) {
         return entry;
       }
-      return { ...entry, preparation };
+      return {
+        ...entry,
+        preparation: facts.preparation,
+        purpose: facts.purpose,
+        planSlices: facts.planSlices,
+      };
     });
   return {
     ...work,
     taken: apply(work.taken),
     backlog: apply(work.backlog),
-  };
-}
-
-function recordedWithoutPlanAssessment(
-  peek: Extract<WorkPreparation, { readonly status: "recorded" }>,
-  problem: string,
-): WorkPreparation {
-  return {
-    status: "recorded",
-    refinement: peek.refinement,
-    approach: peek.approach,
-    assessment: { status: "unavailable", problem },
   };
 }
 
@@ -95,52 +99,6 @@ function peekEntries(
       peek: peekRecordedApproach(text, entry.canonical.recorded),
     };
   });
-}
-
-function preparationForPeek(
-  entry: WorkEntry,
-  path: string | undefined,
-  peek: ReturnType<typeof peekRecordedApproach>,
-  canonicalText: ReadonlyMap<string, string>,
-  planText: ReadonlyMap<string, string>,
-  planProblems: ReadonlyMap<string, string>,
-): WorkPreparation {
-  if (peek.status !== "recorded") {
-    return peek;
-  }
-  const href = entry.canonical.recorded;
-  const text = path === undefined ? undefined : canonicalText.get(path);
-  if (path === undefined || text === undefined) {
-    return {
-      status: "unavailable",
-      problem: "The canonical record could not be read.",
-    };
-  }
-  if (peek.approach.kind !== "planned") {
-    return interpretStoryState(text, href);
-  }
-  const resolved = resolveBesideFile(path, peek.approach.plan);
-  if (resolved === undefined) {
-    return recordedWithoutPlanAssessment(
-      peek,
-      "The recorded plan path does not resolve to a file inside the observed repository.",
-    );
-  }
-  if (resolved === path) {
-    return interpretStoryState(text, href, { planIsCanonical: true });
-  }
-  const planProblem = planProblems.get(resolved);
-  if (planProblem !== undefined) {
-    return recordedWithoutPlanAssessment(peek, planProblem);
-  }
-  const planSource = planText.get(resolved);
-  if (planSource === undefined) {
-    return recordedWithoutPlanAssessment(
-      peek,
-      "The associated plan could not be read.",
-    );
-  }
-  return interpretStoryState(text, href, { planSource });
 }
 
 export async function enrichPublicPreparation(
@@ -199,25 +157,33 @@ export async function enrichPublicPreparation(
     "The associated plan could not be read for readiness facts.",
   );
 
-  const byIdentity = new Map<string, WorkPreparation>();
+  const byIdentity = new Map<string, EntryFacts>();
   for (const { entry, path, peek } of peeks) {
     if (peek === undefined) {
       continue;
     }
-    byIdentity.set(
-      entry.identity,
-      preparationForPeek(
-        entry,
+    const preparation = preparationForPeek(
+      entry,
+      path,
+      peek,
+      canonicalText,
+      planText,
+      planProblems,
+    );
+    byIdentity.set(entry.identity, {
+      preparation,
+      purpose: purposeFor(path, entry, canonicalText, canonicalProblems),
+      planSlices: planSlicesFor(
+        preparation,
         path,
-        peek,
-        canonicalText,
         planText,
         planProblems,
+        canonicalText,
       ),
-    );
+    });
   }
 
-  const enriched = withPreparation(work, byIdentity);
+  const enriched = withFacts(work, byIdentity);
   onPartial?.(enriched);
   return enriched;
 }

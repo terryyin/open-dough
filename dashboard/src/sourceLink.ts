@@ -52,10 +52,12 @@ function externalLink(recorded: string): SourceLink {
 // own: an anchor alone, "seeds/", or "seeds/.." names at most a directory.
 // Whether a final name really is a file is never checked, since nothing is
 // fetched. A leading "/" starts at the repository root, as it does where
-// GitHub shows the backlog itself.
+// GitHub shows the backlog itself. Relative targets resolve beside the
+// containing file (backlog by default; a seed or plan when that file records
+// the link).
 function repositoryPath(
   recordedPath: string,
-  backlogPath: string,
+  containingFilePath: string,
 ): string[] | undefined {
   let path: string;
   try {
@@ -65,7 +67,7 @@ function repositoryPath(
   }
   const resolved = path.startsWith("/")
     ? []
-    : backlogPath.split("/").slice(0, -1);
+    : containingFilePath.split("/").slice(0, -1);
   const segments = path.split("/");
   const last = segments.at(-1);
   if (last === undefined || last === "" || last === "." || last === "..") {
@@ -89,7 +91,7 @@ function repositoryPath(
 // HTML URL shape.
 export function snapshotRepositoryPath(
   link: SourceLink,
-  backlogPath: string,
+  containingFilePath: string,
 ): string | undefined {
   if (link.kind !== "snapshot") {
     return undefined;
@@ -98,7 +100,7 @@ export function snapshotRepositoryPath(
   if (!parts.success) {
     return undefined;
   }
-  const file = repositoryPath(parts.data.path, backlogPath);
+  const file = repositoryPath(parts.data.path, containingFilePath);
   return file?.join("/");
 }
 
@@ -106,6 +108,7 @@ export function resolveSourceLink(
   recorded: string,
   source: PublishedSource,
   revision: string,
+  containingFilePath: string = source.backlogPath,
 ): SourceLink {
   const scheme = leadingScheme.exec(recorded)?.[1]?.toLowerCase();
   if (scheme === "http" || scheme === "https") {
@@ -125,7 +128,7 @@ export function resolveSourceLink(
     );
   }
   const { path, anchor } = parts.data;
-  const file = repositoryPath(path, source.backlogPath);
+  const file = repositoryPath(path, containingFilePath);
   if (!file) {
     return {
       kind: "unusable",

@@ -1,68 +1,74 @@
-import {
-  shortRevision,
-  type PublishedWork,
-  type WorkEntry,
-} from "./publishedWork";
-import type { SourceLink } from "./sourceLink";
+import { useState } from "react";
+import { type PublishedWork, type WorkEntry } from "./publishedWork";
 import { BadgeLegend, PreparationFacts } from "./PreparationCard";
-import { stagesMarks, workCardMarks, workLinkMarks } from "./workFocus";
+import { RecordedLink } from "./RecordedLink";
+import { StoryDetail } from "./StoryDetail";
+import { stagesMarks, workCardMarks } from "./workFocus";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
 }
 
-// One recorded link, shown the same way whatever kind of entry records it. The
-// recorded target is always readable as text; it becomes a link only when it
-// leads to a file of this snapshot or to an ordinary web address.
-function RecordedLink({ role, link }: { role: string; link: SourceLink }) {
-  const recorded = (
-    <>
-      <span className="link-role">{role}</span>{" "}
-      <span className="link-target">{link.recorded}</span>
-    </>
+function WorkCard({
+  entry,
+  priority,
+  selected,
+  onSelect,
+}: {
+  entry: WorkEntry;
+  priority: number | undefined;
+  selected: boolean;
+  onSelect: (identity: string) => void;
+}) {
+  const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  return (
+    <article
+      className={selected ? "card card-selected" : "card"}
+      aria-label={entry.title}
+      {...workCardMarks(entry.identity)}
+    >
+      {priority !== undefined && (
+        <p className="card-priority">Priority {priority}</p>
+      )}
+      <h3>{entry.title}</h3>
+      <p className="card-identity">{entry.identity}</p>
+      <PreparationFacts preparation={entry.preparation} />
+      <p>
+        <button
+          type="button"
+          className="inspect-story"
+          aria-expanded={selected}
+          aria-controls={detailId}
+          onClick={() => {
+            onSelect(entry.identity);
+          }}
+        >
+          {selected ? "Hide detail" : "Inspect story"}
+        </button>
+      </p>
+      {selected && <StoryDetail entry={entry} detailId={detailId} />}
+      {!selected && (
+        <ul className="card-links" aria-label="Source links">
+          <RecordedLink role="Canonical record" link={entry.canonical} />
+          {entry.plan && <RecordedLink role="Plan" link={entry.plan} />}
+        </ul>
+      )}
+    </article>
   );
-  switch (link.kind) {
-    case "snapshot":
-      return (
-        <li>
-          <a href={link.url} {...workLinkMarks(role)}>
-            {recorded}
-          </a>
-          <p className="link-note">
-            File in this snapshot, at revision {shortRevision(link.revision)}.
-          </p>
-        </li>
-      );
-    case "external":
-      return (
-        <li>
-          <a href={link.url} rel="noopener noreferrer" {...workLinkMarks(role)}>
-            {recorded}
-          </a>
-          <p className="link-note">
-            External reference. It is not a file in this snapshot and is not
-            tied to the inspected revision.
-          </p>
-        </li>
-      );
-    case "unusable":
-      return (
-        <li>
-          <span>{recorded}</span>
-          <p className="link-note">Not offered as a link. {link.reason}</p>
-        </li>
-      );
-  }
 }
 
 function Stage({
   name,
   entries,
   prioritized,
+  selectedIdentity,
+  onSelect,
 }: {
   name: string;
   entries: readonly WorkEntry[];
   prioritized: boolean;
+  selectedIdentity: string | undefined;
+  onSelect: (identity: string) => void;
 }) {
   const headingId = `stage-${name.toLowerCase()}`;
   return (
@@ -77,25 +83,12 @@ function Stage({
         <ol className="cards">
           {entries.map((entry, index) => (
             <li key={entry.identity}>
-              <article
-                className="card"
-                aria-label={entry.title}
-                {...workCardMarks(entry.identity)}
-              >
-                {prioritized && (
-                  <p className="card-priority">Priority {index + 1}</p>
-                )}
-                <h3>{entry.title}</h3>
-                <p className="card-identity">{entry.identity}</p>
-                <PreparationFacts preparation={entry.preparation} />
-                <ul className="card-links" aria-label="Source links">
-                  <RecordedLink
-                    role="Canonical record"
-                    link={entry.canonical}
-                  />
-                  {entry.plan && <RecordedLink role="Plan" link={entry.plan} />}
-                </ul>
-              </article>
+              <WorkCard
+                entry={entry}
+                priority={prioritized ? index + 1 : undefined}
+                selected={selectedIdentity === entry.identity}
+                onSelect={onSelect}
+              />
             </li>
           ))}
         </ol>
@@ -110,14 +103,28 @@ function Stage({
 // work is one card across snapshots, and carry the marks `workFocus` defines so
 // keyboard focus can follow that work.
 export function WorkStages({ work }: { work: PublishedWork }) {
+  const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
+    undefined,
+  );
   const showsPreparation = [...work.taken, ...work.backlog].some(
     (entry) => entry.preparation !== undefined,
   );
+  const select = (identity: string) => {
+    setSelectedIdentity((current) =>
+      current === identity ? undefined : identity,
+    );
+  };
   return (
     <>
       {showsPreparation && <BadgeLegend />}
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
-        <Stage name="Backlog" entries={work.backlog} prioritized />
+        <Stage
+          name="Backlog"
+          entries={work.backlog}
+          prioritized
+          selectedIdentity={selectedIdentity}
+          onSelect={select}
+        />
         <div className="connector">
           {/* No viewBox: the line is as long as the arrow is given room, and
               the head keeps its own size at the line's end. */}
@@ -133,7 +140,13 @@ export function WorkStages({ work }: { work: PublishedWork }) {
             entries.
           </p>
         </div>
-        <Stage name="Taken" entries={work.taken} prioritized={false} />
+        <Stage
+          name="Taken"
+          entries={work.taken}
+          prioritized={false}
+          selectedIdentity={selectedIdentity}
+          onSelect={select}
+        />
       </section>
     </>
   );
