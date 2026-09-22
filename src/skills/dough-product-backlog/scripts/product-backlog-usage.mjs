@@ -24,6 +24,11 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
        product-backlog.mjs adopt --all [--file <path>]
        product-backlog.mjs merge --ancestor <path>
                              --branch <path> --branch <path> [--file <path>]
+       product-backlog.mjs record-state --identity <id> --link <href>
+                             --refinement not-refined|refined
+                             --approach unselected|planned|planless
+                             [--plan <path>] [--file <path>]
+       product-backlog.mjs read-state --link <href> [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
 relative position. Identities are supplied, never allocated there.
@@ -75,5 +80,16 @@ reported with nothing written, for a human to decide. It prefers neither
 branch, unions no lines, and is not Git-aware: establishing which files hold
 the three versions stays with the caller.
 
+record-state writes one versioned preparation block into the canonical home
+--link names: refinement and approach only. A planned approach stores --plan
+relative to that home file. It replaces only the selected story's block,
+serializes cooperating writers per canonical file, and changes no backlog
+queue bytes. It never records readiness assessment.
+
+read-state prints the shared reader's normalized preparation facts for the
+home --link names as JSON. Legacy absence is "not-recorded"; an unsupported
+schema version is "unsupported-version". It never writes.
+
 Paths are resolved against the current directory; --file defaults to
-${defaultBacklogPath}.`;
+${defaultBacklogPath}. Canonical home links and planned paths are resolved
+from the backlog file's directory and from the home file, respectively.`;

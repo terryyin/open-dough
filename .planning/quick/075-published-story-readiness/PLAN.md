@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slice 1 done; slice 2 is next.
+Status: executing; slices 1–2 done; slice 3 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. No increment has been published.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 1: `59518327d8f4baa03285e86128070bfbd15be358`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -224,12 +224,14 @@ ordering, Git integration, or unrelated store operations.
 
 ### 2. Record one story's preparation without changing its neighbors
 Type: Behavior
-Status: planned
+Status: done
 Proof: A real CLI operation on a seed with two stories records the selected
 story's refinement and plan/planless facts; reading through the shared reader
 returns those facts and leaves the other story, identity, and backlog bytes intact.
 Concurrent cooperating writes to different stories in that file preserve both;
 ambiguous/duplicate records are refused without writes.
+
+Accepted: `record-state` / `read-state` and `readStoryState` / `recordStoryState`. Command, pass after the refactor split: `node --test tests/support/story-state.test.mjs tests/support/story-state-refusals.test.mjs tests/support/product-backlog-home-reader.test.mjs` (6 tests). Setup is `story-state-fixture.mjs` plus a planted two-story seed with no state block. Observations: neighbor stays `not-recorded` and backlog bytes unchanged; concurrent writes keep planned/unselected and planless; duplicate blocks and a wrong identity match `Nothing was written`; unsupported schema version 99 is distinct from legacy `not-recorded`.
 
 Behavior: Existing canonical record → authorized preparation record operation →
 validated state stored atomically in the selected home. Include the minimal

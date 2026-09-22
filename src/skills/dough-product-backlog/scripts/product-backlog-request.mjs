@@ -16,6 +16,8 @@ export const options = {
   position: { type: "string" },
   plan: { type: "string" },
   "no-plan": { type: "boolean", default: false },
+  refinement: { type: "string" },
+  approach: { type: "string" },
   text: { type: "string" },
   clear: { type: "boolean", default: false },
   expect: { type: "string" },

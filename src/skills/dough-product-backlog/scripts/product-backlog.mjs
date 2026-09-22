@@ -26,10 +26,16 @@ import {
   reportDirection,
   reportMerge,
   reportPlace,
+  reportRecordState,
   reportRefresh,
   reportTake,
 } from "./product-backlog-report.mjs";
 import { applyToBacklog } from "./product-backlog-store.mjs";
+import {
+  preparationRefusal,
+  readPreparation,
+  recordPreparation,
+} from "./product-backlog-story-state-home.mjs";
 import { takeEntry } from "./product-backlog-take.mjs";
 import { usage } from "./product-backlog-usage.mjs";
 
@@ -163,6 +169,25 @@ async function merge(file, values) {
   console.log(reportMerge(outcome, values.file));
 }
 
+async function recordState(file, values) {
+  const outcome = await recordPreparation(dirname(file), {
+    identity: values.identity,
+    href: values.link,
+    refinement: values.refinement,
+    approach: values.approach,
+    plan: values.plan,
+  });
+  console.log(reportRecordState(outcome));
+}
+
+async function readState(file, values) {
+  if (values.link === undefined || values.link.trim() === "") {
+    throw new BacklogError(`Missing link: supply --link.`);
+  }
+  const state = readPreparation(dirname(file), values.link);
+  console.log(JSON.stringify(state, null, 2));
+}
+
 const operations = {
   add,
   place,
@@ -172,6 +197,8 @@ const operations = {
   direction,
   adopt,
   merge,
+  "record-state": recordState,
+  "read-state": readState,
 };
 
 async function main(argv) {
@@ -200,7 +227,12 @@ try {
   await main(process.argv.slice(2));
 } catch (error) {
   if (error instanceof BacklogError) {
-    console.error(error.refusal);
+    const named = process.argv[2];
+    const refusal =
+      named === "record-state" || named === "read-state"
+        ? preparationRefusal(error)
+        : error.refusal;
+    console.error(refusal);
     process.exit(1);
   }
   throw error;

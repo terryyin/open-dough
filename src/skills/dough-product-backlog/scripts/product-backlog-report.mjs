@@ -79,6 +79,18 @@ export function reportMerge(outcome, file) {
   ].join("\n");
 }
 
+export function reportRecordState(outcome) {
+  const { identity, key, refinement, approach } = outcome.state;
+  const approachText =
+    approach.kind === "planned" ? `planned (${approach.plan})` : approach.kind;
+  const verb = outcome.result === "recorded" ? "Recorded" : "Replaced";
+  return (
+    `${verb} preparation for "${identity}" in ${key}: ` +
+    `refinement ${refinement}, approach ${approachText}. ` +
+    `Other stories and the backlog queue were not changed.`
+  );
+}
+
 export function reportAdopt(outcome, file) {
   if (outcome.written.length === 0 && outcome.relabelled.length === 0) {
     return (

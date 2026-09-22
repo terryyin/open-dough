@@ -19,6 +19,8 @@ node --test \
   tests/support/product-backlog-identity.test.mjs \
   tests/support/product-backlog-add-identity.test.mjs \
   tests/support/product-backlog-home-reader.test.mjs \
+  tests/support/story-state.test.mjs \
+  tests/support/story-state-refusals.test.mjs \
   tests/support/product-backlog-merge-items.test.mjs \
   tests/support/product-backlog-merge-items-refusals.test.mjs \
   tests/support/product-backlog-merge-order.test.mjs \
