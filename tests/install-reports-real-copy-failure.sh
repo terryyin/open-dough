@@ -12,22 +12,6 @@ source "${source_dir}/tests/helpers/incomplete-install-report.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
-OPEN_DOUGH_REAL_CP=$(command -v cp)
-export OPEN_DOUGH_REAL_CP
-
-cp() {
-  if [[ "${OPEN_DOUGH_COPY_FAILURE_ACTIVE:-0}" -ne 1 ]]; then
-    "${OPEN_DOUGH_REAL_CP}" "$@"
-    return
-  fi
-  OPEN_DOUGH_COPY_CALLS=$((OPEN_DOUGH_COPY_CALLS + 1))
-  if [[ ${OPEN_DOUGH_COPY_CALLS} -eq 2 ]]; then
-    return 42
-  fi
-  "${OPEN_DOUGH_REAL_CP}" "$@"
-}
-export -f cp
-
 for platform in codex; do
   target="${temporary_dir}/${platform} target"
   mkdir -p -- "${target}"
@@ -42,15 +26,17 @@ for platform in codex; do
   printf '%s\n' 'later managed file before replacement' > "${later_file}"
   printf '%s\n' 'last-successful-source' > "${destination}/SOURCE"
   printf '%s\n' 'last-successful-version' > "${destination}/VERSION"
+  # The second declared file is unwritable, so replacement stops after the first.
+  second_file="${skill_root}/dough-bug-fixing/SKILL.md"
+  chmod a-w "${second_file}"
 
-  export OPEN_DOUGH_COPY_CALLS=0
-  export OPEN_DOUGH_COPY_FAILURE_ACTIVE=1
   if output=$(bash "${source_dir}/install.sh" \
     --target "${target}" --source "${source_dir}" --platform "${platform}" --force 2>&1); then
+    chmod u+w "${second_file}"
     echo "FAIL: ${platform} installation reported success after a real copy failure." >&2
     exit 1
   fi
-  unset OPEN_DOUGH_COPY_FAILURE_ACTIVE
+  chmod u+w "${second_file}"
 
   assert_direct_incomplete_install_report "${output}" \
     'Copy failed after replacement started.'

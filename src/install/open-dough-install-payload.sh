@@ -6,6 +6,49 @@
 # Caller assigns managed_files, source_dir, target, recorded_source, force,
 # replace_verified, and version.
 
+# Run match or copy for the declared files in one Node process.
+# match exits 1 on a difference. copy exits 1 when a file cannot be written,
+# after earlier files in the declaration order have already been replaced.
+# Without Node, fall back to cmp or cp so a hook-less install still works.
+payload_bytes_run() {
+  local mode=$1
+  local root=$2
+  local helper="${source_dir}/src/install/open-dough-payload-bytes.mjs"
+  local managed_file
+  if [[ -f ${helper} ]] && command -v node > /dev/null 2>&1; then
+    printf '%s\n' "${managed_files[@]}" | node "${helper}" "${mode}" \
+      "${source_dir}/src/skills" "${root}"
+    return
+  fi
+  if [[ ${mode} == copy ]]; then
+    for managed_file in "${managed_files[@]}"; do
+      cp -- "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || return 1
+    done
+    return 0
+  fi
+  for managed_file in "${managed_files[@]}"; do
+    cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || return 1
+  done
+}
+
+payload_bytes_match() {
+  payload_bytes_run match "$1"
+}
+
+create_payload_directories() {
+  local root=$1
+  local managed_file directory
+  local -a directories=()
+  local seen=$'\n'
+  for managed_file in "${managed_files[@]}"; do
+    directory=${managed_file%/*}
+    [[ ${seen} == *$'\n'${directory}$'\n'* ]] && continue
+    seen+=${directory}$'\n'
+    directories+=("${root}/${directory}")
+  done
+  mkdir -p -- "${directories[@]}"
+}
+
 install_declared_payload() {
   if host_hook_fragments_present "${source_dir}"; then
     preflight_host_hook_destinations "${source_dir}" "${target}" || exit 1
@@ -24,11 +67,18 @@ install_declared_payload() {
       assert_no_managed_collision "${root}" "${managed_file}" || exit 1
     done
     current=0
-    if [[ -f "${destination}/SOURCE" && -f "${destination}/VERSION" ]] \
-      && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then current=1; fi
-    for managed_file in "${managed_files[@]}"; do
-      cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || current=0
-    done
+    # Byte comparison cannot flip a missing or different record back to current,
+    # and force ignores currency, so those installs skip the per-file compares.
+    if [[ ${force} -eq 0 && -f "${destination}/SOURCE" && -f "${destination}/VERSION" ]] \
+      && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then
+      current=1
+      status=0
+      payload_bytes_match "${root}" || status=$?
+      if [[ ${status} -ne 0 ]]; then
+        [[ ${status} -eq 1 ]] || exit "${status}"
+        current=0
+      fi
+    fi
     if [[ ${force} -eq 1 ]]; then
       actions+=(replace)
     elif [[ ${replace_verified} -eq 1 && ${current} -eq 1 ]]; then
@@ -59,16 +109,21 @@ install_declared_payload() {
     destination=${destinations[index]}
     root=${roots[index]}
     [[ -z "${OPEN_DOUGH_TRACE:-}" ]] || printf 'install %s\n' "${destination}" >> "${OPEN_DOUGH_TRACE}"
-    for managed_file in "${managed_files[@]}"; do
-      mkdir -p -- "${root}/${managed_file%/*}"
-    done
+    create_payload_directories "${root}"
     [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != copy ]] || {
       printf '%s\n' partial-install > "${destination}/SKILL.md"
       report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'
     }
-    for managed_file in "${managed_files[@]}"; do cp -- "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'; done
+    status=0
+    payload_bytes_run copy "${root}" || status=$?
+    [[ ${status} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'
     verification_failed=0
-    for managed_file in "${managed_files[@]}"; do cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || verification_failed=1; done
+    status=0
+    payload_bytes_match "${root}" || status=$?
+    if [[ ${status} -ne 0 ]]; then
+      [[ ${status} -eq 1 ]] || exit "${status}"
+      verification_failed=1
+    fi
     [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
     write_certified_records "${destination}" "${recorded_source}" "${version}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
     echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."
