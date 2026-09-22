@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Skip path-only CI without hiding the applicable verdict](seeds/SEED-008-worktree-branch-trunk-sync.md#path-filter-aware-ci-observation) — SEED-008#path-filter-aware-ci-observation ([plan](quick/076-path-filter-aware-ci-observation/PLAN.md))
-
 ## Backlog list
 
 - [Fix scripts/check-self-installation.sh failing on Ubuntu CI](seeds/SEED-023-self-installation-check-fails-on-ubuntu-ci.md#fix-self-installation-check-ubuntu-failure) — SEED-023#fix-self-installation-check-ubuntu-failure

@@ -122,6 +122,23 @@ until that missing history is accounted for.
    A revision without a discovered run is quiet until its verdict arrives or
    observation ends; after a long discovery gap the observer may emit one
    informational `CI_DISCOVERY_DELAYED` advisory and keep observing.
+   A revision recorded `not_required` (GitHub default only) is a different,
+   already-proved case: its own changed paths are all ignored by the
+   workflow's trigger filter, so GitHub created no run for it, and the
+   observer already proved a nearby applicable attempt (`basis.sha`) covers
+   it instead. `not_required` is an applicability fact, not a verdict — never
+   treat it as a skipped-and-therefore-fine success, and never report a
+   missing-run warning for it. The effective attempt is that applicable
+   ancestor: inspect its own real state exactly as for any other registered
+   revision, and act only on a genuinely delivered failure for it (the
+   observer still delivers that failure once, following the ancestor across
+   every `not_required` revision that reuses it). A terminal report or
+   shutdown that still shows `basis.state: "pending"` or `"incomplete"` for a
+   `not_required` revision means the applicable ancestor has not reached a
+   verdict yet, not that the revision itself is unproved or missing; `success`
+   or `failure` there means the ancestor already proved the case and no
+   further action is needed beyond ordinary failure handling. No new agent
+   action exists for `not_required` beyond that ordinary handling.
    `CI_INCOMPLETE` needs a bounded inspection of cancellation/skipping; ignore
    proven supersession, not an unexplained missing result. If a failed run's
    cause is uncertain, enter the analysis/repair path below.
