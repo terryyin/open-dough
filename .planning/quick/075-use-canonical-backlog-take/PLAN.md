@@ -1,6 +1,7 @@
 # Take planned work through the canonical backlog operation
 
-Status: planned; not taken; no execution authorized by this plan.
+Status: planned; not taken; refreshed against Open Dough `0.3.29` on
+2026-09-22; no execution authorized by this plan.
 
 ## Source and outcome
 
@@ -17,7 +18,8 @@ resolved executable plan, it invokes the installed
 the agent, constructs and validates the Taken entry and its canonical
 `([plan](...))` link. The affected runtime instruction is shorter than the
 Open Dough `0.3.28` source and preserves the existing authority, workspace,
-commit, and publication boundaries.
+commit, publication, and preparation-readiness boundaries. Taking the item
+does not create, renew, or infer readiness.
 
 Cause: on 2026-09-21 and 2026-09-22, Doughnut agents read the installed
 guidance and then used Python to construct a Taken entry as
@@ -41,6 +43,8 @@ Required behavior:
 4. The affected take guidance has fewer lines than its `0.3.28` counterpart,
    with no new reminder or warning paragraph and no loss of the surrounding
    execution constraints.
+5. The queued Take does not call `record-state`, change the story's recorded
+   preparation/readiness, or infer readiness from queue membership.
 
 The change is limited to the planned feature-story queue claim owned by
 execute-plan. Planless quick work, bounded corrections, resume semantics,
@@ -54,9 +58,11 @@ both `dough-execute-plan`'s **Take queued work** section and
 `dough-product-backlog`'s **Take queued work for execution** / direct-edit text
 where removing duplication or the stale “scripts above” reference makes the
 single action clearer. It does not add a second command wrapper, parser, hook,
-or format description. The exact command remains defined by the existing CLI
-usage and is invoked from the installed skill root so the same source serves
-all hosts.
+format description, or readiness rule. The exact command remains defined by
+the existing CLI usage and is invoked from the installed skill root in the
+execution checkout selected before the claim, so the same source serves all
+hosts. The current `record-state` / `read-state` contract remains owned by the
+canonical story and is not folded into the backlog move.
 
 ## Existing solutions and architecture
 
@@ -68,6 +74,10 @@ PFE found a complete format owner already in the product:
 - `tests/support/product-backlog-take.test.mjs` already proves the planned
   transition writes `([plan](...))`, appends in Taken, resumes without
   duplication, and refuses unresolved or ambiguous input.
+- `product-backlog.mjs record-state` / `read-state`, added after this plan was
+  first written, now own preparation and readiness in the canonical story.
+  Their deterministic tests already run through `tests/product-backlog.sh`;
+  the take path must leave that state untouched.
 - `tests/product-backlog-native.sh` and its installed-workflow helpers already
   provide fresh Claude Code, Codex, and Cursor sessions, transcript capture,
   and real candidate installation. Extend that harness with one bounded take
@@ -90,13 +100,15 @@ Accepted ADR conflict or North Star change was identified.
 ## Proof strategy and execution gates
 
 Add a `take` case to the existing native backlog harness. Its fixture contains
-one queued story and an executable plan and installs the candidate payload. A
+one queued story, an executable plan, and a current ready assessment recorded
+through the installed backlog recorder, then installs the candidate payload. A
 fresh Claude Code session receives an ordinary-language request to start that
 plan, without a script name, command, Markdown syntax, or expected editing
 method. Assert from both transcript and filesystem that it invoked the
 installed `product-backlog.mjs take` operation with the identity and plan,
-produced exactly one canonical Taken entry, and did not construct that entry
-through Python, redirection, or native editing.
+produced exactly one canonical Taken entry, did not construct that entry
+through Python, redirection, or native editing, and neither invoked
+`record-state` nor changed the canonical story-state block.
 
 Claude Code owns fresh native evidence because both observed recurrences were
 there. At execution, assess whether the unchanged shared installation and
@@ -107,11 +119,13 @@ pending rather than being inferred from file presence.
 
 Focused execution commands are `bash tests/product-backlog.sh`, the new
 `bash tests/product-backlog-native.sh --native claude --case take` journey,
+`bash tests/product-backlog-payload-update.sh`,
 `bash tests/install-all-tools.sh`, and `git diff --check`. Existing CI owns the
 full test and lint suites. Before accepting the slice, compare the changed take
-instruction line count with tag `v0.3.28` and perform the AGENTS.md behavior
-review: invocation context, required inputs, and the representative native
-outcome. Do not synchronize `.agents/skills/` or `.claude/skills/` by hand.
+instruction line count with tag `v0.3.28` and with the `0.3.29` starting source,
+and perform the AGENTS.md behavior review: invocation context, required inputs,
+and the representative native outcome. Do not synchronize `.agents/skills/` or
+`.claude/skills/` by hand.
 
 ## Ordered slices
 
@@ -123,20 +137,24 @@ Status: planned
 Proof: extend the installed-workflow native harness with the take fixture and
 fresh Claude Code journey described above. Keep
 `product-backlog-take.test.mjs` green as the deterministic contract for exact
-formatting and refusal behavior, and keep `install-all-tools.sh` green as the
-shared-delivery check. Review the transcript for the installed `take` command
-and absence of hand-built backlog writes; review the result with the shared
-reader. Record the `v0.3.28` and candidate line counts for the affected take
-guidance.
+formatting and refusal behavior, keep the story-state tests green as the
+separate readiness contract, and keep the payload/update checks green as the
+shared-delivery proof. Review the transcript for the installed `take` command,
+absence of hand-built backlog writes, and absence of a `record-state` call;
+review the result with the shared reader and confirm the story-state block is
+byte-for-byte unchanged. Record the `v0.3.28`, `0.3.29` starting, and candidate
+line counts for the affected take guidance.
 
 Behavior: a developer starts a queued story's resolved executable plan through
 Open Dough → the agent resolves the existing execution authority and workspace
 preconditions, invokes the installed backlog `take` operation with the story
 identity and plan path, and continues the existing isolated claim commit and
 publication workflow → the queue has one valid Taken claim whose syntax the
-agent never had to reproduce. Replace redundant or indirect take prose only as
-needed to make that operation the unambiguous action; finish with fewer
-affected instruction lines than `0.3.28`.
+agent never had to reproduce, while the canonical story's preparation/readiness
+state is unchanged. Replace redundant or indirect take prose only as needed to
+make that operation the unambiguous action; finish with fewer affected
+instruction lines than `0.3.28` and no net instructional expansion from the
+`0.3.29` starting source.
 
 Safe stopping point: the observed planned queue-to-Taken path has one existing
 format owner and fresh native evidence, while every excluded backlog and
@@ -149,9 +167,13 @@ execution path is unchanged.
 | Fresh planned execution selects the installed take operation without a prompted command | 1 | Claude Code transcript from the native take journey |
 | Taken entry has one canonical plan link and remains readable | 1 | fixture backlog plus existing deterministic take tests/shared reader |
 | Agent does not construct the entry with Python, redirection, or native edit | 1 | native transcript and captured commands |
+| Take does not create, renew, or infer preparation readiness | 1 | no `record-state` transcript call and unchanged story-state block |
 | Guidance becomes shorter without losing execution constraints | 1 | `0.3.28` comparison and AGENTS.md behavior review |
-| Shared delivery remains valid | 1 | install-all-tools check and ADR 0005 host-evidence assessment |
+| Shared delivery remains valid | 1 | payload/update and install-all-tools checks plus ADR 0005 host-evidence assessment |
 
 ## Learnings
 
-None yet.
+- Open Dough `0.3.29` added canonical story preparation/readiness state after
+  this plan was first written. The take action must preserve that state and
+  must not turn queue membership into a readiness signal; this remains part of
+  the same queue-claim proof loop rather than a second slice.

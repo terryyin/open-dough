@@ -43,6 +43,9 @@ given the command or backlog syntax in the prompt.
 ### 1. Take planned work through the canonical backlog operation
 
 **Identity:** SEED-022#prevent-malformed-backlog-publication
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/075-use-canonical-backlog-take/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8c280cdc4b6146447921ed406867ed800ec4b65e7933b8c935ca27f660d2086d","plan":"ae8e75a6b83115ec1b0f61af0f87e09db91ce120c76de2b1690ed041b130dba1"}}
+```
 
 **Status:** Refined and planned on 2026-09-22; not taken.
 
