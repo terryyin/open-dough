@@ -61,9 +61,14 @@ cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
   --platform "${platform}"
 
-for managed_file in "${managed_files[@]}"; do
-  cmp "${source_dir}/src/skills/${managed_file}" \
-    "${target}/${relative_skill_root}/${managed_file}"
+expected_source=$(cd -- "${source_dir}" && pwd -P)
+for skill_root in "${skill_roots[@]}"; do
+  for managed_file in "${managed_files[@]}"; do
+    cmp "${source_dir}/src/skills/${managed_file}" \
+      "${target}/${skill_root}/${managed_file}"
+  done
+  recorded_source=$(cat "${target}/${skill_root}/dough-update/SOURCE")
+  [[ "${recorded_source}" == "${expected_source}" ]]
 done
 
 for internal_skill in "${internal_skill_names[@]}"; do
@@ -100,9 +105,6 @@ expected_files=$(
 )
 actual_files=$(list_files "${target}")
 [[ "${actual_files}" == "${expected_files}" ]]
-expected_source=$(cd -- "${source_dir}" && pwd -P)
-recorded_source=$(cat "${target}/${relative_skill_root}/dough-update/SOURCE")
-[[ "${recorded_source}" == "${expected_source}" ]]
 
 incomplete_source="${temporary_dir}/incomplete source"
 missing_index=$((${#managed_files[@]} - 1))

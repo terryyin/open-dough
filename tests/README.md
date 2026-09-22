@@ -19,7 +19,9 @@ Direct test scripts rely on this prerequisite; the version guard lives in the
 suite runner. This is a contributor test requirement; the product installer
 continues to support Bash 3.2.
 
-The runner discovers only `tests/*.sh` outside `tests/support/`. A
+The runner discovers only `tests/*.sh` outside `tests/support/`. It runs up to
+four of those checks at a time; each one keeps its own temporary directory.
+`OPEN_DOUGH_TEST_JOBS` selects that count from 1 to 4. A
 `node --test` suite, including one beside a skill's scripts under
 `src/skills/`, runs in `npm test` and CI only when one of those shell entries
 invokes it. Entries that glob a directory's `*.test.mjs`, such as

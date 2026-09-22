@@ -68,15 +68,12 @@ source_before=$(snapshot_path_state "${candidate}")
 assert_fresh_install() {
   local checked_platform=$1
   local checked_target=$2
-  local checked_skill_root managed_file
+  local checked_skill_root
 
   checked_skill_root=$(skill_root_for "${checked_platform}")
   # shellcheck disable=SC2154 # Assigned by the sourced public-payload fixture.
-  for managed_file in "${managed_files[@]}"; do
-    # shellcheck disable=SC2312 # pipefail preserves a failed tagged-source read.
-    git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
-      | cmp - "${checked_target}/${checked_skill_root}/${managed_file}"
-  done
+  assert_tagged_payload_matches "${candidate}" "${tag}" \
+    "${checked_target}/${checked_skill_root}"
   [[ $(cat "${checked_target}/${checked_skill_root}/dough-update/VERSION") == "${version}" ]]
   grep -Fq 'Do not require policies for situations absent from the current request.' \
     "${checked_target}/${checked_skill_root}/dough-adr-awareness/SKILL.md"

@@ -7,14 +7,9 @@ assert_tagged_adr_awareness_payload() {
   local target=$3
   local installed_version=$4
   local expected_version=$5
-  local managed_file
-
   # shellcheck disable=SC2154 # Calling tests source the public-payload fixture.
-  for managed_file in "${managed_files[@]}"; do
-    # shellcheck disable=SC2312 # The caller's pipefail preserves git-show failures.
-    git -C "${candidate}" show "${tag}:src/skills/${managed_file}" \
-      | cmp - "${target}/.agents/skills/${managed_file}"
-  done
+  assert_tagged_payload_matches "${candidate}" "${tag}" \
+    "${target}/.agents/skills"
   [[ ${installed_version} == "${expected_version}" ]]
 }
 

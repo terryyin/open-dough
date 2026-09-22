@@ -5,5 +5,6 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 source "${script_dir}/helpers/public-payload-fixture.bash"
-bash "${script_dir}/support/assert-public-payload-install.sh" codex \
+# Cursor shares the Codex root. One install writes both native roots.
+bash "${script_dir}/support/assert-public-payload-install.sh" cursor \
   "${managed_files[@]}"

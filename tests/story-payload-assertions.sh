@@ -19,17 +19,9 @@ story=dough-story-refinement/SKILL.md
 missing=references/missing-story-dependency.md
 printf '\n[Missing story dependency](%s)\n' "${missing}" >> "${fixture}/src/skills/${story}"
 
-if bash "${fixture}/tests/story-payload-update.sh" > "${temporary_dir}/direct.log" 2>&1; then
-  cat "${temporary_dir}/direct.log" >&2
-  echo 'FAIL: the story payload test accepted a missing installed dependency.' >&2
-  exit 1
-fi
-if ! grep -F -- "${story} -> ${missing}" "${temporary_dir}/direct.log"; then
-  cat "${temporary_dir}/direct.log" >&2
-  echo 'FAIL: the diagnostic must identify the referring file and missing target.' >&2
-  exit 1
-fi
-
+# One suite run is enough: it executes the real dependency check and reports
+# that file as failed. A valid payload already passes in story-payload-update.sh,
+# and the runner's success path is covered by test-runner-bash.sh.
 if bash "${fixture}/scripts/test.sh" > "${temporary_dir}/suite.log" 2>&1; then
   cat "${temporary_dir}/suite.log" >&2
   echo 'FAIL: the suite accepted a failed story payload test.' >&2
@@ -42,12 +34,4 @@ if ! grep -F -- "${story} -> ${missing}" "${temporary_dir}/suite.log" \
   exit 1
 fi
 
-# Restore valid source bytes and prove that the same test and runner can pass.
-cp -- "${source_dir}/src/skills/${story}" "${fixture}/src/skills/${story}"
-if ! bash "${fixture}/scripts/test.sh" > "${temporary_dir}/valid.log" 2>&1; then
-  cat "${temporary_dir}/valid.log" >&2
-  echo 'FAIL: the suite rejected valid installed story dependencies.' >&2
-  exit 1
-fi
-
-echo 'PASS: missing installed story dependencies fail the test and suite with an actionable diagnostic; valid dependencies pass.'
+echo 'PASS: a missing installed story dependency fails the suite with the referring file and missing target.'

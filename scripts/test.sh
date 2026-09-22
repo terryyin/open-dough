@@ -16,26 +16,68 @@ if [[ ${test_bash_version%%.*} -lt 4 ]]; then
   exit 1
 fi
 
-test_list=$(mktemp)
-trap 'rm -f -- "${test_list}"' EXIT
-find tests -type f -name '*.sh' ! -path 'tests/support/*' -print0 > "${test_list}"
+# Independent checks use private temp directories. Four at a time is the
+# measured point where the suite still passes; eight starved a 15s file wait
+# in the CI runtime checks. OPEN_DOUGH_TEST_JOBS selects the slot count and
+# cannot exceed four.
+job_slots=${OPEN_DOUGH_TEST_JOBS:-$(getconf _NPROCESSORS_ONLN)}
+if ((job_slots > 4)); then
+  job_slots=4
+fi
+if ((job_slots < 1)); then
+  job_slots=1
+fi
 
-run_check() {
-  local label=$1
+output_root=$(mktemp -d)
+trap 'rm -rf -- "${output_root}"' EXIT
+mkfifo "${output_root}/slots"
+exec 3<> "${output_root}/slots"
+for ((slot = 0; slot < job_slots; slot++)); do
+  printf '\n' >&3
+done
+
+labels=()
+run_job() {
+  local index=$1
+  local log="${output_root}/${index}.log"
+  local status_file="${output_root}/${index}.status"
   shift
-  printf '\nRunning %s\n' "${label}"
-  if ! "$@"; then
-    printf 'FAIL: %s\n' "${label}" >&2
-    status=1
+  if "$@" > "${log}" 2>&1; then
+    printf '0\n' > "${status_file}"
+  else
+    printf '1\n' > "${status_file}"
   fi
+  printf '\n' >&3
 }
 
-status=0
-while IFS= read -r -d '' test_file; do
-  run_check "${test_file}" "${test_bash}" "${test_file}"
-done < "${test_list}"
+launch() {
+  local label=$1
+  shift
+  local index=${#labels[@]}
+  labels+=("${label}")
+  read -r -u 3
+  run_job "${index}" "$@" &
+}
 
-run_check 'scripts/check-self-installation.sh' \
+find tests -type f -name '*.sh' ! -path 'tests/support/*' -print0 > "${output_root}/tests"
+while IFS= read -r -d '' test_file; do
+  launch "${test_file}" "${test_bash}" "${test_file}"
+done < "${output_root}/tests"
+
+launch 'scripts/check-self-installation.sh' \
   "${test_bash}" "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
+
+wait
+
+status=0
+for index in "${!labels[@]}"; do
+  printf '\nRunning %s\n' "${labels[index]}"
+  cat -- "${output_root}/${index}.log"
+  read -r job_status < "${output_root}/${index}.status"
+  if [[ ${job_status} -ne 0 ]]; then
+    printf 'FAIL: %s\n' "${labels[index]}" >&2
+    status=1
+  fi
+done
 
 exit "${status}"

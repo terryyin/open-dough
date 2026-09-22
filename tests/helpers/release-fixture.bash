@@ -12,6 +12,9 @@ fi
 # shellcheck source=tests/helpers/path-state-snapshot.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/path-state-snapshot.bash"
+# shellcheck source=tests/helpers/payload-bytes.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/payload-bytes.bash"
 
 git_identity() {
   git -C "$1" config user.email 'fixture@example.com'
@@ -38,16 +41,11 @@ copy_installer_modules() {
 
 copy_current_release_files() {
   local dest=$1
-  local managed_file
 
   mkdir -p -- "${dest}/src/install" "${dest}/src/skills"
   cp -- "${source_dir}/install.sh" "${dest}/install.sh"
   copy_installer_modules "${dest}"
-  for managed_file in "${managed_files[@]}"; do
-    mkdir -p -- "${dest}/src/skills/$(dirname -- "${managed_file}")"
-    cp -- "${source_dir}/src/skills/${managed_file}" \
-      "${dest}/src/skills/${managed_file}"
-  done
+  payload_bytes_transfer copy "${source_dir}/src/skills" "${dest}/src/skills"
   cp -- "${source_dir}/VERSION" "${dest}/VERSION"
   cp -- "${source_dir}/CHANGELOG.md" "${dest}/CHANGELOG.md"
 }
