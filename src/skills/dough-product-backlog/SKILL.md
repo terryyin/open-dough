@@ -17,9 +17,11 @@ Before editing, identify from human instructions or repository guidance:
 - [Work item identity](references/identity.md), which is the single contract
   for what identifies an entry and what only navigates to it.
 - [Record preparation facts](references/record-preparation.md), when
-  decomposition, refinement, or slice planning writes structured preparation
-  into a canonical home through `record-state`.
-- Decomposition, refinement, and slice-planning workflows, when needed.
+  decomposition, refinement, slice planning, or plan refinement writes
+  structured preparation or readiness assessment into a canonical home through
+  `record-state`.
+- Decomposition, refinement, slice-planning, and plan-refinement workflows,
+  when needed.
 - Commit conventions, if a commit is authorized.
 
 If the backlog or the canonical home required by an affected entry cannot be

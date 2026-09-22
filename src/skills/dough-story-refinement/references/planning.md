@@ -158,7 +158,8 @@ next Behavior it enables, or the directly owned retrospective correction under
 code, tests, and enduring documentation remain capability-named.
 
 After the plan file exists for a work item with a recorded identity, apply
-[record preparation facts](../../dough-product-backlog/references/record-preparation.md).
+[record preparation facts](../../dough-product-backlog/references/record-preparation.md)
+for the planned approach (omit assessment on that write).
 
 ## Own executable proof
 
@@ -172,7 +173,10 @@ replace obsolete planned detail rather than appending a competing breakdown,
 and record only learnings that affect remaining work. Apply
 [slice decomposition](../../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
 and its cumulative design assessment, sizing, and escalation rules before
-declaring execution ready.
+recording readiness. After the plan rewrite for a work item with a
+recorded identity, reassess through
+[assess readiness at preparation completion](../../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion);
+do not grant Take or execution from that record.
 
 When evidence changes an execution assumption, apply [execution reassessment](../../dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work).
 Retain only consequential information needed later; leave raw diagnostics at their

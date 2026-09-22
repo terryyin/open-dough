@@ -5,7 +5,9 @@ description: >-
   Behavior/Structure slices. Use after dough-slice-planning when slices are
   complex, cumulative design accumulates special cases, sizing confidence is low,
   or execution overruns. Creates no new plan and does not change the selected
-  story outcome or bounded retrospective correction outcome.
+  story outcome or bounded retrospective correction outcome. After rewriting the
+  plan, reassess readiness through the shared preparation procedure without
+  granting Take or execution.
 ---
 
 # Slice-plan refinement
@@ -46,7 +48,10 @@ boundary. Before choosing further subdivision, apply the shared
   remaining slices are cohesive and single-proof-loop, meet any supplied target,
   and have no unexplained path beyond a supplied hard limit,
   report `ready for direct execution`; no further refinement is required.
-  Execution still requires separate authorization from the invoking workflow.
+  Record that outcome through
+  [assess readiness at preparation completion](../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion)
+  when the work item has a recorded identity. Execution still requires separate
+  authorization from the invoking workflow.
 
 ## Refine the plan
 
@@ -98,7 +103,15 @@ not an automatic invocation or a new execution-readiness gate. Do not resplit
 the story or change its backlog placement during slice-plan refinement.
 
 Report the plan path, replaced slices, resulting slice count, sizing exceptions,
-any resplit recommendation, and whether execution can resume. Apply
+any resplit recommendation, whether execution can resume, and — when the work
+item has a recorded identity — the readiness reassessment through
+[assess readiness at preparation completion](../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion):
+remaining Refine or Escalate findings, or any other blocking concern, become
+`not-ready` reasons; when the cumulative design is supported and remaining
+slices are ready under the table above, record `ready`. Do not Take, move the
+queue, or start execution from this reassessment.
+
+Apply
 [preparation workspace](../dough-story-refinement/references/preparation-workspace.md)'s
 keep or discard decision, then close or retain the workspace, when this
 session ends.

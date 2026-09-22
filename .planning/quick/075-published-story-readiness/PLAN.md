@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–4 done; slice 5 is next.
+Status: executing; slices 1–5 done; slice 6 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 3: `98da9ee3005baf179b474314f7c5545bc1cb113f`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 4: `e0af858e08983131c98e1e06d78fb5993066b901`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Earlier increments: slice 1 `59518327d8f4baa03285e86128070bfbd15be358`, slice 2 `592bf8d9d4c3a571e41ff38ae3f7a9cc99850dd8`, slice 3 `98da9ee3005baf179b474314f7c5545bc1cb113f`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -269,11 +269,13 @@ uncommitted preparation disposition. Review source guidance under AGENTS.md.
 
 ### 5. Preparation completion assesses readiness without starting work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walkthrough of planning-only and plan-refinement requests records a blocking
 reason, then ready after resolution, without Take/execute. Explicit planless
 selection produces ready plus planless. Missing skip-planning authority cannot
 be converted into planless by the recorder or guidance.
+
+Accepted: shared assessment in `src/skills/dough-product-backlog/references/record-preparation.md` (planless authority refuses `--approach planless` when skip-planning authority is missing). Scratch `/tmp/slice5-assess-cTW6cV`: planned story `assessment` ready with document and plan digests; planless story `assessment` ready and no plan digest; no-authority story stays `unselected` with no assessment; backlog Taken empty. Not-ready recording itself remains the slice 3 tests.
 
 Behavior: Preparing agent completes its review → assesses current content → records
 ready/not-ready and reports evidence. Replace the old blanket no-certification
