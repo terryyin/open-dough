@@ -56,6 +56,19 @@ test("observer output parser retains chunk tails and pre-yield events", () => {
   assert.equal(parser.tail(), "");
 });
 
+test("observer output parser treats a discovery-delay advisory line as an event", () => {
+  const parser = createObserverStreamParser();
+  const advisory = {
+    type: "CI_DISCOVERY_DELAYED",
+    revisions: ["abc1234"],
+  };
+  const parsed = parser.push(
+    `${JSON.stringify({ sequence: 1, event: advisory })}\n`,
+  );
+  assert.deepEqual(parsed.events, [advisory]);
+  assert.equal(parser.tail(), "");
+});
+
 test("foreground mailbox stream delivers successive real-observer records before exit", async (t) => {
   const state = mkdtempSync(join(tmpdir(), "ci-codex-stream-test-"));
   t.after(() => rmSync(state, { recursive: true, force: true }));

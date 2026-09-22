@@ -16,6 +16,7 @@ import {
   failure,
   input,
   setup,
+  stopHookName,
 } from "./ci-host-hook-test-fixtures.mjs";
 
 for (const host of ["cursor", "claude"]) {
@@ -155,7 +156,7 @@ for (const host of ["cursor", "claude"]) {
     });
     const output = deliverCiEvents(
       input(host, undefined, {
-        hook_event_name: host === "cursor" ? "stop" : "Stop",
+        hook_event_name: stopHookName(host),
       }),
       host,
       options,

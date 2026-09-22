@@ -19,6 +19,13 @@ export function setup(root = "/test/example") {
 
 export const failure = { type: "CI_FAILURE", runId: 42, attempt: 1 };
 
+export const discoveryAdvisory = {
+  type: "CI_DISCOVERY_DELAYED",
+  revisions: ["abc1234"],
+};
+
+export const stopHookName = (host) => (host === "cursor" ? "stop" : "Stop");
+
 export const input = (host, directory, overrides = {}) => ({
   session_id: "main",
   conversation_id: "main",
