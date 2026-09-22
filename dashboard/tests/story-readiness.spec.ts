@@ -21,9 +21,9 @@ import {
   plannedBlocked,
   plannedReady,
   planless,
-  publishTwoSlicesDone,
   unrefined,
 } from "./storyReadinessFixture";
+import { publishTwoSlicesDone } from "./storyReadinessPublications";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork";
 import { BadgeLegend, PreparationFacts } from "./PreparationCard";
 import { RecordedLink } from "./RecordedLink";
@@ -20,9 +20,11 @@ function WorkCard({
   selected: boolean;
   onSelect: (identity: string) => void;
 }) {
+  const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   return (
     <article
+      ref={cardRef}
       className={selected ? "card card-selected" : "card"}
       aria-label={entry.title}
       {...workCardMarks(entry.identity)}
@@ -40,7 +42,15 @@ function WorkCard({
           aria-expanded={selected}
           aria-controls={detailId}
           onClick={() => {
+            const closing = selected;
             onSelect(entry.identity);
+            // Closing detail returns focus to this story's card — not to a
+            // different card that may have just been selected.
+            if (closing) {
+              queueMicrotask(() => {
+                cardRef.current?.focus();
+              });
+            }
           }}
         >
           {selected ? "Hide detail" : "Inspect story"}

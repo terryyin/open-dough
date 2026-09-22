@@ -10,10 +10,12 @@ import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
-  publishAssessedContentChange,
-  publishConflictingPlanAssociation,
   unrefined,
 } from "./storyReadinessFixture";
+import {
+  publishAssessedContentChange,
+  publishConflictingPlanAssociation,
+} from "./storyReadinessPublications";
 import {
   expectFailedPlanKeepsSupportedFacts,
   expectMalformedExternalAndLegacy,

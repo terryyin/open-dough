@@ -1,6 +1,6 @@
 # Inspect a story's published readiness and slice progress
 
-Status: executing; slices 1–10 done; slice 11 is next.
+Status: executing; slices 1–11 done; slice 12 is next.
 
 ## Source and outcome
 
@@ -25,7 +25,7 @@ exclusions, including the existing three-project public/private behavior.
 - Published claim: `60bb28bd9aa0a1efba4011015aec578ba01f3dcd` accepted on `origin/main`. Claim coverage is `pendingCi: unobserved`; trunk is not this story-branch observer's target.
 - Default-checkout maintenance after that trunk publication: advanced to `60bb28bd9aa0a1efba4011015aec578ba01f3dcd`.
 - Checkout preparation: `npm ci`, then `npm run lint` passed in the owned workspace.
-- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 9: `42d8ee6cf1822fe8022b0f02072d05c580e4739c`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 8 remains `3b75c363db7d061997536f589d0fdcfd12cf3dd8`. Default checkout was not refreshed; this target is not trunk.
+- Increment target: `origin` `cursor/075-published-story-readiness`. Published slice 10: `df045a78996a333126b3cc000c7f056548ac838f`, registered with `/tmp/dough-ci-501/watch-urgnAo`. Slice 9 remains `42d8ee6cf1822fe8022b0f02072d05c580e4739c`. Default checkout was not refreshed; this target is not trunk.
 - CI source: GitHub Actions, workflow `ci.yml`, display name `CI`. Observer directory `/tmp/dough-ci-501/watch-urgnAo`, bound to `terryyin/open-dough` branch `cursor/075-published-story-readiness`. Claim on `origin/main` remains `pendingCi: unobserved`.
 
 ## Workspace and authority
@@ -364,12 +364,14 @@ and cancellation remain within the one existing boundary.
 
 ### 11. Read preparation and progress accessibly
 Type: Behavior
-Status: planned
+Status: done
 Proof: Keyboard opens/closes detail and returns focus to the originating card;
 refresh preserves identity focus or announces removal. At 320px and 400% zoom,
 labels/evidence/Retry remain reachable without page-wide horizontal scrolling.
 Check badge text, contrast, reduced-motion behavior, and announcements with the
 existing accessibility helpers plus computed-style/visual inspection as appropriate.
+
+Accepted: `npm run test:dashboard -- --grep 'story readiness'` passed with 5 tests after the fixture split. Observations in `dashboard/tests/story-readiness-accessible.spec.ts` and `storyReadinessAccessible.ts`: keyboard returns focus to the card, refresh preserves or announces identity, contrast and reduced motion, 320px viewport with Retry in view and no sideways scroll. Setup remains CLI-committed readiness records.
 
 Behavior: Keyboard, zoom, or color-independent reading → overview/detail/refresh →
 all facts remain understandable and operable. This verifies the existing accessible

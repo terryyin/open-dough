@@ -6,7 +6,6 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   commitAll,
-  commitPaths,
   recordAssessed,
   recordState,
   scratchRepo,
@@ -30,7 +29,6 @@ import {
   planReadyBody,
   planReadyPath,
   planReadyRelative,
-  planReadyTwoDoneBody,
   seedRelative,
   threeStorySeed,
   unrefined,
@@ -56,8 +54,20 @@ export type ReadinessRepo = {
   advanceTo(revision: string): void;
 };
 
-// Open Dough fixture backlog; Taken plan path is the only varying claim.
-export function openDoughProductBacklog(takenPlanPath: string): string {
+// Open Dough fixture backlog; Taken plan path and whether unrefined stays in
+// membership are the varying claims.
+export function openDoughProductBacklog(
+  takenPlanPath: string,
+  { includeUnrefined = true }: { includeUnrefined?: boolean } = {},
+): string {
+  const backlog = [
+    includeUnrefined
+      ? `- [${unrefined.title}](${unrefined.link}) — ${unrefined.identity}`
+      : null,
+    `- [${plannedBlocked.title}](${plannedBlocked.link}) — ${plannedBlocked.identity} ([plan](${planBlockedPath}))`,
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
   return `# Product backlog
 
 ## Near-future direction
@@ -70,8 +80,7 @@ Show published preparation and readiness on public-project cards.
 
 ## Backlog list
 
-- [${unrefined.title}](${unrefined.link}) — ${unrefined.identity}
-- [${plannedBlocked.title}](${plannedBlocked.link}) — ${plannedBlocked.identity} ([plan](${planBlockedPath}))
+${backlog}
 `;
 }
 
@@ -129,20 +138,6 @@ export function buildOpenDoughReadinessRepo(
   };
 }
 
-// Second publication: records two of five slices done with accepted proof in
-// the plan text the shared reader interprets. Does not hand-build display state.
-// Only the plan path is committed so the unpushed seed edit stays unpublished.
-export function publishTwoSlicesDone(repo: ReadinessRepo): string {
-  writePlanning(repo.directory, planReadyPath, planReadyTwoDoneBody);
-  const next = commitPaths(
-    repo.directory,
-    [`.planning/${planReadyPath}`],
-    "Record two of five slices done with accepted proof",
-  );
-  repo.advanceTo(next);
-  return next;
-}
-
 export function buildDoughnutReadinessRepo(
   after: (cleanup: () => void) => void,
 ): ReadinessRepo {
@@ -194,40 +189,4 @@ Doughnut's own published readiness overview.
       revision = next;
     },
   };
-}
-
-// Publishes assessed-content change without re-recording assessment. Shared
-// seed digest shifts for every assessed story in that file.
-export function publishAssessedContentChange(repo: ReadinessRepo): string {
-  const seedPath = join(repo.directory, ".planning", seedRelative);
-  const current = readFileSync(seedPath, "utf8");
-  writeFileSync(
-    seedPath,
-    `${current}\n\nAssessed scope changed without a fresh assessment.\n`,
-    "utf8",
-  );
-  const next = commitPaths(
-    repo.directory,
-    [`.planning/${seedRelative}`],
-    "Change assessed seed content without reassessment",
-  );
-  repo.advanceTo(next);
-  return next;
-}
-
-// Points the Taken backlog plan at the blocked plan while story-state still
-// associates the ready plan — a conflict the shared readers must report.
-export function publishConflictingPlanAssociation(repo: ReadinessRepo): string {
-  writePlanning(
-    repo.directory,
-    "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(planBlockedPath),
-  );
-  const next = commitPaths(
-    repo.directory,
-    [".planning/PRODUCT-BACKLOG.md"],
-    "Introduce conflicting backlog plan association",
-  );
-  repo.advanceTo(next);
-  return next;
 }

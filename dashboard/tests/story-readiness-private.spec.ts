@@ -10,9 +10,9 @@ import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
-  publishTwoSlicesDone,
   unrefined,
 } from "./storyReadinessFixture";
+import { publishTwoSlicesDone } from "./storyReadinessPublications";
 import {
   assertNoCredentialMarker,
   collectFiles,
