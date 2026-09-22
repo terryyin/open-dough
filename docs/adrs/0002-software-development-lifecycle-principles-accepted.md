@@ -6,7 +6,7 @@
 
 **Date:** 2026-09-06
 
-**Revised:** 2026-09-11.
+**Revised:** 2026-09-22, at Terry Yin's direction.
 
 **Decision makers:** Terry Yin
 
@@ -125,6 +125,14 @@ counterparts; they must not hide or redefine domain rules.
 System boundaries can require a special case: a data transfer object (DTO)
 may pass only a subset of the domain data. It should preserve the domain
 concepts and meanings while keeping necessary translation to a minimum.
+
+Story membership, refinement, slice planning, execution readiness, and slice
+progress are distinct domain facts. Workflow operations maintain one
+authoritative repository record per fact; dashboards derive their views from
+published records. Ready for execution is the preparing agent's recorded
+assessment that no unresolved concern prevents the selected approach, including
+planless execution. It requires no additional human approval and grants no
+execution permission. Changes invalidating the assessment require reassessment.
 
 #### 4. High cohesion
 
