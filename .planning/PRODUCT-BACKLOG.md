@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Inspect a story's published readiness and slice progress](seeds/SEED-021-observe-published-story-progress.md#inspect-recorded-story-progress) — SEED-021#inspect-recorded-story-progress ([plan](quick/075-published-story-readiness/PLAN.md))
-
 ## Backlog list
 
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer

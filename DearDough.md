@@ -963,19 +963,6 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     reuse this fact instead of re-deriving it from a fresh diagnostic
     session; not tested here.
 
-## DD-090 — Twenty-minute test-job cancel is not a product failure
-GitHub Actions `test` cancels at the 20-minute job limit with orphaned `sleep` processes, while `lint` succeeds and local `npm test` finishes in about two minutes. The same signature already appears on a planning-only parent. Later cancels with that signature are the same disposition.
-
-### Occurrences
-- Execution: quick/075-published-story-readiness
-  - Timestamp: 2026-09-22T07:19:51Z
-  - Tool: Cursor
-  - Model: Grok 4.7
-  - Open Dough release: modified; revision 1e53c7220b89f32efceb94012aedb1ca3eafdfdd; base 0.3.28
-  - Evidence: runs 35686421011 (`5951832`), 35687189269 (`592bf8d`), 35697374868 (`d60d4b6`); planning-only parent `d7b91f3` run 35685361715
-  - Observed effect: registered story-branch revisions were reported CI_INCOMPLETE; the execution recorded the disposition and did not edit product code for it
-  - Inference: the cancel is outside this story's tests; a matching later cancel does not justify another repair
-
 ## Retention
 
 - Highest allocated local number: 90
