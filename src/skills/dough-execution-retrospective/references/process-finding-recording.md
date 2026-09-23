@@ -1,15 +1,9 @@
 # Record supported process findings
 
-Process findings are retained learning, including facts awaiting a later causal
-judgment or response. Record what can be judged now and qualify what remains
-unknown; a supported observation does not require a settled remedy. Closing the
-originating story does not make its finding or occurrence spent. Removal follows
-bounded retention below or a separately authorized disposition.
-
-Persist the compact facts needed to understand and later judge each finding,
-with locators where available. A locator to local chat alone is insufficient if
-the finding becomes unintelligible when that history is unavailable. Do not
-copy transcripts, raw output, or the entire execution record into the log.
+Record compact observed facts, supported judgments, and open questions that remain
+understandable after chat history is lost, with evidence locators where available.
+Preserve findings and occurrences beyond story closure, subject to bounded
+retention below or a separately authorized disposition.
 
 Use the explicit user/project `DearDough.md` location or `<project-root>/DearDough.md` for enabled
 process findings. Missing/conflicting root/location stops recording only: return findings and

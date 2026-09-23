@@ -53,14 +53,10 @@ preserve independently valid accepted evidence. Honor a developer's explicit
 changed promise; do not silently weaken it. Once sufficient current proof is
 supplied, proceed without another approval or blanket rerun.
 
-Accept only the observations the inspected locations and result support. Make
-that decision in this slice; do not leave an unassessed result for retrospective
-or story wrap-up to decide. Retain the promise, accepted boundary, inspected
-locations, and literal command in the current slice wrap-up so refactoring can
-distinguish a proof reference from proof already inspected and accepted. Do not
-routinely load the raw agent trace,
-full command output, or reread unchanged parts of the diff. Expand inspection to
-the smallest relevant underlying callers, setup, assertions, or implementation
+During this slice, accept only observations supported by inspected locations and
+results. Retain the promise, accepted boundary, inspected locations, and literal
+command in the slice wrap-up for refactoring. Expand inspection to the smallest
+relevant underlying callers, setup, assertions, or implementation
 when a location is missing, the boundary is unclear, or evidence contradicts the
 change. Return incomplete or contradictory evidence to implementation, naming
 the promise, inspected locations, and gap; refactoring cannot supply missing

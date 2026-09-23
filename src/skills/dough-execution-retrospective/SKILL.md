@@ -151,27 +151,13 @@ the other returns evidence. Continue enabled reviews; a separate request execute
 
 ## Review process only from a real record
 
-Use the coordinator's existing conversation as the primary process record.
-When a consequential gap concerns delegated work, inspect the relevant
-sub-agent's messages and tool results through available host history access.
-Retrieve only the portion needed for that question; a sub-agent summary alone
-may not establish the underlying actions. Use supplied conversation history when
-available and name any unavailable history without inventing access or events.
+Review the coordinator's existing conversation and tool results. Inspect relevant
+sub-agent history through available host access when needed. If required history
+is unavailable, report the affected process review unavailable and continue
+independently supported reviews. Persist supported findings under the recording
+rules below; execution state follows the project's plan and Git conventions.
 
-Process review depends on that agent history in the development environment.
-A checkout and Git state can support outcome review, but cannot establish the
-agent's sequence of actions, instructions, retries, or recorded explanations.
-If necessary history is gone, report that part of process review unavailable,
-not as having no findings, and continue independently supported reviews. Do not
-reconstruct it from commit outcomes or require agents to write evidence files
-so future environments can replay it.
-Both coordinator and sub-agents use existing conversations and tool results;
-do not export transcripts, duplicate command output, or create temporary
-retrospective evidence files. Durable execution state still follows the project
-plan and Git conventions. Persist supported process findings under the recording
-rules below.
-
-Use direction and that sufficient conversation history to identify waste, rule-induced churn,
+Use that history and the user's direction to identify waste, rule-induced churn,
 missing stops, disproved sizing/decomposition, digression, and useful practices. Assess instruction
 and context usability, including this review's avoidable rereading, duplication, and reconstruction.
 Separate necessary investigation, observation, and inferred cost/cause. Cite recorded token counts

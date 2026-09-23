@@ -143,11 +143,8 @@ before-cleanup commit, even when the current revision was already suitable. If
 commit conventions, ownership, or recovery cannot be resolved, leave the material
 intact, report the gap, and do not claim closure. When the selected mode is Trunk
 Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure)
-before deleting spent history. Preserve Git recovery for spent repository
-material. Do not export agent conversations or create evidence files for
-closure; process review depends on available agent history under
-[its evidence rules](../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
-Keep current product knowledge in maintained project content.
+before deleting spent history. Keep current product knowledge in maintained
+project content.
 
 ## Delete spent history, including shared records
 
@@ -166,14 +163,9 @@ Remove empty directories belonging to the spent work, including untracked ones.
 The current snapshot must be free of that history, both tracked and untracked,
 with recovery available from the recorded before-cleanup commit.
 
-Preserve process findings and their occurrence facts, including unresolved
-judgments, even when they concern the completed story. They are an exception to
-spent-history cleanup: story completion alone authorizes no deletion or resolved
-status. Their lifecycle follows
-[process-finding recording](../dough-execution-retrospective/references/process-finding-recording.md),
-including bounded retention and separately authorized dispositions. Preserve
-compact facts in the finding when a spent source is removed; use Git locators
-for existing repository evidence without exporting agent history.
+Preserve process findings, occurrence facts, and unresolved judgments under
+[process-finding recording](../dough-execution-retrospective/references/process-finding-recording.md).
+Keep findings understandable when removing their spent sources.
 
 Preserve unrelated human text, sibling stories and log entries, product and
 version identity, maintained tests and documents, still-needed acceptance work,

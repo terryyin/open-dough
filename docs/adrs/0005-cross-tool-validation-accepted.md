@@ -4,9 +4,6 @@
 
 **Date:** 2026-09-10
 
-**Clarified:** 2026-09-24, at Terry Yin's direction, for native result disposal
-and the process-finding exception.
-
 **Decision makers:** Terry Yin
 
 **Consulted:** Terry Yin.
@@ -73,11 +70,8 @@ checks and reusable evidence to limit validation cost.
   accept self-report or exit 0 as sufficient proof.
 - Automate reliable state and behavior checks; test assessors against
   counterexamples. Where prose cannot be assessed reliably with a small check,
-  review it against explicit expectations using the evidence in the active context.
-  Judge the current result now. An inconclusive result does not satisfy
-  acceptance; resolve required proof before accepting the work.
-- Bound execution and retries. Keep failure diagnostics only for current
-  assessment; do not rerun until green. Process findings follow the exception below.
+  review it against explicit expectations.
+- Bound execution and retries; investigate failures before retrying.
 - Keep update followed by fresh use as one journey unless separate execution
   serves a concrete need. Add selection, dependency tracking, or review machinery
   only when needed to run or maintain the chosen checks.
@@ -90,68 +84,43 @@ checks and reusable evidence to limit validation cost.
 - During active work, collect the requirement, result, candidate, tool/runtime,
   relevant inputs, and decisive evidence needed to judge that work. For shared
   integration proof, identify the mechanism and representative skill.
-- Make the required judgment while the work is active. Decide whether the
-  evidence supports acceptance or what remains unresolved; do not postpone
-  judgment or keep a record for someone to judge later.
-- Delete passing native run artifacts once acceptance is judged. Use failed or
-  inconclusive output for current diagnosis, decide the outcome or missing
-  requirement, then delete spent output. Do not accumulate native result
-  directories or commit raw runs solely to make them recoverable. Keep required
-  execution state and outstanding acceptance requirements in their active homes;
-  an unrun host requirement does not extend another host's artifact lifetime.
+- Judge each native result during execution. Delete passing artifacts after
+  acceptance; use failed or inconclusive output for current diagnosis, then
+  delete it once judged. Keep execution state and outstanding acceptance
+  requirements in their active homes.
 - Before running new sessions, assess applicable evidence already available
   during active work or recovered from Git. Establish why reuse applies to the
   current guidance, adapters, helpers, fixtures, and runtime conditions.
-  Distinguish reused proof from fresh execution. Recovery and reuse are driven
-  by the current decision, not a requirement to maintain an evidence archive.
+  Distinguish reused proof from fresh execution.
 - Revalidate requirements whose evidence is invalidated or insufficient. An
   instruction edit may invalidate behavior proof while leaving installation
   proof applicable. Check the effect on all three tools when those requirements
   remain in scope.
 - At story wrap-up, delete the spent plan, completed story, execution records,
   original proof and evidence, assessment and reuse records, and impact history
-  from the current repository snapshot. Leave no archive, completion summary,
-  tombstone, or later-judgment record, except for process findings below.
-  Keep existing repository history recoverable in Git;
-  future contributors recover what they need and make their own judgments when
-  a real decision arises.
+  from the current repository snapshot, preserving process findings below.
+  Use existing Git history for recovery when needed.
 - Assimilate lasting knowledge into maintained code, tests, and documentation
-  describing current behavior and decisions without execution history or
-  retrospective judgments. Keep maintained test fixtures that verify current
-  behavior; delete historical run artifacts.
-- Delete obsolete process instructions and commentary about removed maintenance
-  gates from current guidance. Do not archive removed process as enduring
-  policy history.
+  describing current behavior and decisions. Keep maintained test fixtures that
+  verify current behavior.
 
 ### 6. Preserve process findings for later judgment
 
-Process findings are an explicit exception to spent-evidence cleanup. Retain
-compact observed facts, supported judgments, and unresolved questions in the
-process log for later evaluation. Judge what the evidence supports now; an
-unsettled cause or response does not make the observed facts spent. Closing the
-originating story does not delete its finding or occurrence. Apply the process
-log's bounded retention rules and separately authorized dispositions. A process
-finding does not satisfy missing native acceptance proof.
+Retain compact observed facts, supported judgments, and open questions in the
+process log beyond story closure, subject to bounded retention and separately
+authorized dispositions.
 
-Process review uses the coordinator's conversation and, when needed, the
-relevant sub-agent history available through the development environment.
-Do not export those conversations or duplicate their evidence into files solely
-for retrospective recovery. Persist the resulting supported findings, not a
-transcript archive. If that history is unavailable, the dependent process review
-is unavailable; a checkout and Git history cannot reconstruct agent actions or
-their recorded explanations. Independently supported product review can still proceed.
+Process review uses available coordinator and relevant sub-agent history.
+Missing history makes the dependent process review unavailable; independently
+supported product review can proceed. Persist the resulting supported findings.
 
 ## Consequences
 
 Release affected behavior only when required native checks pass or have justified
-reusable evidence. Missing validation remains active unfinished work, not an
-accepted result awaiting later judgment. Native artifacts serve the current
-decision and are discarded when spent. Existing Git history supplies repository
-recovery; it is not a reason to archive native output or agent conversations.
-Process findings retain facts and unresolved judgments under bounded retention.
-Process review can be limited or unavailable after agent history is lost.
-Author conventional skills with the shared `AGENTS.md` guideline and a
-representative behavior review.
+reusable evidence. Missing validation remains active work. Native artifacts
+serve the current decision; process findings support later judgment.
+Process review depends on available agent history, while execution state remains
+recoverable from the project's plan and Git conventions.
 
 ## Related
 

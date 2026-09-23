@@ -32,13 +32,9 @@ source contract, original plan and approved changes, attributable commits, decis
 delivery state, CI limitations, and checkout/branch identity. Trunk Mode attributable
 commits are that identity's retained published revisions, not another ledger or a
 rewrite's unpublished SHA. Include an initial quick attempt and its planned
-continuation as one execution. Reuse context without another handoff artifact
-or transcript copy; retrospective validates attribution and recovers real gaps.
-For process review, use the existing coordinator conversation and relevant
-sub-agent history under
-[process-review evidence](../../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
-Do not copy that history into files for the handoff. Unavailable process history
-limits that review; it does not require recreating evidence or rerunning work.
+continuation as one execution. Pass existing context to retrospective, which
+validates attribution and follows its
+[process-review evidence rules](../../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
 
 Execution completion and review completion are distinct. A retrospective context
 stop leaves implementation delivered but the final execution/review handoff
@@ -50,9 +46,8 @@ duplicate review or guessed completion. A CI failure handled through an
 authorized repair invalidates only the conclusions affected by changed code;
 resume those conclusions instead of restarting the full retrospective.
 
-Unavailable process history is a reported review limitation, not a context stop
-for independently supported outcome review or delivery. Do not claim the
-unavailable process analysis was performed.
+When process history is unavailable, report the review limitation and continue
+independently supported outcome review and delivery.
 
 Retain the completed plan, proof decisions, execution checkout, branch, and
 worktree for story wrap-up; do not invoke it here. Wholly planless completion
