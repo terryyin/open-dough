@@ -28,10 +28,6 @@ Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
 direction, evidence, refresh, and view controls outside any zooming surface.
 
-This direction follows Terry's 2026-09-23 review: keep common controls in reach
-and reclaim reading space from supporting explanations. It replaces the older
-single-project header hypothesis; it does not change source or preparation meaning.
-
 Use one navigable stage containing connected regions for work stages. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency
