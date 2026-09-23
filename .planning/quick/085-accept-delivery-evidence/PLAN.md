@@ -4,6 +4,27 @@ Status: planned.
 Identity: `SEED-004#accept-delivery-evidence`
 Source: [refined story](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence).
 
+## Execution
+
+Story Branch Mode. This session created the execution checkout
+`/Users/terryyin/git/open-dough-worktrees/085-accept-delivery-evidence` on
+branch `cursor/085-accept-delivery-evidence` from fetched `origin/main`
+`ddcd6046516231573a3db903e4f0db9e3621fb4d`. Originating and integration
+checkout: `/Users/terryyin/git/open-dough` on `main`.
+
+Published claim `59b76944b466ecccbfd985a211c78a6e385569a8` accepted on
+`refs/heads/main`. Claim CI is `pendingCi: unobserved`: the story-branch
+observer does not cover trunk. Default-checkout refresh is deferred
+(`unclear-ownership`); that checkout stayed clean on `main` at `ddcd604`.
+
+Replanning permission: existing planning authority retained. No numeric slice
+budget was recorded.
+
+CI observer `/tmp/dough-ci-501/watch-9ChEcH` is armed from the execution
+checkout against `terryyin/open-dough` branch `cursor/085-accept-delivery-evidence`,
+GitHub workflow `ci.yml` named `CI`. Checkout preparation: `npm ci` then
+`npm run lint` passed on Node v24.5.0.
+
 Terry authorized refinement, planning, and plan refinement on 2026-09-23.
 Implementation, Take, release, and automatic monitoring are not authorized.
 All slices remain planned. The backlog remains the ordering authority.
@@ -112,8 +133,9 @@ skill behavior. A green exit or matching instruction words cannot pass a case.
 
 Extend the existing native acceptance journey entry point with bounded
 `delivery-evidence/selection`, `delivery-evidence/claims`,
-`delivery-evidence/consumers`, and `delivery-evidence/gaps` cases. These names are
-planned additions, not commands claimed available today. Each case includes its
+`delivery-evidence/consumers`, and `delivery-evidence/gaps` cases.
+`delivery-evidence/selection` is implemented. The other three names remain
+planned additions. Each case includes its
 sufficient-evidence control. The intended command after implementation is:
 `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`.
 Record literal resolved commands, selected observations, candidate/runtime,
@@ -137,7 +159,19 @@ currently known; host availability is checked when execution is authorized.
 
 ### 1. Filtered proof covers the observations it claims
 Type: Behavior
-Status: planned
+Status: done
+
+Accepted proof: `bash tests/git-publication-native.sh` passed after the
+refactor rerun. Assessor counterexamples in
+`tests/support/delivery-evidence-selection-native-assess.sh` reject empty
+selection, partial over-accept, and all-accepted-plus-incomplete, and accept
+precise incomplete naming plus corrected and complete selection. Cursor
+`bash tests/git-publication-native.sh --native cursor --case delivery-evidence/selection --results-dir .planning/native-results/delivery-evidence-selection-r3`
+accepted 0, 1, and 3 promises for zero-test, partial, and complete selection.
+Setup is `tests/support/delivery-evidence-selection-native-scenario-content.sh`.
+Codex and Claude native runs for this case are pending, not passed. Node's
+filtered test runner can exit 0 when no named test matches; count named
+selections, not a file-suite total.
 
 Behavior: Given a zero-exit command selecting no tests, or one of three required
 observations, acceptance identifies the uncovered promises and obtains missing

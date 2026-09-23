@@ -14,6 +14,17 @@ supplies only the starting precondition and that the product establishes the
 promised outcome. A passing command, test name, `proof:` summary, or assertion
 whose setup supplies the outcome does not establish the promise.
 
+When the claimed proof used name, pattern, or other filtering, verify which
+tests or observations were actually selected against the promises the return
+treats as covered. Accept only promises whose selected observations match.
+A zero-exit command that selected nothing, or that selected fewer observations
+than the claimed promises require, leaves those promises incomplete — obtain
+the missing observations (broader or corrected selection, retargeted titles, or
+another sufficient check) before accepting them, or return them as uncovered.
+A selected test count supports that check; it is never the full promise mapping.
+Reuse a trustworthy recorded selection and result when they still match the
+claimed command, filter, and candidate; do not rerun solely for process.
+
 Accept only the observations the inspected locations and result support. Retain
 the promise, accepted boundary, inspected locations, and literal command in the
 current slice wrap-up so refactoring can distinguish a proof reference from

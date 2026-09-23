@@ -44,6 +44,9 @@ git_publication_write_evidence_identity() {
     story-branch-closure)
       story_closure_write_evidence_identity
       ;;
+    delivery-evidence-selection)
+      delivery_evidence_selection_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }

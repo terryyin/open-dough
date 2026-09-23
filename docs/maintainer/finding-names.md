@@ -1093,6 +1093,29 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-055
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27).
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 1 of plan 085 (`SEED-004#accept-delivery-evidence`) makes
+  filtered-proof acceptance verify actual selection against claimed observations
+  in `src/skills/dough-execute-plan/references/wrap-up.md` (`#accept-proof`),
+  with the implementation return indexing selected-versus-claimed coverage in
+  `src/skills/dough-execute-plan/references/delegation.md`. Credential-free
+  assessor coverage is `delivery-evidence/selection` via
+  `tests/support/delivery-evidence-selection-native-assess.sh` (rejects zero-test
+  and partial success reports; accepts incomplete naming, corrected selection,
+  and the complete-selection control). Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/selection --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23 accepted 0 promises for the zero-test
+  case, 1 of 3 for partial selection with the other two named incomplete, and
+  3 of 3 for the complete-selection control. Credential-free rejection and
+  acceptance cases live in
+  `tests/support/delivery-evidence-selection-native-assess.sh`. Codex and
+  Claude Code native runs were not completed in this slice and are not passed.
+  Containing release is pending. Both historical occurrences were caught
+  during execution (not escaped defects). Watch start and review-after stay
+  unknown until a released response has verified relevant use (slice 4 owns that
+  reconciliation).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
@@ -1135,7 +1158,7 @@ consult both lists when matching findings or allocating identities.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 1 source response recorded above; not resolved**. Plan 085 owns remaining mechanisms (claims, consumers, gaps) and near-term-watch reconciliation at slice 4. Keep caught-during-execution versus escaped-defect distinctions. Release and effectiveness remain pending; watch start and review-after are unknown.
 
 ## ODF-058 — CLI reports lack assertions for their promised output
 
