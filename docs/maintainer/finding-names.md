@@ -154,30 +154,6 @@ consult both lists when matching findings or allocating identities.
     check does not name checking for such tests, so the omission is
     consistent with an unnamed check rather than a skipped one.
 
-## ODF-006 — Oversized context reads obscure narrow execution inputs
-
-- **Meaning:** Bundling broad skill references and planning documents into oversized reads can truncate required context and force avoidable rereading during a narrow execution.
-- **Source mappings:** Open Dough / DD-006
-- **References:** `DearDough.md`, DD-006; `0120ac3`.
-
-### Occurrences
-
-- Execution: `SEED-010#retain-reconciled-findings-in-open-dough @ 0120ac3`
-  - Source: Open Dough / DD-006; canonical `DearDough.md` occurrence
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: Combined reads of SEED-010, four `dough-execute-plan` references,
-    and later reconciliation, triage, and context material returned truncated
-    output; `execution-decisions.md` and bundled retrospective documents were
-    subsequently read again.
-  - Observed effect: Required guidance was not fully visible in the original
-    outputs, so the execution performed additional reads for the same
-    single-slice work.
-  - Inference: Selecting sections for concrete unresolved questions and sizing
-    outputs to fit may reduce avoidable rereading without omitting required
-    review or proof; net time and token cost were not measured, and no decisive
-    match to an existing local issue was found.
-
 ## ODF-009 — Deep managed worktrees exceed project-local socket limits
 
 - **Meaning:** A host tool's deeply nested worktree location can make a checkout-relative Unix socket path exceed the platform limit and block isolated-system integration proof before product code runs.
@@ -260,7 +236,7 @@ consult both lists when matching findings or allocating identities.
   mechanism; the related ODF-023 reassessment response did recur on 0.3.18.
 
 
-- **Assessment (2026-09-21):** Response commit and first tag reverified. Watch start and review-after remain unknown: no supplied later execution demonstrates reassessment of a failing environmental premise. ODF-023's different finish-line failure is not recurrence here. All three current logs checked; retain active pending relevant-use provenance.
+- **Assessment (2026-09-23):** The `3446f62` response and first containing v0.3.14 were reverified. No later environmental-premise reassessment with sufficient execution provenance establishes relevant use. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
 ## ODF-015 — Diagnostic transport was not validated before failure reruns
 
@@ -456,7 +432,7 @@ consult both lists when matching findings or allocating identities.
   `dough-test-optimization`; source commit `b39f967`. First containing release: 0.3.25 (tag v0.3.25, verified by containment and the two guidance diffs).
 
 
-- **Assessment (2026-09-21):** The v0.3.14 response failed on v0.3.18; no supported recurrence of the later b39f967/v0.3.25 response is reported. Watch start and review-after remain unknown until a relevant decisive-checkpoint execution using that response is evidenced. Reappearing Pygardon DD-048 is the already retained plan-132 report, not a new occurrence. Its recorded savings were approximately 8.5s, 1.4s, 1.4s, one fewer Docker build (not separately timed), and less replacement work (not separately timed).
+- **Assessment (2026-09-23):** The v0.3.14 response failed on the supplied v0.3.18 optimization execution. The revised `b39f967` response first ships in v0.3.25; no supplied later decisive optimization checkpoint establishes exercise of that revision. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
 ## ODF-024 — Packaged demo invocation loses approved host isolation
 
@@ -824,7 +800,7 @@ consult both lists when matching findings or allocating identities.
 
 - **Meaning:** A coordinator repeatedly issues no-op shell calls while awaiting asynchronous completion notifications, adding turns without obtaining state or accelerating completion.
 - **Source mappings:** Pygardon / DD-039
-- **References:** Pygardon `DearDough.md`, DD-039; Distinct from ODF-007 (premature worker return) and ODF-036 (stale watches after completion): these are coordinator-generated no-op calls during the wait. `e41447396`, release 0.3.14.
+- **References:** Pygardon `DearDough.md`, DD-039; Distinct from premature worker return and stale watches after completion: these are coordinator-generated no-op calls during the wait. `e41447396`, release 0.3.14.
 
 - **Follow-up:** Response released but ineffective for the observed recurrence. SEED-004 story 22 (closed; story and plan recoverable at `ce417d2:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and `ce417d2:.planning/quick/048-complete-delegated-handoffs/PLAN.md`), slice 2. Response: `src/skills/dough-execute-plan/references/delegation.md` directs awaiting delegated results through the host's supported notification/wait/resume facility and bars no-op calls; source commit `89728cb`, first released in 0.3.18. Pygardon's later 0.3.18 execution repeated the same no-op wait and added a stale scheduled wakeup, so the response must be reconsidered.
 
@@ -1065,7 +1041,7 @@ consult both lists when matching findings or allocating identities.
     now with the receipt and checkout mismatch evidenced.
 
 
-- **Assessment (2026-09-21):** 4fa48f0 and first-containing v0.3.24 reverified. Quick 032 native acceptance does not establish this cross-worktree READY boundary. Watch start and review-after remain unknown; source-log replay adds no execution. ODF-056 and ODF-085 fail before receipt/attachment and do not demonstrate recurrence of this identity.
+- **Assessment (2026-09-23):** `4fa48f0` / v0.3.24 remains the concrete common-Git-directory response. No new native cross-worktree READY observation with adequate provenance was found. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
 ## ODF-054 — Delegated implementers edit coordinator-owned plans
 
@@ -1159,6 +1135,8 @@ consult both lists when matching findings or allocating identities.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+
 ## ODF-058 — CLI reports lack assertions for their promised output
 
 - **Meaning:** Tests assert exit codes and published bytes while leaving user-visible summary statements unproved and sometimes wrong.
@@ -1196,7 +1174,7 @@ consult both lists when matching findings or allocating identities.
     correction ownership is `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`.
 
 
-- **Response assessment (2026-09-21):** Concrete report correction da64969 first shipped in v0.3.26. No supplied post-release use establishes a watch start; keep the broader output-proof finding active with watch start/review-after unknown.
+- **Assessment (2026-09-23):** `da64969` / v0.3.26 repairs the report and adds assertions for all named outputs. No supplied later real merge-report observation establishes relevant use. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
 ## ODF-059 — Interrupted delegated edits return no usable handoff
 
@@ -1259,8 +1237,8 @@ consult both lists when matching findings or allocating identities.
 ## ODF-060 — New payload references omit required declarations
 
 - **Meaning:** Adding a referenced source file without the matching delivery declarations creates an incomplete installable payload, discovered only in CI.
-- **Source mappings:** Open Dough / DD-058
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Repair b6f9515 supplies the omitted identity.md declarations; first containing tag v0.3.26. Related historical certified-installation omissions had an actual installed false-current verdict; this occurrence was caught in branch CI before release certification. General declaration drift remains actionable.
+- **Source mappings:** Open Dough / DD-058; Pygardon / DD-073
+- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Repair b6f9515 supplies the omitted identity.md declarations; first containing tag v0.3.26. Related historical certified-installation omissions had an actual installed false-current verdict; this occurrence was caught in branch CI before release certification. General declaration drift remains actionable. The retired ODF-017 was checked in `bc46832^:docs/maintainer/near-term-watch-list.md`: it additionally recorded a false-current updater verdict; the newly supplied Pygardon report does not report that verdict, so it remains with this declaration-omission identity.
 
 ### Occurrences
 
@@ -1292,6 +1270,71 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Response assessment (2026-09-21):** b6f9515 repairs the one omitted declaration in v0.3.26; it is not a demonstrated elimination of manually synchronized declaration drift. No general response watch is started.
+
+- Execution: `.planning/quick/162-fresh-worktree-readiness/PLAN.md` (first implementation commit `f607c7575`)
+  - Source: Pygardon / DD-073; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T04:20:38Z
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: `.claude/skills/dough-execute-plan/SKILL.md`'s "## Finish or
+    stop" section links `references/finish-or-stop.md`; `ls
+    .claude/skills/dough-execute-plan/references/` lists `ci-monitor.md`,
+    `ci-notify-codex.md`, `ci-notify-hosts.md`, `delegation.md`,
+    `destructive-later-outcome-check.md`, `disposable-research.md`,
+    `execution-decisions.md`, `execution-location.md`,
+    `publication-rebase-conflict.md`, `publish-the-candidate.md`,
+    `runtime-setup.md`, `trunk-publication.md`, and `wrap-up.md` only; a
+    repository-wide `find . -iname "finish-or-stop*"` found no such file
+    under either the `.claude/skills` or `.agents/skills` installed copies.
+  - Observed effect: after all three planned slices delivered, the
+    coordinator could not read the skill's own instructions for observer
+    shutdown, completion-report markers, or the automatic-retrospective
+    trigger, and instead inferred the intended sequence from the skill's own
+    top-level description text ("with independent refactoring, delivery, and
+    asynchronous CI repair"; "`--skip-retro` skips the automatic
+    planned-execution retrospective") and from `ci-monitor.md`'s general
+    shutdown guidance.
+  - Inference: this is a packaging/installation gap in the currently
+    installed Open Dough release (0.3.27) rather than a one-off; any
+    planned-execution completion under this release hits the same missing
+    reference and needs the same reconstruction.
+
+- Execution: `.planning/quick/161-restore-resolved-configuration-access/PLAN.md` (first implementation commit `1b8de431a`)
+  - Source: Pygardon / DD-073; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T04:43:49Z
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: same `.claude/skills/dough-execute-plan/SKILL.md` "## Finish or
+    stop" link to `references/finish-or-stop.md`; `ls
+    .claude/skills/dough-execute-plan/references/` in this execution's
+    checkout again lists the same thirteen files without
+    `finish-or-stop.md`, and `find /Users/terryyin/git/pygardon/.claude/skills
+    -iname "*finish*"` found none.
+  - Observed effect: after this single-slice correction delivered (proof
+    passed, refactor pass found no residue, formatted, committed, and pushed),
+    the coordinator again had no authoritative instructions for observer
+    shutdown or the completion-report markers step and again reconstructed
+    intent from the skill's own top-level description and `ci-monitor.md`.
+  - Inference: confirms DD-073's packaging/installation gap persists
+    unchanged across executions on the same installed release; still no repair
+    has landed.
+
+- Execution: planless quick CI repair (implementation commit `3146c72bf`)
+  - Source: Pygardon / DD-073; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-22T07:32:25+08:00
+  - Tool: Codex
+  - Model: GPT-5
+  - Open Dough release: unknown
+  - Evidence: `.agents/skills/dough-execute-plan/SKILL.md` again links the
+    absent `references/finish-or-stop.md`; the installed references directory
+    has no matching file.
+  - Observed effect: completion sequencing again had to be reconstructed from
+    the top-level skill, CI-monitor, retrospective, and wrap-up guidance.
+
+- **Response assessment (2026-09-23):** `b6f9515`, first released in v0.3.26, declared only the earlier identity reference; it did not remove the general omission mechanism. `8e6c41d` later extracted finish-or-stop without its declaration, still absent in v0.3.27. The Pygardon v0.3.27 reports therefore retain this identity as continuing declaration failures after a file-specific repair, not reintroduction after a general correction. `128b404`, first containing tag v0.3.28, declares finish-or-stop and other migrated modules; Pygardon adoption `2320a171b` on 2026-09-22 restored that file. The third reported execution release remains unknown. Concrete missing files are repaired; prevention of the general authoring omission remains unverified, so no whole-finding watch starts.
+- **Retained source detail:** Pygardon ownership review dated 2026-09-23 verified v0.3.27 source/manifest mismatch and classified the earlier failures as shared payload defects, while confirming current installed copies contain the restored file.
 
 ## ODF-061 — Shell assertions pass without enforcing their conditions
 
@@ -1451,6 +1494,8 @@ consult both lists when matching findings or allocating identities.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+
 ## ODF-064 — Corrections after refactoring skip a renewed review
 
 - **Meaning:** A post-refactor implementation correction is delivered without a further independent refactor pass; the delivery contract leaves this trigger unclear.
@@ -1509,17 +1554,17 @@ consult both lists when matching findings or allocating identities.
     nor the hook checks that the recorded worker is still running.
 
 
-- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Status:** Response released; effectiveness unverified.
 - **Response:** `ci-host-hook.mjs` now checks the recorded worker's PID and exact
   spawned-command identity (read-only, never signaling) at both receipt
   attachment and the ordinary bindings-delivery loop, so a dead detached
   worker is reported lost — not reassuringly attached — at the next ordinary
   coordinator interaction, independent of another push, while a normal
-  completed stop is never mislabeled as death. Source commit `8a7c770` on
-  branch `claude/068-truthful-ci-observation`; story and plan recoverable at
-  `.planning/quick/068-truthful-ci-observation/PLAN.md` (slice 1) on that
-  branch, not yet merged to `main`.
-- **Released in:** pending; not yet on `main` or tagged.
+  completed stop is never mislabeled as death. Source commit `8a7c770`, merged to `main`; plan recoverable at
+  `1fd706e:.planning/quick/068-truthful-ci-observation/PLAN.md` (slice 1).
+- **Released in:** 0.3.28; first containing tag v0.3.28, verified from implementation and tagged guidance/runtime diffs.
+
+- **Assessment (2026-09-23):** No recorded later crash exercise establishes a watch start; ODF-089 is a normal terminal result, not a recurrence of worker-loss detection. Watch start and review-after: unknown; excluded from age-based retirement.
 
 ## ODF-066 — Unpublished Story Branch claims block shared integration
 
@@ -1551,6 +1596,10 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Response assessment (2026-09-21):** Response released in 0.3.27: be94345 (claim publication) and f699e60 (observed-state recovery). Completed source work is not queued again. Watch start/review-after unknown: no verified use of released claim publication is supplied; earlier implementation exercises are not adoption of the released payload.
+
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. Concurrent execution claim `02108df` moved this existing response to Taken during the authorized 2026-09-23 runbook cycle. Preserve that ongoing work; no duplicate response or extra backlog slot was created.
+
+- **Response assessment (2026-09-23):** `be94345` and `f699e60`, first released in v0.3.27, required publication before implementation and observed-state resume. Current startup work (`194617b`, `1a63c0c`, `6f5d0ef`) supplies the command and removes its superseded runner; no tag contains these changes yet. Native acceptance is now Taken with recorded host gaps. The original v0.3.26 occurrence does not prove post-fix recurrence. Watch start/review-after remain unknown for the complete accepted native outcome.
 
 ## ODF-067 — Refusal fixtures supply the stop they claim to prove
 
@@ -1619,6 +1668,8 @@ consult both lists when matching findings or allocating identities.
     claim time; when it does, whole-path staging would misattribute unreviewed
     content into the claim commit. A hunk- or content-aware staging fallback
     for this case is not currently documented.
+
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. Concurrent execution claim `02108df` moved this existing response to Taken during the authorized 2026-09-23 runbook cycle. Preserve that ongoing work; no duplicate response or extra backlog slot was created.
 
 ## ODF-069 — CI discovery gaps obscure later terminal results
 
@@ -1689,9 +1740,8 @@ consult both lists when matching findings or allocating identities.
     of these four false negatives.
 
 
-- **Status:** Partially addressed in source; not yet released; underlying cause
-  not repaired. No active follow-up is queued for the remaining bounded-listing
-  boundary; a future triage may queue one.
+- **Status:** Partial response released in 0.3.28; underlying cause
+  not repaired. The remaining observation boundary is included in the queued delivery response below.
 - **Response:** Diagnosed, not repaired. A new faithful end-to-end test
   (`ci-revision-coverage-late-github-failure.test.mjs`) proves the existing
   `observeRevisionCoverage`/`createGitHubRunAcquisition`/`watchCiExecution`
@@ -1710,10 +1760,13 @@ consult both lists when matching findings or allocating identities.
   limit or adding retry machinery was explicitly out of this slice's scope
   ("No timing-policy exception assumed") pending a targeted diagnosis of that
   specific boundary. Do not treat this finding as resolved. Source commit
-  `5630b28` on branch `claude/068-truthful-ci-observation`; story and plan
-  recoverable at `.planning/quick/068-truthful-ci-observation/PLAN.md` (slice
-  3) on that branch, not yet merged to `main`.
-- **Released in:** pending; not yet on `main` or tagged.
+  `5630b28`, merged to `main`; plan recoverable at
+  `1fd706e:.planning/quick/068-truthful-ci-observation/PLAN.md` (slice 3).
+- **Released in:** 0.3.28; first containing tag v0.3.28 for `5630b28`, verified against the clarification and late-verdict proof diff.
+
+- **Assessment (2026-09-23):** Later `9f86dda`, `8a00357`, and `d57783c` distinguish discovery-pending from terminal verdicts; they do not establish that bounded listing always discovers the relevant run. Historical reports are not post-v0.3.28 failures. The proposed listing cause remains qualified; diagnose it before choosing a repair. No complete fix or eligible watch is claimed.
+
+- **Follow-up:** [Publish execution increments with automatic CI observation](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — **queued, not resolved**. Selected by the authorized 2026-09-23 runbook cycle; preserve separate mechanisms while evaluating exact-revision attachment, usable checkout runtime, ended-owner recovery, and truthful coverage.
 
 ## ODF-070 — Tool availability is inferred from a local dependency directory
 
@@ -1721,7 +1774,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-066 (nested execution)
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The other Open Dough DD-066 is ODF-056; heading meaning and execution 45234b9 disambiguate this alias. Two reports from one execution count once. Low priority: the coordinator ran the command successfully and no incorrect change shipped.
 
-- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Status:** Response released; effectiveness unverified.
 - **Response:** `src/skills/dough-execute-plan/references/execution-location.md`
   prepares a selected execution checkout as part of worktree setup, then
   establishes usability by running an applicable project command from that
@@ -1733,7 +1786,7 @@ consult both lists when matching findings or allocating identities.
   (removed from the current snapshot by story wrap-up), identity
   `SEED-008#prepare-execution-worktree`. Shipping this guidance does not
   itself prove native hosts follow it.
-- **Released in:** pending; not yet on `main` or tagged.
+- **Released in:** 0.3.28; first containing tag v0.3.28, verified from implementation and tagged guidance/runtime diffs.
 
 ### Occurrences
 
@@ -1764,6 +1817,8 @@ consult both lists when matching findings or allocating identities.
     instruction (e.g. "run the command, not a `node_modules` existence
     check, before reporting a tooling gap") would prevent recurrence was not
     tested here.
+
+- **Assessment (2026-09-23):** No verified post-release exercise of the directory-inference correction establishes a watch start. Native gate skipping in ODF-087 concerns a different mechanism and was observed on a modified prerelease candidate. Watch start and review-after: unknown; excluded from age-based retirement.
 
 ## ODF-071 — Native acceptance observers bind to the launching session
 
@@ -1876,6 +1931,8 @@ consult both lists when matching findings or allocating identities.
     step, not opportunistically before a later slice, even when a plan's first
     slice feels small enough to "just push and arm after."
 
+- **Follow-up:** [Publish execution increments with automatic CI observation](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — **queued, not resolved**. Selected by the authorized 2026-09-23 runbook cycle; preserve separate mechanisms while evaluating exact-revision attachment, usable checkout runtime, ended-owner recovery, and truthful coverage.
+
 ## ODF-074 — Planning asserts unverified existing code and host facts
 
 - **Meaning:** Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked.
@@ -1929,7 +1986,7 @@ consult both lists when matching findings or allocating identities.
 
 - **Meaning:** A stale claim that a suite is unaffected survives a signature change, and a missed stand-in breaks after delivery.
 - **Source mappings:** Pygardon / DD-063
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Related to ODF-045 caller analysis, but this is a test-support consumer missed through stale suite applicability, not incompatible production query purposes. Related to ODF-003, but not a file-type assumption. Keep these mechanisms separate.
+- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Related to production caller analysis, but this is a test-support consumer missed through stale suite applicability, not incompatible production query purposes. Related to ODF-003, but not a file-type assumption. Keep these mechanisms separate.
 
 ### Occurrences
 
@@ -1951,6 +2008,8 @@ consult both lists when matching findings or allocating identities.
   - Inference: a "that suite does not touch this" claim was carried across
     slices without rechecking, and no suite that consumes the changed type was
     run.
+
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
 
 ## ODF-076 — Known concurrent-state proof gaps are accepted at delivery
 
@@ -1977,6 +2036,8 @@ consult both lists when matching findings or allocating identities.
   - Inference: for concurrent state, an explicitly reported coverage gap is
     weak evidence of safety; proof or a recorded decision costs less than the
     post-merge fix.
+
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
 
 ## ODF-077 — Whole-suite recovery loses ownership and verdict evidence
 
@@ -2065,7 +2126,7 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-071
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Two distinct executions: plans 150 and 160. Plan 160 reports v0.3.27; preserve that supplied release without inferring when adoption occurred. The approximately eleven-minute outage accompanied the live exercise; the record does not establish that the omitted test caused it. This is not a pre-change benchmark/baseline omission.
 
-- **Status:** Addressed in source; not yet released; effectiveness unverified.
+- **Status:** Response released; effectiveness unverified.
 - **Response:** `src/skills/dough-execute-plan/references/execution-decisions.md`'s
   "Require current regression proof before a live action" section gates an
   authorized live action on an accepted current observation of the plan's
@@ -2084,8 +2145,7 @@ consult both lists when matching findings or allocating identities.
   (deleted from the current snapshot by story wrap-up), identity
   `SEED-004#require-current-proof-before-live-transitions`.
   Shipping this guidance does not itself prove it prevents recurrence.
-- **Released in:** Pending — no release/version bump has been made for this
-  guidance yet.
+- **Released in:** 0.3.28; first containing tag v0.3.28 for both response commits, verified against the live-action and delegation diffs.
 
 ### Occurrences
 
@@ -2139,7 +2199,9 @@ consult both lists when matching findings or allocating identities.
     someone runs it by hand).
 
 
-- **Follow-up:** SEED-004#require-current-proof-before-live-transitions (story section recoverable at `4c6619a86b9d104c85e1ec602a304bb9fa589787:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions`, removed from the current snapshot by story wrap-up), **addressed in source, not yet released** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
+- **Follow-up:** SEED-004#require-current-proof-before-live-transitions (story section recoverable at `4c6619a86b9d104c85e1ec602a304bb9fa589787:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions`, removed from the current snapshot by story wrap-up), **response released in 0.3.28; effectiveness unverified** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
+
+- **Assessment (2026-09-23):** All three logs were checked; the supplied live-action failures predate v0.3.28 or have unknown release. Installed updates alone do not establish that a later live transition exercised this gate. Watch start and review-after: unknown; excluded from age-based retirement.
 
 ## ODF-081 — Wrong-checkout edits are captured by another execution
 
@@ -2428,6 +2490,8 @@ consult both lists when matching findings or allocating identities.
     `.agents/skills` never consulted even though this entry already names it
     as the fix.
 
+- **Follow-up:** [Publish execution increments with automatic CI observation](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — **queued, not resolved**. Selected by the authorized 2026-09-23 runbook cycle; preserve separate mechanisms while evaluating exact-revision attachment, usable checkout runtime, ended-owner recovery, and truthful coverage.
+
 ## ODF-086 — Queue claims use a stale shared-backlog reading
 
 - **Meaning:** Another execution claims work between a coordinator's read and its Taken edit; correctness depends on rereading and checking the intended move.
@@ -2464,3 +2528,160 @@ consult both lists when matching findings or allocating identities.
     immediately before the **Taken** edit, and that the resulting staged diff
     must be confirmed to be exactly the intended one-entry move, would make
     this independent of how the edit happens to be applied.
+
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. Concurrent execution claim `02108df` moved this existing response to Taken during the authorized 2026-09-23 runbook cycle. Preserve that ongoing work; no duplicate response or extra backlog slot was created.
+
+## ODF-087 — Native execution skips a command-readiness gate proved only by substitutes
+
+- **Meaning:** Native execution can implement the requested outcome without the required checkout preparation and command check, while substitute actors and wording checks pass.
+- **Source mappings:** Open Dough / DD-089
+- **References:** Current guidance assessed: Open Dough `a3d3044`. Distinct from ODF-070 (directory-based availability claims) and ODF-088 (no setup instruction). `6d7f7f3` introduced the gate; modified `98bfa80` already contains it, and its native sessions still skipped it. This is a demonstrated failure of that modified candidate, not evidence of recurrence on the later v0.3.28 release.
+
+### Occurrences
+
+- Execution: `a168a39f64a75c579a713674a5dda5ca46bed6ea:.planning/quick/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
+  - Source: Open Dough / DD-089; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T09:08:13Z
+  - Tool: Cursor
+  - Model: Cursor Grok 4.6
+  - Open Dough release: modified; revision `98bfa80bb45a2a0156318230c75f7964ec0291e6`; base `0.3.27`
+  - Evidence: Cursor fresh-node `/tmp/dough-execution-worktree-prep-native-069/cursor/fresh-node/20260921T090813-3f7f/` first assessment fail (empty commands, traces present); current assessor pass on observation.json. Codex/Claude fresh-node, Cursor failed-prep/reuse, Claude wrapper: complete streams, greeting written, no gate. Prompt asks for hello-ok and does not tell the agent to install.
+  - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
+  - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
+
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. Concurrent execution claim `02108df` moved this existing response to Taken during the authorized 2026-09-23 runbook cycle. Preserve that ongoing work; no duplicate response or extra backlog slot was created.
+
+## ODF-088 — Fresh sibling worktrees reach delivery without dependencies
+
+- **Meaning:** Worktree creation omits project dependency preparation, so delivery first discovers genuinely unavailable commands in a sibling checkout.
+- **Source mappings:** Open Dough / DD-074
+- **References:** Current guidance assessed: Open Dough `a3d3044`. Unlike ODF-070, these commands actually failed. Both occurrences used v0.3.27 before `6d7f7f3` introduced required preparation; they do not demonstrate a failure of that response.
+
+### Occurrences
+
+- Execution: `.planning/quick/067-current-proof-before-live-transitions/PLAN.md @ 9b1391db3c0e024272a2eed8fd8c8d278f3488a0`,
+  first related implementation commit `e9829bc6088567742fefd2a726f6bbe7da9bc039`
+  - Source: Open Dough / DD-074; canonical DearDough.md occurrence
+  - Timestamp: unknown (2026-09-21)
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: after creating the Trunk Mode worktree at
+    `/Users/terryyin/.claude-worktrees/open-dough/067-current-proof-before-live-transitions`
+    with `git worktree add ... claude/067-current-proof-before-live-transitions
+    f59df38`, the first `npm run format` there printed `eslint: spawnSync
+    eslint ENOENT`, `prettier: spawnSync prettier ENOENT`, and `Format
+    failed: unresolved findings or tool failures remain.` `ls node_modules`
+    confirmed the directory did not exist, while the integration checkout's
+    own `node_modules` (`/Users/terryyin/git/open-dough/node_modules`) had
+    102 entries. Running `npm ci` in the new worktree installed 149 packages;
+    the same `npm run format` command then completed cleanly.
+  - Observed effect: one wasted delivery-step attempt and diagnostic
+    detour (identifying the ENOENT cause, comparing against the integration
+    checkout, then installing) before delivery could proceed; no incorrect
+    guidance reached the delivered plan or product, since the coordinator
+    caught and resolved the gap itself before commit.
+  - Inference: Qualified, single occurrence, but structurally certain to
+    recur for any Node (or other dependency-manager) project using this
+    project's sibling-worktree convention, since no reviewed reference
+    mentions an install step. Adding one sentence to [execution
+    location](.claude/skills/dough-execute-plan/references/execution-location.md)'s
+    "After successful setup" step — install this project's dependencies in a
+    newly created worktree before first use, when the project's package
+    manager requires it — would let a future executor avoid rediscovering
+    this; not tested here.
+
+- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
+  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
+  - Source: Open Dough / DD-074; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T13:15:42+08:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: 0.3.27
+  - Evidence: after creating the Story Branch Mode worktree at
+    `/Users/terryyin/.claude-worktrees/open-dough/068-truthful-ci-observation`
+    with `git worktree add ... -b claude/068-truthful-ci-observation
+    a81a305e90dcc56d7af894086b14aece7c7492e4`, the first `npm run format`
+    there (during slice 1's delivery) printed the same `eslint: spawnSync
+    eslint ENOENT` / `prettier: spawnSync prettier ENOENT` /
+    `Format failed: unresolved findings or tool failures remain.` `ls
+    node_modules` confirmed the directory did not exist. Running `npm
+    install` installed the dependencies; the same `npm run format` command
+    then completed cleanly.
+  - Observed effect: one wasted delivery-step attempt before the coordinator
+    diagnosed the cause and installed dependencies; no incorrect guidance
+    reached the delivered plan or product.
+  - Inference: Second occurrence, confirming this finding's original
+    "structurally certain to recur" prediction across a different story and
+    a different install command (`npm install` rather than `npm ci`) in the
+    same project. The guidance gap identified above remains unaddressed at
+    this occurrence's release (0.3.27).
+
+- **Status:** Response released; native follow-through remains unverified.
+- **Response:** `6d7f7f3` makes checkout preparation plus an applicable command a prerequisite before delegation; the source omission is repaired. Native noncompliance is retained separately as ODF-087.
+- **Released in:** 0.3.28; first containing tag v0.3.28, verified against execution-location guidance.
+- **Assessment (2026-09-23):** Both reported failures used older v0.3.27. No verified later exercise with release provenance establishes a watch start or review-after; neither is inferred from publication date.
+
+## ODF-089 — Ended observers still accept ordinary push receipts
+
+- **Meaning:** After persistent polling errors produce a normal terminal result, later push registration and attachment still look active even though that observer will never poll the new revision.
+- **Source mappings:** Open Dough / DD-090
+- **References:** Current guidance assessed: Open Dough `a3d3044`. Related to ODF-065 but distinct from unexpected worker death: the recorded normal `finished` result intentionally bypasses `mailboxWorkerLoss`. Verified `8a7c770` / v0.3.28 and modified execution `a8f9eb1`; that correction detects a dead worker without a terminal result and leaves this separate normal-ended mechanism. No failed crash-detection response is inferred.
+
+### Occurrences
+
+- Execution: `.planning/quick/076-path-filter-aware-ci-observation/PLAN.md @ a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865`
+  - Source: Open Dough / DD-090; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-22T07:12+00:00
+  - Tool: Claude Code
+  - Model: claude-sonnet-5
+  - Open Dough release: modified; revision a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865; base 0.3.28
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-Q6ZEF0`'s event 3
+    (`CI_MONITOR_UNAVAILABLE`, TLS timeout) and `result.json` (`finished`)
+    both predate two later `register-push` calls (mtimes ~10/~30 min
+    after); `ps` confirmed the worker pid was gone.
+  - Observed effect: two SHAs registered against an ended observer with no
+    distinguishing signal; the gap surfaced only via a manual `gh`
+    cross-check near execution end.
+  - Inference: Qualified, single occurrence; mechanism is deterministic and
+    the triggering network instability recurred repeatedly this session, so
+    recurrence is plausible. Not tested: a distinct "CI observer ended"
+    hook message, mirroring "lost its worker."
+
+- **Follow-up:** [Publish execution increments with automatic CI observation](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — **queued, not resolved**. Selected by the authorized 2026-09-23 runbook cycle; preserve separate mechanisms while evaluating exact-revision attachment, usable checkout runtime, ended-owner recovery, and truthful coverage.
+
+## ODF-090 — A multi-slice plan uses the single-slice local implementation exception
+
+- **Meaning:** The coordinator applies the local single-interactive-slice exception to the first slice of a multi-slice plan, bypassing its required implementation handoff.
+- **Source mappings:** Doughnut / DD-097
+- **References:** Current guidance assessed: Open Dough `a3d3044`. One execution on v0.3.27; no product defect is claimed. Distinct from ODF-040, where a delegated implementer published early, and ODF-091, where independent refactoring was skipped.
+
+### Occurrences
+
+- Execution: quick/008-remove-zip-export / 38b5e1ef69
+  - Source: Doughnut / DD-097; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T22:08:41+08:00
+  - Tool: Cursor
+  - Model: Cursor Grok 4.7
+  - Open Dough release: 0.3.27
+  - Evidence: conversation implementing catalog/settings and E2E harness edits directly; commit `38b5e1ef69` on `codex/remove-zip-export`. Slices 2 and 3 were delegated.
+  - Observed effect: slice 1 was committed with its planned frontend proof. No separate implementation-agent return exists for that slice.
+  - Inference: the single-slice local exception was applied to the first slice of a multi-slice plan. The record does not show a product defect from that choice.
+
+## ODF-091 — Ordinary slice delivery substitutes coordinator review for independent refactoring
+
+- **Meaning:** Ordinary planned slices are delivered after coordinator self-review without the required fresh refactor agent and completion marker.
+- **Source mappings:** Doughnut / DD-098
+- **References:** Current guidance assessed: Open Dough `a3d3044`. One execution on v0.3.27 (three commits are not three executions). Distinct triggers from ODF-062 interruption-path CI repairs and ODF-064 corrections after an earlier refactor; no shared cause or intervening correction is established.
+
+### Occurrences
+
+- Execution: quick/008-remove-zip-export / 38b5e1ef69
+  - Source: Doughnut / DD-098; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-21T22:08:41+08:00
+  - Tool: Cursor
+  - Model: Cursor Grok 4.7
+  - Open Dough release: 0.3.27
+  - Evidence: same execution as DD-097; commits `38b5e1ef69`, `4711b98d93`, and `670f8e7313` have no refactor-agent report. The coordinator's slice 1 note was a local grep of notebook components.
+  - Observed effect: delivery continued and the three commits landed. No independent refactor findings were recorded.
+  - Inference: deletion-heavy slices made a missed cohesion issue less likely, but the required second reader did not run.

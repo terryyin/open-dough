@@ -18,6 +18,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
+- [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
 - [Keep prepared stories and plans through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-preparation-through-shared-operation) — SEED-008#publish-preparation-through-shared-operation
