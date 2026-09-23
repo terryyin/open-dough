@@ -234,11 +234,13 @@ band is invented without project definitions.
 
 **Identity:** SEED-021#open-queued-story-slice-plan
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Goal, scope, and examples are refined; an execution approach and its preparation remain unselected."],"basis":{"document":"cfc797159014f153f4fcddfdb61bf9c7e35a2fd9ec1fd93c28510edc6c1df62d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/081-queued-story-plan-links/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb57d91ee8bfac97aff97abdcebaedc0f93afb23f0e30843f65d30948d718adf","plan":"30e04eff6ca90b8f7ac5a1dbd2a59be56190eac86622ddb3ad49fed522b209b5"}}
 ```
 
-**Status:** Refined on 2026-09-23; remains first in the backlog. Execution
-approach is unselected; no slice plan has been requested for this story.
+**Status:** Refined and slice-planned on 2026-09-23; remains first in the backlog.
+Implementation has not started.
+
+**Slice plan:** [Open a queued story's published slice plan](../quick/081-queued-story-plan-links/PLAN.md).
 
 **Goal:** Terry and developers reviewing the dashboard can open a queued
 story's published slice plan directly, without searching repository files,
@@ -338,11 +340,9 @@ backlog and establish whether the current records already support this view.
 directly with source uncertainty intact, independently of the later ownership
 and branch-inspection stories.
 
-**Remaining decisions:** No unresolved goal or scope question blocks slice
-planning. The recommendations above settle the identified format-versus-existing-
-data question for the proposed delivery. Exact code placement and proof
-boundaries belong to execution planning; neither planning nor implementation
-is authorized by this refinement request.
+**Remaining decisions:** The existing-data approach is selected for the slice
+plan. No unresolved goal or scope question remains; implementation still
+requires a separate execution instruction.
 
 **Effort hypothesis:** Bounded navigation work using existing records and
 readers; no project effort band or slice count is assigned during refinement.
