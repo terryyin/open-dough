@@ -9,7 +9,6 @@ import {
   mailboxWorkerLoss,
   readRevisionCoverage,
   readWorkerIdentity,
-  startExecutionMailbox,
 } from "./ci-mailbox.mjs";
 import { messageCount } from "./publication-test-fixtures.mjs";
 import { isLiveMatchingMailbox } from "./ci-mailbox-match.mjs";
@@ -141,7 +140,7 @@ test("ambiguous matching owners return a gap and preserve existing state", async
     repo,
   });
   const accepted = delivered.receipt.sha;
-  const second = await startExecutionMailbox(
+  const second = await fixture.startExecutionMailbox(
     {
       mode: "execution",
       repo,
@@ -209,7 +208,7 @@ test("mismatched owner leaves coverage unobserved without adopting it", async (t
   await fixture.stopObserver(delivered.observation.directory);
   rmSync(delivered.observation.directory, { recursive: true, force: true });
   // Only a mismatched live owner remains (different branch).
-  fixture.observerDirectory = await startExecutionMailbox(
+  fixture.observerDirectory = await fixture.startExecutionMailbox(
     {
       mode: "execution",
       repo,

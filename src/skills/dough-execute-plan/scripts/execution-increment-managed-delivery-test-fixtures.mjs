@@ -55,6 +55,10 @@ async function importCheckoutRuntime(skill) {
   );
 }
 
+async function importMailbox(skill) {
+  return import(pathToFileURL(join(skill, "scripts/ci-mailbox.mjs")).href);
+}
+
 function writeAdapter(fixture, releasePath, callsPath) {
   const adapter = join(fixture, "adapter.mjs");
   writeFileSync(
@@ -110,6 +114,7 @@ export async function createManagedFixture({
   const { deliverManagedExecutionIncrement } = await importDelivery(skill);
   const { resumeManagedExecutionIncrement } = await importResume(skill);
   const { resolveCheckoutRuntime } = await importCheckoutRuntime(skill);
+  const { startExecutionMailbox } = await importMailbox(skill);
   const session = {
     conversation_id: "managed-coordinator",
     session_id: "managed-coordinator",
@@ -135,6 +140,7 @@ export async function createManagedFixture({
     deliverManagedExecutionIncrement,
     resumeManagedExecutionIncrement,
     resolveCheckoutRuntime,
+    startExecutionMailbox,
     releaseFailure(sha, branch = "main") {
       writeFileSync(
         releasePath,
