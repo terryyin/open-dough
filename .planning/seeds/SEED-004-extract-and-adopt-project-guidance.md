@@ -130,7 +130,7 @@ per-story documents, partial wrap-up, and early termination remain excluded.
 
 **Identity:** SEED-004#accept-delivery-evidence-native
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach remains unselected."],"basis":{"document":"9c8ec2cf0c7d37681205aaca97840c321324e99f6b96a7388a26311ad1539737"}}
 ```
 
 **Goal:** Maintainers can decide whether the four delivery-evidence acceptance
@@ -155,18 +155,15 @@ each case proceeds without a blanket rerun or a report-format-only retry.
 **Required tools and evidence:** Use the installed candidate in fresh Codex
 and Claude Code sessions through
 `tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE [--results-dir DIR]`,
-with Bash 4+ and the runner's bounded supervision. When output is needed to
-inspect an attempt, use a temporary results directory. Judge the attempt now,
-then delete its spent artifacts. Record the selected command, candidate and
-host runtime, actual selected observations, fixture and assertion locations,
-decisive trace, and independent fixture state for the current judgment. The four
+with Bash 4+ and the runner's bounded supervision. Use a temporary results
+directory for current assessment under ADR 0005. Inspect the selected command,
+candidate and host runtime, selected observations, fixture assertions, native
+trace, and independent fixture state. The four
 credential-free assessors remain in `tests/support/`; Cursor native judgments
 are recoverable from
 `6cb67dbe680211ad64a60e7f50a0d413c7c68b20:.planning/quick/085-accept-delivery-evidence/PLAN.md`.
-Those Cursor runs were judged during the completed implementation; their raw
-local results were discarded. Codex and Claude native runs have not been run or
-accepted. Reconsider prior proof only if its covered boundary changes; do not
-defer judgment of an existing run to this story.
+Codex and Claude acceptance remains pending. Reassess prior judgments against
+the current guidance and rerun requirements whose proof is invalidated.
 
 **Completion:** For each of the four requirements, record a supported Codex and
 Claude result or a specific justified reuse judgment under [ADR

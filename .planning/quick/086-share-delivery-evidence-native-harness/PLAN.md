@@ -33,14 +33,14 @@ shotgun residue from Behavior-only slices that each copied the first-slice
 runner adaptation instead of extending a shared harness.
 
 **Preserved product promises and constraints:** Do not change the four
-acceptance mechanisms, their Cursor-recorded native expectations, assessor
-pass/fail criteria, or finding/watch disposition rules from plan 085. Do not
+acceptance mechanisms, their Cursor-recorded native expectations, or assessor
+pass/fail criteria. Apply [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
+to run assessment and cleanup. Do not
 add a second native runner, a general evidence registry, mandatory host matrix
 reruns, or a report schema. Keep using the existing
 `tests/git-publication-native.sh` transport and ADR 0005 selective `--case`
-pattern. Codex and Claude native runs remain pending (not passed) until a
-separate acceptance/follow-up path owns them; this correction does not mark
-them passed.
+pattern. Pending Codex and Claude proof belongs to
+[native acceptance](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native).
 
 **Observable proof ownership:** Credential-free default of
 `bash tests/git-publication-native.sh` must still PASS all four
@@ -65,10 +65,9 @@ Reuse `tests/git-publication-native.sh`,
 `tests/support/git-publication-native-host.sh`,
 `tests/support/git-publication-native-evidence.sh`, and the four case
 observe/assess/scenario modules. Prefer extracting shared run/fixture helpers
-beside those modules over inventing a parallel runner. Guidance owners in
-`wrap-up.md#accept-proof`, `delegation.md`, and `executable-proof.md` stay as
-plan 085 left them unless a one-line evidence-hash or source path must follow
-the harness move.
+beside those modules over inventing a parallel runner. Preserve current guidance
+in `wrap-up.md#accept-proof`, `delegation.md`, and `executable-proof.md`; adjust
+paths or hashes affected by the harness move.
 
 ## Ordered slices
 
@@ -97,5 +96,4 @@ observe/assess differences — keep those case-local. No remaining
 slice-specific concern identified in this planning pass beyond that sizing
 guardrail.
 
-Execution requires separate authorization. This correction is queued first;
-queue membership alone does not start harness work.
+Execution requires separate authorization; the product backlog owns priority.

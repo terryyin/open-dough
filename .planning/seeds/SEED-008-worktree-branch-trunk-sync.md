@@ -30,7 +30,7 @@ status; this seed records desired outcomes for implementation planning.
 
 **Identity:** SEED-008#accept-queued-start-native-behavior
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach remains unselected; confirm Claude access when resuming."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
 ```
 
 **Goal:** Complete the remaining Claude Code resume verification so the maintainer
@@ -49,14 +49,12 @@ first change is sufficient; full feature delivery is outside this acceptance.
 
 **Accepted evidence to reuse:** Ordinary startup and refused continuation have
 accepted observations on Codex, Cursor, and Claude; Codex and Cursor resume also
-passed. Recover the complete judgments, exact commands, native traces, runtime
-identities, and independent Git inspections from commit
+passed. Consult accepted judgments and candidate/runtime identities from commit
 `820077c3e7fcf16421c97231eb5bc01bb69ea3dc`, directory
 `.planning/quick/082-accept-queued-start-native/` (start with `PLAN.md`). The
 startup product candidate was `02108dfb28cabd05839c3aa16d820ce7d0fc33c7`;
 the delivered change strengthens refusal assessment by checking setup and
-command markers separately. This Git locator preserves needed acceptance
-provenance, not a second active plan. Reassess applicability to the intended
+command markers separately. Reassess applicability to the intended
 candidate and rerun only requirements invalidated by relevant changes.
 
 **Why still queued:** The Claude CLI weekly limit prevented fresh execution;
@@ -68,7 +66,7 @@ access or a diagnosed cause.
 **Evaluation:** Run the existing native journey from a prepared owned checkout:
 
 ```sh
-GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/startup-resume --results-dir <active-plan-evidence-directory>
+GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/startup-resume --results-dir <temporary-results-directory>
 ```
 
 Use Bash 4+ and the runner's 900-second deadline with 15-second termination
@@ -76,7 +74,8 @@ grace. Inspect the complete native trace and independent remote Git history:
 current owned Taken, retained ancestry, exactly one claim, resumed receipt
 before setup/command and first edit, and unchanged human/source bytes. The
 pre-created claim is a resume precondition, not proof of initial publication.
-Retain original evidence and runtime/candidate identity until assessment.
+Judge the attempt, record its acceptance result or remaining requirement, and
+remove spent results and retained fixtures under ADR 0005.
 
 **Completion:** A passing Claude resume observation plus a justified final
 candidate reconciliation of all previously accepted host requirements under
@@ -95,7 +94,7 @@ matrix or count exit status, self-report, or another host's pass as acceptance.
 
 **Identity:** SEED-008#accept-execution-ci-native-behavior
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach and focused native cases remain to be selected."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
 ```
 
 **Goal:** Before the managed delivery and CI observation behavior in
@@ -115,20 +114,22 @@ deterministic tests.
   reports explicit unobserved gap, never active attachment).
 - Verify delayed failure delivery reaches the coordinator at the next safe boundary.
 
-**Accepted evidence to reuse:**
-Functional implementation and deterministic verification are complete on the
-execution branch (all 3 slices + repair 4 pass 63 tests, payload update
-passes). Recover implementation locators and tests from plan 083 before cleanup.
+**Implementation basis:** Functional implementation and deterministic verification
+are complete (all 3 slices + repair 4 pass 63 tests, payload update passes).
+Implementation locators and judgments are recoverable from
+`463c48a:.planning/quick/083-publish-execution-ci/PLAN.md`.
 
 **Evaluation:** Run the existing native journey from a prepared owned checkout:
 
 ```sh
-GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native HOST --case CASE --results-dir <evidence-dir>
+GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native HOST --case CASE --results-dir <temporary-results-directory>
 ```
 
 Inspect native traces, independent remote Git history, and coordinator context
 for automatic attachment, exact registered SHA, and absence of manual setup or
 handle bookkeeping.
+Judge each attempt, record its acceptance result or remaining requirement, and
+remove spent results and retained fixtures under ADR 0005.
 
 **Completion:** Passing native observations or justified reusable proof per host
 under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
@@ -211,7 +212,7 @@ and independent refresh result. Closure adoption may remain deferred.
 
 **Identity:** SEED-008#publish-closure-through-shared-operation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
 ```
 
 **Status:** Queued on 2026-09-23 after the remote dashboard outcomes; scope
@@ -226,11 +227,14 @@ of already-published Story Branch history. Preserve human-owned publication
 restrictions, semantic backlog completion, published history, actual target
 attribution, and the existing completion/cleanup conditions. Consume the delivered
 shared CI completion operation; do not add a second observer shutdown policy.
+Preserve process findings and their unresolved judgments through closure.
 
 **Evaluation:** Story Branch closure integrates published history on trunk →
 receipt names the accepted trunk revision → matching CI completion and observer
 shutdown precede resource removal. A rejected publication or unconfirmed shutdown
 preserves recovery resources; earlier branch success does not cover trunk.
+Successful cleanup removes spent story history while retaining process findings
+and active follow-ups.
 
 **Depends on / boundary:** Needs shared publication and the existing CI completion
 contract. No dependency on preparation adoption. This migration does not decide
