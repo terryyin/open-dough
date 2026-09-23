@@ -13,14 +13,12 @@ import {
   failingContributing,
   identityA,
   readyContributing,
+  remoteBacklog,
 } from "./workspace-publication-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
-
-async function remoteBacklog(workspace) {
-  return (
-    await git(workspace, "show", `origin/main:.planning/PRODUCT-BACKLOG.md`)
-  ).stdout;
-}
+import "./workspace-publication-startup-claim-cases.mjs";
+import "./workspace-publication-startup-source-cases.mjs";
+import "./workspace-publication-startup-maintenance-cases.mjs";
 
 test("a queued claim is published from the owned workspace before implementation, after command readiness", async (t) => {
   const trunk = await createQueuedTrunk({ contributing: readyContributing });

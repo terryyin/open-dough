@@ -6,6 +6,7 @@
 
 git_publication_assess_status=not-run
 git_publication_assess_reason='behavior not assessed'
+git_publication_assess_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
 git_publication_assess_print_fields() {
   printf 'assessment-status: %s\n' "${git_publication_assess_status:-not-run}"
@@ -26,32 +27,13 @@ git_publication_assess_fail() {
   git_publication_assess_reason=$1
 }
 
-git_publication_assess_prose_matches() {
-  local response=$1
-  local pattern=$2
-  local text
-  if [[ -z ${response} || ! -f ${response} ]]; then
-    return 1
-  fi
-  text=$(cat -- "${response}")
-  grep -Eiq "${pattern}" <<< "${text}"
-}
+# shellcheck source=tests/support/git-publication-native-prose.sh
+# shellcheck disable=SC1091
+source "${git_publication_assess_support_dir}/git-publication-native-prose.sh"
 
-git_publication_assess_prose_accepts_publication() {
-  # Equivalent wording: accepted / published / on remote / remote history.
-  git_publication_assess_prose_matches "$1" \
-    '\b(accept(ed|ance)?|publish(ed|ing)?|remote[[:space:]]+(history|trunk|main|target)|landed[[:space:]]+on[[:space:]]+remote|push(ed)?[[:space:]]+(succeed|accepted))\b'
-}
-
-git_publication_assess_prose_accepts_local_only() {
-  git_publication_assess_prose_matches "$1" \
-    '\b(local-only|pending[[:space:]]+publication|retained[[:space:]]+locally|not[[:space:]]+publish|left[[:space:]]+unpublished)\b'
-}
-
-git_publication_assess_prose_accepts_recovery() {
-  git_publication_assess_prose_matches "$1" \
-    '\b(already[[:space:]]+(published|accepted|on[[:space:]]+remote)|recover(ed|y)|resume[d]?|ancestor|conflict|contention|stop(ped)?[[:space:]]+for[[:space:]]+human)\b'
-}
+# shellcheck source=tests/support/git-publication-native-startup-assess.sh
+# shellcheck disable=SC1091
+source "${git_publication_assess_support_dir}/git-publication-native-startup-assess.sh"
 
 # Assess one publication journey from observed Git/runtime state plus optional
 # agent prose. Observations are the decisive contract; prose alone cannot pass.
@@ -70,6 +52,12 @@ git_publication_assess() {
   fi
   obs=$(cat -- "${observations}")
   if [[ -z ${obs} ]]; then
+    return 0
+  fi
+
+  journey=$(git_publication_assess_field "${obs}" journey)
+  if [[ ${journey} == startup-* ]]; then
+    git_publication_assess_startup "${obs}" "${journey}"
     return 0
   fi
 

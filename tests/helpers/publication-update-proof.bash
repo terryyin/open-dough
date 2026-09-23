@@ -26,10 +26,13 @@ assert_installed_publication_modules() {
     const modules = [
       "dough-execute-plan/scripts/current-branch-publication.mjs",
       "dough-execute-plan/scripts/execution-increment-publication.mjs",
+      "dough-execute-plan/scripts/execution-start.mjs",
+      "dough-execute-plan/scripts/execution-source.mjs",
       "dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs",
       "dough-execute-plan/scripts/history-preserving-publication.mjs",
       "dough-execute-plan/scripts/maintain-default-checkout.mjs",
       "dough-execute-plan/scripts/publication-resume.mjs",
+      "dough-execute-plan/scripts/publication-git.mjs",
       "dough-execute-plan/scripts/publication-test-fixtures.mjs",
       "dough-execute-plan/scripts/workspace-publication.mjs",
       "dough-bug-fixing/scripts/retained-artifacts.mjs",

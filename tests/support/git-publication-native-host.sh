@@ -117,6 +117,8 @@ run_native_host() {
 native_case_known() {
   case $1 in
     publication/publish-boundary | publication/claim-race | \
+      publication/startup-trunk | publication/startup-story-branch | \
+      publication/startup-selected-source | \
       publication/local-only | publication/uncertain-recovery | \
       publication/preparation | publication/trunk-closure | \
       publication/story-branch-closure | publication/bug-disposition | \

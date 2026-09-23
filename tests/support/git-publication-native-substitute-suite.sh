@@ -69,6 +69,16 @@ run_substitute_host_journeys() {
   [[ ${status} -eq 0 ]]
   git_publication_suite_expect_assess fail 'missing remote acceptance'
 
+  artifact=$(mktemp -d "${work}/cursor-exit-after-complete.XXXXXX")
+  set +e
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_AGENT_EXIT_AFTER_COMPLETE=1 \
+    git_publication_run_journey "${source_dir}" cursor publish-boundary \
+    "${artifact}"
+  status=$?
+  set -e
+  [[ ${status} -ne 0 ]]
+  git_publication_suite_expect_assess fail 'native host exited 1'
+
   for journey in local-only claim-race uncertain-recovery preparation \
     story-branch-increment \
     trunk-closure story-branch-closure bug-disposition; do
@@ -96,6 +106,6 @@ run_substitute_host_journeys() {
     fi
   done
 
-  echo 'PASS: credential-free publication runner exercises complete streams on Codex, Cursor, and Claude Code substitutes; rejects truncated streams and missing remote acceptance; and covers local-only, claim-race, uncertain-recovery, preparation, first Story Branch increment, trunk-closure, story-branch-closure, and bug-disposition journeys.'
+  echo 'PASS: credential-free publication runner exercises complete streams on Codex, Cursor, and Claude Code substitutes; rejects truncated streams, missing remote acceptance, and a nonzero host exit after a complete stream; and covers local-only, claim-race, uncertain-recovery, preparation, first Story Branch increment, trunk-closure, story-branch-closure, and bug-disposition journeys.'
   echo 'EVIDENCE: mechanical Git observations plus substitute adapter streams; not live native agent behavior. Live host proof remains under --native.'
 }

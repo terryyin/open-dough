@@ -104,7 +104,7 @@ maintenance outcome. No automatic locking or coordination service is introduced.
 ### 1. Start queued work through the installed remote-claim boundary
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: authorized queued work has valid published preparation, with clean or
 unrelated dirty originating state → invoke installed startup → select/reuse the
@@ -171,6 +171,31 @@ Safe stopping point: ordinary authorized startup works through the production
 boundary and unsafe paths stop with preserved work. Concurrent/uncertain outcomes
 may still stop conservatively; slice 2 supplies the promised bounded recovery.
 Do not report the whole story complete at this point.
+
+Execution evidence (2026-09-23): The installed `execution-start.mjs start`
+command checks fetched preparation and local selected source, selects an
+isolated workspace, takes and confirms the claim on remote trunk in both
+modes, and reports local refresh separately. `node --test
+src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs` passed
+19/19 after refactoring and formatting, covering both modes, non-default
+remote/trunk, source changes at each Git layer, unrelated local work,
+maintenance deferrals/stops, installation/use, and setup failure after an
+accepted claim. `bash tests/execution-payload-update.sh`,
+`bash tests/product-backlog-payload-update.sh`, and
+`bash tests/git-publication-native.sh` passed. Fresh Cursor Story Branch
+native proof confirmed one installed CLI invocation, an owned Taken claim on
+remote main, setup and implementation after acceptance, and preserved local
+edits. Fresh Claude selected-source native proof confirmed a `source-refused`
+tool receipt, no remote claim or implementation, and preserved source. Codex
+Trunk native proof confirmed remote claim and setup but its implementation
+agent facility failed with `no thread with id`; the full native journey
+remains pending. An earlier Claude Story Branch journey completed, while the
+tightened setup-timing rerun reached the expected Git and timing state but
+ended with host API 429; that full tightened native verdict remains pending.
+Carry these host-specific gaps into linked ADR 0005 acceptance work before
+release. The refactor pass changed test and native-harness organization only
+and returned `## REFACTOR COMPLETE`; post-format focused CLI and
+credential-free native checks passed.
 
 ### 2. Reconcile and resume claims without duplicating ownership
 
@@ -295,3 +320,21 @@ No claim or implementation was performed while planning. No new runtime/native
 proof has run; inspected tests establish reusable infrastructure and gaps, not
 acceptance of the proposed operation. Record consequential execution learnings,
 actual proof commands/results, and resume decisions here during authorized work.
+
+## Execution identity and current state
+
+Authorized execution began on 2026-09-23 in Story Branch Mode. The originating
+and integration checkout is `/Users/terryyin/git/open-dough`; the created
+execution worktree is
+`/Users/terryyin/git/open-dough-worktrees/080-publish-startup-claims` on
+`codex/080-publish-startup-claims`, based on `d5a3da0db09d7bbd9df73f48a0413c5d11330525`.
+The Taken claim `bb50966257004d8c9c9fe9b4f40a22958eb93438` was accepted
+on `origin/refs/heads/main` before implementation. Future execution increments
+target `origin/refs/heads/codex/080-publish-startup-claims`. The local main
+checkout was clean but remained behind the claim; no exclusive default-checkout
+owner was established for a refresh, so maintenance was deferred. `npm ci` and
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+succeeded in the execution worktree. The Codex CI observer is bound to
+`terryyin/open-dough`, target `codex/080-publish-startup-claims`, coordinator
+`080`, mailbox `/tmp/dough-ci-501/watch-iWiO9o`, PID `54058`, and yielded
+cell `16`. The Story Branch claim on main has unobserved CI coverage.

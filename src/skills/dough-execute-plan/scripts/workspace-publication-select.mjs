@@ -1,9 +1,10 @@
 // Select or reuse the owned execution workspace, then commit the Taken claim
 // there. Publication of that SHA is a separate step.
 import { dirname, join } from "node:path";
+import { existsSync } from "node:fs";
 import { applyToBacklog } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { takeEntry } from "../../dough-product-backlog/scripts/product-backlog-take.mjs";
-import { git, revParse } from "./publication-test-fixtures.mjs";
+import { git, revParse } from "./publication-git.mjs";
 import {
   claimCommitMessage,
   isAncestor,
@@ -63,6 +64,37 @@ export async function selectOwnedWorkspace(request) {
   try {
     await git(request.integration, "fetch", remote);
     const base = await revParse(request.integration, `${remote}/${target}`);
+    if (existsSync(request.workspace)) {
+      const actual = await revParse(request.workspace, "--show-toplevel");
+      const branch = (
+        await git(request.workspace, "branch", "--show-current")
+      ).stdout.trim();
+      const head = await revParse(request.workspace, "HEAD");
+      const status = (await git(request.workspace, "status", "--porcelain"))
+        .stdout;
+      if (
+        actual !== request.workspace ||
+        branch !== request.branch ||
+        head !== base ||
+        status !== ""
+      ) {
+        return stopped("setup-failed", {
+          recovery: {
+            workspace: request.workspace,
+            branch: request.branch,
+            error:
+              "existing workspace does not match clean fetched trunk and owned branch",
+          },
+        });
+      }
+      return {
+        ok: true,
+        created: false,
+        workspace: request.workspace,
+        branch,
+        startingRevision: base,
+      };
+    }
     await git(
       request.integration,
       "worktree",
@@ -84,7 +116,7 @@ export async function selectOwnedWorkspace(request) {
       recovery: {
         workspace: request.workspace,
         branch: request.branch,
-        error: error.stderr || error.message,
+        error: `${request.workspace}: ${error.stderr || error.message}`,
       },
     });
   }
@@ -103,10 +135,23 @@ export async function commitWorkspaceClaim(request) {
   ) {
     return { ok: true, candidateSha: head, committed: false };
   }
+  if (
+    head !== startingRevision ||
+    (await git(workspace, "status", "--porcelain")).stdout !== ""
+  ) {
+    return stopped("setup-failed", {
+      recovery: {
+        workspace,
+        branch: request.branch,
+        error: "claim workspace has unpublished commits or pending changes",
+      },
+    });
+  }
   let outcome;
   await applyToBacklog(join(workspace, file), (source) => {
     outcome = takeEntry(source, {
       identity,
+      ...(request.plan === undefined ? {} : { plan: request.plan }),
       backlogDirectory: dirname(join(workspace, file)),
     });
     return outcome.source;

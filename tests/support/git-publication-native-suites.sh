@@ -138,6 +138,51 @@ run_assessor_counterexamples() {
   git_publication_assess "${work}/incomplete.txt" "${work}/valid-response.md"
   git_publication_suite_expect_assess fail 'incomplete or stale native stream'
 
+  git_publication_suite_write_obs "${work}/startup-valid.txt" \
+    'journey: startup-trunk' 'stream-status: complete' \
+    'startup-cli-count: 1' 'remote-sha: accepted' 'trunk-sha: base' \
+    'taken-on-remote: true' 'claim-owned: true' \
+    'human-edit-preserved: true' 'selected-source-preserved: true' \
+    'feature-exists: true' 'setup-exists: true' 'setup-after-claim: true' \
+    'startup-refusal-observed: false' \
+    'first-edit-after-claim: true'
+  git_publication_assess "${work}/startup-valid.txt"
+  git_publication_suite_expect_assess pass 'installed startup invoked'
+  for override in \
+    'startup-cli-count: 0|native startup command' \
+    'first-edit-after-claim: false|implementation or project setup' \
+    'setup-after-claim: false|implementation or project setup' \
+    'remote-sha: base|remote trunk lacks' \
+    'taken-on-remote: false|remote trunk lacks' \
+    'human-edit-preserved: false|human or selected source'; do
+    local field=${override%%|*} reason=${override#*|}
+    local key=${field%%:*}
+    sed "s/^${key}: .*/${field}/" "${work}/startup-valid.txt" \
+      > "${work}/startup-bad.txt"
+    git_publication_assess "${work}/startup-bad.txt"
+    git_publication_suite_expect_assess fail "${reason}"
+  done
+  sed -e 's/^journey: .*/journey: startup-selected-source/' \
+    -e 's/^remote-sha: .*/remote-sha: base/' \
+    -e 's/^taken-on-remote: .*/taken-on-remote: false/' \
+    -e 's/^claim-owned: .*/claim-owned: false/' \
+    -e 's/^feature-exists: .*/feature-exists: false/' \
+    -e 's/^setup-exists: .*/setup-exists: false/' \
+    -e 's/^setup-after-claim: .*/setup-after-claim: false/' \
+    -e 's/^startup-refusal-observed: .*/startup-refusal-observed: true/' \
+    -e 's/^first-edit-after-claim: .*/first-edit-after-claim: false/' \
+    "${work}/startup-valid.txt" > "${work}/selected-valid.txt"
+  git_publication_assess "${work}/selected-valid.txt"
+  git_publication_suite_expect_assess pass 'selected source stopped before claim'
+  sed 's/^startup-refusal-observed: .*/startup-refusal-observed: false/' \
+    "${work}/selected-valid.txt" > "${work}/selected-no-refusal.txt"
+  git_publication_assess "${work}/selected-no-refusal.txt"
+  git_publication_suite_expect_assess fail 'selected local source was published'
+  sed 's/^taken-on-remote: .*/taken-on-remote: true/' \
+    "${work}/selected-valid.txt" > "${work}/selected-local-take.txt"
+  git_publication_assess "${work}/selected-local-take.txt"
+  git_publication_suite_expect_assess fail 'selected local source was published'
+
   git_publication_suite_obs "${work}/stale.txt" stream-status=stale
   git_publication_assess "${work}/stale.txt" "${work}/valid-response.md"
   git_publication_suite_expect_assess fail 'incomplete or stale native stream'

@@ -7,9 +7,9 @@ import { promisify } from "node:util";
 import {
   git,
   lsRemoteSha,
-  pushCandidate,
+  pushExactRef,
   revParse,
-} from "./publication-test-fixtures.mjs";
+} from "./publication-git.mjs";
 import {
   claimProvenance,
   classifyOwnership,
@@ -100,7 +100,12 @@ export async function publishClaimSha(request) {
   let sha = request.candidateSha;
   let rejected = false;
   try {
-    await pushCandidate(request.workspace, sha);
+    await pushExactRef(
+      request.workspace,
+      sha,
+      remoteOf(request),
+      `refs/heads/${targetOf(request)}`,
+    );
   } catch (error) {
     const text = `${error.message}\n${error.stderr ?? ""}`;
     if (!/rejected|non-fast-forward/.test(text)) {
@@ -150,7 +155,12 @@ export async function publishClaimSha(request) {
     }
     sha = await revParse(request.workspace, "HEAD");
     try {
-      await pushCandidate(request.workspace, sha);
+      await pushExactRef(
+        request.workspace,
+        sha,
+        remoteOf(request),
+        `refs/heads/${targetOf(request)}`,
+      );
     } catch (error) {
       return stopped("unpublished", {
         recovery: {

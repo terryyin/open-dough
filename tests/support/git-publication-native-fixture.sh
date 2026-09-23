@@ -2,7 +2,7 @@
 # Disposable Git fixtures for the publication native harness: bare origin,
 # integration checkout with a pending human edit, and an owned workspace that
 # holds the unpublished candidate. Sourced by the runner.
-# shellcheck disable=SC2034,SC2249,SC2312 # Fixture globals are consumed by the runner.
+# shellcheck disable=SC2034,SC2154,SC2249,SC2312 # Fixture globals are consumed by the runner.
 
 git_publication_fixture_root=
 git_publication_fixture_origin=
@@ -11,6 +11,8 @@ git_publication_fixture_workspace=
 git_publication_fixture_trunk_sha=
 git_publication_fixture_candidate_sha=
 git_publication_fixture_human_before=
+git_publication_fixture_startup_mode=
+git_publication_fixture_selected_before=
 
 git_publication_fixture_git() {
   local cwd=$1
@@ -83,6 +85,10 @@ git_publication_fixture_create_publish_boundary() {
   )
 }
 
+# shellcheck source=tests/support/git-publication-native-startup-fixture.sh
+# shellcheck disable=SC1091
+source "${git_publication_run_support_dir}/git-publication-native-startup-fixture.sh"
+
 git_publication_fixture_create_claim_race() {
   git_publication_fixture_create_publish_boundary "$@"
   # A competing writer already holds a distinct claim tip on origin/main.
@@ -113,14 +119,6 @@ git_publication_fixture_create_uncertain_recovery() {
     commit --quiet -m "another writer's own increment"
   git_publication_fixture_git "${third}" push --quiet origin main
   rm -rf -- "${third}"
-}
-
-git_publication_fixture_install_skills() {
-  local source_dir=$1
-  local host=$2
-  local target=$3
-  bash "${source_dir}/install.sh" --target "${target}" \
-    --source "${source_dir}" --platform "${host}" > /dev/null
 }
 
 git_publication_fixture_observe() {

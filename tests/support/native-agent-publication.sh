@@ -7,6 +7,7 @@
 # NATIVE_PUBLICATION_JOURNEY selects the journey; NATIVE_AGENT_STREAM selects
 # complete (default), truncated, missing, or unknown.
 # NATIVE_PUBLICATION_SKIP_PUSH=1 claims success without accepting the candidate.
+# NATIVE_AGENT_EXIT_AFTER_COMPLETE=1 emits a complete stream and exits nonzero.
 # shellcheck disable=SC2249,SC2312 # Optional flag scan; pipefail covers jq.
 set -euo pipefail
 
@@ -161,6 +162,8 @@ if [[ ${host} == 'codex' ]]; then
   fi
   printf '%s\n' "${response}" > "${output_file}"
   write_codex_complete
+  [[ -z ${NATIVE_AGENT_EXIT_AFTER_COMPLETE:-} ]] || exit 1
   exit 0
 fi
 write_stream_result "${response}"
+[[ -z ${NATIVE_AGENT_EXIT_AFTER_COMPLETE:-} ]] || exit 1

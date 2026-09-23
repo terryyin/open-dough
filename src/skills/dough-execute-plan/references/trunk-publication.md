@@ -10,15 +10,14 @@ armed from the execution checkout against the authorized target branch.
 
 ## Publish a queue claim
 
-After the owned execution workspace exists and
-[Take queued work](../SKILL.md#take-queued-work) commits the Taken claim there,
-publish that claim SHA to remote trunk with the steps below, before
-implementation. Do not start implementation from an unpublished claim. Retain
-its published SHA and register it after the observer is armed. Later
-environment preparation does not unpublish that SHA. An unavailable destination
-or failed publication leaves the exact remaining state and does not authorize
-starting unclaimed queued work. CI coverage for this claim, including a Story
-Branch claim's unobserved trunk target, follows
+For queued Story Branch and Trunk Mode, [Take queued work](../SKILL.md#take-queued-work)
+uses the installed startup operation to publish and confirm the claim on remote
+trunk before implementation. Retain its exact receipt and register the
+published SHA after the observer is armed. Later environment preparation does
+not unpublish that SHA. An unavailable destination or failed publication
+preserves the reported state and does not authorize starting unclaimed queued
+work. CI coverage for this claim, including a Story Branch claim's unobserved
+trunk target, follows
 [Own one observer](ci-monitor.md#own-one-observer).
 
 ## Publish an execution increment or repair

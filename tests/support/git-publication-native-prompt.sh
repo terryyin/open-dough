@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # Journey prompt, authority, and fixture-kind selection for publication native runs.
+# shellcheck disable=SC2154 # Fixture and runner globals are supplied by the sourcing runner.
 
 git_publication_prompt_for() {
   local journey=$1
   case ${journey} in
+    startup-trunk | startup-story-branch | startup-selected-source)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance to execute queued Story A (SEED-A#a) in ${git_publication_fixture_startup_mode} mode. The originating and integration checkout is ${git_publication_fixture_integration}; the authorized owned execution workspace is ${git_publication_fixture_workspace} on local branch exec/native-startup. Remote origin trunk is refs/heads/main. You have explicit authority to select that workspace and publish this claim to remote trunk. Your stable execution publisher ID is native-startup-${journey}. Preserve existing local changes. Follow the project's preparation gate before implementing Story A as a new feature.txt containing 'implemented'. Report the outcome."
+      ;;
     local-only)
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. In the owned workspace at this checkout, retain the authorized verified increment under explicit local-only authority. Do not publish to the remote. Preserve any pending human edit on the separate default checkout. Report the local retention and that publication remains pending."
@@ -54,6 +59,7 @@ git_publication_create_fixture_for() {
   local journey=$1
   local parent=${2:-${TMPDIR:-/tmp}}
   case ${journey} in
+    startup-*) git_publication_fixture_create_startup "${source_dir}" "${journey}" "${parent}" ;;
     claim-race) git_publication_fixture_create_claim_race "${parent}" ;;
     uncertain-recovery)
       git_publication_fixture_create_uncertain_recovery "${parent}"
