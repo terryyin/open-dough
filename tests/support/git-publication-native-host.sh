@@ -21,21 +21,28 @@ host_fresh_journeys() {
 run_native_host() {
   local host=$1
   local selected_case=${2-}
+  local requested_results=${3-}
   local journey artifact work results_dir status outstanding=0
   command -v "${host}" > /dev/null || {
     echo "error: ${host} CLI not found on PATH" >&2
     exit 1
   }
   work=$(mktemp -d)
-  results_dir="${work}/results"
-  mkdir -p -- "${results_dir}"
-  native_case_results_dir=${results_dir}
+  if [[ -n ${requested_results} ]]; then
+    native_result_require_writable "${requested_results}"
+    results_dir=${native_case_results_dir}
+  else
+    results_dir="${work}/results"
+    mkdir -p -- "${results_dir}"
+    native_case_results_dir=${results_dir}
+  fi
   native_case_deadline=${native_case_deadline:-900}
   native_case_grace=${native_case_grace:-15}
 
   printf 'Native host: %s\n' "${host}"
   printf 'Candidate revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
   printf 'Proof class: live native agent behavior against installed guidance\n'
+  printf 'Results directory: %s\n' "${results_dir}"
 
   while IFS= read -r journey; do
     [[ -n ${journey} ]] || continue

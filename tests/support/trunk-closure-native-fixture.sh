@@ -46,6 +46,7 @@ trunk_closure_write_node() {
     '  [[ ${status} -eq 0 ]] && : > "${TRUNK_CLOSURE_REGISTERED}"' \
     '  exit "${status}"' \
     'fi' \
+    'if [[ " $* " == *" complete-revision "* ]]; then sleep 1; fi' \
     "exec ${real_node_q} \"\$@\"" > "${destination}"
   chmod +x "${destination}"
 }

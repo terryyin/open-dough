@@ -19,6 +19,7 @@ story_closure_write_node() {
     '#!/usr/bin/env bash' \
     'set -euo pipefail' \
     'printf "%s\n" "$*" >> "${STORY_CLOSURE_NODE_LOG}"' \
+    'if [[ " $* " == *" complete-revision "* ]]; then sleep 1; fi' \
     "exec ${real_node_q} \"\$@\"" > "${destination}"
   chmod +x "${destination}"
 }

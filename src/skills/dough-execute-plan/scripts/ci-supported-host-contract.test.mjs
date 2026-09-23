@@ -33,9 +33,9 @@ test("supported hosts share one execution observer instead of a per-SHA watcher"
     contract,
     /execution\/review completion boundary below is the only routine CI wait/,
   );
-  assert.match(contract, /await-revision '\/EXACT\/RECORDED\/MAILBOX'/);
+  assert.match(contract, /complete-revision '\/EXACT\/RECORDED\/MAILBOX'/);
   assert.match(
     contract,
-    /this stop (?:binding|command) never substitutes\s+for\s+that wait/,
+    /this stop (?:binding|command) never substitutes\s+for\s+that completion/,
   );
 });

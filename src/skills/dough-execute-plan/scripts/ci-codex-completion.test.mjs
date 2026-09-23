@@ -9,6 +9,7 @@ import {
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
   launchAwait,
+  launchComplete,
   parseReceipt,
 } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
@@ -81,7 +82,23 @@ test("real stream identity supports pending exact and ancestor completion", asyn
           result.effectiveEvidence.source,
           source === "exact" ? "exact" : "not_required_basis",
         );
-        await replay.stop();
+        const completion = launchComplete(env, attached.directory, sha);
+        t.after(() => completion.child.kill("SIGTERM"));
+        const completionOutput = await completion.completed;
+        assert.equal(completionOutput.code, 0, completionOutput.stderr);
+        const finished = parseReceipt(completionOutput.stdout);
+        assert.equal(finished.verdict, verdict);
+        if (verdict === "success") {
+          assert.equal(finished.shutdown.status, "confirmed");
+          assert.throws(() => process.kill(attached.pid, 0), { code: "ESRCH" });
+        } else {
+          assert.equal(finished.shutdown.status, "retained");
+          assert.equal(
+            checkMailboxWorkerLiveness(identity, attached.directory),
+            "alive",
+          );
+          await replay.stop();
+        }
       });
     }
   }

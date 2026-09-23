@@ -21,11 +21,18 @@ export async function register(env, mailbox, revision = sha) {
 }
 
 export function launchAwait(env, mailbox, revision = sha) {
-  const child = spawn(
-    process.execPath,
-    [launcher, "await-revision", mailbox, revision],
-    { env, stdio: ["ignore", "pipe", "pipe"] },
-  );
+  return launchMailboxCommand(env, ["await-revision", mailbox, revision]);
+}
+
+export function launchComplete(env, mailbox, revision = sha) {
+  return launchMailboxCommand(env, ["complete-revision", mailbox, revision]);
+}
+
+function launchMailboxCommand(env, args) {
+  const child = spawn(process.execPath, [launcher, ...args], {
+    env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   let stdout = "";
   let stderr = "";
   child.stdout.on("data", (chunk) => {
