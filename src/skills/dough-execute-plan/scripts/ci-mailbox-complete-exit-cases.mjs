@@ -24,12 +24,16 @@ test("explicit stop returns only after the worker exits the post-terminal window
   const stub = join(storage, "ci-mailbox.mjs");
   writeFileSync(
     stub,
-    `import { existsSync, watch, writeFileSync } from "node:fs";
+    `import { existsSync, renameSync, watch, writeFileSync } from "node:fs";
 import { join } from "node:path";
 const directory = process.argv[3];
+let published = false;
 const check = () => {
-  if (!existsSync(join(directory, "stop"))) return;
-  writeFileSync(join(directory, "result.json"), JSON.stringify({ status: "stopped" }));
+  if (published || !existsSync(join(directory, "stop"))) return;
+  published = true;
+  const result = join(directory, "result.json");
+  writeFileSync(result + ".tmp", JSON.stringify({ status: "stopped" }));
+  renameSync(result + ".tmp", result);
   setTimeout(() => process.exit(0), 300);
 };
 watch(directory, check);
