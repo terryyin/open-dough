@@ -11,7 +11,7 @@ import { publishMovingOrigin } from "./githubOrigin";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout";
 
 for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
-  test(`OpenDO banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
+  test(`Open Dough banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
     page,
   }) => {
     await page.setViewportSize(viewport);
@@ -26,9 +26,9 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
     await expect(last).toBeVisible();
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
-    await expect(banner.getByText("OpenDO", { exact: true })).toBeInViewport({
-      ratio: 1,
-    });
+    await expect(
+      banner.getByRole("paragraph").getByText("Open Dough", { exact: true }),
+    ).toBeInViewport({ ratio: 1 });
     for (const control of [project, sourceEvidence, refresh]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
