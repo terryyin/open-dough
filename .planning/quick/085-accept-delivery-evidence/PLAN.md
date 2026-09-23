@@ -16,23 +16,52 @@ Published claim `59b76944b466ecccbfd985a211c78a6e385569a8` accepted on
 `refs/heads/main`. Claim CI is `pendingCi: unobserved`: the story-branch
 observer does not cover trunk. Slice 1 increment
 `2e96700a5e2aae750950fe7095e788cd605ef1bd`, slice 2 increment
-`7b564d8a5a093a5dc17761708f5a6f79a670ee29`, and slice 3 increment
-`f0f355c4f32dd1a5c794c1e15ad43a0e079e5988` accepted on
+`7b564d8a5a093a5dc17761708f5a6f79a670ee29`, slice 3 increment
+`f0f355c4f32dd1a5c794c1e15ad43a0e079e5988`, and slice 4 increment
+`a36f7ffd2050e23c1395438f9e389220be0b2787` accepted on
 `refs/heads/cursor/085-accept-delivery-evidence` and registered with the
-observer (slice 3 `undiscovered` at registration). Default-checkout refresh is deferred
+observer (slice 4 `undiscovered` at registration). Default-checkout refresh is deferred
 (`unclear-ownership`); that checkout stayed clean on `main` at `ddcd604`.
 
 Replanning permission: existing planning authority retained. No numeric slice
 budget was recorded.
 
-CI observer `/tmp/dough-ci-501/watch-9ChEcH` is armed from the execution
+CI observer `/tmp/dough-ci-501/watch-9ChEcH` was armed from the execution
 checkout against `terryyin/open-dough` branch `cursor/085-accept-delivery-evidence`,
 GitHub workflow `ci.yml` named `CI`. Checkout preparation: `npm ci` then
 `npm run lint` passed on Node v24.5.0.
 
-Terry authorized refinement, planning, and plan refinement on 2026-09-23.
-Implementation, Take, release, and automatic monitoring are not authorized.
-All slices remain planned. The backlog remains the ordering authority.
+That observer was stopped after the slice 4 completion wait timed out. The
+replacement observer `/tmp/dough-ci-501/watch-LyjLPl` (Codex coordinator,
+execution checkout, same repository/branch/workflow) registered merge
+`8b5c0a8f48926754b416fe745c54dc5ab3033a11`. Its CI run
+`35851348539` passed dashboard and lint but failed one observer-ownership
+test. Repair `6c088781691ea7973f6bffd9911f6a7060a7e391` waits for both
+test observers to be live; focused macOS and Linux tests passed. That repair
+was accepted on the same remote branch and registered with the replacement
+observer. Its CI run `35852595915` exposed that the fixture started its
+second worker from the source tree instead of the deployed skill; the worker
+rejected the disposable checkout and exited. Repair
+`0c7df6a4fd804ee75e986eb3acb3cf19f6e0648e` starts both extra workers
+from the deployed fixture; focused macOS and Linux tests passed. It was
+accepted on the same remote branch. The observer then ended with
+`CI_MONITOR_UNAVAILABLE` after GitHub API connection errors, so this repair's
+run `35857291969` had no observer registration. Direct GitHub inspection found
+dashboard and lint green, but the test job exceeded the 20-minute workflow
+limit. Repair `8277965f80a60988732c5f85a9877b259cf47759` bounds and reaps
+the native-run watchdog after a successful command. Focused timeout,
+updated-use, watchdog-regression, and credential-free publication checks passed;
+GitHub [run 35862147181](https://github.com/terryyin/open-dough/actions/runs/35862147181)
+passed test, lint, and dashboard for that exact story-branch SHA. The terminal
+observer could not register that repair, so its observer coverage remains
+unobserved despite the direct CI verdict. A completion receipt for that SHA
+reported `missing_registration` and retained unread failures from the two
+earlier repaired revisions. The earlier dashboard failures do not reopen slices
+1–4. The claim's trunk CI remains unobserved by this story-branch observer.
+
+Terry authorized refinement, planning, and plan refinement on 2026-09-23;
+later execution delivered all four slices. Release and the near-term watch
+remain pending. The backlog remains the ordering authority.
 
 ## Goal and boundaries
 
@@ -275,6 +304,9 @@ admission, and accepted sufficient existing proof without another run.
 Setup is `tests/support/delivery-evidence-gaps-native-scenario-content.sh`.
 Codex and Claude native runs for all four `delivery-evidence` cases remain
 pending, not passed. Release and active watch stay pending.
+The linked [native acceptance story](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+and its queued entry own that outstanding proof under ADR 0005; neither host
+has been credited with Cursor's result.
 
 Behavior: Given a required readiness/requeue observation explicitly missing from
 a return, acceptance obtains it within authority or names the required promise

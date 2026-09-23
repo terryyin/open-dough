@@ -230,3 +230,62 @@ resolve a finding from preparation, installation alone, or silence.
 no unfinished product prerequisite. Each corrected acceptance mechanism is useful
 independently. No open product-scope decision remains. Runtime proof may expose
 implementation learning; it does not authorize broader scope or another workflow.
+
+**Native acceptance follow-up:** [Accept delivery-evidence behavior in Codex and
+Claude Code](#accept-delivery-evidence-native) owns the still-pending host proof
+before release. Cursor proof for the four cases does not establish the other
+hosts' behavior.
+
+<a id="accept-delivery-evidence-native"></a>
+
+### 28. Accept delivery-evidence behavior in Codex and Claude Code
+
+**Identity:** SEED-004#accept-delivery-evidence-native
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Maintainers can decide whether the four delivery-evidence acceptance
+behaviors delivered by [story 27](#accept-delivery-evidence) work in Codex and
+Claude Code before releasing that guidance.
+
+**Scope:** Assess each affected requirement on each host using fresh native
+behavioral proof or justified applicable reuse: filtered selection, supported
+reported claims, changed test-support consumers, and known required proof gaps.
+Reuse valid Cursor observations and shared installation evidence only for the
+boundaries they actually cover. The shared installation mechanism does not
+prove these host-specific acceptance decisions. Select runs by the remaining
+risk; a full host-by-case matrix is unnecessary when specific reuse is justified.
+
+**Key examples:** A zero-exit filter that selects no relevant tests leaves its
+promises incomplete; an anchor-only-link claim without an observing assertion
+is not reported as verified; a changed factory contract refreshes proof for an
+affected E2E stand-in; and an explicitly missing requeue observation remains
+incomplete unless matching proof is obtained. Sufficient current evidence in
+each case proceeds without a blanket rerun or a report-format-only retry.
+
+**Required tools and evidence:** Use the installed candidate in fresh Codex
+and Claude Code sessions through
+`tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`,
+with Bash 4+ and the runner's
+bounded supervision. Preserve the selected command, candidate and host runtime,
+actual selected observations, fixture and assertion locations, decisive native
+trace, and independent fixture state for the current assessment. The four
+credential-free assessors and Cursor native observations are recorded in
+[plan 085](../quick/085-accept-delivery-evidence/PLAN.md) and local
+`.planning/native-results/`; Codex and Claude native runs have not been run or
+accepted. Reassess those prior observations against the final candidate before
+reusing them.
+
+**Completion:** For each of the four requirements, record a supported Codex and
+Claude result or a specific justified reuse judgment under [ADR
+0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Inspect behavior
+and artifact state, not exit status or self-report alone. Keep inconclusive or
+unavailable proof pending, diagnose rather than retry unchanged failures, and
+route a real product defect to a bounded correction. Release remains blocked
+until this native acceptance is satisfied.
+
+**Boundary:** This acceptance story does not reimplement story 27, refactor its
+native harness, release guidance, start the near-term watch, or change the
+dashboard and CI observer contracts. The separate retrospective correction is
+[plan 086](../quick/086-share-delivery-evidence-native-harness/PLAN.md).

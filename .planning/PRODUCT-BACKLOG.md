@@ -17,6 +17,8 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Share one delivery-evidence native harness for four cases](quick/086-share-delivery-evidence-native-harness/PLAN.md)
+- [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native
 - [See new published work without manually refreshing the dashboard](seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard) — SEED-026#auto-refresh-published-dashboard ([plan](quick/084-auto-refresh-published-dashboard/PLAN.md))
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
 - [Accept execution increment CI observation in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — SEED-008#accept-execution-ci-native-behavior
