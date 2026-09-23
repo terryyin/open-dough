@@ -22,6 +22,7 @@ trunk_closure_write_evidence_identity() {
   native_result_input_hash_line tests/support/trunk-closure-native-fixture.sh
   native_result_input_hash_line tests/support/git-publication-native-run.sh
   native_result_input_hash_line tests/support/native-run-supervise.sh
+  native_result_input_hash_line tests/support/native-run-watchdog.sh
   native_result_input_hash_line src/skills/dough-execute-plan/references/trunk-publication.md
   native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
   native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md

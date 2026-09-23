@@ -111,6 +111,16 @@ targeted return that gives the coordinator:
 - owned changed paths and the product or behavior boundaries they change;
 - literal proof commands and concrete observation locations, including the
   relevant setup and assertions or signals;
+- when filtered proof was used, which tests or observations were actually
+  selected versus the promises claimed as covered;
+- for each behavior presented as verified or covered, the observing assertion
+  or signal that exercises it — or an explicit untested / uncovered listing
+  instead of verified prose;
+- when a shared contract or shared operation changed, which current consumers
+  were considered (including relevant test-support callers) versus any suite or
+  caller still excluded as unaffected;
+- required observations still missing or explicitly untested, named as gaps —
+  a learning note alone is not acceptance evidence for those promises;
 - uncovered promises, contradictions, and other evidence gaps; and
 - only consequential learnings that affect acceptance or remaining work.
 
@@ -119,7 +129,11 @@ include a bounded excerpt only when the location cannot expose the decisive
 evidence. Do not routinely attach the raw implementation trace, full command
 logs, or a duplicate full diff. The return is an index into inspectable work and
 evidence, not proof that the coordinator has inspected or accepted them. An
-implementation return does not establish slice completion.
+implementation return does not establish slice completion. Whether filtered
+selection, reported claims, changed-contract consumer applicability, and
+explicitly missing required observations are actually supported is decided under
+[proof acceptance](wrap-up.md#accept-proof), not by restating that procedure
+here.
 
 For each passing focused command, use:
 

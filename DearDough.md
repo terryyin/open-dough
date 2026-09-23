@@ -890,6 +890,6 @@ distinguishes "still polling" from "ended, will never poll this SHA."
 
 ## Retention
 
-- Highest allocated local number: 91
-- Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 92
+- Recovery: `6cb67dbe680211ad64a60e7f50a0d413c7c68b20:DearDough.md` (DD-092); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

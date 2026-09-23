@@ -47,7 +47,8 @@ run_native_host() {
   while IFS= read -r journey; do
     [[ -n ${journey} ]] || continue
     if [[ ${journey} == execution-review/* || ${journey} == trunk-closure/* ||
-      ${journey} == story-branch-closure/* ]]; then
+      ${journey} == story-branch-closure/* ||
+      ${journey} == delivery-evidence/* ]]; then
       printf '\n--- journey %s ---\n' "${journey}"
       set +e
       case ${journey} in
@@ -61,6 +62,22 @@ run_native_host() {
           ;;
         story-branch-closure/*)
           story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
+          ;;
+        delivery-evidence/selection)
+          delivery_evidence_selection_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
+          ;;
+        delivery-evidence/claims)
+          delivery_evidence_claims_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
+          ;;
+        delivery-evidence/consumers)
+          delivery_evidence_consumers_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
+          ;;
+        delivery-evidence/gaps)
+          delivery_evidence_gaps_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
           ;;
         *) return 2 ;;
       esac
@@ -139,6 +156,10 @@ native_case_known() {
       return 0
       ;;
     story-branch-closure/source-conflict)
+      return 0
+      ;;
+    delivery-evidence/selection | delivery-evidence/claims | \
+      delivery-evidence/consumers | delivery-evidence/gaps)
       return 0
       ;;
     *) return 1 ;;

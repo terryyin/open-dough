@@ -1093,6 +1093,29 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-055
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27).
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 1 of plan 085 (`SEED-004#accept-delivery-evidence`) makes
+  filtered-proof acceptance verify actual selection against claimed observations
+  in `src/skills/dough-execute-plan/references/wrap-up.md` (`#accept-proof`),
+  with the implementation return indexing selected-versus-claimed coverage in
+  `src/skills/dough-execute-plan/references/delegation.md`. Credential-free
+  assessor coverage is `delivery-evidence/selection` via
+  `tests/support/delivery-evidence-selection-native-assess.sh` (rejects zero-test
+  and partial success reports; accepts incomplete naming, corrected selection,
+  and the complete-selection control). Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/selection --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23 accepted 0 promises for the zero-test
+  case, 1 of 3 for partial selection with the other two named incomplete, and
+  3 of 3 for the complete-selection control. Credential-free rejection and
+  acceptance cases live in
+  `tests/support/delivery-evidence-selection-native-assess.sh`. Codex and
+  Claude Code native runs were not completed in this slice and are not passed.
+  Containing release is pending. Both historical occurrences were caught
+  during execution (not escaped defects). Watch start and review-after stay
+  unknown; source responses exist but release and verified use have not
+  occurred (see near-term watch pending disposition).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
@@ -1135,7 +1158,11 @@ consult both lists when matching findings or allocating identities.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-058 — CLI reports lack assertions for their promised output
 
@@ -1467,6 +1494,34 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-061
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Distinct from ODF-051: an unsupported behavior claim reaches the user, rather than a claimed edit being absent from the diff.
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 2 of plan 085 (`SEED-004#accept-delivery-evidence`) extends
+  the same `#accept-proof` decision in
+  `src/skills/dough-execute-plan/references/wrap-up.md` so a behavior presented
+  as verified requires a matching observing assertion and agreeing product
+  behavior; without that match the coordinator must not tell the developer it is
+  covered and must return the required behavior for correction. The return stays
+  an index in `src/skills/dough-execute-plan/references/delegation.md`, amended
+  only so verified claims name their observing assertion (or list untested /
+  uncovered) and linking acceptance to `#accept-proof`. Credential-free
+  assessor coverage is `delivery-evidence/claims` via
+  `tests/support/delivery-evidence-claims-native-assess.sh` (rejects unsupported
+  "covered" claims and accept-without-gap; accepts corrected no-link observation
+  and an equivalent substantiated layout; refuses format-resend when evidence is
+  sufficient, and instruction-words-only). Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/claims --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23
+  (`.planning/native-results/delivery-evidence-claims-r3`) left the unsupported
+  bare-anchor claim incomplete without relaying "covered", accepted the
+  corrected no-link observation with matching product and assertion, and
+  accepted the equivalent-layout control without a formatting-only resend.
+  Containing release is pending. The historical occurrence was caught during
+  execution (not an escaped defect). Codex and Claude Code native runs for this
+  case were not completed in this slice and are not passed. Watch start and
+  review-after stay unknown; source responses exist but release and verified
+  use have not occurred (see near-term watch pending disposition).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `SEED-021#see-published-work @ d0a9495`
@@ -1494,7 +1549,11 @@ consult both lists when matching findings or allocating identities.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-064 — Corrections after refactoring skip a renewed review
 
@@ -1992,6 +2051,38 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-063
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Related to production caller analysis, but this is a test-support consumer missed through stale suite applicability, not incompatible production query purposes. Related to ODF-003, but not a file-type assumption. Keep these mechanisms separate.
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 3 of plan 085 (`SEED-004#accept-delivery-evidence`) extends
+  shared-operation caller analysis in
+  `src/skills/dough-story-refinement/references/executable-proof.md` to relevant
+  test-support callers and invalidates a stale unaffected-suite exclusion when
+  the changed contract still reaches that caller. The same `#accept-proof`
+  decision in `src/skills/dough-execute-plan/references/wrap-up.md` requires
+  checking current consumers (including test-support) before accepting
+  changed-contract proof; unrelated consumers and unchanged boundaries retain
+  accepted evidence. `src/skills/dough-execute-plan/references/delegation.md`
+  indexes which consumers were considered versus still-excluded callers and
+  links acceptance to `#accept-proof`. Credential-free assessor coverage is
+  `delivery-evidence/consumers` via
+  `tests/support/delivery-evidence-consumers-native-assess.sh` (rejects
+  stale-exclusion acceptance and accept-without-alignment; accepts incomplete
+  gap naming, corrected consumer with executed compatibility proof, and the
+  unchanged-boundary retained-proof control; refuses instruction-words-only).
+  Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23
+  (`.planning/native-results/delivery-evidence-consumers-r1`) left the
+  changed-contract promise incomplete without accepting the stale
+  unaffected-suite exclusion, accepted the corrected consumer with aligned
+  stand-in and executed compatibility observation, and accepted the
+  unchanged-boundary control while retaining existing badge proof. Codex and
+  Claude Code native runs for this case were not completed in this slice and
+  are not passed. Containing release is pending. The historical occurrence
+  escaped into the owner project (not caught during Open Dough execution).
+  Watch start and review-after stay unknown; source responses exist but release
+  and verified use have not occurred (see near-term watch pending disposition).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `.planning/quick/146-tag-triggered-release-publication/PLAN.md` (first implementation commit `a95f3c497`)
@@ -2013,13 +2104,52 @@ consult both lists when matching findings or allocating identities.
     slices without rechecking, and no suite that consumes the changed type was
     run.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-076 — Known concurrent-state proof gaps are accepted at delivery
 
 - **Meaning:** The coordinator records an explicitly untested concurrent handoff as learning, delivers it, and the owner repairs that same race after merge.
 - **Source mappings:** Pygardon / DD-064
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The v0.3.14 proof-claim guidance says an unproved promise remains incomplete, but this is not the retired inner-wait/public-completion mechanism. The documented general rule was present on reported v0.3.25; no mechanism-specific response is recorded.
+- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The v0.3.14 proof-claim guidance says an unproved promise remains incomplete, but this is not the retired inner-wait/public-completion mechanism. The documented general rule was present on reported v0.3.25; mechanism-specific source response is recorded below (release pending).
+
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 4 of plan 085 (`SEED-004#accept-delivery-evidence`) extends
+  the same `#accept-proof` decision in
+  `src/skills/dough-execute-plan/references/wrap-up.md` so an explicitly missing
+  required observation — including required readiness/requeue behavior named as
+  untested while delivery is still treated as ready — must be obtained within
+  authority or leave the dependent promise incomplete and its delivery
+  unaccepted. Recording the gap as a learning does not clear it. When the
+  required proof cannot be obtained, only the dependent path stops and
+  independently valid evidence is preserved. Once sufficient current proof is
+  supplied, acceptance proceeds without another approval or blanket rerun. A
+  developer's explicit changed promise is honored; the agent cannot silently
+  weaken it. `src/skills/dough-execute-plan/references/delegation.md` indexes
+  required missing/untested observations as gaps (a learning note alone is not
+  acceptance evidence) and links the decision to `#accept-proof`. Credential-free
+  assessor coverage is `delivery-evidence/gaps` via
+  `tests/support/delivery-evidence-gaps-native-assess.sh` (rejects learning-only
+  clearance and accept-without-proof; accepts incomplete gap naming,
+  repair-and-proceed with obtained observation, unavailable-proof incomplete with
+  preserved independent evidence, and sufficient reused evidence; refuses
+  format/blanket rerun and instruction-words-only). Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23
+  (`.planning/native-results/delivery-evidence-gaps-r1`) obtained the missing
+  readiness-requeue observation and accepted repair-and-proceed without
+  learning-only clearance or blanket rerun; left unavailable-proof incomplete
+  while preserving independent happy-path evidence; and accepted
+  sufficient-reused without a format-only retry. Causal qualification
+  preserved: the omitted requeue case does not prove it would have caught the
+  later active-task ownership race (`516935a30`). Containing release is pending.
+  Codex and Claude Code native runs for this case were not completed in this
+  slice and are not passed. Watch start and review-after stay unknown; see
+  near-term watch pending disposition.
+- **Released in:** pending.
 
 ### Occurrences
 
@@ -2039,9 +2169,14 @@ consult both lists when matching findings or allocating identities.
     that needed repair after delivery.
   - Inference: for concurrent state, an explicitly reported coverage gap is
     weak evidence of safety; proof or a recorded decision costs less than the
-    post-merge fix.
+    post-merge fix. Qualified: the omitted requeue case does not prove it would
+    have caught the later active-task ownership race.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-077 — Whole-suite recovery loses ownership and verdict evidence
 

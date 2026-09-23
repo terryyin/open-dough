@@ -4,13 +4,14 @@ import assert from "node:assert/strict";
 import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { setTimeout as pause } from "node:timers/promises";
 import {
   mailboxWorkerLoss,
   readRevisionCoverage,
   readWorkerIdentity,
-  startExecutionMailbox,
 } from "./ci-mailbox.mjs";
 import { messageCount } from "./publication-test-fixtures.mjs";
+import { isLiveMatchingMailbox } from "./ci-mailbox-match.mjs";
 import {
   createManagedFixture,
   waitForPidExit,
@@ -19,6 +20,15 @@ import {
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
+
+async function waitForLiveMailbox(directory, options) {
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    if (isLiveMatchingMailbox(directory, options)) return;
+    await pause(20);
+  }
+  assert.fail(`observer did not become live: ${directory}`);
+}
 
 test("ended observer reports explicit unobserved gap without push or replacement", async (t) => {
   const fixture = await createManagedFixture();
@@ -130,7 +140,7 @@ test("ambiguous matching owners return a gap and preserve existing state", async
     repo,
   });
   const accepted = delivered.receipt.sha;
-  const second = await startExecutionMailbox(
+  const second = await fixture.startExecutionMailbox(
     {
       mode: "execution",
       repo,
@@ -144,6 +154,14 @@ test("ambiguous matching owners return a gap and preserve existing state", async
     },
   );
   fixture.observerDirectories = [delivered.observation.directory, second];
+  for (const directory of fixture.observerDirectories) {
+    await waitForLiveMailbox(directory, {
+      repo,
+      branch: "main",
+      root: fixture.execution,
+      storage: fixture.storage,
+    });
+  }
   const watchesBefore = watchCount(fixture.storage);
   const coverageBefore = readRevisionCoverage(
     delivered.observation.directory,
@@ -190,7 +208,7 @@ test("mismatched owner leaves coverage unobserved without adopting it", async (t
   await fixture.stopObserver(delivered.observation.directory);
   rmSync(delivered.observation.directory, { recursive: true, force: true });
   // Only a mismatched live owner remains (different branch).
-  fixture.observerDirectory = await startExecutionMailbox(
+  fixture.observerDirectory = await fixture.startExecutionMailbox(
     {
       mode: "execution",
       repo,
