@@ -160,3 +160,16 @@ behavior success is claimed. Maintained execution-publication-design.md already
 states the sole startup owner and separate project setup responsibility. The
 North Star publication topic remains needed by active delivery/closure/checkout
 coordination stories. No new follow-up or process finding was produced.
+
+## Delivery and closure inputs
+
+Implementation `6f5d0ef4d8043981fef2359c7a379317feef3db2` confirmed on
+`origin refs/heads/codex/081-retire-legacy-claim-runner` and registered.
+Completion wait receipt: requested that SHA on that branch, exact revision
+state undiscovered, unresolvedReason `observation_unavailable`, detail
+`worker_identity_unknown`. Observer stopped with unread 0; PID 78134 absent.
+CI success is not claimed. Local proof remains accepted. Retrospective skipped
+as requested; all slices done. Ordinary wrap-up is authorized and can proceed.
+No new lasting fact needs assimilation: maintained design/source already state
+the startup/setup boundary. No follow-up plan or attributable DearDough entry
+exists. Retain the North Star topic for ongoing publication/coordination work.
