@@ -27,8 +27,9 @@ needs a readable connected overview, not every interaction in that ambition.
 
 The [story dashboard](../../dashboard/README.md) now delivers the published-work
 overview, selection among Open Dough, Doughnut, and Pygardon, and preparation
-and readiness inspection. The remaining stories extend ownership and branch
-visibility. This seed is planning input, not an executable plan. UX/UI guidance
+and readiness inspection. The remaining stories extend slice-plan navigation,
+ownership, and branch visibility. This seed is planning input, not an executable
+plan. UX/UI guidance
 and tech-stack selection are separate design tasks; their output informs refinement without becoming extra technical
 preparation stories.
 
@@ -227,11 +228,61 @@ observation. Refine around the smallest complete assignment journey before
 planning; do not mistake a new metadata field for the full outcome. No S/M/L
 band is invented without project definitions.
 
+<a id="open-queued-story-slice-plan"></a>
+
+### 5. Open a queued story's slice plan from the dashboard
+
+**Identity:** SEED-021#open-queued-story-slice-plan
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement must confirm the plan-association solution and select an execution approach."],"basis":{"document":"47d8dbab2be8a399c5508a110676bbf16d1f8964f197f553d2c7753bdcdb27fc"}}
+```
+
+**Status:** Captured and queued first on 2026-09-23; not refined or planned.
+
+**For / why:** Terry and developers reviewing the product backlog in the
+dashboard can open a slice-planned story's plan directly, without searching
+repository files or waiting for the story to be Taken.
+
+**Outcome:** A queued story with a published slice plan has a clearly labelled
+slice-plan link in its dashboard presentation. The link opens the plan
+associated with that story in the observed project's published source context.
+Keep the canonical story link and backlog priority available.
+
+**Key examples / evaluation:** A story remains in Backlog after slice planning;
+the dashboard exposes a working link to its associated plan. This also works
+when the association is recorded in the canonical story's preparation state
+and the backlog entry has no separate plan link. A story without a plan does
+not acquire an invented link. Missing or conflicting associations are reported
+without silently choosing another plan or implying execution readiness.
+
+**Solution decision to resolve:** Check whether existing published backlog and
+canonical-story data already provide the association needed for navigation.
+The backlog identity contract permits a plan link, and the dashboard already
+resolves recorded story-state plan associations. Prefer reusing that evidence
+when sufficient. Change the product-backlog structure definition and its
+writers/readers only if existing data cannot reliably support the outcome;
+do not require duplicate metadata merely to expose a dashboard link. Resolve
+this during refinement using representative published records.
+
+**Boundary:** Slice-plan navigation for queued planned stories. No new work
+stage, automatic Take, planning or execution action, or local-state discovery.
+Preserve existing Taken-plan navigation and conflict handling.
+
+**Depends on:** The delivered dashboard and existing published plan records;
+no dependency on the queued ownership or execution-branch stories.
+
+**Value / learning:** Make preparation work inspectable directly from the
+backlog and establish whether the current records already support this view.
+
+**Effort hypothesis:** Unestimated pending the association check.
+
 ## Ordering and Scope Reduction
 
 The delivered overview supplies a usable dashboard for testing the central value
 hypothesis in use, now proven useful across Doughnut and Pygardon as well as
-Open Dough. Next, story 4 makes responsibility and execution context explicit.
+Open Dough. Story 5 is the maintainer's selected top backlog priority, exposing
+existing slice plans for queued stories. Next, story 4 makes responsibility
+and execution context explicit.
 Story 3 then follows that context into published work that has not reached trunk.
 This moves an important excluded outcome ahead of branch inspection without
 enlarging the delivered overview.
@@ -249,8 +300,9 @@ valuable. Recent-completion history remains an unselected hypothesis for the
 same reason.
 
 Reliable startup publication is the prerequisite for extending claims with
-assignment. The backlog puts startup and frequent execution-delivery simplification
-first, then these remote dashboard outcomes before preparation/closure migration
+assignment. The backlog puts story 5 first in the queue while startup is Taken,
+followed by frequent execution-delivery simplification and the remaining remote
+dashboard outcomes before preparation/closure migration
 and same-machine coordination. This preserves the remote-first direction without
 making dashboard value wait for every publication caller to migrate. The product
 backlog owns the actual order; this seed supplies non-executable story scope.
