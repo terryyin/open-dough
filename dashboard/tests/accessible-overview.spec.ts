@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import {
   largeBacklog,
   longAddress,
@@ -20,7 +20,7 @@ import {
   publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 import { zoomedWindow } from "./accessibleReading";
 import {
   box,
@@ -180,7 +180,7 @@ test("accessible overview keeps a read problem, the retained work, and the read 
 
   // The problem names a path and a 40-character revision no line can hold.
   await expect(problem).toContainText(
-    `GitHub answered HTTP 404 while reading .planning/PRODUCT-BACKLOG.md at ${missing}.`,
+    `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${missing}.`,
   );
   await expectNoSidewaysScrollAndWholeText(page);
   await expectStackedInOrder([source, problem, stages]);

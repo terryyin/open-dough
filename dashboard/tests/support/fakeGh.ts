@@ -1,16 +1,9 @@
-// The fixture and control-file concern for the private-read-boundary tests:
-// installing the synthetic `gh` (../fixtures/fake-gh) on a temp PATH,
-// writing the control file that tells it how to answer, and reading back
-// what it logged or recorded. Kept apart from `./privateReadServer.ts`'s
-// process-spawning concern: nothing here launches a Vite dev/preview server.
+// Installs the synthetic `gh` (../fixtures/fake-gh) on a temp PATH directory
+// and reads back the pid files it writes. What that `gh` answers comes from
+// the test's own fake GitHub (./fakeGitHub.ts); nothing here launches a Vite
+// dev/preview server (./dashboardServer.ts does).
 
-import {
-  copyFileSync,
-  chmodSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { copyFileSync, chmodSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 // Playwright runs this suite from the repository root (as `npm run
@@ -27,65 +20,37 @@ const fakeGhSource = path.join(
   "fake-gh",
 );
 
-export type FakeGhControl = {
-  readonly mode?: "normal" | "hang" | "error";
-  readonly revision?: string;
-  readonly backlog?: string;
-  // Optional per-path bodies for contents reads. When absent, every contents
-  // call receives `backlog` (membership-only fixtures). When present, the
-  // decoded repository path selects the body; unknown paths still fall back
-  // to `backlog` so older tests keep working.
-  readonly files?: Readonly<Record<string, string>>;
-  readonly errorMessage?: string;
-};
-
 export type FakeGhPaths = {
   binDir: string;
-  logPath: string;
-  controlPath: string;
   pidPath: string;
 };
 
 // Exported so a test that wants the plugin's own hooks directly (rather than
-// a spawned Vite process) can install the same synthetic `gh` and drive it
-// with the same control/log/pid files this module uses.
+// a spawned Vite process) can install the same synthetic `gh`.
 export function installFakeGh(tempRoot: string): FakeGhPaths {
   const binDir = path.join(tempRoot, "bin");
   mkdirSync(binDir, { recursive: true });
   const ghPath = path.join(binDir, "gh");
   copyFileSync(fakeGhSource, ghPath);
   chmodSync(ghPath, 0o755);
+  return { binDir, pidPath: path.join(tempRoot, "gh.pid") };
+}
+
+// The environment that puts this synthetic `gh` first on PATH and points it
+// at a fake GitHub.
+export function fakeGhEnv(
+  gh: FakeGhPaths,
+  githubUrl: string,
+): Record<string, string> {
   return {
-    binDir,
-    logPath: path.join(tempRoot, "gh-calls.log"),
-    controlPath: path.join(tempRoot, "control.json"),
-    pidPath: path.join(tempRoot, "gh.pid"),
+    PATH: `${gh.binDir}${path.delimiter}${process.env["PATH"] ?? ""}`,
+    FAKE_GH_ORIGIN: githubUrl,
+    FAKE_GH_PIDFILE: gh.pidPath,
   };
 }
 
-export function writeControl(
-  controlPath: string,
-  control: FakeGhControl,
-): void {
-  writeFileSync(controlPath, JSON.stringify({ mode: "normal", ...control }));
-}
-
-export function readGhCalls(logPath: string): string[][] {
-  let raw: string;
-  try {
-    raw = readFileSync(logPath, "utf8");
-  } catch {
-    return [];
-  }
-  return raw
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as string[]);
-}
-
-// The one place that reads a pid file written by the fake `gh` (its own pid,
-// or -- with `.exited` appended by the caller -- unused here) back into a
-// number, shared by the harness's `PrivateReadServer.ghPid()` and any test
+// The one place that reads a pid file written by the fake `gh` back into a
+// number, shared by the harness's `DashboardServer.ghPid()` and any test
 // that drives `installFakeGh` directly.
 export function readPid(pidPath: string): number | undefined {
   try {

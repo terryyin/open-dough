@@ -1,4 +1,5 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { type Locator } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
@@ -8,7 +9,7 @@ import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 import { box } from "./pageLayout";
 import {
   backlogB,
@@ -160,7 +161,9 @@ test("accessible overview announces reading, the read result, and a failure whil
   await test.step("Enter asks again; a failure is an alert, and focus stays on the same control", async () => {
     const restore = origin.answerWith("main", rateLimitedAnswer());
     await page.keyboard.press("Enter");
-    await expect(problem).toContainText("GitHub answered HTTP 403");
+    await expect(problem).toContainText(
+      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403)",
+    );
     expect(pathsRead(origin)).toHaveLength(5);
     await expect(status).toBeEmpty();
     await expect(status).toHaveAttribute("data-known", "[role='status']");

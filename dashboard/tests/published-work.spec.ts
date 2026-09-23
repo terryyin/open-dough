@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectMembership, openDirection, parts } from "./dashboardPage";
 import {
   commitAnswer,
   emptyBacklog,
   publishOrigin,
   rawFileAnswer,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 import { expectSideBySideInOrder } from "./pageLayout";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
@@ -149,20 +149,16 @@ test("published overview shows connected Backlog and Taken work read at one revi
     await expect(page.getByRole("alert")).toHaveCount(0);
   });
 
-  await test.step("the file is read unauthenticated at the resolved revision", () => {
-    expect(requests.map((request) => new URL(request.url).pathname)).toEqual([
-      "/repos/terryyin/open-dough/commits/main",
-      "/repos/terryyin/open-dough/contents/.planning/PRODUCT-BACKLOG.md",
+  await test.step("the ref and then the file are read through the local gh at the resolved revision", () => {
+    expect(requests.map((request) => request.argv)).toEqual([
+      ["api", "repos/terryyin/open-dough/commits/main", "--jq", ".sha"],
+      [
+        "api",
+        "-H",
+        "Accept: application/vnd.github.raw+json",
+        `repos/terryyin/open-dough/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,
+      ],
     ]);
-    expect(new URL(requests[1]?.url ?? "").searchParams.get("ref")).toBe(
-      revision,
-    );
-    expect(requests[1]?.headers["accept"]).toBe(
-      "application/vnd.github.raw+json",
-    );
-    for (const request of requests) {
-      expect(request.headers["authorization"]).toBeUndefined();
-    }
   });
 });
 

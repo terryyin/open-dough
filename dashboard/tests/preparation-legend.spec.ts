@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import {
   expectFocusedAndIndicated,
   expectImmediateMotion,
@@ -7,7 +7,7 @@ import {
 } from "./accessibleReading";
 import { publishCommittedOrigin } from "./committedOrigin";
 import { parts } from "./dashboardPage";
-import { publishMovingOrigin } from "./githubOrigin";
+import { publishMovingOrigin } from "./publishedOrigin";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout";
 import {
   buildOpenDoughReadinessRepo,

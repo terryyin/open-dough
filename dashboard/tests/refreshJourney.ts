@@ -4,7 +4,7 @@
 
 import type { Page } from "@playwright/test";
 import { expectMembership } from "./dashboardPage";
-import { publishMovingOrigin, type MovingOrigin } from "./githubOrigin";
+import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
 
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);
