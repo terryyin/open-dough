@@ -1,6 +1,6 @@
 # Keep published dashboard work fresh through one authenticated reader
 
-Status: planned.
+Status: executing.
 
 Identity: `SEED-026#auto-refresh-published-dashboard`
 
@@ -108,7 +108,7 @@ skip the local read boundary when that boundary is the behavior under proof.
 ### 1. Read every project through the local authenticated boundary
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With local `gh` access to a selected catalog project, opening or
 manually refreshing the dashboard reads its published `main` backlog and
@@ -138,6 +138,42 @@ actually selected and rendered the correct source.
 Safe stopping point: all three projects remain readable and manually
 refreshable through one source path; automatic checking can be added without
 supporting two transports.
+
+Delivered: one `/__authenticated-read` boundary
+(`dashboard/server/authenticatedRead.ts`, `ghRead.ts`, `reachablePaths.ts`,
+`pinnedTexts.ts`, `readFailureMessage.ts`; client
+`dashboard/src/authenticatedRead.ts`) serves every catalog source; the
+catalog's `access` split, `githubSource.ts`, and `githubOrigin.ts` are gone.
+`gh` failures map to fixed safe messages (not logged in, rate limited, HTTP
+status with access hint, unreachable, timed out, missing `gh`). A bounded
+in-memory memo keyed by repository, pinned SHA, and path lets detail
+reachability checks reuse the backlog read at that SHA; the membership read
+always resolves `main` and reads the backlog afresh. Page journeys run under
+`dashboard/tests/dashboardTest.ts`: a per-test fake GitHub behind the
+synthetic `gh` and a built-preview server, failing any browser request to
+`api.github.com`.
+
+Accepted proof (coordinator-inspected):
+`npx playwright test --config dashboard/playwright.config.ts dashboard/tests/authenticated-project-overview.spec.ts`
+("authenticated project overview … (dev|preview launch mode)": per project
+distinct SHA and records, exact `gh` argv pinned to `?ref=<sha>`, pinned
+canonical links, not-logged-in failure with Retry, no `api.github.com`
+request, credential marker absent from requests, responses, DOM, and built
+assets); boundary, refusal, plugin-hook, and subprocess-lifecycle specs
+`dashboard/tests/authenticated-read-*.spec.ts` for all three sources;
+`dashboard/tests/project-read-recovery.spec.ts`; `npm run typecheck:dashboard`;
+full `npm run test:dashboard` (81 passed after refactor).
+
+Learnings for later slices: `runGh` returns stdout only and failure
+classification would report `gh`'s exit-1 `304` as an HTTP failure, so the
+revision-only operation must recognize `304` before classification. The
+membership endpoint always resolves `main`; slice 2 needs a backlog read at
+an already-known SHA. Add `--include`, ETag, and `304` answers in
+`dashboard/tests/support/fakeGitHub.ts`. The implementer once observed, with
+a virtual clock advanced during in-flight detail reads, the page left at
+"Reading preparation…" past the browser's 30-second wait limit; unverified
+and possibly pre-existing, but relevant to slices 2 and 4. Real `gh` failure
+wording was classified against the synthetic `gh` only.
 
 ### 2. Refresh visible work only when the selected main revision changes
 
@@ -222,7 +258,7 @@ Proof: In controlled browser journeys, fail a revision check, a B backlog
 read, and a same-revision detail; issue a rate-limit response and restore
 access. Inspect `gh` call counts and timing, accessible alert/status text,
 retained A evidence, successful B evidence, manual Retry, and absence of
-rapid retry. Reuse `read-failure-refresh.spec.ts` and private recovery cases
+rapid retry. Reuse `read-failure-refresh.spec.ts` and `project-read-recovery.spec.ts` cases
 at their real boundaries. Run the full dashboard suite, typecheck, lint, and
 `git diff --check` after the shared transport and fixture migration.
 
@@ -239,3 +275,20 @@ automatic checks recover without a tight retry loop.
   SHA never triggers automatic detail reads. No execution branch is watched.
 - The story is not complete after transport unification alone. Leave the
   backlog item queued until separately authorized execution claims it.
+
+## Execution
+
+- Mode: Story Branch Mode, executed by Claude Code on 2026-09-23 from Terry's
+  `/dough-execute-plan 84` instruction. Replanning permission: unchanged
+  planning authority (no `--replan`/`--no-replan`).
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/084-auto-refresh-published-dashboard`,
+  branch `claude/084-auto-refresh-published-dashboard`, created by this
+  execution from `origin/main` at `a9b3c647f9db7d28d6819446d3669d55ee0b5f76`.
+  Originating and integration checkout: `/Users/terryyin/git/open-dough` (`main`).
+- Claim: `2c80a051cd8b48b9a5fa03928057e06ef073864b` accepted on `origin/main`
+  (`pendingCi: unobserved`; planning-only paths are CI-ignored).
+- Increment target: `origin` `refs/heads/claude/084-auto-refresh-published-dashboard`.
+- CI observer: GitHub Actions `ci.yml` / `CI`, mailbox
+  `/tmp/dough-ci-501/watch-x41GQ4`, target branch
+  `claude/084-auto-refresh-published-dashboard`.
+- Published revisions: none yet.

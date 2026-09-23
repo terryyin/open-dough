@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectMembership, parts } from "./dashboardPage";
 import {
   backlogB,

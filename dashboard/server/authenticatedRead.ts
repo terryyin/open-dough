@@ -1,27 +1,30 @@
-// Local authenticated read boundary for Vite: resolves a catalog source's
-// ref and reads its backlog (or one reachability-checked canonical/plan path)
-// through local `gh`. Request refusal: `./localOrigin.ts`; gh calls:
-// `./ghRead.ts`; path reachability: `./privatePathAllowlist.ts`. Node-only;
-// never returns credentials, raw stderr, or an arbitrary path proxy.
+// Local authenticated read boundary for Vite: every catalog source's ref is
+// resolved, and its backlog (or one reachability-checked canonical/plan path)
+// read, through the launching person's local `gh` authentication. Request
+// refusal: `./localOrigin.ts`; gh calls: `./ghRead.ts`; path reachability:
+// `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`; failure
+// wording: `./readFailureMessage.ts`. Node-only; never returns credentials,
+// raw stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
 import {
   commitShaPattern,
+  GhFailure,
   readRepositoryFileViaGh,
   readTimeoutMs,
   resolveRevisionViaGh,
 } from "./ghRead";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
+import { PinnedTexts } from "./pinnedTexts";
+import { failureMessage } from "./readFailureMessage";
 import {
   parseSafeRepositoryPath,
   pathReachableFromRevision,
-} from "./privatePathAllowlist";
+} from "./reachablePaths";
 import { sourceById } from "../src/publishedSource";
-import { privateReadEndpoint } from "../src/privateReadPath";
-
-// Shared with the browser reader via `../src/privateReadPath.ts`.
-export { privateReadEndpoint };
+// The one endpoint path, shared with the browser reader.
+import { authenticatedReadEndpoint } from "../src/authenticatedReadPath";
 
 type Outcome =
   | { readonly kind: "ok"; readonly revision: string; readonly backlog: string }
@@ -36,7 +39,7 @@ type Outcome =
       readonly status: number;
       readonly message: string;
     }
-  | { readonly kind: "failed" };
+  | { readonly kind: "failed"; readonly message: string };
 
 async function withTrackedGh<T>(
   req: IncomingMessage,
@@ -45,8 +48,9 @@ async function withTrackedGh<T>(
 ): Promise<T> {
   const controller = new AbortController();
   tracked.add(controller);
+  const timeout = new GhFailure({ kind: "timed-out" });
   const timer = setTimeout(() => {
-    controller.abort();
+    controller.abort(timeout);
   }, readTimeoutMs());
   const onClose = () => {
     controller.abort();
@@ -54,6 +58,8 @@ async function withTrackedGh<T>(
   req.on("close", onClose);
   try {
     return await run(controller.signal);
+  } catch (error) {
+    throw controller.signal.reason === timeout ? timeout : error;
   } finally {
     clearTimeout(timer);
     req.off("close", onClose);
@@ -68,6 +74,7 @@ async function withTrackedGh<T>(
 async function answer(
   req: IncomingMessage,
   tracked: Set<AbortController>,
+  pinned: PinnedTexts,
 ): Promise<Outcome> {
   try {
     verifyLocalOrigin(req);
@@ -120,11 +127,12 @@ async function answer(
 
     try {
       return await withTrackedGh(req, tracked, async (signal) => {
+        const readPinned = pinned.reader(source, revisionParam, signal);
         const reachable = await pathReachableFromRevision(
           source,
           revisionParam,
           repositoryPath,
-          signal,
+          readPinned,
         );
         if (!reachable) {
           return {
@@ -133,24 +141,26 @@ async function answer(
             message: "That path is not reachable from this source revision.",
           };
         }
-        const text = await readRepositoryFileViaGh(
-          source.repository,
-          repositoryPath,
-          revisionParam,
-          signal,
-        );
         return {
           kind: "ok-file" as const,
           revision: revisionParam,
           path: repositoryPath,
-          text,
+          text: await readPinned(repositoryPath),
         };
       });
-    } catch {
-      return { kind: "failed" };
+    } catch (error) {
+      return {
+        kind: "failed",
+        message: failureMessage(
+          error,
+          source,
+          `${repositoryPath} at ${revisionParam}`,
+        ),
+      };
     }
   }
 
+  let reading = `${source.ref} of ${source.repository}`;
   try {
     return await withTrackedGh(req, tracked, async (signal) => {
       const revision = await resolveRevisionViaGh(
@@ -158,19 +168,20 @@ async function answer(
         source.ref,
         signal,
       );
+      reading = `${source.backlogPath} at ${revision}`;
+      // The membership read always asks for the backlog afresh, and leaves
+      // it for the reachability checks of this revision's later detail reads.
       const backlog = await readRepositoryFileViaGh(
         source.repository,
         source.backlogPath,
         revision,
         signal,
       );
+      pinned.remember(source, revision, source.backlogPath, backlog);
       return { kind: "ok" as const, revision, backlog };
     });
-  } catch {
-    // Never forward a `gh` failure's raw stderr: it may name local paths,
-    // request context, or (in principle) echo configuration. The person
-    // sees only a safe, generic report.
-    return { kind: "failed" };
+  } catch (error) {
+    return { kind: "failed", message: failureMessage(error, source, reading) };
   }
 }
 
@@ -202,33 +213,29 @@ function respond(res: ServerResponse, outcome: Outcome): void {
     );
     return;
   }
-  if (outcome.kind === "refused") {
-    res.writeHead(outcome.status, headers);
-    res.end(JSON.stringify({ error: outcome.message }));
-    return;
-  }
-  res.writeHead(502, headers);
-  res.end(JSON.stringify({ error: "The local authenticated read failed." }));
+  res.writeHead(outcome.kind === "refused" ? outcome.status : 502, headers);
+  res.end(JSON.stringify({ error: outcome.message }));
 }
 
 function matchesEndpoint(req: IncomingMessage): boolean {
   const url = new URL(req.url ?? "", "http://placeholder");
-  return url.pathname === privateReadEndpoint;
+  return url.pathname === authenticatedReadEndpoint;
 }
 
-// Mounted identically by both Vite launch modes below. Requests outside this
+// Mounted identically by both Vite launch modes. Requests outside this
 // endpoint's exact path are passed on untouched; only a request that names it
 // is ever inspected, let alone answered.
-export function installPrivateReadMiddleware(
+export function installAuthenticatedReadMiddleware(
   middlewares: Connect.Server,
 ): () => void {
   const tracked = new Set<AbortController>();
+  const pinned = new PinnedTexts();
   const handler: Connect.NextHandleFunction = (req, res, next) => {
     if (!matchesEndpoint(req)) {
       next();
       return;
     }
-    void answer(req, tracked).then((outcome) => {
+    void answer(req, tracked, pinned).then((outcome) => {
       respond(res, outcome);
     });
   };

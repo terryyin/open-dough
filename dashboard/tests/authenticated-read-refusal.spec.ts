@@ -1,0 +1,124 @@
+// Which requests the local authenticated read boundary
+// (../server/authenticatedRead.ts) refuses before ever launching `gh`, and the
+// same-origin signal it accepts in place of an Origin header -- tested
+// directly against real HTTP, not through the browser. A synthetic `gh` on
+// this spec's own isolated server process's PATH records every invocation
+// through a fake GitHub, so each refusal can prove no `gh` call was made.
+// What the boundary reads and reports once a request is accepted is covered
+// in ./authenticated-read-boundary.spec.ts.
+
+import { expect, test } from "@playwright/test";
+import {
+  startDashboardServer,
+  type DashboardServer,
+} from "./support/dashboardServer";
+import { rawRequest } from "./support/rawHttp";
+
+test.describe.configure({ mode: "serial" });
+
+const knownSourceId = "open-dough";
+const revision = "ab".repeat(20);
+const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+const secretMarker = "gho_should-never-reach-a-browser-1234567890";
+
+test.describe("authenticated read boundary refusal (dev launch mode)", () => {
+  let server: DashboardServer;
+
+  test.beforeAll(async () => {
+    server = await startDashboardServer({ mode: "dev" });
+  });
+
+  test.afterAll(async () => {
+    await server.close();
+  });
+
+  test("refuses a mismatched Origin before launching gh", async () => {
+    server.setControl({ mode: "normal", revision, backlog });
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { Origin: "http://evil.example" },
+    });
+    expect(response.status).toBe(403);
+    expect(server.ghCalls()).toHaveLength(0);
+  });
+
+  test("refuses a request with no Origin before launching gh", async () => {
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+    });
+    expect(response.status).toBe(403);
+    expect(server.ghCalls()).toHaveLength(0);
+  });
+
+  test("refuses an unknown catalog source before launching gh", async () => {
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=not-a-real-project`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(404);
+    expect(server.ghCalls()).toHaveLength(0);
+  });
+
+  test("refuses a non-GET method before launching gh", async () => {
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      method: "POST",
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(405);
+    expect(server.ghCalls()).toHaveLength(0);
+  });
+
+  // A real browser's own same-origin `fetch` (this endpoint's only intended
+  // caller) never carries an `Origin` header -- confirmed against this exact
+  // production middleware from a real Chromium page in
+  // ./authenticated-project-overview.spec.ts, which this narrower case reproduces
+  // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
+  // which `../server/localOrigin.ts` now accepts in place of `Origin`.
+  test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
+    server.setControl({ mode: "normal", revision, backlog });
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { "Sec-Fetch-Site": "same-origin" },
+    });
+    expect(response.status).toBe(200);
+    expect(server.ghCalls()).toHaveLength(callsBefore + 2);
+  });
+
+  test("still refuses Sec-Fetch-Site: cross-site even without an Origin header", async () => {
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { "Sec-Fetch-Site": "cross-site" },
+    });
+    expect(response.status).toBe(403);
+    expect(server.ghCalls()).toHaveLength(callsBefore);
+  });
+
+  test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
+    server.setControl({
+      mode: "normal",
+      revision,
+      backlog,
+      files: {
+        ".planning/PRODUCT-BACKLOG.md": backlog,
+      },
+    });
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(404);
+    expect(response.body).not.toContain(secretMarker);
+    const calls = server.ghCalls().slice(callsBefore);
+    // Allowlist may read the backlog to decide, but must never fetch the
+    // arbitrary path itself.
+    expect(
+      calls.every(
+        (argv) => !argv.join(" ").includes("/contents/.planning/secrets/"),
+      ),
+    ).toBe(true);
+  });
+});

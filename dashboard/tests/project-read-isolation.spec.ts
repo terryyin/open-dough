@@ -22,14 +22,14 @@
 // page. This matches ./refresh.spec.ts's own held-response races, which also
 // assert immediately after release.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectMembership, parts } from "./dashboardPage";
 import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 

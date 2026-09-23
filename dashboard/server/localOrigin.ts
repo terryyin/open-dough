@@ -2,7 +2,7 @@
 // on a loopback socket, the request must name a loopback Host, and it must
 // carry an Origin naming that same host. A page from anywhere else --
 // reachable only because this machine also runs a browser -- gets no answer
-// and triggers no `gh` call. Kept apart from `./privateRead.ts`'s `gh`
+// and triggers no `gh` call. Kept apart from `./authenticatedRead.ts`'s `gh`
 // invocation: this module only ever inspects the incoming request, never
 // spawns a process or reads a catalog source.
 

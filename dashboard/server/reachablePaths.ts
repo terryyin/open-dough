@@ -2,14 +2,16 @@
 // is allowed only when the pinned revision's backlog (and, for plans, the
 // story-state recorded beside a backlog entry) names it. Never trusts a
 // client-supplied path list as an open proxy. Uses the same path resolution
-// and story-state peek rules as the browser enrichment path.
+// and story-state peek rules as the browser enrichment path. The records it
+// consults are read through the caller's own pinned reader
+// (`./authenticatedRead.ts`), so already-read text at the same revision is
+// not fetched again.
 
 import type { PublishedSource } from "../src/publishedSource";
 import { resolveBesideFile } from "../src/repositoryPath";
 import { resolveSourceLink, snapshotRepositoryPath } from "../src/sourceLink";
 import { peekRecordedApproach } from "../src/storyPreparation";
 import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import { readRepositoryFileViaGh } from "./ghRead";
 
 export function isSafeRepositoryPath(path: string): boolean {
   if (path.length === 0 || path.startsWith("/") || path.includes("\\")) {
@@ -86,21 +88,19 @@ function plannedPlanPath(
   return resolveBesideFile(canonicalPath, peek.approach.plan);
 }
 
+// Reads one repository file of the source at the revision under check.
+export type PinnedReader = (repositoryPath: string) => Promise<string>;
+
 export async function pathReachableFromRevision(
   source: PublishedSource,
   revision: string,
   requestedPath: string,
-  signal: AbortSignal,
+  readPinned: PinnedReader,
 ): Promise<boolean> {
   if (!isSafeRepositoryPath(requestedPath)) {
     return false;
   }
-  const backlogMarkdown = await readRepositoryFileViaGh(
-    source.repository,
-    source.backlogPath,
-    revision,
-    signal,
-  );
+  const backlogMarkdown = await readPinned(source.backlogPath);
   const canonicals = canonicalEntriesFromBacklog(
     backlogMarkdown,
     source,
@@ -119,12 +119,7 @@ export async function pathReachableFromRevision(
   for (const { href, path: canonicalPath } of canonicals) {
     let text = canonicalTextCache.get(canonicalPath);
     if (text === undefined) {
-      text = await readRepositoryFileViaGh(
-        source.repository,
-        canonicalPath,
-        revision,
-        signal,
-      );
+      text = await readPinned(canonicalPath);
       canonicalTextCache.set(canonicalPath, text);
     }
     const planPath = plannedPlanPath(text, href, canonicalPath);

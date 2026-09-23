@@ -3,7 +3,7 @@
 // shared accessibility helpers against the real CLI-committed fixture.
 
 import { expectQueuedPlanFocusDuringEnrichment } from "./queuedPlanFocus";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
 import {

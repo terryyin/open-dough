@@ -66,7 +66,7 @@ export async function expectFailedRefreshKeepsPriorRevision(
   await expect(source).toContainText(retainedRevision);
   await expect(refresh).toBeVisible();
   await expect(retry).toHaveCount(0);
-  expect(origin.requests.length).toBeGreaterThan(afterFail);
+  await expect.poll(() => origin.requests.length).toBeGreaterThan(afterFail);
 }
 
 export async function expectProjectSwitchRejectsLateHeldRead(

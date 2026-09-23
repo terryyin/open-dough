@@ -3,7 +3,7 @@
 // never planted in fixtures.
 
 import { expectChangedQueuedAssociations } from "./queuedPlanGaps";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
 import {

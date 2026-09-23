@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectWholeSnapshot, parts } from "./dashboardPage";
-import { rateLimitedAnswer, type MovingOrigin } from "./githubOrigin";
+import { rateLimitedAnswer, type MovingOrigin } from "./publishedOrigin";
 import {
   backlogB,
   dashboardStory,
@@ -26,7 +26,7 @@ const failedRefreshes: {
       return origin.answerWith("main", rateLimitedAnswer());
     },
     problem:
-      "GitHub answered HTTP 403 while reading main of terryyin/open-dough.",
+      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. Wait before pressing Retry.",
   },
   {
     because: "the newly published backlog records the same work twice",

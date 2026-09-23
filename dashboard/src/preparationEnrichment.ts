@@ -1,7 +1,7 @@
 // Loads preparation, purpose, and plan-slice facts for a published-work
-// snapshot after membership is already known. File transport follows the
-// catalog source's access (`./repositoryFileReads.ts`): public GitHub or the
-// local authenticated boundary. Plan text fetched for readiness is reused for
+// snapshot after membership is already known. Files are read at the same
+// revision through the local authenticated boundary
+// (`./repositoryFileReads.ts`). Plan text fetched for readiness is reused for
 // detail; opening already-read detail costs no extra request.
 
 import type { PublishedWork, WorkEntry } from "./publishedWork";
@@ -10,7 +10,7 @@ import {
   planSlicesFor,
   preparationForPeek,
   purposeFor,
-} from "./publicEntryFacts";
+} from "./workEntryFacts";
 import { loadRepositoryTexts } from "./repositoryFileReads";
 import { resolveBesideFile } from "./repositoryPath";
 import {

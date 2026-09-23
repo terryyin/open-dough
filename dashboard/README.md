@@ -29,18 +29,20 @@ selected choice and use arrow keys to switch projects.
 (Open Dough, Doughnut, and Pygardon) and what each one needs to be read. It
 reads `.planning/PRODUCT-BACKLOG.md` from `main` of the selected project's
 GitHub repository, resolves `main` to one commit, and reads the backlog at
-that commit. Open Dough and Doughnut are public and read straight from the
-browser, without credentials. Pygardon is private and is read instead through
-a small local authenticated read boundary (`server/privateRead.ts`, reached
-from the browser through `src/privateRead.ts`) that resolves the ref and
-reads the backlog through the local `gh` CLI's own existing authentication:
-there is no dashboard sign-in and no token-entry UI. Reading Pygardon needs
-only the `gh` access the launching person already has -- the same access
-`gh api repos/terryyin/pygardon/commits/main` proves from a terminal -- and
-works from the ordinary launch route: `npm run dev:dashboard`, or
-`npm run build:dashboard` followed by `npm run preview:dashboard`. Both modes
-mount the identical local read boundary from the same Vite configuration, so
-a built preview needs no separate setup to read Pygardon.
+that commit. Every project -- public Open Dough and Doughnut as much as
+private Pygardon -- is read the same way: through a small local
+authenticated read boundary (`server/authenticatedRead.ts`, reached from the
+browser through `src/authenticatedRead.ts`) that resolves the ref and reads
+the backlog and the records it names through the local `gh` CLI's own
+existing authentication. The browser never reads GitHub directly and never
+receives a credential; there is no dashboard sign-in and no token-entry UI.
+Reading a project needs only the `gh` access the launching person already
+has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves
+from a terminal -- and works from the ordinary launch route:
+`npm run dev:dashboard`, or `npm run build:dashboard` followed by
+`npm run preview:dashboard`. Both modes mount the identical local read
+boundary from the same Vite configuration, so a built preview needs no
+separate setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again only when **Refresh** is pressed; nothing is
@@ -54,13 +56,15 @@ as a read problem, never as an empty or partial backlog. The snapshot read
 earlier stays shown with its own revision and retrieval time, the problem says
 when the attempt failed, and the read control is named **Retry** until a read
 succeeds. Nothing retries by itself. Selecting another project stays available
-throughout: a failed or still-reading Pygardon never blocks switching to Open
-Dough or Doughnut, and returning to Pygardon starts a fresh read rather than
-replaying the failure.
+throughout: a failed or still-reading project never blocks switching to
+another, and returning to a project starts a fresh read rather than replaying
+the failure.
 
-If reading Pygardon fails, the read problem reports only that the read did not
-complete -- never that the repository does not exist, since an inaccessible
-read is not proof of that. Check `gh auth status`, then confirm
+If reading a project fails, the read problem names that project's repository
+and what the local `gh` could establish -- for example that it is not logged
+in, or GitHub's HTTP status -- never `gh`'s own output, and never that the
+repository does not exist, since an inaccessible read is not proof of that.
+Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, press **Retry**. There is no dashboard sign-in, no token-entry UI, and no
 automatic retry or login: the dashboard only reuses whatever access the
@@ -112,19 +116,23 @@ The browser suite needs Chromium once per machine:
 
 ## Tests
 
-`tests/` holds one Playwright suite. For the public projects, it replaces
-only GitHub's raw HTTP answers for the ref and the backlog file
-(`tests/githubOrigin.ts`); reading, the shared backlog interpretation, and
-the page are the real ones. For Pygardon, dedicated specs
-(`tests/private-read-boundary.spec.ts`,
-`tests/private-read-subprocess-lifecycle.spec.ts`,
-`tests/private-project-overview.spec.ts`) start their own isolated dev and
-built-preview servers with a synthetic `gh` on PATH
-(`tests/fixtures/fake-gh`), so nothing here ever calls the real `gh` CLI or
-reaches the real Pygardon repository. The suite never contacts GitHub, and
-every run rebuilds the app before serving it. Select one journey with, for
-example, `npm run test:dashboard -- --grep 'published overview'` or
-`npm run test:dashboard -- --grep 'private project overview'`.
+`tests/` holds one Playwright suite. Every run builds the app once; each page
+journey (`tests/dashboardTest.ts`) then serves that build from its own
+preview server with a synthetic `gh` on its PATH (`tests/fixtures/fake-gh`)
+that answers from the test's own fake GitHub (`tests/support/fakeGitHub.ts`,
+published through `tests/publishedOrigin.ts` or
+`tests/committedOrigin.ts`). Only GitHub's answers to `gh` are replaced; the
+local read boundary, the `gh` invocation, reading, the shared backlog
+interpretation, and the page are the real ones, and a browser request to
+GitHub itself fails the test. The boundary specs
+(`tests/authenticated-read-*.spec.ts`) and
+`tests/authenticated-project-overview.spec.ts` also start their own dev and
+built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
+GitHub. Select one journey with, for example,
+`npm run test:dashboard -- --grep 'published overview'` or
+`npm run test:dashboard -- --grep 'authenticated project overview'`.
 
-GitHub allows 60 unauthenticated API requests per hour from one address; each
-load of the dashboard, and each Refresh, uses two.
+Each load of the dashboard, and each Refresh, makes two authenticated `gh`
+requests for membership, plus one per record not already read at that
+revision for preparation and detail; they count against the launching person's own GitHub API
+allowance.

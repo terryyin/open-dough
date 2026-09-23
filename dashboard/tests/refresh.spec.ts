@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectWholeSnapshot, parts } from "./dashboardPage";
-import { pathsRead } from "./githubOrigin";
+import { pathsRead } from "./publishedOrigin";
 import {
   backlogB,
   backlogC,
@@ -120,6 +120,9 @@ test("refresh published work reads only when asked, and an unchanged revision ch
   await page.clock.setFixedTime(retrievedA);
   const origin = await openAtA(page);
   const { source, refresh, notice } = parts(page);
+  // The first read, detail included, has settled before any time passes.
+  const preparing = page.getByText("Reading preparation…");
+  await expect(preparing).toHaveCount(0);
 
   await test.step("time passing and returning to the page read nothing", async () => {
     await page.clock.fastForward("03:00:00");
@@ -147,6 +150,7 @@ test("refresh published work reads only when asked, and an unchanged revision ch
     [],
   );
   await expect(parts(page).reading).toHaveCount(0);
+  await expect(preparing).toHaveCount(0);
   await expect(notice).toBeEmpty();
   // Nothing else is said: the page reads as before, but for the time.
   const timeAtSecondRead = await source.locator("time").innerText();

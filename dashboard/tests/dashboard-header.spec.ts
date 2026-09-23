@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import {
   largeBacklog,
   queuedCount,
@@ -7,7 +7,7 @@ import {
 } from "./accessibleOverview";
 import { expectReadableContrast, zoomedWindow } from "./accessibleReading";
 import { parts, expectMembership } from "./dashboardPage";
-import { publishMovingOrigin } from "./githubOrigin";
+import { publishMovingOrigin } from "./publishedOrigin";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout";
 
 for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {

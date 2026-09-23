@@ -1,7 +1,7 @@
-// The raw answers a GitHub-shaped origin gives for a ref or a backlog file,
-// and the fixtures built from them. Kept apart from route wiring in
-// ./githubOrigin so a test can compose an answer without depending on how it
-// is served or to which repository.
+// The raw answers GitHub gives the local `gh` CLI for a ref or a file, and
+// the fixtures built from them. Kept apart from the synthetic `gh`'s wiring in
+// ./support/fakeGitHub so a test can compose an answer without depending on
+// how it is served or to which repository.
 
 export type RawAnswer = {
   readonly status: number;
@@ -12,7 +12,22 @@ export type RawAnswer = {
 // The connection fails before any HTTP answer arrives.
 export const noConnection = { connection: "connectionfailed" } as const;
 
-export type OriginAnswer = RawAnswer | typeof noConnection;
+// What `gh` itself does without asking GitHub at all: its exit code and what
+// it prints on stderr.
+export type CliAnswer = {
+  readonly exitCode: number;
+  readonly stderr: string;
+};
+
+// The launching person's `gh` has no usable login, answered as `gh` answers
+// it: exit code 4 and the pointer at `gh auth login`.
+export const notLoggedIn: CliAnswer = {
+  exitCode: 4,
+  stderr:
+    "To get started with GitHub CLI, please run:  gh auth login\nAlternatively, populate the GH_TOKEN environment variable with a GitHub API authentication token.\n",
+};
+
+export type OriginAnswer = RawAnswer | typeof noConnection | CliAnswer;
 
 export function commitAnswer(sha: string): RawAnswer {
   return {
