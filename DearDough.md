@@ -448,6 +448,27 @@ change needs the refactor pass again, so the coordinator decides case by case.
     the omission was a stated judgment, so the match is uncertain and this is
     recorded separately.
 
+- Execution: `SEED-026#auto-refresh-published-dashboard @ dcb0944`
+  - Timestamp: 2026-09-23T21:43:00+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.30
+  - Evidence: Plan 084 slice 4, commit `7eda3d7` (timestamp is that delivery
+    commit). The refactor pass returned `## REFACTOR COMPLETE` and reported an
+    alert misstatement it did not fix. The coordinator itself changed
+    `dashboard/src/publishedObservation.ts` and added a step to
+    `dashboard/tests/auto-refresh-rate-limit.spec.ts`, proved it with a
+    mutation, and delivered without a second refactor pass or returning it to
+    an implementation agent. Slice 3 (`5cc80b0`) likewise delivered a
+    coordinator-made `refresh.spec.ts` race fix after its refactor pass.
+  - Observed effect: The post-pass behavior change and test change were
+    reviewed only by the coordinator; the later retrospective then found
+    `publishedObservation.ts` at 257 lines, over the refactor size limit.
+  - Inference: Same gap as the first occurrence: `references/wrap-up.md`
+    names one pass and is silent on post-pass corrections, so a coordinator
+    fix is easy to deliver unrefactored. Qualified: the size overrun is one
+    consequence observed; no defect is attributed.
+
 ## ODF-065 — A CI observer that died mid-execution stayed reported as attached until shutdown
 
 Former local code: DD-063.
@@ -888,8 +909,36 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
+## DD-092 — Implementation and refactor agents were barred from lint the project has no hook for
+
+The delegation contract forbids agents an "independent hook-owned lint
+command". In a project with no commit hook, where the formatter command also
+runs lint, the coordinator applied that ban to all lint. Lint findings then
+surfaced only at the coordinator's formatting step, after refactoring.
+
+### Occurrences
+
+- Execution: `SEED-026#auto-refresh-published-dashboard @ dcb0944`
+  - Timestamp: 2026-09-23T20:45:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.30
+  - Evidence: Plan 084. The repository has no `.git/hooks` entries or
+    `core.hooksPath`; `npm run format` (`scripts/lint.mjs --fix`) also runs
+    ESLint. Every delegation prompt said "do not run lint". The coordinator's
+    format step then failed on `no-unnecessary-condition` in slice 1
+    (`dcb0944`, timestamp of that commit), and on `require-await` and
+    `no-deprecated` in slice 2 (`9feec0e`).
+  - Observed effect: Three mechanical lint defects were fixed by the
+    coordinator after the refactor pass, each followed by a focused or full
+    test rerun; later prompts listed the lint rules to compensate.
+  - Inference: The coordinator over-read "hook-owned"; the guidance does not
+    say what applies when no hook owns lint. Cost was small per slice
+    (minutes), and it compounds with ODF-064 because the fixes landed after
+    the refactor pass.
+
 ## Retention
 
-- Highest allocated local number: 91
+- Highest allocated local number: 92
 - Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
