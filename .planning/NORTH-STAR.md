@@ -74,14 +74,16 @@ selected behavior needs them. UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
 
 
-For the three-project story, Terry accepted existing local GitHub authentication
-for private Pygardon on 2026-09-21; a pinned CLI read confirmed access. Keep that
-credential/process responsibility in a narrow loopback read boundary of the
-existing local dashboard launch, shared by dev and built preview. It returns
-published revision and raw backlog data for the same browser interpretation;
-public reads retain their existing unauthenticated path. Credentials never enter
-browser assets. Catalog identity bounds the local reader's requests; no arbitrary
-proxy or new state authority is needed. Selection is transient UI state, with
-one project's observation visible at a time. This direction constrains story 5
-and any later authenticated story-detail reading; it does not create coordination
-between the observed projects or adopt Proposed ADR 0008.
+For the three-project dashboard, Terry accepted local GitHub authentication for
+private Pygardon on 2026-09-21, then selected the same local `gh` read path for
+Open Dough and Doughnut on 2026-09-23 as part of
+[automatic refresh](seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard).
+Keep credential/process responsibility in one narrow loopback read boundary of
+the existing local dashboard launch, shared by dev and built preview. It returns
+published revision and pinned file data for the same browser interpretation;
+the direct unauthenticated browser-to-GitHub path is retired when its callers
+migrate. Credentials never enter browser assets. Catalog identity bounds the
+local reader's requests; no arbitrary proxy or new state authority is needed.
+Selection is transient UI state, with one project's observation visible at a
+time. This direction does not create coordination between the observed projects
+or adopt Proposed ADR 0008.
