@@ -39,14 +39,16 @@ checks. Native invocation and behavior claims stay pending
 | Option | Meaning |
 | --- | --- |
 | `--list` | Print the wrapper's inventory (host, case, purpose, setup, dependencies, prior-evidence). Read-only: no agent, no version probe, no fixture creation. |
-| `--results-dir DIR` | Result directory. Listing may read `DIR/<host>/<case>/<attempt-id>/` as **unreviewed** prior-evidence; it never certifies reuse. DIR need not exist or be writable for listing. Selected native launch requires DIR to be a writable directory before fixture or agent launch; omit it to keep the disposable scratch path. |
+| `--results-dir DIR` | Temporary result directory for judging the current attempt. Listing may read `DIR/<host>/<case>/<attempt-id>/` as **unreviewed** evidence; it never certifies reuse. DIR need not exist or be writable for listing. Selected native launch requires DIR to be writable before fixture or agent launch; omit it for the disposable scratch path. Inspect retained results, decide the outcome now, then remove spent artifacts. A failed attempt may need its full trace during current diagnosis. |
 | `--case CASE` | Select one inventory case. Unknown values fail before setup. |
 | `--native` | Existing native opt-in. |
 | `--deadline SECONDS` | Selected native launch only. Integer >= 1. Default **3600**. Invalid values fail before setup or launch. |
 | `--grace SECONDS` | Selected native launch only. Integer >= 0. Default **15**. Finite termination grace after a deadline. Invalid values fail before setup or launch. |
 
 Prior-evidence values are `none` or `unreviewed <path>`. Listing cannot print a
-certified/passing reuse verdict.
+certified/passing reuse verdict. These paths are not an archive for a later
+acceptance decision: keep them only while assessing or diagnosing the active
+attempt. Record the judgment or missing requirement, then delete spent results.
 
 Fixed inventory (three cases per host `codex`, `cursor`, `claude`):
 
@@ -169,7 +171,7 @@ native invocation or behavior.
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument wrapper checks run independently.
 - `tests/native-result-retention.sh` — selected context runs with recorded PATH
-  substitutes keep a durable unreviewed attempt after scratch cleanup. Cursor
+  substitutes keep an inspectable unreviewed attempt after scratch cleanup. Cursor
   runtime identity comes from `cursor agent --version`. An unwritable
   `--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
   path are accepted; omitted flags use the defaults.

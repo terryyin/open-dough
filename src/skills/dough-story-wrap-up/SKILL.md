@@ -165,6 +165,16 @@ Remove empty directories belonging to the spent work, including untracked ones.
 The current snapshot must be free of that history, both tracked and untracked,
 with recovery available from the recorded before-cleanup commit.
 
+If native runs left result directories for inspection, judge their evidence now:
+name the behavior each result supports or the specific proof still missing. An
+inconclusive attempt is nonpassing now, not a judgment deferred to its next run.
+Use failed or inconclusive artifacts to diagnose the current attempt before
+disposing of it; do not carry raw results forward for someone to judge later.
+An unfinished host requirement belongs in a linked acceptance story with its
+current judgment and missing proof, not in another host's result directory.
+Delete spent native result directories after that judgment, including untracked
+ones. A passing runner status alone is not the judgment.
+
 Preserve unrelated human text, sibling stories and log entries, product and
 version identity, maintained tests and documents, still-needed acceptance work,
 and active follow-ups. Shared records lose only the portions attributable to

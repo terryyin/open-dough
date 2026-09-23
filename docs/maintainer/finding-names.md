@@ -1103,13 +1103,9 @@ consult both lists when matching findings or allocating identities.
   `tests/support/delivery-evidence-selection-native-assess.sh` (rejects zero-test
   and partial success reports; accepts incomplete naming, corrected selection,
   and the complete-selection control). Native case registration:
-  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/selection --results-dir DIR`.
-  Fresh Cursor native proof on 2026-09-23 accepted 0 promises for the zero-test
-  case, 1 of 3 for partial selection with the other two named incomplete, and
-  3 of 3 for the complete-selection control. Credential-free rejection and
-  acceptance cases live in
-  `tests/support/delivery-evidence-selection-native-assess.sh`. Codex and
-  Claude Code native runs were not completed in this slice and are not passed.
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/selection`.
+  Remaining Codex and Claude Code native acceptance is tracked in
+  `SEED-004#accept-delivery-evidence-native`.
   Containing release is pending. Both historical occurrences were caught
   during execution (not escaped defects). Watch start and review-after stay
   unknown; source responses exist but release and verified use have not
@@ -1509,12 +1505,7 @@ consult both lists when matching findings or allocating identities.
   "covered" claims and accept-without-gap; accepts corrected no-link observation
   and an equivalent substantiated layout; refuses format-resend when evidence is
   sufficient, and instruction-words-only). Native case registration:
-  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/claims --results-dir DIR`.
-  Fresh Cursor native proof on 2026-09-23
-  (`.planning/native-results/delivery-evidence-claims-r3`) left the unsupported
-  bare-anchor claim incomplete without relaying "covered", accepted the
-  corrected no-link observation with matching product and assertion, and
-  accepted the equivalent-layout control without a formatting-only resend.
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/claims`.
   Containing release is pending. The historical occurrence was caught during
   execution (not an escaped defect). Codex and Claude Code native runs for this
   case were not completed in this slice and are not passed. Watch start and
@@ -2069,16 +2060,11 @@ consult both lists when matching findings or allocating identities.
   gap naming, corrected consumer with executed compatibility proof, and the
   unchanged-boundary retained-proof control; refuses instruction-words-only).
   Native case registration:
-  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers --results-dir DIR`.
-  Fresh Cursor native proof on 2026-09-23
-  (`.planning/native-results/delivery-evidence-consumers-r1`) left the
-  changed-contract promise incomplete without accepting the stale
-  unaffected-suite exclusion, accepted the corrected consumer with aligned
-  stand-in and executed compatibility observation, and accepted the
-  unchanged-boundary control while retaining existing badge proof. Codex and
-  Claude Code native runs for this case were not completed in this slice and
-  are not passed. Containing release is pending. The historical occurrence
-  escaped into the owner project (not caught during Open Dough execution).
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers`.
+  Codex and Claude Code native runs for this case were not completed in this
+  slice and are not passed. Containing release is pending. The historical
+  occurrence escaped into the owner project (not caught during Open Dough
+  execution).
   Watch start and review-after stay unknown; source responses exist but release
   and verified use have not occurred (see near-term watch pending disposition).
 - **Released in:** pending.
@@ -2137,15 +2123,10 @@ consult both lists when matching findings or allocating identities.
   repair-and-proceed with obtained observation, unavailable-proof incomplete with
   preserved independent evidence, and sufficient reused evidence; refuses
   format/blanket rerun and instruction-words-only). Native case registration:
-  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps --results-dir DIR`.
-  Fresh Cursor native proof on 2026-09-23
-  (`.planning/native-results/delivery-evidence-gaps-r1`) obtained the missing
-  readiness-requeue observation and accepted repair-and-proceed without
-  learning-only clearance or blanket rerun; left unavailable-proof incomplete
-  while preserving independent happy-path evidence; and accepted
-  sufficient-reused without a format-only retry. Causal qualification
-  preserved: the omitted requeue case does not prove it would have caught the
-  later active-task ownership race (`516935a30`). Containing release is pending.
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps`.
+  Causal qualification preserved: the omitted requeue case does not prove it
+  would have caught the later active-task ownership race (`516935a30`).
+  Containing release is pending.
   Codex and Claude Code native runs for this case were not completed in this
   slice and are not passed. Watch start and review-after stay unknown; see
   near-term watch pending disposition.

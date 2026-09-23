@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Durable per-attempt retention for selected native checks.
+# Inspectable per-attempt output for active native checks.
 # Listing may read these paths as unreviewed prior-evidence; it never certifies reuse.
 # shellcheck disable=SC2034,SC2154 # Wrapper globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers attempt IDs and prompt hashes.

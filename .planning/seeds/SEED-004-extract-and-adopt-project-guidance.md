@@ -154,17 +154,19 @@ each case proceeds without a blanket rerun or a report-format-only retry.
 
 **Required tools and evidence:** Use the installed candidate in fresh Codex
 and Claude Code sessions through
-`tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`,
-with Bash 4+ and the runner's
-bounded supervision. Preserve the selected command, candidate and host runtime,
-actual selected observations, fixture and assertion locations, decisive native
-trace, and independent fixture state for the current assessment. The four
+`tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE [--results-dir DIR]`,
+with Bash 4+ and the runner's bounded supervision. When output is needed to
+inspect an attempt, use a temporary results directory. Judge the attempt now,
+then delete its spent artifacts. Record the selected command, candidate and
+host runtime, actual selected observations, fixture and assertion locations,
+decisive trace, and independent fixture state for the current judgment. The four
 credential-free assessors remain in `tests/support/`; Cursor native judgments
 are recoverable from
 `6cb67dbe680211ad64a60e7f50a0d413c7c68b20:.planning/quick/085-accept-delivery-evidence/PLAN.md`.
-Local native results remain untracked in `.planning/native-results/`. Codex and
-Claude native runs have not been run or accepted. Reassess prior observations
-against the final candidate before reusing them.
+Those Cursor runs were judged during the completed implementation; their raw
+local results were discarded. Codex and Claude native runs have not been run or
+accepted. Reconsider prior proof only if its covered boundary changes; do not
+defer judgment of an existing run to this story.
 
 **Completion:** For each of the four requirements, record a supported Codex and
 Claude result or a specific justified reuse judgment under [ADR
