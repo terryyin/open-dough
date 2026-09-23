@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Open a queued story's slice plan from the dashboard](seeds/SEED-021-observe-published-story-progress.md#open-queued-story-slice-plan) — SEED-021#open-queued-story-slice-plan ([plan](quick/081-queued-story-plan-links/PLAN.md))
-- [Retire the superseded claim runner](quick/081-retire-legacy-claim-runner/PLAN.md)
 
 ## Backlog list
 
