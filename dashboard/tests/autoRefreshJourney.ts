@@ -2,7 +2,7 @@
 // what it observes of the `gh` calls behind the page: see
 // ./auto-refresh.spec.ts.
 
-import { expect, type Page, type Request } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import { expectMembership } from "./dashboardPage";
 import { commitEtag } from "./originAnswers";
@@ -77,49 +77,86 @@ export function refCheckArgv(
   ];
 }
 
-// Whether a browser request to the local boundary is a revision check.
+// A browser request to the local boundary is a revision check when it names
+// the revision the page already shows with this search parameter.
+const checkParameter = "since";
+
 function isCheck(url: string): boolean {
-  return new URL(url).searchParams.has("since");
+  return new URL(url).searchParams.has(checkParameter);
 }
 
-// Page time passes in steps this small, so a check's timing is observed to
-// within one step.
+// Page time passes in steps this small; a check is seen once the step in
+// which the page asked for it has passed.
 const pageTimeStepMs = 250;
 
-// Runs `passing` while noting the revision checks the page asks for; it can
-// ask how many have been asked so far.
+// The page times at which the page asked for revision checks, as noted by
+// the page itself (see `noteChecksInPage`).
+type ChecksNoted = { revisionChecksAskedAt?: number[] };
+
+// From now on, the page notes the page time at which it asks for each
+// revision check, at the moment it calls `fetch`. Noting it there, rather
+// than from Playwright's `request` event, keeps the note in step with page
+// time: the event may arrive only after later steps have already passed.
+// The page's requests themselves are left exactly as asked.
+async function noteChecksInPage(page: Page): Promise<void> {
+  await page.evaluate((parameter) => {
+    const noted = window as ChecksNoted & typeof window;
+    if (noted.revisionChecksAskedAt !== undefined) {
+      return;
+    }
+    const askedAt: number[] = [];
+    noted.revisionChecksAskedAt = askedAt;
+    const send = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      const url =
+        input instanceof Request
+          ? input.url
+          : new URL(input, window.location.href).href;
+      if (new URL(url).searchParams.has(parameter)) {
+        askedAt.push(Date.now());
+      }
+      return send(input, init);
+    };
+  }, checkParameter);
+}
+
+// The page times of the revision checks the page has asked for so far.
+async function checksAskedAt(page: Page): Promise<readonly number[]> {
+  return page.evaluate(() => [
+    ...((window as ChecksNoted & typeof window).revisionChecksAskedAt ?? []),
+  ]);
+}
+
+// Runs `passing` from the current page time while noting the revision checks
+// the page asks for; it can ask at which page times, since that start, they
+// have been asked so far.
 async function whileNotingChecks<T>(
   page: Page,
-  passing: (asked: () => number) => Promise<T>,
+  passing: (askedAfter: () => Promise<readonly number[]>) => Promise<T>,
 ): Promise<T> {
-  let asked = 0;
-  const noteCheck = (sent: Request) => {
-    if (isCheck(sent.url())) {
-      asked += 1;
-    }
-  };
-  page.on("request", noteCheck);
-  try {
-    return await passing(() => asked);
-  } finally {
-    page.off("request", noteCheck);
-  }
+  await noteChecksInPage(page);
+  const alreadyAsked = (await checksAskedAt(page)).length;
+  const startedAt = await page.evaluate(() => Date.now());
+  return passing(async () =>
+    (await checksAskedAt(page))
+      .slice(alreadyAsked)
+      .map((askedAt) => askedAt - startedAt),
+  );
 }
 
 // Lets page time pass in small steps until the page asks for the next
 // revision check, without waiting for its answer. Says how much page time
 // passed before the check was asked.
 export async function passTimeUntilAsked(page: Page): Promise<number> {
-  return whileNotingChecks(page, async (asked) => {
-    let passed = 0;
-    while (asked() === 0) {
-      if (passed > 60_000) {
-        throw new Error("No revision check was made within a minute.");
-      }
+  return whileNotingChecks(page, async (askedAfter) => {
+    for (let passed = 0; passed <= 60_000; passed += pageTimeStepMs) {
       await page.clock.runFor(pageTimeStepMs);
-      passed += pageTimeStepMs;
+      const [first] = await askedAfter();
+      if (first !== undefined) {
+        return first;
+      }
     }
-    return passed;
+    throw new Error("No revision check was made within a minute.");
   });
 }
 
@@ -145,12 +182,12 @@ export async function checksAskedWhilePassing(
   page: Page,
   ms: number,
 ): Promise<number> {
-  return whileNotingChecks(page, async (asked) => {
+  return whileNotingChecks(page, async (askedAfter) => {
     for (let passed = 0; passed < ms; passed += pageTimeStepMs) {
       await page.clock.runFor(pageTimeStepMs);
     }
     await new Promise((settle) => setTimeout(settle, 500));
-    return asked();
+    return (await askedAfter()).length;
   });
 }
 
