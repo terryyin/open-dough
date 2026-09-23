@@ -100,6 +100,9 @@ and whitespace checks passed. Inspected real App/readers with origin HTTP fixtur
 and `dashboard-header.spec.ts` viewport, non-overlap, pointer and focus assertions.
 Refactoring extracted DashboardBanner/banner styles; focused repair closed selector
 overlap and stale resize measurement. Independent refactor review completed.
+CI run 35816645704 exposed remaining text-button assertions in public/private
+recovery tests. Accessible-name/cardinality repair reproduced the failure and
+passed all 12 affected browser checks plus typecheck; source behavior unchanged.
 
 Safe stopping point: common controls stay in reach with the existing direction
 and legend still usable. Align the relevant dashboard usage description.

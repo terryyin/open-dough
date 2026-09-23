@@ -122,7 +122,7 @@ test.describe("private project recovery", () => {
         await expect(problem).toContainText(
           "No published work is shown, because none has been read.",
         );
-        await expect(page.getByRole("button")).toHaveText(["Retry"]);
+        await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
         await expect(page.getByRole("article")).toHaveCount(0);
         await expect(page.getByText("Near-future direction")).toHaveCount(0);
       });
@@ -227,7 +227,7 @@ test.describe("private project recovery", () => {
       await expect(problem).toContainText(
         "The local authenticated read failed.",
       );
-      await expect(page.getByRole("button")).toHaveText(["Retry"]);
+      await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
       await expect(page.getByRole("article")).toHaveCount(0);
 
       server.setControl({
