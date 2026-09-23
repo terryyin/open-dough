@@ -13,10 +13,9 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior ([plan](quick/082-accept-queued-start-native/PLAN.md))
-
 ## Backlog list
 
+- [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
 - [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
 - [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner

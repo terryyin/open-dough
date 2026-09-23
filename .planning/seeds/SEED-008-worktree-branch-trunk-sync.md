@@ -30,82 +30,64 @@ status; this seed records desired outcomes for implementation planning.
 
 **Identity:** SEED-008#accept-queued-start-native-behavior
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/082-accept-queued-start-native/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a849d620f97420cb01172ae10977932266cca3307e207ad6578d6ae9237c49e0","plan":"43bbdacc7d3e89412c60ed24ba762a3758743342a39f083f4264d4ae156b239c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
-**Goal:** Before the startup behavior in `dough-execute-plan` is released, a
-maintainer can judge that the installed command and concise instruction produce
-the intended queued-start outcome in Codex, Cursor, and Claude Code. This is
-native acceptance of the implementation published at `1a63c0c5045703006af621f785e81cf6301873d3`,
-not another startup implementation or a tool-by-scenario matrix.
+**Goal:** Complete the remaining Claude Code resume verification so the maintainer
+can accept queued-start publication across all three native hosts before release.
 
-**Value now (Terry, 2026-09-23):** Reliable shared state is the most important
-next milestone: the dashboard needs an accurate representation of Taken work
-to be useful. The original incident left a story available on remote trunk
-while implementation and its claim existed on a story branch. The command is
-implemented; this story resolves whether native agents actually follow it.
-Retain the preceding superseded-runner correction as preparation of the intended
-candidate, not another publication feature. Acceptance takes priority over
-the later CI/delivery and dashboard extensions. Host unavailability leaves
-acceptance unresolved; it does not turn another story's work into proof.
+**Status:** Returned to the backlog at Terry's request on 2026-09-23. Plan 82's
+execution is closed; this acceptance story is not complete. The remaining work
+needs a newly selected execution approach when Claude access is available.
 
-**Plan:** [Verify native queued startup](../quick/082-accept-queued-start-native/PLAN.md).
+**Remaining scope:** One fresh Claude Code `publication/startup-resume` journey.
+An owned claim already exists and another writer has advanced remote trunk:
+Claude must confirm current ownership without another Take or redundant claim
+push, then run setup and the first implementation change. Preserve selected
+source and unrelated staged, tracked, and untracked human work. The fixture's
+first change is sufficient; full feature delivery is outside this acceptance.
 
-**Scope and evidence to reuse:** Mechanical installer, payload, Git race, and
-caller checks already pass. Fresh Cursor ordinary Story Branch startup passed.
-Fresh Codex same-story rival and retained-claim resume passed. Claude selected-
-source refusal passed, and an earlier ordinary Story Branch journey passed
-before the setup-order assessor was tightened. Judge whether each observation
-still applies to the current installed guidance, adapter, fixture, and command.
-Record justified reuse per affected requirement and host under Accepted
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+**Accepted evidence to reuse:** Ordinary startup and refused continuation have
+accepted observations on Codex, Cursor, and Claude; Codex and Cursor resume also
+passed. Recover the complete judgments, exact commands, native traces, runtime
+identities, and independent Git inspections from commit
+`820077c3e7fcf16421c97231eb5bc01bb69ea3dc`, directory
+`.planning/quick/082-accept-queued-start-native/` (start with `PLAN.md`). The
+startup product candidate was `02108dfb28cabd05839c3aa16d820ce7d0fc33c7`;
+the delivered change strengthens refusal assessment by checking setup and
+command markers separately. This Git locator preserves needed acceptance
+provenance, not a second active plan. Reassess applicability to the intended
+candidate and rerun only requirements invalidated by relevant changes.
 
-**Recorded native gaps:** A fresh Codex ordinary startup ran claim
-publication and setup but did not complete implementation because its native
-delegation failed. A tightened Claude ordinary startup rerun reached the host
-limit before a final verdict, and Claude retained-claim resume was blocked by
-the same weekly CLI limit before the command ran. Obtain conclusive native
-observations for these requirements when the host is available. Assess whether
-the existing Cursor and Codex evidence justifies reuse for their other startup
-requirements; run another case only for a material host-specific gap. A failed
-behavioral observation routes a product defect to a bounded correction, with
-its evidence preserved until assessed.
+**Why still queued:** The Claude CLI weekly limit prevented fresh execution;
+quota refusal proves no startup behavior. The reported reset was 19:00
+Asia/Singapore on 2026-09-23; verify availability when work resumes rather than
+assuming the old limit remains. Do not poll quotas or retry without changed
+access or a diagnosed cause.
 
-**Key examples:**
+**Evaluation:** Run the existing native journey from a prepared owned checkout:
 
-- An authorized prepared story is queued on remote trunk, with unrelated local
-  edits present → a fresh native agent starts in Trunk or Story Branch Mode →
-  its installed startup command confirms its Taken claim on remote trunk before
-  setup and the first implementation change; unrelated edits survive.
-- The selected source has unpublished changes, or the same story belongs to a
-  rival → native startup refuses before setup or implementation; selected source,
-  human work, and any rival's ownership survive.
-- This execution's claim was accepted before an interruption and remote trunk
-  has since advanced → native resume establishes the same current ownership
-  without a second Take, then runs setup and may begin implementation.
+```sh
+GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/startup-resume --results-dir <active-plan-evidence-directory>
+```
 
-The implementation signal is the fixture's small first change, not completion
-of a whole feature, CI, or wrap-up. Reassess the recorded Codex delegation failure
-against that boundary; do not treat a host error as a product defect or acceptance.
-Recheck host availability during execution rather than assuming the old quota
-block remains current. Assess the actual candidate after the preceding runner
-correction, reusing earlier evidence only for requirements it still proves.
+Use Bash 4+ and the runner's 900-second deadline with 15-second termination
+grace. Inspect the complete native trace and independent remote Git history:
+current owned Taken, retained ancestry, exactly one claim, resumed receipt
+before setup/command and first edit, and unchanged human/source bytes. The
+pre-created claim is a resume precondition, not proof of initial publication.
+Retain original evidence and runtime/candidate identity until assessment.
 
-**Completion:** For every affected startup requirement on each of the three
-tools, record a fresh passing native result or justified reusable proof with
-the tool/runtime, candidate, decisive command/use trace, and remote/local
-observations. The claim must be on remote trunk before setup and implementation;
-source refusal and rival ownership must stop early; resume must avoid a second
-Take. Do not count CLI exit, self-report, another tool's result, or quota refusal
-as acceptance. Finish this acceptance before releasing the affected behavior.
+**Completion:** A passing Claude resume observation plus a justified final
+candidate reconciliation of all previously accepted host requirements under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Preserve
+truthful missing-proof judgments. Route real product defects to a bounded
+correction; do not silently absorb them here.
 
-**Boundary:** No new publication feature, host mode, blanket native matrix,
-version bump, or release in this work item. Existing acceptance runner and
-disposable fixture are the verification surface; update them only if a concrete
-assessment gap is found. No dashboard UI, ownership naming, CI automation,
-execution/closure migration, local coordination, or Claude background-mode
-adaptation is included. Missing host evidence stays pending; neither quota
-refusal nor a successful check on another host satisfies it.
+**Boundary:** No new startup behavior, dashboard work, host integration repair,
+CI automation, release, or broad harness cleanup. Use existing runner/fixtures;
+change assessment only for a concrete gap. Do not repeat a full host/scenario
+matrix or count exit status, self-report, or another host's pass as acceptance.
 
 ## Publication delivery boundaries
 
