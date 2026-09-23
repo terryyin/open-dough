@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence ([plan](quick/085-accept-delivery-evidence/PLAN.md))
-- [See new published work without manually refreshing the dashboard](seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard) — SEED-026#auto-refresh-published-dashboard ([plan](quick/084-auto-refresh-published-dashboard/PLAN.md))
 
 ## Backlog list
 

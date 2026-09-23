@@ -4,12 +4,13 @@ Status: planned.
 
 **Identity:** quick/087-truthful-abandoned-detail-reads/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 bundles four test-suite corrections (count helpers, lifecycle and boundary consolidation, fake GitHub answering path, overview server) whose proof loops may be independent; its sizing is unassessed and the unused-server finding is unverified."],"basis":{"document":"22075d6ea6e806a2ca6001a1ff4f5a9aa3fa4f68948da76744f0c740b0875cda"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 bundles four test-suite corrections (count helpers, lifecycle and boundary consolidation, fake GitHub answering path, overview server) whose proof loops may be independent; its sizing is unassessed and the unused-server finding is unverified."],"basis":{"document":"ca24845a1faf0e5124419f685b37a141df723b9faab7af1b3d792169d6cbf0f1"}}
 ```
 
 Source: execution retrospective of
-[plan 084](../084-auto-refresh-published-dashboard/PLAN.md) for
-[SEED-026#auto-refresh-published-dashboard](../../seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard),
+plan 084 (`38571d5:.planning/quick/084-auto-refresh-published-dashboard/PLAN.md`)
+for `SEED-026#auto-refresh-published-dashboard`
+(`38571d5:.planning/seeds/SEED-026-auto-refresh-published-dashboard.md`),
 Claude Code, 2026-09-23. Reviewed commits on
 `origin/claude/084-auto-refresh-published-dashboard`: `dcb0944` (slice 1),
 `9feec0e` (slice 2), `5cc80b0` (slice 3), `7eda3d7` (slice 4), after claim
