@@ -12,6 +12,21 @@ Review dates are seven calendar days after the verified use date; scope and
 provenance limits remain on each entry. No application tests were run for this
 record-maintenance review.
 
+## Pending response follow-up — not an active watch
+
+ODF-057, ODF-063, ODF-075, and ODF-076 remain active in the
+[finding catalog](finding-names.md), linked to
+[Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence).
+Refinement and [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md)
+were prepared on 2026-09-23. No response implementation, containing release, or
+qualifying use is established by this preparation. Watch start and review-after
+remain unknown; these findings are not eligible for age-based review or retirement.
+The plan requires per-finding response/evidence updates and a final reconciliation
+of this note. Move only eligible findings into the watch after release and verified
+relevant use; otherwise retain the catalog disposition and update this pending
+note with the actual limitation. This is a pointer to existing work, not another
+queue or an effectiveness claim. The existing ODF-056 watch is unchanged.
+
 ## ODF-056 — Literal CLI entry paths silently skip symlink-equivalent launches
 
 - **Meaning:** CLI entry guards compare literal URLs for the same file under different symlink spellings, exiting successfully without entering the command body.

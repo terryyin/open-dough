@@ -1135,7 +1135,7 @@ consult both lists when matching findings or allocating identities.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
 
 ## ODF-058 — CLI reports lack assertions for their promised output
 
@@ -1494,7 +1494,7 @@ consult both lists when matching findings or allocating identities.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
 
 ## ODF-064 — Corrections after refactoring skip a renewed review
 
@@ -2009,7 +2009,7 @@ consult both lists when matching findings or allocating identities.
     slices without rechecking, and no suite that consumes the changed type was
     run.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
 
 ## ODF-076 — Known concurrent-state proof gaps are accepted at delivery
 
@@ -2037,7 +2037,7 @@ consult both lists when matching findings or allocating identities.
     weak evidence of safety; proof or a recorded decision costs less than the
     post-merge fix.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, not resolved**. Selected second by the authorized 2026-09-23 runbook cycle after native startup acceptance became Taken. Keep the distinct proof mechanisms and deduplicate their shared execution evidence.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
 
 ## ODF-077 — Whole-suite recovery loses ownership and verdict evidence
 

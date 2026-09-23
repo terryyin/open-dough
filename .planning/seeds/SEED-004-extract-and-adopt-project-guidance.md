@@ -130,45 +130,103 @@ per-story documents, partial wrap-up, and early termination remain excluded.
 
 **Identity:** SEED-004#accept-delivery-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this run only queues the response."],"basis":{"document":"aff3b05322368c77ac0637695c6c8001797ce3b75380dd60474282f3ad5229bf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/085-accept-delivery-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"221bf317d1169133f9c0939711fbd4658babe5efbef770d69018ed4a43d0374d","plan":"41a74709429efa2a539fc6741cb8e4692a45faeeb6a181c7c0c213eeaf88ac54"}}
 ```
 
-**For / why:** For the developer receiving a delivered change, required behavior
-and changed consumer contracts have observable proof before publication. A green
-command or a handoff's prose must not stand in for an unexercised promise.
+**Status:** Refined with Terry on 2026-09-23. Refinement and slice planning are
+authorized; implementation is not. Existing identity and backlog position stay
+unchanged. [Executable plan](../quick/085-accept-delivery-evidence/PLAN.md).
 
-**Outcome and bounded scope:** Improve the existing execution proof-acceptance
-boundary so it catches stale consumer-applicability claims, empty or partial
-name-filtered selections, and explicitly uncovered promised behavior. Reuse the
-current planning, delegation, and acceptance owners; preserve sufficient current
-proof instead of requiring blanket reruns. This story does not redesign the CI
-observer, add a general evidence registry, change product scope, or perform the
-separate live-transition gate work already delivered for ODF-080.
+**Goal:** The developer receiving an execution increment gets an accurate account
+of demonstrated behavior, and required proof gaps are corrected before delivery.
+Address the four recorded acceptance failures below through the existing workflow.
 
-**Evaluation:** Given a changed shared contract, an omitted consumer or known
-unproved concurrent path, and a passing focused command, the executing agent
-leaves the affected delivery incomplete until matching observations exist or the
-developer explicitly changes the promise. A filtered command selecting none or
-only some owned promises cannot establish the rest. With sufficient current
-observations for all affected promises, delivery proceeds without redundant
-proof or a report-format-only retry. Evaluate actual execution behavior at this
-boundary, including the failure cases; wording checks alone do not establish it.
+**Why now:** ODF-075 and ODF-076 record delivered defects the developer repaired.
+They matter to frequent publication by parallel agents; CI observation alone
+cannot detect a consumer or behavior absent from the selected proof. ODF-057 and
+ODF-063 were caught during execution and support making those existing checks
+reliable, not claims of additional post-delivery failures. This evidence supports
+a bounded correction, not automatic precedence over dashboard ownership or
+branch visibility. Retain the existing queue order; neither story depends on this.
 
-**Supporting findings:**
+**Scope:** Correct only the four demonstrated mechanisms: empty/partial filtered
+test selection accepted as complete proof; unsupported delegated behavioral prose
+reported as verified; a stale unaffected-consumer judgment surviving a shared
+contract change, including test-support consumers; and an explicitly uncovered
+required readiness behavior recorded as learning while delivery proceeds.
+Use existing proof ownership, implementation returns, and coordinator acceptance.
+Keep one authoritative acceptance rule and amend its concrete application rather
+than adding another gate. Use concise, personalized instructions addressed to the
+executing agent, with clear responsibility and easy-to-follow actions. Rewrite
+and simplify existing guidance, removing overlap instead of adding reminders
+that dilute this goal or other workflow intentions. Existing acceptance happens before commit; do not move
+it to after publication. Obtain missing observations within authorized work;
+only a disputed requirement or explicit scope change needs a human decision.
+
+Affected promises mean the selected work's required behavior and existing behavior
+affected by its changed contracts. A relevant change to implementation, consumer
+contract, setup, or observation can invalidate evidence; a new SHA alone does not.
+Preserve sufficient proof, equivalent report layouts, focused checks, and ordinary
+quick/planned execution. Inspect behavioral claims before reporting them as
+verified; incidental untested claims do not automatically become new product scope.
+
+**Key examples:**
+
+1. A `merge direction` filter exits zero but runs no tests, or `published overview`
+   selects one of three owned observations. Acceptance names the missing coverage
+   and obtains the missing observations before treating those promises as proved.
+   A nonzero test count alone does not establish complete selection.
+2. A delegated report says an anchor-only link is unusable, but no assertion
+   observes that and the code links the planning directory. The coordinator does
+   not repeat it as fixture-covered; it returns the required behavior for correction
+   and accepts only after the observing assertion and product behavior agree.
+3. A command factory changes to `(CaptureContext, release_tag)`. An earlier
+   unaffected-E2E assessment cannot exclude its stand-in without reassessment.
+   The affected consumer is aligned and exercised before accepting the increment.
+4. A return explicitly leaves required storage-readiness requeue behavior untested.
+   Recording the gap in Learnings does not complete the promise. Obtain matching
+   proof or leave that delivery incomplete with its specific missing requirement.
+   The later active-task handoff repair corroborates lifecycle risk; it does not
+   prove that the precise omitted requeue test would have caught the race.
+5. All affected observations are current and sufficient, including reused proof.
+   Acceptance proceeds without blanket reruns, a new approval request, or a
+   report-format-only retry. A genuinely disputed promise stops its dependent
+   path while independently supported work can continue.
+
+**Exclusions:** General assurance or evidence-registry machinery; exhaustive
+consumer discovery; mandatory full-suite runs; universal concurrency hardening;
+CI observer redesign or synchronous CI waits; installation/coexistence redesign;
+fixing the historical application defects again; new report schemas; automatic
+scope reduction; unrelated findings or historical-log cleanup. The already
+delivered ODF-080 live-transition gate remains separate.
+
+**Evidence and limitations:**
 [ODF-057](../../docs/maintainer/finding-names.md#odf-057--pattern-selected-proof-silently-omits-owned-tests),
 [ODF-063](../../docs/maintainer/finding-names.md#odf-063--untested-delegated-claims-become-authoritative-user-reports),
 [ODF-075](../../docs/maintainer/finding-names.md#odf-075--a-changed-shared-contract-leaves-an-untested-consumer-broken), and
 [ODF-076](../../docs/maintainer/finding-names.md#odf-076--known-concurrent-state-proof-gaps-are-accepted-at-delivery).
-Their mechanisms remain distinct; occurrence evidence stays in the catalog.
+Mechanisms stay distinct; shared execution evidence is not independent recurrence.
+Historical logs demonstrate failures and successful local corrections, not that
+all failures recur under today's guidance. The plan retains decisive locators.
 
-**Completion:** Demonstrate the bounded acceptance outcome and record the actual
-response, implementation/evidence locator, containing release (or explicitly
-pending), and remaining limitations on every addressed catalog finding. Queueing
-this response does not resolve the findings.
+**Evaluation:** Exercise actual agent acceptance of representative evidence-backed
+returns and sufficient-evidence controls. Observe selected tests, inspected
+assertions/consumers, corrections or precise incomplete outcomes, and truthful
+reports. Wording checks and exit zero alone cannot establish the outcome. Reuse
+valid host-integration evidence and select native behavior checks by unresolved
+risk under ADR 0005; do not require every example on every tool.
 
-**Depends on:** Existing proof-acceptance and publication contracts; no unfinished
-product prerequisite identified. Refinement and execution approach selection
-remain future work.
+**Completion and follow-up:** Update each addressed entry in
+`docs/maintainer/finding-names.md` with its actual response, implementation and
+recoverable evidence locator, containing release or explicitly pending release,
+and limitations. Source implementation means addressed in source, effectiveness
+unverified. Reconcile `docs/maintainer/near-term-watch-list.md` at delivery: start
+an actual watch only after a released response has verified relevant use. Until
+then retain the active catalog entry and unknown watch start/review-after. On
+eligible use record its provenance and review seven calendar days later. Do not
+resolve a finding from preparation, installation alone, or silence.
 
-**Safe stopping point:** A developer can rely on this acceptance boundary without
-waiting for observer automation or a wider workflow rewrite.
+**Depends on / safe stopping point:** Existing proof and publication contracts;
+no unfinished product prerequisite. Each corrected acceptance mechanism is useful
+independently. No open product-scope decision remains. Runtime proof may expose
+implementation learning; it does not authorize broader scope or another workflow.
