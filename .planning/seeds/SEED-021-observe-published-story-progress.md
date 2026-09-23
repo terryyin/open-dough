@@ -169,7 +169,7 @@ be reported as successfully owned work. Reused names must not make earlier
 assignments or messages appear to belong to a new execution.
 
 Extend the backlog's claim domain and the
-[shared startup operation](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk)
+[shared startup operation](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work)
 so assignment and Taken publish together before implementation. Name availability
 is an assignment-domain check, including after a remote race; publication and
 recovery stay with the existing publisher. Do not add dashboard-driven claims,
@@ -207,7 +207,7 @@ current ownership. Keep the automated assignment bounded to actual Taken work,
 not a general developer-directory product.
 
 **Depends on:** The delivered dashboard and
-[shared startup publication](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk).
+[shared startup publication](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work).
 Published readiness is already delivered. Add assignment semantics through the
 existing backlog domain and startup path; ordinary CI automation and local
 checkout coordination are not product prerequisites for this visibility outcome.

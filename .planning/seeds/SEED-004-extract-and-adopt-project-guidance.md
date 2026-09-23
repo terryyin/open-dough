@@ -73,7 +73,7 @@ list**.
 **Git context:** Reuse a suitable owned workspace and carry identity, mode,
 and publication authority into the existing preparation/execution workflow.
 Retained source must be published through the authorized preparation path before
-[shared startup](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk)
+[shared startup](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work)
 can consume it. Taken settles on remote trunk in either mode. This handoff adds
 no separate freshness check, Git publication recipe, or CI setup; it consumes
 those shared operations as they are delivered. A planning-only request does

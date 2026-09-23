@@ -2,11 +2,16 @@
 
 Status: planned.
 
-Identity: `quick/081-retire-legacy-claim-runner/PLAN.md`
+**Identity:** quick/081-retire-legacy-claim-runner/PLAN.md
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4958eeb7927b518346ed23633e268e0508de6051911e432db9c3f308e26552aa"}}
+```
 
-Source: execution retrospective for
-[SEED-008#settle-taken-claims-on-remote-trunk](../../seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk),
-[plan 080](../080-publish-startup-claims/PLAN.md). This is a bounded structural
+Source: execution retrospective for the completed startup story, recoverable at
+`ce77380fa796b04e70d1d9973f930ce54f5bacb2:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk`,
+and its plan at
+`ce77380fa796b04e70d1d9973f930ce54f5bacb2:.planning/quick/080-publish-startup-claims/PLAN.md`.
+This is a bounded structural
 correction to the delivered startup path, not a new feature story. Planning
 does not authorize execution.
 
