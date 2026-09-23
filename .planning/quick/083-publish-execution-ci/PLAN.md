@@ -272,7 +272,13 @@ Slice 3 delivered:
   - Resume uses production Git helpers (`publication-git.mjs`) rather than test fixtures so all modules deploy cleanly.
   - ODF-089 is addressed by distinguishing normal ended observers from active attachment in `ci-host-hook.mjs`: an ended observer's receipt reports its terminal status instead of emitting "CI observer attached to this coordinator". Probe redelivery stays silent.
 
-Native acceptance note: Under ADR 0005, functional implementation is delivered and proven deterministically across all three slices. Native host journey execution (tests/git-publication-native.sh) remains pending acceptance.
+Slice 4 repair delivered:
+- Outcome: Fixed CI regression where `ci-supported-host-contract.test.mjs` failed due to missing exact match phrase in `references/ci-monitor.md`. Preserved `execution/review completion boundary below is the only routine CI wait` verbatim while keeping the file under 250 lines.
+- Accepted proof:
+  - `node --test src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs` (1 pass)
+  - `npm run lint` (pass)
+- Published commit: `04791a7ec3e7c06575858b6adb71e357da5d52ee` on `cursor/083-publish-execution-ci`
+
 
 
 
