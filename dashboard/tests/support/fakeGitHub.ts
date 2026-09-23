@@ -5,7 +5,9 @@
 // dashboard's own local read boundary, its `gh` invocation, the browser
 // reader, the shared backlog interpretation, and the page all run for real;
 // a test only decides what GitHub would answer, per repository, and observes
-// the `gh` calls that reached it.
+// the `gh` calls that reached it. How `gh api` prints each answer, a `304
+// Not Modified` to a still-matching `If-None-Match` included, is
+// ./ghReply.ts.
 
 import http from "node:http";
 import type { AddressInfo } from "node:net";
@@ -15,10 +17,17 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "../originAnswers";
+import { asGhReply } from "./ghReply";
 
-// What one `gh` invocation asked GitHub for.
+// What one `gh` invocation asked GitHub for. A ref request made with
+// `--include` and an `If-None-Match` header is conditional on that tag.
 export type GhRequest =
-  | { readonly kind: "ref"; readonly repository: string; readonly ref: string }
+  | {
+      readonly kind: "ref";
+      readonly repository: string;
+      readonly ref: string;
+      readonly ifNoneMatch: string | undefined;
+    }
   | {
       readonly kind: "content";
       readonly repository: string;
@@ -58,17 +67,31 @@ export type FakeGitHub = {
   close(): Promise<void>;
 };
 
-type GhReply = {
-  readonly stdout: string;
-  readonly stderr: string;
-  readonly exitCode: number;
-};
+// The value of one `-H "<name>: <value>"` argument, if given.
+function headerArgument(
+  argv: readonly string[],
+  name: string,
+): string | undefined {
+  const prefix = `${name.toLowerCase()}:`;
+  for (let at = 0; at < argv.length - 1; at += 1) {
+    const value = argv[at + 1] ?? "";
+    if (argv[at] === "-H" && value.toLowerCase().startsWith(prefix)) {
+      return value.slice(prefix.length).trim();
+    }
+  }
+  return undefined;
+}
 
 function parseRequest(argv: readonly string[]): GhRequest {
   const endpoint = argv.find((arg) => arg.startsWith("repos/")) ?? "";
   const ref = /^repos\/([^/]+\/[^/]+)\/commits\/(.+)$/.exec(endpoint);
   if (ref?.[1] !== undefined && ref[2] !== undefined) {
-    return { kind: "ref", repository: ref[1], ref: ref[2] };
+    return {
+      kind: "ref",
+      repository: ref[1],
+      ref: ref[2],
+      ifNoneMatch: headerArgument(argv, "If-None-Match"),
+    };
   }
   const content = /^repos\/([^/]+\/[^/]+)\/contents\/([^?]+)\?ref=(.+)$/.exec(
     endpoint,
@@ -86,52 +109,6 @@ function parseRequest(argv: readonly string[]): GhRequest {
     };
   }
   return { kind: "unknown" };
-}
-
-// `gh api --jq .field` prints one field of a JSON answer.
-function applyJq(argv: readonly string[], body: string): string {
-  const at = argv.indexOf("--jq");
-  const filter = at >= 0 ? argv[at + 1] : undefined;
-  if (filter === undefined) {
-    return body;
-  }
-  let value: unknown = JSON.parse(body);
-  for (const field of filter.split(".").filter(Boolean)) {
-    value = (value as Record<string, unknown>)[field];
-  }
-  return `${typeof value === "string" ? value : JSON.stringify(value)}\n`;
-}
-
-// What `gh api` prints and exits with for GitHub's answer.
-function asGhReply(argv: readonly string[], answer: OriginAnswer): GhReply {
-  if ("exitCode" in answer) {
-    return { stdout: "", stderr: answer.stderr, exitCode: answer.exitCode };
-  }
-  if ("connection" in answer) {
-    return {
-      stdout: "",
-      stderr:
-        "error connecting to api.github.com\ncheck your internet connection or https://githubstatus.com\n",
-      exitCode: 1,
-    };
-  }
-  if (answer.status < 300) {
-    return { stdout: applyJq(argv, answer.body), stderr: "", exitCode: 0 };
-  }
-  let message = "HTTP error";
-  try {
-    const parsed = JSON.parse(answer.body) as { message?: unknown };
-    if (typeof parsed.message === "string") {
-      message = parsed.message;
-    }
-  } catch {
-    // A non-JSON error body still ends with its status, as `gh` prints it.
-  }
-  return {
-    stdout: answer.body,
-    stderr: `gh: ${message} (HTTP ${String(answer.status)})\n`,
-    exitCode: 1,
-  };
 }
 
 function controlAnswer(
@@ -197,7 +174,7 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
           return;
         }
         res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify(asGhReply(argv, answer)));
+        res.end(JSON.stringify(asGhReply(argv, call.request, answer)));
       });
     });
   });

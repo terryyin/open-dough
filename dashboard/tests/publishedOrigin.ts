@@ -7,9 +7,10 @@
 // in ./originAnswers; this module serves those answers for one or more
 // concurrently observed repositories.
 //
-// `publishOrigin` and `publishMovingOrigin` publish only the ref and the
-// backlog file: any other file of the repository gets no answer and is not
-// observed, so detail reads fail as unavailable. `publishFiles` publishes a
+// `publishOrigin` publishes only the ref and the backlog file, and
+// `publishMovingOrigin` also any record files a push names: any other file of
+// the repository gets no answer and is not observed, so detail reads fail as
+// unavailable. `publishFiles` publishes a
 // fixed set of files at one revision; ./committedOrigin.ts publishes whole
 // committed revisions.
 
@@ -100,9 +101,14 @@ export function publishOrigin(
 // never supplied here.
 export type MovingOrigin = {
   readonly requests: ObservedRequest[];
-  // Pushes a commit: `main` names it from now on, and the backlog stays
-  // readable at it, as at every commit pushed before.
-  push(revision: string, backlog: string): void;
+  // Pushes a commit: `main` names it from now on, and the backlog (and any
+  // record files given by repository path) stay readable at it, as at every
+  // commit pushed before.
+  push(
+    revision: string,
+    backlog: string,
+    files?: Readonly<Record<string, string>>,
+  ): void;
   // Holds back answers from now on until the returned release is called: for
   // "main" the ref answer, for a revision the backlog file read at it. A held
   // answer was decided when its request arrived, not when it is released.
@@ -119,12 +125,25 @@ export function publishMovingOrigin(
 ): Promise<MovingOrigin> {
   const requests: ObservedRequest[] = [];
   const backlogs = new Map<string, string>();
+  const records = new Map<string, Readonly<Record<string, string>>>();
   const held = new Map<string, Promise<void>>();
   const instead = new Map<string, OriginAnswer>();
   let main: string | undefined;
 
   githubFor(page).serve(repository, async (call) => {
     const target = publishedTarget(call);
+    const { request } = call;
+    if (target === undefined && request.kind === "content") {
+      const files = records.get(request.revision);
+      const body =
+        files !== undefined && Object.hasOwn(files, request.path)
+          ? files[request.path]
+          : undefined;
+      if (body !== undefined) {
+        requests.push(call);
+        return rawFileAnswer(body);
+      }
+    }
     if (target === undefined) {
       return noConnection;
     }
@@ -146,8 +165,9 @@ export function publishMovingOrigin(
 
   return Promise.resolve({
     requests,
-    push(revision, backlog) {
+    push(revision, backlog, files = {}) {
       backlogs.set(revision, backlog);
+      records.set(revision, files);
       main = revision;
     },
     answerWith(what, answer) {

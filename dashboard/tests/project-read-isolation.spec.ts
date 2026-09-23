@@ -2,13 +2,13 @@
 // This is the cross-project analog of ./refresh.spec.ts and
 // ./refresh-focus.spec.ts, which already prove the same-project overlapping
 // read case (a second refresh outrunning or replacing an earlier one); this
-// file proves the same App.tsx rule -- one `AbortController` per read, an
-// abort-check before every `setRetrieval`, and a synchronous state-clear in
-// `selectSource` -- also holds when the overlap crosses a *project* switch,
-// not just a same-project refresh, including when the deselected project's
-// read answers late with success, answers late with failure, or when the
-// person returns to a project whose earlier read is still outstanding
-// elsewhere.
+// file proves the same `../src/publishedObservation.ts` rule -- one
+// `AbortController` per read, an abort-check before every `setRetrieval`, and
+// a synchronous state-clear in `selectSource` -- also holds when the overlap
+// crosses a *project* switch, not just a same-project refresh, including when
+// the deselected project's read answers late with success, answers late with
+// failure, or when the person returns to a project whose earlier read is
+// still outstanding elsewhere.
 //
 // Each held answer is released only after the newly selected project's own
 // work is already shown, and every assertion of "nothing changed" runs

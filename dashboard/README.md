@@ -45,8 +45,14 @@ boundary from the same Vite configuration, so a built preview needs no
 separate setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
-reads once on opening and again only when **Refresh** is pressed; nothing is
-polled, and each read replaces the whole view with one revision. No local
+reads once on opening and again when **Refresh** is pressed. While a snapshot
+is shown, the page also asks every 15 seconds whether the project's `main`
+still names the shown revision -- a conditional request that GitHub answers
+with `304 Not Modified` when nothing moved, so an unchanged `main` reads no
+backlog or record and changes neither the revision nor the retrieval time.
+When `main` names a new commit, the page reads exactly that commit, so newly
+published work appears within about 30 seconds. Each read replaces the whole
+view with one revision. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 
@@ -55,7 +61,10 @@ than 30 seconds for GitHub (`readWaitLimitMs` in `src/publishedWork.ts`) ends
 as a read problem, never as an empty or partial backlog. The snapshot read
 earlier stays shown with its own revision and retrieval time, the problem says
 when the attempt failed, and the read control is named **Retry** until a read
-succeeds. Nothing retries by itself. Selecting another project stays available
+succeeds. A failed revision check is reported the same way, keeping the
+snapshot; a later check that finds `main` unchanged clears the report. A failed
+read is not retried by itself; only a later revision check that finds a new
+commit reads again. Selecting another project stays available
 throughout: a failed or still-reading project never blocks switching to
 another, and returning to a project starts a fresh read rather than replaying
 the failure.
@@ -135,4 +144,6 @@ GitHub. Select one journey with, for example,
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
 revision for preparation and detail; they count against the launching person's own GitHub API
-allowance.
+allowance. Each revision check is one more `gh` request (at most four a
+minute per open page); a newly published commit then costs one backlog read
+plus its records, without resolving `main` again.

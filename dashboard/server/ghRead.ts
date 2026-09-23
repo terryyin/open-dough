@@ -1,12 +1,14 @@
 // The `gh`-invocation concern for the local authenticated read boundary
-// (`./authenticatedRead.ts`): the two read-only `gh api` calls a backlog or
+// (`./authenticatedRead.ts`): the read-only `gh api` calls a backlog or
 // reachability-checked record read needs (resolve ref, then read content
-// pinned to that resolved commit), each with a fixed argument array -- never
-// a shell string, and never a caller-supplied repository. Kept apart from
+// pinned to that resolved commit), and the conditional ref check that asks
+// only whether the ref still names the same commit. Each has a fixed
+// argument array -- never a shell string, and never a caller-supplied
+// repository. Kept apart from
 // `./localOrigin.ts`'s request-refusal concern: everything here already
 // trusts that the request was allowed to reach this point.
 
-import { execFile } from "node:child_process";
+import { execFile, type ExecException } from "node:child_process";
 
 // How long one boundary request -- all of its owned `gh` subprocesses -- may
 // run before the boundary (`./authenticatedRead.ts`) aborts it, mirroring the
@@ -69,8 +71,17 @@ function classify(
   return { kind: "failed" };
 }
 
-function runGh(args: readonly string[], signal: AbortSignal): Promise<string> {
-  return new Promise((resolve, reject) => {
+type GhRun = {
+  readonly error: ExecException | null;
+  readonly stdout: string;
+  readonly stderr: string;
+};
+
+// One `gh` invocation, settled whatever its exit: `gh api --include` prints
+// GitHub's status line on stdout even when it exits non-zero, so a caller
+// that asked for it decides from that status before classifying the exit.
+function execGh(args: readonly string[], signal: AbortSignal): Promise<GhRun> {
+  return new Promise((resolve) => {
     execFile(
       "gh",
       [...args],
@@ -81,32 +92,126 @@ function runGh(args: readonly string[], signal: AbortSignal): Promise<string> {
         env: { ...process.env, GH_PROMPT_DISABLED: "1" },
       },
       (error, stdout, stderr) => {
-        if (error) {
-          reject(new GhFailure(classify(error, stderr)));
-          return;
-        }
-        resolve(stdout);
+        resolve({ error, stdout, stderr });
       },
     );
   });
 }
 
+async function runGh(
+  args: readonly string[],
+  signal: AbortSignal,
+): Promise<string> {
+  const { error, stdout, stderr } = await execGh(args, signal);
+  if (error) {
+    throw new GhFailure(classify(error, stderr));
+  }
+  return stdout;
+}
+
 export const commitShaPattern = /^[0-9a-f]{40}$/;
+
+// The one GitHub endpoint that says which commit a ref names; both the
+// resolving read and the conditional check ask it for `.sha` alone.
+function refEndpoint(repository: string, ref: string): string {
+  return `repos/${repository}/commits/${ref}`;
+}
+
+function commitNamedBy(sha: string): string {
+  const revision = sha.trim();
+  if (!commitShaPattern.test(revision)) {
+    throw new GhFailure({ kind: "no-commit" });
+  }
+  return revision;
+}
 
 export async function resolveRevisionViaGh(
   repository: string,
   ref: string,
   signal: AbortSignal,
 ): Promise<string> {
-  const stdout = await runGh(
-    ["api", `repos/${repository}/commits/${ref}`, "--jq", ".sha"],
+  return commitNamedBy(
+    await runGh(["api", refEndpoint(repository, ref), "--jq", ".sha"], signal),
+  );
+}
+
+// What `gh api --include` printed: GitHub's status line and headers, then the
+// (here `--jq`-filtered) body after the first blank line.
+type IncludedAnswer = {
+  readonly status: number;
+  readonly headers: ReadonlyMap<string, string>;
+  readonly body: string;
+};
+
+function parseIncluded(stdout: string): IncludedAnswer | undefined {
+  const lines = stdout.split("\n");
+  const statusLine = /^HTTP\/\S+\s+(\d{3})\b/.exec(lines[0] ?? "");
+  if (statusLine?.[1] === undefined) {
+    return undefined;
+  }
+  const headers = new Map<string, string>();
+  let at = 1;
+  for (; at < lines.length; at += 1) {
+    const line = (lines[at] ?? "").replace(/\r$/, "");
+    if (line === "") {
+      break;
+    }
+    const colon = line.indexOf(":");
+    if (colon > 0) {
+      headers.set(
+        line.slice(0, colon).trim().toLowerCase(),
+        line.slice(colon + 1).trim(),
+      );
+    }
+  }
+  return {
+    status: Number(statusLine[1]),
+    headers,
+    body: lines.slice(at + 1).join("\n"),
+  };
+}
+
+// A commit a ref named, and the entity tag GitHub gave that answer.
+export type RevisionAnswer = {
+  readonly revision: string;
+  readonly etag: string | undefined;
+};
+
+// Asks GitHub which commit `ref` names now, conditionally on an earlier
+// answer. GitHub answers `304 Not Modified` when that answer still holds,
+// which `gh api` reports by exiting 1; that status is recognized from the
+// included status line before the exit is ever treated as a failure, and
+// every other non-success is classified as any read failure is.
+export async function checkRevisionViaGh(
+  repository: string,
+  ref: string,
+  earlier: RevisionAnswer | undefined,
+  signal: AbortSignal,
+): Promise<RevisionAnswer> {
+  const conditional =
+    earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
+  const { error, stdout, stderr } = await execGh(
+    [
+      "api",
+      "--include",
+      ...conditional,
+      refEndpoint(repository, ref),
+      "--jq",
+      ".sha",
+    ],
     signal,
   );
-  const sha = stdout.trim();
-  if (!commitShaPattern.test(sha)) {
-    throw new GhFailure({ kind: "no-commit" });
+  const answer = signal.aborted ? undefined : parseIncluded(stdout);
+  if (answer?.status === 304 && earlier?.etag !== undefined) {
+    return earlier;
   }
-  return sha;
+  if (error || answer?.status !== 200) {
+    throw new GhFailure(error ? classify(error, stderr) : { kind: "failed" });
+  }
+  return {
+    revision: commitNamedBy(answer.body),
+    etag: answer.headers.get("etag"),
+  };
 }
 
 // One pinned file at a known repository path. Callers that need the catalog

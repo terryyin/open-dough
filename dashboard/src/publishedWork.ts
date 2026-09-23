@@ -131,10 +131,13 @@ function interpret(
 // nothing retries for them.
 const readWaitLimitMs = 30_000;
 
+// Reads the source's ref afresh, or, given a revision a check already
+// resolved, that exact revision: the ref is never resolved a second time.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
   onPartial?: PublishedWorkProgress,
+  knownRevision?: string,
 ): Promise<PublishedWork> {
   const waitLimit = new AbortController();
   const waiting = setTimeout(() => {
@@ -147,6 +150,7 @@ export async function readPublishedWork(
     const { revision, backlog: markdown } = await readPublishedSnapshot(
       source,
       untilEither,
+      knownRevision,
     );
     // Membership first, then preparation enrichment through the same
     // boundary's reachability-checked path reads at that revision.

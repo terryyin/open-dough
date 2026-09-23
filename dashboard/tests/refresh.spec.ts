@@ -111,7 +111,7 @@ test("refresh published work still describes B entirely when main advances to C 
   );
 });
 
-test("refresh published work reads only when asked, and an unchanged revision changes only the retrieval time", async ({
+test("refresh published work only checks main as time passes, and a Refresh at an unchanged revision changes only the retrieval time", async ({
   page,
 }) => {
   const retrievedA = new Date("2026-09-20T08:30:00.000Z");
@@ -124,13 +124,18 @@ test("refresh published work reads only when asked, and an unchanged revision ch
   const preparing = page.getByText("Reading preparation…");
   await expect(preparing).toHaveCount(0);
 
-  await test.step("time passing and returning to the page read nothing", async () => {
+  // What was read beyond asking which commit `main` names.
+  const backlogReads = () =>
+    pathsRead(origin).filter((read) => read !== "main");
+
+  await test.step("time passing and returning to the page only check main and read nothing else", async () => {
     await page.clock.fastForward("03:00:00");
     await page.evaluate(
       "window.dispatchEvent(new Event('focus')); window.dispatchEvent(new Event('online')); document.dispatchEvent(new Event('visibilitychange'))",
     );
+    await expect.poll(() => pathsRead(origin).length).toBeGreaterThan(2);
     await page.clock.fastForward("00:30:00");
-    expect(pathsRead(origin)).toHaveLength(2);
+    expect(backlogReads()).toEqual([`PRODUCT-BACKLOG.md?ref=${revisionA}`]);
     await expect(source.locator("time")).toHaveAttribute(
       "datetime",
       retrievedA.toISOString(),
@@ -158,5 +163,8 @@ test("refresh published work reads only when asked, and an unchanged revision ch
   expect(await body.innerText()).toBe(
     textAtFirstRead.replaceAll(timeAtFirstRead, timeAtSecondRead),
   );
-  expect(pathsRead(origin)).toHaveLength(4);
+  expect(backlogReads()).toEqual([
+    `PRODUCT-BACKLOG.md?ref=${revisionA}`,
+    `PRODUCT-BACKLOG.md?ref=${revisionA}`,
+  ]);
 });

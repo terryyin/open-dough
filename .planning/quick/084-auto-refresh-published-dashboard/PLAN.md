@@ -178,7 +178,7 @@ wording was classified against the synthetic `gh` only.
 ### 2. Refresh visible work only when the selected main revision changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With a visible dashboard showing SHA A, scheduled authenticated
 checks of the selected project's `main` at a cadence meeting the 30-second
@@ -210,6 +210,45 @@ regressions.
 Safe stopping point: a visible page updates automatically on published `main`
 changes and spends only revision checks during quiet periods; manual Retry and
 the existing last-snapshot behavior remain usable.
+
+Delivered: the boundary gained a revision check (`?source=<id>&since=<sha>`
+answering `{revision, changed}`) using `gh api --include` with a per-source
+in-memory ETag hint (`dashboard/server/revisionChecks.ts`); `ghRead.ts` reads
+the included status line before failure classification, so `gh`'s exit-1
+`304` is unchanged. A backlog read at a known SHA (`?source=<id>&revision=<sha>`)
+lets a changed check read B without resolving `main` again. Request parsing
+lives in `dashboard/server/requestedRead.ts`. Observation moved from `App.tsx`
+into `dashboard/src/publishedObservation.ts` (`usePublishedObservation`),
+which schedules one check 15 seconds after each settled read or check, never
+overlapping a read. Pulled forward from slice 4 so a failure is neither hidden
+nor permanent: a failed check marks the existing failed attempt (Retry) while
+keeping the snapshot, and a later unchanged check clears it.
+
+Accepted proof (coordinator-inspected):
+`npx playwright test --config dashboard/playwright.config.ts dashboard/tests/auto-refresh.spec.ts dashboard/tests/authenticated-read-revision-check.spec.ts`
+("auto refresh: quiet main is only checked, and newly published main appears
+with its own detail and keeps focus": paused page clock stepped by
+`passTimeUntilChecked` in `dashboard/tests/autoRefreshJourney.ts`, three
+checks at about 15 seconds, conditional argv with A's ETag, zero content
+reads, unchanged SHA and retrieval time, then B rendered with focus retained,
+detail and links pinned to B, one conditional ref call plus B-pinned reads;
+"main moving again while B's backlog is read leaves one snapshot pinned to
+B, and the next check finds C"; boundary cases for `304`, same-SHA `200`,
+moved SHA, per-source hints, rate-limit and missing-login failures,
+refusals, and backlog at a known revision); `npm run typecheck:dashboard`;
+full `npm run test:dashboard` (90 passed).
+
+Learnings for later slices: the first check after each read is unconditional
+because the membership read does not seed the ETag hint. Rate-limit direction
+is not carried yet: `GhFailure` records only `rate-limited` and status, so
+slice 4 must pass `X-Ratelimit-Reset`/`Retry-After` from the check's included
+headers to the schedule. Slice 3 can gate the schedule effect in
+`publishedObservation.ts` on visibility and use a zero delay on becoming
+visible. Existing page specs run real timers, so a journey longer than 15
+seconds could observe an extra `main` check. A read-only real `gh` probe
+confirmed the `--include --jq .sha` shape for `200` and `304`;
+`X-Ratelimit-Used` rose on some `304`s, so a check's allowance cost is
+unproven; at 15 seconds one visible page makes at most 240 checks an hour.
 
 ### 3. Observe only the selected visible project
 
@@ -291,4 +330,13 @@ automatic checks recover without a tight retry loop.
 - CI observer: GitHub Actions `ci.yml` / `CI`, mailbox
   `/tmp/dough-ci-501/watch-x41GQ4`, target branch
   `claude/084-auto-refresh-published-dashboard`.
-- Published revisions: none yet.
+- Published revisions: `dcb0944029136ae1b3893b8d61be1668b498bc84` (slice 1)
+  on `origin/claude/084-auto-refresh-published-dashboard`.
+- CI run 35862495063 on `dcb0944` failed only
+  `src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs`
+  "ambiguous matching owners return a gap and preserve existing state"
+  (`recovered` instead of `unobserved`, an observer-ownership timing race).
+  This story changes no `src/`, `tests/`, or `scripts/` file; the dashboard
+  and lint jobs passed. The Taken 085 execution owns that test's repair on
+  `cursor/085-accept-delivery-evidence` (`6c08878`, `0c7df6a`), so no repair
+  was made here.

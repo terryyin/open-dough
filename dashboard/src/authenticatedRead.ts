@@ -1,11 +1,12 @@
 // The browser's one reader of published Git state: an ordinary same-origin
 // `fetch` to the local authenticated read boundary
 // (`../server/authenticatedRead.ts`) at `/__authenticated-read?source=<id>`,
-// for any catalog source (`./publishedSource.ts`). Optional `revision` and
-// `path` request one further file already reachable from that revision's
-// records. No extra header or credential is sent; the page is served by the
-// same Vite process that answers this endpoint, so the request is same-origin
-// by construction, and the endpoint's own Origin/Host check
+// for any catalog source (`./publishedSource.ts`). An optional `revision`
+// reads the backlog at a commit already resolved, and with `path` one further
+// file already reachable from that revision's records; `since` instead asks
+// only whether the ref still names the revision shown. No extra header or
+// credential is sent; the page is served by the same Vite process that
+// answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
 // (`../server/localOrigin.ts`) does the rest. There is no direct browser path
 // to GitHub.
 //
@@ -19,14 +20,19 @@ import { authenticatedReadEndpoint } from "./authenticatedReadPath";
 import type { PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
 
+const commitSha = z.string().regex(/^[0-9a-f]{40}$/);
 const okSnapshot = z.object({
-  revision: z.string().regex(/^[0-9a-f]{40}$/),
+  revision: commitSha,
   backlog: z.string(),
 });
 const okFile = z.object({
-  revision: z.string().regex(/^[0-9a-f]{40}$/),
+  revision: commitSha,
   path: z.string().min(1),
   text: z.string(),
+});
+const okCheck = z.object({
+  revision: commitSha,
+  changed: z.boolean(),
 });
 const errorAnswer = z.object({ error: z.string().min(1) });
 
@@ -66,14 +72,21 @@ async function authenticatedGet(
 }
 
 // Resolves the source's ref to one commit and reads its backlog at that
-// commit, both on the local server.
+// commit, both on the local server. Given a revision already resolved, reads
+// the backlog at exactly that commit instead of resolving the ref again.
 export async function readPublishedSnapshot(
   source: PublishedSource,
   signal: AbortSignal,
+  revision?: string,
 ): Promise<PublishedSnapshot> {
-  const reading = `${source.ref} of ${source.repository}`;
+  const reading =
+    revision === undefined
+      ? `${source.ref} of ${source.repository}`
+      : `${source.backlogPath} at ${revision}`;
+  const pinnedTo =
+    revision === undefined ? "" : `&revision=${encodeURIComponent(revision)}`;
   const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}`,
+    `source=${encodeURIComponent(source.id)}${pinnedTo}`,
     reading,
     signal,
   );
@@ -83,7 +96,43 @@ export async function readPublishedSnapshot(
       `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
     );
   }
+  if (revision !== undefined && parsed.data.revision !== revision) {
+    throw new ReadProblem(
+      `The local authenticated read answered for a different revision while reading ${reading}.`,
+    );
+  }
   return parsed.data;
+}
+
+// Whether the source's ref still names the revision shown, or which commit it
+// names now. Nothing of the backlog or its records is read.
+export type RevisionCheck =
+  | { readonly changed: false }
+  | { readonly changed: true; readonly revision: string };
+
+export async function checkPublishedRevision(
+  source: PublishedSource,
+  shown: string,
+  signal: AbortSignal,
+): Promise<RevisionCheck> {
+  const reading = `${source.ref} of ${source.repository}`;
+  const body = await authenticatedGet(
+    `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}`,
+    reading,
+    signal,
+  );
+  const parsed = okCheck.safeParse(body);
+  if (
+    !parsed.success ||
+    parsed.data.changed !== (parsed.data.revision !== shown)
+  ) {
+    throw new ReadProblem(
+      `The local authenticated read answered in a shape this dashboard does not understand while checking ${reading}.`,
+    );
+  }
+  return parsed.data.changed
+    ? { changed: true, revision: parsed.data.revision }
+    : { changed: false };
 }
 
 export async function readRepositoryFileAt(

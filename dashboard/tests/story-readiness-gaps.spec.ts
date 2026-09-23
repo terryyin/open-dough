@@ -25,7 +25,7 @@ import {
 import { expectMalformedExternalAndLegacy } from "./storyReadinessRecordGaps";
 import {
   expectFailedRefreshKeepsPriorRevision,
-  expectNoPollingAfterSettlement,
+  expectNoRereadAfterSettlement,
   expectProjectSwitchRejectsLateHeldRead,
 } from "./storyReadinessRefresh";
 
@@ -136,9 +136,9 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       await expectMalformedExternalAndLegacy(backlog, doughnutOrigin);
     });
 
-    await test.step("no polling or unbounded retries after settlement", async () => {
-      await expectNoPollingAfterSettlement(doughnutOrigin, page);
-      await expectNoPollingAfterSettlement(openDoughOrigin, page);
+    await test.step("no immediate re-read or unbounded retries after settlement", async () => {
+      await expectNoRereadAfterSettlement(doughnutOrigin, page);
+      await expectNoRereadAfterSettlement(openDoughOrigin, page);
     });
   } finally {
     for (const cleanup of cleanups.reverse()) {
