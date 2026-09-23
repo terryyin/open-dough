@@ -1,0 +1,101 @@
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/remote.git log --reverse --format=%H%n%B --stat main
+e99029694781d88301ba269b4fea1d1328e2bf4d
+base trunk commit
+
+
+ .planning/PRODUCT-BACKLOG.md | 13 +++++++++++++
+ .planning/quick/A/PLAN.md    |  3 +++
+ .planning/quick/B/PLAN.md    |  3 +++
+ .planning/seeds/A.md         | 16 ++++++++++++++++
+ .planning/seeds/B.md         | 16 ++++++++++++++++
+ CONTRIBUTING.md              |  2 ++
+ scripts/command.js           |  1 +
+ scripts/fail.js              |  1 +
+ scripts/setup.js             |  1 +
+ trunk.txt                    |  1 +
+ 10 files changed, 57 insertions(+)
+df9dd40d5d8c7324de2bdb98457e1a8aeb4c5cba
+Take queued work: SEED-A#a
+
+Claim-Identity: SEED-A#a
+Claim-Publisher: native-startup-startup-resume
+
+
+ .planning/PRODUCT-BACKLOG.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+3c21c21d8fce5fa8c160edb57cb8ceeb557994f4
+later independent advance
+
+
+ later.txt | 1 +
+ 1 file changed, 1 insertion(+)
+867ed6ff56b145db6be9ba45a17a028af8b25dcc
+Implement Story A
+
+
+ feature.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/remote.git show main:.planning/PRODUCT-BACKLOG.md
+# Product backlog
+
+## Near-future direction
+
+Enable agents to execute stories in parallel while collaborating through
+trunk-based development, with each agent working in its own Git worktree.
+
+## Taken
+
+- [Story A](seeds/A.md#a) — SEED-A#a ([plan](quick/A/PLAN.md))
+
+## Backlog list
+
+- [Story B](seeds/B.md#b) — SEED-B#b
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/remote.git log --format=%H%n%B main -- .planning/PRODUCT-BACKLOG.md
+df9dd40d5d8c7324de2bdb98457e1a8aeb4c5cba
+Take queued work: SEED-A#a
+
+Claim-Identity: SEED-A#a
+Claim-Publisher: native-startup-startup-resume
+
+e99029694781d88301ba269b4fea1d1328e2bf4d
+base trunk commit
+
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/remote.git merge-base --is-ancestor df9dd40d5d8c7324de2bdb98457e1a8aeb4c5cba main
+
+
+exit: 0
+$ git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/integration diff --cached
+diff --git a/human-staged.txt b/human-staged.txt
+new file mode 100644
+index 0000000..f75d84a
+--- /dev/null
++++ b/human-staged.txt
+@@ -0,0 +1 @@
++human index
+
+
+exit: 0
+$ git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.i8pnD7MdIF/startup-resume.SLqQV1/workspace-claim-ivCWc9/integration diff
+diff --git a/trunk.txt b/trunk.txt
+index df967b9..872fb1a 100644
+--- a/trunk.txt
++++ b/trunk.txt
+@@ -1 +1,2 @@
+ base
++human changed tracked file
+
+
+exit: 0
+installed-source-equal SKILL.md: True sha256:84bf5acd6083a343fa9065a951a15ecce0f0fc92a5f9f36f1c5aa2046cfa298d
+installed-source-equal scripts/execution-start.mjs: True sha256:cee1c4a52d1e19d0283a8b4a7611e4054a9f5819d1f9f65845b823b9b56e75de
+installed-source-equal scripts/execution-start-operation.mjs: True sha256:c44fe292e041be1b6e04e63bd522b8436546772c581fd4bf42b41faeb5003ab7
+installed-source-equal scripts/execution-start-recovery.mjs: True sha256:8831e69ffb940a37939ccb76ce3463e89f49644652c4bb62fd93979bdff018c1

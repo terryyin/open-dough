@@ -5,7 +5,7 @@
 git_publication_assess_startup() {
   local obs=$1 journey=$2
   local stream startup_calls remote_sha trunk_sha taken claim_owned human_preserved
-  local source_preserved feature setup setup_after first_edit refusal conflict rival contained
+  local source_preserved feature setup command setup_after first_edit refusal conflict rival contained
   stream=$(git_publication_assess_field "${obs}" stream-status)
   startup_calls=$(git_publication_assess_field "${obs}" startup-cli-count)
   remote_sha=$(git_publication_assess_field "${obs}" remote-sha)
@@ -16,6 +16,7 @@ git_publication_assess_startup() {
   source_preserved=$(git_publication_assess_field "${obs}" selected-source-preserved)
   feature=$(git_publication_assess_field "${obs}" feature-exists)
   setup=$(git_publication_assess_field "${obs}" setup-exists)
+  command=$(git_publication_assess_field "${obs}" command-exists)
   setup_after=$(git_publication_assess_field "${obs}" setup-after-claim)
   refusal=$(git_publication_assess_field "${obs}" startup-refusal-observed)
   conflict=$(git_publication_assess_field "${obs}" startup-conflict-observed)
@@ -28,7 +29,7 @@ git_publication_assess_startup() {
     git_publication_assess_fail 'human or selected source bytes changed'
   elif [[ ${journey} == startup-selected-source ]]; then
     if [[ ${remote_sha} != "${trunk_sha}" || ${taken} != false || ${feature} != false ||
-      ${refusal} != true ]]; then
+      ${setup} != false || ${command} != false || ${refusal} != true ]]; then
       git_publication_assess_fail 'selected local source was published or implementation started'
     else
       git_publication_assess_status=pass
@@ -37,7 +38,7 @@ git_publication_assess_startup() {
   elif [[ ${journey} == startup-claim-race ]]; then
     if [[ ${remote_sha} == "${trunk_sha}" || ${taken} != true ||
       ${rival} != true || ${claim_owned} != false || ${contained} != false ||
-      ${feature} != false || ${setup} != false || ${conflict} != true ]]; then
+      ${feature} != false || ${setup} != false || ${command} != false || ${conflict} != true ]]; then
       git_publication_assess_fail 'rival claim did not stop retained startup before implementation'
     else
       git_publication_assess_status=pass
@@ -48,7 +49,7 @@ git_publication_assess_startup() {
   elif [[ -z ${remote_sha} || ${remote_sha} == "${trunk_sha}" ||
     ${taken} != true || ${claim_owned} != true ]]; then
     git_publication_assess_fail "remote trunk lacks this execution's owned Taken claim"
-  elif [[ ${feature} != true || ${setup} != true || ${setup_after} != true ||
+  elif [[ ${feature} != true || ${setup} != true || ${command} != true || ${setup_after} != true ||
     ${first_edit} != true ]]; then
     git_publication_assess_fail 'implementation or project setup crossed claim boundary incorrectly'
   else

@@ -89,7 +89,7 @@ git_publication_fixture_observe_startup() {
   local journey=$1 stream_status=$2 transcript=$3
   local remote_sha remote_backlog message human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
-  local startup_calls setup_exists setup_after_claim claim_owned taken_on_remote
+  local startup_calls setup_exists command_exists setup_after_claim claim_owned taken_on_remote
   local refusal_receipt conflict_receipt command_outputs
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
   remote_backlog=$(git --git-dir="${git_publication_fixture_origin}" show \
@@ -115,10 +115,11 @@ git_publication_fixture_observe_startup() {
   feature_exists=false
   [[ -f ${git_publication_fixture_workspace}/feature.txt ]] && feature_exists=true
   setup_exists=false
-  [[ -f ${git_publication_fixture_root}/.setup-ran &&
-    -f ${git_publication_fixture_root}/.command-ran ]] && setup_exists=true
+  [[ -f ${git_publication_fixture_root}/.setup-ran ]] && setup_exists=true
+  command_exists=false
+  [[ -f ${git_publication_fixture_root}/.command-ran ]] && command_exists=true
   setup_after_claim=false
-  if [[ ${setup_exists} == true && -f ${git_publication_fixture_root}/claim-accepted ]]; then
+  if [[ ${setup_exists} == true && ${command_exists} == true && -f ${git_publication_fixture_root}/claim-accepted ]]; then
     if node -e '
       const fs = require("fs");
       const [claim, setup, command] = process.argv.slice(1).map((path) => fs.statSync(path, { bigint: true }).mtimeNs);
@@ -184,6 +185,7 @@ git_publication_fixture_observe_startup() {
   printf 'selected-source-preserved: %s\n' "${source_preserved}"
   printf 'feature-exists: %s\n' "${feature_exists}"
   printf 'setup-exists: %s\n' "${setup_exists}"
+  printf 'command-exists: %s\n' "${command_exists}"
   printf 'setup-after-claim: %s\n' "${setup_after_claim}"
   printf 'startup-refusal-observed: %s\n' "${refusal_receipt}"
   printf 'startup-conflict-observed: %s\n' "${conflict_receipt}"

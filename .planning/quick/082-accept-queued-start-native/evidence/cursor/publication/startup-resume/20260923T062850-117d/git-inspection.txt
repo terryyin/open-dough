@@ -1,0 +1,104 @@
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/remote.git log --reverse --format=%H%n%B --stat main
+7131e0ac32328f0b4fedef06a1c14adb55472e4c
+base trunk commit
+
+
+ .planning/PRODUCT-BACKLOG.md | 13 +++++++++++++
+ .planning/quick/A/PLAN.md    |  3 +++
+ .planning/quick/B/PLAN.md    |  3 +++
+ .planning/seeds/A.md         | 16 ++++++++++++++++
+ .planning/seeds/B.md         | 16 ++++++++++++++++
+ CONTRIBUTING.md              |  2 ++
+ scripts/command.js           |  1 +
+ scripts/fail.js              |  1 +
+ scripts/setup.js             |  1 +
+ trunk.txt                    |  1 +
+ 10 files changed, 57 insertions(+)
+e42c2f715ca18fb10bba2d903d2b5b9b37c65b49
+Take queued work: SEED-A#a
+
+Claim-Identity: SEED-A#a
+Claim-Publisher: native-startup-startup-resume
+
+
+ .planning/PRODUCT-BACKLOG.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+102105872da7b0eeaa2579b1689c3e3bad725d0d
+later independent advance
+
+
+ later.txt | 1 +
+ 1 file changed, 1 insertion(+)
+59be51261504e1f4cd723a60c395f6dbe34929aa
+Implement Story A feature marker.
+
+Co-authored-by: Cursor <cursoragent@cursor.com>
+
+
+ .planning/quick/A/PLAN.md | 7 +++++++
+ feature.txt               | 1 +
+ 2 files changed, 8 insertions(+)
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/remote.git show main:.planning/PRODUCT-BACKLOG.md
+# Product backlog
+
+## Near-future direction
+
+Enable agents to execute stories in parallel while collaborating through
+trunk-based development, with each agent working in its own Git worktree.
+
+## Taken
+
+- [Story A](seeds/A.md#a) — SEED-A#a ([plan](quick/A/PLAN.md))
+
+## Backlog list
+
+- [Story B](seeds/B.md#b) — SEED-B#b
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/remote.git log --format=%H%n%B main -- .planning/PRODUCT-BACKLOG.md
+e42c2f715ca18fb10bba2d903d2b5b9b37c65b49
+Take queued work: SEED-A#a
+
+Claim-Identity: SEED-A#a
+Claim-Publisher: native-startup-startup-resume
+
+7131e0ac32328f0b4fedef06a1c14adb55472e4c
+base trunk commit
+
+
+
+exit: 0
+$ git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/remote.git merge-base --is-ancestor e42c2f715ca18fb10bba2d903d2b5b9b37c65b49 main
+
+
+exit: 0
+$ git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/integration diff --cached
+diff --git a/human-staged.txt b/human-staged.txt
+new file mode 100644
+index 0000000..f75d84a
+--- /dev/null
++++ b/human-staged.txt
+@@ -0,0 +1 @@
++human index
+
+
+exit: 0
+$ git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.SudkZUN7mz/startup-resume.CeukQE/workspace-claim-LUXklG/integration diff
+diff --git a/trunk.txt b/trunk.txt
+index df967b9..872fb1a 100644
+--- a/trunk.txt
++++ b/trunk.txt
+@@ -1 +1,2 @@
+ base
++human changed tracked file
+
+
+exit: 0
+installed-source-equal SKILL.md: True sha256:84bf5acd6083a343fa9065a951a15ecce0f0fc92a5f9f36f1c5aa2046cfa298d
+installed-source-equal scripts/execution-start.mjs: True sha256:cee1c4a52d1e19d0283a8b4a7611e4054a9f5819d1f9f65845b823b9b56e75de
+installed-source-equal scripts/execution-start-operation.mjs: True sha256:c44fe292e041be1b6e04e63bd522b8436546772c581fd4bf42b41faeb5003ab7
+installed-source-equal scripts/execution-start-recovery.mjs: True sha256:8831e69ffb940a37939ccb76ce3463e89f49644652c4bb62fd93979bdff018c1

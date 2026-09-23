@@ -56,7 +56,8 @@ run_assessor_counterexamples() {
     'startup-cli-count: 1' 'remote-sha: accepted' 'trunk-sha: base' \
     'taken-on-remote: true' 'claim-owned: true' \
     'human-edit-preserved: true' 'selected-source-preserved: true' \
-    'feature-exists: true' 'setup-exists: true' 'setup-after-claim: true' \
+    'feature-exists: true' 'setup-exists: true' 'command-exists: true' \
+    'setup-after-claim: true' \
     'startup-refusal-observed: false' \
     'startup-conflict-observed: false' 'rival-owned: false' \
     'candidate-contained: false' \
@@ -83,6 +84,7 @@ run_assessor_counterexamples() {
     -e 's/^claim-owned: .*/claim-owned: false/' \
     -e 's/^feature-exists: .*/feature-exists: false/' \
     -e 's/^setup-exists: .*/setup-exists: false/' \
+    -e 's/^command-exists: .*/command-exists: false/' \
     -e 's/^setup-after-claim: .*/setup-after-claim: false/' \
     -e 's/^startup-refusal-observed: .*/startup-refusal-observed: true/' \
     -e 's/^first-edit-after-claim: .*/first-edit-after-claim: false/' \
@@ -104,6 +106,7 @@ run_assessor_counterexamples() {
     -e 's/^startup-conflict-observed: .*/startup-conflict-observed: true/' \
     -e 's/^feature-exists: .*/feature-exists: false/' \
     -e 's/^setup-exists: .*/setup-exists: false/' \
+    -e 's/^command-exists: .*/command-exists: false/' \
     "${work}/startup-valid.txt" > "${work}/race-valid.txt"
   git_publication_assess "${work}/race-valid.txt"
   git_publication_suite_expect_assess pass 'competing Taken provenance'
@@ -111,6 +114,19 @@ run_assessor_counterexamples() {
     "${work}/race-valid.txt" > "${work}/race-no-receipt.txt"
   git_publication_assess "${work}/race-no-receipt.txt"
   git_publication_suite_expect_assess fail 'rival claim did not stop'
+  # Either marker alone proves unsafe continuation; absence must be explicit.
+  for refusal_case in selected race; do
+    for marker in setup command; do
+      sed "s/^${marker}-exists: .*/${marker}-exists: true/" \
+        "${work}/${refusal_case}-valid.txt" > "${work}/refusal-continued.txt"
+      git_publication_assess "${work}/refusal-continued.txt"
+      git_publication_suite_expect_assess fail
+      sed "/^${marker}-exists:/d" "${work}/${refusal_case}-valid.txt" \
+        > "${work}/refusal-unobserved.txt"
+      git_publication_assess "${work}/refusal-unobserved.txt"
+      git_publication_suite_expect_assess fail
+    done
+  done
   sed -e 's/^journey: .*/journey: startup-resume/' \
     -e 's/^candidate-contained: .*/candidate-contained: true/' \
     "${work}/startup-valid.txt" > "${work}/resume-valid.txt"
@@ -120,6 +136,28 @@ run_assessor_counterexamples() {
     "${work}/resume-valid.txt" > "${work}/resume-uncontained.txt"
   git_publication_assess "${work}/resume-uncontained.txt"
   git_publication_suite_expect_assess fail 'retained candidate is absent'
+
+  # Exercise the observer against real single-marker fixture states, so an
+  # accidental conjunction cannot hide setup-only or command-only execution.
+  (
+    git_publication_fixture_create_startup "${source_dir}" startup-selected-source "${work}"
+    printf '%s\n' \
+      '{"type":"item.started","item":{"type":"command_execution","command":"execution-start.mjs start"}}' \
+      '{"type":"item.completed","item":{"type":"command_execution","command":"execution-start.mjs start","aggregated_output":"{\"ok\":false,\"status\":\"source-refused\"}"}}' \
+      > "${work}/refusal-events.jsonl"
+    for marker in setup command; do
+      touch "${git_publication_fixture_root}/.${marker}-ran"
+      git_publication_fixture_observe_startup startup-selected-source complete \
+        "${work}/refusal-events.jsonl" > "${work}/single-marker.txt"
+      grep -Fxq "${marker}-exists: true" "${work}/single-marker.txt"
+      local other=setup
+      [[ ${marker} == setup ]] && other='command'
+      grep -Fxq "${other}-exists: false" "${work}/single-marker.txt"
+      git_publication_assess "${work}/single-marker.txt"
+      git_publication_suite_expect_assess fail 'selected local source was published'
+      rm "${git_publication_fixture_root}/.${marker}-ran"
+    done
+  )
 
   git_publication_suite_obs "${work}/stale.txt" stream-status=stale
   git_publication_assess "${work}/stale.txt" "${work}/valid-response.md"

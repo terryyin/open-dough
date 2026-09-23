@@ -1,0 +1,35 @@
+host: claude
+case: publication/startup-story-branch
+origin: fresh
+execution-status: failed
+execution-reason: native command exited 1
+assessment-status: fail
+assessment-reason: native startup command was not observed in a complete stream
+native-executable: /Users/terryyin/.local/bin/claude
+native-version-command: claude --version
+native-version: 2.1.280 (Claude Code)
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: 02108dfb28cabd05839c3aa16d820ce7d0fc33c7
+fixture-tag: publication-native
+fixture-commit: 02108dfb28cabd05839c3aa16d820ce7d0fc33c7
+prompt-identity: 2aa9d4ed49f5c3aa1956586b25cbf44ca142749eb6c9f6cee77e9a0b1f8d2500
+helper-identity: tests/support/git-publication-native-run.sh
+adapter-identity: claude-stream-json
+fixture-identity: tests/support/git-publication-native-fixture.sh
+assessor-identity: tests/support/git-publication-native-assess.sh
+input-hash: 56a081efc10f1e002abffec4913075341072336bc2b058dfb246ca68cc006755 tests/git-publication-native.sh
+input-hash: d83520f1fbcc74ede80ff13a05873f09c64752c800f97370a5568e6d962877f6 tests/support/git-publication-native-assess.sh
+input-hash: 268e81c7a4995d6ced15b854efd2ad618e38996b997508fd53d672b01994c97a tests/support/git-publication-native-startup-assess.sh
+input-hash: 7409cc94d362e3b9ab3d377bd89422a8836329154005ab08c49366d1ee82a252 tests/support/git-publication-native-prose.sh
+input-hash: 9943d33668ae44e75c238ee6726fcd0b0539248ae6051581110b34c11386c81f tests/support/git-publication-native-fixture.sh
+input-hash: 4b739e26cfbfd5dc230e11a2ad110f1ad2c544d0ce092cf58bb1090717e97d50 tests/support/git-publication-native-startup-fixture.sh
+input-hash: c9878d03e089928b14739e45c949ef4d310c7b20133a39ca7da8c4ed44f9b85d tests/support/git-publication-native-run.sh
+input-hash: 4de83cc8c8c5c969e3b5c73fe65678bfee1f5a0f1cabcc77fe841a14483ac21c tests/support/git-publication-native-evidence.sh
+input-hash: 53d16238c0e7596e283edb7dc08636cbfa83d12371b62a6922973fc5347ebfed tests/support/git-publication-native-prompt.sh
+input-hash: 66292f12e295c5406ba5cf3e1bc6f14fd141a7f15f4a4c092c6e091eb4f89436 tests/support/native-run-supervise.sh
+input-hash: 3226ad0e803da737e604304c4f4bc5a09a5756ebc9fc34766790fe6d462bcd57 src/skills/dough-execute-plan/references/publish-the-candidate.md
+artifact-events: events.jsonl
+artifact-response: response.md
+artifact-stderr: stderr.log
+artifact-observations: observations.txt
