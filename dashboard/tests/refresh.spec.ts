@@ -45,7 +45,8 @@ test("refresh published work replaces revision A with revision B as one result",
     // Forced: an unavailable control must ignore a real press too.
     await refresh.click({ force: true });
     await expectWholeSnapshot(page, snapshotA, [revisionB]);
-    expect(pathsRead(origin).slice(2)).toEqual(["main"]);
+    // The local `gh` reaches GitHub a moment after the page's request.
+    await expect.poll(() => pathsRead(origin).slice(2)).toEqual(["main"]);
     releaseRef();
   });
 

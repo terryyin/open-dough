@@ -253,7 +253,7 @@ unproven; at 15 seconds one visible page makes at most 240 checks an hour.
 ### 3. Observe only the selected visible project
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A hidden page suspends scheduled checks, then checks promptly when
 visible again. Switching projects cancels or ignores the old project's late
@@ -275,6 +275,41 @@ boundaries. Run focused project selection, visibility, and typecheck checks.
 
 Safe stopping point: the page checks only its selected visible source, and
 late work from a previous source cannot change its displayed evidence.
+
+Delivered: `dashboard/src/pageVisibility.ts` (`usePageVisibility`) tracks
+`visible`, `hidden`, and `revealed`. A hidden page schedules no check and
+hiding aborts a pending or outstanding one; a revealed page checks once with
+no delay, and the first settled read or check returns it to the 15-second
+pace. Project switching needed no new mechanism: existing read and check
+cancellation already abandons the old source's late answers.
+
+Accepted proof (coordinator-inspected):
+`npx playwright test --config dashboard/playwright.config.ts dashboard/tests/auto-refresh-visibility.spec.ts dashboard/tests/auto-refresh-project-isolation.spec.ts dashboard/tests/project-read-isolation.spec.ts dashboard/tests/auto-refresh.spec.ts dashboard/tests/project-selection.spec.ts dashboard/tests/refresh-focus.spec.ts`
+("a hidden page makes no checks…": no browser check or `gh` call across 60
+seconds hidden, one immediate check on reveal, then the steady pace; a held
+check abandoned on hide, then B read whole and pinned on reveal with focus
+kept; "a deselected project's outstanding revision check is abandoned…" and
+"a deselected project's late detail read never lands…": Doughnut's
+membership, SHA, retrieval time, focus, and check schedule stay isolated with
+no Open Dough `gh` call after the switch);
+`dashboard/tests/authenticated-read-subprocess-lifecycle.spec.ts` revision
+check cases (disconnect, stall, shutdown for all three sources);
+`npm run typecheck:dashboard`; full `npm run test:dashboard` (100 passed).
+Mutation checks removing the hidden gate or either abort made those journeys
+fail.
+
+A full-suite run once failed "refresh published work replaces revision A with
+revision B as one result": its immediate `pathsRead` assertion after the click
+could run before the local `gh` reached the fake GitHub (slice 1 transport
+migration). It now polls; 30 repeated runs under eight workers and a full
+suite passed.
+
+Learnings for slice 4: after a failed check or read the page resumes the
+15-second pace rather than retrying at once; rate-limit direction belongs in
+the same check-effect delay choice in `publishedObservation.ts`. Assert
+absence of `gh` calls only after real network turns (`checksAskedWhilePassing`
+or polling), and use distinct revisions per project, because the server's
+pinned memo answers a repeated revision without `gh`.
 
 ### 4. Recover from failed automatic reads without misstating work
 
@@ -330,8 +365,9 @@ automatic checks recover without a tight retry loop.
 - CI observer: GitHub Actions `ci.yml` / `CI`, mailbox
   `/tmp/dough-ci-501/watch-x41GQ4`, target branch
   `claude/084-auto-refresh-published-dashboard`.
-- Published revisions: `dcb0944029136ae1b3893b8d61be1668b498bc84` (slice 1)
-  on `origin/claude/084-auto-refresh-published-dashboard`.
+- Published revisions on `origin/claude/084-auto-refresh-published-dashboard`:
+  `dcb0944029136ae1b3893b8d61be1668b498bc84` (slice 1),
+  `9feec0e001f58577ff45f24664b4385aa87b9336` (slice 2).
 - CI run 35862495063 on `dcb0944` failed only
   `src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs`
   "ambiguous matching owners return a gap and preserve existing state"
@@ -339,4 +375,5 @@ automatic checks recover without a tight retry loop.
   This story changes no `src/`, `tests/`, or `scripts/` file; the dashboard
   and lint jobs passed. The Taken 085 execution owns that test's repair on
   `cursor/085-accept-delivery-evidence` (`6c08878`, `0c7df6a`), so no repair
-  was made here.
+  was made here. Run 35865014760 on `9feec0e` failed the same single
+  assertion; the disposition is unchanged.

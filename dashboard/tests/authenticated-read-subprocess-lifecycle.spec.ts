@@ -10,8 +10,10 @@
 // This spec covers the boundary's subprocess lifecycle. Its HTTP contract is
 // covered separately in ./authenticated-read-refusal.spec.ts and
 // ./authenticated-read-boundary.spec.ts, which share this suite's harness
-// (./support/dashboardServer.ts). Membership and extra-path reads
-// share the same cancellation ownership; cases differ only by URL shape.
+// (./support/dashboardServer.ts). Membership reads, extra-path reads, and
+// revision checks share the same cancellation ownership; cases differ only by
+// URL shape. A page that abandons a check -- on hiding, a new read, or a
+// project switch -- disconnects the same way.
 //
 // This spec's servers are separate processes, each with its own PATH and its
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
@@ -119,7 +121,11 @@ test.describe("authenticated read boundary: subprocess ownership across server s
   // these prove no owned subprocess survives a real shutdown.
   for (const { kind, label } of authenticatedReadKinds) {
     test(`ends a held ${label} when the server itself closes`, async () => {
-      const port = kind === "membership" ? 4292 : 4302;
+      const port = {
+        membership: 4292,
+        "extra-path": 4302,
+        "revision-check": 4303,
+      }[kind];
       const server = await startDashboardServer({ mode: "dev", port });
       server.setControl({ mode: "hang" });
       abandonedRequest({

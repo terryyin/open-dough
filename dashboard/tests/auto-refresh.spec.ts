@@ -13,6 +13,7 @@ import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
 import {
   callsSince,
   contentReads,
+  expectSteadyPace,
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
@@ -45,9 +46,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   await test.step("several quiet checks ask only whether main moved, conditionally after the first", async () => {
     for (let check = 0; check < 3; check += 1) {
       // Paced: never sooner than 15 seconds after the last one settled.
-      const passed = await passTimeUntilChecked(page);
-      expect(passed).toBeGreaterThanOrEqual(15_000);
-      expect(passed).toBeLessThanOrEqual(15_250);
+      expectSteadyPace(await passTimeUntilChecked(page));
     }
     const checks = callsSince(page, settledAt);
     expect(checks.map(({ argv }) => argv)).toEqual([

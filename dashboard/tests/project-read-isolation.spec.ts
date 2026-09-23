@@ -25,31 +25,31 @@
 import { expect, test } from "./dashboardTest";
 import { expectMembership, parts } from "./dashboardPage";
 import {
+  doughnutBacklog,
+  doughnutRepository,
+  doughnutSharedTitle,
+  revisionDoughnut,
+  sharedStoryIdentity,
+} from "./doughnutProject";
+import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
 } from "./publishedOrigin";
 
-const doughnutRepository = "nerds-odd-e/doughnut";
-
 const revisionOpenDoughFirst = "a1".repeat(20);
 const revisionOpenDoughSecond = "a2".repeat(20);
 const revisionOpenDoughThird = "a3".repeat(20);
-const revisionDoughnut = "b2".repeat(20);
 
-// The same recorded identity, told differently by each project, following
-// ./project-selection.spec.ts's `sharedStoryIdentity` pattern: it must not be
-// merged, and Doughnut's telling of it must never appear under Open Dough's
-// label, nor Open Dough's under Doughnut's.
-const sharedStoryIdentity = "SEED-777#shared-story";
+// Doughnut's telling of the shared identity is in ./doughnutProject.ts; Open
+// Dough's tellings differ, and neither may appear under the other's label.
 const openDoughSharedTitleFirst =
   "Open Dough's first telling of the shared story";
 const openDoughSharedTitleSecond =
   "Open Dough's second telling of the shared story";
 const openDoughSharedTitleThird =
   "Open Dough's third telling of the shared story";
-const doughnutSharedTitle = "Doughnut's telling of the shared story";
 
 function openDoughBacklogWith(title: string): string {
   return `# Product backlog
@@ -61,15 +61,6 @@ function openDoughBacklogWith(title: string): string {
 - [${title}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
 `;
 }
-
-const doughnutBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${doughnutSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-`;
 
 async function openBothOrigins(
   page: Parameters<typeof publishMovingOrigin>[0],

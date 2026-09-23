@@ -110,8 +110,9 @@ export type MovingOrigin = {
     files?: Readonly<Record<string, string>>,
   ): void;
   // Holds back answers from now on until the returned release is called: for
-  // "main" the ref answer, for a revision the backlog file read at it. A held
-  // answer was decided when its request arrived, not when it is released.
+  // "main" the ref answer, for a revision the backlog file read at it, and for
+  // a record file's repository path its reads at any revision. A held answer
+  // was decided when its request arrived, not when it is released.
   hold(what: string): () => void;
   // Answers from now on with this raw answer instead of the published one,
   // until the returned restore is called: for "main" the ref request, for a
@@ -141,6 +142,7 @@ export function publishMovingOrigin(
           : undefined;
       if (body !== undefined) {
         requests.push(call);
+        await held.get(request.path);
         return rawFileAnswer(body);
       }
     }

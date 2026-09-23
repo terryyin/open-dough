@@ -2,10 +2,12 @@
 // which project is observed, its last snapshot, the latest attempt, and
 // focus kept across a snapshot's replacement. Reads happen on opening, on
 // Refresh or Retry, on selecting a project, and when a scheduled revision
-// check finds the selected ref naming another commit.
+// check finds the selected ref naming another commit. Checks are scheduled
+// only while the page is visible.
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { checkPublishedRevision } from "./authenticatedRead";
+import { usePageVisibility } from "./pageVisibility";
 import { defaultSource, type PublishedSource } from "./publishedSource";
 import { readPublishedWork, type PublishedWork } from "./publishedWork";
 import { ReadProblem } from "./readProblem";
@@ -84,6 +86,7 @@ export function usePublishedObservation() {
   const [readSettled, setReadSettled] = useState(false);
   // Each settled check that asked for no read schedules the next one.
   const [checksSettled, setChecksSettled] = useState(0);
+  const { visibility, settleRevealed } = usePageVisibility();
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
   const deferredFocus = useRef<FocusedWork | undefined>(undefined);
   useEffect(() => {
@@ -123,12 +126,14 @@ export function usePublishedObservation() {
         acceptProgress(read);
         if (!reading.signal.aborted) {
           setReadSettled(true);
+          settleRevealed();
         }
       },
       (error: unknown) => {
         if (!reading.signal.aborted) {
           setRetrieval((last) => ({ ...last, attempt: failedAttempt(error) }));
           setReadSettled(true);
+          settleRevealed();
         }
       },
     );
@@ -152,48 +157,62 @@ export function usePublishedObservation() {
   const { work, attempt, notice } = retrieval;
   const shownRevision = work?.revision;
 
-  // While a snapshot is shown and no read is under way, ask at a steady pace
-  // whether the selected project's ref still names its revision. An
-  // unchanged answer leaves the snapshot, its retrieval time, and its detail
-  // exactly as they are; a changed one reads the newly named commit. Any new
-  // read, or a project switch, cancels a pending check.
+  // While a snapshot is shown, the page is visible, and no read is under
+  // way, ask at a steady pace whether the selected project's ref still names
+  // its revision; a page seen again asks once at once. An unchanged answer
+  // leaves the snapshot, its retrieval time, and its detail exactly as they
+  // are; a changed one reads the newly named commit. Any new read, a project
+  // switch, or hiding the page cancels a pending or outstanding check, and
+  // its late answer is ignored.
   useEffect(() => {
-    if (!readSettled || shownRevision === undefined) {
+    if (
+      !readSettled ||
+      shownRevision === undefined ||
+      visibility === "hidden"
+    ) {
       return;
     }
     const checking = new AbortController();
-    const waiting = setTimeout(() => {
-      checkPublishedRevision(source, shownRevision, checking.signal).then(
-        (check) => {
-          if (checking.signal.aborted) {
-            return;
-          }
-          if (check.changed) {
-            askRead(check.revision);
-            return;
-          }
-          // The shown snapshot is still what the ref names.
-          setRetrieval((last) =>
-            last.attempt.status === "failed"
-              ? { ...last, attempt: { status: "read" } }
-              : last,
-          );
-          setChecksSettled((settled) => settled + 1);
-        },
-        (error: unknown) => {
-          if (checking.signal.aborted) {
-            return;
-          }
-          setRetrieval((last) => ({ ...last, attempt: failedAttempt(error) }));
-          setChecksSettled((settled) => settled + 1);
-        },
-      );
-    }, checkIntervalMs);
+    const waiting = setTimeout(
+      () => {
+        checkPublishedRevision(source, shownRevision, checking.signal).then(
+          (check) => {
+            if (checking.signal.aborted) {
+              return;
+            }
+            if (check.changed) {
+              askRead(check.revision);
+              return;
+            }
+            // The shown snapshot is still what the ref names.
+            setRetrieval((last) =>
+              last.attempt.status === "failed"
+                ? { ...last, attempt: { status: "read" } }
+                : last,
+            );
+            setChecksSettled((settled) => settled + 1);
+            settleRevealed();
+          },
+          (error: unknown) => {
+            if (checking.signal.aborted) {
+              return;
+            }
+            setRetrieval((last) => ({
+              ...last,
+              attempt: failedAttempt(error),
+            }));
+            setChecksSettled((settled) => settled + 1);
+            settleRevealed();
+          },
+        );
+      },
+      visibility === "revealed" ? 0 : checkIntervalMs,
+    );
     return () => {
       clearTimeout(waiting);
       checking.abort();
     };
-  }, [checksSettled, readSettled, shownRevision, source]);
+  }, [checksSettled, readSettled, shownRevision, source, visibility]);
 
   useLayoutEffect(() => {
     deferredFocus.current = restoreSnapshotFocus(

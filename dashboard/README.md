@@ -46,13 +46,15 @@ separate setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot
-is shown, the page also asks every 15 seconds whether the project's `main`
-still names the shown revision -- a conditional request that GitHub answers
+is shown and the page is visible, it also asks every 15 seconds whether the
+project's `main` still names the shown revision -- a conditional request that GitHub answers
 with `304 Not Modified` when nothing moved, so an unchanged `main` reads no
 backlog or record and changes neither the revision nor the retrieval time.
 When `main` names a new commit, the page reads exactly that commit, so newly
-published work appears within about 30 seconds. Each read replaces the whole
-view with one revision. No local
+published work appears within about 30 seconds. A hidden page (another tab,
+a minimized window) asks nothing and abandons a check under way; when it is
+seen again it checks once at once, then resumes the 15-second pace. Each read
+replaces the whole view with one revision. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 
@@ -67,7 +69,9 @@ read is not retried by itself; only a later revision check that finds a new
 commit reads again. Selecting another project stays available
 throughout: a failed or still-reading project never blocks switching to
 another, and returning to a project starts a fresh read rather than replaying
-the failure.
+the failure. Switching projects abandons the previous project's read, detail
+reads, and revision check; a late answer from any of them changes nothing, and
+only the newly selected project is checked from then on.
 
 If reading a project fails, the read problem names that project's repository
 and what the local `gh` could establish -- for example that it is not logged
@@ -145,5 +149,5 @@ Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
 revision for preparation and detail; they count against the launching person's own GitHub API
 allowance. Each revision check is one more `gh` request (at most four a
-minute per open page); a newly published commit then costs one backlog read
+minute per visible page, none while it is hidden); a newly published commit then costs one backlog read
 plus its records, without resolving `main` again.
