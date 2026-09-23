@@ -78,6 +78,31 @@ export async function expectWholeSnapshot(
   }
 }
 
+// A failed read with no earlier snapshot shows the problem and the way to read again, and nothing
+// that only a snapshot could say.
+export async function expectProblemAndNoSnapshot(
+  page: Page,
+  problemText: string,
+  repository = "terryyin/open-dough",
+) {
+  const { stages, source, problem } = parts(page);
+  await expect(problem).toContainText("Published work could not be read");
+  await expect(problem).toContainText(problemText);
+  await expect(problem).toContainText(
+    "No published work is shown, because none has been read.",
+  );
+  await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
+  await expect(parts(page).reading).toHaveCount(0);
+  await expect(stages).toHaveCount(0);
+  await expect(page.getByRole("article")).toHaveCount(0);
+  await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
+  await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
+  await expect(page.getByText("Near-future direction")).toHaveCount(0);
+  await expect(source).toContainText(repository);
+  await expect(source).not.toContainText("Revision");
+  await expect(source).not.toContainText("Retrieved");
+}
+
 // Expand through the actual control before claiming direction is readable.
 export async function openDirection(page: Page) {
   await parts(page).directionToggle.click();

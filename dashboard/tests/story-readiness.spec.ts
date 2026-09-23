@@ -4,7 +4,7 @@
 // A second commit records two of five slices done with accepted proof in plan
 // text; the shared reader interprets that outcome.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
 import {
@@ -33,7 +33,7 @@ import { publishTwoSlicesDone } from "./storyReadinessPublications";
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
 
-test("story readiness shows labeled preparation on public cards from CLI-committed Git bytes", async ({
+test("story readiness shows labeled preparation on backlog cards from CLI-committed Git bytes", async ({
   page,
 }) => {
   const cleanups: Array<() => void> = [];
@@ -130,7 +130,7 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       openDough.revision,
     );
 
-    await test.step("public request budget is 2 + S + P for three stories in one seed with two plans", () => {
+    await test.step("the gh request budget is 2 + S + P for three stories in one seed with two plans", () => {
       const paths = contentPathsRead(openDoughOrigin);
       expect(paths[0]).toBe("main");
       expect(paths).toContain(

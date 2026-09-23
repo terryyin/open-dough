@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { openDirection, parts } from "./dashboardPage";
 import {
   emptyBacklog,
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 import { expectFocusedAndIndicated } from "./accessibleReading";
 
 const revisionA = "a".repeat(40);

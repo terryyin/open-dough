@@ -1,5 +1,5 @@
 // Observe canonical-only association through the browser after CLI records and
-// committed Git bytes cross the existing public/private read boundary.
+// committed Git bytes cross the local authenticated read boundary.
 import { execFileSync } from "node:child_process";
 import { expect, type Locator, type Page } from "@playwright/test";
 import {

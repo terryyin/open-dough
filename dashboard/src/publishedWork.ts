@@ -10,13 +10,12 @@ import {
   queueHeading,
   takenHeading,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import { readBacklogAt, resolveRevision } from "./githubSource";
 import type { PublishedSource } from "./publishedSource";
 import {
   enrichPreparation,
   type PublishedWorkProgress,
 } from "./preparationEnrichment";
-import { readPrivateSnapshot } from "./privateRead";
+import { readPublishedSnapshot } from "./authenticatedRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
@@ -50,8 +49,8 @@ export type WorkEntry = {
   // Navigation derived from canonical story-state; raw backlog evidence stays above.
   readonly associatedPlan?: SourceLink;
   // Preparation facts from the same revision. Starts as loading while
-  // dependent canonical and plan files are read through the source's own
-  // transport (public GitHub or the local authenticated boundary).
+  // dependent canonical and plan files are read through the local
+  // authenticated boundary.
   readonly preparation?: WorkPreparation;
   // Recorded Goal from the canonical home at this revision.
   readonly purpose?: WorkPurpose;
@@ -132,28 +131,13 @@ function interpret(
 // nothing retries for them.
 const readWaitLimitMs = 30_000;
 
-// The transport is chosen by the catalog's own recorded `access`
-// (`./publishedSource.ts`), never re-derived from the repository name or
-// anything else. Both transports end in the same shape -- one resolved
-// revision and its raw backlog text -- so everything after this point
-// (`interpret`, above) is one projection regardless of which one answered.
-async function readRevisionAndMarkdown(
-  source: PublishedSource,
-  signal: AbortSignal,
-): Promise<{ readonly revision: string; readonly markdown: string }> {
-  if (source.access === "private") {
-    const snapshot = await readPrivateSnapshot(source, signal);
-    return { revision: snapshot.revision, markdown: snapshot.backlog };
-  }
-  const revision = await resolveRevision(source, signal);
-  const markdown = await readBacklogAt(source, revision, signal);
-  return { revision, markdown };
-}
-
+// Reads the source's ref afresh, or, given a revision a check already
+// resolved, that exact revision: the ref is never resolved a second time.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
   onPartial?: PublishedWorkProgress,
+  knownRevision?: string,
 ): Promise<PublishedWork> {
   const waitLimit = new AbortController();
   const waiting = setTimeout(() => {
@@ -161,13 +145,15 @@ export async function readPublishedWork(
   }, readWaitLimitMs);
   const untilEither = AbortSignal.any([signal, waitLimit.signal]);
   try {
-    const { revision, markdown } = await readRevisionAndMarkdown(
+    // Every catalog source is read through the one local authenticated
+    // boundary: one resolved revision and its raw backlog text first.
+    const { revision, backlog: markdown } = await readPublishedSnapshot(
       source,
       untilEither,
+      knownRevision,
     );
-    // Membership first, then the same preparation enrichment for both
-    // transports: public files through GitHub, private through the local
-    // authenticated boundary's reachability-checked path reads.
+    // Membership first, then preparation enrichment through the same
+    // boundary's reachability-checked path reads at that revision.
     const work: PublishedWork = {
       source,
       revision,

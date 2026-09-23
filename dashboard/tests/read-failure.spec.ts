@@ -1,16 +1,22 @@
-import { expect, test, type Page } from "@playwright/test";
-import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest";
+import {
+  expectMembership,
+  expectProblemAndNoSnapshot,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage";
 import {
   commitAnswer,
   noConnection,
   notFoundAnswer,
+  notLoggedIn,
   pathsRead,
   publishMovingOrigin,
   publishOrigin,
   rateLimitedAnswer,
   rawFileAnswer,
   type Origin,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 import { backlogA, revisionA, titlesOfA } from "./refreshJourney";
 
 const revision = "5e".repeat(20);
@@ -30,39 +36,24 @@ function publishedAs(markdown: string): Origin {
   };
 }
 
-// A failed opening shows the problem and the way to read again, and nothing
-// that only a snapshot could say.
-async function expectProblemAndNoSnapshot(page: Page, problemText: string) {
-  const { stages, source, problem } = parts(page);
-  await expect(problem).toContainText("Published work could not be read");
-  await expect(problem).toContainText(problemText);
-  await expect(problem).toContainText(
-    "No published work is shown, because none has been read.",
-  );
-  await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
-  await expect(parts(page).reading).toHaveCount(0);
-  await expect(stages).toHaveCount(0);
-  await expect(page.getByRole("article")).toHaveCount(0);
-  await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
-  await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
-  await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  await expect(source).toContainText("terryyin/open-dough");
-  await expect(source).not.toContainText("Revision");
-  await expect(source).not.toContainText("Retrieved");
-}
-
 const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
   {
     when: "the connection fails",
     origin: { ref: noConnection },
     problem:
-      "GitHub could not be reached while reading main of terryyin/open-dough.",
+      "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
+  },
+  {
+    when: "the local GitHub CLI is not logged in",
+    origin: { ref: notLoggedIn },
+    problem:
+      "The local GitHub CLI is not logged in, so main of terryyin/open-dough could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
   },
   {
     when: "GitHub limits the rate with HTTP 429",
     origin: { ref: rateLimitedAnswer(429) },
     problem:
-      "GitHub answered HTTP 429 while reading main of terryyin/open-dough.",
+      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. Wait before pressing Retry.",
   },
   {
     when: "the ref answer names no commit",
@@ -76,7 +67,7 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
       ref: commitAnswer(revision),
       backlog: { revision, answer: notFoundAnswer() },
     },
-    problem: `GitHub answered HTTP 404 while reading .planning/PRODUCT-BACKLOG.md at ${revision}.`,
+    problem: `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revision}. Check that \`gh auth status\` succeeds and that this login can read terryyin/open-dough, then press Retry.`,
   },
   {
     when: "one entry line among valid ones is malformed",
@@ -153,6 +144,8 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
   await page.goto("/");
   const { retry, problem, status } = parts(page);
   await expect(status).toHaveText("Reading published work…");
+  // The held ref request has reached GitHub through the local `gh`.
+  await expect.poll(() => pathsRead(origin)).toEqual(["main"]);
   await page.clock.pauseAt(new Date(opened.getTime() + 5_000));
 
   await test.step("before the bound the read is still awaited", async () => {
@@ -209,7 +202,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   await page.goto("/");
   const { refresh, retry, problem } = parts(page);
   const unreachable =
-    "GitHub could not be reached while reading main of terryyin/open-dough.";
+    "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.";
   await expectProblemAndNoSnapshot(page, unreachable);
   await expect(problem.locator("time")).toHaveAttribute(
     "datetime",

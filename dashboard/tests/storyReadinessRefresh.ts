@@ -1,6 +1,6 @@
 // Refresh and isolation observations for story readiness: failed refresh
 // retention, Retry, project-switch rejection of late held reads, and no
-// polling after settlement.
+// re-read right after settlement.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { planHref } from "./queuedPlanNavigation";
@@ -66,7 +66,7 @@ export async function expectFailedRefreshKeepsPriorRevision(
   await expect(source).toContainText(retainedRevision);
   await expect(refresh).toBeVisible();
   await expect(retry).toHaveCount(0);
-  expect(origin.requests.length).toBeGreaterThan(afterFail);
+  await expect.poll(() => origin.requests.length).toBeGreaterThan(afterFail);
 }
 
 export async function expectProjectSwitchRejectsLateHeldRead(
@@ -109,7 +109,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   ).toBeVisible();
 }
 
-export async function expectNoPollingAfterSettlement(
+export async function expectNoRereadAfterSettlement(
   origin: CommittedOrigin,
   page: Page,
 ) {

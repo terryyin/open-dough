@@ -2,13 +2,13 @@
 // This is the cross-project analog of ./refresh.spec.ts and
 // ./refresh-focus.spec.ts, which already prove the same-project overlapping
 // read case (a second refresh outrunning or replacing an earlier one); this
-// file proves the same App.tsx rule -- one `AbortController` per read, an
-// abort-check before every `setRetrieval`, and a synchronous state-clear in
-// `selectSource` -- also holds when the overlap crosses a *project* switch,
-// not just a same-project refresh, including when the deselected project's
-// read answers late with success, answers late with failure, or when the
-// person returns to a project whose earlier read is still outstanding
-// elsewhere.
+// file proves the same `../src/publishedObservation.ts` rule -- one
+// `AbortController` per read, an abort-check before every `setRetrieval`, and
+// a synchronous state-clear in `selectSource` -- also holds when the overlap
+// crosses a *project* switch, not just a same-project refresh, including when
+// the deselected project's read answers late with success, answers late with
+// failure, or when the person returns to a project whose earlier read is
+// still outstanding elsewhere.
 //
 // Each held answer is released only after the newly selected project's own
 // work is already shown, and every assertion of "nothing changed" runs
@@ -22,34 +22,34 @@
 // page. This matches ./refresh.spec.ts's own held-response races, which also
 // assert immediately after release.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectMembership, parts } from "./dashboardPage";
+import {
+  doughnutBacklog,
+  doughnutRepository,
+  doughnutSharedTitle,
+  revisionDoughnut,
+  sharedStoryIdentity,
+} from "./doughnutProject";
 import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
-} from "./githubOrigin";
-
-const doughnutRepository = "nerds-odd-e/doughnut";
+} from "./publishedOrigin";
 
 const revisionOpenDoughFirst = "a1".repeat(20);
 const revisionOpenDoughSecond = "a2".repeat(20);
 const revisionOpenDoughThird = "a3".repeat(20);
-const revisionDoughnut = "b2".repeat(20);
 
-// The same recorded identity, told differently by each project, following
-// ./project-selection.spec.ts's `sharedStoryIdentity` pattern: it must not be
-// merged, and Doughnut's telling of it must never appear under Open Dough's
-// label, nor Open Dough's under Doughnut's.
-const sharedStoryIdentity = "SEED-777#shared-story";
+// Doughnut's telling of the shared identity is in ./doughnutProject.ts; Open
+// Dough's tellings differ, and neither may appear under the other's label.
 const openDoughSharedTitleFirst =
   "Open Dough's first telling of the shared story";
 const openDoughSharedTitleSecond =
   "Open Dough's second telling of the shared story";
 const openDoughSharedTitleThird =
   "Open Dough's third telling of the shared story";
-const doughnutSharedTitle = "Doughnut's telling of the shared story";
 
 function openDoughBacklogWith(title: string): string {
   return `# Product backlog
@@ -61,15 +61,6 @@ function openDoughBacklogWith(title: string): string {
 - [${title}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
 `;
 }
-
-const doughnutBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${doughnutSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-`;
 
 async function openBothOrigins(
   page: Parameters<typeof publishMovingOrigin>[0],

@@ -1,16 +1,16 @@
-// Two synthetic public origins, each with its own revision and its own
+// Two published repositories, each with its own revision and its own
 // telling of a story identity the two projects happen to share. Selecting a
 // project shows only that project's overview, through the same reader and
 // presentation Open Dough already used when it was the only source.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./dashboardTest";
 import { expectMembership, openDirection, parts } from "./dashboardPage";
 import {
   commitAnswer,
   emptyBacklog,
   publishOrigin,
   rawFileAnswer,
-} from "./githubOrigin";
+} from "./publishedOrigin";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
@@ -71,7 +71,7 @@ const titlesOfDoughnut = {
   backlog: [doughnutSharedTitle, doughnutQueuedTitle],
 };
 
-test("project selection shows each public project's own overview, and returning to a project reads it again", async ({
+test("project selection shows each project's own overview, and returning to a project reads it again", async ({
   page,
 }) => {
   const openDoughRequests = await publishOrigin(

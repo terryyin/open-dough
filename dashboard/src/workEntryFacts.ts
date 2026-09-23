@@ -1,4 +1,4 @@
-// Interprets purpose and plan-slice facts for one public published-work entry
+// Interprets purpose and plan-slice facts for one published-work entry
 // once its canonical and plan texts are already loaded. Preparation readiness
 // and slice reading share one associated-plan resolution. Backlog plan links
 // remain navigation/claim data; when both a backlog plan and a recorded
