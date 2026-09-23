@@ -1,8 +1,3 @@
-// Slice 10: private Pygardon story readiness through synthetic gh and real
-// Vite servers. CLI-committed bytes feed fake-gh; this file owns badges and
-// detail. Boundary refusal, credentials, lifecycle, and public switching
-// share the suite's other private specs.
-
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { expectMembership, parts } from "./dashboardPage";
@@ -12,6 +7,10 @@ import {
   plannedReady,
   unrefined,
 } from "./storyReadinessFixture";
+import {
+  expectAgreeingFragment,
+  expectQueuedPlanCardAndDetail,
+} from "./queuedPlanNavigation";
 import { publishTwoSlicesDone } from "./storyReadinessPublications";
 import {
   assertNoCredentialMarker,
@@ -63,7 +62,9 @@ function runScenario(mode: "dev" | "preview", port: number): void {
     });
 
     try {
-      const repo = buildOpenDoughReadinessRepo(after);
+      const repo = buildOpenDoughReadinessRepo(after, {
+        canonicalOnlyQueued: true,
+      });
       server = await startPrivateReadServer({
         mode,
         port,
@@ -114,6 +115,14 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           page.getByText("Unpushed local edit that must stay invisible"),
         ).toHaveCount(0);
       });
+
+      await expectQueuedPlanCardAndDetail(
+        backlog,
+        pygardonRepository,
+        repo,
+        () => requestSnapshots.length,
+      );
+      await expectAgreeingFragment(taken, pygardonRepository, repo.revision);
 
       await test.step("detail shows purpose and zero of five recorded complete without inventing accepted evidence", async () => {
         const before = requestSnapshots.length;

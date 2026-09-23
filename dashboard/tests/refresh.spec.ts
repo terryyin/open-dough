@@ -60,7 +60,9 @@ test("refresh published work replaces revision A with revision B as one result",
     await expect(
       taken.getByRole("article", { name: dashboardStory }),
     ).toHaveCount(1);
-    await expect(moved.getByRole("link", { name: /^Plan/ })).toHaveAttribute(
+    await expect(
+      moved.getByRole("link", { name: /^Slice plan/ }),
+    ).toHaveAttribute(
       "href",
       `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/quick/061-published-story-dashboard/PLAN.md`,
     );

@@ -58,13 +58,16 @@ export type ReadinessRepo = {
 // membership are the varying claims.
 export function openDoughProductBacklog(
   takenPlanPath: string,
-  { includeUnrefined = true }: { includeUnrefined?: boolean } = {},
+  {
+    includeUnrefined = true,
+    includeQueuedPlan = false,
+  }: { includeUnrefined?: boolean; includeQueuedPlan?: boolean } = {},
 ): string {
   const backlog = [
     includeUnrefined
       ? `- [${unrefined.title}](${unrefined.link}) — ${unrefined.identity}`
       : null,
-    `- [${plannedBlocked.title}](${plannedBlocked.link}) — ${plannedBlocked.identity} ([plan](${planBlockedPath}))`,
+    `- [${plannedBlocked.title}](${plannedBlocked.link}) — ${plannedBlocked.identity}${includeQueuedPlan ? ` ([plan](${planBlockedPath}))` : ""}`,
   ]
     .filter((line): line is string => line !== null)
     .join("\n");
@@ -86,13 +89,16 @@ ${backlog}
 
 export function buildOpenDoughReadinessRepo(
   after: (cleanup: () => void) => void,
+  { canonicalOnlyQueued = false }: { canonicalOnlyQueued?: boolean } = {},
 ): ReadinessRepo {
   const directory = scratchRepo(after, "dough-story-readiness-od-");
 
   writePlanning(
     directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(planReadyPath),
+    openDoughProductBacklog(`${planReadyPath}#ordered-slices`, {
+      includeQueuedPlan: !canonicalOnlyQueued,
+    }),
   );
   writePlanning(directory, seedRelative, threeStorySeed);
   writePlanning(directory, planBlockedPath, planBlockedBody);

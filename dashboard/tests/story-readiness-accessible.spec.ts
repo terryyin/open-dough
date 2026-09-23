@@ -2,6 +2,7 @@
 // keyboard, narrow/zoomed reading, and color-independent badges. Extends the
 // shared accessibility helpers against the real CLI-committed fixture.
 
+import { expectQueuedPlanFocusDuringEnrichment } from "./queuedPlanFocus";
 import { expect, test } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
@@ -29,7 +30,9 @@ test("story readiness reads preparation and progress accessibly", async ({
     cleanups.push(cleanup);
   };
   try {
-    const openDough = buildOpenDoughReadinessRepo(after);
+    const openDough = buildOpenDoughReadinessRepo(after, {
+      canonicalOnlyQueued: true,
+    });
     const openDoughOrigin = await publishCommittedOrigin(page, {
       repoDir: openDough.directory,
       revision: openDough.revision,
@@ -58,7 +61,6 @@ test("story readiness reads preparation and progress accessibly", async ({
     await test.step("refresh preserves identity focus or announces removal", async () => {
       await expectRefreshPreservesOrAnnouncesIdentity(
         page,
-        taken,
         backlog,
         refresh,
         openDough,
@@ -90,5 +92,26 @@ test("story readiness reads preparation and progress accessibly", async ({
     for (const cleanup of cleanups.reverse()) {
       cleanup();
     }
+  }
+});
+
+test("queued plan focus deferral respects deliberate movement and a removed association", async ({
+  page,
+}) => {
+  const cleanups: Array<() => void> = [];
+  try {
+    const repo = buildOpenDoughReadinessRepo(
+      (cleanup) => cleanups.push(cleanup),
+      { canonicalOnlyQueued: true },
+    );
+    const origin = await publishCommittedOrigin(page, {
+      repoDir: repo.directory,
+      revision: repo.revision,
+      repository: openDoughRepository,
+    });
+    await page.goto("/");
+    await expectQueuedPlanFocusDuringEnrichment(page, repo, origin);
+  } finally {
+    for (const cleanup of cleanups.reverse()) cleanup();
   }
 });

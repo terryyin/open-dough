@@ -23,6 +23,11 @@ import {
   planless,
   unrefined,
 } from "./storyReadinessFixture";
+import {
+  expectAgreeingFragment,
+  expectQueuedPlanCardAndDetail,
+  expectPlanKeyboardDestination,
+} from "./queuedPlanNavigation";
 import { publishTwoSlicesDone } from "./storyReadinessPublications";
 
 const openDoughRepository = "terryyin/open-dough";
@@ -36,7 +41,9 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
     cleanups.push(cleanup);
   };
   try {
-    const openDough = buildOpenDoughReadinessRepo(after);
+    const openDough = buildOpenDoughReadinessRepo(after, {
+      canonicalOnlyQueued: true,
+    });
     const doughnut = buildDoughnutReadinessRepo(after);
 
     const openDoughOrigin = await publishCommittedOrigin(page, {
@@ -110,6 +117,18 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
         page.getByText("Unpushed local edit that must stay invisible"),
       ).toHaveCount(0);
     });
+
+    await expectQueuedPlanCardAndDetail(
+      backlog,
+      openDoughRepository,
+      openDough,
+      () => openDoughOrigin.requests.length,
+    );
+    await expectAgreeingFragment(
+      taken,
+      openDoughRepository,
+      openDough.revision,
+    );
 
     await test.step("public request budget is 2 + S + P for three stories in one seed with two plans", () => {
       const paths = contentPathsRead(openDoughOrigin);
@@ -210,6 +229,16 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       // main + backlog + planless seed + legacy + malformed + external seeds.
       expect(doughnutPaths).toHaveLength(6);
     });
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
+    await expectQueuedPlanCardAndDetail(
+      backlog,
+      openDoughRepository,
+      openDough,
+      () => openDoughOrigin.requests.length,
+    );
+    await expectPlanKeyboardDestination(page, backlog, openDough);
   } finally {
     for (const cleanup of cleanups.reverse()) {
       cleanup();

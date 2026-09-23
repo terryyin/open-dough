@@ -8,7 +8,11 @@ import {
 import { Moment } from "./Moment";
 import { DashboardBanner } from "./DashboardBanner";
 import { ReadProblem } from "./readProblem";
-import { focusedWork, returnFocusTo, type FocusedWork } from "./workFocus";
+import {
+  focusedWork,
+  restoreSnapshotFocus,
+  type FocusedWork,
+} from "./workFocus";
 import { WorkStages } from "./WorkStages";
 
 // What is known about the observation itself. Reading and failure describe
@@ -54,6 +58,7 @@ export function App() {
   // reads again by itself.
   const [readsAsked, setReadsAsked] = useState(1);
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
+  const deferredFocus = useRef<FocusedWork | undefined>(undefined);
   useEffect(() => {
     const reading = new AbortController();
     let acceptedMembership = false;
@@ -104,11 +109,12 @@ export function App() {
   const { work, attempt, notice } = retrieval;
 
   useLayoutEffect(() => {
-    const held = heldFocus.current;
+    deferredFocus.current = restoreSnapshotFocus(
+      heldFocus.current,
+      deferredFocus.current,
+      work,
+    );
     heldFocus.current = undefined;
-    if (held) {
-      returnFocusTo(held);
-    }
   }, [work]);
 
   const reading = attempt.status === "reading";
@@ -134,6 +140,7 @@ export function App() {
       return;
     }
     heldFocus.current = undefined;
+    deferredFocus.current = undefined;
     setSource(next);
     setRetrieval({
       work: undefined,
