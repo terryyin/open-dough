@@ -34,7 +34,7 @@ export async function expectReadyDetailZeroComplete(
   await expect(
     detail.getByRole("link", { name: /Canonical record/ }),
   ).toBeVisible();
-  await expect(detail.getByRole("link", { name: /Plan/ })).toBeVisible();
+  await expect(detail.getByRole("link", { name: /Slice plan/ })).toBeVisible();
   expect(origin.requests.length).toBe(before);
 }
 

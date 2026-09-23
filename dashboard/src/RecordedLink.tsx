@@ -9,8 +9,10 @@ import { workLinkMarks } from "./workFocus";
 export function RecordedLink({
   role,
   link,
+  focusRole = role,
 }: {
   role: string;
+  focusRole?: string;
   link: SourceLink;
 }) {
   const recorded = (
@@ -23,7 +25,7 @@ export function RecordedLink({
     case "snapshot":
       return (
         <li>
-          <a href={link.url} {...workLinkMarks(role)}>
+          <a href={link.url} {...workLinkMarks(focusRole)}>
             {recorded}
           </a>
           <p className="link-note">
@@ -34,7 +36,11 @@ export function RecordedLink({
     case "external":
       return (
         <li>
-          <a href={link.url} rel="noopener noreferrer" {...workLinkMarks(role)}>
+          <a
+            href={link.url}
+            rel="noopener noreferrer"
+            {...workLinkMarks(focusRole)}
+          >
             {recorded}
           </a>
           <p className="link-note">

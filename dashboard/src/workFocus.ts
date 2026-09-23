@@ -1,3 +1,5 @@
+import type { PublishedWork } from "./publishedWork";
+
 // Keyboard focus across a replaced snapshot. A card is rebuilt when its work
 // changes group or order, which would drop focus to the page; focus follows
 // the work's identity instead, never a position on screen.
@@ -61,4 +63,31 @@ export function returnFocusTo(held: FocusedWork): void {
           (shown) => shown.getAttribute(workLinkAttribute) === held.link,
         );
   (link ?? card).focus();
+}
+
+// Membership arrives before derived links. Retain a missing role while its
+// preparation loads, only if focus stays on that work's fallback card.
+export function restoreSnapshotFocus(
+  held: FocusedWork | undefined,
+  deferred: FocusedWork | undefined,
+  work: PublishedWork | undefined,
+): FocusedWork | undefined {
+  const current = focusedWork();
+  const wanted =
+    held ??
+    (deferred &&
+    current?.identity === deferred.identity &&
+    document.activeElement?.hasAttribute(workAttribute)
+      ? deferred
+      : undefined);
+  if (!wanted) return undefined;
+  returnFocusTo(wanted);
+  const entry = [...(work?.taken ?? []), ...(work?.backlog ?? [])].find(
+    (item) => item.identity === wanted.identity,
+  );
+  return wanted.link !== undefined &&
+    focusedWork()?.link === undefined &&
+    entry?.preparation?.status === "loading"
+    ? wanted
+    : undefined;
 }

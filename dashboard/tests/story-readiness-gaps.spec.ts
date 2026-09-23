@@ -2,6 +2,7 @@
 // bytes and fails HTTP routes; shared readers project badges. Gap labels are
 // never planted in fixtures.
 
+import { expectChangedQueuedAssociations } from "./queuedPlanGaps";
 import { expect, test } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
@@ -18,10 +19,10 @@ import {
 } from "./storyReadinessPublications";
 import {
   expectFailedPlanKeepsSupportedFacts,
-  expectMalformedExternalAndLegacy,
   expectNeedsReassessmentAfterContentChange,
   expectPlanAssociationConflict,
 } from "./storyReadinessGaps";
+import { expectMalformedExternalAndLegacy } from "./storyReadinessRecordGaps";
 import {
   expectFailedRefreshKeepsPriorRevision,
   expectNoPollingAfterSettlement,
@@ -39,7 +40,9 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     cleanups.push(cleanup);
   };
   try {
-    const openDough = buildOpenDoughReadinessRepo(after);
+    const openDough = buildOpenDoughReadinessRepo(after, {
+      canonicalOnlyQueued: true,
+    });
     const doughnut = buildDoughnutReadinessRepo(after);
 
     const openDoughOrigin = await publishCommittedOrigin(page, {
@@ -141,5 +144,26 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     for (const cleanup of cleanups.reverse()) {
       cleanup();
     }
+  }
+});
+
+test("queued plan navigation follows changed associations and qualifies unsupported, invalid and conflicting source records", async ({
+  page,
+}) => {
+  const cleanups: Array<() => void> = [];
+  try {
+    const repo = buildOpenDoughReadinessRepo(
+      (cleanup) => cleanups.push(cleanup),
+      { canonicalOnlyQueued: true },
+    );
+    const origin = await publishCommittedOrigin(page, {
+      repoDir: repo.directory,
+      revision: repo.revision,
+      repository: openDoughRepository,
+    });
+    await page.goto("/");
+    await expectChangedQueuedAssociations(page, repo, origin);
+  } finally {
+    for (const cleanup of cleanups.reverse()) cleanup();
   }
 });

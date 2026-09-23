@@ -57,7 +57,6 @@ export async function expectKeyboardOpensAndClosesDetail(
 
 export async function expectRefreshPreservesOrAnnouncesIdentity(
   page: Page,
-  taken: Locator,
   backlog: Locator,
   refresh: Locator,
   openDough: ReadinessRepo,
@@ -69,14 +68,16 @@ export async function expectRefreshPreservesOrAnnouncesIdentity(
     true,
   ]);
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  const queuedPlan = backlog
+    .getByRole("article", { name: plannedBlocked.title })
+    .getByRole("link", { name: /^Slice plan / });
   const keptRevision = publishDropUnrefined(openDough);
   origin.advanceTo(keptRevision);
   // Same hold-then-focus pattern as refresh-focus: Refresh takes focus, then
   // identity focus is restored while the next snapshot is still held.
   const releaseKept = origin.hold("main");
   await refresh.click();
-  await readyCard.getByRole("button", { name: "Inspect story" }).focus();
+  await queuedPlan.focus();
   releaseKept();
   await expect(parts(page).source).toContainText(keptRevision);
 
@@ -84,8 +85,8 @@ export async function expectRefreshPreservesOrAnnouncesIdentity(
     taken: [plannedReady.title],
     backlog: [plannedBlocked.title],
   });
-  // Inspect held identity focus; returnFocusTo places it on the same card.
-  await expect(readyCard).toBeFocused();
+  // The derived plan retains its work identity and stable navigation role.
+  await expect(queuedPlan).toBeFocused();
   await expect(notice).toBeEmpty();
 
   const restored = publishRestoreUnrefined(openDough);
@@ -145,6 +146,17 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
       .getByRole("article", { name: plannedBlocked.title })
       .getByText("Not ready", { exact: true }),
   ).toBeVisible();
+  const queuedPlan = backlog
+    .getByRole("article", { name: plannedBlocked.title })
+    .getByRole("link", { name: /^Slice plan / });
+  await queuedPlan.scrollIntoViewIfNeeded();
+  await backlog
+    .getByRole("article", { name: plannedBlocked.title })
+    .getByRole("link", { name: /^Canonical record / })
+    .focus();
+  await page.keyboard.press("Tab");
+  await expect(queuedPlan).toBeInViewport({ ratio: 1 });
+  await expectFocusedAndIndicated(page, queuedPlan);
   await parts(page).preparationHelp.click();
   const legend = page.getByRole("dialog", { name: "Preparation badges" });
   await expect(legend).toBeVisible();
