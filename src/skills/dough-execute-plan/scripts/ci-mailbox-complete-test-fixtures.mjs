@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 
 export function workerPid(fixture) {
   try {
@@ -13,10 +14,15 @@ export function workerPid(fixture) {
 }
 
 export function assertWorkerAlive(fixture) {
-  process.kill(workerPid(fixture), 0);
+  assert.equal(
+    checkMailboxWorkerLiveness({ pid: workerPid(fixture) }, fixture.mailbox),
+    "alive",
+  );
 }
 
 export function assertWorkerDead(fixture) {
-  const pid = workerPid(fixture);
-  assert.throws(() => process.kill(pid, 0), { code: "ESRCH" });
+  assert.equal(
+    checkMailboxWorkerLiveness({ pid: workerPid(fixture) }, fixture.mailbox),
+    "dead",
+  );
 }

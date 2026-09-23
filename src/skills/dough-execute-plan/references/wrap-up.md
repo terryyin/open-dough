@@ -161,7 +161,7 @@ and continue that unfinished obligation only.
    design judgment. Do not run hook-owned lint independently. If hook repairs
    invalidate preparation, rerun formatting before restaging and retrying.
 8. Immediately before publishing, resolve the owned unpublished suffix in the
-   execution workspace. Publish it through
+   execution workspace. Publish it through managed
    [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair)
    when this caller has publication authority.
    Caller-selected current-branch work and an already-supported host-owned
@@ -169,9 +169,12 @@ and continue that unfinished obligation only.
    switch branches. Without that authority, commit there and report the
    revision as committed and pending publication. Do not push. Remote refs
    stay unchanged, and the checkout identity stays the recorded path.
-   With that authority, publish from that same checkout through the increment
-   owner above. The receipt is the accepted SHA and the authorized target.
-   A pending human edit on that checkout stays out of the published commit.
+   With that authority, invoke the installed managed delivery entry point from
+   that same checkout. The receipt is the accepted SHA, the authorized target,
+   and the observation result (attached, reused, or an explicit coverage gap).
+   Do not run a separate observer probe, start, or `register-push` for this
+   managed path, and do not copy mailbox directories by hand. A pending human
+   edit on that checkout stays out of the published commit.
    When the selected checkout is the default checkout, apply
    [default-checkout preservation](maintain-default-checkout.md#preserve-pending-local-work)
    before mutating it. A local commit or a local merge stays a local
@@ -188,17 +191,9 @@ and continue that unfinished obligation only.
    candidate or block a push from a separate owned workspace. Do not register
    a SHA the remote has not accepted, and do not treat that unpublished
    candidate as delivered.
-   After confirmed success, register the
-   accepted SHA with the existing observer bound to that target by running
-   `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' register-push
-   OBSERVER_DIRECTORY SHA`. Use the observer directory and checkout-bound
-   runtime retained for this execution. Apply that same registration after an
-   owned repair publication and after a Trunk Mode claim once that observer
-   is armed. Do not register a publication stop. Do not read a later moving
-`HEAD` or start another observer. Registration failure is lost coverage:
-report it and do not claim the revision was observed. An unavailable bridge leaves publications
-   unobserved: report that gap and continue. Success completes routine
-   delivery; a post-slice decision stop occurs after safe work is delivered.
-   Keep the [CI observer](ci-monitor.md) running and handle delivered failures
-   through its repair protocol. Never wait for CI or deployment after a normal
-   or repair publication.
+   When observation is attached or reused, keep that observer running and
+   handle delivered failures through its repair protocol. An unavailable
+   bridge leaves publications unobserved: report that gap and continue.
+   Success completes routine delivery; a post-slice decision stop occurs after
+   safe work is delivered. Never wait for CI or deployment after a normal or
+   repair publication.

@@ -43,6 +43,15 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
     const pinned = await box(banner);
     expect(pinned.y).toBe(0);
     expect(pinned.height).toBeLessThan(viewport.height / 2);
+    expect(
+      await project.locator(".project-choice span").evaluateAll((choices) =>
+        choices.map((choice) => {
+          const text = document.createRange();
+          text.selectNodeContents(choice);
+          return text.getClientRects().length;
+        }),
+      ),
+    ).toEqual([1, 1, 1]);
     await expect(sourceEvidence).toContainText("terryyin/open-dough · main");
     await expect(refresh).toHaveAccessibleName("Refresh");
     await expect(refresh.locator("svg")).toHaveAttribute("aria-hidden", "true");

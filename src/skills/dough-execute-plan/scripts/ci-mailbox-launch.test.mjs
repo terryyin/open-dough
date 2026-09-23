@@ -15,6 +15,7 @@ import {
   readMailboxEvents,
   readWorkerIdentity,
 } from "./ci-mailbox.mjs";
+import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import {
   exec,
   launcher,
@@ -200,7 +201,7 @@ test("missing terminal publication stops only the retained worker and reports lo
     },
     evidence: { recordedThrough: 1, deliveredThrough: 0, unread: 1 },
   });
-  assert.throws(() => process.kill(pid, 0), { code: "ESRCH" });
+  assert.equal(checkMailboxWorkerLiveness({ pid }, mailbox), "dead");
   assert.doesNotThrow(() => process.kill(unrelated.pid, 0));
 });
 

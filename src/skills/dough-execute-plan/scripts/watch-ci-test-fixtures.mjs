@@ -51,7 +51,13 @@ export async function waitForPidExit(pid, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      await runCommand("ps", ["-p", String(pid), "-o", "pid="]);
+      const { stdout } = await runCommand("ps", [
+        "-p",
+        String(pid),
+        "-o",
+        "stat=",
+      ]);
+      if (stdout.trim().startsWith("Z")) return true;
     } catch (error) {
       if (error.code !== 1) throw error;
       return true;
