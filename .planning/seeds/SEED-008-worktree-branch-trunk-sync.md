@@ -89,6 +89,54 @@ CI automation, release, or broad harness cleanup. Use existing runner/fixtures;
 change assessment only for a concrete gap. Do not repeat a full host/scenario
 matrix or count exit status, self-report, or another host's pass as acceptance.
 
+<a id="accept-execution-ci-native-behavior"></a>
+
+### Accept execution increment CI observation in native hosts
+
+**Identity:** SEED-008#accept-execution-ci-native-behavior
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Before the managed delivery and CI observation behavior in
+`dough-execute-plan` is released, a maintainer can judge that the installed
+delivery entry point and host bridge produce the intended automatic observation,
+exact-revision attachment, and truthful coverage gap reporting across Codex,
+Cursor, and Claude Code. This is native acceptance under ADR 0005, distinct from
+deterministic tests.
+
+**Remaining scope:**
+- Fresh ordinary journey verifying that managed execution delivery establishes
+  or reuses CI observation and attaches the accepted SHA without manual
+  observer probe/start or register-push commands.
+- Verify Codex yielded stream and Cursor/Claude PostToolUse hooks.
+- On Claude Code, verify missing-alias fallback (`.agents` runtime resolved
+  when `.claude/skills` is absent) and ended-observer handling (ended observer
+  reports explicit unobserved gap, never active attachment).
+- Verify delayed failure delivery reaches the coordinator at the next safe boundary.
+
+**Accepted evidence to reuse:**
+Functional implementation and deterministic verification are complete on the
+execution branch (all 3 slices + repair 4 pass 63 tests, payload update
+passes). Recover implementation locators and tests from plan 083 before cleanup.
+
+**Evaluation:** Run the existing native journey from a prepared owned checkout:
+
+```sh
+GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native HOST --case CASE --results-dir <evidence-dir>
+```
+
+Inspect native traces, independent remote Git history, and coordinator context
+for automatic attachment, exact registered SHA, and absence of manual setup or
+handle bookkeeping.
+
+**Completion:** Passing native observations or justified reusable proof per host
+under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Truthful missing-proof or quota limits remain pending. Route real defects to
+bounded corrections.
+
+**Boundary:** No new publication mechanics, daemon, or changed completion policy.
+
 ## Publication delivery boundaries
 
 **Parent problem:** Developers executing concurrent work need reliable shared

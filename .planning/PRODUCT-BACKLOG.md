@@ -19,6 +19,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [See new published work without manually refreshing the dashboard](seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard) — SEED-026#auto-refresh-published-dashboard
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
+- [Accept execution increment CI observation in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — SEED-008#accept-execution-ci-native-behavior
 - [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
