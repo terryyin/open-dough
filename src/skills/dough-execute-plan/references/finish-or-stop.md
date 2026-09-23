@@ -12,8 +12,8 @@ proof/delivery/completion obligations. Explicit omit/defer instructions also
 take precedence. When skipped, invoke the completion operation for the
 applicable accepted revision at this execution-completion boundary, handle its
 receipt, report the CI verdict or exact unresolved reason with shutdown
-evidence, and end with `## PLAN EXECUTION COMPLETE`, retaining plan/evidence for
-later review and wrap-up.
+evidence, and end with `## PLAN EXECUTION COMPLETE`, retaining the completed
+plan and judged proof for any later review and wrap-up.
 
 Otherwise invoke
 [dough-execution-retrospective](../../dough-execution-retrospective/SKILL.md)
@@ -23,7 +23,7 @@ and project preferences through its review selection; its authority excludes
 implementing findings or changing the backlog. Do not emit
 `## PLAN EXECUTION COMPLETE` first or require that banner as retrospective
 input. When review returns, invoke the completion operation, handle its
-receipt, then report completion, retained evidence, CI verdict or limitation,
+receipt, then report completion, judged proof, CI verdict or limitation,
 shutdown evidence, and `## PLAN EXECUTION COMPLETE` as the final
 execution/review handoff.
 
@@ -45,9 +45,10 @@ duplicate review or guessed completion. A CI failure handled through an
 authorized repair invalidates only the conclusions affected by changed code;
 resume those conclusions instead of restarting the full retrospective.
 
-Retain the completed plan, evidence, execution checkout, branch, and worktree for story
-wrap-up; do not invoke it here. Wholly planless completion retains source, conversation,
-identity, delivered changes, and proof, invokes the completion operation when
+Retain the completed plan, proof decisions, execution checkout, branch, and
+worktree for story wrap-up; do not invoke it here. Wholly planless completion
+retains source, conversation, identity, delivered changes, and proof, invokes
+the completion operation when
 publication created that CI obligation,
 reports delivered work, the CI verdict or exact unresolved reason, and shutdown,
 and ends with `## QUICK EXECUTION COMPLETE` after required delivery/completion,

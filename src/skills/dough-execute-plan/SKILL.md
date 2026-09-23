@@ -46,9 +46,11 @@ no-change conclusion through the explained-empty-change path.
 Use [planning level](../dough-story-refinement/references/planning.md#choose-the-planning-level)
 for source ownership, [proof ownership](../dough-story-refinement/references/planning.md#own-executable-proof)
 when mapping or accepting proof, and [active-plan refinement](../dough-story-refinement/references/planning.md#refine-the-active-plan)
-for plan updates. Retain completed plans, source history, and review evidence for
-retrospective and [story wrap-up](../dough-story-wrap-up/SKILL.md); quick work retains
-its source, conversation, and execution identity. Use [slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
+for plan updates. Retain completed plans, source history, and proof decisions for
+retrospective and [story wrap-up](../dough-story-wrap-up/SKILL.md); judge results
+during execution rather than passing unassessed output to those stages. Quick
+work retains its source, conversation, and execution identity. Use
+[slice decomposition](../dough-story-decomposition/references/problem-decomposition.md#decompose-slices)
 for Behavior/Structure types and [slice sizing](../dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices)
 for budgets and learning escalation.
 
