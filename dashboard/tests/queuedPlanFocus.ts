@@ -23,7 +23,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   // Membership temporarily drops the derived link. While canonical reading is
   // held, a deliberate move away from fallback card wins over deferred focus.
   for (const movedTo of [
-    project,
+    project.getByRole("radio", { checked: true }),
     card.getByRole("button", { name: "Inspect story" }),
   ]) {
     const seed = join(repo.directory, ".planning", seedRelative);

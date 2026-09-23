@@ -229,7 +229,9 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       // main + backlog + planless seed + legacy + malformed + external seeds.
       expect(doughnutPaths).toHaveLength(6);
     });
-    await project.selectOption("open-dough");
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
     await expectQueuedPlanCardAndDetail(
       backlog,
       openDoughRepository,

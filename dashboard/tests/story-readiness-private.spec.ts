@@ -1,8 +1,3 @@
-// Slice 10: private Pygardon story readiness through synthetic gh and real
-// Vite servers. CLI-committed bytes feed fake-gh; this file owns badges and
-// detail. Boundary refusal, credentials, lifecycle, and public switching
-// share the suite's other private specs.
-
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { expectMembership, parts } from "./dashboardPage";
