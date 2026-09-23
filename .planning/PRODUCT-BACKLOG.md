@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Open a queued story's slice plan from the dashboard](seeds/SEED-021-observe-published-story-progress.md#open-queued-story-slice-plan) — SEED-021#open-queued-story-slice-plan ([plan](quick/081-queued-story-plan-links/PLAN.md))
+
 ## Backlog list
 
-- [Open a queued story's slice plan from the dashboard](seeds/SEED-021-observe-published-story-progress.md#open-queued-story-slice-plan) — SEED-021#open-queued-story-slice-plan
 - [Retire the superseded claim runner](quick/081-retire-legacy-claim-runner/PLAN.md)
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
 - [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation

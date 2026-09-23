@@ -4,7 +4,7 @@ A locally launched page that shows the work Open Dough has published: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages.
 
-The pinned **OpenDO** banner keeps the **Project** selector and SVG **Refresh**
+The pinned **Open Dough** banner keeps the **Project** selector and SVG **Refresh**
 control reachable while scrolling. Its repository/ref disclosure opens the full
 source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths

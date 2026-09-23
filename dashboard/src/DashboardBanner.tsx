@@ -47,7 +47,7 @@ export function DashboardBanner({
 
   return (
     <header className="banner" ref={banner}>
-      <p className="brand">OpenDO</p>
+      <p className="brand">Open Dough</p>
       <ProjectSelect source={source} onSelect={onSelect} />
       <SourceStatus
         source={source}
