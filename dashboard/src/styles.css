@@ -125,6 +125,16 @@ main {
   max-width: 60rem;
 }
 
+.direction summary {
+  cursor: pointer;
+  width: fit-content;
+  padding-block: 0.5rem;
+}
+
+.direction summary h2 {
+  display: inline;
+}
+
 .direction-text {
   white-space: pre-line;
 }

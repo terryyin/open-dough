@@ -25,7 +25,8 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, sourceEvidence, backlog, taken, refresh } = parts(page);
+  const { project, sourceEvidence, directionToggle, backlog, taken, refresh } =
+    parts(page);
 
   // Reading order is the order of the page's source: the project selector,
   // then the read control and source evidence, then each card's Inspect and recorded
@@ -43,11 +44,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     project,
     refresh,
     sourceEvidence,
+    directionToggle,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Project + Refresh + Source evidence + four Inspect + five recorded links.
-  expect(stops).toHaveLength(1 + 1 + 1 + 4 + 5);
+  // Project + Refresh + Source evidence + Direction + four Inspect + five recorded links.
+  expect(stops).toHaveLength(1 + 1 + 1 + 1 + 4 + 5);
 
   await test.step("Tab stops at the read control, Inspect, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -72,7 +74,8 @@ test("accessible overview is read by keyboard in reading order, with visible foc
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
     // Project already holds focus after the reverse walk; Refresh, evidence and the
-    // first card's Inspect precede its Canonical link.
+    // direction disclosure and first card's Inspect precede its Canonical link.
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");

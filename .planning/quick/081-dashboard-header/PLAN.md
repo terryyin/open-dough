@@ -110,7 +110,7 @@ and legend still usable. Align the relevant dashboard usage description.
 ### 2. Read near-future direction on demand
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an observation arrives → direction starts collapsed; activate its
 labeled control → full published text or the no-direction explanation is readable;
@@ -134,6 +134,12 @@ npm run test:dashboard -- direction-disclosure.spec.ts published-work.spec.ts pr
 npm run typecheck:dashboard
 git diff --check
 ```
+
+**Accepted proof:** The focused command above passed 18 browser tests;
+`npm run test:dashboard -- accessible-overview-keyboard.spec.ts` passed 2.
+Typecheck and whitespace passed. Inspected native App disclosure and real-origin
+visibility, keyboard, no-request, refresh/failure and project-isolation assertions
+in `direction-disclosure.spec.ts`; independent refactor review found no edits.
 
 Safe stopping point: direction takes little space until requested, and all
 previous project/evidence behavior remains useful. Update relevant usage text.
@@ -202,7 +208,8 @@ move to the modal journey instead of being deleted.
 Reviewed all three slice boundaries and final-promise mappings: no remaining
 slice-specific blocking concern was identified. Structured readiness is recorded
 in the canonical story by the preparation recorder; it grants no execution
-authority. Implementation and all prospective browser proofs remain unstarted.
+authority. Slice evidence below records implementation progress; unfinished
+slices retain prospective proof recipes.
 
 ## Execution identity
 
@@ -227,3 +234,6 @@ authority. Implementation and all prospective browser proofs remain unstarted.
   Coordinator `root-dashboard`, target `codex/081-dashboard-header`, mailbox
   `/tmp/dough-ci-501/watch-UPso05`, PID `52256`, PTY session `79407`, yielded cell `31`.
   Bound to this worktree; no previous observer for this execution.
+- Slice 1 accepted publication: `f3374cf4c1cc4c6ea2ada3b7c07adcfe8b93d816`
+  on `origin/codex/081-dashboard-header`; registered with the retained observer.
+- CI repair accepted: `44cff5ef3ddbb861f7e6a15caacd93082ed832b3` on the story branch; registered with the same observer.

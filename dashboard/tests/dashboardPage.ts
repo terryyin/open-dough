@@ -17,6 +17,7 @@ export function parts(page: Page) {
     // What joins Backlog to Taken, found by the words that name it.
     connector: stages.getByText("Taking work", { exact: true }),
     direction: page.getByRole("region", { name: "Near-future direction" }),
+    directionToggle: page.locator(".direction summary"),
     source: page.getByRole("region", { name: "Published Git state" }),
     refresh: page.getByRole("button", { name: "Refresh" }),
     // The same read control, as it is named after a failed attempt.
@@ -72,4 +73,10 @@ export async function expectWholeSnapshot(
     await expect(page.locator("body")).not.toContainText(other.slice(0, 7));
     await expect(stages.locator(`a[href*="${other}"]`)).toHaveCount(0);
   }
+}
+
+// Expand through the actual control before claiming direction is readable.
+export async function openDirection(page: Page) {
+  await parts(page).directionToggle.click();
+  await expect(parts(page).direction.locator("p")).toBeVisible();
 }

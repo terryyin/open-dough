@@ -10,6 +10,12 @@ source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
 or high browser zoom. The icon is named **Retry** after a failed read.
 
+**Near-future direction** starts collapsed below the banner. Click its title or
+use Enter/Space to read the complete published direction (or its no-direction
+explanation), then activate it again to collapse. Refreshing the same project
+preserves this choice, including after a failed read; selecting another project
+starts collapsed. Opening or closing it makes no source request.
+
 One project is observed at a time, chosen from the **Project** selector.
 `src/publishedSource.ts` is the one catalog of the three observable projects
 (Open Dough, Doughnut, and Pygardon) and what each one needs to be read. It

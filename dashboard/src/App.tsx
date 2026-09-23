@@ -206,12 +206,16 @@ export function App() {
         </p>
         {work && (
           <section className="direction" aria-labelledby="direction-heading">
-            <h2 id="direction-heading">Near-future direction</h2>
-            {work.direction === "" ? (
-              <p className="quiet">No near-future direction is recorded.</p>
-            ) : (
-              <p className="direction-text">{work.direction}</p>
-            )}
+            <details key={source.id}>
+              <summary>
+                <h2 id="direction-heading">Near-future direction</h2>
+              </summary>
+              {work.direction === "" ? (
+                <p className="quiet">No near-future direction is recorded.</p>
+              ) : (
+                <p className="direction-text">{work.direction}</p>
+              )}
+            </details>
           </section>
         )}
       </div>

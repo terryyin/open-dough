@@ -30,7 +30,7 @@
 // catch-all, alongside the actual GitHub hosts it exists to block.
 
 import { expect, test, type Page } from "@playwright/test";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectMembership, openDirection, parts } from "./dashboardPage";
 import { publishMovingOrigin } from "./githubOrigin";
 import {
   startPrivateReadServer,
@@ -166,6 +166,7 @@ test.describe("private project recovery", () => {
           taken: [pygardonTakenTitle],
           backlog: [pygardonQueuedTitle],
         });
+        await openDirection(page);
         await expect(direction).toContainText(pygardonDirection);
         await expect(source).toContainText(pygardonRevision);
         await expect(problem).toHaveCount(0);
