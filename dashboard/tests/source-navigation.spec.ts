@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { parts } from "./dashboardPage";
+import { openDirection, parts } from "./dashboardPage";
 import { commitAnswer, publishOrigin, rawFileAnswer } from "./githubOrigin";
 
 const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
@@ -228,6 +228,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
         name: `<img src=x onerror="document.title='title ran'">Run a script from a link`,
       }),
     ).toBeVisible();
+    await openDirection(page);
     await expect(parts(page).direction).toContainText(
       `<img src=x onerror="document.title='direction ran'">`,
     );

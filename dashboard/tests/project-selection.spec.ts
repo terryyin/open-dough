@@ -4,7 +4,7 @@
 // presentation Open Dough already used when it was the only source.
 
 import { expect, test } from "@playwright/test";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectMembership, openDirection, parts } from "./dashboardPage";
 import {
   commitAnswer,
   emptyBacklog,
@@ -103,6 +103,7 @@ test("project selection shows each public project's own overview, and returning 
   await test.step("Open Dough is the default selection, read once, and Doughnut is not requested", async () => {
     await expect(project).toHaveValue("open-dough");
     await expectMembership(page, titlesOfOpenDough);
+    await openDirection(page);
     await expect(direction).toContainText(
       "Show Open Dough's own published direction",
     );
@@ -115,6 +116,7 @@ test("project selection shows each public project's own overview, and returning 
   await test.step("selecting Doughnut shows only Doughnut's overview; Open Dough is not read again", async () => {
     await project.selectOption("doughnut");
     await expectMembership(page, titlesOfDoughnut);
+    await openDirection(page);
     await expect(direction).toContainText(
       "Show Doughnut's own published direction",
     );
@@ -141,6 +143,7 @@ test("project selection shows each public project's own overview, and returning 
   await test.step("returning to Open Dough shows its overview again, read afresh", async () => {
     await project.selectOption("open-dough");
     await expectMembership(page, titlesOfOpenDough);
+    await openDirection(page);
     await expect(direction).toContainText(
       "Show Open Dough's own published direction",
     );
@@ -200,6 +203,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
   await expect(backlog).toContainText("0 entries");
+  await openDirection(page);
   await expect(direction).toContainText(
     "No near-future direction is recorded.",
   );

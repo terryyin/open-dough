@@ -13,12 +13,15 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Settle Taken claims on remote trunk through one publication path](seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk) — SEED-008#settle-taken-claims-on-remote-trunk ([plan](quick/080-publish-startup-claims/PLAN.md))
+
 ## Backlog list
 
-- [Settle Taken claims on remote trunk through one publication path](seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk) — SEED-008#settle-taken-claims-on-remote-trunk
-- [Arm and feed CI observation from scripts without agent commands](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
+- [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
+- [Keep prepared stories and plans through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-preparation-through-shared-operation) — SEED-008#publish-preparation-through-shared-operation
+- [Close completed stories through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-closure-through-shared-operation) — SEED-008#publish-closure-through-shared-operation
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format

@@ -25,12 +25,11 @@ The intended experience is an animated, zoomable stage with connected work
 stages, rather than just a list. Apply it just in time: the first increment
 needs a readable connected overview, not every interaction in that ambition.
 
-This seed proposed five user-visible increments. Two are delivered as the
-[story dashboard](../../dashboard/README.md): the first, a locally launched
-overview of published work, and the extension to observe Doughnut and
-Pygardon alongside Open Dough. Three remain. It is decomposition input,
-not an executable plan. UX/UI guidance and tech-stack selection are separate
-design tasks; their output informs refinement without becoming extra technical
+The [story dashboard](../../dashboard/README.md) now delivers the published-work
+overview, selection among Open Dough, Doughnut, and Pygardon, and preparation
+and readiness inspection. The remaining stories extend ownership and branch
+visibility. This seed is planning input, not an executable plan. UX/UI guidance
+and tech-stack selection are separate design tasks; their output informs refinement without becoming extra technical
 preparation stories.
 
 ## Alternatives and Recommendation
@@ -140,6 +139,9 @@ association or expanding the fallback interaction.
 ### 4. See who owns Taken work and where it is being executed
 
 **Identity:** SEED-021#identify-taken-work-owner
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"424b1e0b5dff803d29a2be6a474c4fe4a12bacc0a6311ea7868da8438950ae8b"}}
+```
 
 **Status:** Captured 2026-09-19; queued before story 3;
 not refined or planned. Story numbers preserve identity, not queue priority.
@@ -165,13 +167,14 @@ developers with the same assignment name. A rejected or uncertain claim cannot
 be reported as successfully owned work. Reused names must not make earlier
 assignments or messages appear to belong to a new execution.
 
-The same claim contract serves owned worktrees on one machine and independent
-clones on several machines. Publish the assignment with the Taken claim to
-remote trunk before implementation starts. A concurrent remote update requires
-rechecking name availability and reconciling the claim before retrying. An
-uncertain response is resolved from remote history and the retained claim
-identity. Local default-checkout maintenance follows its own ownership rules.
-Exact assignment allocation and reconciliation details remain refinement work.
+Extend the backlog's claim domain and the
+[shared startup operation](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk)
+so assignment and Taken publish together before implementation. Name availability
+is an assignment-domain check, including after a remote race; publication and
+recovery stay with the existing publisher. Do not add dashboard-driven claims,
+a second publisher, or a local ownership registry. Reuse claim provenance without
+confusing its execution identity with the display name. Exact allocation semantics
+remain refinement work.
 
 **Included delivery boundary:** Necessary backlog-field support, workflow
 recording/publication and assignment lifecycle, delivery of changed guidance
@@ -202,10 +205,11 @@ rotation and can drift from claims; commit authors do not reliably establish
 current ownership. Keep the automated assignment bounded to actual Taken work,
 not a general developer-directory product.
 
-**Depends on:** The delivered dashboard and installed execute-plan publication
-guidance, which supply claim publication and recovery. Published readiness precedes this story for
-single-agent learning value. Reuse the delivered backlog mutation and identity
-contracts when adding assignment semantics.
+**Depends on:** The delivered dashboard and
+[shared startup publication](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk).
+Published readiness is already delivered. Add assignment semantics through the
+existing backlog domain and startup path; ordinary CI automation and local
+checkout coordination are not product prerequisites for this visibility outcome.
 
 **Deferred promises:** Messaging, commit mailboxes, presence indicators,
 automatic timeouts/takeover, human account management, local workspace discovery,
@@ -244,10 +248,12 @@ dashboard that reads them. A separate state framework is not independently
 valuable. Recent-completion history remains an unselected hypothesis for the
 same reason.
 
-The migration story establishes the shared Git publication contract. These
-dashboard stories then add published detail and assignment visibility, followed
-by the default-checkout coordination story. The product backlog owns priority;
-this seed supplies non-executable story scope.
+Reliable startup publication is the prerequisite for extending claims with
+assignment. The backlog puts startup and frequent execution-delivery simplification
+first, then these remote dashboard outcomes before preparation/closure migration
+and same-machine coordination. This preserves the remote-first direction without
+making dashboard value wait for every publication caller to migrate. The product
+backlog owns the actual order; this seed supplies non-executable story scope.
 
 ## Open Decisions
 

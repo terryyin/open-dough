@@ -30,308 +30,443 @@ status; this seed records desired outcomes for implementation planning.
 
 **Identity:** SEED-008#settle-taken-claims-on-remote-trunk
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/080-publish-startup-claims/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f5c66a71df129f71be02f51289688b27a4d18c25a118118ae327482062f11a37","plan":"6b8be90bf65befa307295d4d286d6738e24440b2f0a986a594070c326e25bf47"}}
 ```
 
-**Status:** Captured on 2026-09-23; execution planning pending.
+**Status:** Refined on 2026-09-23; goal, scope, and key examples established.
+Execution planning authorized; implementation is not authorized by this request.
 
-**Goal:** A developer running stories concurrently in Trunk Mode or Story Branch
-Mode sees every confirmed Taken claim on the project's authoritative remote
-trunk before either execution begins. The default local checkout attempts to
-catch up to that accepted revision when it can do so safely.
+**Plan:** [Start queued work with a confirmed remote Taken claim](../quick/080-publish-startup-claims/PLAN.md).
+
+**Goal:** A developer starting concurrent stories in Trunk Mode or Story Branch
+Mode sees each confirmed Taken claim on authoritative remote trunk before its
+implementation starts. Startup uses the intended published story and plan.
+Clean, safely available local main normally advances to freshly fetched trunk;
+local maintenance may be deferred without invalidating remote acceptance.
 
 **Incident:** On 2026-09-23 in Doughnut, `SEED-037#story-3` was committed as
 Taken at `8face872f1` and published on its remote story branch while remote
 `main` still listed it in Backlog list. A concurrent `SEED-036#story-1` claim
-reached remote `main` at `dc29e4525a`, so the two agents saw different shared
-queue states. Implementation of SEED-037 had begun in a dirty worktree. The
-installed execution guidance at the claim revision already required both modes
-to publish the claim to remote trunk before implementation; the claim commit
-lacked the shared claim helper's ownership trailer. This shows a bypass of the
-required publication boundary, but the exact host or agent decision that led
-to it is unconfirmed. The SEED-037 claim was later merged into remote `main` at
-`e9ac74a8d9`; that repair is incident history, not this story's completion.
-This is a new occurrence of the shared visibility problem recorded in
-[ODF-066](../../docs/maintainer/finding-names.md#odf-066--unpublished-story-branch-claims-block-shared-integration)
-after the earlier claim-publication response was released.
+reached remote `main` at `dc29e4525a`, so the agents saw different shared queue
+states. Implementation of SEED-037 had begun in a dirty worktree. Installed
+guidance at the claim revision already required both modes to publish Taken
+to remote trunk before implementation. The claim lacked the shared helper's
+ownership trailer; the exact host or agent decision causing the bypass is
+unconfirmed. The later repair at `e9ac74a8d9` is incident history, not this
+story's completion. This recurs after the released response to
+[ODF-066](../../docs/maintainer/finding-names.md#odf-066--unpublished-story-branch-claims-block-shared-integration).
 
-**Scope:** Give execution startup one reliable, shared path that selects the
-owned claim commit, reconciles it with freshly fetched remote trunk, confirms
-remote acceptance, and attempts a safe refresh of the default local checkout.
-Both execution modes use that same boundary before implementation. Reuse the
-same authoritative remote-publication and checkout-maintenance behavior for
-other workflows that integrate with remote trunk; remove duplicated procedural
-instructions instead of maintaining parallel recipes. A story branch may still
-publish implementation progress to its own remote branch, but that destination
-does not settle the Taken claim. Report remote acceptance and local refresh as
-separate facts, preserving unpublished work and concurrent remote changes.
+**Accepted requirements (Terry, 2026-09-23):** Use a CLI boundary backed by shared
+mechanics. Make one cohesive publication solution and reduce agent involvement.
+Replace repeated instructions with clear, concise intent and result handling;
+adding reminders or moving the same recipe to another file is insufficient.
+Invest proportionately as models improve. Normal clean-local-main refresh is
+accepted; preserving unrelated dirty work and safely deferring local refresh
+are accepted. Automatic exclusive access remains separately owned.
+
+**Scope for this first delivery:** One installed startup operation
+covers source freshness, owned workspace establishment, backlog Take, remote
+claim publication/recovery, and safe local-main refresh attempts at startup and
+after acceptance. It returns the accepted claim and execution workspace before
+implementation. Both modes use the same boundary. Keep the existing backlog
+semantics and Git reconciliation where suitable; make actual native invocation
+observable. Ordinary increments and CI attachment belong together in the existing
+[CI/delivery story](#script-driven-ci-observation); preparation keep and closure
+have later adoption stories. Their omission does not postpone a complete startup
+outcome. Reuse the existing workspace contract; do not add general environment
+setup, dependency installation, semantic readiness assessment, or host lifecycle
+management to this operation.
+
+**Entry and completion boundary:** Applies to authorized queued planned work
+or an explicitly authorized queued planless story, in either supported mode.
+Resolve actual remote/trunk names and existing caller/host workspace authority;
+this story adds no new host mode. Startup success confirms the published claim
+and source/workspace context. The existing project-command preparation gate still
+runs before implementation; its failure leaves the accepted claim published.
+Context-only work without a queue claim keeps its current path. Low-level local
+Take remains a domain operation, never proof of remote acceptance.
+
+**Freshness and local-main behavior:** Fetch remote trunk before startup. Use
+its selected story section and active plan, checking for unpublished changes to
+those sources in the originating checkout, including staged/unstaged edits and
+local commits. Such changes stop startup before Take; do not silently execute
+an older published source. Unrelated edits, including sibling-story edits in
+the same seed, do not themselves block isolated execution from fetched trunk.
+Failed fetch or failure to establish the owned execution source stops startup.
+A clean, behind local main normally fast-forwards when safe access is established.
+Dirty, busy, divergent, or ambiguously owned main stays intact, with explicit
+deferred refresh. The observed fetched head is the freshness basis; equality
+with a continually moving remote is not a permanent promise.
+
+Check local source edits separately from published preparation readiness. Read
+the latter from the fetched remote snapshot, not from a dirty originating seed.
+A local sibling-story edit must not create a false selected-source conflict.
+If the published readiness assessment itself is stale, preserve its existing
+refusal and request renewed preparation; this story does not change readiness
+hashing or silently mark work ready. Shared seed context needed to resolve the
+selected identity/plan must also remain unambiguous.
 
 **Key examples / evaluation:**
 
-- Two executions take different queued stories from the same fetched base,
-  one in each mode. Their claims reconcile in either publication order; remote
-  trunk shows both exactly once before either starts implementation.
-- A Story Branch execution publishes its claim to remote trunk, then publishes
-  a later implementation increment to its story branch. The increment does not
-  replace or retract the remote-trunk Taken entry.
-- After a claim reaches remote trunk, a clean, exclusively available local
-  default checkout fast-forwards to the accepted trunk head. A dirty, busy, or
-  ambiguous checkout stays intact; the claim remains accepted, and the deferred
-  refresh is reported and can be retried when access becomes safe.
-- Remote trunk advances between fetch and push. The owned candidate is
-  reconciled with the new head and accepted without dropping another claim;
-  rejection or interruption leaves recoverable state and does not start
-  implementation from an unconfirmed claim.
-- A fresh native execution in each supported host demonstrates that the shared
-  publication path is actually used, with remote history and local checkout
-  state checked independently. Guidance names one authoritative procedure and
-  callers link to it rather than restating its steps.
+- Two authorized executions take different stories from one base, in different
+  modes. Either publication order leaves both claims on remote trunk exactly
+  once, before each respective implementation begins. A competing claim for
+  the same story stops the losing execution.
+- Behind local main has unrelated staged work → startup uses fetched remote
+  source in an owned worktree → claim reaches trunk and local work is untouched.
+  An unpublished edit to the selected story or plan instead stops before Take.
+- Clean, safely owned local main → startup and accepted claim publication each
+  attempt refresh → main reaches the latest head observed by that attempt.
+  Unclear access defers maintenance without rejecting an accepted claim.
+- Remote advances between fetch and push → reconcile the owned candidate and
+  recheck selected-source validity → accept on trunk or preserve a recoverable
+  stop. No implementation starts on an unconfirmed claim.
+- Push response is lost or the process exits after remote acceptance → resume
+  verifies remote history and claim ownership → no duplicate claim and no
+  confusion between accepted publication and unfinished local maintenance.
+- The claim is accepted, then the existing project preparation command fails →
+  keep the remote Taken entry and owned workspace → report the setup failure
+  without starting implementation or treating it as an unpublished claim.
+- A fresh native execution follows the installed concise instruction and
+  invokes the operation. Remote history and local state independently establish
+  success; a helper test alone does not prove the agent used the boundary.
 
-**Architecture constraints:** [Accepted ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-requires continuous integration on a shared trunk;
-[Accepted ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-requires one authoritative home for each behavioral rule. The Git mechanics
-draft in [Proposed ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md)
-is context, not an accepted decision. The existing
-[default-checkout coordination story](#same-machine-merge-queue) owns automated
-exclusive access among local writers; this story owns the publication boundary,
-safe refresh attempt, and truthful outcome across modes.
+**Boundary:** No new execution authority, branch-protection bypass, Story Branch
+integration timing, automatic conflict judgment, generic test selection, or
+background scheduler. Existing CI setup/coverage rules continue until the
+[CI automation story](#script-driven-ci-observation) changes them. Automated
+exclusive checkout access belongs to
+[default-checkout coordination](#same-machine-merge-queue); lack of that facility
+must not be represented as safe ownership.
 
-**Safe stopping point:** Both modes settle claims on remote trunk before work
-starts and use one reusable integration procedure. Local checkout lag is
-visible and recoverable when refresh cannot safely advance it.
+**Architecture:** The proposed responsibilities, interfaces, recovery model,
+existing-code assessment, and investment trade-offs are in
+[Execution and publication with less agent coordination](../../docs/maintainer/execution-publication-design.md).
+Accepted ADRs 0002, 0004, 0005, and 0006 constrain that proposal. ADR 0009 remains
+Proposed. Preserve one authoritative source per behavior and remove obsolete
+caller recipes as behavior moves into runtime.
+
+**Evaluator / highest learning:** The developer can see remote Taken membership
+before execution, preserved local work, and a shorter native startup trace.
+The consequential assumption is that a small explicit operation reliably removes
+the bypass seen despite existing prose, without imposing a larger agent protocol.
+
+**Safe stopping point:** Both modes start from verified published source and
+settle Taken remotely through the operation. This remains useful if every later
+migration is cancelled. Local-main lag is explicit and recoverable.
+
+**Refinement conclusion:** No unresolved product choice blocks planning.
+Command spelling and module boundaries can be chosen within the reviewed design.
+Source comparison, bounded race recovery, and truthful partial success are
+implementation/proof obligations, not reasons to expand the story. No automatic
+CI attachment, checkout lock, generalized readiness runner, or new publication
+caller is included.
+
+## Publication delivery boundaries
+
+**Parent problem:** Developers executing concurrent work need reliable shared
+claims and delivery with less routine agent coordination. Preserve authority,
+user work, and truthful remote/CI evidence while reducing total instructions.
+
+**Reviewed decomposition:** Startup above; ordinary execution publication plus
+CI attachment in the existing [CI story](#script-driven-ci-observation);
+preparation keep; and closure. The previous separate execution-increment
+candidate duplicated the CI story's publication boundary and has been absorbed
+there. No library, command-framework, or testing-only story is required.
+
+**Alternatives and limits:** Another instruction-only reminder repeats a rule
+already installed during the incident. A single all-caller migration delays the
+incident fix behind distinct preparation and closure cases. Keep four bounded
+outcomes, but do not treat them as four immediate top priorities. Each includes
+only the runtime, concise guidance, payload delivery, and proof its outcome needs.
+
+**Effort hypothesis:** No project S/M/L definitions were found. Startup carries
+the greatest initial runtime/native-adoption uncertainty. The combined CI/delivery
+story adds candidate revalidation and existing-observer attachment, not a new
+observer lifecycle. Preparation should be narrower; closure adds published-history
+and cleanup concerns. Estimates remain unassigned pending planning evidence.
+
+<a id="publish-execution-increments-through-shared-operation"></a>
+
+### Execution-increment candidate absorbed into CI delivery
+
+The proposed identity `SEED-008#publish-execution-increments-through-shared-operation`
+was never queued. Its outcome is now owned by
+[SEED-008#script-driven-ci-observation](#script-driven-ci-observation), avoiding
+two stories that each wire the same publication boundary. This is a retired
+navigation reference, not another candidate or a claim of delivered behavior.
+
+<a id="publish-preparation-through-shared-operation"></a>
+
+### Keep prepared stories and plans through the shared publication operation
+
+**Identity:** SEED-008#publish-preparation-through-shared-operation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+```
+
+**Status:** Queued on 2026-09-23 after the remote dashboard outcomes; scope
+outlined, refinement and planning pending.
+
+**For / why:** A developer who chooses to keep refinement or planning work sees
+that exact retained preparation on remote trunk without another agent-managed
+Git procedure or disturbance of unrelated local main work.
+
+**Scope candidate:** Adopt the publisher for authorized preparation keep.
+Preserve preparation disposition and source-state recording: leave uncommitted,
+keep, and discard remain distinct user choices. Publication does not Take a
+story or grant readiness. Replace the preparation publication recipe.
+
+**Evaluation:** A kept preparation changes a story while another writer changes
+a sibling story → publish both coherently or stop with the source conflict →
+retain the correct preparation facts. A request to leave a draft uncommitted
+never invokes remote publication.
+
+**Depends on / boundary:** Needs the shared publisher; no product prerequisite
+on execution-increment adoption. Ordering it later is a value/learning choice.
+Direct edits in shared main retain the existing access contract; this story does
+not add checkout locking or a generic direct-edit workflow.
+
+**Safe stopping point:** Retained preparation is published with an exact receipt
+and independent refresh result. Closure adoption may remain deferred.
+
+<a id="publish-closure-through-shared-operation"></a>
+
+### Close completed stories through the shared publication operation
+
+**Identity:** SEED-008#publish-closure-through-shared-operation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+```
+
+**Status:** Queued on 2026-09-23 after the remote dashboard outcomes; scope
+outlined, refinement and planning pending.
+
+**For / why:** A developer finishing a story gets the intended closure on its
+authorized remote target, with truthful CI evidence and safe cleanup, without
+another agent-managed publication sequence.
+
+**Scope candidate:** Adopt the publisher for closure and authorized integration
+of already-published Story Branch history. Preserve human-owned publication
+restrictions, semantic backlog completion, published history, actual target
+attribution, and the existing completion/cleanup conditions. Consume the shared
+CI completion operation owned by the already-Taken sibling story; do not add a
+second observer shutdown policy.
+
+**Evaluation:** Story Branch closure integrates published history on trunk →
+receipt names the accepted trunk revision → matching CI completion and observer
+shutdown precede resource removal. A rejected publication or unconfirmed shutdown
+preserves recovery resources; earlier branch success does not cover trunk.
+
+**Depends on / boundary:** Needs shared publication and the existing CI completion
+contract. No dependency on preparation adoption. This migration does not decide
+when Story Branch work should integrate or authorize otherwise withheld pushes.
+
+**Safe stopping point:** Closure uses the same remote-publication owner while
+retaining its distinct completion and cleanup responsibilities.
+
+### Priority rationale and scope reduction
+
+The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
+
+- Startup is first: a reproduced claim-visibility failure undermines parallel
+  execution and the dashboard's shared source of truth.
+- The combined CI/delivery story is second: it removes frequent per-increment
+  coordination at the same publication boundary, ahead of adding more workflow
+  metadata. The already-Taken CI completion story remains independent and active.
+- Published ownership and execution-branch visibility stay next. They directly
+  serve the remote-first dashboard direction and retain higher value than
+  migrating every occasional publication caller immediately.
+- Preparation keep and closure follow those dashboard outcomes, before local
+  checkout coordination and the remaining Claude background adaptation. They
+  extend the shared publisher without making the incident fix wait for them.
+- Local coordination remains below remote work, matching the existing direction.
+  The Claude background story consumes the common contracts and owns only the
+  remaining host-specific restriction/handoff outcome. Neither warrants a second
+  publication or observation implementation.
+- Planning-format validation and existing process follow-ups retain their relative
+  order below this cluster. They are not prerequisites for publication.
+
+If reducing investment, defer preparation/closure migration first and retain
+current shared procedures for those callers. Retain the first story's complete
+claim guarantee. Reassess further simplification against actual native use;
+no invisible host startup, scheduler, arbitrary-push watcher, or global workflow
+registry is selected. No new execution authority or ADR acceptance is implied.
+
+## Existing related stories
 
 <a id="same-machine-merge-queue"></a>
 
 ### Coordinate direct edits and refreshes of the default checkout
 
 **Identity:** SEED-008#same-machine-merge-queue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+```
 
-**Status:** Captured; refinement and planning pending.
+**Status:** Scope bounded on 2026-09-23; refinement and planning pending.
 
-**Goal:** A developer running several agents on one machine gets safe,
-recoverable access to the default checkout for short direct edits and refreshes,
-while agents continue publishing from their owned workspaces to remote trunk.
+**Goal:** Participating local agents safely share the default checkout for
+bounded direct edits and refreshes, preserving pending work while other owned
+workspaces continue publishing to remote trunk.
 
-**Scope candidate:** Automate exclusive access to one repository's default
-checkout across participating worktrees. Direct edits and refreshes use the same
-coordination mechanism, covering inspection, working-tree and index mutations,
-commit, and safe release or explicit handoff. Recheck current state after
-acquiring access, preserve human work, and make deferred refresh and recoverable
-interruption visible. Apply the installed default-checkout refresh rules and
-existing Git publication ownership.
+**Scope candidate:** One immediate access attempt covers inspection and any
+working-tree, index, commit, or branch mutation through the existing checkout
+maintenance owner. Re-read state after acquisition. On contention or unclear
+ownership, return deferred with enough recovery context; no waiting queue,
+fairness policy, automatic takeover, background catch-up, or remote merge queue.
+Direct edits use the shared publisher with established authority. Keep access
+through the edit and release it at its existing completion/handoff boundary.
 
 **Key examples / evaluation:**
 
-- Agent A holds the default checkout for a bounded edit. Agent B publishes a
-  validated increment from its worktree to remote trunk and reports its local
-  refresh as deferred. Once A completes or hands off its owned operation, a
-  coordinated refresh reconciles with the current state and advances when safe.
-- Two agents request a default-checkout refresh. One writer operates at a time;
-  the next reads the resulting state and reports the current revision.
-- A human has staged an unrelated edit in the default checkout. A requested
-  refresh preserves the staged and working-tree content, reports the pending
-  ownership issue, and resumes after that work is resolved.
-- An operation is interrupted. The next participant can identify its ownership
-  and preserved work, then recover or receive an explicit handoff before
-  mutating the checkout.
+- One participating agent owns a direct edit → another publishes from its own
+  worktree → remote acceptance succeeds and local refresh is deferred promptly.
+- Two refresh attempts contend → only the owner mutates → the other reports
+  deferred; a later explicit attempt rechecks current state before advancing.
+- A human has staged work or a prior owner was interrupted → preserve content
+  and ownership evidence → report recovery/handoff needed; never steal access
+  based solely on a timeout or a missing process.
 
-**Depends on:**
-Installed execute-plan publication and default-checkout maintenance guidance
-supply the shared remote publication contract and baseline checkout maintenance;
-this story supplies automated same-machine access and recovery.
+**Boundary:** Cooperative access cannot prevent edits by humans or tools that
+ignore it. Rechecks and preservation still apply. This story adds no agent
+scheduler, continuous liveness monitor, new publication policy, or remote lock.
 
-**Deferred decisions:** Atomic acquisition, ownership representation, waiting
-and fairness, interruption recovery, and detection of intervening human edits.
-Choose mechanisms during refinement using demonstrated local contention and
-existing suitable solutions. Any remote publication scheduling proposal needs
-its own observed contention evidence and scope decision.
+**Depends on:** The production publisher and checkout-maintenance boundary from
+[startup](#settle-taken-claims-on-remote-trunk). It automates access to that
+existing owner; startup can safely defer refresh before this story is delivered.
 
-**Safe stopping point:** Participating writers coordinate default-checkout
-operations and preserve interrupted work. Remote publication remains available
-from each owned workspace under the common Git contract.
+**Safe stopping point:** Participating direct edits and refreshes share bounded
+access and recoverable stops; isolated publication stays independent of it.
 
 <a id="claude-code-background-mode"></a>
 
 ### Complete execution and wrap-up in fresh Claude Code background mode
 
 **Identity:** SEED-008#claude-code-background-mode
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+```
 
-**Status:** Refined outcome aligned on 2026-09-21; host-specific details require
-renewed refinement before planning.
+**Status:** Retained for its host-specific outcome; scope aligned on 2026-09-23,
+renewed refinement and native observation required before planning.
 
-**Goal:** A developer using Claude Code background mode can take authorized work,
-execute it in the session's owned checkout, and finish with committed closure
-on its execution branch. The developer retains ownership of execution-branch
-publication and any pull request.
+**Goal:** A developer using Claude Code background mode can execute in the
+session's owned checkout and finish with committed closure on its execution
+branch while retaining developer ownership of branch publication and any PR.
 
-**Scope — required behavior:**
-
-- Reuse a suitable host-provided worktree and branch as the execution workspace.
-  Establish its ownership, starting revision, and authorized remote destinations
-  from the session and project. Explain the supported configuration through
-  installed guidance and prove it in a fresh native session.
-- Resolve shared Taken-claim publication separately from execution-branch
-  publication. With claim authority established, reconcile and publish the
-  claim to remote trunk through an owned path before implementation starts.
-  Surface missing authority or target context as a concrete prerequisite for
-  the selected work, preserving the prepared state.
-- Continue execution and wrap-up in the established workspace. Retain recovery
-  identity and close the story through the supported developer-owned publication
-  boundary. Report the committed branch, pending publication, and any shared
-  record reconciliation needed when the developer publishes or integrates it.
-- When a supported session uses the default checkout for direct work, apply
-  the common checkout ownership and refresh rules. Express configuration and
-  workspace choice through the shared execution contract and the necessary
-  Claude-specific adaptation.
+**Scope candidate:** Reuse the common startup, publication, and completion
+contracts. Supply only the host's actual workspace, authority, and handoff
+context; do not implement a second Take/push/CI lifecycle. A suitable host
+worktree is reused without nesting. With shared-claim authority, startup publishes
+Taken to trunk before implementation. Execution-branch publication restrictions
+remain effective: commit authorized work and closure locally and report the
+precise remaining developer publication/integration obligations.
 
 **Key examples / evaluation:**
 
-1. A fresh native background session provides an isolated checkout. Open Dough
-   records that checkout and branch, publishes an authorized claim through the
-   remote contract, and performs implementation in that workspace.
-2. Execution-branch publication belongs to the developer while shared-claim
-   publication is authorized. The session publishes the claim, commits work and
-   closure on the execution branch, and identifies the developer's remaining
-   publication and integration obligations with the correct destinations.
-3. Claim publication authority is unresolved. The session preserves its prepared
-   changes and reports the authority needed before it can start claimed work.
-4. Remote trunk advances during setup. Claim publication reconciles the changed
-   remote state, and execution starts from the resulting verified base.
+- Fresh background session supplies a suitable worktree and claim authority →
+  shared startup publishes Taken → work and closure stay on the provided branch.
+- Shared claim publication is authorized but execution-branch pushes are owned
+  by the developer → no forbidden branch push → durable closure commits and an
+  explicit developer handoff identify remaining shared-record reconciliation.
+- Claim authority or context is missing → preserve preparation and stop before
+  implementation with the required decision identified.
 
-Evaluate with a fresh installation and actual Claude Code background settings.
-Observe checkout ownership, branch refs, remote history, backlog records, and
-closure commits under ADR 0005. Resolve host commit/push restrictions and the
-shared-record closure handoff during renewed refinement. Broader host lifecycle
-management, cloud sessions, and pull-request automation remain future scope.
+Observe actual native background settings, remote history, backlog state, and
+closure commits under ADR 0005. Shared claim mechanics are already proved by
+startup; this story proves the remaining restricted-publication/closure journey.
+Drop any redundant adaptation that those existing native proofs already establish.
 
-**Depends on:**
-Installed execute-plan publication guidance supplies the shared remote
-publication contract. The queued local-coordination story supplies automated
-access when operating in the default checkout; isolated host-worktree execution
-uses the remote contract.
+**Boundary / dependencies:** Consume the startup and subsequent shared delivery
+contracts. No new default-checkout editing mode, cloud lifecycle, PR automation,
+or general host-workspace manager. Local checkout coordination is not required
+for the isolated background journey. Resolve the host's actual restrictions and
+closure handoff in refinement rather than assuming them from its name.
 
-**Safe stopping point:** The proven native session can execute and close work
-in its owned workspace, with durable commits and explicit publication ownership.
-
-**Effort hypothesis:** Unestimated pending the fresh host observation and
-claim/closure authority refinement.
+**Safe stopping point:** The supported native session leaves durable work and
+truthful publication ownership without bypassing host restrictions.
 
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
 
-**Identity:** SEED-008#reduce-ci-observer-overhead (retired from the queue on
-2026-09-22; not reallocated)
+The retired identity `SEED-008#reduce-ci-observer-overhead` is not queued or
+reallocated. Its remaining outcomes are the active
+[completion story](#self-ending-ci-observer) and queued
+[CI/delivery story](#script-driven-ci-observation).
 
-**Status:** Split on 2026-09-22 into the three stories that follow. This
-section keeps the observed problem, its evidence, and the developer's goal;
-it is no longer a queued work item.
-
-**Goal of the split:** Token efficiency of the agents executing plans. The
-ideal, stated by Terry on 2026-09-22, is an observer the agent never has to
-think about — armed and fed by scripts and installed hooks, heard from only
-when CI fails — reached with a simple overall solution rather than an
-elaborate lifecycle. The stories below approach that ideal in order of
-saving per effort: first silence non-actionable notifications, then remove
-closing bookkeeping, then remove starting and feeding.
-
-**Reported evidence:** Terry supplied these observations from a Pygardon plan
-execution in the 2026-09-21 backlog discussion. The execution identity, host,
-installed release, and raw event transcript were not supplied; the repetition
-and timing below are reported observations, not independently measured facts.
-
-- Probe → start → register-push was reported repeated after every slice, seven
-  or more times, including retyping the exact `/tmp/dough-ci-501/watch-XXXX`
-  directory. Current Open Dough guidance requires probing and starting once
-  per execution and reusing the observer; only registration is required after
-  each confirmed push.
-- Several pushes reportedly emitted `CI_COVERAGE_UNAVAILABLE` after three
-  discovery polls, followed minutes later by a real result for the same SHA.
-  Each early notification needed to be treated as provisional, adding repeated
-  interpretation overhead. The three-poll notification comes from shared Open
-  Dough runtime; Pygardon's CI latency may amplify it.
-- Trunk Mode wrap-up reportedly armed another observer for one closure commit
-  and stopped it immediately afterward. Current closure guidance explicitly
-  requires this when execution already stopped its observer, leaving a short
-  useful observation window for the extra setup work.
-
-**Repeated setup is observed, not targeted.** The 2026-09-22 investigation
-found no Trunk-Mode-specific guidance or runtime path that repeats probe or
-start per slice, and no transcript, DearDough, or finding record of it. It
-stays out of every story's goal and is watched instead. Hypothesis to test on
-the next multi-slice execution, recording host, model, release, mode, and the
-observer commands actually run: the per-slice loop step "Recover an existing
-CI observer before considering a new one", read alongside "re-entering setup
-… after a publication", invites a setup ritual; the observer handle is kept
-only in the conversation by design, so a long execution can lose it; and each
-`probe` mints a fresh mailbox directory whose receipt can be mistaken for the
-live handle. Trunk Mode amplifies the cost through more publications, a
-default-checkout refresh after each, and the wrap-up observer cycle. Story C
-below removes the handle from the agent's hands, which would make this moot.
-
-**Related finding:** [ODF-069 — CI discovery gaps obscure later terminal
-results](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results)
-is partially addressed, not resolved. Commit `5630b28`, released in 0.3.28,
-proves later results can arrive and clarifies in guidance that an early
-coverage notification is provisional. It does not change the three-poll
-threshold or remove notification noise. ODF-034 records the same per-push
-diagnostic repeated across an execution. The catalog's separate GitHub
-bounded-listing concern is not established as the cause of this Pygardon
-report; later-result delivery here is not evidence of a missed verdict.
-
-**Runtime facts established on 2026-09-22 (main at 0.3.28):** the observer
-emits no success event, so on a green run `CI_COVERAGE_UNAVAILABLE` is the
-only observer message the coordinator ever receives; the threshold is a
-literal `missingRevisionPollLimit = 3` at a 30-second poll, about 90 seconds;
-on Claude Code an event arriving at the host's Stop hook is delivered as a
-blocking decision that forces another agent turn, and on Cursor as a
-follow-up message; publication is prose Git steps followed by a separate
-`register-push`, not a script the agent runs; the readiness-gate script the
-agent already runs once knows the selected mode and target; the installed
-delivery hook already runs after tool use and enumerates this owner's
-mailboxes, whose requests record repository, target branch, and checkout
-root.
+Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
+transcription, early provisional coverage notifications, and a separate closure
+observer cycle. No raw transcript established the repeated-setup cause. The
+full investigation is retained in Git at `1352844` and linked findings
+[ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results).
+Later source review corrected the claimed production readiness command: it was
+a test substitute. Current story scope below replaces the earlier idle-expiry
+and ref-watching proposals; do not implement those historical mechanisms.
 
 <a id="script-driven-ci-observation"></a>
 
-### Arm and feed CI observation from scripts without agent commands
+### Publish execution increments with automatic CI observation
 
 **Identity:** SEED-008#script-driven-ci-observation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+```
 
-**Status:** Captured on 2026-09-22 (story C of the split above); outcome and
-attribution decision aligned with the developer, refinement pending before
-planning.
+**Status:** Existing identity retained; merged with the proposed execution-
+publication candidate on 2026-09-23. Second in the queue; refinement and planning
+pending.
 
-**For / why:** Reaching the split's ideal: the agent runs no `probe`,
-`start`, or `register-push`, retains no mailbox handle, and learns that an
-observer exists only when a failure is delivered.
+**Goal:** A developer's agent delivers each validated execution increment or
+authorized repair through one operation and receives actionable CI results,
+without separate probe/start/register commands or manually retained mailbox
+handles. Remote publication, deferred local refresh, and CI coverage stay honest.
 
-**Outcome:** The readiness-gate script the agent already runs once arms the
-observer for the selected mode's authorized target. The installed delivery
-hook registers this workspace's publications by noticing that the target's
-remote-tracking ref has advanced to the owned branch's tip, which happens
-only right after this workspace pushes. Probe, start, and register-push leave
-the execution guidance; observer recovery after interruption becomes a
-runtime concern, not an agent step.
+**Scope candidate:** Extend the startup story's real shared publisher to ordinary
+execution delivery in both modes. At the first applicable managed publication,
+start or reuse the existing scoped observer and attach the exact accepted revision;
+later publications reuse it. Keep the matching handle and recovery in the existing
+CI owner. Preserve target destinations, candidate validation, published history,
+and the already-Taken CI completion contract. One agent invocation supplies
+publication intent; Git reconciliation and CI attachment are internal steps.
 
-**Attribution decision (Terry, 2026-09-22):** attribution is derived from the
-owned workspace rather than explicit registration. It is exact in the normal
-case; after a fast-forward refresh of the owned branch onto an advanced
-target, that fresh base may be attributed and its failure delivered. This is
-accepted as useful information rather than noise.
+**Key examples / evaluation:**
 
-**Constraints and open decisions:** This reverses the current execution
-location decision not to arm at the readiness gate; record that reversal
-explicitly. Resolve how Codex, which observes through a stream rather than a
-post-tool hook, keeps the same behavior under ADR 0005. Retire ODF-073 and
-the repeated-setup hypothesis above to the extent the delivered behavior
-makes them moot. Keep the mailbox request as the record of repository,
-target, and checkout root that the hook reads.
+- First validated increment → one publication operation → accepted remote SHA
+  is attached to matching observation without agent setup/registration commands.
+  Later increments reuse that owner; a delayed failure reaches the correct task.
+- Remote advances → reconciliation changes the candidate → obtain applicable
+  validation before pushing → register the accepted revision, never the old SHA.
+- Publication succeeds but observation attachment fails → preserve the accepted
+  receipt, report lost coverage, and recover observation without another push.
+- Interruption → recover the matching workspace/target/observer context → no
+  duplicate ownership, lost applicable failure, or manual handle transcription.
 
-**Depends on:** story B, since an observer nobody starts must end itself.
-**Safe stopping point:** the agent's observer vocabulary is empty; failures
-still arrive. **Effort hypothesis:** M.
+**Attribution and simplification:** The earlier hook proposal inferred a push
+from tracking-ref movement, which fetch/fast-forward can also cause. Terry had
+accepted possible fresh-base attribution as useful. That tolerance does not
+require a second attribution path: managed publication now supplies its exact
+receipt directly. Arbitrary raw/manual pushes are outside automatic attachment
+in this story; retain explicit existing observation options for them. Do not
+build ref watchers or intercept shell commands to pretend otherwise.
+
+**Boundary:** No invisible host startup, new observer daemon, general execution
+registry, provider expansion, automatic semantic repair, or new completion policy.
+CI starts lazily at the first applicable managed publication; no idle observer
+is needed during preparation. Existing claim-target CI policy remains effective;
+claim acceptance does not imply coverage by a story-branch observer. Preparation
+and closure adoption remain separate callers with their own authority/targets.
+
+**Depends on:** [Startup publication](#settle-taken-claims-on-remote-trunk) supplies
+the production boundary. [CI completion](#self-ending-ci-observer), already Taken,
+supplies bounded completion/shutdown. Neither a new readiness framework nor
+checkout coordination is required.
+
+**Safe stopping point:** Ordinary execution and repairs have one publication/
+observation path with less agent bookkeeping. Preparation and closure may still
+use existing setup until their migrations. The agent still receives truthful
+completion evidence; the goal is no routine observer management, not hidden gaps.
 
 ## Architectural Context
 

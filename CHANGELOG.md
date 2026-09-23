@@ -1,3 +1,9 @@
+## 0.3.31 - 2026-09-23
+
+- Recognize GitHub Actions push path policies that explicitly match every branch when deciding whether CI applies, while continuing to fail closed on unsupported branch or tag filters and duplicate event definitions. Preserve exact-revision coverage and ignored-only handling for these workflows.
+
+No additional native acceptance was run for `0.3.31` at the maintainer's request. Native acceptance for all-branches push-filter handling and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.30 - 2026-09-23
 
 - Route planned story claims through the canonical product-backlog writer so execution preserves identity and plan links, refuses ambiguous moves, and leaves preparation readiness under its existing owner instead of hand-building backlog entries.

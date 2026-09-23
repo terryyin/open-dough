@@ -4,6 +4,9 @@
 
 **Date:** 2026-09-06
 
+**Clarified:** 2026-09-23, at Terry Yin's direction, to keep ADRs focused on
+high-level architecture relevant across development tasks.
+
 **Decision makers:** Terry Yin
 
 ## Context
@@ -18,8 +21,12 @@ guidance but are not imposed on projects using it.
 
 ## Decision
 
-1. Record cross-cutting, hard-to-reverse, or frequently revisited architectural
-   choices as numbered Markdown files under `docs/adrs/`.
+1. Record high-level architectural choices with product-wide impact that agents
+   working across most development tasks need to know, as numbered Markdown
+   files under `docs/adrs/`. Cost of reversal or repeated discussion can justify
+   recording such a choice, but does not make a feature-local design an ADR.
+   Keep feature behavior, command interfaces, and implementation design with
+   that feature's documentation or planning records.
 2. Follow the human advice process and naming conventions in the
    [ADR README](./README.md). Decision makers consult affected and interested
    people, make the decision, and communicate the outcome.

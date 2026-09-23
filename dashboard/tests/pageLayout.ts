@@ -37,7 +37,7 @@ const notReadWhole = `(() => {
   const keptFromSight = ${keptFromSight};
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
-      if (!(element instanceof HTMLElement) || keptFromSight(element)) return false;
+      if (!(element instanceof HTMLElement) || keptFromSight(element) || element.getBoundingClientRect().height === 0) return false;
       const tooNarrowForItsContent =
         element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1;
       // A native form control (the project selector) renders and clips its
@@ -50,8 +50,8 @@ const notReadWhole = `(() => {
       return (
         tooNarrowForItsContent ||
         style.textOverflow === "ellipsis" ||
-        style.overflowX !== "visible" ||
-        style.overflowY !== "visible" ||
+        (style.overflowX !== "visible" && style.overflowX !== "auto") ||
+        (style.overflowY !== "visible" && style.overflowY !== "auto") ||
         style.whiteSpace === "nowrap"
       );
     })

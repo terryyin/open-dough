@@ -30,7 +30,7 @@
 // catch-all, alongside the actual GitHub hosts it exists to block.
 
 import { expect, test, type Page } from "@playwright/test";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectMembership, openDirection, parts } from "./dashboardPage";
 import { publishMovingOrigin } from "./githubOrigin";
 import {
   startPrivateReadServer,
@@ -122,7 +122,7 @@ test.describe("private project recovery", () => {
         await expect(problem).toContainText(
           "No published work is shown, because none has been read.",
         );
-        await expect(page.getByRole("button")).toHaveText(["Retry"]);
+        await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
         await expect(page.getByRole("article")).toHaveCount(0);
         await expect(page.getByText("Near-future direction")).toHaveCount(0);
       });
@@ -166,6 +166,7 @@ test.describe("private project recovery", () => {
           taken: [pygardonTakenTitle],
           backlog: [pygardonQueuedTitle],
         });
+        await openDirection(page);
         await expect(direction).toContainText(pygardonDirection);
         await expect(source).toContainText(pygardonRevision);
         await expect(problem).toHaveCount(0);
@@ -227,7 +228,7 @@ test.describe("private project recovery", () => {
       await expect(problem).toContainText(
         "The local authenticated read failed.",
       );
-      await expect(page.getByRole("button")).toHaveText(["Retry"]);
+      await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
       await expect(page.getByRole("article")).toHaveCount(0);
 
       server.setControl({

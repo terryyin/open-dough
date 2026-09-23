@@ -176,7 +176,7 @@ test.describe("project read isolation", () => {
         backlog: [openDoughSharedTitleSecond],
       });
       await expect(source).toContainText(revisionOpenDoughSecond);
-      await expect(refresh).toHaveText("Refresh");
+      await expect(refresh).toHaveAccessibleName("Refresh");
       expect(doughnut.requests).toHaveLength(1);
     });
   });
