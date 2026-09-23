@@ -29,3 +29,4 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
 - [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design
 - [Continue test optimization plans into execution or the backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans) — SEED-004#continue-test-optimization-plans
+- [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states
