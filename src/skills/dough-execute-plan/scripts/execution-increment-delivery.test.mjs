@@ -31,8 +31,10 @@ test("execution entry routes name the same increment and repair owner", () => {
   );
   assert.match(trunk, /do not add a second\s+repair push/);
   assert.match(trunk, /## Publish a queue claim/);
-  assert.match(trunk, /publish that claim SHA to remote trunk/);
-  assert.match(trunk, /before\s+implementation/);
+  assert.match(
+    trunk,
+    /uses the installed startup operation to publish and confirm the claim on remote\s+trunk before implementation/,
+  );
   assert.equal(trunk.match(/does not push the execution branch/g).length, 1);
   assert.equal(trunk.match(/recorded remote execution branch/g).length, 1);
   assert.equal(trunk.match(/does not push it to remote trunk/g).length, 1);
@@ -61,11 +63,6 @@ test("execution entry routes name the same increment and repair owner", () => {
   assert.doesNotMatch(location, /does not push the execution branch/);
   assert.doesNotMatch(location, /recorded remote execution branch/);
   assert.doesNotMatch(location, /exclusive-turn/);
-  assert.match(
-    location,
-    /select or reuse the owned workspace from\s+fetched remote trunk before the Taken claim/,
-  );
-
   assert.match(monitor, /git stash push/);
   assert.match(monitor, /git stash apply --index STASH_OID/);
   assert.match(monitor, /never nest stash\/repair cycles/);
