@@ -40,8 +40,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     }
     return stops;
   };
+  const selectedProject = project.getByRole("radio", { checked: true });
   const stops = [
-    project,
+    selectedProject,
     refresh,
     sourceEvidence,
     directionToggle,
@@ -49,7 +50,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Project + Refresh + Source evidence + Direction + Legend + four Inspect + five recorded links.
+  // The selected project radio + Refresh + Source evidence + Direction + Legend + four Inspect + five recorded links.
   expect(stops).toHaveLength(1 + 1 + 1 + 1 + 1 + 4 + 5);
 
   await test.step("Tab stops at the read control, Inspect, and every recorded link, and nowhere else", async () => {
@@ -74,7 +75,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
-    // Project already holds focus after the reverse walk; Refresh, evidence and the
+    // The selected project radio already holds focus after the reverse walk; Refresh, evidence and the
     // direction disclosure, badge legend and first card's Inspect precede its Canonical link.
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
