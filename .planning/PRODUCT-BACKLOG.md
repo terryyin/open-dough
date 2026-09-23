@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer ([plan](quick/079-complete-ci-observation/PLAN.md))
-
 ## Backlog list
 
 - [Settle Taken claims on remote trunk through one publication path](seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk) — SEED-008#settle-taken-claims-on-remote-trunk

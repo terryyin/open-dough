@@ -957,26 +957,6 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     the triggering network instability recurred repeatedly this session, so
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
-- Execution: `.planning/quick/079-complete-ci-observation/PLAN.md` /
-  SEED-008#self-ending-ci-observer @ `57102252facd1856b135218845c7b38d1ec684ca`
-  - Timestamp: 2026-09-23T10:57:50+08:00
-  - Tool: Cursor
-  - Open Dough release: modified; revision `1d2e4bede8f8bc79c0c4cd24d9b5f4ea45471f7a`; base 0.3.30
-  - Evidence: mailbox `/tmp/dough-ci-501/watch-9Auvy6` event 1
-    (`CI_MONITOR_UNAVAILABLE`, `gh run list` could not reach api.github.com)
-    and `result.json` (`{"status":"finished"}`) share mtime 10:57:50+08:00;
-    worker pid 59449 dead with no `stop` file; coverage for
-    `57102252…` remained `pending` and for `1d2e4bed…` `undiscovered`
-    while coverage directory mtime 11:48 shows later registration against
-    the ended mailbox; read-only `gh` later showed run 35815782612 for
-    `1d2e4bed…` concluded `failure`.
-  - Observed effect: Story Branch observation ended after a network
-    unavailability event; later registration left incomplete coverage on a
-    finished mailbox with no distinguishable "ended" signal, matching the
-    DD-090 mechanism.
-  - Inference: Second retained occurrence; same finished-result + later
-    register-push pattern. Supplied execution notes said observation
-    reattached; this mailbox shows finished rather than a live worker.
 
 ## Retention
 
