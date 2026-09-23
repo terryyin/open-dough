@@ -228,131 +228,11 @@ observation. Refine around the smallest complete assignment journey before
 planning; do not mistake a new metadata field for the full outcome. No S/M/L
 band is invented without project definitions.
 
-<a id="open-queued-story-slice-plan"></a>
-
-### 5. Open a queued story's slice plan from the dashboard
-
-**Identity:** SEED-021#open-queued-story-slice-plan
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/081-queued-story-plan-links/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb57d91ee8bfac97aff97abdcebaedc0f93afb23f0e30843f65d30948d718adf","plan":"30e04eff6ca90b8f7ac5a1dbd2a59be56190eac86622ddb3ad49fed522b209b5"}}
-```
-
-**Status:** Taken on origin/main and implemented on the story branch on
-2026-09-23; retained for review and story wrap-up.
-
-**Slice plan:** [Open a queued story's published slice plan](../quick/081-queued-story-plan-links/PLAN.md).
-
-**Goal:** Terry and developers reviewing the dashboard can open a queued
-story's published slice plan directly, without searching repository files,
-repeating its association in the backlog, or waiting for the story to be
-Taken. This makes prepared work inspectable from the story overview.
-
-**Scope:** Expose the associated plan as navigation from the backlog card and
-its expanded story detail, retaining the canonical story link, identity,
-priority, and preparation facts. Resolve the association from existing
-published records at the observed revision, across the dashboard's supported
-public and private projects. Preserve existing Taken and explicit backlog-link
-navigation. Merely following a link changes no repository or workflow state.
-
-**Recommendations for the open areas:**
-
-- **Backlog structure:** Keep the existing format. The canonical story's
-  structured preparation record already names its plan, and the backlog
-  already permits an optional plan link. Requiring the queue to repeat that
-  path would add synchronization work without new domain information. No
-  schema migration, new field, writer change, or payload release is indicated
-  by the current evidence.
-- **Derivation:** Derive navigation from the recorded association, not a
-  filename search, story number, free-form Status prose, or a planning badge.
-  Resolve story-state paths relative to the canonical file; explicit backlog
-  links remain relative to the backlog. If both identify the same file, offer
-  one plan destination and preserve an explicit recorded fragment. Keep
-  legacy explicit plan links usable without fabricating preparation facts.
-- **Presentation:** Use a normal keyboard-accessible link labelled "Slice
-  plan" beside the canonical source link on the card and in expanded detail.
-  Open the repository's plan page at the inspected commit, using the existing
-  source-link presentation and browser navigation. No embedded plan viewer or
-  new modal is needed. A refresh may update the destination to the new snapshot;
-  expanding detail uses the already observed snapshot.
-- **Uncertainty:** Navigation does not require a ready assessment, a readable
-  slice layout, or successful plan-content retrieval. Retain a valid recorded
-  destination with the existing read problem when retrieval fails; do not
-  claim the file was verified available. If no association is recorded, add
-  no plan link. For an invalid path or conflicting records, explain the issue
-  and do not derive an authoritative plan destination. Existing raw source
-  references remain inspectable as evidence, visibly qualified by the conflict.
-  Existing external links retain their external-reference label and are never
-  presented as revision-pinned repository plans.
-
-These are evidence-backed recommendations for this delivery, not changes to
-the product's architecture or backlog contract. Revisit the format only if a
-representative supported record exposes information the current contract
-cannot express; name that gap before expanding scope.
-
-**Key examples:**
-
-- A queued story records `approach: planned` and
-  `plan: ../quick/example/PLAN.md` in its canonical seed, while its backlog
-  entry contains only the story link. Loading the dashboard exposes "Slice
-  plan" on the card. Opening it reaches that plan at the inspected revision;
-  expanding the story retains the same destination.
-- The same story is Not ready or Needs reassessment. Its plan remains
-  navigable while the assessment stays unchanged. No Take or ready transition
-  occurs. A subsequent refresh uses the newly observed plan association.
-- The backlog additionally names the same plan using its own relative path.
-  Card and detail each offer one plan destination. If the two records instead
-  name different files, the dashboard shows the disagreement without picking
-  a winner or displaying either file's slices as the agreed plan.
-- The canonical record identifies a valid repository path, but the plan read
-  fails. The dashboard retains the pinned source link and reports the read
-  problem; unavailable content does not become an absent association. With no
-  association, or an unsafe/unresolvable target, it invents no clickable plan.
-
-**Constraints and deferred promises:** Navigation and readiness remain distinct,
-as required by [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-Keep the existing path/scheme handling and published-source boundary; no
-guessed association or silent conflict resolution. Plan editing, automatic
-planning or Take, new workflow stages, local-state discovery, and following
-execution-branch contents are deferred promises, not new rejection rules.
-
-**Evidence behind the recommendations:** The shared
-[identity contract](../../src/skills/dough-product-backlog/references/identity.md)
-already supports optional plan links, and
-[preparation recording](../../src/skills/dough-product-backlog/references/record-preparation.md)
-stores the canonical plan association. The dashboard's
-[preparation enrichment](../../dashboard/src/preparationEnrichment.ts) resolves
-that association for both public and private transports. Its
-[plan-association check](../../dashboard/src/planAssociation.ts) already detects
-disagreement. However, [cards](../../dashboard/src/WorkStages.tsx) and
-[detail](../../dashboard/src/StoryDetail.tsx) expose clickable plans only from
-the backlog-derived `entry.plan`; preparation's plan path is currently text.
-The existing [source-link resolver](../../dashboard/src/sourceLink.ts) already
-handles containing-file-relative paths and revision-pinned destinations.
-Reuse these responsibilities rather than adding a second discovery mechanism.
-
-**Depends on:** The delivered dashboard and existing published plan records;
-no dependency on the queued ownership or execution-branch stories.
-
-**Value / learning:** Make preparation work inspectable directly from the
-backlog and establish whether the current records already support this view.
-
-**Safe stopping point:** Queued planned stories expose their recorded plans
-directly with source uncertainty intact, independently of the later ownership
-and branch-inspection stories.
-
-**Remaining decisions:** The existing-data approach is implemented. No unresolved
-goal or scope question remains; integration and closure belong to story wrap-up.
-
-**Effort hypothesis:** Bounded navigation work using existing records and
-readers; no project effort band or slice count is assigned during refinement.
-
 ## Ordering and Scope Reduction
 
 The delivered overview supplies a usable dashboard for testing the central value
 hypothesis in use, now proven useful across Doughnut and Pygardon as well as
-Open Dough. Story 5 is the maintainer's selected top backlog priority, exposing
-existing slice plans for queued stories. Next, story 4 makes responsibility
-and execution context explicit.
+Open Dough. Story 4 makes responsibility and execution context explicit.
 Story 3 then follows that context into published work that has not reached trunk.
 This moves an important excluded outcome ahead of branch inspection without
 enlarging the delivered overview.
@@ -370,10 +250,9 @@ valuable. Recent-completion history remains an unselected hypothesis for the
 same reason.
 
 Reliable startup publication is the prerequisite for extending claims with
-assignment. The backlog puts story 5 first in the queue while startup is Taken,
-followed by frequent execution-delivery simplification and the remaining remote
-dashboard outcomes before preparation/closure migration
-and same-machine coordination. This preserves the remote-first direction without
+assignment. Execution-delivery simplification and the remaining remote
+dashboard outcomes precede preparation/closure migration and same-machine
+coordination. This preserves the remote-first direction without
 making dashboard value wait for every publication caller to migrate. The product
 backlog owns the actual order; this seed supplies non-executable story scope.
 
