@@ -107,4 +107,3 @@ fact. A readable anchored panel is an option for dense detail; it complements
 the stage rather than replacing spatial navigation with a list-and-detail app.
 Stories outside the backlog must become reachable when their discovery is in
 scope. Search or filtering can follow actual navigation needs.
-
