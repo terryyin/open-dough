@@ -29,6 +29,7 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/execution-increment-delivery.mjs",
       "dough-execute-plan/scripts/execution-increment-observation.mjs",
       "dough-execute-plan/scripts/execution-increment-publication.mjs",
+      "dough-execute-plan/scripts/execution-increment-resume.mjs",
       "dough-execute-plan/scripts/execution-start.mjs",
       "dough-execute-plan/scripts/execution-source.mjs",
       "dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs",

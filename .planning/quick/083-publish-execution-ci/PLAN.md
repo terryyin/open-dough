@@ -1,6 +1,6 @@
 # Publish execution increments with reliable CI observation
 
-Status: planned.
+Status: done.
 Identity: `SEED-008#script-driven-ci-observation`
 Source: [refined story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation).
 
@@ -142,7 +142,7 @@ that CI registration succeeded.
 
 ### 3. Resume accepted delivery without false coverage or duplicate publication
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A push was accepted but its response or observation attachment was lost,
 or its matching observer subsequently ended. Managed resume verifies actual remote
@@ -261,5 +261,19 @@ Slice 2 delivered:
 - Learnings:
   - Owned-suffix rebase logic and applicable candidate proof gates separate cleanly into `owned-suffix-reconciliation.mjs` and `applicable-candidate-proof.mjs`, keeping publication modules modular and under 250 lines.
   - Candidate validation on race: A clean rebase must never push silently without applicable proof; returning `{ ok: false, publication: "reconciled", status: "needs-validation", ... }` allows caller validation before push.
+
+Slice 3 delivered:
+- Outcome: Managed resume verifies actual remote acceptance and never pushes duplicate commits (pushCount: 0). It recovers only an unambiguously matching live observer (matching repo, branch, checkout) without starting duplicate owners. Ended observers (`result.json`), lost workers, and ambiguous/mismatched owners explicitly report an unobserved coverage gap (`pendingCi: "unobserved"`), never false live coverage. Host hooks distinguish ended observers from active ones (reporting ended status rather than active attachment). Unread failures survive resume; later failure delivery and completion truth remain intact.
+- Accepted proof:
+  - `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-lifecycle.test.mjs` (9 pass)
+  - Full suite of 63 managed delivery, publication, closure, host-hook, stream, and worker-loss regressions: `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication*.test.mjs src/skills/dough-execute-plan/scripts/current-branch-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs src/skills/dough-execute-plan/scripts/publication-resume.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook.test.mjs src/skills/dough-execute-plan/scripts/ci-custom-host-bridge.test.mjs src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-worker-loss.test.mjs` (63 pass)
+  - `PATH=/opt/homebrew/bin:$PATH bash tests/execution-payload-update.sh` (pass)
+- Learnings:
+  - Resume uses production Git helpers (`publication-git.mjs`) rather than test fixtures so all modules deploy cleanly.
+  - ODF-089 is addressed by distinguishing normal ended observers from active attachment in `ci-host-hook.mjs`: an ended observer's receipt reports its terminal status instead of emitting "CI observer attached to this coordinator". Probe redelivery stays silent.
+
+Native acceptance note: Under ADR 0005, functional implementation is delivered and proven deterministically across all three slices. Native host journey execution (tests/git-publication-native.sh) remains pending acceptance.
+
+
 
 

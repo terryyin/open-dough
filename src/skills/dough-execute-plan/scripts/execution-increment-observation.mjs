@@ -1,14 +1,19 @@
 // Establish or reuse matching CI observation for managed delivery: live
 // mailbox match, host-bridge readiness, start, and coordinator binding.
+// Resume recovers only an unambiguous live owner; it never starts a replacement.
 import { bindHostObserver, verifyHostBridge } from "./ci-host-bridge.mjs";
 import { receiptPrefix, startExecutionMailbox } from "./ci-mailbox.mjs";
-import { findLiveMatchingMailbox } from "./ci-mailbox-match.mjs";
+import {
+  classifyMatchingObservationOwnership,
+  findLiveMatchingMailbox,
+} from "./ci-mailbox-match.mjs";
 
-function coverageGap(reason) {
+function coverageGap(reason, extras = {}) {
   return {
     state: "unobserved",
     pendingCi: "unobserved",
     reason,
+    ...extras,
   };
 }
 
@@ -17,6 +22,39 @@ function observationAttached(directory, { reused = false } = {}) {
     state: reused ? "reused" : "attached",
     directory,
     reused,
+  };
+}
+
+// Resume-only recovery: attach when exactly one live match exists. Ended,
+// lost, ambiguous, or missing owners become actionable coverage gaps.
+export function recoverObservationForResume({
+  repo,
+  branch,
+  root,
+  storage,
+} = {}) {
+  const ownership = classifyMatchingObservationOwnership({
+    repo,
+    branch,
+    root,
+    storage,
+  });
+  if (ownership.kind === "live") {
+    return {
+      observation: {
+        state: "recovered",
+        directory: ownership.directory,
+        reused: true,
+      },
+      ownership,
+    };
+  }
+  return {
+    observation: coverageGap(ownership.reason, {
+      directory: ownership.directory,
+      ownership: ownership.kind,
+    }),
+    ownership,
   };
 }
 

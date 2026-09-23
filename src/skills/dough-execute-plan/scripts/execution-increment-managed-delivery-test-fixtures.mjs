@@ -43,6 +43,12 @@ async function importDelivery(skill) {
   );
 }
 
+async function importResume(skill) {
+  return import(
+    pathToFileURL(join(skill, "scripts/execution-increment-resume.mjs")).href
+  );
+}
+
 async function importCheckoutRuntime(skill) {
   return import(
     pathToFileURL(join(skill, "scripts/ci-checkout-runtime.mjs")).href
@@ -102,6 +108,7 @@ export async function createManagedFixture({
   };
   process.env.DOUGH_CI_MAILBOX_ROOT = storage;
   const { deliverManagedExecutionIncrement } = await importDelivery(skill);
+  const { resumeManagedExecutionIncrement } = await importResume(skill);
   const { resolveCheckoutRuntime } = await importCheckoutRuntime(skill);
   const session = {
     conversation_id: "managed-coordinator",
@@ -126,6 +133,7 @@ export async function createManagedFixture({
     preferredAlias,
     requestBase,
     deliverManagedExecutionIncrement,
+    resumeManagedExecutionIncrement,
     resolveCheckoutRuntime,
     releaseFailure(sha, branch = "main") {
       writeFileSync(
@@ -170,6 +178,24 @@ export async function waitForFailureEvent(directory, timeoutMs = 10_000) {
     await pause(20);
   }
   throw new Error("timed out waiting for CI_FAILURE");
+}
+
+export function watchCount(storage) {
+  if (!existsSync(storage)) return 0;
+  return readdirSync(storage).filter((name) => /^watch-/.test(name)).length;
+}
+
+export async function waitForPidExit(pid, timeoutMs = 5_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      process.kill(pid, 0);
+    } catch {
+      return true;
+    }
+    await pause(20);
+  }
+  return false;
 }
 
 export { git };

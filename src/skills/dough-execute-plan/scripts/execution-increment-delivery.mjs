@@ -9,6 +9,7 @@ import { registerPushedRevision, mailboxRoot } from "./ci-mailbox.mjs";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { establishObservation } from "./execution-increment-observation.mjs";
+export { resumeManagedExecutionIncrement } from "./execution-increment-resume.mjs";
 import { targetBranchName } from "./publication-git.mjs";
 import { executionBudgetMs } from "./watch-ci-execution.mjs";
 
