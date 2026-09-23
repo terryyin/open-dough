@@ -15,10 +15,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [End CI observation without agent bookkeeping at execution and wrap-up](seeds/SEED-008-worktree-branch-trunk-sync.md#self-ending-ci-observer) — SEED-008#self-ending-ci-observer ([plan](quick/079-complete-ci-observation/PLAN.md))
 - [Settle Taken claims on remote trunk through one publication path](seeds/SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk) — SEED-008#settle-taken-claims-on-remote-trunk ([plan](quick/080-publish-startup-claims/PLAN.md))
+- [Keep dashboard controls in reach and supporting context out of the way](seeds/SEED-021-observe-published-story-progress.md#compact-dashboard-controls) — SEED-021#compact-dashboard-controls ([plan](quick/081-dashboard-header/PLAN.md))
 
 ## Backlog list
 
-- [Keep dashboard controls in reach and supporting context out of the way](seeds/SEED-021-observe-published-story-progress.md#compact-dashboard-controls) — SEED-021#compact-dashboard-controls
 - [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
