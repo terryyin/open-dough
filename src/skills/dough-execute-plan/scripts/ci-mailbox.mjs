@@ -26,6 +26,7 @@ import {
 } from "./ci-mailbox-revision-coverage.mjs";
 import {
   mailboxWorkerPath,
+  withStreamWorkerIdentity,
   terminateMailboxWorker,
 } from "./ci-mailbox-worker-process.mjs";
 import { executionBudgetMs, watchCiExecution } from "./watch-ci-execution.mjs";
@@ -105,26 +106,28 @@ export async function runMailboxWorker(
 }
 export async function streamMailboxWorker(request, options = {}) {
   const directory = createMailbox(request, options);
-  const stopOnSignal = () => requestMailboxStop(directory, options);
-  if (options.stopOnSignal) {
-    process.once("SIGINT", stopOnSignal);
-    process.once("SIGTERM", stopOnSignal);
-  }
-  options.write?.(
-    `${receiptPrefix}${JSON.stringify({ directory, pid: process.pid })}\n`,
-  );
-  try {
-    await runMailboxWorker(directory, {
-      ...options,
-      onRecord: (record) => options.write?.(`${JSON.stringify(record)}\n`),
-    });
-  } finally {
-    if (options.stopOnSignal) {
-      process.removeListener("SIGINT", stopOnSignal);
-      process.removeListener("SIGTERM", stopOnSignal);
+  return withStreamWorkerIdentity(directory, async () => {
+    const stopOnSignal = () => requestMailboxStop(directory, options);
+    try {
+      if (options.stopOnSignal) {
+        process.once("SIGINT", stopOnSignal);
+        process.once("SIGTERM", stopOnSignal);
+      }
+      options.write?.(
+        `${receiptPrefix}${JSON.stringify({ directory, pid: process.pid })}\n`,
+      );
+      await runMailboxWorker(directory, {
+        ...options,
+        onRecord: (record) => options.write?.(`${JSON.stringify(record)}\n`),
+      });
+    } finally {
+      if (options.stopOnSignal) {
+        process.removeListener("SIGINT", stopOnSignal);
+        process.removeListener("SIGTERM", stopOnSignal);
+      }
     }
-  }
-  return directory;
+    return directory;
+  });
 }
 export function requestMailboxStop(directory, options = {}) {
   readMailbox(directory, options.root, options.storage);
