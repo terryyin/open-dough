@@ -52,3 +52,66 @@ export async function captureCheckout(checkout) {
     index: (await git(checkout, "ls-files", "-s")).stdout,
   };
 }
+
+// Soft-fail lookup of the workspace's remote-tracking tip for an authorized
+// target. Missing tracking refs are treated as an absent remote tip.
+export async function fetchedTarget(workspace, targetRef, remote = "origin") {
+  try {
+    return await revParse(workspace, originTrackingRef(targetRef, remote));
+  } catch (error) {
+    const text = `${error.stderr ?? ""}\n${error.message ?? ""}`;
+    if (
+      error.code === 128 ||
+      /unknown revision|Needed a single revision|ambiguous argument/.test(text)
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+function isNonFastForward(error) {
+  const text = `${error.message ?? ""}\n${error.stderr ?? ""}`;
+  return /rejected|non-fast-forward|fetch first/i.test(text);
+}
+
+// Push one exact candidate; non-fast-forward rejection is returned, not thrown.
+export async function tryPushExactRef(workspace, candidate, remote, targetRef) {
+  try {
+    await pushExactRef(workspace, candidate, remote, targetRef);
+    return { rejected: false };
+  } catch (error) {
+    if (!isNonFastForward(error)) {
+      throw error;
+    }
+    return { rejected: true, error };
+  }
+}
+
+// Inspection-only maintenance result for a default checkout after remote
+// acceptance. Does not refresh. A clean checkout already at the accepted tip
+// is already current; any other state is deferred.
+export function maintenanceFromInspection(checkoutState, remoteSha) {
+  if (checkoutState.head === remoteSha && checkoutState.status === "") {
+    return "already current";
+  }
+  return "deferred";
+}
+
+export async function inspectDefaultCheckoutMaintenance(
+  workspace,
+  defaultCheckout,
+  remote,
+  targetRef,
+) {
+  if (!defaultCheckout) return null;
+  const remoteTip = await revParse(
+    workspace,
+    originTrackingRef(targetRef, remote),
+  );
+  const checkout = await captureCheckout(defaultCheckout);
+  return maintenanceFromInspection(
+    { head: checkout.head, status: checkout.status },
+    remoteTip,
+  );
+}

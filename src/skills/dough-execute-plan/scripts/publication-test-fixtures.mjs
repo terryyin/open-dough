@@ -48,7 +48,11 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
-export { originTrackingRef, targetBranchName } from "./publication-git.mjs";
+export {
+  maintenanceFromInspection,
+  originTrackingRef,
+  targetBranchName,
+} from "./publication-git.mjs";
 
 // Push one exact candidate SHA to the caller's authorized target. This does
 // not check out or fast-forward the default checkout, and it does not update
@@ -114,17 +118,6 @@ export async function captureCheckout(checkout) {
 
 export function assertCheckoutUnchanged(before, after) {
   assert.deepEqual(after, before);
-}
-
-// Inspection-only maintenance result recorded by owned-workspace publication.
-// A clean checkout already at that revision is already current; any other
-// state, including a pending human edit, is deferred. This does not
-// fast-forward. Refresh eligibility is maintain-default-checkout.mjs.
-export function maintenanceFromInspection(checkoutState, remoteSha) {
-  if (checkoutState.head === remoteSha && checkoutState.status === "") {
-    return "already current";
-  }
-  return "deferred";
 }
 
 export async function assertRemoteCandidate(origin, candidateSha) {

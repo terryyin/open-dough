@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Managed delivery for an authorized validated execution increment or repair:
 // resolve checkout runtime, establish or reuse matching observation, publish,
-// and attach the accepted SHA. Local-only authority does not push.
+// and attach the accepted SHA. Reconciled candidates that still need proof
+// return before any push. Local-only authority does not push.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import { registerPushedRevision, mailboxRoot } from "./ci-mailbox.mjs";
@@ -29,6 +30,12 @@ export async function deliverManagedExecutionIncrement(request) {
     storage,
     codexBridgeAvailable,
     register,
+    validate,
+    validatedCandidate,
+    defaultCheckout,
+    backlogPath,
+    beforeRetryPush,
+    beforePush,
   } = request;
 
   if (authority !== "publish") {
@@ -87,9 +94,48 @@ export async function deliverManagedExecutionIncrement(request) {
     targetRef,
     remote,
     register,
+    validate,
+    validatedCandidate,
+    defaultCheckout,
+    backlogPath,
+    beforeRetryPush,
+    beforePush,
   });
 
   let observation = established.observation;
+  if (!published.ok) {
+    if (established.directory && observation.state === "unobserved") {
+      observation = {
+        ...observation,
+        directory: established.directory,
+      };
+    }
+    // Live owner is kept for later validated resume; no SHA registered yet.
+    return {
+      ok: false,
+      publication: published.publication,
+      status: published.status,
+      report: published.status,
+      receipt: null,
+      candidate: published.candidate,
+      preRebaseSha: published.preRebaseSha,
+      remoteTip: published.remoteTip,
+      previouslyPublishedBase: published.previouslyPublishedBase,
+      suffixBase: published.suffixBase,
+      reconciliations: published.reconciliations,
+      replay: published.replay,
+      validation: published.validation,
+      observation,
+      runtime: {
+        alias: runtime.alias,
+        skillRoot: runtime.skillRoot,
+        entrypoint: runtime.entrypoint,
+      },
+      startReceipt: established.startReceipt,
+      maintenance: published.maintenance ?? null,
+    };
+  }
+
   if (observation.directory && observation.state !== "unobserved") {
     registerPushedRevision(observation.directory, published.receipt.sha);
   } else if (established.directory && observation.state === "unobserved") {
@@ -107,6 +153,9 @@ export async function deliverManagedExecutionIncrement(request) {
     report: "accepted",
     receipt: published.receipt,
     preRebaseSha: published.preRebaseSha,
+    remoteTip: published.remoteTip,
+    suffixBase: published.suffixBase,
+    reconciliations: published.reconciliations,
     observation,
     runtime: {
       alias: runtime.alias,
@@ -114,13 +163,15 @@ export async function deliverManagedExecutionIncrement(request) {
       entrypoint: runtime.entrypoint,
     },
     startReceipt: established.startReceipt,
+    // Deferred local refresh is independent of remote acceptance.
+    maintenance: published.maintenance ?? null,
   };
 }
 
 function argumentsOf(argv) {
   if (argv[0] !== "deliver") {
     throw new Error(
-      "usage: execution-increment-delivery.mjs deliver --workspace PATH --branch NAME --previously-published-base SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--codex-bridge-available]",
+      "usage: execution-increment-delivery.mjs deliver --workspace PATH --branch NAME --previously-published-base SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--codex-bridge-available] [--validated-candidate SHA] [--default-checkout PATH]",
     );
   }
   const result = { authority: "publish" };
@@ -154,6 +205,9 @@ if (isDirectCliEntry(import.meta.url, process.argv[1])) {
     const result = await deliverManagedExecutionIncrement({
       ...args,
       workspace: resolve(args.workspace),
+      defaultCheckout: args.defaultCheckout
+        ? resolve(args.defaultCheckout)
+        : undefined,
     });
     if (result.startReceipt) process.stdout.write(result.startReceipt);
     process.stdout.write(`${JSON.stringify(result)}\n`);

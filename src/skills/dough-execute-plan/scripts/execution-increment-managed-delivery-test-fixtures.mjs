@@ -17,6 +17,7 @@ import { setTimeout as pause } from "node:timers/promises";
 import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
 
 const skillRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const backlogSkillRoot = join(dirname(skillRoot), "dough-product-backlog");
 
 export function deploySkill(project, platform = ".agents") {
   const skill = join(project, platform, "skills", "dough-execute-plan");
@@ -24,6 +25,14 @@ export function deploySkill(project, platform = ".agents") {
   cpSync(skillRoot, skill, {
     recursive: true,
     filter: (path) => !/test|fixture/.test(path.slice(skillRoot.length)),
+  });
+  // Sibling skill required when reconciled delivery uses the backlog rebase
+  // adapter; keep it beside execute-plan as a real install would.
+  const backlog = join(project, platform, "skills", "dough-product-backlog");
+  mkdirSync(backlog, { recursive: true });
+  cpSync(backlogSkillRoot, backlog, {
+    recursive: true,
+    filter: (path) => !/test|fixture/.test(path.slice(backlogSkillRoot.length)),
   });
   return skill;
 }

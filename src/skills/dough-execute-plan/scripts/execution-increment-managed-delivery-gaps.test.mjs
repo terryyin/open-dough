@@ -6,7 +6,6 @@ import {
   advanceOriginFromAnotherWriter,
   lsRemoteSha,
 } from "./publication-test-fixtures.mjs";
-import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import {
   createManagedFixture,
   git,
@@ -63,7 +62,7 @@ test("local-only authority does not push", async (t) => {
   assert.equal(existsSync(fixture.storage), false);
 });
 
-test("managed delivery still reconciles a racing remote tip before acceptance", async (t) => {
+test("managed delivery returns needs-validation when a racing remote tip changes the candidate", async (t) => {
   const fixture = await createManagedFixture();
   t.after(async () => {
     await fixture.stopObserver(fixture.observerDirectory);
@@ -79,13 +78,14 @@ test("managed delivery still reconciles a racing remote tip before acceptance", 
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
+  fixture.observerDirectory = delivered.observation?.directory;
 
-  assert.notEqual(delivered.receipt.sha, fixture.candidateSha);
-  assert.equal(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    delivered.receipt.sha,
-  );
+  assert.equal(delivered.ok, false);
+  assert.equal(delivered.publication, "reconciled");
+  assert.equal(delivered.status, "needs-validation");
+  assert.equal(delivered.remoteTip, disjointSha);
+  assert.notEqual(delivered.candidate, fixture.candidateSha);
+  assert.equal(await lsRemoteSha(fixture.origin, trunkTarget), disjointSha);
   assert.equal(
     (
       await git(
@@ -93,13 +93,9 @@ test("managed delivery still reconciles a racing remote tip before acceptance", 
         "log",
         "--format=%P",
         "-1",
-        delivered.receipt.sha,
+        delivered.candidate,
       )
     ).stdout.trim(),
     disjointSha,
-  );
-  assert.equal(
-    readRevisionCoverage(delivered.observation.directory)[0].sha,
-    delivered.receipt.sha.toLowerCase(),
   );
 });

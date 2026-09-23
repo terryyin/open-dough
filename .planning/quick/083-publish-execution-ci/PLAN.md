@@ -112,7 +112,7 @@ across validated reconciliation; slice 3 owns resumed attachment obligations.
 
 ### 2. Reconciled delivery validates and observes the accepted candidate
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Another writer advances the target before acceptance. Reconcile only
 owned unpublished work while preserving published history and backlog semantics.
@@ -252,4 +252,14 @@ Slice 1 delivered:
   - Ref resolution (`targetBranchName` and `originTrackingRef`) belongs with production Git helpers in `publication-git.mjs`.
   - Observation establishment (matching, verification, launch, binding) forms a clean seam in `execution-increment-observation.mjs`, separating mailbox state management from Git increment delivery orchestration in `execution-increment-delivery.mjs`.
   - Host attachment requires real hook transport and host session identity; absent session identity or unregistered hook reports explicit unobserved coverage gap (`pendingCi: "unobserved"`) without blocking remote acceptance.
+
+Slice 2 delivered:
+- Outcome: Reconciled delivery rebases only the owned unpublished suffix (using the product backlog rebase adapter when touching the backlog), returns `needs-validation` with exact basis when candidate changes so unvalidated candidates never push without renewed proof, publishes and attaches the validated candidate on resume, stops cleanly on conflict or after one race retry, and preserves unrelated work and local checkout maintenance state independently.
+- Accepted proof:
+  - `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation-stops.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-gaps.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication-reconciliation.test.mjs src/skills/dough-execute-plan/scripts/current-branch-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs` (33 pass)
+  - `PATH=/opt/homebrew/bin:$PATH bash tests/execution-payload-update.sh` (pass)
+- Learnings:
+  - Owned-suffix rebase logic and applicable candidate proof gates separate cleanly into `owned-suffix-reconciliation.mjs` and `applicable-candidate-proof.mjs`, keeping publication modules modular and under 250 lines.
+  - Candidate validation on race: A clean rebase must never push silently without applicable proof; returning `{ ok: false, publication: "reconciled", status: "needs-validation", ... }` allows caller validation before push.
+
 

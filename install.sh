@@ -153,6 +153,7 @@ managed_files=(
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-command-adapter.mjs
+  dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
@@ -186,6 +187,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs
+  dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs
   dough-execute-plan/scripts/publication-git.mjs
   dough-execute-plan/scripts/publication-test-fixtures.mjs
@@ -205,6 +207,7 @@ managed_files=(
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md
   dough-story-wrap-up/SKILL.md
+  dough-story-wrap-up/scripts/closure-candidate-settlement.mjs
   dough-story-wrap-up/scripts/closure-publication.mjs
   dough-story-wrap-up/scripts/closure-resources.mjs
 )

@@ -181,6 +181,7 @@ export async function advanceOriginBacklog(origin, backlog, message) {
   await exec("git", ["clone", origin, writer]);
   await git(writer, "config", "user.name", "Another Writer");
   await git(writer, "config", "user.email", "another@example.test");
+  mkdirSync(join(writer, ".planning"), { recursive: true });
   writeFileSync(join(writer, backlogPath), backlog);
   await git(writer, "add", backlogPath);
   await git(writer, "commit", "-m", message);
