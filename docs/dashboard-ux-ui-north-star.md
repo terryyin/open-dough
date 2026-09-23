@@ -1,7 +1,7 @@
 # Dashboard UX/UI North Star
 
 **Status:** Temporary design direction for discussion and incremental development.
-**Updated:** 2026-09-19.
+**Updated:** 2026-09-23.
 
 Help a developer understand the project's published story progress, then inspect
 the evidence behind it. The first useful experience should be small enough to
@@ -19,9 +19,9 @@ does not accept that ADR, define a workflow state schema, or authorize execution
 - Begin with stories using only committed state published to Git origin,
   including relevant remote branches and history. No developer clone, unpushed
   changes, local locks, or live agent sessions are required sources.
-- Observe one project, initially hardcoded in the Open Dough dashboard project.
-  Terry selected Open Dough's public GitHub `main` and local launch during
-  first-story refinement. Do not introduce project selection or registration.
+- Observe one project at a time from the delivered fixed catalog: Open Dough,
+  Doughnut, or Pygardon. Keep the existing selector and local launch. Do not
+  introduce project registration.
 - The observed project's Git repository owns authoritative state. No application
   or server database or separately persisted project-state authority. Disposable
   browser storage is optional; losing it must not lose project facts.
@@ -82,11 +82,31 @@ questions guide later increments; zoom must not invent facts to answer them.
 
 ## Connected stages and spatial navigation
 
-Start with one **Stories** view. Put the observed project and repository identity
-in its header, followed by a compact “Published Git state” source summary and
-Refresh action. Identity is context, not a project picker. Keep source problems
-visible near this summary without displacing readable story information. Keep
-direction, evidence, refresh, and view controls outside the zooming surface.
+Keep one story overview with an always-visible banner pinned to the viewport top.
+Use **OpenDO** as the dashboard brand, distinct from the observed project's name.
+Move the existing project selector, compact project/repository and ref information,
+and manual refresh control into this banner. Keep full source revision and
+retrieval time accessible in its source context. Render refresh as an SVG icon
+with the accessible name Refresh, changing to Retry after a failed read; preserve
+its focus and guarded behavior during reads. Keep readable loading and source
+problems near the source context. Make the header wrap without covering focused
+content or consuming the usable reading area at narrow widths or browser zoom.
+
+Below the banner, show **Near-future direction** as an initially collapsed
+disclosure. Activation reveals its full published text or the existing
+no-direction explanation; activation again collapses it. Preserve the choice
+across same-project refreshes and start collapsed on project changes. Replace
+the expanded **Preparation badges** legend with a compact question-mark help
+control beside the work overview, named Preparation badge legend. Open the
+existing legend in a titled modal above the banner; provide a visible Close
+control and Escape, contain focus inside, and return focus to the launcher.
+Keep the actual story badges and their textual meanings visible on cards.
+Direction and help are transient UI state and cause no source read. Keep
+direction, evidence, refresh, and view controls outside any zooming surface.
+
+This direction follows Terry's 2026-09-23 review: keep common controls in reach
+and reclaim reading space from supporting explanations. It replaces the older
+single-project header hypothesis; it does not change source or preparation meaning.
 
 Use one navigable stage containing connected regions for work stages. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.
@@ -133,12 +153,15 @@ normal page scrolling; gestures may supplement, not replace, explicit controls.
 Do not require a minimap, physics simulation, freely draggable cards, or custom
 graph editor. Panning changes the view, never backlog order or membership.
 
-Illustrative first-increment layout; placeholders are not observed project data:
+Illustrative compact overview; placeholders are not observed project data:
 
 ```text
-<Observed project> / Stories
-Published Git state · Retrieved <time, zone>               [Refresh]
-<Published near-future direction>
+┌──────────────── pinned viewport-top banner ──────────────┐
+│ OpenDO   Project [<selection> v]   <repository/ref>  [↻]  │
+│ Published Git state · <revision> · Retrieved <time, zone> │
+└──────────────────────────────────────────────────────────┘
+Published work
+▸ Near-future direction                                [?]
 
 ┌──────────────────── connected stage ──────────────────────┐
 │  BACKLOG                         TAKEN                    │
