@@ -1,23 +1,20 @@
 # Execution and publication with less agent coordination
 
-**Status:** Reviewed design direction, 2026-09-23. Uncommitted for Terry's
-review; not an executable plan or a new Accepted ADR. The
+**Status:** Maintained design context. Queued-start publication uses the
+installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
+preparation, closure, and local checkout coordination remain separate work. Not
+an executable plan or a new Accepted ADR. The
 [seed](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md)
 owns story scope; the [backlog](../../.planning/PRODUCT-BACKLOG.md) owns priority.
 
 ## Recommendation
 
-Put routine publication behind a small command boundary, using ordinary modules
-for backlog semantics, Git publication, local checkout access, and existing CI
-observation. The agent supplies authorized intent and handles decisions the
-command cannot make. Start with a complete startup/Take journey; extend it at
-actual delivery boundaries. No new daemon, workflow engine, or global registry.
-
-Use one minimal CLI facade, provisionally `execution.mjs start|publish`, backed
-by the shared publisher. Add verbs only when a selected story needs them. Do
-not create another public CLI family just because an internal responsibility is
-separate. Existing backlog and CI CLIs keep their low-level purposes; ordinary
-execution should not require the agent to orchestrate them.
+Queued startup uses a small command boundary backed by the existing backlog
+semantics, Git publication, and local checkout rules. The agent supplies
+authorized intent and handles decisions the command cannot make. Extend shared
+publication at actual delivery boundaries without adding a daemon, workflow
+engine, or global registry. Existing backlog and CI CLIs keep their low-level
+purposes; another public CLI family is unnecessary for an internal seam.
 
 ## Critical review and changes
 
@@ -39,15 +36,15 @@ are preserved, not redesigned by this review.
 | Owner | Reuse and limitation |
 | --- | --- |
 | Backlog | [`product-backlog.mjs`](../../src/skills/dough-product-backlog/scripts/product-backlog.mjs) is a real CLI. Its domain API owns identity, membership, preparation state, and semantic reconciliation; local Take alone does not publish. Reuse its Git adapters even for textually clean backlog merges. |
-| Publication | [`publish-the-candidate.md`](../../src/skills/dough-execute-plan/references/publish-the-candidate.md) owns the existing contract. JavaScript helpers exercise mechanics but lack a production publication CLI; some import fixture utilities with a hardcoded `origin/main` claim push. Extract usable production functions; do not expose the fixture graph as runtime. |
-| Startup | [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) explicitly is a substitute actor. Build only the real startup boundary needed by the first story. |
+| Publication | [`publish-the-candidate.md`](../../src/skills/dough-execute-plan/references/publish-the-candidate.md) owns the shared contract. The startup command uses production Git helpers; other publication callers still have their existing paths. |
+| Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start publication. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
 | Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) checks declared access; it does not acquire exclusive interprocess access. Cleanliness and absence of `index.lock` are insufficient ownership evidence. |
 | CI | [`ci-mailbox.mjs`](../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs), its worker, host hooks, and Codex stream own observation and delivery. Reuse them and the active completion story's result; no second lifecycle. |
 
-Start alongside current execute-plan support; import backlog domain functions
-instead of parsing its stdout. Production must not import fixture setup or test
-assertions. Deliver required local files through existing payload declarations,
-with one shared implementation and only necessary host adaptation.
+The startup command imports backlog domain functions rather than parsing CLI
+output. Production startup does not import fixture setup or test assertions.
+Its required local files ship through existing payload declarations, with one
+shared implementation and only necessary host adaptation.
 
 Accepted [ADR 0002](../adrs/0002-software-development-lifecycle-principles-accepted.md)
 requires cohesion, continuous integration, and low cost of changing direction;

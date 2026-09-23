@@ -162,6 +162,54 @@ implementation/proof obligations, not reasons to expand the story. No automatic
 CI attachment, checkout lock, generalized readiness runner, or new publication
 caller is included.
 
+<a id="accept-queued-start-native-behavior"></a>
+
+### Accept queued-start publication in native hosts
+
+**Identity:** SEED-008#accept-queued-start-native-behavior
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Before the startup behavior in `dough-execute-plan` is released, a
+maintainer can judge that the installed command and concise instruction produce
+the intended queued-start outcome in Codex, Cursor, and Claude Code. This is
+native acceptance of the implementation published at `1a63c0c5045703006af621f785e81cf6301873d3`,
+not another startup implementation or a tool-by-scenario matrix.
+
+**Scope and evidence to reuse:** Mechanical installer, payload, Git race, and
+caller checks already pass. Fresh Cursor ordinary Story Branch startup passed.
+Fresh Codex same-story rival and retained-claim resume passed. Claude selected-
+source refusal passed, and an earlier ordinary Story Branch journey passed
+before the setup-order assessor was tightened. Judge whether each observation
+still applies to the current installed guidance, adapter, fixture, and command.
+Record justified reuse per affected requirement and host under Accepted
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+
+**Open native requirements:** A fresh Codex ordinary startup ran claim
+publication and setup but did not complete implementation because its native
+delegation failed. A tightened Claude ordinary startup rerun reached the host
+limit before a final verdict, and Claude retained-claim resume was blocked by
+the same weekly CLI limit before the command ran. Obtain conclusive native
+observations for these requirements when the host is available. Assess whether
+the existing Cursor and Codex evidence justifies reuse for their other startup
+requirements; run another case only for a material host-specific gap. A failed
+behavioral observation routes a product defect to a bounded correction, with
+its evidence preserved until assessed.
+
+**Completion:** For every affected startup requirement on each of the three
+tools, record a fresh passing native result or justified reusable proof with
+the tool/runtime, candidate, decisive command/use trace, and remote/local
+observations. The claim must be on remote trunk before setup and implementation;
+source refusal and rival ownership must stop early; resume must avoid a second
+Take. Do not count CLI exit, self-report, another tool's result, or quota refusal
+as acceptance. Finish this acceptance before releasing the affected behavior.
+
+**Boundary:** No new publication feature, host mode, blanket native matrix,
+version bump, or release in this work item. Existing acceptance runner and
+disposable fixture are the verification surface; update them only if a concrete
+assessment gap is found. This story stays queued while host access is limited.
+
 ## Publication delivery boundaries
 
 **Parent problem:** Developers executing concurrent work need reliable shared
