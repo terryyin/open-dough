@@ -19,6 +19,7 @@ const disposition = read(
   "dough-story-refinement/references/preparation-disposition.md",
 );
 const execution = read("dough-execute-plan/references/execution-location.md");
+const publication = read("dough-execute-plan/references/trunk-publication.md");
 const skill = read("dough-execute-plan/SKILL.md");
 
 test("the shared lifecycle owns selection, local checkout role, and target selection", () => {
@@ -97,19 +98,32 @@ test("contextual execution and queued execution keep their own continuations", (
 
   assert.match(
     execution,
-    /select or reuse the owned workspace from\s+fetched remote trunk before the Taken claim/,
-  );
-  assert.match(execution, /Do not wait for\s+the claim/);
-  assert.match(execution, /publication provenance/);
-  assert.match(
-    execution,
-    /Recheck remote membership before replaying a\s+competing claim/,
+    /select or reuse the owned\s+workspace and publish the claim through that installed startup operation/,
   );
   assert.match(
     execution,
-    /Identical \*\*Taken\*\* text is not evidence this execution\s+owns the claim/,
+    /It uses fetched remote trunk\s+as the base, confirms the Taken claim there/,
   );
-  assert.match(execution, /stays published/);
+  assert.match(
+    execution,
+    /A conflicting or ambiguous claim stops\s+implementation/,
+  );
+  assert.match(
+    execution,
+    /identical \*\*Taken\*\* text alone proves no ownership/,
+  );
+  assert.match(
+    publication,
+    /Before replaying a queue claim, recheck that identity's membership on the\s+fetched remote/,
+  );
+  assert.match(
+    publication,
+    /published\s+candidate's provenance agree this execution owns it/,
+  );
+  assert.match(
+    publication,
+    /Later environment preparation does\s+not unpublish that SHA/,
+  );
 
   assert.match(
     execution,
