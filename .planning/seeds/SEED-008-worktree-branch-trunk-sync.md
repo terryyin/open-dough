@@ -30,11 +30,13 @@ status; this seed records desired outcomes for implementation planning.
 
 **Identity:** SEED-008#settle-taken-claims-on-remote-trunk
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach remains unselected; no executable plan or authorized planless path."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/080-publish-startup-claims/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f5c66a71df129f71be02f51289688b27a4d18c25a118118ae327482062f11a37","plan":"6b8be90bf65befa307295d4d286d6738e24440b2f0a986a594070c326e25bf47"}}
 ```
 
-**Status:** Goal and bounded scope reviewed on 2026-09-23; first queued story.
-Execution planning remains unselected.
+**Status:** Refined on 2026-09-23; goal, scope, and key examples established.
+Execution planning authorized; implementation is not authorized by this request.
+
+**Plan:** [Start queued work with a confirmed remote Taken claim](../quick/080-publish-startup-claims/PLAN.md).
 
 **Goal:** A developer starting concurrent stories in Trunk Mode or Story Branch
 Mode sees each confirmed Taken claim on authoritative remote trunk before its
@@ -75,6 +77,15 @@ outcome. Reuse the existing workspace contract; do not add general environment
 setup, dependency installation, semantic readiness assessment, or host lifecycle
 management to this operation.
 
+**Entry and completion boundary:** Applies to authorized queued planned work
+or an explicitly authorized queued planless story, in either supported mode.
+Resolve actual remote/trunk names and existing caller/host workspace authority;
+this story adds no new host mode. Startup success confirms the published claim
+and source/workspace context. The existing project-command preparation gate still
+runs before implementation; its failure leaves the accepted claim published.
+Context-only work without a queue claim keeps its current path. Low-level local
+Take remains a domain operation, never proof of remote acceptance.
+
 **Freshness and local-main behavior:** Fetch remote trunk before startup. Use
 its selected story section and active plan, checking for unpublished changes to
 those sources in the originating checkout, including staged/unstaged edits and
@@ -86,6 +97,14 @@ A clean, behind local main normally fast-forwards when safe access is establishe
 Dirty, busy, divergent, or ambiguously owned main stays intact, with explicit
 deferred refresh. The observed fetched head is the freshness basis; equality
 with a continually moving remote is not a permanent promise.
+
+Check local source edits separately from published preparation readiness. Read
+the latter from the fetched remote snapshot, not from a dirty originating seed.
+A local sibling-story edit must not create a false selected-source conflict.
+If the published readiness assessment itself is stale, preserve its existing
+refusal and request renewed preparation; this story does not change readiness
+hashing or silently mark work ready. Shared seed context needed to resolve the
+selected identity/plan must also remain unambiguous.
 
 **Key examples / evaluation:**
 
@@ -105,6 +124,9 @@ with a continually moving remote is not a permanent promise.
 - Push response is lost or the process exits after remote acceptance → resume
   verifies remote history and claim ownership → no duplicate claim and no
   confusion between accepted publication and unfinished local maintenance.
+- The claim is accepted, then the existing project preparation command fails →
+  keep the remote Taken entry and owned workspace → report the setup failure
+  without starting implementation or treating it as an unpublished claim.
 - A fresh native execution follows the installed concise instruction and
   invokes the operation. Remote history and local state independently establish
   success; a helper test alone does not prove the agent used the boundary.
@@ -132,6 +154,13 @@ the bypass seen despite existing prose, without imposing a larger agent protocol
 **Safe stopping point:** Both modes start from verified published source and
 settle Taken remotely through the operation. This remains useful if every later
 migration is cancelled. Local-main lag is explicit and recoverable.
+
+**Refinement conclusion:** No unresolved product choice blocks planning.
+Command spelling and module boundaries can be chosen within the reviewed design.
+Source comparison, bounded race recovery, and truthful partial success are
+implementation/proof obligations, not reasons to expand the story. No automatic
+CI attachment, checkout lock, generalized readiness runner, or new publication
+caller is included.
 
 ## Publication delivery boundaries
 
