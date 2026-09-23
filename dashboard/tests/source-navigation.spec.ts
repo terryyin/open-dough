@@ -78,7 +78,9 @@ test("source navigation opens canonical and plan records at the inspected revisi
     );
     expect(canonical.hash).toBe("#see-published-work");
 
-    const plan = await destination(story.getByRole("link", { name: /^Plan / }));
+    const plan = await destination(
+      story.getByRole("link", { name: /^Slice plan / }),
+    );
     expect(plan.origin).toBe("https://github.com");
     expect(plan.pathname).toBe(
       `${snapshotRoot}/.planning/quick/061-published-story-dashboard/PLAN.md`,
@@ -159,10 +161,9 @@ test("source navigation keeps an external reference apart from files in this sna
     "https://status.example.com/notes/2026-09?view=full#api",
   );
   await expect(canonical).toHaveAttribute("rel", "noopener noreferrer");
-  await expect(note.getByRole("link", { name: /^Plan / })).toHaveAttribute(
-    "href",
-    "http://plans.example.org/note-7",
-  );
+  await expect(
+    note.getByRole("link", { name: /^Slice plan / }),
+  ).toHaveAttribute("href", "http://plans.example.org/note-7");
   await expect(
     note.getByText(
       "External reference. It is not a file in this snapshot and is not tied to the inspected revision.",
@@ -189,7 +190,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
       "Canonical record javascript:document.title='canonical-ran'",
     );
     await expect(hostile).toContainText(
-      "Plan data:text/html,<script>document.title='plan-ran'</script>",
+      "Slice plan data:text/html,<script>document.title='plan-ran'</script>",
     );
     await expect(hostile).toContainText(
       "Not offered as a link. Links that use “javascript:” are not opened from here.",

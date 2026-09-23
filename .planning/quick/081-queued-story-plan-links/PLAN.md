@@ -1,12 +1,13 @@
 # Open a queued story's published slice plan
 
-Status: planned.
+Status: implementation complete; retained for review and story wrap-up.
 
 Identity: `SEED-021#open-queued-story-slice-plan`
 
 Source: [refined story](../../seeds/SEED-021-observe-published-story-progress.md#open-queued-story-slice-plan).
 Terry requested slice planning and plan refinement if needed on 2026-09-23.
-This plan grants no Take or implementation authority.
+The subsequent instruction authorized execution and required Taken on origin/main
+before implementation; the claim below records that transition.
 
 ## Goal and scope
 
@@ -65,7 +66,10 @@ does not invalidate an otherwise unambiguous recorded destination.
 ### 1. Navigate to the recorded slice plan from a queued story
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted: Canonical-only public/private navigation, source uncertainty, keyboard
+activation and refresh focus passed focused browser proof below; independent
+refactoring and scoped formatting/lint completed.
 
 Behavior: a published queued story records a plan association only in its
 canonical preparation state -> load the dashboard and follow "Slice plan" from
@@ -134,6 +138,29 @@ boundaries are known; no new persistence or infrastructure assumption needs an
 experiment. Reassess before expanding if implementation uncovers incompatible
 caller purposes or requires a new domain policy/schema.
 
+## Execution context
+
+Execution authorized on 2026-09-23. Mode: Story Branch (default); implementation
+target: `origin/refs/heads/codex/081-queued-story-plan-links`.
+Owned checkout: `/Users/terryyin/git/open-dough-worktrees/081-queued-story-plan-links`,
+branch `codex/081-queued-story-plan-links`, created from published base
+`9ca5770b57cbf7bce10edfb62185bab3ea69e5cc`.
+Originating/integration checkout: `/Users/terryyin/git/open-dough`.
+
+Taken claim `fbce65ba5eec16363ccc00b4211f1a0db3d3cfe1` was confirmed on
+`origin/refs/heads/main` before implementation: exactly one Taken entry with this
+plan link, no queued duplicate. Shared-checkout refresh is deferred because no
+exclusive owner is established; remote publication is independent of that.
+`npm ci` and `npm run typecheck:dashboard` passed in the execution checkout.
+
+CI: GitHub Actions `ci.yml`, display name `CI`, observing the execution branch.
+Codex observer: coordinator `root-081`, cell `49`, session `19939`, PID `92982`,
+mailbox `/tmp/dough-ci-501/watch-FCwD9c`; runtime is this checkout's installed
+`.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs`.
+The main-target planning-only claim is `pendingCi: unobserved` by this separate
+branch observer. Register implementation receipts only on the matching target.
+No numeric slice budget was supplied; existing replanning authority is retained.
+
 ## Boundary review and preparation evidence
 
 Review result: retain the single slice. Splitting association projection from
@@ -153,6 +180,49 @@ is authorized, without copying operational traces here.
 
 Preparation used an owned worktree from published revision `7534a15`. The
 existing root is `.planning/quick/NNN-name/PLAN.md`; 080 was the highest current
-allocation and 081 was checked absent immediately before creation. The story
-remains in Backlog and its canonical record links this plan. This session has
-not run or claimed implementation proof.
+allocation and 081 was checked absent immediately before creation. At preparation
+completion the story remained queued and no implementation proof was claimed.
+
+## Accepted execution proof and learnings
+
+Implemented canonical `associatedPlan` separately from raw backlog `plan`, with
+one `WorkSourceLinks` policy for card/detail. Existing conflict checks and source
+resolution remain authoritative. An observed integration regression required
+deferring focus restoration across membership-first refresh until preparation
+arrives; deliberate focus movement and actual association removal retain control.
+
+Accepted setup: `storyReadinessFixture.ts` writes real CLI preparation into a Git
+fixture, omitting the queued backlog plan link. `committedOrigin.ts` and the
+private synthetic-gh server expose committed bytes, not derived display objects.
+Accepted observations: `queuedPlanNavigation.ts` checks both views, fragments,
+keyboard destination and no detail fetch; `queuedPlanGaps.ts` checks changed,
+unsupported/invalid/conflicting associations; `queuedPlanFocus.ts` and
+`storyReadinessAccessible.ts` check refresh focus, deliberate movement and
+narrow/zoom reachability. Existing source-navigation, read-gap and refresh
+observations preserve Taken/legacy/external navigation and snapshot evidence.
+
+Literal commands and terminal results:
+
+```sh
+npm run typecheck:dashboard
+# passed
+npx playwright test --config dashboard/playwright.081-proof.config.ts source-navigation.spec.ts story-readiness.spec.ts story-readiness-gaps.spec.ts story-readiness-private.spec.ts story-readiness-accessible.spec.ts
+# 10 passed (6.3s)
+npx playwright test --config dashboard/playwright.081-proof.config.ts refresh-focus.spec.ts
+# 2 passed (1.6s)
+npx playwright test --config dashboard/playwright.081-proof.config.ts story-readiness-gaps.spec.ts
+# 2 passed after refactor
+```
+
+The temporary config imported the permanent Playwright config and changed only
+preview/baseURL port 4188 to 4191 because a different checkout owned 4188. Private
+dev/preview ports and test behavior were unchanged. The temporary file was removed.
+Independent refactoring extracted only record-interpretation observations into
+`storyReadinessRecordGaps.ts`, preserving setup/assertions and rerunning affected
+proof plus typecheck. Production proof remained valid. Coordinator scoped
+Prettier and ESLint to changed TypeScript files; lint, 250-line checks and
+`git diff --check` passed. Formatting made no semantic edits.
+
+No uncovered source promise remains. Readiness was not renewed from delivery;
+the recorded assessment may need reassessment because this plan now contains
+execution evidence. Taken remains published on main pending explicit closure.

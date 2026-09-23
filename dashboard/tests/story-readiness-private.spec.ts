@@ -12,6 +12,10 @@ import {
   plannedReady,
   unrefined,
 } from "./storyReadinessFixture";
+import {
+  expectAgreeingFragment,
+  expectQueuedPlanCardAndDetail,
+} from "./queuedPlanNavigation";
 import { publishTwoSlicesDone } from "./storyReadinessPublications";
 import {
   assertNoCredentialMarker,
@@ -63,7 +67,9 @@ function runScenario(mode: "dev" | "preview", port: number): void {
     });
 
     try {
-      const repo = buildOpenDoughReadinessRepo(after);
+      const repo = buildOpenDoughReadinessRepo(after, {
+        canonicalOnlyQueued: true,
+      });
       server = await startPrivateReadServer({
         mode,
         port,
@@ -112,6 +118,14 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           page.getByText("Unpushed local edit that must stay invisible"),
         ).toHaveCount(0);
       });
+
+      await expectQueuedPlanCardAndDetail(
+        backlog,
+        pygardonRepository,
+        repo,
+        () => requestSnapshots.length,
+      );
+      await expectAgreeingFragment(taken, pygardonRepository, repo.revision);
 
       await test.step("detail shows purpose and zero of five recorded complete without inventing accepted evidence", async () => {
         const before = requestSnapshots.length;

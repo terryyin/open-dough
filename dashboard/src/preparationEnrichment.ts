@@ -13,7 +13,11 @@ import {
 } from "./publicEntryFacts";
 import { loadRepositoryTexts } from "./repositoryFileReads";
 import { resolveBesideFile } from "./repositoryPath";
-import { snapshotRepositoryPath } from "./sourceLink";
+import {
+  resolveSourceLink,
+  snapshotRepositoryPath,
+  type SourceLink,
+} from "./sourceLink";
 import { peekRecordedApproach, type WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
 import type { WorkPurpose } from "./storyPurpose";
@@ -22,6 +26,7 @@ export type PublishedWorkProgress = (work: PublishedWork) => void;
 
 type EntryFacts = {
   readonly preparation: WorkPreparation;
+  readonly associatedPlan?: SourceLink;
   readonly purpose: WorkPurpose;
   readonly planSlices: WorkPlanSlices;
 };
@@ -39,6 +44,9 @@ function withFacts(
       return {
         ...entry,
         preparation: facts.preparation,
+        ...(facts.associatedPlan !== undefined && {
+          associatedPlan: facts.associatedPlan,
+        }),
         purpose: facts.purpose,
         planSlices: facts.planSlices,
       };
@@ -181,6 +189,16 @@ export async function enrichPreparation(
     );
     byIdentity.set(entry.identity, {
       preparation,
+      ...(peek.status === "recorded" &&
+        peek.approach.kind === "planned" &&
+        path !== undefined && {
+          associatedPlan: resolveSourceLink(
+            peek.approach.plan,
+            source,
+            revision,
+            path,
+          ),
+        }),
       purpose: purposeFor(path, entry, canonicalText, canonicalProblems),
       planSlices: planSlicesFor(
         preparation,

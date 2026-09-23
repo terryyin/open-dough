@@ -3,6 +3,7 @@
 // polling after settlement.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { planHref } from "./queuedPlanNavigation";
 import type { CommittedOrigin } from "./committedOrigin";
 import { expectMembership, parts } from "./dashboardPage";
 import { rateLimitedAnswer } from "./originAnswers";
@@ -51,6 +52,12 @@ export async function expectFailedRefreshKeepsPriorRevision(
   await expect(
     taken.locator(`a[href*="/blob/${retainedRevision}/"]`).first(),
   ).toBeVisible();
+
+  await expect(
+    backlog
+      .getByRole("article", { name: plannedBlocked.title })
+      .getByRole("link", { name: /^Slice plan / }),
+  ).toHaveAttribute("href", planHref("terryyin/open-dough", retainedRevision));
 
   restore();
   const afterFail = origin.requests.length;

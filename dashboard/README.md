@@ -64,15 +64,21 @@ does, press **Retry**. There is no dashboard sign-in, no token-entry UI, and no
 automatic retry or login: the dashboard only reuses whatever access the
 launching person's own `gh` already has.
 
-Each card offers the entry's recorded canonical link and, when recorded, its
-plan link. A repository-relative target resolves against the backlog file's
-directory (a leading `/` starts at the repository root) into GitHub source
-pinned to the inspected commit, keeping its anchor. An `http(s)` address stays
-an external reference that is not tied to the revision. Anything else stays
-readable as text with the reason it is not offered as a link: another scheme,
-a path that climbs out of the repository, or a target whose last segment names
-no file, such as an anchor alone. Titles, direction, and targets are always
-rendered as text. No story or plan content is fetched.
+Each card and expanded detail offers the canonical record and a **Slice plan**
+link when its association is recorded in the canonical story-state or explicitly
+in the backlog. Story-state paths resolve beside the canonical file; backlog
+links resolve beside the backlog file (a leading `/` starts at the repository
+root). Repository navigation is pinned to the inspected commit and keeps an
+explicit anchor. Agreeing references produce one plan action; conflicting
+references are qualified as disputed evidence without choosing a plan.
+Navigation does not require readiness or successfully read plan contents.
+Canonical and associated plan contents are read at the same revision for
+preparation and detail; opening detail requires no additional fetch.
+
+An `http(s)` address stays an external reference that is not tied to the
+revision. Unsafe schemes, repository escapes, and targets naming no file stay
+readable as text with the reason they cannot be opened. Titles, direction, and
+targets are always rendered as text.
 
 Keyboard focus follows a work item across a refresh by its identity. Reading,
 the read result, and a work item that is no longer listed are announced through

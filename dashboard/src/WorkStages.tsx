@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork";
 import { PreparationFacts } from "./PreparationCard";
 import { PreparationLegend } from "./PreparationLegend";
-import { RecordedLink } from "./RecordedLink";
+import { WorkSourceLinks } from "./WorkSourceLinks";
 import { StoryDetail } from "./StoryDetail";
 import { stagesMarks, workCardMarks } from "./workFocus";
 
@@ -60,8 +60,7 @@ function WorkCard({
       {selected && <StoryDetail entry={entry} detailId={detailId} />}
       {!selected && (
         <ul className="card-links" aria-label="Source links">
-          <RecordedLink role="Canonical record" link={entry.canonical} />
-          {entry.plan && <RecordedLink role="Plan" link={entry.plan} />}
+          <WorkSourceLinks entry={entry} />
         </ul>
       )}
     </article>

@@ -47,6 +47,8 @@ export type WorkEntry = {
   // entry records one canonical link and may record the plan it is taken with.
   readonly canonical: SourceLink;
   readonly plan?: SourceLink;
+  // Navigation derived from canonical story-state; raw backlog evidence stays above.
+  readonly associatedPlan?: SourceLink;
   // Preparation facts from the same revision. Starts as loading while
   // dependent canonical and plan files are read through the source's own
   // transport (public GitHub or the local authenticated boundary).

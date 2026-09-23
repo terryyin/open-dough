@@ -237,8 +237,8 @@ band is invented without project definitions.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/081-queued-story-plan-links/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb57d91ee8bfac97aff97abdcebaedc0f93afb23f0e30843f65d30948d718adf","plan":"30e04eff6ca90b8f7ac5a1dbd2a59be56190eac86622ddb3ad49fed522b209b5"}}
 ```
 
-**Status:** Refined and slice-planned on 2026-09-23; remains first in the backlog.
-Implementation has not started.
+**Status:** Taken on origin/main and implemented on the story branch on
+2026-09-23; retained for review and story wrap-up.
 
 **Slice plan:** [Open a queued story's published slice plan](../quick/081-queued-story-plan-links/PLAN.md).
 
@@ -340,9 +340,8 @@ backlog and establish whether the current records already support this view.
 directly with source uncertainty intact, independently of the later ownership
 and branch-inspection stories.
 
-**Remaining decisions:** The existing-data approach is selected for the slice
-plan. No unresolved goal or scope question remains; implementation still
-requires a separate execution instruction.
+**Remaining decisions:** The existing-data approach is implemented. No unresolved
+goal or scope question remains; integration and closure belong to story wrap-up.
 
 **Effort hypothesis:** Bounded navigation work using existing records and
 readers; no project effort band or slice count is assigned during refinement.
