@@ -76,7 +76,7 @@ registration receipts or exit status alone are insufficient.
 
 ### 1. Managed delivery establishes observation and delivers failures
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With an authorized validated increment and no prior observer, managed
 delivery resolves the checkout runtime, establishes the supported host binding,
@@ -241,7 +241,15 @@ policy is preserved through explicit gaps, not an unapproved restart policy.
 
 ## Learnings and accepted proof
 
-Preparation only: inspected current code, assertions, callers, installer/native
-entry points, and ADRs. No implementation, native acceptance, completed slices,
-or successful product tests are claimed. Retain subsequent accepted proof here
-with its promise, inspected setup/assertions, literal command, and result.
+Slice 1 delivered:
+- Outcome: Managed execution increment delivery resolves checkout runtime (host alias then same-checkout fallback), establishes or reuses matching live observation before push, publishes candidate to authorized target, registers accepted revision, and reports explicit coverage gaps on unavailable bridge without blocking remote acceptance. Local-only authority commits without pushing.
+- Accepted proof:
+  - `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-gaps.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-execute-plan/scripts/current-branch-publication.test.mjs src/skills/dough-execute-plan/scripts/ci-deployment-layout.test.mjs` (18 pass)
+  - `node --test src/skills/dough-story-wrap-up/scripts/closure-publication.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/ci-custom-host-bridge.test.mjs src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs` (10 pass)
+  - `PATH=/opt/homebrew/bin:$PATH bash tests/execution-payload-update.sh` (pass)
+  - `PATH=/opt/homebrew/bin:$PATH bash tests/install-ci-host-hooks.sh` (pass)
+- Learnings:
+  - Ref resolution (`targetBranchName` and `originTrackingRef`) belongs with production Git helpers in `publication-git.mjs`.
+  - Observation establishment (matching, verification, launch, binding) forms a clean seam in `execution-increment-observation.mjs`, separating mailbox state management from Git increment delivery orchestration in `execution-increment-delivery.mjs`.
+  - Host attachment requires real hook transport and host session identity; absent session identity or unregistered hook reports explicit unobserved coverage gap (`pendingCi: "unobserved"`) without blocking remote acceptance.
+

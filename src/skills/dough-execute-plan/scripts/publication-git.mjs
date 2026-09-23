@@ -19,6 +19,19 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
+// Branch name from an authorized heads ref (refs/heads/NAME → NAME).
+export function targetBranchName(targetRef) {
+  if (!targetRef.startsWith("refs/heads/")) {
+    throw new Error(`authorized target must be a branch ref: ${targetRef}`);
+  }
+  return targetRef.slice("refs/heads/".length);
+}
+
+// Authorized publication target as the workspace's remote-tracking ref.
+export function originTrackingRef(targetRef, remote = "origin") {
+  return `${remote}/${targetBranchName(targetRef)}`;
+}
+
 export async function pushExactRef(workspace, sha, remote, targetRef) {
   await git(workspace, "push", remote, `${sha}:${targetRef}`);
 }

@@ -10,10 +10,11 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { requireSelectedRuntimeEntrypoint } from "./ci-checkout-runtime.mjs";
 
 const exec = promisify(execFile);
 const source = fileURLToPath(new URL("../", import.meta.url));
@@ -26,23 +27,6 @@ function deployRuntime(root, platform = ".agents") {
     filter: (path) => !/test|fixture/.test(path.slice(source.length)),
   });
   return skill;
-}
-
-function requireSelectedRuntimeEntrypoint(selectedRoot, skill) {
-  const selectedCheckout = realpathSync(selectedRoot);
-  const entrypoint = join(skill, "scripts", "ci-mailbox.mjs");
-  if (!existsSync(entrypoint))
-    throw new Error(
-      `CI runtime is missing from selected checkout: ${entrypoint}`,
-    );
-  const runtimeCheckout = realpathSync(
-    join(dirname(entrypoint), "../../../.."),
-  );
-  if (runtimeCheckout !== selectedCheckout)
-    throw new Error(
-      `CI runtime checkout ${runtimeCheckout} does not match selected checkout ${selectedCheckout}`,
-    );
-  return entrypoint;
 }
 
 async function probeSelectedRuntime(selectedRoot, skill, storage) {

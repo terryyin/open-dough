@@ -48,13 +48,7 @@ export async function lsRemoteSha(remote, ref) {
   return stdout.trim().split(/\s+/)[0];
 }
 
-// Authorized publication target as the workspace's remote-tracking ref.
-export function originTrackingRef(targetRef) {
-  if (!targetRef.startsWith("refs/heads/")) {
-    throw new Error(`authorized target must be a branch ref: ${targetRef}`);
-  }
-  return `origin/${targetRef.slice("refs/heads/".length)}`;
-}
+export { originTrackingRef, targetBranchName } from "./publication-git.mjs";
 
 // Push one exact candidate SHA to the caller's authorized target. This does
 // not check out or fast-forward the default checkout, and it does not update

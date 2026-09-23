@@ -2,18 +2,19 @@
 // The caller supplies the owned workspace, the owned unpublished suffix,
 // the authorized remote target, and how the accepted result is registered.
 // This pushes only that target. Stash, checkout refresh, and observer startup
-// stay with their own owners. Installed guidance is the agent's contract.
+// stay with their own owners. Managed observation belongs to
+// execution-increment-delivery.mjs. Installed guidance is the agent's contract.
 import {
   git,
   lsRemoteSha,
   originTrackingRef,
   pushExactRef,
   revParse,
-} from "./publication-test-fixtures.mjs";
+} from "./publication-git.mjs";
 
-async function fetchedTarget(workspace, targetRef) {
+async function fetchedTarget(workspace, targetRef, remote = "origin") {
   try {
-    return await revParse(workspace, originTrackingRef(targetRef));
+    return await revParse(workspace, originTrackingRef(targetRef, remote));
   } catch (error) {
     const text = `${error.stderr ?? ""}\n${error.message ?? ""}`;
     if (
@@ -32,9 +33,10 @@ export async function publishExecutionIncrement({
   previouslyPublishedBase,
   targetRef,
   register,
+  remote = "origin",
 }) {
-  await git(workspace, "fetch", "origin");
-  const remoteTip = await fetchedTarget(workspace, targetRef);
+  await git(workspace, "fetch", remote);
+  const remoteTip = await fetchedTarget(workspace, targetRef, remote);
   const preRebaseSha = await revParse(workspace, branch);
   let candidate = preRebaseSha;
   if (remoteTip && remoteTip !== previouslyPublishedBase) {
@@ -51,12 +53,12 @@ export async function publishExecutionIncrement({
       throw new Error("rebase left the pre-rebase SHA as the candidate");
     }
   }
-  await pushExactRef(workspace, candidate, targetRef);
-  await git(workspace, "fetch", "origin");
-  const origin = (
-    await git(workspace, "remote", "get-url", "origin")
+  await pushExactRef(workspace, candidate, remote, targetRef);
+  await git(workspace, "fetch", remote);
+  const remoteUrl = (
+    await git(workspace, "remote", "get-url", remote)
   ).stdout.trim();
-  const acceptedTip = await lsRemoteSha(origin, targetRef);
+  const acceptedTip = await lsRemoteSha(remoteUrl, targetRef);
   if (acceptedTip !== candidate) {
     throw new Error("remote did not accept the candidate");
   }

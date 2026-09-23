@@ -25,6 +25,7 @@ assert_installed_publication_modules() {
     const root = process.argv[1];
     const modules = [
       "dough-execute-plan/scripts/current-branch-publication.mjs",
+      "dough-execute-plan/scripts/execution-increment-delivery.mjs",
       "dough-execute-plan/scripts/execution-increment-publication.mjs",
       "dough-execute-plan/scripts/execution-start.mjs",
       "dough-execute-plan/scripts/execution-source.mjs",
