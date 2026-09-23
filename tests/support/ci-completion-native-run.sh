@@ -7,6 +7,9 @@
 # shellcheck source=tests/support/ci-completion-native-fixture.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native-fixture.sh"
+# shellcheck source=tests/support/native-completion-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
 
 ci_completion_observe() {
   local scenario=$1
@@ -14,38 +17,24 @@ ci_completion_observe() {
   local response=$3
   local coverage state=missing terminal=missing
   local complete_count=0 stop_count=0 await_count=0
-  local transcript_complete_count=0 review_started=false
+  local review_started=false
   local product_shutdown=false forced_stop=false worker_alive=unknown
   coverage="${ci_completion_mailbox}/coverage/${ci_completion_sha}.json"
   [[ -f ${coverage} ]] && state=$(jq -r '.state' "${coverage}")
   [[ -f ${ci_completion_mailbox}/result.json ]] \
     && terminal=$(jq -r '.status' "${ci_completion_mailbox}/result.json")
-  complete_count=$(grep -Fc \
-    "complete-revision ${ci_completion_mailbox} ${ci_completion_sha}" \
-    "${ci_completion_node_log}" || true)
-  stop_count=$(grep -Ec \
-    "[[:space:]]stop[[:space:]]+${ci_completion_mailbox}([[:space:]]|$)" \
-    "${ci_completion_node_log}" || true)
-  await_count=$(grep -Fc \
-    "await-revision ${ci_completion_mailbox} ${ci_completion_sha}" \
-    "${ci_completion_node_log}" || true)
-  transcript_complete_count=$(
-    grep -F '"subtype":"started"' "${transcript}" \
-      | grep -F 'complete-revision' \
-      | grep -F "${ci_completion_mailbox}" \
-      | grep -Fc "${ci_completion_sha}" || true
-  )
-  if ((transcript_complete_count > complete_count)); then
-    complete_count=${transcript_complete_count}
-  fi
+  complete_count=$(native_completion_call_count \
+    "${ci_completion_node_log}" "${transcript}" \
+    "${ci_completion_mailbox}" "${ci_completion_sha}")
+  stop_count=$(native_completion_stop_count \
+    "${ci_completion_node_log}" "${ci_completion_mailbox}")
+  await_count=$(native_completion_await_count \
+    "${ci_completion_node_log}" "${ci_completion_mailbox}" "${ci_completion_sha}")
   [[ -f ${ci_completion_project}/.planning/review-observation/start ]] \
     && review_started=true
-  [[ -n ${ci_completion_forced_stop_file-} && -f ${ci_completion_forced_stop_file} ]] \
-    && forced_stop=true
-  if [[ ${complete_count} -ge 1 && ${forced_stop} == false &&
-    (${terminal} == stopped || ${terminal} == finished) ]]; then
-    product_shutdown=true
-  fi
+  forced_stop=$(native_completion_forced_stop "${ci_completion_forced_stop_file-}")
+  product_shutdown=$(native_completion_product_shutdown \
+    "${complete_count}" "${ci_completion_forced_stop_file-}" "${terminal}")
   if [[ -f ${ci_completion_mailbox}/worker.json ]]; then
     local pid
     pid=$(jq -r '.pid' "${ci_completion_mailbox}/worker.json")

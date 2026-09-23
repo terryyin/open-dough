@@ -1,9 +1,10 @@
 # Completion command and receipt mechanics
 
 [CI observation and repair](ci-monitor.md#await-the-applicable-revision-at-completion)
-owns when this single completion operation is required and how its outcome
-affects execution. This reference supplies only the local command and receipt
-mechanics.
+owns when this single completion operation is required — including
+execution/review handoff and wrap-up closure or trunk integration — and how its
+outcome affects those procedures. This reference supplies only the local
+command and receipt mechanics.
 
 Invoke the completion action with the exact retained mailbox and accepted
 revision:

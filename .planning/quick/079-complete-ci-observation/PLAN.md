@@ -164,7 +164,7 @@ is needed for this benefit.
 ### 2. Close stories through the same completion contract
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: wrap-up publishes its final accepted closure revision → it invokes the
 same completion action on the matching observer → CI evidence and shutdown are
@@ -261,6 +261,10 @@ Published claim: `1352844646ab35356446b9807fc6f9146ba25ea9` accepted on
 observer target. Default-checkout refresh: advanced to that same SHA.
 
 Increment target: `refs/heads/cursor/079-complete-ci-observation`.
+Published increment: `57102252facd1856b135218845c7b38d1ec684ca` accepted on
+that ref and registered with the observer. Default-checkout maintenance for
+this branch publication: deferred; integration checkout `HEAD` remains
+`1352844646ab35356446b9807fc6f9146ba25ea9` on `main`.
 Observer: `/tmp/dough-ci-501/watch-9Auvy6`, GitHub Actions workflow `ci.yml`
 display name `CI`, repository `terryyin/open-dough`, branch
 `cursor/079-complete-ci-observation`. Checkout preparation: `npm ci` then
@@ -291,3 +295,15 @@ Claude failure `20260923T020126-4284`, Claude ready `20260923T020306-1902`,
 Codex failure `20260923T020844-119e`, Cursor failure `20260923T022352-734e`.
 Each is one `complete-revision`, zero separate stop/await calls. Success shuts
 the worker down; failure leaves it alive. `forced-stop` is false.
+
+Slice 2 accepted. Wrap-up and Story Branch integration use the same
+`complete-revision` receipt before cleanup. `install.sh` declares
+`ci-mailbox-complete.mjs`. Native observations under `/tmp/079-slice2-native`:
+Codex trunk-closure/source `20260923T032711-7123` (remote SHA equals candidate,
+shutdown before cleanup), Cursor trunk-closure/ignored-only
+`20260923T032857-4da1` (`not_required` with basis success, no provider run),
+Claude story-branch-closure/source-conflict `20260923T033229-7978` (separate
+branch and trunk observers, one completion each, branch shutdown before trunk
+setup). Credential-free `bash tests/git-publication-native.sh` passed after the
+shared observation helper extraction. `bash tests/execution-ci-runtime.sh`
+passed 223 tests. `bash tests/product-backlog-payload-update.sh` passed.

@@ -23,7 +23,7 @@ completion prerequisite. Review the delivered implementation while observation
 continues and state which conclusions remain conditional on unresolved CI. Do
 not invoke the CI wait, stop or replace its observer, acknowledge its events, or
 claim final execution/review handoff; the invoking execution owns those actions
-through its [completion wait](../dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
+through its [completion operation](../dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
 
 ## Select reviews
 

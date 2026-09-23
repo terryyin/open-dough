@@ -24,9 +24,8 @@ ci_completion_controller() {
   local scenario=$1
   local review_start="${ci_completion_project}/.planning/review-observation/start"
   local review_complete="${ci_completion_project}/.planning/review-observation/complete"
-  local complete_pattern="complete-revision ${ci_completion_mailbox} ${ci_completion_sha}"
   # Agents may quote paths or bypass the PATH node shim; accept either log.
-  local complete_seen="grep -F 'complete-revision' '${ci_completion_node_log}' | grep -F '${ci_completion_mailbox}' | grep -Fq '${ci_completion_sha}' || grep -F 'complete-revision' '${CI_COMPLETION_TRANSCRIPT:-/dev/null}' | grep -F '${ci_completion_mailbox}' | grep -Fq '${ci_completion_sha}'"
+  local complete_seen="native_completion_seen '${ci_completion_node_log}' '${CI_COMPLETION_TRANSCRIPT:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
   case ${scenario} in
     pending | failure)
       ci_completion_wait_for review-start "test -f '${review_start}'" || return
