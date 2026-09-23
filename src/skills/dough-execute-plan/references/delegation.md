@@ -113,6 +113,9 @@ targeted return that gives the coordinator:
   relevant setup and assertions or signals;
 - when filtered proof was used, which tests or observations were actually
   selected versus the promises claimed as covered;
+- for each behavior presented as verified or covered, the observing assertion
+  or signal that exercises it — or an explicit untested / uncovered listing
+  instead of verified prose;
 - uncovered promises, contradictions, and other evidence gaps; and
 - only consequential learnings that affect acceptance or remaining work.
 
@@ -121,9 +124,10 @@ include a bounded excerpt only when the location cannot expose the decisive
 evidence. Do not routinely attach the raw implementation trace, full command
 logs, or a duplicate full diff. The return is an index into inspectable work and
 evidence, not proof that the coordinator has inspected or accepted them. An
-implementation return does not establish slice completion. Filtered selection
-is verified under [proof acceptance](wrap-up.md#accept-proof), not by restating
-that procedure here.
+implementation return does not establish slice completion. Whether filtered
+selection and reported claims are actually supported is decided under
+[proof acceptance](wrap-up.md#accept-proof), not by restating that procedure
+here.
 
 For each passing focused command, use:
 

@@ -8,11 +8,19 @@ repair. Publication of a validated increment or that repair is
 
 Apply [proof ownership](../../dough-story-refinement/references/planning.md#own-executable-proof).
 Treat the implementation return as an index, not as accepted evidence. For each
-promise, inspect the actual uncommitted change at its reported product boundary
-and the concrete setup and assertion or signal locations. Confirm that setup
-supplies only the starting precondition and that the product establishes the
-promised outcome. A passing command, test name, `proof:` summary, or assertion
-whose setup supplies the outcome does not establish the promise.
+promise the return treats as covered or verified, inspect the uncommitted change
+at its reported product boundary and the concrete setup and assertion or signal
+locations it names. Confirm that setup supplies only the starting precondition,
+that an observing assertion or signal actually exercises the claimed behavior,
+and that the product at that boundary establishes the promised outcome. A
+passing command, test name, `proof:` summary, prose that says the fixture covers
+a behavior, or an assertion whose setup supplies the outcome does not establish
+the promise. When the return presents behavior as verified without a matching
+observation, or the product contradicts that claim, do not tell the developer it
+is covered: return the required behavior for correction, or obtain the matching
+observation within authority, before accepting it. A truthful description of
+untested or out-of-scope behavior stays incomplete for that claim; it is not
+verified evidence and does not invent a new story promise.
 
 When the claimed proof used name, pattern, or other filtering, verify which
 tests or observations were actually selected against the promises the return
@@ -41,11 +49,11 @@ Judge the return by its substance, not its layout. The `proof:` block under
 is an example representation; accept an equivalent layout that carries the same
 inspectable evidence — literal commands, results, owned changes, promise
 coverage, boundaries, and setup and observation locations — without a
-report-only resend. Formatting never substitutes for substance: a
-canonical-looking report missing the terminal result or contradicting inspected
-evidence remains incomplete whatever its layout. Explicit completion markers
-with a separate workflow contract, such as `## REFACTOR COMPLETE`, stay
-verbatim.
+report-only resend or formatting-only retry. Formatting never substitutes for
+substance: a canonical-looking report missing the terminal result or
+contradicting inspected evidence remains incomplete whatever its layout.
+Explicit completion markers with a separate workflow contract, such as
+`## REFACTOR COMPLETE`, stay verbatim.
 
 Reuse accepted inspection while its promise, boundary, implementation, setup,
 and observations remain unchanged. Recover literal commands from the original

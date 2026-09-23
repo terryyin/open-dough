@@ -1490,6 +1490,34 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Open Dough / DD-061
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Distinct from ODF-051: an unsupported behavior claim reaches the user, rather than a claimed edit being absent from the diff.
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 2 of plan 085 (`SEED-004#accept-delivery-evidence`) extends
+  the same `#accept-proof` decision in
+  `src/skills/dough-execute-plan/references/wrap-up.md` so a behavior presented
+  as verified requires a matching observing assertion and agreeing product
+  behavior; without that match the coordinator must not tell the developer it is
+  covered and must return the required behavior for correction. The return stays
+  an index in `src/skills/dough-execute-plan/references/delegation.md`, amended
+  only so verified claims name their observing assertion (or list untested /
+  uncovered) and linking acceptance to `#accept-proof`. Credential-free
+  assessor coverage is `delivery-evidence/claims` via
+  `tests/support/delivery-evidence-claims-native-assess.sh` (rejects unsupported
+  "covered" claims and accept-without-gap; accepts corrected no-link observation
+  and an equivalent substantiated layout; refuses format-resend when evidence is
+  sufficient, and instruction-words-only). Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/claims --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23
+  (`.planning/native-results/delivery-evidence-claims-r3`) left the unsupported
+  bare-anchor claim incomplete without relaying "covered", accepted the
+  corrected no-link observation with matching product and assertion, and
+  accepted the equivalent-layout control without a formatting-only resend.
+  Containing release is pending. The historical occurrence was caught during
+  execution (not an escaped defect). Codex and Claude Code native runs for this
+  case were not completed in this slice and are not passed. Watch start and
+  review-after stay unknown until a released response has verified relevant use
+  (slice 4 owns that reconciliation).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `SEED-021#see-published-work @ d0a9495`
@@ -1517,7 +1545,7 @@ consult both lists when matching findings or allocating identities.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 2 source response recorded above; not resolved**. Plan 085 owns remaining mechanisms (consumers, gaps) and near-term-watch reconciliation at slice 4. Keep caught-during-execution versus escaped-defect distinctions. Release and effectiveness remain pending; watch start and review-after are unknown.
 
 ## ODF-064 — Corrections after refactoring skip a renewed review
 

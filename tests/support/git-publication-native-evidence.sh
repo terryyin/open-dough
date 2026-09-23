@@ -47,6 +47,9 @@ git_publication_write_evidence_identity() {
     delivery-evidence-selection)
       delivery_evidence_selection_write_evidence_identity
       ;;
+    delivery-evidence-claims)
+      delivery_evidence_claims_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }

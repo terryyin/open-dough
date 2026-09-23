@@ -67,6 +67,10 @@ run_native_host() {
           delivery_evidence_selection_run_journey "${source_dir}" "${host}" \
             "${results_dir}"
           ;;
+        delivery-evidence/claims)
+          delivery_evidence_claims_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
+          ;;
         *) return 2 ;;
       esac
       status=$?
@@ -146,7 +150,7 @@ native_case_known() {
     story-branch-closure/source-conflict)
       return 0
       ;;
-    delivery-evidence/selection)
+    delivery-evidence/selection | delivery-evidence/claims)
       return 0
       ;;
     *) return 1 ;;

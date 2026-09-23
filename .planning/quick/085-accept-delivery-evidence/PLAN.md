@@ -14,7 +14,10 @@ checkout: `/Users/terryyin/git/open-dough` on `main`.
 
 Published claim `59b76944b466ecccbfd985a211c78a6e385569a8` accepted on
 `refs/heads/main`. Claim CI is `pendingCi: unobserved`: the story-branch
-observer does not cover trunk. Default-checkout refresh is deferred
+observer does not cover trunk. Slice 1 increment
+`2e96700a5e2aae750950fe7095e788cd605ef1bd` accepted on
+`refs/heads/cursor/085-accept-delivery-evidence` and registered with the
+observer (`undiscovered` at registration). Default-checkout refresh is deferred
 (`unclear-ownership`); that checkout stayed clean on `main` at `ddcd604`.
 
 Replanning permission: existing planning authority retained. No numeric slice
@@ -134,7 +137,8 @@ skill behavior. A green exit or matching instruction words cannot pass a case.
 Extend the existing native acceptance journey entry point with bounded
 `delivery-evidence/selection`, `delivery-evidence/claims`,
 `delivery-evidence/consumers`, and `delivery-evidence/gaps` cases.
-`delivery-evidence/selection` is implemented. The other three names remain
+`delivery-evidence/selection` and `delivery-evidence/claims` are implemented.
+`delivery-evidence/consumers` and `delivery-evidence/gaps` remain
 planned additions. Each case includes its
 sufficient-evidence control. The intended command after implementation is:
 `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`.
@@ -193,7 +197,18 @@ Safe stop: selected-proof acceptance is useful independently of later correction
 
 ### 2. Reported behavior is supported before it is called verified
 Type: Behavior
-Status: planned
+Status: done
+
+Accepted proof: `bash tests/git-publication-native.sh` passed after the
+refactor rerun. Assessor counterexamples in
+`tests/support/delivery-evidence-claims-native-assess.sh` reject an
+unsupported covered claim and accept-without-gap, and accept a corrected
+no-link observation and an equivalent substantiated layout. Cursor
+`bash tests/git-publication-native.sh --native cursor --case delivery-evidence/claims --results-dir .planning/native-results/delivery-evidence-claims-r3`
+left the bare-anchor claim incomplete, accepted the corrected no-link
+observation, and accepted the equivalent layout without a format-only resend.
+Setup is `tests/support/delivery-evidence-claims-native-scenario-content.sh`.
+Codex and Claude native runs for this case are pending, not passed.
 
 Behavior: Given the anchor-only-link claim without an observing assertion and
 contradictory implementation, acceptance does not tell the developer it is covered.
