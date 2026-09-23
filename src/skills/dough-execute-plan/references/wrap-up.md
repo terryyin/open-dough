@@ -43,6 +43,16 @@ equivalent-purpose proof; do not require every suite or all callers. Apply the
 shared-operation caller analysis in
 [own executable proof](../../dough-story-refinement/references/planning.md#own-executable-proof).
 
+When a required observation is explicitly missing from the return — including
+required readiness or requeue behavior named as untested while delivery is still
+treated as ready — obtain that observation within authority before accepting the
+dependent promise, or name the required promise incomplete and leave its
+dependent delivery unaccepted. Recording the gap as a learning does not clear it.
+If the required proof cannot be obtained, stop only that dependent path and
+preserve independently valid accepted evidence. Honor a developer's explicit
+changed promise; do not silently weaken it. Once sufficient current proof is
+supplied, proceed without another approval or blanket rerun.
+
 Accept only the observations the inspected locations and result support. Retain
 the promise, accepted boundary, inspected locations, and literal command in the
 current slice wrap-up so refactoring can distinguish a proof reference from

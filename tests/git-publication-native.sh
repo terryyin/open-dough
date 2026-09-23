@@ -51,6 +51,9 @@ source "${source_dir}/tests/support/delivery-evidence-claims-native-run.sh"
 # shellcheck source=tests/support/delivery-evidence-consumers-native-run.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/delivery-evidence-consumers-native-run.sh"
+# shellcheck source=tests/support/delivery-evidence-gaps-native-run.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/delivery-evidence-gaps-native-run.sh"
 
 usage() {
   cat >&2 << 'EOF'
@@ -64,6 +67,7 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/selection
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/claims
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers
+   or: tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps
    or: … --results-dir DIR  (with --native; retains inspectable observations)
 Credential-free default exercises the publication assessor and substitute
 runner. --native HOST requires that host's CLI and runs the host's assigned
@@ -134,6 +138,7 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_delivery_evidence_selection_assessor_counterexamples
   run_delivery_evidence_claims_assessor_counterexamples
   run_delivery_evidence_consumers_assessor_counterexamples
+  run_delivery_evidence_gaps_assessor_counterexamples
   run_substitute_host_journeys
   exit 0
 fi

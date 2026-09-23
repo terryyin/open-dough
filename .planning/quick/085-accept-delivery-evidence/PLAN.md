@@ -15,10 +15,11 @@ checkout: `/Users/terryyin/git/open-dough` on `main`.
 Published claim `59b76944b466ecccbfd985a211c78a6e385569a8` accepted on
 `refs/heads/main`. Claim CI is `pendingCi: unobserved`: the story-branch
 observer does not cover trunk. Slice 1 increment
-`2e96700a5e2aae750950fe7095e788cd605ef1bd` and slice 2 increment
-`7b564d8a5a093a5dc17761708f5a6f79a670ee29` accepted on
+`2e96700a5e2aae750950fe7095e788cd605ef1bd`, slice 2 increment
+`7b564d8a5a093a5dc17761708f5a6f79a670ee29`, and slice 3 increment
+`f0f355c4f32dd1a5c794c1e15ad43a0e079e5988` accepted on
 `refs/heads/cursor/085-accept-delivery-evidence` and registered with the
-observer (slice 2 `undiscovered` at registration). Default-checkout refresh is deferred
+observer (slice 3 `undiscovered` at registration). Default-checkout refresh is deferred
 (`unclear-ownership`); that checkout stayed clean on `main` at `ddcd604`.
 
 Replanning permission: existing planning authority retained. No numeric slice
@@ -138,9 +139,8 @@ skill behavior. A green exit or matching instruction words cannot pass a case.
 Extend the existing native acceptance journey entry point with bounded
 `delivery-evidence/selection`, `delivery-evidence/claims`,
 `delivery-evidence/consumers`, and `delivery-evidence/gaps` cases.
-`delivery-evidence/selection`, `delivery-evidence/claims`, and
-`delivery-evidence/consumers` are implemented. `delivery-evidence/gaps`
-remains a planned addition. Each case includes its
+`delivery-evidence/selection`, `delivery-evidence/claims`,
+`delivery-evidence/consumers`, and `delivery-evidence/gaps` are implemented. Each case includes its
 sufficient-evidence control. The intended command after implementation is:
 `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`.
 Record literal resolved commands, selected observations, candidate/runtime,
@@ -262,7 +262,19 @@ case cannot be accepted solely on the stale unaffected-suite claim.
 
 ### 4. Known required gaps remain incomplete, with accurate follow-up
 Type: Behavior
-Status: planned
+Status: done
+
+Accepted proof: `bash tests/git-publication-native.sh` passed, and the
+refactor made no edits, so that proof was reused. Assessor counterexamples
+in `tests/support/delivery-evidence-gaps-native-assess.sh` reject clearing a
+required gap by learning alone. Cursor
+`bash tests/git-publication-native.sh --native cursor --case delivery-evidence/gaps --results-dir .planning/native-results/delivery-evidence-gaps-r1`
+obtained the missing requeue observation and accepted it, left requeue
+incomplete when proof could not be obtained while keeping happy-path
+admission, and accepted sufficient existing proof without another run.
+Setup is `tests/support/delivery-evidence-gaps-native-scenario-content.sh`.
+Codex and Claude native runs for all four `delivery-evidence` cases remain
+pending, not passed. Release and active watch stay pending.
 
 Behavior: Given a required readiness/requeue observation explicitly missing from
 a return, acceptance obtains it within authority or names the required promise

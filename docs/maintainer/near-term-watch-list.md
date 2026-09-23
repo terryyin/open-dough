@@ -15,17 +15,19 @@ record-maintenance review.
 ## Pending response follow-up — not an active watch
 
 ODF-057, ODF-063, ODF-075, and ODF-076 remain active in the
-[finding catalog](finding-names.md), linked to
-[Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence).
-Refinement and [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md)
-were prepared on 2026-09-23. No response implementation, containing release, or
-qualifying use is established by this preparation. Watch start and review-after
-remain unknown; these findings are not eligible for age-based review or retirement.
-The plan requires per-finding response/evidence updates and a final reconciliation
-of this note. Move only eligible findings into the watch after release and verified
-relevant use; otherwise retain the catalog disposition and update this pending
-note with the actual limitation. This is a pointer to existing work, not another
-queue or an effectiveness claim. The existing ODF-056 watch is unchanged.
+[finding catalog](finding-names.md). Source responses exist under plan 085
+(`SEED-004#accept-delivery-evidence`) at durable locators: catalog entries for
+those codes and case names `delivery-evidence/selection`,
+`delivery-evidence/claims`, `delivery-evidence/consumers`, and
+`delivery-evidence/gaps` in
+[plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md). None of
+these responses is released, and relevant use of a released response is not
+verified. Watch start and review-after remain unknown. A source test, a release
+tag, installation alone, or silence cannot start the watch. These findings are
+not on the active watch and are not eligible for age-based review or retirement
+until release and verified relevant use are established. This note records that
+pending disposition; it is not an effectiveness claim. The existing ODF-056
+watch is unchanged.
 
 ## ODF-056 — Literal CLI entry paths silently skip symlink-equivalent launches
 

@@ -53,6 +53,9 @@ git_publication_write_evidence_identity() {
     delivery-evidence-consumers)
       delivery_evidence_consumers_write_evidence_identity
       ;;
+    delivery-evidence-gaps)
+      delivery_evidence_gaps_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }

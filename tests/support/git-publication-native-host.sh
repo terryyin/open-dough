@@ -75,6 +75,10 @@ run_native_host() {
           delivery_evidence_consumers_run_journey "${source_dir}" "${host}" \
             "${results_dir}"
           ;;
+        delivery-evidence/gaps)
+          delivery_evidence_gaps_run_journey "${source_dir}" "${host}" \
+            "${results_dir}"
+          ;;
         *) return 2 ;;
       esac
       status=$?
@@ -155,7 +159,7 @@ native_case_known() {
       return 0
       ;;
     delivery-evidence/selection | delivery-evidence/claims | \
-      delivery-evidence/consumers)
+      delivery-evidence/consumers | delivery-evidence/gaps)
       return 0
       ;;
     *) return 1 ;;
