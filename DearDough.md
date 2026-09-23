@@ -1,45 +1,8 @@
 # DearDough Process Findings
 
-## DD-088 — `scripts/check-self-installation.sh` fails on GitHub Actions with no diagnostic output, unrelated to the pushed diff
+## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
-This repository's own CI (`test` job) failed twice within one execution, on
-two content-disjoint commits, at the same step —
-`scripts/check-self-installation.sh` — printing only "Running
-scripts/check-self-installation.sh" then "Process completed with exit code
-1," none of that script's own error messages. It only compares each
-installed managed copy against the `v0.3.27` git-tagged archive; neither
-commit touched anything it reads. Both commits, checked out fresh (a plain
-clone and an `ubuntu:24.04` Docker container matching the runner's git/awk/tar
-versions), passed cleanly, and the CI log confirmed tags were fetched
-normally. Matches ODF-065's existing ENOSPC inference for this CI pool, but
-is a distinct symptom (a GitHub Actions step, not this project's own
-CI-observer worker dying) worth its own record.
-
-### Occurrences
-
-- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
-  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
-  - Timestamp: 2026-09-21T13:36–13:52+08:00 (two runs, ~16 minutes apart)
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.27
-  - Evidence: run `35563951915` (commit `8a7c770`) failed identically on
-    attempt 1 and a targeted attempt 2 rerun; run `35565673278` (commit
-    `1ab85d4`, disjoint diff) failed the same way on attempt 1, all in the
-    GitHub Actions `test` job at this step. `gh run view ... --log-failed`
-    showed zero script-level output before the exit-1 annotation each time.
-  - Observed effect: two CI investigations (classification, log inspection,
-    local/Docker reproduction, one targeted rerun) before disposing both as
-    CI-infrastructure; no repair made or needed.
-  - Inference: Qualified. Two occurrences of the identical zero-output
-    signature across unrelated diffs, right after a passing run on the
-    unchanged parent commit, argue against a code-content cause and for a
-    runner-environment cause, consistent with ODF-065's ENOSPC inference for
-    this pool. Whether an actual repair (more disk headroom, or making
-    failure paths emit output under abrupt termination) is warranted was not
-    assessed; this occurrence only disposes the two observed failures.
-
-## DD-089 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
+Former local code: DD-089.
 
 Released execution-location guidance requires setup then a project command before implementation. Cheap checks prove a substitute actor and wording. Native execute-plan sessions still completed greeting.txt without that gate, except Cursor fresh-node after traces were used. Shallow stream command extraction missed nested Cursor events.
 
@@ -54,7 +17,9 @@ Released execution-location guidance requires setup then a project command befor
   - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
   - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
 
-## DD-074 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
+## ODF-088 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
+
+Former local code: DD-074.
 
 Neither [execution location](.claude/skills/dough-execute-plan/references/execution-location.md)
 nor [runtime setup](.claude/skills/dough-execute-plan/references/runtime-setup.md)
@@ -133,65 +98,6 @@ creation — a distinct gap ODF-070's response does not cover.
     a different install command (`npm install` rather than `npm ci`) in the
     same project. The guidance gap identified above remains unaddressed at
     this occurrence's release (0.3.27).
-
-## DD-073 — Delegated agents' own passing proof twice missed framework-internal and browser-only behavior gaps
-
-A delegated implementation agent's focused and full-suite proof passed, yet
-the claimed behavior was wrong, three separate times within one execution.
-In each case the gap was invisible to the kind of test the agent wrote
-because it depended on something a same-process, synthetic, or raw-HTTP test
-cannot observe: an external framework's actual internal hook-calling order
-(not its `.d.ts` comments), a real browser's own computed request headers, or
-a shared mutable resource other parallel test workers also depend on. The
-coordinator's own mandated re-verification (rerunning the literal proof
-command directly, then a revert-and-confirm-failure check) caught each one
-before delivery; a report accepted at face value would have shipped all
-three.
-
-### Occurrences
-
-- Execution: `.planning/quick/066-view-three-projects/PLAN.md @ ecdbe39fc8d2d1ae014f9d281a8f040c2ef922c0`,
-  first related commit `815fa149d1b39cfd72783c9885b6c9756577be81`
-  - Timestamp: unknown (2026-09-21)
-  - Tool: Claude Code
-  - Model: claude-sonnet-5 (coordinator and every delegated implementation
-    agent)
-  - Open Dough release: 0.3.26
-  - Evidence:
-    1. Slice 2's `privateReadPlugin()` returned its subprocess-cleanup
-       function from Vite's `configureServer`/`configurePreviewServer`. The
-       agent's own test asserting cleanup "on server shutdown" passed, but
-       only because that same test also independently destroyed the client
-       connection, which triggered an already-proven, unrelated
-       disconnect-handling path. Reading `node_modules/vite/dist/node/chunks/node.js`
-       directly (not the type declarations) showed that return value is
-       invoked once at startup, never at close; the coordinator's own literal
-       rerun after the fix, plus a revert of the fix that made the corrected
-       isolating test fail deterministically, is what established this.
-    2. Slice 3's real same-origin browser `fetch` sends no `Origin` header
-       for a GET request (per the Fetch spec); slice 2's raw-`node:http` test
-       had set `Origin` explicitly by hand, so it never noticed the
-       boundary's unconditional `Origin` check would refuse every actual
-       browser read. Only slice 3's first genuine end-to-end browser test
-       surfaced this.
-    3. A preview-mode test's `npm run build:dashboard` call wrote into the
-       same default `dashboard/dist` the suite's shared `webServer` was
-       concurrently building and serving for every other spec
-       (`fullyParallel: true`). A single green full-suite run did not reveal
-       this; only the coordinator's practice of rerunning the full suite two
-       or three times in a row (adopted after this specific incident, then
-       continued for the remaining slices) surfaced two different unrelated
-       tests failing on two different runs.
-  - Observed effect: none of the three defects reached the delivered branch,
-    but each survived at least one round of the implementing agent's own
-    reported "pass" before the coordinator's direct reproduction caught it.
-  - Inference: for a claim resting on external-framework internals, a real
-    browser's own request semantics, or a resource shared across parallel
-    test workers, an agent's locally passing proof does not establish the
-    claim; the coordinator's existing proof-acceptance and non-vacuousness
-    obligations are what actually closed the gap here, every time they were
-    applied, and are worth naming explicitly to a delegated agent when a
-    slice's promise touches one of those three categories.
 
 ## ODF-057 — A plan's proof command can select an empty test set and report success
 
@@ -595,8 +501,9 @@ origin for the whole execution.
     not the integration branch's publication state.
   - Observed effect: Another execution was blocked until a human intervened,
     and the dashboard built here showed this story as Backlog priority 1 on the
-    real origin while it was being executed. Follow-up is already queued first
-    in the backlog as `SEED-008#publish-shared-backlog-claims`.
+    real origin while it was being executed. The original follow-up `SEED-008#publish-shared-backlog-claims` is complete;
+    native startup acceptance is now Taken as
+    `SEED-008#accept-queued-start-native-behavior`.
   - Inference: Follows the current instruction rather than breaking it. The
     stale "local only" reports are a separate, smaller gap: retained execution
     identity is rechecked for the execution branch, not for the claim.
@@ -928,7 +835,9 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     reuse this fact instead of re-deriving it from a fresh diagnostic
     session; not tested here.
 
-## DD-090 — A GitHub observer that gives up after persistent errors gives `register-push` no distinguishable "ended" signal
+## ODF-089 — A GitHub observer that gives up after persistent errors gives `register-push` no distinguishable "ended" signal
+
+Former local code: DD-090.
 After three consecutive polling errors, `watch-ci-execution.mjs` deliberately
 ends observation, and `ci-mailbox.mjs` records one `CI_MONITOR_UNAVAILABLE`
 event plus a normal `{"status":"finished"}` result — legitimate, but

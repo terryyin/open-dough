@@ -123,3 +123,52 @@ S/M/L estimate without repository definitions and a refined outcome.
 **Deferred decisions:** Which remaining extensions are justified, their concrete
 examples, and the final bounded delivery scope. Tracking machinery, mandatory
 per-story documents, partial wrap-up, and early termination remain excluded.
+
+<a id="accept-delivery-evidence"></a>
+
+### 27. Accept delivery only with evidence for affected promises
+
+**Identity:** SEED-004#accept-delivery-evidence
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this run only queues the response."],"basis":{"document":"aff3b05322368c77ac0637695c6c8001797ce3b75380dd60474282f3ad5229bf"}}
+```
+
+**For / why:** For the developer receiving a delivered change, required behavior
+and changed consumer contracts have observable proof before publication. A green
+command or a handoff's prose must not stand in for an unexercised promise.
+
+**Outcome and bounded scope:** Improve the existing execution proof-acceptance
+boundary so it catches stale consumer-applicability claims, empty or partial
+name-filtered selections, and explicitly uncovered promised behavior. Reuse the
+current planning, delegation, and acceptance owners; preserve sufficient current
+proof instead of requiring blanket reruns. This story does not redesign the CI
+observer, add a general evidence registry, change product scope, or perform the
+separate live-transition gate work already delivered for ODF-080.
+
+**Evaluation:** Given a changed shared contract, an omitted consumer or known
+unproved concurrent path, and a passing focused command, the executing agent
+leaves the affected delivery incomplete until matching observations exist or the
+developer explicitly changes the promise. A filtered command selecting none or
+only some owned promises cannot establish the rest. With sufficient current
+observations for all affected promises, delivery proceeds without redundant
+proof or a report-format-only retry. Evaluate actual execution behavior at this
+boundary, including the failure cases; wording checks alone do not establish it.
+
+**Supporting findings:**
+[ODF-057](../../docs/maintainer/finding-names.md#odf-057--pattern-selected-proof-silently-omits-owned-tests),
+[ODF-063](../../docs/maintainer/finding-names.md#odf-063--untested-delegated-claims-become-authoritative-user-reports),
+[ODF-075](../../docs/maintainer/finding-names.md#odf-075--a-changed-shared-contract-leaves-an-untested-consumer-broken), and
+[ODF-076](../../docs/maintainer/finding-names.md#odf-076--known-concurrent-state-proof-gaps-are-accepted-at-delivery).
+Their mechanisms remain distinct; occurrence evidence stays in the catalog.
+
+**Completion:** Demonstrate the bounded acceptance outcome and record the actual
+response, implementation/evidence locator, containing release (or explicitly
+pending), and remaining limitations on every addressed catalog finding. Queueing
+this response does not resolve the findings.
+
+**Depends on:** Existing proof-acceptance and publication contracts; no unfinished
+product prerequisite identified. Refinement and execution approach selection
+remain future work.
+
+**Safe stopping point:** A developer can rely on this acceptance boundary without
+waiting for observer automation or a wider workflow rewrite.

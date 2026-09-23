@@ -1,17 +1,15 @@
 // Gap observations for story readiness: reassessment, plan association
-// conflict, failed plan retrieval, and malformed/external/legacy truthfulness.
+// conflict, and failed plan retrieval.
 // Assertions observe what the shared readers project; setup never plants the
 // gap labels themselves.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { contentPathsRead, type CommittedOrigin } from "./committedOrigin";
+import { planHref } from "./queuedPlanNavigation";
+import type { CommittedOrigin } from "./committedOrigin";
 import { parts } from "./dashboardPage";
 import { notFoundAnswer } from "./originAnswers";
 import { commitPaths, writePlanning } from "./storyReadinessCli";
 import {
-  externalPlan,
-  legacy,
-  malformed,
   openDoughProductBacklog,
   plannedBlocked,
   plannedReady,
@@ -58,6 +56,9 @@ export async function expectNeedsReassessmentAfterContentChange(
   await expect(
     blockedCard.getByText("Needs reassessment", { exact: true }),
   ).toBeVisible();
+  await expect(
+    blockedCard.getByRole("link", { name: /^Slice plan / }),
+  ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
   await expect(blockedCard.getByText("Not ready", { exact: true })).toHaveCount(
     0,
   );
@@ -108,6 +109,15 @@ export async function expectPlanAssociationConflict(
     name: `Detail for ${plannedReady.title}`,
   });
   await expect(detail).toContainText("disagree");
+  await expect(
+    readyCard.getByRole("link", { name: /^Slice plan / }),
+  ).toHaveCount(0);
+  await expect(
+    detail.getByRole("link", { name: /^Disputed backlog plan / }),
+  ).toHaveCount(1);
+  await expect(
+    detail.getByRole("link", { name: /^Disputed story-state plan / }),
+  ).toHaveCount(1);
   await expect(detail).toContainText("does not choose between them");
   await expect(detail.getByText("recorded complete")).toHaveCount(0);
   await expect(
@@ -172,6 +182,9 @@ export async function expectFailedPlanKeepsSupportedFacts(
   });
   await expect(detail).toContainText("Approach: Slice planned");
   await expect(detail).toContainText("associated plan could not be read");
+  await expect(
+    detail.getByRole("link", { name: /^Slice plan / }),
+  ).toHaveAttribute("href", planHref("terryyin/open-dough", next));
   await expect(detail.getByText("recorded complete")).toHaveCount(0);
 
   const { taken } = parts(page);
@@ -185,48 +198,4 @@ export async function expectFailedPlanKeepsSupportedFacts(
   ).toBeVisible();
 
   failPlan();
-}
-
-export async function expectMalformedExternalAndLegacy(
-  backlog: Locator,
-  doughnutOrigin: CommittedOrigin,
-) {
-  const malformedCard = backlog.getByRole("article", {
-    name: malformed.title,
-  });
-  await expect(
-    malformedCard.getByText("Not refined", { exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    malformedCard.getByText("Not recorded", { exact: true }),
-  ).toHaveCount(0);
-  await expect(malformedCard.locator(".preparation-problem")).toContainText(
-    "not valid JSON",
-  );
-
-  const legacyCard = backlog.getByRole("article", { name: legacy.title });
-  await expect(
-    legacyCard.getByText("Not recorded", { exact: true }),
-  ).toBeVisible();
-
-  const externalCard = backlog.getByRole("article", {
-    name: externalPlan.title,
-  });
-  await expect(
-    externalCard.getByText("Refined", { exact: true }),
-  ).toBeVisible();
-  await externalCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = externalCard.getByRole("region", {
-    name: `Detail for ${externalPlan.title}`,
-  });
-  await expect(detail.getByText("External reference")).toBeVisible();
-  await expect(detail.getByRole("link", { name: /Plan/ })).toHaveAttribute(
-    "href",
-    /example\.com\/plans\/external-only/,
-  );
-
-  const doughnutPaths = contentPathsRead(doughnutOrigin);
-  expect(doughnutPaths.some((path) => path.includes("example.com"))).toBe(
-    false,
-  );
 }

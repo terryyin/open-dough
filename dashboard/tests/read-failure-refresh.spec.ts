@@ -116,7 +116,7 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
       await expect(
         stages
           .getByRole("article", { name: dashboardStory })
-          .getByRole("link", { name: /^Plan/ }),
+          .getByRole("link", { name: /^Slice plan/ }),
       ).toHaveAttribute(
         "href",
         `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/quick/061-published-story-dashboard/PLAN.md`,

@@ -414,6 +414,20 @@ observation path with less agent bookkeeping. Preparation and closure may still
 use existing setup until their migrations. The agent still receives truthful
 completion evidence; the goal is no routine observer management, not hidden gaps.
 
+**Retrospective response (2026-09-23):** Reuse this queued story for
+[ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results),
+[ODF-073](../../docs/maintainer/finding-names.md#odf-073--ci-observation-starts-after-the-first-publication),
+[ODF-085](../../docs/maintainer/finding-names.md#odf-085--a-missing-host-skill-path-hides-an-available-checkout-runtime), and
+[ODF-089](../../docs/maintainer/finding-names.md#odf-089--ended-observers-still-accept-ordinary-push-receipts).
+Within the existing attachment/recovery scope, evaluate a missing host alias
+with usable same-checkout runtime, an observer already ended after errors,
+and delayed discovery of the accepted revision. Do not count registration as
+active coverage or widen listing limits on an unverified causal assumption.
+A remaining undiscovered revision stays explicitly unproved. On completion,
+record the actual response, implementation locator, containing release (or
+explicitly pending), and any unaddressed boundary on every supporting finding.
+These are linked evaluation inputs; refinement and planning remain pending.
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)

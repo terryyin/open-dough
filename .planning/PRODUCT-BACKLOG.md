@@ -13,12 +13,12 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Open a queued story's slice plan from the dashboard](seeds/SEED-021-observe-published-story-progress.md#open-queued-story-slice-plan) — SEED-021#open-queued-story-slice-plan ([plan](quick/081-queued-story-plan-links/PLAN.md))
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior ([plan](quick/082-accept-queued-start-native/PLAN.md))
 
 ## Backlog list
 
 - [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation
+- [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
 - [Keep prepared stories and plans through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-preparation-through-shared-operation) — SEED-008#publish-preparation-through-shared-operation
@@ -29,3 +29,4 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
 - [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design
 - [Continue test optimization plans into execution or the backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans) — SEED-004#continue-test-optimization-plans
+- [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states

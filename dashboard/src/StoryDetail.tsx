@@ -4,7 +4,7 @@
 // Proof is never described as a passed result.
 
 import type { WorkEntry } from "./publishedWork";
-import { RecordedLink } from "./RecordedLink";
+import { WorkSourceLinks } from "./WorkSourceLinks";
 import {
   recordedCompleteCount,
   type PlanSlice,
@@ -194,8 +194,7 @@ export function StoryDetail({
       <div>
         <h4>Pinned source links</h4>
         <ul className="card-links" aria-label="Pinned source links">
-          <RecordedLink role="Canonical record" link={entry.canonical} />
-          {entry.plan && <RecordedLink role="Plan" link={entry.plan} />}
+          <WorkSourceLinks entry={entry} />
         </ul>
       </div>
     </section>
