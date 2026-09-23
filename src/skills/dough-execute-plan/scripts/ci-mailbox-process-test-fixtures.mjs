@@ -34,8 +34,8 @@ const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;
 const release = path.join(root, 'release');
 if (process.argv[3] === 'list') {
-  fs.writeFileSync(path.join(root, 'started'), '');
   fs.writeFileSync(path.join(root, 'worker-pid'), String(process.ppid));
+  fs.writeFileSync(path.join(root, 'started'), '');
   process.on('SIGTERM', () => {
     fs.writeFileSync(path.join(root, 'request-stopped'), '');
     process.exit(0);
