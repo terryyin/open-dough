@@ -11,6 +11,7 @@ import {
   waitForTerminalResult,
 } from "./ci-mailbox-store.mjs";
 import {
+  awaitMailboxWorkerExit,
   checkMailboxWorkerLiveness,
   terminateMailboxWorker,
 } from "./ci-mailbox-worker-process.mjs";
@@ -23,7 +24,13 @@ export function requestMailboxStop(directory, options = {}) {
 export async function stopMailbox(directory, options = {}) {
   requestMailboxStop(directory, options);
   try {
-    return await waitForTerminalResult(directory);
+    const terminal = await waitForTerminalResult(directory);
+    try {
+      await awaitMailboxWorkerExit(readWorkerIdentity(directory), directory);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    return terminal;
   } catch (error) {
     if (error.code !== terminalResultDeadlineCode) throw error;
     await terminateMailboxWorker(readWorkerIdentity(directory), directory);

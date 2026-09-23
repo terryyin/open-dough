@@ -144,3 +144,14 @@ export async function terminateMailboxWorker({ pid }, directory) {
   if (!(await waitForWorkerExit(pid)))
     throw new Error(`CI observer worker ${pid} did not terminate`);
 }
+
+// After a normal terminal publication, wait for the matching worker to exit
+// before treating stop as complete. Escalate only if voluntary exit stalls.
+// Mismatched or unknown identity is left alone — stop already has its terminal.
+export async function awaitMailboxWorkerExit(identity, directory) {
+  const { pid } = identity ?? {};
+  if (!(Number.isSafeInteger(pid) && pid > 0)) return;
+  if (checkMailboxWorkerLiveness(identity, directory) !== "alive") return;
+  if (await waitForWorkerExit(pid)) return;
+  await terminateMailboxWorker(identity, directory);
+}
