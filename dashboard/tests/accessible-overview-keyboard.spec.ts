@@ -29,7 +29,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     parts(page);
 
   // Reading order is the order of the page's source: the project selector,
-  // then the read control and source evidence, then each card's Inspect and recorded
+  // then the read control, source evidence, direction and badge legend, then each card's Inspect and recorded
   // links by stage (Backlog, then Taken). In a wide window Taken stands beside
   // Backlog's first card, so position on screen would order them differently.
   const stopsFor = async (stage: Locator) => {
@@ -45,11 +45,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     refresh,
     sourceEvidence,
     directionToggle,
+    parts(page).preparationHelp,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Project + Refresh + Source evidence + Direction + four Inspect + five recorded links.
-  expect(stops).toHaveLength(1 + 1 + 1 + 1 + 4 + 5);
+  // Project + Refresh + Source evidence + Direction + Legend + four Inspect + five recorded links.
+  expect(stops).toHaveLength(1 + 1 + 1 + 1 + 1 + 4 + 5);
 
   await test.step("Tab stops at the read control, Inspect, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -58,7 +59,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     }
     // Cards and the stages take focus only when it is returned to them.
     await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4);
-    await expect(page.locator("[tabindex='0']")).toHaveCount(0);
+    await expect(page.locator("[tabindex='0']:visible")).toHaveCount(0);
   });
 
   await test.step("the keyboard is not held: Tab leaves the page and Shift+Tab walks back", async () => {
@@ -74,7 +75,8 @@ test("accessible overview is read by keyboard in reading order, with visible foc
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
     // Project already holds focus after the reverse walk; Refresh, evidence and the
-    // direction disclosure and first card's Inspect precede its Canonical link.
+    // direction disclosure, badge legend and first card's Inspect precede its Canonical link.
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");

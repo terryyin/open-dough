@@ -18,6 +18,9 @@ export function parts(page: Page) {
     connector: stages.getByText("Taking work", { exact: true }),
     direction: page.getByRole("region", { name: "Near-future direction" }),
     directionToggle: page.locator(".direction summary"),
+    preparationHelp: page.getByRole("button", {
+      name: "Preparation badge legend",
+    }),
     source: page.getByRole("region", { name: "Published Git state" }),
     refresh: page.getByRole("button", { name: "Refresh" }),
     // The same read control, as it is named after a failed attempt.

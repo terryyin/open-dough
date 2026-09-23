@@ -16,6 +16,12 @@ explanation), then activate it again to collapse. Refreshing the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request.
 
+The **?** control, named **Preparation badge legend**, opens the badge explanations
+in a modal dialog. Card badges remain visible in the overview. Close or Escape
+returns focus and the reading position to the help control; opening help makes
+no source request. The dialog keeps Close reachable while its explanations scroll
+at narrow widths or high browser zoom.
+
 One project is observed at a time, chosen from the **Project** selector.
 `src/publishedSource.ts` is the one catalog of the three observable projects
 (Open Dough, Doughnut, and Pygardon) and what each one needs to be read. It

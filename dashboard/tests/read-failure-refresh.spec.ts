@@ -76,7 +76,8 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
         retrievedA.toISOString(),
       );
       await expect(retry).toHaveAccessibleName("Retry");
-      await expect(page.getByRole("button")).toHaveCount(5);
+      await expect(page.getByRole("button")).toHaveCount(6);
+      await expect(parts(page).preparationHelp).toHaveCount(1);
       await expect(
         page.getByRole("button", { name: "Inspect story" }),
       ).toHaveText([
@@ -122,7 +123,8 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
       );
       await expect(problem).toHaveCount(0);
       await expect(refresh).toHaveAccessibleName("Refresh");
-      await expect(page.getByRole("button")).toHaveCount(5);
+      await expect(page.getByRole("button")).toHaveCount(6);
+      await expect(parts(page).preparationHelp).toHaveCount(1);
       await expect(
         page.getByRole("button", { name: "Inspect story" }),
       ).toHaveText([

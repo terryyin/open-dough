@@ -134,7 +134,8 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveCount(3);
+  await expect(page.getByRole("button")).toHaveCount(4);
+  await expect(parts(page).preparationHelp).toHaveCount(1);
   await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
   await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
     2,
@@ -235,7 +236,8 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveCount(5);
+  await expect(page.getByRole("button")).toHaveCount(6);
+  await expect(parts(page).preparationHelp).toHaveCount(1);
   await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
   await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
     4,

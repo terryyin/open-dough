@@ -1,6 +1,6 @@
 # Keep dashboard controls in reach and supporting context out of the way
 
-Status: planned.
+Status: complete.
 
 Identity: `SEED-021#compact-dashboard-controls`
 
@@ -147,7 +147,7 @@ previous project/evidence behavior remains useful. Update relevant usage text.
 ### 3. Explain preparation badges through a compact help dialog
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: preparation facts are available → a question-mark control takes the
 standing legend's place; activate it → a titled modal presents the existing
@@ -169,10 +169,15 @@ assumptions in `story-readiness.spec.ts` and `storyReadinessAccessible.ts` to
 exercise the modal; retain text/contrast/evidence checks for both cards and legend.
 
 ```sh
-npm run test:dashboard -- preparation-legend.spec.ts story-readiness.spec.ts story-readiness-accessible.spec.ts
+npm run test:dashboard -- preparation-legend.spec.ts story-readiness.spec.ts story-readiness-accessible.spec.ts read-failure.spec.ts read-failure-refresh.spec.ts accessible-overview-keyboard.spec.ts
 npm run typecheck:dashboard
 git diff --check
 ```
+
+**Accepted proof:** The expanded focused command above passed 19 browser tests;
+typecheck and whitespace passed. Inspected real committed-origin setup and modal
+visibility, keyboard scrolling, focus/inertness, scroll return and no-read/card
+assertions in `preparation-legend.spec.ts`. Independent refactor review completed.
 
 Safe stopping point: all requested presentation improvements are usable with
 accessible explanations and unchanged observation semantics. Align usage text.
@@ -237,3 +242,4 @@ slices retain prospective proof recipes.
 - Slice 1 accepted publication: `f3374cf4c1cc4c6ea2ada3b7c07adcfe8b93d816`
   on `origin/codex/081-dashboard-header`; registered with the retained observer.
 - CI repair accepted: `44cff5ef3ddbb861f7e6a15caacd93082ed832b3` on the story branch; registered with the same observer.
+- Slice 2 accepted: `2bc5422080eead54a463cddce8bff8ff32549605` on the story branch; registered with the same observer.
