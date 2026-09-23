@@ -144,7 +144,7 @@ claims and delivery with less routine agent coordination. Preserve authority,
 user work, and truthful remote/CI evidence while reducing total instructions.
 
 **Reviewed decomposition:** The installed startup operation; ordinary execution publication plus
-CI attachment in the existing [CI story](#script-driven-ci-observation);
+CI attachment delivered in [execution publication](#accept-execution-ci-native-behavior);
 preparation keep; and closure. The previous separate execution-increment
 candidate duplicated the CI story's publication boundary and has been absorbed
 there. No library, command-framework, or testing-only story is required.
@@ -167,7 +167,7 @@ and cleanup concerns. Estimates remain unassigned pending planning evidence.
 
 The proposed identity `SEED-008#publish-execution-increments-through-shared-operation`
 was never queued. Its outcome is now owned by
-[SEED-008#script-driven-ci-observation](#script-driven-ci-observation), avoiding
+[SEED-008#accept-execution-ci-native-behavior](#accept-execution-ci-native-behavior), avoiding
 two stories that each wire the same publication boundary. This is a retired
 navigation reference, not another candidate or a claim of delivered behavior.
 
@@ -369,7 +369,7 @@ truthful publication ownership without bypassing host restrictions.
 The retired identity `SEED-008#reduce-ci-observer-overhead` is not queued or
 reallocated. Its remaining outcomes are the delivered
 [completion operation](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
-and queued [CI/delivery story](#script-driven-ci-observation).
+and queued [native acceptance story](#accept-execution-ci-native-behavior).
 
 Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure
@@ -377,130 +377,8 @@ observer cycle. No raw transcript established the repeated-setup cause. The
 full investigation is retained in Git at `1352844` and linked findings
 [ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results).
 Later source review corrected the claimed production readiness command: it was
-a test substitute. Current story scope below replaces the earlier idle-expiry
+a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
-
-<a id="script-driven-ci-observation"></a>
-
-### Publish execution increments with automatic CI observation
-
-**Identity:** SEED-008#script-driven-ci-observation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/083-publish-execution-ci/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f431f79ba2abd6ef2758afef89d2ef6452954cb14b9025a79dee86ee0048a77","plan":"dbd867056be88696c1067a46f7550903e03a8b828f65131bd2477be0742db6f3"}}
-```
-
-**Status:** Refined with Terry on 2026-09-23. Existing identity and current
-backlog priority retained. Execution planning is authorized; implementation is
-not. The product backlog remains the sole ordering authority.
-
-**Goal:** A developer can rely on each managed execution publication either
-having observation attached to its exact accepted revision, with applicable CI
-failures delivered to the owning execution, or having an explicit, actionable
-coverage gap. Reduce routine agent setup and handle bookkeeping without hiding
-uncertainty or waiting after every increment.
-
-**Why now:** Reliable feedback supports frequent remote publication by parallel
-agents. Recorded runtime-resolution misses and registration against ended
-observers show concrete gaps; they do not establish that all historical failures
-persist on today's candidate. Terry retained the current priority after comparing
-this outcome with dashboard visibility and delivery-proof acceptance. Neither
-of those stories depends on this migration. Command-count or token savings are
-not acceptance claims.
-
-**Alternatives:** Existing publication and manual observer setup remain usable.
-Targeted runtime-discovery and ended-observer fixes alone would remove some risk,
-but leave the routine publication-to-observation handoff with the agent. The
-selected outcome connects that handoff using existing owners. Another prose
-reminder alone does not remove the demonstrated opportunity for omission.
-
-**Scope:** Ordinary validated execution increments and already-authorized repairs
-in both existing execution modes use the shared publication mechanics and existing
-CI observer/host adapters. Establish or reuse observation at the first applicable
-managed publication; attach the accepted revision and retain matching execution,
-checkout, repository, and target context with the existing CI owner. Later
-publications reuse that owner. Resolve usable same-checkout runtime even when a
-host-specific alias is absent. Registration alone never establishes active
-coverage; ended or unavailable observation must produce an actionable gap.
-
-Reliable feedback and no manual handle transcription are the promise, not a
-literal single shell command. Necessary host notification binding may remain;
-remove separate routine agent probe/start/register decisions from managed delivery.
-No notification promise exists without a verified host bridge. Lazy setup belongs
-at the publication boundary, before the first push it must cover where available;
-attachment uses the exact receipt after remote acceptance.
-
-**Preserved constraints and decisions:**
-
-- Preserve existing publication authority, mode destinations, checkout ownership,
-  published history, and semantic backlog reconciliation. An invocation does not
-  authorize a push or repair. Local-only work stays local.
-- A reconciled candidate whose proof is no longer applicable returns for validation
-  before publication. A clean rebase is not behavioral proof. Preserve bounded
-  race recovery rather than retrying indefinitely.
-- Remote acceptance, local refresh, and CI coverage are separate facts. An unavailable
-  observer may leave publication accepted with a reported gap under existing policy;
-  no new pre-publication CI availability gate is introduced.
-- Recover observation after accepted publication without another push. Recover only
-  unambiguously matching ownership and retain unread failures. Ended observation
-  does not become active by accepting another receipt. Follow existing lifecycle
-  eligibility for rearming; otherwise report the gap and next action. Do not
-  silently restart a terminal finished observer or adopt a guessed newest mailbox.
-- Preserve the delivered bounded completion/shutdown operation and existing repair
-  ownership. No wait after ordinary or repair publication. Missing discovery stays
-  pending/unproved; later discovered applicable failures still reach their owner.
-- Keep existing claim-target CI policy. A Story Branch claim on trunk is not covered
-  by an execution-branch observer merely because both belong to one story.
-
-**Key examples:**
-
-1. No observer exists; an authorized validated increment is ready → managed
-   publication → the exact accepted target/revision is attached to observation,
-   or accepted publication explicitly reports missing coverage. With a usable
-   bridge, a later failure reaches the owning execution without manual registration.
-   A second increment or authorized repair reuses that same matching live owner.
-2. The host alias is absent but the execution checkout contains the usable runtime
-   → first managed delivery → resolve that runtime and establish observation without
-   copying another checkout's installation or declaring coverage unavailable solely
-   from the missing alias.
-3. Another writer advances the target → reconciliation changes the candidate →
-   require applicable validation before pushing; attach only the accepted result,
-   never the old SHA or the other writer's revision. Preserve published history and
-   unrelated staged, tracked, and untracked work; report deferred local refresh.
-4. Remote accepts the increment but CI attachment fails, or the response is lost
-   → resume from remote evidence and matching execution context → retain acceptance
-   and repair only the missing observation obligation, without duplicate publication.
-5. An observer ended after errors, or recovered ownership is ambiguous → a new
-   publication/attachment attempt → explicitly report unavailable coverage and the
-   supported recovery action; neither a writable mailbox nor an old handle proves
-   active observation. Preserve existing failed/unread evidence.
-6. An accepted revision is initially undiscovered → observation continues → deliver
-   its later failure once to its owner. Another execution's failure stays separate;
-   a revision never discovered remains explicitly unproved at existing completion.
-
-**Deferred promises:** No arbitrary raw/manual-push attachment or interception,
-new providers, daemon, execution registry, automatic semantic repair, dashboard CI
-presentation, checkout locking, preparation/closure caller migration, or changed
-completion policy. Keep explicit existing observation options for manual pushes.
-Do not promise universal discovery under arbitrary branch traffic or widen listing
-limits without diagnosis. Naturally supported cases need no artificial rejection.
-
-**Dependencies and safe stopping point:** Delivered startup supplies production Git
-mechanics and delivered CI completion supplies bounded wait/shutdown. Native startup
-acceptance remains a separate queued story, not evidence of a missing publisher.
-Ordinary execution and repairs gain reliable attachment or explicit gaps while
-preparation and closure retain their existing procedures. No readiness-framework
-or local-coordination prerequisite is added.
-
-**Retrospective response:** Evaluate
-[ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results),
-[ODF-073](../../docs/maintainer/finding-names.md#odf-073--ci-observation-starts-after-the-first-publication),
-[ODF-085](../../docs/maintainer/finding-names.md#odf-085--a-missing-host-skill-path-hides-an-available-checkout-runtime), and
-[ODF-089](../../docs/maintainer/finding-names.md#odf-089--ended-observers-still-accept-ordinary-push-receipts)
-as distinct mechanisms. ODF-069's remaining suspected bounded-listing cause is not
-promised repaired here; prove preserved late delivery and truthful gaps. On actual
-completion, record response, implementation locator, containing release or pending
-release, and remaining boundaries on each supporting finding. Refinement resolves
-none of those findings by itself.
 
 ## Architectural Context
 

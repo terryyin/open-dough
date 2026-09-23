@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Publish execution increments with automatic CI observation](seeds/SEED-008-worktree-branch-trunk-sync.md#script-driven-ci-observation) — SEED-008#script-driven-ci-observation ([plan](quick/083-publish-execution-ci/PLAN.md))
-
 ## Backlog list
 
 - [See new published work without manually refreshing the dashboard](seeds/SEED-026-auto-refresh-published-dashboard.md#auto-refresh-published-dashboard) — SEED-026#auto-refresh-published-dashboard
