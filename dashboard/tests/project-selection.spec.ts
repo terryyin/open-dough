@@ -101,7 +101,9 @@ test("project selection shows each public project's own overview, and returning 
   const { project, source, direction } = parts(page);
 
   await test.step("Open Dough is the default selection, read once, and Doughnut is not requested", async () => {
-    await expect(project).toHaveValue("open-dough");
+    await expect(
+      project.getByRole("radio", { name: "Open Dough", exact: true }),
+    ).toBeChecked();
     await expectMembership(page, titlesOfOpenDough);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -114,7 +116,7 @@ test("project selection shows each public project's own overview, and returning 
   });
 
   await test.step("selecting Doughnut shows only Doughnut's overview; Open Dough is not read again", async () => {
-    await project.selectOption("doughnut");
+    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expectMembership(page, titlesOfDoughnut);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -141,7 +143,9 @@ test("project selection shows each public project's own overview, and returning 
   });
 
   await test.step("returning to Open Dough shows its overview again, read afresh", async () => {
-    await project.selectOption("open-dough");
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
     await expectMembership(page, titlesOfOpenDough);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -197,7 +201,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
   await expectMembership(page, titlesOfOpenDough);
   const { project, backlog, taken, direction, source } = parts(page);
 
-  await project.selectOption("doughnut");
+  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
 
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");

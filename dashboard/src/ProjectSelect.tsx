@@ -1,4 +1,4 @@
-import { catalog, sourceById, type PublishedSource } from "./publishedSource";
+import { catalog, type PublishedSource } from "./publishedSource";
 
 // Which project this dashboard observes, chosen from the fixed catalog.
 // Selecting one is the only effect this control has: what happens when the
@@ -11,24 +11,21 @@ export function ProjectSelect({
   readonly onSelect: (next: PublishedSource) => void;
 }) {
   return (
-    <div className="project-select">
-      <label htmlFor="project">Project</label>
-      <select
-        id="project"
-        value={source.id}
-        onChange={(event) => {
-          const next = sourceById(event.target.value);
-          if (next) {
-            onSelect(next);
-          }
-        }}
-      >
-        {catalog.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+    <div className="project-select" role="radiogroup" aria-label="Project">
+      {catalog.map((option) => (
+        <label key={option.id} className="project-choice">
+          <input
+            type="radio"
+            name="project"
+            value={option.id}
+            checked={source.id === option.id}
+            onChange={() => {
+              onSelect(option);
+            }}
+          />
+          <span>{option.label}</span>
+        </label>
+      ))}
     </div>
   );
 }

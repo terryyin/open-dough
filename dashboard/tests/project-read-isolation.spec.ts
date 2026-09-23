@@ -97,20 +97,21 @@ test.describe("project read isolation", () => {
     const { project, backlog, source } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await project.selectOption("doughnut");
+    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
 
     await test.step("the selector is never blocked while Doughnut's read is outstanding", async () => {
-      await expect(project).toBeEnabled();
-      await project.focus();
-      await expect(project).toBeFocused();
+      const selectedProject = project.getByRole("radio", { checked: true });
+      await expect(selectedProject).toBeEnabled();
+      await selectedProject.focus();
+      await expect(selectedProject).toBeFocused();
     });
 
     openDough.push(
       revisionOpenDoughSecond,
       openDoughBacklogWith(openDoughSharedTitleSecond),
     );
-    await project.selectOption("open-dough");
+    await page.keyboard.press("ArrowLeft");
 
     await test.step("Open Dough's fresh read is shown; Doughnut's outstanding read is not waited on or shown", async () => {
       await expectMembership(page, {
@@ -137,7 +138,9 @@ test.describe("project read isolation", () => {
       // no later moment at which it could still take effect.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
       await expect(source).toContainText(revisionOpenDoughSecond);
-      await expect(project).toHaveValue("open-dough");
+      await expect(
+        project.getByRole("radio", { name: "Open Dough", exact: true }),
+      ).toBeChecked();
       expect(doughnut.requests).toHaveLength(1);
     });
 
@@ -151,10 +154,10 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { refresh, source } = parts(page);
+    const { project, refresh, source } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await parts(page).project.selectOption("doughnut");
+    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
     doughnut.answerWith("main", rateLimitedAnswer());
 
@@ -162,7 +165,9 @@ test.describe("project read isolation", () => {
       revisionOpenDoughSecond,
       openDoughBacklogWith(openDoughSharedTitleSecond),
     );
-    await parts(page).project.selectOption("open-dough");
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
     await expectMembership(page, {
       taken: [],
       backlog: [openDoughSharedTitleSecond],
@@ -188,7 +193,7 @@ test.describe("project read isolation", () => {
     const { project, backlog, source } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await project.selectOption("doughnut");
+    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
 
     // Returning to Open Dough while Doughnut's read is still outstanding.
@@ -200,7 +205,9 @@ test.describe("project read isolation", () => {
       revisionOpenDoughThird,
       openDoughBacklogWith(openDoughSharedTitleThird),
     );
-    await project.selectOption("open-dough");
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
 
     await test.step("the third, fresh Open Dough read is shown -- not the first snapshot, and not Doughnut's", async () => {
       await expectMembership(page, {

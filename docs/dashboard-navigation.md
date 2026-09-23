@@ -7,8 +7,9 @@ Its authority, scope, and revision policy apply to this guidance.
 
 Keep one story overview with an always-visible banner pinned to the viewport top.
 Use **OpenDO** as the dashboard brand, distinct from the observed project's name.
-Move the existing project selector, compact project/repository and ref information,
-and manual refresh control into this banner. Keep repository/ref visible and
+Show the three project choices as tab-shaped radio controls, with the selected
+project highlighted and native arrow-key switching. Keep compact project/repository
+and ref information and manual refresh in this banner. Keep repository/ref visible and
 full source revision and retrieval time available through a Source evidence
 disclosure, so detailed metadata does not fill the viewport at browser zoom. Render refresh as an SVG icon
 with the accessible name Refresh, changing to Retry after a failed read; preserve
@@ -77,7 +78,7 @@ Illustrative compact overview; placeholders are not observed project data:
 
 ```text
 ┌──────────────── pinned viewport-top banner ──────────────┐
-│ OpenDO   Project [<selection> v]   <repository/ref>  [↻]  │
+│ OpenDO   [Open Dough] [Doughnut] [Pygardon]       [↻]  │
 │ ▸ Source evidence: <repository/ref>                     │
 └──────────────────────────────────────────────────────────┘
 Published work

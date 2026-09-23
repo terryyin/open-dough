@@ -116,16 +116,20 @@ for (const viewport of [
       await expect(close).toBeFocused();
       // Native modal inertness blocks even an explicit attempt to focus the
       // background. A pointer at the selector likewise cannot interact with it.
-      await project.evaluate((element) => {
-        (element as HTMLElement).focus();
-      });
+      await project
+        .getByRole("radio", { checked: true })
+        .evaluate((element) => {
+          (element as HTMLElement).focus();
+        });
       await expect(close).toBeFocused();
       const projectBox = await box(project);
       await page.mouse.click(
         projectBox.x + 4,
         projectBox.y + projectBox.height / 2,
       );
-      await expect(project).not.toBeFocused();
+      await expect(
+        project.getByRole("radio", { checked: true }),
+      ).not.toBeFocused();
       await expect(dialog).toBeVisible();
       expect(origin.requests.length).toBe(reads);
       // Hit-testing inside the dialog reaches its content, even where its

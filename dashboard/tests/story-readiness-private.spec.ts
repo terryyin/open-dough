@@ -76,7 +76,9 @@ function runScenario(mode: "dev" | "preview", port: number): void {
       const { project, source, taken, backlog, refresh } = parts(page);
 
       await test.step("selecting Pygardon shows membership then labeled preparation from CLI-committed bytes", async () => {
-        await project.selectOption("pygardon");
+        await project
+          .getByRole("radio", { name: "Pygardon", exact: true })
+          .check();
         await expectMembership(page, {
           taken: [plannedReady.title],
           backlog: [unrefined.title, plannedBlocked.title],
@@ -177,7 +179,9 @@ function runScenario(mode: "dev" | "preview", port: number): void {
       });
 
       await test.step("switching to a public project remains usable", async () => {
-        await project.selectOption("open-dough");
+        await project
+          .getByRole("radio", { name: "Open Dough", exact: true })
+          .check();
         await expectMembership(page, {
           taken: [],
           backlog: [openDoughTitle],

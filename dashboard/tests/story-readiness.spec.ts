@@ -167,7 +167,9 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
     });
 
     await test.step("Doughnut shows planless ready and legacy not recorded", async () => {
-      await project.selectOption("doughnut");
+      await project
+        .getByRole("radio", { name: "Doughnut", exact: true })
+        .check();
       await expectMembership(page, {
         taken: [],
         backlog: [

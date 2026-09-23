@@ -118,7 +118,7 @@ test("changing projects removes previous direction while reading and starts each
   await openDirection(page);
 
   const release = doughnut.hold("main");
-  await project.selectOption("doughnut");
+  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
   await expect(reading).toBeVisible();
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
@@ -130,7 +130,7 @@ test("changing projects removes previous direction while reading and starts each
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(pathsRead(doughnut)).toHaveLength(2);
 
-  await project.selectOption("open-dough");
+  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
   await expect(source).toContainText(revisionA);
   await expect(body).toBeHidden();
   await openDirection(page);

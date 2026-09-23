@@ -36,9 +36,10 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
       box(project),
       box(refresh),
     ]);
-    expect(selectionBox.x + selectionBox.width).toBeLessThanOrEqual(
-      refreshBox.x,
-    );
+    expect(
+      selectionBox.x + selectionBox.width <= refreshBox.x ||
+        selectionBox.y >= refreshBox.y + refreshBox.height,
+    ).toBe(true);
     const pinned = await box(banner);
     expect(pinned.y).toBe(0);
     expect(pinned.height).toBeLessThan(viewport.height / 2);
@@ -91,15 +92,19 @@ test("banner project selection and icon refresh read the selected project's actu
   await page.goto("/");
   const { project, source, refresh } = parts(page);
   await expect(source).toContainText(revision);
-  // Use the native selector's arrow, where the overlapping refresh button
-  // previously intercepted pointer input. The menu itself is platform UI;
-  // Playwright's native selection action commits the chosen option.
-  const selectionBox = await box(project);
-  await project.click({
-    position: { x: selectionBox.width - 5, y: selectionBox.height / 2 },
+  const openDoughChoice = project.getByRole("radio", {
+    name: "Open Dough",
+    exact: true,
   });
-  await expect(project).toBeFocused();
-  await project.selectOption("doughnut");
+  const doughnutChoice = project.getByRole("radio", {
+    name: "Doughnut",
+    exact: true,
+  });
+  await expect(project.getByRole("radio")).toHaveCount(3);
+  await expect(openDoughChoice).toBeChecked();
+  await doughnutChoice.click();
+  await expect(doughnutChoice).toBeChecked();
+  await expect(openDoughChoice).not.toBeChecked();
   await expectMembership(page, {
     taken: [],
     backlog: ["Doughnut's next story"],

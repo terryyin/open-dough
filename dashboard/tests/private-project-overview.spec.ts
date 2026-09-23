@@ -125,7 +125,9 @@ function runScenario(mode: "dev" | "preview", port: number): void {
       const { project, direction, source } = parts(page);
 
       await test.step("selecting Pygardon reads it through the local authenticated boundary and renders its overview", async () => {
-        await project.selectOption("pygardon");
+        await project
+          .getByRole("radio", { name: "Pygardon", exact: true })
+          .check();
         await expectMembership(page, {
           taken: [takenTitle],
           backlog: [queuedTitle],

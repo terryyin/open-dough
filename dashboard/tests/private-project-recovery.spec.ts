@@ -1,33 +1,13 @@
-// The observable recovery journey for Pygardon, this dashboard's private
-// third project, when its local authenticated read is unavailable. This is
-// the private-transport analog of ./read-failure.spec.ts and
-// ./read-failure-refresh.spec.ts: it proves, through a real browser page,
-// that the failure/Retry UI those specs already prove for the public
-// transport (`../src/App.tsx`'s `Attempt`/`ReadProblem` model, shared with
-// the private transport since slice 3's ../src/privateRead.ts) already
-// handles every `gh`-invocation failure category for Pygardon too --
-// missing/denied/network/malformed-backlog causes all collapse server-side
-// into one generic 502 (`../server/privateRead.ts`'s `respond()`, already
-// proven at the raw-HTTP level in ./private-read-boundary.spec.ts), and a
-// bounded stalled read ends the same way (../server/ghRead.ts's timeout,
-// already proven at the process-lifecycle level in
-// ./private-read-subprocess-lifecycle.spec.ts) -- without any production
-// code change. Nothing here revokes real `gh` credentials; every failure is
-// simulated with the controlled fake-`gh` fixture (./support/fakeGh.ts,
-// driven through ./support/privateReadServer.ts's `startPrivateReadServer`),
-// reused rather than duplicated.
+// Pygardon's private-read recovery journey uses a controlled fake gh; no real
+// credentials change. Server-side failure categories collapse into one 502,
+// covered by private-read-boundary.spec.ts; subprocess timeout is covered by
+// private-read-subprocess-lifecycle.spec.ts. Here the browser proves recovery,
+// project switching, and preservation of the selected project's snapshot.
 //
-// The public side of these journeys (selecting Open Dough/Doughnut while
-// Pygardon is failing or reading) reuses ./githubOrigin.ts's existing route
-// helpers unchanged. Their shared `closeOtherHosts` catch-all aborts every
-// request whose URL does not start with "http://localhost", so this spec
-// navigates to the isolated private-read server by its "localhost" alias
-// rather than `PrivateReadServer.baseURL`'s literal "127.0.0.1" -- the exact
-// same loopback socket, since Vite's `server.host`/`preview.host` of
-// "127.0.0.1" (../vite.config.mts) accepts a connection addressed either
-// way. Using the literal `baseURL` here would make the page's own
-// same-origin fetch to `/__private-read` get caught and aborted by that same
-// catch-all, alongside the actual GitHub hosts it exists to block.
+// Public reads reuse githubOrigin.ts. Its closeOtherHosts route aborts URLs
+// outside "http://localhost", so navigate to that alias rather than the server's
+// literal 127.0.0.1 baseURL. Both reach the same loopback socket, but only the
+// alias lets same-origin /__private-read requests through the route guard.
 
 import { expect, test, type Page } from "@playwright/test";
 import { expectMembership, openDirection, parts } from "./dashboardPage";
@@ -81,8 +61,7 @@ ${pygardonDirection}
 - [${pygardonQueuedTitle}](seeds/SEED-200-pygardon.md#queued) — PYG-201#queued
 `;
 
-// Same loopback socket as `server.baseURL` -- see the header comment above
-// for why this alias, and not the literal, is what this spec navigates to.
+// Use the localhost alias accepted by the public-origin route guard above.
 function runningAt(server: PrivateReadServer): string {
   return server.baseURL.replace("127.0.0.1", "localhost");
 }
@@ -111,10 +90,15 @@ test.describe("private project recovery", () => {
       await page.goto(runningAt(server));
       const { project, direction, source, problem, retry, refresh } =
         parts(page);
+      const pygardon = project.getByRole("radio", {
+        name: "Pygardon",
+        exact: true,
+      });
+      const selectedProject = project.getByRole("radio", { checked: true });
       await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
       await test.step("selecting Pygardon while gh is unavailable shows an actionable failure and no snapshot", async () => {
-        await project.selectOption("pygardon");
+        await pygardon.check();
         await expect(problem).toContainText("Published work could not be read");
         await expect(problem).toContainText(
           "The local authenticated read failed.",
@@ -128,10 +112,10 @@ test.describe("private project recovery", () => {
       });
 
       await test.step("the selector stays enabled and keyboard-operable, and a public project remains fully readable", async () => {
-        await expect(project).toBeEnabled();
-        await project.focus();
-        await expect(project).toBeFocused();
-        await project.selectOption("doughnut");
+        await expect(selectedProject).toBeEnabled();
+        await selectedProject.focus();
+        await expect(selectedProject).toBeFocused();
+        await page.keyboard.press("ArrowLeft");
         await expectMembership(page, {
           taken: [],
           backlog: [doughnutTitle],
@@ -147,7 +131,7 @@ test.describe("private project recovery", () => {
       });
 
       await test.step("returning to Pygardon while access is still unavailable starts a fresh, still-failing read -- not stale Doughnut data", async () => {
-        await project.selectOption("pygardon");
+        await pygardon.check();
         await expect(problem).toContainText(
           "The local authenticated read failed.",
         );
@@ -221,7 +205,9 @@ test.describe("private project recovery", () => {
       const { project, problem, retry } = parts(page);
       await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
-      await project.selectOption("pygardon");
+      await project
+        .getByRole("radio", { name: "Pygardon", exact: true })
+        .check();
       await expect(problem).toContainText("Published work could not be read", {
         timeout: 10_000,
       });

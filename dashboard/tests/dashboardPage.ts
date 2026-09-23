@@ -10,7 +10,7 @@ export function parts(page: Page) {
   return {
     banner: page.getByRole("banner"),
     sourceEvidence: page.getByLabel("Source evidence", { exact: true }),
-    project: page.getByRole("combobox", { name: "Project" }),
+    project: page.getByRole("radiogroup", { name: "Project" }),
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
     taken: stages.getByRole("region", { name: "Taken", exact: true }),

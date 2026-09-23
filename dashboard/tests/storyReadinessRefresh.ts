@@ -70,7 +70,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   openDough: ReadinessRepo,
   doughnut: ReadinessRepo,
 ) {
-  await project.selectOption("open-dough");
+  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
   await expectMembership(page, {
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
@@ -81,7 +81,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   await refresh.click();
   await expect(parts(page).reading).toBeVisible();
 
-  await project.selectOption("doughnut");
+  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
   await expectMembership(page, {
     taken: [],
     backlog: [
