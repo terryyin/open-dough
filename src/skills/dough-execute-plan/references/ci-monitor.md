@@ -24,7 +24,7 @@ ownership and receipts. Do not start a second observer or register that claim on
 the story-branch observer; that observer still covers ordinary delivery once
 armed. Discovery continues after later publications without new setup.
 Publication success closes routine delivery without waiting for CI or
-deployment. The completion boundary below is the only routine CI wait; never
+deployment. The execution/review completion boundary below is the only routine CI wait; never
 wait after each slice or repair publication.
 
 Bind the observer's runtime, pause, stash, repair, delivery, and restoration to
