@@ -19,6 +19,7 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line tests/support/git-publication-native-evidence.sh
       native_result_input_hash_line tests/support/git-publication-native-prompt.sh
       native_result_input_hash_line tests/support/native-run-supervise.sh
+      native_result_input_hash_line tests/support/native-run-watchdog.sh
       native_result_input_hash_line src/skills/dough-execute-plan/references/publish-the-candidate.md
       ;;
     execution-review)
@@ -33,6 +34,7 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line tests/support/git-publication-native-run.sh
       native_result_input_hash_line tests/support/git-publication-native-evidence.sh
       native_result_input_hash_line tests/support/native-run-supervise.sh
+      native_result_input_hash_line tests/support/native-run-watchdog.sh
       native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
       native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
       native_result_input_hash_line src/skills/dough-execute-plan/references/finish-or-stop.md

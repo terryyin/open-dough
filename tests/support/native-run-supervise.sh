@@ -69,26 +69,9 @@ native_run_child_pgid() {
   printf '%s\n' "${pid}"
 }
 
-native_run_watchdog() {
-  local pid=$1
-  local pgid=$2
-  local deadline=$3
-  local grace=$4
-  local sentinel=$5
-  local timeout_flag=$6
-  local sleeper=
-
-  trap 'if [[ -n ${sleeper} ]]; then kill "${sleeper}" 2>/dev/null || true; wait "${sleeper}" 2>/dev/null || true; fi; exit 0' TERM INT
-  sleep "${deadline}" &
-  sleeper=$!
-  wait "${sleeper}" || true
-  sleeper=
-  if [[ ! -f ${sentinel} ]]; then
-    exit 0
-  fi
-  : > "${timeout_flag}"
-  native_run_terminate_group "${pgid}" "${pid}" "${grace}"
-}
+# shellcheck source=tests/support/native-run-watchdog.sh
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/native-run-watchdog.sh"
 
 native_run_spawn_group() {
   local workdir=$1
@@ -125,20 +108,19 @@ native_run_owned() {
   pgid=$(native_run_child_pgid "${pid}" "$(native_run_pgid_of $$)")
 
   native_run_watchdog "${pid}" "${pgid}" "${deadline}" "${grace}" \
-    "${sentinel}" "${timeout_flag}" &
+    "${sentinel}" "${timeout_flag}" > /dev/null 2>&1 &
   watchdog=$!
 
   wait "${pid}" || status=$?
   rm -f "${sentinel}"
   if [[ -f ${timeout_flag} ]]; then
     wait "${watchdog}" 2> /dev/null || true
-    rm -f "${timeout_flag}"
+    rm -f "${timeout_flag}" "${sentinel}.wait"
     native_run_outcome=timeout
     return 124
   fi
-  kill -s TERM "${watchdog}" 2> /dev/null || true
-  wait "${watchdog}" 2> /dev/null || true
-  rm -f "${timeout_flag}"
+  native_run_stop_watchdog "${watchdog}"
+  rm -f "${timeout_flag}" "${sentinel}.wait"
   return "${status}"
 }
 

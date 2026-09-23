@@ -79,6 +79,7 @@ native_result_finalize_journey() {
     native_result_input_hash_line tests/support/native-journey-state.sh
     native_result_input_hash_line tests/support/native-adr-behavior.sh
     native_result_input_hash_line tests/support/native-run-supervise.sh
+    native_result_input_hash_line tests/support/native-run-watchdog.sh
     native_result_input_hash_line tests/support/native-codex.sh
     native_result_input_hash_line src/skills/dough-update/SKILL.md
     native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md

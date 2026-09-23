@@ -35,6 +35,7 @@ delivery_evidence_consumers_write_evidence_identity() {
     tests/support/delivery-evidence-consumers-native-scenario-content.sh
   native_result_input_hash_line tests/support/git-publication-native-run.sh
   native_result_input_hash_line tests/support/native-run-supervise.sh
+  native_result_input_hash_line tests/support/native-run-watchdog.sh
   native_result_input_hash_line \
     src/skills/dough-execute-plan/references/wrap-up.md
   native_result_input_hash_line \
