@@ -1,3 +1,10 @@
+## 0.3.32 - 2026-09-23
+
+- Close execution and story wrap-up through one shared CI-completion operation that waits for the worker to exit, preserves terminal success, failure, timeout, and unavailable-observation evidence, and keeps completion monitoring bound to the correct stream identity.
+- Rework the published-work dashboard around a compact pinned Open Dough banner. Keep project selection and refresh controls available while scrolling, expose near-future direction on demand, explain preparation badges in an accessible help dialog, and document the resulting navigation model.
+
+No additional native acceptance was run for `0.3.32` at the maintainer's request. Native acceptance for the shared CI-completion lifecycle, compact dashboard controls, and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.31 - 2026-09-23
 
 - Recognize GitHub Actions push path policies that explicitly match every branch when deciding whether CI applies, while continuing to fail closed on unsupported branch or tag filters and duplicate event definitions. Preserve exact-revision coverage and ignored-only handling for these workflows.
