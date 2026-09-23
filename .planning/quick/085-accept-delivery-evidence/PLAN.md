@@ -15,9 +15,10 @@ checkout: `/Users/terryyin/git/open-dough` on `main`.
 Published claim `59b76944b466ecccbfd985a211c78a6e385569a8` accepted on
 `refs/heads/main`. Claim CI is `pendingCi: unobserved`: the story-branch
 observer does not cover trunk. Slice 1 increment
-`2e96700a5e2aae750950fe7095e788cd605ef1bd` accepted on
+`2e96700a5e2aae750950fe7095e788cd605ef1bd` and slice 2 increment
+`7b564d8a5a093a5dc17761708f5a6f79a670ee29` accepted on
 `refs/heads/cursor/085-accept-delivery-evidence` and registered with the
-observer (`undiscovered` at registration). Default-checkout refresh is deferred
+observer (slice 2 `undiscovered` at registration). Default-checkout refresh is deferred
 (`unclear-ownership`); that checkout stayed clean on `main` at `ddcd604`.
 
 Replanning permission: existing planning authority retained. No numeric slice
@@ -137,9 +138,9 @@ skill behavior. A green exit or matching instruction words cannot pass a case.
 Extend the existing native acceptance journey entry point with bounded
 `delivery-evidence/selection`, `delivery-evidence/claims`,
 `delivery-evidence/consumers`, and `delivery-evidence/gaps` cases.
-`delivery-evidence/selection` and `delivery-evidence/claims` are implemented.
-`delivery-evidence/consumers` and `delivery-evidence/gaps` remain
-planned additions. Each case includes its
+`delivery-evidence/selection`, `delivery-evidence/claims`, and
+`delivery-evidence/consumers` are implemented. `delivery-evidence/gaps`
+remains a planned addition. Each case includes its
 sufficient-evidence control. The intended command after implementation is:
 `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE --results-dir DIR`.
 Record literal resolved commands, selected observations, candidate/runtime,
@@ -228,7 +229,18 @@ escaped historical defect. Safe stop: user reports no longer promote that unsupp
 
 ### 3. Changed shared contracts refresh affected-consumer proof
 Type: Behavior
-Status: planned
+Status: done
+
+Accepted proof: `bash tests/git-publication-native.sh` passed before a
+comment-only observe trim, so that rerun was not required. Assessor
+counterexamples in `tests/support/delivery-evidence-consumers-native-assess.sh`
+reject acceptance on a stale exclusion and accept an aligned consumer with
+compatibility proof plus an unchanged unrelated boundary. Cursor
+`bash tests/git-publication-native.sh --native cursor --case delivery-evidence/consumers --results-dir .planning/native-results/delivery-evidence-consumers-r1`
+left the one-arg stand-in incomplete, accepted the two-arg stand-in after
+`releaseTag` assertions, and reused the unchanged badge proof. Setup is
+`tests/support/delivery-evidence-consumers-native-scenario-content.sh`.
+Codex and Claude native runs for this case are pending, not passed.
 
 Behavior: Given a previously valid unaffected-suite assessment and a subsequent
 factory signature change, acceptance checks its current consumers, finds the

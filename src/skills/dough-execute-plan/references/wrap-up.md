@@ -33,6 +33,16 @@ A selected test count supports that check; it is never the full promise mapping.
 Reuse a trustworthy recorded selection and result when they still match the
 claimed command, filter, and candidate; do not rerun solely for process.
 
+When the return covers a changed shared operation or contract, check that
+contract's current consumers — including relevant test-support callers — against
+the claimed proof. Do not accept on a prior unaffected-suite or unused-consumer
+exclusion when the changed contract still reaches that caller: align the affected
+consumer and obtain matching proof, or leave the promise incomplete. Unrelated
+consumers and unchanged boundaries keep their accepted evidence. Reuse sufficient
+equivalent-purpose proof; do not require every suite or all callers. Apply the
+shared-operation caller analysis in
+[own executable proof](../../dough-story-refinement/references/planning.md#own-executable-proof).
+
 Accept only the observations the inspected locations and result support. Retain
 the promise, accepted boundary, inspected locations, and literal command in the
 current slice wrap-up so refactoring can distinguish a proof reference from

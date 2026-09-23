@@ -2039,6 +2039,38 @@ consult both lists when matching findings or allocating identities.
 - **Source mappings:** Pygardon / DD-063
 - **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). Related to production caller analysis, but this is a test-support consumer missed through stale suite applicability, not incompatible production query purposes. Related to ODF-003, but not a file-type assumption. Keep these mechanisms separate.
 
+- **Status:** Addressed in source; effectiveness unverified.
+- **Response:** Slice 3 of plan 085 (`SEED-004#accept-delivery-evidence`) extends
+  shared-operation caller analysis in
+  `src/skills/dough-story-refinement/references/executable-proof.md` to relevant
+  test-support callers and invalidates a stale unaffected-suite exclusion when
+  the changed contract still reaches that caller. The same `#accept-proof`
+  decision in `src/skills/dough-execute-plan/references/wrap-up.md` requires
+  checking current consumers (including test-support) before accepting
+  changed-contract proof; unrelated consumers and unchanged boundaries retain
+  accepted evidence. `src/skills/dough-execute-plan/references/delegation.md`
+  indexes which consumers were considered versus still-excluded callers and
+  links acceptance to `#accept-proof`. Credential-free assessor coverage is
+  `delivery-evidence/consumers` via
+  `tests/support/delivery-evidence-consumers-native-assess.sh` (rejects
+  stale-exclusion acceptance and accept-without-alignment; accepts incomplete
+  gap naming, corrected consumer with executed compatibility proof, and the
+  unchanged-boundary retained-proof control; refuses instruction-words-only).
+  Native case registration:
+  `bash tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers --results-dir DIR`.
+  Fresh Cursor native proof on 2026-09-23
+  (`.planning/native-results/delivery-evidence-consumers-r1`) left the
+  changed-contract promise incomplete without accepting the stale
+  unaffected-suite exclusion, accepted the corrected consumer with aligned
+  stand-in and executed compatibility observation, and accepted the
+  unchanged-boundary control while retaining existing badge proof. Codex and
+  Claude Code native runs for this case were not completed in this slice and
+  are not passed. Containing release is pending. The historical occurrence
+  escaped into the owner project (not caught during Open Dough execution).
+  Watch start and review-after stay unknown until a released response has
+  verified relevant use (slice 4 owns that reconciliation).
+- **Released in:** pending.
+
 ### Occurrences
 
 - Execution: `.planning/quick/146-tag-triggered-release-publication/PLAN.md` (first implementation commit `a95f3c497`)
@@ -2060,7 +2092,7 @@ consult both lists when matching findings or allocating identities.
     slices without rechecking, and no suite that consumes the changed type was
     run.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **queued, refined and planned; not resolved**. Refined with Terry on 2026-09-23 around the four evidenced acceptance failures; [plan 085](../../.planning/quick/085-accept-delivery-evidence/PLAN.md) owns the response and per-finding evidence. Keep caught-during-execution versus escaped-defect distinctions and deduplicate shared execution evidence. Implementation and release remain pending; watch start and review-after are unknown. Update the response and assess near-term-watch eligibility at delivery; preparation starts no watch.
+- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 3 source response recorded above; not resolved**. Plan 085 owns remaining mechanism (gaps) and near-term-watch reconciliation at slice 4. Keep caught-during-execution versus escaped-defect distinctions. Release and effectiveness remain pending; watch start and review-after are unknown.
 
 ## ODF-076 — Known concurrent-state proof gaps are accepted at delivery
 

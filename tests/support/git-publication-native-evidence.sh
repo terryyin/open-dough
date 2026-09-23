@@ -50,6 +50,9 @@ git_publication_write_evidence_identity() {
     delivery-evidence-claims)
       delivery_evidence_claims_write_evidence_identity
       ;;
+    delivery-evidence-consumers)
+      delivery_evidence_consumers_write_evidence_identity
+      ;;
     *) return 2 ;;
   esac
 }
