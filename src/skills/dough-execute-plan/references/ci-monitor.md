@@ -9,9 +9,8 @@ Start one observer per repository/branch/coordinator before the first
 publication it must cover, where branch is the authorized **target** from the
 push destination, not the execution checkout's current branch. Trunk Mode
 observes shared trunk; Story Branch Mode observes the recorded remote
-execution branch it publishes. Reuse it
-across claim, normal, and repair pushes. Register each
-delivered revision through [slice delivery](wrap-up.md#deliver-the-change);
+execution branch it publishes. Reuse it across claim, normal, and repair pushes.
+Register each delivered revision through [slice delivery](wrap-up.md#deliver-the-change);
 register a Trunk Mode claim once the execution workspace exists and the observer
 is armed there. A Story Branch claim publishes to trunk before that
 story-branch observer exists or is armed, and trunk is not the target that
@@ -32,9 +31,8 @@ Verify the binding against the retained execution identity. Recover that
 observer from its `CI_OBSERVER` directory and coverage receipts before considering
 a replacement. A published SHA absent from those receipts is
 [missing CI registration](trunk-publication.md#resume-an-interrupted-publication).
-An unavailable host
-bridge is missing coverage: report it once and continue without promising
-notifications.
+An unavailable host bridge is missing coverage: report it once and continue
+without promising notifications.
 
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally. It never dispatches or retries a check, observes
@@ -64,9 +62,9 @@ polling or promised notifications.
 
 At a stop requiring human judgment, cancellation, or coordinator replacement,
 use the host adapter to stop the exact observer and confirm local shutdown. At
-normal execution completion, first follow
-[Await the applicable revision at completion](#await-the-applicable-revision-at-completion),
-handle its result, and only then use the host adapter to stop the exact observer.
+normal execution completion, follow
+[Await the applicable revision at completion](#await-the-applicable-revision-at-completion);
+that one operation owns the applicable wait and local shutdown together.
 Preserve unread evidence; missing terminal evidence means lost coverage. Handle
 delivered failures before claiming completion. Never kill by a broad process-name
 pattern. Retain installed hook registration; shutdown does not unregister or
@@ -78,31 +76,36 @@ rather than treating execution shutdown as the end of Trunk Mode observation.
 
 ## Await the applicable revision at completion
 
-The coordinator owns one bounded, read-only wait at the execution/review completion boundary.
-Use the observer bound to the actual publication target and its last accepted registered
-revision, never a newer tip, another writer's revision, or a pre-rebase candidate. Effective
-coverage already follows an ignored-only revision to its recorded basis. Local-only work creates
-no wait, and an unavailable retained bridge remains an explicit coverage limitation.
+The coordinator owns one bounded completion operation at the execution/review
+completion boundary. Use the observer bound to the actual publication target and
+its last accepted registered revision, never a newer tip, another writer's
+revision, or a pre-rebase candidate. Effective coverage already follows an
+ignored-only revision to its recorded basis. Local-only work creates no wait,
+and an unavailable retained bridge remains an explicit coverage limitation.
 
-When automatic retrospective is enabled, begin it as soon as implementation is delivered, even
-with applicable CI pending. Supply the observer, target, accepted revision, and pending state;
-delivered implementation, not an execution-completion banner, starts review. After review, invoke
-exactly one local reader before the final handoff. With `--skip-retro` or another explicit review
-omission, invoke it when execution reaches completion. Before invoking either path, follow the
-[completion-wait command and receipt mechanics](ci-completion-wait.md). At each safe boundary,
-handle any failure the observer has already delivered.
+When automatic retrospective is enabled, begin it as soon as implementation is delivered,
+even with applicable CI pending. Supply the observer, target, accepted revision,
+and pending state; delivered implementation, not an execution-completion banner,
+starts review. After review, invoke exactly one completion action before the
+final handoff. With `--skip-retro` or another explicit review omission, invoke
+it when execution reaches completion. Before invoking either path, follow the
+[completion command and receipt mechanics](ci-completion-wait.md). At each safe
+boundary, handle any failure the observer has already delivered.
 
-A successful receipt satisfies this observation. Failure returns to
-[Handle a notification](#handle-a-notification) at a safe boundary and never retries until green;
-missing repair authority, ownership, or a required decision leaves an incomplete execution with
-the failed revision and partial review preserved but no completion marker. An unresolved receipt
-establishes no success; report its exact reason and effective evidence. Observation cancellation
-is not execution cancellation.
+A successful receipt with confirmed shutdown satisfies this observation. Failure
+retains the observer and returns to
+[Handle a notification](#handle-a-notification) at a safe boundary and never
+retries until green; missing repair authority, ownership, or a required decision
+leaves an incomplete execution with the failed revision and partial review
+preserved but no completion marker. An unresolved receipt establishes no
+success; report its exact reason, effective evidence, and shutdown outcome.
+Observation cancellation is not execution cancellation.
 
-After handling the result, perform explicit observer shutdown and final reporting while preserving
-unread diagnostics. A separately authorized repair uses the existing publish/register path and
-invalidates only affected review conclusions. Its new accepted revision has a later completion
-boundary, not a retry. The retrospective gains no repair, commit, push, backlog, or observer authority.
+Do not run a separate stop, process poll, or terminal-report read after the
+completion receipt on the normal path. A separately authorized repair uses the
+existing publish/register path and invalidates only affected review conclusions.
+Its new accepted revision has a later completion boundary, not a retry. The
+retrospective gains no repair, commit, push, backlog, or observer authority.
 
 ## Handle a notification
 
@@ -225,13 +228,13 @@ until that missing history is accounted for.
    same agents with the repair commit or no-change finding, affected files, and
    saved handoff under the pause contract.
 
-On an unresolved repair, decision stop, or push failure, keep the saved stash OID and recovery note
-and report the exact state. Restore original work when it can be done without
-mixing or losing unfinished repair edits; otherwise keep agents paused with
-both sets of work preserved. Do not silently resume with missing changes or
-pretend the failure was repaired. Ordinary CI defects, including flaky tests,
-use this recovery flow; only unresolved value/design/credential decisions need
-the developer.
+On an unresolved repair, decision stop, or push failure, keep the saved stash OID
+and recovery note and report the exact state. Restore original work when it can
+be done without mixing or losing unfinished repair edits; otherwise keep agents
+paused with both sets of work preserved. Do not silently resume with missing
+changes or pretend the failure was repaired. Ordinary CI defects, including
+flaky tests, use this recovery flow; only unresolved value/design/credential
+decisions need the developer.
 
 ## Pause and resume writers
 

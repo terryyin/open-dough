@@ -104,7 +104,7 @@ Both slices must pass these non-behavioral checks:
 ### 1. Finish execution through one CI completion operation
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: delivered work reaches its execution/review completion boundary → the
 agent invokes the shared completion action for its retained mailbox and accepted
@@ -246,8 +246,48 @@ No claim, implementation, commit, or publication is part of this preparation.
 Plan root/layout recovered from this project's completed plans in Git; 078 is the
 highest allocated entry observed, and 079 was checked absent before writing.
 
+## Execution resume
+
+Mode: Story Branch. Replanning permission: existing planning authority preserved
+(no `--replan` or `--no-replan`).
+
+Owned workspace: `/Users/terryyin/git/open-dough-worktrees/079-complete-ci-observation`,
+branch `cursor/079-complete-ci-observation`, starting revision
+`de32de87ff83d7175a065ae82d05b20a816f849a`, created for this execution.
+Originating checkout and integration checkout: `/Users/terryyin/git/open-dough`.
+
+Published claim: `1352844646ab35356446b9807fc6f9146ba25ea9` accepted on
+`refs/heads/main`. `pendingCi: unobserved` — trunk is not the Story Branch
+observer target. Default-checkout refresh: advanced to that same SHA.
+
+Increment target: `refs/heads/cursor/079-complete-ci-observation`.
+Observer: `/tmp/dough-ci-501/watch-9Auvy6`, GitHub Actions workflow `ci.yml`
+display name `CI`, repository `terryyin/open-dough`, branch
+`cursor/079-complete-ci-observation`. Checkout preparation: `npm ci` then
+`npm run lint` passed in the owned workspace.
+
 ## Learnings and accepted proof
 
-Planning inspection only. No implementation or new behavioral/native proof has run.
-Existing tests and recovered plan 077 establish proof entry points and historical
-contracts, not acceptance of this change. Store execution results here when run.
+Slice 1 accepted. `complete-revision` composes `awaitRevision` and conditional
+`stopMailbox` in `ci-mailbox-complete.mjs`. Success and bounded unresolved
+outcomes shut down together; failure, unread actionable failure, and
+`wait_cancelled` retain the observer. `await-revision` stays read-only. Closure
+still uses its existing wait and stop until slice 2.
+
+Accepted deterministic proof, rerun after the completion module extraction:
+
+```sh
+node --test src/skills/dough-execute-plan/scripts/ci-mailbox*.test.mjs src/skills/dough-execute-plan/scripts/ci-*-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs
+```
+
+Result: 70 pass. Observations live in
+`ci-mailbox-complete-{success,retain,unresolved}-cases.mjs`. Setup is process
+mailboxes and injected clocks. Eight-hour budget remains the assertion in
+`watch-ci-execution-coverage.test.mjs`.
+
+Accepted native execution-review observations under `/tmp/079-native-results`:
+Codex pending `20260923T020631-0ea4`, Cursor ready `20260923T020438-65c2`,
+Claude failure `20260923T020126-4284`, Claude ready `20260923T020306-1902`,
+Codex failure `20260923T020844-119e`, Cursor failure `20260923T022352-734e`.
+Each is one `complete-revision`, zero separate stop/await calls. Success shuts
+the worker down; failure leaves it alive. `forced-stop` is false.

@@ -21,33 +21,38 @@ const trunkPublication = read(
 );
 const storyWrapUp = read("dough-story-wrap-up/SKILL.md");
 
-test("review overlaps pending CI and one common wait owns final handoff", () => {
+test("review overlaps pending CI and one completion operation owns final handoff", () => {
   assert.match(
     monitor,
     /begin (?:it|the retrospective) as soon as implementation is delivered[\s\S]+CI pending/,
   );
-  assert.match(monitor, /invoke[\s\S]+exactly one local reader/);
-  assert.match(waitMechanics, /await-revision[\s\S]+FULL_ACCEPTED_SHA/);
+  assert.match(monitor, /invoke[\s\S]+exactly one completion action/);
+  assert.match(waitMechanics, /complete-revision[\s\S]+FULL_ACCEPTED_SHA/);
+  assert.match(
+    waitMechanics,
+    /Do not run a\s+separate stop[\s\S]+normal\s+completion path/,
+  );
   assert.match(
     monitor,
     /With `--skip-retro`[\s\S]+review[\s\S]+omission[\s\S]+execution reaches completion/,
   );
-  assert.match(completion, /never retries until green/);
+  assert.match(completion, /never\s+retries\s+until\s+green/);
   assert.match(
     monitor,
-    /repair authority[\s\S]+incomplete execution[\s\S]+no completion marker/,
+    /repair\s+authority[\s\S]+incomplete\s+execution[\s\S]+no\s+completion\s+marker/,
   );
   assert.match(monitor, /invalidates only affected review conclusions/);
-  assert.doesNotMatch(completion, /await-revision[^\n]+HEAD/);
+  assert.doesNotMatch(completion, /complete-revision[^\n]+HEAD/);
   assert.match(monitor, /Local-only work creates[\s\S]+no wait/);
   assert.match(
     waitMechanics,
-    /supplies only the local command and receipt mechanics/,
+    /supplies only the local command and receipt\s+mechanics/,
   );
+  assert.match(waitMechanics, /await-revision[\s\S]+read-only purpose/);
 
   assert.match(finish, /Do not emit[\s\S]+PLAN EXECUTION COMPLETE[\s\S]+first/);
   assert.match(finish, /partial review[\s\S]+applicable target\/revision/);
-  assert.match(finish, /`--skip-retro`[\s\S]+wait\/shutdown obligations/);
+  assert.match(finish, /`--skip-retro`[\s\S]+completion obligations/);
   assert.match(finish, /applicable CI failure[\s\S]+incomplete stop/);
 
   assert.match(
@@ -64,20 +69,19 @@ test("review overlaps pending CI and one common wait owns final handoff", () => 
   );
   assert.match(
     retrospective,
-    /do not end the turn at this marker[\s\S]+completion-wait/,
+    /do not end the turn at this marker[\s\S]+completion operation/,
   );
 });
 
-test("host adapters keep quiet delivery and perform shutdown only after the shared wait", () => {
+test("host adapters keep quiet delivery and reserve stop for cancellation", () => {
   for (const adapter of [codex, detached]) {
-    assert.match(adapter, /bounded wait/);
-    assert.match(adapter, /must\s+already have returned and been handled/);
+    assert.match(adapter, /completion operation/);
     assert.match(
       adapter,
-      /(?:stop binding|stop command) never substitutes\s+for\s+that wait/,
+      /(?:stop binding|stop command) never substitutes\s+for\s+that completion/,
     );
   }
-  assert.match(codex, /do not `write_stdin`\s+the stream PTY/);
+  assert.match(codex, /do not `write_stdin`\s+the\s+stream PTY/);
   assert.match(detached, /Pending polls and successful CI add no\s+context/);
 });
 

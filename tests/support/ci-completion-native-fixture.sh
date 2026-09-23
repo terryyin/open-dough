@@ -24,14 +24,15 @@ ci_completion_controller() {
   local scenario=$1
   local review_start="${ci_completion_project}/.planning/review-observation/start"
   local review_complete="${ci_completion_project}/.planning/review-observation/complete"
-  local await_pattern="await-revision ${ci_completion_mailbox} ${ci_completion_sha}"
+  local complete_pattern="complete-revision ${ci_completion_mailbox} ${ci_completion_sha}"
+  # Agents may quote paths or bypass the PATH node shim; accept either log.
+  local complete_seen="grep -F 'complete-revision' '${ci_completion_node_log}' | grep -F '${ci_completion_mailbox}' | grep -Fq '${ci_completion_sha}' || grep -F 'complete-revision' '${CI_COMPLETION_TRANSCRIPT:-/dev/null}' | grep -F '${ci_completion_mailbox}' | grep -Fq '${ci_completion_sha}'"
   case ${scenario} in
     pending | failure)
       ci_completion_wait_for review-start "test -f '${review_start}'" || return
       ci_completion_stamp review-start
-      ci_completion_wait_for await-start \
-        "grep -Fq '${await_pattern}' '${ci_completion_node_log}'" || return
-      ci_completion_stamp await-start
+      ci_completion_wait_for complete-start "${complete_seen}" || return
+      ci_completion_stamp complete-start
       : > "${ci_completion_release}"
       ci_completion_stamp ci-release
       ;;
@@ -47,9 +48,8 @@ ci_completion_controller() {
       ci_completion_stamp review-complete
       ;;
     skip-retro)
-      ci_completion_wait_for await-start \
-        "grep -Fq '${await_pattern}' '${ci_completion_node_log}'" || return
-      ci_completion_stamp await-start
+      ci_completion_wait_for complete-start "${complete_seen}" || return
+      ci_completion_stamp complete-start
       : > "${ci_completion_release}"
       ci_completion_stamp ci-release
       ;;
@@ -149,7 +149,7 @@ ci_completion_create_fixture() {
   printf '%s\n' \
     '#!/usr/bin/env bash' \
     'printf "%s\\n" "$*" >> "${CI_COMPLETION_NODE_LOG}"' \
-    'if [[ " $* " == *" await-revision "* ]]; then sleep 1; fi' \
+    'if [[ " $* " == *" complete-revision "* ]]; then sleep 1; fi' \
     "exec ${real_node_q} \"\$@\"" \
     > "${root}/bin/node"
   chmod +x "${root}/bin/node"

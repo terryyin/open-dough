@@ -33,6 +33,18 @@ function expectedWorkerCommand(directory) {
   return `${process.execPath} ${mailboxWorkerPath} worker ${directory}`;
 }
 
+function commandMatchesMailboxWorker(command, directory) {
+  if (command === expectedWorkerCommand(directory)) return true;
+  if (typeof command !== "string") return false;
+  // Accept any ci-mailbox worker bound to this exact mailbox directory. Hosts
+  // may resolve a different installed skill copy than the one that started the
+  // worker; the mailbox path is the identity that must not be confused.
+  return (
+    /(^|[/ ])ci-mailbox\.mjs worker /.test(command) &&
+    command.endsWith(` worker ${directory}`)
+  );
+}
+
 async function readProcessCommand(pid) {
   return new Promise((resolveCommand, rejectCommand) => {
     execFile(
@@ -67,7 +79,7 @@ function readProcessCommandSync(pid) {
 async function verifyMailboxWorker(pid, directory) {
   const command = await readProcessCommand(pid);
   if (command === undefined) return false;
-  if (command !== expectedWorkerCommand(directory))
+  if (!commandMatchesMailboxWorker(command, directory))
     throw new Error(`CI observer worker ${pid} does not match this mailbox`);
   return true;
 }
@@ -77,12 +89,24 @@ async function verifyMailboxWorker(pid, directory) {
 // command is reused/mismatched identity: this reports "unknown" rather than
 // "alive" or "dead" so callers neither reassure a coordinator nor act on an
 // unrelated process.
-export function checkMailboxWorkerLiveness({ pid } = {}, directory) {
+export function checkMailboxWorkerLiveness(
+  { pid } = {},
+  directory,
+  { readCommand = readProcessCommandSync } = {},
+) {
   if (!(Number.isSafeInteger(pid) && pid > 0)) return "unknown";
   if (!workerIsRunning(pid)) return "dead";
-  const command = readProcessCommandSync(pid);
+  let command;
+  try {
+    command = readCommand(pid);
+  } catch (error) {
+    // Permission-denied process inspection must not end a completion wait:
+    // the PID is live; command matching remains required before any signal.
+    if (error.code === "EPERM" || error.code === "EACCES") return "alive";
+    throw error;
+  }
   if (command === undefined) return "dead";
-  return command === expectedWorkerCommand(directory) ? "alive" : "unknown";
+  return commandMatchesMailboxWorker(command, directory) ? "alive" : "unknown";
 }
 
 // Read-only: reports an already-recorded loss, or newly detects one from the
