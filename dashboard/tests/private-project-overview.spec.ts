@@ -17,7 +17,7 @@
 
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectMembership, openDirection, parts } from "./dashboardPage";
 import {
   assertNoCredentialMarker,
   collectFiles,
@@ -130,6 +130,7 @@ function runScenario(mode: "dev" | "preview", port: number): void {
           taken: [takenTitle],
           backlog: [queuedTitle],
         });
+        await openDirection(page);
         await expect(direction).toContainText(directionText);
         await expect(source).toContainText(pygardonRepository);
         await expect(source).toContainText(revision);

@@ -102,9 +102,10 @@ test("story readiness shows labeled preparation on public cards from CLI-committ
       ).toHaveCount(0);
 
       await expect(source).toContainText(openDough.revision);
-      await expect(
-        page.getByRole("region", { name: "Preparation badges" }),
-      ).toBeVisible();
+      await parts(page).preparationHelp.click();
+      const legend = page.getByRole("dialog", { name: "Preparation badges" });
+      await expect(legend).toBeVisible();
+      await legend.getByRole("button", { name: "Close" }).click();
       await expect(
         page.getByText("Unpushed local edit that must stay invisible"),
       ).toHaveCount(0);

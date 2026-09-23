@@ -52,6 +52,7 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
    or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only
    or: tests/git-publication-native.sh --native HOST --case story-branch-closure/source-conflict
+   or: … --results-dir DIR  (with --native; retains inspectable observations)
 Credential-free default exercises the publication assessor and substitute
 runner. --native HOST requires that host's CLI and runs the host's assigned
 fresh-proof journeys against an installed candidate. --case selects one live
@@ -62,6 +63,7 @@ EOF
 native_flag=0
 host_arg=''
 case_arg=''
+results_dir_arg=''
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -76,6 +78,15 @@ while [[ $# -gt 0 ]]; do
         exit 2
       fi
       case_arg=$2
+      shift 2
+      ;;
+    --results-dir)
+      if [[ $# -lt 2 ]]; then
+        echo 'error: missing --results-dir value' >&2
+        usage
+        exit 2
+      fi
+      results_dir_arg=$2
       shift 2
       ;;
     --help | -h)
@@ -100,8 +111,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${native_flag} -eq 0 ]]; then
-  if [[ -n ${host_arg} || -n ${case_arg} ]]; then
-    echo 'error: a host and --case require --native' >&2
+  if [[ -n ${host_arg} || -n ${case_arg} || -n ${results_dir_arg} ]]; then
+    echo 'error: a host, --case, and --results-dir require --native' >&2
     usage
     exit 2
   fi
@@ -124,4 +135,4 @@ if [[ -n ${case_arg} ]] && ! native_case_known "${case_arg}"; then
   exit 2
 fi
 
-run_native_host "${host_arg}" "${case_arg}"
+run_native_host "${host_arg}" "${case_arg}" "${results_dir_arg}"

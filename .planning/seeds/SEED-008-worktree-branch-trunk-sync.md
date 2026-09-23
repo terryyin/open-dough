@@ -302,9 +302,9 @@ truthful publication ownership without bypassing host restrictions.
 ### Reduce CI observer overhead across execution and wrap-up
 
 The retired identity `SEED-008#reduce-ci-observer-overhead` is not queued or
-reallocated. Its remaining outcomes are the active
-[completion story](#self-ending-ci-observer) and queued
-[CI/delivery story](#script-driven-ci-observation).
+reallocated. Its remaining outcomes are the delivered
+[completion operation](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
+and queued [CI/delivery story](#script-driven-ci-observation).
 
 Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure
@@ -314,95 +314,6 @@ full investigation is retained in Git at `1352844` and linked findings
 Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope below replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
-
-<a id="self-ending-ci-observer"></a>
-
-### End CI observation without agent bookkeeping at execution and wrap-up
-
-**Identity:** SEED-008#self-ending-ci-observer
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/079-complete-ci-observation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f46a39ca1aeae7e517072d833d50c3bd3eec2f300d12ae904e37ec3ad665429c","plan":"5883ccfb20da262c7269126c83e8445c5819f56c7527af24970db74510a394b4"}}
-```
-
-**Status:** Refined with Terry on 2026-09-23; planning authorized, execution
-not authorized by this preparation.
-
-**Goal:** A developer's executing agent finishes execution and wrap-up with
-trustworthy CI evidence without a separate observer-shutdown procedure or
-coverage-report reading ritual. Reduce agent attention and instructions needed
-for completion, while preserving failure handling and safe resource cleanup.
-
-**Scope:** Use the existing completion boundary to own bounded observation and
-local shutdown together. After success or an unresolved completion outcome, one
-operation returns the applicable evidence and shutdown result; the agent handles
-that receipt without a separate stop or process-check sequence. A failure stays
-under existing diagnosis/repair ownership before completion; explicit stop
-remains available for cancellation and human-judgment stops. Keep observer
-lifetime bounded when the coordinator disappears.
-
-Execution and wrap-up share this behavior across Trunk and Story Branch modes.
-Wrap-up may still need an observer for later publications or a different target;
-this story does not promise to eliminate that setup. Ordinary slice delivery
-continues observing without waiting or inferring completion from inactivity.
-Unconfirmed shutdown prevents removal of resources still needed by the observer.
-
-**Non-behavioral acceptance requirements (Terry, 2026-09-23):**
-
-- Architecture stays consistent and cohesive: reuse the existing coverage,
-  mailbox, shutdown, and host-delivery owners; remove duplicate lifecycle policy
-  rather than creating a second observer, state representation, or framework.
-- The agent's instructions become clearer and shorter. Replace the separate
-  wait/stop/report recipe with one authoritative completion rule and necessary
-  links. Review the whole reading path, including adapters and recovery, for
-  reduced commands, branching, repetition, and interpretation. Moving the same
-  burden into another reference or appending more reminders does not satisfy
-  this requirement. Preserve precise failure and cleanup safeguards.
-
-**Key examples:**
-
-- Execution reaches completion with pending or already-green applicable CI →
-  one completion operation returns its evidence and confirms local shutdown →
-  the agent finishes without a separate stop, process check, or report read.
-- CI passes between slices and later work takes a long time → the observer
-  remains usable for the next registered publication; inactivity is not finish.
-- CI fails, including failure whose diagnostics arrive later → diagnosis and
-  authorized repair retain their observation owner; no success or premature
-  cleanup is claimed. Repair publication reaches a later completion boundary.
-- Completion times out or observation becomes unavailable → one receipt retains
-  the unresolved reason and shutdown outcome; uncertainty never becomes green.
-- Wrap-up publishes final closure, or integrates a story branch into trunk →
-  completion uses the exact accepted revision on its actual target before
-  deleting the owned checkout; earlier branch success cannot cover trunk.
-- Coordinator disappears → the existing finite observer budget bounds polling;
-  explicit cancellation still stops only the identified observer.
-
-**Why now / alternatives:** The remaining shutdown recipe is confirmed in
-current guidance, but its token/time saving is not measured. Earlier discovery
-noise reduction and completion waits shipped in 0.3.29 and 0.3.30. Terry accepted
-the narrower completion-operation recommendation on 2026-09-23. Keep this as a
-small simplification at its existing priority; if it grows into an idle/restart
-lifecycle, revisit priority against published ownership visibility. The original
-idle-expiry proposal is superseded: all currently registered revisions being
-terminal does not establish that another slice will not publish later.
-
-**Deferred promises:** Automatic startup or registration, elimination of mailbox
-handles, session-end hooks, shared cross-agent observers, provider or path-policy
-expansion, dashboard CI views, publication changes, and release/version work.
-No idle duration or new lifecycle configuration is needed for this outcome.
-
-**Architecture:** Follow Accepted ADRs
-[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-(high cohesion and less residual judgment) and
-[0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-(one authoritative, concise runtime rule), and
-[0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) for affected host
-behavior. Apply [maintainer guidance](../../AGENTS.md) to source skill edits.
-
-**Dependencies and safe stopping point:** Applicable-revision waiting is already
-delivered. The agent still starts and registers observation, but routine
-completion needs no separate closing procedure even if the next automation
-story is cancelled. No unresolved product decision remains. The earlier S label
-was an unvalidated hypothesis; the plan owns boundedness and proof.
 
 <a id="script-driven-ci-observation"></a>
 
@@ -458,7 +369,8 @@ claim acceptance does not imply coverage by a story-branch observer. Preparation
 and closure adoption remain separate callers with their own authority/targets.
 
 **Depends on:** [Startup publication](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work) supplies
-the production boundary. [CI completion](#self-ending-ci-observer), already Taken,
+the production boundary. Delivered
+[CI completion](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
 supplies bounded completion/shutdown. Neither a new readiness framework nor
 checkout coordination is required.
 

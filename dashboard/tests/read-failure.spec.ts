@@ -39,7 +39,7 @@ async function expectProblemAndNoSnapshot(page: Page, problemText: string) {
   await expect(problem).toContainText(
     "No published work is shown, because none has been read.",
   );
-  await expect(page.getByRole("button")).toHaveText(["Retry"]);
+  await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
   await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);
@@ -134,11 +134,12 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveText([
-    "Refresh",
-    "Inspect story",
-    "Inspect story",
-  ]);
+  await expect(page.getByRole("button")).toHaveCount(4);
+  await expect(parts(page).preparationHelp).toHaveCount(1);
+  await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
+  await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
+    2,
+  );
 });
 
 test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only when asked", async ({
@@ -235,13 +236,12 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveText([
-    "Refresh",
-    "Inspect story",
-    "Inspect story",
-    "Inspect story",
-    "Inspect story",
-  ]);
+  await expect(page.getByRole("button")).toHaveCount(6);
+  await expect(parts(page).preparationHelp).toHaveCount(1);
+  await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
+  await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
+    4,
+  );
   await expect(refresh).toBeFocused();
   expect(pathsRead(origin)).toHaveLength(4);
 });

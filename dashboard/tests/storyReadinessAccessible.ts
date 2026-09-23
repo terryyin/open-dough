@@ -145,11 +145,11 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
       .getByRole("article", { name: plannedBlocked.title })
       .getByText("Not ready", { exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("region", { name: "Preparation badges" }),
-  ).toBeVisible();
-
+  await parts(page).preparationHelp.click();
+  const legend = page.getByRole("dialog", { name: "Preparation badges" });
+  await expect(legend).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
+  await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", rateLimitedAnswer());
   await refresh.click();
@@ -187,11 +187,13 @@ export async function expectBadgeTextContrastAndReducedMotion(
   await expectReadableContrast(slicePlanned);
   await expectReadableContrast(ready);
   await expectReadableContrast(notReady);
+  await parts(page).preparationHelp.click();
+  const legend = page.getByRole("dialog", { name: "Preparation badges" });
   await expectReadableContrast(
-    page
-      .getByRole("region", { name: "Preparation badges" })
-      .getByText("Not refined", { exact: true }),
+    legend.getByText("Not refined", { exact: true }),
   );
+  await expectImmediateMotion(legend);
+  await legend.getByRole("button", { name: "Close" }).click();
 
   await expectImmediateMotion(readyCard);
   await readyCard.getByRole("button", { name: "Inspect story" }).click();

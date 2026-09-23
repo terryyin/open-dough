@@ -214,5 +214,6 @@ before a dependent slice starts.
 
 ## Finish or stop
 
-Follow [finish or stop](references/finish-or-stop.md) for observer shutdown, completion
-reporting and its markers, automatic retrospective invocation, and incomplete-work reporting.
+Follow [finish or stop](references/finish-or-stop.md) for the completion
+operation, reporting and its markers, automatic retrospective invocation, and
+incomplete-work reporting.

@@ -1,0 +1,127 @@
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  grid-template-rows: 2.75rem auto;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem clamp(0.75rem, 4vw, 1.5rem);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 750;
+}
+
+.banner .project-select {
+  justify-self: end;
+}
+
+.banner .project-select label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.banner .source {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+.source-evidence {
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.source-evidence summary {
+  cursor: pointer;
+  width: fit-content;
+  min-height: 1.5rem;
+}
+
+.source-evidence-body {
+  max-height: calc(100dvh - 9rem);
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem;
+}
+
+html {
+  scroll-padding-top: calc(var(--banner-height, 0px) + 1rem);
+}
+
+.project-select {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-select select {
+  font: inherit;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.35rem;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.source dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+
+.source dt,
+.source dd {
+  display: inline;
+}
+
+.source dt {
+  margin-right: 0.4rem;
+}
+
+.source-note {
+  margin-top: 0.25rem;
+}
+
+.refresh {
+  position: absolute;
+  right: clamp(0.75rem, 4vw, 1.5rem);
+  top: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.35rem;
+  font: inherit;
+  color: var(--panel);
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.refresh svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Reading is announced in the page; the dashed edge and quiet fill repeat it. */
+.refresh[aria-disabled="true"] {
+  border: 1px dashed var(--edge);
+  color: var(--quiet);
+  background: var(--surface);
+  cursor: default;
+}

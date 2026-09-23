@@ -29,9 +29,9 @@ purposes; another public CLI family is unnecessary for an internal seam.
 
 ## Existing owners and constraints
 
-Inspected publication sources at `7985630`; the refinement workspace now includes
-CI completion planning and Take through `1352844`. That active story and plan
-are preserved, not redesigned by this review.
+Backlog mutation, startup publication, checkout maintenance, and CI completion
+have separate owners. Delivery, preparation, and closure can adopt the shared
+publisher at their own boundaries.
 
 | Owner | Reuse and limitation |
 | --- | --- |
@@ -95,8 +95,8 @@ current. Failed fetch or failure to establish fresh execution input stops startu
 deferred local maintenance does not. Report the fetched head observed, not a
 promise to remain equal to a continuously moving remote.
 
-The first story uses existing genuine access authority where available and defers
-otherwise. The existing checkout-coordination story later automates cooperative
+Startup uses existing genuine access authority where available and defers
+otherwise. Checkout coordination may later automate cooperative
 access. Direct edits and refresh share that one access owner; remote publication
 from another worktree does not acquire it. Nonparticipating human/tool edits
 still require preservation and conservative refusal; a cooperative lock cannot

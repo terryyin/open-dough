@@ -21,33 +21,35 @@ const trunkPublication = read(
 );
 const storyWrapUp = read("dough-story-wrap-up/SKILL.md");
 
-test("review overlaps pending CI and one common wait owns final handoff", () => {
+test("review overlaps pending CI and one completion operation owns final handoff", () => {
   assert.match(
     monitor,
-    /begin (?:it|the retrospective) as soon as implementation is delivered[\s\S]+CI pending/,
+    /begin (?:it|the retrospective) as soon as implementation is[\s\S]+delivered[\s\S]+CI pending/,
   );
-  assert.match(monitor, /invoke[\s\S]+exactly one local reader/);
-  assert.match(waitMechanics, /await-revision[\s\S]+FULL_ACCEPTED_SHA/);
-  assert.match(
-    monitor,
-    /With `--skip-retro`[\s\S]+review[\s\S]+omission[\s\S]+execution reaches completion/,
-  );
-  assert.match(completion, /never retries until green/);
-  assert.match(
-    monitor,
-    /repair authority[\s\S]+incomplete execution[\s\S]+no completion marker/,
-  );
-  assert.match(monitor, /invalidates only affected review conclusions/);
-  assert.doesNotMatch(completion, /await-revision[^\n]+HEAD/);
-  assert.match(monitor, /Local-only work creates[\s\S]+no wait/);
+  assert.match(monitor, /invoke[\s\S]+exactly one[\s\S]+completion action/);
+  assert.match(waitMechanics, /complete-revision[\s\S]+FULL_ACCEPTED_SHA/);
   assert.match(
     waitMechanics,
-    /supplies only the local command and receipt mechanics/,
+    /Do not run a\s+separate stop[\s\S]+normal\s+completion path/,
   );
+  assert.match(monitor, /`--skip-retro`[\s\S]+(?:review[\s\S]+)?omission/);
+  assert.match(completion, /never\s+retries\s+until\s+green/);
+  assert.match(
+    monitor,
+    /repair[\s\S]+authority[\s\S]+incomplete[\s\S]+work[\s\S]+no[\s\S]+completion marker/,
+  );
+  assert.match(monitor, /invalidates only affected review conclusions/);
+  assert.doesNotMatch(completion, /complete-revision[^\n]+HEAD/);
+  assert.match(monitor, /Local-only work[\s\S]+create[s]?[\s\S]+no[\s\S]+wait/);
+  assert.match(
+    waitMechanics,
+    /supplies only the local[\s\S]+command and receipt[\s\S]+mechanics/,
+  );
+  assert.match(waitMechanics, /await-revision[\s\S]+read-only purpose/);
 
   assert.match(finish, /Do not emit[\s\S]+PLAN EXECUTION COMPLETE[\s\S]+first/);
   assert.match(finish, /partial review[\s\S]+applicable target\/revision/);
-  assert.match(finish, /`--skip-retro`[\s\S]+wait\/shutdown obligations/);
+  assert.match(finish, /`--skip-retro`[\s\S]+completion obligations/);
   assert.match(finish, /applicable CI failure[\s\S]+incomplete stop/);
 
   assert.match(
@@ -64,44 +66,75 @@ test("review overlaps pending CI and one common wait owns final handoff", () => 
   );
   assert.match(
     retrospective,
-    /do not end the turn at this marker[\s\S]+completion-wait/,
+    /do not end the turn at this marker[\s\S]+completion operation/,
   );
 });
 
-test("host adapters keep quiet delivery and perform shutdown only after the shared wait", () => {
+test("host adapters keep quiet delivery and reserve stop for cancellation", () => {
   for (const adapter of [codex, detached]) {
-    assert.match(adapter, /bounded wait/);
-    assert.match(adapter, /must\s+already have returned and been handled/);
+    assert.match(adapter, /completion operation/);
     assert.match(
       adapter,
-      /(?:stop binding|stop command) never substitutes\s+for\s+that wait/,
+      /(?:stop binding|stop command) never substitutes\s+for\s+that completion/,
     );
   }
-  assert.match(codex, /do not `write_stdin`\s+the stream PTY/);
+  assert.match(codex, /do not `write_stdin`\s+the\s+stream PTY/);
   assert.match(detached, /Pending polls and successful CI add no\s+context/);
 });
 
-test("Trunk Mode closure waits for the final accepted revision before shutdown and cleanup", () => {
+test("Trunk Mode and Story Branch closure share one completion operation before cleanup", () => {
   assert.match(
     trunkPublication,
-    /last[\s\S]+wrap-up publication[\s\S]+shared completion wait[\s\S]+final accepted SHA/,
+    /last[\s\S]+wrap-up[\s\S]+publication[\s\S]+shared completion operation[\s\S]+final accepted SHA/,
   );
   assert.match(
     trunkPublication,
-    /verdict or bounded exception before[\s\S]+stopping only that observer/,
+    /combined[\s\S]+CI and shutdown receipt[\s\S]+report the exact[\s\S]+published closure SHAs/,
   );
   assert.match(
     trunkPublication,
-    /never between intermediate[\s\S]+recovery-record publications/,
+    /never between[\s\S]+intermediate[\s\S]+recovery-record publications/,
   );
   assert.match(
     trunkPublication,
-    /unavailable[\s\S]+report it truthfully[\s\S]+without inventing successful observation/,
+    /Unconfirmed[\s\S]+shutdown or retained observation preserves those resources/,
+  );
+  assert.match(
+    trunkPublication,
+    /unavailable[\s\S]+report it truthfully[\s\S]+without inventing[\s\S]+successful observation/,
+  );
+  assert.match(
+    trunkPublication,
+    /close the observer bound to the remote execution[\s\S]+branch with[\s\S]+shared completion operation/,
+  );
+  assert.match(
+    trunkPublication,
+    /green[\s\S]+execution-branch receipt covers only that branch[\s\S]+never releases later trunk/,
+  );
+  assert.match(
+    trunkPublication,
+    /accepted integrated SHA[\s\S]+trunk observer[\s\S]+combined receipt/,
+  );
+  assert.doesNotMatch(
+    trunkPublication,
+    /stopping only that observer through the host adapter/,
+  );
+  assert.doesNotMatch(
+    trunkPublication,
+    /then explicitly stop the trunk observer/,
   );
   assert.match(
     storyWrapUp,
-    /final accepted closure[\s\S]+bounded CI result handled[\s\S]+observer shut down[\s\S]+remove/,
+    /final accepted closure has a completion receipt whose shutdown is[\s\S]+confirmed[\s\S]+remove/,
   );
-  assert.match(storyWrapUp, /bounded wait receipt/);
+  assert.match(storyWrapUp, /completion receipt \(CI verdict/);
   assert.match(storyWrapUp, /Local-only[\s\S]+does not push/);
+  assert.match(
+    monitor,
+    /wrap-up closure on the[\s\S]+authorized[\s\S]+target[\s\S]+Story Branch trunk integration/,
+  );
+  assert.match(
+    monitor,
+    /[Ii]ntermediate[\s\S]+closure publications create no[\s\S]+wait/,
+  );
 });

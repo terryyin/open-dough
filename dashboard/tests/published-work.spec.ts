@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectMembership, openDirection, parts } from "./dashboardPage";
 import {
   commitAnswer,
   emptyBacklog,
@@ -124,6 +124,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
   });
 
   await test.step("direction and source evidence sit outside the stage", async () => {
+    await openDirection(page);
     await expect(direction).toContainText(
       "Give developers visibility into a project's published work.",
     );
@@ -182,6 +183,7 @@ test("published overview accepts successfully empty groups and no recorded direc
   await expect(backlog).toContainText("0 entries");
   await expect(connector).toBeVisible();
   await expect(stages.getByRole("article")).toHaveCount(0);
+  await openDirection(page);
   await expect(direction).toContainText(
     "No near-future direction is recorded.",
   );

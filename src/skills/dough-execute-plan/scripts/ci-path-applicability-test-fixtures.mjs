@@ -55,6 +55,21 @@ export const acceptedWorkflow = [
   "",
 ].join("\n");
 
+export const allBranchesWorkflow = [
+  "name: CI",
+  "on:",
+  "  push:",
+  "    branches:",
+  '      - "**"',
+  "    paths-ignore:",
+  '      - ".planning/**"',
+  '      - "docs/**"',
+  "jobs:",
+  "  check:",
+  "    runs-on: ubuntu-24.04",
+  "",
+].join("\n");
+
 function execFileSyncMkdirp(dir) {
   execFileSync("mkdir", ["-p", dir]);
 }

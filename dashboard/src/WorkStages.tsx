@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork";
-import { BadgeLegend, PreparationFacts } from "./PreparationCard";
+import { PreparationFacts } from "./PreparationCard";
+import { PreparationLegend } from "./PreparationLegend";
 import { RecordedLink } from "./RecordedLink";
 import { StoryDetail } from "./StoryDetail";
 import { stagesMarks, workCardMarks } from "./workFocus";
@@ -126,7 +127,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
   };
   return (
     <>
-      {showsPreparation && <BadgeLegend />}
+      {showsPreparation && <PreparationLegend />}
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
         <Stage
           name="Backlog"

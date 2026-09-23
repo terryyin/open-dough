@@ -8,6 +8,7 @@ import {
 } from "./ci-path-applicability.mjs";
 import {
   acceptedWorkflow,
+  allBranchesWorkflow,
   commitAll,
   exec,
   initRepo,
@@ -107,3 +108,37 @@ test("readWorkflowContentAtRevision reads the workflow text at a named revision 
     null,
   );
 });
+
+for (const paths of [[".planning"], ["docs"], [".planning", "docs"], ["src"]]) {
+  test(`all-branches push policy classifies changes under ${paths.join(" and ")} using ancestor evidence`, async (t) => {
+    const repo = await initRepo();
+    t.after(() => rmSync(repo, { recursive: true, force: true }));
+    writeWorkflow(repo, allBranchesWorkflow);
+    const ancestor = await commitAll(repo, "workflow");
+    for (const path of paths) {
+      await exec("mkdir", ["-p", join(repo, path)]);
+      writeFileSync(join(repo, path, "note.md"), "changed\n");
+    }
+    const registeredSha = await commitAll(repo, "change");
+    assert.deepEqual(
+      classifyRevisionApplicability({
+        repoDir: repo,
+        event: "push",
+        registeredSha,
+        candidateShas: [ancestor],
+      }),
+      paths.includes("src")
+        ? { result: "required" }
+        : { result: "not_required", basis: { sha: ancestor } },
+    );
+    assert.deepEqual(
+      classifyRevisionApplicability({
+        repoDir: repo,
+        event: "push",
+        registeredSha,
+        candidateShas: [],
+      }),
+      { result: "indeterminate", reason: "no-ancestor-basis" },
+    );
+  });
+}

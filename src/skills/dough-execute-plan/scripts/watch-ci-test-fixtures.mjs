@@ -4,7 +4,6 @@ import {
   mkdirSync,
   mkdtempSync,
   rmSync,
-  watch,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -40,21 +39,12 @@ export const scriptedGithub =
   };
 
 export async function waitForFile(path, timeoutMs = 5000) {
-  if (existsSync(path)) return;
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      subscription.close();
-      reject(new Error(`Missing ${path}`));
-    }, timeoutMs);
-    const check = () => {
-      if (!existsSync(path)) return;
-      clearTimeout(timer);
-      subscription.close();
-      resolve();
-    };
-    const subscription = watch(join(path, ".."), check);
-    check();
-  });
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path)) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new Error(`Missing ${path}`);
+    await pause(Math.min(20, remaining));
+  }
 }
 
 export async function waitForPidExit(pid, timeoutMs = 5000) {
