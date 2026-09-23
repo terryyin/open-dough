@@ -888,39 +888,8 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
-## DD-092 — Behavior-only delivery-evidence slices cloned native run scaffolding four times
-
-Plan 085 told slice 1 to create the smallest shared fixture/runner adaptation
-and keep it with the behavior rather than a standalone framework slice. Slices
-2–4 each shipped near-complete `delivery-evidence-*-native-run.sh` clones (and
-largely duplicated fixture scaffolding) instead of extending one harness.
-Aggregate residue is ~3.3k LOC across 20 support files; claims↔gaps run scripts
-are nearly identical rename-only diffs. Credential-free assessors and
-case-specific observe/assess/scenario bodies remain sound; orchestration is the
-waste.
-
-### Occurrences
-
-- Execution: `SEED-004#accept-delivery-evidence` / plan 085 @ `2e96700a5e2aae750950fe7095e788cd605ef1bd` (first implementation commit; clones completed through `a36f7ffd2050e23c1395438f9e389220be0b2787`)
-  - Timestamp: 2026-09-23T17:25:45+08:00
-  - Tool: Cursor
-  - Model: unknown
-  - Open Dough release: modified; revision a36f7ffd2050e23c1395438f9e389220be0b2787; base 0.3.32
-  - Evidence: Aggregate diff `59b76944..a36f7ffd` adds four parallel
-    `tests/support/delivery-evidence-{selection,claims,consumers,gaps}-native-*.sh`
-    sets; plan 085 Proof approach said first slice creates the shared
-    adaptation; retrospective correction plan
-    `.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
-  - Observed effect: Four Behavior slices delivered acceptance mechanisms with
-    Cursor native proof, but left shotgun run/fixture residue requiring a
-    follow-up Structure correction before maintainable extension.
-  - Inference: Keeping the fixture “with the behavior” plus Behavior-only
-    decomposition, without a Structure consolidation slice, induced copy-paste
-    across slices; per-slice post-change refactor could not see the later clones
-    as one concept until aggregate review.
-
 ## Retention
 
 - Highest allocated local number: 92
-- Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Recovery: `6cb67dbe680211ad64a60e7f50a0d413c7c68b20:DearDough.md` (DD-092); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

@@ -5,10 +5,11 @@ Status: planned. No execution has started or been authorized.
 ## Correction input
 
 **Source / provenance:** Execution retrospective of planned story
-`SEED-004#accept-delivery-evidence`, plan
-[085-accept-delivery-evidence](../085-accept-delivery-evidence/PLAN.md),
-seed
-[SEED-004#accept-delivery-evidence](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence).
+`SEED-004#accept-delivery-evidence`. Its spent plan and seed section are
+recoverable at
+`6cb67dbe680211ad64a60e7f50a0d413c7c68b20:.planning/quick/085-accept-delivery-evidence/PLAN.md`
+and
+`6cb67dbe680211ad64a60e7f50a0d413c7c68b20:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md`.
 Related published revisions attributable to that execution:
 claim `59b76944b466ecccbfd985a211c78a6e385569a8` on `refs/heads/main`;
 slices `2e96700a5e2aae750950fe7095e788cd605ef1bd`,
@@ -96,6 +97,5 @@ observe/assess differences — keep those case-local. No remaining
 slice-specific concern identified in this planning pass beyond that sizing
 guardrail.
 
-Execution requires separate authorization. Planning alone performs no
-harness edit, commit, push, or backlog change. Wrap-up of plan 085 owns
-whether to queue this correction.
+Execution requires separate authorization. This correction is queued first;
+queue membership alone does not start harness work.

@@ -1158,7 +1158,11 @@ consult both lists when matching findings or allocating identities.
     selection: a name-pattern proof never states how many tests it should
     select, so "passed" does not show that the slice's promises were exercised.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 1 source response recorded above; not resolved**. Source responses for ODF-057, ODF-063, ODF-075, and ODF-076 exist under plan 085 case names `delivery-evidence/selection`, `delivery-evidence/claims`, `delivery-evidence/consumers`, and `delivery-evidence/gaps`. None is released; relevant use of a released response is not verified. Watch start and review-after remain unknown. Keep caught-during-execution versus escaped-defect distinctions.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-058 — CLI reports lack assertions for their promised output
 
@@ -1545,7 +1549,11 @@ consult both lists when matching findings or allocating identities.
     "uncovered promises" but not for unexercised claims about added decisions.
     One execution; the countermeasure's effect is observed, not measured.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 2 source response recorded above; not resolved**. Source responses for ODF-057, ODF-063, ODF-075, and ODF-076 exist under plan 085 case names `delivery-evidence/selection`, `delivery-evidence/claims`, `delivery-evidence/consumers`, and `delivery-evidence/gaps`. None is released; relevant use of a released response is not verified. Watch start and review-after remain unknown. Keep caught-during-execution versus escaped-defect distinctions.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-064 — Corrections after refactoring skip a renewed review
 
@@ -2096,7 +2104,11 @@ consult both lists when matching findings or allocating identities.
     slices without rechecking, and no suite that consumes the changed type was
     run.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 3 source response recorded above; not resolved**. Source responses for ODF-057, ODF-063, ODF-075, and ODF-076 exist under plan 085 case names `delivery-evidence/selection`, `delivery-evidence/claims`, `delivery-evidence/consumers`, and `delivery-evidence/gaps`. None is released; relevant use of a released response is not verified. Watch start and review-after remain unknown. Keep caught-during-execution versus escaped-defect distinctions.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-076 — Known concurrent-state proof gaps are accepted at delivery
 
@@ -2160,7 +2172,11 @@ consult both lists when matching findings or allocating identities.
     post-merge fix. Qualified: the omitted requeue case does not prove it would
     have caught the later active-task ownership race.
 
-- **Follow-up:** [Accept delivery only with evidence for affected promises](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — **in progress on story branch; slice 4 source response recorded above; not resolved**. Source responses for ODF-057, ODF-063, ODF-075, and ODF-076 exist under plan 085 case names `delivery-evidence/selection`, `delivery-evidence/claims`, `delivery-evidence/consumers`, and `delivery-evidence/gaps` (catalog entries above). None is released; relevant use of a released response is not verified. Watch start and review-after remain unknown. Keep caught-during-execution versus escaped-defect distinctions and the ODF-076 causal qualification.
+- **Follow-up:** [Accept delivery-evidence behavior in Codex and Claude
+  Code](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+  owns pending host proof. The source response is addressed but unreleased;
+  relevant use of a released response is unverified. Watch start and
+  review-after remain unknown.
 
 ## ODF-077 — Whole-suite recovery loses ownership and verdict evidence
 

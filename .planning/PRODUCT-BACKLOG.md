@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Accept delivery only with evidence for affected promises](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence) — SEED-004#accept-delivery-evidence ([plan](quick/085-accept-delivery-evidence/PLAN.md))
-
 ## Backlog list
 
 - [Share one delivery-evidence native harness for four cases](quick/086-share-delivery-evidence-native-harness/PLAN.md)
