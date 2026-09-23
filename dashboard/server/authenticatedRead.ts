@@ -6,8 +6,8 @@
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
 // `./requestedRead.ts`; gh calls: `./ghRead.ts`; path
 // reachability: `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`;
-// revision checks: `./revisionChecks.ts`; failure wording:
-// `./readFailureMessage.ts`. Node-only; never returns credentials, raw
+// revision checks: `./revisionChecks.ts`; failure wording and any directed
+// wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
 // stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -21,7 +21,7 @@ import {
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { PinnedTexts } from "./pinnedTexts";
 import { RevisionChecks } from "./revisionChecks";
-import { failureMessage } from "./readFailureMessage";
+import { reportedFailure, type ReportedFailure } from "./readFailureMessage";
 import { pathReachableFromRevision } from "./reachablePaths";
 import { parseRequestedRead, type RequestedRead } from "./requestedRead";
 import { sourceById, type PublishedSource } from "../src/publishedSource";
@@ -42,7 +42,7 @@ type Outcome =
       readonly status: number;
       readonly message: string;
     }
-  | { readonly kind: "failed"; readonly message: string };
+  | ({ readonly kind: "failed" } & ReportedFailure);
 
 type Boundary = {
   readonly tracked: Set<AbortController>;
@@ -147,7 +147,7 @@ async function perform(
       }
     });
   } catch (error) {
-    return { kind: "failed", message: failureMessage(error, source, reading) };
+    return { kind: "failed", ...reportedFailure(error, source, reading) };
   }
 }
 
@@ -204,7 +204,14 @@ function respond(res: ServerResponse, outcome: Outcome): void {
     return;
   }
   res.writeHead(outcome.kind === "refused" ? outcome.status : 502, headers);
-  res.end(JSON.stringify({ error: outcome.message }));
+  // An undefined directed wait is left out of the JSON answer altogether.
+  res.end(
+    JSON.stringify({
+      error: outcome.message,
+      retryAfterSeconds:
+        outcome.kind === "failed" ? outcome.retryAfterSeconds : undefined,
+    }),
+  );
 }
 
 function matchesEndpoint(req: IncomingMessage): boolean {

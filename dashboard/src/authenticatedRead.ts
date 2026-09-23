@@ -16,7 +16,10 @@
 // so it is checked here as external input, never trusted by assertion.
 
 import { z } from "zod";
-import { authenticatedReadEndpoint } from "./authenticatedReadPath";
+import {
+  authenticatedReadEndpoint,
+  longestDirectedWaitSeconds,
+} from "./authenticatedReadPath";
 import type { PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
 
@@ -34,7 +37,15 @@ const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
 });
-const errorAnswer = z.object({ error: z.string().min(1) });
+const errorAnswer = z.object({
+  error: z.string().min(1),
+  retryAfterSeconds: z
+    .number()
+    .int()
+    .min(0)
+    .max(longestDirectedWaitSeconds)
+    .optional(),
+});
 
 export type PublishedSnapshot = {
   readonly revision: string;
@@ -62,11 +73,11 @@ async function authenticatedGet(
   const body: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
     const reported = errorAnswer.safeParse(body);
-    throw new ReadProblem(
-      reported.success
-        ? reported.data.error
-        : `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
-    );
+    throw reported.success
+      ? new ReadProblem(reported.data.error, reported.data.retryAfterSeconds)
+      : new ReadProblem(
+          `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
+        );
   }
   return body;
 }

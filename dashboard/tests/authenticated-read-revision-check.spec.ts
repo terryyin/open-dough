@@ -1,12 +1,13 @@
-// The local authenticated read boundary's revision-only operations
+// The local authenticated read boundary's revision check
 // (../server/authenticatedRead.ts, ../server/revisionChecks.ts), tested
 // directly against real HTTP and the synthetic `gh`, not through the
 // browser: asking whether a catalog source's `main` still names the revision
-// shown (`since`), and reading the backlog at a revision already resolved
-// (`revision` without `path`). The fake GitHub answers a conditional request
-// whose entity tag still matches with `304 Not Modified`, printed and exited
-// the way the real `gh api --include` does, and records every invocation.
-// Other reads and refusals: ./authenticated-read-boundary.spec.ts and
+// shown (`since`). The fake GitHub answers a conditional request whose entity
+// tag still matches with `304 Not Modified`, printed and exited the way the
+// real `gh api --include` does, and records every invocation. Reading the
+// backlog at an already resolved revision:
+// ./authenticated-read-revision-backlog.spec.ts; other reads and refusals:
+// ./authenticated-read-boundary.spec.ts and
 // ./authenticated-read-refusal.spec.ts.
 
 import { expect, test } from "@playwright/test";
@@ -27,7 +28,6 @@ test.describe.configure({ mode: "serial" });
 
 const revisionA = "a1".repeat(20);
 const revisionB = "b2".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 
 function checkArgv(repository: string, etag?: string): string[] {
   return [
@@ -134,6 +134,72 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
     });
   });
 
+  test("a rate limit that directs a wait passes on only that wait, validated and bounded, for the page's next check", async () => {
+    const limitedMessage = (status: number, wait: string) =>
+      `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(status)}) while reading main of terryyin/open-dough. ${wait}`;
+
+    main.set(
+      "terryyin/open-dough",
+      rateLimitedAnswer(429, { "Retry-After": "120" }),
+    );
+    const retryAfter = await check("open-dough", revisionB);
+    expect(retryAfter.status).toBe(502);
+    expect(retryAfter.body).toEqual({
+      error: limitedMessage(
+        429,
+        "GitHub asked to wait 120 seconds before asking again.",
+      ),
+      retryAfterSeconds: 120,
+    });
+
+    const resetSeconds = Math.floor(Date.now() / 1000) + 90;
+    main.set(
+      "terryyin/open-dough",
+      rateLimitedAnswer(403, {
+        "X-RateLimit-Remaining": "0",
+        "X-RateLimit-Reset": String(resetSeconds),
+      }),
+    );
+    const reset = await check("open-dough", revisionB);
+    expect(reset.status).toBe(502);
+    const { retryAfterSeconds } = reset.body as { retryAfterSeconds: number };
+    expect(retryAfterSeconds).toBeGreaterThanOrEqual(85);
+    expect(retryAfterSeconds).toBeLessThanOrEqual(90);
+
+    // A direction beyond GitHub's own hour-long window is bounded to it.
+    main.set(
+      "terryyin/open-dough",
+      rateLimitedAnswer(429, { "Retry-After": "86400" }),
+    );
+    expect((await check("open-dough", revisionB)).body).toMatchObject({
+      retryAfterSeconds: 3600,
+    });
+
+    // Headers that direct nothing usable leave the ordinary failure alone:
+    // an unreadable Retry-After, and a reset while allowance remains.
+    for (const headers of [
+      { "Retry-After": "soon" },
+      { "X-RateLimit-Remaining": "12", "X-RateLimit-Reset": "1" },
+    ]) {
+      main.set("terryyin/open-dough", rateLimitedAnswer(403, headers));
+      const undirected = await check("open-dough", revisionB);
+      expect(undirected.status).toBe(502);
+      expect(undirected.body).toEqual({
+        error: limitedMessage(403, "Wait before pressing Retry."),
+      });
+    }
+  });
+
+  test("a successful answer that spends the last of the allowance is still an answer, not a failure", async () => {
+    main.set("terryyin/open-dough", {
+      ...commitAnswer(revisionB),
+      headers: { "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1" },
+    });
+    const spent = await check("open-dough", revisionA);
+    expect(spent.status).toBe(200);
+    expect(spent.body).toEqual({ revision: revisionB, changed: true });
+  });
+
   test("refuses a malformed or mixed revision check before launching gh", async () => {
     const callsBefore = server.ghCalls().length;
     for (const query of [
@@ -157,47 +223,6 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
       headers: { Origin: "http://evil.example" },
     });
     expect(crossOrigin.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-  });
-});
-
-test.describe("authenticated read boundary backlog at a known revision (dev launch mode)", () => {
-  let server: DashboardServer;
-
-  test.beforeAll(async () => {
-    server = await startDashboardServer({ mode: "dev" });
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  test("reads the backlog pinned to the named revision without resolving main", async () => {
-    server.setControl({ mode: "normal", revision: revisionA, backlog });
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=pygardon&revision=${revisionB}`,
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(200);
-    expect(response.headers["cache-control"]).toBe("no-store");
-    expect(JSON.parse(response.body)).toEqual({ revision: revisionB, backlog });
-    expect(server.ghCalls()).toEqual([
-      [
-        "api",
-        "-H",
-        "Accept: application/vnd.github.raw+json",
-        `repos/terryyin/pygardon/contents/.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`,
-      ],
-    ]);
-  });
-
-  test("refuses a revision that is not a commit sha before launching gh", async () => {
-    const callsBefore = server.ghCalls().length;
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=pygardon&revision=main`,
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(400);
     expect(server.ghCalls()).toHaveLength(callsBefore);
   });
 });

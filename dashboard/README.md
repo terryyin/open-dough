@@ -61,12 +61,23 @@ Taken means recorded as taken, not that anyone is working now.
 A read that fails, finds a backlog the shared reader refuses, or waits more
 than 30 seconds for GitHub (`readWaitLimitMs` in `src/publishedWork.ts`) ends
 as a read problem, never as an empty or partial backlog. The snapshot read
-earlier stays shown with its own revision and retrieval time, the problem says
-when the attempt failed, and the read control is named **Retry** until a read
-succeeds. A failed revision check is reported the same way, keeping the
-snapshot; a later check that finds `main` unchanged clears the report. A failed
-read is not retried by itself; only a later revision check that finds a new
-commit reads again. Selecting another project stays available
+earlier stays shown with its own revision and retrieval time -- it is the last
+successful snapshot, not a claim that `main` still names it -- the problem says
+what failed and when, and the read control is named **Retry** until a read
+succeeds. A failed revision check, or a failed read of a newly found commit's
+backlog, is reported the same way and keeps that snapshot. While a snapshot is
+shown the page keeps checking, but only at the 15-second pace, never at once:
+a new commit whose backlog could not be read is found again by the next check
+and read then. When GitHub answers a check with a rate limit that says when to
+ask again (`Retry-After`, or `X-RateLimit-Reset` once `X-RateLimit-Remaining`
+is `0`), the page asks nothing more until that time -- even when the page is
+seen again -- and the problem says when checks resume. The boundary passes on
+only the validated wait, at most one hour. A later check or read that succeeds
+clears the problem and any such wait. **Retry** reads the project's `main`
+afresh at once, whenever it is pressed. A record detail that could not be read
+stays labeled on its card rather than borrowing an older one; checks that find
+`main` unchanged never read it again, so press **Refresh** to retry it at the
+same revision. Selecting another project stays available
 throughout: a failed or still-reading project never blocks switching to
 another, and returning to a project starts a fresh read rather than replaying
 the failure. Switching projects abandons the previous project's read, detail
@@ -79,9 +90,10 @@ in, or GitHub's HTTP status -- never `gh`'s own output, and never that the
 repository does not exist, since an inaccessible read is not proof of that.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
-does, press **Retry**. There is no dashboard sign-in, no token-entry UI, and no
-automatic retry or login: the dashboard only reuses whatever access the
-launching person's own `gh` already has.
+does, press **Retry** (or, with a snapshot shown, let the next check find it).
+There is no dashboard sign-in, no token-entry UI, and no automatic login: the
+dashboard only reuses whatever access the launching person's own `gh` already
+has.
 
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
@@ -134,7 +146,8 @@ journey (`tests/dashboardTest.ts`) then serves that build from its own
 preview server with a synthetic `gh` on its PATH (`tests/fixtures/fake-gh`)
 that answers from the test's own fake GitHub (`tests/support/fakeGitHub.ts`,
 published through `tests/publishedOrigin.ts` or
-`tests/committedOrigin.ts`). Only GitHub's answers to `gh` are replaced; the
+`tests/committedOrigin.ts`), which can also fail, hold, or rate-limit an
+answer. Only GitHub's answers to `gh` are replaced; the
 local read boundary, the `gh` invocation, reading, the shared backlog
 interpretation, and the page are the real ones, and a browser request to
 GitHub itself fails the test. The boundary specs
@@ -145,9 +158,21 @@ GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'` or
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
 
+The automatic-freshness journeys (`tests/auto-refresh*.spec.ts`) pause the
+page's clock and step it with the helpers in `tests/autoRefreshJourney.ts`, so
+the 15-second pace, the 30-second target, hidden-page pauses, and a rate
+limit's directed wait are observed in page time; they read the fake GitHub's
+`gh` call log to prove what was and was not asked. Assert that no `gh` call
+was made only after real network turns (`checksAskedWhilePassing`, or
+`expect.poll`), and give each scenario its own revisions: the boundary answers
+a repeated pinned revision from memory without calling `gh`.
+
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
 revision for preparation and detail; they count against the launching person's own GitHub API
 allowance. Each revision check is one more `gh` request (at most four a
-minute per visible page, none while it is hidden); a newly published commit then costs one backlog read
+minute per visible page, none while it is hidden, and none before a rate
+limit's directed time). GitHub documents an unchanged `304` as not counting
+against the primary allowance, but that has not been confirmed here, so count
+each check as a request. A newly published commit then costs one backlog read
 plus its records, without resolving `main` again.

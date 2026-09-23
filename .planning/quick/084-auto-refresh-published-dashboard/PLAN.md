@@ -1,6 +1,6 @@
 # Keep published dashboard work fresh through one authenticated reader
 
-Status: executing.
+Status: executed; all four slices delivered. Retrospective and story wrap-up remain.
 
 Identity: `SEED-026#auto-refresh-published-dashboard`
 
@@ -235,7 +235,8 @@ detail and links pinned to B, one conditional ref call plus B-pinned reads;
 "main moving again while B's backlog is read leaves one snapshot pinned to
 B, and the next check finds C"; boundary cases for `304`, same-SHA `200`,
 moved SHA, per-source hints, rate-limit and missing-login failures,
-refusals, and backlog at a known revision); `npm run typecheck:dashboard`;
+refusals; backlog at a known revision now lives in
+`dashboard/tests/authenticated-read-revision-backlog.spec.ts`); `npm run typecheck:dashboard`;
 full `npm run test:dashboard` (90 passed).
 
 Learnings for later slices: the first check after each read is unconditional
@@ -314,7 +315,7 @@ pinned memo answers a repeated revision without `gh`.
 ### 4. Recover from failed automatic reads without misstating work
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A failed revision check or backlog read keeps the last successful
 snapshot labeled with its original SHA and retrieval time and reports the
@@ -338,6 +339,45 @@ at their real boundaries. Run the full dashboard suite, typecheck, lint, and
 
 Safe stopping point: failed reads cannot misstate published work, and
 automatic checks recover without a tight retry loop.
+
+Delivered: a rate-limited revision check (403/429) reads `Retry-After`, or
+`X-RateLimit-Reset` when `X-RateLimit-Remaining` is `0`, from its included
+headers (`dashboard/server/rateLimitDirection.ts`,
+`dashboard/server/includedAnswer.ts`); the boundary returns only a validated
+`retryAfterSeconds` capped at 3600. `dashboard/src/revisionCheckSchedule.ts`
+waits for the later of the steady pace and the directed time, including after
+the page is seen again; success lifts the wait, and manual Retry reads at
+once. The alert reports the failed attempt, the retained snapshot's own
+retrieval time, and either the steady pace or the time checks resume. The
+resume time is derived from the schedule's own wait, so a later Retry refused
+without its own direction still reports GitHub's earlier wait (coordinator
+fix after the refactor found that misstatement). A same-revision detail that
+cannot be read stays a labeled gap, is not re-read by unchanged checks, and
+manual Refresh retries it. `dashboard/README.md` describes the final usage and
+test guidance.
+
+Accepted proof (coordinator-inspected):
+`npx playwright test --config dashboard/playwright.config.ts dashboard/tests/auto-refresh-recovery.spec.ts dashboard/tests/auto-refresh-rate-limit.spec.ts dashboard/tests/authenticated-read-revision-check.spec.ts`
+("a failed check, then a failed read of B's backlog…": A kept with its SHA and
+retrieval time, failure alert, nothing asked for 14 seconds, the next check
+reads B whole and clears the failure; "a rate-limited check waits as GitHub
+directs…": no check or `gh` call before a 120-second `Retry-After` even
+across hide and reveal, a reset-directed 403 wait, a Retry refused without
+direction still reporting and keeping the wait, then a successful Retry
+reading B and restoring the steady pace; "unavailable detail of B stays
+labeled…": the gap label, no content reads on unchanged checks, Refresh
+closing the gap at B; boundary cases for directed-wait validation, the cap,
+and a last-allowance `200`). Mutations removing the directed delay, the
+success lift, or the schedule-derived resume time each fail those journeys.
+`npm run typecheck:dashboard`, lint, and full `npm run test:dashboard`
+(105 passed).
+
+Remaining limits: membership, backlog-at-revision, and detail reads do not
+use `--include`, so a rate-limited content read falls back to the steady pace
+until the next check learns the direction (at most one extra `gh` call). The
+directed wait is kept across a project switch because GitHub's limit belongs
+to the login. The rate-limit header shape was proved against the synthetic
+`gh` only.
 
 ## Current decisions and remaining work
 
@@ -367,7 +407,8 @@ automatic checks recover without a tight retry loop.
   `claude/084-auto-refresh-published-dashboard`.
 - Published revisions on `origin/claude/084-auto-refresh-published-dashboard`:
   `dcb0944029136ae1b3893b8d61be1668b498bc84` (slice 1),
-  `9feec0e001f58577ff45f24664b4385aa87b9336` (slice 2).
+  `9feec0e001f58577ff45f24664b4385aa87b9336` (slice 2),
+  `5cc80b08f0afafce9c8e2fb6a8ddeef3b852a89e` (slice 3).
 - CI run 35862495063 on `dcb0944` failed only
   `src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs`
   "ambiguous matching owners return a gap and preserve existing state"

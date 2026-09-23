@@ -1,6 +1,5 @@
 // Whether the person can see the page, as the document reports it, for the
-// published observation's revision-check schedule
-// (`./publishedObservation.ts`).
+// revision-check schedule (`./revisionCheckSchedule.ts`).
 
 import { useCallback, useEffect, useState } from "react";
 

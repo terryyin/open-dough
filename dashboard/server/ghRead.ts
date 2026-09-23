@@ -9,6 +9,8 @@
 // trusts that the request was allowed to reach this point.
 
 import { execFile, type ExecException } from "node:child_process";
+import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
+import { directedWaitSeconds } from "./rateLimitDirection";
 
 // How long one boundary request -- all of its owned `gh` subprocesses -- may
 // run before the boundary (`./authenticatedRead.ts`) aborts it, mirroring the
@@ -28,7 +30,14 @@ export function readTimeoutMs(): number {
 export type GhFailureReason =
   | { readonly kind: "not-logged-in" }
   | { readonly kind: "http"; readonly status: number }
-  | { readonly kind: "rate-limited"; readonly status: number }
+  | {
+      readonly kind: "rate-limited";
+      readonly status: number;
+      // How long GitHub asked this login to wait before asking again, when
+      // its answer said so (`./rateLimitDirection.ts`); already validated and
+      // bounded, never a header value as GitHub sent it.
+      readonly waitSeconds?: number;
+    }
   | { readonly kind: "unreachable" }
   | { readonly kind: "no-commit" }
   | { readonly kind: "timed-out" }
@@ -135,40 +144,20 @@ export async function resolveRevisionViaGh(
   );
 }
 
-// What `gh api --include` printed: GitHub's status line and headers, then the
-// (here `--jq`-filtered) body after the first blank line.
-type IncludedAnswer = {
-  readonly status: number;
-  readonly headers: ReadonlyMap<string, string>;
-  readonly body: string;
-};
-
-function parseIncluded(stdout: string): IncludedAnswer | undefined {
-  const lines = stdout.split("\n");
-  const statusLine = /^HTTP\/\S+\s+(\d{3})\b/.exec(lines[0] ?? "");
-  if (statusLine?.[1] === undefined) {
+// A refused answer that says when to ask again is a rate limit, whatever
+// else `gh` printed: GitHub directs a wait with `Retry-After`, or with
+// `X-RateLimit-Reset` once `X-RateLimit-Remaining` reaches zero, on its `403`
+// and `429` answers. Only the validated wait leaves this module.
+function limitedAsDirected(
+  answer: IncludedAnswer | undefined,
+): GhFailureReason | undefined {
+  if (answer?.status !== 403 && answer?.status !== 429) {
     return undefined;
   }
-  const headers = new Map<string, string>();
-  let at = 1;
-  for (; at < lines.length; at += 1) {
-    const line = (lines[at] ?? "").replace(/\r$/, "");
-    if (line === "") {
-      break;
-    }
-    const colon = line.indexOf(":");
-    if (colon > 0) {
-      headers.set(
-        line.slice(0, colon).trim().toLowerCase(),
-        line.slice(colon + 1).trim(),
-      );
-    }
-  }
-  return {
-    status: Number(statusLine[1]),
-    headers,
-    body: lines.slice(at + 1).join("\n"),
-  };
+  const waitSeconds = directedWaitSeconds(answer.headers, Date.now());
+  return waitSeconds === undefined
+    ? undefined
+    : { kind: "rate-limited", status: answer.status, waitSeconds };
 }
 
 // A commit a ref named, and the entity tag GitHub gave that answer.
@@ -206,7 +195,10 @@ export async function checkRevisionViaGh(
     return earlier;
   }
   if (error || answer?.status !== 200) {
-    throw new GhFailure(error ? classify(error, stderr) : { kind: "failed" });
+    throw new GhFailure(
+      limitedAsDirected(answer) ??
+        (error ? classify(error, stderr) : { kind: "failed" }),
+    );
   }
   return {
     revision: commitNamedBy(answer.body),

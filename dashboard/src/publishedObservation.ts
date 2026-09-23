@@ -2,15 +2,15 @@
 // which project is observed, its last snapshot, the latest attempt, and
 // focus kept across a snapshot's replacement. Reads happen on opening, on
 // Refresh or Retry, on selecting a project, and when a scheduled revision
-// check finds the selected ref naming another commit. Checks are scheduled
-// only while the page is visible.
+// check (`./revisionCheckSchedule.ts`) finds the selected ref naming another
+// commit.
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { checkPublishedRevision } from "./authenticatedRead";
 import { usePageVisibility } from "./pageVisibility";
 import { defaultSource, type PublishedSource } from "./publishedSource";
 import { readPublishedWork, type PublishedWork } from "./publishedWork";
 import { ReadProblem } from "./readProblem";
+import { useRevisionCheckSchedule } from "./revisionCheckSchedule";
 import {
   focusedWork,
   restoreSnapshotFocus,
@@ -23,7 +23,14 @@ import {
 type Attempt =
   | { readonly status: "reading" }
   | { readonly status: "read" }
-  | { readonly status: "failed"; readonly problem: string; readonly at: Date };
+  | {
+      readonly status: "failed";
+      readonly problem: string;
+      readonly at: Date;
+      // When GitHub asked the local `gh` login to wait, the time before which
+      // no automatic check is asked.
+      readonly checksResumeAt: Date | undefined;
+    };
 
 type Retrieval = {
   // The last snapshot read successfully; a later read replaces it whole.
@@ -39,11 +46,6 @@ function lists(work: PublishedWork, identity: string): boolean {
   );
 }
 
-// How long a shown snapshot waits before asking whether the selected
-// project's `main` still names its revision: often enough that newly
-// published work appears within 30 seconds, including the read itself.
-const checkIntervalMs = 15_000;
-
 // A read of the selected project: of its ref afresh, or of a revision a check
 // already found the ref naming.
 type ReadRequest = {
@@ -51,15 +53,18 @@ type ReadRequest = {
   readonly revision: string | undefined;
 };
 
-// A failed read or revision check, said without touching the snapshot.
-function failedAttempt(error: unknown): Attempt {
+// A failed read or revision check, said without touching the snapshot, with
+// the time GitHub's rate limit, if it directed one, lets checks resume.
+function failedAttempt(error: unknown): Attempt & { status: "failed" } {
+  const at = new Date();
+  const known = error instanceof ReadProblem ? error : undefined;
+  const wait = known?.retryAfterSeconds;
   return {
     status: "failed",
-    problem:
-      error instanceof ReadProblem
-        ? error.message
-        : "An unexpected problem stopped the read.",
-    at: new Date(),
+    problem: known?.message ?? "An unexpected problem stopped the read.",
+    at,
+    checksResumeAt:
+      wait === undefined ? undefined : new Date(at.getTime() + wait * 1000),
   };
 }
 
@@ -81,11 +86,20 @@ export function usePublishedObservation() {
     asked: 1,
     revision: undefined,
   });
-  // Whether the latest read, detail included, has finished. Checks wait for
-  // it, so a check and a read never overlap.
+  // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
-  // Each settled check that asked for no read schedules the next one.
-  const [checksSettled, setChecksSettled] = useState(0);
+  // The page-clock time before which no check may be asked, because GitHub's
+  // rate limit said so; zero when nothing directs a wait. A successful read
+  // or check lifts it, since GitHub has answered again.
+  const [checksResumeAt, setChecksResumeAt] = useState(0);
+  // Records a failed attempt, keeping the snapshot, and any wait it directs.
+  const noteFailure = (error: unknown) => {
+    const failed = failedAttempt(error);
+    setRetrieval((last) => ({ ...last, attempt: failed }));
+    if (failed.checksResumeAt !== undefined) {
+      setChecksResumeAt(failed.checksResumeAt.getTime());
+    }
+  };
   const { visibility, settleRevealed } = usePageVisibility();
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
   const deferredFocus = useRef<FocusedWork | undefined>(undefined);
@@ -98,6 +112,7 @@ export function usePublishedObservation() {
       }
       if (!acceptedMembership) {
         acceptedMembership = true;
+        setChecksResumeAt(0);
         const held = focusedWork();
         heldFocus.current = held;
         setRetrieval({
@@ -131,7 +146,7 @@ export function usePublishedObservation() {
       },
       (error: unknown) => {
         if (!reading.signal.aborted) {
-          setRetrieval((last) => ({ ...last, attempt: failedAttempt(error) }));
+          noteFailure(error);
           setReadSettled(true);
           settleRevealed();
         }
@@ -157,62 +172,27 @@ export function usePublishedObservation() {
   const { work, attempt, notice } = retrieval;
   const shownRevision = work?.revision;
 
-  // While a snapshot is shown, the page is visible, and no read is under
-  // way, ask at a steady pace whether the selected project's ref still names
-  // its revision; a page seen again asks once at once. An unchanged answer
-  // leaves the snapshot, its retrieval time, and its detail exactly as they
-  // are; a changed one reads the newly named commit. Any new read, a project
-  // switch, or hiding the page cancels a pending or outstanding check, and
-  // its late answer is ignored.
-  useEffect(() => {
-    if (
-      !readSettled ||
-      shownRevision === undefined ||
-      visibility === "hidden"
-    ) {
-      return;
-    }
-    const checking = new AbortController();
-    const waiting = setTimeout(
-      () => {
-        checkPublishedRevision(source, shownRevision, checking.signal).then(
-          (check) => {
-            if (checking.signal.aborted) {
-              return;
-            }
-            if (check.changed) {
-              askRead(check.revision);
-              return;
-            }
-            // The shown snapshot is still what the ref names.
-            setRetrieval((last) =>
-              last.attempt.status === "failed"
-                ? { ...last, attempt: { status: "read" } }
-                : last,
-            );
-            setChecksSettled((settled) => settled + 1);
-            settleRevealed();
-          },
-          (error: unknown) => {
-            if (checking.signal.aborted) {
-              return;
-            }
-            setRetrieval((last) => ({
-              ...last,
-              attempt: failedAttempt(error),
-            }));
-            setChecksSettled((settled) => settled + 1);
-            settleRevealed();
-          },
-        );
-      },
-      visibility === "revealed" ? 0 : checkIntervalMs,
-    );
-    return () => {
-      clearTimeout(waiting);
-      checking.abort();
-    };
-  }, [checksSettled, readSettled, shownRevision, source, visibility]);
+  useRevisionCheckSchedule({
+    source,
+    shownRevision,
+    readSettled,
+    visibility,
+    checksResumeAt,
+    onChanged: askRead,
+    onUnchanged: () => {
+      setChecksResumeAt(0);
+      setRetrieval((last) =>
+        last.attempt.status === "failed"
+          ? { ...last, attempt: { status: "read" } }
+          : last,
+      );
+      settleRevealed();
+    },
+    onFailed: (error) => {
+      noteFailure(error);
+      settleRevealed();
+    },
+  });
 
   useLayoutEffect(() => {
     deferredFocus.current = restoreSnapshotFocus(
@@ -251,5 +231,27 @@ export function usePublishedObservation() {
     });
   };
 
-  return { source, work, attempt, notice, reading, refresh, selectSource };
+  // A failed attempt says when checks resume from the same wait the schedule
+  // obeys, so a later failure that directs none (a manual Retry refused for
+  // another reason) still reports the wait GitHub asked for.
+  const shownAttempt: Attempt =
+    attempt.status === "failed"
+      ? {
+          ...attempt,
+          checksResumeAt:
+            checksResumeAt > attempt.at.getTime()
+              ? new Date(checksResumeAt)
+              : undefined,
+        }
+      : attempt;
+
+  return {
+    source,
+    work,
+    attempt: shownAttempt,
+    notice,
+    reading,
+    refresh,
+    selectSource,
+  };
 }

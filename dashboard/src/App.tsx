@@ -2,6 +2,7 @@ import { shortRevision } from "./publishedWork";
 import { Moment } from "./Moment";
 import { DashboardBanner } from "./DashboardBanner";
 import { usePublishedObservation } from "./publishedObservation";
+import { checkIntervalMs } from "./revisionCheckSchedule";
 import { WorkStages } from "./WorkStages";
 
 export function App() {
@@ -61,8 +62,20 @@ export function App() {
                 </>
               ) : (
                 "No published work is shown, because none has been read."
-              )}{" "}
-              Press Retry to read again.
+              )}
+            </p>
+            <p>
+              {work && attempt.checksResumeAt ? (
+                <>
+                  As GitHub asked, automatic checks wait until{" "}
+                  <Moment at={attempt.checksResumeAt} />. Press Retry to read
+                  again sooner.
+                </>
+              ) : work ? (
+                `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible. Press Retry to read again now.`
+              ) : (
+                "Press Retry to read again."
+              )}
             </p>
           </div>
         )}

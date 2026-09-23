@@ -79,6 +79,7 @@ export function asGhReply(
   const headers = {
     "Content-Type": answer.contentType,
     ...(answer.etag !== undefined && { Etag: answer.etag }),
+    ...answer.headers,
   };
   if (
     answer.status < 300 &&

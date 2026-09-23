@@ -11,6 +11,10 @@ export type RawAnswer = {
   // that sends it back in `If-None-Match` while the answer is unchanged gets
   // `304 Not Modified` instead (./support/fakeGitHub.ts).
   readonly etag?: string;
+  // Any further headers GitHub sends with this answer, such as a rate
+  // limit's `Retry-After` or `X-RateLimit-Reset`; `gh api --include` prints
+  // them before the body.
+  readonly headers?: Readonly<Record<string, string>>;
 };
 
 // The connection fails before any HTTP answer arrives.
@@ -70,9 +74,15 @@ export const emptyBacklog = `# Product backlog
 ## Backlog list
 `;
 
-export function rateLimitedAnswer(status: 403 | 429 = 403): RawAnswer {
+// A rate-limited answer, optionally directing when to ask again as GitHub
+// does: `Retry-After`, or `X-RateLimit-Reset` with `X-RateLimit-Remaining: 0`.
+export function rateLimitedAnswer(
+  status: 403 | 429 = 403,
+  headers?: Readonly<Record<string, string>>,
+): RawAnswer {
   return {
     status,
+    ...(headers !== undefined && { headers }),
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify({
       message: "API rate limit exceeded for 203.0.113.7.",
