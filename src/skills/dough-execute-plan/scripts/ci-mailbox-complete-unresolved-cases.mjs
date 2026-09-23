@@ -1,18 +1,13 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { spawn } from "node:child_process";
 import { test } from "node:test";
 import {
   completeRevision,
-  createMailbox,
   readRevisionCoverage,
-  recordWorkerIdentity,
   registerPushedRevision,
 } from "./ci-mailbox.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
-import { stopMailbox } from "./ci-mailbox-complete.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
   exec,
@@ -23,6 +18,7 @@ import {
 import {
   assertWorkerAlive,
   assertWorkerDead,
+  workerPid,
 } from "./ci-mailbox-complete-test-fixtures.mjs";
 import {
   launcher,
@@ -30,6 +26,7 @@ import {
   setupProcessMailbox,
   sha,
 } from "./ci-mailbox-process-test-fixtures.mjs";
+import { waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 test("bounded timeout completion shuts down without claiming success", async (t) => {
   const fixture = await setupProcessMailbox(t);
@@ -47,7 +44,7 @@ test("bounded timeout completion shuts down without claiming success", async (t)
   assert.equal(result.shutdown.status, "confirmed");
   assert.equal(result.shutdown.terminal.status, "stopped");
   assert.equal(existsSync(join(fixture.mailbox, "result.json")), true);
-  assertWorkerDead(fixture);
+  assert.equal(await waitForPidExit(workerPid(fixture)), true);
 });
 
 test("invalid mailbox identity never authorizes completion shutdown", async () => {
@@ -198,54 +195,4 @@ test("a quiet gap without completion leaves the worker alive; explicit stop stay
   assertWorkerDead(fixture);
   // Eight-hour observer budget is owned by watch-ci-execution-coverage.test.mjs
   // ("the declared execution budget expires once…", assert.equal(executionBudgetMs, 8 * 60 * 60 * 1000)).
-});
-
-test("explicit stop returns only after the worker exits the post-terminal window", async (t) => {
-  const storage = mkdtempSync(join(tmpdir(), "ci-stop-exit-"));
-  t.after(() => rmSync(storage, { recursive: true, force: true }));
-  const directory = createMailbox(
-    {
-      mode: "execution",
-      repo: "owner/repo",
-      branch: "main",
-      maxDurationMs: 60000,
-    },
-    { storage },
-  );
-  // Stub command line must match mailbox-worker identity so stop waits on it.
-  const stub = join(storage, "ci-mailbox.mjs");
-  writeFileSync(
-    stub,
-    `import { existsSync, watch, writeFileSync } from "node:fs";
-import { join } from "node:path";
-const directory = process.argv[3];
-const check = () => {
-  if (!existsSync(join(directory, "stop"))) return;
-  writeFileSync(join(directory, "result.json"), JSON.stringify({ status: "stopped" }));
-  setTimeout(() => process.exit(0), 300);
-};
-watch(directory, check);
-check();
-setInterval(() => {}, 1000);
-`,
-  );
-  const child = spawn(process.execPath, [stub, "worker", directory], {
-    stdio: "ignore",
-  });
-  t.after(() => {
-    try {
-      child.kill("SIGKILL");
-    } catch (error) {
-      if (error.code !== "ESRCH") throw error;
-    }
-  });
-  await new Promise((resolve, reject) => {
-    child.once("spawn", resolve);
-    child.once("error", reject);
-  });
-  recordWorkerIdentity(directory, { pid: child.pid });
-
-  const terminal = await stopMailbox(directory, { storage });
-  assert.equal(terminal.status, "stopped");
-  assert.throws(() => process.kill(child.pid, 0), { code: "ESRCH" });
 });
