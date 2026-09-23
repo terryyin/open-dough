@@ -1,3 +1,11 @@
+## 0.3.33 - 2026-09-24
+
+- Make execution startup and increment delivery recoverable from published Git state. Publish and reconcile remote claims before work begins, resume interrupted or ambiguous delivery without duplicate pushes, validate the actual candidate, and carry exact CI observation evidence through completion.
+- Unify every dashboard project behind the local authenticated `gh` read boundary. Refresh only when the selected project's published main revision changes, pause checks while the page is hidden, recover from read failures and rate limits, and preserve project isolation, plan navigation, and accessible tab-style selection.
+- Tighten execution, wrap-up, and retrospective guidance around when proof is judged, how native evidence is assessed, and how process findings and existing agent history are retained without leaking maintainer-only assessment into installed public workflows.
+
+No additional native acceptance was run for `0.3.33` at the maintainer's request. Native evidence already completed within the included stories is retained; acceptance for other newly changed behavior and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.32 - 2026-09-23
 
 - Close execution and story wrap-up through one shared CI-completion operation that waits for the worker to exit, preserves terminal success, failure, timeout, and unavailable-observation evidence, and keeps completion monitoring bound to the correct stream identity.
