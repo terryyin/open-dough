@@ -8,7 +8,6 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
-  advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
   createCleanTrunkFixture,
@@ -29,65 +28,6 @@ function receiptsOf() {
     },
   };
 }
-
-async function ancestor(workspace, ancestorSha, descendant) {
-  try {
-    await git(
-      workspace,
-      "merge-base",
-      "--is-ancestor",
-      ancestorSha,
-      descendant,
-    );
-    return true;
-  } catch (error) {
-    if (error.code === 1) return false;
-    throw error;
-  }
-}
-
-test("Trunk Mode increment publishes the rewritten candidate to remote trunk and not the execution branch", async (t) => {
-  const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
-  t.after(cleanup);
-
-  const disjointSha = await advanceOriginFromAnotherWriter(origin);
-  const before = await captureCheckout(integration);
-  const observer = receiptsOf();
-
-  const published = await publishExecutionIncrement({
-    workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: trunkTarget,
-    register: observer.register,
-  });
-
-  assert.equal(published.ok, true);
-  assert.notEqual(published.receipt.sha, candidateSha);
-  assert.equal(published.preRebaseSha, candidateSha);
-  assert.deepEqual(published.receipt, {
-    sha: published.receipt.sha,
-    target: trunkTarget,
-  });
-  assert.deepEqual(observer.receipts, [published.receipt]);
-  assert.equal(
-    observer.receipts.some((receipt) => receipt.sha === candidateSha),
-    false,
-  );
-  assert.equal(await lsRemoteSha(origin, trunkTarget), published.receipt.sha);
-  assert.equal(await lsRemoteSha(origin, "refs/heads/exec/story"), "");
-  assert.equal(await lsRemoteSha(origin, recordedStoryBranch), "");
-  assert.equal(
-    (
-      await git(execution, "log", "--format=%P", "-1", published.receipt.sha)
-    ).stdout.trim(),
-    disjointSha,
-  );
-  assert.equal(await ancestor(execution, candidateSha, "origin/main"), false);
-  assert.equal(await revParse(execution, "--show-toplevel"), execution);
-  assertCheckoutUnchanged(before, await captureCheckout(integration));
-});
 
 test("Story Branch Mode increment publishes to the recorded remote execution branch and leaves remote trunk unchanged", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =

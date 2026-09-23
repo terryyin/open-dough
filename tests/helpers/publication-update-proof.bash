@@ -24,17 +24,23 @@ assert_installed_publication_modules() {
     import { pathToFileURL } from "node:url";
     const root = process.argv[1];
     const modules = [
+      "dough-execute-plan/scripts/applicable-candidate-proof.mjs",
       "dough-execute-plan/scripts/current-branch-publication.mjs",
+      "dough-execute-plan/scripts/execution-increment-delivery.mjs",
+      "dough-execute-plan/scripts/execution-increment-observation.mjs",
       "dough-execute-plan/scripts/execution-increment-publication.mjs",
+      "dough-execute-plan/scripts/execution-increment-resume.mjs",
       "dough-execute-plan/scripts/execution-start.mjs",
       "dough-execute-plan/scripts/execution-source.mjs",
       "dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs",
       "dough-execute-plan/scripts/history-preserving-publication.mjs",
       "dough-execute-plan/scripts/maintain-default-checkout.mjs",
+      "dough-execute-plan/scripts/owned-suffix-reconciliation.mjs",
       "dough-execute-plan/scripts/publication-resume.mjs",
       "dough-execute-plan/scripts/publication-git.mjs",
       "dough-execute-plan/scripts/publication-test-fixtures.mjs",
       "dough-bug-fixing/scripts/retained-artifacts.mjs",
+      "dough-story-wrap-up/scripts/closure-candidate-settlement.mjs",
       "dough-story-wrap-up/scripts/closure-publication.mjs",
       "dough-story-wrap-up/scripts/closure-resources.mjs",
     ];

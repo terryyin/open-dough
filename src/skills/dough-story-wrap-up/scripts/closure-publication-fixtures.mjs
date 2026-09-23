@@ -86,7 +86,12 @@ export async function remoteCommitCount(origin) {
   );
 }
 
-export function publishArgs(fixture, observer, previouslyPublishedBase) {
+export function publishArgs(
+  fixture,
+  observer,
+  previouslyPublishedBase,
+  extras = {},
+) {
   return {
     workspace: fixture.execution,
     branch: executionBranch,
@@ -95,6 +100,9 @@ export function publishArgs(fixture, observer, previouslyPublishedBase) {
     defaultCheckout: fixture.integration,
     declaredOwner: "coordinator",
     requester: "coordinator",
+    // Closure proofs that race another writer renew applicable proof explicitly.
+    validate: async () => ({ ok: true }),
+    ...extras,
   };
 }
 
@@ -108,6 +116,7 @@ export function resumeArgs(fixture, fields) {
     requester: "coordinator",
     sessionOwned: true,
     supersededShas: [],
+    validate: async () => ({ ok: true }),
     ...fields,
   };
 }
