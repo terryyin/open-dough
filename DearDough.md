@@ -637,6 +637,27 @@ explicit contract in the focused CI runtime suite.
     check does not name checking for such tests, so the omission is
     consistent with an unnamed check rather than a skipped one.
 
+- Execution: `SEED-008#script-driven-ci-observation @ 02991a5`
+  - Timestamp: 2026-09-23T16:30:28+08:00
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: modified; revision 02991a5ac64708f7ad7300b1ffee115647c66780; base 0.3.32
+  - Evidence: Slice 1 (`02991a5`) rewrote `references/ci-monitor.md` for managed
+    delivery and, under the 250-line bound, shortened the contract phrase to
+    "The completion boundary below is the only routine CI wait", dropping
+    `execution/review`. `ci-supported-host-contract.test.mjs` requires the full
+    phrase. Earlier branch runs `35837536383` (`02991a5`) and `35840027069`
+    (`493187c`) cancelled the `test` job after dashboard failure, so the
+    contract miss surfaced only on `35842317799` (`ddcabcb`); repair `04791a7`
+    restored the exact wording and that run's `test` job passed.
+  - Observed effect: An avoidable repair commit and delayed detection of a
+    guidance-contract regression while unrelated dashboard CI already failed.
+  - Inference: Third recurrence against the same contract suite: prose rewrite
+    for a delivery behavior change treated Markdown as free-form guidance rather
+    than tracing changed phrases to `ci-supported-host-contract.test.mjs`.
+    Fail-fast cancellation of `test` after dashboard failure further deferred
+    discovery; qualified as amplifying, not inventing, the miss.
+
 ## ODF-052 — Cursor mailbox probe did not attach CI_MONITOR_READY
 
 Former local code: DD-047.
