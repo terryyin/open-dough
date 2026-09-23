@@ -128,8 +128,10 @@ Use source paths plus named tests, symbols, assertions, or signals as locations;
 include a bounded excerpt only when the location cannot expose the decisive
 evidence. Do not routinely attach the raw implementation trace, full command
 logs, or a duplicate full diff. The return is an index into inspectable work and
-evidence, not proof that the coordinator has inspected or accepted them. An
-implementation return does not establish slice completion. Whether filtered
+evidence, not proof that the coordinator has inspected or accepted them. Do not
+create extra evidence files solely for later process review;
+that review uses [existing agent history](../../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
+An implementation return does not establish slice completion. Whether filtered
 selection, reported claims, changed-contract consumer applicability, and
 explicitly missing required observations are actually supported is decided under
 [proof acceptance](wrap-up.md#accept-proof), not by restating that procedure

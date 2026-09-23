@@ -34,6 +34,11 @@ commits are that identity's retained published revisions, not another ledger or 
 rewrite's unpublished SHA. Include an initial quick attempt and its planned
 continuation as one execution. Reuse context without another handoff artifact
 or transcript copy; retrospective validates attribution and recovers real gaps.
+For process review, use the existing coordinator conversation and relevant
+sub-agent history under
+[process-review evidence](../../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
+Do not copy that history into files for the handoff. Unavailable process history
+limits that review; it does not require recreating evidence or rerunning work.
 
 Execution completion and review completion are distinct. A retrospective context
 stop leaves implementation delivered but the final execution/review handoff
@@ -44,6 +49,10 @@ or recognize completed review; ambiguous state requires recovery rather than
 duplicate review or guessed completion. A CI failure handled through an
 authorized repair invalidates only the conclusions affected by changed code;
 resume those conclusions instead of restarting the full retrospective.
+
+Unavailable process history is a reported review limitation, not a context stop
+for independently supported outcome review or delivery. Do not claim the
+unavailable process analysis was performed.
 
 Retain the completed plan, proof decisions, execution checkout, branch, and
 worktree for story wrap-up; do not invoke it here. Wholly planless completion
