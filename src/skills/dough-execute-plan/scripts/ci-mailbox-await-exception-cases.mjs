@@ -68,7 +68,7 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
     const waiting = launchAwait(fixture.env, fixture.mailbox);
-    await new Promise((resolve) => setTimeout(resolve, 75));
+    await waiting.waitForCancellationReady();
     waiting.child.kill("SIGTERM");
     const completed = await waiting.completed;
     const result = parseReceipt(completed.stdout);

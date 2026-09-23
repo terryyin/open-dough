@@ -29,9 +29,25 @@ export function launchComplete(env, mailbox, revision = sha) {
 }
 
 function launchMailboxCommand(env, args) {
-  const child = spawn(process.execPath, [launcher, ...args], {
-    env,
-    stdio: ["ignore", "pipe", "pipe"],
+  // Observe handler registration without adding test hooks to the CLI protocol.
+  const readinessProbe = `data:text/javascript,${encodeURIComponent(`
+    process.on("newListener", (event) => {
+      if (event === "SIGTERM") {
+        queueMicrotask(() => process.send("cancellation-ready"));
+      }
+    });
+  `)}`;
+  const child = spawn(
+    process.execPath,
+    ["--import", readinessProbe, launcher, ...args],
+    {
+      env,
+      stdio: ["ignore", "pipe", "pipe", "ipc"],
+    },
+  );
+  let cancellationReady = false;
+  child.on("message", (message) => {
+    if (message === "cancellation-ready") cancellationReady = true;
   });
   let stdout = "";
   let stderr = "";
@@ -47,7 +63,13 @@ function launchMailboxCommand(env, args) {
       resolve({ code, signal, stdout, stderr }),
     );
   });
-  return { child, completed, output: () => stdout };
+  return {
+    child,
+    completed,
+    output: () => stdout,
+    waitForCancellationReady: () =>
+      waitFor(() => cancellationReady, "CLI cancellation handler"),
+  };
 }
 
 export function parseReceipt(output) {

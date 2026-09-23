@@ -153,7 +153,7 @@ test("wait_cancelled retains the observer without confirmed shutdown", async (t)
   const deliveryBefore = readDeliveryProgress(fixture.mailbox);
   const eventsBefore = readMailboxEvents(fixture.mailbox);
   const waiting = launchComplete(fixture.env, fixture.mailbox);
-  await new Promise((resolve) => setTimeout(resolve, 75));
+  await waiting.waitForCancellationReady();
   assert.equal(waiting.output(), "");
   waiting.child.kill("SIGTERM");
   const completed = await waiting.completed;
