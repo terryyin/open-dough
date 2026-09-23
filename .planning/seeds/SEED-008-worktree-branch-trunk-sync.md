@@ -176,9 +176,8 @@ another agent-managed publication sequence.
 **Scope candidate:** Adopt the publisher for closure and authorized integration
 of already-published Story Branch history. Preserve human-owned publication
 restrictions, semantic backlog completion, published history, actual target
-attribution, and the existing completion/cleanup conditions. Consume the shared
-CI completion operation owned by the already-Taken sibling story; do not add a
-second observer shutdown policy.
+attribution, and the existing completion/cleanup conditions. Consume the delivered
+shared CI completion operation; do not add a second observer shutdown policy.
 
 **Evaluation:** Story Branch closure integrates published history on trunk →
 receipt names the accepted trunk revision → matching CI completion and observer
@@ -196,11 +195,12 @@ retaining its distinct completion and cleanup responsibilities.
 
 The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 
-- Startup is first: a reproduced claim-visibility failure undermines parallel
-  execution and the dashboard's shared source of truth.
-- The combined CI/delivery story is second: it removes frequent per-increment
-  coordination at the same publication boundary, ahead of adding more workflow
-  metadata. The already-Taken CI completion story remains independent and active.
+- Startup addressed the reproduced claim-visibility failure; its remaining native
+  acceptance stays ahead of CI/delivery in the current queue.
+- Terry retained CI/delivery's current priority on 2026-09-23 after comparing
+  execution reliability with dashboard visibility and delivery-proof acceptance.
+  Its benefit is reliable feedback at frequent publication boundaries, not a
+  prerequisite for those other stories. CI completion is already delivered.
 - Published ownership and execution-branch visibility stay next. They directly
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
@@ -338,77 +338,121 @@ and ref-watching proposals; do not implement those historical mechanisms.
 
 **Identity:** SEED-008#script-driven-ci-observation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/083-publish-execution-ci/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f431f79ba2abd6ef2758afef89d2ef6452954cb14b9025a79dee86ee0048a77","plan":"dbd867056be88696c1067a46f7550903e03a8b828f65131bd2477be0742db6f3"}}
 ```
 
-**Status:** Existing identity retained; merged with the proposed execution-
-publication candidate on 2026-09-23. Second in the queue; refinement and planning
-pending.
+**Status:** Refined with Terry on 2026-09-23. Existing identity and current
+backlog priority retained. Execution planning is authorized; implementation is
+not. The product backlog remains the sole ordering authority.
 
-**Goal:** A developer's agent delivers each validated execution increment or
-authorized repair through one operation and receives actionable CI results,
-without separate probe/start/register commands or manually retained mailbox
-handles. Remote publication, deferred local refresh, and CI coverage stay honest.
+**Goal:** A developer can rely on each managed execution publication either
+having observation attached to its exact accepted revision, with applicable CI
+failures delivered to the owning execution, or having an explicit, actionable
+coverage gap. Reduce routine agent setup and handle bookkeeping without hiding
+uncertainty or waiting after every increment.
 
-**Scope candidate:** Extend the startup story's real shared publisher to ordinary
-execution delivery in both modes. At the first applicable managed publication,
-start or reuse the existing scoped observer and attach the exact accepted revision;
-later publications reuse it. Keep the matching handle and recovery in the existing
-CI owner. Preserve target destinations, candidate validation, published history,
-and the already-Taken CI completion contract. One agent invocation supplies
-publication intent; Git reconciliation and CI attachment are internal steps.
+**Why now:** Reliable feedback supports frequent remote publication by parallel
+agents. Recorded runtime-resolution misses and registration against ended
+observers show concrete gaps; they do not establish that all historical failures
+persist on today's candidate. Terry retained the current priority after comparing
+this outcome with dashboard visibility and delivery-proof acceptance. Neither
+of those stories depends on this migration. Command-count or token savings are
+not acceptance claims.
 
-**Key examples / evaluation:**
+**Alternatives:** Existing publication and manual observer setup remain usable.
+Targeted runtime-discovery and ended-observer fixes alone would remove some risk,
+but leave the routine publication-to-observation handoff with the agent. The
+selected outcome connects that handoff using existing owners. Another prose
+reminder alone does not remove the demonstrated opportunity for omission.
 
-- First validated increment → one publication operation → accepted remote SHA
-  is attached to matching observation without agent setup/registration commands.
-  Later increments reuse that owner; a delayed failure reaches the correct task.
-- Remote advances → reconciliation changes the candidate → obtain applicable
-  validation before pushing → register the accepted revision, never the old SHA.
-- Publication succeeds but observation attachment fails → preserve the accepted
-  receipt, report lost coverage, and recover observation without another push.
-- Interruption → recover the matching workspace/target/observer context → no
-  duplicate ownership, lost applicable failure, or manual handle transcription.
+**Scope:** Ordinary validated execution increments and already-authorized repairs
+in both existing execution modes use the shared publication mechanics and existing
+CI observer/host adapters. Establish or reuse observation at the first applicable
+managed publication; attach the accepted revision and retain matching execution,
+checkout, repository, and target context with the existing CI owner. Later
+publications reuse that owner. Resolve usable same-checkout runtime even when a
+host-specific alias is absent. Registration alone never establishes active
+coverage; ended or unavailable observation must produce an actionable gap.
 
-**Attribution and simplification:** The earlier hook proposal inferred a push
-from tracking-ref movement, which fetch/fast-forward can also cause. Terry had
-accepted possible fresh-base attribution as useful. That tolerance does not
-require a second attribution path: managed publication now supplies its exact
-receipt directly. Arbitrary raw/manual pushes are outside automatic attachment
-in this story; retain explicit existing observation options for them. Do not
-build ref watchers or intercept shell commands to pretend otherwise.
+Reliable feedback and no manual handle transcription are the promise, not a
+literal single shell command. Necessary host notification binding may remain;
+remove separate routine agent probe/start/register decisions from managed delivery.
+No notification promise exists without a verified host bridge. Lazy setup belongs
+at the publication boundary, before the first push it must cover where available;
+attachment uses the exact receipt after remote acceptance.
 
-**Boundary:** No invisible host startup, new observer daemon, general execution
-registry, provider expansion, automatic semantic repair, or new completion policy.
-CI starts lazily at the first applicable managed publication; no idle observer
-is needed during preparation. Existing claim-target CI policy remains effective;
-claim acceptance does not imply coverage by a story-branch observer. Preparation
-and closure adoption remain separate callers with their own authority/targets.
+**Preserved constraints and decisions:**
 
-**Depends on:** [Startup publication](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work) supplies
-the production boundary. Delivered
-[CI completion](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
-supplies bounded completion/shutdown. Neither a new readiness framework nor
-checkout coordination is required.
+- Preserve existing publication authority, mode destinations, checkout ownership,
+  published history, and semantic backlog reconciliation. An invocation does not
+  authorize a push or repair. Local-only work stays local.
+- A reconciled candidate whose proof is no longer applicable returns for validation
+  before publication. A clean rebase is not behavioral proof. Preserve bounded
+  race recovery rather than retrying indefinitely.
+- Remote acceptance, local refresh, and CI coverage are separate facts. An unavailable
+  observer may leave publication accepted with a reported gap under existing policy;
+  no new pre-publication CI availability gate is introduced.
+- Recover observation after accepted publication without another push. Recover only
+  unambiguously matching ownership and retain unread failures. Ended observation
+  does not become active by accepting another receipt. Follow existing lifecycle
+  eligibility for rearming; otherwise report the gap and next action. Do not
+  silently restart a terminal finished observer or adopt a guessed newest mailbox.
+- Preserve the delivered bounded completion/shutdown operation and existing repair
+  ownership. No wait after ordinary or repair publication. Missing discovery stays
+  pending/unproved; later discovered applicable failures still reach their owner.
+- Keep existing claim-target CI policy. A Story Branch claim on trunk is not covered
+  by an execution-branch observer merely because both belong to one story.
 
-**Safe stopping point:** Ordinary execution and repairs have one publication/
-observation path with less agent bookkeeping. Preparation and closure may still
-use existing setup until their migrations. The agent still receives truthful
-completion evidence; the goal is no routine observer management, not hidden gaps.
+**Key examples:**
 
-**Retrospective response (2026-09-23):** Reuse this queued story for
+1. No observer exists; an authorized validated increment is ready → managed
+   publication → the exact accepted target/revision is attached to observation,
+   or accepted publication explicitly reports missing coverage. With a usable
+   bridge, a later failure reaches the owning execution without manual registration.
+   A second increment or authorized repair reuses that same matching live owner.
+2. The host alias is absent but the execution checkout contains the usable runtime
+   → first managed delivery → resolve that runtime and establish observation without
+   copying another checkout's installation or declaring coverage unavailable solely
+   from the missing alias.
+3. Another writer advances the target → reconciliation changes the candidate →
+   require applicable validation before pushing; attach only the accepted result,
+   never the old SHA or the other writer's revision. Preserve published history and
+   unrelated staged, tracked, and untracked work; report deferred local refresh.
+4. Remote accepts the increment but CI attachment fails, or the response is lost
+   → resume from remote evidence and matching execution context → retain acceptance
+   and repair only the missing observation obligation, without duplicate publication.
+5. An observer ended after errors, or recovered ownership is ambiguous → a new
+   publication/attachment attempt → explicitly report unavailable coverage and the
+   supported recovery action; neither a writable mailbox nor an old handle proves
+   active observation. Preserve existing failed/unread evidence.
+6. An accepted revision is initially undiscovered → observation continues → deliver
+   its later failure once to its owner. Another execution's failure stays separate;
+   a revision never discovered remains explicitly unproved at existing completion.
+
+**Deferred promises:** No arbitrary raw/manual-push attachment or interception,
+new providers, daemon, execution registry, automatic semantic repair, dashboard CI
+presentation, checkout locking, preparation/closure caller migration, or changed
+completion policy. Keep explicit existing observation options for manual pushes.
+Do not promise universal discovery under arbitrary branch traffic or widen listing
+limits without diagnosis. Naturally supported cases need no artificial rejection.
+
+**Dependencies and safe stopping point:** Delivered startup supplies production Git
+mechanics and delivered CI completion supplies bounded wait/shutdown. Native startup
+acceptance remains a separate queued story, not evidence of a missing publisher.
+Ordinary execution and repairs gain reliable attachment or explicit gaps while
+preparation and closure retain their existing procedures. No readiness-framework
+or local-coordination prerequisite is added.
+
+**Retrospective response:** Evaluate
 [ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results),
 [ODF-073](../../docs/maintainer/finding-names.md#odf-073--ci-observation-starts-after-the-first-publication),
 [ODF-085](../../docs/maintainer/finding-names.md#odf-085--a-missing-host-skill-path-hides-an-available-checkout-runtime), and
-[ODF-089](../../docs/maintainer/finding-names.md#odf-089--ended-observers-still-accept-ordinary-push-receipts).
-Within the existing attachment/recovery scope, evaluate a missing host alias
-with usable same-checkout runtime, an observer already ended after errors,
-and delayed discovery of the accepted revision. Do not count registration as
-active coverage or widen listing limits on an unverified causal assumption.
-A remaining undiscovered revision stays explicitly unproved. On completion,
-record the actual response, implementation locator, containing release (or
-explicitly pending), and any unaddressed boundary on every supporting finding.
-These are linked evaluation inputs; refinement and planning remain pending.
+[ODF-089](../../docs/maintainer/finding-names.md#odf-089--ended-observers-still-accept-ordinary-push-receipts)
+as distinct mechanisms. ODF-069's remaining suspected bounded-listing cause is not
+promised repaired here; prove preserved late delivery and truthful gaps. On actual
+completion, record response, implementation locator, containing release or pending
+release, and remaining boundaries on each supporting finding. Refinement resolves
+none of those findings by itself.
 
 ## Architectural Context
 
