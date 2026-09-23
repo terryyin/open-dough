@@ -24,6 +24,83 @@ status; this seed records desired outcomes for implementation planning.
 
 ## Stories
 
+<a id="settle-taken-claims-on-remote-trunk"></a>
+
+### Settle Taken claims on remote trunk through one publication path
+
+**Identity:** SEED-008#settle-taken-claims-on-remote-trunk
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Status:** Captured on 2026-09-23; execution planning pending.
+
+**Goal:** A developer running stories concurrently in Trunk Mode or Story Branch
+Mode sees every confirmed Taken claim on the project's authoritative remote
+trunk before either execution begins. The default local checkout attempts to
+catch up to that accepted revision when it can do so safely.
+
+**Incident:** On 2026-09-23 in Doughnut, `SEED-037#story-3` was committed as
+Taken at `8face872f1` and published on its remote story branch while remote
+`main` still listed it in Backlog list. A concurrent `SEED-036#story-1` claim
+reached remote `main` at `dc29e4525a`, so the two agents saw different shared
+queue states. Implementation of SEED-037 had begun in a dirty worktree. The
+installed execution guidance at the claim revision already required both modes
+to publish the claim to remote trunk before implementation; the claim commit
+lacked the shared claim helper's ownership trailer. This shows a bypass of the
+required publication boundary, but the exact host or agent decision that led
+to it is unconfirmed. The SEED-037 claim was later merged into remote `main` at
+`e9ac74a8d9`; that repair is incident history, not this story's completion.
+This is a new occurrence of the shared visibility problem recorded in
+[ODF-066](../../docs/maintainer/finding-names.md#odf-066--unpublished-story-branch-claims-block-shared-integration)
+after the earlier claim-publication response was released.
+
+**Scope:** Give execution startup one reliable, shared path that selects the
+owned claim commit, reconciles it with freshly fetched remote trunk, confirms
+remote acceptance, and attempts a safe refresh of the default local checkout.
+Both execution modes use that same boundary before implementation. Reuse the
+same authoritative remote-publication and checkout-maintenance behavior for
+other workflows that integrate with remote trunk; remove duplicated procedural
+instructions instead of maintaining parallel recipes. A story branch may still
+publish implementation progress to its own remote branch, but that destination
+does not settle the Taken claim. Report remote acceptance and local refresh as
+separate facts, preserving unpublished work and concurrent remote changes.
+
+**Key examples / evaluation:**
+
+- Two executions take different queued stories from the same fetched base,
+  one in each mode. Their claims reconcile in either publication order; remote
+  trunk shows both exactly once before either starts implementation.
+- A Story Branch execution publishes its claim to remote trunk, then publishes
+  a later implementation increment to its story branch. The increment does not
+  replace or retract the remote-trunk Taken entry.
+- After a claim reaches remote trunk, a clean, exclusively available local
+  default checkout fast-forwards to the accepted trunk head. A dirty, busy, or
+  ambiguous checkout stays intact; the claim remains accepted, and the deferred
+  refresh is reported and can be retried when access becomes safe.
+- Remote trunk advances between fetch and push. The owned candidate is
+  reconciled with the new head and accepted without dropping another claim;
+  rejection or interruption leaves recoverable state and does not start
+  implementation from an unconfirmed claim.
+- A fresh native execution in each supported host demonstrates that the shared
+  publication path is actually used, with remote history and local checkout
+  state checked independently. Guidance names one authoritative procedure and
+  callers link to it rather than restating its steps.
+
+**Architecture constraints:** [Accepted ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+requires continuous integration on a shared trunk;
+[Accepted ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+requires one authoritative home for each behavioral rule. The Git mechanics
+draft in [Proposed ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md)
+is context, not an accepted decision. The existing
+[default-checkout coordination story](#same-machine-merge-queue) owns automated
+exclusive access among local writers; this story owns the publication boundary,
+safe refresh attempt, and truthful outcome across modes.
+
+**Safe stopping point:** Both modes settle claims on remote trunk before work
+starts and use one reusable integration procedure. Local checkout lag is
+visible and recoverable when refresh cannot safely advance it.
+
 <a id="same-machine-merge-queue"></a>
 
 ### Coordinate direct edits and refreshes of the default checkout
