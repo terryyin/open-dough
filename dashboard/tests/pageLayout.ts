@@ -32,7 +32,8 @@ const pastTheWindow = `(() => {
 })()`;
 
 // Elements whose content is wider than they are, cut short, or ended with an
-// ellipsis: text that a reader could not read whole.
+// ellipsis: text that a reader could not read whole. One-line text is readable
+// when its content fits and no ancestor clips it.
 const notReadWhole = `(() => {
   const keptFromSight = ${keptFromSight};
   return [...document.body.querySelectorAll("*")]
@@ -51,8 +52,7 @@ const notReadWhole = `(() => {
         tooNarrowForItsContent ||
         style.textOverflow === "ellipsis" ||
         (style.overflowX !== "visible" && style.overflowX !== "auto") ||
-        (style.overflowY !== "visible" && style.overflowY !== "auto") ||
-        style.whiteSpace === "nowrap"
+        (style.overflowY !== "visible" && style.overflowY !== "auto")
       );
     })
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
