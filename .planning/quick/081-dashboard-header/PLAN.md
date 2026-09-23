@@ -6,7 +6,8 @@ Identity: `SEED-021#compact-dashboard-controls`
 
 Source: [refined story](../../seeds/SEED-021-observe-published-story-progress.md#compact-dashboard-controls).
 Terry requested first backlog priority, refinement, and planning on 2026-09-23.
-No Take or implementation is authorized by this plan.
+Terry subsequently authorized publication, execution, and ordinary wrap-up.
+The Taken claim was published before implementation.
 
 ## Goal and scope
 
@@ -63,7 +64,7 @@ No numeric slice target or hard limit is supplied; do not invent one.
 ### 1. Reach project context and refresh from a persistent OpenDO banner
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a reader scrolls a long backlog or selects/refreshes a project → the
 top banner keeps OpenDO, project selection, compact source context, and the SVG
@@ -93,6 +94,12 @@ npm run test:dashboard -- dashboard-header.spec.ts project-selection.spec.ts pro
 npm run typecheck:dashboard
 git diff --check
 ```
+
+**Accepted proof:** The focused browser command above passed 21 tests; typecheck
+and whitespace checks passed. Inspected real App/readers with origin HTTP fixtures
+and `dashboard-header.spec.ts` viewport, non-overlap, pointer and focus assertions.
+Refactoring extracted DashboardBanner/banner styles; focused repair closed selector
+overlap and stale resize measurement. Independent refactor review completed.
 
 Safe stopping point: common controls stay in reach with the existing direction
 and legend still usable. Align the relevant dashboard usage description.
@@ -193,3 +200,27 @@ Reviewed all three slice boundaries and final-promise mappings: no remaining
 slice-specific blocking concern was identified. Structured readiness is recorded
 in the canonical story by the preparation recorder; it grants no execution
 authority. Implementation and all prospective browser proofs remain unstarted.
+
+## Execution identity
+
+- Mode: Story Branch Mode; reuse the preparation worktree authorized by Terry.
+- Owned checkout: `/Users/terryyin/git/open-dough-worktrees/081-dashboard-header`,
+  branch `codex/081-dashboard-header`; session-created during preparation at
+  `d5a3da0db09d7bbd9df73f48a0413c5d11330525`, reconciled onto published trunk.
+- Originating/integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+  This coordinator owns only the requested brief clean fast-forward intervals.
+- Preparation published: `e4ec2cebf3a4f24c893aa40508bf528f31261db1` on `origin/main`.
+- Taken published: `3f13418740f3f57128ff947383ca7aaeba3e37d0` on `origin/main`;
+  claim CI is unobserved by the story-branch observer.
+- Increment target: `origin/codex/081-dashboard-header`; final integration target:
+  `origin/main`. Local main advances only while clean and safely fast-forwardable.
+- Setup: locked `npm ci` and `npm run typecheck:dashboard` passed in this checkout.
+- Replanning: existing planning authority retained within this story's scope.
+- Hooks: no active Git commit hook or core.hooksPath override. Selectively format
+  changed supported files with the checked-in Prettier configuration; run focused
+  lint checks for changed code before commits. No generation trigger applies.
+- CI observer: GitHub Actions `ci.yml` / `CI`, push-triggered for all branches;
+  selected checkout runtime `.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs`.
+  Coordinator `root-dashboard`, target `codex/081-dashboard-header`, mailbox
+  `/tmp/dough-ci-501/watch-UPso05`, PID `52256`, PTY session `79407`, yielded cell `31`.
+  Bound to this worktree; no previous observer for this execution.

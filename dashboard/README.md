@@ -4,6 +4,12 @@ A locally launched page that shows the work Open Dough has published: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages.
 
+The pinned **OpenDO** banner keeps the **Project** selector and SVG **Refresh**
+control reachable while scrolling. Its repository/ref disclosure opens the full
+source revision, retrieval time (not commit time), and publication warning.
+Close that disclosure to return space to the work, especially at narrow widths
+or high browser zoom. The icon is named **Retry** after a failed read.
+
 One project is observed at a time, chosen from the **Project** selector.
 `src/publishedSource.ts` is the one catalog of the three observable projects
 (Open Dough, Doughnut, and Pygardon) and what each one needs to be read. It

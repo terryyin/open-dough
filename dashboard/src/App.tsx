@@ -6,9 +6,8 @@ import {
   type PublishedWork,
 } from "./publishedWork";
 import { Moment } from "./Moment";
-import { ProjectSelect } from "./ProjectSelect";
+import { DashboardBanner } from "./DashboardBanner";
 import { ReadProblem } from "./readProblem";
-import { SourceStatus } from "./SourceStatus";
 import { focusedWork, returnFocusTo, type FocusedWork } from "./workFocus";
 import { WorkStages } from "./WorkStages";
 
@@ -55,7 +54,6 @@ export function App() {
   // reads again by itself.
   const [readsAsked, setReadsAsked] = useState(1);
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
-
   useEffect(() => {
     const reading = new AbortController();
     let acceptedMembership = false;
@@ -146,16 +144,16 @@ export function App() {
 
   return (
     <>
-      <header className="page-header">
+      <DashboardBanner
+        source={source}
+        work={work}
+        reading={reading}
+        failed={attempt.status === "failed"}
+        onSelect={selectSource}
+        onRefresh={refresh}
+      />
+      <div className="page-header">
         <h1>Published work</h1>
-        <ProjectSelect source={source} onSelect={selectSource} />
-        <SourceStatus
-          source={source}
-          work={work}
-          reading={reading}
-          failed={attempt.status === "failed"}
-          onRefresh={refresh}
-        />
         {/* Both polite regions stay rendered while they have nothing to say:
             assistive technology speaks a change of text inside a region it
             already knows, and may never speak one inserted with its text.
@@ -216,7 +214,7 @@ export function App() {
             )}
           </section>
         )}
-      </header>
+      </div>
       {work && (
         <main>
           <WorkStages work={work} />

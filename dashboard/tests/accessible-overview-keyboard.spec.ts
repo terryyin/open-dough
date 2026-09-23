@@ -25,10 +25,10 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, backlog, taken, refresh } = parts(page);
+  const { project, sourceEvidence, backlog, taken, refresh } = parts(page);
 
   // Reading order is the order of the page's source: the project selector,
-  // then the read control, then each card's Inspect control and its recorded
+  // then the read control and source evidence, then each card's Inspect and recorded
   // links by stage (Backlog, then Taken). In a wide window Taken stands beside
   // Backlog's first card, so position on screen would order them differently.
   const stopsFor = async (stage: Locator) => {
@@ -42,11 +42,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const stops = [
     project,
     refresh,
+    sourceEvidence,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // project + refresh + four Inspect controls + five recorded links.
-  expect(stops).toHaveLength(1 + 1 + 4 + 5);
+  // Project + Refresh + Source evidence + four Inspect + five recorded links.
+  expect(stops).toHaveLength(1 + 1 + 1 + 4 + 5);
 
   await test.step("Tab stops at the read control, Inspect, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -70,8 +71,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
-    // Project already holds focus after the reverse walk; Refresh and the
+    // Project already holds focus after the reverse walk; Refresh, evidence and the
     // first card's Inspect precede its Canonical link.
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
@@ -105,7 +107,7 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // The project selector is the first stop; the read control is the second.
+  // Project then the read control.
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await expect(refresh).toBeFocused();

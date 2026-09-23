@@ -84,8 +84,8 @@ test("accessible overview reflows long published work for a narrow window and pa
 
   await test.step("the page reads top to bottom: evidence, direction, Backlog, taking work, Taken", async () => {
     await expectStackedInOrder([
-      page.getByRole("heading", { level: 1 }),
       source,
+      page.getByRole("heading", { level: 1 }),
       status,
       direction,
       backlog,
@@ -93,10 +93,6 @@ test("accessible overview reflows long published work for a narrow window and pa
       connector,
       connectorMeaning,
       taken,
-    ]);
-    await expectStackedInOrder([
-      source.getByText("Current agent activity is unknown"),
-      refresh,
     ]);
   });
 
@@ -116,8 +112,10 @@ test("accessible overview reflows long published work for a narrow window and pa
   });
 
   await test.step("source evidence, direction, and the read control stay reachable", async () => {
+    await parts(page).sourceEvidence.click();
     await expectInside(source.getByText(revision), source);
     await expect(source.locator("time")).toBeVisible();
+    await parts(page).sourceEvidence.click();
     await expect(direction).toContainText("Derive it solely from Git state");
     await refresh.scrollIntoViewIfNeeded();
     await expect(refresh).toBeInViewport({ ratio: 1 });
@@ -156,7 +154,9 @@ test("accessible overview keeps empty groups and their connection readable in a 
   await expect(
     direction.getByText("No near-future direction is recorded."),
   ).toBeVisible();
+  await parts(page).sourceEvidence.click();
   await expectInside(source.getByText(revision), source);
+  await parts(page).sourceEvidence.click();
   await expectNoSidewaysScrollAndWholeText(page);
   await expectStackedInOrder([direction, backlog, connector, taken]);
 });

@@ -202,7 +202,7 @@
 @media (min-height: 30rem) {
   .stage-header {
     position: sticky;
-    top: 0;
+    top: var(--banner-height, 0px);
     z-index: 1;
   }
 

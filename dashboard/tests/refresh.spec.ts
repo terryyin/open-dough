@@ -133,6 +133,7 @@ test("refresh published work reads only when asked, and an unchanged revision ch
   });
 
   const body = page.locator("body");
+  await parts(page).sourceEvidence.click();
   const textAtFirstRead = await body.innerText();
   const timeAtFirstRead = await source.locator("time").innerText();
   await page.clock.setFixedTime(retrievedAgain);

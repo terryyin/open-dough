@@ -8,6 +8,8 @@ export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
   const status = page.getByRole("status");
   return {
+    banner: page.getByRole("banner"),
+    sourceEvidence: page.getByLabel("Source evidence", { exact: true }),
     project: page.getByRole("combobox", { name: "Project" }),
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),

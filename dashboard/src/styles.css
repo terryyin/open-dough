@@ -20,7 +20,7 @@
    wrap inside their group, are never cut short, and never widen the page. */
 body {
   margin: 0;
-  padding: clamp(0.75rem, 4vw, 1.5rem);
+  padding: 0;
   overflow-wrap: anywhere;
 }
 
@@ -64,8 +64,9 @@ code,
   border-radius: 0.2rem;
 }
 
-.page-header {
-  margin-bottom: 1.5rem;
+.page-header,
+main {
+  margin: 1rem clamp(0.75rem, 4vw, 1.5rem) 1.5rem;
 }
 
 .page-header > * + * {
@@ -92,37 +93,6 @@ code,
   white-space: nowrap;
 }
 
-.project-select {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.project-select select {
-  font: inherit;
-  padding: 0.2rem 0.4rem;
-  border: 1px solid var(--edge);
-  border-radius: 0.35rem;
-  background: var(--panel);
-  color: var(--text);
-}
-
-.source dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
-}
-
-.source dt,
-.source dd {
-  display: inline;
-}
-
-.source dt {
-  margin-right: 0.4rem;
-}
-
 .source dt,
 .source-note,
 .quiet,
@@ -133,30 +103,6 @@ code,
 .link-note {
   color: var(--quiet);
   font-size: 0.9rem;
-}
-
-.source-note {
-  margin-top: 0.25rem;
-}
-
-.refresh {
-  margin-top: 0.5rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid var(--accent);
-  border-radius: 0.35rem;
-  font: inherit;
-  color: var(--panel);
-  background: var(--accent);
-  cursor: pointer;
-}
-
-/* Reading is said in words beside the control; the dashed edge and quiet
-   fill only repeat it. */
-.refresh[aria-disabled="true"] {
-  border: 1px dashed var(--edge);
-  color: var(--quiet);
-  background: var(--surface);
-  cursor: default;
 }
 
 .read-problem {
