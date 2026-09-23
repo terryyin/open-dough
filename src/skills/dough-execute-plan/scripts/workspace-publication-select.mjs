@@ -15,7 +15,8 @@ import {
   trailers,
 } from "./workspace-publication-ownership.mjs";
 
-async function verifyRetained(retained) {
+async function verifyRetained(request) {
+  const { retained } = request;
   const recovery = {
     workspace: retained.workspace,
     branch: retained.branch,
@@ -35,7 +36,17 @@ async function verifyRetained(retained) {
       retained.startingRevision,
       "HEAD",
     );
-    if (!matches) {
+    const head = await revParse(retained.workspace, "HEAD");
+    const message = (await git(retained.workspace, "log", "-1", "--format=%B"))
+      .stdout;
+    const owned = trailers(message);
+    // A successful semantic replay rewrites the candidate onto newer trunk.
+    // In that case its original base need not remain an ancestor of HEAD.
+    const replayedCandidate =
+      retained.candidateSha === head &&
+      owned.publisher === request.publisherId &&
+      owned.identity === request.identity;
+    if (!matches && !replayedCandidate) {
       return stopped("setup-failed", {
         recovery: {
           ...recovery,
@@ -58,7 +69,7 @@ async function verifyRetained(retained) {
 }
 
 export async function selectOwnedWorkspace(request) {
-  if (request.retained?.workspace) return verifyRetained(request.retained);
+  if (request.retained?.workspace) return verifyRetained(request);
   const remote = remoteOf(request);
   const target = targetOf(request);
   try {

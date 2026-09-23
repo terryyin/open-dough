@@ -5,7 +5,7 @@
 git_publication_assess_startup() {
   local obs=$1 journey=$2
   local stream startup_calls remote_sha trunk_sha taken claim_owned human_preserved
-  local source_preserved feature setup setup_after first_edit refusal
+  local source_preserved feature setup setup_after first_edit refusal conflict rival contained
   stream=$(git_publication_assess_field "${obs}" stream-status)
   startup_calls=$(git_publication_assess_field "${obs}" startup-cli-count)
   remote_sha=$(git_publication_assess_field "${obs}" remote-sha)
@@ -18,6 +18,9 @@ git_publication_assess_startup() {
   setup=$(git_publication_assess_field "${obs}" setup-exists)
   setup_after=$(git_publication_assess_field "${obs}" setup-after-claim)
   refusal=$(git_publication_assess_field "${obs}" startup-refusal-observed)
+  conflict=$(git_publication_assess_field "${obs}" startup-conflict-observed)
+  rival=$(git_publication_assess_field "${obs}" rival-owned)
+  contained=$(git_publication_assess_field "${obs}" candidate-contained)
   first_edit=$(git_publication_assess_field "${obs}" first-edit-after-claim)
   if [[ ${stream} != complete || ! ${startup_calls} =~ ^[1-9][0-9]*$ ]]; then
     git_publication_assess_fail 'native startup command was not observed in a complete stream'
@@ -31,6 +34,17 @@ git_publication_assess_startup() {
       git_publication_assess_status=pass
       git_publication_assess_reason='selected source stopped before claim with preserved bytes'
     fi
+  elif [[ ${journey} == startup-claim-race ]]; then
+    if [[ ${remote_sha} == "${trunk_sha}" || ${taken} != true ||
+      ${rival} != true || ${claim_owned} != false || ${contained} != false ||
+      ${feature} != false || ${setup} != false || ${conflict} != true ]]; then
+      git_publication_assess_fail 'rival claim did not stop retained startup before implementation'
+    else
+      git_publication_assess_status=pass
+      git_publication_assess_reason='installed startup observed competing Taken provenance and stopped'
+    fi
+  elif [[ ${journey} == startup-resume && ${contained} != true ]]; then
+    git_publication_assess_fail 'retained candidate is absent from remote descendant'
   elif [[ -z ${remote_sha} || ${remote_sha} == "${trunk_sha}" ||
     ${taken} != true || ${claim_owned} != true ]]; then
     git_publication_assess_fail "remote trunk lacks this execution's owned Taken claim"

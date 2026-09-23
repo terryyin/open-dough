@@ -4,6 +4,7 @@ import { dirname, join, posix, relative, resolve, sep } from "node:path";
 import {
   parseBacklog,
   queueHeading,
+  takenHeading,
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readHome } from "../../dough-product-backlog/scripts/product-backlog-home-reader.mjs";
 import { readStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
@@ -63,7 +64,11 @@ export async function readPublishedExecutionSource(request, remoteRef) {
   const entry = parseBacklog(backlog).entries.find(
     (item) => item.identity === request.identity,
   );
-  if (!entry || entry.list !== queueHeading)
+  if (
+    !entry ||
+    (entry.list !== queueHeading &&
+      !(request.retained && entry.list === takenHeading))
+  )
     throw new Error("selected identity is not queued on fetched trunk");
   const backlogDir = dirname(backlogPath);
   const homePath = within(
@@ -121,5 +126,13 @@ export async function readPublishedExecutionSource(request, remoteRef) {
     (await unpublishedSource(request.integration, remoteRef, planPath, null))
   )
     throw new Error("unpublished selected plan in originating checkout");
-  return { entry, homePath, planPath, planTarget, preparation };
+  return {
+    entry,
+    homePath,
+    planPath,
+    planTarget,
+    preparation,
+    selectedSource: selectedRegion(home, entry.href),
+    planSource: plan,
+  };
 }

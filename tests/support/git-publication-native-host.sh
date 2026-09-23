@@ -119,6 +119,7 @@ native_case_known() {
     publication/publish-boundary | publication/claim-race | \
       publication/startup-trunk | publication/startup-story-branch | \
       publication/startup-selected-source | \
+      publication/startup-claim-race | publication/startup-resume | \
       publication/local-only | publication/uncertain-recovery | \
       publication/preparation | publication/trunk-closure | \
       publication/story-branch-closure | publication/bug-disposition | \

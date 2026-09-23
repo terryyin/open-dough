@@ -1,7 +1,4 @@
-// Git mechanics (not guidance-following): concurrent Taken claims. Distinct
-// identities both publish. One identity yields one owner and a recoverable
-// conflict. Identical Taken text is not ownership. Native sequencing is not
-// this file.
+// Backlog publication adapter: ownership and semantic replay of competing claims.
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";

@@ -42,6 +42,7 @@ export const failingContributing = [
 
 export async function createQueuedTrunk({
   contributing,
+  durableCommandEvidence = false,
   parent = tmpdir(),
 } = {}) {
   const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
@@ -60,6 +61,7 @@ export async function createQueuedTrunk({
   );
   mkdirSync(join(integration, ".planning/seeds"), { recursive: true });
   mkdirSync(join(integration, ".planning/quick/A"), { recursive: true });
+  mkdirSync(join(integration, ".planning/quick/B"), { recursive: true });
   const plan = "# Story A plan\n\nExecute the selected startup story.\n";
   const seed =
     '---\nid: SEED-A\n---\n\n# Seed A\n\n<a id="a"></a>\n\n### Story A\n\n**Identity:** SEED-A#a\n\nExecute A.\n';
@@ -80,15 +82,36 @@ export async function createQueuedTrunk({
   );
   writeFileSync(join(integration, ".planning/seeds/A.md"), recorded.source);
   writeFileSync(join(integration, ".planning/quick/A/PLAN.md"), plan);
+  const planB = "# Story B plan\n\nExecute the selected startup story.\n";
+  const seedB =
+    '---\nid: SEED-B\n---\n\n# Seed B\n\n<a id="b"></a>\n\n### Story B\n\n**Identity:** SEED-B#b\n\nExecute B.\n';
+  const recordedB = recordStoryState(
+    seedB,
+    {
+      href: "seeds/B.md#b",
+      identity: identityB,
+      refinement: "refined",
+      approach: "planned",
+      plan: "../quick/B/PLAN.md",
+      assessment: "ready",
+      reasons: [],
+      expectedBasis: computeBasis(seedB, planB),
+    },
+    { planSource: planB },
+  );
+  writeFileSync(join(integration, ".planning/seeds/B.md"), recordedB.source);
+  writeFileSync(join(integration, ".planning/quick/B/PLAN.md"), planB);
   if (contributing) {
     mkdirSync(join(integration, "scripts"), { recursive: true });
+    const marker = (name) =>
+      durableCommandEvidence ? join(fixture, name) : name;
     writeFileSync(
       join(integration, "scripts/setup.js"),
-      "require('fs').writeFileSync('.setup-ran','1')\n",
+      `require('fs').writeFileSync(${JSON.stringify(marker(".setup-ran"))},'1')\n`,
     );
     writeFileSync(
       join(integration, "scripts/command.js"),
-      "require('fs').writeFileSync('.command-ran','1')\n",
+      `require('fs').writeFileSync(${JSON.stringify(marker(".command-ran"))},'1')\n`,
     );
     writeFileSync(join(integration, "scripts/fail.js"), "process.exit(1)\n");
     writeFileSync(join(integration, "CONTRIBUTING.md"), contributing);

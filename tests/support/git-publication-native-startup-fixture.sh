@@ -7,7 +7,7 @@ git_publication_fixture_create_startup() {
   local prepared
   prepared=$(node --input-type=module -e '
     const { createQueuedTrunk, readyContributing } = await import(process.argv[1]);
-    const fixture = await createQueuedTrunk({ contributing: readyContributing, parent: process.argv[2] });
+    const fixture = await createQueuedTrunk({ contributing: readyContributing, durableCommandEvidence: true, parent: process.argv[2] });
     process.stdout.write(JSON.stringify({ root: fixture.fixture, origin: fixture.origin, integration: fixture.integration, trunk: fixture.trunkSha }));
   ' "file://${source_dir}/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs" "${parent}")
   git_publication_fixture_root=$(jq -r .root <<< "${prepared}")
@@ -22,7 +22,9 @@ git_publication_fixture_create_startup() {
 #!/bin/sh
 while read -r old new ref; do
   if [ "\${ref}" = refs/heads/main ]; then
-    touch "${git_publication_fixture_root}/claim-accepted"
+    if [ ! -e "${git_publication_fixture_root}/claim-accepted" ]; then
+      touch "${git_publication_fixture_root}/claim-accepted"
+    fi
   fi
 done
 EOF
@@ -40,6 +42,47 @@ EOF
   git_publication_fixture_human_before=$(
     git_publication_fixture_capture_human "${git_publication_fixture_integration}"
   )
+  if [[ ${journey} == startup-claim-race || ${journey} == startup-resume ]]; then
+    local start_cli="${source_dir}/src/skills/dough-execute-plan/scripts/execution-start.mjs"
+    local receipt
+    if [[ ${journey} == startup-claim-race ]]; then
+      mkdir -p "${git_publication_fixture_root}/hooks"
+      cat > "${git_publication_fixture_root}/hooks/pre-push" << 'EOF'
+#!/bin/sh
+echo 'interrupted before push' >&2
+exit 1
+EOF
+      chmod +x "${git_publication_fixture_root}/hooks/pre-push"
+      git -C "${git_publication_fixture_integration}" config core.hooksPath \
+        "${git_publication_fixture_root}/hooks"
+    fi
+    receipt=$(node "${start_cli}" start \
+      --integration "${git_publication_fixture_integration}" \
+      --workspace "${git_publication_fixture_workspace}" \
+      --branch exec/native-startup --identity 'SEED-A#a' \
+      --publisher-id "native-startup-${journey}" --mode trunk \
+      --remote origin --target main --push-authorized --workspace-authorized) || true
+    git_publication_fixture_candidate_sha=$(jq -r '.candidateSha // .recovery.candidateSha' <<< "${receipt}")
+    git_publication_fixture_starting_sha=$(jq -r '.startingRevision // .recovery.startingRevision' <<< "${receipt}")
+    if [[ ${journey} == startup-claim-race ]]; then
+      git -C "${git_publication_fixture_integration}" config --unset core.hooksPath
+      node "${start_cli}" start \
+        --integration "${git_publication_fixture_integration}" \
+        --workspace "${git_publication_fixture_root}/rival" \
+        --branch exec/rival --identity 'SEED-A#a' \
+        --publisher-id rival --mode trunk --remote origin --target main \
+        --push-authorized --workspace-authorized > /dev/null
+    else
+      git clone -q "${git_publication_fixture_origin}" \
+        "${git_publication_fixture_root}/later"
+      git -C "${git_publication_fixture_root}/later" config user.name Later
+      git -C "${git_publication_fixture_root}/later" config user.email later@example.test
+      printf 'later\n' > "${git_publication_fixture_root}/later/later.txt"
+      git -C "${git_publication_fixture_root}/later" add later.txt
+      git -C "${git_publication_fixture_root}/later" commit -qm 'later independent advance'
+      git -C "${git_publication_fixture_root}/later" push -q origin HEAD:main
+    fi
+  fi
 }
 
 git_publication_fixture_observe_startup() {
@@ -47,7 +90,7 @@ git_publication_fixture_observe_startup() {
   local remote_sha remote_backlog message human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
   local startup_calls setup_exists setup_after_claim claim_owned taken_on_remote
-  local refusal_receipt command_outputs
+  local refusal_receipt conflict_receipt command_outputs
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
   remote_backlog=$(git --git-dir="${git_publication_fixture_origin}" show \
     "${remote_sha}:.planning/PRODUCT-BACKLOG.md")
@@ -67,12 +110,13 @@ git_publication_fixture_observe_startup() {
     END { exit !found }
   ' <<< "${remote_backlog}"; then taken_on_remote=true; fi
   claim_owned=false
-  if grep -Fq "Claim-Publisher: native-startup-${journey}" <<< "${message}"; then claim_owned=true; fi
+  if git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}" \
+    | grep -Fq "Claim-Publisher: native-startup-${journey}"; then claim_owned=true; fi
   feature_exists=false
   [[ -f ${git_publication_fixture_workspace}/feature.txt ]] && feature_exists=true
   setup_exists=false
-  [[ -f ${git_publication_fixture_workspace}/.setup-ran &&
-    -f ${git_publication_fixture_workspace}/.command-ran ]] && setup_exists=true
+  [[ -f ${git_publication_fixture_root}/.setup-ran &&
+    -f ${git_publication_fixture_root}/.command-ran ]] && setup_exists=true
   setup_after_claim=false
   if [[ ${setup_exists} == true && -f ${git_publication_fixture_root}/claim-accepted ]]; then
     if node -e '
@@ -80,8 +124,8 @@ git_publication_fixture_observe_startup() {
       const [claim, setup, command] = process.argv.slice(1).map((path) => fs.statSync(path, { bigint: true }).mtimeNs);
       process.exit(setup >= claim && command >= setup ? 0 : 1);
     ' "${git_publication_fixture_root}/claim-accepted" \
-      "${git_publication_fixture_workspace}/.setup-ran" \
-      "${git_publication_fixture_workspace}/.command-ran"; then
+      "${git_publication_fixture_root}/.setup-ran" \
+      "${git_publication_fixture_root}/.command-ran"; then
       setup_after_claim=true
     fi
   fi
@@ -101,6 +145,7 @@ git_publication_fixture_observe_startup() {
       | sort -u | grep -Fc 'execution-start.mjs start' || true)
   fi
   refusal_receipt=false
+  conflict_receipt=false
   command_outputs=$(
     jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and
       ((.item.command // "") | contains("execution-start.mjs start"))) |
@@ -116,6 +161,9 @@ git_publication_fixture_observe_startup() {
   if grep -Eq '^\{"ok":false,"status":"source-refused"' <<< "${command_outputs}"; then
     refusal_receipt=true
   fi
+  if grep -Eq '^\{"ok":false,"status":"conflict"' <<< "${command_outputs}"; then
+    conflict_receipt=true
+  fi
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
   printf 'startup-cli-count: %s\n' "${startup_calls}"
@@ -123,12 +171,22 @@ git_publication_fixture_observe_startup() {
   printf 'trunk-sha: %s\n' "${git_publication_fixture_trunk_sha}"
   printf 'taken-on-remote: %s\n' "${taken_on_remote}"
   printf 'claim-owned: %s\n' "${claim_owned}"
+  printf 'candidate-sha: %s\n' "${git_publication_fixture_candidate_sha}"
+  local candidate_contained=false
+  if [[ -n ${git_publication_fixture_candidate_sha} ]] \
+    && git --git-dir="${git_publication_fixture_origin}" merge-base --is-ancestor \
+      "${git_publication_fixture_candidate_sha}" "${remote_sha}" 2> /dev/null; then
+    candidate_contained=true
+  fi
+  printf 'candidate-contained: %s\n' "${candidate_contained}"
+  printf 'rival-owned: %s\n' "$(grep -Fq 'Claim-Publisher: rival' <<< "$(git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}")" && echo true || echo false)"
   printf 'human-edit-preserved: %s\n' "${human_preserved}"
   printf 'selected-source-preserved: %s\n' "${source_preserved}"
   printf 'feature-exists: %s\n' "${feature_exists}"
   printf 'setup-exists: %s\n' "${setup_exists}"
   printf 'setup-after-claim: %s\n' "${setup_after_claim}"
   printf 'startup-refusal-observed: %s\n' "${refusal_receipt}"
+  printf 'startup-conflict-observed: %s\n' "${conflict_receipt}"
   printf 'first-edit-after-claim: %s\n' "${first_edit_after_claim}"
   printf 'workspace: %s\n' "${git_publication_fixture_workspace}"
   printf 'integration: %s\n' "${git_publication_fixture_integration}"

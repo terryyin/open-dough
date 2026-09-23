@@ -9,6 +9,10 @@ git_publication_prompt_for() {
       printf '%s\n' \
         "Use this project's installed Open Dough guidance to execute queued Story A (SEED-A#a) in ${git_publication_fixture_startup_mode} mode. The originating and integration checkout is ${git_publication_fixture_integration}; the authorized owned execution workspace is ${git_publication_fixture_workspace} on local branch exec/native-startup. Remote origin trunk is refs/heads/main. You have explicit authority to select that workspace and publish this claim to remote trunk. Your stable execution publisher ID is native-startup-${journey}. Preserve existing local changes. Follow the project's preparation gate before implementing Story A as a new feature.txt containing 'implemented'. Report the outcome."
       ;;
+    startup-claim-race | startup-resume)
+      printf '%s\n' \
+        "Use this project's installed Open Dough guidance to resume authorized queued Story A (SEED-A#a) in Trunk Mode. The originating and integration checkout is ${git_publication_fixture_integration}; the retained owned execution workspace is ${git_publication_fixture_workspace} on branch exec/native-startup, starting revision ${git_publication_fixture_starting_sha}, candidate ${git_publication_fixture_candidate_sha}. Remote origin trunk is refs/heads/main. Your stable publisher ID is native-startup-${journey}; you have authority for this workspace and remote claim publication. Another writer may have advanced trunk. Verify ownership through the installed startup boundary, preserve local work, and start implementation only if this execution owns the accepted claim and project setup succeeds. If allowed, implement Story A as feature.txt containing 'implemented'. Report the outcome."
+      ;;
     local-only)
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. In the owned workspace at this checkout, retain the authorized verified increment under explicit local-only authority. Do not publish to the remote. Preserve any pending human edit on the separate default checkout. Report the local retention and that publication remains pending."

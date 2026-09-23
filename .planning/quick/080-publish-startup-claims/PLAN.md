@@ -200,7 +200,7 @@ credential-free native checks passed.
 ### 2. Reconcile and resume claims without duplicating ownership
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: competing startups or an interrupted/uncertain claim publication reach
 the shared command → reconcile distinct claims, or recover this execution's
@@ -338,3 +338,49 @@ succeeded in the execution worktree. The Codex CI observer is bound to
 `terryyin/open-dough`, target `codex/080-publish-startup-claims`, coordinator
 `080`, mailbox `/tmp/dough-ci-501/watch-iWiO9o`, PID `54058`, and yielded
 cell `16`. The Story Branch claim on main has unobserved CI coverage.
+Slice 1 increment `194617bddce2613ef3030b60e0270a3e5e6ae684` was
+accepted on `origin/refs/heads/codex/080-publish-startup-claims` and registered
+with that observer. Remote main advanced independently after the claim; the
+execution branch retains its claim ancestry and does not yet integrate it.
+CI run `35817988967` attempt 1 failed the `test` job for `194617b` because
+`workspace-ownership-lifecycle.test.mjs` still asserted the old procedural
+claim wording. The focused test reproduced the failure; its assertions now
+follow the installed startup and publication guidance and pass 3/3. Repair
+commit `b77563688dfaf133f2afa19992ea7b7f5cb5a776` was accepted on the same
+remote execution branch and registered with the same observer. The paused
+slice 2 changes and this plan edit were restored from their identified stash
+after publication; slice 2 remains unfinished.
+CI run `35818462953` attempt 1 for `b775636` found another stale guidance
+assertion in `execution-increment-delivery.test.mjs`. The focused test
+reproduced it; the updated publication assertion and the lifecycle test pass
+4/4. Repair commit `de0a74e452233faa0ce3b9778e704a9e614c996f` was accepted
+on the same remote execution branch and registered with the observer. The
+same paused slice 2 edits and plan notes were restored from their identified
+stash afterward; slice 2 remains unfinished.
+CI run `35819003193` attempt 1 for `de0a74e` exposed a fixture readiness
+race in `ci-mailbox-process-test-fixtures.mjs`: it wrote `started` before
+`worker-pid`, while the test waited for `started` and read the PID. A
+controlled delay reproduced the same ENOENT; writing PID first made the
+focused mailbox tests pass 31/31. Repair commit
+`cb4479028199cc1434fd8d969e5543441c6f5430` was accepted on the remote
+execution branch and registered with the observer. Slice 2 edits were restored
+from their identified stash afterward.
+
+Slice 2 accepted proof: the real installed CLI race/recovery cases in
+`workspace-publication-startup-{race,recovery}.test.mjs` use canonical queued
+records and assert remote membership, provenance, candidate containment,
+bounded retry, retained state, and no duplicate Take. After refactoring,
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs`
+passed 31/31; `bash tests/workspace-publication-callers.sh` passed 14/14;
+`bash tests/git-publication-native.sh` and the extracted-module payload
+install/use check passed. `git diff --check` passed. Fresh Codex native
+`publication/startup-claim-race` observed the rival's remote Taken claim,
+the selected candidate absent, a conflict receipt, and no setup or edit;
+`publication/startup-resume` observed one installed invocation, accepted
+ancestor ownership, setup and implementation after claim acceptance, and
+preserved human work. The assessors reported pass in the retained native
+results for both journeys. Claude native resume was attempted but its CLI
+weekly limit prevented command execution. That host-specific requirement,
+along with the tightened Claude ordinary-startup rerun and Codex ordinary
+startup implementation gap from Slice 1, remains pending linked acceptance
+work under ADR 0005 before release; none is recorded as passed here.

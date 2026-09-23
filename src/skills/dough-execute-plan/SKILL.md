@@ -120,6 +120,14 @@ the workspace, commits an isolated Take, confirms its publication on remote
 trunk, and reports local refresh separately. Preserve its exact receipt in the
 existing execution context. A refusal or unconfirmed receipt stops before
 implementation; a deferred local refresh does not erase accepted publication.
+If publication is interrupted, invoke the same installed command with the
+retained workspace, branch, publisher ID, identity, `--starting-revision` and
+`--candidate-sha` from the last receipt or confirmed pre-push candidate. Use
+the latest candidate SHA after a replay. A `resumed` receipt confirms current
+ownership through remote ancestry, even when trunk has advanced; it may finish
+eligible local refresh without another Take or push. A rival or ambiguous
+provenance stops implementation. Preserve the stopped candidate and exact
+recovery fields on an uncertain result.
 
 Then run this project's checkout-bound setup and applicable command under
 [execution location](references/execution-location.md). Setup failure preserves

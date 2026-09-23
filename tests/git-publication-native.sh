@@ -24,6 +24,9 @@ source "${source_dir}/tests/support/git-publication-native-run.sh"
 # shellcheck source=tests/support/git-publication-native-suites.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-suites.sh"
+# shellcheck source=tests/support/git-publication-native-counterexamples.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/git-publication-native-counterexamples.sh"
 # shellcheck source=tests/support/git-publication-native-substitute-suite.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-substitute-suite.sh"
