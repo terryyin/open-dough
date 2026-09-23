@@ -1,6 +1,6 @@
 # Retire the superseded claim runner
 
-Status: planned.
+Status: done.
 
 **Identity:** quick/081-retire-legacy-claim-runner/PLAN.md
 ```json dough-story-state
@@ -66,7 +66,7 @@ work before release.
 ### 1. Keep one installed queued-start runner and its meaningful proof
 
 Type: Structure
-Status: planned
+Status: done
 
 Behavior preserved: queued work still reaches an owned, remote-confirmed Taken
 claim through the installed command before project setup and implementation.
@@ -105,3 +105,58 @@ The integration checkout is `/Users/terryyin/git/open-dough`; no default-checkou
 access is claimed. The reviewed source path and payload callers make this one
 bounded structural outcome. No remaining slice-specific blocking concern was
 identified. This draft is unpublished and does not grant Take or execution.
+
+## Execution identity
+
+Story Branch Mode; retrospective skipped by user instruction; wrap-up authorized.
+Originating and integration checkout: `/Users/terryyin/git/open-dough`.
+Owned execution checkout: `/Users/terryyin/git/open-dough-worktrees/081-retire-legacy-claim-runner`,
+created by this execution on `codex/081-retire-legacy-claim-runner` from
+`b6ea5af`. Claim `ebe4db948f520bcd95d790a70f286065ef3e4024` accepted on
+`origin refs/heads/main`; claim CI unobserved (planning-only change).
+Increments target `origin refs/heads/codex/081-retire-legacy-claim-runner`;
+wrap-up integrates into `origin refs/heads/main`. Default checkout refresh
+deferred: no exclusive ownership declared; its clean HEAD was `b6ea5af`.
+`npm ci` passed in the execution checkout; `npm exec -- prettier --version`
+verifies project command availability. No active commit hooks; use selective
+Prettier on changed supported source files, and focused check-only lint.
+No numeric slice budget configured; one bounded Structure proof loop.
+Existing planning authority retained; no scope expansion authorized.
+
+CI observer: GitHub Actions `ci.yml` / `CI`, repository `terryyin/open-dough`,
+target `codex/081-retire-legacy-claim-runner`, coordinator root, runtime in
+this execution checkout. Mailbox `/tmp/dough-ci-501/watch-Qfn1HW`, PID 78134,
+host session 30502, yielded cell 17.
+
+## Accepted completion evidence
+
+Removed the obsolete runner and payload entry; preserved select/push helpers.
+CLI claim cases now own unavailable-workspace recovery and success/failure
+through the separate readiness gate after remote acceptance. CLI race cases
+own ambiguous provenance. Existing CLI recovery cases retain one claim on
+resume; source/maintenance cases preserve human work. The coordinator inspected
+`createQueuedTrunk`, `startCliResult`, `startProcess`, remote SHA/backlog
+assertions, readiness markers, and conflict/candidate assertions. Fixture setup
+provides queued prepared sources; the real command establishes Taken.
+
+Terminal focused proof from this checkout:
+- `node --test src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs`: 29/29.
+- `bash tests/execution-payload-update.sh`: passed, installed import closure and both shared native layouts.
+- `bash tests/git-publication-native.sh`: passed, Codex/Cursor/Claude substitute-process mechanics only.
+- `bash tests/workspace-publication-callers.sh`: 14/14.
+- `git diff --check`: passed.
+
+The initial ambiguity migration reached the earlier source-refused guard;
+using concurrent queued starts with the existing held-push fixture exposed the
+intended ownership boundary. The corrected focused suite passed. No runtime
+behavior was changed to satisfy that test.
+
+Independent dough-post-change-refactor returned REFACTOR COMPLETE with no edits;
+accepted proof boundaries unchanged and no redundant reruns. Selective Prettier,
+ESLint, and shellcheck passed before commit. No active commit hook is configured.
+Existing native behavior gaps stay with SEED-008#accept-queued-start-native-behavior.
+Shared host installation and guidance mechanisms are unchanged; no new native
+behavior success is claimed. Maintained execution-publication-design.md already
+states the sole startup owner and separate project setup responsibility. The
+North Star publication topic remains needed by active delivery/closure/checkout
+coordination stories. No new follow-up or process finding was produced.

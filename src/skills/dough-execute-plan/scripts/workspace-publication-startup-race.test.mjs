@@ -153,3 +153,57 @@ test("remote advance replays an owned suffix, but changed selected source stops 
     }
   }
 });
+
+test("real startup stops on identical Taken text without publication provenance", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const barrier = await holdFirstPush(trunk);
+  const contender = startProcess(trunk, "a", identityA);
+  t.after(() => {
+    barrier.release();
+    contender.child.kill();
+  });
+  await awaitFile(barrier.arrived);
+  const owner = await startProcess(trunk, "b", identityA).result;
+  assert.equal(owner.receipt.ok, true, JSON.stringify(owner));
+  const acceptedBacklog = (
+    await git(owner.workspace, "show", "HEAD:.planning/PRODUCT-BACKLOG.md")
+  ).stdout;
+  await git(
+    owner.workspace,
+    "commit",
+    "--amend",
+    "-m",
+    "Take queued work: SEED-A#a",
+  );
+  const ambiguous = await revParse(owner.workspace, "HEAD");
+  await git(
+    owner.workspace,
+    "push",
+    "--force-with-lease",
+    "origin",
+    `${ambiguous}:refs/heads/main`,
+  );
+
+  barrier.release();
+  const rival = await contender.result;
+  assert.equal(rival.receipt.status, "conflict", JSON.stringify(rival));
+  assert.equal(rival.receipt.ownership, "ambiguous");
+  assert.equal(rival.receipt.implemented, false);
+  assert.equal(rival.receipt.recovery.provenance.publisher, undefined);
+  assert.equal(
+    await revParse(rival.workspace, "HEAD"),
+    rival.receipt.recovery.candidateSha,
+  );
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), ambiguous);
+  assert.equal(
+    (
+      await git(
+        rival.workspace,
+        "show",
+        "origin/main:.planning/PRODUCT-BACKLOG.md",
+      )
+    ).stdout,
+    acceptedBacklog,
+  );
+});

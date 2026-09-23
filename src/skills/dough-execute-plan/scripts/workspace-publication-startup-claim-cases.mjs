@@ -1,6 +1,6 @@
 // Claim publication, workspace reuse, installation, and setup boundary.
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
@@ -9,11 +9,13 @@ import {
   createQueuedTrunk,
   failingContributing,
   identityA,
+  readyContributing,
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import { exec } from "./publication-git.mjs";
+import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
 
 for (const mode of ["trunk", "story-branch"]) {
   test(`installed startup publishes an isolated ${mode} claim to remote trunk`, async (t) => {
@@ -133,13 +135,18 @@ test("failed project command after accepted startup leaves the claim and workspa
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.projectSetupRequired, true);
-  await exec(process.execPath, [join(workspace, "scripts/setup.js")], {
-    cwd: workspace,
-  });
-  await assert.rejects(
-    exec(process.execPath, [join(workspace, "scripts/fail.js")], {
-      cwd: workspace,
-    }),
+  const readiness = await runReadinessGate(workspace, process.env);
+  assert.equal(readiness.ok, false);
+  assert.deepEqual(
+    readiness.invocations.map(({ role }) => role),
+    ["setup", "command"],
+  );
+  assert.match(readiness.report, new RegExp(workspace));
+  assert.match(readiness.report, /node scripts\/fail.js/);
+  assert.equal(existsSync(join(workspace, ".setup-ran")), true);
+  assert.equal(
+    takenIdentities(await remoteBacklog(workspace)).includes(identityA),
+    true,
   );
   assert.equal(existsSync(join(workspace, "feature.txt")), false);
   assert.equal(
@@ -147,4 +154,53 @@ test("failed project command after accepted startup leaves the claim and workspa
     receipt.publishedSha,
   );
   assert.equal(existsSync(workspace), true);
+});
+
+test("accepted startup precedes project readiness in the owned workspace", async (t) => {
+  const trunk = await createQueuedTrunk({ contributing: readyContributing });
+  t.after(trunk.cleanup);
+  const { receipt, workspace } = await startCliResult(trunk, "story-branch");
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.created, true);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    receipt.publishedSha,
+  );
+  assert.equal(existsSync(join(workspace, ".setup-ran")), false);
+  assert.equal(existsSync(join(workspace, ".command-ran")), false);
+  const readiness = await runReadinessGate(workspace, process.env);
+  assert.equal(readiness.ok, true, readiness.report);
+  assert.deepEqual(
+    readiness.invocations.map(({ role }) => role),
+    ["setup", "command", "delegate"],
+  );
+  assert.equal(
+    readiness.invocations.every(({ cwd }) => cwd === workspace),
+    true,
+  );
+  assert.equal(existsSync(join(workspace, ".setup-ran")), true);
+  assert.equal(existsSync(join(workspace, ".command-ran")), true);
+  assert.equal(existsSync(join(trunk.integration, ".setup-ran")), false);
+  assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
+  assert.equal(
+    (await git(trunk.integration, "status", "--porcelain")).stdout,
+    "",
+  );
+});
+
+test("workspace setup failure preserves recovery context and leaves trunk unpublished", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const workspace = join(trunk.fixture, "start-trunk");
+  writeFileSync(workspace, "not a directory\n");
+  const { receipt } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.status, "setup-failed", JSON.stringify(receipt));
+  assert.equal(receipt.implemented, false);
+  assert.equal(receipt.recovery.workspace, workspace);
+  assert.match(receipt.recovery.error, /start-trunk|exists|Not a directory/i);
+  assert.equal(readFileSync(workspace, "utf8"), "not a directory\n");
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.trunkSha,
+  );
 });

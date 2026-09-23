@@ -189,7 +189,6 @@ managed_files=(
   dough-execute-plan/scripts/workspace-publication-ownership.mjs
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
-  dough-execute-plan/scripts/workspace-publication.mjs
   dough-post-change-refactor/SKILL.md
   dough-post-change-refactor/references/refactor-checks.md
   dough-test-optimization/SKILL.md

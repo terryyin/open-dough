@@ -5,10 +5,9 @@ import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
   commitWorkspaceClaim,
-  publishClaimSha,
   selectOwnedWorkspace,
-  acquireWorkspaceClaim,
-} from "./workspace-publication.mjs";
+} from "./workspace-publication-select.mjs";
+import { publishClaimSha } from "./workspace-publication-push.mjs";
 import {
   createQueuedTrunk,
   identityA,
@@ -135,23 +134,18 @@ test("competing claims for one identity keep one owner and a recoverable conflic
     publisherId: "exec-a",
     candidateSha: committedA.candidateSha,
   });
-  let implemented = false;
   const publishedB = await publishClaimSha({
     ...selectedB,
     origin: trunk.origin,
     identity: identityA,
     publisherId: "exec-b",
     candidateSha: committedB.candidateSha,
-    onImplement() {
-      implemented = true;
-    },
   });
 
   assert.equal(publishedA.status, "published");
   assert.equal(publishedB.status, "conflict");
   assert.equal(publishedB.ownership, "other");
   assert.equal(publishedB.implemented, false);
-  assert.equal(implemented, false);
   assert.equal(publishedB.recovery.provenance.publisher, "exec-a");
   assert.equal(publishedB.recovery.candidateSha, committedB.candidateSha);
   assert.equal(await revParse(workspaceB, "HEAD"), committedB.candidateSha);
@@ -160,61 +154,4 @@ test("competing claims for one identity keep one owner and a recoverable conflic
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     publishedA.publishedSha,
   );
-});
-
-test("identical Taken text without publication provenance keeps the conflict", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const planter = join(trunk.fixture, "planter");
-  const selected = await selectOwnedWorkspace({
-    integration: trunk.integration,
-    origin: trunk.origin,
-    workspace: planter,
-    branch: "exec/planter",
-  });
-  const committed = await commitWorkspaceClaim({
-    ...selected,
-    identity: identityA,
-    publisherId: "exec-planter",
-  });
-  await git(planter, "commit", "--amend", "-m", "Take queued work: SEED-A#a");
-  const amended = await revParse(planter, "HEAD");
-  await git(planter, "push", "origin", `${amended}:refs/heads/main`);
-
-  const workspace = join(trunk.fixture, "exec-b");
-  let implemented = false;
-  const result = await acquireWorkspaceClaim({
-    integration: trunk.integration,
-    origin: trunk.origin,
-    workspace,
-    branch: "exec/b",
-    identity: identityA,
-    publisherId: "exec-b",
-    onImplement() {
-      implemented = true;
-    },
-  });
-
-  assert.equal(result.status, "conflict");
-  assert.equal(result.ownership, "ambiguous");
-  assert.equal(result.implemented, false);
-  assert.equal(implemented, false);
-  assert.equal(result.recovery.provenance.publisher, undefined);
-  assert.equal(
-    await revParse(workspace, "HEAD"),
-    result.recovery.startingRevision,
-  );
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), amended);
-  await git(workspace, "fetch", "origin");
-  const remote = (
-    await git(workspace, "show", "origin/main:.planning/PRODUCT-BACKLOG.md")
-  ).stdout;
-  const local = (
-    await git(
-      planter,
-      "show",
-      `${committed.candidateSha}:.planning/PRODUCT-BACKLOG.md`,
-    )
-  ).stdout;
-  assert.equal(remote, local);
 });
