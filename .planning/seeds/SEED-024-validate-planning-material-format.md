@@ -47,6 +47,9 @@ duplicate the planning-format rules independently in each hook or host adapter.
 ### 1. Catch malformed planning materials at the point of change
 
 **Identity:** SEED-024#validate-planning-material-format
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"7befcaaa102bb52b2b9dd3038effb3840c233f34a941bede8c582d58941a637c"}}
+```
 
 **Status:** Captured and queued on 2026-09-23; not refined or planned.
 
@@ -68,8 +71,14 @@ duplicate the planning-format rules independently in each hook or host adapter.
 - **Effort hypothesis:** M — the parser and diagnostics are bounded, but
   confidence is moderate because backlog, seed, and plan contracts currently
   span several lifecycle skills and automatic hook capabilities differ by host.
-- **Depends on:** none. Reuse current canonical material rules as input; do not
-  require a new generalized schema system before delivering useful checks.
+- **Depends on:** none. Reuse existing backlog, canonical-home, and preparation
+  readers as the owners of their formats; add only diagnostics or missing
+  deterministic checks. Startup already consumes their necessary structural
+  checks and does not wait for this story. The validator invokes no Take,
+  publication, or CI lifecycle and creates no second grammar or generalized
+  schema system.
+- **Boundary:** Read-only structural feedback. No automatic repair, semantic
+  readiness judgment, lifecycle orchestration, or generic hook framework.
 - **Safe stopping point:** An explicit validator covers the three material
   types with useful diagnostics. If safe automatic invocation proves
   host-specific or unreliable, the explicit command and CI integration retain
@@ -93,8 +102,6 @@ guidance, but it does not replace refinement or human review.
   guidance that still requires human judgment?
 - Which automatic boundary can report failures safely across supported hosts,
   and should any host initially use only the explicit command or CI check?
-- Should unambiguous formatting repairs ever be offered separately, or should
-  the first story remain read-only?
 
 ## When to Surface
 

@@ -22,6 +22,9 @@ follows the established Codex, Cursor, and Claude Code conventions.
 ### 24. Continue test optimization plans into execution or the backlog
 
 **Identity:** SEED-004#continue-test-optimization-plans
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"56590af07155530af2547b7db55cd7e5c2bd7d4e5f8d38cd912c70d5de161cf6"}}
+```
 
 **Status:** Captured; unrefined.
 
@@ -67,11 +70,14 @@ backlog with a valid canonical link. A profile-only invocation remains
 unchanged, and neither route duplicates the work across **Taken** and **Backlog
 list**.
 
-**Git context:** Preparation and execution reuse a suitable owned workspace.
-The handoff carries its identity, mode, and publication authority into the
-shared workflow under [ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md).
-Published queue changes and Taken claims use that workflow's remote destination;
-default-checkout freshness is maintained separately.
+**Git context:** Reuse a suitable owned workspace and carry identity, mode,
+and publication authority into the existing preparation/execution workflow.
+Retained source must be published through the authorized preparation path before
+[shared startup](SEED-008-worktree-branch-trunk-sync.md#settle-taken-claims-on-remote-trunk)
+can consume it. Taken settles on remote trunk in either mode. This handoff adds
+no separate freshness check, Git publication recipe, or CI setup; it consumes
+those shared operations as they are delivered. A planning-only request does
+not grant execution authority.
 
 **Depends on:** Existing executable-plan, execution, and product-backlog
 contracts supply the two handoff destinations. Installed execute-plan

@@ -6,9 +6,10 @@ discuss, and approve decisions; agents read, cite, and help maintain the records
 
 ## When to write an ADR
 
-Use an ADR for a cross-cutting choice, a decision that is hard to reverse, or a
-question likely to recur. Keep delivery plans and local implementation details
-separate from these long-lived decisions.
+Apply the scope rule in [ADR 0000](./0000-use-adrs-accepted.md): high-level,
+product-wide architecture that agents need across development tasks. Feature
+behavior and implementation design belong with the feature, even when complex
+or frequently discussed. Keep delivery plans separate from ADRs.
 
 ## Advice process
 
