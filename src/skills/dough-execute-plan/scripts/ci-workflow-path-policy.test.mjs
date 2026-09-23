@@ -4,7 +4,10 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { readCiPathIgnorePolicy } from "./ci-workflow-path-policy.mjs";
 import { checkoutRoot } from "./ci-mailbox-location.mjs";
-import { acceptedWorkflow } from "./ci-path-applicability-test-fixtures.mjs";
+import {
+  acceptedWorkflow,
+  allBranchesWorkflow,
+} from "./ci-path-applicability-test-fixtures.mjs";
 
 test("readCiPathIgnorePolicy reads the accepted literal push/pull_request paths-ignore form and workflow_dispatch presence", () => {
   const policy = readCiPathIgnorePolicy(acceptedWorkflow);
@@ -66,4 +69,63 @@ test("readCiPathIgnorePolicy sees this repository's actual .github/workflows/ci.
     "docs/**",
   ]);
   assert.equal(policy.workflowDispatch, true);
+});
+
+test("push paths-ignore accepts only the all-branches literal filter, in either key order", () => {
+  for (const content of [
+    allBranchesWorkflow,
+    allBranchesWorkflow.replace('"**"', "'**'"),
+    allBranchesWorkflow
+      .replace('    branches:\n      - "**"\n', "")
+      .replace("jobs:", '    branches:\n      - "**"\njobs:'),
+  ]) {
+    assert.deepEqual(readCiPathIgnorePolicy(content), {
+      supported: true,
+      workflowDispatch: false,
+      events: { push: { pathsIgnore: [".planning/**", "docs/**"] } },
+    });
+  }
+});
+
+test("branch patterns and trigger structures outside the all-branches push form fail closed", () => {
+  for (const filter of [
+    '    branches:\n      - "main"',
+    '    branches:\n      - "*"',
+    '    branches:\n      - "release/**"',
+    '    branches:\n      - "**"\n      - "!main"',
+    "    branches:\n      - **",
+    '    branches: ["**"]',
+    "    branches:",
+    '    branches-ignore:\n      - "main"',
+    '    tags:\n      - "**"',
+    '    branches:\n      - "**"\n    branches:\n      - "main"',
+    '    branches:\n      - "**"\n    paths-ignore:\n      - "src/**"',
+    '    branches:\n      - "**"\n    types:\n      - opened',
+  ]) {
+    assert.equal(
+      readCiPathIgnorePolicy(
+        allBranchesWorkflow.replace('    branches:\n      - "**"', filter),
+      ).supported,
+      false,
+      filter,
+    );
+  }
+  assert.equal(
+    readCiPathIgnorePolicy(
+      allBranchesWorkflow.replace("  push:", "  pull_request:"),
+    ).supported,
+    false,
+  );
+});
+
+test("duplicate push triggers cannot override branch or path policy", () => {
+  assert.equal(
+    readCiPathIgnorePolicy(
+      allBranchesWorkflow.replace(
+        "jobs:",
+        '  push:\n    paths-ignore:\n      - "src/**"\njobs:',
+      ),
+    ).supported,
+    false,
+  );
 });

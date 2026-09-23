@@ -19,7 +19,7 @@ import {
   waitFor,
 } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import {
-  acceptedWorkflow,
+  allBranchesWorkflow,
   commitAll,
   exec,
   initRepo,
@@ -43,7 +43,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
 
   // A: the only revision with a real CI attempt.
   writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
+  writeWorkflow(repo, allBranchesWorkflow);
   const shaA = await commitAll(repo, "base code and workflow");
 
   // B: ignored-only descendant of A, registered up front.

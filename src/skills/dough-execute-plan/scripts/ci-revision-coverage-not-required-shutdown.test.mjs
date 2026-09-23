@@ -20,7 +20,7 @@ import {
   waitFor,
 } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import {
-  acceptedWorkflow,
+  allBranchesWorkflow,
   commitAll,
   initRepo,
   writeWorkflow,
@@ -94,7 +94,7 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
   });
 
   writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
+  writeWorkflow(repo, allBranchesWorkflow);
   await commitAll(repo, "base code and workflow");
 
   // A1 (pending) -> B1 (ignored-only descendant of A1)
