@@ -28,9 +28,8 @@ needs a readable connected overview, not every interaction in that ambition.
 The [story dashboard](../../dashboard/README.md) now delivers the published-work
 overview, selection among Open Dough, Doughnut, and Pygardon, and preparation
 and readiness inspection. The remaining stories extend ownership and branch
-visibility and improve the everyday reading experience. This seed is planning input,
-not an executable plan. UX/UI guidance and tech-stack selection are separate
-design tasks; their output informs refinement without becoming extra technical
+visibility. This seed is planning input, not an executable plan. UX/UI guidance
+and tech-stack selection are separate design tasks; their output informs refinement without becoming extra technical
 preparation stories.
 
 ## Alternatives and Recommendation
@@ -228,100 +227,7 @@ observation. Refine around the smallest complete assignment journey before
 planning; do not mistake a new metadata field for the full outcome. No S/M/L
 band is invented without project definitions.
 
-<a id="compact-dashboard-controls"></a>
-
-### 6. Keep dashboard controls in reach and supporting context out of the way
-
-**Identity:** SEED-021#compact-dashboard-controls
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/081-dashboard-header/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"113ef292942ffb348c9e219774041084692a93871b72d18a4665d97e3a53038b","plan":"3ce6e65ce4c833be5a40237a50bd44fa1713606f383bad482b8ec5c2ec2010ad"}}
-```
-
-**Source:** Terry's dashboard improvement request, 2026-09-23: capture first in
-the product backlog, refine, and plan; implementation is not requested yet.
-
-**Goal:** For Terry and developers reading published story progress, keep project
-context and common controls available while scrolling, with supporting direction
-and badge explanations available on demand so the work receives more space.
-
-**Scope:**
-
-- An always-visible banner pinned to the viewport top carries the exact brand
-  **OpenDO**, the existing project selector, compact project/repository and ref
-  information, and the existing manual refresh action rendered as an SVG icon.
-  Preserve access to the full source revision and retrieval time in the header's
-  source context. Wrap as needed; the banner must not cover focused content or
-  consume the whole usable viewport on narrow/zoomed screens.
-- Retain one refresh control. Its accessible name is **Refresh**, or **Retry**
-  after a failed read; the SVG replaces its visible text. Keep focus and the
-  existing no-op behavior while reading, plus readable loading/error feedback.
-  Terry's final instruction to move it and use an SVG supersedes the earlier
-  tentative removal. No new polling or retrieval behavior is introduced.
-- **Near-future direction** is a labeled disclosure, initially collapsed. One
-  activation expands its complete published text; another collapses it. An empty
-  direction reveals the existing no-direction explanation. Selecting a different
-  project starts collapsed; a same-project refresh preserves the user's choice.
-- Replace the always-visible **Preparation badges** legend with one compact
-  question-mark help control beside the work overview, accessible as
-  **Preparation badge legend**. One activation opens a titled modal dialog with
-  the existing legend. Keep individual cards' badges and preparation facts
-  visible and unchanged. This interprets the requested question mark as the
-  legend launcher, not a replacement for each story's status information.
-- Keyboard and pointer users can open the dialog and close it through a visible
-  Close control or Escape. Move focus inside on opening, contain focus while
-  modal, and return it to the launcher on closing. Keep the modal above the pinned
-  header. The small symbol still has a comfortably sized hit target.
-- Update the existing dashboard UX/UI guidance where these decisions supersede
-  its single-project/header assumptions. No general AI-skill revision is justified
-  by this local presentation change.
-
-**Key examples:**
-
-1. With a long published backlog, scroll to lower cards → OpenDO, the selector,
-   selected-project information, and refresh remain reachable at the top. At
-   320 CSS pixels / equivalent 400% zoom, controls wrap without sideways page
-   scrolling, obscured keyboard focus, or an unusable reading area.
-2. Select Doughnut from the banner → only Doughnut's source and stories appear.
-   Activate the refresh icon → the existing explicit read updates that project;
-   a failed attempt retains its earlier snapshot and exposes the same icon as
-   Retry. Repeated activation while reading does not start another request.
-3. Open the page → direction text is collapsed. Expand it with keyboard or
-   pointer → read its complete text, or the no-direction message. Refresh the
-   same project → choice is retained; switch projects → the new direction is
-   collapsed and never shows the previous project's text.
-4. With preparation available, the full legend does not occupy the overview.
-   Activate its question mark → read the modal legend without a source request.
-   Close or press Escape → return to the same control and scroll context; card
-   badges retain their original text, evidence, and meanings.
-
-**UI:** Keep the banner compact and distinct from the scrolling overview. Use
-the current typography, quiet surfaces, and accent. Keep direction and the help
-launcher below the banner rather than pinning expanded supporting content.
-OpenDO is the dashboard brand; the observed project may still be Open Dough,
-Doughnut, or Pygardon. This is not a rename of the project or domain language.
-
-**Depends on:** The already-delivered dashboard only. Ownership records,
-publication automation, and branch inspection are not prerequisites.
-
-**Deferred promises:** Project registration, persistent UI preferences, new
-badge semantics, automatic refresh, navigation redesign, a general modal/icon
-framework, and changes to published-record readers or authentication.
-
-**Safe stopping point:** Each of the three presentation improvements is useful
-with the existing read-only dashboard; partial delivery must preserve access to
-evidence, existing controls, and preparation meanings.
-
-**Sizing:** Three bounded UI behaviors with existing read/proof owners. No
-project S/M/L bands or numeric slice-time limit have been supplied.
-
-**Slice plan:** [Compact dashboard controls](../quick/081-dashboard-header/PLAN.md).
-
 ## Ordering and Scope Reduction
-
-Terry explicitly prioritised story 6 first on 2026-09-23. It improves the delivered
-dashboard independently of pending startup/ownership work. Preserve all other
-backlog order and the published near-future direction. The following ordering
-continues to apply after this presentation improvement.
 
 The delivered overview supplies a usable dashboard for testing the central value
 hypothesis in use, now proven useful across Doughnut and Pygardon as well as
