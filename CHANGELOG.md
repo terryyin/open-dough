@@ -1,3 +1,9 @@
+## 0.3.34 - 2026-09-24
+
+- Correct updater inspection guidance to include Codex's managed hook settings alongside Cursor and Claude Code, and add regression coverage that keeps the documented destinations aligned with the hook registry.
+
+No additional native acceptance was run for `0.3.34` at the maintainer's request. Native acceptance for the updater inspection correction and previously pending behaviors remains pending and is not reported as passing.
+
 ## 0.3.33 - 2026-09-24
 
 - Make execution startup and increment delivery recoverable from published Git state. Publish and reconcile remote claims before work begins, resume interrupted or ambiguous delivery without duplicate pushes, validate the actual candidate, and carry exact CI observation evidence through completion.
