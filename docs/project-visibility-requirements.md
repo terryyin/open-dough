@@ -237,33 +237,50 @@ and interpret its execution:
 | Origin execution branch | For Story Branch Mode, identify the story's branch on origin so a repository reader can locate its published progress. Trunk Mode does not require this story-branch field. |
 
 Here, origin execution branch means the branch carrying the story's work, not
-the base branch from which it was created. Exact field syntax and representation
-remain to be designed. Local worktree paths and local branch details should be
-derived from dynamic machine information when available, rather than required
-as durable backlog fields for the repository-only view.
+the base branch from which it was created. Local worktree paths and local branch
+details should be derived from dynamic machine information when available,
+rather than required as durable backlog fields for the repository-only view.
 
-This is a requirement for extending backlog behavior. Existing Taken entries
-have not been assigned invented developer names or branch metadata by this
-document, and the backlog scripts and workflow guidance still need corresponding
-implementation work.
+The Taken entry format itself carries none of these fields. They live in the
+owning agent's profile, described below, which refers to the work by identity.
 
-### Rotating developer names
+### Agent profiles and rotating names
 
-Maintain a list of developer names used in circular rotation. When an agent
-starts a task or story, it assigns itself an available name from that list.
-For a Taken story, record that name on its backlog entry so the developer and
-other agents can identify who owns the work.
+Open Dough ships one fixed rotation of 29 agent names, starting at Yui and
+ending at Rina. An agent's identity is `agent-<Name>` with email
+`agent-<lowercase name>@example.org`. These names identify agent developers,
+not human contributors.
 
-These names identify agent developers; they need not be the names of human
-contributors. The list, allocation record, and assignment lifecycle need a
-design that supports repository-backed ownership visibility. Simultaneous
-allocation, availability, release, and safe reuse are unresolved details.
+Each active agent has one JSON profile at `.planning/agents/agent-<lowercase
+name>.json` beside the backlog. It records the agent name and email, the work
+item identity, execution mode, branch context (the owned execution branch in
+Story Branch Mode, remote trunk in Trunk Mode), and, when the agent reports
+them, its host tool (Claude Code, Codex, or Cursor) and AI model. Separate
+files keep parallel claims from contending for one shared file.
 
-This outcome is queued as
-[See who owns Taken work and where it is being executed](../.planning/seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner),
-after the initial overview and readiness/slice view, before execution-branch
-inspection. It includes workflow-produced assignment and dashboard display;
-it does not expand the first story or include the messaging idea below.
+- **Assignment.** The shared startup operation (`execution-start`) selects the
+  name, writes the profile, and commits it with the Take. A name is held while
+  its profile exists on remote trunk. The next name follows the profile most
+  recently added on trunk, skipping held names and wrapping after Rina, so a
+  released name is not reused at once. With no prior profile the rotation
+  starts at Yui. When every name is held, the Take is refused and nothing is
+  published. When a lost publication race finds the selected name now held, the
+  claim is rebuilt on the new trunk under the next available name.
+- **Authorship.** The agent is the Git author of the Take commit and of
+  ordinary commits in its owned workspace; the configured Git user remains the
+  committer. Startup configures this through per-worktree Git config, so other
+  checkouts keep their usual author. Commit authors are the history trace; the
+  profile records current ownership.
+- **Resume and release.** Resume keeps the profile and restores the
+  workspace's authorship from it. Completing the Taken entry through
+  `product-backlog complete` deletes its profile in the same change, releasing
+  the name. Silence or age never releases a name; an abandoned profile keeps
+  its name held until the entry is completed.
+- **Dashboard.** Each Taken card shows the agent, mode, branch context, host,
+  and model from the published profile. Branch context is labelled as story
+  branch work, never as work on trunk. A missing profile shows "Owner not
+  recorded", a missing field shows as not recorded, and an unreadable profile
+  is listed as unreadable without being matched to any entry.
 
 ### Future messaging and handover
 
