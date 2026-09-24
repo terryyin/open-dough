@@ -28,7 +28,7 @@ delivery_evidence_consumers_promise_accepted() {
     return
   fi
   if grep -Eiq \
-    '—[[:space:]]*\*{0,2}incomplete\*{0,2}|:[[:space:]]*\*{0,2}incomplete\*{0,2}|promise[[:space:]]+(is[[:space:]]+)?\*{0,2}incomplete\*{0,2}|uncovered|not[[:space:]]+covered|stale[[:space:]]+exclusion|consumer[[:space:]]+(is[[:space:]]+)?(missed|incompatible|unaligned)|stand-?in[[:space:]]+(is[[:space:]]+)?(incompatible|unaligned|missed)' \
+    "$(delivery_evidence_promise_status_pattern incomplete)"'|uncovered|not[[:space:]]+covered|stale[[:space:]]+exclusion|consumer[[:space:]]+(is[[:space:]]+)?(missed|incompatible|unaligned)|stand-?in[[:space:]]+(is[[:space:]]+)?(incompatible|unaligned|missed)' \
     <<< "${text}"; then
     if grep -Eiq \
       'factory|releaseTag|stand-?in|e2e|consumer|command|badge|status' \
@@ -38,7 +38,7 @@ delivery_evidence_consumers_promise_accepted() {
     fi
   fi
   if grep -Eiq \
-    '—[[:space:]]*\*{0,2}accepted\*{0,2}|:[[:space:]]*\*{0,2}accepted\*{0,2}|promise[[:space:]]+(is[[:space:]]+)?\*{0,2}accepted\*{0,2}|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
+    "$(delivery_evidence_promise_status_pattern accepted)"'|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
     <<< "${text}"; then
     printf 'true\n'
     return

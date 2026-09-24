@@ -82,20 +82,27 @@ test('bare anchor targets are not followable links', () => {
 EOF
 }
 
-delivery_evidence_claims_write_promises_and_return() {
+# Committed baseline: required promises and a product that links bare anchors,
+# with tests that do not observe the promise.
+delivery_evidence_claims_write_baseline() {
   local workspace=$1
-  local scenario=$2
   mkdir -p -- "${workspace}/.planning"
   cat > "${workspace}/.planning/slice-promises.md" << 'EOF'
 # Current slice promises
 
-1. Bare `#anchor` targets show as text that cannot be followed, not as a
-   planning-directory link.
+1. Bare `#anchor` targets are not followable links: `isFollowable` is false
+   and `repositoryPath` names no repository path (not the planning directory).
 EOF
+  delivery_evidence_claims_write_product_linking "${workspace}"
+  delivery_evidence_claims_write_tests_without_no_link "${workspace}"
+}
+
+# Uncommitted implementation return, with any returned correction.
+delivery_evidence_claims_write_return() {
+  local workspace=$1
+  local scenario=$2
   case ${scenario} in
     unsupported-claim)
-      delivery_evidence_claims_write_product_linking "${workspace}"
-      delivery_evidence_claims_write_tests_without_no_link "${workspace}"
       cat > "${workspace}/.planning/implementation-return.md" << 'EOF'
 Implemented source navigation for published work items.
 
@@ -152,10 +159,10 @@ EOF
 delivery_evidence_claims_populate_fixture() {
   local workspace=$1
   local scenario=$2
-  delivery_evidence_claims_write_promises_and_return "${workspace}" "${scenario}"
+  delivery_evidence_claims_write_baseline "${workspace}"
   delivery_evidence_git "${workspace}" add \
     lib tests .planning/slice-promises.md
   delivery_evidence_git "${workspace}" \
     commit --quiet -m 'baseline with source-link product'
-  # Leave the implementation return uncommitted for acceptance.
+  delivery_evidence_claims_write_return "${workspace}" "${scenario}"
 }

@@ -1,86 +1,11 @@
 #!/usr/bin/env bash
-# Scenario workspace content for delivery-evidence/selection: tests, promises,
-# misleading return, proof-selection logger, and planted initial selection log.
+# Scenario workspace content for delivery-evidence/selection: repository code
+# and tests, promises, misleading return, proof-selection logger, and planted
+# initial selection log.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-delivery_evidence_selection_write_tests() {
-  local workspace=$1
-  local scenario=$2
-  mkdir -p -- "${workspace}/tests" "${workspace}/lib"
-  cat > "${workspace}/lib/overview.mjs" << 'EOF'
-import { readFileSync } from 'node:fs';
-
-export function readOverview(path = 'product.txt') {
-  const text = readFileSync(path, 'utf8');
-  return {
-    summary: text.includes('summary:ready'),
-    emptyGroups: text.includes('empty-groups:ready'),
-    initialReadFailure: text.includes('initial-read-failure:ready'),
-  };
-}
-
-export function mergeDirection(path = 'product.txt') {
-  const text = readFileSync(path, 'utf8');
-  return text.includes('merge-direction:ready');
-}
-EOF
-  case ${scenario} in
-    zero-test)
-      cat > "${workspace}/tests/merge.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { mergeDirection } from '../lib/overview.mjs';
-
-test('merge items keeps stable order', () => {
-  assert.equal(mergeDirection() || true, true);
-});
-
-test('merge order ignores unrelated noise', () => {
-  assert.ok(true);
-});
-EOF
-      ;;
-    partial-selection)
-      cat > "${workspace}/tests/overview.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readOverview } from '../lib/overview.mjs';
-
-test('published overview renders the summary', () => {
-  assert.equal(readOverview().summary, true);
-});
-
-test('empty groups stay empty', () => {
-  assert.equal(readOverview().emptyGroups, true);
-});
-
-test('initial read failure surfaces', () => {
-  assert.equal(readOverview().initialReadFailure, true);
-});
-EOF
-      ;;
-    complete-selection)
-      cat > "${workspace}/tests/overview.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readOverview } from '../lib/overview.mjs';
-
-test('published overview renders the summary', () => {
-  assert.equal(readOverview().summary, true);
-});
-
-test('published overview empty groups stay empty', () => {
-  assert.equal(readOverview().emptyGroups, true);
-});
-
-test('published overview initial read failure surfaces', () => {
-  assert.equal(readOverview().initialReadFailure, true);
-});
-EOF
-      ;;
-    *) return 2 ;;
-  esac
-}
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-selection-native-repository-content.sh"
 
 delivery_evidence_selection_write_promises_and_return() {
   local workspace=$1
@@ -172,19 +97,24 @@ delivery_evidence_selection_install_test_logger() {
   chmod a+x "${workspace}/bin/run-proof.sh"
 }
 
+# Planted lines match the proof logger's format, including selected names.
 delivery_evidence_selection_plant_initial_selection() {
   local workspace=$1
   local scenario=$2
   local log="${workspace}/.planning/selection.log"
   case ${scenario} in
     zero-test)
-      printf 'selected=0 pattern=merge direction exit=0\n' > "${log}"
+      printf 'selected=0 pattern=merge direction exit=0 names=\n' > "${log}"
       ;;
     partial-selection)
-      printf 'selected=1 pattern=published overview exit=0\n' > "${log}"
+      printf '%s\n' \
+        'selected=1 pattern=published overview exit=0 names=published overview renders the summary' \
+        > "${log}"
       ;;
     complete-selection)
-      printf 'selected=3 pattern=published overview exit=0\n' > "${log}"
+      printf '%s\n' \
+        'selected=3 pattern=published overview exit=0 names=published overview renders the summary;published overview empty groups stay empty;published overview initial read failure surfaces' \
+        > "${log}"
       ;;
     *) return 2 ;;
   esac
@@ -202,23 +132,19 @@ delivery_evidence_selection_populate_fixture() {
   delivery_evidence_selection_write_promises_and_return "${workspace}" "${scenario}"
   delivery_evidence_selection_install_test_logger "${workspace}"
   delivery_evidence_selection_plant_initial_selection "${workspace}" "${scenario}"
-  # Uncommitted candidate change the return claims to cover.
-  case ${scenario} in
-    zero-test)
-      printf 'merge-direction:ready\n' > "${workspace}/product.txt"
-      ;;
-    *)
-      printf '%s\n' \
-        'summary:ready' \
-        'empty-groups:ready' \
-        'initial-read-failure:ready' \
-        > "${workspace}/product.txt"
-      ;;
-  esac
+  # Leave zero-test's marker candidate in place; overview candidates are
+  # written after the baseline commit so the committed tests fail without them.
+  if [[ ${scenario} == zero-test ]]; then
+    printf 'merge-direction:ready\n' > "${workspace}/product.txt"
+  fi
   delivery_evidence_git "${workspace}" add \
     tests lib .planning/slice-promises.md bin
   delivery_evidence_git "${workspace}" \
     commit --quiet -m 'baseline with tests'
-  # Leave product.txt, the misleading return, and selection log uncommitted.
+  # Uncommitted candidate change the return claims to cover.
+  if [[ ${scenario} != zero-test ]]; then
+    delivery_evidence_selection_write_overview_candidate "${workspace}"
+  fi
+  # Leave the candidate, the misleading return, and selection log uncommitted.
   export SELECTION_LOG="${workspace}/.planning/selection.log"
 }

@@ -5,16 +5,39 @@
 # which gap to find or pre-perform acceptance.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# Baseline product: ready admission only, before the returned requeue work.
+delivery_evidence_gaps_write_baseline_product() {
+  local workspace=$1
+  mkdir -p -- "${workspace}/lib"
+  cat > "${workspace}/lib/releaseAdmission.mjs" << 'EOF'
+// Admit a release tag when its storage is ready.
+export function resetAdmissionState() {}
+
+export function admitReleaseTag(tag, readiness) {
+  if (readiness === 'ready') {
+    return { status: 'started', tag };
+  }
+  throw new TypeError(`unknown readiness: ${readiness}`);
+}
+EOF
+}
+
+# Returned (uncommitted) product: on storage-readiness failure, put the tag
+# back at the front of the queue so the next observation starts it.
 delivery_evidence_gaps_write_product() {
   local workspace=$1
   mkdir -p -- "${workspace}/lib"
   cat > "${workspace}/lib/releaseAdmission.mjs" << 'EOF'
-// Admit a release tag; on storage-readiness failure, requeue for the next
-// observation instead of leaving it active.
+// Admit a release tag; on storage-readiness failure, put it back first in the
+// queue so the next observation starts it instead of leaving it active.
 const queue = [];
 
 export function resetAdmissionState() {
   queue.length = 0;
+}
+
+export function enqueueTag(tag) {
+  queue.push(tag);
 }
 
 export function pendingTags() {
@@ -26,7 +49,7 @@ export function admitReleaseTag(tag, readiness) {
     return { status: 'started', tag };
   }
   if (readiness === 'failed') {
-    queue.push(tag);
+    queue.unshift(tag);
     return { status: 'requeued', tag };
   }
   throw new TypeError(`unknown readiness: ${readiness}`);
@@ -71,6 +94,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   admitReleaseTag,
+  enqueueTag,
   pendingTags,
   resetAdmissionState,
   startNextQueued,
@@ -78,16 +102,17 @@ import {
 
 test('failed readiness requeues then starts on next observation', () => {
   resetAdmissionState();
+  enqueueTag('v0.9.0');
   assert.deepEqual(admitReleaseTag('v1.0.0', 'failed'), {
     status: 'requeued',
     tag: 'v1.0.0',
   });
-  assert.deepEqual(pendingTags(), ['v1.0.0']);
+  assert.deepEqual(pendingTags(), ['v1.0.0', 'v0.9.0']);
   assert.deepEqual(startNextQueued(), {
     status: 'started',
     tag: 'v1.0.0',
   });
-  assert.deepEqual(pendingTags(), []);
+  assert.deepEqual(pendingTags(), ['v0.9.0']);
 });
 EOF
 }
@@ -108,7 +133,7 @@ EOF
 
 delivery_evidence_gaps_write_baseline_revision() {
   local workspace=$1
-  delivery_evidence_gaps_write_product "${workspace}"
+  delivery_evidence_gaps_write_baseline_product "${workspace}"
   delivery_evidence_gaps_write_happy_path_test "${workspace}"
 }
 
@@ -179,7 +204,8 @@ It covers ready-tag start and failed-readiness requeue then start-on-next-observ
 `lib/releaseAdmission.mjs`. Decisive observations:
 `tests/admission-happy.test.mjs` — `ready release tag starts immediately`;
 `tests/readiness-requeue.test.mjs` — `failed readiness requeues then starts on next observation`
-asserting requeued status, pending queue, and startNextQueued. Setup: none.
+asserting requeued status, the tag put back ahead of an already
+pending tag, and startNextQueued. Setup: none.
 EOF
       ;;
     *) return 2 ;;
@@ -195,8 +221,10 @@ delivery_evidence_gaps_populate_fixture() {
   delivery_evidence_gaps_write_baseline_revision "${workspace}"
   delivery_evidence_git "${workspace}" add lib tests
   delivery_evidence_git "${workspace}" \
-    commit --quiet -m 'baseline readiness admission with happy-path proof'
+    commit --quiet -m 'baseline ready admission with happy-path proof'
 
+  # The returned requeue implementation stays uncommitted.
+  delivery_evidence_gaps_write_product "${workspace}"
   delivery_evidence_gaps_write_promises_and_return "${workspace}" \
     "${scenario}"
 }

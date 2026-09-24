@@ -186,5 +186,17 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'instruction-words-only: false'
   ! delivery_evidence_claims_assess "${work}/missing-fields.txt"
 
-  echo 'PASS: delivery-evidence/claims assessor rejects unsupported covered claims and accept-without-gap; accepts corrected no-link and equivalent substantiated layout; refuses format-resend when evidence is sufficient, instruction-words-only, and missing fields.'
+  # Observer reads a status that opens its line, and a leading incomplete
+  # status still wins over later accepted words.
+  # shellcheck disable=SC2016 # Backticks are literal outcome text.
+  printf '%s\n' '- **Accepted — Promise 1: Bare `#anchor` targets are not followable.**' \
+    'No promises remain incomplete.' > "${work}/outcome-leading.md"
+  [[ $(delivery_evidence_claims_promise_accepted \
+    "${work}/outcome-leading.md" '') == true ]]
+  printf '%s\n' '**Incomplete — Promise 1: bare anchor still followable.**' \
+    'Other checks: accepted.' > "${work}/outcome-leading-incomplete.md"
+  [[ $(delivery_evidence_claims_promise_accepted \
+    "${work}/outcome-leading-incomplete.md" '') == false ]]
+
+  echo 'PASS: delivery-evidence/claims assessor rejects unsupported covered claims and accept-without-gap; accepts corrected no-link and equivalent substantiated layout; refuses format-resend when evidence is sufficient, instruction-words-only, and missing fields; observer reads line-leading promise statuses.'
 }
