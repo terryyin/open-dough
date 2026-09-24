@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "quick/095-harden-branch-progress-observation/PLAN.md",
+  "mode": "story-branch",
+  "branch": "claude/095-harden-branch-progress-observation",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
