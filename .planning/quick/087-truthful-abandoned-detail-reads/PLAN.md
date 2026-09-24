@@ -4,7 +4,7 @@ Status: planned.
 
 **Identity:** quick/087-truthful-abandoned-detail-reads/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 bundles four test-suite corrections (count helpers, lifecycle and boundary consolidation, fake GitHub answering path, overview server) whose proof loops may be independent; its sizing is unassessed and the unused-server finding is unverified."],"basis":{"document":"ca24845a1faf0e5124419f685b37a141df723b9faab7af1b3d792169d6cbf0f1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dedb940972b23927d309e689b8b4dc2256e1af5d5ef8bb4da16fe0fc781c382d"}}
 ```
 
 Source: execution retrospective of
@@ -93,8 +93,10 @@ promises remain, and every consolidation below names its surviving proof.
 | Promise | Owning slice and observation |
 | --- | --- |
 | An abandoned detail read leaves explicit gaps, the attempt stays truthfully reported, and an unchanged check neither clears it into a settled read nor re-reads details automatically | 1: clock-driven page journey holding one B detail past 30 seconds, then one unchanged check |
-| Call-count assertions stay exact regardless of elapsed real time, and consolidated specs keep their surviving coverage | 2: focused runs of the affected specs plus the full dashboard suite |
-| Shared rules have one home with unchanged user-visible wording | 3: existing boundary and read-failure specs asserting exact messages, plus typecheck |
+| Call-count assertions stay exact regardless of elapsed real time | 2: focused runs of the real-timer count specs |
+| Consolidated specs keep their surviving coverage | 3: surviving specs plus the full dashboard suite |
+| The fake GitHub answers through one path with unchanged spec outcomes | 4: full dashboard suite |
+| Shared rules have one home with unchanged user-visible wording | 5: existing boundary and read-failure specs asserting exact messages, plus typecheck |
 
 ## Ordered slices
 
@@ -143,32 +145,61 @@ after membership stands until a later read replaces the snapshot);
 `loadRepositoryTexts` turns abandoned reads into per-file problems and
 `readPublishedWork` decides whether that snapshot is shown. The gap reuses the
 existing "could not be read" per-file wording. `dashboard/README.md` does not
-yet describe the gap at the bound or the standing failure; slice 3's doc
+yet describe the gap at the bound or the standing failure; slice 5's doc
 update covers it.
 
-### 2. Make auto-refresh-era test counts stable and remove redundant specs
+### 2. Keep call-count assertions exact regardless of elapsed time
 
 Type: Structure
 Status: planned
 
 Correction: exclude `--include` revision checks from `pathsRead` and
-`origin.requests` (reuse the `refChecks` rule in
-`dashboard/tests/autoRefreshJourney.ts`) so real-timer specs keep exact
-counts. Reduce `authenticated-read-subprocess-lifecycle.spec.ts` to one
+`origin.requests` (`dashboard/tests/publishedOrigin.ts`), reusing the
+`refChecks` rule in `dashboard/tests/autoRefreshJourney.ts` rather than a
+second recognizer, so real-timer specs keep exact counts even when a journey
+outlasts one 15-second check.
+
+Proof: `project-selection`, `direction-disclosure`, `dashboard-header`,
+`project-read-isolation`, `story-readiness`, and `auto-refresh` specs pass
+with their exact-count assertions unchanged, plus
+`npm run typecheck:dashboard`.
+
+Safe stopping point: an extra revision check never breaks a count assertion.
+
+### 3. Remove look-alike authenticated-read specs
+
+Type: Structure
+Status: planned
+
+Correction: reduce `authenticated-read-subprocess-lifecycle.spec.ts` to one
 source per read kind (surviving: disconnect and timeout per kind, shutdown);
 drop `authenticated-read-boundary.spec.ts`'s per-source membership and
 preview-mount cases (surviving: `authenticated-project-overview.spec.ts` in
 dev and preview); keep missing-login proof in the overview page journey and
-the boundary's stderr-redaction case only. Express the fake GitHub's control
-modes as answerers served for every repository and delete the catch-all path.
-Verify, then remove, the overview spec's unused preview server.
+the boundary's stderr-redaction case only. Verify whether
+`authenticated-project-overview.spec.ts` starts an unused preview server
+through the `page` fixture's `baseURL`, and remove it only when verified.
 
-Proof: the affected specs and the full `npm run test:dashboard` pass; list the
-removed test titles with their surviving coverage in the delivery record.
+Proof: the surviving specs and the full `npm run test:dashboard` pass; list
+the removed test titles with their surviving coverage in the delivery record.
 
 Safe stopping point: fewer look-alike specs with unchanged promise coverage.
 
-### 3. Give shared read rules one home
+### 4. Give the fake GitHub one answering path
+
+Type: Structure
+Status: planned
+
+Correction: express `dashboard/tests/support/fakeGitHub.ts`'s control modes
+as answerers served for every repository and delete the catch-all
+`setControl` path.
+
+Proof: every spec using the fake GitHub's control modes and the full
+`npm run test:dashboard` pass unchanged.
+
+Safe stopping point: one way to tell the fake GitHub how to answer.
+
+### 5. Give shared read rules one home
 
 Type: Structure
 Status: planned
@@ -177,7 +208,9 @@ Correction: move the SHA pattern, the "what was being read" label builder,
 and the read wait bound into `dashboard/src/authenticatedReadPath.ts` (or a
 sibling browser-safe module) and use them from both the boundary and the
 browser. Update `docs/dashboard-tech-stack.md`'s "First-story application"
-with one sentence pointing to `dashboard/README.md` for current behavior.
+with one sentence pointing to `dashboard/README.md` for current behavior, and
+add to `dashboard/README.md` that a detail still unread at the read's wait
+bound is shown as a gap whose failed attempt stands until a later read.
 
 Proof: boundary, revision-check, read-failure, and project-read-recovery specs
 asserting exact messages pass unchanged; `npm run typecheck:dashboard`.
