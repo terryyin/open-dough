@@ -10,7 +10,6 @@ import {
   commitAnswer,
   noConnection,
   notFoundAnswer,
-  notLoggedIn,
   pathsRead,
   publishMovingOrigin,
   publishOrigin,
@@ -43,12 +42,6 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
     origin: { ref: noConnection },
     problem:
       "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
-  },
-  {
-    when: "the local GitHub CLI is not logged in",
-    origin: { ref: notLoggedIn },
-    problem:
-      "The local GitHub CLI is not logged in, so main of terryyin/open-dough could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
   },
   {
     when: "GitHub limits the rate with HTTP 429",

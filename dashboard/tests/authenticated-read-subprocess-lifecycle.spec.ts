@@ -12,8 +12,11 @@
 // ./authenticated-read-boundary.spec.ts, which share this suite's harness
 // (./support/dashboardServer.ts). Membership reads, extra-path reads, and
 // revision checks share the same cancellation ownership; cases differ only by
-// URL shape. A page that abandons a check -- on hiding, a new read, or a
-// project switch -- disconnects the same way.
+// URL shape. Every catalog source reaches that ownership through the same
+// code, so each read kind is exercised for one source; which source is asked
+// is covered in ./authenticated-project-overview.spec.ts. A page that
+// abandons a check -- on hiding, a new read, or a project switch --
+// disconnects the same way.
 //
 // This spec's servers are separate processes, each with its own PATH and its
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
@@ -24,7 +27,6 @@ import { processAlive } from "./support/fakeGh";
 import {
   authenticatedReadKinds,
   authenticatedReadUrl,
-  catalogSourceIds,
 } from "./support/authenticatedReadUrl";
 import {
   startDashboardServer,
@@ -47,29 +49,25 @@ test.describe("authenticated read boundary: cancels the held subprocess on clien
     await server.close();
   });
 
-  for (const sourceId of catalogSourceIds)
-    for (const { kind, label } of authenticatedReadKinds) {
-      test(`terminates a held ${sourceId} ${label} when the request is abandoned (client disconnect)`, async () => {
-        server.setControl({ mode: "hang" });
-        const abandoned = abandonedRequest({
-          url: authenticatedReadUrl(server.baseURL, kind, sourceId),
-          headers: { Origin: server.origin },
-        });
-        const becameAlive = await waitUntil(
-          () => processAlive(server.ghPid()),
-          {
-            timeoutMs: 5_000,
-          },
-        );
-        expect(becameAlive).toBe(true);
-        abandoned.cutAfter(0);
-        const died = await waitUntil(() => !processAlive(server.ghPid()), {
-          timeoutMs: 5_000,
-        });
-        expect(died).toBe(true);
-        expect(server.ghExitedBy()).toBe("SIGTERM");
+  for (const { kind, label } of authenticatedReadKinds) {
+    test(`terminates a held ${label} when the request is abandoned (client disconnect)`, async () => {
+      server.setControl({ mode: "hang" });
+      const abandoned = abandonedRequest({
+        url: authenticatedReadUrl(server.baseURL, kind),
+        headers: { Origin: server.origin },
       });
-    }
+      const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(becameAlive).toBe(true);
+      abandoned.cutAfter(0);
+      const died = await waitUntil(() => !processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(died).toBe(true);
+      expect(server.ghExitedBy()).toBe("SIGTERM");
+    });
+  }
 });
 
 test.describe("authenticated read boundary: bounded timeout without changing the production bound", () => {
@@ -93,24 +91,23 @@ test.describe("authenticated read boundary: bounded timeout without changing the
     await server.close();
   });
 
-  for (const sourceId of catalogSourceIds)
-    for (const { kind, label } of authenticatedReadKinds) {
-      test(`ends a stalled ${sourceId} ${label} at the read's own bound`, async () => {
-        server.setControl({ mode: "hang" });
-        const response = await rawRequest({
-          url: authenticatedReadUrl(server.baseURL, kind, sourceId),
-          headers: { Origin: server.origin },
-        });
-        expect(response.status).toBe(502);
-        expect(response.body).toContain(
-          "The local GitHub CLI did not answer within 0.3 seconds",
-        );
-        const died = await waitUntil(() => !processAlive(server.ghPid()), {
-          timeoutMs: 5_000,
-        });
-        expect(died).toBe(true);
+  for (const { kind, label } of authenticatedReadKinds) {
+    test(`ends a stalled ${label} at the read's own bound`, async () => {
+      server.setControl({ mode: "hang" });
+      const response = await rawRequest({
+        url: authenticatedReadUrl(server.baseURL, kind),
+        headers: { Origin: server.origin },
       });
-    }
+      expect(response.status).toBe(502);
+      expect(response.body).toContain(
+        "The local GitHub CLI did not answer within 0.3 seconds",
+      );
+      const died = await waitUntil(() => !processAlive(server.ghPid()), {
+        timeoutMs: 5_000,
+      });
+      expect(died).toBe(true);
+    });
+  }
 });
 
 test.describe("authenticated read boundary: subprocess ownership across server shutdown", () => {

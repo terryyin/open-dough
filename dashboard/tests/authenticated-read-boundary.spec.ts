@@ -7,9 +7,10 @@
 // refuses before ever launching `gh`, what it pins into `gh`'s arguments, and
 // what it never repeats into a failure response.
 //
-// This spec covers what the boundary reads and reports: successful
-// resolve-then-read for every catalog source, reachable record reads,
-// failure reporting, and dev/preview parity. Which requests it refuses before
+// This spec covers what the boundary reads and reports: reachable record
+// reads and failure reporting. Resolve-then-read for every catalog source, in
+// both dev and preview launch modes with pinned `gh` arguments, is covered by
+// ./authenticated-project-overview.spec.ts. Which requests it refuses before
 // launching `gh` is covered in ./authenticated-read-refusal.spec.ts; its
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
 // -- in ./authenticated-read-subprocess-lifecycle.spec.ts. All share this
@@ -31,29 +32,7 @@ test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 const knownRepository = "terryyin/open-dough";
-const revision = "ab".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 const secretMarker = "gho_should-never-reach-a-browser-1234567890";
-
-// Every catalog source is answered by the same boundary through its own
-// repository; none has a separate transport.
-const catalogSources = [
-  { id: "open-dough", repository: "terryyin/open-dough" },
-  { id: "doughnut", repository: "nerds-odd-e/doughnut" },
-  { id: "pygardon", repository: "terryyin/pygardon" },
-] as const;
-
-function membershipCalls(repository: string, pinned: string): string[][] {
-  return [
-    ["api", `repos/${repository}/commits/main`, "--jq", ".sha"],
-    [
-      "api",
-      "-H",
-      "Accept: application/vnd.github.raw+json",
-      `repos/${repository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${pinned}`,
-    ],
-  ];
-}
 
 test.describe("authenticated read boundary (dev launch mode)", () => {
   let server: DashboardServer;
@@ -66,23 +45,6 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
   test.afterAll(async () => {
     await server.close();
   });
-
-  for (const { id, repository } of catalogSources) {
-    test(`resolves ${id}'s own repository ref then reads its backlog pinned to that resolved revision`, async () => {
-      server.setControl({ mode: "normal", revision, backlog });
-      const callsBefore = server.ghCalls().length;
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${id}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status).toBe(200);
-      expect(response.headers["cache-control"]).toBe("no-store");
-      expect(JSON.parse(response.body)).toEqual({ revision, backlog });
-      expect(server.ghCalls().slice(callsBefore)).toEqual(
-        membershipCalls(repository, revision),
-      );
-    });
-  }
 
   test("answers a missing gh login with the selected project's actionable failure, never gh's own words", async () => {
     server.setControl({
@@ -174,32 +136,5 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(body.revision).toBe(revision);
     expect(body.path).toBe(seedPath);
     expect(body.text).toBe(seedBody);
-  });
-});
-
-test.describe("authenticated read boundary (preview launch mode)", () => {
-  test("configurePreviewServer mounts the identical middleware for every catalog source", async () => {
-    const server = await startDashboardServer({
-      mode: "preview",
-      port: 4293,
-    });
-    try {
-      server.setControl({ mode: "normal", revision, backlog });
-      for (const { id, repository } of catalogSources) {
-        const callsBefore = server.ghCalls().length;
-        const response = await rawRequest({
-          url: `${server.baseURL}/__authenticated-read?source=${id}`,
-          headers: { Origin: server.origin },
-        });
-        expect(response.status).toBe(200);
-        expect(JSON.parse(response.body)).toEqual({ revision, backlog });
-        expect(response.headers["cache-control"]).toBe("no-store");
-        expect(server.ghCalls().slice(callsBefore)).toEqual(
-          membershipCalls(repository, revision),
-        );
-      }
-    } finally {
-      await server.close();
-    }
   });
 });

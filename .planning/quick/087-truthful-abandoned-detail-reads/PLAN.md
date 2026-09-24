@@ -181,7 +181,7 @@ dashboard suite before refactoring (106 passed).
 ### 3. Remove look-alike authenticated-read specs
 
 Type: Structure
-Status: planned
+Status: done
 
 Correction: reduce `authenticated-read-subprocess-lifecycle.spec.ts` to one
 source per read kind (surviving: disconnect and timeout per kind, shutdown);
@@ -196,6 +196,30 @@ Proof: the surviving specs and the full `npm run test:dashboard` pass; list
 the removed test titles with their surviving coverage in the delivery record.
 
 Safe stopping point: fewer look-alike specs with unchanged promise coverage.
+
+Accepted proof: the dashboard suite went from 106 to 89 tests. Removed, with
+surviving coverage:
+
+- Lifecycle disconnect and timeout for doughnut and pygardon (12 of 18
+  cases): the same spec keeps disconnect and timeout per read kind for
+  `open-dough`; `dashboard/server/authenticatedRead.ts` does not branch per
+  source.
+- Boundary "resolves {source}'s own repository ref then reads its backlog
+  pinned to that resolved revision" (3) and "configurePreviewServer mounts the
+  identical middleware for every catalog source": `authenticated-project-overview.spec.ts`
+  dev and preview journeys (`expectPinnedGhCalls` and rendered backlogs).
+- Read-failure "not logged in" opening: the overview journey's missing-login
+  step; the boundary keeps stderr redaction.
+
+Kept deliberately: the revision-check spec's logged-out case (the only proof
+of `checkRevisionViaGh`'s no-status fallback) and project-read-recovery's
+missing login (the premise of that journey, not a repeated message check).
+The overview spec's fixture preview server was verified unused by trace and
+removed with `test.use({ baseURL: undefined })`. Commands: focused
+`authenticated-read-subprocess-lifecycle authenticated-read-boundary
+authenticated-project-overview read-failure authenticated-read-revision-check
+project-read-recovery` (35 passed), `npm run test:dashboard` (89 passed),
+`npm run typecheck:dashboard`.
 
 ### 4. Give the fake GitHub one answering path
 

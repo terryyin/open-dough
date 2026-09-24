@@ -5,14 +5,12 @@
 export type AuthenticatedReadKind =
   "membership" | "extra-path" | "revision-check";
 
-// Every catalog source shares the same boundary; lifecycle cases name one.
-export const catalogSourceIds = ["open-dough", "doughnut", "pygardon"] as const;
-
 export function authenticatedReadUrl(
   baseURL: string,
   kind: AuthenticatedReadKind,
-  sourceId: string = "open-dough",
 ): string {
+  // Every catalog source shares the same boundary; lifecycle cases name one.
+  const sourceId = "open-dough";
   if (kind === "membership") {
     return `${baseURL}/__authenticated-read?source=${sourceId}`;
   }
