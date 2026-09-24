@@ -11,6 +11,7 @@ import { acceptedReceipt } from "./execution-start-receipt.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { startRequest } from "./execution-start-request.mjs";
 import {
+  receiptAgent,
   reselectClaimAgent,
   resumeClaimAgent,
   selectClaimAgent,
@@ -19,7 +20,6 @@ import {
   commitWorkspaceClaim,
   selectOwnedWorkspace,
 } from "./workspace-publication-select.mjs";
-import { workspaceAuthorship } from "./workspace-agent-authorship.mjs";
 import {
   claimMembership,
   publishClaimSha,
@@ -31,13 +31,6 @@ import {
   remoteOf,
   stopped,
 } from "./workspace-publication-ownership.mjs";
-
-// The receipt's agent and whether its workspace authors ordinary commits as
-// that agent; nothing for a claim made without an agent.
-async function receiptAgent(workspace, agent) {
-  if (!agent) return {};
-  return { agent, workspaceAuthorship: await workspaceAuthorship(workspace) };
-}
 
 export async function startQueuedExecution(requestInput) {
   const started = startRequest(requestInput);
@@ -68,13 +61,24 @@ export async function startQueuedExecution(requestInput) {
   }
   let agent;
   if (!request.retained) {
-    const chosen = await selectClaimAgent(request, ref, backlogPath, fetched);
+    const chosen = await selectClaimAgent(request, ref, backlogPath, {
+      fetched,
+    });
     if (!chosen.ok) return chosen;
     agent = chosen.agent;
   }
   const beforeMaintenance = await maintenance(request);
   const selected = await selectOwnedWorkspace({ ...request, origin });
   if (!selected.ok) return { ...selected, fetched, beforeMaintenance };
+  // Trunk can move between the source fetch and the workspace's base; the
+  // claim names the rotation's next agent on the trunk it is built on.
+  if (agent && selected.startingRevision !== fetched) {
+    const { startingRevision: base, workspace, branch } = selected;
+    const stop = { fetched, workspace, branch, beforeMaintenance };
+    const chosen = await selectClaimAgent(request, base, backlogPath, stop);
+    if (!chosen.ok) return chosen;
+    agent = chosen.agent;
+  }
   const claimRequest = {
     ...request,
     ...selected,

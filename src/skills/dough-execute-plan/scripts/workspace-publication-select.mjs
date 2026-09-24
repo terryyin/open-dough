@@ -191,16 +191,8 @@ export async function commitWorkspaceClaim(request) {
       },
     });
   }
+  // The agent was chosen on this starting revision, so its profile is free.
   const agentProfile = request.agent && agentProfileOf(request, file);
-  if (agentProfile && existsSync(join(workspace, agentProfile.profile))) {
-    return stopped("setup-failed", {
-      recovery: {
-        workspace,
-        branch: request.branch,
-        error: `${agentProfile.identity.agent} already holds ${agentProfile.profile}`,
-      },
-    });
-  }
   let outcome;
   await applyToBacklog(join(workspace, file), (source) => {
     outcome = takeEntry(source, {

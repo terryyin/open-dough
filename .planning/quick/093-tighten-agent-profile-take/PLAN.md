@@ -112,9 +112,10 @@ plan 091); a crash between the backlog write and profile deletion in
 - Detect the bare layout from the repository's shared config before enabling
   `extensions.worktreeConfig`; the receipt names that workspace authorship was
   not configured.
-- Select the agent from the base revision `selectOwnedWorkspace` used, and let
-  `commitWorkspaceClaim`'s "already holds" condition reselect through the same
-  `nextAgentName` rule rather than stop.
+- Select the agent from the base revision `selectOwnedWorkspace` used, through
+  the same `nextAgentName` rule, before the claim commit. The name is then free
+  on the workspace's base, so `commitWorkspaceClaim`'s "already holds" stop
+  became unreachable and was removed rather than turned into a reselection.
 - The shared profile module exports the mode list; other code derives from it.
 - Slice 2's rival arrives through a `reference-transaction` hook installed in
   the test's integration checkout (see Infrastructure proof); no product test
@@ -174,7 +175,7 @@ the detection is untested.
 ### 2. A name published between startup's fetches is reselected, not a stop
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new case in `workspace-publication-startup-agent.test.mjs` with the
 real `execution-start.mjs`: after startup's source fetch and before the claim
 commit, a rival profile for the name that would have been chosen reaches
@@ -185,6 +186,21 @@ Rerun the startup agent, race, claim, and recovery suites.
 Behavior: rival publishes the selected name after startup's first fetch →
 Take → the claim uses the next name on the workspace's base trunk and
 publishes.
+
+Accepted proof: from `src/skills/dough-execute-plan/scripts`, `node --test
+workspace-publication-startup-agent.test.mjs
+workspace-publication-startup-agent-race.test.mjs
+workspace-publication-startup-agent-resume.test.mjs
+workspace-publication-startup-agent-release.test.mjs
+workspace-publication-startup-race.test.mjs
+workspace-publication-startup-recovery.test.mjs workspace-publication.test.mjs
+workspace-publication-race.test.mjs` → 42/42. Observation: "a name published
+between startup's fetches is reselected on the workspace's base trunk" (now in
+`workspace-publication-startup-agent-race.test.mjs`) receives `Akiho-chan`,
+publishes at remote `main`, and leaves both profiles there; it failed with the
+old `setup-failed` stop before the change. The all-held refusal is unchanged.
+Untested: every name becoming held only at the second fetch, which stops
+`agent-unavailable` and leaves the created workspace.
 
 ### 3. One home for agent hosts, modes, and profile paths
 
@@ -229,3 +245,8 @@ retrospective correction.
 - The released startup passes a correction's own plan as `--plan`, which the
   backlog Take refuses; this execution's claim was committed by hand in the
   startup's format and confirmed through a startup resume.
+- A fetch that brings nothing new leaves `refs/remotes/origin/main` untouched,
+  so the rival hook needs remote trunk to advance before startup; a hook that
+  runs Git in another repository must unset `GIT_DIR` and related variables.
+- Later startup proof commands include the split
+  `workspace-publication-startup-agent-race.test.mjs`.

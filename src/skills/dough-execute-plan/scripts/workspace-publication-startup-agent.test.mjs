@@ -1,5 +1,5 @@
-// The agent profile a real startup Take publishes, and how a race keeps
-// agent names distinct.
+// The agent profile a real startup Take publishes and the name rotation it
+// follows.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -12,13 +12,8 @@ import {
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import {
-  assertPublishedAgent,
-  awaitFile,
-  holdFirstPush,
   profilePath,
   publishProfiles,
-  remoteProfiles,
-  startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
 import { agentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -136,39 +131,6 @@ test("Story Branch Mode profile records its origin branch and leaves unreported 
       mode: "story-branch",
       branch: "exec/story-branch",
     },
-  );
-});
-
-test("a rival holding a different agent name leaves the replayed claim its original name", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const barrier = await holdFirstPush(trunk);
-  const a = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    a.child.kill();
-  });
-  await awaitFile(barrier.arrived);
-  // A rival started from another base, where Yui-chan was held, published
-  // Akiho-chan's profile first.
-  await publishProfiles(trunk, ["Akiho"], identityB);
-  barrier.release();
-  const result = await a.result;
-  assert.equal(result.receipt.ok, true, JSON.stringify(result));
-  assert.equal(result.receipt.agent, "Yui-chan");
-  assert.equal(
-    result.receipt.publishedSha,
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-  );
-  assert.deepEqual(await remoteProfiles(result.workspace), [
-    ".planning/agents/akiho-chan.json",
-    ".planning/agents/yui-chan.json",
-  ]);
-  await assertPublishedAgent(result.workspace, "Yui", identityA);
-  assert.match(
-    (await git(result.workspace, "log", "-1", "--format=%B", "origin/main"))
-      .stdout,
-    /Claim-Publisher: publisher-a/,
   );
 });
 
