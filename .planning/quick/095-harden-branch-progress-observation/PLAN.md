@@ -172,7 +172,7 @@ omits `branches` and the page treats that as no heads moved.
 ### 2. The page resolves a story's plan path once
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- branch-slice-progress taken-slice
 story-readiness preparation`, then the full `npm run test:dashboard`; `grep -n
 resolveBesideFile dashboard/src` shows one plan-path caller;
@@ -181,6 +181,12 @@ resolveBesideFile dashboard/src` shows one plan-path caller;
 Structure: carry the resolved plan path on `WorkEntry` from enrichment and
 remove the rebuilds in `progressRoute.ts`, `preparationEnrichment.ts`,
 `workEntryFacts.ts`, and `planAssociation.ts`. Product behavior is unchanged.
+Accepted: `recordedPlanPathFor` (`workEntryFacts.ts`) is the page's one
+plan-path caller of `resolveBesideFile`; enrichment sets `WorkEntry.planPath`,
+read by preparation, slice reading, `routeOf(entry)`, and the clock. The
+route's unresolved-path gap now reads "The associated plan path could not be
+resolved." (no test asserted the old wording). Full `npm run test:dashboard`
+(113 passed); `npm run typecheck:dashboard`.
 
 ### 3. The dashboard suite proves each clock format and gap once
 
@@ -218,3 +224,8 @@ coverage needs it; fold the repeated commit-time validation in
 - The installed `execution-start.mjs` still lacked the fix for claiming a
   correction whose plan is its canonical home (`b7246d2`); startup ran from
   `src/skills/dough-execute-plan/scripts/` instead.
+- The server's `plannedPlanPath` (`reachablePaths.ts`) still repeats the page's
+  plan-path rule; merging page and server owners was outside this plan.
+- The preparation gap "The recorded plan path does not resolve to a file
+  inside the observed repository." remains a separate wording; no test
+  observes either unresolved-path gap.

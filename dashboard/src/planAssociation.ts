@@ -3,14 +3,14 @@
 // older backlog plan alone never invents readiness.
 
 import type { WorkEntry } from "./publishedWork";
-import { resolveBesideFile } from "./repositoryPath";
 import { snapshotRepositoryPath } from "./sourceLink";
 import { peekRecordedApproach } from "./storyPreparation";
 
 export function planAssociationConflict(
   entry: WorkEntry,
   backlogPath: string,
-  canonicalPath: string | undefined,
+  // The story-state plan's repository path (`recordedPlanPathFor`).
+  recordedResolved: string | undefined,
   peek: ReturnType<typeof peekRecordedApproach>,
 ): string | undefined {
   const backlogPlan = entry.plan;
@@ -36,10 +36,6 @@ export function planAssociationConflict(
     );
   }
   const backlogResolved = snapshotRepositoryPath(backlogPlan, backlogPath);
-  const recordedResolved =
-    canonicalPath === undefined
-      ? undefined
-      : resolveBesideFile(canonicalPath, recordedRelative);
   if (
     backlogResolved === undefined ||
     recordedResolved === undefined ||

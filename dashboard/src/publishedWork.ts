@@ -62,6 +62,11 @@ export type WorkEntry = {
   readonly plan?: SourceLink;
   // Navigation derived from canonical story-state; raw backlog evidence stays above.
   readonly associatedPlan?: SourceLink;
+  // The repository path of the plan story-state records, resolved once beside
+  // the canonical record when preparation facts are read; absent when no plan
+  // is recorded or its path does not resolve inside the observed repository.
+  // Trunk's and the story branch's copies of the plan are read at this path.
+  readonly planPath?: string;
   // Preparation facts from the same revision. Starts as loading while
   // dependent canonical and plan files are read through the local
   // authenticated boundary.

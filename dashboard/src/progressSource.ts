@@ -43,7 +43,7 @@ export function awaitingProgressSources(work: PublishedWork): PublishedWork {
   return {
     ...work,
     taken: work.taken.map((entry) => {
-      const route = routeOf(entry, work.source.backlogPath);
+      const route = routeOf(entry);
       switch (route.kind) {
         case "none":
           return entry;
@@ -103,7 +103,7 @@ async function branchProgress(
           ? unavailable(
               `The associated plan ${planPath} is missing on this branch.`,
             )
-          : interpretPlanSlices(text, planPath),
+          : interpretPlanSlices(text),
     };
   } catch (error) {
     return {
@@ -130,7 +130,7 @@ export async function withProgressSources(
     ...work,
     taken: await Promise.all(
       work.taken.map((entry) => {
-        const route = routeOf(entry, work.source.backlogPath);
+        const route = routeOf(entry);
         if (route.kind !== "branch") {
           return Promise.resolve(entry);
         }
@@ -153,7 +153,7 @@ export async function withProgressSources(
 export function watchedBranchHeads(work: PublishedWork): StoryBranchHeads {
   const heads = new Map<string, string | undefined>();
   for (const entry of work.taken) {
-    const route = routeOf(entry, work.source.backlogPath);
+    const route = routeOf(entry);
     if (route.kind === "branch") {
       heads.set(route.branch, countedPlanBranch(entry)?.head);
     }

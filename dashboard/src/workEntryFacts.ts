@@ -1,9 +1,10 @@
 // Interprets purpose and plan-slice facts for one published-work entry
-// once its canonical and plan texts are already loaded. Preparation readiness
-// and slice reading share one associated-plan resolution. Backlog plan links
-// remain navigation/claim data; when both a backlog plan and a recorded
-// story-state plan exist they must resolve to the same path, and disagreement
-// is reported rather than preferred.
+// once its canonical and plan texts are already loaded. The associated plan
+// path is resolved once (`recordedPlanPathFor`); preparation readiness, slice
+// reading, the progress route, and the slice clock all read that one path.
+// Backlog plan links remain navigation/claim data; when both a backlog plan
+// and a recorded story-state plan exist they must resolve to the same path,
+// and disagreement is reported rather than preferred.
 
 import type { WorkEntry } from "./publishedWork";
 import { planAssociationConflict } from "./planAssociation";
@@ -33,18 +34,34 @@ function recordedWithAssessment(
   };
 }
 
+// The repository path of the plan the entry's story-state records, beside its
+// canonical record; undefined when no plan is recorded or the recorded path
+// does not resolve inside the observed repository.
+export function recordedPlanPathFor(
+  path: string | undefined,
+  peek: ReturnType<typeof peekRecordedApproach> | undefined,
+): string | undefined {
+  if (
+    path === undefined ||
+    peek?.status !== "recorded" ||
+    peek.approach.kind !== "planned"
+  ) {
+    return undefined;
+  }
+  return resolveBesideFile(path, peek.approach.plan);
+}
+
 type AssociatedPlanSource =
   | { readonly status: "unavailable"; readonly problem: string }
   | {
       readonly status: "ready";
-      readonly path: string;
       readonly source: string;
       readonly planIsCanonical: boolean;
     };
 
 function associatedPlanSource(
   path: string | undefined,
-  planRelative: string,
+  planPath: string | undefined,
   canonicalText: ReadonlyMap<string, string>,
   planText: ReadonlyMap<string, string>,
   planProblems: ReadonlyMap<string, string>,
@@ -55,15 +72,14 @@ function associatedPlanSource(
       problem: "The associated plan path could not be resolved.",
     };
   }
-  const resolved = resolveBesideFile(path, planRelative);
-  if (resolved === undefined) {
+  if (planPath === undefined) {
     return {
       status: "unavailable",
       problem:
         "The recorded plan path does not resolve to a file inside the observed repository.",
     };
   }
-  if (resolved === path) {
+  if (planPath === path) {
     const text = canonicalText.get(path);
     if (text === undefined) {
       return {
@@ -71,25 +87,20 @@ function associatedPlanSource(
         problem: "The canonical plan record could not be read.",
       };
     }
-    return { status: "ready", path, source: text, planIsCanonical: true };
+    return { status: "ready", source: text, planIsCanonical: true };
   }
-  const planProblem = planProblems.get(resolved);
+  const planProblem = planProblems.get(planPath);
   if (planProblem !== undefined) {
     return { status: "unavailable", problem: planProblem };
   }
-  const source = planText.get(resolved);
+  const source = planText.get(planPath);
   if (source === undefined) {
     return {
       status: "unavailable",
       problem: "The associated plan could not be read.",
     };
   }
-  return {
-    status: "ready",
-    path: resolved,
-    source,
-    planIsCanonical: false,
-  };
+  return { status: "ready", source, planIsCanonical: false };
 }
 
 export function purposeFor(
@@ -127,6 +138,7 @@ export function purposeFor(
 export function planSlicesFor(
   preparation: WorkPreparation,
   path: string | undefined,
+  planPath: string | undefined,
   planText: ReadonlyMap<string, string>,
   planProblems: ReadonlyMap<string, string>,
   canonicalText: ReadonlyMap<string, string>,
@@ -145,7 +157,7 @@ export function planSlicesFor(
   }
   const associated = associatedPlanSource(
     path,
-    preparation.approach.plan,
+    planPath,
     canonicalText,
     planText,
     planProblems,
@@ -153,12 +165,13 @@ export function planSlicesFor(
   if (associated.status === "unavailable") {
     return { status: "unavailable", problem: associated.problem };
   }
-  return interpretPlanSlices(associated.source, associated.path);
+  return interpretPlanSlices(associated.source);
 }
 
 export function preparationForPeek(
   entry: WorkEntry,
   path: string | undefined,
+  planPath: string | undefined,
   peek: ReturnType<typeof peekRecordedApproach>,
   canonicalText: ReadonlyMap<string, string>,
   planText: ReadonlyMap<string, string>,
@@ -179,7 +192,7 @@ export function preparationForPeek(
   const associationConflict = planAssociationConflict(
     entry,
     backlogPath,
-    path,
+    planPath,
     peek,
   );
   if (associationConflict !== undefined) {
@@ -193,7 +206,7 @@ export function preparationForPeek(
   }
   const associated = associatedPlanSource(
     path,
-    peek.approach.plan,
+    planPath,
     canonicalText,
     planText,
     planProblems,

@@ -39,13 +39,10 @@ export type WorkPlanSlices =
   | {
       readonly status: "interpreted";
       readonly slices: readonly PlanSlice[];
-      // The repository path the slices were read from.
-      readonly planPath: string;
     };
 
 export function interpretPlanSlices(
   source: string,
-  planPath: string,
 ): Exclude<
   WorkPlanSlices,
   { readonly status: "loading" | "absent" | "unavailable" }
@@ -75,7 +72,6 @@ export function interpretPlanSlices(
   return {
     status: "interpreted",
     slices: parsed.data.slices,
-    planPath,
   };
 }
 

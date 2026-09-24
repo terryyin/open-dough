@@ -10,9 +10,9 @@ import {
   planSlicesFor,
   preparationForPeek,
   purposeFor,
+  recordedPlanPathFor,
 } from "./workEntryFacts";
 import { loadRepositoryTexts } from "./repositoryFileReads";
-import { resolveBesideFile } from "./repositoryPath";
 import {
   resolveSourceLink,
   snapshotRepositoryPath,
@@ -25,6 +25,7 @@ import type { WorkPurpose } from "./storyPurpose";
 type EntryFacts = {
   readonly preparation: WorkPreparation;
   readonly associatedPlan?: SourceLink;
+  readonly planPath?: string;
   readonly purpose: WorkPurpose;
   readonly planSlices: WorkPlanSlices;
 };
@@ -45,6 +46,7 @@ function withFacts(
         ...(facts.associatedPlan !== undefined && {
           associatedPlan: facts.associatedPlan,
         }),
+        ...(facts.planPath !== undefined && { planPath: facts.planPath }),
         purpose: facts.purpose,
         planSlices: facts.planSlices,
       };
@@ -60,6 +62,7 @@ type Peek = {
   readonly entry: WorkEntry;
   readonly path: string | undefined;
   readonly peek: ReturnType<typeof peekRecordedApproach> | undefined;
+  readonly planPath?: string;
 };
 
 function peekEntries(
@@ -100,10 +103,13 @@ function peekEntries(
         },
       };
     }
+    const peek = peekRecordedApproach(text, entry.canonical.recorded);
+    const planPath = recordedPlanPathFor(path, peek);
     return {
       entry,
       path,
-      peek: peekRecordedApproach(text, entry.canonical.recorded),
+      peek,
+      ...(planPath !== undefined && { planPath }),
     };
   });
 }
@@ -141,46 +147,38 @@ export async function enrichPreparation(
     canonicalProblems,
   );
 
-  const planPaths = new Map<string, string>();
-  for (const { entry, path, peek } of peeks) {
+  const planPaths = new Set<string>();
+  for (const { entry, path, peek, planPath } of peeks) {
     if (
-      path === undefined ||
       peek === undefined ||
-      peek.status !== "recorded" ||
-      peek.approach.kind !== "planned"
-    ) {
-      continue;
-    }
-    if (
-      planAssociationConflict(entry, source.backlogPath, path, peek) !==
-      undefined
-    ) {
+      planPath === undefined ||
+      planPath === path ||
       // Disagreement is reported; neither plan is preferred for readiness.
+      planAssociationConflict(entry, source.backlogPath, planPath, peek) !==
+        undefined
+    ) {
       continue;
     }
-    const resolved = resolveBesideFile(path, peek.approach.plan);
-    if (resolved === undefined || resolved === path) {
-      continue;
-    }
-    planPaths.set(`${path}\0${peek.approach.plan}`, resolved);
+    planPaths.add(planPath);
   }
 
   const { text: planText, problems: planProblems } = await loadRepositoryTexts(
     source,
     revision,
-    [...new Set(planPaths.values())],
+    [...planPaths],
     signal,
     "The associated plan could not be read for readiness facts.",
   );
 
   const byIdentity = new Map<string, EntryFacts>();
-  for (const { entry, path, peek } of peeks) {
+  for (const { entry, path, peek, planPath } of peeks) {
     if (peek === undefined) {
       continue;
     }
     const preparation = preparationForPeek(
       entry,
       path,
+      planPath,
       peek,
       canonicalText,
       planText,
@@ -199,10 +197,12 @@ export async function enrichPreparation(
             path,
           ),
         }),
+      ...(planPath !== undefined && { planPath }),
       purpose: purposeFor(path, entry, canonicalText, canonicalProblems),
       planSlices: planSlicesFor(
         preparation,
         path,
+        planPath,
         planText,
         planProblems,
         canonicalText,

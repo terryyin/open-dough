@@ -63,7 +63,7 @@ function takeSourceOf({ progressSource }: WorkEntry): TakeSource {
 // commit time of the plan those slices were read from.
 function countedPlanPathOf(entry: WorkEntry): string | undefined {
   return entry.planSlices?.status === "interpreted"
-    ? entry.planSlices.planPath
+    ? entry.planPath
     : undefined;
 }
 
