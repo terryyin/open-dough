@@ -1,0 +1,97 @@
+// Shared agent profile: rotation names, Git identity spelling, and published
+// profile text, without filesystem or Git access.
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { importedModules } from "./pure-module-imports.mjs";
+
+const modulePath = fileURLToPath(
+  new URL(
+    "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs",
+    import.meta.url,
+  ),
+);
+const {
+  agentIdentity,
+  agentNames,
+  agentReportError,
+  heldAgentName,
+  renderAgentProfile,
+  selectAgentName,
+} = await import(pathToFileURL(modulePath).href);
+
+test("the profile module imports no filesystem or Node-only module", () => {
+  const { specifiers } = importedModules(modulePath);
+  for (const specifier of specifiers)
+    assert.equal(specifier.startsWith("node:"), false, specifier);
+});
+
+test("rotation holds 29 distinct names starting at Yui and ending at Rina", () => {
+  assert.equal(agentNames.length, 29);
+  assert.equal(new Set(agentNames).size, 29);
+  assert.equal(agentNames[1], "Akiho");
+  assert.equal(agentNames.at(-1), "Rina");
+});
+
+test("selection takes the first name not held on trunk", () => {
+  assert.equal(selectAgentName([]), "Yui");
+  assert.equal(selectAgentName(["Yui"]), "Akiho");
+  assert.equal(selectAgentName(["Akiho"]), "Yui");
+  assert.equal(selectAgentName([...agentNames]), undefined);
+  assert.equal(heldAgentName("agent-akiho.json"), "Akiho");
+  assert.equal(heldAgentName("agent-Akiho.json"), undefined);
+  assert.equal(heldAgentName("notes.md"), undefined);
+});
+
+test("agent identity spells name, email, and profile path", () => {
+  assert.deepEqual(agentIdentity("Akiho"), {
+    name: "Akiho",
+    agent: "agent-Akiho",
+    email: "agent-akiho@example.org",
+    path: "agents/agent-akiho.json",
+  });
+  assert.throws(() => agentIdentity("Nobody"), /unknown agent name/);
+});
+
+test("a rendered profile leaves unreported host and model unrecorded", () => {
+  const render = (report) =>
+    JSON.parse(
+      renderAgentProfile({
+        name: "Yui",
+        identity: "SEED-A#a",
+        mode: "story-branch",
+        branch: "exec/a",
+        ...report,
+      }),
+    );
+  assert.deepEqual(render({ host: "codex", model: "gpt-x" }), {
+    schemaVersion: 1,
+    agent: "agent-Yui",
+    email: "agent-yui@example.org",
+    identity: "SEED-A#a",
+    mode: "story-branch",
+    branch: "exec/a",
+    host: "codex",
+    model: "gpt-x",
+  });
+  const partial = render({});
+  assert.equal("host" in partial, false);
+  assert.equal("model" in partial, false);
+});
+
+test("reported host and model must be recordable", () => {
+  assert.equal(agentReportError({}), undefined);
+  assert.match(agentReportError({ host: "vim" }), /host must be one of/);
+  assert.match(agentReportError({ model: " " }), /model must be non-empty/);
+  assert.throws(
+    () =>
+      renderAgentProfile({
+        name: "Yui",
+        identity: "SEED-A#a",
+        mode: "trunk",
+        branch: "origin/main",
+        host: "vim",
+      }),
+    /host must be one of/,
+  );
+});

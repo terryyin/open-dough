@@ -16,6 +16,7 @@ export function acceptedReceipt(
     mode: request.mode,
     identity: request.identity,
     publisherId: request.publisherId,
+    ...(publication.agent ? { agent: publication.agent } : {}),
     remote: remoteOf(request),
     target: `refs/heads/${request.target}`,
     fetched,

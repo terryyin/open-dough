@@ -99,7 +99,20 @@ committer=Human`; `core.repositoryformatversion` stayed 0.
 ### 1. Take publishes an agent profile authored by the agent
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test` on
+`src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs`
+(profile facts, agent author on remote/workspace, human author in the
+integration checkout, Story Branch origin branch, rival holding another name
+keeps ours), `workspace-publication-startup-race.test.mjs` (same-name races end
+with `agent-yui.json` and `agent-akiho.json`, each Take authored by its
+profile's agent), `workspace-publication.test.mjs`,
+`workspace-publication-startup-recovery.test.mjs`,
+`workspace-publication-race.test.mjs`, and
+`tests/support/product-backlog-agent-profile.test.mjs`; `tests/product-backlog.sh`,
+`tests/execution-payload-update.sh`, `tests/install-public-payload.sh`, and
+`tests/product-backlog-payload-update.sh` under Bash 4+. Selection is still
+first-free (`execution-start-agent.mjs`); slice 2 replaces it there.
 Proof: new case in
 `src/skills/dough-execute-plan/scripts/workspace-publication-startup-claim-cases.mjs`
 running the real `execution-start.mjs` against `createQueuedTrunk`;
@@ -114,10 +127,15 @@ receipt names the agent; a later commit made in the workspace has the same
 author while a commit in the integration checkout does not. A Story Branch
 Mode start records its origin branch.
 
-Includes the shared profile module (first-name selection only; the full
-rotation rule follows in slice 2), `commitWorkspaceClaim` staging the profile
-and passing the author, worktree config, receipt field, and the
-`dough-execute-plan` Take guidance for `--host`/`--model`.
+Includes the shared profile module (selection of the first name not held on
+fetched trunk; the full rotation rule follows in slice 2), `commitWorkspaceClaim`
+staging the profile and passing the author, worktree config, receipt field, and
+the `dough-execute-plan` Take guidance for `--host`/`--model`.
+
+Also includes former slice 3's race reselection (see there): two starts from
+one base select the same first name, so without reselection the existing
+startup race tests stop on the profile's add/add conflict and slice 1 cannot
+be delivered CI-safe. Proof additionally covers slice 3's two race cases.
 
 ### 2. Rotation skips held names, wraps, and refuses when all are held
 
@@ -135,7 +153,7 @@ nothing published.
 ### 3. A lost race reselects instead of sharing a name
 
 Type: Behavior
-Status: planned
+Status: merged into slice 1
 Proof: race case in
 `workspace-publication-startup-race.test.mjs` using `holdFirstPush`: two
 starts select the same name; the loser replays and publishes a different
@@ -201,4 +219,13 @@ and fake GitHub for the directory listing.
 
 ## Learnings
 
-None yet.
+- Slice 1 alone broke two existing startup race tests ("real startup
+  commands replay distinct claims from one base without losing either",
+  "distinct claims also converge when the other execution wins the first
+  push"): both starts chose `agent-Yui` and the loser stopped as
+  `replay-failed` on the profile's add/add conflict. Race reselection moved
+  into slice 1; slice 2 must keep those race cases green when it replaces
+  first-free selection with the rotation rule.
+- A new `dough-product-backlog` script used by the installed startup must be
+  listed in `install.sh` `managed_files`; the installed-startup test catches
+  the omission.

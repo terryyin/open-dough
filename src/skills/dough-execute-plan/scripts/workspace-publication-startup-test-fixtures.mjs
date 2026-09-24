@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -93,4 +94,37 @@ export async function advanceRemote(trunk, file, text = "advance\n") {
   await git(trunk.integration, "add", file);
   await git(trunk.integration, "commit", "-m", `advance ${file}`);
   await git(trunk.integration, "push", "origin", "HEAD:refs/heads/main");
+}
+
+// Agent profile paths published on the workspace's remote trunk.
+export async function remoteProfiles(workspace) {
+  const listed = await git(
+    workspace,
+    "ls-tree",
+    "--name-only",
+    "origin/main",
+    "--",
+    ".planning/agents/",
+  );
+  return listed.stdout.trim().split("\n");
+}
+
+// Remote trunk holds `agent`'s profile for `identity`, and the commit that
+// added it is authored by that agent.
+export async function assertPublishedAgent(workspace, agent, identity) {
+  const path = `.planning/agents/${agent.toLowerCase()}.json`;
+  const profile = JSON.parse(
+    (await git(workspace, "show", `origin/main:${path}`)).stdout,
+  );
+  assert.equal(profile.agent, agent);
+  assert.equal(profile.identity, identity);
+  const log = await git(
+    workspace,
+    "log",
+    "--format=%an <%ae>",
+    "origin/main",
+    "--",
+    path,
+  );
+  assert.equal(log.stdout.trim(), `${agent} <${profile.email}>`);
 }

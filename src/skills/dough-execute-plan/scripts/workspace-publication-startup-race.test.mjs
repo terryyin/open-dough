@@ -12,8 +12,10 @@ import {
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
   advanceRemote,
+  assertPublishedAgent,
   awaitFile,
   holdFirstPush,
+  remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
@@ -43,11 +45,20 @@ test("real startup commands replay distinct claims from one base without losing 
       "origin/main:.planning/PRODUCT-BACKLOG.md",
     )
   ).stdout;
-  assert.deepEqual(takenIdentities(backlog), [identityA, identityB]);
+  // The loser rebuilt its Take on the winner's trunk, so its entry follows.
+  assert.deepEqual(takenIdentities(backlog), [identityB, identityA]);
   const log = (await git(first.workspace, "log", "--format=%B", "origin/main"))
     .stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
   assert.equal((log.match(/Claim-Publisher: publisher-b/g) ?? []).length, 1);
+  assert.equal(b.receipt.agent, "agent-Yui");
+  assert.equal(first.receipt.agent, "agent-Akiho");
+  assert.deepEqual(await remoteProfiles(first.workspace), [
+    ".planning/agents/agent-akiho.json",
+    ".planning/agents/agent-yui.json",
+  ]);
+  await assertPublishedAgent(first.workspace, "agent-Akiho", identityA);
+  await assertPublishedAgent(first.workspace, "agent-Yui", identityB);
 });
 
 test("distinct claims also converge when the other execution wins the first push", async (t) => {
@@ -81,6 +92,13 @@ test("distinct claims also converge when the other execution wins the first push
     .stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
   assert.equal((log.match(/Claim-Publisher: publisher-b/g) ?? []).length, 1);
+  assert.equal(a.receipt.agent, "agent-Yui");
+  assert.equal(second.receipt.agent, "agent-Akiho");
+  assert.deepEqual(await remoteProfiles(second.workspace), [
+    ".planning/agents/agent-akiho.json",
+    ".planning/agents/agent-yui.json",
+  ]);
+  await assertPublishedAgent(second.workspace, "agent-Akiho", identityB);
 });
 
 test("real competing same-story command stops on the first owner's provenance", async (t) => {

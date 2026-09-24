@@ -17,6 +17,7 @@ node --test \
   tests/support/product-backlog-adopt.test.mjs \
   tests/support/product-backlog-adopt-refusals.test.mjs \
   tests/support/product-backlog-identity.test.mjs \
+  tests/support/product-backlog-agent-profile.test.mjs \
   tests/support/product-backlog-add-identity.test.mjs \
   tests/support/product-backlog-home-reader.test.mjs \
   tests/support/product-backlog-plan-reader.test.mjs \

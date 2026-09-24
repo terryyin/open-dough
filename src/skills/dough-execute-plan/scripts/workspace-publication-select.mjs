@@ -1,7 +1,11 @@
 // Select or reuse the owned execution workspace, then commit the Taken claim
 // there. Publication of that SHA is a separate step.
 import { dirname, join } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import {
+  agentIdentity,
+  renderAgentProfile,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { applyToBacklog } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { takeEntry } from "../../dough-product-backlog/scripts/product-backlog-take.mjs";
 import { git, revParse } from "./publication-git.mjs";
@@ -14,6 +18,43 @@ import {
   targetOf,
   trailers,
 } from "./workspace-publication-ownership.mjs";
+
+// The agent authors every ordinary commit in its owned workspace; the
+// configured Git user stays the committer, and other checkouts keep their
+// usual author.
+async function configureAgentAuthorship(workspace, { agent, email }) {
+  await git(workspace, "config", "extensions.worktreeConfig", "true");
+  await git(workspace, "config", "--worktree", "author.name", agent);
+  await git(workspace, "config", "--worktree", "author.email", email);
+}
+
+function agentProfileOf(request, file) {
+  const identity = agentIdentity(request.agent.name);
+  return { identity, profile: join(dirname(file), identity.path) };
+}
+
+// Adds the agent's profile beside the backlog. Trunk Mode names remote trunk
+// as its branch context; Story Branch Mode names the owned branch.
+async function stageAgentProfile(request, { identity, profile }) {
+  const { workspace, agent } = request;
+  mkdirSync(dirname(join(workspace, profile)), { recursive: true });
+  writeFileSync(
+    join(workspace, profile),
+    renderAgentProfile({
+      name: agent.name,
+      identity: request.identity,
+      mode: request.mode,
+      branch:
+        request.mode === "trunk"
+          ? `${remoteOf(request)}/${targetOf(request)}`
+          : request.branch,
+      host: agent.host,
+      model: agent.model,
+    }),
+  );
+  await configureAgentAuthorship(workspace, identity);
+  await git(workspace, "add", "--", profile);
+}
 
 async function verifyRetained(request) {
   const { retained } = request;
@@ -158,6 +199,16 @@ export async function commitWorkspaceClaim(request) {
       },
     });
   }
+  const agentProfile = request.agent && agentProfileOf(request, file);
+  if (agentProfile && existsSync(join(workspace, agentProfile.profile))) {
+    return stopped("setup-failed", {
+      recovery: {
+        workspace,
+        branch: request.branch,
+        error: `${agentProfile.identity.agent} already holds ${agentProfile.profile}`,
+      },
+    });
+  }
   let outcome;
   await applyToBacklog(join(workspace, file), (source) => {
     outcome = takeEntry(source, {
@@ -170,6 +221,7 @@ export async function commitWorkspaceClaim(request) {
   if (outcome.result === "unchanged") {
     return stopped("unchanged", { workspace, branch: request.branch });
   }
+  if (agentProfile) await stageAgentProfile(request, agentProfile);
   await git(workspace, "add", "--", file);
   await git(
     workspace,

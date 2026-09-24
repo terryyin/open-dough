@@ -74,6 +74,7 @@ managed_files=(
   dough-product-backlog/references/record-preparation.md
   dough-product-backlog/scripts/product-backlog-add.mjs
   dough-product-backlog/scripts/product-backlog-adopt.mjs
+  dough-product-backlog/scripts/product-backlog-agent-profile.mjs
   dough-product-backlog/scripts/product-backlog-combine.mjs
   dough-product-backlog/scripts/product-backlog-complete.mjs
   dough-product-backlog/scripts/product-backlog-direction.mjs
@@ -181,10 +182,12 @@ managed_files=(
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-start.mjs
+  dough-execute-plan/scripts/execution-start-agent.mjs
   dough-execute-plan/scripts/execution-start-maintenance.mjs
   dough-execute-plan/scripts/execution-start-operation.mjs
   dough-execute-plan/scripts/execution-start-recovery.mjs
   dough-execute-plan/scripts/execution-start-receipt.mjs
+  dough-execute-plan/scripts/execution-start-request.mjs
   dough-execute-plan/scripts/execution-source.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
