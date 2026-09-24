@@ -15,6 +15,7 @@ import {
   assertPublishedAgent,
   awaitFile,
   holdFirstPush,
+  profileDirectory,
   profilePath,
   publishProfiles,
   remoteProfiles,
@@ -70,7 +71,7 @@ test("a name published between startup's fetches is reselected on the workspace'
   await git(rival, "config", "user.email", "rival@example.test");
   await git(rival, "commit", "--quiet", "--allow-empty", "-m", "bump");
   await git(rival, "push", "--quiet", "origin", "HEAD:main");
-  mkdirSync(join(rival, ".planning/agents"), { recursive: true });
+  mkdirSync(join(rival, profileDirectory), { recursive: true });
   writeFileSync(
     join(rival, profilePath("Yui")),
     renderAgentProfile({

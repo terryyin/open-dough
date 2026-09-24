@@ -16,8 +16,9 @@ import {
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import { exec } from "./publication-git.mjs";
 import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
+import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
-for (const mode of ["trunk", "story-branch"]) {
+for (const mode of agentModes) {
   test(`installed startup publishes an isolated ${mode} claim to remote trunk`, async (t) => {
     const trunk = await createQueuedTrunk();
     t.after(trunk.cleanup);

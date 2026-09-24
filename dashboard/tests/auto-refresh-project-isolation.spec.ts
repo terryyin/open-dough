@@ -39,6 +39,7 @@ import {
   titlesOfA,
 } from "./refreshJourney";
 import type { GhCall } from "./support/fakeGitHub";
+import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {
   const doughnutSharedGoal = "Doughnut's goal for the shared story.";
@@ -178,7 +179,7 @@ test.describe("project read isolation of automatic checks", () => {
         openDoughCalls(githubFor(page).calls).some(
           ({ request }) =>
             request.kind === "listing" &&
-            request.path === ".planning/agents" &&
+            request.path === `.planning/${agentProfileDirectory}` &&
             request.revision === revisionA,
         ),
       )

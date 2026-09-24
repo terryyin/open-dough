@@ -7,7 +7,9 @@
 
 import { z } from "zod";
 import {
+  agentHosts,
   agentIdentity,
+  agentModes,
   parseAgentProfile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
@@ -17,8 +19,8 @@ import {
 import type { PublishedSource } from "./publishedSource";
 import type { PublishedWork } from "./publishedWork";
 
-const agentMode = z.enum(["trunk", "story-branch"]);
-const agentHost = z.enum(["claude", "codex", "cursor"]);
+const agentMode = z.enum(agentModes);
+const agentHost = z.enum(agentHosts);
 
 const readProfile = z.discriminatedUnion("ok", [
   z.object({

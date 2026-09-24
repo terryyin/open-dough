@@ -205,7 +205,7 @@ Untested: every name becoming held only at the second fetch, which stops
 ### 3. One home for agent hosts, modes, and profile paths
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run typecheck:dashboard`; `npm run test:dashboard --
 taken-agent-profile`; `node --test` on the startup agent and profile unit
 suites; `git grep` shows no other literal host or mode list or
@@ -215,6 +215,18 @@ the concept, and docs.
 Structure: `takenOwner.ts` enums, `execution-start-request.mjs`, and test
 helpers derive from the shared module's exports. Directly owned retrospective
 correction; enables no new behavior.
+
+Accepted proof: `npm run typecheck:dashboard` passes;
+`npm run test:dashboard -- taken-agent-profile` 2/2,
+`-- authenticated-project-overview` 2/2, `-- auto-refresh-project-isolation`
+2/2; the startup suites above 42/42; `node --test
+tests/support/product-backlog-agent-profile.test.mjs` 11/11;
+`tests/install-public-payload.sh` passes. `agentModes` and `agentHosts` are
+exported with `/** @type {const} */` so zod keeps their literal values.
+`git grep -n -E '"story-branch"\]|"trunk", "story-branch"|"claude", "codex"|\.planning/agents' -- ':!.agents' ':!.claude' ':!*.md'`
+leaves host and mode lists only in `product-backlog-agent-profile.mjs`; the
+remaining `.planning/agents` spellings are specs and suites asserting profile
+paths, including the exact pinned-read set in `source-navigation.spec.ts`.
 
 ### 4. Dashboard journeys and startup tests prove profiles truthfully and cheaply
 

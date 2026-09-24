@@ -1,6 +1,9 @@
 // Validates and normalizes a queued-start request before any Git work.
 import { resolve } from "node:path";
-import { agentReportError } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  agentModes,
+  agentReportError,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 
 // The normalized request, or the stop that refuses it.
@@ -37,7 +40,7 @@ export function startRequest(requestInput) {
   const reportError = agentReportError(request);
   if (reportError) return stopped("invalid-request", { error: reportError });
   if (
-    !["trunk", "story-branch"].includes(request.mode) ||
+    !agentModes.includes(request.mode) ||
     request.pushAuthorized !== true ||
     request.workspaceAuthorized !== true
   ) {

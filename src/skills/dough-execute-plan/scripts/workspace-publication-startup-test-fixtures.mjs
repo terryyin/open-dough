@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { git } from "./publication-test-fixtures.mjs";
 import {
   agentIdentity,
+  agentProfileDirectory,
   renderAgentProfile,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -100,6 +101,11 @@ export async function advanceRemote(trunk, file, text = "advance\n") {
   await git(trunk.integration, "push", "origin", "HEAD:refs/heads/main");
 }
 
+// Trunk directory of the queued trunk's backlog, and of the agent profiles
+// published beside it.
+const planningDirectory = ".planning";
+export const profileDirectory = `${planningDirectory}/${agentProfileDirectory}`;
+
 // Agent profile paths published on the workspace's remote trunk.
 export async function remoteProfiles(workspace) {
   const listed = await git(
@@ -108,20 +114,20 @@ export async function remoteProfiles(workspace) {
     "--name-only",
     "origin/main",
     "--",
-    ".planning/agents/",
+    `${profileDirectory}/`,
   );
   return listed.stdout.trim().split("\n");
 }
 
 // Trunk path of the named rotation agent's profile.
 export function profilePath(name) {
-  return `.planning/${agentIdentity(name).path}`;
+  return `${planningDirectory}/${agentIdentity(name).path}`;
 }
 
 // Publishes one trunk commit per named profile, added in the order given, each
 // holding `identity`.
 export async function publishProfiles(trunk, names, identity) {
-  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
+  mkdirSync(join(trunk.integration, profileDirectory), { recursive: true });
   for (const name of names) {
     writeFileSync(
       join(trunk.integration, profilePath(name)),
