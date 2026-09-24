@@ -11,18 +11,13 @@ import {
   takenHeading,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import type { PublishedSource } from "./publishedSource";
-import {
-  enrichPreparation,
-  type PublishedWorkProgress,
-} from "./preparationEnrichment";
+import { enrichPreparation } from "./preparationEnrichment";
 import { readPublishedSnapshot } from "./authenticatedRead";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
 import type { WorkPurpose } from "./storyPurpose";
-
-export type { PublishedWorkProgress } from "./preparationEnrichment";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -69,6 +64,9 @@ export type PublishedWork = {
   readonly taken: readonly WorkEntry[];
   readonly backlog: readonly WorkEntry[];
 };
+
+// Receives each more complete snapshot of one read as it becomes known.
+export type PublishedWorkProgress = (work: PublishedWork) => void;
 
 // A revision as it is said inside a sentence. The source evidence and every
 // pinned link keep the whole revision.
@@ -128,7 +126,9 @@ function interpret(
 
 // How long one read may wait for GitHub. A read still unanswered by then ends
 // as a read problem, so a stalled connection leaves the person able to retry;
-// nothing retries for them.
+// nothing retries for them. When the bound ends a read after its membership
+// was shown, the snapshot is finished with a gap for each detail left unread
+// before the problem is reported.
 const readWaitLimitMs = 30_000;
 
 // Reads the source's ref afresh, or, given a revision a check already
@@ -161,7 +161,13 @@ export async function readPublishedWork(
       ...interpret(markdown, revision, source, { status: "loading" }),
     };
     onPartial?.(work);
-    return await enrichPreparation(work, untilEither, onPartial);
+    const enriched = await enrichPreparation(work, untilEither);
+    signal.throwIfAborted();
+    // Shown even when the wait bound ended it: each detail left unread is
+    // an explicit gap, and the bound is still reported as the read problem.
+    onPartial?.(enriched);
+    waitLimit.signal.throwIfAborted();
+    return enriched;
   } catch (error) {
     if (waitLimit.signal.aborted && !signal.aborted) {
       throw new ReadProblem(

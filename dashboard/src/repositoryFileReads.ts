@@ -70,10 +70,10 @@ export async function loadRepositoryTexts(
   await mapPool(paths, fileReadConcurrency, async (path) => {
     try {
       text.set(path, await readCachedFile(source, revision, path, signal));
-    } catch (error) {
-      if (signal.aborted) {
-        throw error;
-      }
+    } catch {
+      // A read that failed, or was abandoned when `signal` ended it, leaves
+      // its file as a gap; whether a snapshot with gaps is shown is decided
+      // by whoever ended the reads.
       problems.set(path, problem);
     }
   });

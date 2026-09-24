@@ -101,7 +101,7 @@ promises remain, and every consolidation below names its surviving proof.
 ### 1. Report abandoned detail reads truthfully
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given A displayed and `main` moved to B, when B's membership arrives
 but a detail read stalls past the browser's 30-second bound, the B snapshot
@@ -126,6 +126,25 @@ auto-refresh, read-failure, and project-read-recovery specs and
 
 Safe stopping point: no displayed snapshot can look complete while its details
 were abandoned.
+
+Accepted proof: `dashboard/tests/auto-refresh-recovery.spec.ts` test "a detail
+of B still unread at the wait bound is labeled as a gap, …" (setup
+`openSettledAtA`, push B, `origin.hold(claimsRecord)`) asserts the gap text on
+the claims card, the alert "after reading the published work at revision …"
+without "added nothing", one ref check and zero content reads on the following
+unchanged check with the failure still shown, and Retry closing the gap with
+every read at B; before the fix it failed at each of those stages. Commands:
+`npx playwright test --config dashboard/playwright.config.ts auto-refresh
+read-failure project-read-recovery` (24 passed), `… read-failure-refresh
+story-readiness` (7 passed), `npm run typecheck:dashboard`.
+
+Learnings: the rule lives in `dashboard/src/observationAttempt.ts` (a failure
+after membership stands until a later read replaces the snapshot);
+`loadRepositoryTexts` turns abandoned reads into per-file problems and
+`readPublishedWork` decides whether that snapshot is shown. The gap reuses the
+existing "could not be read" per-file wording. `dashboard/README.md` does not
+yet describe the gap at the bound or the standing failure; slice 3's doc
+update covers it.
 
 ### 2. Make auto-refresh-era test counts stable and remove redundant specs
 
@@ -171,3 +190,19 @@ Safe stopping point: rewording or re-bounding a read changes one place.
   stories; finding 1 is the only behavior change.
 - `.planning/NORTH-STAR.md`'s "retired when its callers migrate" wording is
   left to story wrap-up's knowledge assimilation.
+
+## Execution
+
+- Mode: Story Branch Mode, executed by Claude Code on 2026-09-24 from Terry's
+  instruction to execute the top backlog item with `--skip-retro` and then
+  wrap up. Replanning permission: unchanged planning authority.
+- Execution checkout: `/Users/terryyin/git/open-dough-worktrees/087-truthful-abandoned-detail-reads`,
+  branch `claude/087-truthful-abandoned-detail-reads`, created by this
+  execution from `origin/main` at `78b63bfc19bfdabad7d77e87b1e4828e80736452`.
+  Originating and integration checkout: `/Users/terryyin/git/open-dough` (`main`).
+- Claim: `367d41d` accepted on `origin/main` (`pendingCi: unobserved`;
+  planning-only paths are CI-ignored).
+- Increment target: `origin` `refs/heads/claude/087-truthful-abandoned-detail-reads`.
+- CI observer: GitHub Actions `ci.yml` / `CI`, mailbox
+  `/tmp/dough-ci-501/watch-8XIK09`, target branch
+  `claude/087-truthful-abandoned-detail-reads`.
