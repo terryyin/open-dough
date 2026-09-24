@@ -10,16 +10,20 @@ import {
   type ReadinessRepo,
 } from "./storyReadinessFixture";
 
+async function inspectReadyDetail(taken: Locator): Promise<Locator> {
+  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  await readyCard.getByRole("button", { name: "Inspect story" }).click();
+  return readyCard.getByRole("region", {
+    name: `Detail for ${plannedReady.title}`,
+  });
+}
+
 export async function expectReadyDetailZeroComplete(
   taken: Locator,
   origin: CommittedOrigin,
 ) {
   const before = origin.requests.length;
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
-  });
+  const detail = await inspectReadyDetail(taken);
   await expect(detail).toBeVisible();
   await expect(detail.getByRole("heading", { name: "Purpose" })).toBeVisible();
   await expect(detail).toContainText(
@@ -88,4 +92,15 @@ export async function expectPlanlessDetailAbsentPlan(backlog: Locator) {
   });
   await expect(planlessDetail).toContainText("Approach: Planless");
   await expect(planlessDetail).toContainText("No associated plan is recorded");
+}
+
+export async function expectReadyDetailTwoCompleteUnderSlicesHeading(
+  taken: Locator,
+) {
+  const detail = await inspectReadyDetail(taken);
+  await expect(detail).toContainText("2 of 5 recorded complete");
+  await expect(detail).toContainText("Establish shared plan reading");
+  await expect(detail).toContainText("Status: done (recorded complete)");
+  await expect(detail).toContainText("Accepted evidence:");
+  await expect(detail.getByText("Plan slices uninterpretable")).toHaveCount(0);
 }

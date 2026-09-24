@@ -117,3 +117,54 @@ Proof: Only a recipe.
   assert.equal(empty.status, "interpreted");
   assert.deepEqual(empty.slices, []);
 });
+
+test("readPlanSlices reads a “## Slices” heading with the same slices as “## Ordered slices”", () => {
+  const body = `
+### 1. First outcome
+Type: Behavior
+Status: done
+Proof: Run the focused check.
+Accepted: The focused check passed.
+
+### 2. Second outcome
+Type: Structure
+Status: planned
+Proof: A prospective recipe alone.
+
+## Later notes
+
+### Not a slice
+`;
+  const ordered = readPlanSlices(`# Example\n\n## Ordered slices\n${body}`);
+  const slices = readPlanSlices(`# Example\n\n## Slices\n${body}`);
+
+  assert.equal(slices.status, "interpreted");
+  assert.equal(slices.slices.length, 2);
+  assert.deepEqual(slices, ordered);
+});
+
+test("readPlanSlices keeps unsupported status and missing slices sections uninterpretable under the “## Slices” heading", () => {
+  const merged = readPlanSlices(`## Slices
+
+### 1. Kept outcome
+Type: Behavior
+Status: done
+
+### 2. Folded outcome
+Type: Behavior
+Status: merged into slice 1
+`);
+  assert.equal(merged.status, "uninterpretable");
+
+  const neither = readPlanSlices(`# Plan
+
+## Slice notes
+
+### 1. Alone
+Type: Behavior
+Status: planned
+`);
+  assert.equal(neither.status, "uninterpretable");
+  assert.match(neither.problem, /## Ordered slices/);
+  assert.match(neither.problem, /## Slices/);
+});

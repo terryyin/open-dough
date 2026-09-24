@@ -44,6 +44,7 @@ export {
   planBlockedPath,
   planReadyPath,
   planReadyTwoDoneBody,
+  planReadyTwoDoneSlicesHeadingBody,
   seedRelative,
   unrefined,
 } from "./storyReadinessRecords";

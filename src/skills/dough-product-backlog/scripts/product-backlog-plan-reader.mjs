@@ -1,12 +1,13 @@
-// Interprets the established Ordered slices section of a plan from already
-// loaded text. CLI and browser share this meaning: a done status is recorded
-// completion, not independent verification; Accepted evidence is separate from
-// a prospective Proof recipe; unsupported layout is uninterpretable, not an
-// empty slice list. No filesystem or Node-only imports.
+// Interprets the established slices section of a plan (`## Ordered slices`,
+// or the compatible `## Slices` heading) from already loaded text. CLI and
+// browser share this meaning: a done status is recorded completion, not
+// independent verification; Accepted evidence is separate from a prospective
+// Proof recipe; unsupported layout is uninterpretable, not an empty slice list.
+// No filesystem or Node-only imports.
 
 import { splitSource } from "./product-backlog-source.mjs";
 
-const orderedHeading = /^## +Ordered slices *$/i;
+const slicesSection = /^## +(?:Ordered slices|Slices) *$/i;
 const sliceHeading = /^### +(?<index>\d+)\. +(?<name>\S.*?)\s*$/;
 const typeLine = /^Type: +(?<type>\S.*?)\s*$/;
 const statusLine = /^Status: +(?<status>planned|done)\b/;
@@ -16,13 +17,13 @@ const fieldStart =
   /^(?:Type:|Status:|Proof:|Accepted:|Behavior:|Structure:|### |## )/;
 
 function sectionBounds(lines) {
-  const start = lines.findIndex((line) => orderedHeading.test(line));
+  const start = lines.findIndex((line) => slicesSection.test(line));
   if (start === -1) {
     return undefined;
   }
   let end = lines.length;
   for (let index = start + 1; index < lines.length; index += 1) {
-    if (/^## /.test(lines[index]) && !orderedHeading.test(lines[index])) {
+    if (/^## /.test(lines[index]) && !slicesSection.test(lines[index])) {
       end = index;
       break;
     }
@@ -107,9 +108,9 @@ function readSlice(lines, headingIndex, until) {
   };
 }
 
-// Reads ordered slices from plan Markdown. Returns interpreted slices, an
-// empty interpretable list, or uninterpretable when the established section
-// layout is missing or malformed.
+// Reads ordered slices from plan Markdown under `## Ordered slices` or
+// `## Slices`. Returns interpreted slices, an empty interpretable list, or
+// uninterpretable when the established section layout is missing or malformed.
 export function readPlanSlices(source) {
   if (typeof source !== "string") {
     return {
@@ -123,7 +124,7 @@ export function readPlanSlices(source) {
     return {
       status: "uninterpretable",
       problem:
-        "This plan has no established “## Ordered slices” section, so its slice progress cannot be interpreted.",
+        "This plan has no established “## Ordered slices” or “## Slices” section, so its slice progress cannot be interpreted.",
     };
   }
 

@@ -126,7 +126,10 @@ const readyPlanSlices: readonly ReadyPlanSlice[] = [
   },
 ];
 
-function readyPlanBody(doneThrough: number): string {
+function readyPlanBody(
+  doneThrough: number,
+  slicesHeading = "Ordered slices",
+): string {
   const slices = readyPlanSlices
     .map((slice) => {
       const done = slice.index <= doneThrough;
@@ -143,13 +146,14 @@ ${accepted}`;
     .join("\n");
   return `# Ready plan
 
-## Ordered slices
+## ${slicesHeading}
 
 ${slices}`;
 }
 
 export const planReadyBody = readyPlanBody(0);
 export const planReadyTwoDoneBody = readyPlanBody(2);
+export const planReadyTwoDoneSlicesHeadingBody = readyPlanBody(2, "Slices");
 
 export const planless = {
   identity: "SEED-075#planless-ready",

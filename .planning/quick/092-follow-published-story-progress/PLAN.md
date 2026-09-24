@@ -118,7 +118,7 @@ Facts from the delivered agent profiles (on trunk since `6fe5a15`,
 ### 1. Plans under a `## Slices` heading are readable
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cases in `tests/support/product-backlog-plan-reader.test.mjs`
 (`## Slices` interpreted with the same slices as `## Ordered slices`; a
 `Status: merged into slice 1` still uninterpretable; a plan with neither
@@ -128,6 +128,12 @@ plan shows "N of M recorded complete" via
 
 Behavior: a published plan whose slices sit under `## Slices` → dashboard
 detail opens → recorded slice progress is shown instead of "uninterpretable".
+Accepted: `slicesSection` in `product-backlog-plan-reader.mjs` accepts both
+headings; `node --test tests/support/product-backlog-plan-reader.test.mjs`
+(5/5, `## Slices` deep-equals `## Ordered slices`; merged status and neither
+heading stay uninterpretable); `npm run test:dashboard -- story-readiness`
+(6/6, including `story-readiness-slices-heading.spec.ts` "2 of 5 recorded
+complete"); `tests/product-backlog.sh` with Bash 5; dashboard typecheck.
 
 ### 2. Taken cards show a slice progress bar
 
