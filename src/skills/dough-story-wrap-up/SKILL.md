@@ -218,18 +218,16 @@ and blocks completion. Do not force-push.
 
 ## Remove execution resources safely
 
-After Story Branch Mode's verified integration and required target push, or after
-Trunk Mode's final accepted closure has a completion receipt whose shutdown is
-confirmed, remove this execution's clean local worktree and local execution
-branch. Use retained identity and non-force operations. Preserve unrelated
-resources, unique or unpublished work, a dirty checkout, unconfirmed shutdown,
-and a worktree that still hosts an active checkout-bound observer under
+Retire this execution's worktree and branch from their retained identity under
+Dough Land's [Retire the worktree](../dough-land/SKILL.md#retire-the-worktree).
+Wrap-up's gate: the final accepted publication (Trunk Mode's final closure, or
+Story Branch Mode's integrated SHA) has a completion receipt whose shutdown is
+confirmed, and no active checkout-bound observer still hosts the worktree under
 [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).
-Trunk Mode never deletes a remote execution branch. Story Branch Mode deletes
-the remote branch only when its tip is integrated in the remote target. Verify
-removal, accept already-absent resources on retry, report blocked or partial
-cleanup without repeating already-completed closure, and skip cleanup in
-direct-current-branch mode.
+Trunk Mode publishes no remote execution branch and never deletes one. A
+deferred [refresh](../dough-land/SKILL.md#refresh-the-default-checkout) does
+not block retirement. Report blocked or partial cleanup without repeating
+already-completed closure. Skip cleanup in direct-current-branch mode.
 
 ## Report
 

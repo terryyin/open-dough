@@ -1,6 +1,6 @@
 # Land reviewed worktree changes with Dough Land
 
-Status: planned.
+Status: done.
 
 Source: [SEED-026#keep-reviewed-worktree-changes](../../seeds/SEED-026-dough-land.md#keep-reviewed-worktree-changes),
 refined 2026-09-24. Identity: `SEED-026#keep-reviewed-worktree-changes`.
@@ -131,7 +131,7 @@ supported).
 ### 3. Wrap-up retires execution resources through Dough Land
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a Trunk Mode or Story Branch closure whose final publication
 is accepted, when wrap-up retires resources, it applies Dough Land's
@@ -155,6 +155,22 @@ Commands: `bash tests/closure-publication.sh`,
 `npm run lint`, `npm test`.
 
 Safe stopping point: one landing description serves all three callers.
+
+Accepted proof (2026-09-24): `node --test --test-concurrency=1
+src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`
+→ 4/4; "wrap-up retires execution resources through Dough Land with its
+completion gate" failed against the pre-change guidance and rejects a
+restated retirement in wrap-up and both `trunk-publication.md` closure
+sections. `tests/closure-publication.sh` 12/12 unchanged (preserved Git
+results); `npm test` green. Guidance-structure proof; native closure journeys
+not rerun, and their recorded input hashes for `trunk-publication.md` and
+wrap-up `SKILL.md` are now stale.
+
+Learnings: a third retirement description lived in the
+`closure-resources.mjs` header comment and now points to Dough Land. Two Git
+models of retirement remain by design (`closure-resources.mjs` shipped,
+`dough-land-test-fixtures.mjs` test-only) because their gates differ; left
+for retrospective judgment.
 
 ## Current decisions
 
