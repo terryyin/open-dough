@@ -150,18 +150,18 @@ ordinary execution publication plus CI attachment delivered in
 keep; and closure. The previous separate execution-increment candidate
 duplicated the CI story's publication boundary and was absorbed there. On
 2026-09-24 the maintainer combined preparation keep and closure adoption into
-[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes). No separate
+[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes). No separate
 library, command-framework, or testing-only story is required.
 
 **Alternatives and limits:** Another instruction-only reminder repeats a rule
 already installed during the incident. The startup and execution-publication
-outcomes remain distinct from the combined Dough Keep outcome. Each includes only
+outcomes remain distinct from the combined Dough Land outcome. Each includes only
 the runtime, concise guidance, payload delivery, and proof its outcome needs.
 
 **Effort hypothesis:** No project S/M/L definitions were found. Startup carries
 the greatest initial runtime/native-adoption uncertainty. The combined CI/delivery
 story adds candidate revalidation and existing-observer attachment, not a new
-observer lifecycle. Dough Keep must preserve preparation's narrower authority and
+observer lifecycle. Dough Land must preserve preparation's narrower authority and
 closure's published-history and cleanup concerns. Estimates remain unassigned
 pending planning evidence.
 
@@ -185,7 +185,7 @@ navigation reference, not another candidate or a claim of delivered behavior.
 ```
 
 **Status:** Absorbed on 2026-09-24 into
-[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes) before execution.
+[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes) before execution.
 This section retains the original preparation outcome for traceability; it is
 not a separate queued story.
 
@@ -221,7 +221,7 @@ and independent refresh result. Closure adoption may remain deferred.
 ```
 
 **Status:** Absorbed on 2026-09-24 into
-[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes) before execution.
+[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes) before execution.
 This section retains the original closure outcome for traceability; it is
 not a separate queued story.
 
@@ -264,7 +264,7 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
 - Preparation keep and closure adoption are now one
-  [Dough Keep story](SEED-026-dough-keep.md#keep-reviewed-worktree-changes), placed
+  [Dough Land story](SEED-026-dough-land.md#keep-reviewed-worktree-changes), placed
   first at the maintainer's direction on 2026-09-24. Their prior positions no
   longer describe the active queue.
 - Local coordination remains below remote work, matching the existing direction.
