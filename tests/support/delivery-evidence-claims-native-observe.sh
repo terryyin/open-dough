@@ -16,17 +16,6 @@ delivery_evidence_claims_outcome_response_text() {
   printf '%s' "${text}"
 }
 
-# Regex for a promise STATUS that opens its line ("**Accepted — Promise 1: …")
-# or follows the promise ("… — accepted", ": accepted", "promise is accepted").
-delivery_evidence_claims_status_pattern() {
-  local status=$1
-  local mark='\*{0,2}'
-  printf '%s' "^[[:space:]#>*|0-9.-]*${status}[[:space:]*]*(—|:|-)"
-  printf '%s' "|—[[:space:]]*${mark}${status}${mark}"
-  printf '%s' "|:[[:space:]]*${mark}${status}${mark}"
-  printf '%s' "|promise[[:space:]]+(is[[:space:]]+)?${mark}${status}${mark}"
-}
-
 delivery_evidence_claims_promise_accepted() {
   local outcome=$1
   local response=$2
@@ -38,7 +27,7 @@ delivery_evidence_claims_promise_accepted() {
   fi
   # Prefer explicit incomplete over a later accepted mention.
   if grep -Eiq \
-    "$(delivery_evidence_claims_status_pattern incomplete)"'|uncovered|not[[:space:]]+covered|lacks[[:space:]]+(an[[:space:]]+)?observ' \
+    "$(delivery_evidence_promise_status_pattern incomplete)"'|uncovered|not[[:space:]]+covered|lacks[[:space:]]+(an[[:space:]]+)?observ' \
     <<< "${text}"; then
     # Incomplete for the bare-anchor promise counts as not accepted.
     if grep -Eiq \
@@ -49,7 +38,7 @@ delivery_evidence_claims_promise_accepted() {
     fi
   fi
   if grep -Eiq \
-    "$(delivery_evidence_claims_status_pattern accepted)"'|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
+    "$(delivery_evidence_promise_status_pattern accepted)"'|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
     <<< "${text}"; then
     printf 'true\n'
     return

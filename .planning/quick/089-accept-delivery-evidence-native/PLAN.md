@@ -139,7 +139,7 @@ Diagnosed harness faults fixed before those runs:
 ### 3. Changed contracts refresh test-support consumer proof in Claude Code and Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a factory signature change and an earlier "unaffected"
 assessment, the agent finds the stale E2E stand-in, aligns it, and gets
@@ -147,6 +147,23 @@ compatibility proof before accepting. Unrelated unchanged boundaries keep
 their proof. Seed example 1 (consumers).
 
 Proof: `delivery-evidence/consumers` on `claude` and `codex`, judged as above.
+
+Results:
+
+- Changed-contract consumers, Claude Code 2.1.281, candidate 0662ed2 — pass.
+  Decisive: changed contract left incomplete after it named the stale
+  `e2e/support/e2eStandIn.mjs` caller and ran the compat test (`TypeError:
+  releaseTag is required`); corrected consumer accepted after a caller search
+  and 2/2 rerun; unchanged boundary accepted from `git diff HEAD`.
+- Changed-contract consumers, Codex CLI 0.156.1, candidate 0662ed2 with this
+  slice's observer fix — pass. Decisive: changed contract incomplete after
+  the compat test failed; corrected consumer accepted after calling the E2E
+  exclusion stale and checking both callers; unchanged boundary accepted by
+  reusing the recorded pass.
+
+Diagnosed harness fault fixed before the Codex rerun: the consumers observer
+missed line-leading statuses, as the claims observer had. Both now share
+`delivery_evidence_promise_status_pattern`, with credential-free counterexamples.
 
 ### 4. Known required proof gaps stay incomplete in Claude Code and Codex
 

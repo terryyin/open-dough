@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Shared native journey for the delivery-evidence cases (selection, claims,
 # consumers, gaps): disposable fixture scaffolding, prompt, native command,
-# assessment, retention, and evidence identity. Each case keeps its own
-# scenario content, observations, and assessor in
+# promise-status recognition, assessment, retention, and evidence identity.
+# Each case keeps its own scenario content, observations, and assessor in
 # delivery-evidence-CASE-native-{scenario-content,observe,assess}.sh.
 # shellcheck disable=SC2034,SC2154,SC2312
 
@@ -50,6 +50,18 @@ delivery_evidence_obs_get() {
   local file=$2
   awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
     "${file}"
+}
+
+# Observer regex for a promise STATUS that opens its line
+# ("**Accepted — Promise 1: …") or follows the promise ("… — accepted",
+# ": accepted", "promise is accepted").
+delivery_evidence_promise_status_pattern() {
+  local status=$1
+  local mark='\*{0,2}'
+  printf '%s' "^[[:space:]#>*|0-9.-]*${status}[[:space:]*]*(—|:|-)"
+  printf '%s' "|—[[:space:]]*${mark}${status}${mark}"
+  printf '%s' "|:[[:space:]]*${mark}${status}${mark}"
+  printf '%s' "|promise[[:space:]]+(is[[:space:]]+)?${mark}${status}${mark}"
 }
 
 delivery_evidence_git() {
@@ -128,20 +140,14 @@ delivery_evidence_observe_scenario() {
   local case_name=$1 scenario=$2
   case ${case_name} in
     selection)
-      delivery_evidence_selection_observe \
-        "${scenario}" \
+      delivery_evidence_selection_observe "${scenario}" \
         "${delivery_evidence_selection_claimed}" \
         "${delivery_evidence_selection_initial}" \
-        "${delivery_evidence_workspace}" \
-        "${output_file}" \
-        "${transcript}"
+        "${delivery_evidence_workspace}" "${output_file}" "${transcript}"
       ;;
     *)
-      "delivery_evidence_${case_name}_observe" \
-        "${scenario}" \
-        "${delivery_evidence_workspace}" \
-        "${output_file}" \
-        "${transcript}"
+      "delivery_evidence_${case_name}_observe" "${scenario}" \
+        "${delivery_evidence_workspace}" "${output_file}" "${transcript}"
       ;;
   esac
 }

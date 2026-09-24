@@ -209,5 +209,21 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'instruction-words-only: false'
   ! delivery_evidence_consumers_assess "${work}/missing-fields.txt"
 
-  echo 'PASS: delivery-evidence/consumers assessor rejects stale-exclusion acceptance and accept-without-alignment; accepts incomplete gap naming, corrected consumer with executed compatibility proof, and unchanged-boundary retained proof; refuses instruction-words-only and missing fields.'
+  # Observer reads a status that opens its line, including a numbered item,
+  # and a leading incomplete status still wins over later accepted words.
+  # shellcheck disable=SC2016 # Backticks are literal outcome text.
+  printf '%s\n' '1. **Accepted — `createCommand` requires `(context, releaseTag)`.**' \
+    'The exclusion is stale and was not used.' > "${work}/outcome-leading.md"
+  [[ $(delivery_evidence_consumers_promise_accepted \
+    "${work}/outcome-leading.md" '') == true ]]
+  printf '%s\n' '- **Accepted — Promise 1: Status badge labels remain text.**' \
+    'No incomplete promises.' > "${work}/outcome-leading-badge.md"
+  [[ $(delivery_evidence_consumers_promise_accepted \
+    "${work}/outcome-leading-badge.md" '') == true ]]
+  printf '%s\n' '1. **Incomplete — the E2E stand-in omits releaseTag.**' \
+    'Producer evidence: accepted.' > "${work}/outcome-leading-incomplete.md"
+  [[ $(delivery_evidence_consumers_promise_accepted \
+    "${work}/outcome-leading-incomplete.md" '') == false ]]
+
+  echo 'PASS: delivery-evidence/consumers assessor rejects stale-exclusion acceptance and accept-without-alignment; accepts incomplete gap naming, corrected consumer with executed compatibility proof, and unchanged-boundary retained proof; refuses instruction-words-only and missing fields; observer reads line-leading promise statuses.'
 }
