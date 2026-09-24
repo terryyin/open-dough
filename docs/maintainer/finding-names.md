@@ -1512,7 +1512,7 @@ consult both lists when matching findings or allocating identities.
 
 - **Response assessment (2026-09-21):** Response released in 0.3.27: be94345 (claim publication) and f699e60 (observed-state recovery). Completed source work is not queued again. Watch start/review-after unknown: no verified use of released claim publication is supplied; earlier implementation exercises are not adoption of the released payload.
 
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. On 2026-09-24 Terry folded the only remaining requirement, Claude resume acceptance, into the Taken [delivery-evidence acceptance](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native); the retired SEED-008 entry names recoverable proof for the accepted requirements. No duplicate response was created.
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
 
 - **Response assessment (2026-09-23):** `be94345` and `f699e60`, first released in v0.3.27, required publication before implementation and observed-state resume. Current startup work (`194617b`, `1a63c0c`, `6f5d0ef`) supplies the command and removes its superseded runner; no tag contains these changes yet. Native acceptance is now Taken with recorded host gaps. The original v0.3.26 occurrence does not prove post-fix recurrence. Watch start/review-after remain unknown for the complete accepted native outcome.
 
@@ -1584,7 +1584,7 @@ consult both lists when matching findings or allocating identities.
     content into the claim commit. A hunk- or content-aware staging fallback
     for this case is not currently documented.
 
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. On 2026-09-24 Terry folded the only remaining requirement, Claude resume acceptance, into the Taken [delivery-evidence acceptance](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native); the retired SEED-008 entry names recoverable proof for the accepted requirements. No duplicate response was created.
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
 
 ## ODF-069 — CI discovery gaps obscure later terminal results
 
@@ -2395,7 +2395,7 @@ consult both lists when matching findings or allocating identities.
     must be confirmed to be exactly the intended one-entry move, would make
     this independent of how the edit happens to be applied.
 
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. On 2026-09-24 Terry folded the only remaining requirement, Claude resume acceptance, into the Taken [delivery-evidence acceptance](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native); the retired SEED-008 entry names recoverable proof for the accepted requirements. No duplicate response was created.
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
 
 ## ODF-087 — Native execution skips a command-readiness gate proved only by substitutes
 
@@ -2415,7 +2415,7 @@ consult both lists when matching findings or allocating identities.
   - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
   - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
 
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Taken, not resolved**. On 2026-09-24 Terry folded the only remaining requirement, Claude resume acceptance, into the Taken [delivery-evidence acceptance](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native); the retired SEED-008 entry names recoverable proof for the accepted requirements. No duplicate response was created.
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
 
 ## ODF-088 — Fresh sibling worktrees reach delivery without dependencies
 

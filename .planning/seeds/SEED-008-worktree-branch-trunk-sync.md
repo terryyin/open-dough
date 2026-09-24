@@ -26,30 +26,30 @@ status; this seed records desired outcomes for implementation planning.
 
 <a id="accept-queued-start-native-behavior"></a>
 
-### Queued-start native acceptance absorbed into delivery-evidence acceptance
+### Queued-start native acceptance completed
 
-The identity `SEED-008#accept-queued-start-native-behavior` is retired from the
-queue (Terry's decision of 2026-09-24). Ordinary startup and refusal are
-accepted on all three hosts, and resume is accepted on Codex and Cursor. The one
-remaining requirement, a fresh Claude Code `publication/startup-resume`
-observation (resumed receipt before setup and the first edit, exactly one claim
-commit, preserved human and source bytes), moves to the Taken
-[delivery-evidence acceptance](SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
-as one extra slice, because that execution already runs fresh Claude sessions
-through the same `tests/git-publication-native.sh` runner (ADR 0005 §3: combine
-native acceptance where practical).
-
-The startup behavior has been released since 0.3.27, so this is retroactive
-acceptance, not a release gate. Changes since the accepted candidate
-`02108dfb28cabd05839c3aa16d820ce7d0fc33c7` were reviewed on 2026-09-24:
-`publication-resume.mjs` only parameterizes the remote name, the Take guidance
-only relaxes default-checkout refresh declarations, and the startup
-fixture/assessor split setup and command markers more strictly. None
-invalidates the accepted Codex/Cursor resume or other host judgments, so no
-rerun is required there. Prior judgments are recoverable from
+The identity `SEED-008#accept-queued-start-native-behavior` is retired: startup
+native acceptance is complete on Codex, Cursor, and Claude Code (Terry's
+decision of 2026-09-24 to run the last check outside the executing plan 089).
+Ordinary startup, refusal, and Codex/Cursor resume were accepted in plan 82,
+recoverable from
 `820077c3e7fcf16421c97231eb5bc01bb69ea3dc:.planning/quick/082-accept-queued-start-native/PLAN.md`.
-A quota refusal or an inconclusive run leaves the requirement pending in that
-plan; a real defect routes to a bounded correction.
+The behavior has been released since 0.3.27, so this is retroactive acceptance.
+
+- **Claude resume: fresh pass (2026-09-24).** Claude Code `2.1.281`, candidate
+  `7581b2b`, `publication/startup-resume`. The trace shows only an inspecting
+  `--help` before a single startup call returning `resumed` with
+  `created: false`, then setup and command, then the first feature edit. The
+  fixture origin holds base, exactly one pre-created claim, and the independent
+  advance; no claim was pushed again. Human and selected-source bytes were
+  preserved and the local refresh was deferred. Run output and the fixture were
+  deleted after judging.
+- **Candidate reconciliation.** Since accepted candidate
+  `02108dfb28cabd05839c3aa16d820ce7d0fc33c7`, `publication-resume.mjs` only
+  parameterizes the remote name, the Take guidance only relaxes
+  default-checkout refresh declarations, and the startup fixture/assessor split
+  setup and command markers more strictly. None invalidates the earlier host
+  judgments.
 
 <a id="accept-execution-ci-native-behavior"></a>
 
@@ -142,7 +142,7 @@ navigation reference, not another candidate or a claim of delivered behavior.
 The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 
 - Startup addressed the reproduced claim-visibility failure; its remaining
-  Claude resume acceptance rides with the Taken delivery-evidence execution.
+  native acceptance is complete on all three hosts.
 - Terry retained CI/delivery's current priority on 2026-09-23 after comparing
   execution reliability with dashboard visibility and delivery-proof acceptance.
   Its benefit is reliable feedback at frequent publication boundaries, not a
