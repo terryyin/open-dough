@@ -18,10 +18,46 @@ import {
   remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  agentIdentity,
+  agentNames,
+  renderAgentProfile,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 async function remoteShow(trunk, ...args) {
   return (await git(trunk.origin, ...args)).stdout;
+}
+
+function profilePath(name) {
+  return `.planning/${agentIdentity(name).path}`;
+}
+
+async function commitAndPublish(trunk, message) {
+  await git(trunk.integration, "commit", "--quiet", "-m", message);
+  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
+}
+
+// Publishes one trunk commit per named profile, added in the order given.
+async function publishProfiles(trunk, names) {
+  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
+  for (const name of names) {
+    writeFileSync(
+      join(trunk.integration, profilePath(name)),
+      renderAgentProfile({
+        name,
+        identity: identityB,
+        mode: "trunk",
+        branch: "origin/main",
+      }),
+    );
+    await git(trunk.integration, "add", profilePath(name));
+    await commitAndPublish(trunk, `hold ${name}`);
+  }
+}
+
+async function releaseProfile(trunk, name) {
+  await git(trunk.integration, "rm", "--quiet", profilePath(name));
+  await commitAndPublish(trunk, `release ${name}`);
 }
 
 test("Take publishes the agent's profile and makes the agent the workspace author", async (t) => {
@@ -107,19 +143,7 @@ test("a rival holding a different agent name leaves the replayed claim its origi
   await awaitFile(barrier.arrived);
   // A rival started from another base, where agent-Yui was held, published
   // agent-Akiho's profile first.
-  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
-  writeFileSync(
-    join(trunk.integration, ".planning/agents/agent-akiho.json"),
-    renderAgentProfile({
-      name: "Akiho",
-      identity: identityB,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
-  );
-  await git(trunk.integration, "add", ".planning/agents/agent-akiho.json");
-  await git(trunk.integration, "commit", "-m", "rival profile");
-  await git(trunk.integration, "push", "origin", "HEAD:refs/heads/main");
+  await publishProfiles(trunk, ["Akiho"]);
   barrier.release();
   const result = await a.result;
   assert.equal(result.receipt.ok, true, JSON.stringify(result));
@@ -137,5 +161,60 @@ test("a rival holding a different agent name leaves the replayed claim its origi
     (await git(result.workspace, "log", "-1", "--format=%B", "origin/main"))
       .stdout,
     /Claim-Publisher: publisher-a/,
+  );
+});
+
+test("Take follows the most recently added profile and skips held names", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  // Akiho is held from an earlier add; Yui's profile was added most recently.
+  await publishProfiles(trunk, ["Akiho", "Yui"]);
+  const { receipt } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.agent, "agent-Yuma");
+  assert.equal(
+    await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
+    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/agent-yuma.json\n",
+  );
+});
+
+test("Take skips a held successor of the most recent profile rather than taking the first free name", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  // Yui is free, but rotation continues after Akiho and Yuma is held.
+  await publishProfiles(trunk, ["Yuma", "Akiho"]);
+  const { receipt } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.agent, "agent-Sola");
+});
+
+test("a released most recent name is not reused by the next Take", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  await publishProfiles(trunk, ["Yui"]);
+  await releaseProfile(trunk, "Yui");
+  const { receipt } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.agent, "agent-Akiho");
+});
+
+test("Take is refused and publishes nothing when every agent name is held", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  await publishProfiles(trunk, agentNames);
+  const before = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  const backlog = await remoteShow(
+    trunk,
+    "show",
+    "main:.planning/PRODUCT-BACKLOG.md",
+  );
+  const { receipt } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.ok, false, JSON.stringify(receipt));
+  assert.equal(receipt.status, "agent-unavailable");
+  assert.match(receipt.error, /every agent name is held on remote trunk/);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), before);
+  assert.equal(
+    await remoteShow(trunk, "show", "main:.planning/PRODUCT-BACKLOG.md"),
+    backlog,
   );
 });

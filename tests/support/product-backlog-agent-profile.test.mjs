@@ -15,7 +15,7 @@ const {
   agentIdentity,
   agentNames,
   agentReportError,
-  heldAgentName,
+  profileAgentName,
   renderAgentProfile,
   selectAgentName,
 } = await import(pathToFileURL(modulePath).href);
@@ -33,14 +33,32 @@ test("rotation holds 29 distinct names starting at Yui and ending at Rina", () =
   assert.equal(agentNames.at(-1), "Rina");
 });
 
-test("selection takes the first name not held on trunk", () => {
-  assert.equal(selectAgentName([]), "Yui");
-  assert.equal(selectAgentName(["Yui"]), "Akiho");
-  assert.equal(selectAgentName(["Akiho"]), "Yui");
-  assert.equal(selectAgentName([...agentNames]), undefined);
-  assert.equal(heldAgentName("agent-akiho.json"), "Akiho");
-  assert.equal(heldAgentName("agent-Akiho.json"), undefined);
-  assert.equal(heldAgentName("notes.md"), undefined);
+test("rotation follows the most recently added name and skips held names", () => {
+  assert.equal(selectAgentName(undefined, []), "Yui");
+  assert.equal(selectAgentName("Yui", []), "Akiho");
+  assert.equal(selectAgentName("Yui", ["Yui", "Akiho"]), "Yuma");
+  assert.equal(selectAgentName("Koharu", ["Rina"]), "Yui");
+  assert.equal(selectAgentName("Rina", []), "Yui");
+  assert.equal(selectAgentName("Rina", ["Yui", "Akiho"]), "Yuma");
+  assert.equal(selectAgentName(undefined, ["Yui"]), "Akiho");
+});
+
+test("a released most recent name is not reused while others are free", () => {
+  // Akiho was the latest profile added and has since been released.
+  assert.equal(selectAgentName("Akiho", ["Yui"]), "Yuma");
+  const allButAkiho = agentNames.filter((name) => name !== "Akiho");
+  assert.equal(selectAgentName("Akiho", allButAkiho), "Akiho");
+});
+
+test("rotation offers no name when every name is held", () => {
+  assert.equal(selectAgentName(undefined, [...agentNames]), undefined);
+  assert.equal(selectAgentName("Maki", [...agentNames]), undefined);
+});
+
+test("only rotation profile files name an agent", () => {
+  assert.equal(profileAgentName("agent-akiho.json"), "Akiho");
+  assert.equal(profileAgentName("agent-Akiho.json"), undefined);
+  assert.equal(profileAgentName("notes.md"), undefined);
 });
 
 test("agent identity spells name, email, and profile path", () => {

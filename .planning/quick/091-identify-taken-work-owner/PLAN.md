@@ -140,7 +140,13 @@ be delivered CI-safe. Proof additionally covers slice 3's two race cases.
 ### 2. Rotation skips held names, wraps, and refuses when all are held
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/support/product-backlog-agent-profile.test.mjs`
+(rotation, skip, wrap, released most-recent name, all held);
+`workspace-publication-startup-agent.test.mjs` startup cases (seed example
+gives `agent-Yuma`; held successor gives `agent-Sola`; released most-recent
+`agent-Yui` gives `agent-Akiho`; all 29 held refuses with remote trunk and
+backlog unchanged); race, claim, recovery, and low-level race suites green.
 Proof: unit tests for the profile module (next after most recent, skip held,
 wrap after Rina, all held); startup CLI case where `agent-Akiho` is held and
 most recent is `agent-Yui` → new claim is `agent-Yuma`; startup CLI case with
@@ -218,6 +224,11 @@ Reads profiles through the shared module; extends the read boundary allowlist
 and fake GitHub for the directory listing.
 
 ## Learnings
+
+- CI observation (GitHub `ci.yml`, workflow name `CI`) for the story branch:
+  observer `/tmp/dough-ci-501/watch-IsEPZU`, started through the host launcher
+  because managed delivery needs `--session-json` with the Claude Code
+  `session_id` to verify the bridge.
 
 - Slice 1 alone broke two existing startup race tests ("real startup
   commands replay distinct claims from one base without losing either",

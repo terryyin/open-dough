@@ -53,16 +53,23 @@ export function agentIdentity(name) {
   };
 }
 
-// The rotation name a profile file is held under, or undefined when the file
-// name is not an agent profile.
-export function heldAgentName(fileName) {
+// The rotation name a profile file belongs to, or undefined when the file name
+// is not an agent profile.
+export function profileAgentName(fileName) {
   const path = `${agentProfileDirectory}/${fileName}`;
   return agentNames.find((name) => agentIdentity(name).path === path);
 }
 
-// First name in rotation order not held on trunk; undefined when all are held.
-export function selectAgentName(held) {
-  return agentNames.find((name) => !held.includes(name));
+// The first name after `mostRecent` (the profile most recently added on trunk,
+// even if since released) that is not held, wrapping after Rina to Yui. With no
+// profile ever added, rotation starts at Yui. Undefined when all are held.
+export function selectAgentName(mostRecent, held) {
+  const start = agentNames.indexOf(mostRecent) + 1;
+  for (let offset = 0; offset < agentNames.length; offset += 1) {
+    const name = agentNames[(start + offset) % agentNames.length];
+    if (!held.includes(name)) return name;
+  }
+  return undefined;
 }
 
 // Host and model are what the agent reports; either may be unrecorded. Returns
