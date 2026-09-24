@@ -181,7 +181,10 @@ test("accepted startup precedes project readiness in the owned workspace", async
   assert.equal(existsSync(join(workspace, ".setup-ran")), true);
   assert.equal(existsSync(join(workspace, ".command-ran")), true);
   assert.equal(existsSync(join(trunk.integration, ".setup-ran")), false);
-  assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
+  assert.equal(
+    await revParse(trunk.integration, "HEAD"),
+    receipt.publishedSha,
+  );
   assert.equal(
     (await git(trunk.integration, "status", "--porcelain")).stdout,
     "",
