@@ -4,6 +4,10 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { git } from "./publication-test-fixtures.mjs";
+import {
+  agentIdentity,
+  renderAgentProfile,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),
@@ -109,10 +113,36 @@ export async function remoteProfiles(workspace) {
   return listed.stdout.trim().split("\n");
 }
 
-// Remote trunk holds `agent`'s profile for `identity`, and the commit that
-// added it is authored by that agent.
-export async function assertPublishedAgent(workspace, agent, identity) {
-  const path = `.planning/agents/${agent.toLowerCase()}.json`;
+// Trunk path of the named rotation agent's profile.
+export function profilePath(name) {
+  return `.planning/${agentIdentity(name).path}`;
+}
+
+// Publishes one trunk commit per named profile, added in the order given, each
+// holding `identity`.
+export async function publishProfiles(trunk, names, identity) {
+  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
+  for (const name of names) {
+    writeFileSync(
+      join(trunk.integration, profilePath(name)),
+      renderAgentProfile({
+        name,
+        identity,
+        mode: "trunk",
+        branch: "origin/main",
+      }),
+    );
+    await git(trunk.integration, "add", profilePath(name));
+    await git(trunk.integration, "commit", "--quiet", "-m", `hold ${name}`);
+    await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
+  }
+}
+
+// Remote trunk holds the named agent's profile for `identity`, and the commit
+// that added it is authored by that agent.
+export async function assertPublishedAgent(workspace, name, identity) {
+  const { agent, email } = agentIdentity(name);
+  const path = profilePath(name);
   const profile = JSON.parse(
     (await git(workspace, "show", `origin/main:${path}`)).stdout,
   );
@@ -126,5 +156,5 @@ export async function assertPublishedAgent(workspace, agent, identity) {
     "--",
     path,
   );
-  assert.equal(log.stdout.trim(), `${agent} <${profile.email}>`);
+  assert.equal(log.stdout.trim(), `${agent} <${email}>`);
 }

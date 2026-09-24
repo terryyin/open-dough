@@ -57,8 +57,8 @@ test("real startup commands replay distinct claims from one base without losing 
     ".planning/agents/akiho-chan.json",
     ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(first.workspace, "Akiho-chan", identityA);
-  await assertPublishedAgent(first.workspace, "Yui-chan", identityB);
+  await assertPublishedAgent(first.workspace, "Akiho", identityA);
+  await assertPublishedAgent(first.workspace, "Yui", identityB);
 });
 
 test("distinct claims also converge when the other execution wins the first push", async (t) => {
@@ -98,7 +98,7 @@ test("distinct claims also converge when the other execution wins the first push
     ".planning/agents/akiho-chan.json",
     ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(second.workspace, "Akiho-chan", identityB);
+  await assertPublishedAgent(second.workspace, "Akiho", identityB);
 });
 
 test("real competing same-story command stops on the first owner's provenance", async (t) => {

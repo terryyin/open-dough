@@ -12,29 +12,17 @@ import {
 } from "./workspace-publication-fixtures.mjs";
 import {
   assertPublishedAgent,
+  profilePath,
+  publishProfiles,
   remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const akiho = "Akiho-chan <akiho-chan@example.org>";
 
 // Another agent already holds Yui-chan, so the claim under test is Akiho's.
 async function holdYui(trunk) {
-  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
-  const path = ".planning/agents/yui-chan.json";
-  writeFileSync(
-    join(trunk.integration, path),
-    renderAgentProfile({
-      name: "Yui",
-      identity: identityB,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
-  );
-  await git(trunk.integration, "add", path);
-  await git(trunk.integration, "commit", "--quiet", "-m", "hold Yui");
-  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
+  await publishProfiles(trunk, ["Yui"], identityB);
   return lsRemoteSha(trunk.origin, "refs/heads/main");
 }
 
@@ -69,7 +57,7 @@ async function workspaceCommitAuthor(workspace) {
   ).stdout.trim();
 }
 
-test("Akiho-chan is interrupted and resumes as Akiho with authorship restored", async (t) => {
+test("Akiho-chan is interrupted and resumes with its authorship restored", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const base = await holdYui(trunk);
@@ -93,7 +81,7 @@ test("Akiho-chan is interrupted and resumes as Akiho with authorship restored", 
     ".planning/agents/akiho-chan.json",
     ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(workspace, "Akiho-chan", identityA);
+  await assertPublishedAgent(workspace, "Akiho", identityA);
   assert.equal(await workspaceCommitAuthor(workspace), akiho);
 });
 
@@ -137,7 +125,7 @@ test("a claim made without a profile resumes without naming an agent", async (t)
   assert.equal(interrupted.receipt.status, "unpublished");
   const { workspace } = interrupted;
   // Rebuild the retained claim as one made before profiles existed.
-  await git(workspace, "rm", "--quiet", ".planning/agents/yui-chan.json");
+  await git(workspace, "rm", "--quiet", profilePath("Yui"));
   await git(workspace, "commit", "--quiet", "--amend", "--no-edit");
   const legacy = (await git(workspace, "rev-parse", "HEAD")).stdout.trim();
   const resumed = await startProcess(

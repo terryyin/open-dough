@@ -1,8 +1,6 @@
 // Completing Taken work through the real backlog command releases its agent's
 // profile, and the next real startup Take does not reuse that name.
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { exec, git } from "./publication-test-fixtures.mjs";
@@ -15,10 +13,10 @@ import {
   storyB,
 } from "./workspace-publication-fixtures.mjs";
 import {
+  publishProfiles,
   remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const backlogCli = fileURLToPath(
   new URL(
@@ -27,28 +25,11 @@ const backlogCli = fileURLToPath(
   ),
 );
 
-// Another agent holds Yui-chan for work outside this backlog.
-async function holdYui(trunk) {
-  const path = ".planning/agents/yui-chan.json";
-  mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
-  writeFileSync(
-    join(trunk.integration, path),
-    renderAgentProfile({
-      name: "Yui",
-      identity: "SEED-C#c",
-      mode: "trunk",
-      branch: "origin/main",
-    }),
-  );
-  await git(trunk.integration, "add", path);
-  await git(trunk.integration, "commit", "--quiet", "-m", "hold Yui");
-  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
-}
-
 test("a story completed through the backlog command releases Akiho-chan and the next Take follows it", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  await holdYui(trunk);
+  // Another agent holds Yui-chan for work outside this backlog.
+  await publishProfiles(trunk, ["Yui"], "SEED-C#c");
   const first = await startCliResult(trunk, "trunk");
   assert.equal(first.receipt.ok, true, JSON.stringify(first.receipt));
   assert.equal(first.receipt.agent, "Akiho-chan");

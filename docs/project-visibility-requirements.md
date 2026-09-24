@@ -251,12 +251,13 @@ ending at Rina. An agent's identity is `<Name>-chan` with email
 `<lowercase name>-chan@example.org`. These names identify agent developers,
 not human contributors.
 
-Each active agent has one JSON profile at `.planning/agents/<lowercase
-name>-chan.json` beside the backlog. It records the agent name and email, the work
-item identity, execution mode, branch context (the owned execution branch in
-Story Branch Mode, remote trunk in Trunk Mode), and, when the agent reports
-them, its host tool (Claude Code, Codex, or Cursor) and AI model. Separate
-files keep parallel claims from contending for one shared file.
+Each active agent has one JSON profile at
+`.planning/agents/<lowercase name>-chan.json` beside the backlog. It records
+the agent name and email, the work item identity, execution mode, branch
+context (the owned execution branch in Story Branch Mode, remote trunk in Trunk
+Mode), and, when the agent reports them, its host tool (Claude Code, Codex, or
+Cursor) and AI model. Separate files keep parallel claims from contending for
+one shared file.
 
 - **Assignment.** The shared startup operation (`execution-start`) selects the
   name, writes the profile, and commits it with the Take. A name is held while
