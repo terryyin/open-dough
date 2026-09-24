@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Land reviewed worktree changes with Dough Land](seeds/SEED-026-dough-land.md#keep-reviewed-worktree-changes) — SEED-026#keep-reviewed-worktree-changes ([plan](quick/088-dough-land/PLAN.md))
-
 ## Backlog list
 
 - [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native

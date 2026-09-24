@@ -148,9 +148,9 @@ user work, and truthful remote/CI evidence while reducing total instructions.
 ordinary execution publication plus CI attachment delivered in
 [execution publication](#accept-execution-ci-native-behavior); preparation
 keep; and closure. The previous separate execution-increment candidate
-duplicated the CI story's publication boundary and was absorbed there. On
-2026-09-24 the maintainer combined preparation keep and closure adoption into
-[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes). No separate
+duplicated the CI story's publication boundary and was absorbed there.
+Preparation keep and closure adoption are delivered by the
+[Dough Land](../../src/skills/dough-land/SKILL.md) skill. No separate
 library, command-framework, or testing-only story is required.
 
 **Alternatives and limits:** Another instruction-only reminder repeats a rule
@@ -161,8 +161,7 @@ the runtime, concise guidance, payload delivery, and proof its outcome needs.
 **Effort hypothesis:** No project S/M/L definitions were found. Startup carries
 the greatest initial runtime/native-adoption uncertainty. The combined CI/delivery
 story adds candidate revalidation and existing-observer attachment, not a new
-observer lifecycle. Dough Land must preserve preparation's narrower authority and
-closure's published-history and cleanup concerns. Estimates remain unassigned
+observer lifecycle. Estimates remain unassigned
 pending planning evidence.
 
 <a id="publish-execution-increments-through-shared-operation"></a>
@@ -174,81 +173,6 @@ was never queued. Its outcome is now owned by
 [SEED-008#accept-execution-ci-native-behavior](#accept-execution-ci-native-behavior), avoiding
 two stories that each wire the same publication boundary. This is a retired
 navigation reference, not another candidate or a claim of delivered behavior.
-
-<a id="publish-preparation-through-shared-operation"></a>
-
-### Keep prepared stories and plans through the shared publication operation
-
-**Identity:** SEED-008#publish-preparation-through-shared-operation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
-```
-
-**Status:** Absorbed on 2026-09-24 into
-[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes) before execution.
-This section retains the original preparation outcome for traceability; it is
-not a separate queued story.
-
-**For / why:** A developer who chooses to keep refinement or planning work sees
-that exact retained preparation on remote trunk without another agent-managed
-Git procedure or disturbance of unrelated local main work.
-
-**Scope candidate:** Adopt the publisher for authorized preparation keep.
-Preserve preparation disposition and source-state recording: leave uncommitted,
-keep, and discard remain distinct user choices. Publication does not Take a
-story or grant readiness. Replace the preparation publication recipe.
-
-**Evaluation:** A kept preparation changes a story while another writer changes
-a sibling story → publish both coherently or stop with the source conflict →
-retain the correct preparation facts. A request to leave a draft uncommitted
-never invokes remote publication.
-
-**Depends on / boundary:** Needs the shared publisher; no product prerequisite
-on execution-increment adoption. Ordering it later is a value/learning choice.
-Direct edits in shared main retain the existing access contract; this story does
-not add checkout locking or a generic direct-edit workflow.
-
-**Safe stopping point:** Retained preparation is published with an exact receipt
-and independent refresh result. Closure adoption may remain deferred.
-
-<a id="publish-closure-through-shared-operation"></a>
-
-### Close completed stories through the shared publication operation
-
-**Identity:** SEED-008#publish-closure-through-shared-operation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
-```
-
-**Status:** Absorbed on 2026-09-24 into
-[Dough Land](SEED-026-dough-land.md#keep-reviewed-worktree-changes) before execution.
-This section retains the original closure outcome for traceability; it is
-not a separate queued story.
-
-**For / why:** A developer finishing a story gets the intended closure on its
-authorized remote target, with truthful CI evidence and safe cleanup, without
-another agent-managed publication sequence.
-
-**Scope candidate:** Adopt the publisher for closure and authorized integration
-of already-published Story Branch history. Preserve human-owned publication
-restrictions, semantic backlog completion, published history, actual target
-attribution, and the existing completion/cleanup conditions. Consume the delivered
-shared CI completion operation; do not add a second observer shutdown policy.
-Preserve process findings and their unresolved judgments through closure.
-
-**Evaluation:** Story Branch closure integrates published history on trunk →
-receipt names the accepted trunk revision → matching CI completion and observer
-shutdown precede resource removal. A rejected publication or unconfirmed shutdown
-preserves recovery resources; earlier branch success does not cover trunk.
-Successful cleanup removes spent story history while retaining process findings
-and active follow-ups.
-
-**Depends on / boundary:** Needs shared publication and the existing CI completion
-contract. No dependency on preparation adoption. This migration does not decide
-when Story Branch work should integrate or authorize otherwise withheld pushes.
-
-**Safe stopping point:** Closure uses the same remote-publication owner while
-retaining its distinct completion and cleanup responsibilities.
 
 ### Priority rationale and scope reduction
 
@@ -263,10 +187,6 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 - Published ownership and execution-branch visibility stay next. They directly
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
-- Preparation keep and closure adoption are now one
-  [Dough Land story](SEED-026-dough-land.md#keep-reviewed-worktree-changes), placed
-  first at the maintainer's direction on 2026-09-24. Their prior positions no
-  longer describe the active queue.
 - Local coordination remains below remote work, matching the existing direction.
   The Claude background story consumes the common contracts and owns only the
   remaining host-specific restriction/handoff outcome. Neither warrants a second
