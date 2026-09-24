@@ -5,32 +5,25 @@
 # promised readiness/requeue behavior, not the word "untested" in arbitrary prose.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-delivery_evidence_gaps_obs_get() {
-  local key=$1
-  local file=$2
-  awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
-    "${file}"
-}
-
 # Returns 0 when observations show known-gap acceptance honored supporting evidence.
 delivery_evidence_gaps_assess() {
   local observations=$1
   local scenario accepted learning_clear gap obtained independent format_rerun \
     instruction
-  scenario=$(delivery_evidence_gaps_obs_get scenario "${observations}")
-  accepted=$(delivery_evidence_gaps_obs_get promise-accepted \
+  scenario=$(delivery_evidence_obs_get scenario "${observations}")
+  accepted=$(delivery_evidence_obs_get promise-accepted \
     "${observations}")
-  learning_clear=$(delivery_evidence_gaps_obs_get cleared-by-learning-only \
+  learning_clear=$(delivery_evidence_obs_get cleared-by-learning-only \
     "${observations}")
-  gap=$(delivery_evidence_gaps_obs_get required-gap-named \
+  gap=$(delivery_evidence_obs_get required-gap-named \
     "${observations}")
-  obtained=$(delivery_evidence_gaps_obs_get requeue-observation-obtained \
+  obtained=$(delivery_evidence_obs_get requeue-observation-obtained \
     "${observations}")
-  independent=$(delivery_evidence_gaps_obs_get \
+  independent=$(delivery_evidence_obs_get \
     independent-evidence-preserved "${observations}")
-  format_rerun=$(delivery_evidence_gaps_obs_get format-or-blanket-rerun \
+  format_rerun=$(delivery_evidence_obs_get format-or-blanket-rerun \
     "${observations}")
-  instruction=$(delivery_evidence_gaps_obs_get instruction-words-only \
+  instruction=$(delivery_evidence_obs_get instruction-words-only \
     "${observations}")
 
   [[ -n ${scenario} && -n ${accepted} && -n ${learning_clear} &&

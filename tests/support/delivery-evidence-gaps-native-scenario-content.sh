@@ -185,3 +185,18 @@ EOF
     *) return 2 ;;
   esac
 }
+
+# Readiness/requeue product, independent happy-path proof, and a return that
+# records a required gap as learning while treating delivery as ready — or
+# sufficient current proof. Does not name the acceptance decision.
+delivery_evidence_gaps_populate_fixture() {
+  local workspace=$1
+  local scenario=$2
+  delivery_evidence_gaps_write_baseline_revision "${workspace}"
+  delivery_evidence_git "${workspace}" add lib tests
+  delivery_evidence_git "${workspace}" \
+    commit --quiet -m 'baseline readiness admission with happy-path proof'
+
+  delivery_evidence_gaps_write_promises_and_return "${workspace}" \
+    "${scenario}"
+}

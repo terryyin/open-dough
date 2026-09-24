@@ -160,57 +160,16 @@ EOF
   esac
 }
 
-# Logs every filtered proof invocation's named-test selection count.
+# Installs delivery-evidence-selection-native-proof-logger.sh as bin/run-proof.sh,
+# which logs every filtered proof invocation's named-test selection count.
 # Counts named Subtests, not Node's file-level phantom when a pattern matches
 # nothing (Node can still exit 0 and report tests=1 for the file).
 delivery_evidence_selection_install_test_logger() {
   local workspace=$1
-  local logger="${workspace}/bin/run-proof.sh"
   mkdir -p -- "${workspace}/bin"
-  cat > "${logger}" << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-log="${SELECTION_LOG:-.planning/selection.log}"
-mkdir -p -- "$(dirname -- "${log}")"
-pattern=
-args=("$@")
-i=0
-while [[ ${i} -lt ${#args[@]} ]]; do
-  case ${args[i]} in
-    --test-name-pattern)
-      i=$((i + 1))
-      pattern=${args[i]}
-      ;;
-    --test-name-pattern=*)
-      pattern=${args[i]#--test-name-pattern=}
-      ;;
-  esac
-  i=$((i + 1))
-done
-tmp=$(mktemp)
-set +e
-node --test --test-reporter=tap "${args[@]}" > "${tmp}" 2>&1
-status=$?
-set -e
-# Named tests appear as TAP "ok/not ok N - name". Exclude the file-suite
-# phantom Node emits when a name pattern matches no tests (still exit 0).
-# grep -Ev exits 1 when every line is filtered; do not let pipefail abort.
-selected=$(
-  { grep -E '^(ok|not ok) [0-9]+ - ' "${tmp}" \
-      | grep -Ev ' - [^ ]+\.(mjs|js|cjs|ts)$| - [^ ]+/[^ ]+$' \
-      || true; } \
-    | wc -l \
-    | tr -d ' '
-)
-selected=${selected:-0}
-printf 'selected=%s pattern=%s exit=%s\n' "${selected}" "${pattern}" "${status}" \
-  >> "${log}"
-printf '# named-tests-selected: %s\n' "${selected}"
-cat "${tmp}"
-rm -f -- "${tmp}"
-exit "${status}"
-EOF
-  chmod a+x "${logger}"
+  cp -- "${delivery_evidence_support_dir}/delivery-evidence-selection-native-proof-logger.sh" \
+    "${workspace}/bin/run-proof.sh"
+  chmod a+x "${workspace}/bin/run-proof.sh"
 }
 
 delivery_evidence_selection_plant_initial_selection() {
@@ -229,4 +188,37 @@ delivery_evidence_selection_plant_initial_selection() {
       ;;
     *) return 2 ;;
   esac
+}
+
+delivery_evidence_selection_claimed=
+delivery_evidence_selection_initial=
+
+# Repository, required promises, candidate changes, and a misleading
+# implementation return. Does not name the selection gap or pre-accept.
+delivery_evidence_selection_populate_fixture() {
+  local workspace=$1
+  local scenario=$2
+  delivery_evidence_selection_write_tests "${workspace}" "${scenario}"
+  delivery_evidence_selection_write_promises_and_return "${workspace}" "${scenario}"
+  delivery_evidence_selection_install_test_logger "${workspace}"
+  delivery_evidence_selection_plant_initial_selection "${workspace}" "${scenario}"
+  # Uncommitted candidate change the return claims to cover.
+  case ${scenario} in
+    zero-test)
+      printf 'merge-direction:ready\n' > "${workspace}/product.txt"
+      ;;
+    *)
+      printf '%s\n' \
+        'summary:ready' \
+        'empty-groups:ready' \
+        'initial-read-failure:ready' \
+        > "${workspace}/product.txt"
+      ;;
+  esac
+  delivery_evidence_git "${workspace}" add \
+    tests lib .planning/slice-promises.md bin
+  delivery_evidence_git "${workspace}" \
+    commit --quiet -m 'baseline with tests'
+  # Leave product.txt, the misleading return, and selection log uncommitted.
+  export SELECTION_LOG="${workspace}/.planning/selection.log"
 }

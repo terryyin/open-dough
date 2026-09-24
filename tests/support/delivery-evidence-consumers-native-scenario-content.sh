@@ -236,3 +236,14 @@ EOF
     *) return 2 ;;
   esac
 }
+
+# Committed baseline revision, then the uncommitted scenario overlay: the
+# implementation return and any contract edits left for acceptance.
+delivery_evidence_consumers_populate_fixture() {
+  delivery_evidence_consumers_write_baseline_revision "$1"
+  delivery_evidence_git "$1" add \
+    lib e2e tests .planning/prior-consumer-assessment.md
+  delivery_evidence_git "$1" \
+    commit --quiet -m 'baseline one-arg factory with matching E2E stand-in'
+  delivery_evidence_consumers_write_promises_and_return "$1" "$2"
+}

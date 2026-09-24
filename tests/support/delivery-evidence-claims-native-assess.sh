@@ -4,28 +4,21 @@
 # cannot pass. Does not exercise native skill prose.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-delivery_evidence_claims_obs_get() {
-  local key=$1
-  local file=$2
-  awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
-    "${file}"
-}
-
 # Returns 0 when observations show claim acceptance honored supporting evidence.
 delivery_evidence_claims_assess() {
   local observations=$1
   local scenario accepted relayed required product_ok assertion_ok format_resend instruction
-  scenario=$(delivery_evidence_claims_obs_get scenario "${observations}")
-  accepted=$(delivery_evidence_claims_obs_get promise-accepted "${observations}")
-  relayed=$(delivery_evidence_claims_obs_get relayed-covered "${observations}")
-  required=$(delivery_evidence_claims_obs_get required-behavior-returned \
+  scenario=$(delivery_evidence_obs_get scenario "${observations}")
+  accepted=$(delivery_evidence_obs_get promise-accepted "${observations}")
+  relayed=$(delivery_evidence_obs_get relayed-covered "${observations}")
+  required=$(delivery_evidence_obs_get required-behavior-returned \
     "${observations}")
-  product_ok=$(delivery_evidence_claims_obs_get product-no-link "${observations}")
-  assertion_ok=$(delivery_evidence_claims_obs_get assertion-observes-no-link \
+  product_ok=$(delivery_evidence_obs_get product-no-link "${observations}")
+  assertion_ok=$(delivery_evidence_obs_get assertion-observes-no-link \
     "${observations}")
-  format_resend=$(delivery_evidence_claims_obs_get format-resend-required \
+  format_resend=$(delivery_evidence_obs_get format-resend-required \
     "${observations}")
-  instruction=$(delivery_evidence_claims_obs_get instruction-words-only \
+  instruction=$(delivery_evidence_obs_get instruction-words-only \
     "${observations}")
 
   [[ -n ${scenario} && -n ${accepted} && -n ${relayed} && -n ${required} &&

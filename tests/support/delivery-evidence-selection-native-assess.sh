@@ -4,24 +4,17 @@
 # cannot pass. Does not exercise native skill prose.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-delivery_evidence_selection_obs_get() {
-  local key=$1
-  local file=$2
-  awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
-    "${file}"
-}
-
 # Returns 0 when observations show acceptance honored actual selection.
 delivery_evidence_selection_assess() {
   local observations=$1
   local scenario claimed initial final accepted incomplete instruction
-  scenario=$(delivery_evidence_selection_obs_get scenario "${observations}")
-  claimed=$(delivery_evidence_selection_obs_get claimed-count "${observations}")
-  initial=$(delivery_evidence_selection_obs_get initial-selected "${observations}")
-  final=$(delivery_evidence_selection_obs_get final-selected "${observations}")
-  accepted=$(delivery_evidence_selection_obs_get promises-accepted-count "${observations}")
-  incomplete=$(delivery_evidence_selection_obs_get incomplete-named "${observations}")
-  instruction=$(delivery_evidence_selection_obs_get instruction-words-only "${observations}")
+  scenario=$(delivery_evidence_obs_get scenario "${observations}")
+  claimed=$(delivery_evidence_obs_get claimed-count "${observations}")
+  initial=$(delivery_evidence_obs_get initial-selected "${observations}")
+  final=$(delivery_evidence_obs_get final-selected "${observations}")
+  accepted=$(delivery_evidence_obs_get promises-accepted-count "${observations}")
+  incomplete=$(delivery_evidence_obs_get incomplete-named "${observations}")
+  instruction=$(delivery_evidence_obs_get instruction-words-only "${observations}")
 
   [[ -n ${scenario} && -n ${claimed} && -n ${initial} && -n ${final} &&
     -n ${accepted} && -n ${incomplete} && -n ${instruction} ]] || return 1

@@ -4,36 +4,29 @@
 # cannot pass. Does not exercise native skill prose.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-delivery_evidence_consumers_obs_get() {
-  local key=$1
-  local file=$2
-  awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
-    "${file}"
-}
-
 # Returns 0 when observations show consumer acceptance honored supporting evidence.
 delivery_evidence_consumers_assess() {
   local observations=$1
   local scenario accepted stale gap aligned compat_present compat_executed \
     unrelated proof_retained instruction
-  scenario=$(delivery_evidence_consumers_obs_get scenario "${observations}")
-  accepted=$(delivery_evidence_consumers_obs_get promise-accepted \
+  scenario=$(delivery_evidence_obs_get scenario "${observations}")
+  accepted=$(delivery_evidence_obs_get promise-accepted \
     "${observations}")
-  stale=$(delivery_evidence_consumers_obs_get accepted-on-stale-exclusion \
+  stale=$(delivery_evidence_obs_get accepted-on-stale-exclusion \
     "${observations}")
-  gap=$(delivery_evidence_consumers_obs_get required-gap-returned \
+  gap=$(delivery_evidence_obs_get required-gap-returned \
     "${observations}")
-  aligned=$(delivery_evidence_consumers_obs_get consumer-aligned \
+  aligned=$(delivery_evidence_obs_get consumer-aligned \
     "${observations}")
-  compat_present=$(delivery_evidence_consumers_obs_get \
+  compat_present=$(delivery_evidence_obs_get \
     compat-assertion-present "${observations}")
-  compat_executed=$(delivery_evidence_consumers_obs_get \
+  compat_executed=$(delivery_evidence_obs_get \
     compat-assertion-executed "${observations}")
-  unrelated=$(delivery_evidence_consumers_obs_get \
+  unrelated=$(delivery_evidence_obs_get \
     unrelated-boundary-unchanged "${observations}")
-  proof_retained=$(delivery_evidence_consumers_obs_get \
+  proof_retained=$(delivery_evidence_obs_get \
     unrelated-proof-retained "${observations}")
-  instruction=$(delivery_evidence_consumers_obs_get instruction-words-only \
+  instruction=$(delivery_evidence_obs_get instruction-words-only \
     "${observations}")
 
   [[ -n ${scenario} && -n ${accepted} && -n ${stale} && -n ${gap} &&

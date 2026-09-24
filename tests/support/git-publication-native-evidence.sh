@@ -46,17 +46,9 @@ git_publication_write_evidence_identity() {
     story-branch-closure)
       story_closure_write_evidence_identity
       ;;
-    delivery-evidence-selection)
-      delivery_evidence_selection_write_evidence_identity
-      ;;
-    delivery-evidence-claims)
-      delivery_evidence_claims_write_evidence_identity
-      ;;
-    delivery-evidence-consumers)
-      delivery_evidence_consumers_write_evidence_identity
-      ;;
-    delivery-evidence-gaps)
-      delivery_evidence_gaps_write_evidence_identity
+    delivery-evidence-selection | delivery-evidence-claims | \
+      delivery-evidence-consumers | delivery-evidence-gaps)
+      delivery_evidence_write_evidence_identity "${1#delivery-evidence-}"
       ;;
     *) return 2 ;;
   esac

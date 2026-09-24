@@ -1,6 +1,8 @@
 # Share one delivery-evidence native harness for four cases
 
-Status: planned. No execution has started or been authorized.
+Status: executing (Story Branch Mode, branch
+`claude/086-share-delivery-evidence-native-harness`; claim `96a460a` on
+`refs/heads/main`).
 
 ## Correction input
 
@@ -73,7 +75,7 @@ paths or hashes affected by the harness move.
 
 ### 1. One shared delivery-evidence native run/fixture seam
 Type: Structure
-Status: planned
+Status: done
 
 Proof: `bash tests/git-publication-native.sh` still PASSes all four
 delivery-evidence assessor counterexample suites; each
@@ -88,6 +90,26 @@ observe/assess/scenario-content and assessor entrypoints as the distinct
 bodies. Update `tests/git-publication-native.sh` and host/evidence wiring to
 the shared seam without changing case names or credential-free coverage.
 Safe stop: four clones are gone; external acceptance behavior is unchanged.
+
+Accepted proof: `/opt/homebrew/bin/bash tests/git-publication-native.sh`
+exits 0 with output byte-identical to the `96a460a` baseline, including the
+four `run_delivery_evidence_*_assessor_counterexamples` PASS lines. With no
+host CLI on PATH, `--native cursor --case delivery-evidence/nope` still exits 2
+at the `native_case_known` gate, and each of the four real case names passes
+that gate and stops only at the missing CLI. A substitute-host run
+(`tests/support/native-agent-publication.sh` as cursor/codex, complete and
+truncated streams) differs before/after only in evidence-identity and
+input-hash lines. `npm run format` is clean.
+
+Learnings: `tests/support/delivery-evidence-native-run.sh` now owns fixture
+scaffolding, prompt, native command, assess/retain chain, evidence identity,
+and the shared `delivery_evidence_obs_get`; each case contributes
+`delivery_evidence_<case>_populate_fixture` in its scenario-content module.
+Selection's proof logger is `delivery-evidence-selection-native-proof-logger.sh`.
+Because helper/fixture identities and input hashes changed, the Cursor
+observations retained for plan 085 no longer match current harness hashes;
+[native acceptance](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+must judge reuse under ADR 0005 knowing the change was structure-only.
 
 ## Sizing, stopping points, and remaining concerns
 

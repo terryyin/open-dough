@@ -63,21 +63,10 @@ run_native_host() {
         story-branch-closure/*)
           story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
           ;;
-        delivery-evidence/selection)
-          delivery_evidence_selection_run_journey "${source_dir}" "${host}" \
-            "${results_dir}"
-          ;;
-        delivery-evidence/claims)
-          delivery_evidence_claims_run_journey "${source_dir}" "${host}" \
-            "${results_dir}"
-          ;;
-        delivery-evidence/consumers)
-          delivery_evidence_consumers_run_journey "${source_dir}" "${host}" \
-            "${results_dir}"
-          ;;
-        delivery-evidence/gaps)
-          delivery_evidence_gaps_run_journey "${source_dir}" "${host}" \
-            "${results_dir}"
+        delivery-evidence/selection | delivery-evidence/claims | \
+          delivery-evidence/consumers | delivery-evidence/gaps)
+          delivery_evidence_run_journey "${journey#delivery-evidence/}" \
+            "${source_dir}" "${host}" "${results_dir}"
           ;;
         *) return 2 ;;
       esac
