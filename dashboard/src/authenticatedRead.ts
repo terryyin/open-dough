@@ -6,7 +6,8 @@
 // file already reachable from that revision's records, or with `path` and
 // `committed=last` when that file (or a listed agent profile) was last
 // committed as of that revision; `since` instead asks only whether the ref
-// still names the revision shown; `branch` asks about a story branch recorded
+// still names the revision shown, and with `watch` which heads story branches
+// recorded there name now; `branch` asks about a story branch recorded
 // at that revision (`./authenticatedBranchRead.ts`). Every read makes the
 // same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
@@ -20,7 +21,11 @@
 // so it is checked here as external input, never trusted by assertion.
 
 import { z } from "zod";
-import { onBranchQuery, type BranchHead } from "./authenticatedBranchRead";
+import {
+  onBranchQuery,
+  type BranchHead,
+  type StoryBranchHeads,
+} from "./authenticatedBranchRead";
 import {
   authenticatedGet,
   commitSha,
@@ -51,6 +56,9 @@ const okCommitTime = z.object({
 const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
+  branches: z.array(
+    z.object({ branch: z.string().min(1), head: commitSha.nullable() }),
+  ),
 });
 
 export type PublishedSnapshot = {
@@ -90,26 +98,40 @@ export async function readPublishedSnapshot(
 }
 
 // Whether the source's ref still names the revision shown, or which commit it
-// names now. Nothing of the backlog or its records is read.
+// names now. While it does, the check also says which head each watched story
+// branch names now, undefined when it is no longer published. Nothing of the
+// backlog or its records is read.
 export type RevisionCheck =
-  | { readonly changed: false }
+  | {
+      readonly changed: false;
+      readonly heads: StoryBranchHeads;
+    }
   | { readonly changed: true; readonly revision: string };
 
+// Checks the source's ref, and the heads of `watched`: story branches Taken
+// entries' profiles record at the revision shown, which the local boundary
+// confirms from that revision's records before answering.
 export async function checkPublishedRevision(
   source: PublishedSource,
   shown: string,
+  watched: readonly string[],
   signal: AbortSignal,
 ): Promise<RevisionCheck> {
   const reading = readingRefOf(source);
+  const watching = watched
+    .map((branch) => `&watch=${encodeURIComponent(branch)}`)
+    .join("");
   const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}`,
+    `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}${watching}`,
     reading,
     signal,
   );
   const parsed = okCheck.safeParse(body);
   if (
     !parsed.success ||
-    parsed.data.changed !== (parsed.data.revision !== shown)
+    parsed.data.changed !== (parsed.data.revision !== shown) ||
+    parsed.data.branches.length !== watched.length ||
+    parsed.data.branches.some(({ branch }, at) => branch !== watched[at])
   ) {
     throw new ReadProblem(
       `The local authenticated read answered in a shape this dashboard does not understand while checking ${reading}.`,
@@ -117,7 +139,15 @@ export async function checkPublishedRevision(
   }
   return parsed.data.changed
     ? { changed: true, revision: parsed.data.revision }
-    : { changed: false };
+    : {
+        changed: false,
+        heads: new Map(
+          parsed.data.branches.map(({ branch, head }) => [
+            branch,
+            head ?? undefined,
+          ]),
+        ),
+      };
 }
 
 export async function readRepositoryFileAt(

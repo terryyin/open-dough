@@ -2,7 +2,8 @@
 // resolved, and its backlog (or one reachability-checked canonical/plan path)
 // read, through the launching person's local `gh` authentication. A request
 // may instead name an already resolved revision to read that revision's
-// backlog, ask only whether the ref still names the revision shown, read
+// backlog, ask only whether the ref still names the revision shown and which
+// heads the story branches recorded there name now, read
 // the agent profiles its directory listing names beside the backlog, ask
 // when one reachable record or listed profile was last committed there, or
 // resolve the story branch a Taken entry's profile records there and read
@@ -13,9 +14,9 @@
 // gh calls: `./ghRead.ts`, `./ghRevision.ts`, and `./ghContents.ts`; path
 // reachability: `./reachablePaths.ts` and `./branchReachability.ts`;
 // pinned-text memo: `./pinnedTexts.ts`; revision checks:
-// `./revisionChecks.ts`; resolved branch heads: `./branchHeads.ts`; one
-// request's `gh` lifetime: `./trackedGh.ts`; failure wording and any directed
-// wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
+// `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved branch
+// heads: `./branchHeads.ts`; one request's `gh` lifetime: `./trackedGh.ts`;
+// failure wording and any directed wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
 // stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";

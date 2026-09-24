@@ -1,8 +1,9 @@
 // Which read a request to the local authenticated read boundary
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
 // the ref resolved afresh with its backlog; only whether the ref still names
-// the revision already shown (`since`); the backlog at an already resolved
-// revision; one repository path at a pinned revision; when one repository
+// the revision already shown (`since`), and which heads the story branches
+// recorded at that revision name now (`watch`); the backlog at an already
+// resolved revision; one repository path at a pinned revision; when one repository
 // path was last committed at a pinned revision (`committed=last`); the
 // agent profiles published beside the backlog at a pinned revision; which
 // commit a story branch recorded at a pinned revision names now (`branch`);
@@ -19,7 +20,12 @@ export type OnBranch = { readonly branch: string; readonly head: string };
 
 export type RequestedRead =
   | { readonly kind: "ref" }
-  | { readonly kind: "revision-check"; readonly since: string }
+  | {
+      readonly kind: "revision-check";
+      readonly since: string;
+      // Story branches recorded at `since` whose heads the check also reports.
+      readonly watched: readonly string[];
+    }
   | { readonly kind: "backlog-at"; readonly revision: string }
   | { readonly kind: "agent-profiles-at"; readonly revision: string }
   | {
@@ -58,6 +64,22 @@ function isSafeBranchName(branch: string): boolean {
     !branch.endsWith(".lock") &&
     branch.split("/").every((segment) => branchSegment.test(segment))
   );
+}
+
+// At most this many story branches are watched by one check: far more than
+// a project's Taken entries.
+const watchedBranchLimit = 100;
+
+function parseWatchedBranches(
+  watched: readonly string[],
+): readonly string[] | RefusedParameters {
+  if (watched.length > watchedBranchLimit) {
+    return refused("A revision check watches too many branches.");
+  }
+  if (!watched.every(isSafeBranchName)) {
+    return refused("A watched branch name is not usable.");
+  }
+  return [...new Set(watched)];
 }
 
 function parseBranchRead(
@@ -116,6 +138,15 @@ export function parseRequestedRead(
   const agents = params.get("agents");
   const committed = params.get("committed");
   const branch = params.get("branch");
+  const watch = params.getAll("watch");
+  const onlyRevisionCheck =
+    since !== null &&
+    [revision, path, agents, committed, branch, params.get("head")].every(
+      (other) => other === null,
+    );
+  if (watch.length > 0 && !onlyRevisionCheck) {
+    return refused("Watched branches are named only with a revision check.");
+  }
   if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
   }
@@ -154,7 +185,10 @@ export function parseRequestedRead(
     if (!commitShaPattern.test(since)) {
       return refused("The revision already shown is not a commit sha.");
     }
-    return { kind: "revision-check", since };
+    const watched = parseWatchedBranches(watch);
+    return "kind" in watched
+      ? watched
+      : { kind: "revision-check", since, watched };
   }
   if (revision === null) {
     return path === null

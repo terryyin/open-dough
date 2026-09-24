@@ -10,7 +10,16 @@ export type PinnedFile = { readonly path: string; readonly text: string };
 type Answer =
   | { readonly revision: string; readonly backlog: string }
   | ({ readonly revision: string } & PinnedFile)
-  | { readonly revision: string; readonly changed: boolean }
+  // A revision check, with the head each watched story branch names now, or
+  // null when it is no longer published.
+  | {
+      readonly revision: string;
+      readonly changed: boolean;
+      readonly branches: ReadonlyArray<{
+        readonly branch: string;
+        readonly head: string | null;
+      }>;
+    }
   | {
       readonly revision: string;
       readonly path: string;

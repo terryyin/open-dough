@@ -90,7 +90,7 @@ export async function performOnBranch(
   return answered({ revision: head, path: read.path, text });
 }
 
-const unrecordedBranch: Outcome = {
+export const unrecordedBranch: Outcome = {
   kind: "refused",
   status: 404,
   message:

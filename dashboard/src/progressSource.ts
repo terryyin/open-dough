@@ -1,21 +1,20 @@
 // Where a Taken entry's slice progress is published: trunk's copy of its
 // plan at the shown revision, or the plan at the head of the story branch its
-// agent profile records in Story Branch Mode. Which branch comes only from
-// the owner already read from trunk's profiles (`./takenOwner.ts`); the plan
-// path only from trunk's story-state. The branch copy replaces trunk's count;
-// it is interpreted by the same plan reader (`./storyPlan.ts`) and never
-// falls back to trunk when the branch cannot say. No assignment is ever
-// inferred from a branch name.
+// agent profile records in Story Branch Mode, as its route says
+// (`./progressRoute.ts`). The branch copy replaces trunk's count; it is
+// interpreted by the same plan reader (`./storyPlan.ts`) and never falls back
+// to trunk when the branch cannot say. No assignment is ever inferred from a
+// branch name.
 
 import {
   readBranchHeadAt,
   readFileOnBranch,
   type BranchHead,
+  type StoryBranchHeads,
 } from "./authenticatedBranchRead";
 import type { PublishedWork, WorkEntry } from "./publishedWork";
 import { ReadProblem } from "./readProblem";
-import { resolveBesideFile } from "./repositoryPath";
-import { snapshotRepositoryPath } from "./sourceLink";
+import { routeOf, type Route } from "./progressRoute";
 import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan";
 
 // Where a Taken entry's slice progress is read. When one profile records
@@ -32,102 +31,6 @@ export type ProgressSource =
     }
   // The recorded story branch, at the head read.
   | ({ readonly kind: "branch"; readonly profilePath: string } & BranchHead);
-
-type Route =
-  // No recorded plan progress to source, or nothing known to source it by.
-  | { readonly kind: "none" }
-  | { readonly kind: "known"; readonly source: ProgressSource }
-  | {
-      readonly kind: "branch";
-      readonly branch: string;
-      readonly planPath: string;
-      readonly profilePath: string;
-    }
-  | { readonly kind: "gap"; readonly problem: string };
-
-// The plan path trunk's story-state records for the entry, beside its
-// canonical record, when its plan association stands; undefined when it
-// cannot be resolved.
-type RecordedPlan =
-  | { readonly kind: "association-conflict" }
-  | { readonly kind: "recorded"; readonly path: string | undefined };
-
-function recordedPlanOf(entry: WorkEntry, backlogPath: string): RecordedPlan {
-  const { preparation } = entry;
-  if (
-    preparation?.status !== "recorded" ||
-    preparation.approach.kind !== "planned"
-  ) {
-    return { kind: "recorded", path: undefined };
-  }
-  if (preparation.assessment.status === "plan-association-conflict") {
-    return { kind: "association-conflict" };
-  }
-  const canonicalPath = snapshotRepositoryPath(entry.canonical, backlogPath);
-  return {
-    kind: "recorded",
-    path:
-      canonicalPath === undefined
-        ? undefined
-        : resolveBesideFile(canonicalPath, preparation.approach.plan),
-  };
-}
-
-function routeOf(entry: WorkEntry, backlogPath: string): Route {
-  if (entry.planSlices === undefined || entry.planSlices.status === "absent") {
-    return { kind: "none" };
-  }
-  const { owner } = entry;
-  switch (owner?.status) {
-    case "not-recorded":
-      return {
-        kind: "known",
-        source: { kind: "trunk-copy", branchUnknown: "not-recorded" },
-      };
-    case "unavailable":
-      return {
-        kind: "known",
-        source: { kind: "trunk-copy", branchUnknown: "profiles-unreadable" },
-      };
-    case "recorded": {
-      const [only, ...others] = owner.owners;
-      if (only === undefined || others.length > 0) {
-        return {
-          kind: "gap",
-          problem:
-            "More than one agent profile names this story, so it has no single progress source.",
-        };
-      }
-      if (only.mode === "trunk") {
-        return {
-          kind: "known",
-          source: { kind: "trunk", profilePath: only.profilePath },
-        };
-      }
-      const plan = recordedPlanOf(entry, backlogPath);
-      if (plan.kind === "association-conflict") {
-        // The association conflict is already this entry's plan gap.
-        return { kind: "none" };
-      }
-      const planPath = plan.path;
-      return planPath === undefined
-        ? {
-            kind: "gap",
-            problem:
-              "The recorded plan path could not be resolved, so the branch's plan cannot be read.",
-          }
-        : {
-            kind: "branch",
-            branch: only.branch,
-            planPath,
-            profilePath: only.profilePath,
-          };
-    }
-    case "loading":
-    case undefined:
-      return { kind: "none" };
-  }
-}
 
 function unavailable(problem: string): WorkPlanSlices {
   return { status: "unavailable", problem };
@@ -155,18 +58,30 @@ export function awaitingProgressSources(work: PublishedWork): PublishedWork {
   };
 }
 
+// The branch's plan at its head: the head read now, or, when a revision
+// check already found it (`known`), that head, undefined when the branch is
+// no longer published. Nothing earlier read on the branch is kept.
 async function branchProgress(
   work: PublishedWork,
   entry: WorkEntry,
   { branch, planPath, profilePath }: Extract<Route, { kind: "branch" }>,
   signal: AbortSignal,
+  known?: { readonly head: string | undefined },
 ): Promise<WorkEntry> {
   const { source, revision } = work;
+  const unsourced: { -readonly [K in keyof WorkEntry]: WorkEntry[K] } = {
+    ...entry,
+  };
+  delete unsourced.progressSource;
+  delete unsourced.sliceClock;
   try {
-    const head = await readBranchHeadAt(source, revision, branch, signal);
+    const head =
+      known === undefined
+        ? await readBranchHeadAt(source, revision, branch, signal)
+        : known.head;
     if (head === undefined) {
       return {
-        ...entry,
+        ...unsourced,
         planSlices: unavailable(
           `The recorded branch ${branch} is no longer published, so its slice progress cannot be read. Trunk's copy is not its progress.`,
         ),
@@ -181,7 +96,7 @@ async function branchProgress(
       signal,
     );
     return {
-      ...entry,
+      ...unsourced,
       progressSource: { kind: "branch", ...onBranch, profilePath },
       planSlices:
         text === undefined
@@ -192,7 +107,7 @@ async function branchProgress(
     };
   } catch (error) {
     return {
-      ...entry,
+      ...unsourced,
       planSlices: unavailable(
         error instanceof ReadProblem
           ? error.message
@@ -203,22 +118,47 @@ async function branchProgress(
 }
 
 // Reads each Story Branch Mode entry's plan at its branch head; a failed or
-// abandoned read is that entry's gap.
+// abandoned read is that entry's gap. Given the heads a revision check found
+// for `moved` branches, reads only the entries on those branches, at those
+// heads, and leaves every other entry as shown.
 export async function withProgressSources(
   work: PublishedWork,
   signal: AbortSignal,
+  moved?: StoryBranchHeads,
 ): Promise<PublishedWork> {
   return {
     ...work,
     taken: await Promise.all(
       work.taken.map((entry) => {
         const route = routeOf(entry, work.source.backlogPath);
-        return route.kind === "branch"
-          ? branchProgress(work, entry, route, signal)
+        if (route.kind !== "branch") {
+          return Promise.resolve(entry);
+        }
+        if (moved === undefined) {
+          return branchProgress(work, entry, route, signal);
+        }
+        return moved.has(route.branch)
+          ? branchProgress(work, entry, route, signal, {
+              head: moved.get(route.branch),
+            })
           : Promise.resolve(entry);
       }),
     ),
   };
+}
+
+// The story branches shown entries' progress is read from, each with the
+// head it was read at: undefined when none was, as for a branch no longer
+// published. A revision check watches exactly these.
+export function watchedBranchHeads(work: PublishedWork): StoryBranchHeads {
+  const heads = new Map<string, string | undefined>();
+  for (const entry of work.taken) {
+    const route = routeOf(entry, work.source.backlogPath);
+    if (route.kind === "branch") {
+      heads.set(route.branch, countedPlanBranch(entry)?.head);
+    }
+  }
+  return heads;
 }
 
 // Where the entry's counted plan was read, as a commit time read names it:

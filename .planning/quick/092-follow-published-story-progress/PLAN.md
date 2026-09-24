@@ -226,7 +226,7 @@ dashboard typecheck.
 ### 5. The automatic check follows every published branch
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/auto-refresh-branches.spec.ts` stepping page time
 with `autoRefreshJourney.ts`: branch head moves while trunk stays → within the
 check pace the card shows the new count and a restarted clock, with reads only
@@ -242,6 +242,19 @@ Behavior: a shown snapshot with Story Branch Mode Taken entries → page time
 passes → the conditional branch listing detects a moved recorded branch and
 re-reads only that progress; hidden-page and rate-limit behavior are
 unchanged.
+
+Accepted: `checkHeadsViaGh` (`server/ghRevision.ts`) asks
+`gh api --include [-H If-None-Match] repos/<repo>/git/matching-refs/heads/`,
+keeping the ETag per source; the page names watched branches and the server
+confirms each at the shown revision (`performedRevisionCheck.ts`), remembering
+found heads in `BranchHeads`. A moved recorded branch re-reads only that
+entry's plan and commit time (`movedBranchProgress.ts`).
+`auto-refresh-branches.spec.ts`, `authenticated-read-refusal.spec.ts` (watch
+refusals), `authenticated-branch-read-boundary.spec.ts`; full
+`npm run test:dashboard` 111/111; dashboard typecheck. Real GitHub on
+2026-09-24 (`terryyin/open-dough`): `200` with a weak ETag parsed by
+`parseIncluded`; the conditional request answered `304` (`gh` exits 1 with
+`gh: HTTP 304`), parsed as status 304.
 
 ## Promise ownership
 

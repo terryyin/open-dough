@@ -12,10 +12,10 @@ import type { GhCall } from "./support/fakeGitHub";
 // One `gh` invocation that asked an origin for its ref or a file.
 export type ObservedRequest = GhCall;
 
-// A check of `main`, as opposed to a read that resolves it: a check asks with
-// `--include` to see GitHub's status.
-export function isRefCheck({ argv, request }: GhCall): boolean {
-  return request.kind === "ref" && argv.includes("--include");
+// A check of `main`, as opposed to a read that resolves it: a check lists
+// every published branch head at once.
+export function isRefCheck({ request }: GhCall): boolean {
+  return request.kind === "matching-refs";
 }
 
 // Notes a call among what an origin was asked, unless it is a revision check.

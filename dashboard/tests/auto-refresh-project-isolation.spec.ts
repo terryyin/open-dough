@@ -103,7 +103,7 @@ test.describe("project read isolation of automatic checks", () => {
   function expectOnlyDoughnutAsked(calls: readonly GhCall[]) {
     expect(openDoughCalls(calls)).toEqual([]);
     expect(calls.filter(({ request }) => request.kind === "ref")).toHaveLength(
-      2,
+      1,
     );
     expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
       doughnutCheckArgv,

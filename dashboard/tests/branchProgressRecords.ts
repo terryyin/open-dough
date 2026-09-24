@@ -1,6 +1,7 @@
-// The records the branch slice progress journey (branch-slice-progress.spec.ts)
-// publishes: trunk at one revision, with Taken stories, their plans, and the
-// agent profiles recording where each is published (spelled by the shared
+// The records the branch slice progress journeys
+// (branch-slice-progress.spec.ts, auto-refresh-branches.spec.ts) publish:
+// trunk at one revision, with Taken stories, their plans, and the agent
+// profiles recording where each is published (spelled by the shared
 // profile renderer), and the story branches published beside it, each at its
 // own head. Commit times are relative to the page's opening time.
 
@@ -86,7 +87,11 @@ export const profilePath = (agent: string) =>
 // A plan whose slices sit under `## Slices`, the first `done` of them
 // recorded done, and the rest planned -- or, given `status`, one more slice
 // recording that status.
-function plan(total: number, done: number, status?: string): string {
+export function slicePlan(
+  total: number,
+  done: number,
+  status?: string,
+): string {
   const slices = Array.from(Array(total).keys(), (at) => {
     const index = at + 1;
     const recorded =
@@ -141,7 +146,7 @@ const trunkFiles: Record<string, string> = {
 for (const { anchor, owners } of stories) {
   // Trunk's copy of the branch story's plan is as it was at Take.
   trunkFiles[planPath(anchor)] =
-    anchor === "on-branch" ? plan(8, 0) : plan(2, 1);
+    anchor === "on-branch" ? slicePlan(8, 0) : slicePlan(2, 1);
   for (const { agent, mode, branch } of owners) {
     trunkFiles[profilePath(agent)] = renderAgentProfile({
       name: agent,
@@ -174,7 +179,7 @@ export const similarlyNamed = "story/taken-before-agent-profiles";
 export const branches: Readonly<Record<string, PublishedRevision>> = {
   "story/example": {
     revision: branchHead,
-    files: { ...trunkFiles, [planPath("on-branch")]: plan(8, 6) },
+    files: { ...trunkFiles, [planPath("on-branch")]: slicePlan(8, 6) },
     committed: {
       [planPath("on-branch")]: minutesBefore(7),
       [profilePath("Akiho")]: minutesBefore(60),
@@ -194,11 +199,15 @@ export const branches: Readonly<Record<string, PublishedRevision>> = {
     revision: "f4".repeat(20),
     files: {
       ...trunkFiles,
-      [planPath("plan-uninterpretable")]: plan(3, 1, "merged into slice 1"),
+      [planPath("plan-uninterpretable")]: slicePlan(
+        3,
+        1,
+        "merged into slice 1",
+      ),
     },
   },
   [similarlyNamed]: {
     revision: "f5".repeat(20),
-    files: { ...trunkFiles, [planPath("before-profiles")]: plan(2, 2) },
+    files: { ...trunkFiles, [planPath("before-profiles")]: slicePlan(2, 2) },
   },
 };

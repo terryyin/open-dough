@@ -20,6 +20,7 @@
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
+  asHeadsListing,
   commitAnswer,
   directoryListingAnswer,
   noConnection,
@@ -52,7 +53,8 @@ export const defaultRepository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
 export type Origin = {
-  // What GitHub answers for `commits/main`.
+  // What GitHub answers for `commits/main`, and, listed as `main`'s head, for
+  // a check of every branch head.
   readonly ref: OriginAnswer;
   // What GitHub answers for the backlog file, and at which revision it is
   // published. A read at any other revision gets no answer and fails.
@@ -64,11 +66,15 @@ export type Origin = {
   readonly refHeldUntil?: Promise<void>;
 };
 
-// Which published file a call asks for: "main" for the ref, the revision for
-// the backlog file read at it, or undefined for anything else.
+// Which published file a call asks for: "main" for the ref (or a check
+// listing it among the branch heads), the revision for the backlog file read
+// at it, or undefined for anything else.
 function publishedTarget(call: GhCall): string | undefined {
   const { request } = call;
-  if (request.kind === "ref" && request.ref === "main") {
+  if (
+    (request.kind === "ref" && request.ref === "main") ||
+    request.kind === "matching-refs"
+  ) {
     return "main";
   }
   if (request.kind === "content" && request.path === backlogPath) {
@@ -89,7 +95,7 @@ export function publishOrigin(
     if (target === "main") {
       observe(observed, call);
       await refHeldUntil;
-      return ref;
+      return call.request.kind === "matching-refs" ? asHeadsListing(ref) : ref;
     }
     if (target !== undefined && target === backlog?.revision) {
       observe(observed, call);
@@ -123,7 +129,8 @@ export type MovingOrigin = {
   // was decided when its request arrived, not when it is released.
   hold(what: string): () => void;
   // Answers from now on with this raw answer instead of the published one,
-  // until the returned restore is called: for "main" the ref request, for a
+  // until the returned restore is called: for "main" the ref request and the
+  // check listing it, for a
   // revision the backlog file read at it.
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
@@ -179,7 +186,7 @@ export function publishMovingOrigin(
         (backlog === undefined ? notFoundAnswer() : rawFileAnswer(backlog));
     }
     await held.get(target);
-    return answer;
+    return request.kind === "matching-refs" ? asHeadsListing(answer) : answer;
   });
 
   return Promise.resolve({

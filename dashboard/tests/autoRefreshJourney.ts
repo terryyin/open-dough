@@ -5,7 +5,7 @@
 import { expect, type Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import { expectMembership } from "./dashboardPage";
-import { commitEtag } from "./originAnswers";
+import { headsEtag } from "./originAnswers";
 import { isRefCheck } from "./originObservation";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
 import {
@@ -60,21 +60,21 @@ export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
 }
 
 // The argv of one check of a repository's `main` (Open Dough's unless
-// another is named): conditional on the entity tag of the answer naming
-// `known`, once there is one.
+// another is named), which lists every published branch head: conditional on
+// the entity tag of the listing that named `known` as `main`'s head and
+// `branches` beside it, once there is one.
 export function refCheckArgv(
   known?: string,
   repository = "terryyin/open-dough",
+  branches: Readonly<Record<string, string>> = {},
 ): readonly string[] {
   return [
     "api",
     "--include",
     ...(known === undefined
       ? []
-      : ["-H", `If-None-Match: ${commitEtag(known)}`]),
-    `repos/${repository}/commits/main`,
-    "--jq",
-    ".sha",
+      : ["-H", `If-None-Match: ${headsEtag({ ...branches, main: known })}`]),
+    `repos/${repository}/git/matching-refs/heads/`,
   ];
 }
 

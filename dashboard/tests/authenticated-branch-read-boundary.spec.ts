@@ -3,7 +3,8 @@
 // this suite's own isolated server process's PATH that answers from a fake
 // GitHub recording every invocation. A branch is read only as a Taken
 // entry's agent profile records it at the pinned revision, and a file only at
-// a head this boundary resolved; malformed branch parameters are covered in
+// a head this boundary resolved, itself or in a revision check watching the
+// branch; malformed branch parameters are covered in
 // ./authenticated-read-refusal.spec.ts, and what the page shows from branch
 // reads in ./branch-slice-progress.spec.ts. Shares this suite's harness
 // (./support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
@@ -15,7 +16,7 @@ import {
   type DashboardServer,
 } from "./support/dashboardServer";
 import { everyRepository, publishes } from "./support/fakeGitHub";
-import { branchRefAnswer } from "./originAnswers";
+import { branchRefAnswer, headsAnswer } from "./originAnswers";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { rawRequest } from "./support/rawHttp";
 
@@ -172,6 +173,54 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
         "-H",
         "Accept: application/vnd.github.raw+json",
         `repos/${knownRepository}/contents/.planning/quick/092-branch/PLAN.md?ref=${head}`,
+      ],
+    ]);
+
+    // A revision check watches only branches recorded at the revision shown,
+    // and a head its one listing finds for one is readable at once.
+    const checkedHead = "c9".repeat(20);
+    server.github.serve(everyRepository, (call) =>
+      call.request.kind === "matching-refs"
+        ? Promise.resolve(
+            headsAnswer({
+              main: revision,
+              "story/recorded": checkedHead,
+              "story/unrecorded": "d0".repeat(20),
+            }),
+          )
+        : published(call),
+    );
+    callsBefore = server.ghCalls().length;
+    const unwatched = await read(
+      `&since=${revision}&watch=${encodeURIComponent("story/unrecorded")}`,
+    );
+    expect(unwatched.status).toBe(404);
+    expect(server.ghCalls()).toHaveLength(callsBefore);
+
+    const watched = await read(
+      `&since=${revision}&watch=${encodeURIComponent("story/recorded")}`,
+    );
+    expect(watched.status).toBe(200);
+    expect(JSON.parse(watched.body)).toEqual({
+      revision,
+      changed: false,
+      branches: [{ branch: "story/recorded", head: checkedHead }],
+    });
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      ["api", "--include", `repos/${knownRepository}/git/matching-refs/heads/`],
+    ]);
+
+    callsBefore = server.ghCalls().length;
+    const atChecked = await read(
+      `&revision=${revision}&branch=${encodeURIComponent("story/recorded")}&head=${checkedHead}&path=${encodeURIComponent(planPath)}`,
+    );
+    expect(atChecked.status).toBe(200);
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      [
+        "api",
+        "-H",
+        "Accept: application/vnd.github.raw+json",
+        `repos/${knownRepository}/contents/.planning/quick/092-branch/PLAN.md?ref=${checkedHead}`,
       ],
     ]);
   });

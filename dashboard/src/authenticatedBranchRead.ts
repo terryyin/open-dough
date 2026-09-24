@@ -18,6 +18,10 @@ import type { PublishedSource } from "./publishedSource";
 // shown, and the head the local boundary found it naming.
 export type BranchHead = { readonly branch: string; readonly head: string };
 
+// Story branches, each with the head it names: undefined when it names none,
+// as for a branch no longer published.
+export type StoryBranchHeads = ReadonlyMap<string, string | undefined>;
+
 export function onBranchQuery(onBranch: BranchHead | undefined): string {
   return onBranch === undefined
     ? ""

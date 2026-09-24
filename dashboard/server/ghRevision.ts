@@ -1,7 +1,7 @@
 // Which commit a name resolves to, for the local authenticated read boundary
-// (`./authenticatedRead.ts`): the commit a catalog source's ref names, the
-// conditional check that asks only whether it still names the same commit,
-// and which commit a published story branch's head names. How `gh` runs and
+// (`./authenticatedRead.ts`): the commit a catalog source's ref names,
+// and which commit a published story branch's head names, or, for a
+// conditional check, every published branch head at once. How `gh` runs and
 // fails is `./ghRead.ts`.
 
 import {
@@ -16,8 +16,8 @@ import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
 import { directedWaitSeconds } from "./rateLimitDirection";
 import { commitShaPattern } from "../src/authenticatedReadRules";
 
-// The one GitHub endpoint that says which commit a ref names; both the
-// resolving read and the conditional check ask it for `.sha` alone.
+// The one GitHub endpoint that says which commit a ref names, asked for
+// `.sha` alone.
 function refEndpoint(repository: string, ref: string): string {
   return `repos/${repository}/commits/${ref}`;
 }
@@ -85,34 +85,67 @@ function limitedAsDirected(
     : { kind: "rate-limited", status: answer.status, waitSeconds };
 }
 
-// A commit a ref named, and the entity tag GitHub gave that answer.
-export type RevisionAnswer = {
-  readonly revision: string;
+// The commit each published branch head named, and the entity tag GitHub
+// gave that answer.
+export type HeadsAnswer = {
+  readonly heads: ReadonlyMap<string, string>;
   readonly etag: string | undefined;
 };
 
-// Asks GitHub which commit `ref` names now, conditionally on an earlier
-// answer. GitHub answers `304 Not Modified` when that answer still holds,
-// which `gh api` reports by exiting 1; that status is recognized from the
-// included status line before the exit is ever treated as a failure, and
-// every other non-success is classified as any read failure is.
-export async function checkRevisionViaGh(
+// GitHub's one listing of every published branch head: `refs/heads/` and
+// below, in a single answer.
+function headsEndpoint(repository: string): string {
+  return `repos/${repository}/git/matching-refs/heads/`;
+}
+
+const headRefPrefix = "refs/heads/";
+
+// The branch heads a listing names: each `refs/heads/<branch>` that names a
+// commit. An answer that is not such a listing is not read as one.
+function headsListed(body: string): ReadonlyMap<string, string> {
+  let listed: unknown;
+  try {
+    listed = JSON.parse(body);
+  } catch {
+    throw new GhFailure({ kind: "failed" });
+  }
+  if (!Array.isArray(listed)) {
+    throw new GhFailure({ kind: "failed" });
+  }
+  const heads = new Map<string, string>();
+  for (const each of listed as unknown[]) {
+    const { ref, object } = (each ?? {}) as {
+      ref?: unknown;
+      object?: { sha?: unknown; type?: unknown };
+    };
+    if (
+      typeof ref === "string" &&
+      ref.startsWith(headRefPrefix) &&
+      object?.type === "commit" &&
+      typeof object.sha === "string" &&
+      commitShaPattern.test(object.sha)
+    ) {
+      heads.set(ref.slice(headRefPrefix.length), object.sha);
+    }
+  }
+  return heads;
+}
+
+// Asks GitHub which commit every published branch head names now,
+// conditionally on an earlier answer. GitHub answers `304 Not Modified` when
+// that answer still holds, which `gh api` reports by exiting 1; that status is
+// recognized from the included status line before the exit is ever treated
+// as a failure, and every other non-success is classified as any read
+// failure is.
+export async function checkHeadsViaGh(
   repository: string,
-  ref: string,
-  earlier: RevisionAnswer | undefined,
+  earlier: HeadsAnswer | undefined,
   signal: AbortSignal,
-): Promise<RevisionAnswer> {
+): Promise<HeadsAnswer> {
   const conditional =
     earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
   const { error, stdout, stderr } = await execGh(
-    [
-      "api",
-      "--include",
-      ...conditional,
-      refEndpoint(repository, ref),
-      "--jq",
-      ".sha",
-    ],
+    ["api", "--include", ...conditional, headsEndpoint(repository)],
     signal,
   );
   const answer = signal.aborted ? undefined : parseIncluded(stdout);
@@ -125,8 +158,5 @@ export async function checkRevisionViaGh(
         (error ? classify(error, stderr) : { kind: "failed" }),
     );
   }
-  return {
-    revision: commitNamedBy(answer.body),
-    etag: answer.headers.get("etag"),
-  };
+  return { heads: headsListed(answer.body), etag: answer.headers.get("etag") };
 }

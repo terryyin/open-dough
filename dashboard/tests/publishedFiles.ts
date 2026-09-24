@@ -9,6 +9,7 @@ import {
   commitAnswer,
   commitListFor,
   directoryListingAnswer,
+  headsAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -22,7 +23,9 @@ import { observe, type ObservedRequest } from "./originObservation";
 // for a path at that revision is observed and answered with the commit time
 // `committed` gives that path; for any other path the connection fails.
 // Each of `branches` is a published branch head, answered and observed the
-// same way at its own revision; any other branch is not published.
+// same way at its own revision; any other branch is not published. A check
+// lists `main` and every published branch head; checks are answered but not
+// observed (./originObservation.ts).
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -36,27 +39,48 @@ function publishedAt(
   return revisions.find((each) => each.revision === revision);
 }
 
-export function publishFiles(
+// Published files whose `main` and branch heads move while the page is open.
+// Every revision ever published stays readable, as commits do.
+export type MovingFiles = {
+  readonly requests: ObservedRequest[];
+  // `main` names `at` from now on.
+  moveTrunk(at: PublishedRevision): void;
+  // `branch` is published at `at` from now on, or, given undefined, deleted.
+  moveBranch(branch: string, at: PublishedRevision | undefined): void;
+};
+
+export function publishMovingFiles(
   page: Page,
   published: PublishedRevision & {
     readonly repository: string;
     readonly branches?: Readonly<Record<string, PublishedRevision>>;
   },
-): Promise<ObservedRequest[]> {
-  const observed: ObservedRequest[] = [];
-  const { repository, revision, branches = {} } = published;
-  const revisions = [published, ...Object.values(branches)];
+): MovingFiles {
+  const requests: ObservedRequest[] = [];
+  const { repository } = published;
+  let trunk: PublishedRevision = published;
+  const branches = new Map(Object.entries(published.branches ?? {}));
+  const revisions = [published, ...branches.values()];
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
     if (request.kind === "ref" && request.ref === "main") {
-      observe(observed, call);
-      return Promise.resolve(commitAnswer(revision));
+      observe(requests, call);
+      return Promise.resolve(commitAnswer(trunk.revision));
+    }
+    if (request.kind === "matching-refs") {
+      observe(requests, call);
+      return Promise.resolve(
+        headsAnswer({
+          ...Object.fromEntries(
+            [...branches].map(([branch, at]) => [branch, at.revision]),
+          ),
+          main: trunk.revision,
+        }),
+      );
     }
     if (request.kind === "branch") {
-      observe(observed, call);
-      const head = Object.hasOwn(branches, request.branch)
-        ? branches[request.branch]
-        : undefined;
+      observe(requests, call);
+      const head = branches.get(request.branch);
       return Promise.resolve(
         head === undefined
           ? notFoundAnswer()
@@ -70,7 +94,7 @@ export function publishFiles(
     if (at === undefined) {
       return Promise.resolve(noConnection);
     }
-    observe(observed, call);
+    observe(requests, call);
     if (request.kind === "commit-list") {
       return Promise.resolve(
         commitListFor(at.committed, request.path) ?? noConnection,
@@ -88,5 +112,26 @@ export function publishFiles(
       body === undefined ? notFoundAnswer() : rawFileAnswer(body),
     );
   });
-  return Promise.resolve(observed);
+  return {
+    requests,
+    moveTrunk(at) {
+      trunk = at;
+      revisions.push(at);
+    },
+    moveBranch(branch, at) {
+      if (at === undefined) {
+        branches.delete(branch);
+        return;
+      }
+      branches.set(branch, at);
+      revisions.push(at);
+    },
+  };
+}
+
+export function publishFiles(
+  page: Page,
+  published: Parameters<typeof publishMovingFiles>[1],
+): Promise<ObservedRequest[]> {
+  return Promise.resolve(publishMovingFiles(page, published).requests);
 }

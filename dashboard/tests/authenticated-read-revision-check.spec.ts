@@ -2,7 +2,7 @@
 // (../server/authenticatedRead.ts, ../server/revisionChecks.ts), tested
 // directly against real HTTP and the synthetic `gh`, not through the
 // browser: asking whether a catalog source's `main` still names the revision
-// shown (`since`). The fake GitHub answers a conditional request whose entity
+// shown (`since`), from one listing of every published branch head. The fake GitHub answers a conditional request whose entity
 // tag still matches with `304 Not Modified`, printed and exited the way the
 // real `gh api --include` does, and records every invocation. Reading the
 // backlog at an already resolved revision:
@@ -16,8 +16,9 @@ import {
   type DashboardServer,
 } from "./support/dashboardServer";
 import {
+  asHeadsListing,
   commitAnswer,
-  commitEtag,
+  headsEtag,
   notLoggedIn,
   rateLimitedAnswer,
   type OriginAnswer,
@@ -34,11 +35,12 @@ function checkArgv(repository: string, etag?: string): string[] {
     "api",
     "--include",
     ...(etag === undefined ? [] : ["-H", `If-None-Match: ${etag}`]),
-    `repos/${repository}/commits/main`,
-    "--jq",
-    ".sha",
+    `repos/${repository}/git/matching-refs/heads/`,
   ];
 }
+
+// The entity tag of the listing that names `main` at `sha` and no other head.
+const listingEtag = (sha: string) => headsEtag({ main: sha });
 
 test.describe("authenticated read boundary revision check (dev launch mode)", () => {
   let server: DashboardServer;
@@ -50,8 +52,8 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
     for (const repository of ["terryyin/open-dough", "nerds-odd-e/doughnut"]) {
       server.github.serve(repository, ({ request }) =>
         Promise.resolve(
-          request.kind === "ref"
-            ? (main.get(repository) ?? commitAnswer(revisionA))
+          request.kind === "matching-refs"
+            ? asHeadsListing(main.get(repository) ?? commitAnswer(revisionA))
             : commitAnswer(revisionA),
         ),
       );
@@ -81,15 +83,23 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
     const first = await check("open-dough", revisionA);
     expect(first.status).toBe(200);
     expect(first.cacheControl).toBe("no-store");
-    expect(first.body).toEqual({ revision: revisionA, changed: false });
+    expect(first.body).toEqual({
+      revision: revisionA,
+      changed: false,
+      branches: [],
+    });
     expect(first.calls).toEqual([checkArgv("terryyin/open-dough")]);
 
     const second = await check("open-dough", revisionA);
     expect(second.status).toBe(200);
-    expect(second.body).toEqual({ revision: revisionA, changed: false });
-    // Only the conditional ref request: GitHub answered 304 and gh exited 1.
+    expect(second.body).toEqual({
+      revision: revisionA,
+      changed: false,
+      branches: [],
+    });
+    // Only the conditional listing: GitHub answered 304 and gh exited 1.
     expect(second.calls).toEqual([
-      checkArgv("terryyin/open-dough", commitEtag(revisionA)),
+      checkArgv("terryyin/open-dough", listingEtag(revisionA)),
     ]);
   });
 
@@ -97,22 +107,34 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
     main.set("terryyin/open-dough", commitAnswer(revisionB));
     const moved = await check("open-dough", revisionA);
     expect(moved.status).toBe(200);
-    expect(moved.body).toEqual({ revision: revisionB, changed: true });
+    expect(moved.body).toEqual({
+      revision: revisionB,
+      changed: true,
+      branches: [],
+    });
     expect(moved.calls).toEqual([
-      checkArgv("terryyin/open-dough", commitEtag(revisionA)),
+      checkArgv("terryyin/open-dough", listingEtag(revisionA)),
     ]);
 
     const settled = await check("open-dough", revisionB);
-    expect(settled.body).toEqual({ revision: revisionB, changed: false });
+    expect(settled.body).toEqual({
+      revision: revisionB,
+      changed: false,
+      branches: [],
+    });
     expect(settled.calls).toEqual([
-      checkArgv("terryyin/open-dough", commitEtag(revisionB)),
+      checkArgv("terryyin/open-dough", listingEtag(revisionB)),
     ]);
   });
 
   test("one source's entity tag is never sent for another source", async () => {
     main.set("nerds-odd-e/doughnut", commitAnswer(revisionB));
     const other = await check("doughnut", revisionA);
-    expect(other.body).toEqual({ revision: revisionB, changed: true });
+    expect(other.body).toEqual({
+      revision: revisionB,
+      changed: true,
+      branches: [],
+    });
     expect(other.calls).toEqual([checkArgv("nerds-odd-e/doughnut")]);
   });
 
@@ -197,7 +219,11 @@ test.describe("authenticated read boundary revision check (dev launch mode)", ()
     });
     const spent = await check("open-dough", revisionA);
     expect(spent.status).toBe(200);
-    expect(spent.body).toEqual({ revision: revisionB, changed: true });
+    expect(spent.body).toEqual({
+      revision: revisionB,
+      changed: true,
+      branches: [],
+    });
   });
 
   test("refuses a malformed or mixed revision check before launching gh", async () => {

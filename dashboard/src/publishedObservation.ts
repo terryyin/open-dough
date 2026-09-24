@@ -3,9 +3,14 @@
 // `./observationAttempt.ts`), and focus kept across a snapshot's replacement.
 // Reads happen on opening, on Refresh or Retry, on selecting a project, and
 // when a scheduled revision check (`./revisionCheckSchedule.ts`) finds the
-// selected ref naming another commit.
+// selected ref naming another commit; when it finds a story branch the shown
+// progress is read from at another head, only that progress is read again
+// (`./movedBranchProgress.ts`).
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { StoryBranchHeads } from "./authenticatedBranchRead";
+import { readMovedProgress } from "./movedBranchProgress";
+import { watchedBranchHeads } from "./progressSource";
 import { usePageVisibility } from "./pageVisibility";
 import { defaultSource, type PublishedSource } from "./publishedSource";
 import { readPublishedWork, type PublishedWork } from "./publishedWork";
@@ -31,11 +36,16 @@ function lists(work: PublishedWork, identity: string): boolean {
   );
 }
 
+// No snapshot shown, so no story branch watched.
+const noBranchHeads: StoryBranchHeads = new Map();
+
 // A read of the selected project: of its ref afresh, or of a revision a check
-// already found the ref naming.
+// already found the ref naming; or, while the ref is unchanged, of only the
+// progress on story branches a check found at other heads.
 type ReadRequest = {
   readonly asked: number;
   readonly revision: string | undefined;
+  readonly movedBranches?: StoryBranchHeads;
 };
 
 export function usePublishedObservation() {
@@ -69,8 +79,32 @@ export function usePublishedObservation() {
   const { visibility, settleRevealed } = usePageVisibility();
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
   const deferredFocus = useRef<FocusedWork | undefined>(undefined);
+  // The snapshot shown, for a read of moved branches' progress to start from.
+  const shownWork = useRef<PublishedWork | undefined>(undefined);
+  shownWork.current = retrieval.work;
   useEffect(() => {
     const reading = new AbortController();
+    const { movedBranches } = readRequest;
+    const shown = shownWork.current;
+    if (movedBranches !== undefined && shown !== undefined) {
+      readMovedProgress(shown, movedBranches, reading.signal).then(
+        (read) => {
+          if (!reading.signal.aborted) {
+            setRetrieval((last) => ({ ...last, work: read }));
+            setReadSettled(true);
+          }
+        },
+        (error: unknown) => {
+          if (!reading.signal.aborted) {
+            fail(error);
+            setReadSettled(true);
+          }
+        },
+      );
+      return () => {
+        reading.abort();
+      };
+    }
     let acceptedMembership = false;
     const acceptProgress = (partial: PublishedWork) => {
       if (reading.signal.aborted) {
@@ -127,16 +161,33 @@ export function usePublishedObservation() {
     setReadRequest((last) => ({ asked: last.asked + 1, revision }));
   };
 
+  // Reads only the progress on these moved story branches; the rest of what
+  // is shown stays, and no check is asked until it lands.
+  const askMovedProgress = (movedBranches: StoryBranchHeads) => {
+    setReadSettled(false);
+    setReadRequest((last) => ({
+      asked: last.asked + 1,
+      revision: last.revision,
+      movedBranches,
+    }));
+  };
+
   const { work, notice } = retrieval;
   const shownRevision = work?.revision;
+  const watchedHeads = useMemo(
+    () => (work === undefined ? noBranchHeads : watchedBranchHeads(work)),
+    [work],
+  );
 
   useRevisionCheckSchedule({
     source,
     shownRevision,
+    watchedHeads,
     readSettled,
     visibility,
     checksResumeAt,
     onChanged: askRead,
+    onBranchesMoved: askMovedProgress,
     onUnchanged: () => {
       findUnchanged();
       settleRevealed();

@@ -3,7 +3,8 @@
 // source and requested read (`./requestedRead.ts`) are known: its `gh` calls
 // are tracked for the request's lifetime, and any failure is worded for this
 // source and what was being read when it failed. Reads on a story branch are
-// performed in `./performedBranchRead.ts`; what a read comes to is
+// performed in `./performedBranchRead.ts`, revision checks in
+// `./performedRevisionCheck.ts`; what a read comes to is
 // `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
@@ -11,6 +12,7 @@ import type { BranchHeads } from "./branchHeads";
 import { resolveRevisionViaGh } from "./ghRevision";
 import { readRepositoryFileViaGh } from "./ghContents";
 import { performBranchHeadRead, performOnBranch } from "./performedBranchRead";
+import { performRevisionCheck } from "./performedRevisionCheck";
 import type { PinnedTexts } from "./pinnedTexts";
 import type { RevisionChecks } from "./revisionChecks";
 import { withTrackedGh } from "./trackedGh";
@@ -77,10 +79,13 @@ export async function perform(
   try {
     return await withTrackedGh(req, tracked, async (signal) => {
       switch (read.kind) {
-        case "revision-check": {
-          const revision = await checks.check(source, signal);
-          return answered({ revision, changed: revision !== read.since });
-        }
+        case "revision-check":
+          return await performRevisionCheck(
+            { pinned, checks, branches },
+            source,
+            read,
+            signal,
+          );
         case "backlog-at":
           return answered({
             revision: read.revision,
