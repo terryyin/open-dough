@@ -16,7 +16,7 @@ and publishes it before the completion CI wait. That commit holds the plan's
 execution-complete record with a required product-advice entry, plus the
 retrospective's correction plan or process findings when there are any. The
 dashboard shows such a Taken story as "execution complete, awaiting wrap-up"
-with the advice, sourced where story 3 reads progress. Wrap-up uses the
+with the advice, sourced where delivered Taken progress is read. Wrap-up uses the
 recorded advice when its conversation has none, then deletes the plan as
 today. The retrospective stays review-only.
 
@@ -29,15 +29,33 @@ Excluded (seed deferred promises):
 
 Facts this plan relies on:
 
-- **Depends on story 3 (plan 092, Taken).** Slices 1 and 2 build on its
-  delivered behavior:
+- **Builds on delivered Taken progress (story 3, on trunk since `e78171b`).**
+  Behavior is described in `dashboard/README.md`. Slices 1 and 2 reuse:
   - the `## Slices` compatibility in the shared plan reader;
-  - the Taken card's bar and current-slice clock;
-  - the plan commit-time read;
-  - branch-sourced progress with its label.
+  - the card bar (`dashboard/src/SliceProgress.tsx`, with `PlanSlicesNote`
+    and `ProgressSourceLabel`) and clock (`dashboard/src/SliceClock.tsx`);
+  - the clock start (`startOf`/`withSliceClocks` in
+    `dashboard/src/sliceClockStart.ts`): the later of the plan's last commit
+    at the source ref and the Take, read through `readLastCommitTimeAt`;
+  - source routing (`routeOf` in `dashboard/src/progressRoute.ts`,
+    `withProgressSources` in `dashboard/src/progressSource.ts`): trunk, the
+    recorded branch head, the labelled trunk copy, or a gap;
+  - the automatic check's re-read of a moved recorded branch
+    (`readMovedProgress` in `dashboard/src/movedBranchProgress.ts`), which
+    re-reads that entry's plan and clock only.
 
-  Execution starts after plan 092 is on trunk. Re-read its final code and
-  spec names then, rather than the names guessed below.
+  Test support: `publishFiles` with `branches` and `committed` maps
+  (`dashboard/tests/publishedFiles.ts`), `branchProgressRecords.ts`,
+  `sliceClockRecords.ts`, and the paused-clock helpers in
+  `autoRefreshJourney.ts`. Specs: `taken-slice-progress`,
+  `taken-slice-clock`, `branch-slice-progress`, `auto-refresh-branches`.
+- **Correction 095 is queued first.** It records the resolved plan path once
+  on `WorkEntry`, removes `story-readiness-slices-heading.spec.ts`, and
+  renames the auto-refresh check helpers. Build on its result; if 095 has not
+  run, the reuse above is unchanged.
+- **Card wording follows the delivered terms.** Counts say "N of M slices
+  recorded complete" and the clock "Current slice started N min ago"; the
+  UX/UI North Star records both. The complete state uses the same pattern.
 - **The shared plan reader owns plan meaning.**
   `src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs`
   (`readPlanSlices`) has one product caller,
@@ -77,7 +95,8 @@ Facts this plan relies on:
 | Detail view of a completed plan shows execution complete and the advice as recorded | 1 | Dashboard detail journey |
 | Story Branch Mode story whose branch plan carries the record → card "execution complete, awaiting wrap-up", waiting time since the completion commit, branch label kept, no current-slice clock | 2 | Playwright spec against fake GitHub, paused page clock |
 | Trunk Mode record with "no product change, because …" → card complete, detail shows that text | 2 | Same spec |
-| All slices done but no record → slice progress (story 3), not complete; record without advice → gap on the card | 2 | Same spec |
+| All slices done but no record → slice progress, not complete; record without advice → gap on the card | 2 | Same spec |
+| A completion commit pushed to the recorded branch → the automatic check shows the complete state without Refresh | 2 | Step in `auto-refresh-branches.spec.ts` |
 | Execution finishes → one commit with record, advice, and any correction plan or `DearDough.md` entries, published through increment delivery before the completion wait; the final handoff reports the advice | 3 | Guidance assertions |
 | `--skip-retro` → record says "retrospective skipped"; `--skip-product` → "product review skipped"; retrospective stops for missing context → no record | 3 | Guidance assertions |
 | Fresh-session wrap-up without retrospective context applies the advice recorded in the plan; explicit human input still wins | 4 | Guidance assertions |
@@ -104,9 +123,11 @@ Facts this plan relies on:
 
   One section, one field: no retrospective state machine, no
   finding list, no second status vocabulary.
-- **Waiting time reuses story 3's plan commit time.** The completion commit
+- **Waiting time reuses the delivered clock start.** The completion commit
   changes the plan, so the plan's last commit at the source ref is the
-  completion time. There is no new read kind.
+  completion time, and it is later than the Take; `startOf` already yields
+  it. There is no new read kind. Source gaps (ambiguous owners, a branch no
+  longer published) still take precedence, since no plan is read there.
 - **The completion commit is an ordinary increment.** It is built in the
   execution checkout and published through managed increment delivery,
   followed by the existing completion operation. There is no new CI or
@@ -150,21 +171,27 @@ and the zod projection in `dashboard/src/storyPlan.ts`.
 Type: Behavior
 Status: planned
 Proof: new `dashboard/tests/taken-execution-complete.spec.ts` via
-`npm run test:dashboard -- taken-execution-complete`. It reuses story 3's
-fake GitHub branch refs and commit-list answers and pauses the page clock.
+`npm run test:dashboard -- taken-execution-complete`. It reuses
+`publishFiles` with `branches` and `committed` and pauses the page clock.
 - A Story Branch Mode profile, where the branch plan has all slices done plus
   the record, with the plan last committed 40 min ago → the card says
-  "execution complete, awaiting wrap-up", "waiting 40 min", the branch name
-  and "not in trunk", and shows no current-slice clock.
+  "Execution complete, awaiting wrap-up" and "Completed 40 min ago", keeps
+  the branch label with "not in trunk", and shows no "Current slice started".
 - A Trunk Mode record with "no product change, because …" → complete, and the
   detail shows that text.
-- All slices done without a record → story 3's bar and clock, not complete.
+- All slices done without a record → the delivered bar ("N of N slices
+  recorded complete") and clock, not complete.
 - A record without advice → the completion gap on the card.
 - A queued, not Taken, entry whose plan has a record → no complete card
   state.
 
-Also run `npm run typecheck:dashboard`. Story 3's
-`taken-slice-progress` and `branch-slice-progress` specs stay green.
+A step in `dashboard/tests/auto-refresh-branches.spec.ts`: the recorded
+branch moves to a head whose plan carries the record → within the check pace
+the card shows the complete state, with reads only of that plan and its
+commit time.
+
+Also run `npm run typecheck:dashboard`. The `taken-slice-progress`,
+`taken-slice-clock`, and `branch-slice-progress` specs stay green.
 
 Behavior: a Taken entry whose plan at its progress source carries the
 completion record → load or automatic check → the card replaces the

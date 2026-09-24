@@ -100,7 +100,7 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 **Identity:** SEED-021#see-finished-execution
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/094-see-finished-execution/PLAN.md","assessment":"not-ready","reasons":["Slices 1 and 2 build on plan 092 (story 3), still Taken: re-verify their proof names and reused reads against its delivered code on trunk, then reassess."],"basis":{"document":"b57f86bd0ea61cc19e7cca8256371e9e0f4268dc6c14b2f6bfa312d724744d1f","plan":"741e600fff55e693e57b334cf8fee4418c79069f3cfe668b184aaef10ef1f77c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/094-see-finished-execution/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"603d849b2ed8b2bee81257c998f469988f8beebdddb629819e4cc0de4f9f866a","plan":"8f5c26ab4c1a0f50727fc1da63236a0ae078f536572e5d4d2f80660609414cba"}}
 ```
 
 **Status:** Refined 2026-09-24 with Terry; kept as one story at the top of
@@ -148,7 +148,7 @@ process review.
   exact Markdown form is a planning decision, named in the planning guidance
   and kept from spreading into other formats.
 - **Dashboard.** For a Taken story whose plan at its delivered progress source
-  carries the completion record, the card shows "execution complete, awaiting
+  carries the completion record, the card shows "Execution complete, awaiting
   wrap-up" and how long it has waited since the completion commit, in place of
   the current-slice clock. The detail view shows the product advice as
   recorded. Branch-sourced completion keeps the delivered label that the work is
@@ -167,7 +167,7 @@ process review.
 - A Story Branch Mode execution finishes all slices. Its retrospective
   recommends queueing one correction first and writes that correction plan.
   One commit carrying the plan's completion record, the advice, and the
-  correction plan is pushed to the story branch. The card shows "execution
+  correction plan is pushed to the story branch. The card shows "Execution
   complete, awaiting wrap-up", sourced from the branch. The detail view shows
   the recommendation.
 - A Trunk Mode retrospective finds nothing. The completion commit on trunk
