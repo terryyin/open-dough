@@ -131,6 +131,8 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_delivery_evidence_claims_assessor_counterexamples
   run_delivery_evidence_consumers_assessor_counterexamples
   run_delivery_evidence_gaps_assessor_counterexamples
+  run_delivery_evidence_gaps_observer_counterexamples
+  run_delivery_evidence_observer_layout_counterexamples
   run_substitute_host_journeys
   exit 0
 fi

@@ -2,16 +2,13 @@
 # Derive structured selection observations from outcome, response, and logs.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# Prints "ACCEPTED INCOMPLETE" counts of per-promise status statements such as
-# "… — **accepted**", "**Promise: accepted.**", "**Promise:** accepted", or a
-# "| accepted |" table cell. Incidental uses of the words do not count.
+# Prints "ACCEPTED INCOMPLETE": how many promise status statements in TEXT
+# are accepted and incomplete, as the shared recognizer reads them.
 delivery_evidence_selection_status_counts() {
-  local text=$1
-  local marker='(—|:|\|)[[:space:]*]*'
-  local accepted incomplete
-  accepted=$(grep -Eic "${marker}accepted([^[:alpha:]]|\$)" <<< "${text}" || true)
-  incomplete=$(grep -Eic "${marker}incomplete([^[:alpha:]]|\$)" <<< "${text}" || true)
-  printf '%s %s\n' "${accepted:-0}" "${incomplete:-0}"
+  delivery_evidence_promise_statuses "$1" | awk -F '\t' '
+    $1 == "accepted" {a++}
+    $1 == "incomplete" {i++}
+    END {printf "%d %d\n", a, i}'
 }
 
 delivery_evidence_selection_count_accepted() {

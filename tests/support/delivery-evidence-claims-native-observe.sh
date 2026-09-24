@@ -26,9 +26,11 @@ delivery_evidence_claims_promise_accepted() {
     return
   fi
   # Prefer explicit incomplete over a later accepted mention.
-  if grep -Eiq \
-    "$(delivery_evidence_promise_status_pattern incomplete)"'|uncovered|not[[:space:]]+covered|lacks[[:space:]]+(an[[:space:]]+)?observ' \
-    <<< "${text}"; then
+  # shellcheck disable=SC2310 # The status test is the condition.
+  if delivery_evidence_promise_status_stated incomplete "${text}" \
+    || grep -Eiq \
+      'uncovered|not[[:space:]]+covered|lacks[[:space:]]+(an[[:space:]]+)?observ' \
+      <<< "${text}"; then
     # Incomplete for the bare-anchor promise counts as not accepted.
     if grep -Eiq \
       'anchor|unusable|followable|no-?link|cannot[[:space:]]+be[[:space:]]+followed' \
@@ -37,9 +39,9 @@ delivery_evidence_claims_promise_accepted() {
       return
     fi
   fi
-  if grep -Eiq \
-    "$(delivery_evidence_promise_status_pattern accepted)"'|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
-    <<< "${text}"; then
+  # shellcheck disable=SC2310 # The status test is the condition.
+  if delivery_evidence_promise_status_stated accepted "${text}" \
+    || delivery_evidence_all_promises_accepted "${text}"; then
     printf 'true\n'
     return
   fi

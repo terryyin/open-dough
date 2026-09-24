@@ -6,6 +6,9 @@
 # arbitrary prose.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-gaps-native-promise-attribution.sh"
+
 delivery_evidence_gaps_outcome_response_text() {
   local outcome=$1
   local response=$2
@@ -22,23 +25,24 @@ delivery_evidence_gaps_outcome_response_text() {
 delivery_evidence_gaps_dependent_accepted() {
   local outcome=$1
   local response=$2
-  local text
+  local text statuses
   text=$(delivery_evidence_gaps_outcome_response_text \
     "${outcome}" "${response}")
   if [[ -z ${text} ]]; then
     printf 'false\n'
     return
   fi
+  statuses=$(delivery_evidence_gaps_promise_statuses "${text}")
   # Incomplete naming of the readiness/requeue promise wins over accept.
-  if grep -Eiq \
-    '(readiness|requeue|storage[[:space:]]+readiness|put[[:space:]]+back).{0,80}(—|:|[[:space:]])[[:space:]]*\*{0,2}incomplete\*{0,2}|(promise[[:space:]]+)?(1|requeue|readiness).{0,60}\*{0,2}incomplete\*{0,2}|requeue[[:space:]]+(is[[:space:]]+)?(incomplete|uncovered|untested|missing)|readiness[[:space:]]+requeue[[:space:]]+(is[[:space:]]+)?(incomplete|uncovered|untested|missing)|dependent[[:space:]]+(delivery|promise)[[:space:]]+(is[[:space:]]+)?(incomplete|unaccepted|uncovered)' \
+  if grep -Fxq 'incomplete requeue' <<< "${statuses}" || grep -Eiq \
+    'requeue[[:space:]]+(is[[:space:]]+)?(incomplete|uncovered|untested|missing)|dependent[[:space:]]+(delivery|promise)[[:space:]]+(is[[:space:]]+)?(incomplete|unaccepted|uncovered)' \
     <<< "${text}"; then
     printf 'false\n'
     return
   fi
-  if grep -Eiq \
-    '(readiness|requeue|storage[[:space:]]+readiness|put[[:space:]]+back).{0,80}(—|:|[[:space:]])[[:space:]]*\*{0,2}accepted\*{0,2}|(promise[[:space:]]+)?(1|requeue|readiness).{0,60}\*{0,2}accepted\*{0,2}|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
-    <<< "${text}"; then
+  # shellcheck disable=SC2310 # The status test is the condition.
+  if grep -Fxq 'accepted requeue' <<< "${statuses}" \
+    || delivery_evidence_all_promises_accepted "${text}"; then
     printf 'true\n'
     return
   fi
@@ -126,16 +130,19 @@ delivery_evidence_gaps_requeue_observation_obtained() {
 delivery_evidence_gaps_independent_evidence_preserved() {
   local outcome=$1
   local response=$2
-  local text
+  local text statuses
   text=$(delivery_evidence_gaps_outcome_response_text \
     "${outcome}" "${response}")
   if [[ -z ${text} ]]; then
     printf 'false\n'
     return
   fi
-  # Discarding independently valid happy-path evidence is a failure.
-  if grep -Eiq \
-    '(happy[- ]path|ready[[:space:]]+(release[[:space:]]+)?tag|admission-happy|promise[[:space:]]+2).{0,80}(incomplete|uncovered|rejected|discard|invalidat)|all[[:space:]]+promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}incomplete\*{0,2}|blanket[[:space:]]+(reject|fail|incomplete)' \
+  # Discarding independently valid happy-path evidence is a failure: an
+  # incomplete status stated for the happy-path promise, or its evidence
+  # called uncovered, rejected, discarded, or invalidated.
+  statuses=$(delivery_evidence_gaps_promise_statuses "${text}")
+  if grep -Fxq 'incomplete happy' <<< "${statuses}" || grep -Eiq \
+    "(${delivery_evidence_gaps_happy_promise}).{0,80}(uncovered|rejected|discard|invalidat)"'|all[[:space:]]+promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}incomplete\*{0,2}|blanket[[:space:]]+(reject|fail|incomplete)' \
     <<< "${text}"; then
     printf 'false\n'
     return

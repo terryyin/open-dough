@@ -72,7 +72,7 @@ gaps sufficient-reused return's stale "Setup: none".
 ### 1. Promise statuses are recognized once for every delivery-evidence case
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: replace the three recognizers with one shared recognizer and route the
 selection, claims, consumers, and gaps observers through it, keeping each
@@ -87,6 +87,26 @@ later accepted words. New gaps observer counterexamples prove per-promise
 attribution. An offline populate-and-`diff -r` of each case's scenarios
 before and after shows identical fixtures. `npm run format` passes.
 
+Accepted proof (credential-free, Bash 5): `/opt/homebrew/bin/bash
+tests/git-publication-native.sh` exits 0 with 11 PASS, including
+`run_delivery_evidence_observer_layout_counterexamples` (five host layouts ×
+four cases, in `tests/support/delivery-evidence-promise-status.sh`) and
+`run_delivery_evidence_gaps_observer_counterexamples` (same-line, heading
+`Status:`, table, promise-2-names-readiness, and incidental attribution, in
+`tests/support/delivery-evidence-gaps-native-promise-attribution.sh`). Against
+the old observers the layout matrix failed 6 of 20 cells and the gaps
+examples failed `same-line` and `incidental`. An offline populate of all
+twelve scenarios with pinned Git dates, diffed with `diff -r` before and
+after, was identical. `npm run format` and `npm run lint` pass.
+
+## Execution
+
+Story Branch Mode. Execution checkout
+`../open-dough-worktrees/090-unify-delivery-evidence-promise-status` on
+branch `claude/090-unify-delivery-evidence-promise-status`; claim
+`42569563` accepted on `origin/main` (unobserved by CI). CI source: GitHub
+Actions `ci.yml` / `CI`.
+
 ## Current decisions
 
 - No native session is needed: the change is observer-side only and the
@@ -100,4 +120,16 @@ before and after shows identical fixtures. `npm run format` passes.
 
 ## Learnings
 
-None yet.
+- The shared recognizer is `delivery_evidence_promise_statuses` (prints
+  `STATUS<TAB>PROMISE`); the "all promises accepted" summary is shared as
+  `delivery_evidence_all_promises_accepted`. A new host layout is taught
+  there once.
+- Offline fixture comparison needs `GIT_AUTHOR_DATE` and
+  `GIT_COMMITTER_DATE` pinned, or commit hashes differ on every populate.
+- The queued startup operation cannot take a correction whose plan is its
+  own canonical home: it derives that plan as a plan link and the Take
+  refuses the duplicate link. This execution built the claim with
+  `take --no-plan` and published it through the startup resume path.
+- Out of scope and unfixed: the 27 `! delivery_evidence_*_assess …` reject
+  counterexamples in the four `*-assess.sh` files can never fail under
+  `set -e`, because Bash ignores `set -e` for a `!`-negated command.

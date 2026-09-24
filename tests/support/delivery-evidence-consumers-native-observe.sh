@@ -27,9 +27,11 @@ delivery_evidence_consumers_promise_accepted() {
     printf 'false\n'
     return
   fi
-  if grep -Eiq \
-    "$(delivery_evidence_promise_status_pattern incomplete)"'|uncovered|not[[:space:]]+covered|stale[[:space:]]+exclusion|consumer[[:space:]]+(is[[:space:]]+)?(missed|incompatible|unaligned)|stand-?in[[:space:]]+(is[[:space:]]+)?(incompatible|unaligned|missed)' \
-    <<< "${text}"; then
+  # shellcheck disable=SC2310 # The status test is the condition.
+  if delivery_evidence_promise_status_stated incomplete "${text}" \
+    || grep -Eiq \
+      'uncovered|not[[:space:]]+covered|stale[[:space:]]+exclusion|consumer[[:space:]]+(is[[:space:]]+)?(missed|incompatible|unaligned)|stand-?in[[:space:]]+(is[[:space:]]+)?(incompatible|unaligned|missed)' \
+      <<< "${text}"; then
     if grep -Eiq \
       'factory|releaseTag|stand-?in|e2e|consumer|command|badge|status' \
       <<< "${text}"; then
@@ -37,9 +39,9 @@ delivery_evidence_consumers_promise_accepted() {
       return
     fi
   fi
-  if grep -Eiq \
-    "$(delivery_evidence_promise_status_pattern accepted)"'|all[[:space:]]+.*promises?[[:space:]]+(are[[:space:]]+)?\*{0,2}accepted\*{0,2}' \
-    <<< "${text}"; then
+  # shellcheck disable=SC2310 # The status test is the condition.
+  if delivery_evidence_promise_status_stated accepted "${text}" \
+    || delivery_evidence_all_promises_accepted "${text}"; then
     printf 'true\n'
     return
   fi
