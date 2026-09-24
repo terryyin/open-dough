@@ -138,7 +138,7 @@ complete"); `tests/product-backlog.sh` with Bash 5; dashboard typecheck.
 ### 2. Taken cards show a slice progress bar
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/taken-slice-progress.spec.ts` via
 `npm run test:dashboard -- taken-slice-progress`: a Taken entry with a plan of
 3 slices, 1 done, shows three segments, one filled, and "1 of 3 slices
@@ -150,6 +150,11 @@ the card; a queued (not Taken) planned entry shows no bar.
 Behavior: a published snapshot with Taken entries → load or refresh → each
 Taken card shows its bar and count from the already-read trunk plan, or its
 gap. The detail slice list is unchanged.
+Accepted: `SliceProgress` (`dashboard/src/SliceProgress.tsx`) renders the
+card bar from the snapshot's `entry.planSlices`, with `PlanSlicesNote` as the
+one wording for loading and gaps, shared with the detail;
+`npm run test:dashboard -- taken-slice-progress story-readiness` (7/7);
+full `npm run test:dashboard` 96/96 before refactor; dashboard typecheck.
 
 ### 3. Taken cards show how long the current slice has been running
 

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork";
 import { PreparationFacts } from "./PreparationCard";
 import { PreparationLegend } from "./PreparationLegend";
+import { SliceProgress } from "./SliceProgress";
 import { WorkSourceLinks } from "./WorkSourceLinks";
 import { StoryDetail } from "./StoryDetail";
 import { TakenOwnerFacts, UnreadableProfiles } from "./TakenOwnerFacts";
@@ -15,11 +16,14 @@ function count(entries: readonly WorkEntry[]): string {
 function WorkCard({
   entry,
   priority,
+  showsSliceProgress,
   selected,
   onSelect,
 }: {
   entry: WorkEntry;
   priority: number | undefined;
+  // Taken cards only: queued work shows no progress.
+  showsSliceProgress: boolean;
   selected: boolean;
   onSelect: (identity: string) => void;
 }) {
@@ -39,6 +43,7 @@ function WorkCard({
       <p className="card-identity">{entry.identity}</p>
       <TakenOwnerFacts owner={entry.owner} />
       <PreparationFacts preparation={entry.preparation} />
+      {showsSliceProgress && <SliceProgress planSlices={entry.planSlices} />}
       <p>
         <button
           type="button"
@@ -74,6 +79,7 @@ function Stage({
   name,
   entries,
   prioritized,
+  showsSliceProgress,
   selectedIdentity,
   onSelect,
   unreadableProfiles,
@@ -81,6 +87,7 @@ function Stage({
   name: string;
   entries: readonly WorkEntry[];
   prioritized: boolean;
+  showsSliceProgress: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
   unreadableProfiles?: readonly UnreadableProfile[] | undefined;
@@ -102,6 +109,7 @@ function Stage({
               <WorkCard
                 entry={entry}
                 priority={prioritized ? index + 1 : undefined}
+                showsSliceProgress={showsSliceProgress}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
               />
@@ -138,6 +146,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
           name="Backlog"
           entries={work.backlog}
           prioritized
+          showsSliceProgress={false}
           selectedIdentity={selectedIdentity}
           onSelect={select}
         />
@@ -160,6 +169,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
           name="Taken"
           entries={work.taken}
           prioritized={false}
+          showsSliceProgress
           selectedIdentity={selectedIdentity}
           onSelect={select}
           unreadableProfiles={work.unreadableProfiles}

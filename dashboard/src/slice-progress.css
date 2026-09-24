@@ -1,0 +1,28 @@
+/* A Taken card's recorded slice progress: the segmented bar and its count. */
+
+.card-progress {
+  margin-top: 0.45rem;
+}
+
+/* One segment per recorded slice; the count beside it carries the meaning. */
+.slice-bar {
+  display: flex;
+  gap: 2px;
+  height: 0.6rem;
+}
+
+.slice-segment {
+  flex: 1 1 0;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+}
+
+.slice-segment-done {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.slice-count {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+}
