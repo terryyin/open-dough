@@ -48,6 +48,8 @@ if (process.argv[3] === 'list') {
   };
   if (!output()) {
     const watcher = fs.watch(root, () => { if (output()) watcher.close(); });
+    // A release published before the watch began emits no event: recheck.
+    if (output()) watcher.close();
   }
 } else { process.stdout.write(JSON.stringify({jobs: []})); }
 `,

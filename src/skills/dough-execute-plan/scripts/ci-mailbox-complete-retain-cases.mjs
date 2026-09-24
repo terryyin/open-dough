@@ -28,18 +28,20 @@ import {
   sha,
 } from "./ci-mailbox-process-test-fixtures.mjs";
 
+// The worker records failure coverage before it publishes the failure event.
+async function waitForRecordedFailure(mailbox) {
+  await waitFor(
+    () => readRevisionCoverage(mailbox)[0]?.state === "failure",
+    "failure coverage",
+  );
+  await waitFor(() => readMailboxEvents(mailbox).length > 0, "failure event");
+}
+
 test("complete-revision retains the observer on failure without acknowledging events", async (t) => {
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "failure" });
-  await waitFor(
-    () => readRevisionCoverage(fixture.mailbox)[0]?.state === "failure",
-    "failure coverage",
-  );
-  await waitFor(
-    () => readMailboxEvents(fixture.mailbox).length > 0,
-    "failure event",
-  );
+  await waitForRecordedFailure(fixture.mailbox);
   const deliveryBefore = readDeliveryProgress(fixture.mailbox);
   const eventsBefore = readMailboxEvents(fixture.mailbox);
   const { stdout } = await exec(
@@ -95,10 +97,7 @@ test("authorized repair registration reuses the live observer for a later comple
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "failure" });
-  await waitFor(
-    () => readRevisionCoverage(fixture.mailbox)[0]?.state === "failure",
-    "failure coverage",
-  );
+  await waitForRecordedFailure(fixture.mailbox);
   const failed = parseReceipt(
     (
       await exec(

@@ -94,13 +94,17 @@ native_run_owned() {
   local stderr_file=$2
   local workdir=$3
   shift 3
-  local deadline grace pid pgid status watchdog sentinel timeout_flag
+  local deadline grace pid pgid status watchdog sentinel timeout_flag wait_fifo
   deadline=${native_case_deadline:-3600}
   grace=${native_case_grace:-15}
   status=0
   native_run_outcome=exited
   sentinel=$(mktemp "${TMPDIR:-/tmp}/native-run.XXXXXX")
   timeout_flag="${sentinel}.timed-out"
+  # Create the watchdog's fifo here so a stopped watchdog cannot recreate it
+  # after cleanup.
+  wait_fifo="${sentinel}.wait"
+  mkfifo "${wait_fifo}"
 
   native_run_spawn_group "${workdir}" "$@" > "${stdout_file}" 2>> "${stderr_file}" &
   pid=$!
@@ -108,19 +112,19 @@ native_run_owned() {
   pgid=$(native_run_child_pgid "${pid}" "$(native_run_pgid_of $$)")
 
   native_run_watchdog "${pid}" "${pgid}" "${deadline}" "${grace}" \
-    "${sentinel}" "${timeout_flag}" > /dev/null 2>&1 &
+    "${sentinel}" "${timeout_flag}" "${wait_fifo}" > /dev/null 2>&1 &
   watchdog=$!
 
   wait "${pid}" || status=$?
   rm -f "${sentinel}"
   if [[ -f ${timeout_flag} ]]; then
     wait "${watchdog}" 2> /dev/null || true
-    rm -f "${timeout_flag}" "${sentinel}.wait"
+    rm -f "${timeout_flag}" "${wait_fifo}"
     native_run_outcome=timeout
     return 124
   fi
   native_run_stop_watchdog "${watchdog}"
-  rm -f "${timeout_flag}" "${sentinel}.wait"
+  rm -f "${timeout_flag}" "${wait_fifo}"
   return "${status}"
 }
 
