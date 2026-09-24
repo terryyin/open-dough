@@ -26,67 +26,30 @@ status; this seed records desired outcomes for implementation planning.
 
 <a id="accept-queued-start-native-behavior"></a>
 
-### Accept queued-start publication in native hosts
+### Queued-start native acceptance absorbed into delivery-evidence acceptance
 
-**Identity:** SEED-008#accept-queued-start-native-behavior
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach remains unselected; confirm Claude access when resuming."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
-```
+The identity `SEED-008#accept-queued-start-native-behavior` is retired from the
+queue (Terry's decision of 2026-09-24). Ordinary startup and refusal are
+accepted on all three hosts, and resume is accepted on Codex and Cursor. The one
+remaining requirement, a fresh Claude Code `publication/startup-resume`
+observation (resumed receipt before setup and the first edit, exactly one claim
+commit, preserved human and source bytes), moves to the Taken
+[delivery-evidence acceptance](SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
+as one extra slice, because that execution already runs fresh Claude sessions
+through the same `tests/git-publication-native.sh` runner (ADR 0005 §3: combine
+native acceptance where practical).
 
-**Goal:** Complete the remaining Claude Code resume verification so the maintainer
-can accept queued-start publication across all three native hosts before release.
-
-**Status:** Returned to the backlog at Terry's request on 2026-09-23. Plan 82's
-execution is closed; this acceptance story is not complete. The remaining work
-needs a newly selected execution approach when Claude access is available.
-
-**Remaining scope:** One fresh Claude Code `publication/startup-resume` journey.
-An owned claim already exists and another writer has advanced remote trunk:
-Claude must confirm current ownership without another Take or redundant claim
-push, then run setup and the first implementation change. Preserve selected
-source and unrelated staged, tracked, and untracked human work. The fixture's
-first change is sufficient; full feature delivery is outside this acceptance.
-
-**Accepted evidence to reuse:** Ordinary startup and refused continuation have
-accepted observations on Codex, Cursor, and Claude; Codex and Cursor resume also
-passed. Consult accepted judgments and candidate/runtime identities from commit
-`820077c3e7fcf16421c97231eb5bc01bb69ea3dc`, directory
-`.planning/quick/082-accept-queued-start-native/` (start with `PLAN.md`). The
-startup product candidate was `02108dfb28cabd05839c3aa16d820ce7d0fc33c7`;
-the delivered change strengthens refusal assessment by checking setup and
-command markers separately. Reassess applicability to the intended
-candidate and rerun only requirements invalidated by relevant changes.
-
-**Why still queued:** The Claude CLI weekly limit prevented fresh execution;
-quota refusal proves no startup behavior. The reported reset was 19:00
-Asia/Singapore on 2026-09-23; verify availability when work resumes rather than
-assuming the old limit remains. Do not poll quotas or retry without changed
-access or a diagnosed cause.
-
-**Evaluation:** Run the existing native journey from a prepared owned checkout:
-
-```sh
-GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/startup-resume --results-dir <temporary-results-directory>
-```
-
-Use Bash 4+ and the runner's 900-second deadline with 15-second termination
-grace. Inspect the complete native trace and independent remote Git history:
-current owned Taken, retained ancestry, exactly one claim, resumed receipt
-before setup/command and first edit, and unchanged human/source bytes. The
-pre-created claim is a resume precondition, not proof of initial publication.
-Judge the attempt, record its acceptance result or remaining requirement, and
-remove spent results and retained fixtures under ADR 0005.
-
-**Completion:** A passing Claude resume observation plus a justified final
-candidate reconciliation of all previously accepted host requirements under
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Preserve
-truthful missing-proof judgments. Route real product defects to a bounded
-correction; do not silently absorb them here.
-
-**Boundary:** No new startup behavior, dashboard work, host integration repair,
-CI automation, release, or broad harness cleanup. Use existing runner/fixtures;
-change assessment only for a concrete gap. Do not repeat a full host/scenario
-matrix or count exit status, self-report, or another host's pass as acceptance.
+The startup behavior has been released since 0.3.27, so this is retroactive
+acceptance, not a release gate. Changes since the accepted candidate
+`02108dfb28cabd05839c3aa16d820ce7d0fc33c7` were reviewed on 2026-09-24:
+`publication-resume.mjs` only parameterizes the remote name, the Take guidance
+only relaxes default-checkout refresh declarations, and the startup
+fixture/assessor split setup and command markers more strictly. None
+invalidates the accepted Codex/Cursor resume or other host judgments, so no
+rerun is required there. Prior judgments are recoverable from
+`820077c3e7fcf16421c97231eb5bc01bb69ea3dc:.planning/quick/082-accept-queued-start-native/PLAN.md`.
+A quota refusal or an inconclusive run leaves the requirement pending in that
+plan; a real defect routes to a bounded correction.
 
 <a id="accept-execution-ci-native-behavior"></a>
 
@@ -178,8 +141,8 @@ navigation reference, not another candidate or a claim of delivered behavior.
 
 The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 
-- Startup addressed the reproduced claim-visibility failure; its remaining native
-  acceptance stays ahead of CI/delivery in the current queue.
+- Startup addressed the reproduced claim-visibility failure; its remaining
+  Claude resume acceptance rides with the Taken delivery-evidence execution.
 - Terry retained CI/delivery's current priority on 2026-09-23 after comparing
   execution reliability with dashboard visibility and delivery-proof acceptance.
   Its benefit is reliable feedback at frequent publication boundaries, not a
