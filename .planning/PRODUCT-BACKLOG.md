@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep agent authorship safe for bare repositories and tighten agent profile Take](quick/093-tighten-agent-profile-take/PLAN.md)
-
 ## Backlog list
 
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
