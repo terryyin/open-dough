@@ -37,7 +37,7 @@ owned worktree. Scope, deferrals, and key examples 1–6 are in the seed.
 ### 1. Retrospective writes its records in an owned worktree
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an execution in an owned worktree, when its automatic
 retrospective records findings or a correction plan, they are written in that
@@ -60,6 +60,19 @@ AGENTS.md. Commands: `node --test --test-concurrency=1 <changed test files>`,
 `npm run lint`.
 
 Safe stopping point: no retrospective write lands in the default checkout.
+
+Accepted proof (2026-09-24): `node --test --test-concurrency=1
+src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs
+src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`
+→ 7/7; "the execution retrospective writes only in an owned checkout" failed
+against the pre-change guidance. `tests/workspace-publication-callers.sh` and
+`tests/retrospective-reference-payload.sh` pass. Guidance-structure proof
+plus the example 6 behavior review; no automated agent-behavior observation.
+
+Learning for slice 2: `preparation-disposition.md` "Validate a keep
+instruction before acting" accepts only preparation and bug-triage records, so
+a standalone retrospective record can be reported pending but not yet kept.
+Dough Land's keep path must accept it.
 
 ### 2. Dough Land lands a reviewed preparation worktree
 

@@ -134,17 +134,15 @@ the choice; do not invent scope, launch discovery, or start another review.
 After supported follow-up queue changes and before deleting anything, make the
 current revision recoverable with this project's ordinary Git conventions.
 Commit all owned review and closure-input changes in that revision, including
-applicable retrospective edits to the process log, an uncommitted active
-follow-up plan and its queue edit, assimilated product knowledge, and the spent
-material. Preserve unrelated changes and include only files or portions whose
-ownership is unambiguous. Resolve ownership of the intended cleanup targets at
-this boundary too, before deleting any of them. Then record that revision as the
-before-cleanup commit, even when the current revision was already suitable. If
-commit conventions, ownership, or recovery cannot be resolved, leave the material
-intact, report the gap, and do not claim closure. When the selected mode is Trunk
-Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure)
-before deleting spent history. Keep current product knowledge in maintained
-project content.
+applicable retrospective edits to the process log in the execution checkout, an
+uncommitted active follow-up plan and its queue edit, assimilated product
+knowledge, and the spent material. Preserve unrelated changes and include only
+files or portions whose ownership is unambiguous. Resolve ownership of the
+intended cleanup targets at this boundary too, before deleting any of them. Then
+record that revision as the before-cleanup commit, even when the current
+revision was already suitable. If commit conventions, ownership, or recovery
+cannot be resolved, leave the material intact, report the gap, and do not claim
+closure. In Trunk Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/trunk-publication.md#publish-wrap-up-closure) before deleting spent history.
 
 ## Delete spent history, including shared records
 

@@ -5,8 +5,11 @@ Apply this rule in [dough-story-decomposition](../../dough-story-decomposition/S
 [dough-slice-planning](../../dough-slice-planning/SKILL.md), and
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md)
 before any of them writes a seed, story, or plan record, including a small,
-already-decided correction. Reading, discussing, answering questions, or
-reviewing an existing seed or plan needs no workspace at all.
+already-decided correction.
+[dough-execution-retrospective](../../dough-execution-retrospective/SKILL.md#write-only-in-an-owned-checkout)
+applies it too before writing a process-finding or correction-plan record when
+no invoking execution supplies its checkout. Reading, discussing, answering
+questions, or reviewing an existing record needs no workspace at all.
 
 Once a write is done, [decide what happens to the written
 result](preparation-disposition.md) is the only disposition for that record.
@@ -16,8 +19,8 @@ another path. Then close or retain the workspace below.
 
 ## Determine whether a write needs a workspace
 
-Only the first write to a seed, story, or plan record in this preparation
-session requires an owned workspace. Continue ordinary discussion, inspection,
+Only the first write to a record named above in this preparation session
+requires an owned workspace. Continue ordinary discussion, inspection,
 and question-answering without one. Once a write is about to happen, establish
 or confirm the workspace immediately before making it.
 
@@ -29,7 +32,7 @@ and "Use and resume it" as this preparation's Git lifecycle; do not duplicate
 its recipe here. First check whether the current story, active plan, session,
 or a host-supplied workspace already owns a suitable checkout for this
 preparation. Use it, and do not create a nested or per-invocation workspace
-merely because a different one of the four skills above is now writing. When
+merely because a different skill named above is now writing. When
 no suitable owned workspace exists, start one using that reference's create
 step, from a suitable existing host workspace when one is available, otherwise
 from the verified current revision of the checkout this preparation was
