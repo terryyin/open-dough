@@ -126,18 +126,15 @@ export async function createTargetBranchWorktreeFixture() {
   writeFileSync(
     adapter,
     `#!${process.execPath}
-import { appendFileSync, existsSync, readFileSync, watch, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { guardFixtureProcess, waitForFixtureRelease } from ${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)};
+guardFixtureProcess(${JSON.stringify(fixture)});
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync(${JSON.stringify(adapterCalls)}, JSON.stringify(request) + '\\n');
 if (request.operation === 'discover') {
-  if (!existsSync(${JSON.stringify(release)})) await new Promise(resolve => {
-    const watcher = watch(${JSON.stringify(fixture)}, () => {
-      if (existsSync(${JSON.stringify(release)})) { watcher.close(); resolve(); }
-    });
-    if (existsSync(${JSON.stringify(release)})) { watcher.close(); resolve(); }
-  });
+  await waitForFixtureRelease(${JSON.stringify(release)});
   process.stdout.write(readFileSync(${JSON.stringify(adapterState)}, 'utf8'));
 } else {
   process.stdout.write(JSON.stringify({ excerpt: ${JSON.stringify(excerpt)} }));

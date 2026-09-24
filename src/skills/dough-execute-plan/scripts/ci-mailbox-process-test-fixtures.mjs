@@ -29,29 +29,26 @@ export async function setupProcessMailbox(
   writeFileSync(
     join(bin, "gh"),
     `#!${process.execPath}
+(async () => {
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;
+const { guardFixtureProcess, waitForFixtureRelease } = await import(${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)});
+guardFixtureProcess(root);
 const release = path.join(root, 'release');
 if (process.argv[3] === 'list') {
   fs.writeFileSync(path.join(root, 'worker-pid'), String(process.ppid));
+  fs.writeFileSync(path.join(root, 'github-pid'), String(process.pid));
   fs.writeFileSync(path.join(root, 'started'), '');
   process.on('SIGTERM', () => {
     fs.writeFileSync(path.join(root, 'request-stopped'), '');
     process.exit(0);
   });
-  const output = () => {
-    if (!fs.existsSync(release)) return false;
-    process.stdout.write(fs.readFileSync(release));
-    fs.writeFileSync(path.join(root, 'observed'), '');
-    return true;
-  };
-  if (!output()) {
-    const watcher = fs.watch(root, () => { if (output()) watcher.close(); });
-    // A release published before the watch began emits no event: recheck.
-    if (output()) watcher.close();
-  }
+  await waitForFixtureRelease(release);
+  process.stdout.write(fs.readFileSync(release));
+  fs.writeFileSync(path.join(root, 'observed'), '');
 } else { process.stdout.write(JSON.stringify({jobs: []})); }
+})();
 `,
     { mode: 0o700 },
   );

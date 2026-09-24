@@ -71,8 +71,14 @@ test("a detached worker that dies is reported lost at the next ordinary interact
   publishMailboxEvent(mailbox, retained);
 
   const { pid } = readWorkerIdentity(mailbox);
+  const githubPid = Number(readFileSync(join(directory, "github-pid"), "utf8"));
   process.kill(pid, "SIGKILL");
   assert.equal(await waitForPidExit(pid), true);
+  assert.equal(
+    await waitForPidExit(githubPid),
+    true,
+    "the blocked GitHub fixture exits with its killed worker",
+  );
 
   // Plain filesystem writes to the mailbox still work once the worker is gone.
   const otherSha = "b".repeat(40);

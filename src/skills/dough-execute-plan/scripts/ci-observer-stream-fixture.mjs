@@ -1,31 +1,23 @@
-import { existsSync, watch, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { streamMailboxWorker } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 
+import {
+  guardFixtureProcess,
+  waitForFixtureRelease,
+} from "./ci-process-lifetime-test-fixtures.mjs";
+
 const state = process.argv[2];
 if (!state) throw new Error("Expected a fixture state directory");
 
+guardFixtureProcess(state);
+
 function waitForRelease(signal) {
-  const release = join(state, "release-second-failure");
-  if (existsSync(release)) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const finish = () => {
-      subscription.close();
-      signal.removeEventListener("abort", aborted);
-      resolve();
-    };
-    const aborted = () => {
-      subscription.close();
-      reject(signal.reason);
-    };
-    const subscription = watch(state, () => {
-      if (existsSync(release)) finish();
-    });
-    signal.addEventListener("abort", aborted, { once: true });
-    writeFileSync(join(state, "first-failure-recorded"), "");
-    if (existsSync(release)) finish();
+  writeFileSync(join(state, "first-failure-recorded"), "");
+  return waitForFixtureRelease(join(state, "release-second-failure"), {
+    signal,
   });
 }
 
