@@ -17,88 +17,6 @@ Released execution-location guidance requires setup then a project command befor
   - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
   - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
 
-## ODF-088 — A fresh Trunk/Story Branch worktree has no installed dependencies, and no guidance says so
-
-Former local code: DD-074.
-
-Neither [execution location](.claude/skills/dough-execute-plan/references/execution-location.md)
-nor [runtime setup](.claude/skills/dough-execute-plan/references/runtime-setup.md)
-nor [slice wrap-up](.claude/skills/dough-execute-plan/references/wrap-up.md)
-mentions installing project dependencies when creating a new `git worktree
-add` execution workspace. For this Node project, a freshly created worktree
-under `~/.claude-worktrees/open-dough/<slug>` (a sibling of the integration
-checkout, not nested inside it, so Node's upward `node_modules` resolution
-cannot reach the main checkout's install) has no `node_modules` at all. The
-first attempt at [deliver the change](.claude/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change)
-step 4's selective-formatting command failed with `eslint: spawnSync eslint
-ENOENT` / `prettier: spawnSync prettier ENOENT` before the coordinator
-diagnosed the cause and ran `npm ci` in that worktree, after which formatting
-succeeded. This is the converse of ODF-070's case: that finding's nested
-`.worktrees/<slug>/` worktree already had working access to the parent
-checkout's `node_modules` via Node's own resolution walk, so the correct fix
-there was "test the command, don't assume it fails." Here the worktree
-genuinely has no reachable install, so testing the command still fails, and
-the actual missing step is installing dependencies as part of workspace
-creation — a distinct gap ODF-070's response does not cover.
-
-### Occurrences
-
-- Execution: `.planning/quick/067-current-proof-before-live-transitions/PLAN.md @ 9b1391db3c0e024272a2eed8fd8c8d278f3488a0`,
-  first related implementation commit `e9829bc6088567742fefd2a726f6bbe7da9bc039`
-  - Timestamp: unknown (2026-09-21)
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.27
-  - Evidence: after creating the Trunk Mode worktree at
-    `/Users/terryyin/.claude-worktrees/open-dough/067-current-proof-before-live-transitions`
-    with `git worktree add ... claude/067-current-proof-before-live-transitions
-    f59df38`, the first `npm run format` there printed `eslint: spawnSync
-    eslint ENOENT`, `prettier: spawnSync prettier ENOENT`, and `Format
-    failed: unresolved findings or tool failures remain.` `ls node_modules`
-    confirmed the directory did not exist, while the integration checkout's
-    own `node_modules` (`/Users/terryyin/git/open-dough/node_modules`) had
-    102 entries. Running `npm ci` in the new worktree installed 149 packages;
-    the same `npm run format` command then completed cleanly.
-  - Observed effect: one wasted delivery-step attempt and diagnostic
-    detour (identifying the ENOENT cause, comparing against the integration
-    checkout, then installing) before delivery could proceed; no incorrect
-    guidance reached the delivered plan or product, since the coordinator
-    caught and resolved the gap itself before commit.
-  - Inference: Qualified, single occurrence, but structurally certain to
-    recur for any Node (or other dependency-manager) project using this
-    project's sibling-worktree convention, since no reviewed reference
-    mentions an install step. Adding one sentence to [execution
-    location](.claude/skills/dough-execute-plan/references/execution-location.md)'s
-    "After successful setup" step — install this project's dependencies in a
-    newly created worktree before first use, when the project's package
-    manager requires it — would let a future executor avoid rediscovering
-    this; not tested here.
-
-- Execution: `.planning/quick/068-truthful-ci-observation/PLAN.md`, first
-  related implementation commit `8a7c7700aae49c8f44b6375894bb1496e007da83`
-  - Timestamp: 2026-09-21T13:15:42+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.27
-  - Evidence: after creating the Story Branch Mode worktree at
-    `/Users/terryyin/.claude-worktrees/open-dough/068-truthful-ci-observation`
-    with `git worktree add ... -b claude/068-truthful-ci-observation
-    a81a305e90dcc56d7af894086b14aece7c7492e4`, the first `npm run format`
-    there (during slice 1's delivery) printed the same `eslint: spawnSync
-    eslint ENOENT` / `prettier: spawnSync prettier ENOENT` /
-    `Format failed: unresolved findings or tool failures remain.` `ls
-    node_modules` confirmed the directory did not exist. Running `npm
-    install` installed the dependencies; the same `npm run format` command
-    then completed cleanly.
-  - Observed effect: one wasted delivery-step attempt before the coordinator
-    diagnosed the cause and installed dependencies; no incorrect guidance
-    reached the delivered plan or product.
-  - Inference: Second occurrence, confirming this finding's original
-    "structurally certain to recur" prediction across a different story and
-    a different install command (`npm install` rather than `npm ci`) in the
-    same project. The guidance gap identified above remains unaddressed at
-    this occurrence's release (0.3.27).
-
 ## ODF-058 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
 
 Former local code: DD-056.
@@ -851,6 +769,18 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: no duplicate observer this time, but finding the session
     field again needed a read of `ci-host-bridge.mjs`.
 
+- Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
+  - Timestamp: unknown (first increment delivery, after commit `3f64bc7` at
+    2026-09-24T20:35:01+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: `3f64bc7` receipt `observation.state: unobserved`;
+    `ci-mailbox.mjs start` + `register-push` attached `watch-oQrMZX`; later
+    deliveries passed `--session-json` and reused it.
+  - Observed effect: the session ID was taken from a tool-output path after
+    rereading `ci-host-bridge.mjs`; a fourth Claude Code occurrence.
+
 ## DD-094 — A delegated agent's `git stash pop` applied another session's stash
 
 Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
@@ -993,8 +923,27 @@ it. Slice 1 was not CI-safe until slice 3 was folded into it.
     without tracing which existing suites a new invariant (unique active
     agent names) would break.
 
+## DD-099 — The startup receipt carried two full Git index listings
+
+`execution-start.mjs start` printed a 227 KB receipt. About 222 KB were
+`beforeMaintenance.index` and `afterMaintenance.index`, listings of the
+default checkout's staged files; the coordinator needed only results and SHAs.
+
+### Occurrences
+
+- Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
+  - Timestamp: 2026-09-24T20:27:08+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: Take `1443c42` receipt; index fields 110,899 and 110,980 chars.
+  - Observed effect: the host saved the output to a file; one extra command
+    was needed to read the receipt without the listings.
+  - Inference: Qualified. A host that inlines tool output would spend roughly
+    55k tokens of context on it at every startup.
+
 ## Retention
 
-- Highest allocated local number: 98
-- Recovery: `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 99
+- Recovery: `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

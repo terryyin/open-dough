@@ -116,6 +116,29 @@ as unreadable and is not matched to any entry. A revision without a profile
 directory simply has no profiles. What a profile means is decided by the
 shared profile module under `src/skills/dough-product-backlog/scripts/`.
 
+Each Taken card with a readable plan also shows its recorded slice progress: a
+bar with one segment per slice, filled for each slice recorded complete, and
+"N of M slices recorded complete". It counts recorded statuses, not how much
+of the story is done. The shared plan reader decides what a plan's slices are
+(under `## Ordered slices` or `## Slices`); a missing, unreadable, or
+uninterpretable plan is shown as that gap instead of a count. Beside the bar,
+"Current slice started N min ago" measures from the later of the plan's last
+commit and the Take (the commit that added the entry's agent profile), and
+advances with page time without asking GitHub again. It is time since the last
+recorded update, not evidence that an agent is active. A Taken entry without a
+profile measures from the plan commit and says so.
+
+Progress comes from where the story's work is published. A single Trunk Mode
+profile reads the plan at the shown revision of `main`. A single Story Branch
+Mode profile reads the same plan path at the recorded branch's head and labels
+the card "From branch <branch> at <short revision>; not in trunk." Without a
+profile, or when profiles cannot be read, the card shows trunk's plan labelled
+as the trunk copy with the execution branch not recorded or unknown, and reads
+no branch. More than one profile naming the story, a recorded branch that is no
+longer published, and a plan missing or uninterpretable on that branch are
+each shown as that gap, never as trunk's count. The detail view shows the same
+source.
+
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
 in the backlog. Story-state paths resolve beside the canonical file; backlog
@@ -191,8 +214,11 @@ a repeated pinned revision from memory without calling `gh`.
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
 revision for preparation and detail, and, once per revision, one listing of
-the agent profile directory plus one per profile listed there; they count against the launching person's own GitHub API
-allowance. Each revision check is one more `gh` request, whatever the number
+the agent profile directory plus one per profile listed there. Each Taken
+entry with a counted plan adds one last-commit-time request for its plan and
+one for its agent profile, and each Story Branch Mode entry adds one branch
+head request and one plan read on that branch. These count against the
+launching person's own GitHub API allowance. Each revision check is one more `gh` request, whatever the number
 of branches (at most four a
 minute per visible page, none while it is hidden, and none before a rate
 limit's directed time). GitHub documents an unchanged `304` as not counting
