@@ -1,3 +1,11 @@
+## 0.3.35 - 2026-09-24
+
+- Keep dashboard observations truthful when record-detail reads time out or are abandoned: show unread details as gaps, retain the standing failure until a replacement read succeeds, share browser/server read rules, and cancel owned `gh` work when its request closes.
+- Clarify execution startup, CI completion, observer, publication, and wrap-up boundaries; safely refresh a clean default checkout after remote acceptance, refuse missing planned-state paths, and align regression coverage with that maintenance behavior.
+- Consolidate the four delivery-evidence native journeys behind one reusable harness while preserving their scenarios, observations, assessors, selective case routing, and evidence identity.
+
+Native acceptance was explicitly skipped for `0.3.35` at the maintainer's request. The credential-free deterministic suite passed; newly changed native behavior and previously pending native requirements remain pending and are not reported as passing.
+
 ## 0.3.34 - 2026-09-24
 
 - Correct updater inspection guidance to include Codex's managed hook settings alongside Cursor and Claude Code, and add regression coverage that keeps the documented destinations aligned with the hook registry.
