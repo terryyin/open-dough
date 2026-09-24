@@ -168,6 +168,21 @@ third-party changes in the worktree and no account of what they were or why.
     class of finding that pass was asked to surface; whether it had found them
     cannot be determined from the record.
 
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Timestamp: unknown (after the CI repair return, before commit `ff33cb8`
+    at 2026-09-24T17:46:32+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: the CI-repair refactor agent's only notification said it had
+    stopped with its own background work still running and had not reported;
+    `ps` then showed no `node --test`, and `TaskStop` found no task. The
+    coordinator kept waiting until the developer said "it seems to be staying
+    here for quite some time."
+  - Observed effect: repair `ff33cb8` shipped on the coordinator's own reruns
+    without a refactor report (compare ODF-062); slice 6's refactor, told to
+    run tests only in the foreground with timeouts, reported normally.
+
 ## ODF-060 — A new payload file was published without being declared, and only CI noticed
 
 Former local code: DD-058.
@@ -594,33 +609,6 @@ explicit contract in the focused CI runtime suite.
     Fail-fast cancellation of `test` after dashboard failure further deferred
     discovery; qualified as amplifying, not inventing, the miss.
 
-## ODF-052 — Cursor mailbox probe did not attach CI_MONITOR_READY
-
-Former local code: DD-047.
-
-A harmless `ci-mailbox.mjs probe` printed a `CI_OBSERVER` receipt, but this
-coordinator session never received host `CI_MONITOR_READY`. Observation was
-not started; later execution-branch pushes were unobserved.
-
-### Occurrences
-
-- Execution: `SEED-004#guide-useful-manual-testing @ ed19f9f`
-  - Timestamp: 2026-09-16T16:00:00+08:00
-  - Tool: Cursor
-  - Model: Cursor Grok 4.6
-  - Open Dough release: modified; revision 1805b5a; base 0.3.22
-  - Evidence: Probe from
-    `.worktrees/051-guide-manual-exploration/.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs`
-    printed `CI_OBSERVER {"directory":"/tmp/dough-ci-501/watch-P9o15E"}`.
-    Pushes `ed19f9f`, `067b29f`, `96822da` to
-    `quick/051-guide-manual-exploration`. Plan records CI observation unavailable.
-  - Observed effect: No observer was armed; `pendingCi: unobserved` for the
-    whole planned execution. GitHub Actions for the branch was not claimed.
-  - Inference: The adapter requires a separate hook `CI_MONITOR_READY` after
-    the receipt; a probe directory is not an execution observer. Following the
-    unavailable-bridge path avoided a disconnected watcher. Whether the Cursor
-    hook failed to bind `generation_id` was not proved.
-
 ## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
 
 Former local code: DD-065.
@@ -850,6 +838,19 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
     execution the same day; a fresh Claude coordinator following only the
     references leaves increments unobserved.
 
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Timestamp: unknown (first increment delivery, after commit `567f9b2` at
+    2026-09-24T15:43:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: `567f9b2` receipt `observation.state: unobserved` ("host
+    session identity is required"); `ci-mailbox.mjs start` + `register-push`
+    attached `watch-IsEPZU`; later deliveries passed `--session-json` with
+    `$CLAUDE_CODE_SESSION_ID` and reused it.
+  - Observed effect: no duplicate observer this time, but finding the session
+    field again needed a read of `ci-host-bridge.mjs`.
+
 ## DD-094 — A delegated agent's `git stash pop` applied another session's stash
 
 Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
@@ -970,8 +971,30 @@ says formatting must succeed before staging.
   - Inference: A one-off coordinator error, not a guidance gap; gate
     commands with `&&`.
 
+## DD-098 — A slice's proof named a suite only a later slice's behavior keeps green
+
+Plan 091 mapped slice 1's proof to the startup race suite, but race-safe
+agent-name choice was slice 3, whose seam note predicted the failure without
+it. Slice 1 was not CI-safe until slice 3 was folded into it.
+
+### Occurrences
+
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Timestamp: unknown (first slice-1 return, before commit `567f9b2` at
+    2026-09-24T15:43:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: plan at `4479710` (slice 1 Proof lists
+    `workspace-publication-startup-race.test.mjs`; slice 3 Seam); first
+    slice-1 return had 2 of 5 race tests failing; plan Learnings in `567f9b2`.
+  - Observed effect: one extra implementation round and a re-sequencing.
+  - Inference: Qualified. Planning checked that each slice ends CI-safe
+    without tracing which existing suites a new invariant (unique active
+    agent names) would break.
+
 ## Retention
 
-- Highest allocated local number: 97
-- Recovery: `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 98
+- Recovery: `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
