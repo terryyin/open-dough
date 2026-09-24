@@ -1,5 +1,6 @@
 // The records the branch slice progress journeys
-// (branch-slice-progress.spec.ts, auto-refresh-branches.spec.ts) publish:
+// (branch-slice-progress.spec.ts, auto-refresh-branches.spec.ts,
+// auto-refresh-unusable-branch.spec.ts) publish:
 // trunk at one revision, with Taken stories, their plans, and the agent
 // profiles recording where each is published (spelled by the shared
 // profile renderer), and the story branches published beside it, each at its
@@ -109,6 +110,22 @@ Proof: A journey observes slice ${String(index)}.
   return `# Plan\n\n## Slices\n\n${slices.join("\n")}`;
 }
 
+// The agent profile recording who took the story at `anchor`, in which mode
+// on which branch.
+export function agentProfile(
+  anchor: string,
+  { agent, mode, branch }: Story["owners"][number],
+): string {
+  return renderAgentProfile({
+    name: agent,
+    identity: `SEED-092#${anchor}`,
+    mode,
+    branch,
+    host: "claude",
+    model: undefined,
+  });
+}
+
 const backlog = `# Product backlog
 
 ## Taken
@@ -147,15 +164,8 @@ for (const { anchor, owners } of stories) {
   // Trunk's copy of the branch story's plan is as it was at Take.
   trunkFiles[planPath(anchor)] =
     anchor === "on-branch" ? slicePlan(8, 0) : slicePlan(2, 1);
-  for (const { agent, mode, branch } of owners) {
-    trunkFiles[profilePath(agent)] = renderAgentProfile({
-      name: agent,
-      identity: `SEED-092#${anchor}`,
-      mode,
-      branch,
-      host: "claude",
-      model: undefined,
-    });
+  for (const owner of owners) {
+    trunkFiles[profilePath(owner.agent)] = agentProfile(anchor, owner);
   }
 }
 

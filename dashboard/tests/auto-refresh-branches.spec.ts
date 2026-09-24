@@ -7,12 +7,13 @@
 // `304`; a recorded branch deleted becomes that gap. The fake GitHub only
 // publishes trunk and branch heads that move (./publishedFiles.ts); the local
 // read boundary, the shared readers, and the page decide everything shown.
-// Hidden-page and rate-limit behavior: ./auto-refresh-visibility.spec.ts and
+// A recorded branch whose name cannot be used:
+// ./auto-refresh-unusable-branch.spec.ts. Hidden-page and rate-limit
+// behavior: ./auto-refresh-visibility.spec.ts and
 // ./auto-refresh-rate-limit.spec.ts.
 
-import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
+import { parts } from "./dashboardPage";
 import {
   callsSince,
   expectSteadyPace,
@@ -23,45 +24,24 @@ import {
 import {
   branchHead,
   branches,
-  onBranch,
-  opened,
   planPath,
   profilePath,
+  opened,
   repository,
   revision,
   slicePlan,
-  stories,
   trunk,
 } from "./branchProgressRecords";
-import { isRefCheck } from "./originObservation";
-import { publishMovingFiles, type PublishedRevision } from "./publishedFiles";
-import type { GhCall } from "./support/fakeGitHub";
+import {
+  openedSettled,
+  readsBesideChecks,
+  trunkMoved,
+} from "./branchRefreshJourney";
+import type { PublishedRevision } from "./publishedFiles";
 
 const example = "story/example";
 const unrelated = "story/unrelated-work";
 const movedHead = "e6".repeat(20);
-const trunkMoved = "d5".repeat(20);
-
-// What GitHub was asked besides the checks, as `<kind> <path>@<revision>` or
-// `branch <name>`.
-function readsBesideChecks(calls: readonly GhCall[]): string[] {
-  return calls
-    .filter((call) => !isRefCheck(call))
-    .map(({ request }) => {
-      switch (request.kind) {
-        case "content":
-        case "listing":
-        case "commit-list":
-          return `${request.kind} ${request.path}@${request.revision}`;
-        case "branch":
-          return `branch ${request.branch}`;
-        case "ref":
-          return `ref ${request.ref}`;
-        default:
-          return request.kind;
-      }
-    });
-}
 
 // The branch heads published beside trunk, by name.
 function headsOf(
@@ -70,21 +50,6 @@ function headsOf(
   return Object.fromEntries(
     Object.entries(published).map(([branch, at]) => [branch, at.revision]),
   );
-}
-
-async function openedSettled(page: Page) {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
-  const origin = publishMovingFiles(page, { repository, ...trunk, branches });
-  await page.goto("/");
-  await expectMembership(page, {
-    taken: stories.map(({ title }) => title),
-    backlog: [],
-  });
-  await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
-  await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
-  const card = parts(page).taken.getByRole("article", { name: onBranch });
-  return { origin, progress: card.locator(".card-progress") };
 }
 
 test("the automatic check follows each recorded story branch, reading only the progress on a branch that moved", async ({

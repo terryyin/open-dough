@@ -11,7 +11,10 @@
 // `head`). Malformed or mixed parameters are refused here, before any `gh`
 // call.
 
-import { commitShaPattern } from "../src/authenticatedReadRules";
+import {
+  commitShaPattern,
+  isSafeBranchName,
+} from "../src/authenticatedReadRules";
 import { parseSafeRepositoryPath } from "./reachablePaths";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -50,20 +53,6 @@ export type RefusedParameters = {
 
 function refused(message: string): RefusedParameters {
   return { kind: "refused", status: 400, message };
-}
-
-// A branch name as Git allows it for a published head, narrowed to plain
-// segments of letters, digits, `.`, `_`, and `-`, so it can never reshape the
-// GitHub endpoint it is put into. Anything else is refused, never escaped.
-const branchSegment = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
-
-function isSafeBranchName(branch: string): boolean {
-  return (
-    branch.length <= 255 &&
-    !branch.includes("..") &&
-    !branch.endsWith(".lock") &&
-    branch.split("/").every((segment) => branchSegment.test(segment))
-  );
 }
 
 // At most this many story branches are watched by one check: far more than

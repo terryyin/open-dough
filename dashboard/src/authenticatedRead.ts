@@ -56,9 +56,9 @@ const okCommitTime = z.object({
 const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
-  branches: z.array(
-    z.object({ branch: z.string().min(1), head: commitSha.nullable() }),
-  ),
+  branches: z
+    .array(z.object({ branch: z.string().min(1), head: commitSha.nullable() }))
+    .optional(),
 });
 
 export type PublishedSnapshot = {
@@ -99,7 +99,8 @@ export async function readPublishedSnapshot(
 
 // Whether the source's ref still names the revision shown, or which commit it
 // names now. While it does, the check also says which head each watched story
-// branch names now, undefined when it is no longer published. Nothing of the
+// branch names now, undefined when it is no longer published; it names none
+// when the boundary could not list branch heads this time. Nothing of the
 // backlog or its records is read.
 export type RevisionCheck =
   | {
@@ -127,11 +128,14 @@ export async function checkPublishedRevision(
     signal,
   );
   const parsed = okCheck.safeParse(body);
+  // Undefined when the boundary could not list branch heads for this check.
+  const branches = parsed.data?.branches;
   if (
     !parsed.success ||
     parsed.data.changed !== (parsed.data.revision !== shown) ||
-    parsed.data.branches.length !== watched.length ||
-    parsed.data.branches.some(({ branch }, at) => branch !== watched[at])
+    (branches !== undefined &&
+      (branches.length !== watched.length ||
+        branches.some(({ branch }, at) => branch !== watched[at])))
   ) {
     throw new ReadProblem(
       `The local authenticated read answered in a shape this dashboard does not understand while checking ${reading}.`,
@@ -142,7 +146,7 @@ export async function checkPublishedRevision(
     : {
         changed: false,
         heads: new Map(
-          parsed.data.branches.map(({ branch, head }) => [
+          (branches ?? []).map(({ branch, head }) => [
             branch,
             head ?? undefined,
           ]),

@@ -2,8 +2,11 @@
 // already known without a read, a gap, or the plan trunk's story-state
 // records, read on the story branch the entry's single agent profile records.
 // Which branch comes only from the owner already read from trunk's profiles
-// (`./takenOwner.ts`); the plan path only from trunk's story-state.
+// (`./takenOwner.ts`); the plan path only from trunk's story-state. A branch
+// name the local read boundary would refuse is that entry's gap, so it is
+// never read or watched, and nothing else waits on it.
 
+import { isSafeBranchName } from "./authenticatedReadRules";
 import type { ProgressSource } from "./progressSource";
 import type { WorkEntry } from "./publishedWork";
 import { resolveBesideFile } from "./repositoryPath";
@@ -84,6 +87,12 @@ export function routeOf(entry: WorkEntry, backlogPath: string): Route {
       if (plan.kind === "association-conflict") {
         // The association conflict is already this entry's plan gap.
         return { kind: "none" };
+      }
+      if (!isSafeBranchName(only.branch)) {
+        return {
+          kind: "gap",
+          problem: `The recorded branch ${only.branch} has a name this dashboard cannot use, so its slice progress cannot be read. Trunk's copy is not its progress.`,
+        };
       }
       const planPath = plan.path;
       return planPath === undefined

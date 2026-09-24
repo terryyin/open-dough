@@ -6,7 +6,8 @@
 // (`./revisionChecks.ts`). A branch is watched only when a Taken entry's
 // profile records it at the revision shown (`./branchReachability.ts`); each
 // head found for it is remembered as resolved (`./branchHeads.ts`), so the
-// page may read that branch's plan there without resolving it again.
+// page may read that branch's plan there without resolving it again. A check
+// whose listing could not say answers the ref alone, naming no branch head.
 
 import type { BranchHeads } from "./branchHeads";
 import { branchRecordedAtRevision } from "./branchReachability";
@@ -42,9 +43,12 @@ export async function performRevisionCheck(
     }
   }
   const { revision, heads } = await checks.check(source, signal);
+  const checked = { revision, changed: revision !== since };
+  if (heads === undefined) {
+    return answered(checked);
+  }
   return answered({
-    revision,
-    changed: revision !== since,
+    ...checked,
     branches: watched.map((branch) => {
       const head = heads.get(branch);
       if (head !== undefined) {

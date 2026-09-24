@@ -1,6 +1,6 @@
 # Keep branch progress observation robust and give its rules one home
 
-Status: planned.
+Status: executing.
 
 This bounded retrospective correction has this plan as its canonical home.
 
@@ -128,12 +128,21 @@ move, and the moved-branch read-wait notice (F8 hypotheses).
   and "Current slice started N min ago". Keep those terms; this correction
   changes no wording.
 
+## Execution
+
+Story Branch Mode. Execution checkout `/Users/terryyin/git/open-dough-095`,
+branch `claude/095-harden-branch-progress-observation`, started from
+`995efb6`; claim `7c629e0` published on `origin/main` (agent Akiho-chan,
+publisher `claude-095`). Increments publish to
+`origin/claude/095-harden-branch-progress-observation`. CI: GitHub Actions
+`ci.yml` ("CI").
+
 ## Ordered slices
 
 ### 1. Trunk refresh survives unusable branch names and a failed branch listing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new steps in `dashboard/tests/auto-refresh-branches.spec.ts` (a
 `story/café` Story Branch profile shows its gap, no `branch` request for it,
 and a trunk move is read); new cases in
@@ -145,6 +154,20 @@ existing `auto-refresh*` and `authenticated-read-refusal` specs green;
 Behavior: a shown snapshot whose profile records an unusable branch, or whose
 heads listing fails → the automatic check runs → trunk freshness is still
 reported, and only the affected entry shows a gap.
+Accepted: `routeOf` (`progressRoute.ts`) turns a recorded branch failing the
+shared `isSafeBranchName` (`authenticatedReadRules.ts`) into the gap "The
+recorded branch B has a name this dashboard cannot use, so its slice progress
+cannot be read. Trunk's copy is not its progress.", so it is never read or
+watched. `RevisionChecks.check` falls back to `resolveRevisionViaGh` on any
+listing `GhFailure` except a rate limit or an aborted check; the answer then
+omits `branches` and the page treats that as no heads moved.
+`npm run test:dashboard -- authenticated-read-revision-check` (8 passed;
+504 fallback case and the rate-limit-only-lists assertion in
+`authenticated-read-revision-check-failures.spec.ts`);
+`auto-refresh-unusable-branch.spec.ts` (gap text, no `story/café` in any
+`branch`/`watch` parameter, trunk move read at pace);
+`npm run test:dashboard -- auto-refresh authenticated-read branch-slice-progress taken-`
+(60 passed); `npm run typecheck:dashboard`.
 
 ### 2. The page resolves a story's plan path once
 
@@ -189,3 +212,9 @@ coverage needs it; fold the repeated commit-time validation in
 `requestedRead.ts` into one helper with one set of messages.
 
 ## Learnings
+
+- A not-logged-in listing now also asks the ref alone before reporting the
+  same message (two `gh` calls); no test asserts the call count there.
+- The installed `execution-start.mjs` still lacked the fix for claiming a
+  correction whose plan is its canonical home (`b7246d2`); startup ran from
+  `src/skills/dough-execute-plan/scripts/` instead.

@@ -11,11 +11,12 @@ type Answer =
   | { readonly revision: string; readonly backlog: string }
   | ({ readonly revision: string } & PinnedFile)
   // A revision check, with the head each watched story branch names now, or
-  // null when it is no longer published.
+  // null when it is no longer published; without branches when the check
+  // could not list branch heads.
   | {
       readonly revision: string;
       readonly changed: boolean;
-      readonly branches: ReadonlyArray<{
+      readonly branches?: ReadonlyArray<{
         readonly branch: string;
         readonly head: string | null;
       }>;
