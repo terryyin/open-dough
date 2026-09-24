@@ -203,7 +203,15 @@ the published profile.
 ### 5. Completion releases the profile
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/support/product-backlog-complete-profile.test.mjs`
+through `tests/product-backlog.sh` (matching profile removed, other and
+unreadable profiles kept, no-profile and no-directory completions succeed);
+`workspace-publication-startup-agent-release.test.mjs` (real `complete` then
+publish deletes `agents/agent-akiho.json`; next Take is `agent-Yuma`);
+wrap-up guidance and payload-update suites green. Known gap: a crash between
+the backlog write and the profile deletion leaves the profile for manual
+removal.
 Proof: `tests/product-backlog.sh` case: `complete` on a Taken entry removes
 its matching profile and leaves other profiles; completing an entry without a
 profile still succeeds. Startup CLI case: after completing `agent-Akiho`'s

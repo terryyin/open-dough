@@ -10,6 +10,7 @@ node --test \
   tests/support/product-backlog-place.test.mjs \
   tests/support/product-backlog-take.test.mjs \
   tests/support/product-backlog-complete.test.mjs \
+  tests/support/product-backlog-complete-profile.test.mjs \
   tests/support/product-backlog-refresh.test.mjs \
   tests/support/product-backlog-refresh-refusals.test.mjs \
   tests/support/product-backlog-direction.test.mjs \
