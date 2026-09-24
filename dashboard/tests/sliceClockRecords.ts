@@ -18,18 +18,13 @@ export const afterTake = "Slice committed after the Take";
 export const justTaken = "Taken after planning days ago";
 export const beforeProfiles = "Taken before agent profiles existed";
 export const timeUnread = "Plan commit time unavailable";
-export const twoOwners = "Named by two agent profiles";
 
 export const stories = [
   { title: afterTake, anchor: "after-take", agent: "Akiho" },
   { title: justTaken, anchor: "just-taken", agent: "Yuma" },
   { title: beforeProfiles, anchor: "before-profiles", agent: undefined },
   { title: timeUnread, anchor: "time-unread", agent: "Sola" },
-  { title: twoOwners, anchor: "two-owners", agent: "Mana" },
 ] as const;
-
-// A second profile naming the same story as Mana's.
-const secondOwner = { agent: "Kirara", anchor: "two-owners" } as const;
 
 export const planPath = (anchor: string) =>
   `.planning/quick/091-${anchor}/PLAN.md`;
@@ -88,7 +83,7 @@ export const files: Record<string, string> = {
 for (const { anchor } of stories) {
   files[planPath(anchor)] = plan;
 }
-for (const { anchor, agent } of [...stories, secondOwner]) {
+for (const { anchor, agent } of stories) {
   if (agent !== undefined) {
     files[profilePath(agent)] = renderAgentProfile({
       name: agent,
@@ -110,7 +105,4 @@ export const committed: Record<string, Date> = {
   [profilePath("Yuma")]: minutesBefore(5),
   [planPath("before-profiles")]: minutesBefore(40),
   [profilePath("Sola")]: minutesBefore(20),
-  [planPath("two-owners")]: minutesBefore(8),
-  [profilePath("Mana")]: minutesBefore(3),
-  [profilePath("Kirara")]: minutesBefore(4),
 };

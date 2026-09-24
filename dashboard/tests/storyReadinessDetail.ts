@@ -93,14 +93,3 @@ export async function expectPlanlessDetailAbsentPlan(backlog: Locator) {
   await expect(planlessDetail).toContainText("Approach: Planless");
   await expect(planlessDetail).toContainText("No associated plan is recorded");
 }
-
-export async function expectReadyDetailTwoCompleteUnderSlicesHeading(
-  taken: Locator,
-) {
-  const detail = await inspectReadyDetail(taken);
-  await expect(detail).toContainText("2 of 5 slices recorded complete");
-  await expect(detail).toContainText("Establish shared plan reading");
-  await expect(detail).toContainText("Status: done (recorded complete)");
-  await expect(detail).toContainText("Accepted evidence:");
-  await expect(detail.getByText("Plan slices uninterpretable")).toHaveCount(0);
-}

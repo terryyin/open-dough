@@ -28,7 +28,6 @@ import {
   revision,
   stories,
   timeUnread,
-  twoOwners,
 } from "./sliceClockRecords";
 
 const noProfileLabel = "no agent profile records the Take";
@@ -101,16 +100,6 @@ test("each Taken card's clock measures from the later of its last plan commit an
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("two profiles naming the story leave no single progress source: a gap, never a plan-only clock", async () => {
-    await expect(card(twoOwners)).toContainText(
-      "More than one agent profile names this story, so it has no single progress source.",
-    );
-    await expect(card(twoOwners).getByRole("img")).toHaveCount(0);
-    await expect(card(twoOwners)).not.toContainText("recorded complete");
-    await expect(card(twoOwners)).not.toContainText("Current slice started");
-    await expect(card(twoOwners)).not.toContainText(noProfileLabel);
-  });
-
   await test.step("each commit time was asked once, for the plan and the single profile at the revision", () => {
     const asked = requests.flatMap(({ request }) =>
       request.kind === "commit-list"
@@ -119,9 +108,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
     );
     expect(asked.sort()).toEqual(
       [
-        ...stories
-          .filter(({ anchor }) => anchor !== "two-owners")
-          .map(({ anchor }) => planPath(anchor)),
+        ...stories.map(({ anchor }) => planPath(anchor)),
         ...["Akiho", "Yuma", "Sola"].map(profilePath),
       ]
         .map((path) => `${path}@${revision}`)
@@ -141,6 +128,17 @@ test("each Taken card's clock measures from the later of its last plan commit an
     const calls = callsSince(page, from);
     expect(checks).toBeGreaterThan(0);
     expect(calls.filter((call) => !isRefCheck(call))).toEqual([]);
+  });
+
+  await test.step("a slice running for hours says hours and minutes, and after 26 hours says 1 d 2 h", async () => {
+    await page.clock.fastForward("03:00:00");
+    await expect(card(afterTake)).toContainText(
+      "Current slice started 3 h 13 min ago",
+    );
+    await page.clock.fastForward("22:47:00");
+    await expect(card(afterTake)).toContainText(
+      "Current slice started 1 d 2 h ago",
+    );
   });
 });
 

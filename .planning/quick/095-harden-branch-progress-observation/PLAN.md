@@ -191,7 +191,7 @@ resolved." (no test asserted the old wording). Full `npm run test:dashboard`
 ### 3. The dashboard suite proves each clock format and gap once
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- taken-slice branch-slice-progress
 story-readiness`; `node --test
 tests/support/product-backlog-plan-reader.test.mjs`.
@@ -202,6 +202,14 @@ only it uses (`expectReadyDetailTwoCompleteUnderSlicesHeading`,
 keep the two-owner gap only in `branch-slice-progress.spec.ts`, adding its
 "no running for" assertion there; add a 26-hour step to
 `taken-slice-clock.spec.ts` observing "1 d 2 h" (and an hours value on the way).
+Accepted: the `## Slices` readiness journey and its only helpers are gone;
+`## Slices` stays proven by the plan-reader case and
+`branch-slice-progress.spec.ts` ("6 of 8 slices recorded complete"). The
+two-owner gap is asserted only there, now also without a count or clock.
+`taken-slice-clock.spec.ts` shows "Current slice started 3 h 13 min ago" and
+then "1 d 2 h ago". `npm run test:dashboard -- taken-slice
+branch-slice-progress story-readiness` (9 passed); `node --test
+tests/support/product-backlog-plan-reader.test.mjs` (5 pass).
 
 ### 4. Docs and helper names describe the delivered observation
 

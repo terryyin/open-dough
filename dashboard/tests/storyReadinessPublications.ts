@@ -37,12 +37,8 @@ function publishOpenDoughMembership(
 // Second publication: records two of five slices done with accepted proof in
 // the plan text the shared reader interprets. Does not hand-build display state.
 // Only the plan path is committed so the unpushed seed edit stays unpublished.
-// A caller may supply the same progress in another accepted plan layout.
-export function publishTwoSlicesDone(
-  repo: ReadinessRepo,
-  planBody = planReadyTwoDoneBody,
-): string {
-  writePlanning(repo.directory, planReadyPath, planBody);
+export function publishTwoSlicesDone(repo: ReadinessRepo): string {
+  writePlanning(repo.directory, planReadyPath, planReadyTwoDoneBody);
   const next = commitPaths(
     repo.directory,
     [`.planning/${planReadyPath}`],

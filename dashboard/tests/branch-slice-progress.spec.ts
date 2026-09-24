@@ -101,6 +101,10 @@ test("Taken cards show progress from where each story is published, or the gap t
       "More than one agent profile names this story, so it has no single progress source.",
     );
     await expect(progress(twoOwners).getByRole("img")).toHaveCount(0);
+    await expect(progress(twoOwners)).not.toContainText("recorded complete");
+    await expect(progress(twoOwners)).not.toContainText(
+      "Current slice started",
+    );
   });
 
   await test.step("a recorded branch no longer published is a gap, not trunk's count", async () => {
