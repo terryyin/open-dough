@@ -159,3 +159,53 @@ test("contextual execution and queued execution keep their own continuations", (
   );
   assert.doesNotMatch(execution, /exclusive-turn/);
 });
+
+test("the execution retrospective writes only in an owned checkout", () => {
+  const finish = read("dough-execute-plan/references/finish-or-stop.md");
+  const retrospective = read("dough-execution-retrospective/SKILL.md");
+  const recording = read(
+    "dough-execution-retrospective/references/process-finding-recording.md",
+  );
+  const wrapUp = read("dough-story-wrap-up/SKILL.md");
+
+  assert.match(
+    finish,
+    /Supply\s+the\s+execution\s+checkout\s+path\s+as\s+the\s+retrospective's\s+write\s+location/,
+  );
+  assert.match(
+    retrospective,
+    /###\s+Write\s+only\s+in\s+an\s+owned\s+checkout/,
+  );
+  assert.match(
+    retrospective,
+    /invoking\s+execution\s+supplies\s+its\s+execution\s+checkout\s+as\s+the\s+write\s+location,\s+write\s+there/,
+  );
+  assert.match(
+    retrospective,
+    /Otherwise,\s+immediately\s+before\s+the\s+first\s+write,\s+select\s+or\s+reuse\s+an\s+owned\s+workspace\s+under\s+\[prepare\s+records\s+in\s+an\s+owned\s+workspace\]\(\.\.\/dough-story-refinement\/references\/preparation-workspace\.md\)/,
+  );
+  assert.match(
+    retrospective,
+    /report\s+the\s+written\s+result's\s+pending\s+disposition/,
+  );
+  assert.match(
+    retrospective,
+    /A\s+review\s+that\s+writes\s+nothing\s+creates\s+no\s+workspace/,
+  );
+  assert.match(
+    retrospective,
+    /Do\s+not\s+write\s+in\s+the\s+checkout\s+the\s+review\s+started\s+from\s+unless\s+it\s+is\s+that\s+supplied\s+execution\s+checkout/,
+  );
+  assert.match(
+    recording,
+    /\(\.\.\/SKILL\.md#write-only-in-an-owned-checkout\)/,
+  );
+  assert.match(
+    preparation,
+    /\[dough-execution-retrospective\]\(\.\.\/\.\.\/dough-execution-retrospective\/SKILL\.md#write-only-in-an-owned-checkout\)/,
+  );
+  assert.match(
+    wrapUp,
+    /retrospective\s+edits\s+to\s+the\s+process\s+log\s+in\s+the\s+execution\s+checkout/,
+  );
+});

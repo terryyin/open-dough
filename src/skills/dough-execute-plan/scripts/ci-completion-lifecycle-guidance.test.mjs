@@ -97,7 +97,7 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(
     trunkPublication,
-    /Unconfirmed[\s\S]+shutdown or retained observation preserves those resources/,
+    /Unconfirmed[\s\S]+shutdown or retained observation preserves the\s+worktree and\s+branch/,
   );
   assert.match(
     trunkPublication,
@@ -123,10 +123,6 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
     trunkPublication,
     /then explicitly stop the trunk observer/,
   );
-  assert.match(
-    storyWrapUp,
-    /final accepted closure has a completion receipt whose shutdown is[\s\S]+confirmed[\s\S]+remove/,
-  );
   assert.match(storyWrapUp, /completion receipt \(CI verdict/);
   assert.match(storyWrapUp, /Local-only[\s\S]+does not push/);
   assert.match(
@@ -137,4 +133,76 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
     monitor,
     /[Ii]ntermediate[\s\S]+closure publications create no[\s\S]+wait/,
   );
+});
+
+const section = (text, heading) => {
+  const start = text.indexOf(`\n${heading}\n`);
+  assert.notEqual(start, -1, `missing ${heading}`);
+  const rest = text.slice(start + heading.length + 2);
+  const end = rest.search(/\n## /);
+  return end === -1 ? rest : rest.slice(0, end);
+};
+
+test("wrap-up retires execution resources through Dough Land with its completion gate", () => {
+  const wrapUpRetirement = section(
+    storyWrapUp,
+    "## Remove execution resources safely",
+  );
+  const closureRetirement = section(
+    trunkPublication,
+    "## Publish wrap-up closure",
+  );
+  const integrationRetirement = section(
+    trunkPublication,
+    "## Observe Story Branch integration",
+  );
+
+  assert.match(
+    wrapUpRetirement,
+    /\[Retire the worktree\]\(\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
+  );
+  assert.match(
+    wrapUpRetirement,
+    /\(\.\.\/dough-land\/SKILL\.md#refresh-the-default-checkout\)/,
+  );
+  assert.match(
+    wrapUpRetirement,
+    /gate[\s\S]+completion receipt whose shutdown is[\s\S]+confirmed/,
+  );
+  assert.match(
+    wrapUpRetirement,
+    /active checkout-bound observer[\s\S]+preserve pending local work/,
+  );
+  assert.match(wrapUpRetirement, /Trunk Mode[\s\S]+never deletes one/);
+  assert.match(wrapUpRetirement, /direct-current-branch mode/);
+  assert.match(
+    closureRetirement,
+    /\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)[\s\S]+receipt as its gate/,
+  );
+  assert.match(
+    integrationRetirement,
+    /confirmed shutdown as its gate[\s\S]+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
+  );
+
+  // A second retirement description must not return beside the link.
+  for (const guidance of [
+    wrapUpRetirement,
+    closureRetirement,
+    integrationRetirement,
+  ]) {
+    assert.doesNotMatch(
+      guidance,
+      /git worktree remove|git branch -d|--is-ancestor/,
+    );
+    assert.doesNotMatch(
+      guidance,
+      /clean local worktree and local execution branch/,
+    );
+    assert.doesNotMatch(guidance, /non-force operations/);
+    assert.doesNotMatch(
+      guidance,
+      /deletes\s+the remote branch only when its tip/,
+    );
+    assert.doesNotMatch(guidance, /accept already-absent resources/i);
+  }
 });
