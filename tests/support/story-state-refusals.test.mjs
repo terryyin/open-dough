@@ -2,17 +2,44 @@
 // and legacy absence leave files unchanged and stay distinct outcomes.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { run, scratchProject } from "./product-backlog-fixture.mjs";
+import {
+  projectFile,
+  run,
+  scratchProject,
+} from "./product-backlog-fixture.mjs";
 import {
   backlogBytes,
+  correction,
+  correctionPlan,
+  correctionRelative,
   first,
   plantSeed,
+  planningFile,
   readArgs,
   recordArgs,
   second,
   seedBytes,
   twoStorySeed,
 } from "./story-state-fixture.mjs";
+
+test("story-state: a planned correction requires an explicit plan without writes", async (t) => {
+  const project = scratchProject(t);
+  projectFile(project, correctionRelative, correctionPlan());
+  const before = planningFile(project, correctionRelative);
+  const backlogBefore = backlogBytes(project);
+
+  const refused = await run(
+    project,
+    recordArgs(correction, { refinement: "refined", approach: "planned" }),
+  );
+
+  assert.equal(refused.code, 1);
+  assert.match(refused.stderr, /A planned approach needs --plan <path>/);
+  assert.match(refused.stderr, /Nothing was written/);
+  assert.doesNotMatch(refused.stderr, /TypeError/);
+  assert.equal(planningFile(project, correctionRelative), before);
+  assert.equal(backlogBytes(project), backlogBefore);
+});
 
 test("story-state: duplicate blocks and wrong identity refuse without writes", async (t) => {
   const project = scratchProject(t);
