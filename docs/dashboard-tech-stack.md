@@ -13,7 +13,9 @@ with React, strict TypeScript, Vite, runtime validation, and one new behavioral
 suite: Playwright on Chromium. Include type checking, lint, production build,
 and the browser suite in existing CI; preserve existing repository tests.
 No application read server, Vitest/component-test layer, browser matrix,
-sign-in, or hosted deployment is required by that overview.
+sign-in, or hosted deployment is required by that overview. Every project now
+reads through a local `gh` read boundary; see the
+[dashboard README](../dashboard/README.md) for current behavior.
 
 The interface direction is an animated, zoomable **connected-stage view**.
 The first story needs a readable connection between Backlog and Taken, entry

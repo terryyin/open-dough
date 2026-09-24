@@ -22,8 +22,6 @@ import { peekRecordedApproach, type WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
 import type { WorkPurpose } from "./storyPurpose";
 
-export type PublishedWorkProgress = (work: PublishedWork) => void;
-
 type EntryFacts = {
   readonly preparation: WorkPreparation;
   readonly associatedPlan?: SourceLink;
@@ -110,10 +108,12 @@ function peekEntries(
   });
 }
 
+// Every file left unread, including one still unread when `signal` ends the
+// reads, carries its problem, so the enriched snapshot never keeps a loading
+// fact.
 export async function enrichPreparation(
   work: PublishedWork,
   signal: AbortSignal,
-  onPartial: PublishedWorkProgress | undefined,
 ): Promise<PublishedWork> {
   const { source, revision } = work;
   const entries = [...work.taken, ...work.backlog];
@@ -210,7 +210,5 @@ export async function enrichPreparation(
     });
   }
 
-  const enriched = withFacts(work, byIdentity);
-  onPartial?.(enriched);
-  return enriched;
+  return withFacts(work, byIdentity);
 }

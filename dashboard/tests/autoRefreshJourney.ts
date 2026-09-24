@@ -6,6 +6,7 @@ import { expect, type Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import { expectMembership } from "./dashboardPage";
 import { commitEtag } from "./originAnswers";
+import { isRefCheck } from "./originObservation";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
 import {
   backlogA,
@@ -210,11 +211,10 @@ export async function checkedAtOnce(page: Page): Promise<void> {
 }
 
 // The checks of `main` among these `gh` calls, as opposed to the reads that
-// resolve it: a check asks with `--include` to see GitHub's status.
+// resolve it (see ./originObservation.ts). Origins leave checks out of what
+// they observe, so specs follow them here, among every `gh` call.
 export function refChecks(calls: readonly GhCall[]): readonly GhCall[] {
-  return calls.filter(
-    ({ argv, request }) => request.kind === "ref" && argv.includes("--include"),
-  );
+  return calls.filter(isRefCheck);
 }
 
 // Hides the page from, or shows it to, the person, as switching browser tabs

@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep auto-refreshed snapshots truthful when detail reads are abandoned](quick/087-truthful-abandoned-detail-reads/PLAN.md)
-
 ## Backlog list
 
 - [Keep reviewed worktree changes with Dough Keep](seeds/SEED-026-dough-keep.md#keep-reviewed-worktree-changes) — SEED-026#keep-reviewed-worktree-changes

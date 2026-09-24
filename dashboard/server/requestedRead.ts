@@ -5,7 +5,7 @@
 // revision; or one repository path at a pinned revision. Malformed or mixed
 // parameters are refused here, before any `gh` call.
 
-import { commitShaPattern } from "./ghRead";
+import { commitShaPattern } from "../src/authenticatedReadRules";
 import { parseSafeRepositoryPath } from "./reachablePaths";
 
 export type RequestedRead =

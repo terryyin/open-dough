@@ -1,4 +1,5 @@
-import { expect, test } from "./dashboardTest";
+import { expect, githubFor, test } from "./dashboardTest";
+import { refChecks } from "./autoRefreshJourney";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
@@ -9,7 +10,6 @@ import {
   commitAnswer,
   noConnection,
   notFoundAnswer,
-  notLoggedIn,
   pathsRead,
   publishMovingOrigin,
   publishOrigin,
@@ -42,12 +42,6 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
     origin: { ref: noConnection },
     problem:
       "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
-  },
-  {
-    when: "the local GitHub CLI is not logged in",
-    origin: { ref: notLoggedIn },
-    problem:
-      "The local GitHub CLI is not logged in, so main of terryyin/open-dough could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
   },
   {
     when: "GitHub limits the rate with HTTP 429",
@@ -170,6 +164,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
     releaseRef();
     await page.clock.runFor("00:10:00");
     expect(pathsRead(origin)).toEqual(["main"]);
+    expect(refChecks(githubFor(page).calls)).toEqual([]);
     await expect(problem).toBeVisible();
   });
 

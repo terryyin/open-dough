@@ -12,7 +12,8 @@
 // the repository gets no answer and is not observed, so detail reads fail as
 // unavailable. `publishFiles` publishes a
 // fixed set of files at one revision; ./committedOrigin.ts publishes whole
-// committed revisions.
+// committed revisions. What every origin observes of the calls it answers,
+// leaving out revision checks, lives in ./originObservation.ts.
 
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
@@ -23,6 +24,7 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers";
+import { observe, type ObservedRequest } from "./originObservation";
 import type { GhCall } from "./support/fakeGitHub";
 
 export {
@@ -36,6 +38,7 @@ export {
   type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers";
+export { pathsRead, type ObservedRequest } from "./originObservation";
 
 // The project this dashboard opens by default. Callers that observe another
 // project pass its repository explicitly; this default keeps every existing
@@ -43,9 +46,6 @@ export {
 export const defaultRepository = "terryyin/open-dough";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-
-// One `gh` invocation that asked this origin for its ref or backlog file.
-export type ObservedRequest = GhCall;
 
 export type Origin = {
   // What GitHub answers for `commits/main`.
@@ -83,12 +83,12 @@ export function publishOrigin(
   githubFor(page).serve(repository, async (call) => {
     const target = publishedTarget(call);
     if (target === "main") {
-      observed.push(call);
+      observe(observed, call);
       await refHeldUntil;
       return ref;
     }
     if (target !== undefined && target === backlog?.revision) {
-      observed.push(call);
+      observe(observed, call);
       return backlog.answer;
     }
     return noConnection;
@@ -141,7 +141,7 @@ export function publishMovingOrigin(
           ? files[request.path]
           : undefined;
       if (body !== undefined) {
-        requests.push(call);
+        observe(requests, call);
         await held.get(request.path);
         return rawFileAnswer(body);
       }
@@ -149,7 +149,7 @@ export function publishMovingOrigin(
     if (target === undefined) {
       return noConnection;
     }
-    requests.push(call);
+    observe(requests, call);
     let answer: OriginAnswer;
     if (target === "main") {
       answer =
@@ -210,13 +210,13 @@ export function publishFiles(
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
     if (request.kind === "ref" && request.ref === "main") {
-      observed.push(call);
+      observe(observed, call);
       return Promise.resolve(commitAnswer(revision));
     }
     if (request.kind !== "content" || request.revision !== revision) {
       return Promise.resolve(noConnection);
     }
-    observed.push(call);
+    observe(observed, call);
     const body = Object.hasOwn(files, request.path)
       ? files[request.path]
       : undefined;
@@ -225,19 +225,4 @@ export function publishFiles(
     );
   });
   return Promise.resolve(observed);
-}
-
-// What origin was asked for, in order: the ref, or the file at a revision.
-export function pathsRead(origin: {
-  readonly requests: readonly ObservedRequest[];
-}): string[] {
-  return origin.requests.map(({ request }) => {
-    if (request.kind === "ref") {
-      return request.ref;
-    }
-    if (request.kind === "content") {
-      return `${request.path.split("/").pop() ?? ""}?ref=${request.revision}`;
-    }
-    return "unknown";
-  });
 }

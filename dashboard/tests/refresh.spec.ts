@@ -1,4 +1,5 @@
-import { expect, test } from "./dashboardTest";
+import { expect, githubFor, test } from "./dashboardTest";
+import { refChecks } from "./autoRefreshJourney";
 import { expectWholeSnapshot, parts } from "./dashboardPage";
 import { pathsRead } from "./publishedOrigin";
 import {
@@ -134,7 +135,9 @@ test("refresh published work only checks main as time passes, and a Refresh at a
     await page.evaluate(
       "window.dispatchEvent(new Event('focus')); window.dispatchEvent(new Event('online')); document.dispatchEvent(new Event('visibilitychange'))",
     );
-    await expect.poll(() => pathsRead(origin).length).toBeGreaterThan(2);
+    await expect
+      .poll(() => refChecks(githubFor(page).calls).length)
+      .toBeGreaterThan(0);
     await page.clock.fastForward("00:30:00");
     expect(backlogReads()).toEqual([`PRODUCT-BACKLOG.md?ref=${revisionA}`]);
     await expect(source.locator("time")).toHaveAttribute(

@@ -12,6 +12,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer";
+import { everyRepository, publishes } from "./support/fakeGitHub";
 import { rawRequest } from "./support/rawHttp";
 
 test.describe.configure({ mode: "serial" });
@@ -33,7 +34,7 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
   });
 
   test("refuses a mismatched Origin before launching gh", async () => {
-    server.setControl({ mode: "normal", revision, backlog });
+    server.github.serve(everyRepository, publishes({ revision, backlog }));
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: "http://evil.example" },
@@ -76,7 +77,7 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
   // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
   // which `../server/localOrigin.ts` now accepts in place of `Origin`.
   test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
-    server.setControl({ mode: "normal", revision, backlog });
+    server.github.serve(everyRepository, publishes({ revision, backlog }));
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
@@ -97,14 +98,16 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
   });
 
   test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
-    server.setControl({
-      mode: "normal",
-      revision,
-      backlog,
-      files: {
-        ".planning/PRODUCT-BACKLOG.md": backlog,
-      },
-    });
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision,
+        backlog,
+        files: {
+          ".planning/PRODUCT-BACKLOG.md": backlog,
+        },
+      }),
+    );
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,

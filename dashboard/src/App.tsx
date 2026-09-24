@@ -53,15 +53,21 @@ export function App() {
             <h2>Published work could not be read</h2>
             <p>{attempt.problem}</p>
             <p>
-              This attempt failed at <Moment at={attempt.at} />.{" "}
-              {work ? (
+              This attempt failed at <Moment at={attempt.at} />
+              {work && attempt.afterMembership ? (
                 <>
-                  What is shown is the earlier snapshot, retrieved at{" "}
+                  , after reading the published work at revision{" "}
+                  {shortRevision(work.revision)}. What is shown is what it read,
+                  retrieved at <Moment at={work.retrievedAt} />.
+                </>
+              ) : work ? (
+                <>
+                  . What is shown is the earlier snapshot, retrieved at{" "}
                   <Moment at={work.retrievedAt} />; this attempt added nothing
                   to it.
                 </>
               ) : (
-                "No published work is shown, because none has been read."
+                ". No published work is shown, because none has been read."
               )}
             </p>
             <p>

@@ -34,6 +34,10 @@ import { startDashboardServer } from "./support/dashboardServer";
 // a browser-visible surface would be caught here.
 const credentialMarker = "gho_should-never-reach-a-browser-4c3b2a1f0e9d";
 
+// Each case starts its own dev or preview server below and opens it by its
+// full URL, so the fixture's own preview server is never started.
+test.use({ baseURL: undefined });
+
 for (const mode of ["dev", "preview"] as const) {
   test(`authenticated project overview: Open Dough, Doughnut, and Pygardon each open, refresh, and fail without gh login through the one local boundary (${mode} launch mode)`, async ({
     page,
