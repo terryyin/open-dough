@@ -43,7 +43,12 @@ function WorkCard({
       <p className="card-identity">{entry.identity}</p>
       <TakenOwnerFacts owner={entry.owner} />
       <PreparationFacts preparation={entry.preparation} />
-      {showsSliceProgress && <SliceProgress planSlices={entry.planSlices} />}
+      {showsSliceProgress && (
+        <SliceProgress
+          planSlices={entry.planSlices}
+          sliceClock={entry.sliceClock}
+        />
+      )}
       <p>
         <button
           type="button"

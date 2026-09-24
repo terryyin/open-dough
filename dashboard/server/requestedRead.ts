@@ -2,9 +2,10 @@
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
 // the ref resolved afresh with its backlog; only whether the ref still names
 // the revision already shown (`since`); the backlog at an already resolved
-// revision; one repository path at a pinned revision; or the agent profiles
-// published beside the backlog at a pinned revision. Malformed or mixed
-// parameters are refused here, before any `gh` call.
+// revision; one repository path at a pinned revision; when one repository
+// path was last committed at a pinned revision (`committed=last`); or the
+// agent profiles published beside the backlog at a pinned revision. Malformed
+// or mixed parameters are refused here, before any `gh` call.
 
 import { commitShaPattern } from "../src/authenticatedReadRules";
 import { parseSafeRepositoryPath } from "./reachablePaths";
@@ -15,7 +16,7 @@ export type RequestedRead =
   | { readonly kind: "backlog-at"; readonly revision: string }
   | { readonly kind: "agent-profiles-at"; readonly revision: string }
   | {
-      readonly kind: "file-at";
+      readonly kind: "file-at" | "commit-time-at";
       readonly revision: string;
       readonly path: string;
     };
@@ -37,14 +38,34 @@ export function parseRequestedRead(
   const path = params.get("path");
   const since = params.get("since");
   const agents = params.get("agents");
+  const committed = params.get("committed");
   if (agents !== null) {
-    if (agents !== "profiles" || path !== null || since !== null) {
+    if (
+      agents !== "profiles" ||
+      path !== null ||
+      since !== null ||
+      committed !== null
+    ) {
       return refused("An agent profile read names only a pinned revision.");
     }
     if (revision === null || !commitShaPattern.test(revision)) {
       return refused("The pinned revision is not a commit sha.");
     }
     return { kind: "agent-profiles-at", revision };
+  }
+  if (committed !== null) {
+    if (committed !== "last" || since !== null) {
+      return refused(
+        "A commit time read names only a pinned revision and repository path.",
+      );
+    }
+    if (revision === null || !commitShaPattern.test(revision)) {
+      return refused("The pinned revision is not a commit sha.");
+    }
+    const repositoryPath = parseSafeRepositoryPath(path);
+    return repositoryPath === undefined
+      ? refused("The repository path is not usable.")
+      : { kind: "commit-time-at", revision, path: repositoryPath };
   }
   if (since !== null) {
     if (revision !== null || path !== null) {

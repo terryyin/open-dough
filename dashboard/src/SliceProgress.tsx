@@ -1,10 +1,13 @@
 // Recorded slice progress as a Taken card shows it: one segment per slice,
 // filled for each recorded-done slice, and the count in words. It is a count
-// of recorded statuses, not an estimate of how complete the story is. The
-// slices come from whichever plan the snapshot already read; nothing here
+// of recorded statuses, not an estimate of how complete the story is, shown
+// with how long the current slice has been running. The slices and the
+// clock's start come from whatever the snapshot already read; nothing here
 // reads or interprets a plan.
 
 import { useId } from "react";
+import { SliceClock } from "./SliceClock";
+import type { SliceClock as Clock } from "./sliceClockStart";
 import { recordedCompleteCount, type WorkPlanSlices } from "./storyPlan";
 import "./slice-progress.css";
 
@@ -46,8 +49,10 @@ export function PlanSlicesNote({
 
 export function SliceProgress({
   planSlices,
+  sliceClock,
 }: {
   planSlices: WorkPlanSlices | undefined;
+  sliceClock: Clock | undefined;
 }) {
   const countId = useId();
   if (planSlices === undefined) {
@@ -80,6 +85,7 @@ export function SliceProgress({
       <p id={countId} className="slice-count">
         {done} of {slices.length} slices recorded done
       </p>
+      <SliceClock clock={sliceClock} />
     </div>
   );
 }

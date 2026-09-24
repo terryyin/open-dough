@@ -15,6 +15,11 @@ import { enrichPreparation } from "./preparationEnrichment";
 import { readPublishedSnapshot } from "./authenticatedRead";
 import { readWaitLimitMs } from "./authenticatedReadRules";
 import { ReadProblem } from "./readProblem";
+import {
+  awaitingSliceClocks,
+  withSliceClocks,
+  type SliceClock,
+} from "./sliceClockStart";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
@@ -64,6 +69,9 @@ export type WorkEntry = {
   // Taken entries only: who holds the work, from the agent profile published
   // at this revision.
   readonly owner?: TakenOwner;
+  // Taken entries with counted plan slices only: when the current slice
+  // started, from commit times at this revision.
+  readonly sliceClock?: SliceClock;
 };
 
 export type PublishedWork = {
@@ -179,7 +187,12 @@ export async function readPublishedWork(
       enrichPreparation(work, untilEither),
       readOwnership(source, revision, untilEither),
     ]);
-    const enriched = withOwners(prepared, ownership);
+    const owned = awaitingSliceClocks(withOwners(prepared, ownership));
+    signal.throwIfAborted();
+    onPartial?.(owned);
+    // Each counted plan's clock starts from commit times at the same
+    // revision, once owners say which profile records the Take.
+    const enriched = await withSliceClocks(owned, untilEither);
     signal.throwIfAborted();
     // Shown even when the wait bound ended it: each detail left unread is
     // an explicit gap, and the bound is still reported as the read problem.

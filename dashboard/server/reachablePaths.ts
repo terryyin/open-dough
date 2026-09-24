@@ -4,9 +4,11 @@
 // client-supplied path list as an open proxy. Uses the same path resolution
 // and story-state peek rules as the browser enrichment path. The records it
 // consults are read through the caller's own pinned reader
-// (`./authenticatedRead.ts`), so already-read text at the same revision is
+// (`./performedRead.ts`), so already-read text at the same revision is
 // not fetched again. Agent profiles beside the backlog are reachable only as
-// the profile files the pinned revision's directory listing names.
+// the profile files the pinned revision's directory listing names. When a
+// path was last committed may be asked for a reachable record or a listed
+// profile: a plan's last recorded update, or the Take that added a profile.
 
 import type { PublishedSource } from "../src/publishedSource";
 import { resolveBesideFile } from "../src/repositoryPath";
@@ -160,4 +162,28 @@ export async function listedAgentProfilePaths(
     .filter((name) => profileAgentName(name) !== undefined)
     .sort()
     .map((name) => `${directory}/${name}`);
+}
+
+// Whether the pinned revision's records allow asking when `requestedPath` was
+// last committed: any path a file read may reach, or one of the agent profiles
+// listed beside the backlog. The profile directory is listed only for a path
+// inside it.
+export async function commitTimeReachableFromRevision(
+  source: PublishedSource,
+  revision: string,
+  requestedPath: string,
+  readPinned: PinnedReader,
+  listPinned: (directory: string) => Promise<readonly string[]>,
+): Promise<boolean> {
+  if (
+    await pathReachableFromRevision(source, revision, requestedPath, readPinned)
+  ) {
+    return true;
+  }
+  if (!requestedPath.startsWith(`${agentProfileDirectoryOf(source)}/`)) {
+    return false;
+  }
+  return (await listedAgentProfilePaths(source, listPinned)).includes(
+    requestedPath,
+  );
 }

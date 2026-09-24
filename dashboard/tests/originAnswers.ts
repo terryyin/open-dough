@@ -57,6 +57,40 @@ export function commitAnswer(sha: string): RawAnswer {
   };
 }
 
+// GitHub's commit list for a path, newest first, as far as `per_page=1`
+// asks: the one commit that last changed it, committed at `committedAt`.
+function commitListAnswer(committedAt: Date): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify([
+      {
+        sha: "c0".repeat(20),
+        commit: {
+          message: "Fixture commit",
+          committer: {
+            name: "Fixture Committer",
+            date: committedAt.toISOString().replace(/\.\d{3}Z$/, "Z"),
+          },
+        },
+      },
+    ]),
+  };
+}
+
+// The commit list for `path`, when `committed` says when it was last
+// committed; undefined when it does not.
+export function commitListFor(
+  committed: Readonly<Record<string, Date>> | undefined,
+  path: string,
+): RawAnswer | undefined {
+  const at =
+    committed !== undefined && Object.hasOwn(committed, path)
+      ? committed[path]
+      : undefined;
+  return at === undefined ? undefined : commitListAnswer(at);
+}
+
 export function rawFileAnswer(markdown: string): RawAnswer {
   return {
     status: 200,

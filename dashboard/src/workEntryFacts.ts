@@ -37,6 +37,7 @@ type AssociatedPlanSource =
   | { readonly status: "unavailable"; readonly problem: string }
   | {
       readonly status: "ready";
+      readonly path: string;
       readonly source: string;
       readonly planIsCanonical: boolean;
     };
@@ -70,7 +71,7 @@ function associatedPlanSource(
         problem: "The canonical plan record could not be read.",
       };
     }
-    return { status: "ready", source: text, planIsCanonical: true };
+    return { status: "ready", path, source: text, planIsCanonical: true };
   }
   const planProblem = planProblems.get(resolved);
   if (planProblem !== undefined) {
@@ -83,7 +84,12 @@ function associatedPlanSource(
       problem: "The associated plan could not be read.",
     };
   }
-  return { status: "ready", source, planIsCanonical: false };
+  return {
+    status: "ready",
+    path: resolved,
+    source,
+    planIsCanonical: false,
+  };
 }
 
 export function purposeFor(
@@ -147,7 +153,7 @@ export function planSlicesFor(
   if (associated.status === "unavailable") {
     return { status: "unavailable", problem: associated.problem };
   }
-  return interpretPlanSlices(associated.source);
+  return interpretPlanSlices(associated.source, associated.path);
 }
 
 export function preparationForPeek(

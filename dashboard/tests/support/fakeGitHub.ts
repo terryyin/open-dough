@@ -13,6 +13,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
   commitAnswer,
+  commitListFor,
   directoryListingAnswer,
   noConnection,
   rawFileAnswer,
@@ -23,7 +24,8 @@ import { asGhReply } from "./ghReply";
 // What one `gh` invocation asked GitHub for. A ref request made with
 // `--include` and an `If-None-Match` header is conditional on that tag. A
 // contents request asks for a file's raw bytes when it accepts GitHub's raw
-// media type, and otherwise for a directory's JSON listing.
+// media type, and otherwise for a directory's JSON listing. A commit list
+// asks for the commits that changed one path in a revision's history.
 export type GhRequest =
   | {
       readonly kind: "ref";
@@ -32,7 +34,7 @@ export type GhRequest =
       readonly ifNoneMatch: string | undefined;
     }
   | {
-      readonly kind: "content" | "listing";
+      readonly kind: "content" | "listing" | "commit-list";
       readonly repository: string;
       readonly path: string;
       readonly revision: string;
@@ -89,6 +91,16 @@ function parseRequest(argv: readonly string[]): GhRequest {
       ifNoneMatch: headerArgument(argv, "If-None-Match"),
     };
   }
+  const commitList = /^repos\/([^/]+\/[^/]+)\/commits\?(.+)$/.exec(endpoint);
+  if (commitList?.[1] !== undefined && commitList[2] !== undefined) {
+    const query = new URLSearchParams(commitList[2]);
+    return {
+      kind: "commit-list",
+      repository: commitList[1],
+      path: query.get("path") ?? "",
+      revision: query.get("sha") ?? "",
+    };
+  }
   const content = /^repos\/([^/]+\/[^/]+)\/contents\/([^?]+)\?ref=(.+)$/.exec(
     endpoint,
   );
@@ -120,14 +132,22 @@ export function failsWith(stderr: string): RepositoryAnswerer {
 }
 
 // Answers `revision` for any ref; for any content read, the named file in
-// `files` or else `backlog`; and for a directory listing, the `files` in that
-// directory.
+// `files` or else `backlog`; for a directory listing, the `files` in that
+// directory; and for a path's commit list, its time in `committed`.
 export function publishes(published: {
   readonly revision: string;
   readonly backlog?: string;
   readonly files?: Readonly<Record<string, string>>;
+  readonly committed?: Readonly<Record<string, Date>>;
 }): RepositoryAnswerer {
   return ({ request }) => {
+    const commitList =
+      request.kind === "commit-list"
+        ? commitListFor(published.committed, request.path)
+        : undefined;
+    if (commitList !== undefined) {
+      return Promise.resolve(commitList);
+    }
     if (request.kind === "ref") {
       return Promise.resolve(commitAnswer(published.revision));
     }

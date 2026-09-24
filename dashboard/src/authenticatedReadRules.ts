@@ -26,7 +26,8 @@ export const commitShaPattern = /^[0-9a-f]{40}$/;
 export const readWaitLimitMs = 30_000;
 
 // What was being read, as a read failure names it: the source's ref while
-// it is still to be resolved, or one repository path at a resolved revision.
+// it is still to be resolved, one repository path at a resolved revision, or
+// when that path was last committed as of a resolved revision.
 export function readingRefOf(
   source: Pick<PublishedSource, "ref" | "repository">,
 ): string {
@@ -35,4 +36,8 @@ export function readingRefOf(
 
 export function readingPathAt(path: string, revision: string): string {
   return `${path} at ${revision}`;
+}
+
+export function readingLastCommitAt(path: string, revision: string): string {
+  return `the last commit of ${path} at ${revision}`;
 }

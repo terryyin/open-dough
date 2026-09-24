@@ -12,7 +12,8 @@ export type GhReply = {
   readonly exitCode: number;
 };
 
-// `gh api --jq .field` prints one field of a JSON answer.
+// `gh api --jq .field` prints one field of a JSON answer, and
+// `--jq .[0].field` one field of its first element; a missing one is `null`.
 function applyJq(argv: readonly string[], body: string): string {
   const at = argv.indexOf("--jq");
   const filter = at >= 0 ? argv[at + 1] : undefined;
@@ -21,9 +22,13 @@ function applyJq(argv: readonly string[], body: string): string {
   }
   let value: unknown = JSON.parse(body);
   for (const field of filter.split(".").filter(Boolean)) {
-    value = (value as Record<string, unknown>)[field];
+    const index = /^\[(\d+)\]$/.exec(field)?.[1];
+    value =
+      value === null || value === undefined
+        ? undefined
+        : (value as Record<string, unknown>)[index ?? field];
   }
-  return `${typeof value === "string" ? value : JSON.stringify(value)}\n`;
+  return `${typeof value === "string" ? value : JSON.stringify(value ?? null)}\n`;
 }
 
 const reasonPhrases: Readonly<Record<number, string>> = {

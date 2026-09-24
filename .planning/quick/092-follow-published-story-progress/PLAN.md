@@ -159,7 +159,7 @@ full `npm run test:dashboard` 96/96 before refactor; dashboard typecheck.
 ### 3. Taken cards show how long the current slice has been running
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `taken-slice-progress.spec.ts` with the fake GitHub answering
 commit-list requests for a path at a sha and the page clock paused (reuse
 `autoRefreshJourney.ts` helpers): plan committed 12 min before page time after
@@ -177,6 +177,16 @@ advancing with page time.
 Adds a commit-time read kind to `requestedRead.ts`, `ghRead.ts`, and the
 browser reader, with the same reachability as `file-at` plus the Taken entry's
 profile path.
+
+Accepted: `commit-time-at` read (`committed=last`) in `requestedRead.ts`,
+`performedRead.ts`, `ghRead.ts`, pinned per revision and path, reachable as
+`file-at` plus listed profiles (`commitTimeReachableFromRevision`);
+`sliceClockStart.ts` starts at the later of the counted plan's last commit and
+the single recorded profile's Take; `not-recorded` owners use the labelled
+plan commit, while unreadable or multiple profiles are clock gaps;
+`SliceClock.tsx` ticks with page time. `taken-slice-clock.spec.ts` and
+`authenticated-read-boundary.spec.ts`; full `npm run test:dashboard` 99/99;
+dashboard typecheck.
 
 ### 4. Story Branch Mode progress comes from the recorded branch
 

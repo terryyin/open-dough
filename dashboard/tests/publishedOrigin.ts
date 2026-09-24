@@ -12,9 +12,10 @@
 // gets no answer and is not observed, so detail reads fail as unavailable.
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
-// `publishFiles` publishes fixed files at one revision, ./committedOrigin.ts
-// whole committed revisions; ./originObservation.ts holds what every origin
-// observes of the calls it answers, leaving out revision checks.
+// `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
+// ./committedOrigin.ts whole committed revisions; ./originObservation.ts holds
+// what every origin observes of the calls it answers, leaving out revision
+// checks.
 
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
@@ -41,6 +42,7 @@ export {
   type RawAnswer,
 } from "./originAnswers";
 export { pathsRead, type ObservedRequest } from "./originObservation";
+export { publishFiles } from "./publishedFiles";
 
 // The project this dashboard opens by default. Callers that observe another
 // project pass its repository explicitly; this default keeps every existing
@@ -207,44 +209,4 @@ export function publishMovingOrigin(
       };
     },
   });
-}
-
-// A repository whose `main` names one revision at which these files are
-// published: every contents read at that revision is observed and answered
-// with the file's bytes, or not-found for any other path, and a directory
-// listing with the published files directly in that directory.
-export function publishFiles(
-  page: Page,
-  published: {
-    readonly repository: string;
-    readonly revision: string;
-    readonly files: Readonly<Record<string, string>>;
-  },
-): Promise<ObservedRequest[]> {
-  const observed: ObservedRequest[] = [];
-  const { repository, revision, files } = published;
-  githubFor(page).serve(repository, (call) => {
-    const { request } = call;
-    if (request.kind === "ref" && request.ref === "main") {
-      observe(observed, call);
-      return Promise.resolve(commitAnswer(revision));
-    }
-    if (request.kind === "listing" && request.revision === revision) {
-      observe(observed, call);
-      return Promise.resolve(
-        directoryListingAnswer(request.path, Object.keys(files)),
-      );
-    }
-    if (request.kind !== "content" || request.revision !== revision) {
-      return Promise.resolve(noConnection);
-    }
-    observe(observed, call);
-    const body = Object.hasOwn(files, request.path)
-      ? files[request.path]
-      : undefined;
-    return Promise.resolve(
-      body === undefined ? notFoundAnswer() : rawFileAnswer(body),
-    );
-  });
-  return Promise.resolve(observed);
 }

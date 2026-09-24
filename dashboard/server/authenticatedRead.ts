@@ -2,159 +2,28 @@
 // resolved, and its backlog (or one reachability-checked canonical/plan path)
 // read, through the launching person's local `gh` authentication. A request
 // may instead name an already resolved revision to read that revision's
-// backlog, ask only whether the ref still names the revision shown, or read
-// the agent profiles its directory listing names beside the backlog.
+// backlog, ask only whether the ref still names the revision shown, read
+// the agent profiles its directory listing names beside the backlog, or ask
+// when one reachable record or listed profile was last committed there.
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
-// `./requestedRead.ts`; gh calls: `./ghRead.ts` and `./ghContents.ts`; path
-// reachability: `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`;
-// revision checks: `./revisionChecks.ts`; one request's `gh` lifetime:
+// `./requestedRead.ts`; performing it: `./performedRead.ts`; gh calls:
+// `./ghRead.ts` and `./ghContents.ts`; path reachability:
+// `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`; revision
+// checks: `./revisionChecks.ts`; one request's `gh` lifetime:
 // `./trackedGh.ts`; failure wording and any directed wait:
 // `./readFailureMessage.ts`. Node-only; never returns credentials, raw
 // stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
-import { resolveRevisionViaGh } from "./ghRead";
-import { readRepositoryFileViaGh } from "./ghContents";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { PinnedTexts } from "./pinnedTexts";
 import { RevisionChecks } from "./revisionChecks";
-import { withTrackedGh } from "./trackedGh";
-import { reportedFailure, type ReportedFailure } from "./readFailureMessage";
-import {
-  agentProfileDirectoryOf,
-  listedAgentProfilePaths,
-  pathReachableFromRevision,
-} from "./reachablePaths";
-import { parseRequestedRead, type RequestedRead } from "./requestedRead";
-import { sourceById, type PublishedSource } from "../src/publishedSource";
-// The one endpoint path and failure wording, shared with the browser reader.
-import {
-  authenticatedReadEndpoint,
-  readingPathAt,
-  readingRefOf,
-} from "../src/authenticatedReadRules";
-
-// What a successful read answers, as the browser reader
-// (`../src/authenticatedRead.ts`) checks it.
-type PinnedFile = { readonly path: string; readonly text: string };
-type Answer =
-  | { readonly revision: string; readonly backlog: string }
-  | ({ readonly revision: string } & PinnedFile)
-  | { readonly revision: string; readonly changed: boolean }
-  | { readonly revision: string; readonly profiles: readonly PinnedFile[] };
-
-type Outcome =
-  | { readonly kind: "answered"; readonly answer: Answer }
-  | {
-      readonly kind: "refused";
-      readonly status: number;
-      readonly message: string;
-    }
-  | ({ readonly kind: "failed" } & ReportedFailure);
-
-type Boundary = {
-  readonly tracked: Set<AbortController>;
-  readonly pinned: PinnedTexts;
-  readonly checks: RevisionChecks;
-};
-
-// Performs one allowed read with its `gh` calls tracked, and words any
-// failure for this source and what was being read when it failed.
-async function perform(
-  req: IncomingMessage,
-  { tracked, pinned, checks }: Boundary,
-  source: PublishedSource,
-  read: RequestedRead,
-): Promise<Outcome> {
-  let reading =
-    read.kind === "ref" || read.kind === "revision-check"
-      ? readingRefOf(source)
-      : readingPathAt(
-          read.kind === "file-at"
-            ? read.path
-            : read.kind === "agent-profiles-at"
-              ? agentProfileDirectoryOf(source)
-              : source.backlogPath,
-          read.revision,
-        );
-  try {
-    return await withTrackedGh(req, tracked, async (signal) => {
-      switch (read.kind) {
-        case "revision-check": {
-          const revision = await checks.check(source, signal);
-          return answered({ revision, changed: revision !== read.since });
-        }
-        case "backlog-at":
-          return answered({
-            revision: read.revision,
-            backlog: await pinned.reader(
-              source,
-              read.revision,
-              signal,
-            )(source.backlogPath),
-          });
-        case "agent-profiles-at": {
-          const listPinned = pinned.lister(source, read.revision, signal);
-          const readPinned = pinned.reader(source, read.revision, signal);
-          const profiles: PinnedFile[] = [];
-          const paths = await listedAgentProfilePaths(source, listPinned);
-          for (const path of paths) {
-            reading = readingPathAt(path, read.revision);
-            profiles.push({ path, text: await readPinned(path) });
-          }
-          return answered({ revision: read.revision, profiles });
-        }
-        case "file-at": {
-          const readPinned = pinned.reader(source, read.revision, signal);
-          const reachable = await pathReachableFromRevision(
-            source,
-            read.revision,
-            read.path,
-            readPinned,
-          );
-          if (!reachable) {
-            return {
-              kind: "refused",
-              status: 404,
-              message: "That path is not reachable from this source revision.",
-            };
-          }
-          return answered({
-            revision: read.revision,
-            path: read.path,
-            text: await readPinned(read.path),
-          });
-        }
-        case "ref": {
-          const revision = await resolveRevisionViaGh(
-            source.repository,
-            source.ref,
-            signal,
-          );
-          reading = readingPathAt(source.backlogPath, revision);
-          // The membership read always asks for the backlog afresh, and
-          // leaves it for the reachability checks of this revision's later
-          // detail reads.
-          const backlog = await readRepositoryFileViaGh(
-            source.repository,
-            source.backlogPath,
-            revision,
-            signal,
-          );
-          pinned.remember(source, revision, source.backlogPath, backlog);
-          return answered({ revision, backlog });
-        }
-      }
-    });
-  } catch (error) {
-    return { kind: "failed", ...reportedFailure(error, source, reading) };
-  }
-}
-
-function answered(answer: Answer): Outcome {
-  return { kind: "answered", answer };
-}
+import { perform, type Boundary, type Outcome } from "./performedRead";
+import { parseRequestedRead } from "./requestedRead";
+import { sourceById } from "../src/publishedSource";
+// The one endpoint path, shared with the browser reader.
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules";
 
 // Only a request naming a catalog source already known to
 // `../src/publishedSource.ts` is answered; there is no arbitrary

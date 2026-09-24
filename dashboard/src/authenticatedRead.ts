@@ -3,8 +3,10 @@
 // (`../server/authenticatedRead.ts`) at `/__authenticated-read?source=<id>`,
 // for any catalog source (`./publishedSource.ts`). An optional `revision`
 // reads the backlog at a commit already resolved, and with `path` one further
-// file already reachable from that revision's records; `since` instead asks
-// only whether the ref still names the revision shown. No extra header or
+// file already reachable from that revision's records, or with `path` and
+// `committed=last` when that file (or a listed agent profile) was last
+// committed as of that revision; `since` instead asks only whether the ref
+// still names the revision shown. No extra header or
 // credential is sent; the page is served by the same Vite process that
 // answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
 // (`../server/localOrigin.ts`) does the rest. There is no direct browser path
@@ -20,6 +22,7 @@ import {
   authenticatedReadEndpoint,
   commitShaPattern,
   longestDirectedWaitSeconds,
+  readingLastCommitAt,
   readingPathAt,
   readingRefOf,
 } from "./authenticatedReadRules";
@@ -35,6 +38,11 @@ const okFile = z.object({
   revision: commitSha,
   path: z.string().min(1),
   text: z.string(),
+});
+const okCommitTime = z.object({
+  revision: commitSha,
+  path: z.string().min(1),
+  committedAt: z.iso.datetime({ offset: true }),
 });
 const okCheck = z.object({
   revision: commitSha,
@@ -176,6 +184,33 @@ export async function readRepositoryFileAt(
     );
   }
   return parsed.data.text;
+}
+
+// When `repositoryPath` was last committed as of `revision`: the committer
+// date of the newest commit that changed it in that revision's history.
+export async function readLastCommitTimeAt(
+  source: PublishedSource,
+  repositoryPath: string,
+  revision: string,
+  signal: AbortSignal,
+): Promise<Date> {
+  const reading = readingLastCommitAt(repositoryPath, revision);
+  const body = await authenticatedGet(
+    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&path=${encodeURIComponent(repositoryPath)}&committed=last`,
+    reading,
+    signal,
+  );
+  const parsed = okCommitTime.safeParse(body);
+  if (
+    !parsed.success ||
+    parsed.data.path !== repositoryPath ||
+    parsed.data.revision !== revision
+  ) {
+    throw new ReadProblem(
+      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
+    );
+  }
+  return new Date(parsed.data.committedAt);
 }
 
 const okProfiles = z.object({

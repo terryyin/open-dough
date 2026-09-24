@@ -40,9 +40,10 @@ const readProfile = z.discriminatedUnion("ok", [
 export type AgentMode = z.infer<typeof agentMode>;
 export type AgentHost = z.infer<typeof agentHost>;
 
-// One published profile's facts; host and model stay undefined when the
-// profile does not record them.
+// One published profile's facts, and the repository path it is published
+// at; host and model stay undefined when the profile does not record them.
 export type AgentOwner = {
+  readonly profilePath: string;
   readonly agent: string;
   readonly mode: AgentMode;
   readonly branch: string;
@@ -99,7 +100,14 @@ function interpretProfiles(profiles: readonly PublishedProfile[]): Ownership {
     const { name, identity, mode, branch, host, model } = read.data.profile;
     owners.set(identity, [
       ...(owners.get(identity) ?? []),
-      { agent: agentIdentity(name).agent, mode, branch, host, model },
+      {
+        profilePath: path,
+        agent: agentIdentity(name).agent,
+        mode,
+        branch,
+        host,
+        model,
+      },
     ]);
   }
   return { owners, unreadable };

@@ -1,7 +1,8 @@
 // The `gh`-invocation concern for the local authenticated read boundary
 // (`./authenticatedRead.ts`): running one `gh` call and classifying how it
-// failed, resolving which commit a ref names, and the conditional ref check
-// that asks only whether the ref still names the same commit. Content pinned
+// failed, resolving which commit a ref names, the conditional ref check
+// that asks only whether the ref still names the same commit, and when one
+// path was last committed as of a resolved commit. Content pinned
 // to a resolved commit is read in `./ghContents.ts`. Each call has a fixed
 // argument array -- never a shell string, and never a caller-supplied
 // repository. Kept apart from
@@ -208,4 +209,35 @@ export async function checkRevisionViaGh(
     revision: commitNamedBy(answer.body),
     etag: answer.headers.get("etag"),
   };
+}
+
+// A committer date as GitHub spells one: an ISO 8601 instant.
+const committerDatePattern =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+// When `path` was last committed in the history of `revision`: the
+// committer date of the newest commit GitHub's commit list names for that
+// path from that commit. A list naming no commit, or no usable date, is not
+// a commit time.
+export async function lastCommitTimeViaGh(
+  repository: string,
+  path: string,
+  revision: string,
+  signal: AbortSignal,
+): Promise<string> {
+  const committed = (
+    await runGh(
+      [
+        "api",
+        `repos/${repository}/commits?sha=${revision}&path=${encodeURIComponent(path)}&per_page=1`,
+        "--jq",
+        ".[0].commit.committer.date",
+      ],
+      signal,
+    )
+  ).trim();
+  if (!committerDatePattern.test(committed)) {
+    throw new GhFailure({ kind: "no-commit" });
+  }
+  return new Date(committed).toISOString();
 }
