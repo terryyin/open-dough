@@ -6,14 +6,15 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/090-unify-delivery-evidence-promise-status/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5691ff3397cafd93bbc7893e656d181fe035c0def73b43d8205fd8320bd6f451"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89cbb8eb427cafbf646294b893cf93cabc394536cc4c96cf5f1b2de7032e3ef1"}}
 ```
 
 ## Source and provenance
 
 Execution retrospective of
-[SEED-004#accept-delivery-evidence-native](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native),
-plan `quick/089-accept-delivery-evidence-native/PLAN.md`. Reviewed commits on
+`SEED-004#accept-delivery-evidence-native` and its plan, recoverable at
+`958680a:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
+`958680a:.planning/quick/089-accept-delivery-evidence-native/PLAN.md`. Reviewed commits on
 `claude/089-accept-delivery-evidence-native`: `eff3e76`, `c33dbea`, `0662ed2`,
 `f7aee84`, `9353343`. That story's promises and results stand; this correction
 changes no native acceptance result.
