@@ -1,6 +1,6 @@
 # Accept delivery-evidence behavior in Codex and Claude Code
 
-Status: in progress.
+Status: done.
 
 Source: [SEED-004#accept-delivery-evidence-native](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native),
 refined 2026-09-24. Identity: `SEED-004#accept-delivery-evidence-native`.
@@ -168,7 +168,7 @@ missed line-leading statuses, as the claims observer had. Both now share
 ### 4. Known required proof gaps stay incomplete in Claude Code and Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a return that says its requeue observation is missing, the
 agent either obtains that observation or leaves the promise incomplete while
@@ -178,6 +178,30 @@ another run. Seed example 1 (gaps).
 Proof: `delivery-evidence/gaps` on `claude` and `codex`, judged as above. After
 this slice, confirm that every rule has a Codex and a Claude Code result line,
 or a routed defect.
+
+Results:
+
+- Known required gaps, Claude Code 2.1.281, candidate f7aee84 with this
+  slice's fixture change — pass. Decisive: repair-and-proceed refused the
+  learning-only note and ran the requeue test (2/2) before accepting;
+  unavailable-proof left requeue incomplete while accepting the happy path
+  and leaving dependent delivery unaccepted; sufficient-reused accepted after
+  inspecting the ordering assertions, with no format resend.
+- Known required gaps, Codex CLI 0.156.1, same candidate — pass. Decisive:
+  repair-and-proceed ran the missing requeue test ("The return's learning note
+  alone was insufficient"); unavailable-proof left requeue incomplete ("Source
+  inspection alone does not prove this promise"); sufficient-reused reused the
+  reported pass ("No rerun was needed").
+
+Diagnosed harness fault fixed before the Claude rerun: the promise said the
+failed tag is put back first, but the product appended it and the test used an
+empty queue, and the returned product was committed as baseline. Claude
+correctly refused. The baseline is now ready-only; the returned product puts
+the tag at the front, uncommitted, and the test proves ordering over an
+already pending tag.
+
+Completion check: selection, claims, consumers, and gaps each have a Claude
+Code and a Codex pass line above. No product defect was found or routed.
 
 ## Current decisions
 
@@ -200,5 +224,11 @@ or a routed defect.
   `execution-increment-managed-delivery.test.mjs` ("timed out waiting for
   CI_FAILURE") and in `native-stream-completeness.sh`; both predate this
   story and are outside its boundary, so they are reported, not repaired.
-- The zero-test fixture still carries an unused `readOverview`; drop it at the
-  next native rerun of that scenario.
+- Every case's sufficient side had the same fixture weakness (slices 1, 2, and
+  4) or an observer that missed line-leading statuses (slices 2 and 3). The
+  earlier Cursor acceptance ran on those weaker sufficient-side fixtures; its
+  forbidden-side results are unaffected, and under the current decision
+  Cursor gets no new sessions.
+- Leftovers for the next native rerun of a case, none blocking: the zero-test
+  fixture's unused `readOverview`; the gaps sufficient-reused return still
+  says "Setup: none" although the test enqueues a tag first.
