@@ -23,8 +23,8 @@ import {
   passTimeUntilChecked,
   queueStory,
   recordsAt,
-  refCheckArgv,
-  refChecks,
+  headsCheckArgv,
+  headsChecks,
 } from "./autoRefreshJourney";
 import {
   backlogB,
@@ -56,9 +56,9 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     }
     const checks = callsSince(page, settledAt);
     expect(checks.map(({ argv }) => argv)).toEqual([
-      refCheckArgv(),
-      refCheckArgv(revisionA),
-      refCheckArgv(revisionA),
+      headsCheckArgv(),
+      headsCheckArgv(revisionA),
+      headsCheckArgv(revisionA),
     ]);
     expect(contentReads(checks)).toEqual([]);
   });
@@ -118,8 +118,8 @@ test("auto refresh: quiet main is only checked, and newly published main appears
 
   await test.step("main was not resolved again: one check, then one B backlog and its records", () => {
     const calls = callsSince(page, beforeB);
-    expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
-      refCheckArgv(revisionA),
+    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
+      headsCheckArgv(revisionA),
     ]);
     expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
     const reads = contentReads(calls);

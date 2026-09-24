@@ -18,8 +18,8 @@ import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
-  refCheckArgv,
-  refChecks,
+  headsCheckArgv,
+  headsChecks,
 } from "./autoRefreshJourney";
 import {
   branchHead,
@@ -68,10 +68,10 @@ test("the automatic check follows each recorded story branch, reading only the p
     expectSteadyPace(await passTimeUntilChecked(page));
     expectSteadyPace(await passTimeUntilChecked(page));
     const calls = callsSince(page, from);
-    expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
-      refCheckArgv(undefined, repository),
+    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
+      headsCheckArgv(undefined, repository),
       // Conditional on the listing still naming every head as shown.
-      refCheckArgv(revision, repository, headsOf(published)),
+      headsCheckArgv(revision, repository, headsOf(published)),
     ]);
     expect(readsBesideChecks(calls)).toEqual([]);
   });

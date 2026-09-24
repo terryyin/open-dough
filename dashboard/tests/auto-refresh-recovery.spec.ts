@@ -24,7 +24,7 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   recordsAt,
-  refChecks,
+  headsChecks,
 } from "./autoRefreshJourney";
 import { noConnection, type OriginAnswer } from "./publishedOrigin";
 import {
@@ -123,7 +123,7 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
     await expect(stages.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
     await expect(retry).toBeVisible();
     const calls = callsSince(page, beforeB);
-    expect(refChecks(calls)).toHaveLength(1);
+    expect(headsChecks(calls)).toHaveLength(1);
     expect(contentReads(calls)).toEqual([
       `.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`,
     ]);
@@ -178,7 +178,7 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
       expectSteadyPace(await passTimeUntilChecked(page));
     }
     const calls = callsSince(page, from);
-    expect(refChecks(calls)).toHaveLength(2);
+    expect(headsChecks(calls)).toHaveLength(2);
     expect(contentReads(calls)).toEqual([]);
     await expect(claimsCard).toContainText(gap);
   });
@@ -231,7 +231,7 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     const calls = callsSince(page, from);
-    expect(refChecks(calls)).toHaveLength(1);
+    expect(headsChecks(calls)).toHaveLength(1);
     expect(contentReads(calls)).toEqual([]);
     await expect(problem).toContainText(readAtB);
     await expect(status).toHaveText("");

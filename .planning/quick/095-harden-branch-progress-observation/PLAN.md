@@ -1,6 +1,6 @@
 # Keep branch progress observation robust and give its rules one home
 
-Status: executing.
+Status: complete.
 
 This bounded retrospective correction has this plan as its canonical home.
 
@@ -214,7 +214,7 @@ tests/support/product-backlog-plan-reader.test.mjs` (5 pass).
 ### 4. Docs and helper names describe the delivered observation
 
 Type: Structure
-Status: planned
+Status: done
 Proof: full `npm run test:dashboard`; `npm run typecheck:dashboard`; README
 diff reviewed against the delivered behavior.
 
@@ -224,6 +224,15 @@ Structure: state the heads listing's size limit and fallback in
 `isRefCheck` to heads-check names; unexport `elapsedWords` unless slice 3's
 coverage needs it; fold the repeated commit-time validation in
 `requestedRead.ts` into one helper with one set of messages.
+Accepted: README states the unpaginated listing, the 1 MiB `maxBuffer` (about
+2,700 branches), the per-check fallback to `commits/main`, the unusable-branch
+gap, and the extra `gh` request on fallback; `refEndpoint`'s comment names its
+two callers; helpers are `headsCheckArgv`, `headsChecks`, and `isHeadsCheck`
+(`isRefCheck` lived in `originObservation.ts`); `elapsedWords` is file-local;
+`parsePathRead` owns trunk file, trunk commit-time, and branch path
+validation. A few multi-fault requests now get a different, still pre-`gh`
+400 message; no test asserted the old ones. Full `npm run test:dashboard`
+(112 passed); `npm run typecheck:dashboard`.
 
 ## Learnings
 

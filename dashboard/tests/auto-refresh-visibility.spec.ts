@@ -19,8 +19,8 @@ import {
   passTimeUntilChecked,
   queueStory,
   recordsAt,
-  refCheckArgv,
-  refChecks,
+  headsCheckArgv,
+  headsChecks,
   setPageVisibility,
 } from "./autoRefreshJourney";
 import {
@@ -59,8 +59,8 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     expectSteadyPace(await passTimeUntilChecked(page));
     const calls = callsSince(page, beforeSeen);
     expect(calls.map(({ argv }) => argv)).toEqual([
-      refCheckArgv(revisionA),
-      refCheckArgv(revisionA),
+      headsCheckArgv(revisionA),
+      headsCheckArgv(revisionA),
     ]);
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
@@ -78,13 +78,13 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     await passTimeUntilAsked(page);
     // The check has reached GitHub and waits there for its answer.
     await expect
-      .poll(() => refChecks(callsSince(page, beforeHidden)).length)
+      .poll(() => headsChecks(callsSince(page, beforeHidden)).length)
       .toBe(1);
     await setPageVisibility(page, "hidden");
     releaseMain();
     expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
     const calls = callsSince(page, beforeHidden);
-    expect(calls.map(({ argv }) => argv)).toEqual([refCheckArgv(revisionA)]);
+    expect(calls.map(({ argv }) => argv)).toEqual([headsCheckArgv(revisionA)]);
     expect(contentReads(calls)).toEqual([]);
     await expectMembership(page, titlesOfA);
     await expect(source).toContainText(revisionA);
@@ -105,8 +105,8 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
       [revisionA],
     );
     const calls = callsSince(page, beforeSeen);
-    expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
-      refCheckArgv(revisionA),
+    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
+      headsCheckArgv(revisionA),
     ]);
     // The check found B; main was not resolved again.
     expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
@@ -126,7 +126,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     const beforeNext = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
-      refCheckArgv(revisionB),
+      headsCheckArgv(revisionB),
     ]);
   });
 });

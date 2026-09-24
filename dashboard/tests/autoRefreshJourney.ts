@@ -6,7 +6,7 @@ import { expect, type Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import { expectMembership } from "./dashboardPage";
 import { headsEtag } from "./originAnswers";
-import { isRefCheck } from "./originObservation";
+import { isHeadsCheck } from "./originObservation";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
 import {
   backlogA,
@@ -63,7 +63,7 @@ export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
 // another is named), which lists every published branch head: conditional on
 // the entity tag of the listing that named `known` as `main`'s head and
 // `branches` beside it, once there is one.
-export function refCheckArgv(
+export function headsCheckArgv(
   known?: string,
   repository = "terryyin/open-dough",
   branches: Readonly<Record<string, string>> = {},
@@ -210,11 +210,11 @@ export async function checkedAtOnce(page: Page): Promise<void> {
   expect((await answer).status()).toBe(200);
 }
 
-// The checks of `main` among these `gh` calls, as opposed to the reads that
-// resolve it (see ./originObservation.ts). Origins leave checks out of what
+// The branch-head listings of revision checks among these `gh` calls, as
+// opposed to the reads that resolve `main` (see ./originObservation.ts). Origins leave checks out of what
 // they observe, so specs follow them here, among every `gh` call.
-export function refChecks(calls: readonly GhCall[]): readonly GhCall[] {
-  return calls.filter(isRefCheck);
+export function headsChecks(calls: readonly GhCall[]): readonly GhCall[] {
+  return calls.filter(isHeadsCheck);
 }
 
 // Hides the page from, or shows it to, the person, as switching browser tabs

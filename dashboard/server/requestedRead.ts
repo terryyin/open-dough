@@ -71,6 +71,29 @@ function parseWatchedBranches(
   return [...new Set(watched)];
 }
 
+// One repository path read at a revision the caller has validated: its bytes,
+// or when it was last committed (`committed=last`). Trunk and branch reads
+// share these refusals.
+function parsePathRead(
+  path: string | null,
+  committed: string | null,
+):
+  | { readonly kind: "file-at" | "commit-time-at"; readonly path: string }
+  | RefusedParameters {
+  if (committed !== null && committed !== "last") {
+    return refused(
+      "A commit time read names only a pinned revision and repository path.",
+    );
+  }
+  const repositoryPath = parseSafeRepositoryPath(path);
+  return repositoryPath === undefined
+    ? refused("The repository path is not usable.")
+    : {
+        kind: committed === null ? "file-at" : "commit-time-at",
+        path: repositoryPath,
+      };
+}
+
 function parseBranchRead(
   params: URLSearchParams,
   branch: string | null,
@@ -102,20 +125,10 @@ function parseBranchRead(
   if (!commitShaPattern.test(head)) {
     return refused("The branch head is not a commit sha.");
   }
-  if (committed !== null && committed !== "last") {
-    return refused(
-      "A commit time read names only a pinned revision and repository path.",
-    );
-  }
-  const repositoryPath = parseSafeRepositoryPath(path);
-  return repositoryPath === undefined
-    ? refused("The repository path is not usable.")
-    : {
-        kind: committed === null ? "file-at" : "commit-time-at",
-        revision,
-        path: repositoryPath,
-        onBranch: { branch, head },
-      };
+  const read = parsePathRead(path, committed);
+  return read.kind === "refused"
+    ? read
+    : { ...read, revision, onBranch: { branch, head } };
 }
 
 export function parseRequestedRead(
@@ -153,22 +166,8 @@ export function parseRequestedRead(
     }
     return { kind: "agent-profiles-at", revision };
   }
-  if (committed !== null) {
-    if (committed !== "last" || since !== null) {
-      return refused(
-        "A commit time read names only a pinned revision and repository path.",
-      );
-    }
-    if (revision === null || !commitShaPattern.test(revision)) {
-      return refused("The pinned revision is not a commit sha.");
-    }
-    const repositoryPath = parseSafeRepositoryPath(path);
-    return repositoryPath === undefined
-      ? refused("The repository path is not usable.")
-      : { kind: "commit-time-at", revision, path: repositoryPath };
-  }
   if (since !== null) {
-    if (revision !== null || path !== null) {
+    if (revision !== null || path !== null || committed !== null) {
       return refused("A revision check names only the revision already shown.");
     }
     if (!commitShaPattern.test(since)) {
@@ -180,20 +179,18 @@ export function parseRequestedRead(
       : { kind: "revision-check", since, watched };
   }
   if (revision === null) {
-    return path === null
+    return path === null && committed === null
       ? { kind: "ref" }
       : refused("A pinned revision and repository path are both required.");
   }
   if (!commitShaPattern.test(revision)) {
     return refused("The pinned revision is not a commit sha.");
   }
-  if (path === null) {
+  if (path === null && committed === null) {
     // The backlog at a revision the caller already resolved, so a changed
     // ref found by a check is read at exactly that commit.
     return { kind: "backlog-at", revision };
   }
-  const repositoryPath = parseSafeRepositoryPath(path);
-  return repositoryPath === undefined
-    ? refused("The repository path is not usable.")
-    : { kind: "file-at", revision, path: repositoryPath };
+  const read = parsePathRead(path, committed);
+  return read.kind === "refused" ? read : { ...read, revision };
 }

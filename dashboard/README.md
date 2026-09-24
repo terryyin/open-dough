@@ -62,6 +62,15 @@ replaces the whole view with one revision. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 
+The branch-head listing (`matching-refs/heads/`) is one unpaginated answer, and
+the local boundary accepts at most 1 MiB of `gh` output (`maxBuffer` in
+`server/ghRead.ts`), about 2,700 branches. When that listing fails for any
+reason but a rate limit -- GitHub gives up on it (for example with a `504`), or
+it is larger than that -- that check asks only which commit `main` names
+(`commits/main`) and reports no branch heads: a move of `main` is still found,
+but no story branch is seen to move until the next listing that succeeds, when
+watching branches resumes.
+
 A read that fails, finds a backlog the shared reader refuses, or waits more
 than 30 seconds for GitHub (`readWaitLimitMs` in
 `src/authenticatedReadRules.ts`, the bound the local boundary shares) ends as a
@@ -135,9 +144,10 @@ the card "From branch <branch> at <short revision>; not in trunk." Without a
 profile, or when profiles cannot be read, the card shows trunk's plan labelled
 as the trunk copy with the execution branch not recorded or unknown, and reads
 no branch. More than one profile naming the story, a recorded branch that is no
-longer published, and a plan missing or uninterpretable on that branch are
-each shown as that gap, never as trunk's count. The detail view shows the same
-source.
+longer published, a recorded branch whose name this dashboard cannot use (it
+is then never read or watched), and a plan missing or uninterpretable on that
+branch are each shown as that gap, never as trunk's count. The detail view
+shows the same source.
 
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
@@ -218,10 +228,10 @@ the agent profile directory plus one per profile listed there. Each Taken
 entry with a counted plan adds one last-commit-time request for its plan and
 one for its agent profile, and each Story Branch Mode entry adds one branch
 head request and one plan read on that branch. These count against the
-launching person's own GitHub API allowance. Each revision check is one more `gh` request, whatever the number
-of branches (at most four a
-minute per visible page, none while it is hidden, and none before a rate
-limit's directed time). GitHub documents an unchanged `304` as not counting
+launching person's own GitHub API allowance. Each revision check is one more
+`gh` request, whatever the number of branches, or two when the listing fails
+and `main` is asked alone (at most four a minute per visible page, none while
+it is hidden, and none before a rate limit's directed time). GitHub documents an unchanged `304` as not counting
 against the primary allowance, but that has not been confirmed here, so count
 each check as a request. A newly published commit then costs one backlog read
 plus its records, without resolving `main` again; a recorded story branch

@@ -14,7 +14,7 @@ import {
   stories,
   trunk,
 } from "./branchProgressRecords";
-import { isRefCheck } from "./originObservation";
+import { isHeadsCheck } from "./originObservation";
 import { publishMovingFiles, type PublishedRevision } from "./publishedFiles";
 import type { GhCall } from "./support/fakeGitHub";
 
@@ -25,7 +25,7 @@ export const trunkMoved = "d5".repeat(20);
 // `branch <name>`.
 export function readsBesideChecks(calls: readonly GhCall[]): string[] {
   return calls
-    .filter((call) => !isRefCheck(call))
+    .filter((call) => !isHeadsCheck(call))
     .map(({ request }) => {
       switch (request.kind) {
         case "content":

@@ -16,8 +16,9 @@ import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
 import { directedWaitSeconds } from "./rateLimitDirection";
 import { commitShaPattern } from "../src/authenticatedReadRules";
 
-// The one GitHub endpoint that says which commit a ref names, asked for
-// `.sha` alone.
+// Which commit a ref alone names, asked for `.sha` alone: what a membership
+// read resolves before reading the backlog, and what a revision check asks
+// when the branch-head listing fails.
 function refEndpoint(repository: string, ref: string): string {
   return `repos/${repository}/commits/${ref}`;
 }

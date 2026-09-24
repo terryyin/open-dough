@@ -10,7 +10,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest";
 import { expectMembership, parts } from "./dashboardPage";
-import { isRefCheck } from "./originObservation";
+import { isHeadsCheck } from "./originObservation";
 import { publishFiles } from "./publishedOrigin";
 import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney";
 import { publishes } from "./support/fakeGitHub";
@@ -127,7 +127,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
     );
     const calls = callsSince(page, from);
     expect(checks).toBeGreaterThan(0);
-    expect(calls.filter((call) => !isRefCheck(call))).toEqual([]);
+    expect(calls.filter((call) => !isHeadsCheck(call))).toEqual([]);
   });
 
   await test.step("a slice running for hours says hours and minutes, and after 26 hours says 1 d 2 h", async () => {

@@ -12,7 +12,7 @@ const tickMs = 5_000;
 const minuteMs = 60_000;
 
 // Elapsed time in whole minutes, hours, and days, as a card says it.
-export function elapsedWords(ms: number): string {
+function elapsedWords(ms: number): string {
   const minutes = Math.floor(Math.max(0, ms) / minuteMs);
   if (minutes < 1) {
     return "less than 1 min";

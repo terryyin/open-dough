@@ -19,8 +19,8 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   recordsAt,
-  refCheckArgv,
-  refChecks,
+  headsCheckArgv,
+  headsChecks,
 } from "./autoRefreshJourney";
 import {
   doughnutBacklog,
@@ -105,7 +105,7 @@ test.describe("project read isolation of automatic checks", () => {
     expect(calls.filter(({ request }) => request.kind === "ref")).toHaveLength(
       1,
     );
-    expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
+    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
       doughnutCheckArgv,
     ]);
     const reads = contentReads(calls);
@@ -114,7 +114,7 @@ test.describe("project read isolation of automatic checks", () => {
       reads.every((read) => read.endsWith(`?ref=${revisionDoughnut}`)),
     ).toBe(true);
   }
-  const doughnutCheckArgv = refCheckArgv(undefined, doughnutRepository);
+  const doughnutCheckArgv = headsCheckArgv(undefined, doughnutRepository);
 
   test("a deselected project's outstanding revision check is abandoned, its late answer changes nothing, and only the selected project is checked from then on", async ({
     page,
@@ -126,7 +126,7 @@ test.describe("project read isolation of automatic checks", () => {
     const beforeCheck = githubFor(page).calls.length;
     await passTimeUntilAsked(page);
     await expect
-      .poll(() => refChecks(callsSince(page, beforeCheck)).length)
+      .poll(() => headsChecks(callsSince(page, beforeCheck)).length)
       .toBe(1);
 
     const atSwitch = githubFor(page).calls.length;
