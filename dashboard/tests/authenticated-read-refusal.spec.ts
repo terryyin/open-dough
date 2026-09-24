@@ -158,4 +158,87 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       expect(server.ghCalls()).toHaveLength(callsBefore);
     });
   }
+  // A branch read names a branch the server can put into GitHub's endpoint
+  // unchanged, and reads a file only at a head it names as a commit.
+  for (const refused of [
+    {
+      read: "whose branch name could reshape GitHub's endpoint",
+      query: `revision=${revision}&branch=${encodeURIComponent("story/../../contents")}`,
+      error: "The branch name is not usable.",
+    },
+    {
+      read: "that names a file without the branch head",
+      query: `revision=${revision}&branch=story%2Fexample&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      error: "A read on a branch names the branch head it resolved.",
+    },
+    {
+      read: "at a head that is not a commit sha",
+      query: `revision=${revision}&branch=story%2Fexample&head=main&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      error: "The branch head is not a commit sha.",
+    },
+    {
+      read: "combined with a revision check",
+      query: `since=${revision}&branch=story%2Fexample`,
+      error:
+        "A branch read names only a pinned revision, a recorded branch, and for a file its resolved head and repository path.",
+    },
+  ]) {
+    test(`refuses a branch read ${refused.read} before launching gh`, async () => {
+      server.github.serve(everyRepository, publishes({ revision, backlog }));
+      const callsBefore = server.ghCalls().length;
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${refused.query}`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
+      expect(server.ghCalls()).toHaveLength(callsBefore);
+    });
+  }
+  // A revision check watches only branches named plainly enough to compare
+  // with GitHub's listing, and watching belongs to a revision check alone.
+  const onlyWithCheck =
+    "Watched branches are named only with a revision check.";
+  for (const refused of [
+    {
+      read: "whose branch name could reshape what it names",
+      query: `since=${revision}&watch=${encodeURIComponent("story/../main")}`,
+      error: "A watched branch name is not usable.",
+    },
+    {
+      read: "among too many",
+      query: `since=${revision}${Array.from(
+        Array(101).keys(),
+        (at) => `&watch=story%2F${String(at)}`,
+      ).join("")}`,
+      error: "A revision check watches too many branches.",
+    },
+    {
+      read: "without a revision check",
+      query: `watch=story%2Fexample`,
+      error: onlyWithCheck,
+    },
+    {
+      read: "beside a pinned revision",
+      query: `since=${revision}&revision=${revision}&watch=story%2Fexample`,
+      error: onlyWithCheck,
+    },
+    {
+      read: "beside a branch read",
+      query: `since=${revision}&branch=story%2Fexample&watch=story%2Fexample`,
+      error: onlyWithCheck,
+    },
+  ]) {
+    test(`refuses a watched branch ${refused.read} before launching gh`, async () => {
+      server.github.serve(everyRepository, publishes({ revision, backlog }));
+      const callsBefore = server.ghCalls().length;
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${refused.query}`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
+      expect(server.ghCalls()).toHaveLength(callsBefore);
+    });
+  }
 });

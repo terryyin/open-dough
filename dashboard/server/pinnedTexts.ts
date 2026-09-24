@@ -1,11 +1,13 @@
-// Server-side memo of repository file text at a resolved commit, for the
-// local authenticated read boundary (`./authenticatedRead.ts`).
+// Server-side memo of repository file text, directory listings, and last
+// commit times at a resolved commit, for the local authenticated read
+// boundary (`./authenticatedRead.ts`).
 
 import type { PublishedSource } from "../src/publishedSource";
 import {
   listRepositoryDirectoryViaGh,
   readRepositoryFileViaGh,
 } from "./ghContents";
+import { lastCommitTimeViaGh } from "./ghRead";
 
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)
@@ -72,6 +74,27 @@ export class PinnedTexts {
       );
       this.remember(source, revision, `${directory}/`, JSON.stringify(names));
       return names;
+    };
+  }
+
+  // When a path was last committed as of a commit, remembered the same way:
+  // the history behind a commit never changes either. Kept under the path
+  // with a trailing NUL, which no file path ever has.
+  committer(source: PublishedSource, revision: string, signal: AbortSignal) {
+    return async (path: string): Promise<string> => {
+      const key = PinnedTexts.key(source, revision, `${path}\0committed`);
+      const known = this.texts.get(key);
+      if (known !== undefined) {
+        return known;
+      }
+      const committedAt = await lastCommitTimeViaGh(
+        source.repository,
+        path,
+        revision,
+        signal,
+      );
+      this.remember(source, revision, `${path}\0committed`, committedAt);
+      return committedAt;
     };
   }
 }

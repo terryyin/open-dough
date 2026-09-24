@@ -5,6 +5,7 @@
 
 import type { WorkEntry } from "./publishedWork";
 import { WorkSourceLinks } from "./WorkSourceLinks";
+import { PlanSlicesNote, ProgressSourceLabel } from "./SliceProgress";
 import {
   recordedCompleteCount,
   type PlanSlice,
@@ -127,26 +128,11 @@ function PlanSlicesBlock({
 }: {
   planSlices: WorkPlanSlices | undefined;
 }) {
-  if (planSlices === undefined || planSlices.status === "loading") {
-    return <p className="quiet">Reading plan slices…</p>;
+  if (planSlices === undefined) {
+    return <PlanSlicesNote planSlices={{ status: "loading" }} />;
   }
-  if (planSlices.status === "absent") {
-    return (
-      <p>
-        Plan slices: No associated plan is recorded for this story. This is not
-        zero recorded completion.
-      </p>
-    );
-  }
-  if (planSlices.status === "unavailable") {
-    return <p className="preparation-problem">{planSlices.problem}</p>;
-  }
-  if (planSlices.status === "uninterpretable") {
-    return (
-      <p className="preparation-problem">
-        Plan slices uninterpretable: {planSlices.problem}
-      </p>
-    );
+  if (planSlices.status !== "interpreted") {
+    return <PlanSlicesNote planSlices={planSlices} />;
   }
 
   const done = recordedCompleteCount(planSlices.slices);
@@ -155,7 +141,7 @@ function PlanSlicesBlock({
     <div>
       <h4>Recorded slice progress</h4>
       <p>
-        {done} of {total} recorded complete
+        {done} of {total} slices recorded complete
       </p>
       {total === 0 ? (
         <p className="quiet">The ordered-slices section lists no slices.</p>
@@ -190,7 +176,10 @@ export function StoryDetail({
     >
       <PurposeBlock purpose={entry.purpose} />
       <AssessmentBlock preparation={entry.preparation} />
-      <PlanSlicesBlock planSlices={entry.planSlices} />
+      <div>
+        <ProgressSourceLabel progressSource={entry.progressSource} />
+        <PlanSlicesBlock planSlices={entry.planSlices} />
+      </div>
       <div>
         <h4>Pinned source links</h4>
         <ul className="card-links" aria-label="Pinned source links">

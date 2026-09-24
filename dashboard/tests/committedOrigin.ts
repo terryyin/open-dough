@@ -9,6 +9,7 @@ import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
+  asHeadsListing,
   commitAnswer,
   directoryListingAnswer,
   noConnection,
@@ -71,6 +72,10 @@ export function publishCommittedOrigin(
       observe(requests, call);
       await held.get("main");
       return instead.get("main") ?? commitAnswer(revision);
+    }
+    if (request.kind === "matching-refs") {
+      await held.get("main");
+      return asHeadsListing(instead.get("main") ?? commitAnswer(revision));
     }
     if (request.kind === "listing" && request.revision === revision) {
       return directoryListingAnswer(

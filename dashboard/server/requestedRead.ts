@@ -1,23 +1,45 @@
 // Which read a request to the local authenticated read boundary
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
 // the ref resolved afresh with its backlog; only whether the ref still names
-// the revision already shown (`since`); the backlog at an already resolved
-// revision; one repository path at a pinned revision; or the agent profiles
-// published beside the backlog at a pinned revision. Malformed or mixed
-// parameters are refused here, before any `gh` call.
+// the revision already shown (`since`), and which heads the story branches
+// recorded at that revision name now (`watch`); the backlog at an already
+// resolved revision; one repository path at a pinned revision; when one repository
+// path was last committed at a pinned revision (`committed=last`); the
+// agent profiles published beside the backlog at a pinned revision; which
+// commit a story branch recorded at a pinned revision names now (`branch`);
+// or one path, or its last commit, at a head of that branch (`branch` and
+// `head`). Malformed or mixed parameters are refused here, before any `gh`
+// call.
 
 import { commitShaPattern } from "../src/authenticatedReadRules";
 import { parseSafeRepositoryPath } from "./reachablePaths";
 
+// A story branch as a read names it: the branch, and the head commit this
+// boundary already resolved it to.
+export type OnBranch = { readonly branch: string; readonly head: string };
+
 export type RequestedRead =
   | { readonly kind: "ref" }
-  | { readonly kind: "revision-check"; readonly since: string }
+  | {
+      readonly kind: "revision-check";
+      readonly since: string;
+      // Story branches recorded at `since` whose heads the check also reports.
+      readonly watched: readonly string[];
+    }
   | { readonly kind: "backlog-at"; readonly revision: string }
   | { readonly kind: "agent-profiles-at"; readonly revision: string }
   | {
-      readonly kind: "file-at";
+      readonly kind: "branch-head-at";
+      readonly revision: string;
+      readonly branch: string;
+    }
+  | {
+      readonly kind: "file-at" | "commit-time-at";
       readonly revision: string;
       readonly path: string;
+      // Read at a head of this branch rather than at `revision`, which still
+      // decides whether the branch and path may be read at all.
+      readonly onBranch?: OnBranch;
     };
 
 export type RefusedParameters = {
@@ -30,6 +52,83 @@ function refused(message: string): RefusedParameters {
   return { kind: "refused", status: 400, message };
 }
 
+// A branch name as Git allows it for a published head, narrowed to plain
+// segments of letters, digits, `.`, `_`, and `-`, so it can never reshape the
+// GitHub endpoint it is put into. Anything else is refused, never escaped.
+const branchSegment = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
+
+function isSafeBranchName(branch: string): boolean {
+  return (
+    branch.length <= 255 &&
+    !branch.includes("..") &&
+    !branch.endsWith(".lock") &&
+    branch.split("/").every((segment) => branchSegment.test(segment))
+  );
+}
+
+// At most this many story branches are watched by one check: far more than
+// a project's Taken entries.
+const watchedBranchLimit = 100;
+
+function parseWatchedBranches(
+  watched: readonly string[],
+): readonly string[] | RefusedParameters {
+  if (watched.length > watchedBranchLimit) {
+    return refused("A revision check watches too many branches.");
+  }
+  if (!watched.every(isSafeBranchName)) {
+    return refused("A watched branch name is not usable.");
+  }
+  return [...new Set(watched)];
+}
+
+function parseBranchRead(
+  params: URLSearchParams,
+  branch: string | null,
+): RequestedRead | RefusedParameters {
+  const revision = params.get("revision");
+  const head = params.get("head");
+  const path = params.get("path");
+  const committed = params.get("committed");
+  if (
+    params.get("since") !== null ||
+    params.get("agents") !== null ||
+    branch === null
+  ) {
+    return refused(
+      "A branch read names only a pinned revision, a recorded branch, and for a file its resolved head and repository path.",
+    );
+  }
+  if (!isSafeBranchName(branch)) {
+    return refused("The branch name is not usable.");
+  }
+  if (revision === null || !commitShaPattern.test(revision)) {
+    return refused("The pinned revision is not a commit sha.");
+  }
+  if (head === null) {
+    return path === null && committed === null
+      ? { kind: "branch-head-at", revision, branch }
+      : refused("A read on a branch names the branch head it resolved.");
+  }
+  if (!commitShaPattern.test(head)) {
+    return refused("The branch head is not a commit sha.");
+  }
+  if (committed !== null && committed !== "last") {
+    return refused(
+      "A commit time read names only a pinned revision and repository path.",
+    );
+  }
+  const repositoryPath = parseSafeRepositoryPath(path);
+  return repositoryPath === undefined
+    ? refused("The repository path is not usable.")
+    : {
+        kind: committed === null ? "file-at" : "commit-time-at",
+        revision,
+        path: repositoryPath,
+        onBranch: { branch, head },
+      };
+}
+
 export function parseRequestedRead(
   params: URLSearchParams,
 ): RequestedRead | RefusedParameters {
@@ -37,14 +136,47 @@ export function parseRequestedRead(
   const path = params.get("path");
   const since = params.get("since");
   const agents = params.get("agents");
+  const committed = params.get("committed");
+  const branch = params.get("branch");
+  const watch = params.getAll("watch");
+  const onlyRevisionCheck =
+    since !== null &&
+    [revision, path, agents, committed, branch, params.get("head")].every(
+      (other) => other === null,
+    );
+  if (watch.length > 0 && !onlyRevisionCheck) {
+    return refused("Watched branches are named only with a revision check.");
+  }
+  if (branch !== null || params.get("head") !== null) {
+    return parseBranchRead(params, branch);
+  }
   if (agents !== null) {
-    if (agents !== "profiles" || path !== null || since !== null) {
+    if (
+      agents !== "profiles" ||
+      path !== null ||
+      since !== null ||
+      committed !== null
+    ) {
       return refused("An agent profile read names only a pinned revision.");
     }
     if (revision === null || !commitShaPattern.test(revision)) {
       return refused("The pinned revision is not a commit sha.");
     }
     return { kind: "agent-profiles-at", revision };
+  }
+  if (committed !== null) {
+    if (committed !== "last" || since !== null) {
+      return refused(
+        "A commit time read names only a pinned revision and repository path.",
+      );
+    }
+    if (revision === null || !commitShaPattern.test(revision)) {
+      return refused("The pinned revision is not a commit sha.");
+    }
+    const repositoryPath = parseSafeRepositoryPath(path);
+    return repositoryPath === undefined
+      ? refused("The repository path is not usable.")
+      : { kind: "commit-time-at", revision, path: repositoryPath };
   }
   if (since !== null) {
     if (revision !== null || path !== null) {
@@ -53,7 +185,10 @@ export function parseRequestedRead(
     if (!commitShaPattern.test(since)) {
       return refused("The revision already shown is not a commit sha.");
     }
-    return { kind: "revision-check", since };
+    const watched = parseWatchedBranches(watch);
+    return "kind" in watched
+      ? watched
+      : { kind: "revision-check", since, watched };
   }
   if (revision === null) {
     return path === null

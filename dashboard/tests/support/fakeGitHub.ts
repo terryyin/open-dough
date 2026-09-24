@@ -13,31 +13,15 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
   commitAnswer,
+  commitListFor,
   directoryListingAnswer,
+  headsAnswer,
   noConnection,
   rawFileAnswer,
   type OriginAnswer,
 } from "../originAnswers";
 import { asGhReply } from "./ghReply";
-
-// What one `gh` invocation asked GitHub for. A ref request made with
-// `--include` and an `If-None-Match` header is conditional on that tag. A
-// contents request asks for a file's raw bytes when it accepts GitHub's raw
-// media type, and otherwise for a directory's JSON listing.
-export type GhRequest =
-  | {
-      readonly kind: "ref";
-      readonly repository: string;
-      readonly ref: string;
-      readonly ifNoneMatch: string | undefined;
-    }
-  | {
-      readonly kind: "content" | "listing";
-      readonly repository: string;
-      readonly path: string;
-      readonly revision: string;
-    }
-  | { readonly kind: "unknown" };
+import { parseRequest, type GhRequest } from "./ghRequest";
 
 export type GhCall = {
   readonly argv: readonly string[];
@@ -63,53 +47,6 @@ export type FakeGitHub = {
   close(): Promise<void>;
 };
 
-// The value of one `-H "<name>: <value>"` argument, if given.
-function headerArgument(
-  argv: readonly string[],
-  name: string,
-): string | undefined {
-  const prefix = `${name.toLowerCase()}:`;
-  for (let at = 0; at < argv.length - 1; at += 1) {
-    const value = argv[at + 1] ?? "";
-    if (argv[at] === "-H" && value.toLowerCase().startsWith(prefix)) {
-      return value.slice(prefix.length).trim();
-    }
-  }
-  return undefined;
-}
-
-function parseRequest(argv: readonly string[]): GhRequest {
-  const endpoint = argv.find((arg) => arg.startsWith("repos/")) ?? "";
-  const ref = /^repos\/([^/]+\/[^/]+)\/commits\/(.+)$/.exec(endpoint);
-  if (ref?.[1] !== undefined && ref[2] !== undefined) {
-    return {
-      kind: "ref",
-      repository: ref[1],
-      ref: ref[2],
-      ifNoneMatch: headerArgument(argv, "If-None-Match"),
-    };
-  }
-  const content = /^repos\/([^/]+\/[^/]+)\/contents\/([^?]+)\?ref=(.+)$/.exec(
-    endpoint,
-  );
-  if (
-    content?.[1] !== undefined &&
-    content[2] !== undefined &&
-    content[3] !== undefined
-  ) {
-    return {
-      kind:
-        headerArgument(argv, "Accept") === "application/vnd.github.raw+json"
-          ? "content"
-          : "listing",
-      repository: content[1],
-      path: decodeURIComponent(content[2]),
-      revision: content[3],
-    };
-  }
-  return { kind: "unknown" };
-}
-
 // Never answers.
 export const hangs: RepositoryAnswerer = () =>
   new Promise<never>(() => undefined);
@@ -119,17 +56,29 @@ export function failsWith(stderr: string): RepositoryAnswerer {
   return () => Promise.resolve({ exitCode: 1, stderr });
 }
 
-// Answers `revision` for any ref; for any content read, the named file in
-// `files` or else `backlog`; and for a directory listing, the `files` in that
-// directory.
+// Answers `revision` for any ref, and as the only branch head `main` of a
+// head listing; for any content read, the named file in
+// `files` or else `backlog`; for a directory listing, the `files` in that
+// directory; and for a path's commit list, its time in `committed`.
 export function publishes(published: {
   readonly revision: string;
   readonly backlog?: string;
   readonly files?: Readonly<Record<string, string>>;
+  readonly committed?: Readonly<Record<string, Date>>;
 }): RepositoryAnswerer {
   return ({ request }) => {
+    const commitList =
+      request.kind === "commit-list"
+        ? commitListFor(published.committed, request.path)
+        : undefined;
+    if (commitList !== undefined) {
+      return Promise.resolve(commitList);
+    }
     if (request.kind === "ref") {
       return Promise.resolve(commitAnswer(published.revision));
+    }
+    if (request.kind === "matching-refs") {
+      return Promise.resolve(headsAnswer({ main: published.revision }));
     }
     if (request.kind === "content") {
       const { files, backlog } = published;

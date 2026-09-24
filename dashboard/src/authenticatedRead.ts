@@ -3,8 +3,13 @@
 // (`../server/authenticatedRead.ts`) at `/__authenticated-read?source=<id>`,
 // for any catalog source (`./publishedSource.ts`). An optional `revision`
 // reads the backlog at a commit already resolved, and with `path` one further
-// file already reachable from that revision's records; `since` instead asks
-// only whether the ref still names the revision shown. No extra header or
+// file already reachable from that revision's records, or with `path` and
+// `committed=last` when that file (or a listed agent profile) was last
+// committed as of that revision; `since` instead asks only whether the ref
+// still names the revision shown, and with `watch` which heads story branches
+// recorded there name now; `branch` asks about a story branch recorded
+// at that revision (`./authenticatedBranchRead.ts`). Every read makes the
+// same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
 // answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
 // (`../server/localOrigin.ts`) does the rest. There is no direct browser path
@@ -17,16 +22,23 @@
 
 import { z } from "zod";
 import {
-  authenticatedReadEndpoint,
-  commitShaPattern,
-  longestDirectedWaitSeconds,
+  onBranchQuery,
+  type BranchHead,
+  type StoryBranchHeads,
+} from "./authenticatedBranchRead";
+import {
+  authenticatedGet,
+  commitSha,
+  unexpectedAnswer,
+} from "./authenticatedGet";
+import {
+  readingLastCommitAt,
   readingPathAt,
   readingRefOf,
 } from "./authenticatedReadRules";
 import type { PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
 
-const commitSha = z.string().regex(commitShaPattern);
 const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
@@ -36,54 +48,23 @@ const okFile = z.object({
   path: z.string().min(1),
   text: z.string(),
 });
+const okCommitTime = z.object({
+  revision: commitSha,
+  path: z.string().min(1),
+  committedAt: z.iso.datetime({ offset: true }),
+});
 const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
-});
-const errorAnswer = z.object({
-  error: z.string().min(1),
-  retryAfterSeconds: z
-    .number()
-    .int()
-    .min(0)
-    .max(longestDirectedWaitSeconds)
-    .optional(),
+  branches: z.array(
+    z.object({ branch: z.string().min(1), head: commitSha.nullable() }),
+  ),
 });
 
 export type PublishedSnapshot = {
   readonly revision: string;
   readonly backlog: string;
 };
-
-async function authenticatedGet(
-  query: string,
-  reading: string,
-  signal: AbortSignal,
-): Promise<unknown> {
-  let response: Response;
-  try {
-    response = await fetch(`${authenticatedReadEndpoint}?${query}`, {
-      signal,
-    });
-  } catch (error) {
-    if (signal.aborted) {
-      throw error;
-    }
-    throw new ReadProblem(
-      `The local authenticated read could not be reached while reading ${reading}.`,
-    );
-  }
-  const body: unknown = await response.json().catch(() => undefined);
-  if (!response.ok) {
-    const reported = errorAnswer.safeParse(body);
-    throw reported.success
-      ? new ReadProblem(reported.data.error, reported.data.retryAfterSeconds)
-      : new ReadProblem(
-          `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
-        );
-  }
-  return body;
-}
 
 // Resolves the source's ref to one commit and reads its backlog at that
 // commit, both on the local server. Given a revision already resolved, reads
@@ -106,9 +87,7 @@ export async function readPublishedSnapshot(
   );
   const parsed = okSnapshot.safeParse(body);
   if (!parsed.success) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   if (revision !== undefined && parsed.data.revision !== revision) {
     throw new ReadProblem(
@@ -119,26 +98,40 @@ export async function readPublishedSnapshot(
 }
 
 // Whether the source's ref still names the revision shown, or which commit it
-// names now. Nothing of the backlog or its records is read.
+// names now. While it does, the check also says which head each watched story
+// branch names now, undefined when it is no longer published. Nothing of the
+// backlog or its records is read.
 export type RevisionCheck =
-  | { readonly changed: false }
+  | {
+      readonly changed: false;
+      readonly heads: StoryBranchHeads;
+    }
   | { readonly changed: true; readonly revision: string };
 
+// Checks the source's ref, and the heads of `watched`: story branches Taken
+// entries' profiles record at the revision shown, which the local boundary
+// confirms from that revision's records before answering.
 export async function checkPublishedRevision(
   source: PublishedSource,
   shown: string,
+  watched: readonly string[],
   signal: AbortSignal,
 ): Promise<RevisionCheck> {
   const reading = readingRefOf(source);
+  const watching = watched
+    .map((branch) => `&watch=${encodeURIComponent(branch)}`)
+    .join("");
   const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}`,
+    `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}${watching}`,
     reading,
     signal,
   );
   const parsed = okCheck.safeParse(body);
   if (
     !parsed.success ||
-    parsed.data.changed !== (parsed.data.revision !== shown)
+    parsed.data.changed !== (parsed.data.revision !== shown) ||
+    parsed.data.branches.length !== watched.length ||
+    parsed.data.branches.some(({ branch }, at) => branch !== watched[at])
   ) {
     throw new ReadProblem(
       `The local authenticated read answered in a shape this dashboard does not understand while checking ${reading}.`,
@@ -146,7 +139,15 @@ export async function checkPublishedRevision(
   }
   return parsed.data.changed
     ? { changed: true, revision: parsed.data.revision }
-    : { changed: false };
+    : {
+        changed: false,
+        heads: new Map(
+          parsed.data.branches.map(({ branch, head }) => [
+            branch,
+            head ?? undefined,
+          ]),
+        ),
+      };
 }
 
 export async function readRepositoryFileAt(
@@ -163,9 +164,7 @@ export async function readRepositoryFileAt(
   );
   const parsed = okFile.safeParse(body);
   if (!parsed.success) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   if (
     parsed.data.path !== repositoryPath ||
@@ -176,6 +175,34 @@ export async function readRepositoryFileAt(
     );
   }
   return parsed.data.text;
+}
+
+// When `repositoryPath` was last committed as of `revision`, or, on a
+// recorded branch, as of the head resolved for it: the committer date of the
+// newest commit that changed it in that history.
+export async function readLastCommitTimeAt(
+  source: PublishedSource,
+  repositoryPath: string,
+  revision: string,
+  signal: AbortSignal,
+  onBranch?: BranchHead,
+): Promise<Date> {
+  const readAt = onBranch?.head ?? revision;
+  const reading = readingLastCommitAt(repositoryPath, readAt);
+  const body = await authenticatedGet(
+    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}${onBranchQuery(onBranch)}&path=${encodeURIComponent(repositoryPath)}&committed=last`,
+    reading,
+    signal,
+  );
+  const parsed = okCommitTime.safeParse(body);
+  if (
+    !parsed.success ||
+    parsed.data.path !== repositoryPath ||
+    parsed.data.revision !== readAt
+  ) {
+    throw unexpectedAnswer(reading);
+  }
+  return new Date(parsed.data.committedAt);
 }
 
 const okProfiles = z.object({
@@ -205,9 +232,7 @@ export async function readAgentProfilesAt(
   );
   const parsed = okProfiles.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   return parsed.data.profiles;
 }

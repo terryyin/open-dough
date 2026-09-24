@@ -4,7 +4,7 @@
 // tag still matches, and the exit code and stderr of a failed answer.
 
 import type { OriginAnswer } from "../originAnswers";
-import type { GhRequest } from "./fakeGitHub";
+import type { GhRequest } from "./ghRequest";
 
 export type GhReply = {
   readonly stdout: string;
@@ -12,7 +12,8 @@ export type GhReply = {
   readonly exitCode: number;
 };
 
-// `gh api --jq .field` prints one field of a JSON answer.
+// `gh api --jq .field` prints one field of a JSON answer, and
+// `--jq .[0].field` one field of its first element; a missing one is `null`.
 function applyJq(argv: readonly string[], body: string): string {
   const at = argv.indexOf("--jq");
   const filter = at >= 0 ? argv[at + 1] : undefined;
@@ -21,9 +22,13 @@ function applyJq(argv: readonly string[], body: string): string {
   }
   let value: unknown = JSON.parse(body);
   for (const field of filter.split(".").filter(Boolean)) {
-    value = (value as Record<string, unknown>)[field];
+    const index = /^\[(\d+)\]$/.exec(field)?.[1];
+    value =
+      value === null || value === undefined
+        ? undefined
+        : (value as Record<string, unknown>)[index ?? field];
   }
-  return `${typeof value === "string" ? value : JSON.stringify(value)}\n`;
+  return `${typeof value === "string" ? value : JSON.stringify(value ?? null)}\n`;
 }
 
 const reasonPhrases: Readonly<Record<number, string>> = {
@@ -83,17 +88,16 @@ export function asGhReply(
   };
   if (
     answer.status < 300 &&
-    request.kind === "ref" &&
+    request.kind === "matching-refs" &&
     sameEntity(request.ifNoneMatch, answer.etag)
   ) {
     // Unchanged: GitHub answers `304` with no body, which `gh api` reports by
-    // exiting 1 -- and, asked to filter the empty body, by complaining on
-    // stderr -- exactly as the real `gh` does.
+    // exiting 1 with its status on stderr, exactly as the real `gh` does.
     return {
       stdout: included
         ? includedHead(304, { Etag: opaque(answer.etag ?? "") })
         : "",
-      stderr: argv.includes("--jq") ? "unexpected end of JSON input\n" : "",
+      stderr: "gh: HTTP 304\n",
       exitCode: 1,
     };
   }

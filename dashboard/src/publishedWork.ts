@@ -15,6 +15,17 @@ import { enrichPreparation } from "./preparationEnrichment";
 import { readPublishedSnapshot } from "./authenticatedRead";
 import { readWaitLimitMs } from "./authenticatedReadRules";
 import { ReadProblem } from "./readProblem";
+import { withinReadWait } from "./readWaitBound";
+import {
+  awaitingProgressSources,
+  withProgressSources,
+  type ProgressSource,
+} from "./progressSource";
+import {
+  awaitingSliceClocks,
+  withSliceClocks,
+  type SliceClock,
+} from "./sliceClockStart";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
@@ -58,12 +69,19 @@ export type WorkEntry = {
   // Recorded Goal from the canonical home at this revision.
   readonly purpose?: WorkPurpose;
   // Ordered slices from the associated plan at this revision when planning
-  // facts are known. Absent when no plan applies; never invents zero slices
-  // for an unsupported layout.
+  // facts are known, or, for a Taken entry in Story Branch Mode, from that
+  // plan at its recorded branch head. Absent when no plan applies; never
+  // invents zero slices for an unsupported layout.
   readonly planSlices?: WorkPlanSlices;
+  // Taken entries with plan slices only: where those slices were read, once
+  // known.
+  readonly progressSource?: ProgressSource;
   // Taken entries only: who holds the work, from the agent profile published
   // at this revision.
   readonly owner?: TakenOwner;
+  // Taken entries with counted plan slices only: when the current slice
+  // started, from commit times where those slices were read.
+  readonly sliceClock?: SliceClock;
 };
 
 export type PublishedWork = {
@@ -151,49 +169,56 @@ export async function readPublishedWork(
   onPartial?: PublishedWorkProgress,
   knownRevision?: string,
 ): Promise<PublishedWork> {
-  const waitLimit = new AbortController();
-  const waiting = setTimeout(() => {
-    waitLimit.abort();
-  }, readWaitLimitMs);
-  const untilEither = AbortSignal.any([signal, waitLimit.signal]);
-  try {
-    // Every catalog source is read through the one local authenticated
-    // boundary: one resolved revision and its raw backlog text first.
-    const { revision, backlog: markdown } = await readPublishedSnapshot(
-      source,
-      untilEither,
-      knownRevision,
-    );
-    // Membership first, then preparation enrichment through the same
-    // boundary's reachability-checked path reads at that revision.
-    const work: PublishedWork = awaitingOwners({
-      source,
-      revision,
-      retrievedAt: new Date(),
-      ...interpret(markdown, revision, source, { status: "loading" }),
-    });
-    onPartial?.(work);
-    // Owners come from the agent profiles at the same revision, read beside
-    // the preparation facts.
-    const [prepared, ownership] = await Promise.all([
-      enrichPreparation(work, untilEither),
-      readOwnership(source, revision, untilEither),
-    ]);
-    const enriched = withOwners(prepared, ownership);
-    signal.throwIfAborted();
-    // Shown even when the wait bound ended it: each detail left unread is
-    // an explicit gap, and the bound is still reported as the read problem.
-    onPartial?.(enriched);
-    waitLimit.signal.throwIfAborted();
-    return enriched;
-  } catch (error) {
-    if (waitLimit.signal.aborted && !signal.aborted) {
-      throw new ReadProblem(
-        `GitHub did not answer within ${readWaitLimitMs / 1000} seconds, so the read was given up.`,
+  return withinReadWait(signal, async (untilEither, bound) => {
+    try {
+      // Every catalog source is read through the one local authenticated
+      // boundary: one resolved revision and its raw backlog text first.
+      const { revision, backlog: markdown } = await readPublishedSnapshot(
+        source,
+        untilEither,
+        knownRevision,
       );
+      // Membership first, then preparation enrichment through the same
+      // boundary's reachability-checked path reads at that revision.
+      const work: PublishedWork = awaitingOwners({
+        source,
+        revision,
+        retrievedAt: new Date(),
+        ...interpret(markdown, revision, source, { status: "loading" }),
+      });
+      onPartial?.(work);
+      // Owners come from the agent profiles at the same revision, read beside
+      // the preparation facts.
+      const [prepared, ownership] = await Promise.all([
+        enrichPreparation(work, untilEither),
+        readOwnership(source, revision, untilEither),
+      ]);
+      const owned = awaitingProgressSources(withOwners(prepared, ownership));
+      signal.throwIfAborted();
+      onPartial?.(awaitingSliceClocks(owned));
+      // A Story Branch Mode entry's slices come from its recorded branch
+      // instead, once owners say which branch that is.
+      const sourced = awaitingSliceClocks(
+        await withProgressSources(owned, untilEither),
+      );
+      signal.throwIfAborted();
+      onPartial?.(sourced);
+      // Each counted plan's clock starts from commit times where its slices
+      // were read, once owners say which profile records the Take.
+      const enriched = await withSliceClocks(sourced, untilEither);
+      signal.throwIfAborted();
+      // Shown even when the wait bound ended it: each detail left unread is
+      // an explicit gap, and the bound is still reported as the read problem.
+      onPartial?.(enriched);
+      bound.throwIfAborted();
+      return enriched;
+    } catch (error) {
+      if (bound.aborted && !signal.aborted) {
+        throw new ReadProblem(
+          `GitHub did not answer within ${readWaitLimitMs / 1000} seconds, so the read was given up.`,
+        );
+      }
+      throw error;
     }
-    throw error;
-  } finally {
-    clearTimeout(waiting);
-  }
+  });
 }

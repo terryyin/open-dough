@@ -47,11 +47,15 @@ separate setup.
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
-project's `main` still names the shown revision -- a conditional request that GitHub answers
-with `304 Not Modified` when nothing moved, so an unchanged `main` reads no
-backlog or record and changes neither the revision nor the retrieval time.
-When `main` names a new commit, the page reads exactly that commit, so newly
-published work appears within about 30 seconds. A hidden page (another tab,
+project's `main` still names the shown revision -- one conditional listing of
+every published branch head, which GitHub answers with `304 Not Modified` when
+no branch moved, so an unchanged `main` reads no backlog or record and changes
+neither the revision nor the retrieval time. When `main` names a new commit,
+the page reads exactly that commit, so newly published work appears within
+about 30 seconds. While `main` is unchanged, a story branch that a shown Taken
+entry's Story Branch Mode profile records and that names a new head (or is no
+longer published) has only that entry's plan and its last commit time read
+again at the new head; any other branch moving reads nothing. A hidden page (another tab,
 a minimized window) asks nothing and abandons a check under way; when it is
 seen again it checks once at once, then resumes the 15-second pace. Each read
 replaces the whole view with one revision. No local
@@ -111,6 +115,29 @@ profile the shared profile reader cannot read is listed with the Taken stage
 as unreadable and is not matched to any entry. A revision without a profile
 directory simply has no profiles. What a profile means is decided by the
 shared profile module under `src/skills/dough-product-backlog/scripts/`.
+
+Each Taken card with a readable plan also shows its recorded slice progress: a
+bar with one segment per slice, filled for each slice recorded complete, and
+"N of M slices recorded complete". It counts recorded statuses, not how much
+of the story is done. The shared plan reader decides what a plan's slices are
+(under `## Ordered slices` or `## Slices`); a missing, unreadable, or
+uninterpretable plan is shown as that gap instead of a count. Beside the bar,
+"Current slice started N min ago" measures from the later of the plan's last
+commit and the Take (the commit that added the entry's agent profile), and
+advances with page time without asking GitHub again. It is time since the last
+recorded update, not evidence that an agent is active. A Taken entry without a
+profile measures from the plan commit and says so.
+
+Progress comes from where the story's work is published. A single Trunk Mode
+profile reads the plan at the shown revision of `main`. A single Story Branch
+Mode profile reads the same plan path at the recorded branch's head and labels
+the card "From branch <branch> at <short revision>; not in trunk." Without a
+profile, or when profiles cannot be read, the card shows trunk's plan labelled
+as the trunk copy with the execution branch not recorded or unknown, and reads
+no branch. More than one profile naming the story, a recorded branch that is no
+longer published, and a plan missing or uninterpretable on that branch are
+each shown as that gap, never as trunk's count. The detail view shows the same
+source.
 
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
@@ -187,10 +214,16 @@ a repeated pinned revision from memory without calling `gh`.
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
 revision for preparation and detail, and, once per revision, one listing of
-the agent profile directory plus one per profile listed there; they count against the launching person's own GitHub API
-allowance. Each revision check is one more `gh` request (at most four a
+the agent profile directory plus one per profile listed there. Each Taken
+entry with a counted plan adds one last-commit-time request for its plan and
+one for its agent profile, and each Story Branch Mode entry adds one branch
+head request and one plan read on that branch. These count against the
+launching person's own GitHub API allowance. Each revision check is one more `gh` request, whatever the number
+of branches (at most four a
 minute per visible page, none while it is hidden, and none before a rate
 limit's directed time). GitHub documents an unchanged `304` as not counting
 against the primary allowance, but that has not been confirmed here, so count
 each check as a request. A newly published commit then costs one backlog read
-plus its records, without resolving `main` again.
+plus its records, without resolving `main` again; a recorded story branch
+that moved costs one read of its plan and one of its last commit time at the
+new head.

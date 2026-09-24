@@ -169,7 +169,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
       expect(openDoughOrigin.requests.length).toBe(before);
     });
 
-    await test.step("inspecting Taken detail shows purpose and zero of five recorded complete without extra reads", async () => {
+    await test.step("inspecting Taken detail shows purpose and zero of five slices recorded complete without extra reads", async () => {
       await expectReadyDetailZeroComplete(taken, openDoughOrigin);
     });
 

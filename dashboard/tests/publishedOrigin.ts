@@ -12,13 +12,15 @@
 // gets no answer and is not observed, so detail reads fail as unavailable.
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
-// `publishFiles` publishes fixed files at one revision, ./committedOrigin.ts
-// whole committed revisions; ./originObservation.ts holds what every origin
-// observes of the calls it answers, leaving out revision checks.
+// `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
+// ./committedOrigin.ts whole committed revisions; ./originObservation.ts holds
+// what every origin observes of the calls it answers, leaving out revision
+// checks.
 
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
+  asHeadsListing,
   commitAnswer,
   directoryListingAnswer,
   noConnection,
@@ -41,6 +43,7 @@ export {
   type RawAnswer,
 } from "./originAnswers";
 export { pathsRead, type ObservedRequest } from "./originObservation";
+export { publishFiles } from "./publishedFiles";
 
 // The project this dashboard opens by default. Callers that observe another
 // project pass its repository explicitly; this default keeps every existing
@@ -50,7 +53,8 @@ export const defaultRepository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
 export type Origin = {
-  // What GitHub answers for `commits/main`.
+  // What GitHub answers for `commits/main`, and, listed as `main`'s head, for
+  // a check of every branch head.
   readonly ref: OriginAnswer;
   // What GitHub answers for the backlog file, and at which revision it is
   // published. A read at any other revision gets no answer and fails.
@@ -62,11 +66,15 @@ export type Origin = {
   readonly refHeldUntil?: Promise<void>;
 };
 
-// Which published file a call asks for: "main" for the ref, the revision for
-// the backlog file read at it, or undefined for anything else.
+// Which published file a call asks for: "main" for the ref (or a check
+// listing it among the branch heads), the revision for the backlog file read
+// at it, or undefined for anything else.
 function publishedTarget(call: GhCall): string | undefined {
   const { request } = call;
-  if (request.kind === "ref" && request.ref === "main") {
+  if (
+    (request.kind === "ref" && request.ref === "main") ||
+    request.kind === "matching-refs"
+  ) {
     return "main";
   }
   if (request.kind === "content" && request.path === backlogPath) {
@@ -87,7 +95,7 @@ export function publishOrigin(
     if (target === "main") {
       observe(observed, call);
       await refHeldUntil;
-      return ref;
+      return call.request.kind === "matching-refs" ? asHeadsListing(ref) : ref;
     }
     if (target !== undefined && target === backlog?.revision) {
       observe(observed, call);
@@ -121,7 +129,8 @@ export type MovingOrigin = {
   // was decided when its request arrived, not when it is released.
   hold(what: string): () => void;
   // Answers from now on with this raw answer instead of the published one,
-  // until the returned restore is called: for "main" the ref request, for a
+  // until the returned restore is called: for "main" the ref request and the
+  // check listing it, for a
   // revision the backlog file read at it.
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
@@ -177,7 +186,7 @@ export function publishMovingOrigin(
         (backlog === undefined ? notFoundAnswer() : rawFileAnswer(backlog));
     }
     await held.get(target);
-    return answer;
+    return request.kind === "matching-refs" ? asHeadsListing(answer) : answer;
   });
 
   return Promise.resolve({
@@ -207,44 +216,4 @@ export function publishMovingOrigin(
       };
     },
   });
-}
-
-// A repository whose `main` names one revision at which these files are
-// published: every contents read at that revision is observed and answered
-// with the file's bytes, or not-found for any other path, and a directory
-// listing with the published files directly in that directory.
-export function publishFiles(
-  page: Page,
-  published: {
-    readonly repository: string;
-    readonly revision: string;
-    readonly files: Readonly<Record<string, string>>;
-  },
-): Promise<ObservedRequest[]> {
-  const observed: ObservedRequest[] = [];
-  const { repository, revision, files } = published;
-  githubFor(page).serve(repository, (call) => {
-    const { request } = call;
-    if (request.kind === "ref" && request.ref === "main") {
-      observe(observed, call);
-      return Promise.resolve(commitAnswer(revision));
-    }
-    if (request.kind === "listing" && request.revision === revision) {
-      observe(observed, call);
-      return Promise.resolve(
-        directoryListingAnswer(request.path, Object.keys(files)),
-      );
-    }
-    if (request.kind !== "content" || request.revision !== revision) {
-      return Promise.resolve(noConnection);
-    }
-    observe(observed, call);
-    const body = Object.hasOwn(files, request.path)
-      ? files[request.path]
-      : undefined;
-    return Promise.resolve(
-      body === undefined ? notFoundAnswer() : rawFileAnswer(body),
-    );
-  });
-  return Promise.resolve(observed);
 }

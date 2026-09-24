@@ -43,7 +43,7 @@ export async function expectKeyboardOpensAndClosesDetail(
   await expect(
     readyCard.getByRole("button", { name: "Hide detail" }),
   ).toHaveAttribute("aria-expanded", "true");
-  await expect(detail).toContainText("0 of 5 recorded complete");
+  await expect(detail).toContainText("0 of 5 slices recorded complete");
   await expect(detail).toContainText("Prospective proof recipe:");
 
   await page.keyboard.press("Space");
@@ -136,7 +136,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
   });
   await expect(detail).toBeVisible();
   await expect(detail.getByText("Ready for execution").first()).toBeVisible();
-  await expect(detail).toContainText("0 of 5 recorded complete");
+  await expect(detail).toContainText("0 of 5 slices recorded complete");
   await expect(
     detail.getByRole("link", { name: /^Canonical record/ }),
   ).toBeVisible();

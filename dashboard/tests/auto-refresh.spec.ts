@@ -24,6 +24,7 @@ import {
   queueStory,
   recordsAt,
   refCheckArgv,
+  refChecks,
 } from "./autoRefreshJourney";
 import {
   backlogB,
@@ -117,11 +118,10 @@ test("auto refresh: quiet main is only checked, and newly published main appears
 
   await test.step("main was not resolved again: one check, then one B backlog and its records", () => {
     const calls = callsSince(page, beforeB);
-    expect(
-      calls
-        .filter(({ request }) => request.kind === "ref")
-        .map(({ argv }) => argv),
-    ).toEqual([refCheckArgv(revisionA)]);
+    expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
+      refCheckArgv(revisionA),
+    ]);
+    expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
     const reads = contentReads(calls);
     expect(
       reads.filter((read) => read.startsWith(".planning/PRODUCT-BACKLOG.md")),

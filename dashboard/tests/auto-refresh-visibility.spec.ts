@@ -108,9 +108,8 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     expect(refChecks(calls).map(({ argv }) => argv)).toEqual([
       refCheckArgv(revisionA),
     ]);
-    expect(calls.filter(({ request }) => request.kind === "ref")).toHaveLength(
-      1,
-    );
+    // The check found B; main was not resolved again.
+    expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
     const reads = contentReads(calls);
     expect(reads.length).toBeGreaterThan(1);
     expect(reads.every((read) => read.endsWith(`?ref=${revisionB}`))).toBe(

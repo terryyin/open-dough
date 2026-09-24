@@ -3,6 +3,8 @@
 // ./support/fakeGitHub so a test can compose an answer without depending on
 // how it is served or to which repository.
 
+import { createHash } from "node:crypto";
+
 export type RawAnswer = {
   readonly status: number;
   readonly contentType: string;
@@ -55,6 +57,98 @@ export function commitAnswer(sha: string): RawAnswer {
       parents: [],
     }),
   };
+}
+
+// GitHub's listing of every published branch head, `main` included, each
+// naming the commit it points at. GitHub tags the listing by its content, so
+// the tag changes exactly when any head moves, appears, or goes.
+export function headsAnswer(
+  heads: Readonly<Record<string, string>>,
+  headers?: Readonly<Record<string, string>>,
+): RawAnswer {
+  const body = JSON.stringify(
+    Object.entries(heads)
+      .sort(([one], [other]) => (one < other ? -1 : one > other ? 1 : 0))
+      .map(([branch, sha]) => ({
+        ref: `refs/heads/${branch}`,
+        node_id: "REF_fixture",
+        object: { sha, type: "commit" },
+      })),
+  );
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    etag: `W/"heads-${createHash("sha1").update(body).digest("hex")}"`,
+    ...(headers !== undefined && { headers }),
+    body,
+  };
+}
+
+// The entity tag of the listing that names these heads.
+export function headsEtag(heads: Readonly<Record<string, string>>): string {
+  return headsAnswer(heads).etag ?? "";
+}
+
+// What GitHub lists as the published branch heads when `main` is answered
+// as `mainAnswer` and `branches` are published beside it: a failed answer
+// fails the listing alike, and a commit answer is listed as `main`'s head,
+// with any headers it carries.
+export function asHeadsListing(
+  mainAnswer: OriginAnswer,
+  branches: Readonly<Record<string, string>> = {},
+): OriginAnswer {
+  if (!("status" in mainAnswer) || mainAnswer.status >= 300) {
+    return mainAnswer;
+  }
+  const { sha } = JSON.parse(mainAnswer.body) as { sha: string };
+  return headsAnswer({ ...branches, main: sha }, mainAnswer.headers);
+}
+
+// GitHub's answer naming the commit a published branch head points at.
+export function branchRefAnswer(branch: string, sha: string): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({
+      ref: `refs/heads/${branch}`,
+      node_id: "REF_fixture",
+      object: { sha, type: "commit" },
+    }),
+  };
+}
+
+// GitHub's commit list for a path, newest first, as far as `per_page=1`
+// asks: the one commit that last changed it, committed at `committedAt`.
+function commitListAnswer(committedAt: Date): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify([
+      {
+        sha: "c0".repeat(20),
+        commit: {
+          message: "Fixture commit",
+          committer: {
+            name: "Fixture Committer",
+            date: committedAt.toISOString().replace(/\.\d{3}Z$/, "Z"),
+          },
+        },
+      },
+    ]),
+  };
+}
+
+// The commit list for `path`, when `committed` says when it was last
+// committed; undefined when it does not.
+export function commitListFor(
+  committed: Readonly<Record<string, Date>> | undefined,
+  path: string,
+): RawAnswer | undefined {
+  const at =
+    committed !== undefined && Object.hasOwn(committed, path)
+      ? committed[path]
+      : undefined;
+  return at === undefined ? undefined : commitListAnswer(at);
 }
 
 export function rawFileAnswer(markdown: string): RawAnswer {

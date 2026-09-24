@@ -1,23 +1,34 @@
 // Revision-only checks for the local authenticated read boundary
-// (`./authenticatedRead.ts`): which commit a catalog source's ref names now,
-// asked of GitHub conditionally (`./ghRead.ts`) so an unchanged ref costs a
-// `304 Not Modified` rather than a fresh answer.
+// (`./authenticatedRead.ts`): which commit a catalog source's ref, and every
+// other published branch head, names now, asked of GitHub in one conditional
+// listing (`./ghRevision.ts`) so unchanged heads cost a `304 Not Modified`
+// rather than a fresh answer.
 
 import type { PublishedSource } from "../src/publishedSource";
-import { checkRevisionViaGh, type RevisionAnswer } from "./ghRead";
+import { checkHeadsViaGh, type HeadsAnswer } from "./ghRevision";
+import { GhFailure } from "./ghRead";
+
+// What one check found: the commit the source's ref names, and the head of
+// every published branch.
+export type CheckedHeads = {
+  readonly revision: string;
+  readonly heads: ReadonlyMap<string, string>;
+};
 
 // The last answer per catalog source, kept only as a hint for the next
 // conditional request: in memory, per launched server, bounded by the
 // catalog, and never a source of what a project published -- a `304` only
-// repeats a commit GitHub itself named for this same source, and every other
+// repeats heads GitHub itself listed for this same source, and every other
 // answer replaces the hint.
 export class RevisionChecks {
-  private readonly answers = new Map<string, RevisionAnswer>();
+  private readonly answers = new Map<string, HeadsAnswer>();
 
-  async check(source: PublishedSource, signal: AbortSignal): Promise<string> {
-    const answer = await checkRevisionViaGh(
+  async check(
+    source: PublishedSource,
+    signal: AbortSignal,
+  ): Promise<CheckedHeads> {
+    const answer = await checkHeadsViaGh(
       source.repository,
-      source.ref,
       this.answers.get(source.id),
       signal,
     );
@@ -26,6 +37,11 @@ export class RevisionChecks {
     } else {
       this.answers.set(source.id, answer);
     }
-    return answer.revision;
+    const revision = answer.heads.get(source.ref);
+    if (revision === undefined) {
+      // The listing does not name the source's ref: it names no commit.
+      throw new GhFailure({ kind: "no-commit" });
+    }
+    return { revision, heads: answer.heads };
   }
 }
