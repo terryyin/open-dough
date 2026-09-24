@@ -144,23 +144,26 @@ bounded corrections.
 claims and delivery with less routine agent coordination. Preserve authority,
 user work, and truthful remote/CI evidence while reducing total instructions.
 
-**Reviewed decomposition:** The installed startup operation; ordinary execution publication plus
-CI attachment delivered in [execution publication](#accept-execution-ci-native-behavior);
-preparation keep; and closure. The previous separate execution-increment
-candidate duplicated the CI story's publication boundary and has been absorbed
-there. No library, command-framework, or testing-only story is required.
+**Reviewed decomposition (2026-09-23):** The installed startup operation;
+ordinary execution publication plus CI attachment delivered in
+[execution publication](#accept-execution-ci-native-behavior); preparation
+keep; and closure. The previous separate execution-increment candidate
+duplicated the CI story's publication boundary and was absorbed there. On
+2026-09-24 the maintainer combined preparation keep and closure adoption into
+[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes). No separate
+library, command-framework, or testing-only story is required.
 
 **Alternatives and limits:** Another instruction-only reminder repeats a rule
-already installed during the incident. A single all-caller migration delays the
-incident fix behind distinct preparation and closure cases. Keep four bounded
-outcomes, but do not treat them as four immediate top priorities. Each includes
-only the runtime, concise guidance, payload delivery, and proof its outcome needs.
+already installed during the incident. The startup and execution-publication
+outcomes remain distinct from the combined Dough Keep outcome. Each includes only
+the runtime, concise guidance, payload delivery, and proof its outcome needs.
 
 **Effort hypothesis:** No project S/M/L definitions were found. Startup carries
 the greatest initial runtime/native-adoption uncertainty. The combined CI/delivery
 story adds candidate revalidation and existing-observer attachment, not a new
-observer lifecycle. Preparation should be narrower; closure adds published-history
-and cleanup concerns. Estimates remain unassigned pending planning evidence.
+observer lifecycle. Dough Keep must preserve preparation's narrower authority and
+closure's published-history and cleanup concerns. Estimates remain unassigned
+pending planning evidence.
 
 <a id="publish-execution-increments-through-shared-operation"></a>
 
@@ -181,8 +184,10 @@ navigation reference, not another candidate or a claim of delivered behavior.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
 ```
 
-**Status:** Queued on 2026-09-23 after the remote dashboard outcomes; scope
-outlined, refinement and planning pending.
+**Status:** Absorbed on 2026-09-24 into
+[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes) before execution.
+This section retains the original preparation outcome for traceability; it is
+not a separate queued story.
 
 **For / why:** A developer who chooses to keep refinement or planning work sees
 that exact retained preparation on remote trunk without another agent-managed
@@ -215,8 +220,10 @@ and independent refresh result. Closure adoption may remain deferred.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
 ```
 
-**Status:** Queued on 2026-09-23 after the remote dashboard outcomes; scope
-outlined, refinement and planning pending.
+**Status:** Absorbed on 2026-09-24 into
+[Dough Keep](SEED-026-dough-keep.md#keep-reviewed-worktree-changes) before execution.
+This section retains the original closure outcome for traceability; it is
+not a separate queued story.
 
 **For / why:** A developer finishing a story gets the intended closure on its
 authorized remote target, with truthful CI evidence and safe cleanup, without
@@ -256,9 +263,10 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 - Published ownership and execution-branch visibility stay next. They directly
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
-- Preparation keep and closure follow those dashboard outcomes, before local
-  checkout coordination and the remaining Claude background adaptation. They
-  extend the shared publisher without making the incident fix wait for them.
+- Preparation keep and closure adoption are now one
+  [Dough Keep story](SEED-026-dough-keep.md#keep-reviewed-worktree-changes), placed
+  first at the maintainer's direction on 2026-09-24. Their prior positions no
+  longer describe the active queue.
 - Local coordination remains below remote work, matching the existing direction.
   The Claude background story consumes the common contracts and owns only the
   remaining host-specific restriction/handoff outcome. Neither warrants a second
@@ -266,9 +274,8 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 - Planning-format validation and existing process follow-ups retain their relative
   order below this cluster. They are not prerequisites for publication.
 
-If reducing investment, defer preparation/closure migration first and retain
-current shared procedures for those callers. Retain the first story's complete
-claim guarantee. Reassess further simplification against actual native use;
+If reducing investment, retain the first story's complete claim guarantee and
+reassess further simplification against actual native use;
 no invisible host startup, scheduler, arbitrary-push watcher, or global workflow
 registry is selected. No new execution authority or ADR acceptance is implied.
 

@@ -18,13 +18,12 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep reviewed worktree changes with Dough Keep](seeds/SEED-026-dough-keep.md#keep-reviewed-worktree-changes) — SEED-026#keep-reviewed-worktree-changes
 - [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
 - [Accept execution increment CI observation in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — SEED-008#accept-execution-ci-native-behavior
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
-- [Keep prepared stories and plans through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-preparation-through-shared-operation) — SEED-008#publish-preparation-through-shared-operation
-- [Close completed stories through the shared publication operation](seeds/SEED-008-worktree-branch-trunk-sync.md#publish-closure-through-shared-operation) — SEED-008#publish-closure-through-shared-operation
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
