@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner ([plan](quick/091-identify-taken-work-owner/PLAN.md))
-
 ## Backlog list
 
 - [Keep agent authorship safe for bare repositories and tighten agent profile Take](quick/093-tighten-agent-profile-take/PLAN.md)

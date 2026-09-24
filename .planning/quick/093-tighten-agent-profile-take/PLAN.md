@@ -6,14 +6,19 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/093-tighten-agent-profile-take/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 needs a fixture seam to publish a rival profile between startup's source fetch and the claim commit; none exists yet, so its proof path and size are uncertain."],"basis":{"document":"a43b896c0501115763c928da58094c83f49843f26d7273e1aa8d05bf2c69ab76"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 needs a fixture seam to publish a rival profile between startup's source fetch and the claim commit; none exists yet, so its proof path and size are uncertain."],"basis":{"document":"2d89380fa5ef6ec32fce8f4c48d20f9222dc083984b9a70be96ca792ac166bc7"}}
 ```
 
 ## Source and provenance
 
-Execution retrospective of
-[SEED-021#identify-taken-work-owner](../../seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner),
-plan `quick/091-identify-taken-work-owner/PLAN.md`. Reviewed commits on
+Execution retrospective of `SEED-021#identify-taken-work-owner` (closed; story
+section recoverable at
+`ab179bea1e2854fa3c6cbf87b631ebef90d0c3d8:.planning/seeds/SEED-021-observe-published-story-progress.md`
+and plan at
+`ab179bea1e2854fa3c6cbf87b631ebef90d0c3d8:.planning/quick/091-identify-taken-work-owner/PLAN.md`).
+Current behavior is described in
+[project visibility requirements](../../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names).
+Reviewed commits on
 `claude/091-identify-taken-work-owner`: `567f9b2`, `78cbf28`, `c355207`,
 `8c7ba14`, `ff33cb8` (CI repair), `a4bd897`; claim `920996f` is provenance.
 That story's promises stand. This correction changes no profile format, name
