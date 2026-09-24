@@ -77,7 +77,7 @@ Dough Land's keep path must accept it.
 ### 2. Dough Land lands a reviewed preparation worktree
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a reviewed preparation worktree with uncommitted edits and a
 sibling change already on remote trunk, when the developer invokes
@@ -105,6 +105,28 @@ examples 1–4. Commands: `bash tests/workspace-publication-callers.sh`,
 
 Safe stopping point: the skill and preparation caller give a useful landed
 keep; wrap-up still works unchanged.
+
+Accepted proof (2026-09-24): `node --test --test-concurrency=1
+src/skills/dough-story-refinement/scripts/dough-land.test.mjs
+src/skills/dough-story-refinement/scripts/dough-land-rerun.test.mjs
+src/skills/dough-story-refinement/scripts/dough-land-guidance.test.mjs
+src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs
+src/skills/dough-story-refinement/scripts/preparation-publication-resume.test.mjs
+src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs
+src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs` → 19/19;
+examples 1–4 are pinned through the `landWorktree` Git-mechanics model in
+`dough-land-test-fixtures.mjs` over the shipped publisher, refresh, and
+retirement helpers (fail-before: a named-file-only commit variant fails
+examples 1–3). `tests/workspace-publication-callers.sh` 19/19; `npm test`
+green. No native agent observation.
+
+Learnings: a keep now lands the whole workspace, so keep validation stops
+when the workspace holds anything else; retirement checks remote containment
+before removing, so a no-publish workspace with unpublished commits is
+retained whole. `retained-artifacts.mjs` lost its unreferenced keep path and
+never commits or pushes. Slice 3 links `dough-land/SKILL.md`
+`#refresh-the-default-checkout` and `#retire-the-worktree` (caller gate
+supported).
 
 ### 3. Wrap-up retires execution resources through Dough Land
 

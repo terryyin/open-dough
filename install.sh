@@ -126,6 +126,7 @@ managed_files=(
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-disposition.md
   dough-story-refinement/references/preparation-workspace.md
+  dough-land/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-planning/references/architectural-thinking.md

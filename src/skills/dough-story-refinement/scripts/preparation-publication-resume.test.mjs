@@ -18,8 +18,8 @@ import {
   pushCandidate,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { closeOrRetainWorkspace } from "./dough-land-test-fixtures.mjs";
 import {
-  closeOrRetainWorkspace,
   createPreparationFixture,
   worktreeCount,
 } from "./preparation-publication-test-fixtures.mjs";
