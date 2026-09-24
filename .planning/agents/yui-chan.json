@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-021#follow-published-story-branch",
+  "mode": "story-branch",
+  "branch": "claude/092-follow-published-story-progress",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
