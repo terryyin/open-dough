@@ -51,56 +51,6 @@ The behavior has been released since 0.3.27, so this is retroactive acceptance.
   setup and command markers more strictly. None invalidates the earlier host
   judgments.
 
-<a id="accept-execution-ci-native-behavior"></a>
-
-### Accept execution increment CI observation in native hosts
-
-**Identity:** SEED-008#accept-execution-ci-native-behavior
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach and focused native cases remain to be selected."],"basis":{"document":"04beda7ca5fbbc6edd8fadafd240a82c1fc49a8d0f807d7dfffdd9a7ce2ffdef"}}
-```
-
-**Goal:** Before the managed delivery and CI observation behavior in
-`dough-execute-plan` is released, a maintainer can judge that the installed
-delivery entry point and host bridge produce the intended automatic observation,
-exact-revision attachment, and truthful coverage gap reporting across Codex,
-Cursor, and Claude Code. This is native acceptance under ADR 0005, distinct from
-deterministic tests.
-
-**Remaining scope:**
-- Fresh ordinary journey verifying that managed execution delivery establishes
-  or reuses CI observation and attaches the accepted SHA without manual
-  observer probe/start or register-push commands.
-- Verify Codex yielded stream and Cursor/Claude PostToolUse hooks.
-- On Claude Code, verify missing-alias fallback (`.agents` runtime resolved
-  when `.claude/skills` is absent) and ended-observer handling (ended observer
-  reports explicit unobserved gap, never active attachment).
-- Verify delayed failure delivery reaches the coordinator at the next safe boundary.
-
-**Implementation basis:** Functional implementation and deterministic verification
-are complete (all 3 slices + repair 4 pass 63 tests, payload update passes).
-Implementation locators and judgments are recoverable from
-`463c48a:.planning/quick/083-publish-execution-ci/PLAN.md`.
-
-**Evaluation:** Run the existing native journey from a prepared owned checkout:
-
-```sh
-GIT_PUBLICATION_KEEP=1 PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native HOST --case CASE --results-dir <temporary-results-directory>
-```
-
-Inspect native traces, independent remote Git history, and coordinator context
-for automatic attachment, exact registered SHA, and absence of manual setup or
-handle bookkeeping.
-Judge each attempt, record its acceptance result or remaining requirement, and
-remove spent results and retained fixtures under ADR 0005.
-
-**Completion:** Passing native observations or justified reusable proof per host
-under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
-Truthful missing-proof or quota limits remain pending. Route real defects to
-bounded corrections.
-
-**Boundary:** No new publication mechanics, daemon, or changed completion policy.
-
 ## Publication delivery boundaries
 
 **Parent problem:** Developers executing concurrent work need reliable shared
@@ -108,9 +58,9 @@ claims and delivery with less routine agent coordination. Preserve authority,
 user work, and truthful remote/CI evidence while reducing total instructions.
 
 **Reviewed decomposition (2026-09-23):** The installed startup operation;
-ordinary execution publication plus CI attachment delivered in
-[execution publication](#accept-execution-ci-native-behavior); preparation
-keep; and closure. The previous separate execution-increment candidate
+ordinary execution publication plus CI attachment, delivered by plan 083
+(recoverable at `463c48a:.planning/quick/083-publish-execution-ci/PLAN.md`);
+preparation keep; and closure. The previous separate execution-increment candidate
 duplicated the CI story's publication boundary and was absorbed there.
 Preparation keep and closure adoption are delivered by the
 [Dough Land](../../src/skills/dough-land/SKILL.md) skill. No separate
@@ -132,10 +82,9 @@ pending planning evidence.
 ### Execution-increment candidate absorbed into CI delivery
 
 The proposed identity `SEED-008#publish-execution-increments-through-shared-operation`
-was never queued. Its outcome is now owned by
-[SEED-008#accept-execution-ci-native-behavior](#accept-execution-ci-native-behavior), avoiding
-two stories that each wire the same publication boundary. This is a retired
-navigation reference, not another candidate or a claim of delivered behavior.
+was never queued. Its outcome was absorbed into the managed execution delivery
+of plan 083, avoiding two stories that each wire the same publication boundary.
+This is a retired navigation reference, not another candidate.
 
 ### Priority rationale and scope reduction
 
@@ -143,10 +92,11 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
 
 - Startup addressed the reproduced claim-visibility failure; its remaining
   native acceptance is complete on all three hosts.
-- Terry retained CI/delivery's current priority on 2026-09-23 after comparing
-  execution reliability with dashboard visibility and delivery-proof acceptance.
-  Its benefit is reliable feedback at frequent publication boundaries, not a
-  prerequisite for those other stories. CI completion is already delivered.
+- Managed execution delivery and CI observation shipped in 0.3.33. Terry dropped
+  its separate native-acceptance story on 2026-09-24: projects use it
+  continuously, deterministic tests cover the mechanism, and a missing or false
+  CI signal reported from real use goes through bug fixing. No native
+  acceptance is claimed for it.
 - Published ownership and execution-branch visibility stay next. They directly
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
@@ -263,7 +213,7 @@ truthful publication ownership without bypassing host restrictions.
 The retired identity `SEED-008#reduce-ci-observer-overhead` is not queued or
 reallocated. Its remaining outcomes are the delivered
 [completion operation](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
-and queued [native acceptance story](#accept-execution-ci-native-behavior).
+and the managed execution delivery of plan 083, released in 0.3.33.
 
 Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure

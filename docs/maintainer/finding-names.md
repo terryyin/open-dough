@@ -1681,7 +1681,7 @@ consult both lists when matching findings or allocating identities.
 
 - **Assessment (2026-09-23):** Later `9f86dda`, `8a00357`, and `d57783c` distinguish discovery-pending from terminal verdicts; they do not establish that bounded listing always discovers the relevant run. Historical reports are not post-v0.3.28 failures. The proposed listing cause remains qualified; diagnose it before choosing a repair. No complete fix or eligible watch is claimed.
 
-- **Follow-up:** [Accept execution increment CI observation in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — **queued, not resolved**. Preserves late discovery delivery and truthful unproved completion; bounded listing remains open by design.
+- **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Preserves late discovery delivery and truthful unproved completion; bounded listing remains open by design.
 
 ## ODF-070 — Tool availability is inferred from a local dependency directory
 
@@ -1850,7 +1850,7 @@ consult both lists when matching findings or allocating identities.
 - **Response:** `execution-increment-delivery.mjs` establishes or reuses a matching live observer for the authorized target branch before the first applicable push, attaching the exact accepted SHA to that observer.
 - **Released in:** pending release
 
-- **Follow-up:** [Accept execution increment CI observation in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — **queued, not resolved**. Managed delivery establishes or reuses observation before push, attaching the exact accepted SHA; native host verification remains queued.
+- **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Managed delivery establishes or reuses observation before push, attaching the exact accepted SHA.
 
 ## ODF-074 — Planning asserts unverified existing code and host facts
 
@@ -2356,7 +2356,7 @@ consult both lists when matching findings or allocating identities.
 - **Response:** `ci-checkout-runtime.mjs` resolves the checkout-bound runtime by falling back from the preferred host alias to any usable same-checkout installation (`.agents` or `.claude`), avoiding false unavailability or unnecessary directory copies.
 - **Released in:** pending release
 
-- **Follow-up:** [Accept execution increment CI observation in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — **queued, not resolved**. Checkout runtime fallback across missing aliases is implemented; native host verification remains queued.
+- **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Checkout runtime fallback across missing aliases is implemented.
 
 ## ODF-086 — Queue claims use a stale shared-backlog reading
 
@@ -2518,7 +2518,7 @@ consult both lists when matching findings or allocating identities.
 - **Response:** `ci-host-hook.mjs` inspects `result.json` and reports terminal status instead of emitting active attachment. Managed resume (`execution-increment-resume.mjs`) returns an explicit unobserved coverage gap (`pendingCi: "unobserved"`) when an observer has ended, without duplicate push or false coverage.
 - **Released in:** pending release
 
-- **Follow-up:** [Accept execution increment CI observation in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — **queued, not resolved**. Ended observer status reporting is implemented; native host verification remains queued.
+- **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Ended observer status reporting is implemented.
 
 ## ODF-090 — A multi-slice plan uses the single-slice local implementation exception
 
