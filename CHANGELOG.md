@@ -1,3 +1,12 @@
+## 0.3.38 - 2026-09-24
+
+- Give every Taken work item a published, rotating `<Name>-chan` agent profile, preserve its identity and authorship across resume, release it on completion, and harden selection against concurrent claims and bare-repository worktrees.
+- Show the owning agent, execution mode, branch context, host, and model on dashboard Taken cards while keeping missing or unreadable profile data explicit and using the existing authenticated GitHub read boundary.
+- Complete the delivery-evidence native acceptance story across Claude Code and Codex, unify promise-status interpretation across observers, and make CI-observer and native-watchdog fixtures more deterministic and bounded.
+- Simplify retained preparation and bug-fixing workspace handling around the shared Dough Land publication and retirement workflow, while preserving unrelated or unresolved work.
+
+No additional native acceptance was run for `0.3.38` at the maintainer's request. Native evidence completed within the included delivery-evidence work is retained; native acceptance for the new agent-profile behavior and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.37 - 2026-09-24
 
 - Add the explicitly invoked `dough-land` workflow to commit all reviewed changes from an owned worktree, publish them through the shared publication contract, safely refresh the default checkout, and retire the worktree only after trunk contains its tip.
