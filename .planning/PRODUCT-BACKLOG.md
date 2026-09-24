@@ -18,7 +18,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
-- [Pause dashboard refresh while the page is inactive](seeds/SEED-027-pause-inactive-dashboard-refresh.md#pause-inactive-dashboard-refresh) — SEED-027#pause-inactive-dashboard-refresh
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
