@@ -3,7 +3,8 @@ name: dough-execution-retrospective
 description: >-
   Reviews planned, completed planless quick, or quick-to-planned execution against
   original intent, aggregate commits, current whole-product architecture, and tests,
-  including after cleanup. Use for execution retrospective, product review, or backlog
+  including after cleanup; process review needs available agent history. Use for
+  execution retrospective, product review, or backlog
   recommendations from current/supplied history. Supports `--skip-process`, `--skip-product`,
   and project `skipProcessRetrospective` preference. May plan corrections, record process
   findings in `DearDough.md` (500-line warning, 1,000-line ceiling, recoverable lower-priority
@@ -23,7 +24,7 @@ completion prerequisite. Review the delivered implementation while observation
 continues and state which conclusions remain conditional on unresolved CI. Do
 not invoke the CI wait, stop or replace its observer, acknowledge its events, or
 claim final execution/review handoff; the invoking execution owns those actions
-through its [completion wait](../dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
+through its [completion operation](../dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
 
 ## Select reviews
 
@@ -150,7 +151,13 @@ the other returns evidence. Continue enabled reviews; a separate request execute
 
 ## Review process only from a real record
 
-Use direction and a sufficient conversation/transcript to identify waste, rule-induced churn,
+Review the coordinator's existing conversation and tool results. Inspect relevant
+sub-agent history through available host access when needed. If required history
+is unavailable, report the affected process review unavailable and continue
+independently supported reviews. Persist supported findings under the recording
+rules below; execution state follows the project's plan and Git conventions.
+
+Use that history and the user's direction to identify waste, rule-induced churn,
 missing stops, disproved sizing/decomposition, digression, and useful practices. Assess instruction
 and context usability, including this review's avoidable rereading, duplication, and reconstruction.
 Separate necessary investigation, observation, and inferred cost/cause. Cite recorded token counts
@@ -189,7 +196,7 @@ and revision as pending and make no success claim. End with
 `## EXECUTION RETROSPECTIVE COMPLETE`; this marker completes review, not the
 execution's final CI handoff. When this review was invoked automatically by an
 active `dough-execute-plan` execution, do not end the turn at this marker:
-return immediately to that execution's completion-wait and shutdown procedure,
+return immediately to that execution's completion operation,
 without asking for confirmation. If an authorized CI repair later changes
 reviewed code, resume only the affected conclusions using the retained review
 state.

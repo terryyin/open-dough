@@ -10,33 +10,40 @@ armed from the execution checkout against the authorized target branch.
 
 ## Publish a queue claim
 
-After the owned execution workspace exists and
-[Take queued work](../SKILL.md#take-queued-work) commits the Taken claim there,
-publish that claim SHA to remote trunk with the steps below, before
-implementation. Do not start implementation from an unpublished claim. Retain
-its published SHA and register it after the observer is armed. Later
-environment preparation does not unpublish that SHA. An unavailable destination
-or failed publication leaves the exact remaining state and does not authorize
-starting unclaimed queued work. CI coverage for this claim, including a Story
-Branch claim's unobserved trunk target, follows
+For queued Story Branch and Trunk Mode, [Take queued work](../SKILL.md#take-queued-work)
+uses the installed startup operation to publish and confirm the claim on remote
+trunk before implementation. Retain its exact receipt and register the
+published SHA after the observer is armed. Later environment preparation does
+not unpublish that SHA. An unavailable destination or failed publication
+preserves the reported state and does not authorize starting unclaimed queued
+work. CI coverage for this claim, including a Story Branch claim's unobserved
+trunk target, follows
 [Own one observer](ci-monitor.md#own-one-observer).
 
 ## Publish an execution increment or repair
 
 After wrap-up proof, refactor, format, and commit succeed, publish the owned
-unpublished suffix through [Publish the candidate](#publish-the-candidate).
+unpublished suffix through managed delivery
+([Publish an execution increment or repair](#publish-an-execution-increment-or-repair)).
 Planned slices, planless and contextual work, bug repair, and a retrospective
 correction all use this delivery. An owned CI repair uses it too. Pause,
 stash, and restore stay in
 [CI observation](ci-monitor.md#handle-a-notification); do not add a second
 repair push.
 
+Managed delivery resolves this checkout's CI runtime, establishes or reuses the
+matching live observer for the authorized target, publishes the candidate, and
+attaches the accepted SHA. Do not run a separate probe, start, or `register-push`
+for ordinary increments or already-authorized repairs. Retain the delivery
+receipt's observation directory when present; do not transcribe mailbox handles
+by hand. An unavailable host bridge returns `pendingCi: unobserved` (or an
+equivalent coverage-gap receipt) while leaving remote acceptance intact.
+
 Trunk Mode builds the candidate from the local execution branch and pushes
 that candidate to remote trunk. It does not push the execution branch. Story
 Branch Mode pushes that candidate to the recorded remote execution branch and
-does not push it to remote trunk. Keep the same execution worktree. Register
-the receipt recorded by [Publish the candidate](#publish-the-candidate).
-Caller-selected current-branch work and host-owned execution enter this
+does not push it to remote trunk. Keep the same execution worktree. Caller-selected
+current-branch work and host-owned execution enter this
 sequence only from the recorded checkout, and only when that caller already
 supplied publication authority. Without it, do not push; report the commit
 as pending publication. A local commit or local merge does not enter this
@@ -64,20 +71,25 @@ It does not erase a remote acceptance the publisher has already recorded.
 
 ## Publish the candidate
 
-Apply [Preconditions](#preconditions), then run
-[publish the candidate](publish-the-candidate.md#publish-the-candidate) from
-the owned workspace. A claim uses the execution workspace selected before its
-commit; other publications retain theirs. Register the accepted revision and
-the target it was accepted on with any observer already bound to that target,
-only after the publisher's remote confirmation. A pre-rebase unpublished SHA
-is not the receipt. After confirmation of a publication whose target is
-remote trunk, attempt a refresh under
+Apply [Preconditions](#preconditions), then run managed delivery from the owned
+workspace through the installed
+`dough-execute-plan/scripts/execution-increment-delivery.mjs` entry point
+(`deliver` with the owned workspace, branch, previously published base,
+authorized target ref, repository, host, and publication authority). That
+operation owns runtime resolution, observer establish/reuse, the
+[publish the candidate](publish-the-candidate.md#publish-the-candidate) Git
+sequence, and exact-revision registration. A claim uses the execution workspace
+selected before its commit; other publications retain theirs. Do not invent a
+second publication sequence or a manual `register-push` after managed delivery.
+A pre-rebase unpublished SHA is not the receipt. After confirmation of a
+publication whose target is remote trunk, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
 A publication whose target is the remote execution branch does not refresh
-the default checkout. Report the publication acceptance and any maintenance
-result separately.
-A deferred or stopped refresh does not erase the accepted publication and
-does not authorize another push.
+the default checkout. Report the publication acceptance, observation result,
+and any maintenance result separately. A deferred or stopped refresh does not
+erase the accepted publication and does not authorize another push. An
+unavailable bridge is a coverage gap on the delivery receipt, not a reason to
+undo acceptance.
 
 ## Publish wrap-up closure
 
@@ -92,51 +104,54 @@ Resolve observation ownership before the first wrap-up publication: recover
 the matching execution observer when it still exists; if observation already
 ended, use the existing setup to arm one observer from the same execution
 checkout against the authorized target using [CI observation](ci-monitor.md).
-Register each confirmed published SHA with that observer. After the last
-wrap-up publication this invocation will perform, apply
-[the shared completion wait](ci-monitor.md#await-the-applicable-revision-at-completion)
-once to that final accepted SHA. Handle its verdict or bounded exception before
-stopping only that observer through the host adapter, then report the exact
-published closure SHAs, wait receipt, and remaining coverage. An unavailable
-bridge or registration failure is lost coverage: report it truthfully and
-continue without inventing successful observation.
+Do not start an observer automatically or retarget another mailbox. Register
+each confirmed published SHA with that observer. After the last wrap-up
+publication this invocation will perform, invoke
+[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+once for that final accepted SHA on the matching observer. Handle its combined
+CI and shutdown receipt, then report the exact published closure SHAs, that
+receipt, and remaining coverage. An unavailable bridge or registration failure
+is lost coverage: report it truthfully and continue without inventing
+successful observation.
 
 A publication stop leaves the commit recoverable on the execution branch.
-Do not delete spent history, remove resources, or claim closure. Wait only
-after the final applicable wrap-up publication, never between intermediate
-recovery-record publications. After its bounded result is handled and wrap-up
-observer shutdown succeeds, wrap-up removes only this execution's clean local
-worktree and local execution branch, applying
+Do not delete spent history, remove resources, or claim closure. Invoke
+completion only after the final applicable wrap-up publication, never between
+intermediate recovery-record publications. After a success or bounded
+unresolved receipt with confirmed shutdown, wrap-up removes only this
+execution's clean local worktree and local execution branch, applying
 [preserve pending local work](maintain-default-checkout.md#preserve-pending-local-work)
-when cleanup would mutate or discard a dirty or ambiguous checkout.
+when cleanup would mutate or discard a dirty or ambiguous checkout. Unconfirmed
+shutdown or retained observation preserves those resources.
 
 ## Observe Story Branch integration
 
 Story Branch wrap-up changes publication targets. Before integrating its saved,
 published final-closure tip, close the observer bound to the remote execution
-branch through its existing completion lifecycle: await that tip when it is the
-last accepted registered revision, handle the result, then stop that exact
-observer. A green execution-branch receipt covers only that branch and never
-releases later trunk observation.
+branch with
+[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+for that tip when it is the last accepted registered revision. A green
+execution-branch receipt covers only that branch and never releases later trunk
+observation.
 
 From the retained execution workspace, recover one matching observer already
 bound to the authorized trunk target or use the existing setup to start one
 there. Establish it before integration publication. Do not retarget the old
 mailbox, register a revision against a differently targeted observer, or create
 a duplicate observer for the same repository, target, and coordinator. When the
-old observer cannot be awaited or stopped, or the trunk bridge cannot be
-established, retain explicit unavailable coverage; do not invent success or
-silently discard an observer that may still own the checkout.
+branch observer cannot complete, or the trunk bridge cannot be established,
+retain explicit unavailable coverage; do not invent success or silently discard
+an observer that may still own the checkout.
 
 Publish the history-preserving integration through the common candidate
 sequence. After remote confirmation, register only the accepted integrated SHA
 with the trunk observer. A saved branch tip or superseded merge candidate is
-not that receipt. Apply
-[the shared completion wait](ci-monitor.md#await-the-applicable-revision-at-completion)
-once to the accepted integrated SHA, handle its verdict or bounded exception,
-then explicitly stop the trunk observer. Resource cleanup follows successful
-shutdown and the existing ownership checks; publication recovery retains the
-same observer and repeats neither target setup nor an already accepted push.
+not that receipt. Invoke
+[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+once for the accepted integrated SHA on that trunk observer and handle its
+combined receipt. Resource cleanup follows confirmed shutdown and the existing
+ownership checks; publication recovery retains the same observer and repeats
+neither target setup nor an already accepted push.
 
 ## Recover a rejected push
 
