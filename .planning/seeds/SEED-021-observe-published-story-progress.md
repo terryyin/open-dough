@@ -108,8 +108,8 @@ the branch association was delivered the same day; execution no longer waits
 on it.
 
 **Goal:** Terry can see how far each Taken story has come without reading plan
-files or branches: a slice progress bar and how long the current slice has
-been running since its last recorded plan update. For Story Branch Mode work,
+files or branches: a slice progress bar and how long ago the current slice
+started, measured from its last recorded plan update. For Story Branch Mode work,
 that progress comes from the published story branch rather than the trunk
 copy, which stays as it was at Take. Progress on a branch is labeled as branch
 progress, never as work in trunk. On 2026-09-24 no Taken plan in the three
@@ -131,7 +131,7 @@ the shared plan reader refuses.
   the heading. Slice statuses keep the `planned | done` vocabulary: a plan
   with another status stays uninterpretable and is shown as that gap.
 - **Progress bar on the Taken card.** One segment per recorded slice, filled
-  for recorded-done slices, with "N of M slices recorded done". It is a count
+  for slices recorded complete, with "N of M slices recorded complete". It is a count
   of recorded slice statuses, not a percentage estimate of whole-story
   completion. The detail view keeps its slice list and shows the same source.
 - **Current-slice clock.** Elapsed time from the later of the plan's last
@@ -168,7 +168,7 @@ the shared plan reader refuses.
   around it.
 - A Trunk Mode story's plan on trunk was last changed by the slice-2 commit
   12 minutes ago, after its Take. The card shows the bar from trunk and
-  "current slice running for 12 min".
+  "Current slice started 12 min ago".
 - A story was Taken 5 minutes ago and its plan was last committed at
   planning, two days earlier. The clock shows 5 minutes, measured from the
   Take. For an entry taken before profiles existed, the clock is measured from

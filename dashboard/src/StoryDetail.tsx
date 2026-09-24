@@ -141,7 +141,7 @@ function PlanSlicesBlock({
     <div>
       <h4>Recorded slice progress</h4>
       <p>
-        {done} of {total} recorded complete
+        {done} of {total} slices recorded complete
       </p>
       {total === 0 ? (
         <p className="quiet">The ordered-slices section lists no slices.</p>

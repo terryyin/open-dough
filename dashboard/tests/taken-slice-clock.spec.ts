@@ -1,5 +1,5 @@
-// Each Taken card with counted plan slices shows how long its current slice
-// has been running: since the later of the plan's last commit and the Take
+// Each Taken card with counted plan slices shows how long ago its current
+// slice started: at the later of the plan's last commit and the Take
 // (the commit that added the entry's agent profile), both at the snapshot's
 // revision, ticking with page time and asking GitHub nothing more. The fake
 // GitHub only publishes files, profiles spelled by the shared profile
@@ -53,11 +53,11 @@ async function openedTaken(page: Page) {
 // A clock gap leaves the card's slice progress bar in place.
 async function expectBarStays(card: Locator) {
   await expect(
-    card.getByRole("img", { name: "1 of 2 slices recorded done" }),
+    card.getByRole("img", { name: "1 of 2 slices recorded complete" }),
   ).toBeVisible();
 }
 
-test("each Taken card's clock runs from the later of its last plan commit and its Take, ticking with page time", async ({
+test("each Taken card's clock measures from the later of its last plan commit and its Take, ticking with page time", async ({
   page,
 }) => {
   await pauseAtOpening(page);
@@ -71,24 +71,24 @@ test("each Taken card's clock runs from the later of its last plan commit and it
   const { taken, problem } = await openedTaken(page);
   const card = (title: string) => taken.getByRole("article", { name: title });
 
-  await test.step("a plan committed 12 min ago, after a 30 min old Take, runs for 12 min", async () => {
+  await test.step("a plan committed 12 min ago, after a 30 min old Take, started 12 min ago", async () => {
     await expect(card(afterTake)).toContainText(
-      "Current slice running for 12 min",
+      "Current slice started 12 min ago",
     );
     await expect(card(afterTake)).not.toContainText(
       "measured from the last plan commit",
     );
   });
 
-  await test.step("a story Taken 5 min ago, planned two days ago, runs for 5 min from the Take", async () => {
+  await test.step("a story Taken 5 min ago, planned two days ago, started 5 min ago at the Take", async () => {
     await expect(card(justTaken)).toContainText(
-      "Current slice running for 5 min",
+      "Current slice started 5 min ago",
     );
   });
 
-  await test.step("without a profile, the clock runs from the plan commit and says so", async () => {
+  await test.step("without a profile, the clock measures from the plan commit and says so", async () => {
     await expect(card(beforeProfiles)).toContainText(
-      "Current slice running for 40 min (measured from the last plan commit; no agent profile records the Take)",
+      "Current slice started 40 min ago (measured from the last plan commit; no agent profile records the Take)",
     );
   });
 
@@ -97,7 +97,7 @@ test("each Taken card's clock runs from the later of its last plan commit and it
       `Current slice time unavailable: The local GitHub CLI could not reach GitHub while reading the last commit of ${planPath("time-unread")} at ${revision}.`,
     );
     await expectBarStays(card(timeUnread));
-    await expect(card(timeUnread)).not.toContainText("running for");
+    await expect(card(timeUnread)).not.toContainText("Current slice started");
     await expect(problem).toHaveCount(0);
   });
 
@@ -106,8 +106,8 @@ test("each Taken card's clock runs from the later of its last plan commit and it
       "More than one agent profile names this story, so it has no single progress source.",
     );
     await expect(card(twoOwners).getByRole("img")).toHaveCount(0);
-    await expect(card(twoOwners)).not.toContainText("recorded done");
-    await expect(card(twoOwners)).not.toContainText("running for");
+    await expect(card(twoOwners)).not.toContainText("recorded complete");
+    await expect(card(twoOwners)).not.toContainText("Current slice started");
     await expect(card(twoOwners)).not.toContainText(noProfileLabel);
   });
 
@@ -133,10 +133,10 @@ test("each Taken card's clock runs from the later of its last plan commit and it
     const from = githubFor(page).calls.length;
     const checks = await checksAskedWhilePassing(page, 60_000);
     await expect(card(afterTake)).toContainText(
-      "Current slice running for 13 min",
+      "Current slice started 13 min ago",
     );
     await expect(card(justTaken)).toContainText(
-      "Current slice running for 6 min",
+      "Current slice started 6 min ago",
     );
     const calls = callsSince(page, from);
     expect(checks).toBeGreaterThan(0);
@@ -162,7 +162,7 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
   await expect(card).toContainText(
     "Current slice time unavailable: The Take time cannot be determined because agent profiles could not be read.",
   );
-  await expect(card).not.toContainText("running for");
+  await expect(card).not.toContainText("Current slice started");
   await expect(taken).not.toContainText(noProfileLabel);
   await expectBarStays(card);
 });

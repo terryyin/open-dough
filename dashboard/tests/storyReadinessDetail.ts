@@ -29,7 +29,7 @@ export async function expectReadyDetailZeroComplete(
   await expect(detail).toContainText(
     "Show recorded slice progress for a Taken story",
   );
-  await expect(detail).toContainText("0 of 5 recorded complete");
+  await expect(detail).toContainText("0 of 5 slices recorded complete");
   await expect(detail).toContainText("Establish shared plan reading");
   await expect(detail).toContainText("Pin source links beside progress");
   await expect(detail).toContainText("Status: planned");
@@ -65,7 +65,7 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
   if (!(await detail.isVisible())) {
     await readyCard.getByRole("button", { name: "Inspect story" }).click();
   }
-  await expect(detail).toContainText("2 of 5 recorded complete");
+  await expect(detail).toContainText("2 of 5 slices recorded complete");
   await expect(detail).toContainText("Status: done (recorded complete)");
   await expect(detail).toContainText("Accepted evidence:");
   await expect(detail).toContainText("Shared plan reader unit checks passed");
@@ -98,7 +98,7 @@ export async function expectReadyDetailTwoCompleteUnderSlicesHeading(
   taken: Locator,
 ) {
   const detail = await inspectReadyDetail(taken);
-  await expect(detail).toContainText("2 of 5 recorded complete");
+  await expect(detail).toContainText("2 of 5 slices recorded complete");
   await expect(detail).toContainText("Establish shared plan reading");
   await expect(detail).toContainText("Status: done (recorded complete)");
   await expect(detail).toContainText("Accepted evidence:");

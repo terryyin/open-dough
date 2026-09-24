@@ -65,24 +65,24 @@ test("Taken cards show progress from where each story is published, or the gap t
     );
     await expect(
       progress(onBranch).getByRole("img", {
-        name: "6 of 8 slices recorded done",
+        name: "6 of 8 slices recorded complete",
       }),
     ).toBeVisible();
     await expect(progress(onBranch)).not.toContainText("0 of 8");
   });
 
-  await test.step("its clock runs from the branch plan's last commit", async () => {
+  await test.step("its clock measures from the branch plan's last commit", async () => {
     await expect(progress(onBranch)).toContainText(
-      "Current slice running for 7 min",
+      "Current slice started 7 min ago",
     );
   });
 
   await test.step("a Trunk Mode story shows trunk's progress with no source label", async () => {
     await expect(progress(onTrunk)).toContainText(
-      "1 of 2 slices recorded done",
+      "1 of 2 slices recorded complete",
     );
     await expect(progress(onTrunk)).toContainText(
-      "Current slice running for 12 min",
+      "Current slice started 12 min ago",
     );
     await expect(progress(onTrunk).locator(".progress-source")).toHaveCount(0);
   });
@@ -92,7 +92,7 @@ test("Taken cards show progress from where each story is published, or the gap t
       "Trunk copy; execution branch not recorded.",
     );
     await expect(progress(beforeProfiles)).toContainText(
-      "1 of 2 slices recorded done",
+      "1 of 2 slices recorded complete",
     );
   });
 
@@ -108,7 +108,9 @@ test("Taken cards show progress from where each story is published, or the gap t
       "The recorded branch story/deleted is no longer published",
     );
     await expect(progress(branchDeleted).getByRole("img")).toHaveCount(0);
-    await expect(progress(branchDeleted)).not.toContainText("recorded done");
+    await expect(progress(branchDeleted)).not.toContainText(
+      "recorded complete",
+    );
   });
 
   await test.step("a plan missing on the branch is that gap", async () => {
@@ -178,7 +180,7 @@ test("Taken cards show progress from where each story is published, or the gap t
     const card = taken.getByRole("article", { name: onBranch });
     await card.getByRole("button", { name: "Inspect story" }).click();
     const detail = card.getByRole("region", { name: `Detail for ${onBranch}` });
-    await expect(detail).toContainText("6 of 8 recorded complete");
+    await expect(detail).toContainText("6 of 8 slices recorded complete");
     await expect(detail).toContainText(
       `From branch story/example at ${branchHead.slice(0, 7)}; not in trunk.`,
     );

@@ -1,4 +1,4 @@
-// How long a Taken card's current slice has been running: from the start its
+// How long ago a Taken card's current slice started: from the start its
 // commit times recorded (`./sliceClockStart.ts`) until the page's now,
 // ticking as page time passes. Ticking reads nothing. It measures time since the last
 // recorded plan update or the Take, not evidence that an agent is active.
@@ -27,7 +27,7 @@ export function elapsedWords(ms: number): string {
   return `${String(Math.floor(hours / 24))} d ${String(hours % 24)} h`;
 }
 
-function Running({ at, takeRecorded }: { at: Date; takeRecorded: boolean }) {
+function Started({ at, takeRecorded }: { at: Date; takeRecorded: boolean }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     setNow(Date.now());
@@ -40,9 +40,9 @@ function Running({ at, takeRecorded }: { at: Date; takeRecorded: boolean }) {
   }, [at]);
   return (
     <p className="slice-clock">
-      Current slice running for{" "}
+      Current slice started{" "}
       <time dateTime={at.toISOString()} title={at.toLocaleString()}>
-        {elapsedWords(now - at.getTime())}
+        {elapsedWords(now - at.getTime())} ago
       </time>
       {!takeRecorded &&
         " (measured from the last plan commit; no agent profile records the Take)"}
@@ -64,6 +64,6 @@ export function SliceClock({ clock }: { clock: Clock | undefined }) {
         </p>
       );
     case "started":
-      return <Running at={clock.at} takeRecorded={clock.takeRecorded} />;
+      return <Started at={clock.at} takeRecorded={clock.takeRecorded} />;
   }
 }

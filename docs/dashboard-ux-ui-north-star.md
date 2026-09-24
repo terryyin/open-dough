@@ -123,12 +123,13 @@ reason to introduce an animation engine now.
 | Refinement / Slice plan | Separate facts, not obligatory sequential gates. Show “Refinement recorded” or “Plan recorded” only with evidence; otherwise distinguish absence from unreadable evidence. |
 | Story Branch Mode | Show the recorded origin execution branch, not a guessed branch or the branch it was created from. Missing branch metadata is “Execution branch not recorded.” |
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |
-| Completed slices | Use “2 of 5 slices completed” only for a known plan and supported completion records. Counts describe slices, not effort, elapsed time, or percentage of the story outcome achieved. |
+| Completed slices | Use “2 of 5 slices recorded complete” on cards and detail alike, only for a known plan and supported completion records. Counts describe slices, not effort, elapsed time, or percentage of the story outcome achieved. |
+| Current slice clock | Use “Current slice started 12 min ago”: time since the later of the last recorded plan update and the Take, not evidence that an agent is active. Avoid “running.” |
 
 When no plan is recorded, say so instead of “0%” or “0 of 0.” If planless
 execution is explicitly recorded, name it without treating it as missing work.
 A slice without completion evidence has “No completion recorded,” not an inferred
-running or failed status. All slices completed does not itself establish story
+running or failed status. All slices recorded complete does not itself establish story
 closure or that the intended user outcome was achieved.
 
 ## Evidence, freshness, and uncertainty

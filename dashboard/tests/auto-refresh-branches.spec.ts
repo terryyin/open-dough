@@ -96,7 +96,7 @@ test("the automatic check follows each recorded story branch, reading only the p
   await expect(progress).toContainText(
     `From branch ${example} at ${branchHead.slice(0, 7)}; not in trunk.`,
   );
-  await expect(progress).toContainText("Current slice running for 7 min");
+  await expect(progress).toContainText("Current slice started 7 min ago");
 
   await test.step("while nothing moves, checks read nothing, and a repeated check is answered by GitHub's 304", async () => {
     const from = githubFor(page).calls.length;
@@ -125,12 +125,12 @@ test("the automatic check follows each recorded story branch, reading only the p
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     await expect(
-      progress.getByRole("img", { name: "7 of 8 slices recorded done" }),
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
     await expect(progress).toContainText(
       `From branch ${example} at ${movedHead.slice(0, 7)}; not in trunk.`,
     );
-    await expect(progress).toContainText("Current slice running for 2 min");
+    await expect(progress).toContainText("Current slice started 2 min ago");
     await expect(source).toContainText(revision);
     expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(
       [
@@ -149,7 +149,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     expectSteadyPace(await passTimeUntilChecked(page));
     expect(readsBesideChecks(callsSince(page, from))).toEqual([]);
     await expect(
-      progress.getByRole("img", { name: "7 of 8 slices recorded done" }),
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
   });
 
@@ -161,7 +161,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
     await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
     await expect(
-      progress.getByRole("img", { name: "7 of 8 slices recorded done" }),
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
     const reads = readsBesideChecks(callsSince(page, from));
     expect(reads).toContain(
@@ -179,8 +179,8 @@ test("the automatic check follows each recorded story branch, reading only the p
       `The recorded branch ${example} is no longer published`,
     );
     await expect(progress.getByRole("img")).toHaveCount(0);
-    await expect(progress).not.toContainText("recorded done");
-    await expect(progress).not.toContainText("running for");
+    await expect(progress).not.toContainText("recorded complete");
+    await expect(progress).not.toContainText("Current slice started");
     expect(readsBesideChecks(callsSince(page, from))).toEqual([]);
   });
 });

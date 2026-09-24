@@ -85,7 +85,7 @@ export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
 // A plan whose slices sit under `## Slices`, the first `done` of them
-// recorded done, and the rest planned -- or, given `status`, one more slice
+// recorded complete, and the rest planned -- or, given `status`, one more slice
 // recording that status.
 export function slicePlan(
   total: number,

@@ -1,7 +1,7 @@
 // Recorded slice progress as a Taken card shows it: one segment per slice,
-// filled for each recorded-done slice, and the count in words. It is a count
-// of recorded statuses, not an estimate of how complete the story is, shown
-// with how long the current slice has been running, and where those slices
+// filled for each slice recorded complete, and the count in words. It is a
+// count of recorded statuses, not an estimate of how complete the story is,
+// shown with when the current slice started, and where those slices
 // were published when that is not plainly trunk. The slices and the clock's
 // start come from whatever the snapshot already read; nothing here reads or
 // interprets a plan.
@@ -123,7 +123,7 @@ export function SliceProgress({
         ))}
       </div>
       <p id={countId} className="slice-count">
-        {done} of {slices.length} slices recorded done
+        {done} of {slices.length} slices recorded complete
       </p>
       <SliceClock clock={sliceClock} />
     </div>

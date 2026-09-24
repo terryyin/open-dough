@@ -62,7 +62,7 @@ export async function expectChangedQueuedAssociations(
     planHref("terryyin/open-dough", revision, planReadyPath),
   );
   await card.getByRole("button", { name: "Inspect story" }).click();
-  await expect(card).toContainText("0 of 5 recorded complete");
+  await expect(card).toContainText("0 of 5 slices recorded complete");
 
   writePlanning(
     repo.directory,
@@ -124,7 +124,9 @@ export async function expectChangedQueuedAssociations(
   await expect(
     card.getByRole("link", { name: /^Disputed story-state plan / }),
   ).toHaveCount(0);
-  await expect(card.getByText(/\d of \d recorded complete/)).toHaveCount(0);
+  await expect(card.getByText(/\d of \d slices recorded complete/)).toHaveCount(
+    0,
+  );
 
   writePlanning(
     repo.directory,
