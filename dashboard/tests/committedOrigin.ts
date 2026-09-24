@@ -14,7 +14,7 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers";
-import type { ObservedRequest } from "./publishedOrigin";
+import { observe, type ObservedRequest } from "./originObservation";
 
 function showAt(repoDir: string, revision: string, repositoryPath: string) {
   try {
@@ -56,7 +56,7 @@ export function publishCommittedOrigin(
   githubFor(page).serve(repository, async (call) => {
     const { request } = call;
     if (request.kind === "ref" && request.ref === "main") {
-      requests.push(call);
+      observe(requests, call);
       await held.get("main");
       return instead.get("main") ?? commitAnswer(revision);
     }
@@ -65,7 +65,7 @@ export function publishCommittedOrigin(
     if (request.kind !== "content" || request.revision !== revision) {
       return noConnection;
     }
-    requests.push(call);
+    observe(requests, call);
     await held.get(request.path);
     const overridden = instead.get(request.path);
     if (overridden !== undefined) {

@@ -1,4 +1,5 @@
-import { expect, test } from "./dashboardTest";
+import { expect, githubFor, test } from "./dashboardTest";
+import { refChecks } from "./autoRefreshJourney";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
@@ -170,6 +171,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
     releaseRef();
     await page.clock.runFor("00:10:00");
     expect(pathsRead(origin)).toEqual(["main"]);
+    expect(refChecks(githubFor(page).calls)).toEqual([]);
     await expect(problem).toBeVisible();
   });
 

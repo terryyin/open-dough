@@ -151,7 +151,7 @@ update covers it.
 ### 2. Keep call-count assertions exact regardless of elapsed time
 
 Type: Structure
-Status: planned
+Status: done
 
 Correction: exclude `--include` revision checks from `pathsRead` and
 `origin.requests` (`dashboard/tests/publishedOrigin.ts`), reusing the
@@ -165,6 +165,18 @@ with their exact-count assertions unchanged, plus
 `npm run typecheck:dashboard`.
 
 Safe stopping point: an extra revision check never breaks a count assertion.
+
+Accepted proof: origins answer but no longer observe `--include` revision
+checks; the one recognizer `isRefCheck` and `observe`/`pathsRead` live in
+`dashboard/tests/originObservation.ts`, used by `publishedOrigin.ts`,
+`committedOrigin.ts`, and `refChecks`. `refresh.spec.ts` now waits on
+`refChecks`, and `read-failure.spec.ts` adds `refChecks(...) == []` beside its
+unchanged `pathsRead` assertion. Exact counts in the named specs are
+unchanged. Commands: `npx playwright test --config
+dashboard/playwright.config.ts project-selection direction-disclosure
+dashboard-header project-read-isolation story-readiness auto-refresh refresh
+read-failure` (43 passed), `npm run typecheck:dashboard`, and the full
+dashboard suite before refactoring (106 passed).
 
 ### 3. Remove look-alike authenticated-read specs
 
