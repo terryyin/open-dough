@@ -256,3 +256,64 @@ for (const [name, configuration] of [
     assert.equal(existsSync(fixture.calls), false);
   });
 }
+
+test("command observer treats retained older completed attempts as startup history", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "ci-command-adapter-history-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const discoveries = join(root, "discoveries");
+  const adapter = join(root, "history-adapter.mjs");
+  const [oldFailure, oldIncomplete, newestSuccess, newFailure] = [
+    "a",
+    "b",
+    "c",
+    "d",
+  ].map((digit) => digit.repeat(40));
+  writeFileSync(
+    adapter,
+    `import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+let input = '';
+for await (const chunk of process.stdin) input += chunk;
+const request = JSON.parse(input);
+if (request.operation === 'diagnose') {
+  process.stdout.write(JSON.stringify({ excerpt: 'failed' }));
+} else {
+  const path = ${JSON.stringify(discoveries)};
+  const call = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
+  writeFileSync(path, String(call));
+  const attempts = [
+    { runId: 'r1', attemptId: '1', sha: ${JSON.stringify(oldFailure)}, outcome: 'failure', time: '2026-09-15T10:00:00Z' },
+    { runId: 'r2', attemptId: '1', sha: ${JSON.stringify(oldIncomplete)}, outcome: 'incomplete', time: '2026-09-16T10:00:00Z' },
+    { runId: 'r3', attemptId: '1', sha: ${JSON.stringify(newestSuccess)}, outcome: 'success', time: '2026-09-17T10:00:00Z' },
+  ];
+  if (call > 1) attempts.push({ runId: 'r4', attemptId: '1', sha: ${JSON.stringify(newFailure)}, outcome: 'failure', time: '2026-09-18T10:00:00Z' });
+  process.stdout.write(JSON.stringify({ attempts }));
+}
+`,
+  );
+  mkdirSync(join(root, ".planning"));
+  writeFileSync(
+    join(root, ".planning/open-dough.json"),
+    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+  );
+  const controller = new AbortController();
+  const events = [];
+  const observation = watchCiExecution({
+    repo: "owner/project",
+    branch: "feature/custom",
+    root,
+    signal: controller.signal,
+    sleep: async () => undefined,
+    emit: (event) => events.push(event),
+  });
+  try {
+    await waitForCalls(discoveries, 4);
+  } finally {
+    controller.abort();
+  }
+  await observation;
+
+  assert.deepEqual(
+    events.map(({ type, sha, runId }) => ({ type, sha, runId })),
+    [{ type: "CI_FAILURE", sha: newFailure, runId: "r4" }],
+  );
+});

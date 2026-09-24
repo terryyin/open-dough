@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { deliverCiEvents, selectCiEvents } from "./ci-host-hook.mjs";
@@ -244,4 +246,47 @@ test("Cursor cancellation does not auto-continue or consume a waiting failure", 
     context(deliverCiEvents(input("cursor"), "cursor", options)),
     /CI_FAILURE/,
   );
+});
+
+test("claude: a worktree binding and the main-checkout hook share one coordinator owner", (t) => {
+  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "ci-hook-owner-")));
+  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  const main = join(fixture, "main");
+  const worktree = join(fixture, "worktree");
+  const git = (...args) => execFileSync("git", args, { stdio: "ignore" });
+  git("init", "-b", "main", main);
+  git(
+    "-C",
+    main,
+    "-c",
+    "user.name=Hook",
+    "-c",
+    "user.email=hook@example.test",
+    "commit",
+    "--allow-empty",
+    "-m",
+    "init",
+  );
+  git("-C", main, "worktree", "add", worktree, "-b", "exec/story");
+  const { storage } = setup();
+  const directory = createMailbox({}, { root: worktree, storage });
+
+  deliverCiEvents(input("claude", directory), "claude", {
+    root: worktree,
+    storage,
+  });
+  publishMailboxEvent(directory, failure);
+  const output = deliverCiEvents(input("claude", directory), "claude", {
+    root: main,
+    storage,
+  });
+
+  assert.deepEqual(
+    (context(output) ?? "")
+      .split("\n")
+      .filter((line) => line.startsWith("{"))
+      .map((line) => JSON.parse(line)),
+    [failure],
+  );
+  assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 1 });
 });
