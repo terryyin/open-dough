@@ -59,30 +59,36 @@ checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 
 A read that fails, finds a backlog the shared reader refuses, or waits more
-than 30 seconds for GitHub (`readWaitLimitMs` in `src/publishedWork.ts`) ends
-as a read problem, never as an empty or partial backlog. The snapshot read
-earlier stays shown with its own revision and retrieval time -- it is the last
+than 30 seconds for GitHub (`readWaitLimitMs` in
+`src/authenticatedReadRules.ts`, the bound the local boundary shares) ends as a
+read problem, never as an empty or partial backlog. The snapshot read earlier
+stays shown with its own revision and retrieval time -- it is the last
 successful snapshot, not a claim that `main` still names it -- the problem says
 what failed and when, and the read control is named **Retry** until a read
 succeeds. A failed revision check, or a failed read of a newly found commit's
 backlog, is reported the same way and keeps that snapshot. While a snapshot is
-shown the page keeps checking, but only at the 15-second pace, never at once:
-a new commit whose backlog could not be read is found again by the next check
-and read then. When GitHub answers a check with a rate limit that says when to
-ask again (`Retry-After`, or `X-RateLimit-Reset` once `X-RateLimit-Remaining`
-is `0`), the page asks nothing more until that time -- even when the page is
-seen again -- and the problem says when checks resume. The boundary passes on
-only the validated wait, at most one hour. A later check or read that succeeds
-clears the problem and any such wait. **Retry** reads the project's `main`
-afresh at once, whenever it is pressed. A record detail that could not be read
-stays labeled on its card rather than borrowing an older one; checks that find
-`main` unchanged never read it again, so press **Refresh** to retry it at the
-same revision. Selecting another project stays available
-throughout: a failed or still-reading project never blocks switching to
-another, and returning to a project starts a fresh read rather than replaying
-the failure. Switching projects abandons the previous project's read, detail
-reads, and revision check; a late answer from any of them changes nothing, and
-only the newly selected project is checked from then on.
+shown the page keeps checking, but only at the 15-second pace, never at once: a
+new commit whose backlog could not be read is found again by the next check and
+read then. When GitHub answers a check with a rate limit that says when to ask
+again (`Retry-After`, or `X-RateLimit-Reset` once `X-RateLimit-Remaining` is
+`0`), the page asks nothing more until that time -- even when the page is seen
+again -- and the problem says when checks resume. The boundary passes on only
+the validated wait, at most one hour. A later check or read that succeeds lifts
+any such wait and clears the problem, unless the problem stands with its
+snapshot as described below. **Retry** reads the project's `main` afresh at
+once, whenever it is pressed. A record detail that could not be read stays
+labeled on its card rather than borrowing an older one; checks that find `main`
+unchanged never read it again, so press **Refresh** to retry it at the same
+revision. When the 30-second bound ends a read after the new commit's backlog
+was shown, each detail still unread is shown as such a gap on that snapshot,
+and the problem stands with it: a check that finds `main` unchanged does not
+clear it, and only a later read that replaces that snapshot does. Selecting
+another project stays available throughout: a failed or still-reading project
+never blocks switching to another, and returning to a project starts a fresh
+read rather than replaying the failure. Switching projects abandons the
+previous project's read, detail reads, and revision check; a late answer from
+any of them changes nothing, and only the newly selected project is checked
+from then on.
 
 If reading a project fails, the read problem names that project's repository
 and what the local `gh` could establish -- for example that it is not logged

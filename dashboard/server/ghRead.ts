@@ -11,16 +11,22 @@
 import { execFile, type ExecException } from "node:child_process";
 import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
 import { directedWaitSeconds } from "./rateLimitDirection";
+import {
+  commitShaPattern,
+  readWaitLimitMs,
+} from "../src/authenticatedReadRules";
 
 // How long one boundary request -- all of its owned `gh` subprocesses -- may
-// run before the boundary (`./authenticatedRead.ts`) aborts it, mirroring the
-// browser's own overall read deadline (`../src/publishedWork.ts`'s
-// `readWaitLimitMs`). A test may shorten this through the environment to
-// observe termination without waiting out the production bound, which stays
-// 30 seconds whenever the environment says nothing.
+// run before it is aborted (`./trackedGh.ts`): the shared read wait bound
+// (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`). A test may
+// shorten this through the environment to observe termination without
+// waiting out the production bound, which stays the shared bound whenever
+// the environment says nothing.
 export function readTimeoutMs(): number {
   const configured = Number(process.env["DOUGH_READ_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0 ? configured : 30_000;
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : readWaitLimitMs;
 }
 
 // Why a `gh` call did not answer, as far as this boundary can say without
@@ -117,8 +123,6 @@ async function runGh(
   }
   return stdout;
 }
-
-export const commitShaPattern = /^[0-9a-f]{40}$/;
 
 // The one GitHub endpoint that says which commit a ref names; both the
 // resolving read and the conditional check ask it for `.sha` alone.

@@ -18,12 +18,15 @@
 import { z } from "zod";
 import {
   authenticatedReadEndpoint,
+  commitShaPattern,
   longestDirectedWaitSeconds,
-} from "./authenticatedReadPath";
+  readingPathAt,
+  readingRefOf,
+} from "./authenticatedReadRules";
 import type { PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
 
-const commitSha = z.string().regex(/^[0-9a-f]{40}$/);
+const commitSha = z.string().regex(commitShaPattern);
 const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
@@ -92,8 +95,8 @@ export async function readPublishedSnapshot(
 ): Promise<PublishedSnapshot> {
   const reading =
     revision === undefined
-      ? `${source.ref} of ${source.repository}`
-      : `${source.backlogPath} at ${revision}`;
+      ? readingRefOf(source)
+      : readingPathAt(source.backlogPath, revision);
   const pinnedTo =
     revision === undefined ? "" : `&revision=${encodeURIComponent(revision)}`;
   const body = await authenticatedGet(
@@ -126,7 +129,7 @@ export async function checkPublishedRevision(
   shown: string,
   signal: AbortSignal,
 ): Promise<RevisionCheck> {
-  const reading = `${source.ref} of ${source.repository}`;
+  const reading = readingRefOf(source);
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}&since=${encodeURIComponent(shown)}`,
     reading,
@@ -152,7 +155,7 @@ export async function readRepositoryFileAt(
   revision: string,
   signal: AbortSignal,
 ): Promise<string> {
-  const reading = `${repositoryPath} at ${revision}`;
+  const reading = readingPathAt(repositoryPath, revision);
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&path=${encodeURIComponent(repositoryPath)}`,
     reading,

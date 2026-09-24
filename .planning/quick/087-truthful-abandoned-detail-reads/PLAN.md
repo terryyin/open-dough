@@ -250,7 +250,7 @@ authenticated-read-revision-check` (29 passed), `npm run test:dashboard`
 ### 5. Give shared read rules one home
 
 Type: Structure
-Status: planned
+Status: done
 
 Correction: move the SHA pattern, the "what was being read" label builder,
 and the read wait bound into `dashboard/src/authenticatedReadPath.ts` (or a
@@ -264,6 +264,22 @@ Proof: boundary, revision-check, read-failure, and project-read-recovery specs
 asserting exact messages pass unchanged; `npm run typecheck:dashboard`.
 
 Safe stopping point: rewording or re-bounding a read changes one place.
+
+Accepted proof: the three pairs were verified as one rule each and now live
+in `dashboard/src/authenticatedReadRules.ts` (renamed from
+`authenticatedReadPath.ts`, since it now holds more than the path):
+`commitShaPattern`, `readWaitLimitMs`, `readingRefOf`, and `readingPathAt`,
+used by `dashboard/server/{ghRead,requestedRead,authenticatedRead}.ts` and
+`dashboard/src/{authenticatedRead,publishedWork}.ts`. The server's
+`DOUGH_READ_TIMEOUT_MS` test override stays server-only. Refactoring moved
+`withTrackedGh` to `dashboard/server/trackedGh.ts` to keep
+`authenticatedRead.ts` within size. `dashboard/README.md` now describes the
+gap at the bound and the standing failure without contradicting its earlier
+"clears the problem" sentence; `docs/dashboard-tech-stack.md` points to it.
+Commands: `npx playwright test --config dashboard/playwright.config.ts
+authenticated-read read-failure project-read-recovery auto-refresh`
+(52 passed), `npm run typecheck:dashboard`, `npm run test:dashboard`
+(89 passed) on the final state.
 
 ## Current decisions
 

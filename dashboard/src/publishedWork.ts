@@ -13,6 +13,7 @@ import {
 import type { PublishedSource } from "./publishedSource";
 import { enrichPreparation } from "./preparationEnrichment";
 import { readPublishedSnapshot } from "./authenticatedRead";
+import { readWaitLimitMs } from "./authenticatedReadRules";
 import { ReadProblem } from "./readProblem";
 import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
@@ -124,15 +125,13 @@ function interpret(
   };
 }
 
-// How long one read may wait for GitHub. A read still unanswered by then ends
-// as a read problem, so a stalled connection leaves the person able to retry;
+// Reads the source's ref afresh, or, given a revision a check already
+// resolved, that exact revision: the ref is never resolved a second time.
+// A read still unanswered at the shared wait bound (`readWaitLimitMs`) ends as
+// a read problem, so a stalled connection leaves the person able to retry;
 // nothing retries for them. When the bound ends a read after its membership
 // was shown, the snapshot is finished with a gap for each detail left unread
 // before the problem is reported.
-const readWaitLimitMs = 30_000;
-
-// Reads the source's ref afresh, or, given a revision a check already
-// resolved, that exact revision: the ref is never resolved a second time.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,

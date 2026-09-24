@@ -6,27 +6,28 @@
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
 // `./requestedRead.ts`; gh calls: `./ghRead.ts`; path
 // reachability: `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`;
-// revision checks: `./revisionChecks.ts`; failure wording and any directed
-// wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
+// revision checks: `./revisionChecks.ts`; one request's `gh` lifetime:
+// `./trackedGh.ts`; failure wording and any directed wait:
+// `./readFailureMessage.ts`. Node-only; never returns credentials, raw
 // stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
-import {
-  GhFailure,
-  readRepositoryFileViaGh,
-  readTimeoutMs,
-  resolveRevisionViaGh,
-} from "./ghRead";
+import { readRepositoryFileViaGh, resolveRevisionViaGh } from "./ghRead";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { PinnedTexts } from "./pinnedTexts";
 import { RevisionChecks } from "./revisionChecks";
+import { withTrackedGh } from "./trackedGh";
 import { reportedFailure, type ReportedFailure } from "./readFailureMessage";
 import { pathReachableFromRevision } from "./reachablePaths";
 import { parseRequestedRead, type RequestedRead } from "./requestedRead";
 import { sourceById, type PublishedSource } from "../src/publishedSource";
-// The one endpoint path, shared with the browser reader.
-import { authenticatedReadEndpoint } from "../src/authenticatedReadPath";
+// The one endpoint path and failure wording, shared with the browser reader.
+import {
+  authenticatedReadEndpoint,
+  readingPathAt,
+  readingRefOf,
+} from "../src/authenticatedReadRules";
 
 // What a successful read answers, as the browser reader
 // (`../src/authenticatedRead.ts`) checks it.
@@ -50,32 +51,6 @@ type Boundary = {
   readonly checks: RevisionChecks;
 };
 
-async function withTrackedGh<T>(
-  req: IncomingMessage,
-  tracked: Set<AbortController>,
-  run: (signal: AbortSignal) => Promise<T>,
-): Promise<T> {
-  const controller = new AbortController();
-  tracked.add(controller);
-  const timeout = new GhFailure({ kind: "timed-out" });
-  const timer = setTimeout(() => {
-    controller.abort(timeout);
-  }, readTimeoutMs());
-  const onClose = () => {
-    controller.abort();
-  };
-  req.on("close", onClose);
-  try {
-    return await run(controller.signal);
-  } catch (error) {
-    throw controller.signal.reason === timeout ? timeout : error;
-  } finally {
-    clearTimeout(timer);
-    req.off("close", onClose);
-    tracked.delete(controller);
-  }
-}
-
 // Performs one allowed read with its `gh` calls tracked, and words any
 // failure for this source and what was being read when it failed.
 async function perform(
@@ -86,8 +61,11 @@ async function perform(
 ): Promise<Outcome> {
   let reading =
     read.kind === "ref" || read.kind === "revision-check"
-      ? `${source.ref} of ${source.repository}`
-      : `${read.kind === "file-at" ? read.path : source.backlogPath} at ${read.revision}`;
+      ? readingRefOf(source)
+      : readingPathAt(
+          read.kind === "file-at" ? read.path : source.backlogPath,
+          read.revision,
+        );
   try {
     return await withTrackedGh(req, tracked, async (signal) => {
       switch (read.kind) {
@@ -131,7 +109,7 @@ async function perform(
             source.ref,
             signal,
           );
-          reading = `${source.backlogPath} at ${revision}`;
+          reading = readingPathAt(source.backlogPath, revision);
           // The membership read always asks for the backlog afresh, and
           // leaves it for the reachability checks of this revision's later
           // detail reads.
