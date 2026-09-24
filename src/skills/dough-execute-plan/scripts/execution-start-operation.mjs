@@ -19,6 +19,7 @@ import {
   commitWorkspaceClaim,
   selectOwnedWorkspace,
 } from "./workspace-publication-select.mjs";
+import { workspaceAuthorship } from "./workspace-agent-authorship.mjs";
 import {
   claimMembership,
   publishClaimSha,
@@ -30,6 +31,13 @@ import {
   remoteOf,
   stopped,
 } from "./workspace-publication-ownership.mjs";
+
+// The receipt's agent and whether its workspace authors ordinary commits as
+// that agent; nothing for a claim made without an agent.
+async function receiptAgent(workspace, agent) {
+  if (!agent) return {};
+  return { agent, workspaceAuthorship: await workspaceAuthorship(workspace) };
+}
 
 export async function startQueuedExecution(requestInput) {
   const started = startRequest(requestInput);
@@ -98,12 +106,15 @@ export async function startQueuedExecution(requestInput) {
         publishedSha: checked.provenance.sha,
         candidateSha: request.retained.candidateSha,
         created: false,
-        agent: await resumeClaimAgent(
+        ...(await receiptAgent(
           selected.workspace,
-          checked.provenance.sha,
-          request.identity,
-          backlogPath,
-        ),
+          await resumeClaimAgent(
+            selected.workspace,
+            checked.provenance.sha,
+            request.identity,
+            backlogPath,
+          ),
+        )),
       },
       beforeMaintenance,
       afterMaintenance,
@@ -213,14 +224,17 @@ export async function startQueuedExecution(requestInput) {
     {
       ...published,
       created: selected.created,
-      agent: agent
-        ? agentIdentity(agent.name).agent
-        : await resumeClaimAgent(
-            selected.workspace,
-            published.publishedSha,
-            request.identity,
-            backlogPath,
-          ),
+      ...(await receiptAgent(
+        selected.workspace,
+        agent
+          ? agentIdentity(agent.name).agent
+          : await resumeClaimAgent(
+              selected.workspace,
+              published.publishedSha,
+              request.identity,
+              backlogPath,
+            ),
+      )),
     },
     beforeMaintenance,
     afterMaintenance,

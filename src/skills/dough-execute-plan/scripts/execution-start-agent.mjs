@@ -10,10 +10,8 @@ import {
   selectAgentName,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { git, revParse } from "./publication-git.mjs";
-import {
-  commitWorkspaceClaim,
-  configureAgentAuthorship,
-} from "./workspace-publication-select.mjs";
+import { commitWorkspaceClaim } from "./workspace-publication-select.mjs";
+import { configureAgentAuthorship } from "./workspace-agent-authorship.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 
 // Agent profiles (path and agent name) a Git command lists under the profile

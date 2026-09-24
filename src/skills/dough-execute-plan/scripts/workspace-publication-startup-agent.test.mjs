@@ -43,6 +43,7 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.agent, "Yui-chan");
+  assert.equal(receipt.workspaceAuthorship, "configured");
   assert.equal(
     await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
     "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yui-chan.json\n",
@@ -80,6 +81,41 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
     (await git(trunk.integration, "log", "-1", people)).stdout.trim(),
     `${human}|${human}`,
   );
+});
+
+test("Take from a bare repository's linked worktree authors only the Take commit and leaves every checkout working", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  // The developer keeps a bare clone and works in its linked worktrees, so
+  // the shared config sets core.bare=true.
+  const bare = join(trunk.fixture, "bare.git");
+  const checkout = join(trunk.fixture, "bare-main");
+  await git(trunk.fixture, "clone", "--quiet", "--bare", trunk.origin, bare);
+  await git(
+    bare,
+    "config",
+    "remote.origin.fetch",
+    "+refs/heads/*:refs/remotes/origin/*",
+  );
+  await git(bare, "config", "user.name", "Integration Checkout");
+  await git(bare, "config", "user.email", "integration@example.test");
+  await git(bare, "worktree", "add", "--quiet", checkout, "main");
+  const { receipt, workspace } = await startCliResult(
+    { ...trunk, integration: checkout },
+    "trunk",
+  );
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.agent, "Yui-chan");
+  assert.equal(receipt.workspaceAuthorship, "not-configured");
+  assert.equal(
+    (
+      await remoteShow(trunk, "log", "-1", "--format=%an <%ae>|%cn", "main")
+    ).trim(),
+    "Yui-chan <yui-chan@example.org>|Integration Checkout",
+  );
+  await git(workspace, "status");
+  await git(checkout, "status");
+  await assert.rejects(git(bare, "config", "extensions.worktreeConfig"));
 });
 
 test("Story Branch Mode profile records its origin branch and leaves unreported host and model unrecorded", async (t) => {

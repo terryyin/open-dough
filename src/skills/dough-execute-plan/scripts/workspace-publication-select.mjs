@@ -18,15 +18,7 @@ import {
   targetOf,
   trailers,
 } from "./workspace-publication-ownership.mjs";
-
-// The agent authors every ordinary commit in its owned workspace; the
-// configured Git user stays the committer, and other checkouts keep their
-// usual author.
-export async function configureAgentAuthorship(workspace, { agent, email }) {
-  await git(workspace, "config", "extensions.worktreeConfig", "true");
-  await git(workspace, "config", "--worktree", "author.name", agent);
-  await git(workspace, "config", "--worktree", "author.email", email);
-}
+import { configureAgentAuthorship } from "./workspace-agent-authorship.mjs";
 
 function agentProfileOf(request, file) {
   const identity = agentIdentity(request.agent.name);
@@ -223,9 +215,13 @@ export async function commitWorkspaceClaim(request) {
   }
   if (agentProfile) await stageAgentProfile(request, agentProfile);
   await git(workspace, "add", "--", file);
+  // The agent authors the Take commit even where workspace authorship could
+  // not be configured.
+  const { agent, email } = agentProfile?.identity ?? {};
   await git(
     workspace,
     "commit",
+    ...(agentProfile ? [`--author=${agent} <${email}>`] : []),
     "-m",
     claimCommitMessage(identity, publisherId),
   );

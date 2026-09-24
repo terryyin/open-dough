@@ -142,7 +142,7 @@ second saw the rival commit. The hook fired once.
 ### 1. A bare repository with worktrees keeps working after a Take
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new case in `workspace-publication-startup-agent.test.mjs` running the
 real `execution-start.mjs` from a linked worktree of a bare clone of the
 queued trunk: the Take publishes with the Take commit authored by the agent;
@@ -155,6 +155,21 @@ resume, race, and claim suites.
 Behavior: bare repository with linked worktrees → Take → the claim publishes
 with an agent-authored Take commit, every checkout still works, and the
 receipt names the authorship gap.
+
+Accepted proof: from `src/skills/dough-execute-plan/scripts`, `node --test
+workspace-publication-startup-agent.test.mjs
+workspace-publication-startup-agent-resume.test.mjs
+workspace-publication-startup-agent-release.test.mjs
+workspace-publication-startup-race.test.mjs
+workspace-publication-startup-recovery.test.mjs workspace-publication.test.mjs
+workspace-publication-race.test.mjs` → 41/41. Observations: "Take from a bare
+repository's linked worktree authors only the Take commit and leaves every
+checkout working" (`workspaceAuthorship: "not-configured"`, agent-authored
+Take on remote `main`, `git status` in both checkouts,
+`extensions.worktreeConfig` unset); the ordinary agent-author case asserts
+`"configured"`. `tests/install-public-payload.sh` passes with the new
+`workspace-agent-authorship.mjs` in the payload. The `core.worktree` branch of
+the detection is untested.
 
 ### 2. A name published between startup's fetches is reselected, not a stop
 
@@ -206,4 +221,11 @@ retrospective correction.
 
 ## Learnings
 
-None yet.
+- `git clone --bare` records no remote-tracking fetch refspec; the bare-layout
+  case works only where the developer configured `remote.origin.fetch`, as a
+  bare-plus-worktrees setup normally does.
+- A new module under `src/skills/dough-execute-plan/scripts/` must be listed in
+  the `install.sh` payload, or the installed-CLI startup test fails.
+- The released startup passes a correction's own plan as `--plan`, which the
+  backlog Take refuses; this execution's claim was committed by hand in the
+  startup's format and confirmed through a startup resume.
