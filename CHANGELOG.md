@@ -1,3 +1,11 @@
+## 0.3.37 - 2026-09-24
+
+- Add the explicitly invoked `dough-land` workflow to commit all reviewed changes from an owned worktree, publish them through the shared publication contract, safely refresh the default checkout, and retire the worktree only after trunk contains its tip.
+- Route retained preparation, bug-fixing, and retrospective results through that shared landing workflow, keeping retrospective records in their owned checkout instead of writing to the default checkout.
+- Reuse Dough Land's retirement rules after wrap-up completion evidence is settled, removing duplicated landing and cleanup guidance while preserving existing closure outcomes.
+
+Native acceptance was explicitly skipped for `0.3.37` at the maintainer's request. The credential-free deterministic release check passed; native acceptance for the new landing workflow and previously pending native requirements remains pending and is not reported as passing.
+
 ## 0.3.36 - 2026-09-24
 
 - Correct the formatting of the startup checkout-refresh regression assertion so the release passes the repository lint gate. Product behavior is unchanged from `0.3.35`.
