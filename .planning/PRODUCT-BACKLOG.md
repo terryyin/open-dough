@@ -13,10 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Keep auto-refreshed snapshots truthful when detail reads are abandoned](quick/087-truthful-abandoned-detail-reads/PLAN.md)
 
 ## Backlog list
 
-- [Keep auto-refreshed snapshots truthful when detail reads are abandoned](quick/087-truthful-abandoned-detail-reads/PLAN.md)
 - [Share one delivery-evidence native harness for four cases](quick/086-share-delivery-evidence-native-harness/PLAN.md)
 - [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
