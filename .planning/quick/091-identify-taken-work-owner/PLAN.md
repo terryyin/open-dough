@@ -181,7 +181,16 @@ profile's add/add conflict as `replay-failed`, which is safe but unpublished.
 ### 4. Resume keeps the profile and authorship
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `workspace-publication-startup-agent-resume.test.mjs`
+(interrupted resume names `agent-Akiho` with only its profile published and
+restores unset worktree author; owned published claim resumes naming the
+agent and restores `extensions.worktreeConfig`; a claim without a profile
+resumes without an agent); parser cases in
+`tests/support/product-backlog-agent-profile.test.mjs`; whole
+`tests/execution-ci-runtime.sh` green before refactor. A retained resume whose
+replay meets its own name now held elsewhere still stops as `replay-failed`
+(untested, safe).
 Proof: case in `workspace-publication-startup-recovery.test.mjs`: interrupted
 and owned resumes return receipts naming the original agent; a commit made in
 the reused workspace after resume has the agent author, including when the

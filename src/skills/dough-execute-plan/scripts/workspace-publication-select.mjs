@@ -22,7 +22,7 @@ import {
 // The agent authors every ordinary commit in its owned workspace; the
 // configured Git user stays the committer, and other checkouts keep their
 // usual author.
-async function configureAgentAuthorship(workspace, { agent, email }) {
+export async function configureAgentAuthorship(workspace, { agent, email }) {
   await git(workspace, "config", "extensions.worktreeConfig", "true");
   await git(workspace, "config", "--worktree", "author.name", agent);
   await git(workspace, "config", "--worktree", "author.email", email);

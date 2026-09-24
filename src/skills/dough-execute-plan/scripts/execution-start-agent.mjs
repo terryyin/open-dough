@@ -1,25 +1,36 @@
-// The agent a new Take names: chosen from profiles held on fetched trunk, and
-// chosen again when a rival publishes the same name first.
+// The agent a Take names: chosen from profiles held on fetched trunk, chosen
+// again when a rival publishes the same name first, and read back from the
+// claim commit when an existing claim resumes.
 import { basename, dirname, join } from "node:path";
 import {
+  agentIdentity,
   agentProfileDirectory,
+  parseAgentProfile,
   profileAgentName,
   selectAgentName,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { git, revParse } from "./publication-git.mjs";
-import { commitWorkspaceClaim } from "./workspace-publication-select.mjs";
+import {
+  commitWorkspaceClaim,
+  configureAgentAuthorship,
+} from "./workspace-publication-select.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 
-// Agent names of the profile paths a Git command lists under the profile
+// Agent profiles (path and agent name) a Git command lists under the profile
 // directory beside the backlog, in listed order.
-async function listedAgentNames(cwd, backlogPath, ...args) {
+async function listedProfiles(cwd, backlogPath, ...args) {
   const directory = join(dirname(backlogPath), agentProfileDirectory);
   const { stdout } = await git(cwd, ...args, "--", `${directory}/`);
   return stdout
     .split("\n")
     .filter(Boolean)
-    .map((path) => profileAgentName(basename(path)))
-    .filter(Boolean);
+    .map((path) => ({ path, name: profileAgentName(basename(path)) }))
+    .filter(({ name }) => name);
+}
+
+async function listedAgentNames(cwd, backlogPath, ...args) {
+  const profiles = await listedProfiles(cwd, backlogPath, ...args);
+  return profiles.map(({ name }) => name);
 }
 
 // Agent names whose profiles exist beside the backlog at `rev`.
@@ -99,4 +110,35 @@ export function reselectClaimAgent(claimRequest, agent, onAgent) {
     if (recreated.ok) onAgent(next);
     return recreated;
   };
+}
+
+// A resumed claim keeps the agent its claim commit named: the profile that
+// commit added for `identity`. Restores that agent's authorship in the reused
+// workspace and returns its name, or undefined for a claim made without a
+// profile. No new name is chosen and no profile is written.
+export async function resumeClaimAgent(
+  workspace,
+  claimSha,
+  identity,
+  backlogPath,
+) {
+  const added = await listedProfiles(
+    workspace,
+    backlogPath,
+    "diff-tree",
+    "--no-commit-id",
+    "-r",
+    "--name-only",
+    "--diff-filter=A",
+    claimSha,
+  );
+  for (const { path } of added) {
+    const text = (await git(workspace, "show", `${claimSha}:${path}`)).stdout;
+    const read = parseAgentProfile(text);
+    if (!read.ok || read.profile.identity !== identity) continue;
+    const agent = agentIdentity(read.profile.name);
+    await configureAgentAuthorship(workspace, agent);
+    return agent.agent;
+  }
+  return undefined;
 }

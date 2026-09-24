@@ -15,6 +15,7 @@ const {
   agentIdentity,
   agentNames,
   agentReportError,
+  parseAgentProfile,
   profileAgentName,
   renderAgentProfile,
   selectAgentName,
@@ -112,4 +113,39 @@ test("reported host and model must be recordable", () => {
       }),
     /host must be one of/,
   );
+});
+
+test("a published profile reads back into the facts it was rendered from", () => {
+  const facts = {
+    name: "Akiho",
+    identity: "SEED-A#a",
+    mode: "trunk",
+    branch: "origin/main",
+    model: "gpt-x",
+  };
+  assert.deepEqual(parseAgentProfile(renderAgentProfile(facts)), {
+    ok: true,
+    profile: facts,
+  });
+});
+
+test("an unreadable profile says why instead of yielding facts", () => {
+  const valid = JSON.parse(
+    renderAgentProfile({
+      name: "Yui",
+      identity: "SEED-A#a",
+      mode: "trunk",
+      branch: "origin/main",
+    }),
+  );
+  const read = (changes) =>
+    parseAgentProfile(JSON.stringify({ ...valid, ...changes }));
+  assert.match(parseAgentProfile("{").error, /not JSON/);
+  assert.match(read({ schemaVersion: 2 }).error, /schemaVersion/);
+  assert.match(read({ agent: "agent-Nobody" }).error, /unknown agent/);
+  assert.match(read({ email: "x@example.org" }).error, /email/);
+  assert.match(read({ identity: "" }).error, /identity/);
+  assert.match(read({ mode: "solo" }).error, /execution mode/);
+  assert.match(read({ branch: "" }).error, /branch/);
+  assert.match(read({ host: "vim" }).error, /host must be one of/);
 });

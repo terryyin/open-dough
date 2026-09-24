@@ -12,6 +12,7 @@ import { agentIdentity } from "../../dough-product-backlog/scripts/product-backl
 import { startRequest } from "./execution-start-request.mjs";
 import {
   reselectClaimAgent,
+  resumeClaimAgent,
   selectClaimAgent,
 } from "./execution-start-agent.mjs";
 import {
@@ -97,6 +98,12 @@ export async function startQueuedExecution(requestInput) {
         publishedSha: checked.provenance.sha,
         candidateSha: request.retained.candidateSha,
         created: false,
+        agent: await resumeClaimAgent(
+          selected.workspace,
+          checked.provenance.sha,
+          request.identity,
+          backlogPath,
+        ),
       },
       beforeMaintenance,
       afterMaintenance,
@@ -206,7 +213,14 @@ export async function startQueuedExecution(requestInput) {
     {
       ...published,
       created: selected.created,
-      agent: agent && agentIdentity(agent.name).agent,
+      agent: agent
+        ? agentIdentity(agent.name).agent
+        : await resumeClaimAgent(
+            selected.workspace,
+            published.publishedSha,
+            request.identity,
+            backlogPath,
+          ),
     },
     beforeMaintenance,
     afterMaintenance,

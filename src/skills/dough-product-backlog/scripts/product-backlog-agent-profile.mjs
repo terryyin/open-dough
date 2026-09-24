@@ -82,6 +82,18 @@ export function agentReportError({ host, model }) {
   return undefined;
 }
 
+const nonEmptyText = (value) => typeof value === "string" && value !== "";
+
+// Why a profile's work facts cannot be recorded, or undefined when they can.
+// Rendering and reading a profile apply the same rules.
+function profileFactsError({ identity, mode, branch, host, model }) {
+  if (!nonEmptyText(identity))
+    return "agent profile requires a work item identity";
+  if (!agentModes.includes(mode)) return `unknown execution mode: ${mode}`;
+  if (!nonEmptyText(branch)) return "agent profile requires branch context";
+  return agentReportError({ host, model });
+}
+
 export function renderAgentProfile({
   name,
   identity,
@@ -91,12 +103,8 @@ export function renderAgentProfile({
   model,
 }) {
   const { agent, email } = agentIdentity(name);
-  if (!identity) throw new Error("agent profile requires a work item identity");
-  if (!agentModes.includes(mode))
-    throw new Error(`unknown execution mode: ${mode}`);
-  if (!branch) throw new Error("agent profile requires branch context");
-  const reportError = agentReportError({ host, model });
-  if (reportError) throw new Error(reportError);
+  const factsError = profileFactsError({ identity, mode, branch, host, model });
+  if (factsError) throw new Error(factsError);
   const profile = {
     schemaVersion: 1,
     agent,
@@ -108,4 +116,38 @@ export function renderAgentProfile({
     ...(model === undefined ? {} : { model }),
   };
   return `${JSON.stringify(profile, null, 2)}\n`;
+}
+
+// Reads published profile text back into the facts renderAgentProfile takes.
+// Returns { ok: true, profile } or { ok: false, error } when the text is not a
+// readable profile; unrecorded host and model stay absent.
+export function parseAgentProfile(text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return { ok: false, error: "profile is not JSON" };
+  }
+  if (data === null || typeof data !== "object" || data.schemaVersion !== 1)
+    return { ok: false, error: "profile schemaVersion must be 1" };
+  const name = agentNames.find(
+    (each) => agentIdentity(each).agent === data.agent,
+  );
+  if (!name) return { ok: false, error: `unknown agent: ${data.agent}` };
+  if (data.email !== agentIdentity(name).email)
+    return { ok: false, error: `email does not belong to ${data.agent}` };
+  const { identity, mode, branch, host, model } = data;
+  const factsError = profileFactsError({ identity, mode, branch, host, model });
+  if (factsError) return { ok: false, error: factsError };
+  return {
+    ok: true,
+    profile: {
+      name,
+      identity,
+      mode,
+      branch,
+      ...(host === undefined ? {} : { host }),
+      ...(model === undefined ? {} : { model }),
+    },
+  };
 }
