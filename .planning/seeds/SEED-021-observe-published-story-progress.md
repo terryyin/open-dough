@@ -100,11 +100,12 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 **Identity:** SEED-021#follow-published-story-branch
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-follow-published-story-progress/PLAN.md","assessment":"not-ready","reasons":["Slices 3-5 rely on story 4's published agent profile and its dashboard profile read (SEED-021#identify-taken-work-owner, Taken); reassess after it closes against its final profile spelling."],"basis":{"document":"40e231ecfa9143d7cd8b5253b029c5bf2984126d71c2fe861786889b1b17b128","plan":"e49dda73eeb4ea5a3176fd1af61bda83b1a4f148d05ee86077264cb063c9c3c2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-follow-published-story-progress/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cb446c5f1713e75ea40f09893c66da8c2f301c14fc5120bedb5635ba65e19e52","plan":"d75a087796d3ea7be82021e046ee7632d6aec2887a4fbcb7522403e7ea0431c5"}}
 ```
 
-**Status:** Refined 2026-09-24 with Terry. Execution waits for story 4,
-whose agent profile supplies the branch association.
+**Status:** Refined 2026-09-24 with Terry. The agent profile that supplies
+the branch association was delivered the same day; execution no longer waits
+on it.
 
 **Goal:** Terry can see how far each Taken story has come without reading plan
 files or branches: a slice progress bar and how long the current slice has
@@ -120,7 +121,9 @@ the shared plan reader refuses.
 - **Progress source.** For each Taken story with an associated plan, read the
   plan at the ref where its progress is published: remote trunk for Trunk
   Mode, or the story branch recorded in its published agent profile
-  (story 4) for Story Branch Mode. Membership, queue order, direction, and the
+  (`.planning/agents/agent-<name>.json` beside the backlog, described in
+  [project visibility requirements](../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names))
+  for Story Branch Mode. Membership, queue order, direction, and the
   canonical story always come from trunk; nothing is copied from a branch.
 - **Plans written today are readable.** The shared plan reader, still the
   one owner of plan meaning, also accepts a `## Slices` section heading; the
@@ -144,9 +147,11 @@ the shared plan reader refuses.
   again when trunk or a branch that a Taken story's profile names moves.
   Movement of other branches reads nothing further.
 - **Gaps, never guesses.** A Taken story without a published profile
-  (including entries taken before story 4) shows trunk's plan labelled as the
+  (including entries taken before agent profiles existed) shows trunk's plan labelled as the
   trunk copy with its execution branch not recorded, since its mode is
-  unknown. A recorded branch that is no longer published, a plan missing or uninterpretable on the
+  unknown. More than one readable profile naming the same story leaves no
+  single progress source and is shown as that gap. A recorded branch that is
+  no longer published, a plan missing or uninterpretable on the
   branch, or an unavailable plan commit time are each shown as that gap. No
   assignment is inferred from branch names, and no manual branch selection
   is offered.
@@ -187,7 +192,7 @@ stale" and leave progress reading to the branch browser. Rejected because
 Story Branch Mode is in real use in two of the three observed projects.
 
 **Depends on:** Story 2's source-backed detail and slice interpretation, and
-story 4's published profile with its origin branch. Follow ADR 0009's
+the delivered agent profile with its branch context. Follow ADR 0009's
 distinction between publication on a story branch and integration into trunk.
 
 **Deferred promises:** Branch commit lists, diffs, ahead/behind counts, CI
@@ -202,8 +207,8 @@ where it is published, with its publication boundary clear, and missing
 associations stay visible gaps.
 
 **Effort hypothesis:** Unestimated; the all-branch watch and the plan commit
-time add read-boundary requests, and the Take-time rule depends on story 4's
-final profile format.
+time add read-boundary requests. The Take is the commit that added the
+story's profile on trunk; profiles are not rewritten after it.
 
 <a id="see-finished-execution"></a>
 

@@ -26,23 +26,44 @@ new plans from branches, progress for stories that are not Taken,
 time-remaining estimates, new slice statuses, and the completion and
 product-learning signal (story 5).
 
-Assumptions:
+Facts from the delivered agent profiles (on trunk since `6fe5a15`,
+2026-09-24; behavior in
+[project visibility requirements](../../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names)):
 
-- Story 4 (SEED-021#identify-taken-work-owner) is closed before this story is
-  Taken: its shared profile module
-  (`src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs`)
-  and its dashboard profile read (the `.planning/agents/` listing admitted by
-  the read boundary and served by the fake GitHub) are on trunk. Its profile
-  records `mode` (`trunk` or `story-branch`) and `branch`. If story 4 lands
-  with a different profile spelling, slices 3 to 5 follow the shared module,
-  not this text.
-- A profile is added in its Take commit and not changed afterward (story 4
-  defers updating host or model), so the last trunk commit touching it is the
-  Take.
-- Each slice commit updates the plan in the same commit (observed on
-  `claude/091-identify-taken-work-owner` on 2026-09-24), so the plan's last
-  commit time at a ref marks the last recorded slice update. The plan format
-  is not changed.
+- A profile is `.planning/agents/agent-<lowercase name>.json` beside the
+  backlog, with `schemaVersion`, `agent`, `email`, `identity`, `mode`
+  (`trunk` or `story-branch`), `branch`, and optional `host` and `model`.
+  `branch` is the owned execution branch in Story Branch Mode (the same name
+  is pushed to origin) and `<remote>/<trunk>`, for example `origin/main`, in
+  Trunk Mode. The pure module
+  `src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs`
+  owns that spelling (`parseAgentProfile`, `agentIdentity`,
+  `agentProfileDirectory`, `profileAgentName`); use it, not this text.
+- The dashboard already reads profiles at the pinned revision: the
+  `agents=profiles` request kind (`dashboard/server/requestedRead.ts`), the
+  listing and allowlist (`dashboard/server/ghContents.ts`,
+  `listedAgentProfilePaths` in `reachablePaths.ts`), `readAgentProfilesAt` in
+  `dashboard/src/authenticatedRead.ts`, and `dashboard/src/takenOwner.ts`,
+  which puts each Taken entry's `owner` (`recorded` with owners, or
+  `not-recorded`, `unavailable`, `loading`) on `WorkEntry`. Unreadable
+  profiles match no entry. Slices 3 to 5 take mode and branch from that owner
+  and add no second profile read or interpretation.
+- A profile is added in its Take commit and never rewritten: resume reuses
+  it, and a lost publication race rebuilds the Take as one new commit. The
+  Take commit is authored by the agent and committed by the configured user,
+  so the committer date is the Take time. Completion deletes the profile with
+  the Taken entry.
+- Slice commits update the plan in the same commit, but other execution
+  commits may not (the CI repair `ff33cb8` in plan 091 did not), so the plan's
+  last commit time at a ref marks the last recorded plan update. The plan
+  format is not changed.
+- Dashboard fakes that do not publish profiles currently answer the agents
+  listing with `noConnection`, so older journeys show "Agent profiles could
+  not be read." on Taken cards. Correction plan
+  `quick/093-tighten-agent-profile-take/PLAN.md`, queued first, makes them
+  answer like a project without profiles. New specs here publish profiles
+  explicitly with `renderAgentProfile`, as
+  `dashboard/tests/taken-agent-profile.spec.ts` does.
 
 ## Outside-in proof
 
@@ -54,7 +75,7 @@ Assumptions:
 | Taken 5 min ago, plan last committed two days earlier → clock measured from the Take | 3 | Same spec, profile commit newer than plan commit |
 | Entry without a profile → clock from the plan commit, labelled as such; commit time unavailable → gap | 3 | Same spec |
 | Story Branch Mode profile → bar and clock from the branch plan, branch and revision named, "not in trunk"; trunk copy's count not shown as progress | 4 | Playwright spec with fake branch refs |
-| No profile → trunk copy labelled, execution branch not recorded; branch no longer published, plan missing or uninterpretable on the branch → each shown as that gap, no trunk fallback | 4 | Same spec |
+| No profile → trunk copy labelled, execution branch not recorded; more than one profile for the story → ambiguous-owner gap; branch no longer published, plan missing or uninterpretable on the branch → each shown as that gap, no trunk fallback | 4 | Same spec |
 | New slice commit on the recorded branch while trunk is still → new count and restarted clock within the check pace, no Refresh | 5 | Auto-refresh spec stepping page time; gh call log |
 | An unrelated branch moves → no further reads; trunk moves → existing full read | 5 | Same spec, call log |
 
@@ -75,6 +96,8 @@ Assumptions:
 - **Read boundary stays an allowlist.** New reads are authorized only through
   the pinned trunk revision's records: the backlog names the Taken entry, its
   story-state names the plan path, its trunk profile names the branch. The
+  server re-derives that branch through `listedAgentProfilePaths` and
+  `parseAgentProfile` at the pinned revision. The
   browser never supplies a branch name or path the server has not derived
   that way. Commit-time reads use the same reachability as file reads.
 - **Commit times come from GitHub's commit list for a path at a ref**
@@ -156,7 +179,8 @@ in trunk", and does not show 0 of 8 as progress; clock uses the branch plan's
 commit time; Trunk Mode profile → trunk source with no label (slices 2 and 3 unchanged);
 Taken entry without a profile, with a similarly named branch published → trunk
 plan labelled "trunk copy; execution branch not recorded" and no `gh` call for
-that branch; recorded branch absent → "branch no
+that branch; two readable profiles naming the entry → the
+ambiguous-owner gap and no branch read; recorded branch absent → "branch no
 longer published" and no bar; plan missing on the branch → that gap; plan
 uninterpretable on the branch → that gap. Boundary refusal case: a branch not
 named by any Taken profile at the pinned trunk revision is refused before any

@@ -6,7 +6,7 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/093-tighten-agent-profile-take/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"not-ready","reasons":["Slice 2 needs a fixture seam to publish a rival profile between startup's source fetch and the claim commit; none exists yet, so its proof path and size are uncertain."],"basis":{"document":"2d89380fa5ef6ec32fce8f4c48d20f9222dc083984b9a70be96ca792ac166bc7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"94ce8ed482c2ebf46d3a3089f505a16b9649222bfef551368726fb9c242407e4"}}
 ```
 
 ## Source and provenance
@@ -116,6 +116,26 @@ plan 091); a crash between the backlog write and profile deletion in
   `commitWorkspaceClaim`'s "already holds" condition reselect through the same
   `nextAgentName` rule rather than stop.
 - The shared profile module exports the mode list; other code derives from it.
+- Slice 2's rival arrives through a `reference-transaction` hook installed in
+  the test's integration checkout (see Infrastructure proof); no product test
+  seam is added.
+
+## Infrastructure proof
+
+Assumption: a test can make remote trunk advance between startup's two fetches
+without a product seam. Both fetches run in the integration checkout
+(`execution-start-operation.mjs` source fetch, then `selectOwnedWorkspace` in
+`workspace-publication-select.mjs`), so a `reference-transaction` hook there
+can publish a rival commit once, after the first fetch commits
+`refs/remotes/origin/main`.
+
+Command (Git 2.50.1, throwaway repositories under the job temp directory): a
+hook that, on `committed` with a `refs/remotes/origin/main` line and no marker
+file, touches the marker and pushes an empty `rival` commit from a separate
+clone; then `git fetch origin` twice in the integration clone.
+
+Result: `first=bump second=rival`. The first fetch saw the pre-hook tip; the
+second saw the rival commit. The hook fired once.
 
 ## Slices
 
@@ -143,7 +163,7 @@ Status: planned
 Proof: new case in `workspace-publication-startup-agent.test.mjs` with the
 real `execution-start.mjs`: after startup's source fetch and before the claim
 commit, a rival profile for the name that would have been chosen reaches
-remote trunk (use a fixture seam such as a hook on the workspace fetch); the
+remote trunk through the `reference-transaction` hook above; the
 receipt names the next rotation name and remote trunk holds both profiles.
 Rerun the startup agent, race, claim, and recovery suites.
 
