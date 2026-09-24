@@ -1,6 +1,8 @@
 // When a Taken card's current slice started: the later of the associated
 // plan's last commit and the Take, the commit that added the entry's agent
-// profile, both as of the revision the plan was read at. When no profile
+// profile. The plan's commit is read where its slices were read (the shown
+// revision, or the recorded branch head); the Take on trunk, at the shown
+// revision, where the profile was read. When no profile
 // records the Take the clock starts at the plan commit and says so; when the
 // profiles cannot say which commit was the Take, the clock is a gap. Commit
 // times come through the local authenticated boundary; how long ago that was
@@ -8,6 +10,7 @@
 // nothing further.
 
 import { readLastCommitTimeAt } from "./authenticatedRead";
+import { countedPlanBranch } from "./progressSource";
 import type { PublishedSource } from "./publishedSource";
 import type { PublishedWork, WorkEntry } from "./publishedWork";
 import { ReadProblem } from "./readProblem";
@@ -23,38 +26,31 @@ export type SliceClock =
       readonly takeRecorded: boolean;
     };
 
-// Where the Take time comes from: the one profile recording the entry, whose
-// adding commit is the Take; none, when no profile records it; or a gap when
-// the profiles cannot say which commit was the Take.
+// Where the Take time comes from: the one profile recording where the
+// entry's progress is published, whose adding commit is the Take; none, when
+// no profile records it; or a gap when the profiles cannot say which commit
+// was the Take. Which profile that is, and that there is only one, is the
+// progress source's (`./progressSource.ts`).
 type TakeSource =
   | { readonly kind: "profile"; readonly path: string }
   | { readonly kind: "not-recorded" }
   | { readonly kind: "unknown"; readonly problem: string };
 
-function takeSourceOf(entry: WorkEntry): TakeSource {
-  const { owner } = entry;
-  switch (owner?.status) {
-    case "not-recorded":
-      return { kind: "not-recorded" };
-    case "recorded": {
-      const [only, ...others] = owner.owners;
-      return only !== undefined && others.length === 0
-        ? { kind: "profile", path: only.profilePath }
+function takeSourceOf({ progressSource }: WorkEntry): TakeSource {
+  switch (progressSource?.kind) {
+    case "trunk":
+    case "branch":
+      return { kind: "profile", path: progressSource.profilePath };
+    case "trunk-copy":
+      return progressSource.branchUnknown === "not-recorded"
+        ? { kind: "not-recorded" }
         : {
             kind: "unknown",
             problem:
-              "More than one agent profile names this story, so its Take is ambiguous.",
+              "The Take time cannot be determined because agent profiles could not be read.",
           };
-    }
-    case "unavailable":
-      return {
-        kind: "unknown",
-        problem:
-          "The Take time cannot be determined because agent profiles could not be read.",
-      };
-    // Owners are always known once clocks are read; a clock never guesses
+    // Sources are always known once clocks are read; a clock never guesses
     // that no profile records the Take.
-    case "loading":
     case undefined:
       return {
         kind: "unknown",
@@ -85,7 +81,13 @@ async function startOf(
   const takeProfile = take.kind === "profile" ? take.path : undefined;
   try {
     const [planCommitted, taken] = await Promise.all([
-      readLastCommitTimeAt(source, planPath, revision, signal),
+      readLastCommitTimeAt(
+        source,
+        planPath,
+        revision,
+        signal,
+        countedPlanBranch(entry),
+      ),
       takeProfile === undefined
         ? undefined
         : readLastCommitTimeAt(source, takeProfile, revision, signal),

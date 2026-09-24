@@ -1,21 +1,15 @@
 // The `gh`-invocation concern for the local authenticated read boundary
 // (`./authenticatedRead.ts`): running one `gh` call and classifying how it
-// failed, resolving which commit a ref names, the conditional ref check
-// that asks only whether the ref still names the same commit, and when one
-// path was last committed as of a resolved commit. Content pinned
-// to a resolved commit is read in `./ghContents.ts`. Each call has a fixed
-// argument array -- never a shell string, and never a caller-supplied
-// repository. Kept apart from
+// failed, and when one path was last committed as of a resolved commit.
+// Which commit a ref or published branch names is asked in `./ghRevision.ts`;
+// content pinned to a resolved commit is read in `./ghContents.ts`. Each call
+// has a fixed argument array -- never a shell string, and never a
+// caller-supplied repository. Kept apart from
 // `./localOrigin.ts`'s request-refusal concern: everything here already
 // trusts that the request was allowed to reach this point.
 
 import { execFile, type ExecException } from "node:child_process";
-import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
-import { directedWaitSeconds } from "./rateLimitDirection";
-import {
-  commitShaPattern,
-  readWaitLimitMs,
-} from "../src/authenticatedReadRules";
+import { readWaitLimitMs } from "../src/authenticatedReadRules";
 
 // How long one boundary request -- all of its owned `gh` subprocesses -- may
 // run before it is aborted (`./trackedGh.ts`): the shared read wait bound
@@ -64,7 +58,7 @@ export class GhFailure extends Error {
 // rate limit or a failed connection names itself.
 // Timing out is the request bound's own finding (`./authenticatedRead.ts`),
 // never inferred here.
-function classify(
+export function classify(
   error: { readonly code?: string | number | undefined },
   stderr: string,
 ): GhFailureReason {
@@ -96,7 +90,10 @@ type GhRun = {
 // One `gh` invocation, settled whatever its exit: `gh api --include` prints
 // GitHub's status line on stdout even when it exits non-zero, so a caller
 // that asked for it decides from that status before classifying the exit.
-function execGh(args: readonly string[], signal: AbortSignal): Promise<GhRun> {
+export function execGh(
+  args: readonly string[],
+  signal: AbortSignal,
+): Promise<GhRun> {
   return new Promise((resolve) => {
     execFile(
       "gh",
@@ -125,90 +122,13 @@ export async function runGh(
   return stdout;
 }
 
-// The one GitHub endpoint that says which commit a ref names; both the
-// resolving read and the conditional check ask it for `.sha` alone.
-function refEndpoint(repository: string, ref: string): string {
-  return `repos/${repository}/commits/${ref}`;
-}
-
-function commitNamedBy(sha: string): string {
-  const revision = sha.trim();
-  if (!commitShaPattern.test(revision)) {
-    throw new GhFailure({ kind: "no-commit" });
-  }
-  return revision;
-}
-
-export async function resolveRevisionViaGh(
-  repository: string,
-  ref: string,
-  signal: AbortSignal,
-): Promise<string> {
-  return commitNamedBy(
-    await runGh(["api", refEndpoint(repository, ref), "--jq", ".sha"], signal),
+// Whether a `gh` call failed only because GitHub has no such thing (`404`).
+export function isNotFound(error: unknown): boolean {
+  return (
+    error instanceof GhFailure &&
+    error.reason.kind === "http" &&
+    error.reason.status === 404
   );
-}
-
-// A refused answer that says when to ask again is a rate limit, whatever
-// else `gh` printed: GitHub directs a wait with `Retry-After`, or with
-// `X-RateLimit-Reset` once `X-RateLimit-Remaining` reaches zero, on its `403`
-// and `429` answers. Only the validated wait leaves this module.
-function limitedAsDirected(
-  answer: IncludedAnswer | undefined,
-): GhFailureReason | undefined {
-  if (answer?.status !== 403 && answer?.status !== 429) {
-    return undefined;
-  }
-  const waitSeconds = directedWaitSeconds(answer.headers, Date.now());
-  return waitSeconds === undefined
-    ? undefined
-    : { kind: "rate-limited", status: answer.status, waitSeconds };
-}
-
-// A commit a ref named, and the entity tag GitHub gave that answer.
-export type RevisionAnswer = {
-  readonly revision: string;
-  readonly etag: string | undefined;
-};
-
-// Asks GitHub which commit `ref` names now, conditionally on an earlier
-// answer. GitHub answers `304 Not Modified` when that answer still holds,
-// which `gh api` reports by exiting 1; that status is recognized from the
-// included status line before the exit is ever treated as a failure, and
-// every other non-success is classified as any read failure is.
-export async function checkRevisionViaGh(
-  repository: string,
-  ref: string,
-  earlier: RevisionAnswer | undefined,
-  signal: AbortSignal,
-): Promise<RevisionAnswer> {
-  const conditional =
-    earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
-  const { error, stdout, stderr } = await execGh(
-    [
-      "api",
-      "--include",
-      ...conditional,
-      refEndpoint(repository, ref),
-      "--jq",
-      ".sha",
-    ],
-    signal,
-  );
-  const answer = signal.aborted ? undefined : parseIncluded(stdout);
-  if (answer?.status === 304 && earlier?.etag !== undefined) {
-    return earlier;
-  }
-  if (error || answer?.status !== 200) {
-    throw new GhFailure(
-      limitedAsDirected(answer) ??
-        (error ? classify(error, stderr) : { kind: "failed" }),
-    );
-  }
-  return {
-    revision: commitNamedBy(answer.body),
-    etag: answer.headers.get("etag"),
-  };
 }
 
 // A committer date as GitHub spells one: an ISO 8601 instant.

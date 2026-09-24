@@ -191,7 +191,7 @@ dashboard typecheck.
 ### 4. Story Branch Mode progress comes from the recorded branch
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/branch-slice-progress.spec.ts` via
 `npm run test:dashboard -- branch-slice-progress`, fake GitHub serving trunk
 and a `story/example` branch head: trunk plan 0 of 8, branch plan 6 of 8 under
@@ -211,6 +211,17 @@ Behavior: a Taken entry whose trunk profile records Story Branch Mode → load o
 Refresh → the server resolves that branch's head, the card's bar and clock
 come from the plan at that head with the branch label, or the specific gap is
 shown.
+
+Accepted: `progressSource.ts` (`routeOf`) is the one owner decision: one
+Story Branch owner reads its branch, one Trunk Mode owner reads trunk, no
+profile or unreadable profiles label the trunk copy, and more than one profile
+is the no-single-source gap regardless of mode (seed "Gaps, never guesses").
+The boundary resolves only branches a Taken profile records at the pinned
+trunk revision (`branchReachability.ts`), reads only that entry's plan there,
+and only at heads it resolved itself (`branchHeads.ts`, 409 otherwise).
+`branch-slice-progress.spec.ts`, `authenticated-branch-read-boundary.spec.ts`,
+`authenticated-read-refusal.spec.ts`; full `npm run test:dashboard` 105/105;
+dashboard typecheck.
 
 ### 5. The automatic check follows every published branch
 

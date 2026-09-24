@@ -31,3 +31,9 @@
   margin: 0.1rem 0 0;
   font-size: 0.9rem;
 }
+
+/* Where the slices were read, when that is not plainly trunk. */
+.progress-source {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+}

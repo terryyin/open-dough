@@ -101,13 +101,14 @@ test("each Taken card's clock runs from the later of its last plan commit and it
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("two profiles naming the story make the Take ambiguous: a clock gap, never a plan-only clock", async () => {
+  await test.step("two profiles naming the story leave no single progress source: a gap, never a plan-only clock", async () => {
     await expect(card(twoOwners)).toContainText(
-      "Current slice time unavailable: More than one agent profile names this story, so its Take is ambiguous.",
+      "More than one agent profile names this story, so it has no single progress source.",
     );
+    await expect(card(twoOwners).getByRole("img")).toHaveCount(0);
+    await expect(card(twoOwners)).not.toContainText("recorded done");
     await expect(card(twoOwners)).not.toContainText("running for");
     await expect(card(twoOwners)).not.toContainText(noProfileLabel);
-    await expectBarStays(card(twoOwners));
   });
 
   await test.step("each commit time was asked once, for the plan and the single profile at the revision", () => {

@@ -1,4 +1,4 @@
-// Reading what `gh api --include` printed (`./ghRead.ts`'s conditional ref
+// Reading what `gh api --include` printed (`./ghRevision.ts`'s conditional ref
 // check): GitHub's status line and headers come first, so the boundary can
 // decide from GitHub's own status and headers -- a `304`, or a rate limit's
 // directed wait (`./rateLimitDirection.ts`) -- before treating `gh`'s exit as

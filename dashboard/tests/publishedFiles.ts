@@ -5,6 +5,7 @@
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
+  branchRefAnswer,
   commitAnswer,
   commitListFor,
   directoryListingAnswer,
@@ -20,41 +21,68 @@ import { observe, type ObservedRequest } from "./originObservation";
 // listing with the published files directly in that directory. A commit list
 // for a path at that revision is observed and answered with the commit time
 // `committed` gives that path; for any other path the connection fails.
+// Each of `branches` is a published branch head, answered and observed the
+// same way at its own revision; any other branch is not published.
+export type PublishedRevision = {
+  readonly revision: string;
+  readonly files: Readonly<Record<string, string>>;
+  readonly committed?: Readonly<Record<string, Date>>;
+};
+
+function publishedAt(
+  revisions: readonly PublishedRevision[],
+  revision: string,
+): PublishedRevision | undefined {
+  return revisions.find((each) => each.revision === revision);
+}
+
 export function publishFiles(
   page: Page,
-  published: {
+  published: PublishedRevision & {
     readonly repository: string;
-    readonly revision: string;
-    readonly files: Readonly<Record<string, string>>;
-    readonly committed?: Readonly<Record<string, Date>>;
+    readonly branches?: Readonly<Record<string, PublishedRevision>>;
   },
 ): Promise<ObservedRequest[]> {
   const observed: ObservedRequest[] = [];
-  const { repository, revision, files, committed } = published;
+  const { repository, revision, branches = {} } = published;
+  const revisions = [published, ...Object.values(branches)];
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
     if (request.kind === "ref" && request.ref === "main") {
       observe(observed, call);
       return Promise.resolve(commitAnswer(revision));
     }
-    if (request.kind === "commit-list" && request.revision === revision) {
+    if (request.kind === "branch") {
       observe(observed, call);
+      const head = Object.hasOwn(branches, request.branch)
+        ? branches[request.branch]
+        : undefined;
       return Promise.resolve(
-        commitListFor(committed, request.path) ?? noConnection,
+        head === undefined
+          ? notFoundAnswer()
+          : branchRefAnswer(request.branch, head.revision),
       );
     }
-    if (request.kind === "listing" && request.revision === revision) {
-      observe(observed, call);
-      return Promise.resolve(
-        directoryListingAnswer(request.path, Object.keys(files)),
-      );
+    if (request.kind === "unknown" || request.kind === "ref") {
+      return Promise.resolve(noConnection);
     }
-    if (request.kind !== "content" || request.revision !== revision) {
+    const at = publishedAt(revisions, request.revision);
+    if (at === undefined) {
       return Promise.resolve(noConnection);
     }
     observe(observed, call);
-    const body = Object.hasOwn(files, request.path)
-      ? files[request.path]
+    if (request.kind === "commit-list") {
+      return Promise.resolve(
+        commitListFor(at.committed, request.path) ?? noConnection,
+      );
+    }
+    if (request.kind === "listing") {
+      return Promise.resolve(
+        directoryListingAnswer(request.path, Object.keys(at.files)),
+      );
+    }
+    const body = Object.hasOwn(at.files, request.path)
+      ? at.files[request.path]
       : undefined;
     return Promise.resolve(
       body === undefined ? notFoundAnswer() : rawFileAnswer(body),

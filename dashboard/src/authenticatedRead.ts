@@ -6,7 +6,9 @@
 // file already reachable from that revision's records, or with `path` and
 // `committed=last` when that file (or a listed agent profile) was last
 // committed as of that revision; `since` instead asks only whether the ref
-// still names the revision shown. No extra header or
+// still names the revision shown; `branch` asks about a story branch recorded
+// at that revision (`./authenticatedBranchRead.ts`). Every read makes the
+// same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
 // answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
 // (`../server/localOrigin.ts`) does the rest. There is no direct browser path
@@ -18,10 +20,13 @@
 // so it is checked here as external input, never trusted by assertion.
 
 import { z } from "zod";
+import { onBranchQuery, type BranchHead } from "./authenticatedBranchRead";
 import {
-  authenticatedReadEndpoint,
-  commitShaPattern,
-  longestDirectedWaitSeconds,
+  authenticatedGet,
+  commitSha,
+  unexpectedAnswer,
+} from "./authenticatedGet";
+import {
   readingLastCommitAt,
   readingPathAt,
   readingRefOf,
@@ -29,7 +34,6 @@ import {
 import type { PublishedSource } from "./publishedSource";
 import { ReadProblem } from "./readProblem";
 
-const commitSha = z.string().regex(commitShaPattern);
 const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
@@ -48,50 +52,11 @@ const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
 });
-const errorAnswer = z.object({
-  error: z.string().min(1),
-  retryAfterSeconds: z
-    .number()
-    .int()
-    .min(0)
-    .max(longestDirectedWaitSeconds)
-    .optional(),
-});
 
 export type PublishedSnapshot = {
   readonly revision: string;
   readonly backlog: string;
 };
-
-async function authenticatedGet(
-  query: string,
-  reading: string,
-  signal: AbortSignal,
-): Promise<unknown> {
-  let response: Response;
-  try {
-    response = await fetch(`${authenticatedReadEndpoint}?${query}`, {
-      signal,
-    });
-  } catch (error) {
-    if (signal.aborted) {
-      throw error;
-    }
-    throw new ReadProblem(
-      `The local authenticated read could not be reached while reading ${reading}.`,
-    );
-  }
-  const body: unknown = await response.json().catch(() => undefined);
-  if (!response.ok) {
-    const reported = errorAnswer.safeParse(body);
-    throw reported.success
-      ? new ReadProblem(reported.data.error, reported.data.retryAfterSeconds)
-      : new ReadProblem(
-          `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
-        );
-  }
-  return body;
-}
 
 // Resolves the source's ref to one commit and reads its backlog at that
 // commit, both on the local server. Given a revision already resolved, reads
@@ -114,9 +79,7 @@ export async function readPublishedSnapshot(
   );
   const parsed = okSnapshot.safeParse(body);
   if (!parsed.success) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   if (revision !== undefined && parsed.data.revision !== revision) {
     throw new ReadProblem(
@@ -171,9 +134,7 @@ export async function readRepositoryFileAt(
   );
   const parsed = okFile.safeParse(body);
   if (!parsed.success) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   if (
     parsed.data.path !== repositoryPath ||
@@ -186,17 +147,20 @@ export async function readRepositoryFileAt(
   return parsed.data.text;
 }
 
-// When `repositoryPath` was last committed as of `revision`: the committer
-// date of the newest commit that changed it in that revision's history.
+// When `repositoryPath` was last committed as of `revision`, or, on a
+// recorded branch, as of the head resolved for it: the committer date of the
+// newest commit that changed it in that history.
 export async function readLastCommitTimeAt(
   source: PublishedSource,
   repositoryPath: string,
   revision: string,
   signal: AbortSignal,
+  onBranch?: BranchHead,
 ): Promise<Date> {
-  const reading = readingLastCommitAt(repositoryPath, revision);
+  const readAt = onBranch?.head ?? revision;
+  const reading = readingLastCommitAt(repositoryPath, readAt);
   const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&path=${encodeURIComponent(repositoryPath)}&committed=last`,
+    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}${onBranchQuery(onBranch)}&path=${encodeURIComponent(repositoryPath)}&committed=last`,
     reading,
     signal,
   );
@@ -204,11 +168,9 @@ export async function readLastCommitTimeAt(
   if (
     !parsed.success ||
     parsed.data.path !== repositoryPath ||
-    parsed.data.revision !== revision
+    parsed.data.revision !== readAt
   ) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   return new Date(parsed.data.committedAt);
 }
@@ -240,9 +202,7 @@ export async function readAgentProfilesAt(
   );
   const parsed = okProfiles.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
-    throw new ReadProblem(
-      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
-    );
+    throw unexpectedAnswer(reading);
   }
   return parsed.data.profiles;
 }

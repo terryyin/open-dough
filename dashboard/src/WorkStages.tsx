@@ -46,6 +46,7 @@ function WorkCard({
       {showsSliceProgress && (
         <SliceProgress
           planSlices={entry.planSlices}
+          progressSource={entry.progressSource}
           sliceClock={entry.sliceClock}
         />
       )}

@@ -158,4 +158,41 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       expect(server.ghCalls()).toHaveLength(callsBefore);
     });
   }
+  // A branch read names a branch the server can put into GitHub's endpoint
+  // unchanged, and reads a file only at a head it names as a commit.
+  for (const refused of [
+    {
+      read: "whose branch name could reshape GitHub's endpoint",
+      query: `revision=${revision}&branch=${encodeURIComponent("story/../../contents")}`,
+      error: "The branch name is not usable.",
+    },
+    {
+      read: "that names a file without the branch head",
+      query: `revision=${revision}&branch=story%2Fexample&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      error: "A read on a branch names the branch head it resolved.",
+    },
+    {
+      read: "at a head that is not a commit sha",
+      query: `revision=${revision}&branch=story%2Fexample&head=main&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      error: "The branch head is not a commit sha.",
+    },
+    {
+      read: "combined with a revision check",
+      query: `since=${revision}&branch=story%2Fexample`,
+      error:
+        "A branch read names only a pinned revision, a recorded branch, and for a file its resolved head and repository path.",
+    },
+  ]) {
+    test(`refuses a branch read ${refused.read} before launching gh`, async () => {
+      server.github.serve(everyRepository, publishes({ revision, backlog }));
+      const callsBefore = server.ghCalls().length;
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${refused.query}`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
+      expect(server.ghCalls()).toHaveLength(callsBefore);
+    });
+  }
 });

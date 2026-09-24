@@ -9,6 +9,8 @@
 // the profile files the pinned revision's directory listing names. When a
 // path was last committed may be asked for a reachable record or a listed
 // profile: a plan's last recorded update, or the Take that added a profile.
+// What may be read on a story branch is decided from the same records in
+// `./branchReachability.ts`.
 
 import type { PublishedSource } from "../src/publishedSource";
 import { resolveBesideFile } from "../src/repositoryPath";
@@ -52,29 +54,33 @@ export function parseSafeRepositoryPath(
   return isSafeRepositoryPath(decoded) ? decoded : undefined;
 }
 
-type CanonicalEntry = {
+export type CanonicalEntry = {
+  readonly identity: string;
+  readonly list: string;
   readonly href: string;
   readonly path: string;
 };
 
-function canonicalEntriesFromBacklog(
+export function canonicalEntriesFromBacklog(
   backlogMarkdown: string,
   source: PublishedSource,
   revision: string,
 ): CanonicalEntry[] {
   const entries: CanonicalEntry[] = [];
-  let document: { entries: ReadonlyArray<{ href: string }> };
+  let document: {
+    entries: ReadonlyArray<{ identity: string; list: string; href: string }>;
+  };
   try {
     document = parseBacklog(backlogMarkdown);
   } catch {
     return entries;
   }
-  for (const entry of document.entries) {
+  for (const { identity, list, href } of document.entries) {
     try {
-      const link = resolveSourceLink(entry.href, source, revision);
+      const link = resolveSourceLink(href, source, revision);
       const path = snapshotRepositoryPath(link, source.backlogPath);
       if (path !== undefined) {
-        entries.push({ href: entry.href, path });
+        entries.push({ identity, list, href, path });
       }
     } catch {
       // Unusable links never authorize a path.
@@ -83,7 +89,7 @@ function canonicalEntriesFromBacklog(
   return entries;
 }
 
-function plannedPlanPath(
+export function plannedPlanPath(
   canonicalText: string,
   href: string,
   canonicalPath: string,
@@ -97,6 +103,9 @@ function plannedPlanPath(
 
 // Reads one repository file of the source at the revision under check.
 export type PinnedReader = (repositoryPath: string) => Promise<string>;
+
+// Lists one directory's file names at the revision under check.
+export type PinnedLister = (directory: string) => Promise<readonly string[]>;
 
 export async function pathReachableFromRevision(
   source: PublishedSource,
@@ -155,7 +164,7 @@ export function agentProfileDirectoryOf(source: PublishedSource): string {
 // profile module names as profiles are read. Anything else listed is not.
 export async function listedAgentProfilePaths(
   source: PublishedSource,
-  listPinned: (directory: string) => Promise<readonly string[]>,
+  listPinned: PinnedLister,
 ): Promise<string[]> {
   const directory = agentProfileDirectoryOf(source);
   return (await listPinned(directory))
@@ -173,7 +182,7 @@ export async function commitTimeReachableFromRevision(
   revision: string,
   requestedPath: string,
   readPinned: PinnedReader,
-  listPinned: (directory: string) => Promise<readonly string[]>,
+  listPinned: PinnedLister,
 ): Promise<boolean> {
   if (
     await pathReachableFromRevision(source, revision, requestedPath, readPinned)

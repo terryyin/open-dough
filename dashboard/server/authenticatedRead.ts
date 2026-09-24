@@ -3,15 +3,19 @@
 // read, through the launching person's local `gh` authentication. A request
 // may instead name an already resolved revision to read that revision's
 // backlog, ask only whether the ref still names the revision shown, read
-// the agent profiles its directory listing names beside the backlog, or ask
-// when one reachable record or listed profile was last committed there.
+// the agent profiles its directory listing names beside the backlog, ask
+// when one reachable record or listed profile was last committed there, or
+// resolve the story branch a Taken entry's profile records there and read
+// that entry's plan, or its last commit, at the head found.
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
-// `./requestedRead.ts`; performing it: `./performedRead.ts`; gh calls:
-// `./ghRead.ts` and `./ghContents.ts`; path reachability:
-// `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`; revision
-// checks: `./revisionChecks.ts`; one request's `gh` lifetime:
-// `./trackedGh.ts`; failure wording and any directed wait:
-// `./readFailureMessage.ts`. Node-only; never returns credentials, raw
+// `./requestedRead.ts`; performing it: `./performedRead.ts`, on a story
+// branch `./performedBranchRead.ts`, and what it comes to `./readOutcome.ts`;
+// gh calls: `./ghRead.ts`, `./ghRevision.ts`, and `./ghContents.ts`; path
+// reachability: `./reachablePaths.ts` and `./branchReachability.ts`;
+// pinned-text memo: `./pinnedTexts.ts`; revision checks:
+// `./revisionChecks.ts`; resolved branch heads: `./branchHeads.ts`; one
+// request's `gh` lifetime: `./trackedGh.ts`; failure wording and any directed
+// wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
 // stderr, or an arbitrary path proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -19,7 +23,9 @@ import type { Connect } from "vite";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { PinnedTexts } from "./pinnedTexts";
 import { RevisionChecks } from "./revisionChecks";
-import { perform, type Boundary, type Outcome } from "./performedRead";
+import { BranchHeads } from "./branchHeads";
+import { perform, type Boundary } from "./performedRead";
+import type { Outcome } from "./readOutcome";
 import { parseRequestedRead } from "./requestedRead";
 import { sourceById } from "../src/publishedSource";
 // The one endpoint path, shared with the browser reader.
@@ -99,6 +105,7 @@ export function installAuthenticatedReadMiddleware(
     tracked: new Set<AbortController>(),
     pinned: new PinnedTexts(),
     checks: new RevisionChecks(),
+    branches: new BranchHeads(),
   };
   const handler: Connect.NextHandleFunction = (req, res, next) => {
     if (!matchesEndpoint(req)) {

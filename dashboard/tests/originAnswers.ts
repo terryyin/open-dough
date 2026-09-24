@@ -57,6 +57,19 @@ export function commitAnswer(sha: string): RawAnswer {
   };
 }
 
+// GitHub's answer naming the commit a published branch head points at.
+export function branchRefAnswer(branch: string, sha: string): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({
+      ref: `refs/heads/${branch}`,
+      node_id: "REF_fixture",
+      object: { sha, type: "commit" },
+    }),
+  };
+}
+
 // GitHub's commit list for a path, newest first, as far as `per_page=1`
 // asks: the one commit that last changed it, committed at `committedAt`.
 function commitListAnswer(committedAt: Date): RawAnswer {

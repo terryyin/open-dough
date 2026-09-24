@@ -1,10 +1,10 @@
 // Revision-only checks for the local authenticated read boundary
 // (`./authenticatedRead.ts`): which commit a catalog source's ref names now,
-// asked of GitHub conditionally (`./ghRead.ts`) so an unchanged ref costs a
+// asked of GitHub conditionally (`./ghRevision.ts`) so an unchanged ref costs a
 // `304 Not Modified` rather than a fresh answer.
 
 import type { PublishedSource } from "../src/publishedSource";
-import { checkRevisionViaGh, type RevisionAnswer } from "./ghRead";
+import { checkRevisionViaGh, type RevisionAnswer } from "./ghRevision";
 
 // The last answer per catalog source, kept only as a hint for the next
 // conditional request: in memory, per launched server, bounded by the

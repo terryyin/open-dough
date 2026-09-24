@@ -3,7 +3,7 @@
 // directory's listed file names, at an already resolved commit. Both ask
 // GitHub's one contents endpoint; how `gh` runs and fails is `./ghRead.ts`.
 
-import { GhFailure, runGh } from "./ghRead";
+import { GhFailure, isNotFound, runGh } from "./ghRead";
 
 // Each path segment is URL-encoded so no path character can reshape the
 // request.
@@ -59,11 +59,7 @@ export async function listRepositoryDirectoryViaGh(
       signal,
     );
   } catch (error) {
-    if (
-      error instanceof GhFailure &&
-      error.reason.kind === "http" &&
-      error.reason.status === 404
-    ) {
+    if (isNotFound(error)) {
       return [];
     }
     throw error;

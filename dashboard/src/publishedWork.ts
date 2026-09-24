@@ -16,6 +16,11 @@ import { readPublishedSnapshot } from "./authenticatedRead";
 import { readWaitLimitMs } from "./authenticatedReadRules";
 import { ReadProblem } from "./readProblem";
 import {
+  awaitingProgressSources,
+  withProgressSources,
+  type ProgressSource,
+} from "./progressSource";
+import {
   awaitingSliceClocks,
   withSliceClocks,
   type SliceClock,
@@ -63,14 +68,18 @@ export type WorkEntry = {
   // Recorded Goal from the canonical home at this revision.
   readonly purpose?: WorkPurpose;
   // Ordered slices from the associated plan at this revision when planning
-  // facts are known. Absent when no plan applies; never invents zero slices
-  // for an unsupported layout.
+  // facts are known, or, for a Taken entry in Story Branch Mode, from that
+  // plan at its recorded branch head. Absent when no plan applies; never
+  // invents zero slices for an unsupported layout.
   readonly planSlices?: WorkPlanSlices;
+  // Taken entries with plan slices only: where those slices were read, once
+  // known.
+  readonly progressSource?: ProgressSource;
   // Taken entries only: who holds the work, from the agent profile published
   // at this revision.
   readonly owner?: TakenOwner;
   // Taken entries with counted plan slices only: when the current slice
-  // started, from commit times at this revision.
+  // started, from commit times where those slices were read.
   readonly sliceClock?: SliceClock;
 };
 
@@ -187,12 +196,19 @@ export async function readPublishedWork(
       enrichPreparation(work, untilEither),
       readOwnership(source, revision, untilEither),
     ]);
-    const owned = awaitingSliceClocks(withOwners(prepared, ownership));
+    const owned = awaitingProgressSources(withOwners(prepared, ownership));
     signal.throwIfAborted();
-    onPartial?.(owned);
-    // Each counted plan's clock starts from commit times at the same
-    // revision, once owners say which profile records the Take.
-    const enriched = await withSliceClocks(owned, untilEither);
+    onPartial?.(awaitingSliceClocks(owned));
+    // A Story Branch Mode entry's slices come from its recorded branch
+    // instead, once owners say which branch that is.
+    const sourced = awaitingSliceClocks(
+      await withProgressSources(owned, untilEither),
+    );
+    signal.throwIfAborted();
+    onPartial?.(sourced);
+    // Each counted plan's clock starts from commit times where its slices
+    // were read, once owners say which profile records the Take.
+    const enriched = await withSliceClocks(sourced, untilEither);
     signal.throwIfAborted();
     // Shown even when the wait bound ended it: each detail left unread is
     // an explicit gap, and the bound is still reported as the read problem.

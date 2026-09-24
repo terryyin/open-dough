@@ -5,7 +5,7 @@
 
 import type { WorkEntry } from "./publishedWork";
 import { WorkSourceLinks } from "./WorkSourceLinks";
-import { PlanSlicesNote } from "./SliceProgress";
+import { PlanSlicesNote, ProgressSourceLabel } from "./SliceProgress";
 import {
   recordedCompleteCount,
   type PlanSlice,
@@ -176,7 +176,10 @@ export function StoryDetail({
     >
       <PurposeBlock purpose={entry.purpose} />
       <AssessmentBlock preparation={entry.preparation} />
-      <PlanSlicesBlock planSlices={entry.planSlices} />
+      <div>
+        <ProgressSourceLabel progressSource={entry.progressSource} />
+        <PlanSlicesBlock planSlices={entry.planSlices} />
+      </div>
       <div>
         <h4>Pinned source links</h4>
         <ul className="card-links" aria-label="Pinned source links">

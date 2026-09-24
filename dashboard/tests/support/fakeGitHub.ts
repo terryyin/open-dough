@@ -25,13 +25,19 @@ import { asGhReply } from "./ghReply";
 // `--include` and an `If-None-Match` header is conditional on that tag. A
 // contents request asks for a file's raw bytes when it accepts GitHub's raw
 // media type, and otherwise for a directory's JSON listing. A commit list
-// asks for the commits that changed one path in a revision's history.
+// asks for the commits that changed one path in a revision's history. A
+// branch request asks which commit one published branch head names.
 export type GhRequest =
   | {
       readonly kind: "ref";
       readonly repository: string;
       readonly ref: string;
       readonly ifNoneMatch: string | undefined;
+    }
+  | {
+      readonly kind: "branch";
+      readonly repository: string;
+      readonly branch: string;
     }
   | {
       readonly kind: "content" | "listing" | "commit-list";
@@ -89,6 +95,16 @@ function parseRequest(argv: readonly string[]): GhRequest {
       repository: ref[1],
       ref: ref[2],
       ifNoneMatch: headerArgument(argv, "If-None-Match"),
+    };
+  }
+  const branch = /^repos\/([^/]+\/[^/]+)\/git\/ref\/heads\/(.+)$/.exec(
+    endpoint,
+  );
+  if (branch?.[1] !== undefined && branch[2] !== undefined) {
+    return {
+      kind: "branch",
+      repository: branch[1],
+      branch: branch[2].split("/").map(decodeURIComponent).join("/"),
     };
   }
   const commitList = /^repos\/([^/]+\/[^/]+)\/commits\?(.+)$/.exec(endpoint);

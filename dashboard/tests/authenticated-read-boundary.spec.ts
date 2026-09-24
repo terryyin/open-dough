@@ -13,7 +13,8 @@
 // ./authenticated-project-overview.spec.ts. Which requests it refuses before
 // launching `gh` is covered in ./authenticated-read-refusal.spec.ts; its
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
-// -- in ./authenticated-read-subprocess-lifecycle.spec.ts. All share this
+// -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
+// branch in ./authenticated-branch-read-boundary.spec.ts. All share this
 // suite's harness (./support/dashboardServer.ts).
 //
 // This spec's servers are separate processes, each with its own PATH and its
