@@ -188,6 +188,7 @@ run_delivery_evidence_claims_assessor_counterexamples() {
 
   # Observer reads a status that opens its line, and a leading incomplete
   # status still wins over later accepted words.
+  # shellcheck disable=SC2016 # Backticks are literal outcome text.
   printf '%s\n' '- **Accepted — Promise 1: Bare `#anchor` targets are not followable.**' \
     'No promises remain incomplete.' > "${work}/outcome-leading.md"
   [[ $(delivery_evidence_claims_promise_accepted \
