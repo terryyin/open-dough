@@ -102,8 +102,8 @@ dashboard only reuses whatever access the launching person's own `gh` already
 has.
 
 Each **Taken** card shows who holds that work, from the agent profile
-published beside the backlog (`.planning/agents/agent-<name>.json`) at the same
-revision, for example "agent-Akiho · Trunk Mode · Claude Code · <model>". A
+published beside the backlog (`.planning/agents/<name>-chan.json`) at the same
+revision, for example "Akiho-chan · Trunk Mode · Claude Code · <model>". A
 Story Branch Mode profile's branch is shown as branch context, never as work
 on trunk. A host or model the profile does not record is shown as not
 recorded, and a Taken entry without a profile shows "Owner not recorded". A

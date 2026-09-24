@@ -17,12 +17,12 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
-const akiho = "agent-Akiho <agent-akiho@example.org>";
+const akiho = "Akiho-chan <akiho-chan@example.org>";
 
-// Another agent already holds agent-Yui, so the claim under test is Akiho's.
+// Another agent already holds Yui-chan, so the claim under test is Akiho's.
 async function holdYui(trunk) {
   mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
-  const path = ".planning/agents/agent-yui.json";
+  const path = ".planning/agents/yui-chan.json";
   writeFileSync(
     join(trunk.integration, path),
     renderAgentProfile({
@@ -69,7 +69,7 @@ async function workspaceCommitAuthor(workspace) {
   ).stdout.trim();
 }
 
-test("agent-Akiho is interrupted and resumes as Akiho with authorship restored", async (t) => {
+test("Akiho-chan is interrupted and resumes as Akiho with authorship restored", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const base = await holdYui(trunk);
@@ -87,13 +87,13 @@ test("agent-Akiho is interrupted and resumes as Akiho with authorship restored",
     resumeArgs(interrupted.receipt.recovery),
   ).result;
   assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
-  assert.equal(resumed.receipt.agent, "agent-Akiho");
+  assert.equal(resumed.receipt.agent, "Akiho-chan");
   await git(workspace, "fetch", "origin");
   assert.deepEqual(await remoteProfiles(workspace), [
-    ".planning/agents/agent-akiho.json",
-    ".planning/agents/agent-yui.json",
+    ".planning/agents/akiho-chan.json",
+    ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(workspace, "agent-Akiho", identityA);
+  await assertPublishedAgent(workspace, "Akiho-chan", identityA);
   assert.equal(await workspaceCommitAuthor(workspace), akiho);
 });
 
@@ -102,7 +102,7 @@ test("an owned published claim resumes naming its agent and restores missing wor
   t.after(trunk.cleanup);
   await holdYui(trunk);
   const first = await startProcess(trunk, "a", identityA).result;
-  assert.equal(first.receipt.agent, "agent-Akiho", JSON.stringify(first));
+  assert.equal(first.receipt.agent, "Akiho-chan", JSON.stringify(first));
   const published = await lsRemoteSha(trunk.origin, "refs/heads/main");
   await git(
     trunk.integration,
@@ -118,7 +118,7 @@ test("an owned published claim resumes naming its agent and restores missing wor
   ).result;
   assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
   assert.equal(resumed.receipt.status, "resumed");
-  assert.equal(resumed.receipt.agent, "agent-Akiho");
+  assert.equal(resumed.receipt.agent, "Akiho-chan");
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), published);
   assert.equal(
     (
@@ -137,7 +137,7 @@ test("a claim made without a profile resumes without naming an agent", async (t)
   assert.equal(interrupted.receipt.status, "unpublished");
   const { workspace } = interrupted;
   // Rebuild the retained claim as one made before profiles existed.
-  await git(workspace, "rm", "--quiet", ".planning/agents/agent-yui.json");
+  await git(workspace, "rm", "--quiet", ".planning/agents/yui-chan.json");
   await git(workspace, "commit", "--quiet", "--amend", "--no-edit");
   const legacy = (await git(workspace, "rev-parse", "HEAD")).stdout.trim();
   const resumed = await startProcess(

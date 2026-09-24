@@ -47,9 +47,9 @@ export function agentIdentity(name) {
   const lower = name.toLowerCase();
   return {
     name,
-    agent: `agent-${name}`,
-    email: `agent-${lower}@example.org`,
-    path: `${agentProfileDirectory}/agent-${lower}.json`,
+    agent: `${name}-chan`,
+    email: `${lower}-chan@example.org`,
+    path: `${agentProfileDirectory}/${lower}-chan.json`,
   };
 }
 

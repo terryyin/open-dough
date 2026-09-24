@@ -53,8 +53,8 @@ test("complete on a Taken entry releases its agent's profile and leaves other ag
   const result = await run(project, ["complete", "--identity", takenStory]);
   assert.equal(result.code, 0, result.stderr);
   assert.equal(project.read(), backlog.replace(`${takenEntry}\n\n`, ""));
-  assert.deepEqual(agentsOf(project), ["agent-yui.json", "agent-yuma.json"]);
-  for (const path of ["agents/agent-yui.json", "agents/agent-yuma.json"]) {
+  assert.deepEqual(agentsOf(project), ["yui-chan.json", "yuma-chan.json"]);
+  for (const path of ["agents/yui-chan.json", "agents/yuma-chan.json"]) {
     assert.equal(
       readFileSync(join(project.directory, ".planning", path), "utf8"),
       written[path],
@@ -63,7 +63,7 @@ test("complete on a Taken entry releases its agent's profile and leaves other ag
   }
   assert.match(
     result.stdout,
-    /Released agent profile agents\/agent-akiho\.json/,
+    /Released agent profile agents\/akiho-chan\.json/,
   );
 });
 
@@ -74,7 +74,7 @@ test("complete without a matching profile succeeds and leaves every profile unto
   const result = await run(project, ["complete", "--identity", takenStory]);
   assert.equal(result.code, 0, result.stderr);
   assert.equal(project.read(), backlog.replace(`${takenEntry}\n\n`, ""));
-  assert.deepEqual(agentsOf(project), ["agent-yui.json"]);
+  assert.deepEqual(agentsOf(project), ["yui-chan.json"]);
   assert.doesNotMatch(result.stdout, /Released agent profile/);
 });
 

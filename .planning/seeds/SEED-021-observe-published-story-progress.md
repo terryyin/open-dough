@@ -121,7 +121,7 @@ the shared plan reader refuses.
 - **Progress source.** For each Taken story with an associated plan, read the
   plan at the ref where its progress is published: remote trunk for Trunk
   Mode, or the story branch recorded in its published agent profile
-  (`.planning/agents/agent-<name>.json` beside the backlog, described in
+  (`.planning/agents/<name>-chan.json` beside the backlog, described in
   [project visibility requirements](../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names))
   for Story Branch Mode. Membership, queue order, direction, and the
   canonical story always come from trunk; nothing is copied from a branch.

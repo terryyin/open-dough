@@ -22,7 +22,7 @@ const hostLabels: Readonly<Record<AgentHost, string>> = {
 };
 
 // The one-line owner summary, for example
-// "agent-Akiho · Trunk Mode · Claude Code · claude-opus".
+// "Akiho-chan · Trunk Mode · Claude Code · claude-opus".
 function ownerSummary(owner: AgentOwner): string {
   return [
     owner.agent,

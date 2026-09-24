@@ -51,14 +51,14 @@ test("real startup commands replay distinct claims from one base without losing 
     .stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
   assert.equal((log.match(/Claim-Publisher: publisher-b/g) ?? []).length, 1);
-  assert.equal(b.receipt.agent, "agent-Yui");
-  assert.equal(first.receipt.agent, "agent-Akiho");
+  assert.equal(b.receipt.agent, "Yui-chan");
+  assert.equal(first.receipt.agent, "Akiho-chan");
   assert.deepEqual(await remoteProfiles(first.workspace), [
-    ".planning/agents/agent-akiho.json",
-    ".planning/agents/agent-yui.json",
+    ".planning/agents/akiho-chan.json",
+    ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(first.workspace, "agent-Akiho", identityA);
-  await assertPublishedAgent(first.workspace, "agent-Yui", identityB);
+  await assertPublishedAgent(first.workspace, "Akiho-chan", identityA);
+  await assertPublishedAgent(first.workspace, "Yui-chan", identityB);
 });
 
 test("distinct claims also converge when the other execution wins the first push", async (t) => {
@@ -92,13 +92,13 @@ test("distinct claims also converge when the other execution wins the first push
     .stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
   assert.equal((log.match(/Claim-Publisher: publisher-b/g) ?? []).length, 1);
-  assert.equal(a.receipt.agent, "agent-Yui");
-  assert.equal(second.receipt.agent, "agent-Akiho");
+  assert.equal(a.receipt.agent, "Yui-chan");
+  assert.equal(second.receipt.agent, "Akiho-chan");
   assert.deepEqual(await remoteProfiles(second.workspace), [
-    ".planning/agents/agent-akiho.json",
-    ".planning/agents/agent-yui.json",
+    ".planning/agents/akiho-chan.json",
+    ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(second.workspace, "agent-Akiho", identityB);
+  await assertPublishedAgent(second.workspace, "Akiho-chan", identityB);
 });
 
 test("real competing same-story command stops on the first owner's provenance", async (t) => {

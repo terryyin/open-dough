@@ -57,17 +57,17 @@ test("rotation offers no name when every name is held", () => {
 });
 
 test("only rotation profile files name an agent", () => {
-  assert.equal(profileAgentName("agent-akiho.json"), "Akiho");
-  assert.equal(profileAgentName("agent-Akiho.json"), undefined);
+  assert.equal(profileAgentName("akiho-chan.json"), "Akiho");
+  assert.equal(profileAgentName("Akiho-chan.json"), undefined);
   assert.equal(profileAgentName("notes.md"), undefined);
 });
 
 test("agent identity spells name, email, and profile path", () => {
   assert.deepEqual(agentIdentity("Akiho"), {
     name: "Akiho",
-    agent: "agent-Akiho",
-    email: "agent-akiho@example.org",
-    path: "agents/agent-akiho.json",
+    agent: "Akiho-chan",
+    email: "akiho-chan@example.org",
+    path: "agents/akiho-chan.json",
   });
   assert.throws(() => agentIdentity("Nobody"), /unknown agent name/);
 });
@@ -85,8 +85,8 @@ test("a rendered profile leaves unreported host and model unrecorded", () => {
     );
   assert.deepEqual(render({ host: "codex", model: "gpt-x" }), {
     schemaVersion: 1,
-    agent: "agent-Yui",
-    email: "agent-yui@example.org",
+    agent: "Yui-chan",
+    email: "yui-chan@example.org",
     identity: "SEED-A#a",
     mode: "story-branch",
     branch: "exec/a",

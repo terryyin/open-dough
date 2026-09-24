@@ -70,19 +70,19 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
     "claude-opus-5-5",
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "agent-Yui");
+  assert.equal(receipt.agent, "Yui-chan");
   assert.equal(
     await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
-    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/agent-yui.json\n",
+    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yui-chan.json\n",
   );
   assert.deepEqual(
     JSON.parse(
-      await remoteShow(trunk, "show", "main:.planning/agents/agent-yui.json"),
+      await remoteShow(trunk, "show", "main:.planning/agents/yui-chan.json"),
     ),
     {
       schemaVersion: 1,
-      agent: "agent-Yui",
-      email: "agent-yui@example.org",
+      agent: "Yui-chan",
+      email: "yui-chan@example.org",
       identity: identityA,
       mode: "trunk",
       branch: "origin/main",
@@ -94,14 +94,14 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
   const human = "Integration Checkout <integration@example.test>";
   assert.equal(
     (await remoteShow(trunk, "log", "-1", people, "main")).trim(),
-    `agent-Yui <agent-yui@example.org>|${human}`,
+    `Yui-chan <yui-chan@example.org>|${human}`,
   );
   writeFileSync(join(workspace, "slice.txt"), "slice\n");
   await git(workspace, "add", "slice.txt");
   await git(workspace, "commit", "-m", "slice work");
   assert.equal(
     (await git(workspace, "log", "-1", people)).stdout.trim(),
-    `agent-Yui <agent-yui@example.org>|${human}`,
+    `Yui-chan <yui-chan@example.org>|${human}`,
   );
   await git(trunk.integration, "commit", "--allow-empty", "-m", "integration");
   assert.equal(
@@ -115,15 +115,15 @@ test("Story Branch Mode profile records its origin branch and leaves unreported 
   t.after(trunk.cleanup);
   const { receipt } = await startCliResult(trunk, "story-branch");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "agent-Yui");
+  assert.equal(receipt.agent, "Yui-chan");
   assert.deepEqual(
     JSON.parse(
-      await remoteShow(trunk, "show", "main:.planning/agents/agent-yui.json"),
+      await remoteShow(trunk, "show", "main:.planning/agents/yui-chan.json"),
     ),
     {
       schemaVersion: 1,
-      agent: "agent-Yui",
-      email: "agent-yui@example.org",
+      agent: "Yui-chan",
+      email: "yui-chan@example.org",
       identity: identityA,
       mode: "story-branch",
       branch: "exec/story-branch",
@@ -141,22 +141,22 @@ test("a rival holding a different agent name leaves the replayed claim its origi
     a.child.kill();
   });
   await awaitFile(barrier.arrived);
-  // A rival started from another base, where agent-Yui was held, published
-  // agent-Akiho's profile first.
+  // A rival started from another base, where Yui-chan was held, published
+  // Akiho-chan's profile first.
   await publishProfiles(trunk, ["Akiho"]);
   barrier.release();
   const result = await a.result;
   assert.equal(result.receipt.ok, true, JSON.stringify(result));
-  assert.equal(result.receipt.agent, "agent-Yui");
+  assert.equal(result.receipt.agent, "Yui-chan");
   assert.equal(
     result.receipt.publishedSha,
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
   );
   assert.deepEqual(await remoteProfiles(result.workspace), [
-    ".planning/agents/agent-akiho.json",
-    ".planning/agents/agent-yui.json",
+    ".planning/agents/akiho-chan.json",
+    ".planning/agents/yui-chan.json",
   ]);
-  await assertPublishedAgent(result.workspace, "agent-Yui", identityA);
+  await assertPublishedAgent(result.workspace, "Yui-chan", identityA);
   assert.match(
     (await git(result.workspace, "log", "-1", "--format=%B", "origin/main"))
       .stdout,
@@ -171,10 +171,10 @@ test("Take follows the most recently added profile and skips held names", async 
   await publishProfiles(trunk, ["Akiho", "Yui"]);
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "agent-Yuma");
+  assert.equal(receipt.agent, "Yuma-chan");
   assert.equal(
     await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
-    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/agent-yuma.json\n",
+    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yuma-chan.json\n",
   );
 });
 
@@ -185,7 +185,7 @@ test("Take skips a held successor of the most recent profile rather than taking 
   await publishProfiles(trunk, ["Yuma", "Akiho"]);
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "agent-Sola");
+  assert.equal(receipt.agent, "Sola-chan");
 });
 
 test("a released most recent name is not reused by the next Take", async (t) => {
@@ -195,7 +195,7 @@ test("a released most recent name is not reused by the next Take", async (t) => 
   await releaseProfile(trunk, "Yui");
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "agent-Akiho");
+  assert.equal(receipt.agent, "Akiho-chan");
 });
 
 test("Take is refused and publishes nothing when every agent name is held", async (t) => {

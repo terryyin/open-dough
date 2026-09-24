@@ -247,12 +247,12 @@ owning agent's profile, described below, which refers to the work by identity.
 ### Agent profiles and rotating names
 
 Open Dough ships one fixed rotation of 29 agent names, starting at Yui and
-ending at Rina. An agent's identity is `agent-<Name>` with email
-`agent-<lowercase name>@example.org`. These names identify agent developers,
+ending at Rina. An agent's identity is `<Name>-chan` with email
+`<lowercase name>-chan@example.org`. These names identify agent developers,
 not human contributors.
 
-Each active agent has one JSON profile at `.planning/agents/agent-<lowercase
-name>.json` beside the backlog. It records the agent name and email, the work
+Each active agent has one JSON profile at `.planning/agents/<lowercase
+name>-chan.json` beside the backlog. It records the agent name and email, the work
 item identity, execution mode, branch context (the owned execution branch in
 Story Branch Mode, remote trunk in Trunk Mode), and, when the agent reports
 them, its host tool (Claude Code, Codex, or Cursor) and AI model. Separate

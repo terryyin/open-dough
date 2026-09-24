@@ -70,10 +70,10 @@ test("each Taken card shows its published agent profile, or says plainly that no
     revision: revisionA,
     files: {
       [backlogPath]: backlog,
-      [`${agents}/agent-akiho.json`]: akiho,
-      [`${agents}/agent-yuma.json`]: yuma,
-      [`${agents}/agent-sola.json`]: sola,
-      [`${agents}/agent-mana.json`]: '{ "agent": "agent-Mana", ',
+      [`${agents}/akiho-chan.json`]: akiho,
+      [`${agents}/yuma-chan.json`]: yuma,
+      [`${agents}/sola-chan.json`]: sola,
+      [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
       [`${agents}/README.md`]: "Not an agent profile.\n",
     },
   });
@@ -90,7 +90,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
 
   await test.step("a Trunk Mode profile shows its agent, mode, host, and model on one line", async () => {
     await expect(card(trunkStory)).toContainText(
-      "agent-Akiho · Trunk Mode · Claude Code · claude-opus-5-5",
+      "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
     );
     await expect(card(trunkStory)).toContainText("Trunk: origin/main");
   });
@@ -98,7 +98,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   await test.step("a Story Branch Mode profile shows its branch as context, never as work on trunk", async () => {
     const branch = card(branchStory);
     await expect(branch).toContainText(
-      "agent-Yuma · Story Branch Mode · Codex · gpt-5-codex",
+      "Yuma-chan · Story Branch Mode · Codex · gpt-5-codex",
     );
     await expect(branch).toContainText(
       "Branch context: codex/same-machine-merge-queue (story branch work; not on trunk)",
@@ -109,28 +109,28 @@ test("each Taken card shows its published agent profile, or says plainly that no
 
   await test.step("a profile that does not record the model says so", async () => {
     await expect(card(modelless)).toContainText(
-      "agent-Sola · Trunk Mode · Cursor · model not recorded",
+      "Sola-chan · Trunk Mode · Cursor · model not recorded",
     );
   });
 
   await test.step("a Taken entry without a profile shows that its owner is not recorded", async () => {
     await expect(card(older)).toContainText("Owner not recorded");
-    await expect(card(older)).not.toContainText("agent-");
+    await expect(card(older)).not.toContainText("-chan");
   });
 
   await test.step("a malformed profile is shown as unreadable and matched to no entry", async () => {
     await expect(
       taken.getByRole("list", { name: "Unreadable agent profiles" }),
     ).toHaveText([
-      "Agent profile agent-mana.json is unreadable: profile is not JSON. It is not matched to any Taken entry.",
+      "Agent profile mana-chan.json is unreadable: profile is not JSON. It is not matched to any Taken entry.",
     ]);
     await expect(
-      taken.getByRole("article").filter({ hasText: "agent-Mana" }),
+      taken.getByRole("article").filter({ hasText: "Mana-chan" }),
     ).toHaveCount(0);
   });
 
   await test.step("Backlog entries claim no owner", async () => {
-    await expect(queue).not.toContainText("agent-");
+    await expect(queue).not.toContainText("-chan");
     await expect(queue).not.toContainText("Owner");
   });
 
@@ -142,10 +142,10 @@ test("each Taken card shows its published agent profile, or says plainly that no
     );
     expect(asked).toContain(`listing ${agents}?ref=${revisionA}`);
     for (const file of [
-      "agent-akiho.json",
-      "agent-mana.json",
-      "agent-sola.json",
-      "agent-yuma.json",
+      "akiho-chan.json",
+      "mana-chan.json",
+      "sola-chan.json",
+      "yuma-chan.json",
     ]) {
       expect(asked).toContain(`content ${agents}/${file}?ref=${revisionA}`);
     }
@@ -187,7 +187,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
       revision: revisionB,
       files: {
         [backlogPath]: onlyBacklog,
-        [`${agents}/agent-akiho.json`]: renderAgentProfile({
+        [`${agents}/akiho-chan.json`]: renderAgentProfile({
           name: "Akiho",
           identity: "SEED-021#identify-taken-work-owner",
           mode: "trunk",
@@ -200,7 +200,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
     await refresh.click();
     await expect(source).toContainText(revisionB);
     await expect(card).toContainText(
-      "agent-Akiho · Trunk Mode · host not recorded · model not recorded",
+      "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
     );
     await expect(card).not.toContainText("Owner not recorded");
   });

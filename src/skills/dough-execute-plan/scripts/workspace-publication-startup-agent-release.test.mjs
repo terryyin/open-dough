@@ -27,9 +27,9 @@ const backlogCli = fileURLToPath(
   ),
 );
 
-// Another agent holds agent-Yui for work outside this backlog.
+// Another agent holds Yui-chan for work outside this backlog.
 async function holdYui(trunk) {
-  const path = ".planning/agents/agent-yui.json";
+  const path = ".planning/agents/yui-chan.json";
   mkdirSync(join(trunk.integration, ".planning/agents"), { recursive: true });
   writeFileSync(
     join(trunk.integration, path),
@@ -45,15 +45,15 @@ async function holdYui(trunk) {
   await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
 }
 
-test("a story completed through the backlog command releases agent-Akiho and the next Take follows it", async (t) => {
+test("a story completed through the backlog command releases Akiho-chan and the next Take follows it", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   await holdYui(trunk);
   const first = await startCliResult(trunk, "trunk");
   assert.equal(first.receipt.ok, true, JSON.stringify(first.receipt));
-  assert.equal(first.receipt.agent, "agent-Akiho");
+  assert.equal(first.receipt.agent, "Akiho-chan");
 
-  // agent-Akiho closes its story from its own workspace and publishes it.
+  // Akiho-chan closes its story from its own workspace and publishes it.
   const { workspace } = first;
   await exec(
     process.execPath,
@@ -67,17 +67,17 @@ test("a story completed through the backlog command releases agent-Akiho and the
     (await git(workspace, "show", "--name-status", "--format=", "HEAD")).stdout
       .trim()
       .split("\n"),
-    ["M\t.planning/PRODUCT-BACKLOG.md", "D\t.planning/agents/agent-akiho.json"],
+    ["M\t.planning/PRODUCT-BACKLOG.md", "D\t.planning/agents/akiho-chan.json"],
   );
 
   const next = startProcess(trunk, "b", identityB);
   t.after(() => next.child.kill());
   const result = await next.result;
   assert.equal(result.receipt.ok, true, JSON.stringify(result));
-  assert.equal(result.receipt.agent, "agent-Yuma");
+  assert.equal(result.receipt.agent, "Yuma-chan");
   assert.deepEqual(await remoteProfiles(result.workspace), [
-    ".planning/agents/agent-yui.json",
-    ".planning/agents/agent-yuma.json",
+    ".planning/agents/yui-chan.json",
+    ".planning/agents/yuma-chan.json",
   ]);
   assert.match(
     await remoteBacklog(result.workspace),

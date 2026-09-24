@@ -30,7 +30,7 @@ Facts from the delivered agent profiles (on trunk since `6fe5a15`,
 2026-09-24; behavior in
 [project visibility requirements](../../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names)):
 
-- A profile is `.planning/agents/agent-<lowercase name>.json` beside the
+- A profile is `.planning/agents/<lowercase name>-chan.json` beside the
   backlog, with `schemaVersion`, `agent`, `email`, `identity`, `mode`
   (`trunk` or `story-branch`), `branch`, and optional `host` and `model`.
   `branch` is the owned execution branch in Story Branch Mode (the same name
