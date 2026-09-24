@@ -99,56 +99,6 @@ creation — a distinct gap ODF-070's response does not cover.
     same project. The guidance gap identified above remains unaddressed at
     this occurrence's release (0.3.27).
 
-## ODF-057 — A plan's proof command can select an empty test set and report success
-
-Former local code: DD-055.
-
-The plan format states each slice's proof as a runnable command. When that
-command selects tests by name pattern, a pattern naming a group that does not
-exist yet runs zero tests and exits 0. The proof reports success while executing
-nothing, and is indistinguishable in its output from a proof that genuinely
-passed.
-
-### Occurrences
-
-- Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
-  - Timestamp: 2026-09-18T19:31:24+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5
-  - Open Dough release: 0.3.25
-  - Evidence: Slice 10's planned proof was `node --test
-    --test-name-pattern='merge direction'
-    tests/support/product-backlog-merge.test.mjs`. Before the slice every test
-    in that file was named `merge items ...` or `merge order ...`, so the
-    pattern matched nothing and the command exited 0. After the slice created
-    the group the same command reports 6 tests, 6 passing.
-  - Observed effect: The slice's source diff was empty because the behavior
-    already worked. Had "the planned proof command passes" been accepted as
-    evidence, the slice would have been recorded as proved while asserting
-    nothing about the behavior it named.
-  - Inference: Name-pattern selection makes "no test was selected" and "every
-    selected test passed" the same observable result. Qualified: this affects
-    pattern-selected proofs only, not file-level or script-level proof commands.
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Between commits `a74bee9` (2026-09-20T07:51:26+08:00) and
-    `d0a9495` (2026-09-20T08:19:16+08:00). Slice 2's planned proof was
-    `npm run test:dashboard -- --grep 'published overview'`. The slice owned
-    three Playwright tests in `dashboard/tests/published-work.spec.ts`; only
-    one title contained the phrase, so the command ran 1 test and passed while
-    the empty-groups and initial-read-failure promises went unselected.
-  - Observed effect: The refactor pass noticed the mismatch and retitled the
-    two tests; the coordinator then told every later implementation agent that
-    each test a slice owns must carry the plan's phrase in its title, and
-    slices 3 to 6 selected 3, 5, 12, and 6 tests with their planned commands.
-  - Inference: A variant of the same mechanism, partial rather than empty
-    selection: a name-pattern proof never states how many tests it should
-    select, so "passed" does not show that the slice's promises were exercised.
-
 ## ODF-058 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
 
 Former local code: DD-056.
@@ -382,41 +332,6 @@ without any gate noticing, because nothing downstream depends on it having run.
     mechanism this issue already names: repair-path delivery reads as an
     interruption to recover from, making its own delivery gates easier to
     informally shorten than an ordinary slice's.
-
-## ODF-063 — A delegated report's untested behavior claim was relayed to the developer as fact
-
-Former local code: DD-061.
-
-Proof acceptance inspects the locations an implementation report names. A
-report can also describe behavior in prose that no named assertion observes.
-When the coordinator repeats that prose in its own summary, the developer
-receives an unverified claim with the coordinator's authority attached.
-
-### Occurrences
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Between commits `d0a9495` (2026-09-20T08:19:16+08:00) and
-    `c0d0a91` (2026-09-20T08:33:16+08:00). The slice 3 implementation report
-    said a bare `#anchor` link target "is treated as naming no file →
-    unusable". No test covered it, and `repositoryPath("")` in
-    `dashboard/src/sourceLink.ts` returned `[".planning"]`, so the page offered
-    the `.planning` directory as a pinned file. The coordinator's message to
-    the developer stated the claim and added "Both are covered by the fixture".
-  - Observed effect: The independent refactor agent reasoned the contradiction
-    from code; the coordinator reproduced it against the shared reader,
-    corrected its statement in the next message, and returned the gap to the
-    implementation agent, which fixed it and added two assertions. From slice
-    4 on, delegation required every behavior claim to name its observing
-    assertion or be listed as untested; those reports carried explicit
-    untested lists and no later contradiction was found.
-  - Inference: Qualified. Accepting proof by location does not cover a
-    report's unanchored prose, and the delegation return contract asks for
-    "uncovered promises" but not for unexercised claims about added decisions.
-    One execution; the countermeasure's effect is observed, not measured.
 
 ## ODF-064 — A correction returned after the refactor pass was delivered without a refactor pass of its own
 

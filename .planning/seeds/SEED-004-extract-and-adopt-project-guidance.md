@@ -130,54 +130,68 @@ per-story documents, partial wrap-up, and early termination remain excluded.
 
 **Identity:** SEED-004#accept-delivery-evidence-native
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Execution approach remains unselected."],"basis":{"document":"9c8ec2cf0c7d37681205aaca97840c321324e99f6b96a7388a26311ad1539737"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/089-accept-delivery-evidence-native/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ceaeeedb34da0a41ca6a0b7e0063a9f24633d3b5addfeb484a7368841a711778","plan":"7c7f4f0d471de8080492588ca07a40513f35c06045f590804b629471d1e7dd31"}}
 ```
 
-**Goal:** Maintainers can decide whether the four delivery-evidence acceptance
-behaviors in the current `dough-execute-plan` guidance work in Codex and Claude
-Code before releasing that guidance.
+**Goal:** Maintainers learn, from real Codex and Claude Code sessions, whether
+the released `dough-execute-plan` proof-acceptance guidance actually applies its
+four delivery-evidence rules, and act on that answer in the same work. The
+guidance has shipped since 0.3.33 with this native acceptance reported as
+pending; this story turns that pending state into decided results instead of
+carrying it forward.
 
-**Scope:** Assess each affected requirement on each host using fresh native
-behavioral proof or justified applicable reuse: filtered selection, supported
-reported claims, changed test-support consumers, and known required proof gaps.
-Reuse valid Cursor observations and shared installation evidence only for the
-boundaries they actually cover. The shared installation mechanism does not
-prove these host-specific acceptance decisions. Select runs by the remaining
-risk; a full host-by-case matrix is unnecessary when specific reuse is justified.
+**Scope:** For each of the four rules — filtered selection, supported reported
+claims, changed test-support consumers, and known required proof gaps — decide
+a Codex result and a Claude Code result under [ADR
+0005](../../docs/adrs/0005-cross-tool-validation-accepted.md), choosing runs by
+remaining risk rather than a full host-by-case matrix. Judge each run as soon as
+it finishes and delete its spent output after judging; keep only the decision
+and its decisive reason in the active plan. Diagnose an unexpected result
+before retrying, and never rerun until green.
 
-**Key examples:** A zero-exit filter that selects no relevant tests leaves its
-promises incomplete; an anchor-only-link claim without an observing assertion
-is not reported as verified; a changed factory contract refreshes proof for an
-affected E2E stand-in; and an explicitly missing requeue observation remains
-incomplete unless matching proof is obtained. Sufficient current evidence in
-each case proceeds without a blanket rerun or a report-format-only retry.
+Cursor is already accepted: each of the four rules passed a judged native
+Cursor run during implementation, and the later structure-only harness
+consolidation preserved that behavior under credential-free proof without
+changing the rules' text. Cursor needs no new sessions unless a rule's
+guidance changes.
 
-**Required tools and evidence:** Use the installed candidate in fresh Codex
-and Claude Code sessions through
+**Key examples:**
+
+- A zero-exit filter that selects no relevant tests leaves its promises
+  incomplete; an anchor-only-link claim with no observing assertion is not
+  reported as verified; a changed factory contract refreshes proof for an
+  affected E2E stand-in; an explicitly missing requeue observation stays
+  incomplete until matching proof exists. Sufficient current evidence in each
+  case proceeds without a blanket rerun or a retry only to reformat the report.
+- A Codex filtered-selection run shows the agent refusing the empty selection:
+  the rule is accepted for Codex right then, the results directory is deleted,
+  and the plan records one line — rule, host, candidate and runtime, result,
+  decisive observation.
+- A Claude Code run times out before its decisive step: the trace is read now
+  to find the cause, the cause is fixed or named, and the run is repeated only
+  if something changed. The output is deleted once the cause is decided.
+- A run shows the guidance really failing a rule on one host: the story records
+  that defect and routes it as a bounded correction; it does not hold the run's
+  output while waiting.
+
+**Required tools and evidence:** Run the installed candidate in fresh Codex and
+Claude Code sessions with
 `tests/git-publication-native.sh --native HOST --case delivery-evidence/CASE [--results-dir DIR]`,
-with Bash 4+ and the runner's bounded supervision. Use a temporary results
-directory for current assessment under ADR 0005. Inspect the selected command,
-candidate and host runtime, selected observations, fixture assertions, native
-trace, and independent fixture state. The four
-credential-free assessors remain in `tests/support/`; Cursor native judgments
-are recoverable from
+Bash 4+, and the runner's bounded supervision. Use a temporary results
+directory only while judging. Inspect the selected command, candidate and host
+runtime, selected observations, fixture assertions, native trace, and
+independent fixture state; do not accept exit status or self-report alone. The
+four credential-free assessors live in `tests/support/`. The Cursor runs and
+each case's expected observations are recoverable from
 `6cb67dbe680211ad64a60e7f50a0d413c7c68b20:.planning/quick/085-accept-delivery-evidence/PLAN.md`.
-Codex and Claude acceptance remains pending. Reassess prior judgments against
-the current guidance and rerun requirements whose proof is invalidated.
 
-**Completion:** For each of the four requirements, record a supported Codex and
-Claude result or a specific justified reuse judgment under [ADR
-0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). Inspect behavior
-and artifact state, not exit status or self-report alone. Keep inconclusive or
-unavailable proof pending, diagnose rather than retry unchanged failures, and
-route a real product defect to a bounded correction. Release remains blocked
-until this native acceptance is satisfied.
+**Completion:** Every rule has a decided Codex and Claude Code result or a
+specific justified reuse, or an explicitly routed product defect. A rule whose
+proof is still missing keeps this story open; it is not moved to a new
+acceptance record. At wrap-up, delete the story's run output and assessment
+records; the next release notes report the decided results.
 
-**Boundary:** This acceptance story does not reimplement the delivered guidance,
-refactor its native harness, release guidance, start the near-term watch, or
-change the dashboard and CI observer contracts. A separate structure-only
-correction consolidated the four native run and fixture modules into
-`tests/support/delivery-evidence-native-run.sh` after the Cursor judgments were
-recorded, so their helper, fixture, and input-hash identities differ from the
-current harness; that correction is recoverable at
-`8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
+**Boundary:** This story does not reimplement the proof-acceptance guidance,
+refactor the native harness, cut a release, or change the dashboard and CI
+observer contracts. A product defect it finds is fixed in its own bounded
+correction.

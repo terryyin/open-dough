@@ -12,24 +12,6 @@ Review dates are seven calendar days after the verified use date; scope and
 provenance limits remain on each entry. No application tests were run for this
 record-maintenance review.
 
-## Pending response follow-up — not an active watch
-
-ODF-057, ODF-063, ODF-075, and ODF-076 remain active in the
-[finding catalog](finding-names.md). Their source responses are in the current
-[`#accept-proof` guidance](../../src/skills/dough-execute-plan/references/wrap-up.md)
-and the catalog entries for those codes. The maintained assessor cases are
-`delivery-evidence/selection`, `delivery-evidence/claims`,
-`delivery-evidence/consumers`, and `delivery-evidence/gaps`. The linked
-[Codex and Claude acceptance story](../../.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native)
-owns pending host proof. None of these responses is released, and relevant use
-of a released response is not verified. Watch start and review-after remain
-unknown. A source test, a release tag, installation alone, or silence cannot
-start the watch. These findings are
-not on the active watch and are not eligible for age-based review or retirement
-until release and verified relevant use are established. This note records that
-pending disposition; it is not an effectiveness claim. The existing ODF-056
-watch is unchanged.
-
 ## ODF-056 — Literal CLI entry paths silently skip symlink-equivalent launches
 
 - **Meaning:** CLI entry guards compare literal URLs for the same file under different symlink spellings, exiting successfully without entering the command body.
