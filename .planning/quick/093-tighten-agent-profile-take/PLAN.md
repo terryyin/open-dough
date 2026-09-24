@@ -6,7 +6,7 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/093-tighten-agent-profile-take/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"94ce8ed482c2ebf46d3a3089f505a16b9649222bfef551368726fb9c242407e4"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8e5fb4c76560a3ac2b1089905b1d5e0b0586a84044630dc360d51b6b6320a965"}}
 ```
 
 ## Source and provenance
@@ -45,7 +45,7 @@ profile-read failure.
 - `execution-start-operation.mjs` calls `selectClaimAgent` on the first
   fetch's `ref`; `selectOwnedWorkspace` then fetches again and bases the
   workspace on newer trunk. A rival that publishes the same name in between
-  makes `commitWorkspaceClaim` stop `setup-failed` ("agent-X already holds …")
+  makes `commitWorkspaceClaim` stop `setup-failed` ("X-chan already holds …")
   after the workspace exists; the "most recent" name also comes from the older
   trunk. Untested.
 - Host and mode vocabularies are declared three times:

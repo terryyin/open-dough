@@ -100,7 +100,7 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 **Identity:** SEED-021#follow-published-story-branch
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-follow-published-story-progress/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cb446c5f1713e75ea40f09893c66da8c2f301c14fc5120bedb5635ba65e19e52","plan":"d75a087796d3ea7be82021e046ee7632d6aec2887a4fbcb7522403e7ea0431c5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-follow-published-story-progress/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc7b78a5c4e1b231fbd8673210af9021bdbdd8a65b0c993378ffeeac63f0e05e","plan":"002d077c3807ffc5568467c6094c8910a3ed5c54c856cb83799cd6f43f6f7f17"}}
 ```
 
 **Status:** Refined 2026-09-24 with Terry. The agent profile that supplies
