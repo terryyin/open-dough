@@ -15,21 +15,17 @@ import {
 } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import {
   advanceRemote,
+  interruptFirstPush,
+  profilePath,
+  remoteProfiles,
+  resumeArgs,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("pre-push interruption resumes the retained candidate without another Take", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const hooks = join(trunk.fixture, "hooks");
-  const marker = join(trunk.fixture, "push-blocked");
-  mkdirSync(hooks);
-  writeFileSync(
-    join(hooks, "pre-push"),
-    `#!/bin/sh\nif [ ! -e '${marker}' ]; then touch '${marker}'; echo 'transport interrupted' >&2; exit 1; fi\n`,
-    { mode: 0o755 },
-  );
-  await git(trunk.integration, "config", "core.hooksPath", hooks);
+  await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
   assert.equal(interrupted.receipt.status, "unpublished");
   assert.equal(
@@ -40,12 +36,15 @@ test("pre-push interruption resumes the retained candidate without another Take"
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     trunk.trunkSha,
   );
-  const resume = await startProcess(trunk, "a", identityA, [
-    "--starting-revision",
-    trunk.trunkSha,
-    "--candidate-sha",
-    interrupted.receipt.recovery.candidateSha,
-  ]).result;
+  const resume = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs({
+      ...interrupted.receipt.recovery,
+      startingRevision: trunk.trunkSha,
+    }),
+  ).result;
   assert.equal(resume.receipt.ok, true, JSON.stringify(resume));
   assert.equal(resume.receipt.created, false);
   assert.equal(
@@ -57,18 +56,36 @@ test("pre-push interruption resumes the retained candidate without another Take"
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
 });
 
+test("a claim made without a profile resumes without naming an agent", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  await interruptFirstPush(trunk);
+  const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.receipt.status, "unpublished");
+  const { workspace } = interrupted;
+  // Rebuild the retained claim as one made before profiles existed.
+  await git(workspace, "rm", "--quiet", profilePath("Yui"));
+  await git(workspace, "commit", "--quiet", "--amend", "--no-edit");
+  const legacy = await revParse(workspace, "HEAD");
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs({ ...interrupted.receipt.recovery, candidateSha: legacy }),
+  ).result;
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  assert.equal(resumed.receipt.publishedSha, legacy);
+  assert.equal("agent" in resumed.receipt, false);
+  await git(workspace, "fetch", "origin");
+  assert.deepEqual(await remoteProfiles(workspace), [""]);
+});
+
 test("resume refuses a newly prepared selected source changed since the retained claim basis", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const hooks = join(trunk.fixture, "hooks");
-  mkdirSync(hooks);
-  writeFileSync(join(hooks, "pre-push"), "#!/bin/sh\nexit 1\n", {
-    mode: 0o755,
-  });
-  await git(trunk.integration, "config", "core.hooksPath", hooks);
+  await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
   assert.equal(interrupted.receipt.status, "unpublished");
-  await git(trunk.integration, "config", "--unset", "core.hooksPath");
   const seedPath = join(trunk.integration, ".planning/seeds/A.md");
   const plan = readFileSync(
     join(trunk.integration, ".planning/quick/A/PLAN.md"),
@@ -96,12 +113,12 @@ test("resume refuses a newly prepared selected source changed since the retained
   await git(trunk.integration, "add", ".planning/seeds/A.md");
   await git(trunk.integration, "commit", "-m", "prepare changed A");
   await git(trunk.integration, "push", "origin", "HEAD:main");
-  const resumed = await startProcess(trunk, "a", identityA, [
-    "--starting-revision",
-    interrupted.receipt.recovery.startingRevision,
-    "--candidate-sha",
-    interrupted.receipt.recovery.candidateSha,
-  ]).result;
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(interrupted.receipt.recovery),
+  ).result;
   assert.equal(resumed.receipt.status, "source-refused");
   assert.equal(
     await revParse(interrupted.workspace, "HEAD"),
@@ -136,12 +153,12 @@ test("lost push response and later remote descendant resume as owned without ano
   await git(trunk.integration, "merge", "--ff-only", "origin/main");
   await advanceRemote(trunk, "later.txt");
   const descendant = await lsRemoteSha(trunk.origin, "refs/heads/main");
-  const resumed = await startProcess(trunk, "a", identityA, [
-    "--starting-revision",
-    first.receipt.startingRevision,
-    "--candidate-sha",
-    first.receipt.candidateSha,
-  ]).result;
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(first.receipt),
+  ).result;
   assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
   assert.equal(resumed.receipt.status, "resumed");
   assert.equal(resumed.receipt.publishedSha, accepted);
@@ -165,10 +182,7 @@ test("accepted claim with deferred refresh resumes local maintenance only", asyn
   assert.equal(first.receipt.afterMaintenance.reason, "another-writer");
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
   const resumed = await startProcess(trunk, "a", identityA, [
-    "--starting-revision",
-    first.receipt.startingRevision,
-    "--candidate-sha",
-    first.receipt.candidateSha,
+    ...resumeArgs(first.receipt),
     "--declared-owner",
     "owner",
     "--requester",

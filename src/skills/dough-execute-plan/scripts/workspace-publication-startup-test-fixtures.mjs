@@ -75,17 +75,32 @@ export async function awaitFile(path) {
   throw new Error(`timed out waiting for ${path}`);
 }
 
-export async function holdFirstPush(trunk, name = "a") {
+// Runs `script` before every push from the trunk's integration checkout.
+async function installPrePush(trunk, script) {
   const hooks = join(trunk.fixture, "hooks");
+  mkdirSync(hooks);
+  writeFileSync(join(hooks, "pre-push"), `#!/bin/sh\n${script}`, {
+    mode: 0o755,
+  });
+  await git(trunk.integration, "config", "core.hooksPath", hooks);
+}
+
+// The first push attempt fails before reaching the remote; later ones pass.
+export async function interruptFirstPush(trunk) {
+  const marker = join(trunk.fixture, "push-blocked");
+  await installPrePush(
+    trunk,
+    `if [ ! -e '${marker}' ]; then touch '${marker}'; echo 'transport interrupted' >&2; exit 1; fi\n`,
+  );
+}
+
+export async function holdFirstPush(trunk, name = "a") {
   const arrived = join(trunk.fixture, "push-arrived");
   const released = join(trunk.fixture, "push-released");
-  mkdirSync(hooks);
-  writeFileSync(
-    join(hooks, "pre-push"),
-    `#!/bin/sh\nif [ "$(git branch --show-current)" = exec/${name} ]; then\n  touch '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
-    { mode: 0o755 },
+  await installPrePush(
+    trunk,
+    `if [ "$(git branch --show-current)" = exec/${name} ]; then\n  touch '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
   );
-  await git(trunk.integration, "config", "core.hooksPath", hooks);
   return {
     arrived,
     release: () => {
@@ -99,6 +114,16 @@ export async function advanceRemote(trunk, file, text = "advance\n") {
   await git(trunk.integration, "add", file);
   await git(trunk.integration, "commit", "-m", `advance ${file}`);
   await git(trunk.integration, "push", "origin", "HEAD:refs/heads/main");
+}
+
+// Flags that resume a retained claim from its recorded start.
+export function resumeArgs({ startingRevision, candidateSha }) {
+  return [
+    "--starting-revision",
+    startingRevision,
+    "--candidate-sha",
+    candidateSha,
+  ];
 }
 
 // Trunk directory of the queued trunk's backlog, and of the agent profiles

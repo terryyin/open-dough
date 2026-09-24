@@ -231,7 +231,7 @@ paths, including the exact pinned-read set in `source-navigation.spec.ts`.
 ### 4. Dashboard journeys and startup tests prove profiles truthfully and cheaply
 
 Type: Structure
-Status: planned
+Status: done
 Proof: full `npm run test:dashboard`; new refusal cases in
 `authenticated-read-refusal.spec.ts` for `agents=profiles` with `path`, with
 `since`, and with a non-sha revision; published-work, auto-refresh, and
@@ -246,6 +246,23 @@ unless a spec publishes them; drop the duplicated real-CLI rotation cases
 whose rules the unit suite owns, keeping the seed example and refusal; move
 the legacy no-profile resume case into the recovery suite. Directly owned
 retrospective correction.
+
+Accepted proof: `npm run test:dashboard` 94 passed, including three
+`agents=profiles` refusal cases (with `path`, with `since`, at a non-sha
+revision) in `authenticated-read-refusal.spec.ts`; `npm run
+typecheck:dashboard` passes. Fakes answer the agents listing like a project
+without profiles (committed origin lists `git ls-tree` at the revision), and
+published-work, auto-refresh, and story-readiness journeys call
+`expectOwnersNotRecorded` (every Taken card says "Owner not recorded", no
+"Agent profiles could not be read."); with the old fakes all three fail. The
+published-work claims pattern now allows "owner not recorded" only. From
+`src/skills/dough-execute-plan/scripts`, `node --test --test-concurrency=1` on
+the startup agent, agent-race, resume, release, and recovery suites went from
+18 tests in 42.8 s to 16 in about 37 s. Dropped cases map to unit cases
+"rotation follows the most recently added name and skips held names" and "a
+released most recent name is not reused while others are free", plus the kept
+seed case and the release journey; the legacy no-profile resume case now lives
+in the recovery suite. Race, claim, and publication-race suites 24/24.
 
 ## Learnings
 

@@ -8,12 +8,13 @@
 // concurrently observed repositories.
 //
 // `publishOrigin` publishes only the ref and the backlog file, and
-// `publishMovingOrigin` also any record files a push names: any other file of
-// the repository gets no answer and is not observed, so detail reads fail as
-// unavailable. `publishFiles` publishes a
-// fixed set of files at one revision; ./committedOrigin.ts publishes whole
-// committed revisions. What every origin observes of the calls it answers,
-// leaving out revision checks, lives in ./originObservation.ts.
+// `publishMovingOrigin` also any record files a push names; any other file
+// gets no answer and is not observed, so detail reads fail as unavailable.
+// Both list a published revision's directories from those files alone, so a
+// project without agent profiles lists none; listings are not observed.
+// `publishFiles` publishes fixed files at one revision, ./committedOrigin.ts
+// whole committed revisions; ./originObservation.ts holds what every origin
+// observes of the calls it answers, leaving out revision checks.
 
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
@@ -92,6 +93,10 @@ export function publishOrigin(
       observe(observed, call);
       return backlog.answer;
     }
+    const { request } = call;
+    if (request.kind === "listing" && request.revision === backlog?.revision) {
+      return directoryListingAnswer(request.path, [backlogPath]);
+    }
     return noConnection;
   });
   return Promise.resolve(observed);
@@ -146,6 +151,15 @@ export function publishMovingOrigin(
         await held.get(request.path);
         return rawFileAnswer(body);
       }
+    }
+    if (request.kind === "listing") {
+      const files = records.get(request.revision);
+      return files === undefined
+        ? noConnection
+        : directoryListingAnswer(request.path, [
+            backlogPath,
+            ...Object.keys(files),
+          ]);
     }
     if (target === undefined) {
       return noConnection;

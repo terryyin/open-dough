@@ -14,6 +14,7 @@ import {
 } from "./support/dashboardServer";
 import { everyRepository, publishes } from "./support/fakeGitHub";
 import { rawRequest } from "./support/rawHttp";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe.configure({ mode: "serial" });
 
@@ -124,4 +125,37 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       ),
     ).toBe(true);
   });
+  // An agent profile read names only the pinned revision: it never widens to
+  // another repository path, never doubles as a revision check, and never
+  // resolves a branch name itself.
+  const onlyPinned = "An agent profile read names only a pinned revision.";
+  for (const refused of [
+    {
+      read: "that also names a repository path",
+      query: `revision=${revision}&path=${encodeURIComponent(`.planning/${agentIdentity("Yui").path}`)}`,
+      error: onlyPinned,
+    },
+    {
+      read: "combined with a revision check",
+      query: `revision=${revision}&since=${revision}`,
+      error: onlyPinned,
+    },
+    {
+      read: "at a revision that is not a commit sha",
+      query: "revision=main",
+      error: "The pinned revision is not a commit sha.",
+    },
+  ]) {
+    test(`refuses an agent profile read ${refused.read} before launching gh`, async () => {
+      server.github.serve(everyRepository, publishes({ revision, backlog }));
+      const callsBefore = server.ghCalls().length;
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&agents=profiles&${refused.query}`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
+      expect(server.ghCalls()).toHaveLength(callsBefore);
+    });
+  }
 });

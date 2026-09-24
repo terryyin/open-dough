@@ -1,5 +1,10 @@
 import { expect, test } from "./dashboardTest";
-import { expectMembership, openDirection, parts } from "./dashboardPage";
+import {
+  expectMembership,
+  expectOwnersNotRecorded,
+  openDirection,
+  parts,
+} from "./dashboardPage";
 import {
   commitAnswer,
   emptyBacklog,
@@ -29,8 +34,9 @@ Derive it solely from Git state published to origin.
 - [Show <em>markup</em> in a title as the text it is](seeds/SEED-030-titles.md#markup-as-text) — SEED-030#markup-as-text
 `;
 
+// "Owner not recorded" states that no agent profile names an owner.
 const claimsBeyondMembership =
-  /\b(live|running|online|active|in progress|started|completed?|done|finished|owner|mode)\b/i;
+  /\b(live|running|online|active|in progress|started|completed?|done|finished|owner(?! not recorded)|mode)\b/i;
 
 test("published overview shows connected Backlog and Taken work read at one revision", async ({
   page,
@@ -143,6 +149,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
   });
 
   await test.step("membership makes no live or completion claim", async () => {
+    await expectOwnersNotRecorded(page);
     await expect(page.locator("body")).not.toContainText(
       claimsBeyondMembership,
     );

@@ -6,7 +6,11 @@
 
 import { expect, test } from "./dashboardTest";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
+import {
+  expectMembership,
+  expectOwnersNotRecorded,
+  parts,
+} from "./dashboardPage";
 import {
   expectPlanlessDetailAbsentPlan,
   expectReadyDetailTwoCompleteAfterPublish,
@@ -62,6 +66,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
 
     await page.goto("/");
     const { project, source, backlog, taken, refresh } = parts(page);
+    const readyCard = taken.getByRole("article", { name: plannedReady.title });
 
     await test.step("membership and order arrive before inventing not-refined", async () => {
       await expectMembership(page, {
@@ -79,9 +84,6 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     });
 
     await test.step("labeled colors and independent facts from one pinned revision", async () => {
-      const readyCard = taken.getByRole("article", {
-        name: plannedReady.title,
-      });
       const unrefinedCard = backlog.getByRole("article", {
         name: unrefined.title,
       });
@@ -109,6 +111,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
       ).toHaveCount(0);
 
       await expect(source).toContainText(openDough.revision);
+      await expectOwnersNotRecorded(page);
       await parts(page).preparationHelp.click();
       const legend = page.getByRole("dialog", { name: "Preparation badges" });
       await expect(legend).toBeVisible();
@@ -156,9 +159,6 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
 
     await test.step("opening already-loaded preparation facts costs no extra read", async () => {
       const before = openDoughOrigin.requests.length;
-      const readyCard = taken.getByRole("article", {
-        name: plannedReady.title,
-      });
       await readyCard.getByText("Preparation facts").click();
       await expect(readyCard.getByText("Approach:")).toContainText(
         "Slice planned",
