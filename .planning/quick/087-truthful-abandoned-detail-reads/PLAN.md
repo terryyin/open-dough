@@ -224,7 +224,7 @@ project-read-recovery` (35 passed), `npm run test:dashboard` (89 passed),
 ### 4. Give the fake GitHub one answering path
 
 Type: Structure
-Status: planned
+Status: done
 
 Correction: express `dashboard/tests/support/fakeGitHub.ts`'s control modes
 as answerers served for every repository and delete the catch-all
@@ -234,6 +234,18 @@ Proof: every spec using the fake GitHub's control modes and the full
 `npm run test:dashboard` pass unchanged.
 
 Safe stopping point: one way to tell the fake GitHub how to answer.
+
+Accepted proof: `setControl`, `FakeGhControl`, and `controlAnswer` are gone;
+`hangs`, `failsWith(stderr)`, and `publishes({ revision, backlog?, files? })`
+are answerers served under `everyRepository`, looked up after a named
+repository and before `noConnection`. The spawned servers' fake `gh` already
+forwarded argv to the same in-process fake GitHub, so no cross-process path
+remained. No assertion changed. Commands: `npx playwright test --config
+dashboard/playwright.config.ts authenticated-read-plugin-hooks
+authenticated-read-revision-backlog authenticated-read-refusal
+authenticated-read-subprocess-lifecycle authenticated-read-boundary
+authenticated-read-revision-check` (29 passed), `npm run test:dashboard`
+(89 passed), `npm run typecheck:dashboard`.
 
 ### 5. Give shared read rules one home
 

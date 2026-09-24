@@ -45,25 +45,18 @@ export type GhCall = {
 // wait (to hold an answer back) before answering.
 export type RepositoryAnswerer = (call: GhCall) => Promise<OriginAnswer>;
 
-// One answer for every repository nobody serves, for the boundary specs that
-// exercise the local read boundary itself rather than a published project:
-// `normal` answers `revision` for any ref and `files` (or `backlog`) for any
-// content read; `hang` never answers; `error` fails as `gh` does.
-export type FakeGhControl = {
-  readonly mode?: "normal" | "hang" | "error";
-  readonly revision?: string;
-  readonly backlog?: string;
-  readonly files?: Readonly<Record<string, string>>;
-  readonly errorMessage?: string;
-};
+// Served in place of a repository name, an answerer answers for every
+// repository nobody serves by name: the boundary specs exercise the local
+// read boundary itself rather than a published project.
+export const everyRepository = "*";
 
 export type FakeGitHub = {
   // Where the synthetic `gh` hands its argv (`FAKE_GH_ORIGIN`).
   readonly url: string;
   // Every `gh` invocation, in arrival order.
   readonly calls: readonly GhCall[];
+  // Answers `repository` (or `everyRepository`) with `answerer` from now on.
   serve(repository: string, answerer: RepositoryAnswerer): void;
-  setControl(control: FakeGhControl): void;
   close(): Promise<void>;
 };
 
@@ -111,50 +104,53 @@ function parseRequest(argv: readonly string[]): GhRequest {
   return { kind: "unknown" };
 }
 
-function controlAnswer(
-  control: FakeGhControl,
-  call: GhCall,
-): Promise<OriginAnswer> {
-  if (control.mode === "hang") {
-    return new Promise<never>(() => undefined);
-  }
-  if (control.mode === "error") {
+// Never answers.
+export const hangs: RepositoryAnswerer = () =>
+  new Promise<never>(() => undefined);
+
+// Fails as `gh` does, printing `stderr`.
+export function failsWith(stderr: string): RepositoryAnswerer {
+  return () => Promise.resolve({ exitCode: 1, stderr });
+}
+
+// Answers `revision` for any ref and, for any content read, the named file
+// in `files` or else `backlog`.
+export function publishes(published: {
+  readonly revision: string;
+  readonly backlog?: string;
+  readonly files?: Readonly<Record<string, string>>;
+}): RepositoryAnswerer {
+  return ({ request }) => {
+    if (request.kind === "ref") {
+      return Promise.resolve(commitAnswer(published.revision));
+    }
+    if (request.kind === "content") {
+      const { files, backlog } = published;
+      const body =
+        files !== undefined && Object.hasOwn(files, request.path)
+          ? files[request.path]
+          : backlog;
+      return Promise.resolve(rawFileAnswer(body ?? ""));
+    }
     return Promise.resolve({
       exitCode: 1,
-      stderr: control.errorMessage ?? "gh: synthetic failure\n",
+      stderr: "fake gh: unrecognized invocation\n",
     });
-  }
-  const { request } = call;
-  if (request.kind === "ref") {
-    return Promise.resolve(commitAnswer(control.revision ?? "0".repeat(40)));
-  }
-  if (request.kind === "content") {
-    const body =
-      control.files !== undefined && Object.hasOwn(control.files, request.path)
-        ? control.files[request.path]
-        : control.backlog;
-    return Promise.resolve(rawFileAnswer(body ?? ""));
-  }
-  return Promise.resolve({
-    exitCode: 1,
-    stderr: "fake gh: unrecognized invocation\n",
-  });
+  };
 }
 
 export async function startFakeGitHub(): Promise<FakeGitHub> {
   const calls: GhCall[] = [];
   const served = new Map<string, RepositoryAnswerer>();
-  let control: FakeGhControl | undefined;
 
   const decide = (call: GhCall): Promise<OriginAnswer> => {
     const { request } = call;
     const answerer =
-      request.kind === "unknown" ? undefined : served.get(request.repository);
+      (request.kind === "unknown"
+        ? undefined
+        : served.get(request.repository)) ?? served.get(everyRepository);
     if (answerer !== undefined) {
       return answerer(call);
-    }
-    if (control !== undefined) {
-      return controlAnswer(control, call);
     }
     // Nobody published this repository: nothing answers for it.
     return Promise.resolve(noConnection);
@@ -188,9 +184,6 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     calls,
     serve(repository, answerer) {
       served.set(repository, answerer);
-    },
-    setControl(next) {
-      control = { mode: "normal", ...next };
     },
     async close() {
       server.closeAllConnections();

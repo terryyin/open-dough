@@ -11,11 +11,7 @@ import { createServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh";
-import {
-  startFakeGitHub,
-  type FakeGhControl,
-  type FakeGitHub,
-} from "./fakeGitHub";
+import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub";
 
 // Playwright runs this suite from the repository root (as `npm run
 // test:dashboard` does); paths are built from that rather than from
@@ -37,7 +33,6 @@ export type DashboardServer = {
   // source on the fly and writes no build output at all.
   readonly outDir: string | undefined;
   readonly github: FakeGitHub;
-  setControl(control: FakeGhControl): void;
   ghCalls(): string[][];
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
@@ -212,9 +207,6 @@ export async function startDashboardServer(options: {
     origin: baseURL,
     outDir,
     github,
-    setControl(control) {
-      github.setControl(control);
-    },
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },

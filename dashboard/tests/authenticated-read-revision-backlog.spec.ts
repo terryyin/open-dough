@@ -9,6 +9,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer";
+import { everyRepository, publishes } from "./support/fakeGitHub";
 import { rawRequest } from "./support/rawHttp";
 
 test.describe.configure({ mode: "serial" });
@@ -29,7 +30,10 @@ test.describe("authenticated read boundary backlog at a known revision (dev laun
   });
 
   test("reads the backlog pinned to the named revision without resolving main", async () => {
-    server.setControl({ mode: "normal", revision: revisionA, backlog });
+    server.github.serve(
+      everyRepository,
+      publishes({ revision: revisionA, backlog }),
+    );
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=pygardon&revision=${revisionB}`,
       headers: { Origin: server.origin },

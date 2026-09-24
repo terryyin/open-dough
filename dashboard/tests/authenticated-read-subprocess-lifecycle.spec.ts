@@ -24,6 +24,7 @@
 
 import { expect, test } from "@playwright/test";
 import { processAlive } from "./support/fakeGh";
+import { everyRepository, hangs } from "./support/fakeGitHub";
 import {
   authenticatedReadKinds,
   authenticatedReadUrl,
@@ -51,7 +52,7 @@ test.describe("authenticated read boundary: cancels the held subprocess on clien
 
   for (const { kind, label } of authenticatedReadKinds) {
     test(`terminates a held ${label} when the request is abandoned (client disconnect)`, async () => {
-      server.setControl({ mode: "hang" });
+      server.github.serve(everyRepository, hangs);
       const abandoned = abandonedRequest({
         url: authenticatedReadUrl(server.baseURL, kind),
         headers: { Origin: server.origin },
@@ -93,7 +94,7 @@ test.describe("authenticated read boundary: bounded timeout without changing the
 
   for (const { kind, label } of authenticatedReadKinds) {
     test(`ends a stalled ${label} at the read's own bound`, async () => {
-      server.setControl({ mode: "hang" });
+      server.github.serve(everyRepository, hangs);
       const response = await rawRequest({
         url: authenticatedReadUrl(server.baseURL, kind),
         headers: { Origin: server.origin },
@@ -124,7 +125,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
         "revision-check": 4303,
       }[kind];
       const server = await startDashboardServer({ mode: "dev", port });
-      server.setControl({ mode: "hang" });
+      server.github.serve(everyRepository, hangs);
       abandonedRequest({
         url: authenticatedReadUrl(server.baseURL, kind),
         headers: { Origin: server.origin },

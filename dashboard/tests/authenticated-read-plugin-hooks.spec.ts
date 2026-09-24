@@ -16,7 +16,7 @@ import {
   processAlive,
   readPid,
 } from "./support/fakeGh";
-import { startFakeGitHub } from "./support/fakeGitHub";
+import { everyRepository, hangs, startFakeGitHub } from "./support/fakeGitHub";
 import { waitUntil } from "./support/dashboardServer";
 import { abandonedRequest } from "./support/rawHttp";
 import { withRestoredEnv } from "./support/testEnv";
@@ -52,7 +52,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
     const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-hook-wiring-"));
     const gh = installFakeGh(tempRoot);
     const github = await startFakeGitHub();
-    github.setControl({ mode: "hang" });
+    github.serve(everyRepository, hangs);
 
     const restoreEnv = withRestoredEnv(fakeGhEnv(gh, github.url));
 

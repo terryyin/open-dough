@@ -25,6 +25,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer";
+import { everyRepository, failsWith, publishes } from "./support/fakeGitHub";
 import { notLoggedIn } from "./originAnswers";
 import { rawRequest } from "./support/rawHttp";
 
@@ -47,10 +48,10 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
   });
 
   test("answers a missing gh login with the selected project's actionable failure, never gh's own words", async () => {
-    server.setControl({
-      mode: "error",
-      errorMessage: `${notLoggedIn.stderr}token file: ${secretMarker}\n`,
-    });
+    server.github.serve(
+      everyRepository,
+      failsWith(`${notLoggedIn.stderr}token file: ${secretMarker}\n`),
+    );
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=pygardon`,
       headers: { Origin: server.origin },
@@ -67,10 +68,7 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
 
   test("never forwards gh's raw stderr or a credential-like marker into the failure response", async () => {
     const callsBefore = server.ghCalls().length;
-    server.setControl({
-      mode: "error",
-      errorMessage: `fatal: ${secretMarker}\n`,
-    });
+    server.github.serve(everyRepository, failsWith(`fatal: ${secretMarker}\n`));
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },
@@ -97,15 +95,17 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
 
 - [Boundary story](seeds/SEED-boundary.md#story) — SEED-boundary#story
 `;
-    server.setControl({
-      mode: "normal",
-      revision,
-      backlog: backlogWithSeed,
-      files: {
-        ".planning/PRODUCT-BACKLOG.md": backlogWithSeed,
-        [seedPath]: seedBody,
-      },
-    });
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision,
+        backlog: backlogWithSeed,
+        files: {
+          ".planning/PRODUCT-BACKLOG.md": backlogWithSeed,
+          [seedPath]: seedBody,
+        },
+      }),
+    );
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },
