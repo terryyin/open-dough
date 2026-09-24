@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Recognize promise statuses once across delivery-evidence observers](quick/090-unify-delivery-evidence-promise-status/PLAN.md)
-
 ## Backlog list
 
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
