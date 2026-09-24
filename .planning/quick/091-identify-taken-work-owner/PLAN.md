@@ -226,7 +226,16 @@ the Taken entry with that command.
 ### 6. Dashboard shows who owns each Taken story
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/taken-agent-profile.spec.ts` (Trunk Mode line
+"agent-Akiho · Trunk Mode · Claude Code · claude-opus-5-5"; Story Branch
+context marked not on trunk; "model not recorded"; "Owner not recorded"; a
+malformed profile listed as unreadable and matched to no card; only profile
+files read after a listing at the pinned revision; a project without
+`agents/` loads and a refresh shows a newly published profile); full
+`npm run test:dashboard` 91 passed after refactor; `npm run typecheck:dashboard`.
+Unreadable profiles are listed at the Taken stage rather than on a card,
+because an unreadable profile names no identity.
 Proof: new `dashboard/tests/taken-agent-profile.spec.ts` via
 `npm run test:dashboard -- taken-agent-profile`, with the fake GitHub serving
 a `.planning/agents/` listing: a Trunk Mode profile shows
@@ -257,3 +266,7 @@ and fake GitHub for the directory listing.
 - A new `dough-product-backlog` script used by the installed startup must be
   listed in `install.sh` `managed_files`; the installed-startup test catches
   the omission.
+- CI run 35974401068 on slice 5 exposed two pre-existing races, repaired in
+  `ff33cb8`: the execution observer dropped a known `CI_FAILURE` whose
+  diagnostic was unavailable when coverage was lost through discovery, and a
+  managed-delivery test helper read in-flight `.tmp` mailbox files.

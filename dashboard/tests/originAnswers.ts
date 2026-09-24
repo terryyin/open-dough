@@ -104,3 +104,31 @@ export function notFoundAnswer(): RawAnswer {
     }),
   };
 }
+
+// GitHub's JSON listing of `directory` among the repository's `paths`, or its
+// not-found answer when no path lies directly in that directory.
+export function directoryListingAnswer(
+  directory: string,
+  paths: readonly string[],
+): RawAnswer {
+  const names = paths.flatMap((path) => {
+    const name = path.startsWith(`${directory}/`)
+      ? path.slice(directory.length + 1)
+      : "";
+    return name === "" || name.includes("/") ? [] : [name];
+  });
+  if (names.length === 0) {
+    return notFoundAnswer();
+  }
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify(
+      names.map((name) => ({
+        name,
+        path: `${directory}/${name}`,
+        type: "file",
+      })),
+    ),
+  };
+}

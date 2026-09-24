@@ -4,6 +4,8 @@ import { PreparationFacts } from "./PreparationCard";
 import { PreparationLegend } from "./PreparationLegend";
 import { WorkSourceLinks } from "./WorkSourceLinks";
 import { StoryDetail } from "./StoryDetail";
+import { TakenOwnerFacts, UnreadableProfiles } from "./TakenOwnerFacts";
+import type { UnreadableProfile } from "./takenOwner";
 import { stagesMarks, workCardMarks } from "./workFocus";
 
 function count(entries: readonly WorkEntry[]): string {
@@ -35,6 +37,7 @@ function WorkCard({
       )}
       <h3>{entry.title}</h3>
       <p className="card-identity">{entry.identity}</p>
+      <TakenOwnerFacts owner={entry.owner} />
       <PreparationFacts preparation={entry.preparation} />
       <p>
         <button
@@ -73,12 +76,14 @@ function Stage({
   prioritized,
   selectedIdentity,
   onSelect,
+  unreadableProfiles,
 }: {
   name: string;
   entries: readonly WorkEntry[];
   prioritized: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
+  unreadableProfiles?: readonly UnreadableProfile[] | undefined;
 }) {
   const headingId = `stage-${name.toLowerCase()}`;
   return (
@@ -87,6 +92,7 @@ function Stage({
         <h2 id={headingId}>{name}</h2>
         <p className="stage-count">{count(entries)}</p>
       </header>
+      <UnreadableProfiles profiles={unreadableProfiles} />
       {entries.length === 0 ? (
         <p className="quiet">No {name} entries are recorded.</p>
       ) : (
@@ -156,6 +162,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
           prioritized={false}
           selectedIdentity={selectedIdentity}
           onSelect={select}
+          unreadableProfiles={work.unreadableProfiles}
         />
       </section>
     </>

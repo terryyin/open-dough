@@ -19,6 +19,13 @@ import { resolveSourceLink, type SourceLink } from "./sourceLink";
 import type { WorkPreparation } from "./storyPreparation";
 import type { WorkPlanSlices } from "./storyPlan";
 import type { WorkPurpose } from "./storyPurpose";
+import {
+  awaitingOwners,
+  readOwnership,
+  withOwners,
+  type TakenOwner,
+  type UnreadableProfile,
+} from "./takenOwner";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -54,6 +61,9 @@ export type WorkEntry = {
   // facts are known. Absent when no plan applies; never invents zero slices
   // for an unsupported layout.
   readonly planSlices?: WorkPlanSlices;
+  // Taken entries only: who holds the work, from the agent profile published
+  // at this revision.
+  readonly owner?: TakenOwner;
 };
 
 export type PublishedWork = {
@@ -64,6 +74,9 @@ export type PublishedWork = {
   readonly direction: string;
   readonly taken: readonly WorkEntry[];
   readonly backlog: readonly WorkEntry[];
+  // Published agent profiles that could not be read; none are matched to a
+  // Taken entry.
+  readonly unreadableProfiles?: readonly UnreadableProfile[];
 };
 
 // Receives each more complete snapshot of one read as it becomes known.
@@ -153,14 +166,20 @@ export async function readPublishedWork(
     );
     // Membership first, then preparation enrichment through the same
     // boundary's reachability-checked path reads at that revision.
-    const work: PublishedWork = {
+    const work: PublishedWork = awaitingOwners({
       source,
       revision,
       retrievedAt: new Date(),
       ...interpret(markdown, revision, source, { status: "loading" }),
-    };
+    });
     onPartial?.(work);
-    const enriched = await enrichPreparation(work, untilEither);
+    // Owners come from the agent profiles at the same revision, read beside
+    // the preparation facts.
+    const [prepared, ownership] = await Promise.all([
+      enrichPreparation(work, untilEither),
+      readOwnership(source, revision, untilEither),
+    ]);
+    const enriched = withOwners(prepared, ownership);
     signal.throwIfAborted();
     // Shown even when the wait bound ended it: each detail left unread is
     // an explicit gap, and the bound is still reported as the read problem.

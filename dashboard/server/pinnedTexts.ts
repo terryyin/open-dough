@@ -2,7 +2,10 @@
 // local authenticated read boundary (`./authenticatedRead.ts`).
 
 import type { PublishedSource } from "../src/publishedSource";
-import { readRepositoryFileViaGh } from "./ghRead";
+import {
+  listRepositoryDirectoryViaGh,
+  readRepositoryFileViaGh,
+} from "./ghContents";
 
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)
@@ -48,6 +51,27 @@ export class PinnedTexts {
       );
       this.remember(source, revision, path, text);
       return text;
+    };
+  }
+
+  // A directory's listed file names at a commit, remembered the same way. A
+  // listing is kept under its directory with a trailing `/`, which no file
+  // path ever has.
+  lister(source: PublishedSource, revision: string, signal: AbortSignal) {
+    return async (directory: string): Promise<readonly string[]> => {
+      const key = PinnedTexts.key(source, revision, `${directory}/`);
+      const known = this.texts.get(key);
+      if (known !== undefined) {
+        return JSON.parse(known) as string[];
+      }
+      const names = await listRepositoryDirectoryViaGh(
+        source.repository,
+        directory,
+        revision,
+        signal,
+      );
+      this.remember(source, revision, `${directory}/`, JSON.stringify(names));
+      return names;
     };
   }
 }

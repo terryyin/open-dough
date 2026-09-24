@@ -1,8 +1,8 @@
 // The `gh`-invocation concern for the local authenticated read boundary
-// (`./authenticatedRead.ts`): the read-only `gh api` calls a backlog or
-// reachability-checked record read needs (resolve ref, then read content
-// pinned to that resolved commit), and the conditional ref check that asks
-// only whether the ref still names the same commit. Each has a fixed
+// (`./authenticatedRead.ts`): running one `gh` call and classifying how it
+// failed, resolving which commit a ref names, and the conditional ref check
+// that asks only whether the ref still names the same commit. Content pinned
+// to a resolved commit is read in `./ghContents.ts`. Each call has a fixed
 // argument array -- never a shell string, and never a caller-supplied
 // repository. Kept apart from
 // `./localOrigin.ts`'s request-refusal concern: everything here already
@@ -113,7 +113,7 @@ function execGh(args: readonly string[], signal: AbortSignal): Promise<GhRun> {
   });
 }
 
-async function runGh(
+export async function runGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<string> {
@@ -208,27 +208,4 @@ export async function checkRevisionViaGh(
     revision: commitNamedBy(answer.body),
     etag: answer.headers.get("etag"),
   };
-}
-
-// One pinned file at a known repository path. Callers that need the catalog
-// backlog use the source's own `backlogPath`; extra canonical/plan reads use
-// paths already checked against that revision's records
-// (`./reachablePaths.ts`). Each path segment is URL-encoded so no path
-// character can reshape the request.
-export async function readRepositoryFileViaGh(
-  repository: string,
-  path: string,
-  revision: string,
-  signal: AbortSignal,
-): Promise<string> {
-  const encoded = path.split("/").map(encodeURIComponent).join("/");
-  return runGh(
-    [
-      "api",
-      "-H",
-      "Accept: application/vnd.github.raw+json",
-      `repos/${repository}/contents/${encoded}?ref=${revision}`,
-    ],
-    signal,
-  );
 }

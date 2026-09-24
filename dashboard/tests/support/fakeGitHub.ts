@@ -13,6 +13,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
   commitAnswer,
+  directoryListingAnswer,
   noConnection,
   rawFileAnswer,
   type OriginAnswer,
@@ -20,7 +21,9 @@ import {
 import { asGhReply } from "./ghReply";
 
 // What one `gh` invocation asked GitHub for. A ref request made with
-// `--include` and an `If-None-Match` header is conditional on that tag.
+// `--include` and an `If-None-Match` header is conditional on that tag. A
+// contents request asks for a file's raw bytes when it accepts GitHub's raw
+// media type, and otherwise for a directory's JSON listing.
 export type GhRequest =
   | {
       readonly kind: "ref";
@@ -29,7 +32,7 @@ export type GhRequest =
       readonly ifNoneMatch: string | undefined;
     }
   | {
-      readonly kind: "content";
+      readonly kind: "content" | "listing";
       readonly repository: string;
       readonly path: string;
       readonly revision: string;
@@ -95,7 +98,10 @@ function parseRequest(argv: readonly string[]): GhRequest {
     content[3] !== undefined
   ) {
     return {
-      kind: "content",
+      kind:
+        headerArgument(argv, "Accept") === "application/vnd.github.raw+json"
+          ? "content"
+          : "listing",
       repository: content[1],
       path: decodeURIComponent(content[2]),
       revision: content[3],
@@ -113,8 +119,9 @@ export function failsWith(stderr: string): RepositoryAnswerer {
   return () => Promise.resolve({ exitCode: 1, stderr });
 }
 
-// Answers `revision` for any ref and, for any content read, the named file
-// in `files` or else `backlog`.
+// Answers `revision` for any ref; for any content read, the named file in
+// `files` or else `backlog`; and for a directory listing, the `files` in that
+// directory.
 export function publishes(published: {
   readonly revision: string;
   readonly backlog?: string;
@@ -131,6 +138,14 @@ export function publishes(published: {
           ? files[request.path]
           : backlog;
       return Promise.resolve(rawFileAnswer(body ?? ""));
+    }
+    if (request.kind === "listing") {
+      return Promise.resolve(
+        directoryListingAnswer(
+          request.path,
+          Object.keys(published.files ?? {}),
+        ),
+      );
     }
     return Promise.resolve({
       exitCode: 1,

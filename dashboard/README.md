@@ -101,6 +101,17 @@ There is no dashboard sign-in, no token-entry UI, and no automatic login: the
 dashboard only reuses whatever access the launching person's own `gh` already
 has.
 
+Each **Taken** card shows who holds that work, from the agent profile
+published beside the backlog (`.planning/agents/agent-<name>.json`) at the same
+revision, for example "agent-Akiho · Trunk Mode · Claude Code · <model>". A
+Story Branch Mode profile's branch is shown as branch context, never as work
+on trunk. A host or model the profile does not record is shown as not
+recorded, and a Taken entry without a profile shows "Owner not recorded". A
+profile the shared profile reader cannot read is listed with the Taken stage
+as unreadable and is not matched to any entry. A revision without a profile
+directory simply has no profiles. What a profile means is decided by the
+shared profile module under `src/skills/dough-product-backlog/scripts/`.
+
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
 in the backlog. Story-state paths resolve beside the canonical file; backlog
@@ -175,7 +186,8 @@ a repeated pinned revision from memory without calling `gh`.
 
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that
-revision for preparation and detail; they count against the launching person's own GitHub API
+revision for preparation and detail, and, once per revision, one listing of
+the agent profile directory plus one per profile listed there; they count against the launching person's own GitHub API
 allowance. Each revision check is one more `gh` request (at most four a
 minute per visible page, none while it is hidden, and none before a rate
 limit's directed time). GitHub documents an unchanged `304` as not counting

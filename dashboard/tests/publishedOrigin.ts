@@ -19,6 +19,7 @@ import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
   commitAnswer,
+  directoryListingAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -196,7 +197,8 @@ export function publishMovingOrigin(
 
 // A repository whose `main` names one revision at which these files are
 // published: every contents read at that revision is observed and answered
-// with the file's bytes, or not-found for any other path.
+// with the file's bytes, or not-found for any other path, and a directory
+// listing with the published files directly in that directory.
 export function publishFiles(
   page: Page,
   published: {
@@ -212,6 +214,12 @@ export function publishFiles(
     if (request.kind === "ref" && request.ref === "main") {
       observe(observed, call);
       return Promise.resolve(commitAnswer(revision));
+    }
+    if (request.kind === "listing" && request.revision === revision) {
+      observe(observed, call);
+      return Promise.resolve(
+        directoryListingAnswer(request.path, Object.keys(files)),
+      );
     }
     if (request.kind !== "content" || request.revision !== revision) {
       return Promise.resolve(noConnection);

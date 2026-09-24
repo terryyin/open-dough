@@ -5,6 +5,7 @@ import { expect } from "./dashboardTest";
 import type { ObservedRequest } from "./publishedOrigin";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
+const agentProfileDirectory = ".planning/agents";
 
 export type Project = {
   readonly label: string;
@@ -78,20 +79,30 @@ export function expectPinnedGhCalls(
     "--jq",
     ".sha",
   ]);
+  // Files are read raw; the agent profile directory is read as a listing.
   const contents = calls.slice(1).map(({ argv, request }) => {
     expect(argv.slice(0, 3)).toEqual([
       "api",
       "-H",
-      "Accept: application/vnd.github.raw+json",
+      request.kind === "listing"
+        ? "Accept: application/vnd.github+json"
+        : "Accept: application/vnd.github.raw+json",
     ]);
     expect(argv[3]).toMatch(
       new RegExp(
         `^repos/${published.repository}/contents/[^?]+\\?ref=${published.revision}$`,
       ),
     );
-    return request.kind === "content" ? request.path : "";
+    return request.kind === "content" || request.kind === "listing"
+      ? request.path
+      : "";
   });
   expect([...new Set(contents)].sort()).toEqual(
-    [backlogPath, published.takenPath, published.queuedPath].sort(),
+    [
+      backlogPath,
+      agentProfileDirectory,
+      published.takenPath,
+      published.queuedPath,
+    ].sort(),
   );
 }

@@ -177,3 +177,37 @@ export async function readRepositoryFileAt(
   }
   return parsed.data.text;
 }
+
+const okProfiles = z.object({
+  revision: commitSha,
+  profiles: z.array(z.object({ path: z.string().min(1), text: z.string() })),
+});
+
+// A published agent profile's repository path and raw text.
+export type PublishedProfile = {
+  readonly path: string;
+  readonly text: string;
+};
+
+// The agent profiles published beside the backlog at `revision`, as the local
+// boundary found them listed there; none when the revision has no profile
+// directory. What a profile says is left to the shared profile reader.
+export async function readAgentProfilesAt(
+  source: PublishedSource,
+  revision: string,
+  signal: AbortSignal,
+): Promise<readonly PublishedProfile[]> {
+  const reading = `the agent profiles of ${source.repository} at ${revision}`;
+  const body = await authenticatedGet(
+    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&agents=profiles`,
+    reading,
+    signal,
+  );
+  const parsed = okProfiles.safeParse(body);
+  if (!parsed.success || parsed.data.revision !== revision) {
+    throw new ReadProblem(
+      `The local authenticated read answered in a shape this dashboard does not understand while reading ${reading}.`,
+    );
+  }
+  return parsed.data.profiles;
+}

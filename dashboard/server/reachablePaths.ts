@@ -5,12 +5,17 @@
 // and story-state peek rules as the browser enrichment path. The records it
 // consults are read through the caller's own pinned reader
 // (`./authenticatedRead.ts`), so already-read text at the same revision is
-// not fetched again.
+// not fetched again. Agent profiles beside the backlog are reachable only as
+// the profile files the pinned revision's directory listing names.
 
 import type { PublishedSource } from "../src/publishedSource";
 import { resolveBesideFile } from "../src/repositoryPath";
 import { resolveSourceLink, snapshotRepositoryPath } from "../src/sourceLink";
 import { peekRecordedApproach } from "../src/storyPreparation";
+import {
+  agentProfileDirectory,
+  profileAgentName,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 
 export function isSafeRepositoryPath(path: string): boolean {
@@ -128,4 +133,31 @@ export async function pathReachableFromRevision(
     }
   }
   return false;
+}
+
+// Where agent profiles live for this source: beside its backlog.
+export function agentProfileDirectoryOf(source: PublishedSource): string {
+  const directory = resolveBesideFile(
+    source.backlogPath,
+    agentProfileDirectory,
+  );
+  if (directory === undefined) {
+    throw new Error(`No agent profile directory beside ${source.backlogPath}`);
+  }
+  return directory;
+}
+
+// Which agent profiles may be read at a pinned revision: the listing of the
+// directory beside the backlog at that revision decides which exist (a
+// directory the revision lacks lists none), and only the files the shared
+// profile module names as profiles are read. Anything else listed is not.
+export async function listedAgentProfilePaths(
+  source: PublishedSource,
+  listPinned: (directory: string) => Promise<readonly string[]>,
+): Promise<string[]> {
+  const directory = agentProfileDirectoryOf(source);
+  return (await listPinned(directory))
+    .filter((name) => profileAgentName(name) !== undefined)
+    .sort()
+    .map((name) => `${directory}/${name}`);
 }

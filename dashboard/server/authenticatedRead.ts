@@ -2,9 +2,10 @@
 // resolved, and its backlog (or one reachability-checked canonical/plan path)
 // read, through the launching person's local `gh` authentication. A request
 // may instead name an already resolved revision to read that revision's
-// backlog, or ask only whether the ref still names the revision shown.
+// backlog, ask only whether the ref still names the revision shown, or read
+// the agent profiles its directory listing names beside the backlog.
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
-// `./requestedRead.ts`; gh calls: `./ghRead.ts`; path
+// `./requestedRead.ts`; gh calls: `./ghRead.ts` and `./ghContents.ts`; path
 // reachability: `./reachablePaths.ts`; pinned-text memo: `./pinnedTexts.ts`;
 // revision checks: `./revisionChecks.ts`; one request's `gh` lifetime:
 // `./trackedGh.ts`; failure wording and any directed wait:
@@ -13,13 +14,18 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
-import { readRepositoryFileViaGh, resolveRevisionViaGh } from "./ghRead";
+import { resolveRevisionViaGh } from "./ghRead";
+import { readRepositoryFileViaGh } from "./ghContents";
 import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
 import { PinnedTexts } from "./pinnedTexts";
 import { RevisionChecks } from "./revisionChecks";
 import { withTrackedGh } from "./trackedGh";
 import { reportedFailure, type ReportedFailure } from "./readFailureMessage";
-import { pathReachableFromRevision } from "./reachablePaths";
+import {
+  agentProfileDirectoryOf,
+  listedAgentProfilePaths,
+  pathReachableFromRevision,
+} from "./reachablePaths";
 import { parseRequestedRead, type RequestedRead } from "./requestedRead";
 import { sourceById, type PublishedSource } from "../src/publishedSource";
 // The one endpoint path and failure wording, shared with the browser reader.
@@ -31,10 +37,12 @@ import {
 
 // What a successful read answers, as the browser reader
 // (`../src/authenticatedRead.ts`) checks it.
+type PinnedFile = { readonly path: string; readonly text: string };
 type Answer =
   | { readonly revision: string; readonly backlog: string }
-  | { readonly revision: string; readonly path: string; readonly text: string }
-  | { readonly revision: string; readonly changed: boolean };
+  | ({ readonly revision: string } & PinnedFile)
+  | { readonly revision: string; readonly changed: boolean }
+  | { readonly revision: string; readonly profiles: readonly PinnedFile[] };
 
 type Outcome =
   | { readonly kind: "answered"; readonly answer: Answer }
@@ -63,7 +71,11 @@ async function perform(
     read.kind === "ref" || read.kind === "revision-check"
       ? readingRefOf(source)
       : readingPathAt(
-          read.kind === "file-at" ? read.path : source.backlogPath,
+          read.kind === "file-at"
+            ? read.path
+            : read.kind === "agent-profiles-at"
+              ? agentProfileDirectoryOf(source)
+              : source.backlogPath,
           read.revision,
         );
   try {
@@ -82,6 +94,17 @@ async function perform(
               signal,
             )(source.backlogPath),
           });
+        case "agent-profiles-at": {
+          const listPinned = pinned.lister(source, read.revision, signal);
+          const readPinned = pinned.reader(source, read.revision, signal);
+          const profiles: PinnedFile[] = [];
+          const paths = await listedAgentProfilePaths(source, listPinned);
+          for (const path of paths) {
+            reading = readingPathAt(path, read.revision);
+            profiles.push({ path, text: await readPinned(path) });
+          }
+          return answered({ revision: read.revision, profiles });
+        }
         case "file-at": {
           const readPinned = pinned.reader(source, read.revision, signal);
           const reachable = await pathReachableFromRevision(
