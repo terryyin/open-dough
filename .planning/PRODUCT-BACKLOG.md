@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Land reviewed worktree changes with Dough Land](seeds/SEED-026-dough-land.md#keep-reviewed-worktree-changes) — SEED-026#keep-reviewed-worktree-changes ([plan](quick/088-dough-land/PLAN.md))
+- [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native ([plan](quick/089-accept-delivery-evidence-native/PLAN.md))
 
 ## Backlog list
 
-- [Accept delivery-evidence behavior in Codex and Claude Code](seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native) — SEED-004#accept-delivery-evidence-native
 - [Accept queued-start publication in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — SEED-008#accept-queued-start-native-behavior
 - [Accept execution increment CI observation in native hosts](seeds/SEED-008-worktree-branch-trunk-sync.md#accept-execution-ci-native-behavior) — SEED-008#accept-execution-ci-native-behavior
 - [See who owns Taken work and where it is being executed](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
