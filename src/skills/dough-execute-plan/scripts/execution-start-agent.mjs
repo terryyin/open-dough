@@ -1,6 +1,6 @@
-// The agent a Take names: chosen from profiles held on fetched trunk, chosen
-// again when a rival publishes the same name first, and read back from the
-// claim commit when an existing claim resumes.
+// The agent a Take names: chosen from profiles held on the trunk its claim is
+// built on, chosen again when a rival publishes the same name first, and read
+// back from the claim commit when an existing claim resumes.
 import { basename, dirname, join } from "node:path";
 import {
   agentIdentity,
@@ -10,10 +10,11 @@ import {
   selectAgentName,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { git, revParse } from "./publication-git.mjs";
+import { commitWorkspaceClaim } from "./workspace-publication-select.mjs";
 import {
-  commitWorkspaceClaim,
   configureAgentAuthorship,
-} from "./workspace-publication-select.mjs";
+  workspaceAuthorship,
+} from "./workspace-agent-authorship.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 
 // Agent profiles (path and agent name) a Git command lists under the profile
@@ -71,10 +72,10 @@ function unavailable(extra = {}) {
 }
 
 // The rotation's next name at `rev`, carrying what the agent reported about
-// itself.
-export async function selectClaimAgent(request, rev, backlogPath, fetched) {
+// itself; when every name is held, a stop carrying `stopFields`.
+export async function selectClaimAgent(request, rev, backlogPath, stopFields) {
   const { name } = await nextAgentName(request.integration, rev, backlogPath);
-  if (!name) return unavailable({ fetched });
+  if (!name) return unavailable(stopFields);
   return {
     ok: true,
     agent: {
@@ -141,4 +142,11 @@ export async function resumeClaimAgent(
     return agent.agent;
   }
   return undefined;
+}
+
+// The receipt's agent and whether its workspace authors ordinary commits as
+// that agent; nothing for a claim made without an agent.
+export async function receiptAgent(workspace, agent) {
+  if (!agent) return {};
+  return { agent, workspaceAuthorship: await workspaceAuthorship(workspace) };
 }

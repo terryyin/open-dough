@@ -1,14 +1,16 @@
 // Serves one isolated Git repository's committed bytes as GitHub would answer
 // the local `gh` behind the page's dashboard (./support/fakeGitHub.ts). The
 // journey records preparation through the real CLI, commits those files, and
-// answers contents requests with `git show <revision>:path` — never with
-// hand-constructed display state.
+// answers contents requests with `git show <revision>:path` and directory
+// listings with `git ls-tree` at that revision — never with hand-constructed
+// display state. A listing is answered but not observed.
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest";
 import {
   commitAnswer,
+  directoryListingAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -26,6 +28,16 @@ function showAt(repoDir: string, revision: string, repositoryPath: string) {
   } catch {
     return undefined;
   }
+}
+
+function listAt(repoDir: string, revision: string, directory: string) {
+  return execFileSync(
+    "git",
+    ["-C", repoDir, "ls-tree", "--name-only", revision, "--", `${directory}/`],
+    { encoding: "utf8" },
+  )
+    .split("\n")
+    .filter((path) => path !== "");
 }
 
 export type CommittedOrigin = {
@@ -59,6 +71,12 @@ export function publishCommittedOrigin(
       observe(requests, call);
       await held.get("main");
       return instead.get("main") ?? commitAnswer(revision);
+    }
+    if (request.kind === "listing" && request.revision === revision) {
+      return directoryListingAnswer(
+        request.path,
+        listAt(repoDir, revision, request.path),
+      );
     }
     // Only the currently published revision is readable; any other gets no
     // answer and is not observed.

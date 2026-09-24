@@ -1,5 +1,6 @@
-// The agent profile a real startup Take publishes, and how a race keeps
-// agent names distinct.
+// The agent profile a real startup Take publishes, the seed's rotation
+// example, and the all-held refusal. The rotation rules themselves are owned
+// by tests/support/product-backlog-agent-profile.test.mjs.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -11,25 +12,11 @@ import {
   identityB,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import {
-  assertPublishedAgent,
-  awaitFile,
-  holdFirstPush,
-  profilePath,
-  publishProfiles,
-  remoteProfiles,
-  startProcess,
-} from "./workspace-publication-startup-test-fixtures.mjs";
+import { publishProfiles } from "./workspace-publication-startup-test-fixtures.mjs";
 import { agentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 async function remoteShow(trunk, ...args) {
   return (await git(trunk.origin, ...args)).stdout;
-}
-
-async function releaseProfile(trunk, name) {
-  await git(trunk.integration, "rm", "--quiet", profilePath(name));
-  await git(trunk.integration, "commit", "--quiet", "-m", `release ${name}`);
-  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
 }
 
 test("Take publishes the agent's profile and makes the agent the workspace author", async (t) => {
@@ -43,6 +30,7 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.agent, "Yui-chan");
+  assert.equal(receipt.workspaceAuthorship, "configured");
   assert.equal(
     await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
     "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yui-chan.json\n",
@@ -82,6 +70,41 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
   );
 });
 
+test("Take from a bare repository's linked worktree authors only the Take commit and leaves every checkout working", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  // The developer keeps a bare clone and works in its linked worktrees, so
+  // the shared config sets core.bare=true.
+  const bare = join(trunk.fixture, "bare.git");
+  const checkout = join(trunk.fixture, "bare-main");
+  await git(trunk.fixture, "clone", "--quiet", "--bare", trunk.origin, bare);
+  await git(
+    bare,
+    "config",
+    "remote.origin.fetch",
+    "+refs/heads/*:refs/remotes/origin/*",
+  );
+  await git(bare, "config", "user.name", "Integration Checkout");
+  await git(bare, "config", "user.email", "integration@example.test");
+  await git(bare, "worktree", "add", "--quiet", checkout, "main");
+  const { receipt, workspace } = await startCliResult(
+    { ...trunk, integration: checkout },
+    "trunk",
+  );
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(receipt.agent, "Yui-chan");
+  assert.equal(receipt.workspaceAuthorship, "not-configured");
+  assert.equal(
+    (
+      await remoteShow(trunk, "log", "-1", "--format=%an <%ae>|%cn", "main")
+    ).trim(),
+    "Yui-chan <yui-chan@example.org>|Integration Checkout",
+  );
+  await git(workspace, "status");
+  await git(checkout, "status");
+  await assert.rejects(git(bare, "config", "extensions.worktreeConfig"));
+});
+
 test("Story Branch Mode profile records its origin branch and leaves unreported host and model unrecorded", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
@@ -103,53 +126,6 @@ test("Story Branch Mode profile records its origin branch and leaves unreported 
   );
 });
 
-test("a rival holding a different agent name leaves the replayed claim its original name", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const barrier = await holdFirstPush(trunk);
-  const a = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    a.child.kill();
-  });
-  await awaitFile(barrier.arrived);
-  // A rival started from another base, where Yui-chan was held, published
-  // Akiho-chan's profile first.
-  await publishProfiles(trunk, ["Akiho"], identityB);
-  barrier.release();
-  const result = await a.result;
-  assert.equal(result.receipt.ok, true, JSON.stringify(result));
-  assert.equal(result.receipt.agent, "Yui-chan");
-  assert.equal(
-    result.receipt.publishedSha,
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-  );
-  assert.deepEqual(await remoteProfiles(result.workspace), [
-    ".planning/agents/akiho-chan.json",
-    ".planning/agents/yui-chan.json",
-  ]);
-  await assertPublishedAgent(result.workspace, "Yui", identityA);
-  assert.match(
-    (await git(result.workspace, "log", "-1", "--format=%B", "origin/main"))
-      .stdout,
-    /Claim-Publisher: publisher-a/,
-  );
-});
-
-test("Take follows the most recently added profile and skips held names", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  // Akiho is held from an earlier add; Yui's profile was added most recently.
-  await publishProfiles(trunk, ["Akiho", "Yui"], identityB);
-  const { receipt } = await startCliResult(trunk, "trunk");
-  assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "Yuma-chan");
-  assert.equal(
-    await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
-    "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yuma-chan.json\n",
-  );
-});
-
 test("Take skips a held successor of the most recent profile rather than taking the first free name", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
@@ -158,16 +134,6 @@ test("Take skips a held successor of the most recent profile rather than taking 
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.agent, "Sola-chan");
-});
-
-test("a released most recent name is not reused by the next Take", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  await publishProfiles(trunk, ["Yui"], identityB);
-  await releaseProfile(trunk, "Yui");
-  const { receipt } = await startCliResult(trunk, "trunk");
-  assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.agent, "Akiho-chan");
 });
 
 test("Take is refused and publishes nothing when every agent name is held", async (t) => {

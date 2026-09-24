@@ -35,8 +35,14 @@ export const agentNames = Object.freeze([
   "Rina",
 ]);
 
-export const agentHosts = Object.freeze(["claude", "codex", "cursor"]);
-const agentModes = Object.freeze(["trunk", "story-branch"]);
+// Hosts an agent may report, and the execution modes a Take records. The
+// `const` annotations keep each list's literal values for typed readers.
+export const agentHosts = Object.freeze(
+  /** @type {const} */ (["claude", "codex", "cursor"]),
+);
+export const agentModes = Object.freeze(
+  /** @type {const} */ (["trunk", "story-branch"]),
+);
 
 // Profiles live beside the backlog, one file per active agent.
 export const agentProfileDirectory = "agents";

@@ -9,7 +9,12 @@
 // and advanced by the test, so "within 30 seconds" is observed in page time.
 
 import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
+import {
+  expectMembership,
+  expectOwnersNotRecorded,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage";
 import {
   callsSince,
   contentReads,
@@ -89,6 +94,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     );
     await expect(retrievedAt).not.toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
+    await expectOwnersNotRecorded(page);
   });
 
   await test.step("focus stays on the still-listed work's link", async () => {

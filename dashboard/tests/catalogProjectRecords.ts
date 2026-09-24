@@ -3,9 +3,10 @@
 
 import { expect } from "./dashboardTest";
 import type { ObservedRequest } from "./publishedOrigin";
+import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const agentProfileDirectory = ".planning/agents";
+const profileDirectory = `.planning/${agentProfileDirectory}`;
 
 export type Project = {
   readonly label: string;
@@ -100,7 +101,7 @@ export function expectPinnedGhCalls(
   expect([...new Set(contents)].sort()).toEqual(
     [
       backlogPath,
-      agentProfileDirectory,
+      profileDirectory,
       published.takenPath,
       published.queuedPath,
     ].sort(),

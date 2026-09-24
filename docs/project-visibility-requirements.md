@@ -264,14 +264,20 @@ one shared file.
   its profile exists on remote trunk. The next name follows the profile most
   recently added on trunk, skipping held names and wrapping after Rina, so a
   released name is not reused at once. With no prior profile the rotation
-  starts at Yui. When every name is held, the Take is refused and nothing is
-  published. When a lost publication race finds the selected name now held, the
-  claim is rebuilt on the new trunk under the next available name.
+  starts at Yui. The name is chosen on the trunk the workspace is built on, so
+  a name published while startup fetches is skipped rather than stopping the
+  Take. When every name is held, the Take is refused and nothing is published.
+  When a lost publication race finds the selected name now held, the claim is
+  rebuilt on the new trunk under the next available name.
 - **Authorship.** The agent is the Git author of the Take commit and of
   ordinary commits in its owned workspace; the configured Git user remains the
   committer. Startup configures this through per-worktree Git config, so other
-  checkouts keep their usual author. Commit authors are the history trace; the
-  profile records current ownership.
+  checkouts keep their usual author. In a bare repository whose shared config
+  sets `core.bare=true` or `core.worktree`, enabling per-worktree config would
+  break every checkout, so startup leaves that config untouched: only the Take
+  commit is authored by the agent, and the receipt reports
+  `workspaceAuthorship: "not-configured"` (otherwise `"configured"`). Commit
+  authors are the history trace; the profile records current ownership.
 - **Resume and release.** Resume keeps the profile and restores the
   workspace's authorship from it. Completing the Taken entry through
   `product-backlog complete` deletes its profile in the same change, releasing

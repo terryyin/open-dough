@@ -49,6 +49,19 @@ export async function expectMembership(
   );
 }
 
+// Every Taken card, once the agent profiles beside the backlog are read, says
+// no owner is recorded -- the project publishes none -- and none says the
+// profiles could not be read.
+export async function expectOwnersNotRecorded(page: Page) {
+  const cards = parts(page).taken.getByRole("article");
+  await expect(cards.filter({ hasText: "Owner not recorded" })).toHaveCount(
+    await cards.count(),
+  );
+  await expect(page.getByText("Agent profiles could not be read.")).toHaveCount(
+    0,
+  );
+}
+
 // Everything the page shows about one revision, observed together.
 export async function expectWholeSnapshot(
   page: Page,

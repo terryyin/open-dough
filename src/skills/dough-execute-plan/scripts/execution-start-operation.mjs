@@ -11,6 +11,7 @@ import { acceptedReceipt } from "./execution-start-receipt.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { startRequest } from "./execution-start-request.mjs";
 import {
+  receiptAgent,
   reselectClaimAgent,
   resumeClaimAgent,
   selectClaimAgent,
@@ -60,13 +61,24 @@ export async function startQueuedExecution(requestInput) {
   }
   let agent;
   if (!request.retained) {
-    const chosen = await selectClaimAgent(request, ref, backlogPath, fetched);
+    const chosen = await selectClaimAgent(request, ref, backlogPath, {
+      fetched,
+    });
     if (!chosen.ok) return chosen;
     agent = chosen.agent;
   }
   const beforeMaintenance = await maintenance(request);
   const selected = await selectOwnedWorkspace({ ...request, origin });
   if (!selected.ok) return { ...selected, fetched, beforeMaintenance };
+  // Trunk can move between the source fetch and the workspace's base; the
+  // claim names the rotation's next agent on the trunk it is built on.
+  if (agent && selected.startingRevision !== fetched) {
+    const { startingRevision: base, workspace, branch } = selected;
+    const stop = { fetched, workspace, branch, beforeMaintenance };
+    const chosen = await selectClaimAgent(request, base, backlogPath, stop);
+    if (!chosen.ok) return chosen;
+    agent = chosen.agent;
+  }
   const claimRequest = {
     ...request,
     ...selected,
@@ -98,12 +110,15 @@ export async function startQueuedExecution(requestInput) {
         publishedSha: checked.provenance.sha,
         candidateSha: request.retained.candidateSha,
         created: false,
-        agent: await resumeClaimAgent(
+        ...(await receiptAgent(
           selected.workspace,
-          checked.provenance.sha,
-          request.identity,
-          backlogPath,
-        ),
+          await resumeClaimAgent(
+            selected.workspace,
+            checked.provenance.sha,
+            request.identity,
+            backlogPath,
+          ),
+        )),
       },
       beforeMaintenance,
       afterMaintenance,
@@ -213,14 +228,17 @@ export async function startQueuedExecution(requestInput) {
     {
       ...published,
       created: selected.created,
-      agent: agent
-        ? agentIdentity(agent.name).agent
-        : await resumeClaimAgent(
-            selected.workspace,
-            published.publishedSha,
-            request.identity,
-            backlogPath,
-          ),
+      ...(await receiptAgent(
+        selected.workspace,
+        agent
+          ? agentIdentity(agent.name).agent
+          : await resumeClaimAgent(
+              selected.workspace,
+              published.publishedSha,
+              request.identity,
+              backlogPath,
+            ),
+      )),
     },
     beforeMaintenance,
     afterMaintenance,
