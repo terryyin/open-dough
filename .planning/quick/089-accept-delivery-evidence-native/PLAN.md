@@ -1,6 +1,6 @@
 # Accept delivery-evidence behavior in Codex and Claude Code
 
-Status: planned.
+Status: in progress.
 
 Source: [SEED-004#accept-delivery-evidence-native](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#accept-delivery-evidence-native),
 refined 2026-09-24. Identity: `SEED-004#accept-delivery-evidence-native`.
@@ -61,7 +61,7 @@ observation. Delete `$DIR`. Never commit run output.
 ### 1. Filtered selection is honored in Claude Code and Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a zero-exit command that selects no tests, or a filter that
 selects only one of three required observations, the host's agent leaves the
@@ -71,6 +71,36 @@ observations, and a complete selection proceeds. Seed example 1 (filter).
 Proof: `delivery-evidence/selection` on `claude`, then `codex`, judged as
 above. Run Claude first, because the original failures were observed there.
 This also exposes any first-use host adapter problem early.
+
+Results:
+
+- Filtered selection, Claude Code 2.1.281, candidate 9b1f596 with this
+  slice's harness changes — pass. Decisive: zero-test named its promise
+  incomplete with `selected=0` logged; partial accepted promises 2–3 only
+  after its own unfiltered acceptance run selected all three; complete
+  accepted three.
+- Filtered selection, Codex CLI 0.156.1, same candidate — pass. Decisive:
+  zero-test "Incomplete" citing the empty selection; partial accepted only
+  after a logged corrected filter selected the two missing tests ("The
+  return overstated that filter's coverage"); complete reused the planted
+  named selection without a rerun.
+
+Diagnosed harness faults fixed before those runs (credential-free proof:
+`bash tests/git-publication-native.sh` with Bash 4+, 9 PASS; the later
+refactor left generated fixture workspaces byte-identical):
+
+- The observer misread bold, table, and `**X:** accepted` statuses, counted
+  gap words in obtained-proof accounts, and ignored tests added by a
+  corrected filter; the logger now records selected names so selections are
+  unioned.
+- Codex's sandbox denied the logger's system-temp `mktemp`; scratch output
+  now lives beside the log.
+- Codex refused the complete selection because the fixture's product was
+  readiness-flag markers, so its assertions did not observe the promised
+  behavior. The overview scenarios now commit a stub and tests over rendered
+  output, with the real renderer as the uncommitted candidate.
+- Native runs retain the agent's `acceptance-outcome.md` and `selection.log`
+  for diagnosis.
 
 ### 2. Unsupported claims are not reported as verified in Claude Code and Codex
 
@@ -122,4 +152,10 @@ or a routed defect.
 
 ## Learnings
 
-None yet.
+- A fixture whose "product" is marker strings checked by name-matched tests
+  is not sufficient proof under the accept-proof rule; stricter hosts
+  (Codex) correctly refuse it. Check the other cases' sufficient-side
+  fixtures for the same weakness before judging a refusal as a product
+  failure.
+- The zero-test fixture still carries an unused `readOverview`; drop it at the
+  next native rerun of that scenario.

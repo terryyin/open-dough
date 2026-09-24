@@ -110,6 +110,7 @@ delivery_evidence_write_evidence_identity() {
   native_result_input_hash_line \
     src/skills/dough-execute-plan/references/delegation.md
   if [[ ${case_name} == selection ]]; then
+    native_result_input_hash_line "${case_prefix}-repository-content.sh"
     native_result_input_hash_line "${case_prefix}-proof-logger.sh"
   fi
   if [[ ${case_name} == consumers ]]; then
@@ -199,6 +200,13 @@ delivery_evidence_run_scenario() {
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
       "${observations_file}" "delivery-evidence-${case_name}"
+    # Keep the agent-written outcome (and selection log) that observations
+    # were derived from, so a verdict stays diagnosable after cleanup.
+    native_result_copy_if_present \
+      "${delivery_evidence_workspace}/.planning/acceptance-outcome.md" \
+      acceptance-outcome.md
+    native_result_copy_if_present \
+      "${delivery_evidence_workspace}/.planning/selection.log" selection.log
   fi
 
   printf 'scenario: %s assessment-status: %s assessment-reason: %s\n' \

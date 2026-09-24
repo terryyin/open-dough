@@ -18,7 +18,8 @@ while [[ ${i} -lt ${#args[@]} ]]; do
   esac
   i=$((i + 1))
 done
-tmp=$(mktemp)
+# Keep scratch output beside the log: sandboxed hosts may deny the system temp.
+tmp=$(mktemp "${log}.XXXXXX")
 set +e
 node --test --test-reporter=tap "${args[@]}" > "${tmp}" 2>&1
 status=$?
@@ -34,9 +35,18 @@ selected=$(
     | tr -d ' '
 )
 selected=${selected:-0}
-printf 'selected=%s pattern=%s exit=%s\n' "${selected}" "${pattern}" "${status}" \
-  >> "${log}"
-printf '# named-tests-selected: %s\n' "${selected}"
-cat "${tmp}"
+# Selected test names let observers count distinct observations across runs.
+names=$(
+  { grep -E '^(ok|not ok) [0-9]+ - ' "${tmp}" \
+    | grep -Ev ' - [^ ]+\.(mjs|js|cjs|ts)$| - [^ ]+/[^ ]+$' \
+    || true; } \
+    | sed -E 's/^(ok|not ok) [0-9]+ - //' \
+    | paste -sd ';' -
+)
+printf 'selected=%s pattern=%s exit=%s names=%s\n' "${selected}" "${pattern}" \
+  "${status}" "${names}" >> "${log}"
+output=$(cat "${tmp}")
 rm -f -- "${tmp}"
+printf '# named-tests-selected: %s\n' "${selected}"
+printf '%s\n' "${output}"
 exit "${status}"
