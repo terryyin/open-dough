@@ -141,92 +141,122 @@ association or expanding the fallback interaction.
 
 **Identity:** SEED-021#identify-taken-work-owner
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"424b1e0b5dff803d29a2be6a474c4fe4a12bacc0a6311ea7868da8438950ae8b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/091-identify-taken-work-owner/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"505540d9ac33c3d86b446e563c54743ea5e7aa1e7797fcaa13a67af0e0d67016","plan":"1292996264482dc2f36041235247fc8e5fe6e4a2cde183daddce4525cf4cbf00"}}
 ```
 
-**Status:** Captured 2026-09-19; queued before story 3;
-not refined or planned. Story numbers preserve identity, not queue priority.
+**Status:** Refined 2026-09-24; planned in
+[quick/091](../quick/091-identify-taken-work-owner/PLAN.md). Story numbers
+preserve identity, not queue priority.
 
-**Goal:** Terry can distinguish the developers responsible for Taken stories
-and understand their execution context from the published dashboard, without
-reconstructing ownership from conversations, commit authors, or branch names.
+**Goal:** Terry can see in the published dashboard, for each Taken story, which
+named agent took it and where and how it runs: execution mode, origin branch,
+host tool, and AI model. The same agent name appears as the Git author of the
+commits it makes, so ordinary Git history also shows who did the work.
+He no longer reconstructs ownership from conversations, the configured Git
+user, or branch names.
 
-**Scope candidate:** Carry ownership from an authorized workflow claim through
-publication to the dashboard. An agent starting story work selects an available
-developer name from a circularly rotating list and records that assignment in
-the Taken entry, together with its execution mode and, for Story Branch Mode,
-the origin execution branch. Trunk Mode identifies remote trunk as its
-publication destination. The dashboard shows those published facts with their
-source evidence.
+**Scope:**
 
-The workflow must retain the assignment on resume, keep it distinct from the
-story's stable identity, and release it through explicit closure or cancellation
-so the name can be reused safely. Do not infer release from silence or age.
-Define availability and handling of concurrent published claims during
-refinement; successful publication must not leave two different active
-developers with the same assignment name. A rejected or uncertain claim cannot
-be reported as successfully owned work. Reused names must not make earlier
-assignments or messages appear to belong to a new execution.
+- **Agent names.** Open Dough ships one fixed rotation of 29 names (a prime
+  count), in this order: Yui, Akiho, Yuma, Sola, Yua, Ai, Kirara, Mana,
+  Tsubomi, Yumi, Julia, Tsukasa, Kaoru, Nao, Maria, Mihiro, Aino, Rio, Airi,
+  Shunka, Eimi, Hitomi, Hibiki, Maki, Nana, Honoka, Anri, Koharu, Rina. (The
+  supplied list repeated Ai and Yua; each appears once, at its first position,
+  and Rina was added in the same style to reach 29.) An agent's identity is
+  `agent-<Name>` with email `agent-<lowercase name>@example.org`, for example
+  `agent-Yui <agent-yui@example.org>`.
+- **One profile file per active agent.** Each active agent has its own JSON
+  profile at `.planning/agents/agent-<lowercase name>.json`, recording the
+  agent name and email, the work item identity, execution mode, origin branch
+  for Story Branch Mode (Trunk Mode names remote trunk), host tool (Claude
+  Code, Codex, or Cursor), and the AI model the agent reports. Separate files
+  keep parallel claims from contending for one shared file. The Taken entry
+  format does not change; the profile refers to the work item by identity.
+- **Scripts, not agent instructions.** The shared startup operation
+  (`execution-start`) selects the name, writes the profile, and makes the Take
+  commit with the agent as author. The agent supplies only host and model,
+  which only it knows. Closure removes the profile through the backlog
+  script. No agent hand-edits profiles, and there is no separate claim step,
+  second publisher, dashboard-driven claim, or local ownership registry.
+- **Agent as commit author.** The Take commit and the agent's later commits in
+  its owned workspace, through wrap-up, have the agent as Git author; the
+  configured Git user remains the committer. Startup configures this for the
+  owned workspace only, so commits in the default checkout keep their usual
+  author. The profile records current ownership; commit authors are the
+  history trace and do not by themselves mean the work is still held.
+- **Rotation and availability.** A name is available when no profile for it
+  exists on remote trunk. The next name follows the name of the profile most
+  recently added on trunk, skipping held names and wrapping around, so a
+  released name is not reused immediately. With no prior profile, start at
+  Yui. If every name is held, the Take is refused with that reason and nothing
+  is published.
+- **Concurrent claims.** When the existing publication retry replays after a
+  lost race and the selected name is now held on trunk, it reselects against
+  the new trunk, so successful claims never share an active name.
+- **Resume and release.** Resume keeps the profile and the workspace's author.
+  Completing the Taken entry through the backlog script removes its profile in
+  the same change, releasing the name. Silence or age never releases it.
+- **Dashboard.** Each Taken story shows its agent name, mode, branch context,
+  host, and model from the published profile. Branch context never claims
+  that branch work has reached trunk. A Taken story without a profile, or a
+  profile missing a field, shows that fact as not recorded. An unreadable
+  profile is shown as unreadable, not guessed. Older entries are not
+  mass-assigned.
+- **Delivery boundary.** The shared profile format and rotation, startup
+  assignment and authorship, release on completion, updated guidance and
+  installed runtime, and dashboard display all belong to this story.
+  Hand-authoring fixture metadata or adding only a UI label is insufficient.
 
-Extend the backlog's claim domain and the
-[shared startup operation](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work)
-so assignment and Taken publish together before implementation. Name availability
-is an assignment-domain check, including after a remote race; publication and
-recovery stay with the existing publisher. Do not add dashboard-driven claims,
-a second publisher, or a local ownership registry. Reuse claim provenance without
-confusing its execution identity with the display name. Exact allocation semantics
-remain refinement work.
+**Key examples:**
 
-**Included delivery boundary:** Necessary backlog-field support, workflow
-recording/publication and assignment lifecycle, delivery of changed guidance
-and runtime where needed, and dashboard reading/display belong to this story.
-Merely hand-authoring a name in a fixture or adding a UI label is insufficient.
-Reuse the existing backlog identity and mutation ownership; align with the
-active scripted-backlog work rather than duplicating its rules. Preserve older
-entries without metadata and do not mass-assign their owners.
+- The most recent profile added on trunk was `agent-Yui`'s, now released, and
+  nothing is Taken. Starting a Trunk Mode story in Claude Code assigns
+  `agent-Akiho`. The Take commit adds `.planning/agents/agent-akiho.json`, is
+  authored by `agent-Akiho <agent-akiho@example.org>`, and is committed by the
+  configured user. The agent's next slice commit in its workspace has the same
+  author. After a refresh, the dashboard shows
+  "agent-Akiho · Trunk Mode · Claude Code · <model>".
+- `agent-Yuma` is still Taken when a new Take follows `agent-Akiho`; the new
+  claim gets `agent-Sola`. After `agent-Rina`, rotation wraps to `agent-Yui`.
+- Two agents start different stories at the same moment and select the same
+  name. One loses the push, reselects against the new trunk, and publishes
+  under the next available name. Trunk ends with two distinct profiles.
+- `agent-Akiho` is interrupted and resumes. Its profile and author stay the
+  same.
+- `agent-Akiho`'s story closes through the backlog script, which removes its
+  profile. The next Take follows the most recent profile, not `agent-Akiho`.
+- A Story Branch Mode Take in Codex records its origin branch. The dashboard
+  shows that branch as context, not as work on trunk.
+- A Taken entry written before this change shows "owner not recorded".
 
-**Key example / evaluation:** Starting an authorized story selects an available
-name, publishes its Taken assignment and mode, and refreshing the dashboard
-shows who owns it. Another developer can claim different work under a different
-available name. Two simultaneous claim attempts reconcile against remote trunk
-and result in distinct active assignments. A developer's pending edit in the
-default checkout remains intact while a claim published from an owned worktree
-becomes visible in the dashboard. Resuming the first story keeps its assignment;
-explicit closure allows later safe reuse according to the rotation. For a branch-mode execution,
-the recorded origin branch is visible as context without claiming its changes
-are on trunk. Entries without these fields remain readable as unrecorded.
+**Value / learning:** Make responsibility and execution context visible before
+deeper branch inspection. Test whether memorable agent names, and their use as
+commit authors, give useful orientation without messaging or liveness
+machinery.
 
-**Value / learning:** Make responsibility and execution location understandable
-before deeper branch inspection. Test whether memorable developer names provide
-useful orientation without introducing messaging or liveness machinery.
-
-**Simpler alternative:** A human manually labels owners, or the dashboard shows
-commit authors. Manual labeling does not deliver the requested agent-selected
-rotation and can drift from claims; commit authors do not reliably establish
-current ownership. Keep the automated assignment bounded to actual Taken work,
-not a general developer-directory product.
+**Simpler alternative:** A human labels owners manually, or the dashboard
+reads commit authors alone. Manual labels drift from claims; commit authors
+record who made a change but not who currently holds the work. The profile
+records current ownership, and agent authorship keeps the Git-native trace.
 
 **Depends on:** The delivered dashboard and
 [shared startup publication](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work).
-Published readiness is already delivered. Add assignment semantics through the
-existing backlog domain and startup path; ordinary CI automation and local
-checkout coordination are not product prerequisites for this visibility outcome.
 
-**Deferred promises:** Messaging, commit mailboxes, presence indicators,
-automatic timeouts/takeover, human account management, local workspace discovery,
-a generic story-state machine, and following the execution branch's slice
-contents. Story 3 owns that last inspection outcome and can consume the new
-association without guessing it.
+**Deferred promises:** Recalling a named agent later for follow-up work, such
+as repairing a build it broke; script-supported cancellation of Taken work
+(until then an abandoned profile keeps its name held and stays visible); a
+project-configurable name list; updating host or model after Take; messaging,
+commit mailboxes, presence indicators, automatic timeouts or takeover; human
+account management; local workspace discovery; a generic story-state machine;
+and following the execution branch's slice contents, which story 3 owns.
 
 **Safe stopping point:** Published ownership and execution context are useful
-without messaging or local monitoring. Missing metadata and pending/unpublished
-claims are not presented as known live ownership.
+without messaging or local monitoring. Missing profiles and pending or
+unpublished claims are not presented as known live ownership.
 
-**Effort hypothesis:** Unestimated; lower confidence than the read-only stories.
-This crosses workflow production, installed use, concurrent claims, and UI
-observation. Refine around the smallest complete assignment journey before
-planning; do not mistake a new metadata field for the full outcome. No S/M/L
-band is invented without project definitions.
+**Effort hypothesis:** Six Behavior slices in the plan; the startup and race
+changes carry the most risk. No S/M/L band is invented without project
+definitions.
 
 ## Ordering and Scope Reduction
 
@@ -265,8 +295,6 @@ backlog owns the actual order; this seed supplies non-executable story scope.
   observing real branch-association records, including story 4's new fields.
   The fallback may remain useful for older entries; reassess it rather than
   assuming the new assignment story covers every historical execution.
-- Refine story 4's name availability, concurrent claim handling, release/reuse,
-  and backlog/publication compatibility before choosing its implementation.
 - Define effort bands if S/M/L estimates are wanted. The remaining stories stay
   unestimated rather than importing another project's sizing policy.
 
