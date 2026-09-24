@@ -145,3 +145,17 @@ EOF
     *) return 2 ;;
   esac
 }
+
+# Repository, required promises, candidate changes, and a misleading or
+# substantiated implementation return. Does not name the claim gap or
+# pre-accept.
+delivery_evidence_claims_populate_fixture() {
+  local workspace=$1
+  local scenario=$2
+  delivery_evidence_claims_write_promises_and_return "${workspace}" "${scenario}"
+  delivery_evidence_git "${workspace}" add \
+    lib tests .planning/slice-promises.md
+  delivery_evidence_git "${workspace}" \
+    commit --quiet -m 'baseline with source-link product'
+  # Leave the implementation return uncommitted for acceptance.
+}

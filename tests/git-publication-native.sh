@@ -42,18 +42,9 @@ source "${source_dir}/tests/support/trunk-closure-native-run.sh"
 # shellcheck source=tests/support/story-branch-closure-native-run.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/story-branch-closure-native-run.sh"
-# shellcheck source=tests/support/delivery-evidence-selection-native-run.sh
+# shellcheck source=tests/support/delivery-evidence-native-run.sh
 # shellcheck disable=SC1091
-source "${source_dir}/tests/support/delivery-evidence-selection-native-run.sh"
-# shellcheck source=tests/support/delivery-evidence-claims-native-run.sh
-# shellcheck disable=SC1091
-source "${source_dir}/tests/support/delivery-evidence-claims-native-run.sh"
-# shellcheck source=tests/support/delivery-evidence-consumers-native-run.sh
-# shellcheck disable=SC1091
-source "${source_dir}/tests/support/delivery-evidence-consumers-native-run.sh"
-# shellcheck source=tests/support/delivery-evidence-gaps-native-run.sh
-# shellcheck disable=SC1091
-source "${source_dir}/tests/support/delivery-evidence-gaps-native-run.sh"
+source "${source_dir}/tests/support/delivery-evidence-native-run.sh"
 
 usage() {
   cat >&2 << 'EOF'
