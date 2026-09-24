@@ -10,14 +10,14 @@ import {
 } from "./workspace-publication-fixtures.mjs";
 import { exec } from "./publication-git.mjs";
 
-test("clean main with unknown access defers refresh while the remote claim succeeds", async (t) => {
+test("clean main without ownership declarations refreshes after the remote claim succeeds", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.beforeMaintenance.reason, "unclear-ownership");
-  assert.equal(receipt.afterMaintenance.reason, "unclear-ownership");
-  assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
+  assert.equal(receipt.beforeMaintenance.result, "already current");
+  assert.equal(receipt.afterMaintenance.result, "advanced");
+  assert.equal(await revParse(trunk.integration, "HEAD"), receipt.publishedSha);
   assert.equal(
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     receipt.publishedSha,

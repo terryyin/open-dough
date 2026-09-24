@@ -155,9 +155,14 @@ test("lost push response and later remote descendant resume as owned without ano
 test("accepted claim with deferred refresh resumes local maintenance only", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const first = await startProcess(trunk, "a", identityA).result;
+  const first = await startProcess(trunk, "a", identityA, [
+    "--declared-owner",
+    "other",
+    "--requester",
+    "owner",
+  ]).result;
   assert.equal(first.receipt.ok, true, JSON.stringify(first));
-  assert.equal(first.receipt.afterMaintenance.reason, "unclear-ownership");
+  assert.equal(first.receipt.afterMaintenance.reason, "another-writer");
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
   const resumed = await startProcess(trunk, "a", identityA, [
     "--starting-revision",

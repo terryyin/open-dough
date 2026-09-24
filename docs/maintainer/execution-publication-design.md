@@ -39,7 +39,7 @@ publisher at their own boundaries.
 | Publication | [`publish-the-candidate.md`](../../src/skills/dough-execute-plan/references/publish-the-candidate.md) owns the shared contract. The startup command uses production Git helpers; other publication callers still have their existing paths. |
 | Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start publication. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
 | Delivery | [`execution-increment-delivery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs) owns managed execution increment and repair delivery, runtime resolution, and observation attachment. |
-| Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) checks declared access; it does not acquire exclusive interprocess access. Cleanliness and absence of `index.lock` are insufficient ownership evidence. |
+| Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) honors a declared competing owner and checks Git state for automatic refresh; missing owner declarations do not block it. Direct edits still require declared access. It does not acquire exclusive interprocess access. |
 | CI | [`ci-mailbox.mjs`](../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs), its worker, host hooks, and Codex stream own observation and delivery. Reuse them and the active completion story's result; no second lifecycle. |
 
 The startup command imports backlog domain functions rather than parsing CLI
@@ -89,18 +89,18 @@ permission, declare prose ready, or authorize another push destination.
    local refresh, and return the accepted revision and owned workspace before
    implementation. Progress in Story Branch Mode retains its separate target.
 
-Local main normally fast-forwards when clean, behind, and safely owned. An
-unrelated dirty, busy, ahead/divergent, or ambiguously owned checkout stays intact
+Local main normally fast-forwards when clean, behind, and without a declared
+competing owner. An unrelated dirty, busy, or ahead/divergent checkout stays intact
 with a deferred result. Never stash, reset, or publish unrelated work to make it
 current. Failed fetch or failure to establish fresh execution input stops startup;
 deferred local maintenance does not. Report the fetched head observed, not a
 promise to remain equal to a continuously moving remote.
 
-Startup uses existing genuine access authority where available and defers
-otherwise. Checkout coordination may later automate cooperative
-access. Direct edits and refresh share that one access owner; remote publication
-from another worktree does not acquire it. Nonparticipating human/tool edits
-still require preservation and conservative refusal; a cooperative lock cannot
+Startup honors existing declared access where available; missing declarations
+do not block automatic refresh. Checkout coordination will establish cooperative
+access for direct edits and refreshes when that story is delivered. Remote
+publication from another worktree does not acquire local access. Nonparticipating
+human/tool edits still require preservation and conservative refusal; a cooperative lock cannot
 promise to prevent them.
 
 ## Publication, recovery, and CI

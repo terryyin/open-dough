@@ -117,10 +117,10 @@ Apply this sequence only after a validated explicit keep instruction.
    by that owner's inspection. Do not refresh the default checkout in this
    sequence. After acceptance, attempt
    [Refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility).
-   This publication does not acquire default-checkout access, so without a
-   declared owner that is this caller the attempt is deferred and does not
-   fast-forward. Report that result separately from acceptance. An unresolved
-   rejection stops as the publisher describes; report it and do not loop.
+   Use the refresh eligibility checks; publication does not acquire exclusive
+   default-checkout access. Report the refresh result separately from acceptance.
+   An unresolved rejection stops as the publisher describes; report it and do
+   not loop.
 
 After a successful push, the retained result is on the authorized remote
 target, including other writers' reconciled commits. Report that acceptance

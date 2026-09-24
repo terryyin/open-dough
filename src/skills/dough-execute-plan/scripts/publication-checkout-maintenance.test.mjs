@@ -1,5 +1,5 @@
 // Git mechanics (not guidance-following): refresh eligibility fast-forwards
-// only a clean checkout this caller owns and that is strictly behind fetched
+// only a clean checkout without a declared competing writer, strictly behind fetched
 // trunk. Publication acceptance stays independent of that result. Native
 // agent behavior is not this file.
 import assert from "node:assert/strict";
@@ -36,13 +36,13 @@ test("an eligible clean checkout fast-forwards to fetched trunk and a second att
     await createCleanTrunkFixture();
   t.after(cleanup);
 
-  const current = await refresh(integration, "coordinator", "coordinator");
+  const current = await refresh(integration);
   assert.equal(current.result, "already current");
   assert.equal(current.head, trunkSha);
   assert.equal(current.status, "");
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
-  const advanced = await refresh(integration, "coordinator", "coordinator");
+  const advanced = await refresh(integration);
   assert.equal(advanced.result, "advanced");
   assert.equal(advanced.head, disjointSha);
   assert.equal(advanced.remoteSha, disjointSha);
@@ -53,7 +53,7 @@ test("an eligible clean checkout fast-forwards to fetched trunk and a second att
     "another writer's own increment",
   );
 
-  const again = await refresh(integration, "coordinator", "coordinator");
+  const again = await refresh(integration);
   assert.equal(again.result, "already current");
   assert.equal(again.head, disjointSha);
 });
@@ -70,11 +70,7 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
 
   await plantHumanEdit(edit.integration);
   const editBefore = await captureCheckout(edit.integration);
-  const editResult = await refresh(
-    edit.integration,
-    "coordinator",
-    "coordinator",
-  );
+  const editResult = await refresh(edit.integration);
   assert.equal(editResult.result, "deferred");
   assert.equal(editResult.reason, "pending-edit");
   assert.match(editResult.status, /human-staged\.txt/);
@@ -85,11 +81,7 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
   await git(local.integration, "add", "local-only.txt");
   await git(local.integration, "commit", "-m", "unpublished local commit");
   const localHead = await revParse(local.integration, "HEAD");
-  const localResult = await refresh(
-    local.integration,
-    "coordinator",
-    "coordinator",
-  );
+  const localResult = await refresh(local.integration);
   assert.equal(localResult.result, "deferred");
   assert.equal(localResult.reason, "unpublished-commits");
   assert.equal(await revParse(local.integration, "HEAD"), localHead);
@@ -99,11 +91,7 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
   );
 
   const remoteTip = await advanceOriginFromAnotherWriter(local.origin);
-  const diverged = await refresh(
-    local.integration,
-    "coordinator",
-    "coordinator",
-  );
+  const diverged = await refresh(local.integration);
   assert.equal(diverged.result, "stopped");
   assert.equal(diverged.reason, "diverged");
   assert.equal(await revParse(local.integration, "HEAD"), localHead);
@@ -111,11 +99,7 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
 
   await plantHumanEdit(local.integration);
   const dirtyDivergedBefore = await captureCheckout(local.integration);
-  const dirtyDiverged = await refresh(
-    local.integration,
-    "coordinator",
-    "coordinator",
-  );
+  const dirtyDiverged = await refresh(local.integration);
   assert.equal(dirtyDiverged.result, "stopped");
   assert.equal(dirtyDiverged.reason, "diverged");
   assertCheckoutUnchanged(
@@ -134,9 +118,9 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
   );
   assert.notEqual(otherBefore.head, remoteAhead);
 
-  const ambiguous = await refresh(other.integration, null, "agent-b");
-  assert.equal(ambiguous.result, "deferred");
-  assert.equal(ambiguous.reason, "unclear-ownership");
+  const unidentified = await refresh(other.integration, "agent-a");
+  assert.equal(unidentified.result, "deferred");
+  assert.equal(unidentified.reason, "unclear-ownership");
   assertCheckoutUnchanged(
     otherBefore,
     await captureCheckout(other.integration),
@@ -152,11 +136,7 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
 
   const lockHead = await revParse(locked.integration, "HEAD");
   writeFileSync(await indexLockPath(locked.integration), "");
-  const lockResult = await refresh(
-    locked.integration,
-    "coordinator",
-    "coordinator",
-  );
+  const lockResult = await refresh(locked.integration);
   assert.equal(lockResult.result, "deferred");
   assert.equal(lockResult.reason, "ongoing-operation");
   assert.equal(await revParse(locked.integration, "HEAD"), lockHead);
