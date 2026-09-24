@@ -250,3 +250,10 @@ retrospective correction.
   runs Git in another repository must unset `GIT_DIR` and related variables.
 - Later startup proof commands include the split
   `workspace-publication-startup-agent-race.test.mjs`.
+- CI repair during slice 3 (run 35991974178, `c24884b`): the "late detail
+  read" isolation journey counted Open Dough's `.planning/agents` listing as
+  asked after the switch, because the listing starts beside the detail reads
+  and the fake records a `gh` call only after spawn. The spec now waits for
+  that listing before the switch; a forced late listing failed 5/5 before and
+  `--repeat-each=30` passes 60/60 after. Only journeys that switch before
+  preparation settles can see this.

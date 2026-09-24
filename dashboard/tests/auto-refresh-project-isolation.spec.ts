@@ -159,8 +159,9 @@ test.describe("project read isolation of automatic checks", () => {
     );
     await page.goto("/");
     await expectMembership(page, titlesOfA);
-    // Every detail read of A, the held one included, has reached GitHub
-    // before the switch, so no read sent before it counts as asked after it.
+    // Every detail read of A, the held one included, and the agent-profile
+    // listing read beside them have reached GitHub before the switch, so no
+    // read sent before it counts as asked after it.
     await expect
       .poll(() => contentReads(openDough.requests))
       .toEqual(
@@ -172,6 +173,16 @@ test.describe("project read isolation of automatic checks", () => {
           ].map((path) => `${path}?ref=${revisionA}`),
         ),
       );
+    await expect
+      .poll(() =>
+        openDoughCalls(githubFor(page).calls).some(
+          ({ request }) =>
+            request.kind === "listing" &&
+            request.path === ".planning/agents" &&
+            request.revision === revisionA,
+        ),
+      )
+      .toBe(true);
     await expect(page.getByText("Reading preparation…")).not.toHaveCount(0);
 
     const atSwitch = githubFor(page).calls.length;
