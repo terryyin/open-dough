@@ -1,12 +1,17 @@
 // Selected source, authority, and fetch refusals preserve queued work.
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
+  computeBasis,
+  recordStoryState,
+} from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import {
   createQueuedTrunk,
   identityA,
+  remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import { startQueuedExecution } from "./execution-start.mjs";
@@ -48,6 +53,65 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
     before.untracked,
   );
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
+});
+
+// Queues correction C, whose backlog link is its own recorded plan.
+async function queueSelfHomedCorrection(trunk) {
+  const identity = "quick/C";
+  const href = "quick/C/PLAN.md";
+  const plan = `# Correction C\n\n**Identity:** ${identity}\n\nCorrect C.\n`;
+  const recorded = recordStoryState(
+    plan,
+    {
+      href,
+      identity,
+      refinement: "refined",
+      approach: "planned",
+      plan: "PLAN.md",
+      assessment: "ready",
+      reasons: [],
+      expectedBasis: computeBasis(plan),
+    },
+    { planIsCanonical: true },
+  );
+  mkdirSync(join(trunk.integration, ".planning/quick/C"));
+  writeFileSync(join(trunk.integration, `.planning/${href}`), recorded.source);
+  const entry = `- [Correction C](${href}) \u2014 ${identity}`;
+  const backlog = join(trunk.integration, ".planning/PRODUCT-BACKLOG.md");
+  writeFileSync(
+    backlog,
+    readFileSync(backlog, "utf8").replace(
+      "## Backlog list\n\n",
+      `## Backlog list\n\n${entry}\n`,
+    ),
+  );
+  await git(trunk.integration, "add", ".planning");
+  await git(trunk.integration, "commit", "-m", "queue correction C");
+  await git(trunk.integration, "push", "origin", "main");
+  return { identity, href, entry };
+}
+
+test("a correction whose plan is its canonical home is Taken without a plan link", async (t) => {
+  for (const selectPlan of [false, true]) {
+    const trunk = await createQueuedTrunk();
+    t.after(trunk.cleanup);
+    const { identity, href, entry } = await queueSelfHomedCorrection(trunk);
+    const { receipt, workspace } = await startCliResult(trunk, "story-branch", [
+      "--identity",
+      identity,
+      ...(selectPlan ? ["--plan", href] : []),
+    ]);
+    assert.equal(receipt.status, "published", JSON.stringify(receipt));
+    const backlog = await remoteBacklog(workspace);
+    assert.deepEqual(
+      backlog.split("\n").filter((line) => line.endsWith(identity)),
+      [entry],
+    );
+    assert.ok(
+      backlog.indexOf(entry) < backlog.indexOf("## Backlog list"),
+      backlog,
+    );
+  }
 });
 
 test("selected unstaged, staged, and committed source changes stop before claim", async (t) => {
