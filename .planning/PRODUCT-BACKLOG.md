@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch ([plan](quick/092-follow-published-story-progress/PLAN.md))
-
 ## Backlog list
 
 - [Keep branch progress observation robust and give its rules one home](quick/095-harden-branch-progress-observation/PLAN.md)

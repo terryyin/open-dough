@@ -6,14 +6,16 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/095-harden-branch-progress-observation/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2bcbc89afe50a030314859b9bd2e52d5be83de3b01c7b3f46f1c0190a888dad1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d8c67c0a29ff993a04b9dbb00c19bfba79aa7f4242e1a1e0839e199303214fac"}}
 ```
 
 ## Source and provenance
 
 Execution retrospective of
-[SEED-021#follow-published-story-branch](../../seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch),
-plan `quick/092-follow-published-story-progress/PLAN.md`. Reviewed commits on
+`SEED-021#follow-published-story-branch` (story 3 of
+`.planning/seeds/SEED-021-observe-published-story-progress.md` at before-cleanup
+commit `4201097`), plan `.planning/quick/092-follow-published-story-progress/PLAN.md`
+at that commit. Reviewed commits on
 `claude/092-follow-published-story-progress`: `3f64bc7`, `4c0a387`,
 `8c6ca50`, `63294d3`, `1415ecc`; claim `1443c42` is provenance. That story's
 promises stand: progress source, labels, gaps, clock rule, and the all-branch

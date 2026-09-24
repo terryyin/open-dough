@@ -81,8 +81,8 @@ browsing. The delivered overview lets that assumption be tested in use.
 - Preserve story identity, queue order, and distinctions between missing,
   conflicting, and positively recorded information. Taken does not mean live.
 - The delivered overview observes existing records. Story 2 owns readiness
-  recording through display; story 3 reads slice progress where it is
-  published, including an execution branch. Story 5 owns the producer-to-display journey
+  recording through display; Taken cards already read slice progress where it
+  is published, including an execution branch. Story 5 owns the producer-to-display journey
   for execution completion
   and product learnings. Unavailable
   metadata remains explicit. Local checkout activity belongs to the later
@@ -94,122 +94,6 @@ browsing. The delivered overview lets that assumption be tested in use.
 
 ## Story Decomposition
 
-<a id="follow-published-story-branch"></a>
-
-### 3. Follow a story's progress on its published execution branch
-
-**Identity:** SEED-021#follow-published-story-branch
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-follow-published-story-progress/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc7b78a5c4e1b231fbd8673210af9021bdbdd8a65b0c993378ffeeac63f0e05e","plan":"002d077c3807ffc5568467c6094c8910a3ed5c54c856cb83799cd6f43f6f7f17"}}
-```
-
-**Status:** Refined 2026-09-24 with Terry. The agent profile that supplies
-the branch association was delivered the same day; execution no longer waits
-on it.
-
-**Goal:** Terry can see how far each Taken story has come without reading plan
-files or branches: a slice progress bar and how long ago the current slice
-started, measured from its last recorded plan update. For Story Branch Mode work,
-that progress comes from the published story branch rather than the trunk
-copy, which stays as it was at Take. Progress on a branch is labeled as branch
-progress, never as work in trunk. On 2026-09-24 no Taken plan in the three
-observed projects was readable at all: each used a `## Slices` heading that
-the shared plan reader refuses.
-
-**Scope:**
-
-- **Progress source.** For each Taken story with an associated plan, read the
-  plan at the ref where its progress is published: remote trunk for Trunk
-  Mode, or the story branch recorded in its published agent profile
-  (`.planning/agents/<name>-chan.json` beside the backlog, described in
-  [project visibility requirements](../../docs/project-visibility-requirements.md#agent-profiles-and-rotating-names))
-  for Story Branch Mode. Membership, queue order, direction, and the
-  canonical story always come from trunk; nothing is copied from a branch.
-- **Plans written today are readable.** The shared plan reader, still the
-  one owner of plan meaning, also accepts a `## Slices` section heading; the
-  planning guidance names that element "Ordered slices" without prescribing
-  the heading. Slice statuses keep the `planned | done` vocabulary: a plan
-  with another status stays uninterpretable and is shown as that gap.
-- **Progress bar on the Taken card.** One segment per recorded slice, filled
-  for slices recorded complete, with "N of M slices recorded complete". It is a count
-  of recorded slice statuses, not a percentage estimate of whole-story
-  completion. The detail view keeps its slice list and shows the same source.
-- **Current-slice clock.** Elapsed time from the later of the plan's last
-  commit at that ref and the Take (the commit that added the story's agent
-  profile) until now, updated as time passes. The plan format does not change:
-  each slice commit already updates the plan. It measures time since the last
-  recorded update, not evidence that an agent is active.
-- **Branch label.** Branch-sourced progress names the branch and its revision
-  and states that the work is not in trunk. The trunk copy's count is not
-  shown as the story's progress.
-- **Active watch of all branches.** The automatic check watches every
-  published branch head of the observed project, not only trunk, and reads
-  again when trunk or a branch that a Taken story's profile names moves.
-  Movement of other branches reads nothing further.
-- **Gaps, never guesses.** A Taken story without a published profile
-  (including entries taken before agent profiles existed) shows trunk's plan labelled as the
-  trunk copy with its execution branch not recorded, since its mode is
-  unknown. More than one readable profile naming the same story leaves no
-  single progress source and is shown as that gap. A recorded branch that is
-  no longer published, a plan missing or uninterpretable on the
-  branch, or an unavailable plan commit time are each shown as that gap. No
-  assignment is inferred from branch names, and no manual branch selection
-  is offered.
-
-**Key examples:**
-
-- A Taken story's profile records Story Branch Mode on `story/example`.
-  Trunk's copy of the plan records no slices done; the branch's copy, under a
-  `## Slices` heading, records 6 of 8 done (as Pygardon's branch plan did on
-  2026-09-24). The card shows 6 of 8 from the branch, names the branch and
-  revision, and says it is not in trunk.
-- The branch's plan records a slice as `Status: merged into slice 1`. The card
-  says the plan's slice progress cannot be interpreted rather than counting
-  around it.
-- A Trunk Mode story's plan on trunk was last changed by the slice-2 commit
-  12 minutes ago, after its Take. The card shows the bar from trunk and
-  "Current slice started 12 min ago".
-- A story was Taken 5 minutes ago and its plan was last committed at
-  planning, two days earlier. The clock shows 5 minutes, measured from the
-  Take. For an entry taken before profiles existed, the clock is measured from
-  the plan commit and says so.
-- A new slice commit is pushed to the story branch while trunk stays still.
-  Within the automatic check's pace, the card shows the new done count and a
-  restarted clock without pressing Refresh.
-- Pygardon's Taken story has no profile; a branch named for it exists. The
-  card shows trunk's plan labelled as the trunk copy with the execution
-  branch not recorded, and reads nothing from the similarly named branch.
-- The recorded branch was deleted. The card says it is no longer published and
-  does not fall back to the trunk count as progress.
-
-**Value / learning:** Replace a misleading stale count with the actual
-published progress and show whether work is moving, across both execution
-modes, from published Git alone. Test whether a bar and slice clock are
-enough to orient Terry without liveness machinery.
-
-**Simpler alternative:** Label Story Branch Mode cards "trunk progress is
-stale" and leave progress reading to the branch browser. Rejected because
-Story Branch Mode is in real use in two of the three observed projects.
-
-**Depends on:** Story 2's source-backed detail and slice interpretation, and
-the delivered agent profile with its branch context. Follow ADR 0009's
-distinction between publication on a story branch and integration into trunk.
-
-**Deferred promises:** Branch commit lists, diffs, ahead/behind counts, CI
-status, merge-readiness, or age warnings; seeds, backlog, or new plans read
-from branches; progress for stories not Taken; time-remaining estimates;
-manual branch selection; new slice statuses or plan-format rules and
-catching malformed plans when they are written (SEED-024); and the completion
-and product-learning signal, which story 5 owns.
-
-**Safe stopping point:** Every Taken story's progress comes from the ref
-where it is published, with its publication boundary clear, and missing
-associations stay visible gaps.
-
-**Effort hypothesis:** Unestimated; the all-branch watch and the plan commit
-time add read-boundary requests. The Take is the commit that added the
-story's profile on trunk; profiles are not rewritten after it.
-
 <a id="see-finished-execution"></a>
 
 ### 5. See when an execution has finished and what it learned before wrap-up
@@ -219,8 +103,7 @@ story's profile on trunk; profiles are not rewritten after it.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Status:** Decomposed 2026-09-24 from story 3's refinement; not refined or
-planned. Queued directly after story 3.
+**Status:** Decomposed 2026-09-24; not refined or planned.
 
 **For / why:** Terry can see in the dashboard that a Taken story's execution
 and retrospective have finished and it is waiting for wrap-up, and can read
@@ -241,7 +124,8 @@ learnings, from the published branch, before wrap-up runs.
 **Value / learning:** Makes "done but not wrapped up" visible and keeps
 product learnings from being lost in a conversation.
 
-**Depends on:** Story 3's progress source.
+**Depends on:** The delivered Taken progress source (see the dashboard
+README).
 
 **Open questions for refinement:** The retrospective currently must not
 commit or push and leaves its records to wrap-up; this reverses that
@@ -258,13 +142,13 @@ as well as the dashboard.
 The delivered overview supplies a usable dashboard for testing the central value
 hypothesis in use, now proven useful across Doughnut and Pygardon as well as
 Open Dough. Published agent profiles now make responsibility and execution
-context explicit. Story 3 follows that context into published work that has not reached trunk.
+context explicit, and Taken cards follow it into published work that has not
+reached trunk.
 Story 5 follows directly, making finished executions and their product
 learnings visible before wrap-up. This moves an important excluded outcome ahead of branch inspection without
 enlarging the delivered overview.
 
-For a smaller finish line, drop story 5 first, then story 3, and use the dashboard for Trunk
-Mode.
+For a smaller finish line, drop story 5.
 The delivered overview is the smallest selected finish line for a usable
 overview beyond Open Dough. Neither the feature/structure perspectives nor
 recently completed history are added merely to complete a catalog of potential
@@ -286,8 +170,6 @@ backlog owns the actual order; this seed supplies non-executable story scope.
 - The delivered overview's project and launch are settled: public Open Dough on GitHub,
   `main`, launched locally. Other providers and private access remain outside
   the selected first outcome.
-- Story 3's manual branch-selection fallback was dropped on 2026-09-24:
-  entries without a recorded branch show that gap.
 - Define effort bands if S/M/L estimates are wanted. The remaining stories stay
   unestimated rather than importing another project's sizing policy.
 
