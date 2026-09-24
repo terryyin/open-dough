@@ -216,42 +216,118 @@ story's profile on trunk; profiles are not rewritten after it.
 
 **Identity:** SEED-021#see-finished-execution
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/094-see-finished-execution/PLAN.md","assessment":"not-ready","reasons":["Slices 1 and 2 build on plan 092 (story 3), still Taken: re-verify their proof names and reused reads against its delivered code on trunk, then reassess."],"basis":{"document":"b57f86bd0ea61cc19e7cca8256371e9e0f4268dc6c14b2f6bfa312d724744d1f","plan":"741e600fff55e693e57b334cf8fee4418c79069f3cfe668b184aaef10ef1f77c"}}
 ```
 
-**Status:** Decomposed 2026-09-24 from story 3's refinement; not refined or
-planned. Queued directly after story 3.
+**Status:** Refined 2026-09-24 with Terry; kept as one story at the top of
+the queue after story 3. Not planned.
 
-**For / why:** Terry can see in the dashboard that a Taken story's execution
-and retrospective have finished and it is waiting for wrap-up, and can read
-its product learnings there, instead of finding them only in an execution's
-chat.
+**Goal:** Terry can see in the dashboard that a Taken story's execution and
+retrospective have finished and it is waiting for wrap-up, and can read the
+retrospective's product advice there. The same recorded advice reaches
+wrap-up even when wrap-up runs in a later session. Today that advice lives
+only in the execution's chat. Execute-plan's final handoff does not list it,
+and wrap-up uses it only when its own conversation carries it. On 2026-09-22
+to 24, 15 automatic retrospectives across the three observed projects showed
+the advice usually present but silently omitted in 3 (two Codex, one long
+Claude Code run) and reduced to one line in several others.
 
-**Outcome:** When the execution retrospective finishes, it commits and
-publishes what it wrote (a correction plan or process findings) to the
-execution's publication destination, and records in the story's plan that
-execution is complete, along with the retrospective's product learnings. The
-dashboard shows the completed state and those learnings. Wrap-up digests the
-learnings and deletes the plan as it does today.
+"Product advice" means the retrospective's product-learning review: its
+recommendations, or a reasoned no-change. It excludes the code review and the
+process review.
 
-**Evaluation:** After a retrospective finishes on a Story Branch Mode story,
-the dashboard shows the story as execution complete with its product
-learnings, from the published branch, before wrap-up runs.
+**Scope:**
 
-**Value / learning:** Makes "done but not wrapped up" visible and keeps
-product learnings from being lost in a conversation.
+- **One completion commit.** When the automatic retrospective returns, or is
+  skipped with `--skip-retro`, execute-plan commits, in one commit:
+  - the plan's execution-complete record,
+  - the product-advice entry,
+  - any correction plan or process findings the retrospective wrote in the
+    execution checkout.
 
-**Depends on:** Story 3's progress source.
+  It publishes that commit to the execution's publication destination before
+  the completion CI wait. That destination is the story branch in Story Branch
+  Mode and trunk in Trunk Mode. The existing completion operation therefore
+  observes CI for this revision, and no separate observation is added. The
+  retrospective stays review-only: it still does not commit or push. Terry
+  confirmed both points on 2026-09-24, including that Trunk Mode correction
+  plans and process findings reach trunk before wrap-up.
+- **A required advice entry.** The plan's completion record always carries
+  one of:
+  - the recommendations;
+  - an explicit no-change with its reason;
+  - "retrospective skipped" when the retrospective did not run;
+  - "product review skipped" when it ran with `--skip-product`.
 
-**Open questions for refinement:** The retrospective currently must not
-commit or push and leaves its records to wrap-up; this reverses that
-ownership. Settle the destination for each mode, what marks completion when
-the retrospective is skipped, how the plan records completion and learnings
-(its header `Status:` is not maintained today), and CI observation of that
-push. The change spans installed guidance in Codex, Cursor, and Claude Code
-as well as the dashboard.
+  An empty or missing entry is not allowed. Execute-plan's final handoff
+  reports the same advice. The shared plan reader interprets the record; its
+  exact Markdown form is a planning decision, named in the planning guidance
+  and kept from spreading into other formats.
+- **Dashboard.** For a Taken story whose plan at story 3's progress source
+  carries the completion record, the card shows "execution complete, awaiting
+  wrap-up" and how long it has waited since the completion commit, in place of
+  the current-slice clock. The detail view shows the product advice as
+  recorded. Branch-sourced completion keeps story 3's label that the work is
+  not in trunk.
+- **Wrap-up.** Wrap-up takes product advice from the plan's record when its
+  conversation does not supply it. Explicit human input still wins. Wrap-up
+  then digests the advice and deletes the plan as it does today.
+- **Gaps, never guesses.** A completion record without a readable advice entry
+  is shown as that gap, not as "no advice". Recorded-done slices without a
+  completion record are shown as slice progress (story 3), not as complete.
+- The change applies to the shared guidance used by Codex, Cursor, and Claude
+  Code.
 
-**Effort hypothesis:** Unestimated.
+**Key examples:**
+
+- A Story Branch Mode execution finishes all slices. Its retrospective
+  recommends queueing one correction first and writes that correction plan.
+  One commit carrying the plan's completion record, the advice, and the
+  correction plan is pushed to the story branch. The card shows "execution
+  complete, awaiting wrap-up", sourced from the branch. The detail view shows
+  the recommendation.
+- A Trunk Mode retrospective finds nothing. The completion commit on trunk
+  records "no product change, because …". In Open Dough it touches only
+  `.planning/`, so CI's path filter skips it and the completion operation
+  treats it as not applicable.
+- An execution runs with `--skip-retro`. The completion commit records
+  "retrospective skipped", and the card still shows execution complete.
+- A retrospective records process findings in `DearDough.md` beside the plan
+  update. The same commit carries them, and the completion operation awaits
+  the CI run it triggers.
+- Wrap-up starts in a fresh session with no retrospective in its context. It
+  applies the advice recorded in the plan.
+- A retrospective stops for missing context. No completion record is written,
+  and the card keeps showing slice progress.
+
+**Value / learning:** Makes "done but not wrapped up" visible. It turns
+product advice from chat text into a published, durable record that the
+dashboard and a later wrap-up can both use. Recording the advice also exposes
+executions whose retrospective gave none.
+
+**Simpler alternative:** Show "all slices recorded done" from story 3's source
+without any workflow change. Rejected by Terry on 2026-09-24: the completion
+record is one commit either way, and the product advice is the part he wants
+to see and keep.
+
+**Depends on:** Story 3's progress source, branch label, and current-slice
+clock. Uses the existing increment publication and completion operation of
+execute-plan.
+
+**Deferred promises:**
+- Showing process findings, correction plans, or CI verdicts in the dashboard.
+- A separate "slices done, retrospective running" state.
+- Changing what the retrospective reviews, or how it words its advice.
+- Completion records for wholly planless quick executions, which have no plan
+  and no automatic retrospective.
+- Age warnings for stories left waiting for wrap-up.
+
+**Safe stopping point:** Every completed planned execution publishes one
+completion commit with its product advice, and the dashboard and wrap-up read
+it from the published plan.
+
+**Effort hypothesis:** Unestimated; spans execute-plan finish, the shared plan
+reader and planning guidance, wrap-up input, and the dashboard.
 
 ## Ordering and Scope Reduction
 
