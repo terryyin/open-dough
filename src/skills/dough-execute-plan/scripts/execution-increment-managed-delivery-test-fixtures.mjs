@@ -7,13 +7,13 @@ import {
   cpSync,
   mkdirSync,
   readdirSync,
-  readFileSync,
   writeFileSync,
   existsSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout as pause } from "node:timers/promises";
+import { readMailboxEvents } from "./ci-mailbox-store.mjs";
 import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
 
 const skillRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -172,14 +172,13 @@ export async function createManagedFixture({
 
 export async function waitForFailureEvent(directory, timeoutMs = 10_000) {
   const deadline = Date.now() + timeoutMs;
-  const events = join(directory, "events");
   while (Date.now() < deadline) {
-    if (existsSync(events)) {
-      for (const name of readdirSync(events).sort()) {
-        const record = JSON.parse(readFileSync(join(events, name), "utf8"));
-        const event = record.event ?? record;
-        if (event.type === "CI_FAILURE") return event;
-      }
+    if (existsSync(join(directory, "events"))) {
+      // Read only published records, never an in-flight temporary sibling.
+      const failure = readMailboxEvents(directory).find(
+        ({ event }) => event.type === "CI_FAILURE",
+      );
+      if (failure) return failure.event;
     }
     await pause(20);
   }

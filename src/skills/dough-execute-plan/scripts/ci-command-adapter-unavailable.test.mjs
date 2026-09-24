@@ -31,7 +31,7 @@ function unavailableFixture(t, mode) {
   writeFileSync(
     adapter,
     `#!${process.execPath}
-import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
@@ -45,6 +45,8 @@ else if (mode === 'timeout' || mode === 'blocking') {
   writeFileSync(${JSON.stringify(pid)}, String(process.pid));
   setInterval(() => {}, 1000);
 } else if (request.operation === 'discover') {
+  const discoveries = readFileSync(${JSON.stringify(requests)}, 'utf8').split('\\n').filter((line) => line.includes('"discover"')).length;
+  if (mode === 'diagnose-fails-then-discovery-lost' && discoveries === 3) setInterval(() => {}, 1000);
   const first = !existsSync(${JSON.stringify(discovered)});
   writeFileSync(${JSON.stringify(discovered)}, '');
   process.stdout.write(JSON.stringify({ attempts: first ? [{ runId: 'known-run', attemptId: 'known-attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }] : [] }));
@@ -128,6 +130,30 @@ test("diagnostic failure preserves the known CI failure and names its gap", asyn
     "diagnose",
     "discover",
     "diagnose",
+  ]);
+});
+
+test("discovery loss after a diagnostic failure still preserves the known CI failure", async (t) => {
+  const { events, requests } = await observeUnavailable(
+    t,
+    "diagnose-fails-then-discovery-lost",
+  );
+  assert.deepEqual(
+    events.map(({ type }) => type),
+    ["CI_FAILURE", "CI_MONITOR_UNAVAILABLE"],
+  );
+  assert.equal(events[0].runId, "known-run");
+  assert.match(events[0].diagnostic.unavailable, /diagnostic/i);
+  const operations = readFileSync(requests, "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line).operation);
+  assert.deepEqual(operations, [
+    "discover",
+    "diagnose",
+    "discover",
+    "diagnose",
+    "discover",
   ]);
 });
 
