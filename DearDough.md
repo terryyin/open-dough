@@ -860,13 +860,7 @@ command text the agent is told to run, not via the launching shell's `PATH`.
     returned `gh` resolved to `/Users/terryyin/.nix-profile/bin/gh` (not the
     fixture stand-in) while `TOKEN=env-inherit-check-xyz` printed correctly;
     a follow-up `echo PATH=$PATH` inside the same kind of session showed a
-    fixed system `PATH` unrelated to the launching shell's. The plan's own
-    prior Slice 4 evidence
-    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`)
-    already worked around this by putting the `PATH=...` prefix inline on
-    the observer `start` command text itself, but did not record that this
-    was necessary because outer `PATH` does not propagate while other
-    environment variables do.
+    fixed system `PATH` unrelated to the launching shell's.
   - Observed effect: one extra diagnostic native session run to isolate
     which of `PATH` vs. arbitrary environment variables actually propagates,
     before the acceptance prompt was written with the `PATH=` prefix placed
@@ -908,6 +902,37 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     the triggering network instability recurred repeatedly this session, so
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
+
+## DD-095 — Claude Code managed delivery lacked session identity; a refused retry left a hidden observer
+
+Delivery without `--session-json` returned `pendingCi: unobserved`; no guidance
+names Claude Code's `$CLAUDE_CODE_SESSION_ID`. A retry for the accepted SHA was
+refused ("rebase left the pre-rebase SHA") after starting an unreported observer.
+
+### Occurrences
+
+- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+  - Timestamp: 2026-09-24T10:50:57+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.36
+  - Evidence: retry-created `watch-Vcl3dH` reused at 5650123; plus `watch-ljLxgl`.
+  - Observed effect: two observers for one branch until one was stopped.
+
+## DD-094 — A delegated agent's `git stash pop` applied another session's stash
+
+Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
+`git stash pop` applied an unrelated Codex session's stash; delegation is silent.
+
+### Occurrences
+
+- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+  - Timestamp: unknown; 2026-09-24 between e2a453e (10:40:49+08:00) and 647ff01
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.36
+  - Evidence: slice 1 implementation report; foreign `stash@{0}` still listed.
+  - Observed effect: four conflicted files restored; a clean pop drops the stash.
 
 ## DD-093 — Implementation and refactor agents were barred from lint the project has no hook for
 
@@ -970,6 +995,6 @@ waste.
 
 ## Retention
 
-- Highest allocated local number: 93
-- Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 95
+- Recovery: `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
