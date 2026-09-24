@@ -51,6 +51,18 @@ grep -Fq 'payload declared by that recorded release' "${skill}"
 grep -Fq 'Payload paths newly added by the release must be absent' "${skill}"
 grep -Fq 'all installed payload paths' "${skill}"
 
+# The updater's inspection boundary must permit every managed host-hook file.
+actual_hook_settings=$(sed -n '/managed host-hook settings they register/{n;s/.*(//;s/).*//;s/[`,]//g;s/ and / /g;p;}' "${skill}")
+expected_hook_settings=$(node --input-type=module -e '
+  const { HOSTS } = await import(process.argv[1]);
+  process.stdout.write(HOSTS.map((host) => host.relativePath).join(" "));
+' "${source_dir}/src/install/open-dough-register-hooks-fragments.mjs")
+if [[ "${actual_hook_settings}" != "${expected_hook_settings}" ]]; then
+  printf 'FAIL: updater permits host-hook settings %q; expected %q.\n' \
+    "${actual_hook_settings}" "${expected_hook_settings}" >&2
+  exit 1
+fi
+
 if grep -Eq '(two|both) (declared client payload|managed files|installed payload)' \
   "${skill}" "${guide}"; then
   echo 'FAIL: client-payload guidance contains a stale fixed-cardinality boundary.' >&2
