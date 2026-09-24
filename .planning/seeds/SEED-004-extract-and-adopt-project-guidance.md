@@ -175,5 +175,9 @@ until this native acceptance is satisfied.
 
 **Boundary:** This acceptance story does not reimplement the delivered guidance,
 refactor its native harness, release guidance, start the near-term watch, or
-change the dashboard and CI observer contracts. The separate retrospective
-correction is [plan 086](../quick/086-share-delivery-evidence-native-harness/PLAN.md).
+change the dashboard and CI observer contracts. A separate structure-only
+correction consolidated the four native run and fixture modules into
+`tests/support/delivery-evidence-native-run.sh` after the Cursor judgments were
+recorded, so their helper, fixture, and input-hash identities differ from the
+current harness; that correction is recoverable at
+`8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.

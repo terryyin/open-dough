@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep auto-refreshed snapshots truthful when detail reads are abandoned](quick/087-truthful-abandoned-detail-reads/PLAN.md)
-- [Share one delivery-evidence native harness for four cases](quick/086-share-delivery-evidence-native-harness/PLAN.md)
 
 ## Backlog list
 

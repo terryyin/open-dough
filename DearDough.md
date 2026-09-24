@@ -959,7 +959,7 @@ waste.
     `tests/support/delivery-evidence-{selection,claims,consumers,gaps}-native-*.sh`
     sets; plan 085 Proof approach said first slice creates the shared
     adaptation; retrospective correction plan
-    `.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
+    `8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
   - Observed effect: Four Behavior slices delivered acceptance mechanisms with
     Cursor native proof, but left shotgun run/fixture residue requiring a
     follow-up Structure correction before maintainable extension.
