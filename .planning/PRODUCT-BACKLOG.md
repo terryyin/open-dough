@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep branch progress observation robust and give its rules one home](quick/095-harden-branch-progress-observation/PLAN.md)
-
 ## Backlog list
 
 - [See when an execution has finished and what it learned before wrap-up](seeds/SEED-021-observe-published-story-progress.md#see-finished-execution) — SEED-021#see-finished-execution
