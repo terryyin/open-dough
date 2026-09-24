@@ -1,3 +1,9 @@
+## 0.3.36 - 2026-09-24
+
+- Correct the formatting of the startup checkout-refresh regression assertion so the release passes the repository lint gate. Product behavior is unchanged from `0.3.35`.
+
+No additional native acceptance was run for `0.3.36` at the maintainer's request. Newly changed native behavior from `0.3.35` and previously pending native requirements remain pending and are not reported as passing.
+
 ## 0.3.35 - 2026-09-24
 
 - Keep dashboard observations truthful when record-detail reads time out or are abandoned: show unread details as gaps, retain the standing failure until a replacement read succeeds, share browser/server read rules, and cancel owned `gh` work when its request closes.
