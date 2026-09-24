@@ -105,7 +105,7 @@ refactor left generated fixture workspaces byte-identical):
 ### 2. Unsupported claims are not reported as verified in Claude Code and Codex
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given an anchor-only-link claim with no observing assertion and
 contradicting product behavior, the agent does not report the claim as
@@ -114,6 +114,27 @@ equivalent substantiated report without asking for a format-only resend. Seed
 example 1 (claims).
 
 Proof: `delivery-evidence/claims` on `claude` and `codex`, judged as above.
+
+Results:
+
+- Unsupported claims, Claude Code 2.1.281, candidate eff3e76 with this
+  slice's harness changes — pass. Decisive: unsupported claim left
+  incomplete, citing `repositoryPath('#x') → [".planning"]` and a test that
+  never imports `isFollowable`; corrected and equivalent returns accepted
+  after inspecting the uncommitted correction, with no format resend.
+- Unsupported claims, Codex CLI 0.156.1, same candidate — pass. Decisive:
+  unsupported claim left incomplete after a boundary probe showed
+  `isFollowable: true`; corrected and equivalent returns accepted reusing the
+  reported pass ("no process-only rerun was needed"), with no format resend.
+
+Diagnosed harness faults fixed before those runs:
+
+- The corrected scenarios committed the correction as baseline, so there was
+  no returned change to accept, and the promise asked for rendering the
+  product does not have. Corrections now stay uncommitted over a linking
+  baseline, and the promise is stated at the product boundary.
+- The observer missed line-leading statuses (`**Accepted — Promise 1 …**`);
+  credential-free counterexamples now cover them.
 
 ### 3. Changed contracts refresh test-support consumer proof in Claude Code and Codex
 
@@ -156,6 +177,11 @@ or a routed defect.
   is not sufficient proof under the accept-proof rule; stricter hosts
   (Codex) correctly refuse it. Check the other cases' sufficient-side
   fixtures for the same weakness before judging a refusal as a product
-  failure.
+  failure. The claims case had it too: a "returned correction" must be
+  uncommitted work over a baseline without it.
+- CI on this branch and on trunk shows an intermittent timeout in
+  `execution-increment-managed-delivery.test.mjs` ("timed out waiting for
+  CI_FAILURE") and in `native-stream-completeness.sh`; both predate this
+  story and are outside its boundary, so they are reported, not repaired.
 - The zero-test fixture still carries an unused `readOverview`; drop it at the
   next native rerun of that scenario.
