@@ -303,3 +303,13 @@ authenticated-read read-failure project-read-recovery auto-refresh`
 - CI observer: GitHub Actions `ci.yml` / `CI`, mailbox
   `/tmp/dough-ci-501/watch-8XIK09`, target branch
   `claude/087-truthful-abandoned-detail-reads`.
+- CI run 35939708215 on `cc7798f` failed only
+  `auto-refresh-project-isolation.spec.ts` "a deselected project's late
+  detail read never lands in the newly selected project's view or schedule":
+  a detail read of A sent before the project switch was logged by the fake
+  GitHub after `atSwitch` on a slow runner. The race predates this execution
+  (it failed the same way with slice 1 undone under a simulated slow start),
+  but stable auto-refresh proof is this correction's outcome, so the repair
+  waits for all of A's detail reads before the switch. Proof: with a slow
+  059 read simulated, the old spec failed and the fixed one passed;
+  `--repeat-each=20` 40 passed; `npm run test:dashboard` 89 passed.
