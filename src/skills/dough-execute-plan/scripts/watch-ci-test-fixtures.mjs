@@ -86,15 +86,19 @@ export function writeBlockingGithubListCommand(bin) {
   writeFileSync(
     join(bin, "gh"),
     `#!${process.execPath}
+(async () => {
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;
+const { guardFixtureProcess } = await import(${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)});
+guardFixtureProcess(root);
 process.on('SIGTERM', () => {
   fs.writeFileSync(path.join(root, 'github-request-stopped'), '');
   process.exit(0);
 });
 fs.writeFileSync(path.join(root, 'github-request-started'), '');
 setInterval(() => {}, 1000);
+})();
 `,
     { mode: 0o700 },
   );

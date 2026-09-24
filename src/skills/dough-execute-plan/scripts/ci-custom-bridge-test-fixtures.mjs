@@ -49,18 +49,15 @@ export async function createCustomBridgeFixture() {
   writeFileSync(
     adapter,
     `#!${process.execPath}
-import { appendFileSync, existsSync, readFileSync, watch } from 'node:fs';
+import { appendFileSync } from 'node:fs';
+import { guardFixtureProcess, waitForFixtureRelease } from ${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)};
+guardFixtureProcess(${JSON.stringify(fixture)});
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync(${JSON.stringify(calls)}, JSON.stringify(request) + '\\n');
 if (request.operation === 'discover') {
-  if (!existsSync(${JSON.stringify(release)})) await new Promise(resolve => {
-    const watcher = watch(${JSON.stringify(fixture)}, () => {
-      if (existsSync(${JSON.stringify(release)})) { watcher.close(); resolve(); }
-    });
-    if (existsSync(${JSON.stringify(release)})) { watcher.close(); resolve(); }
-  });
+  await waitForFixtureRelease(${JSON.stringify(release)});
   process.stdout.write(JSON.stringify({ attempts: [{
     runId: ${JSON.stringify(runId)}, attemptId: ${JSON.stringify(attemptId)},
     sha: ${JSON.stringify(failedSha)}, outcome: 'failure', url: 'https://ci.example.test/run/opaque'

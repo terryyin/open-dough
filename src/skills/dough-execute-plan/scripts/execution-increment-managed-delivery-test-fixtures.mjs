@@ -64,18 +64,15 @@ function writeAdapter(fixture, releasePath, callsPath) {
   writeFileSync(
     adapter,
     `#!${process.execPath}
-import { appendFileSync, existsSync, readFileSync, watch } from 'node:fs';
+import { appendFileSync, readFileSync } from 'node:fs';
+import { guardFixtureProcess, waitForFixtureRelease } from ${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)};
+guardFixtureProcess(${JSON.stringify(fixture)});
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync(${JSON.stringify(callsPath)}, JSON.stringify(request) + '\\n');
 if (request.operation === 'discover') {
-  if (!existsSync(${JSON.stringify(releasePath)})) await new Promise(resolve => {
-    const watcher = watch(${JSON.stringify(fixture)}, () => {
-      if (existsSync(${JSON.stringify(releasePath)})) { watcher.close(); resolve(); }
-    });
-    if (existsSync(${JSON.stringify(releasePath)})) { watcher.close(); resolve(); }
-  });
+  await waitForFixtureRelease(${JSON.stringify(releasePath)});
   const release = JSON.parse(readFileSync(${JSON.stringify(releasePath)}, 'utf8'));
   process.stdout.write(JSON.stringify({ attempts: release.attempts }));
 } else {
