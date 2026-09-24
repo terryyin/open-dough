@@ -883,8 +883,81 @@ waste.
     across slices; per-slice post-change refactor could not see the later clones
     as one concept until aggregate review.
 
+## DD-094 — Claude Code managed delivery needs a session identity no guidance tells the coordinator to supply
+
+`execution-increment-delivery.mjs deliver` returns `pendingCi: unobserved`
+("host session identity is required to verify the notification bridge") on
+Claude Code unless `--session-json` carries the session ID. Execute-plan's
+delivery, trunk-publication, and ci-notify-hosts references do not say that
+this is required or where it comes from (`CLAUDE_CODE_SESSION_ID`).
+
+### Occurrences
+
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Timestamp: unknown (first delivery, 2026-09-24 after 11:56+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: first delivery receipt for `eff3e76` said `observation.state:
+    unobserved` with the reason above; re-delivery with the same base refused
+    ("rebase left the pre-rebase SHA as the candidate"); explicit
+    `ci-mailbox.mjs start` + `register-push` attached it; later deliveries
+    with `--session-json '{"session_id":"$CLAUDE_CODE_SESSION_ID"}'` attached
+    and reused the observer.
+  - Observed effect: slice 1 went briefly unobserved and needed a
+    source-code search to recover; later slices were observed.
+  - Inference: A fresh Claude coordinator following only the references will
+    leave every increment unobserved. Relevant to
+    `SEED-008#accept-execution-ci-native-behavior`.
+
+## DD-095 — Native acceptance fixtures' sufficient side was not credible, and each case paid a failed run to learn it
+
+In three of the four delivery-evidence cases, the scenario meant to show
+sufficient proof proceeding was not credibly sufficient. It used
+marker-string products, committed the "returned" correction in the baseline,
+or made a promise the product did not meet. Stricter hosts rightly refused.
+The plan allowed test-support fixes only after a run diagnosed a fault, so the
+known fault class was rediscovered with a paid failing run per case.
+
+### Occurrences
+
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Timestamp: unknown (2026-09-24, slices 1, 2, and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: plan 089 slice results (selection: Codex refused marker flags;
+    claims: Claude "There's no uncommitted work"; gaps: Claude showed `push`
+    contradicts "put back first"). Observer layout misses cost further
+    reruns in slices 1–3.
+  - Observed effect: at least one failed native run per slice before a
+    pass. Cursor's earlier acceptance ran on the weaker fixtures.
+  - Inference: A pre-run review of each case's sufficient side against the
+    accept-proof rule, allowed as fixture preparation, would likely have saved
+    most of those runs. Useful practice: an offline byte-identical fixture
+    comparison kept the native evidence valid through each refactor.
+
+## DD-096 — Coordinator published a commit after the formatter failed
+
+The coordinator chained the formatter and commit with `;`, not `&&`. It
+committed and pushed a change that failed ShellCheck, even though wrap-up
+says formatting must succeed before staging.
+
+### Occurrences
+
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Timestamp: 2026-09-24T12:22:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: slice 2 command printed `fmt=1` then committed `c33dbea`; CI
+    `lint` failed with SC2016; repair `0662ed2` passed.
+  - Observed effect: one extra commit, push, and failed CI run.
+  - Inference: A one-off coordinator error, not a guidance gap; gate
+    commands with `&&`.
+
 ## Retention
 
-- Highest allocated local number: 93
+- Highest allocated local number: 96
 - Recovery: `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
