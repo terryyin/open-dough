@@ -20,6 +20,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Follow a story's progress on its published execution branch](seeds/SEED-021-observe-published-story-progress.md#follow-published-story-branch) — SEED-021#follow-published-story-branch
 - [See when an execution has finished and what it learned before wrap-up](seeds/SEED-021-observe-published-story-progress.md#see-finished-execution) — SEED-021#see-finished-execution
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
+- [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
