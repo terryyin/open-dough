@@ -288,8 +288,10 @@ one shared file.
   is listed as unreadable without being matched to any entry. Decorative
   identity marks sit beside their own text labels: the agent's portrait beside
   its name, the mode symbol beside the mode, and the host tool's mark beside
-  the host. Text alone carries each fact; no mark is drawn for an unrecorded
-  or unreadable fact, and no mark implies that an agent is present or active.
+  the host. Hovering the portrait shows it larger in place, over the card,
+  without moving the owner line. Text alone carries each fact; no mark is
+  drawn for an unrecorded or unreadable fact, and no mark implies that an
+  agent is present or active.
 
 ### Future messaging and handover
 
