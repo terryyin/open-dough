@@ -759,6 +759,16 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: nothing went unobserved, but three extra commands
     reading source were needed to find the field.
 
+- Execution: `SEED-008#useful-startup-output` / plan 100, first related implementation commit `075e955`
+  - Timestamp: 2026-09-25T19:11:03+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: first delivery `unobserved` ("host session identity is required");
+    a retry with `CLAUDE_CODE_SESSION_ID` was refused (exit 2) yet left
+    `watch-KU7jG9` running beside the manually started `watch-pgkPLM`.
+  - Observed effect: again a hidden duplicate observer, found only by the retrospective.
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -963,6 +973,14 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     the index fields again held the listings.
   - Observed effect: one extra command stripped the index fields to read the
     receipt; a fourth startup occurrence.
+
+- Execution: `SEED-008#useful-startup-output` / plan 100, first related implementation commit `075e955`
+  - Timestamp: 2026-09-25T18:47:27+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: Take `5fdeb4c` receipt, 236,870 bytes; this execution replaces it.
+  - Observed effect: one extra command stripped the listings before setup.
 
 ## Retention
 

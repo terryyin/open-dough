@@ -210,6 +210,18 @@ consumption semantics. Prefer one slice. If execution exposes a separate claim
 ownership defect, new persistence need, or unrelated publication redesign, retain
 the evidence and reassess the story rather than growing this slice silently.
 
+## Execution complete
+
+Product advice: Wrap-up should (1) give the compact-start native acceptance
+obligation a durable ADR 0005 home before release, for example folded into plan
+098's fresh native Claude runs, with Codex/Cursor fresh or justified reuse;
+(2) decide whether the ODF-092 refused retry that leaves a hidden observer joins
+`SEED-008#attach-first-claude-publication` (currently excluded) or needs its own
+story; (3) note this background-job run as partial evidence for
+`SEED-008#claude-code-background-mode`; (4) place correction plan
+[101](../101-startup-readiness-proof-consolidation/PLAN.md) in the backlog. No
+change to other queued stories.
+
 ## Preparation review and learnings
 
 Refinement is complete: no unresolved beneficiary, scope, information-value, or
