@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#405551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <title>Story Branch Mode</title>
+  <path d="M6 6v12M6 14c0-3.3 2.7-6 6-6h5"/>
+  <circle cx="6" cy="4" r="2" fill="#f6f6f3"/>
+  <circle cx="6" cy="20" r="2" fill="#f6f6f3"/>
+  <circle cx="19" cy="8" r="2" fill="#f6f6f3"/>
+</svg>

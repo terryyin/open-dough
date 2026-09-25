@@ -33,3 +33,11 @@ The Codex documentation uses the OpenAI icon; refinement found no separate
 downloadable Codex mark from an official source. Keep the `Codex` text label
 visible so this generic vendor mark is unambiguous. Consult the vendors'
 current brand guidance before replacing these assets.
+
+## Execution mode symbols
+
+`mode-icons/trunk.svg` and `mode-icons/story-branch.svg` are original, simple
+line symbols designed for this story. The straight line represents Trunk Mode;
+the line diverging from a trunk represents Story Branch Mode. Place each
+beside its mode name, never in place of that text. Both have a 24 × 24 viewBox
+and use the dashboard's quiet dark-green stroke on its card background.
