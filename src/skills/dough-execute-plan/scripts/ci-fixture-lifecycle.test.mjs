@@ -75,7 +75,8 @@ for (const kind of ["github", "adapter"]) {
         const { spawn } = require('node:child_process');
         const child = spawn(process.execPath, ${JSON.stringify(command)}, { stdio: ['pipe', 'ignore', 'ignore'] });
         child.stdin.end(JSON.stringify({ operation: 'discover' }));
-        console.log(child.pid);
+        // Raw write: console.log colors numbers when FORCE_COLOR is set.
+        process.stdout.write(child.pid + '\\n');
         setInterval(() => {}, 1000);
       `,
           ],
