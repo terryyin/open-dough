@@ -271,7 +271,13 @@ correction plan.
 ### 4. Wrap-up uses the product advice recorded in the plan
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted: wrap-up's inputs include the plan's recorded product advice; "Apply
+product-review decisions" uses it when the conversation has none, a recorded
+skip is a skipped review, and human input wins; completion-commit records
+need no second commit; the plan is still deleted
+(`execution-completion-record-guidance.test.mjs`, 3 wrap-up tests, 10 total;
+related guidance tests and install payload scripts green).
 Proof: assertions in the same guidance test file over
 `src/skills/dough-story-wrap-up/SKILL.md`:
 - the inputs list includes the plan's recorded product advice;

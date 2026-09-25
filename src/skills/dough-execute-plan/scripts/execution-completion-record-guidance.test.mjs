@@ -11,6 +11,7 @@ const finish = read("dough-execute-plan/references/finish-or-stop.md");
 const monitor = read("dough-execute-plan/references/ci-monitor.md");
 const planning = read("dough-story-refinement/references/planning.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
+const wrapUp = read("dough-story-wrap-up/SKILL.md");
 
 // A section ends at the next `## ` heading outside a fenced example.
 const section = (text, heading) => {
@@ -118,5 +119,44 @@ test("the invoking execution, not wrap-up, commits the retrospective's records",
   assert.match(
     retrospective,
     /do not implement, commit, push, or change the backlog/,
+  );
+});
+
+test("wrap-up takes the plan's recorded product advice as input", () => {
+  assert.match(
+    section(wrapUp, "## Resolve this project's context"),
+    /the product advice in the plan's \[execution-complete record\]\(\.\.\/dough-execute-plan\/references\/finish-or-stop\.md#record-execution-completion\)/,
+  );
+});
+
+test("wrap-up applies the recorded advice when the conversation has none, and human input wins", () => {
+  const apply = section(wrapUp, "## Apply product-review decisions");
+  assert.match(
+    apply,
+    /apply only authorized\s+compatible backlog and canonical-home changes/,
+  );
+  assert.match(
+    apply,
+    /Without retrospective advice in the\s+conversation, as in a fresh session, use the plan's recorded product advice/,
+  );
+  assert.match(apply, /Explicit human input wins over either advice\./);
+});
+
+test("wrap-up does not recommit the completion commit's records and still deletes the plan", () => {
+  const commit = section(
+    wrapUp,
+    "## Commit closure inputs and preserve Git recovery",
+  );
+  assert.match(
+    commit,
+    /Commit all uncommitted owned review and closure-input changes/,
+  );
+  assert.match(
+    commit,
+    /Records the execution already committed in its\s+\[completion commit\]\(\.\.\/dough-execute-plan\/references\/finish-or-stop\.md#record-execution-completion\)\s+need no second commit\./,
+  );
+  assert.match(
+    section(wrapUp, "## Delete spent history, including shared records"),
+    /its executable plan and owned proof[\s\S]+even\s+when the plan was retained or carries its execution-complete record;/,
   );
 });
