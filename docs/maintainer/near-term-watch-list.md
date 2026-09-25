@@ -1,7 +1,7 @@
 # Near-term watch list
 
 Internal Open Dough findings with released responses and verified relevant use.
-Assessed on 2026-09-23 (Asia/Singapore) against the three current DearDough logs.
+Assessed on 2026-09-25 (Asia/Singapore) against the three current DearDough logs.
 Codes remain allocated; consult [finding names](finding-names.md) and Git history
 before matching or allocating identities. Silence is not proof of effectiveness.
 Released responses without a supported relevant-use date remain active in the
@@ -173,5 +173,47 @@ record-maintenance review.
 - **Released in:** 0.3.27; first containing tag v0.3.27, verified against the helper and all three caller diffs.
 - **Watch start:** 2026-09-21, isolated use of released v0.3.27 through Doughnut's skill symlink, reported in ownership review `2381cf9e60:DearDough.md`; receipt CI_OBSERVER observed. This is boundary exercise, not installation into Doughnut.
 - **Review after:** 2026-09-28.
-- **Last assessed:** 2026-09-23 (Asia/Singapore); all three current logs checked. Historical executions retain their reported modified/unknown releases. The distinct missing-directory problem ODF-085 remains active. The normal-ended observer report ODF-089 occurs after startup and is also a different mechanism. Review is not due until September 28. No supported post-v0.3.27 recurrence of this guard failure is present.
+- **Last assessed:** 2026-09-25 (Asia/Singapore); all three current logs checked. Historical executions retain their reported modified/unknown releases. The distinct missing-directory problem ODF-085 remains active. The normal-ended observer report ODF-089 occurs after startup and is also a different mechanism. Review is not due until September 28. No supported post-v0.3.27 recurrence of this guard failure is present.
 - **Evidence note:** The 2026-09-21 ownership review reproduced the failure with unchanged installed v0.3.26, verified no custom CI adapter/observer override, then obtained exit 0 plus CI_OBSERVER with the isolated released v0.3.27 runtime. This review is boundary evidence, not a fifth Doughnut execution occurrence.
+
+## ODF-066 — Unpublished Story Branch claims block shared integration
+
+- **Meaning:** An instruction to leave the Taken claim unpublished blocks another execution on shared main and makes origin-based progress stale.
+- **Source mappings:** Open Dough / DD-064
+- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). be94345 publishes claims before workspace creation and f699e60 recovers observed publication state; first containing tag v0.3.27. The formerly queued SEED-008#publish-shared-backlog-claims is completed, not still queued; recoverable at f699e60:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md.
+
+### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Source: Open Dough / DD-064; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-20T07:49:42+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Claim commit `beafc8d`. `SEED-008#publish-shared-backlog-claims`
+    records that plan 62's Trunk Mode publication stopped on it until the owner
+    pushed it; `git branch -r --contains beafc8d` now lists `origin/main`.
+    This execution's reports kept describing the claim as local only, including
+    after the interruption recovery, which verified the execution checkout but
+    not the integration branch's publication state.
+  - Observed effect: Another execution was blocked until a human intervened,
+    and the dashboard built here showed this story as Backlog priority 1 on the
+    real origin while it was being executed. Follow-up is already queued first
+    in the backlog as `SEED-008#publish-shared-backlog-claims`.
+  - Inference: Follows the current instruction rather than breaking it. The
+    stale "local only" reports are a separate, smaller gap: retained execution
+    identity is rechecked for the execution branch, not for the claim.
+
+
+- **Response assessment (2026-09-21):** Response released in 0.3.27: be94345 (claim publication) and f699e60 (observed-state recovery). Completed source work is not queued again. Watch start/review-after unknown: no verified use of released claim publication is supplied; earlier implementation exercises are not adoption of the released payload.
+
+- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
+
+- **Response assessment (2026-09-23):** `be94345` and `f699e60`, first released in v0.3.27, required publication before implementation and observed-state resume. Current startup work (`194617b`, `1a63c0c`, `6f5d0ef`) supplies the command and removes its superseded runner; no tag contains these changes yet. Native acceptance is now Taken with recorded host gaps. The original v0.3.26 occurrence does not prove post-fix recurrence. Watch start/review-after remain unknown for the complete accepted native outcome.
+
+- **Status:** Near-term watch; no supported recurrence of unpublished Story Branch claims.
+- **Response:** `be94345` and `f699e60` publish and recover claims, first released in v0.3.27; `194617b`, `1a63c0c`, and `6f5d0ef` supply/reconcile the shared startup operation in v0.3.33. Tagged source and implementation diffs verified. The historical September 23 pending-release note above is superseded.
+- **Released in:** 0.3.27 (initial response); 0.3.33 (shared startup operation).
+- **Watch start:** 2026-09-24 (date-only), verified use of released v0.3.33 startup in Doughnut plan 022 / `70b3b67313`; source DD-108 records the claim receipt and its `publishedSha`/workspace/preparation fields. Open Dough plan 092 on v0.3.38 additionally records Take `1443c42` at 2026-09-24T20:27:08+08:00. These are actual startup uses, not inferred adoption from a release date.
+- **Review after:** 2026-10-01 (Asia/Singapore).
+- **Last assessed:** 2026-09-25 (Asia/Singapore); all three current logs checked, including queued startup receipts retained under ODF-099. Receipts are evidence of startup use; they do not certify every concurrency/refusal boundary. Native acceptance is separately recorded in SEED-008. No supported recurrence of an unpublished claim; the separate oversized-receipt problem remains active.

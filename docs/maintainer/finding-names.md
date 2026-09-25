@@ -19,71 +19,7 @@ Each allocated finding keeps these identity fields:
 - **References:** compact evidence or change locators used for the naming
   decision
 
-The heading carries the code as `## ODF-NNN — <short title>`.
-
-### Retained evidence
-
-Under the same ODF heading, reuse the process log's occurrence shape, adding
-source attribution:
-
-```markdown
-### Occurrences
-
-- Execution: <stable execution identity>
-  - Timestamp: <supplied ISO 8601 occurrence time with timezone | unknown>
-  - Source: <source project / supplied code; source occurrence locator>
-  - Tool: <executing tool>
-  - Model: <when supplied>
-  - Open Dough release: <version | unknown | unreleased | modified; supplied revision/base>
-  - Evidence: <compact decisive references>
-  - Observed effect: <what the supplied record shows>
-  - Inference: <qualified cause, cost, confidence, unknowns or counterevidence, when relevant>
-```
-
-Retain the supplied occurrence timestamp on every new row; use `unknown` when
-it is absent. Never substitute reconciliation time. Preserve timestamps on
-replay and complete unknown timestamps only from newly supplied evidence;
-timestamps do not change occurrence identity. Older rows without timestamps
-remain valid and do not require migration on replay.
-
-Preserve supplied execution and revision provenance; unknown stays unknown.
-Do not substitute today's checkout, installed version, or reviewing tool. Keep
-observations separate from inferences and retain consequential uncertainty.
-If execution identity or executing tool is missing, retain the supplied evidence
-and limitation as an **Evidence note**, without inventing a countable occurrence.
-Naming references alone are not occurrence evidence.
-
-Within an identity, the same source project and execution identify one
-occurrence; source-code adoption or another symptom does not add one. A distinct
-supported execution adds one row. Identical replay leaves the entry byte-identical;
-merge only newly supplied decisive evidence into an existing row or note. When
-missing provenance becomes available, complete that evidence rather than duplicate
-it. Keep uncertain matches under their separately resolved identity. Rows are
-the visible count; add no redundant total or inferred recurrence.
-
-An optional **Follow-up** records an explicitly selected disposition or linked
-story under [triage-retrospective-findings](../../.agents/skills/triage-retrospective-findings/SKILL.md).
-Ranking alone leaves this catalog unchanged. Preserve identity fields, evidence,
-and unrelated notes when recording authorized follow-up.
-
-For an implemented response, optionally record **Status**, **Response**, and
-**Released in** under that finding. Use “Addressed in source; effectiveness
-unverified” until real-use evidence supports a narrower conclusion. Describe
-what changed and retain the implementation commit and a recoverable
-`commit:path` for a cleaned-up story or plan. These references support ongoing
-finding assessment and survive story cleanup. Record the containing release
-when known; pending release or feedback from an older installation does not
-establish recurrence after the response. On new feedback, compare the supplied
-release and failure mechanism before updating the status; silence is not proof
-of effectiveness. Keep this maintainer-only; no project notification is required.
-
-Findings with released responses and no recorded post-fix recurrence are in the
-[near-term watch list](near-term-watch-list.md). Their ODF codes remain allocated;
-consult both lists when matching findings or allocating identities.
-
-## Findings
-
-## ODF-001 — Mixed execution changes obscure commit provenance
+The heading carries the code as `## ODF-001 — Mixed execution changes obscure commit provenance
 
 - **Meaning:** Committing an execution outcome together with separately described cleanup obscures that execution's review scope and attribution.
 - **Source mappings:** Open Dough / DD-001
@@ -153,6 +89,30 @@ consult both lists when matching findings or allocating identities.
     a fixed-file contract. Qualified: this project's own file-size refactor
     check does not name checking for such tests, so the omission is
     consistent with an unnamed check rather than a skipped one.
+
+- Execution: `SEED-008#script-driven-ci-observation @ 02991a5`
+  - Source: Open Dough / ODF-003; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-23T16:30:28+08:00
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: modified; revision 02991a5ac64708f7ad7300b1ffee115647c66780; base 0.3.32
+  - Evidence: Slice 1 (`02991a5`) rewrote `references/ci-monitor.md` for managed
+    delivery and, under the 250-line bound, shortened the contract phrase to
+    "The completion boundary below is the only routine CI wait", dropping
+    `execution/review`. `ci-supported-host-contract.test.mjs` requires the full
+    phrase. Earlier branch runs `35837536383` (`02991a5`) and `35840027069`
+    (`493187c`) cancelled the `test` job after dashboard failure, so the
+    contract miss surfaced only on `35842317799` (`ddcabcb`); repair `04791a7`
+    restored the exact wording and that run's `test` job passed.
+  - Observed effect: An avoidable repair commit and delayed detection of a
+    guidance-contract regression while unrelated dashboard CI already failed.
+  - Inference: Third recurrence against the same contract suite: prose rewrite
+    for a delivery behavior change treated Markdown as free-form guidance rather
+    than tracing changed phrases to `ci-supported-host-contract.test.mjs`.
+    Fail-fast cancellation of `test` after dashboard failure further deferred
+    discovery; qualified as amplifying, not inventing, the miss.
+
+- **Assessment (2026-09-25):** Current guidance assessed at 7e17cba: the new modified 02991a5/base 0.3.32 occurrence repeats file-type-based proof omission. Earlier phrase repairs 2272133/7217999 repaired examples, not the general selection mechanism; no demonstrated correction separates this occurrence.
 
 ## ODF-009 — Deep managed worktrees exceed project-local socket limits
 
@@ -237,6 +197,8 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Assessment (2026-09-23):** The `3446f62` response and first containing v0.3.14 were reverified. No later environmental-premise reassessment with sufficient execution provenance establishes relevant use. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
+
+- **Assessment (2026-09-25):** Reverified 3446f62 and first containing v0.3.14 against the reassessment diff. No supported later exercise of environmental-premise reassessment. Watch start and review-after unknown; not eligible for retirement. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-015 — Diagnostic transport was not validated before failure reruns
 
@@ -433,6 +395,8 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Assessment (2026-09-23):** The v0.3.14 response failed on the supplied v0.3.18 optimization execution. The revised `b39f967` response first ships in v0.3.25; no supplied later decisive optimization checkpoint establishes exercise of that revision. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
+
+- **Assessment (2026-09-25):** Reverified 3446f62/v0.3.14 and b39f967/v0.3.25 against both decision and optimization guidance. The first response failed on v0.3.18; no supported later decisive checkpoint proves use or failure of the revised response. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-024 — Packaged demo invocation loses approved host isolation
 
@@ -845,6 +809,8 @@ consult both lists when matching findings or allocating identities.
 
 - **Assessment (2026-09-21):** 89728cb first-containing tag v0.3.18 and the unchanged no-op-wait rule reverified. The same Pygardon v0.3.18 plan-132 report remains confirmed post-response recurrence; its replay adds no occurrence.
 
+- **Assessment (2026-09-25):** 89728cb first ships in v0.3.18 and explicitly bars no-op waits; the retained Pygardon v0.3.18 report is a confirmed post-response recurrence. No newer demonstrated correction or watch start. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
 ## ODF-040 — Implementation delegation bypasses coordinator delivery review
 
 - **Meaning:** A delegated implementer commits and pushes changes and plan delivery notes before the coordinator performs the required review and refactor gates.
@@ -879,6 +845,8 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Assessment (2026-09-21):** Existing-rule preservation was not a corrective implementation. Keep active; no released new response or watch start is established.
+
+- **Assessment (2026-09-25):** The earlier response preserved an existing no-publication rule rather than implementing a new fix. No whole-finding watch starts from that assessment. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-042 — Coordinator filtering omits representation migration sites
 
@@ -1043,6 +1011,8 @@ consult both lists when matching findings or allocating identities.
 
 - **Assessment (2026-09-23):** `4fa48f0` / v0.3.24 remains the concrete common-Git-directory response. No new native cross-worktree READY observation with adequate provenance was found. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
+- **Assessment (2026-09-25):** Reverified 4fa48f0/v0.3.24: same-common-directory receipt admission, not owner-hash normalization. ODF-103 is the latter, a distinct Claude managed-delivery mechanism repaired in 50b6d71/v0.3.38. No verified native Cursor exercise establishing a watch start; review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
 ## ODF-054 — Delegated implementers edit coordinator-owned plans
 
 - **Meaning:** Delegated implementation agents modify the active PLAN.md even though the coordinator owns plan status and evidence, creating avoidable re-ownership work before delivery.
@@ -1126,6 +1096,8 @@ consult both lists when matching findings or allocating identities.
 
 - **Assessment (2026-09-23):** `da64969` / v0.3.26 repairs the report and adds assertions for all named outputs. No supplied later real merge-report observation establishes relevant use. All three current logs checked. Watch start and review-after remain unknown; no age-based retirement.
 
+- **Assessment (2026-09-25):** Reverified da64969/v0.3.26 report and transition assertions. No supported later real merge-report observation establishes relevant use; watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
 ## ODF-059 — Interrupted delegated edits return no usable handoff
 
 - **Meaning:** A host-terminated refactor agent leaves changes without a report, requiring recovery from the actual diff and unresolved proof.
@@ -1183,6 +1155,24 @@ consult both lists when matching findings or allocating identities.
     as a case, so a coordinator has no documented default (retry once, revert
     the partial edit, or complete it directly) and must improvise from raw
     diff inspection every time this occurs.
+
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Source: Open Dough / ODF-059; canonical DearDough.md occurrence
+  - Timestamp: unknown (after the CI repair return, before commit `ff33cb8`
+    at 2026-09-24T17:46:32+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: the CI-repair refactor agent's only notification said it had
+    stopped with its own background work still running and had not reported;
+    `ps` then showed no `node --test`, and `TaskStop` found no task. The
+    coordinator kept waiting until the developer said "it seems to be staying
+    here for quite some time."
+  - Observed effect: repair `ff33cb8` shipped on the coordinator's own reruns
+    without a refactor report (compare ODF-062); slice 6's refactor, told to
+    run tests only in the foreground with timeouts, reported normally.
+
+- **Assessment (2026-09-25):** Current guidance assessed at 7e17cba: v0.3.25..HEAD delegation/return history still provides no reportless host-termination recovery outcome. The v0.3.37 report adds a distinct execution; the v0.3.18 own-verification rule is not a demonstrated correction of this termination case.
 
 ## ODF-060 — New payload references omit required declarations
 
@@ -1286,6 +1276,8 @@ consult both lists when matching findings or allocating identities.
 - **Response assessment (2026-09-23):** `b6f9515`, first released in v0.3.26, declared only the earlier identity reference; it did not remove the general omission mechanism. `8e6c41d` later extracted finish-or-stop without its declaration, still absent in v0.3.27. The Pygardon v0.3.27 reports therefore retain this identity as continuing declaration failures after a file-specific repair, not reintroduction after a general correction. `128b404`, first containing tag v0.3.28, declares finish-or-stop and other migrated modules; Pygardon adoption `2320a171b` on 2026-09-22 restored that file. The third reported execution release remains unknown. Concrete missing files are repaired; prevention of the general authoring omission remains unverified, so no whole-finding watch starts.
 - **Retained source detail:** Pygardon ownership review dated 2026-09-23 verified v0.3.27 source/manifest mismatch and classified the earlier failures as shared payload defects, while confirming current installed copies contain the restored file.
 
+- **Assessment (2026-09-25):** b6f9515/v0.3.26 and 128b404/v0.3.28 repair named payload omissions. The retained v0.3.27 missing finish-or-stop reports follow the first file-specific repair; neither commit establishes general prevention. No whole-finding watch. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
 ## ODF-061 — Shell assertions pass without enforcing their conditions
 
 - **Meaning:** Bare shell assertions under the observed bash 3.2 errexit behavior silently pass locally and fail without diagnostics in Linux CI.
@@ -1356,6 +1348,8 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Response assessment (2026-09-21):** 8570064/v0.3.26 repairs one assertion site. The broader 27-file report and independent install-ci-host-hooks failure are not established resolved; no general response watch is started.
+
+- **Assessment (2026-09-25):** 8570064/v0.3.26 explicitly fails the installed-link assertion. Its scope does not establish a correction of every shell assertion or the separate hook-fixture failure. No whole-finding watch. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-062 — CI repair delivery skips independent refactoring
 
@@ -1439,6 +1433,30 @@ consult both lists when matching findings or allocating identities.
     the omission was a stated judgment, so the match is uncertain and this is
     recorded separately.
 
+- Execution: `SEED-026#auto-refresh-published-dashboard @ dcb0944`
+  - Source: Open Dough / ODF-064; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-23T21:43:00+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.30
+  - Evidence: Plan 084 slice 4, commit `7eda3d7` (timestamp is that delivery
+    commit). The refactor pass returned `## REFACTOR COMPLETE` and reported an
+    alert misstatement it did not fix. The coordinator itself changed
+    `dashboard/src/publishedObservation.ts` and added a step to
+    `dashboard/tests/auto-refresh-rate-limit.spec.ts`, proved it with a
+    mutation, and delivered without a second refactor pass or returning it to
+    an implementation agent. Slice 3 (`5cc80b0`) likewise delivered a
+    coordinator-made `refresh.spec.ts` race fix after its refactor pass.
+  - Observed effect: The post-pass behavior change and test change were
+    reviewed only by the coordinator; the later retrospective then found
+    `publishedObservation.ts` at 257 lines, over the refactor size limit.
+  - Inference: Same gap as the first occurrence: `references/wrap-up.md`
+    names one pass and is silent on post-pass corrections, so a coordinator
+    fix is easy to deliver unrefactored. Qualified: the size overrun is one
+    consequence observed; no defect is attributed.
+
+- **Assessment (2026-09-25):** Current guidance assessed at 7e17cba: relevant wrap-up/delegation history from v0.3.26 retains the one-pass delivery sequence while adding proof acceptance rules; no demonstrated correction of the post-pass correction trigger separates the v0.3.30 occurrence. Retain one identity and the observed size consequence without inventing a product defect.
+
 ## ODF-065 — Dead CI workers remain reported as attached
 
 - **Meaning:** Push receipts and host attachment messages outlive the observing worker, hiding lost coverage until shutdown.
@@ -1481,40 +1499,7 @@ consult both lists when matching findings or allocating identities.
 
 - **Assessment (2026-09-23):** No recorded later crash exercise establishes a watch start; ODF-089 is a normal terminal result, not a recurrence of worker-loss detection. Watch start and review-after: unknown; excluded from age-based retirement.
 
-## ODF-066 — Unpublished Story Branch claims block shared integration
-
-- **Meaning:** An instruction to leave the Taken claim unpublished blocks another execution on shared main and makes origin-based progress stale.
-- **Source mappings:** Open Dough / DD-064
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). be94345 publishes claims before workspace creation and f699e60 recovers observed publication state; first containing tag v0.3.27. The formerly queued SEED-008#publish-shared-backlog-claims is completed, not still queued; recoverable at f699e60:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md.
-
-### Occurrences
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Source: Open Dough / DD-064; canonical DearDough.md occurrence
-  - Timestamp: 2026-09-20T07:49:42+08:00
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Claim commit `beafc8d`. `SEED-008#publish-shared-backlog-claims`
-    records that plan 62's Trunk Mode publication stopped on it until the owner
-    pushed it; `git branch -r --contains beafc8d` now lists `origin/main`.
-    This execution's reports kept describing the claim as local only, including
-    after the interruption recovery, which verified the execution checkout but
-    not the integration branch's publication state.
-  - Observed effect: Another execution was blocked until a human intervened,
-    and the dashboard built here showed this story as Backlog priority 1 on the
-    real origin while it was being executed. Follow-up is already queued first
-    in the backlog as `SEED-008#publish-shared-backlog-claims`.
-  - Inference: Follows the current instruction rather than breaking it. The
-    stale "local only" reports are a separate, smaller gap: retained execution
-    identity is rechecked for the execution branch, not for the claim.
-
-
-- **Response assessment (2026-09-21):** Response released in 0.3.27: be94345 (claim publication) and f699e60 (observed-state recovery). Completed source work is not queued again. Watch start/review-after unknown: no verified use of released claim publication is supplied; earlier implementation exercises are not adoption of the released payload.
-
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
-
-- **Response assessment (2026-09-23):** `be94345` and `f699e60`, first released in v0.3.27, required publication before implementation and observed-state resume. Current startup work (`194617b`, `1a63c0c`, `6f5d0ef`) supplies the command and removes its superseded runner; no tag contains these changes yet. Native acceptance is now Taken with recorded host gaps. The original v0.3.26 occurrence does not prove post-fix recurrence. Watch start/review-after remain unknown for the complete accepted native outcome.
+- **Assessment (2026-09-25):** Reverified 8a7c770/v0.3.28 worker-loss checks. New ODF-112 does not establish worker death, and ODF-089 concerns a normal terminal result. No verified later crash exercise; watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-067 — Refusal fixtures supply the stop they claim to prove
 
@@ -1552,39 +1537,6 @@ consult both lists when matching findings or allocating identities.
     "don't let setup supply the outcome" wording in
     `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
     prevent the first draft.
-
-## ODF-068 — Whole-file claim staging captures concurrent backlog edits
-
-- **Meaning:** An isolated Taken claim stages an entire shared backlog file containing another writer's uncommitted work.
-- **Source mappings:** Open Dough / DD-053
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The observed coordinator avoided capture with a staged target blob. Keep the hypothetical capture distinct from that successful observed containment; the shared-queue story already concerns integration ownership, but does not explicitly resolve this staging case.
-
-### Occurrences
-
-- Execution: `SEED-004#run-standalone-manual-testing-in-isolated-execution @ 290d30d`
-  - Source: Open Dough / DD-053; canonical DearDough.md occurrence
-  - Timestamp: 2026-09-17T12:08:37+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: modified; revision 9e6ce93; base 0.3.24
-  - Evidence: Before the claim, `git status --short` on `.planning/PRODUCT-BACKLOG.md`
-    and `.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` already showed
-    unstaged modifications (a "Publish Trunk Mode from local main" story
-    capture) with mtimes ~2 minutes old, not owned by this execution.
-    Following the literal "stage only the backlog path" instruction would have
-    staged that unrelated addition together with this claim's move of one
-    entry to Taken.
-  - Observed effect: The claim was instead built by staging a hand-constructed
-    target blob via `git hash-object`/`git update-index` for only the intended
-    move, leaving the concurrent session's edits untouched and unstaged; commit
-    `290d30d` contains only the claim's own change.
-  - Inference: The guidance's "stage only the backlog path" step assumes the
-    backlog file has no concurrent uncommitted edits from another session at
-    claim time; when it does, whole-path staging would misattribute unreviewed
-    content into the claim commit. A hunk- or content-aware staging fallback
-    for this case is not currently documented.
-
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
 
 ## ODF-069 — CI discovery gaps obscure later terminal results
 
@@ -1656,7 +1608,7 @@ consult both lists when matching findings or allocating identities.
 
 
 - **Status:** Partial response released in 0.3.28; underlying cause
-  not repaired. The remaining observation boundary is included in the queued delivery response below.
+  not repaired. The remaining observation boundary is queued for diagnosis and correction below.
 - **Response:** Diagnosed, not repaired. A new faithful end-to-end test
   (`ci-revision-coverage-late-github-failure.test.mjs`) proves the existing
   `observeRevisionCoverage`/`createGitHubRunAcquisition`/`watchCiExecution`
@@ -1682,6 +1634,28 @@ consult both lists when matching findings or allocating identities.
 - **Assessment (2026-09-23):** Later `9f86dda`, `8a00357`, and `d57783c` distinguish discovery-pending from terminal verdicts; they do not establish that bounded listing always discovers the relevant run. Historical reports are not post-v0.3.28 failures. The proposed listing cause remains qualified; diagnose it before choosing a repair. No complete fix or eligible watch is claimed.
 
 - **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Preserves late discovery delivery and truthful unproved completion; bounded listing remains open by design.
+
+- Execution: SEED-035 story 15 / quick/020-notebook-lfs-receive / 2dc0ce9478; Timestamp: 2026-09-24T09:50+08:00 (completion wait for f6b4578a15); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. `complete-revision` timed out with all four registered revisions `undiscovered` while `gh run list` showed each completed `success`.
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- Execution: SEED-035 story 1 / quick/022-browse-download-notebook-files / 70b3b67313; Timestamp: 2026-09-24T12:20+08:00 (completion wait for a0ee337e40); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. `complete-revision` on `story/browse-download-notebook-files` timed out with `70b3b67313`, `f41c291823`, `a0ee337e40` all `undiscovered`; `gh run list` showed runs 35951607689, 35953015884, 35953621136 completed `success`. The story-branch observer was started by hand (DD-107) after the first push.
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- Execution: SEED-035 story 3 / quick/024-note-local-picture-file / f0cc15be6a; Timestamp: 2026-09-24T14:40+08:00 (completion wait for f0cc15be6a); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. `complete-revision` on `story/local-image-display` timed out with `f0cc15be6a` `undiscovered` (shutdown confirmed); `gh run list --commit` showed run 35964391742 completed `success`.
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- Execution: SEED-035 story 14 / quick/025-convert-raw-notebooks-to-lfs / 071d0e0861; Timestamp: 2026-09-24T16:35+08:00 and 16:55+08:00 (completion waits for 44c90c8cfa and 22cea6694e); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. The first wait ended `observation_unavailable` after `CI_MONITOR_UNAVAILABLE` (a failed `gh run list`), with `44c90c8cfa` `undiscovered`, while runs 35974797130 and 35975568223 had completed **failure** (a CLI test). The failures were found only by a manual `gh run list`. The repair wait for `22cea6694e` timed out `undiscovered` while run 35976936886 (created about 2 minutes after the push) completed `success`.
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- Execution: SEED-035 story 20 / quick/026-test-file-journeys-on-lfs / 5859e6d663; Timestamp: 2026-09-24T19:10+08:00 (completion wait for 47a3bdd0ab); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. `complete-revision` on `main` timed out with all twelve registered revisions `undiscovered` (shutdown confirmed) after an early `CI_DISCOVERY_DELAYED`; `gh run list --branch main` showed "donut CI" push runs completed `success` for each checked revision, including 47a3bdd0ab (created 10:58:15Z).
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- Execution: SEED-035 story 4 / quick/027-web-uploaded-pictures-as-notebook-files / 4250de93e1; Timestamp: 2026-09-24T22:25+08:00 (completion wait for f4d1ec8d5c); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. `complete-revision` on `main` timed out with all six registered revisions `undiscovered` (shutdown confirmed) after an early `CI_DISCOVERY_DELAYED`; `gh run list --branch main` showed "donut CI" runs completed `success` for 4250de93e1, a061808c28, 682259779a, 0e760d4933 and f4d1ec8d5c (created 14:02:40Z); the planning-only claim 09a299b665 had no run of its own.
+  - Source: Doughnut / ODF-069; canonical DearDough.md occurrence
+
+- **Assessment (2026-09-25):** The v0.3.28 response (5630b28) was partial; managed delivery 02991a5/493187c/ddcabcb first shipped in v0.3.33. Six new Doughnut executions on v0.3.33, v0.3.37 and v0.3.38 still leave completed runs undiscovered, including real failures in plan 025. This confirms continuation of the observed verdict gap after those responses, not a proved bounded-listing cause. ff33cb8/v0.3.38 preserves an already-known failure when monitoring is lost; it does not fix undiscovered runs. ODF-112 adds a related, cause-uncertain seventh new Doughnut execution. No complete fix or watch is claimed. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
+- **Follow-up:** [Deliver real CI verdicts for registered execution revisions](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — **queued, not resolved**. Selected by the authorized 2026-09-25 runbook maintenance cycle.
 
 ## ODF-070 — Tool availability is inferred from a local dependency directory
 
@@ -1734,6 +1708,8 @@ consult both lists when matching findings or allocating identities.
     tested here.
 
 - **Assessment (2026-09-23):** No verified post-release exercise of the directory-inference correction establishes a watch start. Native gate skipping in ODF-087 concerns a different mechanism and was observed on a modified prerelease candidate. Watch start and review-after: unknown; excluded from age-based retirement.
+
+- **Assessment (2026-09-25):** Reverified 6d7f7f3/v0.3.28 requires an applicable command instead of directory inference. Later queued-start acceptance checks preparation but does not specifically exercise the false directory-unavailability report. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-071 — Native acceptance observers bind to the launching session
 
@@ -1846,11 +1822,15 @@ consult both lists when matching findings or allocating identities.
     step, not opportunistically before a later slice, even when a plan's first
     slice feels small enough to "just push and arm after."
 
-- **Status:** Response implemented; pending release and native acceptance.
+- **Status:** Response released; effectiveness unverified; native acceptance was dropped.
 - **Response:** `execution-increment-delivery.mjs` establishes or reuses a matching live observer for the authorized target branch before the first applicable push, attaching the exact accepted SHA to that observer.
-- **Released in:** pending release
+- **Released in:** 0.3.33; first containing tag v0.3.33, verified against the implementation and tagged runtime diffs.
 
 - **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Managed delivery establishes or reuses observation before push, attaching the exact accepted SHA.
+
+- **Assessment (2026-09-25):** 02991a5 and 493187c first ship in v0.3.33, establishing observation before publication when session context is available. Pygardon plan 183 on v0.3.33 reveals the separate missing-session-input mechanism now retained under ODF-092; only that later occurrence is moved, not the original ordering report. This is not proof of a general successful fix: first-push coverage remains incomplete. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
+- **Follow-up:** [Attach CI observation to the first Claude Code publication](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — **queued, not resolved**. Selected by the authorized 2026-09-25 runbook maintenance cycle.
 
 ## ODF-074 — Planning asserts unverified existing code and host facts
 
@@ -1900,6 +1880,17 @@ consult both lists when matching findings or allocating identities.
     was re-delegated and delivered at `f81079092`.
   - Inference: one `docker compose config` against the shipped overlay alone, or
     a grep for its non-overlay callers, would have settled the claim in planning.
+
+- Execution: `.planning/quick/181-local-production-deployment/PLAN.md` (first implementation commit `f8eed7a92`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. Evidence: plan decision 4 assumed a reusable source-CI verdict, but in-app CI deferred from the first increment (`CI deferred: Docker engine has 14556631040 free bytes; 16106127360 required`) and the local recipe did not fit either; "Dockerfile already labels revision and version" was false; the updater image lacked a `deployment` build context. Effect: no CI verdict for any story-branch increment; release needed an owner-authorized prune and a local recipe run. Inference: a headroom and premise check at planning would have surfaced the evidence gap before execution.
+  - Source: Pygardon / ODF-074; canonical DearDough.md occurrence
+
+- Execution: `.planning/quick/182-retire-remote-distribution/PLAN.md` (first implementation commit `1d591046a`); Timestamp: 2026-09-24T14:58:00+08:00; Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. Evidence: the plan named ADR-0004 an accepted constraint, but it is Proposed (deferred) (found by the slice 2 implementer); decision 2 assumed CI workspace recreation minted extra builders and that the application had no installation identity, but read-only inspection showed the production workspace never recreated and `PYGARDON_INSTALLATION_ID=local-arm64` already set (`f7aefb5c1`). Effect: slice 6 stopped for an owner round trip and was re-scoped; the ADR citation was corrected. Inference: the plan's "confirm the cause first, stop if not" guard contained the cost.
+  - Source: Pygardon / ODF-074; canonical DearDough.md occurrence
+
+- Execution: `.planning/quick/185-ci-capacity-hold-attention/PLAN.md` (first implementation commit `c2170df0f`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: the plan's Design and slice 4 named `failure_attention_delivery.py` as a CI-release residue and the Telegram binding point, but the file no longer existed (slice 2 implementer report); its "only the store migration that removes retained `ci_release` reports remains" was already done in `f07e8958b`. Effect: the coordinator located the actual binding (`service_lifecycle.py` origin-bound `failure_notification_handler`) before delegating slice 4. Inference: small cost; the plan cited a dependency's retirement notes rather than current code.
+  - Source: Pygardon / ODF-074; canonical DearDough.md occurrence
+
+- **Assessment (2026-09-25):** Current guidance assessed at 7e17cba: the supplied additional v0.3.33, v0.3.37 and unknown-release planning reports add missing evidence for this identity. No claimed mechanism-specific correction was found; unknown provenance is not continuity proof or post-fix recurrence.
 
 ## ODF-077 — Whole-suite recovery loses ownership and verdict evidence
 
@@ -2064,6 +2055,8 @@ consult both lists when matching findings or allocating identities.
 - **Follow-up:** SEED-004#require-current-proof-before-live-transitions (story section recoverable at `4c6619a86b9d104c85e1ec602a304bb9fa589787:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md#require-current-proof-before-live-transitions`, removed from the current snapshot by story wrap-up), **response released in 0.3.28; effectiveness unverified** (see Status/Response above). Selected by the authorized 2026-09-21 runbook maintenance cycle.
 
 - **Assessment (2026-09-23):** All three logs were checked; the supplied live-action failures predate v0.3.28 or have unknown release. Installed updates alone do not establish that a later live transition exercised this gate. Watch start and review-after: unknown; excluded from age-based retirement.
+
+- **Assessment (2026-09-25):** Reverified e9829bc and 9b1391d, first containing v0.3.28, against the named-proof and current-candidate checks. New live-fixture report ODF-114 does not establish a bypass of an explicit named regression gate. No supported later exercise of that gate; watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-081 — Wrong-checkout edits are captured by another execution
 
@@ -2352,50 +2345,13 @@ consult both lists when matching findings or allocating identities.
     `.agents/skills` never consulted even though this entry already names it
     as the fix.
 
-- **Status:** Response implemented; pending release and native acceptance.
+- **Status:** Response released; effectiveness unverified; native acceptance was dropped.
 - **Response:** `ci-checkout-runtime.mjs` resolves the checkout-bound runtime by falling back from the preferred host alias to any usable same-checkout installation (`.agents` or `.claude`), avoiding false unavailability or unnecessary directory copies.
-- **Released in:** pending release
+- **Released in:** 0.3.33; first containing tag v0.3.33, verified against the implementation and tagged runtime diffs.
 
 - **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Checkout runtime fallback across missing aliases is implemented.
 
-## ODF-086 — Queue claims use a stale shared-backlog reading
-
-- **Meaning:** Another execution claims work between a coordinator's read and its Taken edit; correctness depends on rereading and checking the intended move.
-- **Source mappings:** Doughnut / DD-075
-- **References:** Current guidance assessed: Open Dough `f79ad88` (contains v0.3.27). The observed content-aware edit preserved both claims. Current scripted backlog work is relevant but its effectiveness for this report's unknown execution release is unestablished. Retain at low priority; this is not observed lost work.
-
-### Occurrences
-
-- Execution: SEED-034 story 1 / quick/146-permanently-delete-trashed-content / 6f2a2ff1d8
-  - Source: Doughnut / DD-075; canonical DearDough.md occurrence
-  - Timestamp: 2026-09-18T17:05:27+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5
-  - Open Dough release: unknown
-  - Evidence: the coordinator's first read of `.planning/PRODUCT-BACKLOG.md`
-    showed an empty `## Taken` section and five entries under
-    `## Backlog list`. A concurrent execution then committed
-    `e86f76566a` ("Take SEED-030 story 2 for execution through plan 145",
-    2026-09-18T17:04:35+08:00) to `main` in the shared originating checkout,
-    adding SEED-030 to `## Taken` with a `— plan: [145](...)` suffix. The
-    claim edit for this execution ran afterwards and produced a `## Taken`
-    section containing both entries; `git diff` showed only the intended
-    single-line move, and claim commit `c619aba43a`
-    (2026-09-18T17:05:27+08:00) touched only that one line.
-  - Observed effect: no incorrect write and no lost claim, but the stale
-    reading cost three extra verification calls (`git diff`, `git log`,
-    `git reflog` plus `git worktree list`) to establish that the file had
-    changed under the coordinator rather than that its own edit was wrong,
-    and one corrective edit to match the entry formatting the concurrent
-    claim had introduced.
-  - Inference: the safe outcome came from re-reading the backlog at write
-    time and asserting on the exact entry text, not from any rule. Stating in
-    the take-queued-work preflight that the backlog must be re-read
-    immediately before the **Taken** edit, and that the resulting staged diff
-    must be confirmed to be exactly the intended one-entry move, would make
-    this independent of how the edit happens to be applied.
-
-- **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
+- **Assessment (2026-09-25):** Runtime alias fallback is 02991a5, first containing v0.3.33 (ci-checkout-runtime.mjs checked in the tag). Ordinary attached receipts do not establish that a missing preferred alias was exercised. Watch start and review-after unknown; native acceptance remains dropped, not passed. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-087 — Native execution skips a command-readiness gate proved only by substitutes
 
@@ -2416,6 +2372,8 @@ consult both lists when matching findings or allocating identities.
   - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
 
 - **Follow-up:** [Accept queued-start publication in native hosts](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#accept-queued-start-native-behavior) — **Completed 2026-09-24**. The last requirement, Claude resume acceptance, passed a fresh native run; the retired SEED-008 entry records it and names recoverable proof for the other accepted requirements. No duplicate response was created.
+
+- **Assessment (2026-09-25):** The completed queued-start native acceptance is retained in SEED-008 and b305fa5. It exercises queued startup; the original report concerns a standalone hello outcome bypassing preparation. No claim that those boundaries are identical or that the original gate-skip mechanism passed a week of use. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-088 — Fresh sibling worktrees reach delivery without dependencies
 
@@ -2488,6 +2446,8 @@ consult both lists when matching findings or allocating identities.
 - **Released in:** 0.3.28; first containing tag v0.3.28, verified against execution-location guidance.
 - **Assessment (2026-09-23):** Both reported failures used older v0.3.27. No verified later exercise with release provenance establishes a watch start or review-after; neither is inferred from publication date.
 
+- **Assessment (2026-09-25):** 6d7f7f3 first ships in v0.3.28. Later native queued-start evidence in b305fa5/SEED-008 demonstrates setup then command before feature edits on modified candidate 7581b2b, but does not establish ordinary released-use dependency preparation in the original fresh sibling scenario. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
 ## ODF-089 — Ended observers still accept ordinary push receipts
 
 - **Meaning:** After persistent polling errors produce a normal terminal result, later push registration and attachment still look active even though that observer will never poll the new revision.
@@ -2514,11 +2474,13 @@ consult both lists when matching findings or allocating identities.
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
-- **Status:** Response implemented; pending release and native acceptance.
+- **Status:** Response released; effectiveness unverified; native acceptance was dropped.
 - **Response:** `ci-host-hook.mjs` inspects `result.json` and reports terminal status instead of emitting active attachment. Managed resume (`execution-increment-resume.mjs`) returns an explicit unobserved coverage gap (`pendingCi: "unobserved"`) when an observer has ended, without duplicate push or false coverage.
-- **Released in:** pending release
+- **Released in:** 0.3.33; first containing tag v0.3.33, verified against the implementation and tagged runtime diffs.
 
 - **Follow-up:** Native host acceptance dropped by Terry on 2026-09-24 (story `SEED-008#accept-execution-ci-native-behavior` recoverable at `b305fa5:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`); real project use is the remaining evidence source, and no native acceptance is claimed. Ended observer status reporting is implemented.
+
+- **Assessment (2026-09-25):** ddcabcb first ships in v0.3.33; tagged ci-host-hook.mjs reports normal terminal state and managed resume reports unobserved coverage. New network/discovery reports do not establish later push registration against a recorded normal-ended result. No verified exercise of that exact response; watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
 
 ## ODF-090 — A multi-slice plan uses the single-slice local implementation exception
 
@@ -2555,3 +2517,750 @@ consult both lists when matching findings or allocating identities.
   - Evidence: same execution as DD-097; commits `38b5e1ef69`, `4711b98d93`, and `670f8e7313` have no refactor-agent report. The coordinator's slice 1 note was a local grep of notebook components.
   - Observed effect: delivery continued and the three commits landed. No independent refactor findings were recorded.
   - Inference: deletion-heavy slices made a missed cohesion issue less likely, but the required second reader did not run.
+
+## ODF-092 — Claude Code managed delivery omits the session identity needed for first attachment
+
+- **Meaning:** Managed delivery needs Claude Code session identity, but its taught invocation omits the identity source; the first publication is unobserved until the coordinator discovers and supplies it.
+- **Source mappings:** Open Dough / DD-095; Pygardon / DD-085; Doughnut / DD-107; Pygardon / ODF-073 (plan 183 / 6e1858f16 occurrence only; earlier ordering occurrence unchanged)
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-073 ordering alone and ODF-103 mismatched ownership after successful attachment. v0.3.33..HEAD retains the same establishObservation session requirement and no session-source instruction in trunk-publication.md. No intervening correction found.
+
+### Open Dough / DD-095
+
+**Source description:**
+
+Delivery without `--session-json` returned `pendingCi: unobserved`; no guidance
+names Claude Code's `$CLAUDE_CODE_SESSION_ID`. A retry for the accepted SHA was
+refused ("rebase left the pre-rebase SHA") after starting an unreported observer.
+
+### Occurrences
+- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-24T10:50:57+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.36
+  - Evidence: retry-created `watch-Vcl3dH` reused at 5650123; plus `watch-ljLxgl`.
+  - Observed effect: two observers for one branch until one was stopped.
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: unknown (first delivery, 2026-09-24 after 11:56+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: first delivery receipt for `eff3e76` said `observation.state:
+    unobserved` ("host session identity is required"); re-delivery with the same base refused
+    ("rebase left the pre-rebase SHA as the candidate"); explicit
+    `ci-mailbox.mjs start` + `register-push` attached it; later deliveries
+    with `--session-json '{"session_id":"$CLAUDE_CODE_SESSION_ID"}'` attached
+    and reused the observer.
+  - Observed effect: slice 1 went briefly unobserved and needed a
+    source-code search to recover; later slices were observed.
+  - Inference: Same gap as the 088 occurrence, recurring in a separate
+    execution the same day; a fresh Claude coordinator following only the
+    references leaves increments unobserved.
+
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: unknown (first increment delivery, after commit `567f9b2` at
+    2026-09-24T15:43:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: `567f9b2` receipt `observation.state: unobserved` ("host
+    session identity is required"); `ci-mailbox.mjs start` + `register-push`
+    attached `watch-IsEPZU`; later deliveries passed `--session-json` with
+    `$CLAUDE_CODE_SESSION_ID` and reused it.
+  - Observed effect: no duplicate observer this time, but finding the session
+    field again needed a read of `ci-host-bridge.mjs`.
+
+- Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: unknown (first increment delivery, after commit `3f64bc7` at
+    2026-09-24T20:35:01+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: `3f64bc7` receipt `observation.state: unobserved`;
+    `ci-mailbox.mjs start` + `register-push` attached `watch-oQrMZX`; later
+    deliveries passed `--session-json` and reused it.
+  - Observed effect: the session ID was taken from a tool-output path after
+    rereading `ci-host-bridge.mjs`; a fourth Claude Code occurrence.
+
+- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: unknown (first increment delivery, after commit `d4dbbdb` at
+    2026-09-25T08:53:13+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: `d4dbbdb` receipt `observation.state: unobserved` ("host
+    session identity is required"); `ci-mailbox.mjs start` + `register-push`
+    attached `watch-Uwu3Ey`; the four later deliveries passed `--session-json`
+    with `$CLAUDE_CODE_SESSION_ID` and reused it.
+  - Observed effect: a fifth Claude Code occurrence; recovery again needed a
+    read of `ci-host-bridge.mjs` and an environment listing.
+
+- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
+  - Source: Open Dough / DD-095; canonical DearDough.md occurrence
+  - Timestamp: unknown (first increment delivery, after commit `3102053` at
+    2026-09-25T12:50:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `3102053` receipt `observation.state: unobserved` ("host
+    session identity is required"); re-delivery with the same base,
+    `--validated-candidate 3102053`, and `--session-json` taken from the
+    transcript path attached `watch-5kshKo` (`reconciliations: 1`, no refusal);
+    slice 2 delivery reused it.
+  - Observed effect: a sixth Claude Code occurrence; recovery again needed a
+    read of `ci-host-bridge.mjs`. No duplicate observer this time.
+
+### Pygardon / DD-085
+
+**Source description:**
+
+Every managed increment returned `pendingCi: unobserved` because bridge verification needs a host session identity the coordinator cannot pass; coverage came only from a manual observer start plus `register-push`.
+
+### Occurrences
+- Execution: `.planning/quick/181-local-production-deployment/PLAN.md` (first implementation commit `f8eed7a92`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. Evidence: seven `execution-increment-delivery.mjs deliver` receipts (f8eed7a…e5b067e) with reason `host session identity is required to verify the notification bridge`, while `ci-mailbox.mjs probe` and a direct `start` produced `CI_MONITOR_READY` / `CI observer attached`. Effect: the coordinator ran the explicit start/register path the delivery reference says not to use. Inference: the Claude Code adapter's session identity is available to hooks but not to the delivery command's caller.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/182-retire-remote-distribution/PLAN.md` (first implementation commit `1d591046a`); Timestamp: unknown (first delivery after commit 2026-09-24T14:01:15+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. Evidence: slice 1 `deliver --host claude` without `--session-json` returned `pendingCi: unobserved`; every later delivery passing `--session-json '{"session_id":"<Claude Code session id>"}'`, the id read from the session's tool-results path, returned `observation: attached`. Effect: one increment needed a manual `start` and `register-push`. Inference: the identity is obtainable by the coordinator, so the gap is that the delivery reference does not say where it comes from.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/185-ci-capacity-hold-attention/PLAN.md` (first implementation commit `c2170df0f`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: all four `deliver --host claude` calls passed `--session-json` with the session id and transcript path read from the tool-results path; the first returned `observation: attached` (`/tmp/dough-ci-501/watch-dNRLT3`), later ones `reused`. Effect: no manual start or `register-push`. Inference: the workaround holds, but the identity still has to be derived from an incidental path.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/187-bounded-ci-observation/PLAN.md` (first implementation commit `132b3e53e`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: slice 1 `deliver --host claude` without `--session-json` returned `pendingCi: unobserved` (`host session identity is required…`) for `132b3e53e`; the coordinator then found the flag by reading `ci-host-bridge.mjs`, and slices 2–4 passing the session id and transcript path returned `attached` (`/tmp/dough-ci-501/watch-Wx0tkI`) then `reused`. Effect: slice 1 left unobserved; two script-reading calls. Inference: recurs in every fresh Claude Code execution until the delivery reference names the identity source.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/188-halve-ci-wall-time/PLAN.md` (first implementation commit `51b7aa206`); Timestamp: unknown (2026-09-24, ~22:00 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: slice 1 `deliver --host claude` without `--session-json` returned `observation.state: unobserved` (`host session identity is required…`) for `51b7aa206`; re-running with `--session-json '{"session_id":…}'` attached `/tmp/dough-ci-501/watch-PRnDi2`, later deliveries `reused`. Effect: one extra delivery call, which also tripped a replay conflict on concurrent slices' unstaged files. Inference: unchanged; the coordinator still recalls the flag only after the first miss.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: unknown (first delivery after commit 2026-09-25T08:33:31+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: slice 1 `deliver --host claude` without `--session-json` returned `unobserved` (`host session identity is required…`) for `3f21aa9fe`; re-running with the session id and transcript path attached `/tmp/dough-ci-501/watch-WhrBb9`. Effect: one extra delivery call. Inference: unchanged.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+- Execution: `.planning/quick/190-tfdc-trustworthy-results/PLAN.md` at `ca9182e35` (first implementation commit `88824e3a0`); Timestamp: unknown (first delivery after commit 2026-09-25T08:26:33+08:00; observer mailbox created 08:27 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: coordinator's execution summary — the first managed delivery returned `observation unobserved` (host session identity required); the coordinator ran the Claude host probe (`/tmp/dough-ci-501/watch-GWpZ9O`) and started the observer by the adapter launcher (`watch-ZTiq1g`), after which deliveries reported `reused`. Effect: one extra probe and manual start. Inference: unchanged; still recurs on the first increment of each fresh Claude Code execution.
+  - Source: Pygardon / DD-085; canonical DearDough.md occurrence
+
+### Doughnut / DD-107
+
+**Source description:**
+
+`execution-increment-delivery.mjs deliver` returned `pendingCi: unobserved` ("host session identity is required to verify the notification bridge") although the Claude Code hook bridge was ready. The references document `--session-json` only in the usage line; recovery needed a manual probe, observer start, and `register-push`.
+
+### Occurrences
+- Execution: SEED-035 story 15 / quick/020-notebook-lfs-receive / 2dc0ce9478; Timestamp: 2026-09-24T08:49+08:00 (slice 1 delivery; its CI run was created 00:49:45Z); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 delivery receipt `observation.reason`; later deliveries passing `--session-json '{"session_id":…}'` (from the session transcript path) reported `observation.state: reused`.
+  - Observed effect: slice 1's SHA was registered by hand after its CI run already existed (`CI_DISCOVERY_DELAYED`); no coverage was lost afterwards.
+  - Inference: the coordinator must discover its own session id outside guidance; a host without an obvious transcript path could leave every increment unobserved.
+- Execution: SEED-035 story 1 / quick/022-browse-download-notebook-files / 70b3b67313; Timestamp: 2026-09-24T11:28+08:00 (slice 1 delivery); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge"; recovered by `ci-mailbox.mjs probe` (hook added `CI_MONITOR_READY`), `start --execution … story/browse-download-notebook-files`, and `register-push`; slices 2 and 3 then reported `observation.state: reused` without `--session-json`.
+  - Observed effect: slice 1's CI run was found late (`CI_DISCOVERY_DELAYED`); three extra coordinator calls; no later coverage loss.
+- Execution: SEED-035 story 3 / quick/024-note-local-picture-file / f0cc15be6a; Timestamp: 2026-09-24T14:25+08:00 (slice 1 delivery); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge" (background Claude Code job); recovered by `ci-mailbox.mjs probe` (`CI_MONITOR_READY`), `start --execution nerds-odd-e/doughnut story/local-image-display`, and `register-push` for f0cc15be6a.
+  - Observed effect: same three-call manual recovery; the release update from 0.3.33 to 0.3.37 did not change this.
+- Execution: SEED-035 story 14 / quick/025-convert-raw-notebooks-to-lfs / 071d0e0861; Timestamp: 2026-09-24T15:50+08:00 (slice 1 delivery; its CI run was created 07:50:15Z); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge" (background Claude Code job); recovered by `ci-mailbox.mjs probe` (`CI_MONITOR_READY`), `start --execution nerds-odd-e/doughnut exec/seed-035-story-14`, and `register-push`; later deliveries reported `observation.state: reused`.
+  - Observed effect: the same three-call manual recovery as earlier occurrences.
+- Execution: SEED-035 story 20 / quick/026-test-file-journeys-on-lfs / 5859e6d663; Timestamp: 2026-09-24, ~17:40+08:00 (slice 1 delivery); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge" (background Claude Code job); recovered by `ci-mailbox.mjs probe` (`CI_MONITOR_READY`), `start --execution nerds-odd-e/doughnut main`, and `register-push` for 5c2e95c367 and 5859e6d663; the next ten deliveries reported `observation.state: reused`.
+  - Observed effect: the same three-call manual recovery; the claim and slice 1 were registered late (`CI_DISCOVERY_DELAYED`).
+- Execution: SEED-035 story 4 / quick/027-web-uploaded-pictures-as-notebook-files / 4250de93e1; Timestamp: 2026-09-24, ~21:22+08:00 (slice 1 delivery; commit 21:21:16+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge" (background Claude Code job); recovered by `ci-mailbox.mjs probe` (`CI_MONITOR_READY`), `start --execution nerds-odd-e/doughnut main`, and `register-push` for 09a299b665 and 4250de93e1; later deliveries passing `--session-json '{"session_id":…}'` reported `observation.state: reused`.
+  - Observed effect: the same manual recovery plus a read of `ci-host-bridge.mjs` to learn the flag's shape; the claim and slice 1 were discovered late (`CI_DISCOVERY_DELAYED`); unchanged in 0.3.38.
+
+- Execution: SEED-035 story 19 / quick/029-remove-raw-file-storage / 0284ea7f52; Timestamp: 2026-09-25T09:21+08:00 (slice 1 delivery); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-107; canonical DearDough.md occurrence
+  - Evidence: slice 1 receipt `observation.reason` "host session identity is required to verify the notification bridge" (background Claude Code job, Story Branch Mode); recovered by `ci-mailbox.mjs probe` (`CI_MONITOR_READY`) and re-running `deliver` for the accepted SHA with `--session-json '{"session_id":…}'`, which reported `observation.state: attached`.
+  - Observed effect: two extra calls; a simpler recovery than `start` plus `register-push`, still discovered only by reading the receipt.
+
+### Pygardon / ODF-073 (plan 183 occurrence only)
+
+- Execution: `.planning/quick/183-stooq-retry-control/PLAN.md` at `6e1858f16`; Timestamp: 2026-09-24T11:26:52+08:00; Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. Evidence: slice 1 `execution-increment-delivery.mjs deliver --host claude` without `--session-json` returned `pendingCi: unobserved` ("host session identity is required"); the coordinator then probed, started `watch-mAof9e` and ran `register-push` for `6e1858f16`. Observed effect: first increment unobserved at push; later deliveries passed `--session-json` and attached. Inference: the Claude-host delivery's need for session identity is not stated where the delivery command is taught.
+  - Source: Pygardon / ODF-073, plan 183 occurrence only; former local DD-057 belongs to the earlier ordering report.
+
+- **Assessment (2026-09-25):** Twenty failing executions across three projects (Open Dough six, Pygardon seven including plan 183, Doughnut seven). Pygardon plan 185 is a separate successful-workaround observation, not a twenty-first failure. Unknown releases remain unknown. Confirmed failures span 0.3.33, 0.3.34, 0.3.36, 0.3.37, and 0.3.38; managed delivery first shipped in 0.3.33, but no subsequent session-source correction is claimed.
+
+- **Follow-up:** [Attach CI observation to the first Claude Code publication](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — **queued, not resolved**. Selected by the authorized 2026-09-25 runbook maintenance cycle.
+
+## ODF-093 — A bare stash pop consumes another session's repository-wide stash
+
+- **Meaning:** A failed stash push is followed by an unqualified stash pop, applying another session's shared stash.
+- **Source mappings:** Open Dough / DD-094
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-105, which stashes another live writer's files in the first place. One severe ownership failure warrants retention despite recovery.
+
+### Open Dough / DD-094
+
+**Source description:**
+
+Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
+`git stash pop` applied an unrelated Codex session's stash; delegation is silent.
+
+### Occurrences
+- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+  - Source: Open Dough / DD-094; canonical DearDough.md occurrence
+  - Timestamp: unknown; 2026-09-24 between e2a453e (10:40:49+08:00) and 647ff01
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.36
+  - Evidence: slice 1 implementation report; foreign `stash@{0}` still listed.
+  - Observed effect: four conflicted files restored; a clean pop drops the stash.
+
+## ODF-094 — Hook-owned lint restrictions are applied where no hook owns lint
+
+- **Meaning:** Delegation treats the restriction on hook-owned lint as a ban on all lint in a project without a commit hook, delaying mechanical defects until coordinator delivery.
+- **Source mappings:** Open Dough / DD-093
+- **References:** Current guidance assessed: Open Dough `7e17cba`. No general lint failure or response is inferred; this is the reported hook-ownership ambiguity.
+
+### Open Dough / DD-093
+
+**Source description:**
+
+The delegation contract forbids agents an "independent hook-owned lint
+command". In a project with no commit hook, where the formatter command also
+runs lint, the coordinator applied that ban to all lint. Lint findings then
+surfaced only at the coordinator's formatting step, after refactoring.
+
+### Occurrences
+- Execution: `SEED-026#auto-refresh-published-dashboard @ dcb0944`
+  - Source: Open Dough / DD-093; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-23T20:45:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.30
+  - Evidence: Plan 084. The repository has no `.git/hooks` entries or
+    `core.hooksPath`; `npm run format` (`scripts/lint.mjs --fix`) also runs
+    ESLint. Every delegation prompt said "do not run lint". The coordinator's
+    format step then failed on `no-unnecessary-condition` in slice 1
+    (`dcb0944`, timestamp of that commit), and on `require-await` and
+    `no-deprecated` in slice 2 (`9feec0e`).
+  - Observed effect: Three mechanical lint defects were fixed by the
+    coordinator after the refactor pass, each followed by a focused or full
+    test rerun; later prompts listed the lint rules to compensate.
+  - Inference: The coordinator over-read "hook-owned"; the guidance does not
+    say what applies when no hook owns lint. Cost was small per slice
+    (minutes), and it compounds with ODF-064 because the fixes landed after
+    the refactor pass.
+
+## ODF-095 — Behavior slices duplicate native acceptance orchestration
+
+- **Meaning:** Successive behavior slices clone native run and fixture scaffolding instead of sharing the same orchestration responsibility.
+- **Source mappings:** Open Dough / DD-092
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Concrete residue corrected by 8c2fa5a (shared native harness), first containing tag v0.3.35. The diff removes four runner/fixture clones and introduces one shared runner. This repairs the repository residue; it does not demonstrate prevention of future slice-driven duplication.
+
+### Open Dough / DD-092
+
+**Source description:**
+
+Plan 085 told slice 1 to create the smallest shared fixture/runner adaptation
+and keep it with the behavior rather than a standalone framework slice. Slices
+2–4 each shipped near-complete `delivery-evidence-*-native-run.sh` clones (and
+largely duplicated fixture scaffolding) instead of extending one harness.
+Aggregate residue is ~3.3k LOC across 20 support files; claims↔gaps run scripts
+are nearly identical rename-only diffs. Credential-free assessors and
+case-specific observe/assess/scenario bodies remain sound; orchestration is the
+waste.
+
+### Occurrences
+- Execution: `SEED-004#accept-delivery-evidence` / plan 085 @ `2e96700a5e2aae750950fe7095e788cd605ef1bd` (first implementation commit; clones completed through `a36f7ffd2050e23c1395438f9e389220be0b2787`)
+  - Source: Open Dough / DD-092; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-23T17:25:45+08:00
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: modified; revision a36f7ffd2050e23c1395438f9e389220be0b2787; base 0.3.32
+  - Evidence: Aggregate diff `59b76944..a36f7ffd` adds four parallel
+    `tests/support/delivery-evidence-{selection,claims,consumers,gaps}-native-*.sh`
+    sets; plan 085 Proof approach said first slice creates the shared
+    adaptation; retrospective correction plan
+    `8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
+  - Observed effect: Four Behavior slices delivered acceptance mechanisms with
+    Cursor native proof, but left shotgun run/fixture residue requiring a
+    follow-up Structure correction before maintainable extension.
+  - Inference: Keeping the fixture “with the behavior” plus Behavior-only
+    decomposition, without a Structure consolidation slice, induced copy-paste
+    across slices; per-slice post-change refactor could not see the later clones
+    as one concept until aggregate review.
+
+- **Assessment (2026-09-25):** 8c2fa5a first ships in v0.3.35 and removes the reported runner/fixture clones. Plan 089 uses the resulting harness, but its reported guidance v0.3.34 does not identify the source harness revision used per run. General prevention of cross-slice duplication remains unverified. No whole-finding watch; relevant source-use provenance is incomplete. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
+- **Status:** Concrete response released; effectiveness beyond the corrected boundary unverified.
+- **Response:** `8c2fa5a`: One shared native run harness replaces the four copied runner/fixture sets; general slice-level prevention is not established.
+- **Released in:** 0.3.35; first containing tag `v0.3.35`, verified by containment and implementation diff.
+
+## ODF-096 — Positive native acceptance fixtures fail their own promised behavior
+
+- **Meaning:** Nominally sufficient native acceptance fixtures do not actually satisfy their promises, and the same fault class is rediscovered through paid failing runs.
+- **Source mappings:** Open Dough / DD-096
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-067 refusal fixtures: this is a false sufficient control. Case repairs in eff3e76/c33dbea and later plan 089 work correct examples, not a demonstrated general prevention response.
+
+### Open Dough / DD-096
+
+**Source description:**
+
+In three of the four delivery-evidence cases, the scenario meant to show
+sufficient proof proceeding was not credibly sufficient. It used
+marker-string products, committed the "returned" correction in the baseline,
+or made a promise the product did not meet. Stricter hosts rightly refused.
+The plan allowed test-support fixes only after a run diagnosed a fault, so the
+known fault class was rediscovered with a paid failing run per case.
+
+### Occurrences
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Source: Open Dough / DD-096; canonical DearDough.md occurrence
+  - Timestamp: unknown (2026-09-24, slices 1, 2, and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: plan 089 slice results (selection: Codex refused marker flags;
+    claims: Claude "There's no uncommitted work"; gaps: Claude showed `push`
+    contradicts "put back first"). Observer layout misses cost further
+    reruns in slices 1–3.
+  - Observed effect: at least one failed native run per slice before a
+    pass. Cursor's earlier acceptance ran on the weaker fixtures.
+  - Inference: A pre-run review of each case's sufficient side against the
+    accept-proof rule, allowed as fixture preparation, would likely have saved
+    most of those runs. Useful practice: an offline byte-identical fixture
+    comparison kept the native evidence valid through each refactor.
+
+## ODF-097 — Semicolon chaining publishes after a formatter failure
+
+- **Meaning:** A formatter failure does not stop a semicolon-separated commit and push sequence.
+- **Source mappings:** Open Dough / DD-097
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-100 pipeline exit-status masking. Explicit failure was observed before publication; do not discard the escaped CI failure as harmless one-off noise.
+
+### Open Dough / DD-097
+
+**Source description:**
+
+The coordinator chained the formatter and commit with `;`, not `&&`. It
+committed and pushed a change that failed ShellCheck, even though wrap-up
+says formatting must succeed before staging.
+
+### Occurrences
+- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
+  - Source: Open Dough / DD-097; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-24T12:22:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.34
+  - Evidence: slice 2 command printed `fmt=1` then committed `c33dbea`; CI
+    `lint` failed with SC2016; repair `0662ed2` passed.
+  - Observed effect: one extra commit, push, and failed CI run.
+  - Inference: A one-off coordinator error, not a guidance gap; gate
+    commands with `&&`.
+
+## ODF-098 — An early slice depends on proof only a later slice can satisfy
+
+- **Meaning:** A slice is planned with a required existing suite that cannot pass until a later slice implements its new invariant.
+- **Source mappings:** Open Dough / DD-098
+- **References:** Current guidance assessed: Open Dough `7e17cba`. One supported execution, repaired by resequencing; no general planning correction is established.
+
+### Open Dough / DD-098
+
+**Source description:**
+
+Plan 091 mapped slice 1's proof to the startup race suite, but race-safe
+agent-name choice was slice 3, whose seam note predicted the failure without
+it. Slice 1 was not CI-safe until slice 3 was folded into it.
+
+### Occurrences
+- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
+  - Source: Open Dough / DD-098; canonical DearDough.md occurrence
+  - Timestamp: unknown (first slice-1 return, before commit `567f9b2` at
+    2026-09-24T15:43:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.37
+  - Evidence: plan at `4479710` (slice 1 Proof lists
+    `workspace-publication-startup-race.test.mjs`; slice 3 Seam); first
+    slice-1 return had 2 of 5 race tests failing; plan Learnings in `567f9b2`.
+  - Observed effect: one extra implementation round and a re-sequencing.
+  - Inference: Qualified. Planning checked that each slice ends CI-safe
+    without tracing which existing suites a new invariant (unique active
+    agent names) would break.
+
+## ODF-099 — Startup receipts expose complete Git index listings
+
+- **Meaning:** Startup serializes full before/after Git index snapshots into its coordinator receipt, hiding necessary fields behind oversized tool output.
+- **Source mappings:** Open Dough / DD-099; Pygardon / DD-088; Doughnut / DD-108
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from retired ODF-006 (agent chooses oversized document reads): this is runtime output scaling with repository size. Historical catalog reviewed; no code reuse or claimed prior fix.
+
+### Open Dough / DD-099
+
+**Source description:**
+
+`execution-start.mjs start` printed a 227 KB receipt. About 222 KB were
+`beforeMaintenance.index` and `afterMaintenance.index`, listings of the
+default checkout's staged files; the coordinator needed only results and SHAs.
+
+### Occurrences
+- Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
+  - Source: Open Dough / DD-099; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-24T20:27:08+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: Take `1443c42` receipt; index fields 110,899 and 110,980 chars.
+  - Observed effect: the host saved the output to a file; one extra command
+    was needed to read the receipt without the listings.
+  - Inference: Qualified. A host that inlines tool output would spend roughly
+    55k tokens of context on it at every startup.
+- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
+  - Source: Open Dough / DD-099; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-25T08:40:30+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: Take `04a034b` receipt, 227.3 KB, saved to a file by the host;
+    `beforeMaintenance.index` and `afterMaintenance.index` again held the listings.
+  - Observed effect: one extra command stripped the index fields to read the
+    receipt; recurs at every startup.
+
+- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
+  - Source: Open Dough / DD-099; canonical DearDough.md occurrence
+  - Timestamp: 2026-09-25T12:42:19+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: Take `c995852` receipt, 230.6 KB, saved to a file by the host;
+    `beforeMaintenance.index` (115,287 chars) and `afterMaintenance.index`
+    (115,367 chars) held the listings.
+  - Observed effect: one extra command stripped the index fields to read the
+    receipt; a third startup occurrence.
+
+### Pygardon / DD-088
+
+**Source description:**
+
+`execution-start.mjs start` printed `beforeMaintenance.index` and `afterMaintenance.index` as full `git ls-files --stage` listings, so the claim receipt was about 578 KB.
+
+### Occurrences
+- Execution: `.planning/quick/185-ci-capacity-hold-attention/PLAN.md` (first implementation commit `c2170df0f`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: the start receipt was persisted as an oversized tool result (577.8 KB) and had to be re-read through a filtering script to find `status`, `publishedSha` and the maintenance results. Effect: one extra call and a context-heavy preview. Inference: the index is maintenance evidence the coordinator never needs in the receipt; a digest or omission would do.
+  - Source: Pygardon / DD-088; canonical DearDough.md occurrence
+- Execution: `.planning/quick/187-bounded-ci-observation/PLAN.md` (first implementation commit `132b3e53e`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: the claim receipt for `8d5010ce7` was persisted as an oversized tool result (580.8 KB) and re-read through a filtering script. Effect: one extra call. Inference: unchanged by the 0.3.38 update.
+  - Source: Pygardon / DD-088; canonical DearDough.md occurrence
+- Execution: `.planning/quick/188-halve-ci-wall-time/PLAN.md` (first implementation commit `51b7aa206`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: the claim receipt for `b49624f1b` was persisted as an oversized tool result (580.9 KB); only its preview was usable. Effect: context-heavy preview. Inference: unchanged.
+  - Source: Pygardon / DD-088; canonical DearDough.md occurrence
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: unknown (claim `1e69bb258` at 2026-09-25T08:20:51+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: the claim receipt was persisted as an oversized tool result (581.2 KB) and re-read through a filtering script. Effect: one extra call. Inference: unchanged.
+  - Source: Pygardon / DD-088; canonical DearDough.md occurrence
+
+### Doughnut / DD-108
+
+**Source description:**
+
+`execution-start.mjs start` prints `beforeMaintenance.index` (the full staged index listing of the default checkout) inside its one-line JSON receipt. On this repository the receipt was 811 KB, so the host saved it to a file and showed only a 2 KB preview; the fields the coordinator must retain (`publishedSha`, `workspace`, `preparation`) happened to be in that preview.
+
+### Occurrences
+- Execution: SEED-035 story 1 / quick/022-browse-download-notebook-files / 70b3b67313; Timestamp: 2026-09-24T11:09+08:00 (queued startup); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (811.3KB)"; preview shows `beforeMaintenance.result: deferred`, `reason: unclear-ownership`, then `index: "100644 … .agents/agent-map.md\n…"`.
+  - Observed effect: the exact receipt the skill requires preserving was not fully visible in context; later fields (for example refresh results after the index) were unread.
+  - Inference: a maintenance diagnostic that lists every tracked file scales with repository size; a count or digest would keep the receipt usable.
+- Execution: SEED-035 story 3 / quick/024-note-local-picture-file / f0cc15be6a; Timestamp: 2026-09-24T14:10+08:00 (queued startup); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (814.6KB)"; `beforeMaintenance.index` holds the full index listing.
+  - Observed effect: the coordinator needed an extra `python3` call to read the receipt's later fields (`afterMaintenance: advanced`, `projectSetupRequired: true`).
+- Execution: SEED-035 story 14 / quick/025-convert-raw-notebooks-to-lfs / 071d0e0861; Timestamp: 2026-09-24, ~15:45+08:00 (queued startup, between readiness commit 47df9474c2 and slice 1); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (815.7KB)"; `beforeMaintenance.index` holds the full index listing.
+  - Observed effect: an extra `python3` call was needed to read `afterMaintenance` and `projectSetupRequired`.
+- Execution: SEED-035 story 20 / quick/026-test-file-journeys-on-lfs / 5859e6d663; Timestamp: 2026-09-24, ~17:28+08:00 (queued startup); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (816.5KB)"; `beforeMaintenance.index` and `afterMaintenance.index` hold the full index listing.
+  - Observed effect: an extra `python3` call was needed to read `afterMaintenance` and `projectSetupRequired`.
+- Execution: SEED-035 story 4 / quick/027-web-uploaded-pictures-as-notebook-files / 4250de93e1; Timestamp: 2026-09-24, ~21:17+08:00 (queued startup; Take commit 21:16:55+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (817.8KB)"; `beforeMaintenance.index` and `afterMaintenance.index` hold the full index listing.
+  - Observed effect: an extra `python3` call was needed to read `afterMaintenance` and `projectSetupRequired`.
+
+- Execution: SEED-035 story 19 / quick/029-remove-raw-file-storage / 0284ea7f52; Timestamp: 2026-09-25T09:02+08:00 (queued startup; Take commit 09:01:48+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-108; canonical DearDough.md occurrence
+  - Evidence: startup call output "Output too large (817.8KB)"; `beforeMaintenance.index` holds the full index listing.
+  - Observed effect: an extra `node` call was needed to read `afterMaintenance` and `projectSetupRequired`.
+
+## ODF-100 — A formatter pipeline masks failure behind tail success
+
+- **Meaning:** A formatter piped through tail returns the final pipeline stage's success, allowing subsequent delivery steps after formatter failure.
+- **Source mappings:** Pygardon / DD-084
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-097 semicolon chaining; the commit hook prevented a bad commit in this occurrence.
+
+### Pygardon / DD-084
+
+**Source description:**
+
+The coordinator chained `pnpm format:changed | tail` with `&&` into the plan edit and commit; the pipeline's exit status was `tail`'s, so a failed formatter let the plan edit and commit attempt proceed.
+
+### Occurrences
+- Execution: `.planning/quick/183-stooq-retry-control/PLAN.md` at `6e1858f16`; Timestamp: unknown (slice 2 delivery, between push 2026-09-24T11:26:52+08:00 and commit 2026-09-24T11:39:03+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.33. Evidence: biome `noNonNullAssertion` in `frontend/src/pages/StooqAvailabilityCard.test.tsx` failed formatting; the check-only commit hook refused the commit. Observed effect: no bad commit; one fix-and-retry. Inference: capture formatter output to a file and test its exit status before continuing.
+  - Source: Pygardon / DD-084; canonical DearDough.md occurrence
+
+## ODF-101 — Known CI capacity recovery is ordered after dependent delivery
+
+- **Meaning:** A plan inherits a known CI capacity shortage but schedules the owned resource cleanup near the end, leaving early increments without CI verdicts.
+- **Source mappings:** Pygardon / DD-086
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to ODF-074 unverified premises, but the shortage was already known and the concrete failure is dependency ordering.
+
+### Pygardon / DD-086
+
+**Source description:**
+
+The story that retired the remote distribution planned the removal of retired images as its second-to-last slice, although the shared engine was already below the in-app CI reserve, so CI observed none of the story's first five increments.
+
+### Occurrences
+- Execution: `.planning/quick/182-retire-remote-distribution/PLAN.md` (first implementation commit `1d591046a`); Timestamp: unknown (slice 2 delivery, 2026-09-24 between 14:01 and 14:28 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37. Evidence: observer event `CI_MONITOR_UNAVAILABLE` "CI deferred: Docker engine has 13352247296 free bytes; 16106127360 required"; increments `1d591046a`…`f7aefb5c1` unobserved; after the owner approved removing five retired GHCR/updater images (free 13.4 → 18.9 GB) CI passed `8453b7099` and `9ca5d843b`. The previous story's ODF-074 row records the same shortage. Effect: no CI verdict until late in the execution; an owner decision was needed mid-execution. Inference: when planning inherits a known capacity blocker, freeing owned, already-retired resources belongs first.
+  - Source: Pygardon / DD-086; canonical DearDough.md occurrence
+
+## ODF-102 — Command-adapter startup exposes retained historical attempts
+
+- **Meaning:** Before registration, command-adapter discovery exposes retained historical CI attempts as actionable execution failures.
+- **Source mappings:** Pygardon / DD-090
+- **References:** Current guidance assessed: Open Dough `7e17cba`. 50b6d71 adds the shared startup snapshot filter to command adapters; first containing tag v0.3.38. The later v0.3.38 ancestor report does not establish recurrence of the older-history mechanism: the filter deliberately retains the newest completed attempt. Related uncertain ancestor report is ODF-109.
+
+### Pygardon / DD-090
+
+**Source description:**
+
+Before any revision is registered, `watch-ci-execution.mjs` treats every discovered attempt as actionable (`registeredShas.length === 0 ? matching : …`), and the command-adapter path has no startup-snapshot pruning (`startupCiRuns` runs only for GitHub). With this project's adapter returning all retained attempts, oldest first, the first poll emitted the oldest failure and cancellation.
+
+### Occurrences
+- Execution: `.planning/quick/185-ci-capacity-hold-attention/PLAN.md` (first implementation commit `c2170df0f`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37 (installed watcher identical to upstream `8932c16`). Evidence: mailbox `/tmp/dough-ci-501/watch-dNRLT3` events 1–2 were `CI_FAILURE` for `79b4895f4` (2026-09-15 `setup_error`, attempt #1 of 218 in `/api/ci`) and `CI_INCOMPLETE` for `cc1dc16a6` (2026-09-16 `interrupted`); neither was registered. Both `complete-revision` receipts returned `shutdown: retained, reason: unread_actionable_failure`. Effect: the completion gate could not confirm shutdown, so worktree retirement needed an owner-approved explicit `stop`. Inference: SEED-048's finding that the watcher reports only pushed revisions and their ancestors does not hold before the first registration, and bounding history to 100 attempts would still expose retained failures at startup.
+  - Source: Pygardon / DD-090; canonical DearDough.md occurrence
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: unknown (2026-09-25, first attach after 08:33 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: the attach that registered `3f21aa9fe` on `worktree-python-fast-path` immediately delivered `CI_FAILURE` for `b937d2ab6`, an earlier trunk revision this execution never registered (two E2E scenarios). Effect: one classification step; no repair. Inference: likely the same pre-registration exposure, reached through managed delivery's first attach; not confirmed against the watcher code.
+  - Source: Pygardon / DD-090; canonical DearDough.md occurrence
+
+- **Assessment (2026-09-25):** 50b6d71/v0.3.38 corrects older completed-attempt filtering. The v0.3.38 row in this adopted source finding reports a recent ancestor with cause explicitly unconfirmed; ODF-109 retains another execution with that uncertainty. Neither proves the older-history correction failed, but the unresolved reports prevent a success watch. Watch start and review-after unknown. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
+- **Status:** Concrete response released; effectiveness beyond the corrected boundary unverified.
+- **Response:** `50b6d71`: Shared startup snapshot filtering suppresses older completed command-adapter attempts.
+- **Released in:** 0.3.38; first containing tag `v0.3.38`, verified by containment and implementation diff.
+
+## ODF-103 — Managed delivery and the host hook claim different mailbox owners
+
+- **Meaning:** Managed delivery hashes mailbox ownership from the execution checkout while the real hook hashes the originating checkout, so attached receipts can coexist with no delivered events.
+- **Source mappings:** Pygardon / DD-091
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-052: 4fa48f0/v0.3.24 admitted same-repository mailboxes, but did not normalize the later owner hash. 50b6d71 changes that hash to checkoutIdentity; first containing tag v0.3.38. No demonstrated post-fix recurrence of this hash mismatch is supplied.
+
+### Pygardon / DD-091
+
+**Source description:**
+
+`ci-host-hook.mjs` hashes the owner from `checkoutRoot`, the checkout holding the running script. Managed delivery binds with the execution worktree's hook (root `…/pygardon-worktrees/ci-capacity-hold-attention/`), while Claude Code runs the hook from `$CLAUDE_PROJECT_DIR` (root `…/pygardon/`). The mailbox `owner` file therefore holds a hash the real hook rejects (`EEXIST`, different owner), contrary to the adapter documentation's same-`git-common-dir` rule.
+
+### Occurrences
+- Execution: `.planning/quick/185-ci-capacity-hold-attention/PLAN.md` (first implementation commit `c2170df0f`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37 (installed watcher identical to upstream `8932c16`). Evidence: mailbox `owner` = `a8633e59…` = sha256 of `["/Users/terryyin/git/pygardon-worktrees/ci-capacity-hold-attention/","claude","b114cd8a-…",""]`; the real hook created the empty binding directory `owner-9db3d794…` for root `/Users/terryyin/git/pygardon/`; result `deliveredThrough: 0, unread: 4`. Effect: every delivery receipt said `observation: attached` while no CI event reached the coordinator. Inference: DD-085's session-identity workaround gets managed delivery to attach, but in a worktree execution it binds to the wrong owner; the likely fix is an owner identity from the repository's common directory or the host's project directory.
+  - Source: Pygardon / DD-091; canonical DearDough.md occurrence
+
+- **Assessment (2026-09-25):** 50b6d71/v0.3.38 normalizes the owner hash; the earlier report used v0.3.37. Subsequent attached/reused receipts alone cannot demonstrate real hook delivery across both roots. The cause of ODF-112 is unresolved. Watch start and review-after unknown; do not retire from apparent attachment. All three current logs checked; execution releases are the supplied releases, not today's installed versions.
+
+- **Status:** Concrete response released; effectiveness beyond the corrected boundary unverified.
+- **Response:** `50b6d71`: The hook owner hash uses the common repository checkout identity.
+- **Released in:** 0.3.38; first containing tag `v0.3.38`, verified by containment and implementation diff.
+
+## ODF-104 — Increment delivery defers checkout refresh without a reason
+
+- **Meaning:** Managed publication returns only a deferred maintenance label, preventing the coordinator from understanding why a clean default checkout was not refreshed.
+- **Source mappings:** Pygardon / DD-092; Doughnut / DD-110
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Same concrete receipt omission in both projects; preserve the distinction between missing explanation and an unverified refresh defect.
+
+### Pygardon / DD-092
+
+**Source description:**
+
+Every `execution-increment-delivery.mjs deliver` receipt reported `maintenance: "deferred"` with no reason while the default checkout was clean, on `main`, and a strict ancestor of the accepted trunk revision.
+
+### Occurrences
+- Execution: `.planning/quick/187-bounded-ci-observation/PLAN.md` (first implementation commit `132b3e53e`); Timestamp: unknown (2026-09-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: four delivery receipts (`132b3e53e`, `d4d26f8df`, `b5d361cc6`, `4fc8a4c79`) each said `deferred`; each time the coordinator re-ran the Refresh eligibility checks by hand (clean status, no `index.lock`, ancestor of `origin/main`) and `git merge --ff-only` advanced the checkout. Effect: four manual refreshes and one reference lookup. Inference: delivery either skips refresh deliberately or defers for a reason it does not report; the receipt should say which.
+  - Source: Pygardon / DD-092; canonical DearDough.md occurrence
+
+### Doughnut / DD-110
+
+**Source description:**
+
+`execution-increment-delivery.mjs deliver` returned `maintenance: "deferred"` on every Trunk Mode publication with no reason or remote/head fields, while the startup receipt reports its maintenance result with `reason`, `remoteSha` and `head`.
+
+### Occurrences
+- Execution: SEED-035 story 20 / quick/026-test-file-journeys-on-lfs / 5859e6d663; Timestamp: 2026-09-24, ~17:40–18:55+08:00 (eleven increment deliveries); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-110; canonical DearDough.md occurrence
+  - Evidence: delivery receipts for 5859e6d663 … 47a3bdd0ab each show only `maintenance: deferred`; at the end the default checkout was clean at eb957e4e7e while origin/main was 47a3bdd0ab.
+  - Observed effect: the coordinator could not tell whether the refresh was blocked (ownership, dirty tree) or just skipped, and the default checkout was left behind trunk.
+  - Inference: surfacing the same maintenance record as startup would let the coordinator decide whether a manual refresh is safe.
+- Execution: SEED-035 story 4 / quick/027-web-uploaded-pictures-as-notebook-files / 4250de93e1; Timestamp: 2026-09-24, ~21:22–22:03+08:00 (five increment deliveries); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-110; canonical DearDough.md occurrence
+  - Evidence: delivery receipts for 4250de93e1, a061808c28, 682259779a, 0e760d4933 and f4d1ec8d5c each show only `maintenance: deferred`, while startup's `afterMaintenance` had advanced the default checkout.
+  - Observed effect: same as before; the coordinator could not tell why the default checkout was left behind trunk.
+
+## ODF-105 — Coordinator staging removes a live writer's changes into a stash
+
+- **Meaning:** A delivery command stashes another active slice's uncommitted files instead of staging only owned paths.
+- **Source mappings:** Pygardon / DD-094
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from ODF-093 consuming a foreign stash and ODF-082 editing during refactor. Work was restored; concurrent writer interference remains actionable.
+
+### Pygardon / DD-094
+
+**Source description:**
+
+While committing one increment, the coordinator's compound shell command also ran `git stash push -- <paths>` on another running slice's uncommitted files in the shared execution worktree.
+
+### Occurrences
+- Execution: `.planning/quick/188-halve-ci-wall-time/PLAN.md` (first implementation commit `51b7aa206`); Timestamp: unknown (2026-09-24, after commit `6bc2fda73`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: the command that committed `6bc2fda73` ended with `git stash push -m halve-ci-slice3-hold -- .dockerignore Dockerfile.ci docs/container-checks.md tests/test_ci_python_container.py`; the next status showed the files clean; `git stash apply 3d6079e70` restored them and the entry was dropped; the owning agent confirmed by `cmp` that its container proof used a separate clone. Effect: a few seconds of missing work under a live agent; no loss. Inference: separable staging (`git add <owned paths>`) already isolates an increment; a stash is never needed for it and violates the pause contract when a writer is live.
+  - Source: Pygardon / DD-094; canonical DearDough.md occurrence
+
+## ODF-106 — Concurrent plans collide on a numeric invocation
+
+- **Meaning:** Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous.
+- **Source mappings:** Pygardon / DD-095
+- **References:** Current guidance assessed: Open Dough `7e17cba`. One execution; canonical full paths remain distinct. No automatic renumbering or cancellation is implied.
+
+### Pygardon / DD-095
+
+**Source description:**
+
+Plans `quick/190-tfdc-trustworthy-results` (`e12052786`) and `quick/190-worktree-python-fast-path` (`de51f36b1`) were committed minutes apart with the same number, so `/dough-execute-plan 190` was ambiguous.
+
+### Occurrences
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: 2026-09-25T08:16:43+08:00 (second plan commit); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: both directories under `.planning/quick/`; the coordinator resolved the number from the Taken entry, the TFDC worktree, and the latest commit message saying "add plan 190". Effect: three disambiguation calls and a stated assumption. Inference: plan-number allocation does not see a concurrent session's unpublished plan; publishing-time collision checks or a name-based argument would remove the ambiguity.
+  - Source: Pygardon / DD-095; canonical DearDough.md occurrence
+
+## ODF-107 — Changed message proof omits another contract consumer
+
+- **Meaning:** A changed user-visible error message is accepted using local unit/API proof while another test consumer of the old contract remains broken.
+- **Source mappings:** Pygardon / DD-097
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to retired ODF-075 and f0f355c/v0.3.33 shared-consumer response, still present through v0.3.38. The new record proves a missed message consumer, not the old stale unaffected-suite exclusion; retain a separate identity with uncertain shared cause. This is later failure of the broader consumer-proof outcome on v0.3.38, not proof the earlier signature-exclusion mechanism was reintroduced.
+
+### Pygardon / DD-097
+
+**Source description:**
+
+Slice 2 changed the diarization missing-dependency message; proof covered the unit and API tests, but `tests/test_service_optional_audio_startup.py` still matched the old text and failed later in the standard suite.
+
+### Occurrences
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: 2026-09-25T08:37:19+08:00 (`21ad862d6`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: slice 3's fresh-worktree suite failed `test_diarize_audio_file_raises_when_pyannote_missing` (`match="pyannote.audio is required"`); the same test failed at `21ad862d6`; fixed in `625451dac`. Effect: a red CI revision on the story branch and one extra agent round. Inference: proof acceptance's shared-contract consumer check applied to messages would have been a single grep for the old text.
+  - Source: Pygardon / DD-097; canonical DearDough.md occurrence
+
+## ODF-108 — Tail-only long-suite output loses failure evidence
+
+- **Meaning:** A long proof run retains only tail output, discarding tracebacks required to diagnose failures.
+- **Source mappings:** Pygardon / DD-098
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to ODF-077 output loss during whole-suite recovery, but this is initial pipeline capture rather than recovery ownership. Shared cause and correction history are not established.
+
+### Pygardon / DD-098
+
+**Source description:**
+
+An implementation agent ran the 29-minute standard suite as `… | tail -30`; three load-only failures lost their tracebacks and could not be diagnosed until they recurred.
+
+### Occurrences
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: unknown (2026-09-25, slice 3 first round); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: slice 3 report ("the first run was piped through `tail -30`, so their failure details were lost"); one failure was later diagnosed only because CI reproduced it (`204b0e65b`). Effect: two failures left undiagnosed. Inference: delegation prompts for long proofs should require output kept in a log file, as the second round did (`suite2.log`).
+  - Source: Pygardon / DD-098; canonical DearDough.md occurrence
+
+## ODF-109 — Startup reports a recent pre-execution ancestor as owned failure
+
+- **Meaning:** A new observer reports a recent ancestor revision's failure that this execution did not produce or register.
+- **Source mappings:** Pygardon / DD-099
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Relationship to ODF-102 is uncertain. 50b6d71/v0.3.38 excludes older completed attempts but intentionally keeps the newest completed one; the supplied report does not identify its position in the startup set. Do not assert failure of the older-history correction or expected ancestor policy.
+
+### Pygardon / DD-099
+
+**Source description:**
+
+A freshly started execution observer emitted, as its first event, `CI_FAILURE` for `b937d2ab6`, a trunk revision before the story's preparation commit and not produced by this execution; the coordinator had to disposition it as not owned. Matching to DD-090 is uncertain: that finding concerns years-old unregistered attempts, while this attempt was recent, an ancestor, and labelled with the story branch.
+
+### Occurrences
+- Execution: `.planning/quick/190-tfdc-trustworthy-results/PLAN.md` at `ca9182e35` (first implementation commit `88824e3a0`); Timestamp: unknown (mailbox event written 2026-09-25 08:27 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: `/tmp/dough-ci-501/watch-ZTiq1g/events/000000000001.json` — `CI_FAILURE`, sha `b937d2ab601f…`, branch `tfdc-trustworthy-results`, run `12b6d705-…`; `b937d2ab6` is an ancestor of preparation commit `e12052786`; the failure was E2E auto-trading bracket-order timeout and holdings ECONNRESET, later fixed on trunk by another session. Effect: one dispositioning of a verdict the execution did not own. Inference: the observer's startup filtering (see DD-090; 0.3.38 `startupCiRuns`) did not exclude an attempt already present when it started; whether ancestor reporting is intended is unresolved.
+  - Source: Pygardon / DD-099; canonical DearDough.md occurrence
+
+## ODF-110 — Readiness replay omits the rest of the promised journey
+
+- **Meaning:** A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
+- **Source mappings:** Doughnut / DD-109
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from an absent replay: the pull seam ran, but the subsequent publish did not. No identity merge with ODF-074 uninspected facts is established.
+
+### Doughnut / DD-109
+
+**Source description:**
+
+A plan was recorded not-ready because slice 3 relied on an inferred CLI path. The coordinator's disposable replay reproduced exactly the named seam (fast-forward with LFS smudge skipped, then fill-in) and recorded ready. The slice's own journey continued with a publish after the pull, and that publish failed in the CLI, forcing a mid-execution stop and an owner scope decision.
+
+### Occurrences
+- Execution: SEED-035 story 14 / quick/025-convert-raw-notebooks-to-lfs / 071d0e0861; Timestamp: 2026-09-24, ~15:35+08:00 (replay and readiness record 47df9474c2), failure observed ~16:05+08:00 (slice 3 E2E); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-109; canonical DearDough.md occurrence
+  - Evidence: research prompt scoped to "pull" risks only; its report noted "the publish check went only as far as the pointer blob being committed"; slice 3 E2E then failed at the second `donut notebook publish` ("Attachment at <commit> must be a Git LFS pointer…", `cli/src/commands/notebook/notebookPublishLfsSelection.ts`); plan recorded the stop in 1e2ed84c35.
+  - Observed effect: one human round-trip and a scope change (CLI change, option A) that preparation could have surfaced before Take.
+  - Inference: when resolving a readiness concern by observation, replay the slice's full promised journey (here pull, then publish), not only the mechanism the concern names; the replay's own "not covered" list was the signal.
+
+## ODF-111 — Refactor proof omits inherited test-support consumers
+
+- **Meaning:** Refactor re-proof covers fewer consumers than a changed shared test helper reaches through inheritance.
+- **Source mappings:** Doughnut / DD-111
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to retired ODF-075 and its f0f355c/v0.3.33 response, present at reported v0.3.37. No stale exclusion or broken consumer was observed here; coordinator whole-suite proof contained the gap. Shared cause with ODF-075 remains uncertain, so this is separate and not a claimed exact recurrence.
+
+### Doughnut / DD-111
+
+**Source description:**
+
+A post-change refactor moved the backend test base's `pointerFor` and the LFS conversion service onto a new production method (`NotebookAttachmentContent.storeAsLfsPointer`) but reran only four backend test classes, although `pointerFor` is inherited by most `NotebookGit*` controller tests.
+
+### Occurrences
+- Execution: SEED-035 story 20 / quick/026-test-file-journeys-on-lfs / 5859e6d663; Timestamp: 2026-09-24, ~18:45+08:00 (slice 10 refactor return); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.37.
+  - Source: Doughnut / DD-111; canonical DearDough.md occurrence
+  - Evidence: slice 10 refactor report ("Backend (conversion service and test base)": four `--tests` classes); the coordinator then ran the full backend suite (2668 tests green) before committing 47a3bdd0ab.
+  - Observed effect: one extra full-suite run by the coordinator; no defect found.
+  - Inference: the refactor contract's caller analysis was applied to production callers but not to inherited test-support consumers. A similar broad refactor in slice 5 took about 35 minutes against a 10-minute slice limit; it was valuable cleanup but was not escalated.
+
+## ODF-112 — Attached story-branch observation misses failed revisions
+
+- **Meaning:** An attached observer delivers no failure for registered failing story-branch revisions, allowing dependent slices to continue on a red branch.
+- **Source mappings:** Doughnut / DD-112
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to ODF-069 discovery gaps and ODF-103 owner mismatch, but the report cannot isolate discovery, registration, hook delivery, or network failure. ODF-069 partial response 5630b28/v0.3.28 and managed delivery v0.3.33 did not establish reliable verdict delivery in this v0.3.38 execution. Keep a separate uncertain identity rather than merge two source headings or claim a specific fixed mechanism recurred.
+
+### Doughnut / DD-112
+
+**Source description:**
+
+The attached Story Branch observer recorded only one `CI_DISCOVERY_DELAYED` event while two later registered revisions failed CI. The failures were found only by a manual `gh run list` at the planned stop boundary.
+
+### Occurrences
+- Execution: SEED-035 story 19 / quick/029-remove-raw-file-storage / 0284ea7f52; Timestamp: 2026-09-25, runs failed ~09:40–10:03+08:00, found ~10:50+08:00; Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-112; canonical DearDough.md occurrence
+  - Evidence: runs 36083055193 (0d84006f7d) and 36084271448 (9ad0b9bf9f) failed "Backend Unit tests"; mailbox `/tmp/dough-ci-501/watch-7llTFe/events` held only sequence 1 (`CI_DISCOVERY_DELAYED` for 0284ea7f52); both deliveries had reported `observation.state: reused`. A later `CI_MONITOR_UNAVAILABLE` (network error on `gh run list`) arrived during the repair.
+  - Observed effect: slices 3 and 4 were implemented, refactored and published on a failing branch for about an hour; the repair then had to cover three failed revisions.
+  - Later evidence: at completion, `complete-revision` for aba0dc2509 returned `unresolvedReason: timeout` with the revision still `undiscovered`, while `gh run list` showed that run `completed success`.
+  - Inference: cause unverified (discovery after the delay advisory, per-revision registration, or hook delivery); a manual `gh run list` check before each delegation would have caught it one slice later.
+
+- **Follow-up:** [Deliver real CI verdicts for registered execution revisions](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — **queued, not resolved**. Selected by the authorized 2026-09-25 runbook maintenance cycle.
+
+## ODF-113 — A previous slice is treated as a pre-execution failure baseline
+
+- **Meaning:** A failed previous-slice tip is used to label a regression pre-existing and out of scope, although the execution introduced it earlier.
+- **Source mappings:** Doughnut / DD-113
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Distinct from retired ODF-063 unasserted behavior claims: the comparator was actually run but was the wrong historical boundary. The general verified-claim response 7b564d8/v0.3.33 is relevant, not evidence of an identical mechanism.
+
+### Doughnut / DD-113
+
+**Source description:**
+
+An implementation agent reported a full-suite heap exhaustion as "also on the base commit", using the previous slice's tip rather than a known-green revision; the coordinator repeated that label to the owner before CI history showed slice 1 and main were green.
+
+### Occurrences
+- Execution: SEED-035 story 19 / quick/029-remove-raw-file-storage / 0284ea7f52; Timestamp: 2026-09-25T10:44+08:00 (slice 4 return; commit e9cbbc6547); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38.
+  - Source: Doughnut / DD-113; canonical DearDough.md occurrence
+  - Evidence: slice 4 report ("same thing happens on the unchanged base commit `9ad0b9bf9f`"); CI runs green for 0284ea7f52 and main 9d2d091d0a; heap dump later traced the leak to slice 2's large LFS test payloads retained by `InMemoryNotebookAttachmentContent`.
+  - Observed effect: the first stop report told the owner the failure was pre-existing and out of scope; the correction came only after the CI check.
+  - Inference: "pre-existing" needs a baseline from before this execution's first change (claim revision or last green CI), not the prior slice.
+
+## ODF-114 — An assumed working live proof lacks a usable fixture and runtime
+
+- **Meaning:** Preparation checks token and fixture presence without exercising the claimed existing live behavior, leaving invalid data and runtime assumptions to fail during execution.
+- **Source mappings:** Pygardon / DD-096
+- **References:** Current guidance assessed: Open Dough `7e17cba`. Related to ODF-074 unverified planning premises, but the supplied record concerns functional fixture/runtime viability rather than a code or host fact assertion. Keep separate while that relationship is uncertain; no failed live-transition gate (ODF-080) is inferred.
+
+### Pygardon / DD-096
+
+**Source description:**
+
+Slice 3's opt-in proof assumed real diarization worked and named `e2e_test/fixtures/audio/sample.wav`; the fixture is a 44-byte header and diarization had been broken since pyannote 4.x (`use_auth_token` removed, gated `speaker-diarization-community-1`, torchcodec needing unexposed FFmpeg libraries).
+
+### Occurrences
+- Execution: `.planning/quick/190-worktree-python-fast-path/PLAN.md` (first implementation commit `3f21aa9fe`); Timestamp: unknown (2026-09-25, between 08:40 and 10:06 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.38. Evidence: plan assumptions checked only that `.env` had `HF_AUTH_TOKEN` and the fixture existed; real CLI runs failed in turn with OpenAI 400 (empty audio), `TypeError` (`use_auth_token`), HF 403, and `libtorchcodec` load failure before success at `eae1e7320`; one owner round trip for gated-model access. Effect: about five paid transcription calls against one planned, two extra production-code changes inside slice 3, and a human-judgment stop. Inference: running the cheap non-paid half (`diarize_audio_file` alone) during planning would have exposed every defect; the coordinator only did so at the end.
+  - Source: Pygardon / DD-096; canonical DearDough.md occurrence

@@ -241,3 +241,43 @@ owns the proposed Git contract. Both retain Proposed status. ADR 0007 records
 the unresolved relationship between Story Branch Mode's delayed integration and
 Accepted ADR 0002; human resolution of that question remains separate from this
 Git migration.
+
+## Selected retrospective responses (2026-09-25)
+
+These are evaluable queued stories, not refined stories or execution plans.
+
+<a id="restore-ci-verdict-delivery"></a>
+
+### Deliver real CI verdicts for registered execution revisions
+
+**Identity:** SEED-008#restore-ci-verdict-delivery
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this maintenance run authorizes queueing only."],"basis":{"document":"6f740d3f8d44e518dbd818939c87a19f250b289d4f9caef32e9e6dc29dd380e1"}}
+```
+
+- **For / why:** Developers and coordinators must learn that a published revision failed while execution can still respond, rather than build later slices on a silently red branch.
+- **Bounded scope:** Diagnose the supplied undiscovered-run and missing-failure reports at their actual acquisition, registration, and host-delivery boundaries, then correct the demonstrated mechanism through the existing observer. Preserve exact-revision ownership, truthful lost-coverage reporting, and the existing asynchronous delivery contract. Do not assume wider listing limits or another observer is the answer.
+- **Evaluation:** Reproduce a reported registered revision whose actual CI run completed but whose observer stayed undiscovered; observe its real terminal verdict reaching the owning coordinator. Include a failed story-branch revision and a later repair revision, and show that a discovery advisory or network loss cannot masquerade as successful coverage. A controlled observation must exercise the diagnosed boundary; a passing unrelated suite or an attached receipt alone is insufficient.
+- **Supporting findings:** [ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results), [ODF-112](../../docs/maintainer/finding-names.md#odf-112--attached-story-branch-observation-misses-failed-revisions). Execution evidence remains in the catalog.
+- **Priority rationale:** Highest priority: six newly retained ODF-069 executions plus the distinct ODF-112 execution show the outcome still failing after the v0.3.28 partial response and v0.3.33 managed delivery. Reports span v0.3.33, v0.3.37 and v0.3.38; plan 029 continued on a red branch for about an hour. Cause remains unverified; this story diagnoses before selecting a repair.
+- **Completion:** Record the actual response, implementation commit, and first containing release on every addressed supporting finding in `docs/maintainer/finding-names.md`; record remaining uncertainty instead of declaring resolution from publication alone.
+- **Depends on:** Existing managed delivery and observer operations, already shipped; no unfinished backlog prerequisite. The two selected stories can be evaluated independently.
+- **Safe stopping point:** The bounded outcome is proved with truthful remaining coverage limits; unrelated CI, host, publication and planning work remains outside scope.
+
+<a id="attach-first-claude-publication"></a>
+
+### Attach CI observation to the first Claude Code publication
+
+**Identity:** SEED-008#attach-first-claude-publication
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this maintenance run authorizes queueing only."],"basis":{"document":"6f740d3f8d44e518dbd818939c87a19f250b289d4f9caef32e9e6dc29dd380e1"}}
+```
+
+- **For / why:** A developer using a fresh Claude Code coordinator gets CI observation from the first authorized managed increment without script archaeology or manual mailbox setup.
+- **Bounded scope:** Make the existing managed-delivery path obtain or explicitly receive the supported session identity at its taught invocation, attach the first accepted revision to its owner, and reuse that observer. Keep genuine bridge unavailability explicit. Address the recorded retry/hidden-observer recovery within this same first-attachment journey; do not replace the observer lifecycle or duplicate the separate verdict-discovery story.
+- **Evaluation:** From a fresh supported Claude Code session and owned execution worktree, follow the published invocation and observe first-publication attachment plus a real event reaching that session. A second increment reuses the observer; missing supported context reports an actionable gap; retry after an accepted or refused publication preserves truthful publication and observer ownership without duplicate push or hidden observer.
+- **Supporting findings:** [ODF-092](../../docs/maintainer/finding-names.md#odf-092--claude-code-managed-delivery-omits-the-session-identity-needed-for-first-attachment), [ODF-073](../../docs/maintainer/finding-names.md#odf-073--ci-observation-starts-after-the-first-publication). Execution evidence remains in the catalog.
+- **Priority rationale:** Second priority: ODF-092 retains twenty failing executions across all three projects, including the specifically moved ODF-073 plan 183 occurrence. Count each execution once; Pygardon plan 185 is successful workaround evidence. The gap repeatedly delays first-push coverage, but many coordinators recover it promptly, so actual missed failures rank above it.
+- **Completion:** Record the actual response, implementation commit, and first containing release on every addressed supporting finding in `docs/maintainer/finding-names.md`; record remaining uncertainty instead of declaring resolution from publication alone.
+- **Depends on:** Existing managed delivery and observer operations, already shipped; no unfinished backlog prerequisite. The two selected stories can be evaluated independently.
+- **Safe stopping point:** The bounded outcome is proved with truthful remaining coverage limits; unrelated CI, host, publication and planning work remains outside scope.

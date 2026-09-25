@@ -347,36 +347,6 @@ attached, so lost coverage is first visible when the coordinator stops it.
     the record shows when it stopped writing, not why. Neither `register-push`
     nor the hook checks that the recorded worker is still running.
 
-## ODF-066 — A Story Branch claim left unpublished on shared main blocked another execution and was then misreported
-
-Former local code: DD-064.
-
-Story Branch Mode commits its claim on the integration branch and is told not
-to push it. On a shared integration checkout that leaves local `main` ahead of
-origin for the whole execution.
-
-### Occurrences
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Timestamp: 2026-09-20T07:49:42+08:00
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Claim commit `beafc8d`. `SEED-008#publish-shared-backlog-claims`
-    records that plan 62's Trunk Mode publication stopped on it until the owner
-    pushed it; `git branch -r --contains beafc8d` now lists `origin/main`.
-    This execution's reports kept describing the claim as local only, including
-    after the interruption recovery, which verified the execution checkout but
-    not the integration branch's publication state.
-  - Observed effect: Another execution was blocked until a human intervened,
-    and the dashboard built here showed this story as Backlog priority 1 on the
-    real origin while it was being executed. The original follow-up `SEED-008#publish-shared-backlog-claims` is complete;
-    native startup acceptance is now Taken as
-    `SEED-008#accept-queued-start-native-behavior`.
-  - Inference: Follows the current instruction rather than breaking it. The
-    stale "local only" reports are a separate, smaller gap: retained execution
-    identity is rechecked for the execution branch, not for the claim.
-
 ## ODF-067 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
 Former local code: DD-054.
@@ -420,40 +390,6 @@ without the agent flagging it as a limitation.
     "don't let setup supply the outcome" wording in
     `refactor-checks.md`/`wrap-up.md` was not sufficient on its own to
     prevent the first draft.
-
-## ODF-068 — Take-queued-work claim staging assumes exclusive backlog ownership
-
-Former local code: DD-053.
-
-The take-queued-work guidance says to stage the backlog path as a whole when
-committing an isolated **Taken** claim. It does not address a concurrent
-session's own uncommitted, unrelated edits already present in that same
-tracked file at claim time; staging the whole path would have folded that
-other session's unreviewed draft content into this execution's claim commit.
-
-### Occurrences
-
-- Execution: `SEED-004#run-standalone-manual-testing-in-isolated-execution @ 290d30d`
-  - Timestamp: 2026-09-17T12:08:37+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: modified; revision 9e6ce93; base 0.3.24
-  - Evidence: Before the claim, `git status --short` on `.planning/PRODUCT-BACKLOG.md`
-    and `.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` already showed
-    unstaged modifications (a "Publish Trunk Mode from local main" story
-    capture) with mtimes ~2 minutes old, not owned by this execution.
-    Following the literal "stage only the backlog path" instruction would have
-    staged that unrelated addition together with this claim's move of one
-    entry to Taken.
-  - Observed effect: The claim was instead built by staging a hand-constructed
-    target blob via `git hash-object`/`git update-index` for only the intended
-    move, leaving the concurrent session's edits untouched and unstaged; commit
-    `290d30d` contains only the claim's own change.
-  - Inference: The guidance's "stage only the backlog path" step assumes the
-    backlog file has no concurrent uncommitted edits from another session at
-    claim time; when it does, whole-path staging would misattribute unreviewed
-    content into the claim commit. A hunk- or content-aware staging fallback
-    for this case is not currently documented.
 
 ## ODF-003 — File-type assumptions skipped affected maintained proof
 
@@ -724,7 +660,9 @@ distinguishes "still polling" from "ended, will never poll this SHA."
     recurrence is plausible. Not tested: a distinct "CI observer ended"
     hook message, mirroring "lost its worker."
 
-## DD-095 — Claude Code managed delivery lacked session identity; a refused retry left a hidden observer
+## ODF-092 — Claude Code managed delivery lacked session identity; a refused retry left a hidden observer
+
+Former local code: DD-095.
 
 Delivery without `--session-json` returned `pendingCi: unobserved`; no guidance
 names Claude Code's `$CLAUDE_CODE_SESSION_ID`. A retry for the accepted SHA was
@@ -808,7 +746,9 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: a sixth Claude Code occurrence; recovery again needed a
     read of `ci-host-bridge.mjs`. No duplicate observer this time.
 
-## DD-094 — A delegated agent's `git stash pop` applied another session's stash
+## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
+
+Former local code: DD-094.
 
 Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
 `git stash pop` applied an unrelated Codex session's stash; delegation is silent.
@@ -823,7 +763,9 @@ Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh)
   - Evidence: slice 1 implementation report; foreign `stash@{0}` still listed.
   - Observed effect: four conflicted files restored; a clean pop drops the stash.
 
-## DD-093 — Implementation and refactor agents were barred from lint the project has no hook for
+## ODF-094 — Implementation and refactor agents were barred from lint the project has no hook for
+
+Former local code: DD-093.
 
 The delegation contract forbids agents an "independent hook-owned lint
 command". In a project with no commit hook, where the formatter command also
@@ -851,7 +793,9 @@ surfaced only at the coordinator's formatting step, after refactoring.
     (minutes), and it compounds with ODF-064 because the fixes landed after
     the refactor pass.
 
-## DD-092 — Behavior-only delivery-evidence slices cloned native run scaffolding four times
+## ODF-095 — Behavior-only delivery-evidence slices cloned native run scaffolding four times
+
+Former local code: DD-092.
 
 Plan 085 told slice 1 to create the smallest shared fixture/runner adaptation
 and keep it with the behavior rather than a standalone framework slice. Slices
@@ -882,7 +826,9 @@ waste.
     across slices; per-slice post-change refactor could not see the later clones
     as one concept until aggregate review.
 
-## DD-096 — Native acceptance fixtures' sufficient side was not credible, and each case paid a failed run to learn it
+## ODF-096 — Native acceptance fixtures' sufficient side was not credible, and each case paid a failed run to learn it
+
+Former local code: DD-096.
 
 In three of the four delivery-evidence cases, the scenario meant to show
 sufficient proof proceeding was not credibly sufficient. It used
@@ -909,7 +855,9 @@ known fault class was rediscovered with a paid failing run per case.
     most of those runs. Useful practice: an offline byte-identical fixture
     comparison kept the native evidence valid through each refactor.
 
-## DD-097 — Coordinator published a commit after the formatter failed
+## ODF-097 — Coordinator published a commit after the formatter failed
+
+Former local code: DD-097.
 
 The coordinator chained the formatter and commit with `;`, not `&&`. It
 committed and pushed a change that failed ShellCheck, even though wrap-up
@@ -928,7 +876,9 @@ says formatting must succeed before staging.
   - Inference: A one-off coordinator error, not a guidance gap; gate
     commands with `&&`.
 
-## DD-098 — A slice's proof named a suite only a later slice's behavior keeps green
+## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
+
+Former local code: DD-098.
 
 Plan 091 mapped slice 1's proof to the startup race suite, but race-safe
 agent-name choice was slice 3, whose seam note predicted the failure without
@@ -950,7 +900,9 @@ it. Slice 1 was not CI-safe until slice 3 was folded into it.
     without tracing which existing suites a new invariant (unique active
     agent names) would break.
 
-## DD-099 — The startup receipt carried two full Git index listings
+## ODF-099 — The startup receipt carried two full Git index listings
+
+Former local code: DD-099.
 
 `execution-start.mjs start` printed a 227 KB receipt. About 222 KB were
 `beforeMaintenance.index` and `afterMaintenance.index`, listings of the
