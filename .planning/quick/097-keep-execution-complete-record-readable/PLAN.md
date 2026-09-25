@@ -127,7 +127,7 @@ when its Proof quotes fenced field lines", each failing before the fix.
 ### 2. The completion-record guidance test checks behavior and the record contract
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs`
 (plus the contract test's file when separate); a temporary rewording of one
 sentence in `finish-or-stop.md` without behavior change keeps it green and is
@@ -137,6 +137,19 @@ Structure: replace sentence regexes with keyword-skeleton assertions for the
 same promises, drop the test-local fence rule if the contract test no longer
 needs it, and add the contract test that parses the fenced record example
 from `finish-or-stop.md#record-execution-completion` with `readPlanSlices`.
+
+Accepted: `execution-completion-record-guidance.test.mjs` keeps the ten
+promise tests as keyword skeletons (exact text only for the authority
+exclusion and the wrap-up commit contract), drops its test-local fence rule,
+and adds "finish-or-stop's documented record is read by the plan reader as the
+plan's product advice", which extracts the fenced example from
+`finish-or-stop.md` and asserts `readPlanSlices(...).completion` is
+`{ advice }`. `node --test src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs`
+11 pass; renaming the example heading temporarily failed only the contract
+test (10 pass, 1 fail), and a temporary rewording of two record-section
+sentences kept all 11 green; both edits reverted.
+`/opt/homebrew/bin/bash tests/execution-ci-runtime.sh` 315 pass before the
+refactor pass.
 
 ## Learnings
 
