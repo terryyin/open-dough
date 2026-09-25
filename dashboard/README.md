@@ -147,7 +147,10 @@ no branch. More than one profile naming the story, a recorded branch that is no
 longer published, a recorded branch whose name this dashboard cannot use (it
 is then never read or watched), and a plan missing or uninterpretable on that
 branch are each shown as that gap, never as trunk's count. The detail view
-shows the same source.
+shows the same source. When the plan carries an `## Execution complete` record,
+the detail shows "Execution complete" and its `Product advice:` as recorded,
+in plain text, or the record's gap when it has no readable advice; the shared
+plan reader decides both.
 
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly

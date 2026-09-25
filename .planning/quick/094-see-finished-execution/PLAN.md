@@ -140,12 +140,28 @@ Facts this plan relies on:
   [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) and is
   tracked separately, decided at wrap-up rather than added as a slice here.
 
+## Execution
+
+Story Branch Mode. Execution checkout `/Users/terryyin/git/open-dough-094`,
+branch `claude/094-see-finished-execution`, started from `1283b31`; claim
+`04a034b` published on `origin/main` (agent Yuma-chan, publisher
+`claude-094`). Increments publish to
+`origin/claude/094-see-finished-execution`. CI: GitHub Actions `ci.yml` ("CI").
+
 ## Ordered slices
 
 ### 1. The dashboard detail shows a plan's recorded completion and advice
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `readPlanSlices` returns `completion: { advice }` or
+`{ problem }` beside unchanged slices, ignoring fenced quotes
+(`tests/support/product-backlog-plan-completion.test.mjs`, 5 cases, via
+`node --test tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-plan-completion.test.mjs`);
+the detail's `ExecutionCompleteBlock` shows "Execution complete" and the
+advice as plain text, the gap, or nothing
+(`dashboard/tests/plan-execution-complete-detail.spec.ts`); typecheck and
+`tests/product-backlog.sh` green.
 Proof: new cases in `tests/support/product-backlog-plan-reader.test.mjs` via
 `node --test tests/support/product-backlog-plan-reader.test.mjs`:
 - a completed plan returns its advice, including multi-line advice;
@@ -269,3 +285,8 @@ Each seed scope bullet maps to the proof table:
 The deferred promises have no slice.
 
 ## Learnings
+
+- Slice 1: the completion reader ignores `## Execution complete` headings and
+  `Product advice:` entries inside fenced code blocks, because plans (this one
+  included) quote the record form as an example. `PlanCompletion` is exported
+  from `dashboard/src/storyPlan.ts` for the slice 2 card.
