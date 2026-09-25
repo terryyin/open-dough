@@ -82,15 +82,25 @@ export async function awaitWorkerSignal(directory, path) {
 
 // Registers, on a `fixtureTeardown`, stopping the CI observer started at
 // `directory` through the real `stop` command and proving its recorded worker
-// exited, so the fixture it runs from is removed only after it is gone.
-export function deferObserverStop(teardown, { launcher, directory, cwd, env }) {
+// exited, so the fixture it runs from is removed only after it is gone. A
+// worker the test already ended is only confirmed dead: `stop` would wait on a
+// lost worker, or fail on a mailbox the test removed.
+export function deferObserverStop(teardown, observer) {
+  const { directory } = observer;
   const worker = readWorkerIdentity(directory);
   teardown.defer(async () => {
-    await runCommand(process.execPath, [launcher, "stop", directory], {
-      cwd,
-      env,
-    });
+    if (checkMailboxWorkerLiveness(worker, directory) !== "dead")
+      await stopObserver(observer);
     assert.equal(checkMailboxWorkerLiveness(worker, directory), "dead");
+  });
+}
+
+// Stops the CI observer at `directory` through the real `stop` command of
+// `launcher`; a failing stop rejects.
+export async function stopObserver({ launcher, directory, cwd, env }) {
+  await runCommand(process.execPath, [launcher, "stop", directory], {
+    cwd,
+    env,
   });
 }
 

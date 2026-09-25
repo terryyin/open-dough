@@ -291,7 +291,7 @@ repo)`) and removes them all after the deferred steps.
 ### 2. Managed-delivery observers are stopped before their fixture is removed
 
 Type: Structure (owns F3)
-Status: planned
+Status: done
 
 Change: `createManagedFixture` builds on `fixtureTeardown(base.fixture)`;
 `cleanup` becomes its `cleanup`. The fixture defers `deferObserverStop` for
@@ -310,6 +310,31 @@ fixture directory is gone. The dead-worker test
 (`-resume-ownership.test.mjs:90`) does not gain the 5 s lost-worker wait. All
 seven `execution-increment-managed-delivery*.test.mjs` files pass; leak sweep
 empty.
+
+Accepted proof (2026-09-26; commands run in
+`src/skills/dough-execute-plan/scripts` with a private `TMPDIR`):
+
+- Before: a temporary `assert.fail` right after delivery in "ended observer
+  receipt never reports active attachment on the host hook"
+  (`-resume-lifecycle`) left a `ci-mailbox.mjs worker` under the removed
+  fixture 8 s after the file ended. After: exit 1, 1 fail, 0 cancelled, no
+  worker and no fixture directory.
+- A temporarily wrong launcher path made the teardown stop fail the Story
+  Branch test with `Command failed: … stop`, and the fixture directory was
+  gone.
+- The dead-worker test ran 758–994 ms before and 882–915 ms after: no 5 s
+  wait. Correction to the decision's rationale: this family never paid the
+  lost-worker wait; the dead-worker rule is needed because a teardown `stop`
+  fails on a mailbox the test removed ("mismatched owner").
+- `node --test execution-increment-managed-delivery*.test.mjs ci-cursor-worktree-hook.test.mjs ci-target-branch-worktree.test.mjs`
+  → 24 pass, 0 fail, 0 cancelled, silent; the private `TMPDIR` held no
+  fixture and no worker afterwards.
+
+Delivered structure: `createManagedFixture` wraps delivery, resume, and
+mailbox start to defer `deferObserverStop` for each returned directory;
+`stopObserver({ launcher, directory, cwd, env })` in `watch-ci-test-fixtures.mjs`
+is the one real `stop` call and rejects on failure; `deferObserverStop` only
+asserts a worker that is already dead.
 
 ### 3. Process-mailbox observers and CLI children are stopped before removal
 

@@ -124,12 +124,7 @@ test("dead worker reports coverage gap without duplicate push or replacement", a
 
 test("ambiguous matching owners return a gap and preserve existing state", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    for (const directory of fixture.observerDirectories ?? []) {
-      await fixture.stopObserver(directory);
-    }
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -153,8 +148,7 @@ test("ambiguous matching owners return a gap and preserve existing state", async
       env: fixture.env,
     },
   );
-  fixture.observerDirectories = [delivered.observation.directory, second];
-  for (const directory of fixture.observerDirectories) {
+  for (const directory of [delivered.observation.directory, second]) {
     await waitForLiveMailbox(directory, {
       repo,
       branch: "main",
@@ -191,10 +185,7 @@ test("ambiguous matching owners return a gap and preserve existing state", async
 
 test("mismatched owner leaves coverage unobserved without adopting it", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -208,7 +199,7 @@ test("mismatched owner leaves coverage unobserved without adopting it", async (t
   await fixture.stopObserver(delivered.observation.directory);
   rmSync(delivered.observation.directory, { recursive: true, force: true });
   // Only a mismatched live owner remains (different branch).
-  fixture.observerDirectory = await fixture.startExecutionMailbox(
+  const mismatched = await fixture.startExecutionMailbox(
     {
       mode: "execution",
       repo,
@@ -236,7 +227,7 @@ test("mismatched owner leaves coverage unobserved without adopting it", async (t
   assert.equal(resumed.observation.ownership, "missing");
   assert.equal(resumed.pushCount, 0);
   assert.equal(
-    readRevisionCoverage(fixture.observerDirectory).length,
+    readRevisionCoverage(mismatched).length,
     0,
     "mismatched owner must not receive the accepted SHA",
   );

@@ -1,7 +1,7 @@
 // Shared setup for managed-delivery proofs: deployed skill, controlled CI
-// adapter, and host session. Tests own observable assertions.
-import { spawn } from "node:child_process";
-import { once } from "node:events";
+// adapter, and host session. Tests own observable assertions and register
+// `cleanup` with `t.after`; every observer the fixture's delivery, resume, or
+// mailbox start returns is stopped before the fixture is removed.
 import {
   chmodSync,
   cpSync,
@@ -14,7 +14,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout as pause } from "node:timers/promises";
 import { readMailboxEvents } from "./ci-mailbox-store.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
+import { deferObserverStop, stopObserver } from "./watch-ci-test-fixtures.mjs";
 
 const skillRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const backlogSkillRoot = join(dirname(skillRoot), "dough-product-backlog");
@@ -90,6 +92,7 @@ export async function createManagedFixture({
   preferredAlias,
 } = {}) {
   const base = await createCleanTrunkFixture();
+  const teardown = fixtureTeardown(base.fixture);
   const storage = join(base.fixture, "mailboxes");
   const releasePath = join(base.fixture, "release.json");
   const callsPath = join(base.fixture, "calls.jsonl");
@@ -108,10 +111,21 @@ export async function createManagedFixture({
     DOUGH_CI_MAILBOX_ROOT: storage,
   };
   process.env.DOUGH_CI_MAILBOX_ROOT = storage;
-  const { deliverManagedExecutionIncrement } = await importDelivery(skill);
-  const { resumeManagedExecutionIncrement } = await importResume(skill);
+  const launcher = join(skill, "scripts/ci-mailbox.mjs");
+  const observer = (directory) => ({
+    launcher,
+    directory,
+    cwd: base.execution,
+    env,
+  });
+  // A reused observer is registered again; its later step finds it dead.
+  const deferStop = (directory) => {
+    if (directory) deferObserverStop(teardown, observer(directory));
+  };
+  const delivery = await importDelivery(skill);
+  const resume = await importResume(skill);
   const { resolveCheckoutRuntime } = await importCheckoutRuntime(skill);
-  const { startExecutionMailbox } = await importMailbox(skill);
+  const mailbox = await importMailbox(skill);
   const session = {
     conversation_id: "managed-coordinator",
     session_id: "managed-coordinator",
@@ -134,10 +148,24 @@ export async function createManagedFixture({
     session,
     preferredAlias,
     requestBase,
-    deliverManagedExecutionIncrement,
-    resumeManagedExecutionIncrement,
+    cleanup: teardown.cleanup,
+    async deliverManagedExecutionIncrement(request) {
+      const delivered =
+        await delivery.deliverManagedExecutionIncrement(request);
+      deferStop(delivered.observation?.directory);
+      return delivered;
+    },
+    async resumeManagedExecutionIncrement(request) {
+      const resumed = await resume.resumeManagedExecutionIncrement(request);
+      deferStop(resumed.observation?.directory);
+      return resumed;
+    },
     resolveCheckoutRuntime,
-    startExecutionMailbox,
+    async startExecutionMailbox(request, options) {
+      const directory = await mailbox.startExecutionMailbox(request, options);
+      deferStop(directory);
+      return directory;
+    },
     releaseFailure(sha, branch = "main") {
       writeFileSync(
         releasePath,
@@ -155,15 +183,7 @@ export async function createManagedFixture({
       );
       return { sha, branch };
     },
-    async stopObserver(directory) {
-      if (!directory) return;
-      const child = spawn(
-        process.execPath,
-        [join(skill, "scripts/ci-mailbox.mjs"), "stop", directory],
-        { cwd: base.execution, env, stdio: "ignore" },
-      );
-      await once(child, "exit");
-    },
+    stopObserver: (directory) => stopObserver(observer(directory)),
   };
 }
 

@@ -23,10 +23,7 @@ const repo = "owner/project";
 
 test("unvalidated reconciled candidate does not push and returns needs-validation", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);
   const before = await captureCheckout(fixture.integration);
@@ -41,7 +38,6 @@ test("unvalidated reconciled candidate does not push and returns needs-validatio
     repo,
     defaultCheckout: fixture.integration,
   });
-  fixture.observerDirectory = delivered.observation?.directory;
 
   assert.equal(delivered.ok, false);
   assert.equal(delivered.publication, "reconciled");
@@ -68,10 +64,7 @@ test("unvalidated reconciled candidate does not push and returns needs-validatio
 
 test("validated reconciled candidate pushes and attaches the exact accepted SHA", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);
   const before = await captureCheckout(fixture.integration);
@@ -87,7 +80,6 @@ test("validated reconciled candidate pushes and attaches the exact accepted SHA"
     defaultCheckout: fixture.integration,
   });
   assert.equal(first.status, "needs-validation");
-  fixture.observerDirectory = first.observation?.directory;
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -99,7 +91,6 @@ test("validated reconciled candidate pushes and attaches the exact accepted SHA"
     repo,
     defaultCheckout: fixture.integration,
   });
-  fixture.observerDirectory = delivered.observation.directory;
 
   assert.equal(delivered.ok, true);
   assert.equal(delivered.publication, "accepted");
@@ -137,10 +128,7 @@ test("validated reconciled candidate pushes and attaches the exact accepted SHA"
 
 test("unrelated staged, tracked, and untracked work is preserved across reconciled delivery", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);
   writeFileSync(
@@ -161,7 +149,6 @@ test("unrelated staged, tracked, and untracked work is preserved across reconcil
     defaultCheckout: fixture.integration,
     validate: async () => ({ ok: true }),
   });
-  fixture.observerDirectory = delivered.observation.directory;
 
   assert.equal(delivered.ok, true);
   assertCheckoutUnchanged(before, await captureCheckout(fixture.integration));
