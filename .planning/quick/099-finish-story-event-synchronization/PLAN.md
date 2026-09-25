@@ -7,9 +7,10 @@ This bounded retrospective correction has this plan as its canonical home.
 ## Source
 
 Execution retrospective of plan
-[096](../096-quiet-stable-fast-tests/PLAN.md), which delivered story 1 of
-SEED-037 (`SEED-037#quiet-stable-four-times-faster-tests`,
-[seed](../../seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests)).
+096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at
+`704cd2081d27ebea5fae061268e171056c46aadb`), which delivered story 1 of
+SEED-037 (`SEED-037#quiet-stable-four-times-faster-tests`; its section is in
+`.planning/seeds/SEED-037-quiet-stable-fast-tests.md` at the same commit).
 Reviewed commits on `claude/096-quiet-stable-fast-tests`, `bad3717..3fc3a8b`:
 `0fdf13c`, `caa2731`, `0d5b072`, `014bc3d`, `eb56cc4`, `f9487c9`, `1ebc353`,
 `0d7602e`, `c511efd`, `e09f4bc`, `3fc3a8b`. `1991985` and `0199610` changed only
