@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-037#quiet-stable-four-times-faster-tests",
+  "mode": "story-branch",
+  "branch": "claude/096-quiet-stable-fast-tests",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
