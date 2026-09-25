@@ -40,8 +40,10 @@ list is refreshed (see its header).
 A passing job must write nothing, so a passing suite prints nothing. For each
 failing job the runner prints `FAIL: <job>` and that job's captured output. A
 job that exits 0 but wrote anything to stdout or stderr also fails the run,
-reported as `FAIL: <job> (passed but printed output)` with that output.
-Silence such output at its source (for example `grep -q`, or a quiet flag or
+reported as `FAIL: <job> (passed but printed output)` with that output. A job
+whose shell ends without recording an exit status (for example because it was
+killed) is reported as `FAIL: <job> (ended without recording an exit status)`
+with its output, and the run still finishes. Silence such output at its source (for example `grep -q`, or a quiet flag or
 setting on the noisy command) rather than filtering it. `OPEN_DOUGH_TEST_DIR`
 names another directory of checks, with its own optional `node-test-files` and
 `longest-first`, to run instead of the suite's own, which is how
@@ -70,7 +72,21 @@ File timestamps that must differ are set explicitly, and the dashboard's timed
 journeys step a paused page clock. CI's Git has no global or system
 configuration, so a local run can hide output CI would fail on (such as Git's
 default-branch hint); check with
-`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm test`.
+`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm test`. CI's Bash can
+be older than a local Homebrew Bash and behave differently inside traps (for
+example, before Bash 5.3 a bare `return` in a function called from a trap takes
+the interrupted command's status); check runner and trap changes in a Linux
+container such as `ubuntu:24.04`.
+
+A test stops or releases what it started before removing the fixture those
+things run from. `node:test` runs `t.after` hooks in registration order, so a
+fixture builds its cleanup with `fixtureTeardown(root)`
+(`src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs`):
+register its `cleanup` with `t.after` when the fixture is created, and pass
+each stop or release step to its `defer` as soon as the process starts. The
+steps run in reverse order, the fixture is removed, and then a failing step
+fails the test. `deferObserverStop` in `watch-ci-test-fixtures.mjs` defers
+stopping a CI observer and asserts that its recorded worker exited.
 
 The native ADR-awareness check wrappers and their focused proof scripts are
 described in `tests/native-adr-awareness-wrappers.md`.
