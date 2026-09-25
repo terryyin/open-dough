@@ -233,8 +233,8 @@ A Git refusal test elects not to mutate using fixture-known state rather than at
 Registered revisions are reported uncovered during discovery and their later real verdicts are missed in the observed execution.
 
 - **Sources:** [open-dough / DD-065](../../DearDough.md#odf-069--a-genuinely-failed-ci-run-was-reported-as-merely-uncovered-not-failed); [doughnut / DD-076](../../../doughnut/DearDough.md#odf-069--the-ci-observers-fixed-discovery-poll-bound-reports-lost-coverage-for-revisions-whose-ci-run-exists-and-later-succeeds).
-- **Current evidence:** Partial response `5630b28` / 0.3.28 and managed delivery / 0.3.33 did not eliminate the observed gap: six later Doughnut executions on 0.3.33, 0.3.37 and 0.3.38. Listing limits are an unproved cause. Current `ci-runs.mjs` also requires workflow display name `CI`, while Doughnut names it `donut CI`; the failing sessions' environment overrides are unknown, so this is a diagnostic lead, not a confirmed cause.
-- **Follow-up:** [Deliver real CI verdicts for registered execution revisions](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — **queued, not resolved**.
+- **Current evidence:** Partial response `5630b28` / 0.3.28 and managed delivery / 0.3.33 did not eliminate the observed gap: six later Doughnut executions on 0.3.33, 0.3.37 and 0.3.38. Listing limits are an unproved cause. `ci-runs.mjs` required workflow display name `CI` by default, while Doughnut names it `donut CI`; the failing sessions' environment overrides are unknown, so this was a diagnostic lead, not a confirmed cause.
+- **Response:** `5317499` / unreleased makes the `--workflow` selector the observed workflow's identity; the display-name filter that defaulted to `CI` is gone, and an explicit `DOUGH_CI_WORKFLOW_NAME` that contradicts the selected runs ends observation loudly. A controlled selected-workflow journey proves failure delivery to the owner, repair success, and coverage loss. Effectiveness is unproved until relevant Doughnut use; listing limits and the failing sessions' environments remain unexamined causes.
 
 <a id="odf-070"></a>
 
@@ -558,7 +558,7 @@ An attached observer delivers no failure for registered failing story-branch rev
 
 - **Sources:** [doughnut / DD-112](../../../doughnut/DearDough.md#odf-112--the-ci-observer-delivered-no-failure-for-failed-story-branch-runs-so-later-slices-were-built-on-a-red-branch).
 - **Current evidence:** Doughnut plan 029 / `0284ea7f52`, 0.3.38: two failed runs went unreported, dependent slices proceeded for about an hour, and completion later missed a successful run too. Discovery, registration, hook delivery and network causes remain unresolved; related to ODF-069 without an established common cause.
-- **Follow-up:** [Deliver real CI verdicts for registered execution revisions](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — **queued, not resolved**.
+- **Response:** `5317499` / unreleased corrects the demonstrated workflow-selection loss (see ODF-069). Plan 029's environment is unrecoverable and its mailbox also shows `gh` connectivity loss, so this is not a confirmed cause; effectiveness requires relevant story-branch use.
 
 <a id="odf-113"></a>
 
