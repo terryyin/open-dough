@@ -293,7 +293,18 @@ at their source instead of filtering them. Then turn on the rule in
 ### 5. The dashboard suite succeeds silently and fails on stray output
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/quiet-reporter.spec.ts` (runs inside
+`npm run test:dashboard`) drives Playwright on temporary configs with
+substitute specs under `dashboard/tests/fixtures/quiet-reporter/`: passing →
+exit 0 with empty stdout and stderr; failing → non-zero, title, error, and
+one retained `trace.zip`; a passing spec that prints → non-zero, showing it;
+a global setup that prints → non-zero, "outside any test". `npm run
+test:dashboard` exited 0 printing only npm's banner in three runs, one with
+`CI=1` (HTML report still written). Also fixed at its cause: an intermittent
+`preparation-legend.spec.ts` failure (4 of 40 under load) where End was
+pressed during Home's animated scroll; End now waits for the top and two
+drawn frames (0 of 120).
 Proof: the reporter's own proof runs Playwright on a temporary config with
 substitute specs:
 - a passing spec → no output, exit 0;

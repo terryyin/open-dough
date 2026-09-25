@@ -6,9 +6,16 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env["CI"]),
   retries: 0,
+  // A passing run prints nothing; a failure, or output from a passing test
+  // or from the run itself, fails the run and is shown
+  // (tests/support/quietReporter.ts). CI also keeps an HTML report, which
+  // writes files only.
   reporter: process.env["CI"]
-    ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]]
-    : [["list"]],
+    ? [
+        ["./tests/support/quietReporter.ts"],
+        ["html", { open: "never", outputFolder: "playwright-report" }],
+      ]
+    : [["./tests/support/quietReporter.ts"]],
   use: {
     trace: "retain-on-failure",
   },
