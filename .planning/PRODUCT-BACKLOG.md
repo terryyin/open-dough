@@ -15,6 +15,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests
 - [See when an execution has finished and what it learned before wrap-up](seeds/SEED-021-observe-published-story-progress.md#see-finished-execution) — SEED-021#see-finished-execution
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
