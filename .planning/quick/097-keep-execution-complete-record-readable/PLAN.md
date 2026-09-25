@@ -2,9 +2,9 @@
 
 This bounded retrospective correction has this plan as its canonical home.
 
-**Identity:** quick/096-keep-execution-complete-record-readable/PLAN.md
+**Identity:** quick/097-keep-execution-complete-record-readable/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86b965a0d68b30342fde9dac4d75556dcf39cf673a08bc1bfcff6c1872cb783c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bcb678f112e368c73edddf027faead7029f134c8b1397fd10b8207614781685b"}}
 ```
 
 ## Source and provenance
