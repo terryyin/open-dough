@@ -168,3 +168,79 @@ Status: planned
   assert.match(neither.problem, /## Ordered slices/);
   assert.match(neither.problem, /## Slices/);
 });
+
+for (const [example, quote] of [
+  [
+    "a fenced “## Execution complete” record",
+    "```markdown\n## Execution complete\n\nProduct advice: example only.\n```",
+  ],
+  [
+    "fenced “### …” headings",
+    "~~~markdown\n### Not a numbered slice\n### 9. Not a slice either\n~~~",
+  ],
+  [
+    "a four-backtick fence not closed by an inner three-backtick line",
+    "````markdown\n```text\n### Not a slice\n## Execution complete\n### 9. Not a slice either\n```\n````",
+  ],
+]) {
+  test(`readPlanSlices keeps every slice when a slice quotes ${example}`, () => {
+    const read = readPlanSlices(`# Plan
+
+## Ordered slices
+
+### 1. Quote an example
+Type: Behavior
+Status: done
+Proof: The guidance shows:
+
+${quote}
+
+### 2. After the quote
+Type: Structure
+Status: planned
+`);
+
+    assert.equal(read.status, "interpreted");
+    assert.deepEqual(
+      read.slices.map((slice) => [slice.index, slice.name]),
+      [
+        [1, "Quote an example"],
+        [2, "After the quote"],
+      ],
+    );
+    assert.equal(read.completion, undefined);
+  });
+}
+
+test("readPlanSlices keeps a slice's own Type and Status when its Proof quotes fenced field lines", () => {
+  const read = readPlanSlices(`# Plan
+
+## Ordered slices
+
+### 1. Quote fields
+Type: Behavior
+Status: done
+Proof: The guidance shows
+\`\`\`text
+Status: merged into slice 2
+Type: Structure
+\`\`\`
+
+### 2. After the quote
+Type: Structure
+Status: planned
+`);
+
+  assert.equal(read.status, "interpreted");
+  assert.deepEqual(
+    read.slices.map((slice) => [slice.index, slice.type, slice.status]),
+    [
+      [1, "Behavior", "done"],
+      [2, "Structure", "planned"],
+    ],
+  );
+  assert.equal(
+    read.slices[0].proof,
+    "The guidance shows\n```text\nStatus: merged into slice 2\nType: Structure\n```",
+  );
+});

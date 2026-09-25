@@ -100,7 +100,7 @@ owns suite stability).
 ### 1. Plans that quote Markdown in fences keep every slice
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cases in `tests/support/product-backlog-plan-reader.test.mjs` for a
 fenced `## Execution complete` inside slice 1 with slice 2 following, a fenced
 `### …` inside a slice, and a four-backtick fence containing a
@@ -111,6 +111,18 @@ three-backtick line, run with
 Behavior: a published plan whose slices quote Markdown headings in fenced
 blocks → the reader interprets it → every slice is counted and the completion
 record is read only from the plan's own section.
+
+Accepted: `unfencedLines` in `product-backlog-plan-reader.mjs` is computed once
+per plan and used by `readCompletion`, `sectionBounds`, the `### ` heading
+scan, `readSlice` field detection, and `continuation`; a closer must be a bare
+run of the opener's character at least as long. Observed by the parameterized
+"readPlanSlices keeps every slice when a slice quotes …" cases (fenced
+`## Execution complete`, fenced `### …`, four-backtick fence around a
+three-backtick line) and "readPlanSlices keeps a slice's own Type and Status
+when its Proof quotes fenced field lines", each failing before the fix.
+`node --test tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-plan-completion.test.mjs`
+14 pass; `/opt/homebrew/bin/bash tests/product-backlog.sh` 136 pass;
+`npm run typecheck:dashboard` clean.
 
 ### 2. The completion-record guidance test checks behavior and the record contract
 
@@ -127,3 +139,9 @@ needs it, and add the contract test that parses the fenced record example
 from `finish-or-stop.md#record-execution-completion` with `readPlanSlices`.
 
 ## Learnings
+
+- Slice 1: fenced field lines (`Status:`, `Type:`) inside a slice broke the
+  same promise as fenced headings, so the shared line rule also covers slice
+  fields and the Proof/Accepted continuation break. A backtick opener whose
+  info string contains a backtick is still treated as an opener (CommonMark
+  edge, not seen in plans).
