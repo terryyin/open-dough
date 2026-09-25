@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -13,6 +13,10 @@ import {
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
+import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 import {
   controllableSleep,
   waitFor,
@@ -80,16 +84,8 @@ function ignoredOnlyGithub({ repo, branch, shaA, databaseIdA }) {
 test("an ignored-only descendant of a successful ancestor records not_required and stays quiet, a mixed descendant stays undiscovered, and a late exact attempt wins over reuse", async (t) => {
   const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-not-required-"));
-  // Declared with `let` (not const) so the cleanup below can stop whichever
-  // mailbox/worker were actually created if setup fails partway through.
-  // eslint-disable-next-line prefer-const
-  let directory, worker;
-  t.after(async () => {
-    if (directory) requestMailboxStop(directory, { root: repo, storage });
-    await worker;
-    rmSync(repo, { recursive: true, force: true });
-    rmSync(storage, { recursive: true, force: true });
-  });
+  const teardown = fixtureTeardown(storage, repo);
+  t.after(teardown.cleanup);
 
   writeFileSync(join(repo, "app.js"), "console.log('base');\n");
   writeWorkflow(repo, acceptedWorkflow);
@@ -111,7 +107,7 @@ test("an ignored-only descendant of a successful ancestor records not_required a
   const shaC = await commitAll(repo, "mixed change");
 
   const branch = "feature/path-filter";
-  directory = createMailbox(
+  const directory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -132,12 +128,15 @@ test("an ignored-only descendant of a successful ancestor records not_required a
     shaA,
     databaseIdA: 701,
   });
-  worker = runMailboxWorker(directory, {
+  const worker = runMailboxWorker(directory, {
     root: repo,
     storage,
     observe: (request) =>
       watchCiExecution({ ...request, gh: github.gh, sleep }),
   });
+  deferWorkerStop(teardown, worker, () =>
+    requestMailboxStop(directory, { root: repo, storage }),
+  );
 
   await waitFor(() => sleeps.length > 0, "initial poll");
   const advancePoll = async () => {

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -19,6 +19,10 @@ import {
 } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
 import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
+import {
   allBranchesWorkflow,
   commitAll,
   exec,
@@ -29,17 +33,8 @@ import {
 test("ignored-only descendants of a pending-then-failing ancestor share its one CI_FAILURE without ever being marked success, a later registration does not duplicate it, and another owner's evidence stays isolated", async (t) => {
   const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-not-required-failure-"));
-  // Declared with `let` (not const) so the cleanup below can stop whichever
-  // mailboxes/workers were actually created if setup fails partway through.
-  // eslint-disable-next-line prefer-const
-  let directory, worker, otherDirectory, otherWorker;
-  t.after(async () => {
-    if (directory) requestMailboxStop(directory, { root: repo, storage });
-    if (otherDirectory) requestMailboxStop(otherDirectory, { storage });
-    await Promise.allSettled([worker, otherWorker]);
-    rmSync(repo, { recursive: true, force: true });
-    rmSync(storage, { recursive: true, force: true });
-  });
+  const teardown = fixtureTeardown(storage, repo);
+  t.after(teardown.cleanup);
 
   // A: the only revision with a real CI attempt.
   writeFileSync(join(repo, "app.js"), "console.log('base');\n");
@@ -66,7 +61,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
 
   const shaOther = "c".repeat(40);
   const branch = "feature/ignored-failure";
-  directory = createMailbox(
+  const directory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -75,7 +70,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     },
     { root: repo, storage },
   );
-  otherDirectory = createMailbox(
+  const otherDirectory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -104,12 +99,15 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     shaA,
     databaseIdA: 801,
   });
-  worker = runMailboxWorker(directory, {
+  const worker = runMailboxWorker(directory, {
     root: repo,
     storage,
     observe: (request) =>
       watchCiExecution({ ...request, gh: github.gh, sleep }),
   });
+  deferWorkerStop(teardown, worker, () =>
+    requestMailboxStop(directory, { root: repo, storage }),
+  );
   // Another owner's revision whose run is already discoverable and failed on
   // the first poll: a real, independent journey, not a synthesized event.
   const otherOwnerGithub = modeledGithubActions({
@@ -127,7 +125,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     jobs: { 900: [{ databaseId: 9000, name: "build", conclusion: "failure" }] },
   });
   const { sleep: otherSleep } = controllableSleep();
-  otherWorker = runMailboxWorker(otherDirectory, {
+  const otherWorker = runMailboxWorker(otherDirectory, {
     storage,
     observe: (request) =>
       watchCiExecution({
@@ -136,6 +134,9 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
         sleep: otherSleep,
       }),
   });
+  deferWorkerStop(teardown, otherWorker, () =>
+    requestMailboxStop(otherDirectory, { storage }),
+  );
 
   await waitFor(() => sleeps.length > 0, "initial poll");
   const advancePoll = async () => {

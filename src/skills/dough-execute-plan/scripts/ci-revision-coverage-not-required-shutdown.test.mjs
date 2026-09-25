@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -15,6 +15,10 @@ import {
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
+import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 import {
   controllableSleep,
   waitFor,
@@ -84,14 +88,8 @@ function fourAncestorsGithub({ branch, ancestors }) {
 test("shutdown retains a not_required revision's pending/incomplete applicable-ancestor evidence and omits proved terminal cases, without a discovery event", async (t) => {
   const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-not-required-shutdown-"));
-  // eslint-disable-next-line prefer-const
-  let directory, worker;
-  t.after(async () => {
-    if (directory) requestMailboxStop(directory, { root: repo, storage });
-    await worker;
-    rmSync(repo, { recursive: true, force: true });
-    rmSync(storage, { recursive: true, force: true });
-  });
+  const teardown = fixtureTeardown(storage, repo);
+  t.after(teardown.cleanup);
 
   writeFileSync(join(repo, "app.js"), "console.log('base');\n");
   writeWorkflow(repo, allBranchesWorkflow);
@@ -123,7 +121,7 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
   const shaB4 = await commitAll(repo, "B4: ignored-only");
 
   const branch = "feature/shutdown-applicability";
-  directory = createMailbox(
+  const directory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -169,12 +167,15 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
       },
     ],
   });
-  worker = runMailboxWorker(directory, {
+  const worker = runMailboxWorker(directory, {
     root: repo,
     storage,
     observe: (request) =>
       watchCiExecution({ ...request, gh: github.gh, sleep }),
   });
+  deferWorkerStop(teardown, worker, () =>
+    requestMailboxStop(directory, { root: repo, storage }),
+  );
 
   await waitFor(() => sleeps.length > 0, "initial poll");
 

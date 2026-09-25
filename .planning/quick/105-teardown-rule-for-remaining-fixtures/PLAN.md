@@ -246,7 +246,7 @@ the slice's accepted proof, as plan 104 did.
 ### 1. Revision-coverage in-process workers stop before their fixture is removed
 
 Type: Structure (owns F1, F2)
-Status: planned
+Status: done
 
 Change: `createRevisionCoverageFixture` uses `fixtureTeardown` and defers the
 worker stop right after `runMailboxWorker` starts.
@@ -263,6 +263,30 @@ exit 1 instead of running on; a temporary worker rejection in
 three `createRevisionCoverageFixture` callers, the four other test files, and
 `ci-mailbox-await.test.mjs` (which imports `ci-mailbox-await-inherited-cases`) pass; leak sweep
 empty.
+
+Accepted proof (2026-09-26, Node 24.5.0, macOS; commands run in
+`src/skills/dough-execute-plan/scripts`):
+
+- Before: probe `await createRevisionCoverageFixture(t); assert.fail(...)`
+  against the HEAD fixture was still running at 20 s (1 fail, 1 cancelled once
+  killed). After: the same probe against the real fixture exited 1 in about
+  1 s (1 fail, 0 cancelled).
+- A temporary rejecting deferred stop for the first worker in
+  `ci-revision-coverage-late-github-failure.test.mjs` failed that test with
+  the rejection, and its storage directory was gone. After refactoring, an
+  inline check of `fixtureTeardown(a, b)` with a rejecting `deferWorkerStop`
+  threw the rejection and removed both roots.
+- `PATH="/opt/homebrew/bin:$PATH" node --test ci-revision-coverage.test.mjs ci-revision-coverage-discovery-delay.test.mjs ci-revision-coverage-stop-states.test.mjs ci-revision-coverage-late-github-failure.test.mjs ci-revision-coverage-ignored-only-failure.test.mjs ci-revision-coverage-not-required.test.mjs ci-revision-coverage-not-required-shutdown.test.mjs ci-mailbox-await.test.mjs`
+  → 26 pass, 0 fail, 0 cancelled, silent.
+- Leak sweep over `ci-mailbox.mjs (worker|stream)` and the prefixes
+  `ci-revision-coverage-`, `ci-late-github-`, `ci-not-required-`,
+  `ci-await-inherited-`, `ci-path-applicability-`: no process or directory
+  from these fixtures. Workers from other checkouts on the machine were
+  present and are not this plan's.
+
+Delivered structure: `deferWorkerStop(teardown, worker, requestStop)` beside
+`fixtureTeardown`, which now takes several roots (`fixtureTeardown(storage,
+repo)`) and removes them all after the deferred steps.
 
 ### 2. Managed-delivery observers are stopped before their fixture is removed
 

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -20,11 +20,17 @@ import {
 } from "./ci-path-applicability-test-fixtures.mjs";
 import { controllableSleep } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
+import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 
 test("ignored-only coverage follows successful and failed unregistered ancestors, until an exact attempt supersedes it", async (t) => {
   const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-await-inherited-"));
+  const teardown = fixtureTeardown(storage, repo);
+  t.after(teardown.cleanup);
   writeFileSync(join(repo, "application.js"), "console.log('A');\n");
   writeWorkflow(repo, acceptedWorkflow);
   const successfulAncestor = await commitAll(repo, "applicable success A1");
@@ -80,12 +86,9 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     storage,
     observe: (request) => watchCiExecution({ ...request, gh, sleep }),
   });
-  t.after(async () => {
-    requestMailboxStop(directory, { root: repo, storage });
-    await worker;
-    rmSync(repo, { recursive: true, force: true });
-    rmSync(storage, { recursive: true, force: true });
-  });
+  deferWorkerStop(teardown, worker, () =>
+    requestMailboxStop(directory, { root: repo, storage }),
+  );
   await waitFor(() => sleeps.length > 0, "initial inherited poll");
   assert.deepEqual(
     readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
