@@ -3,7 +3,9 @@
 // shared profile reader under `src/skills/dough-product-backlog/scripts/`;
 // its answer is checked here for the fields this dashboard shows. A profile
 // refers to its work by identity. An unreadable profile names no identity, so
-// it is reported as unreadable and never matched to an entry by guess.
+// it is reported as unreadable and never matched to an entry by guess. A
+// preparation assignment is readable but owns no Taken work, so it records no
+// execution mode or branch and never becomes an execution owner here.
 
 import { z } from "zod";
 import {
@@ -22,17 +24,25 @@ import type { PublishedWork } from "./publishedWork.ts";
 const agentMode = z.enum(agentModes);
 const agentHost = z.enum(agentHosts);
 
+const assignment = {
+  name: z.string().min(1),
+  identity: z.string().min(1),
+  host: agentHost.optional(),
+  model: z.string().min(1).optional(),
+};
+
 const readProfile = z.discriminatedUnion("ok", [
   z.object({
     ok: z.literal(true),
-    profile: z.object({
-      name: z.string().min(1),
-      identity: z.string().min(1),
-      mode: agentMode,
-      branch: z.string().min(1),
-      host: agentHost.optional(),
-      model: z.string().min(1).optional(),
-    }),
+    profile: z.discriminatedUnion("activity", [
+      z.object({
+        ...assignment,
+        activity: z.literal("execution"),
+        mode: agentMode,
+        branch: z.string().min(1),
+      }),
+      z.object({ ...assignment, activity: z.literal("preparation") }),
+    ]),
   }),
   z.object({ ok: z.literal(false), error: z.string().min(1) }),
 ]);
@@ -100,7 +110,9 @@ function interpretProfiles(profiles: readonly PublishedProfile[]): Ownership {
       unreadable.push({ file, problem: read.data.error });
       continue;
     }
-    const { name, identity, mode, branch, host, model } = read.data.profile;
+    const { profile } = read.data;
+    if (profile.activity !== "execution") continue;
+    const { name, identity, mode, branch, host, model } = profile;
     owners.set(identity, [
       ...(owners.get(identity) ?? []),
       {

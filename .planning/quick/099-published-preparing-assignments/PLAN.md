@@ -98,7 +98,12 @@ quick-repair ten-minute limit. All slices start planned; no proof below has run.
 ### 1. Share assignment ownership without changing execution behavior
 
 Type: Structure
-Status: planned
+Status: done (folded into Slice 2)
+Folded: the baseline showed the extraction trivial. `completeEntry` and
+`releaseAgentProfiles` were already separate exports joined only by the
+`product-backlog.mjs complete` CLI, and rotation already counts every profile
+file as held. The remaining exposure had no consumer before Slice 2's
+operations, so it was delivered with Slice 2 under the rule below.
 Proof: existing execution startup, rotation, release, resume and dashboard owner
 journeys remain green through their current public boundaries.
 
@@ -125,7 +130,19 @@ rather than adding an abstract lifecycle framework.
 ### 2. Announce preparation and release its assignment when the result lands
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (execution checkout, story branch):
+`node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs`
+13/13 through the production `preparation-assignment.mjs start|release` CLI
+against a local bare origin (announce, stops and land journeys);
+`bash tests/workspace-publication-callers.sh` 32/32; the Slice 1 assignment and
+startup command 27/27 plus reference readers 32/32; `npm run typecheck:dashboard`;
+`taken-agent-profile{,-refresh}.spec.ts` 2/2 (a preparation profile is neither
+unreadable nor a Taken owner); other profile-reading dashboard specs,
+`tests/product-backlog.sh`, `workspace-publication*.test.mjs` 41/41 and payload
+install/update shell checks pass. Landing uses the Dough Land Git model for
+the merge only; announcement and release are production commands. Behavior
+review walked refinement then keep on a queued story. No native host run yet.
 Proof: one production preparation start-to-land journey against a local origin
 observes the announcement before draft changes, and release with retained results.
 
@@ -307,4 +324,25 @@ or begin execution. Keep all current preparation files uncommitted for review.
 
 ## Learnings
 
-None from execution; implementation and proof are pending.
+- Allocation identity is the profile path plus the commit that added it
+  (`profileAllocation`, `git log -1 --diff-filter=A`). A workspace's own
+  assignment also needs its configured agent authorship (or `--agent` from a
+  `not-configured` receipt) and matching provenance in workspace history. No
+  new profile field was needed. Preparation profiles carry
+  `activity: "preparation"`; legacy execution bytes are unchanged, and
+  `product-backlog.mjs complete` releases only execution profiles.
+- For Slice 3: leave-unpublished, discard and workspace retirement currently
+  leave the assignment published. A `release` rerun after landing returns
+  `no-assignment`, not "already released". A reused workspace whose authorship
+  names X, fast-forwarded past a newer same-story allocation of X, would be
+  recognized as its own; close this with retry and reuse safety.
+  `agent-unavailable` does not yet list the occupied assignments. Untested so
+  far: an accepted push whose response is lost, and a second rejection after
+  the one rebuild.
+- For Slice 4: `takenOwner.ts` `interpretProfiles` drops preparation profiles
+  today; project them there for queued cards. The `taken-agent-profile.spec.ts`
+  step asserting backlog entries claim no owner must change once Preparing is
+  shown.
+- An explicit no-publish or no-commit instruction skips `start`, reports that
+  no Preparing assignment was published, and lets preparation continue only as
+  that instruction allows.

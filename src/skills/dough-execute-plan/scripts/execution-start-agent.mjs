@@ -1,6 +1,7 @@
 // The agent a Take names: chosen from profiles held on the trunk its claim is
 // built on, chosen again when a rival publishes the same name first, and read
-// back from the claim commit when an existing claim resumes.
+// back from the claim commit when an existing claim resumes. Preparation
+// assignments share the same rotation and allocation provenance.
 import { basename, dirname, join } from "node:path";
 import {
   agentIdentity,
@@ -56,12 +57,31 @@ async function mostRecentAgentName(cwd, rev, backlogPath) {
 }
 
 // The rotation's next name at `rev`, or undefined when every name is held.
+// Every profile file occupies its name, whatever activity it records.
 async function nextAgentName(cwd, rev, backlogPath) {
   const [mostRecent, held] = await Promise.all([
     mostRecentAgentName(cwd, rev, backlogPath),
     heldAgentNames(cwd, rev, backlogPath),
   ]);
   return { name: selectAgentName(mostRecent, held), held };
+}
+
+// The allocation a published profile records: the commit that most recently
+// added the file at `path` in `rev`'s history. A later reuse of the same name
+// is a different allocation even when its text is identical. Undefined when
+// `rev` never added it.
+export async function profileAllocation(cwd, rev, path) {
+  const { stdout } = await git(
+    cwd,
+    "log",
+    "-1",
+    "--diff-filter=A",
+    "--format=%H",
+    rev,
+    "--",
+    path,
+  );
+  return stdout.trim() || undefined;
 }
 
 function unavailable(extra = {}) {

@@ -127,6 +127,9 @@ managed_files=(
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-disposition.md
   dough-story-refinement/references/preparation-workspace.md
+  dough-story-refinement/scripts/preparation-assignment.mjs
+  dough-story-refinement/scripts/preparation-assignment-ownership.mjs
+  dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-land/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md

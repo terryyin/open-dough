@@ -1,77 +1,25 @@
 // Each Taken card shows who holds the work, from the agent profiles
 // published beside the backlog at the snapshot's revision. The fake GitHub
-// only publishes the files -- the backlog and the profile texts, spelled by
-// the shared profile renderer -- and lists the profile directory as GitHub's
-// contents listing would; the local read boundary, the shared profile reader,
-// and the page decide everything shown.
+// only publishes the files (takenAgentProfileRecords.ts) and lists the
+// profile directory as GitHub's contents listing would; the local read
+// boundary, the shared profile reader, and the page decide everything shown.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { expectMark, expectPortrait } from "./agentPortrait.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-
-const repository = "terryyin/open-dough";
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const agents = ".planning/agents";
-const revisionA = "a1".repeat(20);
-
-const trunkStory = "See who owns Taken work";
-const branchStory = "Queue trunk integration on one machine";
-const modelless = "Name the model when it is known";
-const older = "Repair the installer's update report";
-const lastInRotation = "Show every agent's portrait";
-const queued = "Prepare stories in a clear workspace";
-
-const backlog = `# Product backlog
-
-## Taken
-
-- [${trunkStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
-- [${branchStory}](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
-- [${modelless}](seeds/SEED-030-models.md#known-model) — SEED-030#known-model
-- [${older}](quick/059-installer-update-report/PLAN.md)
-- [${lastInRotation}](seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar) — SEED-038#recognize-agents-and-tools-by-avatar
-
-## Backlog list
-
-- [${queued}](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
-`;
-
-const akiho = renderAgentProfile({
-  name: "Akiho",
-  identity: "SEED-021#identify-taken-work-owner",
-  mode: "trunk",
-  branch: "origin/main",
-  host: "claude",
-  model: "claude-opus-5-5",
-});
-const yuma = renderAgentProfile({
-  name: "Yuma",
-  identity: "SEED-008#same-machine-merge-queue",
-  mode: "story-branch",
-  branch: "codex/same-machine-merge-queue",
-  host: "codex",
-  model: "gpt-5-codex",
-});
-const sola = renderAgentProfile({
-  name: "Sola",
-  identity: "SEED-030#known-model",
-  mode: "trunk",
-  branch: "origin/main",
-  host: "cursor",
-  // Unrecorded: the renderer leaves an undefined fact out of the profile.
-  model: undefined,
-});
-
-const rina = renderAgentProfile({
-  name: "Rina",
-  identity: "SEED-038#recognize-agents-and-tools-by-avatar",
-  mode: "story-branch",
-  branch: "claude/agent-portraits",
-  host: "claude",
-  model: "claude-opus-5-5",
-});
+import {
+  agents,
+  branchStory,
+  files,
+  lastInRotation,
+  modelless,
+  older,
+  queued,
+  repository,
+  revisionA,
+  trunkStory,
+} from "./takenAgentProfileRecords.ts";
 
 test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
   page,
@@ -79,15 +27,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   const requests = await publishFiles(page, {
     repository,
     revision: revisionA,
-    files: {
-      [backlogPath]: backlog,
-      [`${agents}/akiho-chan.json`]: akiho,
-      [`${agents}/yuma-chan.json`]: yuma,
-      [`${agents}/sola-chan.json`]: sola,
-      [`${agents}/rina-chan.json`]: rina,
-      [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
-      [`${agents}/README.md`]: "Not an agent profile.\n",
-    },
+    files,
   });
 
   await page.goto("/");
@@ -210,15 +150,16 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(card(older).locator("img")).toHaveCount(0);
   });
 
-  await test.step("a malformed profile is shown as unreadable and matched to no entry", async () => {
+  await test.step("a malformed profile is shown as unreadable and matched to no entry, while a preparation assignment is neither", async () => {
     await expect(
       taken.getByRole("list", { name: "Unreadable agent profiles" }),
     ).toHaveText([
       "Agent profile mana-chan.json is unreadable: profile is not JSON. It is not matched to any Taken entry.",
     ]);
-    await expect(
-      taken.getByRole("article").filter({ hasText: "Mana-chan" }),
-    ).toHaveCount(0);
+    for (const agent of ["Mana-chan", "Kirara-chan"])
+      await expect(
+        taken.getByRole("article").filter({ hasText: agent }),
+      ).toHaveCount(0);
     await expect(taken.locator(".agent-portrait")).toHaveCount(4);
     await expect(taken.locator(".owner-mark")).toHaveCount(8);
   });
@@ -237,6 +178,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     expect(asked).toContain(`listing ${agents}?ref=${revisionA}`);
     for (const file of [
       "akiho-chan.json",
+      "kirara-chan.json",
       "mana-chan.json",
       "rina-chan.json",
       "sola-chan.json",

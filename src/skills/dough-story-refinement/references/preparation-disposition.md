@@ -76,10 +76,11 @@ already confirmed — that the keep instruction:
   disposable reproduction changes, or another session's work;
 - applies to an owned workspace that holds nothing else, committed or
   uncommitted, beyond the workspace's recorded starting revision and the
-  fetched authorized remote target. Landing commits and publishes everything
-  in that workspace, so other content there — another session's draft,
-  unrelated exploration content, or disposable reproduction changes — stops
-  the keep. Name that content; the developer removes it, discards it, or
+  fetched authorized remote target. This session's own preparation
+  announcement and its staged release belong to the result. Landing commits
+  and publishes everything in that workspace, so other content there —
+  another session's draft, unrelated exploration content, or disposable
+  reproduction changes — stops the keep. Name that content; the developer removes it, discards it, or
   confirms it belongs in the landing;
   and
 - has a known, unambiguous local checkout role and a separate target
@@ -95,7 +96,28 @@ guess a destination or assume "the usual place."
 
 ## Keep and publish the retained result
 
-After a validated explicit keep instruction, land the owned workspace through
+After a validated explicit keep instruction, when this session announced a
+preparation assignment under
+[Announce the preparation assignment](preparation-workspace.md#announce-the-preparation-assignment),
+stage its release in the owned workspace first, from the same installed skill
+directory:
+
+```text
+node <installed>/scripts/preparation-assignment.mjs release \
+  --workspace <owned workspace> --identity <queued story identity> \
+  --remote <remote> --target <trunk branch> [--agent <agent from the start receipt>]
+```
+
+`release-staged` means the workspace now stages removal of exactly the profile
+its own announcement added, verified against the fetched remote target, beside
+the retained result. The landing below then publishes result and release in
+one snapshot, so no reader sees the result landed while the assignment stays
+active. Any stop leaves both unchanged: report it and do not land. The story
+stays queued, and its refinement, approach, and readiness are what the
+[preparation recorder](../../dough-product-backlog/references/record-preparation.md)
+wrote, never something the release implies.
+
+Then land the owned workspace through
 [Dough Land](../../dough-land/SKILL.md).
 Reuse the local checkout role and the target
 selection recorded in
@@ -111,8 +133,9 @@ refresh, and cleanup results as the keep's results.
 
 A keep is **confirmed** once the fetched authorized remote target contains the
 landed SHA, whatever the refresh result. A landing that stopped before that
-acceptance is not confirmed; rerun the same landing from the same workspace
-and recorded target, never a replacement.
+acceptance is not confirmed: the assignment stays published, and it is not
+reported as released. Rerun the same landing from the same workspace and
+recorded target, never a replacement.
 
 **Conflicting scope change.** If resuming reveals that the human's story or
 plan scope changed in a way that conflicts with what was about to be
@@ -136,7 +159,9 @@ bug-triage record, or retrospective record. It does not:
   execution's own concern under
   [Own one observer](../../dough-execute-plan/references/ci-monitor.md#own-one-observer),
   not preparation's;
-- establish an execution identity, mode, or claim.
+- establish an execution identity, mode, or claim;
+- record or imply readiness: releasing the preparation assignment ends
+  Preparing only.
 
 This keeps "keep" a narrower operation than an execute-plan delivery: only the
 retained planning record reaches the authorized remote target. Planning-only
