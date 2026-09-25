@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests ([plan](quick/096-quiet-stable-fast-tests/PLAN.md))
+- [Deliver real CI verdicts for registered execution revisions](seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — SEED-008#restore-ci-verdict-delivery ([plan](quick/097-ci-verdict-delivery/PLAN.md))
 
 ## Backlog list
 
-- [Deliver real CI verdicts for registered execution revisions](seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — SEED-008#restore-ci-verdict-delivery
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
