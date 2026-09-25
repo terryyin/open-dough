@@ -1,0 +1,36 @@
+/* Who holds a Taken card's work: the owner summary with its agent portrait,
+   branch context, and unreadable profiles. */
+
+.card-owner {
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.owner-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  vertical-align: middle;
+}
+
+.agent-portrait {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+}
+
+.owner-branch {
+  font-size: 0.9rem;
+}
+
+.unreadable-profiles {
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
+}

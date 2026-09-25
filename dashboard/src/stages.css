@@ -68,23 +68,6 @@
   margin-top: 0.45rem;
 }
 
-.card-owner {
-  margin-top: 0.35rem;
-  overflow-wrap: anywhere;
-}
-
-.owner-branch {
-  font-size: 0.9rem;
-}
-
-.unreadable-profiles {
-  list-style: none;
-  display: grid;
-  gap: 0.35rem;
-  margin-bottom: 0.5rem;
-  overflow-wrap: anywhere;
-}
-
 .badge-row {
   display: flex;
   flex-wrap: wrap;

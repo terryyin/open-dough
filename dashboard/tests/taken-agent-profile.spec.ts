@@ -8,18 +8,19 @@
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
+import { expectPortrait } from "./agentPortrait.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const agents = ".planning/agents";
 const revisionA = "a1".repeat(20);
-const revisionB = "b2".repeat(20);
 
 const trunkStory = "See who owns Taken work";
 const branchStory = "Queue trunk integration on one machine";
 const modelless = "Name the model when it is known";
 const older = "Repair the installer's update report";
+const lastInRotation = "Show every agent's portrait";
 const queued = "Prepare stories in a clear workspace";
 
 const backlog = `# Product backlog
@@ -30,6 +31,7 @@ const backlog = `# Product backlog
 - [${branchStory}](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [${modelless}](seeds/SEED-030-models.md#known-model) — SEED-030#known-model
 - [${older}](quick/059-installer-update-report/PLAN.md)
+- [${lastInRotation}](seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar) — SEED-038#recognize-agents-and-tools-by-avatar
 
 ## Backlog list
 
@@ -62,6 +64,15 @@ const sola = renderAgentProfile({
   model: undefined,
 });
 
+const rina = renderAgentProfile({
+  name: "Rina",
+  identity: "SEED-038#recognize-agents-and-tools-by-avatar",
+  mode: "story-branch",
+  branch: "claude/agent-portraits",
+  host: "claude",
+  model: "claude-opus-5-5",
+});
+
 test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
   page,
 }) => {
@@ -73,6 +84,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       [`${agents}/akiho-chan.json`]: akiho,
       [`${agents}/yuma-chan.json`]: yuma,
       [`${agents}/sola-chan.json`]: sola,
+      [`${agents}/rina-chan.json`]: rina,
       [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
       [`${agents}/README.md`]: "Not an agent profile.\n",
     },
@@ -82,7 +94,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
 
   const { taken, backlog: queue } = parts(page);
   await expectMembership(page, {
-    taken: [trunkStory, branchStory, modelless, older],
+    taken: [trunkStory, branchStory, modelless, older, lastInRotation],
     backlog: [queued],
   });
   const card = (title: string) => taken.getByRole("article", { name: title });
@@ -93,6 +105,35 @@ test("each Taken card shows its published agent profile, or says plainly that no
       "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
     );
     await expect(card(trunkStory)).toContainText("Trunk: origin/main");
+  });
+
+  await test.step("each recorded agent has its own approved portrait beside its name, and the owner text is unchanged", async () => {
+    await expectPortrait(card(trunkStory), "Akiho-chan", {
+      atlas: 1,
+      position: "50% 12.5%",
+    });
+    await expectPortrait(card(branchStory), "Yuma-chan", {
+      atlas: 1,
+      position: "100% 12.5%",
+    });
+    await expectPortrait(card(modelless), "Sola-chan", {
+      atlas: 1,
+      position: "0% 87.5%",
+    });
+    await expectPortrait(card(lastInRotation), "Rina-chan", {
+      atlas: 5,
+      position: "50% 87.5%",
+    });
+    await expect(card(lastInRotation)).toContainText(
+      "Rina-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
+    );
+    // The portrait is decorative: the card's accessible text is the owner
+    // text alone, with no presence status.
+    for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
+      await expect(card(title)).not.toContainText(
+        /online|active|offline|away/i,
+      );
+    }
   });
 
   await test.step("a Story Branch Mode profile shows its branch as context, never as work on trunk", async () => {
@@ -116,6 +157,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   await test.step("a Taken entry without a profile shows that its owner is not recorded", async () => {
     await expect(card(older)).toContainText("Owner not recorded");
     await expect(card(older)).not.toContainText("-chan");
+    await expect(card(older).locator(".agent-portrait")).toHaveCount(0);
   });
 
   await test.step("a malformed profile is shown as unreadable and matched to no entry", async () => {
@@ -127,6 +169,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(
       taken.getByRole("article").filter({ hasText: "Mana-chan" }),
     ).toHaveCount(0);
+    await expect(taken.locator(".agent-portrait")).toHaveCount(4);
   });
 
   await test.step("Backlog entries claim no owner", async () => {
@@ -144,64 +187,12 @@ test("each Taken card shows its published agent profile, or says plainly that no
     for (const file of [
       "akiho-chan.json",
       "mana-chan.json",
+      "rina-chan.json",
       "sola-chan.json",
       "yuma-chan.json",
     ]) {
       expect(asked).toContain(`content ${agents}/${file}?ref=${revisionA}`);
     }
     expect(asked).not.toContain(`content ${agents}/README.md?ref=${revisionA}`);
-  });
-});
-
-test("a project without agent profiles still loads, and a refresh shows a profile published since", async ({
-  page,
-}) => {
-  const onlyBacklog = `# Product backlog
-
-## Taken
-
-- [${trunkStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
-
-## Backlog list
-`;
-  await publishFiles(page, {
-    repository,
-    revision: revisionA,
-    files: { [backlogPath]: onlyBacklog },
-  });
-
-  await page.goto("/");
-
-  const { taken, source, refresh, problem } = parts(page);
-  const card = taken.getByRole("article", { name: trunkStory });
-
-  await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
-    await expect(source).toContainText(revisionA);
-    await expect(card).toContainText("Owner not recorded");
-    await expect(problem).toHaveCount(0);
-  });
-
-  await test.step("after a refresh, the profile published at the new revision is shown", async () => {
-    await publishFiles(page, {
-      repository,
-      revision: revisionB,
-      files: {
-        [backlogPath]: onlyBacklog,
-        [`${agents}/akiho-chan.json`]: renderAgentProfile({
-          name: "Akiho",
-          identity: "SEED-021#identify-taken-work-owner",
-          mode: "trunk",
-          branch: "origin/main",
-          host: undefined,
-          model: undefined,
-        }),
-      },
-    });
-    await refresh.click();
-    await expect(source).toContainText(revisionB);
-    await expect(card).toContainText(
-      "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
-    );
-    await expect(card).not.toContainText("Owner not recorded");
   });
 });

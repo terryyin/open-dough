@@ -63,12 +63,31 @@ avatars, or source-of-progress rules.
   association agree at narrow widths.
 - Do not turn unknown facts into fallback identities or status indicators.
 
+## Execution identity (2026-09-25)
+
+Terry authorized execution with `dough-execute-plan 97`. Story Branch Mode;
+Claude Code agent Ai-chan (publisher `claude-job-c99d05b6`) created
+`/Users/terryyin/git/open-dough/.claude/worktrees/097-agent-tool-mode-identities`
+on `claude/097-agent-tool-mode-identities` from fetched
+`0d9dd55a04c0c156c1de3650a5758fa2be14a3a5`. Originating/integration checkout:
+`/Users/terryyin/git/open-dough`. Claim
+`c99585269ef6ff8fa40dc47831496342bf31510d` was confirmed on
+`origin/refs/heads/main`; the default checkout advanced to it. The trunk claim
+has `pendingCi: unobserved`. Increments target
+`origin/refs/heads/claude/097-agent-tool-mode-identities`, observed through
+GitHub Actions `ci.yml` (`CI`) for `terryyin/open-dough` by managed delivery.
+
+`npm ci` succeeded without lockfile changes and `npm run typecheck:dashboard`
+passed there. No Git commit hook is active; formatting is `npm run format`.
+No numeric slice target or hard limit was supplied; existing planning
+authority is retained.
+
 ## Ordered slices
 
 ### 1. Recorded agents have their own portraits
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `dashboard/tests/taken-agent-profile.spec.ts` with Taken cards
 for different recorded agents; verify their atlas source/tile mapping, visible
 portrait beside the name, and unchanged readable owner text. Verify absent and
@@ -80,6 +99,26 @@ Behavior: a Taken card has a readable profile with a recorded agent → the
 approved portrait for that name appears beside the name. When no readable
 profile identifies an owner, the card preserves the existing text gap without
 guessing a portrait.
+
+Accepted proof (2026-09-25): `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/taken-agent-profile.spec.ts
+dashboard/tests/taken-agent-profile-refresh.spec.ts` passed 2/2;
+`npm run typecheck:dashboard` and `npm run build:dashboard` passed. The step
+"each recorded agent has its own approved portrait beside its name, and the
+owner text is unchanged" checks Akiho, Yuma, Sola (atlas 1) and Rina (atlas 5,
+last in the rotation) through `expectPortrait` in
+`dashboard/tests/agentPortrait.ts`: tile source and position, `aria-hidden`,
+served WebP, and placement at the start of the `.owner-agent` group. The
+not-recorded, malformed-profile, and no-profile-before-refresh cases assert
+no portrait. Loading and unavailable-profile states draw no portrait by code
+inspection only; they had no browser test before this story either.
+
+Learnings for slice 2: `OwnerSummary` in `dashboard/src/TakenOwnerFacts.tsx`
+already groups each fact in `.owner-fact owner-<kind>` spans; put tool and
+mode marks inside `.owner-host` and `.owner-mode`. `AgentOwner.name` carries
+the rotation name from the shared reader. Owner styles live in
+`dashboard/src/taken-owner.css`; the refresh journey moved to
+`dashboard/tests/taken-agent-profile-refresh.spec.ts`.
 
 ### 2. Tool and mode marks sit beside their labels
 

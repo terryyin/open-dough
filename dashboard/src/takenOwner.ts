@@ -42,8 +42,11 @@ export type AgentHost = z.infer<typeof agentHost>;
 
 // One published profile's facts, and the repository path it is published
 // at; host and model stay undefined when the profile does not record them.
+// `name` is the agent's place in the shared rotation; `agent` is how it is
+// shown.
 export type AgentOwner = {
   readonly profilePath: string;
+  readonly name: string;
   readonly agent: string;
   readonly mode: AgentMode;
   readonly branch: string;
@@ -102,6 +105,7 @@ function interpretProfiles(profiles: readonly PublishedProfile[]): Ownership {
       ...(owners.get(identity) ?? []),
       {
         profilePath: path,
+        name,
         agent: agentIdentity(name).agent,
         mode,
         branch,
