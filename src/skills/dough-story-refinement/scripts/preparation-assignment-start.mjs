@@ -34,10 +34,13 @@ import {
 import {
   assignmentFields,
   errorText,
-  ownAssignment,
   profilePathOf,
+  recordAllocation,
+  recordedAllocation,
+  restoreAllocation,
   requestOf,
   stop,
+  workspaceAssignment,
 } from "./preparation-assignment-ownership.mjs";
 
 async function queuedAt(cwd, ref, identity) {
@@ -76,7 +79,11 @@ async function commitAnnouncement(request, base, agent) {
     "-m",
     `Announce preparation: ${request.identity}\n\nPreparation-Identity: ${request.identity}\n`,
   );
-  return { path, sha: await revParse(workspace, "HEAD") };
+  const sha = await revParse(workspace, "HEAD");
+  // Recorded before the push, so a rerun after a lost response recognizes
+  // its own announcement instead of making a second one.
+  await recordAllocation(workspace, sha);
+  return { path, sha };
 }
 
 // Whether remote trunk contains `sha` and still records it as the profile's
@@ -88,6 +95,16 @@ async function acceptedOnRemote(request, ref, sha, path) {
   const tip = await lsRemoteSha(url, `refs/heads/${target}`);
   if (!tip || !(await isAncestor(workspace, sha, tip))) return false;
   return (await profileAllocation(workspace, ref, path)) === sha;
+}
+
+// Drops an announcement a stopped earlier run left in the workspace that
+// trunk never took, restoring the workspace it was built from.
+async function dropUnconfirmed(workspace, found) {
+  const { allocation } = found.own;
+  if ((await revParse(workspace, "HEAD")) !== allocation) return;
+  if ((await git(workspace, "status", "--porcelain")).stdout !== "") return;
+  await git(workspace, "reset", "--keep", "--quiet", `${allocation}^`);
+  await restoreAllocation(workspace, undefined);
 }
 
 export async function startPreparation(input) {
@@ -109,15 +126,27 @@ export async function startPreparation(input) {
       fetched: base,
       error: `${identity} is not queued on ${ref}`,
     });
-  const existing = await ownAssignment(request, ref);
-  if (existing)
+  const found = await workspaceAssignment(request, ref);
+  if (found.state === "held") {
+    await configureAgentAuthorship(workspace, agentIdentity(found.own.name));
     return {
       ok: true,
       status: "continued",
-      ...assignmentFields(request, existing),
+      ...assignmentFields(request, found.own),
       workspace,
       fetched: base,
     };
+  }
+  if (found.assigned)
+    return stop("workspace-assigned-elsewhere", {
+      workspace,
+      fetched: base,
+      ...assignmentFields(found.assigned.profile, found.assigned),
+      error:
+        "this workspace still holds a published assignment this request does not name; end it before preparing another",
+    });
+  if (found.state === "unconfirmed") await dropUnconfirmed(workspace, found);
+  const previous = await recordedAllocation(workspace);
   const startHead = await revParse(workspace, "HEAD");
   if (
     (await git(workspace, "status", "--porcelain")).stdout !== "" ||
@@ -136,12 +165,13 @@ export async function startPreparation(input) {
       base,
       backlogPath,
     );
-    if (!chosen.ok)
-      return stop(chosen.status, {
-        workspace,
-        fetched: base,
-        error: chosen.error,
-      });
+    if (!chosen.ok) {
+      // A rebuild moved the workspace onto newer trunk; put it back.
+      await git(workspace, "reset", "--keep", "--quiet", startHead);
+      await restoreAllocation(workspace, previous);
+      const { status, error, occupied } = chosen;
+      return stop(status, { workspace, fetched: base, error, occupied });
+    }
     agent = chosen.agent;
     announced = await commitAnnouncement(request, base, agent);
     let rejected = false;
@@ -182,6 +212,7 @@ export async function startPreparation(input) {
     // Remote trunk has not taken the announcement: leave the workspace as it
     // was found, with no coordination commit to mistake for a published one.
     await git(workspace, "reset", "--keep", "--quiet", startHead);
+    await restoreAllocation(workspace, previous);
     return stop("unpublished", {
       workspace,
       error: "remote trunk did not accept the preparation announcement",

@@ -56,7 +56,7 @@ boundary. Before revising boundaries, apply the shared
 Before writing to the plan, establish or reuse the required workspace under
 [preparation workspace](../dough-story-refinement/references/preparation-workspace.md),
 then, for a queued story,
-[announce the preparation assignment](../dough-story-refinement/references/preparation-workspace.md#announce-the-preparation-assignment);
+[announce the preparation assignment](../dough-story-refinement/references/preparation-assignment.md#announce-the-preparation-assignment);
 reading the plan and the code and tests needed to judge execution boundaries
 needs neither on its own. Read and apply:
 

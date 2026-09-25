@@ -196,7 +196,14 @@ and recoverable; dashboard presentation follows in Slice 4.
 ### 3. Resume or abandon preparation without losing work or a newer assignment
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs`
+24/24 through the production `start|release|abandon` CLI (abandon, reuse,
+landing-retry and stops journeys with refusing, response-losing and racing
+origin hooks); `bash tests/workspace-publication-callers.sh` 43/43; assignment,
+startup and reference readers 32/32; payload install/compare/update checks
+pass. Lifecycle guidance now lives in one reference,
+`dough-story-refinement/references/preparation-assignment.md`.
 Proof: interrupted production journeys recover from actual local and remote state;
 explicit abandonment releases only the identified assignment and preserves drafts.
 
@@ -331,14 +338,18 @@ or begin execution. Keep all current preparation files uncommitted for review.
   new profile field was needed. Preparation profiles carry
   `activity: "preparation"`; legacy execution bytes are unchanged, and
   `product-backlog.mjs complete` releases only execution profiles.
-- For Slice 3: leave-unpublished, discard and workspace retirement currently
-  leave the assignment published. A `release` rerun after landing returns
-  `no-assignment`, not "already released". A reused workspace whose authorship
-  names X, fast-forwarded past a newer same-story allocation of X, would be
-  recognized as its own; close this with retry and reuse safety.
-  `agent-unavailable` does not yet list the occupied assignments. Untested so
-  far: an accepted push whose response is lost, and a second rejection after
-  the one rebuild.
+- Slice 3 replaced authorship-based ownership: a workspace now records its
+  own announcement commit in the per-worktree ref
+  `refs/worktree/dough/preparation-assignment` before pushing. It owns the
+  assignment only while trunk's current allocation for that profile equals the
+  record, so a fast-forward past a later allocation of the same name no longer
+  counts as its own. `--agent` was removed.
+- Leave-unpublished works like a pause and keeps the assignment. Discarding a
+  draft does not end the assignment. Only explicit `abandon` ends it early, with
+  a coordination-only "End preparation" commit. Reruns report
+  `already-released` with `endedBy`, or a `successor` when the name was reused.
+  `agent-unavailable` lists `occupied` assignments, and nothing is reclaimed by
+  age. Still untested: a second rejection after the one announcement rebuild.
 - For Slice 4: `takenOwner.ts` `interpretProfiles` drops preparation profiles
   today; project them there for queued cards. The `taken-agent-profile.spec.ts`
   step asserting backlog entries claim no owner must change once Preparing is

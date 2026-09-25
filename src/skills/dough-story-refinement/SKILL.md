@@ -46,7 +46,7 @@ conversation, scope decisions, optional UI and architecture detail, seed updates
 and cleanup after implementation. Before writing to a story's seed, establish
 or reuse the required workspace under
 [preparation workspace](references/preparation-workspace.md), then, for a
-queued story, [announce the preparation assignment](references/preparation-workspace.md#announce-the-preparation-assignment);
+queued story, [announce the preparation assignment](references/preparation-assignment.md#announce-the-preparation-assignment);
 refinement discussion and clarifying questions need neither on their own. After the
 seed or correction-home write records goal, scope, and key examples for a work
 item with a known identity, apply

@@ -125,10 +125,13 @@ managed_files=(
   dough-story-refinement/SKILL.md
   dough-story-refinement/references/executable-proof.md
   dough-story-refinement/references/planning.md
+  dough-story-refinement/references/preparation-assignment.md
   dough-story-refinement/references/preparation-disposition.md
   dough-story-refinement/references/preparation-workspace.md
   dough-story-refinement/scripts/preparation-assignment.mjs
+  dough-story-refinement/scripts/preparation-assignment-abandon.mjs
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
+  dough-story-refinement/scripts/preparation-assignment-release.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-land/SKILL.md
   dough-resplit-story/SKILL.md

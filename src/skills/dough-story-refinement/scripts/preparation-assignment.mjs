@@ -2,18 +2,27 @@
 // Installed CLI for a queued story's preparation assignment. `start` publishes
 // the Preparing announcement before substantive preparation, or continues the
 // workspace's existing one; `release` stages removal of exactly that
-// assignment beside the retained result so one landing publishes both.
+// assignment beside the retained result so one landing publishes both;
+// `abandon` publishes its end alone, leaving the draft in the workspace.
 import { isDirectCliEntry } from "../../dough-execute-plan/scripts/ci-direct-entry.mjs";
-import { releasePreparation } from "./preparation-assignment-ownership.mjs";
+import { abandonPreparation } from "./preparation-assignment-abandon.mjs";
+import { releasePreparation } from "./preparation-assignment-release.mjs";
 import { startPreparation } from "./preparation-assignment-start.mjs";
 
+const operations = {
+  start: startPreparation,
+  release: releasePreparation,
+  abandon: abandonPreparation,
+};
+
 const usage =
-  "usage: preparation-assignment.mjs start --integration PATH --workspace PATH --identity ID --remote NAME --target BRANCH --push-authorized [--host claude|codex|cursor] [--model TEXT] [--agent NAME-chan] [--declared-owner ID --requester ID]\n" +
-  "       preparation-assignment.mjs release --workspace PATH --identity ID --remote NAME --target BRANCH [--agent NAME-chan]";
+  "usage: preparation-assignment.mjs start --integration PATH --workspace PATH --identity ID --remote NAME --target BRANCH --push-authorized [--host claude|codex|cursor] [--model TEXT] [--declared-owner ID --requester ID]\n" +
+  "       preparation-assignment.mjs release --workspace PATH --identity ID --remote NAME --target BRANCH\n" +
+  "       preparation-assignment.mjs abandon --integration PATH --workspace PATH --identity ID --remote NAME --target BRANCH --push-authorized [--declared-owner ID --requester ID]";
 
 function argumentsOf(argv) {
   const [operation, ...rest] = argv;
-  if (operation !== "start" && operation !== "release") throw new Error(usage);
+  if (!Object.hasOwn(operations, operation)) throw new Error(usage);
   const values = {};
   for (let index = 0; index < rest.length; index += 1) {
     const flag = rest[index];
@@ -34,9 +43,8 @@ function argumentsOf(argv) {
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {
   try {
     const { operation, values } = argumentsOf(process.argv.slice(2));
-    const result = await (operation === "start"
-      ? startPreparation(values)
-      : releasePreparation(values));
+    const run = operations[operation];
+    const result = await run(values);
     process.stdout.write(`${JSON.stringify(result)}\n`);
     if (!result.ok) process.exitCode = 1;
   } catch (error) {

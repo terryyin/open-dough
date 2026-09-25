@@ -1,21 +1,24 @@
-// Which preparation assignment a workspace owns, and ending it. An assignment
-// is identified by its profile path plus the commit that added it (its
-// allocation), read from Git history, never by story identity, timestamps, or
-// tool/model alone. The workspace names its assignment through its configured
-// agent authorship, the same way an execution workspace does.
-import { existsSync } from "node:fs";
+// Which preparation assignment a workspace owns, and what became of it. An
+// assignment is identified by its profile path plus the commit that added it
+// (its allocation), never by story identity, timestamps, or tool/model alone.
+// The workspace remembers its own announcement commit under a per-worktree
+// ref, recorded before the announcement is pushed. Trunk history alone cannot
+// tell a workspace's own allocation from a later one of the same name that a
+// fast-forward brought into the workspace, so only that record counts.
 import { dirname, join, resolve } from "node:path";
 import {
   agentIdentity,
-  agentNameOf,
   agentReportError,
-  parseAgentProfile,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { profileAllocation } from "../../dough-execute-plan/scripts/execution-start-agent.mjs";
+import {
+  addedProfile,
+  profileAllocation,
+} from "../../dough-execute-plan/scripts/execution-start-agent.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import {
   backlogPath,
   fileAt,
+  isAncestor,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
 export function stop(status, fields) {
@@ -28,10 +31,13 @@ export const errorText = (error) => error.stderr || error.message;
 export const profilePathOf = (name) =>
   join(dirname(backlogPath), agentIdentity(name).path);
 
-// The validated request for `start` or `release`, or a stop saying why not.
+// Operations that publish to trunk need authority and a separate workspace.
+const publishing = new Set(["start", "abandon"]);
+
+// The validated request for an operation, or a stop saying why not.
 export function requestOf(operation, input) {
   const required = ["workspace", "identity", "target"];
-  if (operation === "start") required.push("integration");
+  if (publishing.has(operation)) required.push("integration");
   for (const field of required)
     if (!input[field])
       return stop("invalid-request", { error: `missing ${field}` });
@@ -43,11 +49,7 @@ export function requestOf(operation, input) {
   };
   const reportError = agentReportError(request);
   if (reportError) return stop("invalid-request", { error: reportError });
-  if (request.agent !== undefined && agentNameOf(request.agent) === undefined)
-    return stop("invalid-request", {
-      error: `unknown agent: ${request.agent}`,
-    });
-  if (operation === "start") {
+  if (publishing.has(operation)) {
     if (request.pushAuthorized !== true)
       return stop("authority-required", {
         error: "trunk publication authority must be established",
@@ -60,41 +62,89 @@ export function requestOf(operation, input) {
   return { ok: true, request };
 }
 
-// The agent this workspace authors as, or the one its caller names when the
-// workspace cannot record authorship.
-async function workspaceAgent(request) {
-  let configured;
-  try {
-    configured = (
-      await git(request.workspace, "config", "--get", "author.name")
-    ).stdout.trim();
-  } catch {
-    configured = undefined;
-  }
-  return agentNameOf(configured) ?? agentNameOf(request.agent);
+const recordRef = "refs/worktree/dough/preparation-assignment";
+
+// Remembers `sha` as this workspace's own announcement commit.
+export async function recordAllocation(workspace, sha) {
+  await git(workspace, "update-ref", recordRef, sha);
 }
 
-// This workspace's preparation assignment for the identity, when the fetched
-// trunk still holds it: the profile its agent is published under, recording
-// preparation of this identity, and added by the same commit this
-// workspace's own history added it with.
-export async function ownAssignment(request, ref) {
-  const name = await workspaceAgent(request);
-  if (name === undefined) return undefined;
-  const path = profilePathOf(name);
-  const text = await fileAt(request.workspace, ref, path);
-  if (text === null) return undefined;
-  const read = parseAgentProfile(text);
-  if (
-    !read.ok ||
-    read.profile.activity !== "preparation" ||
-    read.profile.identity !== request.identity
-  )
+// Puts back the record a workspace held before (`sha`), or none.
+export async function restoreAllocation(workspace, sha) {
+  if (sha) await recordAllocation(workspace, sha);
+  else await git(workspace, "update-ref", "-d", recordRef);
+}
+
+export async function recordedAllocation(workspace) {
+  try {
+    const { stdout } = await git(
+      workspace,
+      "rev-parse",
+      "--verify",
+      "-q",
+      `${recordRef}^{commit}`,
+    );
+    return stdout.trim();
+  } catch {
     return undefined;
-  const allocation = await profileAllocation(request.workspace, ref, path);
-  const own = await profileAllocation(request.workspace, "HEAD", path);
-  if (allocation === undefined || allocation !== own) return undefined;
-  return { name, path, allocation, profile: read.profile };
+  }
+}
+
+// The preparation profile the announcement commit `sha` added, as an
+// assignment: its name, path, allocation, and recorded facts.
+async function announcedAssignment(workspace, sha) {
+  const added = await addedProfile(
+    workspace,
+    sha,
+    backlogPath,
+    (profile, name) =>
+      profile.activity === "preparation" && profile.name === name,
+  );
+  return added && { ...added, allocation: sha };
+}
+
+// What became of the assignment this workspace announced, read from the
+// fetched trunk `ref`:
+// - `held`: trunk still records that exact allocation;
+// - `ended`: trunk history removed it, naming the removing commit and any
+//   later allocation of the same name, which is never this workspace's;
+// - `unconfirmed`: trunk never took the recorded announcement;
+// - `none`: this workspace recorded no announcement for `identity`.
+// `assigned` names a still-held assignment the workspace records for another
+// story than the request names.
+export async function workspaceAssignment(request, ref) {
+  const { workspace, identity } = request;
+  const sha = await recordedAllocation(workspace);
+  const own = sha && (await announcedAssignment(workspace, sha));
+  if (!own) return { state: "none" };
+  const named = own.profile.identity === identity;
+  if (!(await isAncestor(workspace, sha, ref)))
+    return named ? { state: "unconfirmed", own } : { state: "none" };
+  const current =
+    (await fileAt(workspace, ref, own.path)) === null
+      ? undefined
+      : await profileAllocation(workspace, ref, own.path);
+  if (!named)
+    return current === sha
+      ? { state: "none", assigned: own }
+      : { state: "none" };
+  if (current === sha) return { state: "held", own };
+  const { stdout } = await git(
+    workspace,
+    "log",
+    "--reverse",
+    "--diff-filter=D",
+    "--format=%H",
+    `${sha}..${ref}`,
+    "--",
+    own.path,
+  );
+  return {
+    state: "ended",
+    own,
+    endedBy: stdout.split("\n")[0] || undefined,
+    ...(current === undefined ? {} : { successor: current }),
+  };
 }
 
 export function assignmentFields(request, { name, path, allocation, profile }) {
@@ -109,45 +159,26 @@ export function assignmentFields(request, { name, path, allocation, profile }) {
   };
 }
 
-// Stages `git rm` of exactly this workspace's own assignment beside its
-// retained result, so the landing that publishes the result also ends it.
-export async function releasePreparation(input) {
-  const requested = requestOf("release", input);
-  if (!requested.ok) return requested;
-  const { request } = requested;
-  const { workspace, remote, target } = request;
-  const ref = `${remote}/${target}`;
-  try {
-    await git(workspace, "fetch", "--quiet", remote);
-  } catch (error) {
-    return stop("source-refused", { workspace, error: errorText(error) });
-  }
-  const own = await ownAssignment(request, ref);
-  if (!own)
-    return stop("no-assignment", {
-      workspace,
-      error: `${ref} holds no preparation assignment of ${request.identity} announced from this workspace; nothing was staged`,
-    });
-  let staged = "already-staged";
-  try {
-    await git(workspace, "ls-files", "--error-unmatch", "--", own.path);
-    staged = "staged";
-  } catch {
-    // The index no longer holds the profile: an earlier release staged it.
-  }
-  if (staged === "staged") {
-    await git(workspace, "rm", "--quiet", "--", own.path);
-  } else if (existsSync(join(workspace, own.path))) {
-    return stop("release-conflict", {
-      workspace,
-      error: `${own.path} is untracked yet present; inspect it before landing`,
-    });
-  }
+// The stop for a workspace with no assignment of the identity to act on.
+export function noAssignment(request, ref, found, action) {
+  const reason =
+    found.state === "unconfirmed"
+      ? `its announcement ${found.own.allocation} never reached ${ref}`
+      : `${ref} holds no preparation assignment of ${request.identity} announced from this workspace`;
+  return stop("no-assignment", {
+    workspace: request.workspace,
+    error: `${reason}; nothing was ${action}`,
+  });
+}
+
+// The receipt for an assignment trunk already ended: nothing more to do.
+export function alreadyReleased(request, found) {
   return {
     ok: true,
-    status: "release-staged",
-    staged,
-    ...assignmentFields(request, own),
-    workspace,
+    status: "already-released",
+    ...assignmentFields(request, found.own),
+    endedBy: found.endedBy,
+    ...(found.successor ? { successor: found.successor } : {}),
+    workspace: request.workspace,
   };
 }

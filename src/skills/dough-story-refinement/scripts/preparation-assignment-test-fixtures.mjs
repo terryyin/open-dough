@@ -1,8 +1,8 @@
 // Disposable trunk for preparation-assignment journeys. Fixtures supply only
 // what exists before preparation starts: a queued story to prepare, other
 // developers' assignments, the owned workspace the exploration lifecycle
-// creates, and remote contention. The announcement and its release are made
-// by the production CLI, never here.
+// creates, and remote contention. The announcement, its release, and its
+// abandonment are made by the production CLI, never here.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -112,13 +112,12 @@ async function runJson(args, options = {}) {
   }
 }
 
-// Runs the installed-shape `start` command, as the shared guidance teaches.
-export function startPreparation(trunk, workspace, identity, extra = []) {
+// Runs the installed-shape CLI `operation` for `identity` in `workspace`
+// against origin/main, as the shared guidance teaches.
+function assignment(operation, workspace, identity, extra) {
   return runJson([
     assignmentCli,
-    "start",
-    "--integration",
-    trunk.integration,
+    operation,
     "--workspace",
     workspace,
     "--identity",
@@ -127,25 +126,30 @@ export function startPreparation(trunk, workspace, identity, extra = []) {
     "origin",
     "--target",
     "main",
-    "--push-authorized",
     ...extra,
   ]);
 }
 
-export function releasePreparation(workspace, identity, extra = []) {
-  return runJson([
-    assignmentCli,
-    "release",
-    "--workspace",
-    workspace,
-    "--identity",
-    identity,
-    "--remote",
-    "origin",
-    "--target",
-    "main",
+// Operations that publish run with trunk authority from a separate workspace.
+const publishing = (trunk) => [
+  "--integration",
+  trunk.integration,
+  "--push-authorized",
+];
+
+export function startPreparation(trunk, workspace, identity, extra = []) {
+  return assignment("start", workspace, identity, [
+    ...publishing(trunk),
     ...extra,
   ]);
+}
+
+export function abandonPreparation(trunk, workspace, identity) {
+  return assignment("abandon", workspace, identity, publishing(trunk));
+}
+
+export function releasePreparation(workspace, identity) {
+  return assignment("release", workspace, identity, []);
 }
 
 // Runs the canonical preparation recorder in `cwd`.

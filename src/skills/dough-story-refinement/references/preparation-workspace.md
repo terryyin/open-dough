@@ -61,60 +61,11 @@ disposition. It does not apply execution mode or project-command readiness.
 
 ## Announce the preparation assignment
 
-Story refinement, slice planning, and plan refinement of an existing queued
-story with a stable identity announce that story as **Preparing** before
-substantive work. Reading, discussing, answering questions, decomposing a
-candidate without a queued identity, bug triage, and a standalone
-retrospective record announce nothing.
-
-After selecting the workspace and before its first record write, run this
-command from this project's installed `dough-story-refinement` skill directory
-(normally under `.agents/skills/` or `.claude/skills/`):
-
-```text
-node <installed>/scripts/preparation-assignment.mjs start \
-  --integration <integration checkout> --workspace <owned workspace> \
-  --identity <queued story identity> --remote <remote> --target <trunk branch> \
-  --push-authorized [--host claude|codex|cursor] [--model <model>] \
-  [--declared-owner <id> --requester <id>]
-```
-
-Use the paths and target recorded above. Supply `--push-authorized` only when
-publishing to that target is authorized; without it the command stops. Supply
-your own host and model, omitting either you cannot state rather than guessing.
-Supply `--declared-owner` and a matching `--requester` only when access to the
-default checkout has actually been established.
-
-Keep the receipt with this session and act on its `status`:
-
-- `announced`: remote trunk accepted a commit that adds only your assignment
-  profile, under the next free name of the rotation execution also uses. The
-  queue and your draft are unchanged. The command then attempts the same safe
-  refresh of the integration checkout as Dough Land's
-  [Refresh the default checkout](../../dough-land/SKILL.md#refresh-the-default-checkout)
-  and reports it in `refresh`. A deferred or stopped refresh preserves that
-  checkout without undoing the announcement. Begin preparing in the workspace.
-- `continued`: this workspace already holds the story's published assignment;
-  nothing new is published. Run `start` at each preparation skill's first write
-  in the session, so slice planning after refinement keeps the same assignment
-  instead of taking another name.
-- Any stop (`ok: false`): do not begin substantive preparation. Report the
-  receipt and preserve the workspace. `unpublished`: remote trunk did not
-  accept an announcement, so nothing is assigned. `workspace-not-isolated`: the
-  workspace already holds edits or unpublished commits; the announcement comes
-  before the first write and never carries a draft. `agent-unavailable`: every
-  name is held. `not-queued`: the story is not queued on the fetched target.
-
-When the receipt says `workspaceAuthorship: "not-configured"`, the workspace
-cannot record its agent: pass that receipt's `agent` as `--agent` to later
-`start` and `release` commands for this workspace, never another agent's name.
-
-An explicit developer instruction not to publish or commit means: do not run
-`start`; report that no Preparing assignment was published, so others cannot
-see this preparation; continue only as that instruction allows.
-
-A pause keeps the published assignment. It ends when the kept result lands,
-under [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result).
+For an existing queued story, announce it as **Preparing** after selecting the
+workspace and before its first record write, and keep that assignment through
+pauses, under
+[Publish the preparation assignment](preparation-assignment.md). An explicit
+instruction not to publish or commit means announcing nothing.
 
 ## Continue related preparation
 
@@ -191,7 +142,7 @@ below.
 
 ## Close or retain the workspace
 
-Cleanup runs only after one of this session's three decisions under [Decide
+Cleanup runs only after one of these decisions for this session's draft under [Decide
 what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
 is actually **confirmed**, never merely attempted or merely because the
 session is ending:
@@ -222,6 +173,12 @@ unresolved and preserve every resource exactly as found under
 including a pending human edit on the default checkout. Pausing, going quiet,
 or ending the conversation before a decision is confirmed is never itself a
 trigger, exactly as it is never itself a keep or discard decision.
+
+A workspace whose assignment is still published is retained until the
+assignment ends, whatever else applies: it is what identifies that
+assignment, so keep it or
+[abandon the preparation](preparation-assignment.md#abandon-the-preparation)
+before retiring it.
 
 Once a confirmed disposition applies, retire the workspace under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree): a keep
