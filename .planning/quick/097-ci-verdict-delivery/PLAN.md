@@ -81,7 +81,7 @@ No new architecture decision is proposed.
 ## Slice 1 — Deliver the selected workflow's failure and repair verdicts
 
 **Type:** Behavior
-**Status:** planned
+**Status:** done
 
 **Outcome:** A non-default workflow display name cannot silently defeat an
 otherwise supported observation setup. Registered failure and repair verdicts
@@ -159,3 +159,44 @@ fallbacks in this slice.
 - Construction review found no remaining slice-boundary or proof-ownership
   concern within this bounded correction; no additional split or plan rewrite
   is warranted. Preparation readiness is recorded in the story state.
+
+## Slice 1 execution record
+
+- **Mechanism corrected:** `ci-runs.mjs` applied a second, independent
+  display-name filter (`DOUGH_CI_WORKFLOW_NAME`, default `CI`) after every
+  listing already requested `--workflow <selector>`, silently dropping runs of a
+  selected workflow named otherwise (for example `donut CI`). The `--workflow`
+  selector is now the workflow identity for both ordinary acquisition and
+  `discoverApplicabilityCandidateRuns` through the shared `matchingCiRuns`.
+  `DOUGH_CI_WORKFLOW_NAME` is optional with no default: when set, a selected run
+  reporting another name throws a message naming both names, the selector and
+  the fix, ending observation with `CI_MONITOR_UNAVAILABLE` (after the ordinary
+  three-error bound; immediately on the applicability path). Repository, branch,
+  revision and push-event checks and listing limits are unchanged.
+- **Diagnosis evidence:** the extended journey failed against the pre-change
+  `ci-runs.mjs` (revision A stayed `undiscovered`). A read-only `gh` probe of
+  `nerds-odd-e/doughnut` returned only `donut CI` runs for `--workflow ci.yml`
+  and HTTP 404 for an unknown selector.
+- **Accepted proof:** the focused regression command above, 14 pass / 0 fail
+  on the delivered candidate. Journey
+  `ci-revision-coverage-late-github-failure.test.mjs` drives a modeled GitHub
+  repository (`modeledGithubActions` in `watch-ci-test-fixtures.mjs`, answering
+  only the requested workflow, branch, commit and event) through the mailbox
+  worker, coverage and the Claude host hook: A's failure (run 501) reaches only
+  its owner; deploy, unrelated-revision, other-branch and other-owner runs do
+  not; repair B succeeds (run 502) through `awaitRevision` while A stays
+  failure; the sibling ends unproved. `ci-client-configuration.test.mjs` proves
+  the requested selector, selection without a name setting, and the loud
+  mismatch. Coverage-loss, not-required and ignored-only suites pass unchanged
+  in behavior. All `dough-execute-plan/scripts/*.test.mjs` (317) and the
+  publication/payload shell suites under a modern bash also passed.
+- **Runtime guidance:** `references/runtime-setup.md` now teaches the selector
+  as identity, the optional consistency name, and a `gh run list --workflow`
+  verification command; walked against `donut CI`.
+- **Remaining uncertainty:** plan 029's original environment is unavailable
+  and its mailbox also shows `gh` connectivity loss, so this is not claimed as
+  its confirmed cause. No native-host acceptance was run; no host adapter
+  changed. A renamed workflow whose older runs report a former display name
+  would now end observation when an explicit name is set; guidance says to
+  unset it.
+

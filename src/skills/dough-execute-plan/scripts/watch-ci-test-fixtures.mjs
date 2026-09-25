@@ -103,3 +103,53 @@ setInterval(() => {}, 1000);
     { mode: 0o700 },
   );
 }
+
+// A modeled GitHub Actions repository behind the `gh` seam. Unlike scripted
+// responses, it answers each `gh run list` the way GitHub would for that
+// request: only runs of the requested workflow file (unknown selectors fail
+// like gh does), branch, commit and event, each carrying the display name its
+// workflow declares. Tests mutate `runs` between polls to stage CI progress.
+export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
+  const listCalls = [];
+  const option = (args, name) =>
+    args.includes(name) ? args[args.indexOf(name) + 1] : undefined;
+  const gh = async (args) => {
+    if (args[0] === "run" && args[1] === "list") {
+      listCalls.push(args);
+      const workflow = option(args, "--workflow");
+      if (!Object.hasOwn(workflows, workflow))
+        throw new Error(`could not find any workflows named ${workflow}`);
+      const [branch, commit, event] = ["--branch", "--commit", "--event"].map(
+        (name) => option(args, name),
+      );
+      return runs
+        .filter((candidate) => candidate.workflow === workflow)
+        .map(({ workflow: file, ...candidate }) =>
+          run({ ...candidate, workflowName: workflows[file] }),
+        )
+        .filter(
+          (candidate) =>
+            (!branch || candidate.headBranch === branch) &&
+            (!commit || candidate.headSha === commit) &&
+            (!event || candidate.event === event),
+        )
+        .slice(0, Number(option(args, "--limit") ?? 20));
+    }
+    if (args[0] === "run" && args[1] === "view") {
+      const runId = Number(args[2]);
+      if (args.at(-1) === "jobs") return { jobs: jobs[runId] ?? [] };
+      const found = runs.find(({ databaseId }) => databaseId === runId);
+      if (!found) throw new Error(`run ${runId} not found`);
+      const { attempt, status, conclusion, url } = run(found);
+      return { attempt, status, conclusion, url };
+    }
+    throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
+  };
+  return {
+    gh,
+    runs,
+    jobs,
+    listCallCount: (branch) =>
+      listCalls.filter((args) => option(args, "--branch") === branch).length,
+  };
+}
