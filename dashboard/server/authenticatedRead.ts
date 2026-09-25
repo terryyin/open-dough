@@ -21,16 +21,16 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
-import { RefusedRead, verifyLocalOrigin } from "./localOrigin";
-import { PinnedTexts } from "./pinnedTexts";
-import { RevisionChecks } from "./revisionChecks";
-import { BranchHeads } from "./branchHeads";
-import { perform, type Boundary } from "./performedRead";
-import type { Outcome } from "./readOutcome";
-import { parseRequestedRead } from "./requestedRead";
-import { sourceById } from "../src/publishedSource";
+import { RefusedRead, verifyLocalOrigin } from "./localOrigin.ts";
+import { PinnedTexts } from "./pinnedTexts.ts";
+import { RevisionChecks } from "./revisionChecks.ts";
+import { BranchHeads } from "./branchHeads.ts";
+import { perform, type Boundary } from "./performedRead.ts";
+import type { Outcome } from "./readOutcome.ts";
+import { parseRequestedRead } from "./requestedRead.ts";
+import { sourceById } from "../src/publishedSource.ts";
 // The one endpoint path, shared with the browser reader.
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 // Only a request naming a catalog source already known to
 // `../src/publishedSource.ts` is answered; there is no arbitrary

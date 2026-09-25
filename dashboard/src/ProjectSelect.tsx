@@ -1,4 +1,4 @@
-import { catalog, type PublishedSource } from "./publishedSource";
+import { catalog, type PublishedSource } from "./publishedSource.ts";
 
 // Which project this dashboard observes, chosen from the fixed catalog.
 // Selecting one is the only effect this control has: what happens when the

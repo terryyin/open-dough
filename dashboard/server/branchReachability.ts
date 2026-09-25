@@ -5,7 +5,7 @@
 // the backlog, records at the pinned revision, and on it only that entry's
 // recorded plan: nothing a branch says widens what may be read.
 
-import type { PublishedSource } from "../src/publishedSource";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import { parseAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { takenHeading } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
@@ -15,7 +15,7 @@ import {
   type CanonicalEntry,
   type PinnedLister,
   type PinnedReader,
-} from "./reachablePaths";
+} from "./reachablePaths.ts";
 
 // The Taken entries whose agent profile, listed beside the backlog at the
 // pinned revision, records Story Branch Mode on `branch`. What a profile says

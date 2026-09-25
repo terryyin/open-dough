@@ -1,14 +1,14 @@
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   largeBacklog,
   queuedCount,
   queuedTitle,
   revision,
-} from "./accessibleOverview";
-import { expectReadableContrast, zoomedWindow } from "./accessibleReading";
-import { parts, expectMembership } from "./dashboardPage";
-import { publishMovingOrigin } from "./publishedOrigin";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout";
+} from "./accessibleOverview.ts";
+import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
+import { parts, expectMembership } from "./dashboardPage.ts";
+import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 
 for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
   test(`Open Dough banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({

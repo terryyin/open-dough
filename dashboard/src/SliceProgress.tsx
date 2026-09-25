@@ -7,11 +7,11 @@
 // interprets a plan.
 
 import { useId } from "react";
-import type { ProgressSource } from "./progressSource";
-import { shortRevision } from "./publishedWork";
-import { SliceClock } from "./SliceClock";
-import type { SliceClock as Clock } from "./sliceClockStart";
-import { recordedCompleteCount, type WorkPlanSlices } from "./storyPlan";
+import type { ProgressSource } from "./progressSource.ts";
+import { shortRevision } from "./publishedWork.ts";
+import { SliceClock } from "./SliceClock.tsx";
+import type { SliceClock as Clock } from "./sliceClockStart.ts";
+import { recordedCompleteCount, type WorkPlanSlices } from "./storyPlan.ts";
 import "./slice-progress.css";
 
 // Plan slices that cannot be counted yet or at all: still being read, no

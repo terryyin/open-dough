@@ -9,14 +9,14 @@ import { test } from "@playwright/test";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "./support/dashboardServer";
+} from "./support/dashboardServer.ts";
 import {
   asHeadsListing,
   commitAnswer,
   headsEtag,
   type OriginAnswer,
-} from "./originAnswers";
-import { rawRequest } from "./support/rawHttp";
+} from "./originAnswers.ts";
+import { rawRequest } from "./support/rawHttp.ts";
 
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);

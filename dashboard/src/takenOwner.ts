@@ -15,9 +15,9 @@ import {
 import {
   readAgentProfilesAt,
   type PublishedProfile,
-} from "./authenticatedRead";
-import type { PublishedSource } from "./publishedSource";
-import type { PublishedWork } from "./publishedWork";
+} from "./authenticatedRead.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 
 const agentMode = z.enum(agentModes);
 const agentHost = z.enum(agentHosts);

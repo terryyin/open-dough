@@ -18,7 +18,7 @@
 // checks.
 
 import type { Page } from "@playwright/test";
-import { githubFor } from "./dashboardTest";
+import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
   commitAnswer,
@@ -27,9 +27,9 @@ import {
   notFoundAnswer,
   rawFileAnswer,
   type OriginAnswer,
-} from "./originAnswers";
-import { observe, type ObservedRequest } from "./originObservation";
-import type { GhCall } from "./support/fakeGitHub";
+} from "./originAnswers.ts";
+import { observe, type ObservedRequest } from "./originObservation.ts";
+import type { GhCall } from "./support/fakeGitHub.ts";
 
 export {
   commitAnswer,
@@ -41,9 +41,9 @@ export {
   rawFileAnswer,
   type OriginAnswer,
   type RawAnswer,
-} from "./originAnswers";
-export { pathsRead, type ObservedRequest } from "./originObservation";
-export { publishFiles } from "./publishedFiles";
+} from "./originAnswers.ts";
+export { pathsRead, type ObservedRequest } from "./originObservation.ts";
+export { publishFiles } from "./publishedFiles.ts";
 
 // The project this dashboard opens by default. Callers that observe another
 // project pass its repository explicitly; this default keeps every existing

@@ -12,15 +12,15 @@
 // behavior: ./auto-refresh-visibility.spec.ts and
 // ./auto-refresh-rate-limit.spec.ts.
 
-import { expect, githubFor, test } from "./dashboardTest";
-import { parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { parts } from "./dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
   headsCheckArgv,
   headsChecks,
-} from "./autoRefreshJourney";
+} from "./autoRefreshJourney.ts";
 import {
   branchHead,
   branches,
@@ -31,13 +31,13 @@ import {
   revision,
   slicePlan,
   trunk,
-} from "./branchProgressRecords";
+} from "./branchProgressRecords.ts";
 import {
   openedSettled,
   readsBesideChecks,
   trunkMoved,
-} from "./branchRefreshJourney";
-import type { PublishedRevision } from "./publishedFiles";
+} from "./branchRefreshJourney.ts";
+import type { PublishedRevision } from "./publishedFiles.ts";
 
 const example = "story/example";
 const unrelated = "story/unrelated-work";

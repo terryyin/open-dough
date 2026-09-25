@@ -25,11 +25,11 @@ import { expect, test } from "@playwright/test";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "./support/dashboardServer";
-import { everyRepository, failsWith, publishes } from "./support/fakeGitHub";
-import { notLoggedIn } from "./originAnswers";
+} from "./support/dashboardServer.ts";
+import { everyRepository, failsWith, publishes } from "./support/fakeGitHub.ts";
+import { notLoggedIn } from "./originAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { rawRequest } from "./support/rawHttp";
+import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

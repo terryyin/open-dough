@@ -3,18 +3,18 @@
 // ./auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
-import { githubFor } from "./dashboardTest";
-import { expectMembership } from "./dashboardPage";
-import { headsEtag } from "./originAnswers";
-import { isHeadsCheck } from "./originObservation";
-import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
+import { githubFor } from "./dashboardTest.ts";
+import { expectMembership } from "./dashboardPage.ts";
+import { headsEtag } from "./originAnswers.ts";
+import { isHeadsCheck } from "./originObservation.ts";
+import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
   dashboardStory,
   revisionA,
   titlesOfA,
-} from "./refreshJourney";
-import type { GhCall } from "./support/fakeGitHub";
+} from "./refreshJourney.ts";
+import type { GhCall } from "./support/fakeGitHub.ts";
 
 export const queueStory =
   "Queue trunk integration for agents on the same machine";

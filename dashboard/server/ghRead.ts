@@ -9,7 +9,7 @@
 // trusts that the request was allowed to reach this point.
 
 import { execFile, type ExecException } from "node:child_process";
-import { readWaitLimitMs } from "../src/authenticatedReadRules";
+import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 
 // How long one boundary request -- all of its owned `gh` subprocesses -- may
 // run before it is aborted (`./trackedGh.ts`): the shared read wait bound

@@ -1,6 +1,6 @@
-import { Moment } from "./Moment";
-import type { PublishedSource } from "./publishedSource";
-import type { PublishedWork } from "./publishedWork";
+import { Moment } from "./Moment.tsx";
+import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 
 // The current project's Git evidence: which project and ref are configured,
 // and, once read, at which revision and when. The manual read control lives

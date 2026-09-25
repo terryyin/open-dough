@@ -10,33 +10,33 @@ import {
   queueHeading,
   takenHeading,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import type { PublishedSource } from "./publishedSource";
-import { enrichPreparation } from "./preparationEnrichment";
-import { readPublishedSnapshot } from "./authenticatedRead";
-import { readWaitLimitMs } from "./authenticatedReadRules";
-import { ReadProblem } from "./readProblem";
-import { withinReadWait } from "./readWaitBound";
+import type { PublishedSource } from "./publishedSource.ts";
+import { enrichPreparation } from "./preparationEnrichment.ts";
+import { readPublishedSnapshot } from "./authenticatedRead.ts";
+import { readWaitLimitMs } from "./authenticatedReadRules.ts";
+import { ReadProblem } from "./readProblem.ts";
+import { withinReadWait } from "./readWaitBound.ts";
 import {
   awaitingProgressSources,
   withProgressSources,
   type ProgressSource,
-} from "./progressSource";
+} from "./progressSource.ts";
 import {
   awaitingSliceClocks,
   withSliceClocks,
   type SliceClock,
-} from "./sliceClockStart";
-import { resolveSourceLink, type SourceLink } from "./sourceLink";
-import type { WorkPreparation } from "./storyPreparation";
-import type { WorkPlanSlices } from "./storyPlan";
-import type { WorkPurpose } from "./storyPurpose";
+} from "./sliceClockStart.ts";
+import { resolveSourceLink, type SourceLink } from "./sourceLink.ts";
+import type { WorkPreparation } from "./storyPreparation.ts";
+import type { WorkPlanSlices } from "./storyPlan.ts";
+import type { WorkPurpose } from "./storyPurpose.ts";
 import {
   awaitingOwners,
   readOwnership,
   withOwners,
   type TakenOwner,
   type UnreadableProfile,
-} from "./takenOwner";
+} from "./takenOwner.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.

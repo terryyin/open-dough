@@ -13,15 +13,15 @@
 // ./authenticated-read-refusal.spec.ts.
 
 import { expect, test } from "@playwright/test";
-import { commitAnswer } from "./originAnswers";
-import { rawRequest } from "./support/rawHttp";
+import { commitAnswer } from "./originAnswers.ts";
+import { rawRequest } from "./support/rawHttp.ts";
 import {
   checkArgv,
   listingEtag,
   revisionA,
   revisionB,
   revisionCheckBoundary,
-} from "./revisionCheckBoundary";
+} from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
 

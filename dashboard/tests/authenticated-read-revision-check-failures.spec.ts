@@ -9,14 +9,18 @@
 // ./authenticated-read-revision-check.spec.ts.
 
 import { expect, test } from "@playwright/test";
-import { commitAnswer, notLoggedIn, rateLimitedAnswer } from "./originAnswers";
+import {
+  commitAnswer,
+  notLoggedIn,
+  rateLimitedAnswer,
+} from "./originAnswers.ts";
 import {
   checkArgv,
   listingEtag,
   revisionA,
   revisionB,
   revisionCheckBoundary,
-} from "./revisionCheckBoundary";
+} from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
 

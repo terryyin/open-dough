@@ -1,6 +1,7 @@
 {
   "name": "open-dough",
   "private": true,
+  "type": "module",
   "scripts": {
     "test": "bash scripts/test.sh",
     "lint": "node scripts/lint.mjs",

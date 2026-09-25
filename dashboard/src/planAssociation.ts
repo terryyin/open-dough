@@ -2,9 +2,9 @@
 // the same repository file. Disagreement is reported rather than preferred; an
 // older backlog plan alone never invents readiness.
 
-import type { WorkEntry } from "./publishedWork";
-import { snapshotRepositoryPath } from "./sourceLink";
-import { peekRecordedApproach } from "./storyPreparation";
+import type { WorkEntry } from "./publishedWork.ts";
+import { snapshotRepositoryPath } from "./sourceLink.ts";
+import { peekRecordedApproach } from "./storyPreparation.ts";
 
 export function planAssociationConflict(
   entry: WorkEntry,

@@ -9,8 +9,8 @@
 // "nothing changed" is asserted immediately after the release.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -21,15 +21,15 @@ import {
   recordsAt,
   headsCheckArgv,
   headsChecks,
-} from "./autoRefreshJourney";
+} from "./autoRefreshJourney.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
   sharedStoryIdentity,
-} from "./doughnutProject";
-import { publishMovingOrigin } from "./publishedOrigin";
+} from "./doughnutProject.ts";
+import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
   backlogB,
@@ -37,8 +37,8 @@ import {
   revisionA,
   revisionB,
   titlesOfA,
-} from "./refreshJourney";
-import type { GhCall } from "./support/fakeGitHub";
+} from "./refreshJourney.ts";
+import type { GhCall } from "./support/fakeGitHub.ts";
 import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {

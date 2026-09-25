@@ -1,8 +1,8 @@
 // Distinct published records for each catalog project, and the pinned `gh`
 // calls reading them must make, for ./authenticated-project-overview.spec.ts.
 
-import { expect } from "./dashboardTest";
-import type { ObservedRequest } from "./publishedOrigin";
+import { expect } from "./dashboardTest.ts";
+import type { ObservedRequest } from "./publishedOrigin.ts";
 import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";

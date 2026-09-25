@@ -10,9 +10,9 @@
 // and the page decide everything shown.
 
 import type { Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
-import { publishFiles } from "./publishedOrigin";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { publishFiles } from "./publishedOrigin.ts";
 import {
   beforeProfiles,
   branchDeleted,
@@ -31,7 +31,7 @@ import {
   stories,
   trunk,
   twoOwners,
-} from "./branchProgressRecords";
+} from "./branchProgressRecords.ts";
 
 async function openedAtOpening(page: Page) {
   await page.clock.install({ time: opened });

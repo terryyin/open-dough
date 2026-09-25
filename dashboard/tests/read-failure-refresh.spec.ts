@@ -1,6 +1,6 @@
-import { expect, test } from "./dashboardTest";
-import { expectWholeSnapshot, parts } from "./dashboardPage";
-import { rateLimitedAnswer, type MovingOrigin } from "./publishedOrigin";
+import { expect, test } from "./dashboardTest.ts";
+import { expectWholeSnapshot, parts } from "./dashboardPage.ts";
+import { rateLimitedAnswer, type MovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogB,
   dashboardStory,
@@ -10,7 +10,7 @@ import {
   revisionC,
   titlesOfA,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 // Each makes the next refresh from A fail, and returns the repair after which
 // `main` names B with B's valid backlog.

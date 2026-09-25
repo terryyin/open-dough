@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { BadgeLegend } from "./PreparationCard";
+import { BadgeLegend } from "./PreparationCard.tsx";
 import "./preparation-legend.css";
 
 // The browser's modal top layer makes the rest of the dashboard inert,

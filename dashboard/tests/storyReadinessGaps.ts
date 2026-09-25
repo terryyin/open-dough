@@ -4,11 +4,11 @@
 // gap labels themselves.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { planHref } from "./queuedPlanNavigation";
-import type { CommittedOrigin } from "./committedOrigin";
-import { parts } from "./dashboardPage";
-import { notFoundAnswer } from "./originAnswers";
-import { commitPaths, writePlanning } from "./storyReadinessCli";
+import { planHref } from "./queuedPlanNavigation.ts";
+import type { CommittedOrigin } from "./committedOrigin.ts";
+import { parts } from "./dashboardPage.ts";
+import { notFoundAnswer } from "./originAnswers.ts";
+import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
   openDoughProductBacklog,
   plannedBlocked,
@@ -17,7 +17,7 @@ import {
   planReadyPath,
   type ReadinessRepo,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 export async function expectNeedsReassessmentAfterContentChange(
   taken: Locator,

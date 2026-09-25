@@ -2,23 +2,23 @@
 // keyboard, narrow/zoomed reading, and color-independent badges. Extends the
 // shared accessibility helpers against the real CLI-committed fixture.
 
-import { expectQueuedPlanFocusDuringEnrichment } from "./queuedPlanFocus";
-import { expect, test } from "./dashboardTest";
-import { publishCommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectQueuedPlanFocusDuringEnrichment } from "./queuedPlanFocus.ts";
+import { expect, test } from "./dashboardTest.ts";
+import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
   expectNarrowZoomKeepsLabelsEvidenceAndRetry,
   expectRefreshPreservesOrAnnouncesIdentity,
-} from "./storyReadinessAccessible";
+} from "./storyReadinessAccessible.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
   unrefined,
-} from "./storyReadinessFixture";
-import { publishRestoreUnrefined } from "./storyReadinessPublications";
+} from "./storyReadinessFixture.ts";
+import { publishRestoreUnrefined } from "./storyReadinessPublications.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 

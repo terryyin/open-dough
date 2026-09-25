@@ -8,7 +8,7 @@ import type {
   AgentOwner,
   TakenOwner,
   UnreadableProfile,
-} from "./takenOwner";
+} from "./takenOwner.ts";
 
 const modeLabels: Readonly<Record<AgentMode, string>> = {
   trunk: "Trunk Mode",

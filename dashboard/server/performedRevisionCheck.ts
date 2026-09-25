@@ -9,14 +9,14 @@
 // page may read that branch's plan there without resolving it again. A check
 // whose listing could not say answers the ref alone, naming no branch head.
 
-import type { BranchHeads } from "./branchHeads";
-import { branchRecordedAtRevision } from "./branchReachability";
-import { unrecordedBranch } from "./performedBranchRead";
-import type { PinnedTexts } from "./pinnedTexts";
-import { answered, type Outcome } from "./readOutcome";
-import type { RequestedRead } from "./requestedRead";
-import type { RevisionChecks } from "./revisionChecks";
-import type { PublishedSource } from "../src/publishedSource";
+import type { BranchHeads } from "./branchHeads.ts";
+import { branchRecordedAtRevision } from "./branchReachability.ts";
+import { unrecordedBranch } from "./performedBranchRead.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
+import { answered, type Outcome } from "./readOutcome.ts";
+import type { RequestedRead } from "./requestedRead.ts";
+import type { RevisionChecks } from "./revisionChecks.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 
 type CheckReaders = {
   readonly pinned: PinnedTexts;

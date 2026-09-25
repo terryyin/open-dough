@@ -3,8 +3,8 @@
 // `--include` adds, a `304 Not Modified` to an `If-None-Match` whose entity
 // tag still matches, and the exit code and stderr of a failed answer.
 
-import type { OriginAnswer } from "../originAnswers";
-import type { GhRequest } from "./ghRequest";
+import type { OriginAnswer } from "../originAnswers.ts";
+import type { GhRequest } from "./ghRequest.ts";
 
 export type GhReply = {
   readonly stdout: string;

@@ -1,12 +1,12 @@
-import { expect, test } from "./dashboardTest";
-import { openDirection, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { openDirection, parts } from "./dashboardPage.ts";
 import {
   card,
   destination,
   openDashboard,
   revision,
   snapshotRoot,
-} from "./sourceNavigationJourney";
+} from "./sourceNavigationJourney.ts";
 
 test("source navigation opens canonical and plan records at the inspected revision", async ({
   page,

@@ -2,7 +2,7 @@
 // (`./authenticatedRead.ts`) comes to: an answer, a refusal, or a reported
 // failure. Shared by `./performedRead.ts` and `./performedBranchRead.ts`.
 
-import type { ReportedFailure } from "./readFailureMessage";
+import type { ReportedFailure } from "./readFailureMessage.ts";
 
 // What a successful read answers, as the browser reader
 // (`../src/authenticatedRead.ts`, `../src/authenticatedBranchRead.ts`) checks it.

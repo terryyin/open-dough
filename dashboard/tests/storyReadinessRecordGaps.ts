@@ -1,8 +1,8 @@
 // Observe malformed, external, and legacy records without inventing preparation
 // or associated-plan evidence. Source bytes cross the shared reader boundary.
 import { expect, type Locator } from "@playwright/test";
-import { contentPathsRead, type CommittedOrigin } from "./committedOrigin";
-import { externalPlan, legacy, malformed } from "./storyReadinessFixture";
+import { contentPathsRead, type CommittedOrigin } from "./committedOrigin.ts";
+import { externalPlan, legacy, malformed } from "./storyReadinessFixture.ts";
 
 export async function expectMalformedExternalAndLegacy(
   backlog: Locator,

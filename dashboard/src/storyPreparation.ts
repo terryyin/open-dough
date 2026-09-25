@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import { readStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
-import { ReadProblem } from "./readProblem";
+import { ReadProblem } from "./readProblem.ts";
 
 const approachSchema = z.union([
   z.object({ kind: z.literal("unselected") }),

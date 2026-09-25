@@ -8,13 +8,13 @@
 // as GitHub does, and records every `gh` call. The page's clock is paused
 // and advanced by the test, so "within 30 seconds" is observed in page time.
 
-import { expect, githubFor, test } from "./dashboardTest";
+import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectOwnersNotRecorded,
   expectWholeSnapshot,
   parts,
-} from "./dashboardPage";
+} from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -25,7 +25,7 @@ import {
   recordsAt,
   headsCheckArgv,
   headsChecks,
-} from "./autoRefreshJourney";
+} from "./autoRefreshJourney.ts";
 import {
   backlogB,
   backlogC,
@@ -35,7 +35,7 @@ import {
   revisionC,
   titlesOfA,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 const canonical = { name: /^Canonical record/ };
 

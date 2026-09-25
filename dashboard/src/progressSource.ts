@@ -11,11 +11,11 @@ import {
   readFileOnBranch,
   type BranchHead,
   type StoryBranchHeads,
-} from "./authenticatedBranchRead";
-import type { PublishedWork, WorkEntry } from "./publishedWork";
-import { ReadProblem } from "./readProblem";
-import { routeOf, type Route } from "./progressRoute";
-import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan";
+} from "./authenticatedBranchRead.ts";
+import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
+import { ReadProblem } from "./readProblem.ts";
+import { routeOf, type Route } from "./progressRoute.ts";
+import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan.ts";
 
 // Where a Taken entry's slice progress is read. When one profile records
 // where the work is published, `profilePath` is that profile: the one

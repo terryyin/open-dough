@@ -2,7 +2,7 @@
 // one read the page makes: of a snapshot (`./publishedWork.ts`), or of only
 // the progress on moved story branches (`./movedBranchProgress.ts`).
 
-import { readWaitLimitMs } from "./authenticatedReadRules";
+import { readWaitLimitMs } from "./authenticatedReadRules.ts";
 
 // Runs `read` with a signal that aborts when `signal` does or when the bound
 // passes, whichever comes first; `bound` aborts only when the bound passed.

@@ -1,10 +1,14 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
-import type { CommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
-import { planHref } from "./queuedPlanNavigation";
-import { commitPaths, recordState, writePlanning } from "./storyReadinessCli";
+import type { CommittedOrigin } from "./committedOrigin.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { planHref } from "./queuedPlanNavigation.ts";
+import {
+  commitPaths,
+  recordState,
+  writePlanning,
+} from "./storyReadinessCli.ts";
 import {
   openDoughProductBacklog,
   plannedBlocked,
@@ -14,7 +18,7 @@ import {
   seedRelative,
   unrefined,
   type ReadinessRepo,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 export async function expectChangedQueuedAssociations(
   page: Page,

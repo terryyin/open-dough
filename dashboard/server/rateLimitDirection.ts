@@ -5,7 +5,7 @@
 // an HTTP date), or `X-RateLimit-Reset` (epoch seconds) once
 // `X-RateLimit-Remaining` has reached zero.
 
-import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules";
+import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
 
 const wholeNumber = /^\d+$/;
 

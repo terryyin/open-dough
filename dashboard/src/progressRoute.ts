@@ -7,9 +7,9 @@
 // read boundary would refuse is that entry's gap, so it is never read or
 // watched, and nothing else waits on it.
 
-import { isSafeBranchName } from "./authenticatedReadRules";
-import type { ProgressSource } from "./progressSource";
-import type { WorkEntry } from "./publishedWork";
+import { isSafeBranchName } from "./authenticatedReadRules.ts";
+import type { ProgressSource } from "./progressSource.ts";
+import type { WorkEntry } from "./publishedWork.ts";
 
 export type Route =
   // No recorded plan progress to source, or nothing known to source it by.

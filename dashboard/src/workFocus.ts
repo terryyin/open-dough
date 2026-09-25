@@ -1,4 +1,4 @@
-import type { PublishedWork } from "./publishedWork";
+import type { PublishedWork } from "./publishedWork.ts";
 
 // Keyboard focus across a replaced snapshot. A card is rebuilt when its work
 // changes group or order, which would drop focus to the page; focus follows

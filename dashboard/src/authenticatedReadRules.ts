@@ -7,7 +7,7 @@
 // itself imports Node's `child_process` at runtime (through
 // `../server/ghRead.ts`), so nothing under `./` may import that module
 // directly.
-import type { PublishedSource } from "./publishedSource";
+import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
 

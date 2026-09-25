@@ -7,7 +7,7 @@ import {
   readyBadge,
   type WorkAssessment,
   type WorkPreparation,
-} from "./storyPreparation";
+} from "./storyPreparation.ts";
 
 function AssessmentSummary({ assessment }: { assessment: WorkAssessment }) {
   return assessmentSummaryText(assessment);

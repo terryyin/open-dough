@@ -10,9 +10,12 @@ import {
   authenticatedGet,
   commitSha,
   unexpectedAnswer,
-} from "./authenticatedGet";
-import { readingBranchHeadOf, readingPathAt } from "./authenticatedReadRules";
-import type { PublishedSource } from "./publishedSource";
+} from "./authenticatedGet.ts";
+import {
+  readingBranchHeadOf,
+  readingPathAt,
+} from "./authenticatedReadRules.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 
 // A story branch a Taken entry's profile records at a revision already
 // shown, and the head the local boundary found it naming.

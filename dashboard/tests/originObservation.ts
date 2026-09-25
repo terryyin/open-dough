@@ -7,7 +7,7 @@
 // that follow the checks themselves read them from every `gh` call
 // (./autoRefreshJourney.ts's `headsChecks`).
 
-import type { GhCall } from "./support/fakeGitHub";
+import type { GhCall } from "./support/fakeGitHub.ts";
 
 // One `gh` invocation that asked an origin for its ref or a file.
 export type ObservedRequest = GhCall;

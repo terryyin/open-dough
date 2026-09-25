@@ -25,19 +25,19 @@ import {
   onBranchQuery,
   type BranchHead,
   type StoryBranchHeads,
-} from "./authenticatedBranchRead";
+} from "./authenticatedBranchRead.ts";
 import {
   authenticatedGet,
   commitSha,
   unexpectedAnswer,
-} from "./authenticatedGet";
+} from "./authenticatedGet.ts";
 import {
   readingLastCommitAt,
   readingPathAt,
   readingRefOf,
-} from "./authenticatedReadRules";
-import type { PublishedSource } from "./publishedSource";
-import { ReadProblem } from "./readProblem";
+} from "./authenticatedReadRules.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import { ReadProblem } from "./readProblem.ts";
 
 const okSnapshot = z.object({
   revision: commitSha,

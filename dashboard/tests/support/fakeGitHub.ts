@@ -19,9 +19,9 @@ import {
   noConnection,
   rawFileAnswer,
   type OriginAnswer,
-} from "../originAnswers";
-import { asGhReply } from "./ghReply";
-import { parseRequest, type GhRequest } from "./ghRequest";
+} from "../originAnswers.ts";
+import { asGhReply } from "./ghReply.ts";
+import { parseRequest, type GhRequest } from "./ghRequest.ts";
 
 export type GhCall = {
   readonly argv: readonly string[];

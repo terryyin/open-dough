@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
-import { type PublishedWork, type WorkEntry } from "./publishedWork";
-import { PreparationFacts } from "./PreparationCard";
-import { PreparationLegend } from "./PreparationLegend";
-import { SliceProgress } from "./SliceProgress";
-import { WorkSourceLinks } from "./WorkSourceLinks";
-import { StoryDetail } from "./StoryDetail";
-import { TakenOwnerFacts, UnreadableProfiles } from "./TakenOwnerFacts";
-import type { UnreadableProfile } from "./takenOwner";
-import { stagesMarks, workCardMarks } from "./workFocus";
+import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
+import { PreparationFacts } from "./PreparationCard.tsx";
+import { PreparationLegend } from "./PreparationLegend.tsx";
+import { SliceProgress } from "./SliceProgress.tsx";
+import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
+import { StoryDetail } from "./StoryDetail.tsx";
+import { TakenOwnerFacts, UnreadableProfiles } from "./TakenOwnerFacts.tsx";
+import type { UnreadableProfile } from "./takenOwner.ts";
+import { stagesMarks, workCardMarks } from "./workFocus.ts";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;

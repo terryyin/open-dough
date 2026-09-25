@@ -1,4 +1,4 @@
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   largeBacklog,
   longAddress,
@@ -11,8 +11,8 @@ import {
   queuedTitles,
   revision,
   unusableTarget,
-} from "./accessibleOverview";
-import { expectMembership, openDirection, parts } from "./dashboardPage";
+} from "./accessibleOverview.ts";
+import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
 import {
   commitAnswer,
   emptyBacklog,
@@ -20,15 +20,15 @@ import {
   publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
-} from "./publishedOrigin";
-import { zoomedWindow } from "./accessibleReading";
+} from "./publishedOrigin.ts";
+import { zoomedWindow } from "./accessibleReading.ts";
 import {
   box,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
   expectStackedInOrder,
-} from "./pageLayout";
+} from "./pageLayout.ts";
 
 const narrowWindow = { width: 360, height: 740 };
 

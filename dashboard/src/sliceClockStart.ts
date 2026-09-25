@@ -9,11 +9,11 @@
 // is left to the page clock (`./SliceClock.tsx`), so time passing asks
 // nothing further.
 
-import { readLastCommitTimeAt } from "./authenticatedRead";
-import { countedPlanBranch } from "./progressSource";
-import type { PublishedSource } from "./publishedSource";
-import type { PublishedWork, WorkEntry } from "./publishedWork";
-import { ReadProblem } from "./readProblem";
+import { readLastCommitTimeAt } from "./authenticatedRead.ts";
+import { countedPlanBranch } from "./progressSource.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
+import { ReadProblem } from "./readProblem.ts";
 
 export type SliceClock =
   | { readonly status: "loading" }

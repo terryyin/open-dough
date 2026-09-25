@@ -14,8 +14,8 @@
 import {
   commitShaPattern,
   isSafeBranchName,
-} from "../src/authenticatedReadRules";
-import { parseSafeRepositoryPath } from "./reachablePaths";
+} from "../src/authenticatedReadRules.ts";
+import { parseSafeRepositoryPath } from "./reachablePaths.ts";
 
 // A story branch as a read names it: the branch, and the head commit this
 // boundary already resolved it to.

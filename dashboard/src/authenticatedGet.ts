@@ -10,8 +10,8 @@ import {
   authenticatedReadEndpoint,
   commitShaPattern,
   longestDirectedWaitSeconds,
-} from "./authenticatedReadRules";
-import { ReadProblem } from "./readProblem";
+} from "./authenticatedReadRules.ts";
+import { ReadProblem } from "./readProblem.ts";
 
 export const commitSha = z.string().regex(commitShaPattern);
 

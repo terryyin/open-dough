@@ -23,18 +23,18 @@
 // journeys' own servers.
 
 import { expect, test } from "@playwright/test";
-import { processAlive } from "./support/fakeGh";
-import { everyRepository, hangs } from "./support/fakeGitHub";
+import { processAlive } from "./support/fakeGh.ts";
+import { everyRepository, hangs } from "./support/fakeGitHub.ts";
 import {
   authenticatedReadKinds,
   authenticatedReadUrl,
-} from "./support/authenticatedReadUrl";
+} from "./support/authenticatedReadUrl.ts";
 import {
   startDashboardServer,
   waitUntil,
   type DashboardServer,
-} from "./support/dashboardServer";
-import { abandonedRequest, rawRequest } from "./support/rawHttp";
+} from "./support/dashboardServer.ts";
+import { abandonedRequest, rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

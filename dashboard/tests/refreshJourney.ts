@@ -3,8 +3,8 @@
 // files are written here; what the page shows is for each test to observe.
 
 import type { Page } from "@playwright/test";
-import { expectMembership } from "./dashboardPage";
-import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin";
+import { expectMembership } from "./dashboardPage.ts";
+import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);

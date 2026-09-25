@@ -5,7 +5,7 @@
 // this project's Vite treats as a startup post-hook only.
 
 import type { Plugin } from "vite";
-import { installAuthenticatedReadMiddleware } from "./authenticatedRead";
+import { installAuthenticatedReadMiddleware } from "./authenticatedRead.ts";
 
 export function authenticatedReadPlugin(): Plugin {
   // Set by whichever of the two launch-mode hooks below actually runs (dev

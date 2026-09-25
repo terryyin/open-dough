@@ -1,14 +1,14 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
-import type { CommittedOrigin } from "./committedOrigin";
-import { parts } from "./dashboardPage";
-import { commitPaths, recordState } from "./storyReadinessCli";
+import type { CommittedOrigin } from "./committedOrigin.ts";
+import { parts } from "./dashboardPage.ts";
+import { commitPaths, recordState } from "./storyReadinessCli.ts";
 import {
   plannedBlocked,
   seedRelative,
   type ReadinessRepo,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 export async function expectQueuedPlanFocusDuringEnrichment(
   page: Page,

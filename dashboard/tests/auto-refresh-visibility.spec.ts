@@ -6,8 +6,12 @@
 // ./auto-refresh.spec.ts; the page's clock is paused and advanced by the
 // test, and the document's visibility is set as the browser would set it.
 
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import {
+  expectMembership,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage.ts";
 import {
   callsSince,
   checkedAtOnce,
@@ -22,14 +26,14 @@ import {
   headsCheckArgv,
   headsChecks,
   setPageVisibility,
-} from "./autoRefreshJourney";
+} from "./autoRefreshJourney.ts";
 import {
   backlogB,
   revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 const canonical = { name: /^Canonical record/ };
 

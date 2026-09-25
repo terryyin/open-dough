@@ -9,17 +9,21 @@ import { mkdtempSync, rmSync } from "node:fs";
 import http from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin";
+import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin.ts";
 import {
   fakeGhEnv,
   installFakeGh,
   processAlive,
   readPid,
-} from "./support/fakeGh";
-import { everyRepository, hangs, startFakeGitHub } from "./support/fakeGitHub";
-import { waitUntil } from "./support/dashboardServer";
-import { abandonedRequest } from "./support/rawHttp";
-import { withRestoredEnv } from "./support/testEnv";
+} from "./support/fakeGh.ts";
+import {
+  everyRepository,
+  hangs,
+  startFakeGitHub,
+} from "./support/fakeGitHub.ts";
+import { waitUntil } from "./support/dashboardServer.ts";
+import { abandonedRequest } from "./support/rawHttp.ts";
+import { withRestoredEnv } from "./support/testEnv.ts";
 
 const knownSourceId = "open-dough";
 

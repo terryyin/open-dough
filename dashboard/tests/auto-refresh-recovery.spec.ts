@@ -14,8 +14,12 @@
 // page's clock is paused and advanced by the test.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import {
+  expectMembership,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage.ts";
 import {
   callsSince,
   checksAskedWhilePassing,
@@ -25,15 +29,15 @@ import {
   passTimeUntilChecked,
   recordsAt,
   headsChecks,
-} from "./autoRefreshJourney";
-import { noConnection, type OriginAnswer } from "./publishedOrigin";
+} from "./autoRefreshJourney.ts";
+import { noConnection, type OriginAnswer } from "./publishedOrigin.ts";
 import {
   backlogB,
   revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 // `gh` fails in a way the boundary cannot put a category to.
 const unexplainedFailure: OriginAnswer = {

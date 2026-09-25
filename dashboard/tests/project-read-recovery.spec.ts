@@ -8,19 +8,19 @@
 // authenticated-read-subprocess-lifecycle.spec.ts.
 
 import { type Page } from "@playwright/test";
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
   openDirection,
   parts,
-} from "./dashboardPage";
+} from "./dashboardPage.ts";
 import {
   notLoggedIn,
   publishMovingOrigin,
   type OriginAnswer,
-} from "./publishedOrigin";
-import { startDashboardServer } from "./support/dashboardServer";
+} from "./publishedOrigin.ts";
+import { startDashboardServer } from "./support/dashboardServer.ts";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 const pygardonRepository = "terryyin/pygardon";

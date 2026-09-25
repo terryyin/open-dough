@@ -10,8 +10,8 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { createServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh";
-import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub";
+import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
+import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 
 // Playwright runs this suite from the repository root (as `npm run
 // test:dashboard` does); paths are built from that rather than from

@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { readStoryPurpose } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-purpose.mjs";
-import { ReadProblem } from "./readProblem";
+import { ReadProblem } from "./readProblem.ts";
 
 const interpretedPurpose = z.discriminatedUnion("status", [
   z.object({ status: z.literal("not-recorded") }),

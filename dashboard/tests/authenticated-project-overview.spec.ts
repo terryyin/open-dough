@@ -10,23 +10,23 @@
 // them -- with no read of GitHub from the browser itself.
 
 import { readFileSync } from "node:fs";
-import { expect, test } from "./dashboardTest";
-import { expectMembership, openDirection, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
 import {
   notLoggedIn,
   publishFiles,
   type ObservedRequest,
-} from "./publishedOrigin";
+} from "./publishedOrigin.ts";
 import {
   expectPinnedGhCalls,
   filesOf,
   projects,
-} from "./catalogProjectRecords";
+} from "./catalogProjectRecords.ts";
 import {
   assertNoCredentialMarker,
   collectFiles,
-} from "./support/credentialAbsence";
-import { startDashboardServer } from "./support/dashboardServer";
+} from "./support/credentialAbsence.ts";
+import { startDashboardServer } from "./support/dashboardServer.ts";
 
 // Shaped like a real GitHub token and placed only in the spawned server
 // process's own environment, where the production `gh` invocation would see

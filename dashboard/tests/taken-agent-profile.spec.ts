@@ -5,9 +5,9 @@
 // contents listing would; the local read boundary, the shared profile reader,
 // and the page decide everything shown.
 
-import { expect, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
-import { publishFiles } from "./publishedOrigin";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { publishFiles } from "./publishedOrigin.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const repository = "terryyin/open-dough";

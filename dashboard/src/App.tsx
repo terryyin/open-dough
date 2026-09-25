@@ -1,9 +1,9 @@
-import { shortRevision } from "./publishedWork";
-import { Moment } from "./Moment";
-import { DashboardBanner } from "./DashboardBanner";
-import { usePublishedObservation } from "./publishedObservation";
-import { checkIntervalMs } from "./revisionCheckSchedule";
-import { WorkStages } from "./WorkStages";
+import { shortRevision } from "./publishedWork.ts";
+import { Moment } from "./Moment.tsx";
+import { DashboardBanner } from "./DashboardBanner.tsx";
+import { usePublishedObservation } from "./publishedObservation.ts";
+import { checkIntervalMs } from "./revisionCheckSchedule.ts";
+import { WorkStages } from "./WorkStages.tsx";
 
 export function App() {
   const { source, work, attempt, notice, reading, refresh, selectSource } =

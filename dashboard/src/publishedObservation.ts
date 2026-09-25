@@ -8,19 +8,19 @@
 // (`./movedBranchProgress.ts`).
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { StoryBranchHeads } from "./authenticatedBranchRead";
-import { readMovedProgress } from "./movedBranchProgress";
-import { watchedBranchHeads } from "./progressSource";
-import { usePageVisibility } from "./pageVisibility";
-import { defaultSource, type PublishedSource } from "./publishedSource";
-import { readPublishedWork, type PublishedWork } from "./publishedWork";
-import { useObservationAttempt } from "./observationAttempt";
-import { useRevisionCheckSchedule } from "./revisionCheckSchedule";
+import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
+import { readMovedProgress } from "./movedBranchProgress.ts";
+import { watchedBranchHeads } from "./progressSource.ts";
+import { usePageVisibility } from "./pageVisibility.ts";
+import { defaultSource, type PublishedSource } from "./publishedSource.ts";
+import { readPublishedWork, type PublishedWork } from "./publishedWork.ts";
+import { useObservationAttempt } from "./observationAttempt.ts";
+import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
 import {
   focusedWork,
   restoreSnapshotFocus,
   type FocusedWork,
-} from "./workFocus";
+} from "./workFocus.ts";
 
 type Retrieval = {
   // The last snapshot read, whole or with its unread detail labeled; a later

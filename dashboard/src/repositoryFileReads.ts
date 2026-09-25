@@ -1,9 +1,9 @@
 // Bounded, cached reads of distinct repository files for one published-work
 // snapshot, through the local authenticated boundary for every source.
 
-import { readRepositoryFileAt } from "./authenticatedRead";
-import { cachedFile, rememberFile } from "./fileContentCache";
-import type { PublishedSource } from "./publishedSource";
+import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import { cachedFile, rememberFile } from "./fileContentCache.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 
 const fileReadConcurrency = 4;
 

@@ -7,7 +7,7 @@
 // own head. Commit times are relative to the page's opening time.
 
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { PublishedRevision } from "./publishedFiles";
+import type { PublishedRevision } from "./publishedFiles.ts";
 
 export const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";

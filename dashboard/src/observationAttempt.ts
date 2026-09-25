@@ -10,7 +10,7 @@
 // finds the ref unchanged never turns it into a settled read.
 
 import { useState } from "react";
-import { ReadProblem } from "./readProblem";
+import { ReadProblem } from "./readProblem.ts";
 
 type FailedAttempt = {
   readonly status: "failed";

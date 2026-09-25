@@ -10,8 +10,12 @@
 // (./support/fakeGitHub.ts) only publishes commits and limits answers. The
 // page's clock is paused and advanced by the test.
 
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, expectWholeSnapshot, parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import {
+  expectMembership,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage.ts";
 import {
   callsSince,
   checksAskedWhilePassing,
@@ -20,15 +24,15 @@ import {
   passTimeUntilChecked,
   recordsAt,
   setPageVisibility,
-} from "./autoRefreshJourney";
-import { rateLimitedAnswer } from "./publishedOrigin";
+} from "./autoRefreshJourney.ts";
+import { rateLimitedAnswer } from "./publishedOrigin.ts";
 import {
   backlogB,
   revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, and a manual Retry that succeeds reads B at once, clears the failure, and restores the steady pace", async ({
   page,

@@ -4,8 +4,8 @@
 // (./auto-refresh-branches.spec.ts, ./auto-refresh-unusable-branch.spec.ts).
 
 import type { Page } from "@playwright/test";
-import { expect } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
+import { expect } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   branches,
   onBranch,
@@ -13,10 +13,13 @@ import {
   repository,
   stories,
   trunk,
-} from "./branchProgressRecords";
-import { isHeadsCheck } from "./originObservation";
-import { publishMovingFiles, type PublishedRevision } from "./publishedFiles";
-import type { GhCall } from "./support/fakeGitHub";
+} from "./branchProgressRecords.ts";
+import { isHeadsCheck } from "./originObservation.ts";
+import {
+  publishMovingFiles,
+  type PublishedRevision,
+} from "./publishedFiles.ts";
+import type { GhCall } from "./support/fakeGitHub.ts";
 
 // Where trunk moves to.
 export const trunkMoved = "d5".repeat(20);

@@ -4,7 +4,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { commitPaths, writePlanning } from "./storyReadinessCli";
+import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
   openDoughProductBacklog,
   planBlockedPath,
@@ -12,7 +12,7 @@ import {
   planReadyTwoDoneBody,
   type ReadinessRepo,
   seedRelative,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 function publishOpenDoughMembership(
   repo: ReadinessRepo,

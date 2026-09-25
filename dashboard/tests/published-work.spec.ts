@@ -1,17 +1,17 @@
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectOwnersNotRecorded,
   openDirection,
   parts,
-} from "./dashboardPage";
+} from "./dashboardPage.ts";
 import {
   commitAnswer,
   emptyBacklog,
   publishOrigin,
   rawFileAnswer,
-} from "./publishedOrigin";
-import { expectSideBySideInOrder } from "./pageLayout";
+} from "./publishedOrigin.ts";
+import { expectSideBySideInOrder } from "./pageLayout.ts";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 

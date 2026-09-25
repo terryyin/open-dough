@@ -22,21 +22,21 @@
 // page. This matches ./refresh.spec.ts's own held-response races, which also
 // assert immediately after release.
 
-import { expect, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
   sharedStoryIdentity,
-} from "./doughnutProject";
+} from "./doughnutProject.ts";
 import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
-} from "./publishedOrigin";
+} from "./publishedOrigin.ts";
 
 const revisionOpenDoughFirst = "a1".repeat(20);
 const revisionOpenDoughSecond = "a2".repeat(20);

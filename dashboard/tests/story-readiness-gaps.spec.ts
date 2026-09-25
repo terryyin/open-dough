@@ -2,32 +2,32 @@
 // bytes and fails HTTP routes; shared readers project badges. Gap labels are
 // never planted in fixtures.
 
-import { expectChangedQueuedAssociations } from "./queuedPlanGaps";
-import { expect, test } from "./dashboardTest";
-import { publishCommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
+import { expectChangedQueuedAssociations } from "./queuedPlanGaps.ts";
+import { expect, test } from "./dashboardTest.ts";
+import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 import {
   publishAssessedContentChange,
   publishConflictingPlanAssociation,
-} from "./storyReadinessPublications";
+} from "./storyReadinessPublications.ts";
 import {
   expectFailedPlanKeepsSupportedFacts,
   expectNeedsReassessmentAfterContentChange,
   expectPlanAssociationConflict,
-} from "./storyReadinessGaps";
-import { expectMalformedExternalAndLegacy } from "./storyReadinessRecordGaps";
+} from "./storyReadinessGaps.ts";
+import { expectMalformedExternalAndLegacy } from "./storyReadinessRecordGaps.ts";
 import {
   expectFailedRefreshKeepsPriorRevision,
   expectNoRereadAfterSettlement,
   expectProjectSwitchRejectsLateHeldRead,
-} from "./storyReadinessRefresh";
+} from "./storyReadinessRefresh.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

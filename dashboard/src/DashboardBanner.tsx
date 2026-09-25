@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef } from "react";
-import { ProjectSelect } from "./ProjectSelect";
-import { SourceStatus } from "./SourceStatus";
-import type { PublishedSource } from "./publishedSource";
-import type { PublishedWork } from "./publishedWork";
+import { ProjectSelect } from "./ProjectSelect.tsx";
+import { SourceStatus } from "./SourceStatus.tsx";
+import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 
 export function DashboardBanner({
   source,

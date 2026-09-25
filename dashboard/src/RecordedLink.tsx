@@ -2,9 +2,9 @@
 // recorded target is always readable as text; it becomes a link only when it
 // leads to a file of this snapshot or to an ordinary web address.
 
-import { shortRevision } from "./publishedWork";
-import type { SourceLink } from "./sourceLink";
-import { workLinkMarks } from "./workFocus";
+import { shortRevision } from "./publishedWork.ts";
+import type { SourceLink } from "./sourceLink.ts";
+import { workLinkMarks } from "./workFocus.ts";
 
 export function RecordedLink({
   role,

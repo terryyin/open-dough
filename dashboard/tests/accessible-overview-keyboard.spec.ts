@@ -1,23 +1,23 @@
 import { type Locator } from "@playwright/test";
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
-} from "./accessibleReading";
-import { expectMembership, parts } from "./dashboardPage";
+} from "./accessibleReading.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
-} from "./publishedOrigin";
-import { box } from "./pageLayout";
+} from "./publishedOrigin.ts";
+import { box } from "./pageLayout.ts";
 import {
   backlogB,
   openAtA,
   revisionA,
   revisionB,
   titlesOfB,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 test("accessible overview is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
   page,

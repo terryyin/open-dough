@@ -4,7 +4,7 @@
 // recorded plan update or the Take, not evidence that an agent is active.
 
 import { useEffect, useState } from "react";
-import type { SliceClock as Clock } from "./sliceClockStart";
+import type { SliceClock as Clock } from "./sliceClockStart.ts";
 
 // Often enough that a shown minute is never more than a few seconds stale.
 const tickMs = 5_000;

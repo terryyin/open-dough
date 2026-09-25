@@ -3,19 +3,19 @@
 // readiness, recorded completion, and story closure stay distinct. Prospective
 // Proof is never described as a passed result.
 
-import type { WorkEntry } from "./publishedWork";
-import { WorkSourceLinks } from "./WorkSourceLinks";
-import { PlanSlicesNote, ProgressSourceLabel } from "./SliceProgress";
+import type { WorkEntry } from "./publishedWork.ts";
+import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
+import { PlanSlicesNote, ProgressSourceLabel } from "./SliceProgress.tsx";
 import {
   recordedCompleteCount,
   type PlanSlice,
   type WorkPlanSlices,
-} from "./storyPlan";
+} from "./storyPlan.ts";
 import {
   assessmentSummaryText,
   type WorkPreparation,
-} from "./storyPreparation";
-import type { WorkPurpose } from "./storyPurpose";
+} from "./storyPreparation.ts";
+import type { WorkPurpose } from "./storyPurpose.ts";
 
 function PurposeBlock({ purpose }: { purpose: WorkPurpose | undefined }) {
   if (purpose === undefined || purpose.status === "loading") {

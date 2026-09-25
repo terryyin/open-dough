@@ -3,7 +3,7 @@
 // directory's listed file names, at an already resolved commit. Both ask
 // GitHub's one contents endpoint; how `gh` runs and fails is `./ghRead.ts`.
 
-import { GhFailure, isNotFound, runGh } from "./ghRead";
+import { GhFailure, isNotFound, runGh } from "./ghRead.ts";
 
 // Each path segment is URL-encoded so no path character can reshape the
 // request.

@@ -11,10 +11,10 @@ import {
   isNotFound,
   runGh,
   type GhFailureReason,
-} from "./ghRead";
-import { parseIncluded, type IncludedAnswer } from "./includedAnswer";
-import { directedWaitSeconds } from "./rateLimitDirection";
-import { commitShaPattern } from "../src/authenticatedReadRules";
+} from "./ghRead.ts";
+import { parseIncluded, type IncludedAnswer } from "./includedAnswer.ts";
+import { directedWaitSeconds } from "./rateLimitDirection.ts";
+import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
 // Which commit a ref alone names, asked for `.sha` alone: what a membership
 // read resolves before reading the backlog, and what a revision check asks

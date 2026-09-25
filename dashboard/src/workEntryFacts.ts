@@ -6,18 +6,18 @@
 // and a recorded story-state plan exist they must resolve to the same path,
 // and disagreement is reported rather than preferred.
 
-import type { WorkEntry } from "./publishedWork";
-import { planAssociationConflict } from "./planAssociation";
-import { resolveBesideFile } from "./repositoryPath";
+import type { WorkEntry } from "./publishedWork.ts";
+import { planAssociationConflict } from "./planAssociation.ts";
+import { resolveBesideFile } from "./repositoryPath.ts";
 import {
   interpretStoryState,
   peekRecordedApproach,
   type WorkPreparation,
-} from "./storyPreparation";
-import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan";
-import { interpretStoryPurpose, type WorkPurpose } from "./storyPurpose";
+} from "./storyPreparation.ts";
+import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan.ts";
+import { interpretStoryPurpose, type WorkPurpose } from "./storyPurpose.ts";
 
-export { planAssociationConflict } from "./planAssociation";
+export { planAssociationConflict } from "./planAssociation.ts";
 
 function recordedWithAssessment(
   peek: Extract<WorkPreparation, { readonly status: "recorded" }>,

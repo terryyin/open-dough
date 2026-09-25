@@ -7,13 +7,13 @@
 // thousands of branches may exceed or GitHub may give up on -- that check
 // asks only which commit the ref names, and says nothing of branch heads.
 
-import type { PublishedSource } from "../src/publishedSource";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   checkHeadsViaGh,
   resolveRevisionViaGh,
   type HeadsAnswer,
-} from "./ghRevision";
-import { GhFailure } from "./ghRead";
+} from "./ghRevision.ts";
+import { GhFailure } from "./ghRead.ts";
 
 // What one check found: the commit the source's ref names, and the head of
 // every published branch, or undefined when the listing could not say.

@@ -1,20 +1,20 @@
-import { expect, test } from "./dashboardTest";
+import { expect, test } from "./dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
   expectImmediateMotion,
   expectReadableContrast,
   zoomedWindow,
-} from "./accessibleReading";
-import { publishCommittedOrigin } from "./committedOrigin";
-import { parts } from "./dashboardPage";
-import { publishMovingOrigin } from "./publishedOrigin";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout";
+} from "./accessibleReading.ts";
+import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { parts } from "./dashboardPage.ts";
+import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedReady,
   plannedBlocked,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 for (const viewport of [
   { name: "desktop", size: { width: 1280, height: 720 } },

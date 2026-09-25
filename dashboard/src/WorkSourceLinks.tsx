@@ -1,7 +1,7 @@
 // Card and detail share one navigation policy. Keep the original backlog
 // evidence distinct from the association read from the canonical record.
-import type { WorkEntry } from "./publishedWork";
-import { RecordedLink } from "./RecordedLink";
+import type { WorkEntry } from "./publishedWork.ts";
+import { RecordedLink } from "./RecordedLink.tsx";
 
 export function WorkSourceLinks({ entry }: { entry: WorkEntry }) {
   const conflict =

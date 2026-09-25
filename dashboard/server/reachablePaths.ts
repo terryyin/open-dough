@@ -12,10 +12,13 @@
 // What may be read on a story branch is decided from the same records in
 // `./branchReachability.ts`.
 
-import type { PublishedSource } from "../src/publishedSource";
-import { resolveBesideFile } from "../src/repositoryPath";
-import { resolveSourceLink, snapshotRepositoryPath } from "../src/sourceLink";
-import { peekRecordedApproach } from "../src/storyPreparation";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { resolveBesideFile } from "../src/repositoryPath.ts";
+import {
+  resolveSourceLink,
+  snapshotRepositoryPath,
+} from "../src/sourceLink.ts";
+import { peekRecordedApproach } from "../src/storyPreparation.ts";
 import {
   agentProfileDirectory,
   profileAgentName,

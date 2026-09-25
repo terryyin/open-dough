@@ -4,23 +4,26 @@
 // (`./repositoryFileReads.ts`). Plan text fetched for readiness is reused for
 // detail; opening already-read detail costs no extra request.
 
-import type { PublishedWork, WorkEntry } from "./publishedWork";
+import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import {
   planAssociationConflict,
   planSlicesFor,
   preparationForPeek,
   purposeFor,
   recordedPlanPathFor,
-} from "./workEntryFacts";
-import { loadRepositoryTexts } from "./repositoryFileReads";
+} from "./workEntryFacts.ts";
+import { loadRepositoryTexts } from "./repositoryFileReads.ts";
 import {
   resolveSourceLink,
   snapshotRepositoryPath,
   type SourceLink,
-} from "./sourceLink";
-import { peekRecordedApproach, type WorkPreparation } from "./storyPreparation";
-import type { WorkPlanSlices } from "./storyPlan";
-import type { WorkPurpose } from "./storyPurpose";
+} from "./sourceLink.ts";
+import {
+  peekRecordedApproach,
+  type WorkPreparation,
+} from "./storyPreparation.ts";
+import type { WorkPlanSlices } from "./storyPlan.ts";
+import type { WorkPurpose } from "./storyPurpose.ts";
 
 type EntryFacts = {
   readonly preparation: WorkPreparation;

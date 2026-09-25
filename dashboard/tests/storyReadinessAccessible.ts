@@ -10,21 +10,21 @@ import {
   expectReadableContrast,
   politeRegionsOfferedThenMarked,
   zoomedWindow,
-} from "./accessibleReading";
-import type { CommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
-import { rateLimitedAnswer } from "./originAnswers";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout";
+} from "./accessibleReading.ts";
+import type { CommittedOrigin } from "./committedOrigin.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { rateLimitedAnswer } from "./originAnswers.ts";
+import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import {
   plannedBlocked,
   plannedReady,
   type ReadinessRepo,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 import {
   publishDropUnrefined,
   publishRestoreUnrefined,
-} from "./storyReadinessPublications";
+} from "./storyReadinessPublications.ts";
 
 export async function expectKeyboardOpensAndClosesDetail(
   page: Page,

@@ -17,11 +17,11 @@
 // its late answer is ignored.
 
 import { useEffect, useState } from "react";
-import type { StoryBranchHeads } from "./authenticatedBranchRead";
-import { checkPublishedRevision } from "./authenticatedRead";
-import { movedBranches } from "./movedBranchProgress";
-import type { Visibility } from "./pageVisibility";
-import type { PublishedSource } from "./publishedSource";
+import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
+import { checkPublishedRevision } from "./authenticatedRead.ts";
+import { movedBranches } from "./movedBranchProgress.ts";
+import type { Visibility } from "./pageVisibility.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 
 // How long a shown snapshot waits before asking whether the selected
 // project's `main` still names its revision: often enough that newly

@@ -1,6 +1,6 @@
 import { type Page } from "@playwright/test";
-import { expect, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   backlogB,
   dashboardStory,
@@ -8,7 +8,7 @@ import {
   revisionB,
   titlesOfB,
   workspaceStory,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 const canonical = { name: /^Canonical record/ };
 

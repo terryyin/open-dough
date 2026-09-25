@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "strict": true,

@@ -4,18 +4,18 @@
 // A second commit records two of five slices done with accepted proof in plan
 // text; the shared reader interprets that outcome.
 
-import { expect, test } from "./dashboardTest";
-import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin";
+import { expect, test } from "./dashboardTest.ts";
+import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin.ts";
 import {
   expectMembership,
   expectOwnersNotRecorded,
   parts,
-} from "./dashboardPage";
+} from "./dashboardPage.ts";
 import {
   expectPlanlessDetailAbsentPlan,
   expectReadyDetailTwoCompleteAfterPublish,
   expectReadyDetailZeroComplete,
-} from "./storyReadinessDetail";
+} from "./storyReadinessDetail.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
@@ -26,13 +26,13 @@ import {
   plannedReady,
   planless,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 import {
   expectAgreeingFragment,
   expectQueuedPlanCardAndDetail,
   expectPlanKeyboardDestination,
-} from "./queuedPlanNavigation";
-import { publishTwoSlicesDone } from "./storyReadinessPublications";
+} from "./queuedPlanNavigation.ts";
+import { publishTwoSlicesDone } from "./storyReadinessPublications.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

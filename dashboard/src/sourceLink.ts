@@ -6,8 +6,8 @@
 
 import { z } from "zod";
 import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
-import type { PublishedSource } from "./publishedSource";
-import { ReadProblem } from "./readProblem";
+import type { PublishedSource } from "./publishedSource.ts";
+import { ReadProblem } from "./readProblem.ts";
 
 export type SourceLink =
   // A file in the observed repository, pinned to the revision it names.

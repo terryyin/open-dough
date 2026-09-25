@@ -8,9 +8,9 @@ import { expect, test } from "@playwright/test";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "./support/dashboardServer";
-import { everyRepository, publishes } from "./support/fakeGitHub";
-import { rawRequest } from "./support/rawHttp";
+} from "./support/dashboardServer.ts";
+import { everyRepository, publishes } from "./support/fakeGitHub.ts";
+import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

@@ -8,7 +8,7 @@ import {
   planBlockedPath,
   planReadyPath,
   type ReadinessRepo,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 export function planHref(
   repository: string,

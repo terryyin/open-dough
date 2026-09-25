@@ -2,12 +2,12 @@
 // commit times at a resolved commit, for the local authenticated read
 // boundary (`./authenticatedRead.ts`).
 
-import type { PublishedSource } from "../src/publishedSource";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   listRepositoryDirectoryViaGh,
   readRepositoryFileViaGh,
-} from "./ghContents";
-import { lastCommitTimeViaGh } from "./ghRead";
+} from "./ghContents.ts";
+import { lastCommitTimeViaGh } from "./ghRead.ts";
 
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)

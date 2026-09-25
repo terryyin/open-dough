@@ -1,11 +1,11 @@
-import { expect, githubFor, test } from "./dashboardTest";
-import { headsChecks } from "./autoRefreshJourney";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { headsChecks } from "./autoRefreshJourney.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
   expectWholeSnapshot,
   parts,
-} from "./dashboardPage";
+} from "./dashboardPage.ts";
 import {
   commitAnswer,
   noConnection,
@@ -16,8 +16,8 @@ import {
   rateLimitedAnswer,
   rawFileAnswer,
   type Origin,
-} from "./publishedOrigin";
-import { backlogA, revisionA, titlesOfA } from "./refreshJourney";
+} from "./publishedOrigin.ts";
+import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
 
 const revision = "5e".repeat(20);
 const repairEntry =

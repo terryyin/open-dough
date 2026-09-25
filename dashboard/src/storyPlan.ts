@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
-import { ReadProblem } from "./readProblem";
+import { ReadProblem } from "./readProblem.ts";
 
 const planSliceSchema = z.object({
   index: z.number().int().positive(),

@@ -3,10 +3,10 @@
 // re-read right after settlement.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { planHref } from "./queuedPlanNavigation";
-import type { CommittedOrigin } from "./committedOrigin";
-import { expectMembership, parts } from "./dashboardPage";
-import { rateLimitedAnswer } from "./originAnswers";
+import { planHref } from "./queuedPlanNavigation.ts";
+import type { CommittedOrigin } from "./committedOrigin.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { rateLimitedAnswer } from "./originAnswers.ts";
 import {
   externalPlan,
   legacy,
@@ -16,7 +16,7 @@ import {
   planless,
   type ReadinessRepo,
   unrefined,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 export async function expectFailedRefreshKeepsPriorRevision(
   source: Locator,

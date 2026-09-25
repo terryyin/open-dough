@@ -1,12 +1,12 @@
-import { expect, test } from "./dashboardTest";
-import { openDirection, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { openDirection, parts } from "./dashboardPage.ts";
 import {
   emptyBacklog,
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
-} from "./publishedOrigin";
-import { expectFocusedAndIndicated } from "./accessibleReading";
+} from "./publishedOrigin.ts";
+import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);

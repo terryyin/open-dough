@@ -4,7 +4,7 @@
 // out once `./ghRead.ts`'s `readTimeoutMs` passes.
 
 import type { IncomingMessage } from "node:http";
-import { GhFailure, readTimeoutMs } from "./ghRead";
+import { GhFailure, readTimeoutMs } from "./ghRead.ts";
 
 export async function withTrackedGh<T>(
   req: IncomingMessage,

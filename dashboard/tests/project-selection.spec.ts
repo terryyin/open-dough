@@ -3,14 +3,14 @@
 // project shows only that project's overview, through the same reader and
 // presentation Open Dough already used when it was the only source.
 
-import { expect, test } from "./dashboardTest";
-import { expectMembership, openDirection, parts } from "./dashboardPage";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
 import {
   commitAnswer,
   emptyBacklog,
   publishOrigin,
   rawFileAnswer,
-} from "./publishedOrigin";
+} from "./publishedOrigin.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";

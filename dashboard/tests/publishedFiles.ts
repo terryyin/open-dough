@@ -3,7 +3,7 @@
 // (./support/fakeGitHub.ts), observing each read it answers.
 
 import type { Page } from "@playwright/test";
-import { githubFor } from "./dashboardTest";
+import { githubFor } from "./dashboardTest.ts";
 import {
   branchRefAnswer,
   commitAnswer,
@@ -13,8 +13,8 @@ import {
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
-} from "./originAnswers";
-import { observe, type ObservedRequest } from "./originObservation";
+} from "./originAnswers.ts";
+import { observe, type ObservedRequest } from "./originObservation.ts";
 
 // A repository whose `main` names one revision at which these files are
 // published: every contents read at that revision is observed and answered

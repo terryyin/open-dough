@@ -7,7 +7,7 @@
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
-import { githubFor } from "./dashboardTest";
+import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
   commitAnswer,
@@ -16,8 +16,8 @@ import {
   notFoundAnswer,
   rawFileAnswer,
   type OriginAnswer,
-} from "./originAnswers";
-import { observe, type ObservedRequest } from "./originObservation";
+} from "./originAnswers.ts";
+import { observe, type ObservedRequest } from "./originObservation.ts";
 
 function showAt(repoDir: string, revision: string, repositoryPath: string) {
   try {

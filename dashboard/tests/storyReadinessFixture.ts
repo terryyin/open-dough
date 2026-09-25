@@ -10,7 +10,7 @@ import {
   recordState,
   scratchRepo,
   writePlanning,
-} from "./storyReadinessCli";
+} from "./storyReadinessCli.ts";
 import {
   externalPlan,
   externalPlanSeed,
@@ -32,7 +32,7 @@ import {
   seedRelative,
   threeStorySeed,
   unrefined,
-} from "./storyReadinessRecords";
+} from "./storyReadinessRecords.ts";
 
 export {
   externalPlan,
@@ -46,7 +46,7 @@ export {
   planReadyTwoDoneBody,
   seedRelative,
   unrefined,
-} from "./storyReadinessRecords";
+} from "./storyReadinessRecords.ts";
 
 export type ReadinessRepo = {
   readonly directory: string;

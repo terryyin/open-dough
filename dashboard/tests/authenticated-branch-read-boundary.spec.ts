@@ -14,11 +14,11 @@ import { expect, test } from "@playwright/test";
 import {
   startDashboardServer,
   type DashboardServer,
-} from "./support/dashboardServer";
-import { everyRepository, publishes } from "./support/fakeGitHub";
-import { branchRefAnswer, headsAnswer } from "./originAnswers";
+} from "./support/dashboardServer.ts";
+import { everyRepository, publishes } from "./support/fakeGitHub.ts";
+import { branchRefAnswer, headsAnswer } from "./originAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { rawRequest } from "./support/rawHttp";
+import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 

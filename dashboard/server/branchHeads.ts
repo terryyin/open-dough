@@ -5,8 +5,8 @@
 // that branch, so the browser can never name a commit of its own choosing:
 // every head it may read at is one this boundary found the branch naming.
 
-import type { PublishedSource } from "../src/publishedSource";
-import { resolveBranchHeadViaGh } from "./ghRevision";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { resolveBranchHeadViaGh } from "./ghRevision.ts";
 
 // In memory, per launched server, and bounded: a head found once stays
 // readable while a page still shows it, even after the branch moves on.

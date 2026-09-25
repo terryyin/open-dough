@@ -6,16 +6,16 @@
 // all (`./branchReachability.ts`); a head is readable only when this boundary
 // resolved that branch to it (`./branchHeads.ts`).
 
-import type { BranchHeads } from "./branchHeads";
-import { isNotFound } from "./ghRead";
-import type { PinnedTexts } from "./pinnedTexts";
+import type { BranchHeads } from "./branchHeads.ts";
+import { isNotFound } from "./ghRead.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
 import {
   branchPlanReachableFromRevision,
   branchRecordedAtRevision,
-} from "./branchReachability";
-import { answered, unreachable, type Outcome } from "./readOutcome";
-import type { OnBranch, RequestedRead } from "./requestedRead";
-import type { PublishedSource } from "../src/publishedSource";
+} from "./branchReachability.ts";
+import { answered, unreachable, type Outcome } from "./readOutcome.ts";
+import type { OnBranch, RequestedRead } from "./requestedRead.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 
 type BranchReaders = {
   readonly pinned: PinnedTexts;

@@ -5,25 +5,25 @@
 // use: ./auto-refresh-branches.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest";
-import { parts } from "./dashboardPage";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { parts } from "./dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
-} from "./autoRefreshJourney";
+} from "./autoRefreshJourney.ts";
 import {
   agentProfile,
   branches,
   profilePath,
   trunk,
-} from "./branchProgressRecords";
+} from "./branchProgressRecords.ts";
 import {
   openedSettled,
   readsBesideChecks,
   trunkMoved,
-} from "./branchRefreshJourney";
-import type { PublishedRevision } from "./publishedFiles";
+} from "./branchRefreshJourney.ts";
+import type { PublishedRevision } from "./publishedFiles.ts";
 
 // A name Git allows but the local read boundary does not use.
 const unusable = "story/café";

@@ -19,8 +19,8 @@ import {
   builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
-} from "./support/dashboardServer";
-import { startFakeGitHub, type FakeGitHub } from "./support/fakeGitHub";
+} from "./support/dashboardServer.ts";
+import { startFakeGitHub, type FakeGitHub } from "./support/fakeGitHub.ts";
 
 export { expect };
 

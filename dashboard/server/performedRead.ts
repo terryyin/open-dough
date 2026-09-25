@@ -8,35 +8,38 @@
 // `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
-import type { BranchHeads } from "./branchHeads";
-import { resolveRevisionViaGh } from "./ghRevision";
-import { readRepositoryFileViaGh } from "./ghContents";
-import { performBranchHeadRead, performOnBranch } from "./performedBranchRead";
-import { performRevisionCheck } from "./performedRevisionCheck";
-import type { PinnedTexts } from "./pinnedTexts";
-import type { RevisionChecks } from "./revisionChecks";
-import { withTrackedGh } from "./trackedGh";
-import { reportedFailure } from "./readFailureMessage";
+import type { BranchHeads } from "./branchHeads.ts";
+import { resolveRevisionViaGh } from "./ghRevision.ts";
+import { readRepositoryFileViaGh } from "./ghContents.ts";
+import {
+  performBranchHeadRead,
+  performOnBranch,
+} from "./performedBranchRead.ts";
+import { performRevisionCheck } from "./performedRevisionCheck.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
+import type { RevisionChecks } from "./revisionChecks.ts";
+import { withTrackedGh } from "./trackedGh.ts";
+import { reportedFailure } from "./readFailureMessage.ts";
 import {
   answered,
   unreachable,
   type Outcome,
   type PinnedFile,
-} from "./readOutcome";
+} from "./readOutcome.ts";
 import {
   agentProfileDirectoryOf,
   commitTimeReachableFromRevision,
   listedAgentProfilePaths,
   pathReachableFromRevision,
-} from "./reachablePaths";
-import type { RequestedRead } from "./requestedRead";
-import type { PublishedSource } from "../src/publishedSource";
+} from "./reachablePaths.ts";
+import type { RequestedRead } from "./requestedRead.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   readingBranchHeadOf,
   readingLastCommitAt,
   readingPathAt,
   readingRefOf,
-} from "../src/authenticatedReadRules";
+} from "../src/authenticatedReadRules.ts";
 
 export type Boundary = {
   readonly tracked: Set<AbortController>;

@@ -3,12 +3,12 @@
 // absence. Assertions stay at the accessible detail region.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import type { CommittedOrigin } from "./committedOrigin";
+import type { CommittedOrigin } from "./committedOrigin.ts";
 import {
   plannedReady,
   planless,
   type ReadinessRepo,
-} from "./storyReadinessFixture";
+} from "./storyReadinessFixture.ts";
 
 async function inspectReadyDetail(taken: Locator): Promise<Locator> {
   const readyCard = taken.getByRole("article", { name: plannedReady.title });

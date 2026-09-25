@@ -6,9 +6,9 @@
 // everything shown.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
-import { publishFiles } from "./publishedOrigin";
+import { expect, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { publishFiles } from "./publishedOrigin.ts";
 
 const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";

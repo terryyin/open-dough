@@ -1,7 +1,7 @@
-import { expect, githubFor, test } from "./dashboardTest";
-import { headsChecks } from "./autoRefreshJourney";
-import { expectWholeSnapshot, parts } from "./dashboardPage";
-import { pathsRead } from "./publishedOrigin";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { headsChecks } from "./autoRefreshJourney.ts";
+import { expectWholeSnapshot, parts } from "./dashboardPage.ts";
+import { pathsRead } from "./publishedOrigin.ts";
 import {
   backlogB,
   backlogC,
@@ -13,7 +13,7 @@ import {
   titlesOfA,
   titlesOfB,
   workspaceStory,
-} from "./refreshJourney";
+} from "./refreshJourney.ts";
 
 test("refresh published work replaces revision A with revision B as one result", async ({
   page,

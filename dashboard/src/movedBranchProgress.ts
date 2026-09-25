@@ -5,11 +5,11 @@
 // (`./sliceClockStart.ts`). Every other entry, and the snapshot's revision and
 // retrieval time, stay as shown.
 
-import type { StoryBranchHeads } from "./authenticatedBranchRead";
-import { withProgressSources } from "./progressSource";
-import type { PublishedWork } from "./publishedWork";
-import { withSliceClocks } from "./sliceClockStart";
-import { withinReadWait } from "./readWaitBound";
+import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
+import { withProgressSources } from "./progressSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
+import { withSliceClocks } from "./sliceClockStart.ts";
+import { withinReadWait } from "./readWaitBound.ts";
 
 // The watched branches whose head the check found differs from the one shown,
 // each with the head found: undefined when it is no longer published.

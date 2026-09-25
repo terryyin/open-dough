@@ -8,13 +8,13 @@
 // shared readers, and the page decide everything shown.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest";
-import { expectMembership, parts } from "./dashboardPage";
-import { isHeadsCheck } from "./originObservation";
-import { publishFiles } from "./publishedOrigin";
-import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney";
-import { publishes } from "./support/fakeGitHub";
-import { noConnection } from "./originAnswers";
+import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
+import { isHeadsCheck } from "./originObservation.ts";
+import { publishFiles } from "./publishedOrigin.ts";
+import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney.ts";
+import { publishes } from "./support/fakeGitHub.ts";
+import { noConnection } from "./originAnswers.ts";
 import {
   afterTake,
   beforeProfiles,
@@ -28,7 +28,7 @@ import {
   revision,
   stories,
   timeUnread,
-} from "./sliceClockRecords";
+} from "./sliceClockRecords.ts";
 
 const noProfileLabel = "no agent profile records the Take";
 

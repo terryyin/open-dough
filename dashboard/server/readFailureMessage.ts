@@ -2,8 +2,8 @@
 // reports for a failed read, from the failure category `./ghRead.ts`
 // established: person-facing wording, and any wait a rate limit directed.
 
-import type { PublishedSource } from "../src/publishedSource";
-import { GhFailure, readTimeoutMs } from "./ghRead";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { GhFailure, readTimeoutMs } from "./ghRead.ts";
 
 export type ReportedFailure = {
   readonly message: string;
