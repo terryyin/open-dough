@@ -746,6 +746,19 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: a sixth Claude Code occurrence; recovery again needed a
     read of `ci-host-bridge.mjs`. No duplicate observer this time.
 
+- Execution: `SEED-008#restore-ci-verdict-delivery` / plan 097 (ci-verdict-delivery), first related implementation commit `5317499`
+  - Timestamp: unknown (first increment delivery, after commit `5317499` at
+    2026-09-25T15:35:22+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: before delivery, `grep session` over
+    `execution-increment-delivery.mjs` and `ci-host-bridge.mjs`, then `env`
+    for `CLAUDE_CODE_SESSION_ID`; the first delivery with a hand-built
+    `--session-json` attached `watch-GSzOqq`.
+  - Observed effect: nothing went unobserved, but three extra commands
+    reading source were needed to find the field.
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -940,6 +953,16 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     (115,367 chars) held the listings.
   - Observed effect: one extra command stripped the index fields to read the
     receipt; a third startup occurrence.
+
+- Execution: `SEED-008#restore-ci-verdict-delivery` / plan 097 (ci-verdict-delivery), first related implementation commit `5317499`
+  - Timestamp: 2026-09-25T15:15:20+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: Take `c2af9fc` receipt, 230.9 KB, saved to a file by the host;
+    the index fields again held the listings.
+  - Observed effect: one extra command stripped the index fields to read the
+    receipt; a fourth startup occurrence.
 
 ## Retention
 

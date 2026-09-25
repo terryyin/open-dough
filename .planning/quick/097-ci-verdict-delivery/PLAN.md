@@ -200,3 +200,13 @@ fallbacks in this slice.
   would now end observation when an explicit name is set; guidance says to
   unset it.
 
+
+## Execution complete
+
+Product advice: keep current queue order. This execution recorded another
+ODF-092 occurrence (the Claude session identity still needed a source search),
+supporting the next story, attaching CI observation to the first Claude Code
+publication. Startup, managed delivery and hook attachment also worked in an
+unattended Claude Code background session: a partial data point, not an
+evaluation, for the background-mode story. Historical attribution of Doughnut
+plan 029 stays open until a released observer runs there with default settings.
