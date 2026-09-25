@@ -4,12 +4,12 @@
 
 **Identity:** quick/101-startup-readiness-proof-consolidation/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85a3aba0ccf41efc7527710d93126dc20a5dd82b60fc8211c190b0f028a080ad"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"af0cde46c043c2155bb6166f159f73edb09f68d0973df8f10bd887984ea8a233"}}
 ```
 
 Bounded retrospective correction. This plan is its canonical home; no seed is
 required. Provenance: execution of
-[plan 100](../100-useful-startup-output/PLAN.md) for
+plan 100 (`0d708a8:.planning/quick/100-useful-startup-output/PLAN.md`) for
 `SEED-008#useful-startup-output`, published revisions `5fdeb4c` (claim) and
 `075e955` (compact start result, including the new first-delivery journey).
 

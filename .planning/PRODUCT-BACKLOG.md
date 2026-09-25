@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests ([plan](quick/096-quiet-stable-fast-tests/PLAN.md))
-- [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
 
 ## Backlog list
 
