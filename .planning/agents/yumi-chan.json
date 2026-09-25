@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yumi-chan",
+  "email": "yumi-chan@example.org",
+  "identity": "SEED-037#diagnosable-test-hangs",
+  "mode": "story-branch",
+  "branch": "claude/104-diagnosable-test-hangs",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
