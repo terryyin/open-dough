@@ -1,12 +1,6 @@
 // Disposable trunk, queued backlog, and command-readiness scripts for
 // workspace-publication Git-mechanics tests.
-import {
-  mkdirSync,
-  mkdtempSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +9,7 @@ import {
   computeBasis,
   recordStoryState,
 } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { git, exec, revParse } from "./publication-test-fixtures.mjs";
 
 export const storyA = "- [Story A](seeds/A.md#a) \u2014 SEED-A#a";
@@ -119,12 +114,14 @@ export async function createQueuedTrunk({
   await git(integration, "add", ".");
   await git(integration, "commit", "-m", "base trunk commit");
   await git(integration, "push", "origin", "main");
+  const teardown = fixtureTeardown(fixture);
   return {
     fixture,
     origin,
     integration,
     trunkSha: await revParse(integration, "HEAD"),
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
+    cleanup: teardown.cleanup,
+    defer: teardown.defer,
   };
 }
 

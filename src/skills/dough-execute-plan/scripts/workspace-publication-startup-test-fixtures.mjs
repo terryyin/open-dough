@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  awaitProcessExit,
   awaitSignalWhileRunning,
   settledProbe,
 } from "./process-lifetime-test-fixtures.mjs";
@@ -18,6 +19,8 @@ const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),
 );
 
+// Starts a real startup command; the trunk's teardown stops it before the
+// trunk is removed.
 export function startProcess(
   trunk,
   name,
@@ -50,6 +53,11 @@ export function startProcess(
     ...extra,
   ];
   const child = spawn(process.execPath, args, { env });
+  const exited = new Promise((resolve) => child.once("exit", resolve));
+  trunk.defer(async () => {
+    child.kill();
+    await exited;
+  });
   let stdout = "",
     stderr = "";
   child.stdout.on("data", (data) => {
@@ -90,13 +98,22 @@ export async function interruptFirstPush(trunk) {
   );
 }
 
+// Holds exec/<name>'s push in its pre-push hook until `release`. The trunk's
+// teardown releases it and waits for that push to end before the trunk is
+// removed, even when the test failed before releasing it.
 export async function holdFirstPush(trunk, name = "a") {
   const arrived = join(trunk.fixture, "push-arrived");
   const released = join(trunk.fixture, "push-released");
   await installPrePush(
     trunk,
-    `if [ "$(git branch --show-current)" = exec/${name} ]; then\n  touch '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
+    `if [ "$(git branch --show-current)" = exec/${name} ]; then\n  echo $PPID > '${arrived}.tmp' && mv '${arrived}.tmp' '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
   );
+  const release = () => writeFileSync(released, "go\n");
+  trunk.defer(async () => {
+    release();
+    if (existsSync(arrived))
+      await awaitProcessExit(Number(readFileSync(arrived, "utf8")));
+  });
   return {
     // Waits until `started` holds its push for as long as that process runs.
     async awaitArrival(started) {
@@ -109,9 +126,7 @@ export async function holdFirstPush(trunk, name = "a") {
         },
       );
     },
-    release: () => {
-      if (existsSync(trunk.fixture)) writeFileSync(released, "go\n");
-    },
+    release,
   };
 }
 

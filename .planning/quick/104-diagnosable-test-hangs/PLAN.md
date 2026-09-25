@@ -115,7 +115,7 @@ With that failure also swallowed again, the liveness assertion failed with
 ## Slice 2 — Startup race tests release the held push before removing the fixture
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a startup race test whose assertion fails after the push arrived and
 before release → teardown runs → the held pre-push is released before the
@@ -127,6 +127,32 @@ without an explicit release (the failing test's path), and waits for the push
 process to exit. Show once, on the current order, that it does not exit.
 `workspace-publication-startup-race.test.mjs` and
 `workspace-publication-startup-agent-race.test.mjs` stay green.
+
+Accepted proof (2026-09-25): `createQueuedTrunk` uses `fixtureTeardown`.
+`holdFirstPush` defers a release step that writes the release file, then
+waits through `awaitProcessExit` for the held `git push` to end. The hook
+records that pid (`$PPID`) atomically in `push-arrived`. `processEnded`, in
+`process-lifetime-test-fixtures.mjs`, also counts an unreaped zombie as
+ended. `startProcess` defers a step that kills its child and awaits its
+`exit`. The race tests' per-test release and kill `t.after` blocks are gone.
+
+The fixture-level test `workspace-publication-startup-teardown.test.mjs` runs
+`trunk.cleanup()` without an explicit release and awaits the push child's
+`exit`. `PATH="/opt/homebrew/bin:$PATH" node --test` over it and the two race
+tests passes 8/8, and afterwards no `pre-push`, `git push` or
+`execution-start.mjs` process remains. On the old order, the test timed out
+with the `git push` and its pre-push hook still running.
+
+Other consumers of the changed fixtures also pass:
+
+- startup recovery, agent-resume, agent-release and
+  `workspace-publication-race`: 11/11;
+- `workspace-publication`, startup-agent and preparation-assignment: 47/47;
+- the `waitForPidExit` consumers: 33/33.
+
+Learning: writing a release file is not enough when fixture removal follows
+immediately, because the poller can miss the file. Teardown waits for the
+held process to end.
 
 ## Slice 3 — An interrupted run names the checks still running
 
@@ -193,6 +219,11 @@ is a slice 3 defect about signal delivery through `npm`, not a reason to
 automate this check.
 
 ## Preparation review and learnings
+
+- CI observation (Story Branch Mode): GitHub Actions `ci.yml` (`CI`) on
+  `refs/heads/claude/104-diagnosable-test-hangs`, with observer
+  `/tmp/dough-ci-501/watch-2y8yxI`, attached when slice 1 (`044c88f`) was
+  published. No observer covers the Take claim `0dfb471` on trunk.
 
 - Slices 1 and 2 are independent of 3–6 and can run first; slice 1 carries
   the live defect. Slice 6's manual demonstration depends on slice 3.

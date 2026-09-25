@@ -23,10 +23,6 @@ test("real startup commands replay distinct claims from one base without losing 
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    a.child.kill();
-  });
   await barrier.awaitArrival(a);
   const b = await startProcess(trunk, "b", identityB).result;
   assert.equal(b.receipt.ok, true, JSON.stringify(b));
@@ -65,10 +61,6 @@ test("distinct claims also converge when the other execution wins the first push
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk, "b");
   const b = startProcess(trunk, "b", identityB);
-  t.after(() => {
-    barrier.release();
-    b.child.kill();
-  });
   await barrier.awaitArrival(b);
   const a = await startProcess(trunk, "a", identityA).result;
   assert.equal(a.receipt.ok, true, JSON.stringify(a));
@@ -105,10 +97,6 @@ test("real competing same-story command stops on the first owner's provenance", 
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    a.child.kill();
-  });
   await barrier.awaitArrival(a);
   const b = await startProcess(trunk, "b", identityA).result;
   assert.equal(b.receipt.ok, true, JSON.stringify(b));
@@ -132,10 +120,6 @@ test("remote advance replays an owned suffix, but changed selected source stops 
     t.after(trunk.cleanup);
     const barrier = await holdFirstPush(trunk);
     const a = startProcess(trunk, "a", identityA);
-    t.after(() => {
-      barrier.release();
-      a.child.kill();
-    });
     await barrier.awaitArrival(a);
     if (changedSource) {
       const path = join(trunk.integration, ".planning/seeds/A.md");
@@ -176,10 +160,6 @@ test("real startup stops on identical Taken text without publication provenance"
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const contender = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    contender.child.kill();
-  });
   await barrier.awaitArrival(contender);
   const owner = await startProcess(trunk, "b", identityA).result;
   assert.equal(owner.receipt.ok, true, JSON.stringify(owner));

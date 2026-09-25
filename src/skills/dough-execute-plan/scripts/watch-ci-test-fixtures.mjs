@@ -14,7 +14,10 @@ import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
-import { awaitSignalWhileRunning } from "./process-lifetime-test-fixtures.mjs";
+import {
+  awaitSignalWhileRunning,
+  processEnded,
+} from "./process-lifetime-test-fixtures.mjs";
 
 const runCommand = promisify(execFile);
 
@@ -49,21 +52,6 @@ export async function waitForFile(path, timeoutMs = 5000) {
     const remaining = deadline - Date.now();
     if (remaining <= 0) throw new Error(`Missing ${path}`);
     await pause(Math.min(20, remaining));
-  }
-}
-
-async function processEnded(pid) {
-  try {
-    const { stdout } = await runCommand("ps", [
-      "-p",
-      String(pid),
-      "-o",
-      "stat=",
-    ]);
-    return stdout.trim().startsWith("Z");
-  } catch (error) {
-    if (error.code !== 1) throw error;
-    return true;
   }
 }
 

@@ -31,10 +31,6 @@ test("a rival holding a different agent name leaves the replayed claim its origi
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
-  t.after(() => {
-    barrier.release();
-    a.child.kill();
-  });
   await barrier.awaitArrival(a);
   // A rival started from another base, where Yui-chan was held, published
   // Akiho-chan's profile first.
