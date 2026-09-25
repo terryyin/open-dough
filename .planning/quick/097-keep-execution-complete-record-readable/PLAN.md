@@ -162,3 +162,13 @@ Product advice: retrospective skipped
   fields and the Proof/Accepted continuation break. A backtick opener whose
   info string contains a backtick is still treated as an opener (CommonMark
   edge, not seen in plans).
+- After delivery that edge proved real: this plan's own findings line starts
+  with an inline code span of four backticks, so the new reader called the
+  plan uninterpretable. A backtick opener now requires an info string without
+  backticks (CommonMark), covered by the parameterized "…inline code spans of
+  backtick runs at the start of a line" case, which fails with the earlier
+  opener. Replaying all 665 distinct plan versions in Git history through the
+  900c069 reader and this one differs only on this plan, where the new answer
+  (its unfenced execution-complete record) is correct. Reader, completion,
+  and guidance tests: 26 pass; `tests/product-backlog.sh` 138 pass;
+  `npm run typecheck:dashboard` clean.

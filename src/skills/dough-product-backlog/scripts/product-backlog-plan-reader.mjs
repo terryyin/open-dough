@@ -21,13 +21,15 @@ const fieldStart =
 
 const completionSection = /^## +Execution complete *$/i;
 const adviceLine = /^Product advice: *(?<advice>.*?)\s*$/;
-const fenceOpener = /^ {0,3}(?<marker>`{3,}|~{3,})/;
+const fenceOpener = /^ {0,3}(?<marker>`{3,}(?=[^`]*$)|~{3,})/;
 const fenceCloser = /^ {0,3}(?<marker>`{3,}|~{3,})\s*$/;
 
 // Whether each line is outside fenced code blocks, so a quoted example of a
 // heading or entry is never read as the plan's own structure. As in
-// CommonMark, a fence closes only at a bare run of the opener's character at
-// least as long as the opener.
+// CommonMark, a backtick fence opens only when no backtick follows its run
+// (so a line starting with an inline code span stays prose), and a fence
+// closes only at a bare run of the opener's character at least as long as the
+// opener.
 function unfencedLines(lines) {
   const unfenced = [];
   let fence;

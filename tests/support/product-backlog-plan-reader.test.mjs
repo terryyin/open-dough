@@ -182,6 +182,10 @@ for (const [example, quote] of [
     "a four-backtick fence not closed by an inner three-backtick line",
     "````markdown\n```text\n### Not a slice\n## Execution complete\n### 9. Not a slice either\n```\n````",
   ],
+  [
+    "inline code spans of backtick runs at the start of a line",
+    "  ```` ```markdown ```` / `## Execution complete` / ```` ``` ````.",
+  ],
 ]) {
   test(`readPlanSlices keeps every slice when a slice quotes ${example}`, () => {
     const read = readPlanSlices(`# Plan
