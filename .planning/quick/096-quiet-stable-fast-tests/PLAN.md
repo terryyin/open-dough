@@ -436,7 +436,24 @@ Behavior: a "no re-read after settlement" check → it advances a paused
 ### 9. Independent checks and Node suites run with enough parallelism to shorten the critical path
 
 Type: Behavior
-Status: in progress — implementation done; stability proof waits on slice 9a
+Status: done
+Accepted proof (after slice 9a): three complete default `npm test` runs
+passed silently (exit 0, empty stderr, only npm's banner): 98.5 s at load 13,
+102.3 s at load 36 with `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`,
+105.6 s at load 40. The former `execution-ci-runtime.sh` files run as
+separate jobs; the two 15 s lifecycle waits passed in every run. The runner
+test proves node-file jobs, their failure and stray-output reports,
+`tests/longest-first` ordering, and `OPEN_DOUGH_TEST_TIMES`. The residual
+10 s `stop` timeout in `ci-mailbox-worker-loss.test.mjs:23` (seen only at
+load above 180) did not appear. Profile of run 1, top jobs (s):
+`install-all-tools.sh` 80.6, `story-payload-update.sh` 79.1,
+`execution-payload-update.sh` 78.5, `product-backlog-payload-update.sh` 68.5,
+`workspace-publication.test.mjs` 62.8, `native-delivery-updated-use-adapters.sh`
+56.0, `git-publication-native.sh` 54.2, `retrospective-reference-payload.sh`
+53.7, `native-stream-completeness.sh` 44.6, `self-installation-baseline.sh`
+42.0, `workspace-publication-startup-race.test.mjs` 41.0,
+`update-skip-verified.sh` 40.1. The critical path is now the longest single
+shell check.
 Done so far (uncommitted at refinement, 2026-09-25):
 - One scheduling owner in `scripts/test.sh`: every `node --test` file is its
   own runner job (186 jobs in all), default slots = online CPUs, checked-in

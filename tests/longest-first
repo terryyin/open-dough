@@ -1,0 +1,49 @@
+# Jobs known to run longest, longest first. scripts/test.sh starts these
+# before every other job so the longest does not start last. Names that no
+# longer match a job are ignored. To refresh from a run on your machine:
+#   OPEN_DOUGH_TEST_TIMES=/tmp/times npm test
+#   awk -F '\t' '$1 >= 10 { print $2 }' /tmp/times
+tests/execution-payload-update.sh
+tests/story-payload-update.sh
+tests/product-backlog-payload-update.sh
+tests/install-all-tools.sh
+tests/native-stream-completeness.sh
+tests/native-delivery-updated-use-adapters.sh
+tests/retrospective-reference-payload.sh
+tests/git-publication-native.sh
+tests/self-installation-baseline.sh
+tests/native-result-retention.sh
+tests/update-skip-verified.sh
+tests/native-delivery-updated-use.sh
+src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs
+tests/update-refuses-unverifiable.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-race.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-recovery.test.mjs
+tests/update-force-restores-latest.sh
+tests/install-latest-release.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs
+src/skills/dough-execute-plan/scripts/ci-mailbox-complete.test.mjs
+tests/pin-and-inspect.sh
+tests/install-preserves-open-dough-json.sh
+tests/install-refuses-unsafe-topology.sh
+src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs
+tests/update-reports-replacement-failure.sh
+tests/native-runner-failures.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs
+tests/update-adds-new-payload-skill.sh
+tests/dough-adr-awareness-cursor-delivery-to-use.sh
+tests/dough-adr-awareness-codex-delivery-to-use.sh
+tests/dough-adr-awareness-claude-delivery-to-use.sh
+tests/story-payload-assertions.sh
+tests/install-ci-host-hooks.sh
+src/skills/dough-story-wrap-up/scripts/closure-publication-resume-published.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-race.test.mjs
+src/skills/dough-story-wrap-up/scripts/closure-publication-resume.test.mjs
+src/skills/dough-story-refinement/scripts/dough-land.test.mjs
+tests/compare-payload.sh
+src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-release.test.mjs
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation-stops.test.mjs
+tests/dough-adr-awareness-context.sh
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs
+src/skills/dough-execute-plan/scripts/publication.test.mjs

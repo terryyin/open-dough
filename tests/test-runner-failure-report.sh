@@ -60,7 +60,59 @@ if grep -E -- 'FAIL: .*(first|second|helper)|helper-ran' "${temporary_dir}/noisy
   echo 'FAIL: the runner reported a silent passing check or a support file.' >&2
   exit 1
 fi
+rm -- "${checks}"/noisy-*.sh
 
-# The shared `node --test` reporter prints only failing tests, with their output.
-node --test --test-reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs" \
-  "${source_dir}/tests/support/node-test-failures-reporter.test.mjs"
+# Files matched by `node-test-files` run as jobs of their own, through the
+# failures-only reporter, under the same rules as shell checks.
+mkdir -p -- "${checks}/node"
+write_node_test() {
+  printf 'import { appendFileSync } from "node:fs";\nimport { test } from "node:test";\ntest("%s", () => { %s });\n' \
+    "$1" "$2" > "${checks}/node/$1.test.mjs"
+}
+printf '# substitute node tests\n%s\n' "${checks}/node/*.test.mjs" > "${checks}/node-test-files"
+write_node_test node-quiet ''
+write_node_test node-failing 'console.log("node-failing-output"); throw new Error("node-failing-error");'
+write_node_test node-noisy 'console.log("node-noisy-output");'
+run_suite node
+if ((suite_status != 1)); then
+  printf 'FAIL: the runner exited %s for failing and printing node files, not 1.\n' "${suite_status}" >&2
+  exit 1
+fi
+for expected in "FAIL: ${checks}/node/node-failing.test.mjs" 'not ok: node-failing' \
+  node-failing-error node-failing-output \
+  "FAIL: ${checks}/node/node-noisy.test.mjs (passed but printed output)" node-noisy-output; do
+  grep -q -F -- "${expected}" "${temporary_dir}/node.log"
+done
+if grep -E -- 'node-quiet|FAIL: .*(first|second)' "${temporary_dir}/node.log"; then
+  echo 'FAIL: the runner reported a silent passing node file or shell check.' >&2
+  exit 1
+fi
+rm -- "${checks}/node/node-failing.test.mjs" "${checks}/node/node-noisy.test.mjs"
+
+# Jobs named in `longest-first` start first, in that order, then the rest;
+# OPEN_DOUGH_TEST_TIMES receives every job's seconds and label, longest first.
+order="${temporary_dir}/order"
+for name in alpha beta gamma; do
+  write_check "${name}.sh" "printf '%s\\n' ${name} >> '${order}'"
+done
+write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
+printf '# longest first\n%s\n%s\n%s\n' "${checks}/gamma.sh" 'tests/not-a-job.sh' \
+  "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
+times="${temporary_dir}/times"
+suite_status=0
+OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" OPEN_DOUGH_TEST_DIR="${checks}" \
+  "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/ordered.log" 2>&1 || suite_status=$?
+if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then
+  printf 'FAIL: the ordered run exited %s or printed output.\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/ordered.log" >&2
+  exit 1
+fi
+mapfile -t started < "${order}"
+[[ ${started[0]} == gamma && ${started[1]} == node-ordered && ${#started[@]} -eq 4 ]]
+for name in alpha beta; do
+  grep -q -F -x -- "${name}" "${order}"
+done
+mapfile -t timed < "${times}"
+[[ ${#timed[@]} -eq 7 ]]
+grep -q -E -- "^[0-9]+\.[0-9]"$'\t'"${checks}/node/node-quiet\\.test\\.mjs\$" "${times}"
+sort -r -n -c -- "${times}"
