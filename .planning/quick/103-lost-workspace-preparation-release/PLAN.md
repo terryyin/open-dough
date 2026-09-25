@@ -4,7 +4,7 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/103-lost-workspace-preparation-release/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4781e827d5d7f7be0ecca497d0adedb5f899202df66fe094be1998755d99bfa5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"23cf92933a38c4ba7955f9ef1f3ac480e06714058111cab71d41c585831158b1"}}
 ```
 
 ## Source
@@ -31,8 +31,10 @@ key example 10:
 **Beneficiary and outcome.** Developers coordinating on a queued story can
 release a lingering preparation assignment even when the workspace that
 announced it is lost. They address it by its exact allocation and confirm
-explicitly. After the correction, the preparation assignment code and tests
-carry no redundant or misleading residue.
+explicitly. Keeping a preparation whose story has since left the queue
+stops for the developer to decide instead of landing silently. After the
+correction, the preparation assignment code and tests carry no redundant or
+misleading residue.
 
 ### Current findings
 
@@ -64,7 +66,7 @@ carry no redundant or misleading residue.
    Measured by the retrospective: the new preparation-assignment tests take
    about 52 s of the 63 s spent in `src/skills/dough-story-refinement/scripts`.
    Several of them duplicate proof that already exists elsewhere, or assert
-   the Dough Land test model rather than product behavior (slice 3 lists them).
+   the Dough Land test model rather than product behavior (slice 4 lists them).
 5. **Documentation drift.** `docs/project-visibility-requirements.md` (the
    state list near line 185 and "Agent profiles and rotating names" near
    lines 245–285) still says:
@@ -77,6 +79,16 @@ carry no redundant or misleading residue.
    project's installed `dough-story-refinement` skill directory", while its
    commands are written as `node <installed>/scripts/...` paths.
    `preparation-workspace.md` needs the same wording checked.
+6. **Behavior (developer decision of 2026-09-25).** Only `start` checks that
+   the story is still queued. Suppose another developer Takes, completes or
+   removes the story on trunk while it is being prepared. `release` then
+   stages the assignment's removal anyway, and Dough Land rebases the
+   preparation result onto trunk. That result touches only the seed, the plan
+   and the profile, and none of these overlaps the backlog change, so the
+   refinement lands silently under the story's new state. The developer
+   decided that keep must recognize this and stop for the developer or
+   coordinator to decide. Only a deleted seed or plan produces a stop today,
+   and then only as a generic merge conflict.
 
 ### Included
 
@@ -87,14 +99,17 @@ carry no redundant or misleading residue.
 - A neutral home for Git-level agent-assignment reading, an honest parameter
   for the checkout that selection reads, and removal of the residue in
   finding 3.
-- Retiring or trimming the redundant tests listed in slice 3, each with named
+- Retiring or trimming the redundant tests listed in slice 4, each with named
   surviving proof, with suite time compared before and after.
 - Correcting the documentation drift in finding 5.
+- Stopping a preparation keep whose story is no longer queued on fetched
+  trunk (finding 6), before anything is staged or landed, and reporting where
+  the story is now, so the developer decides.
 
 ### Material exclusions (unresolved human choices, left to story wrap-up)
 
-- How to surface a preparation assignment whose story is no longer queued
-  (dashboard uncertainty or a Take receipt report).
+- Dashboard or Take-receipt surfacing of a preparation assignment whose
+  story is no longer queued. Finding 6 settles the keep path only.
 - Native host acceptance ownership (ADR 0005) before release.
 - "Conflicting records" wording for two concurrent preparers.
 - Editing `.planning/NORTH-STAR.md:72` ("Keep later assignment … models out
@@ -191,7 +206,8 @@ supply the release the product promises.
 | Execution assignments are not released this way | 2 | Addressing an execution profile publishes nothing. Completion stays its only release. |
 | Guidance teaches the path as a developer decision | 2 | The shared reference section is reviewed against AGENTS.md's three behavior-review questions for one representative lost-workspace use. |
 | Execution and preparation behavior are preserved after the module move and residue removal | 1 | The existing startup, profile, completion and preparation-assignment suites stay green unchanged, together with payload shell checks. |
-| Redundant tests are removed without losing proof | 3 | Each retirement names surviving proof that is still green. The directory suite's time is compared before and after in paired runs under the same load. |
+| A keep whose story left the queue stops for the developer | 3 | For Taken, completed and removed stories, `release` stops with the story's current place; nothing is staged, the draft and assignment stay, remote trunk is unchanged, and a still-queued story keeps `release-staged`. |
+| Redundant tests are removed without losing proof | 4 | Each retirement names surviving proof that is still green. The directory suite's time is compared before and after in paired runs under the same load. |
 | Documentation describes preparation assignments truthfully | 2 | `docs/project-visibility-requirements.md` is reviewed against the delivered behavior. |
 
 ## Current decisions
@@ -334,7 +350,57 @@ profile, allocation, push authority), and useful outcome.
 Safe stop: a confirmed lost-workspace release works end to end, and
 unconfirmed or stale requests change nothing.
 
-### 3. Assignment and preparation tests keep one owner for each proof
+### 3. Keeping a preparation whose story left the queue stops for the developer
+
+Type: Behavior (retrospective correction, finding 6)
+Status: planned
+Proof: production-CLI journeys against a local bare origin, in a
+capability-named file (for example
+`preparation-assignment-story-left-queue.test.mjs`), then the assignment suite
+and callers commands from slice 2.
+
+Behavior: a queued story has this workspace's published preparation
+assignment and a retained draft. Another writer then changes trunk so that the
+story is no longer queued. The data variations are:
+
+- the story is Taken, through the real `execution-start.mjs` path;
+- the story is completed with `product-backlog.mjs complete`;
+- the story's entry is removed.
+
+The developer asks to keep. On freshly fetched trunk, `release` recognizes
+that the identity is not in the queue and stops with a named status (for
+example `story-left-queue`). The stop reports where the story is now: Taken
+with its execution owner, or absent from the backlog. The journey observes
+all of the following:
+
+- nothing is staged, and the draft, the workspace commits and the index stay
+  byte-identical;
+- the assignment stays published;
+- remote trunk is unchanged, so no landing happens.
+
+The receipt names the developer's choices and makes none of them:
+
+- abandon the assignment, which keeps the draft;
+- discard the draft;
+- take the content up as separate work with the story's current owner.
+
+`abandon` still works for such a story, and a repeated `release` gives the
+same stop. A story that is still queued keeps today's `release-staged`
+behavior, and the existing land journey proves it unchanged.
+
+Guidance: in `references/preparation-assignment.md` ("Release it with the
+kept result") and the keep step in `preparation-disposition.md`, teach that
+keep stops on this status and hands the decision to the developer or
+coordinator. It must not land, retry, or reinterpret the story's new state.
+Known limit: the story can still leave the queue between `release` and the
+landing push, because Dough Land's rebase is generic. State this limit. A
+later scripted landing can close it; do not widen this slice to script Dough
+Land.
+
+Safe stop: a keep never lands preparation content under a story that has
+left the queue unless a developer decides it.
+
+### 4. Assignment and preparation tests keep one owner for each proof
 
 Type: Structure (retrospective correction, finding 4: test-suite weakness)
 Status: planned
