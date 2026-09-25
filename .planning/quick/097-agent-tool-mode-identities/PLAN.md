@@ -159,3 +159,11 @@ No slice-specific concern remains in this review. Both slices use the same
 existing Taken-card presentation and outside-in test entry; the first is a
 useful independent portrait result, and the second completes the adjacent
 metadata marks. No numeric slice target or hard limit was supplied.
+
+## Execution complete
+
+Product advice: No backlog change. The story delivered its promised Taken-card
+presentation; GitHub commit-author avatars stay deferred in SEED-038, and the
+remaining queue order still follows the near-future coordination direction.
+Minor wrap-up notes: `dashboard/public/AVATARS.md` still calls the assets
+"reserved"; `dashboard/tests/agentPortrait.ts` now also holds `expectMark`.

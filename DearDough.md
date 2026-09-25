@@ -794,6 +794,20 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: a fifth Claude Code occurrence; recovery again needed a
     read of `ci-host-bridge.mjs` and an environment listing.
 
+- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
+  - Timestamp: unknown (first increment delivery, after commit `3102053` at
+    2026-09-25T12:50:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `3102053` receipt `observation.state: unobserved` ("host
+    session identity is required"); re-delivery with the same base,
+    `--validated-candidate 3102053`, and `--session-json` taken from the
+    transcript path attached `watch-5kshKo` (`reconciliations: 1`, no refusal);
+    slice 2 delivery reused it.
+  - Observed effect: a sixth Claude Code occurrence; recovery again needed a
+    read of `ci-host-bridge.mjs`. No duplicate observer this time.
+
 ## DD-094 — A delegated agent's `git stash pop` applied another session's stash
 
 Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
@@ -963,6 +977,17 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     `beforeMaintenance.index` and `afterMaintenance.index` again held the listings.
   - Observed effect: one extra command stripped the index fields to read the
     receipt; recurs at every startup.
+
+- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
+  - Timestamp: 2026-09-25T12:42:19+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: Take `c995852` receipt, 230.6 KB, saved to a file by the host;
+    `beforeMaintenance.index` (115,287 chars) and `afterMaintenance.index`
+    (115,367 chars) held the listings.
+  - Observed effect: one extra command stripped the index fields to read the
+    receipt; a third startup occurrence.
 
 ## Retention
 
