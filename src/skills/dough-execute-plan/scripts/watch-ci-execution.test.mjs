@@ -9,12 +9,9 @@ test("execution observation emits only new main push CI failures", async () => {
   const events = [];
   const responses = [
     new Error("temporary GitHub outage"),
+    // Other workflows are excluded by the `--workflow` request itself (see
+    // ci-client-configuration.test.mjs); a listing never returns them.
     [
-      run({
-        databaseId: 1,
-        workflowName: "Example deploy",
-        conclusion: "failure",
-      }),
       run({ databaseId: 2, headBranch: "feature", conclusion: "failure" }),
       run({ databaseId: 3, event: "workflow_dispatch", conclusion: "failure" }),
       run({ databaseId: 4, status: "queued", conclusion: null }),

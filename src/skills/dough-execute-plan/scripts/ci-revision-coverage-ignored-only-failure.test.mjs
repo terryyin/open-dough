@@ -13,11 +13,11 @@ import {
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import {
-  immediateFailureGithub,
   lateFailureWithIgnoredOnlyDescendantsGithub,
   controllableSleep,
   waitFor,
 } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
 import {
   allBranchesWorkflow,
   commitAll,
@@ -110,17 +110,29 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     observe: (request) =>
       watchCiExecution({ ...request, gh: github.gh, sleep }),
   });
+  // Another owner's revision whose run is already discoverable and failed on
+  // the first poll: a real, independent journey, not a synthesized event.
+  const otherOwnerGithub = modeledGithubActions({
+    workflows: { "ci.yml": "CI" },
+    runs: [
+      {
+        workflow: "ci.yml",
+        databaseId: 900,
+        headSha: shaOther,
+        headBranch: "feature/other-owner",
+        status: "completed",
+        conclusion: "failure",
+      },
+    ],
+    jobs: { 900: [{ databaseId: 9000, name: "build", conclusion: "failure" }] },
+  });
   const { sleep: otherSleep } = controllableSleep();
   otherWorker = runMailboxWorker(otherDirectory, {
     storage,
     observe: (request) =>
       watchCiExecution({
         ...request,
-        gh: immediateFailureGithub({
-          sha: shaOther,
-          databaseId: 900,
-          branch: "feature/other-owner",
-        }),
+        gh: otherOwnerGithub.gh,
         sleep: otherSleep,
       }),
   });

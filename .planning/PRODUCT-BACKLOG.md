@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests ([plan](quick/096-quiet-stable-fast-tests/PLAN.md))
-- [Deliver real CI verdicts for registered execution revisions](seeds/SEED-008-worktree-branch-trunk-sync.md#restore-ci-verdict-delivery) — SEED-008#restore-ci-verdict-delivery ([plan](quick/097-ci-verdict-delivery/PLAN.md))
 
 ## Backlog list
 
