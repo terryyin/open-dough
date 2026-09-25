@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests ([plan](quick/096-quiet-stable-fast-tests/PLAN.md))
-- [Recognize agents, tools, and execution modes at a glance](seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar) — SEED-038#recognize-agents-and-tools-by-avatar ([plan](quick/097-agent-tool-mode-identities/PLAN.md))
 
 ## Backlog list
 
