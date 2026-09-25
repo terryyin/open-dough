@@ -40,7 +40,8 @@ The following is proposed architectural intent, not an accepted decision.
 | Story | An intended change or possibility pursued for user or learning value. It may cross existing product and code boundaries, and can exist outside the backlog. |
 | Product backlog | The selected, ordered work for the project. Membership is a workflow fact about a story, not the definition of a story. |
 | Taken story | Work claimed for execution, with a recorded developer assignment. Taken does not prove that an agent is currently running. |
-| Developer assignment | The association of a Taken story with the named developer carrying out its work. An agent can act as a developer; the assignment is distinct from the story's identity. |
+| Developer identity | A reusable name, distinct from a story, assignment, or AI session. |
+| Developer assignment | An undertaking to prepare or execute identified work. Its profile records the current developer, activity, and available tool/model information. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
 | Feature | Implemented external behavior that users care about, with maintained definition and design, protected by automated tests. It describes capability rather than a promise that a particular user's goal has been satisfied. |
@@ -53,6 +54,12 @@ product after the story is complete. These are three related dimensions, not
 a containment hierarchy. There is no required one-to-one mapping between a
 story, a feature, and a structural element. Story-based filtering can expose
 relevant features and structure without assigning each exclusively to a story.
+
+Derive Preparing from an active preparation assignment; keep refinement,
+planning, and readiness as independent story facts. One AI session may carry
+successive assignments. Follow [ADR 0007](./0007-software-development-lifecycles.md#shared-work-assignments)
+for assignment lifecycle and recovery; neither an assignment nor its age proves
+that an agent is running or has stopped.
 
 Present the story state defined by [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md)
 without implying live activity. Distinguish missing, outdated, and conflicting
@@ -164,7 +171,7 @@ without building their machinery in advance.
 
 ## Open design and related decisions
 
-Record formats, name rotation and reuse, messaging and takeover, recently
+Record formats, messaging and takeover, recently
 finished story views, North Star placement, lock protocols, and detailed stage
 layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.

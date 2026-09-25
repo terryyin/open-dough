@@ -11,10 +11,24 @@
 ## Context
 
 Agents need clear workspace and integration boundaries from story preparation
-through wrap-up. This proposal defines those boundaries for Story Branch Mode;
-skills supply the procedures.
+through wrap-up. This proposal defines shared assignment rules and Story Branch
+Mode boundaries; skills supply the procedures.
 
 ## Decision
+
+### Shared work assignments
+
+Before preparing or executing an existing queued story, publish its activity and developer assignment to remote trunk, then attempt safe default
+checkout refresh under [ADR 0009](./0009-git-branching-and-integration.md).
+Keep unfinished drafts isolated; announcing work does not authorize landing them.
+
+Retain the assignment across pauses. End it automatically when that activity's
+completion is confirmed on trunk, or publish its end after explicit abandonment.
+Preserve unfinished work unless discard is authorized. Occupied names stay out
+of rotation: age or silence cannot establish abandonment. A lingering assignment
+is evidence for diagnosis and deliberate recovery. Recovery must not remove a
+newer assignment that reused the name. A continuing AI session obtains a fresh
+assignment for new work.
 
 ### Story Branch Mode
 
@@ -24,8 +38,8 @@ skills supply the procedures.
    Reading and discussion require none. Follow the
    [workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
 2. Leave drafts in that workspace for review without reserving the shared
-   integration checkout. Publish only on an explicit keep instruction; honor
-   no-publish and discard instructions through the
+   integration checkout. Publish draft results only on an explicit keep
+   instruction; honor no-publish and discard instructions through the
    [disposition procedure](../../src/skills/dough-story-refinement/references/preparation-disposition.md).
    A pause or continued discussion is no disposition decision.
 3. At execution startup, move the story to **Taken** on `main`, then create its
