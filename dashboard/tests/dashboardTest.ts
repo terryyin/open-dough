@@ -45,9 +45,14 @@ export function githubFor(page: Page): FakeGitHub {
 }
 
 export const test = base.extend<{
+  // How long this page's dashboard waits on its `gh` before reporting a
+  // stalled read; the server's own bound when unset. A journey that waits
+  // the bound out sets a short one with `test.use`.
+  readTimeoutMs: number | undefined;
   github: FakeGitHub;
   dashboard: DashboardServer;
 }>({
+  readTimeoutMs: [undefined, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -55,11 +60,12 @@ export const test = base.extend<{
     await use(github);
     await github.close();
   },
-  dashboard: async ({ github }, use) => {
+  dashboard: async ({ github, readTimeoutMs }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
       github,
+      readTimeoutMs,
     });
     await use(server);
     await server.close();

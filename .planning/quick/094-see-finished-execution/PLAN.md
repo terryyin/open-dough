@@ -320,3 +320,11 @@ The deferred promises have no slice.
 - Slice 3: `finish-or-stop.md#record-execution-completion` is the only place
   that spells out the record's form; other guidance, including slice 4's
   wrap-up change, links there.
+- Flake repairs during execution: the stalled-read journey in
+  `project-read-recovery.spec.ts` ran on a Vite dev server that compiled the
+  live working tree, so edits made during a run could break it; it now uses the
+  shared page fixture with a `readTimeoutMs` option. `taken-slice-clock`'s
+  commit-time step polls, since a failed plan commit shows its gap before the
+  profile request arrives. Two single failures under a machine load average of
+  about 200 (`auto-refresh-recovery.spec.ts:196`,
+  `story-readiness-gaps.spec.ts:150`) did not recur and remain undiagnosed.

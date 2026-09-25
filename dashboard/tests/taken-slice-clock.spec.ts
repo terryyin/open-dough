@@ -94,20 +94,27 @@ test("each Taken card's clock measures from the later of its last plan commit an
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("each commit time was asked once, for the plan and the single profile at the revision", () => {
-    const asked = requests.flatMap(({ request }) =>
-      request.kind === "commit-list"
-        ? [`${request.path}@${request.revision}`]
-        : [],
-    );
-    expect(asked.sort()).toEqual(
-      [
-        ...stories.map(({ anchor }) => planPath(anchor)),
-        ...["Akiho", "Yuma", "Sola"].map(profilePath),
-      ]
-        .map((path) => `${path}@${revision}`)
-        .sort(),
-    );
+  // A failed plan commit shows its card's gap without waiting for that card's
+  // Take time, whose ask may still be on its way.
+  await test.step("each commit time was asked once, for the plan and the single profile at the revision", async () => {
+    const asked = () =>
+      requests
+        .flatMap(({ request }) =>
+          request.kind === "commit-list"
+            ? [`${request.path}@${request.revision}`]
+            : [],
+        )
+        .sort();
+    await expect
+      .poll(asked)
+      .toEqual(
+        [
+          ...stories.map(({ anchor }) => planPath(anchor)),
+          ...["Akiho", "Yuma", "Sola"].map(profilePath),
+        ]
+          .map((path) => `${path}@${revision}`)
+          .sort(),
+      );
   });
 
   await test.step("60 s more of page time shows 13 min, asking GitHub nothing but revision checks", async () => {

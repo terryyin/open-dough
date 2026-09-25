@@ -114,7 +114,8 @@ export async function startDashboardServer(options: {
   readonly mode: "dev" | "preview";
   // A fixed port, or any free one.
   readonly port?: number;
-  readonly readTimeoutMs?: number;
+  // The server's own bound when unset.
+  readonly readTimeoutMs?: number | undefined;
   // The fake GitHub this server's `gh` asks; a fresh one, closed with the
   // server, when omitted.
   readonly github?: FakeGitHub;
