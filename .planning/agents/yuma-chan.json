@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-021#see-finished-execution",
+  "mode": "story-branch",
+  "branch": "claude/094-see-finished-execution",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
