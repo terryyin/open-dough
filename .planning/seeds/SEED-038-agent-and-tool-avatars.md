@@ -33,43 +33,55 @@ in keeping with the [dashboard visual direction](../../docs/dashboard-ux-ui-nort
 
 **Identity:** SEED-038#recognize-agents-and-tools-by-avatar
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
-**Status:** Captured and queued on 2026-09-25; not refined or planned.
+**Status:** Refined and queued on 2026-09-25; not planned or Taken.
 
-- **For / why:** A developer reviewing Taken work can recognize the recorded
-  agent and its host tool quickly while still reading their names.
-- **Evaluation:** When a Taken story has a readable agent profile with an agent
-  name and host tool, its dashboard presentation shows an avatar for each
-  identity alongside the existing labels. Different agents and tools are
-  distinguishable. Missing or unreadable profile facts retain the existing
-  explicit text; an avatar never invents an owner, tool, or live status.
-- **Value / learning:** Test whether visual identities improve scanning when
-  several agents or tools appear across Taken stories.
-- **Effort hypothesis:** Unestimated; refine asset and identity choices before
-  sizing.
-- **Depends on:** Existing recorded agent and host tool facts. No new product
-  prerequisite is established during capture.
+- **Goal:** A developer scanning Taken work recognizes the recorded agent and
+  host tool quickly, while the text still provides their exact identities.
+- **Scope:** Use the approved set of 29 original, small illustrated agent
+  portraits stored in `dashboard/public/agent-avatars/`, mapped to the fixed
+  agent-name rotation. They may loosely resemble the people suggested by the
+  names, but are original illustrations. Show the portrait beside the agent's
+  name. Use the locally stored official marks in
+  `dashboard/public/tool-avatars/` for Claude Code, Codex, and Cursor. Show
+  each tool mark immediately beside its tool name, separate from the portrait;
+  never place it over the agent's face. Keep names and other recorded owner
+  facts as text. Icons communicate identity only, not presence or activity.
+- **Key examples:**
+  - A Taken card with `Akiho-chan` and `Claude Code` shows Akiho's portrait
+    beside `Akiho-chan`, and the Claude icon beside `Claude Code`.
+  - A card with a recorded agent but no host shows the agent portrait and
+    `host not recorded`, without a tool icon.
+  - A Taken entry with no readable agent profile keeps its explicit missing or
+    unreadable-owner message, without a guessed avatar.
+- **Deferred:** GitHub commit-author avatars and changing commit identities
+  are outside this dashboard story.
+- **Depends on:** Existing recorded agent and host tool facts. The approved
+  local assets are already in the repository for future implementation.
 - **Safe stopping point:** The dashboard remains understandable through text,
   and avatars do not suggest agent activity.
 
-## Open Decisions for Refinement
+## Asset decisions
 
-- Where should agent and tool avatars appear, and how should they behave when
-  a host tool is not recorded?
-- How are agent avatars chosen or supplied, and what visual identities should
-  represent Codex, Cursor, and Claude Code?
-- How can the visual aid remain accessible and avoid suggesting live presence?
+The portrait atlases were created with the built-in image generation tool and
+approved by the maintainer on 2026-09-25. The vendor marks and their source
+URLs are recorded in [dashboard avatar assets](../../dashboard/public/AVATARS.md).
+The Codex mark is the official OpenAI icon served by the Codex documentation
+site; no separate downloadable Codex mark was found in the official sources
+reviewed during refinement.
 
 ## Ordering and When to Surface
 
 Keep this story near the lower-priority end of the product backlog, after the
 currently queued work. Revisit when dashboard identity presentation is being
-improved; capture does not authorize implementation.
+improved; refinement does not authorize implementation.
 
 ## Breadcrumbs
 
 - Maintainer request on 2026-09-25 to add avatars for agents and tools.
+- Maintainer approval of the illustrated portraits and direction to place tool
+  icons beside tool names, not on portraits, on 2026-09-25.
 - [Product backlog](../PRODUCT-BACKLOG.md).
 - [Dashboard owner presentation](../../dashboard/src/TakenOwnerFacts.tsx).
