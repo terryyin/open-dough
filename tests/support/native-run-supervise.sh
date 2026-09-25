@@ -9,6 +9,9 @@ native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=tests/support/native-run-stream.sh
 # shellcheck disable=SC1091
 source "${native_run_support_dir}/native-run-stream.sh"
+# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/../helpers/wait-for.bash"
 
 native_run_outcome=exited
 native_run_failure_reason=
@@ -33,39 +36,38 @@ native_run_terminate_group() {
   local pgid=$1
   local pid=$2
   local grace=$3
-  local waited=0
   local caller_pgid
   caller_pgid=$(native_run_pgid_of $$)
 
   native_run_signal_owned TERM "${pgid}" "${pid}" "${caller_pgid}"
-  while ((waited < grace)); do
-    if ! kill -0 "${pid}" 2> /dev/null; then
-      return 0
-    fi
-    sleep 1
-    waited=$((waited + 1))
-  done
+  if ((grace > 0)) && poll_until "${grace}" "! kill -0 '${pid}' 2> /dev/null"; then
+    return 0
+  fi
   native_run_signal_owned KILL "${pgid}" "${pid}" "${caller_pgid}"
+}
+
+# Succeeds once PID has left PARENT_PGID's group or exited, recording the
+# group to own in native_run_detached_pgid.
+native_run_group_detached() {
+  local pid=$1
+  local parent_pgid=$2
+
+  if ! kill -0 "${pid}" 2> /dev/null; then
+    native_run_detached_pgid=${pid}
+    return 0
+  fi
+  native_run_detached_pgid=$(native_run_pgid_of "${pid}")
+  [[ -n ${native_run_detached_pgid} && ${native_run_detached_pgid} != "${parent_pgid}" ]]
 }
 
 native_run_child_pgid() {
   local pid=$1
   local parent_pgid=$2
-  local pgid tries=0
 
-  while ((tries < 50)); do
-    if ! kill -0 "${pid}" 2> /dev/null; then
-      printf '%s\n' "${pid}"
-      return 0
-    fi
-    pgid=$(native_run_pgid_of "${pid}")
-    if [[ -n ${pgid} && ${pgid} != "${parent_pgid}" ]]; then
-      printf '%s\n' "${pgid}"
-      return 0
-    fi
-    sleep 0.05
-    tries=$((tries + 1))
-  done
+  if poll_until 2 "native_run_group_detached '${pid}' '${parent_pgid}'"; then
+    printf '%s\n' "${native_run_detached_pgid}"
+    return 0
+  fi
   printf '%s\n' "${pid}"
 }
 

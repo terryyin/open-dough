@@ -331,7 +331,20 @@ passing spec prints → the run fails and names it.
 ### 6. Shell checks and fixtures synchronize on events, not elapsed time
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/update-skip-verified.sh` backdates its baselines
+(`touch -t 202001010000`) instead of sleeping past mtime resolution; the fake
+`node` wrappers' `sleep 1` is gone (the controllers already ordered on the
+logged `complete-revision` and their release files); the review-boundary
+`sleep 2` window is a controller-released gate; the watchdog poll is bounded
+below its case deadline; one `tests/helpers/wait-for.bash` (`wait_for`,
+`poll_until`; 0.05 s interval; failure names what it awaited) replaces the
+three copied pollers, with each controller's lifecycle bound kept as a named
+constant. Every affected check exits 0 with no output under local and
+CI-like git config; `grep -rnE '\bsleep [0-9.]+' tests/` finds only the
+hang stand-ins and the helper's poll interval. The changed native
+controllers were exercised by scripted smoke runs in ready, pending, and
+failure orders.
 Proof: the affected checks pass silently with unchanged assertions:
 - `tests/update-skip-verified.sh`
 - `tests/native-run-timeout.sh`
@@ -569,4 +582,10 @@ The deferred promises have no slice.
   stderr. Capturing it broke `product-backlog-git-merge-conflict.test.mjs:46`,
   whose merge-driver diagnostic must reach stderr, so slice 4 silenced it in
   the test helper only.
+- **Slice 6 residual risk (native journeys, out of scope).** The ci-completion
+  controllers now hold the review until CI coverage is terminal in the ready
+  scenario; an agent whose own command timeout is shorter than that would cut
+  the review off, which the old 2 s window never risked. `native-run-supervise.sh`
+  and the closure controllers now source `wait-for.bash`, which, like
+  `native-run-stream.sh`, is not in their retained-evidence hash lists.
 

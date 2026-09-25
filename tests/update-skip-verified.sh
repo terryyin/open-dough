@@ -49,10 +49,16 @@ assert_write_state() {
 payload_records=("${dest}/VERSION" "${dest}/SOURCE" "${dest}/SKILL.md")
 host_settings=("${target}/.cursor/hooks.json" "${target}/.claude/settings.json")
 
+# Backdates, then records, each path so any later rewrite moves its mtime.
+baseline_write_state() {
+  touch -t 202001010000 -- "$@"
+  write_state "$@"
+}
+
 capture_payload_baseline() {
+  payload_records_state=$(baseline_write_state "${payload_records[@]}")
   payload_snapshot=$(snapshot_path_state "${agents_root}")
   claude_payload_snapshot=$(snapshot_path_state "${claude_root}")
-  payload_records_state=$(write_state "${payload_records[@]}")
 }
 
 assert_payload_unwritten() {
@@ -71,7 +77,7 @@ assert_payload_unwritten() {
 }
 
 capture_settings_baseline() {
-  host_settings_state=$(write_state "${host_settings[@]}")
+  host_settings_state=$(baseline_write_state "${host_settings[@]}")
 }
 
 assert_settings_unwritten() {
@@ -149,8 +155,6 @@ for (const relativePath of [".codex/hooks.json", ".cursor/hooks.json", ".claude/
 EOF
 assert_managed_host_hooks "${target}"
 assert_unrelated_preserved "${target}"
-# A canonicalizing write would now visibly change both bytes and mtimes.
-sleep 1
 trace="${temporary_dir}/trace-semantic-noop"
 assert_full_noop \
   'semantically complete noncanonical settings' \
@@ -163,8 +167,6 @@ cursor_before_damage_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
 remove_one_cursor_managed_entry "${target}"
 cursor_damaged_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
 [[ "${cursor_damaged_digest}" != "${cursor_before_damage_digest}" ]]
-# Ensure mtime can move on settings write without colliding with payload checks.
-sleep 1
 trace="${temporary_dir}/trace-missing-entry"
 : > "${trace}"
 OPEN_DOUGH_TRACE="${trace}" bash "${helper}" apply --target "${target}" --platform cursor \
@@ -184,7 +186,6 @@ assert_full_noop 'repaired then complete' "${temporary_dir}/output-repaired-noop
 claude_before_missing_file=$(shasum -a 256 "${target}/.claude/settings.json")
 rm -f -- "${target}/.cursor/hooks.json"
 capture_payload_baseline
-sleep 1
 trace="${temporary_dir}/trace-missing-file"
 : > "${trace}"
 OPEN_DOUGH_TRACE="${trace}" bash "${helper}" apply --target "${target}" --platform cursor \
