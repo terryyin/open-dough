@@ -209,6 +209,17 @@ aborted with no diagnostic at all.
     not a one-off. Using a real Homebrew-installed modern bash explicitly for
     local shell-test verification is now this session's own adopted
     practice, recorded separately as a durable lesson.
+- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
+  - Timestamp: 2026-09-25T22:30:43+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `1e648d9` runner tests passed on macOS Bash 5.3.20; CI run
+    `36147702793` `test` printed only `FAIL: tests/test-runner-interrupt.sh`;
+    Docker ubuntu:24.04 Bash 5.2.21 failed 3/3; repair `a64138e`.
+  - Observed effect: two failed CI runs, a pause-and-stash cycle, one repair.
+  - Inference: Other mechanism, same gap: before Bash 5.3 a bare `return` in a
+    trap-called function takes the interrupted `wait`'s status.
 
 ## ODF-062 — A CI repair was delivered without the refactor pass its own delivery gate requires
 
@@ -462,6 +473,16 @@ explicit contract in the focused CI runtime suite.
     than tracing changed phrases to `ci-supported-host-contract.test.mjs`.
     Fail-fast cancellation of `test` after dashboard failure further deferred
     discovery; qualified as amplifying, not inventing, the miss.
+- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
+  - Timestamp: 2026-09-25T22:14:40+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `0f07f9b` made `createQueuedTrunk().cleanup` async; its consumer
+    check covered `.mjs` callers only, lint ran on changed files; CI run
+    `36146130701` `lint` failed in `dashboard/tests/preparingJourney.ts`.
+  - Observed effect: one failed CI run, a pause-and-stash cycle, repair `2b3b02e`.
+  - Inference: The TypeScript consumer lay outside the assumed file types.
 
 ## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
 
@@ -875,6 +896,14 @@ says formatting must succeed before staging.
   - Observed effect: one extra commit, push, and failed CI run.
   - Inference: A one-off coordinator error, not a guidance gap; gate
     commands with `&&`.
+- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
+  - Timestamp: 2026-09-25T22:28:16+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1;
+    `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
+  - Observed effect: one extra commit, push, and failed CI lint job.
 
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
@@ -920,23 +949,6 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     was needed to read the receipt without the listings.
   - Inference: Qualified. A host that inlines tool output would spend roughly
     55k tokens of context on it at every startup.
-- Execution: `SEED-008#restore-ci-verdict-delivery` / plan 097 (ci-verdict-delivery), first related implementation commit `5317499`
-  - Timestamp: 2026-09-25T15:15:20+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: Take `c2af9fc` receipt, 230.9 KB, saved to a file by the host;
-    the index fields again held the listings.
-  - Observed effect: one extra command stripped the index fields to read the
-    receipt; a fourth startup occurrence.
-
-- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
-  - Timestamp: 2026-09-25T18:49:20+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: Take `cf4ee77` receipt, 231.5 KB, saved to a file by the host.
-  - Observed effect: one extra command stripped the index fields; fifth occurrence.
 
 ## DD-100 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
 
@@ -984,5 +996,5 @@ New `backlog-preparing.spec.ts` built a 6.3 s Git journey in a 30 s `beforeAll`;
 ## Retention
 
 - Highest allocated local number: 102
-- Recovery: `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Recovery: `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

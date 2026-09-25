@@ -374,3 +374,28 @@ INTERRUPTED: src/skills/dough-execute-plan/scripts/workspace-publication-startup
   script and sent `kill -INT`. Without `set -m` in the harness it ignored INT
   and kept running. With `set -m` it ran its trap promptly and exited 130.
   Slice 3's test therefore enables job control before starting the runner.
+
+## Execution complete
+
+Product advice:
+
+- Queue correction plan
+  `quick/105-teardown-rule-for-remaining-fixtures/PLAN.md` ahead of
+  `SEED-037#fourfold-local-suite`. It finishes this story's teardown promise
+  for the remaining fixtures and removes a confirmed failure-path hang: a
+  revision-coverage file still ran after 41 s. It overlaps quick/102, and
+  whichever lands second reconciles.
+- For the fourfold-suite story: check runner and trap changes on Linux
+  Bash 5.2, because macOS Homebrew Bash is 5.3. The runner now has process
+  groups, an interrupt report and `job_seconds` to build on.
+- Findings reported and not changed:
+  - a job killed with `kill -9` keeps its slot, which is excluded parent-side
+    slot accounting;
+  - the Bash guard does not check the runner's own interpreter;
+  - an interrupt during the final report loop can print some blocks twice;
+  - the dashboard job's `npm` steps do not `exec`, so a cancel does not reach
+    Playwright.
+
+  Wrap-up decides whether any of these warrants work.
+- This run's 238 KB startup receipt supports the Taken plan 100 (useful
+  startup output).
