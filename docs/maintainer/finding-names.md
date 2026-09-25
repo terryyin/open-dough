@@ -445,6 +445,7 @@ Startup serializes full before/after Git index snapshots into its coordinator re
 
 - **Sources:** [open-dough / DD-099](../../DearDough.md#odf-099--the-startup-receipt-carried-two-full-git-index-listings); [pygardon / DD-088](../../../pygardon/DearDough.md#odf-099--the-execution-start-receipt-embedded-the-entire-git-index); [doughnut / DD-108](../../../doughnut/DearDough.md#odf-099--queued-startup-receipt-embeds-the-whole-git-index-and-overflows-the-coordinators-tool-output).
 - **Current evidence:** 13 executions across three projects (3/4/6), roughly 227–818 KB receipts. Extra reads and obscured fields are observed; large token-cost estimates are inference. No failed publication attributed.
+- **Follow-up:** Queued, not resolved: [Start execution without unnecessary agent context](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output), selected by Terry as first in the product backlog on 2026-09-25. Evaluate immediate information needs against on-demand retrieval, including total context and recovery costs, rather than assuming a concise receipt is always useful.
 
 <a id="odf-100"></a>
 

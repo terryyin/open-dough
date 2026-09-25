@@ -284,3 +284,27 @@ or declared harmless. Another ownership incident or evidence that a CI report
 was already corrected would justify re-ranking. High frequency alone is not
 the priority rule, and the two CI stories do not count overlapping executions
 as independent harm.
+
+## Startup information follow-up (2026-09-25)
+
+Terry selected ODF-099 as the first queued story, superseding the receipt-size
+ordering in the historical priority challenge above. Existing Taken work and
+the relative order of all other queued stories remain unchanged.
+
+<a id="useful-startup-output"></a>
+
+### Start execution without unnecessary agent context
+
+**Identity:** SEED-008#useful-startup-output
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** Coordinating agents need to continue or recover execution correctly without loading routine Git inventories or other information they do not use into context. Developers benefit from lower startup overhead and clearer actionable results.
+- **Outcome:** Startup supplies information justified by the agent's next decision, with less frequently needed detail obtainable when needed. Preserve truthful startup/publication results and checkout safety. A shorter always-present receipt is a candidate, not a predetermined solution.
+- **Evaluation:** Compare current output, a minimal routine response, and on-demand detail against representative successful starts, resumes, and refused or partially successful starts. Identify which returned facts the agent actually uses, how often within the inspected sample, and whether it already knows them. Weigh total context delivered, follow-up calls, retrieval latency, and correctness; distinguish measured use from hypothetical usefulness and bytes from measured tokens. Confirm that omitted historical facts can actually be recovered when needed rather than assuming current Git state reconstructs them.
+- **Supporting finding:** [ODF-099](../../docs/maintainer/finding-names.md#odf-099). The recorded impact is oversized output and extra reads; context-token costs depend on host handling and are not established measurements.
+- **Open refinement:** Which facts must be delivered immediately for safe continuation or recovery? Which can be fetched from existing sources without losing event-specific evidence? Is any routine success output beyond command completion useful? Determine the appropriate balance from consumer evidence before selecting the response contract.
+- **Depends on:** Existing startup and checkout-maintenance operations; no unfinished story prerequisite identified.
+- **Safe stopping point:** Agents can start and recover work with the evaluated information contract; internal preservation checks and actionable failures remain effective. Broader output redesign across unrelated commands is not required.
+- **Completion:** Record the actual response, implementation commit, first containing release, and remaining uncertainty against ODF-099 in `docs/maintainer/finding-names.md`. Queueing is not resolution.
