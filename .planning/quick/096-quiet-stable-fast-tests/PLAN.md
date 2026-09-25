@@ -207,6 +207,44 @@ is **not** this baseline.
   plan refinement or a story split. Quiet and stable results (slices 1–9a)
   remain delivered either way.
 
+- **Decisive checkpoint after slice 9 (2026-09-25): stop for the developer.**
+  - *Measurement (paired, alternating, load 9–46, three runs each):* start
+    revision `bad3717` median `npm test` 224.2 s + dashboard 18.4 s =
+    **242.6 s**; candidate `3fc3a8b` 104.8 s + 16.8 s = **121.6 s**; ratio
+    **0.50** against the ≤ 0.25 target (≤ 60.6 s, so `npm test` ≤ ~44 s).
+    All candidate runs passed silently.
+  - *Remaining-gap comparison:* every job alone sums to 631.8 s; at 16 slots
+    the effective parallelism is about 6. Slice 10 saves about 0.55 s per
+    release-fixture check (about 1 s of wall); slice 11's repository setup is
+    about 5% of those suites (4–5 s of wall), because the product's own git
+    processes dominate them. After both, about 116 s (48%). The longest job,
+    `execution-payload-update.sh`, takes 47.6 s alone, more than the whole
+    budget, and neither slice touches it.
+  - *Invalidated assumption:* that fixture building and repository setup
+    were the dominant removable costs. Most remaining work is installer and
+    updater runs (about 30 in `story-payload-update.sh` alone) and the
+    shell forks inside them.
+  - *Consequence:* slices 10 and 11 are not dispatched. Reaching 0.25 needs
+    about a 58% cut in total work with no job over about 15 s alone, which
+    only fewer installer/update runs or a faster installer could give; that
+    changes coverage or design, outside this plan's authority.
+  - *Independently valuable, not dispatched pending the developer:* (1) a
+    30 s wait in `execution-payload-update.sh` via
+    `tests/helpers/installed-wait-entrypoint-fixture.bash`: `ci-mailbox.mjs
+    await-revision` takes 30.05 s for `.claude/skills` against 0.40 s for
+    `.agents/skills`, matching `watch-ci-execution.mjs`'s default
+    `pollMs = 30_000` (observer polls before `register-push` lands, then
+    sleeps a full interval) — either a missed elapsed-time wait or a product
+    delay users also hit; (2) `/usr/bin/git` on macOS is Apple's launcher
+    stub (about 7.5 ms per call); putting the Command Line Tools bin first
+    measured −7.4% on the complete local suite (no effect on Linux CI);
+    (3) `assert_payload`'s per-file `cmp` loop (about 3 s per calling
+    check).
+  - *Decision needed:* accept 2× as this story's result and split the speed
+    target into a follow-up story (installer-run consolidation, the items
+    above), or refine this plan with a different strategy. Quiet and stable
+    results (slices 1–9a) are delivered either way.
+
 ## Ordered slices
 
 ### 1. The complete local suite passes locally as it does in CI
@@ -548,7 +586,7 @@ set, stop and record it for plan refinement.
 ### 10. Git release fixtures are built once per run and reused
 
 Type: Behavior
-Status: planned
+Status: stopped at the decisive checkpoint after slice 9 (see Current decisions)
 Proof:
 - The 13 checks that call `build_latest_fixture` or
   `build_current_tagged_release_fixture` pass silently with unchanged
@@ -567,7 +605,7 @@ saving on the complete run, undo it and record that.
 ### 11. Execution-CI suites copy a prepared repository instead of rebuilding it
 
 Type: Behavior
-Status: planned
+Status: stopped at the decisive checkpoint after slice 9 (see Current decisions)
 Proof:
 - The `dough-execute-plan` suites that build fresh git fixtures pass silently
   with unchanged assertions.
