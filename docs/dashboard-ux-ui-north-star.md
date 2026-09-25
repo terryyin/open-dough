@@ -118,7 +118,7 @@ reason to introduce an animation engine now.
 | Story | An intended change or learning possibility. Show its recorded title; never replace its identity with a developer name or branch. |
 | Backlog / Outside backlog | Membership in selected work. “Outside backlog” requires sufficient membership evidence; a failed backlog read means membership is unknown. |
 | Taken | Recorded claim for execution. Avoid “Running,” “Online,” or an animated activity dot. |
-| Developer | Recorded assignment, potentially an agent's rotating name. Missing assignment is “Not recorded,” not an inferred commit author. |
+| Developer | Recorded assignment, potentially an agent's rotating name. Missing assignment is “Not recorded,” not an inferred commit author. A queued story's published preparation assignment shows “Preparing” with its developer on the backlog card: an undertaking, not live activity, a stage, or readiness; unreadable or conflicting assignments stay visibly uncertain. |
 | Refinement / Slice plan | Separate facts, not obligatory sequential gates. Show “Refinement recorded” or “Plan recorded” only with evidence; otherwise distinguish absence from unreadable evidence. |
 | Story Branch Mode | Show the recorded origin execution branch, not a guessed branch or the branch it was created from. Missing branch metadata is “Execution branch not recorded.” |
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |

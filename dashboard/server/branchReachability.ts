@@ -31,7 +31,7 @@ async function takenEntriesOnBranch(
   for (const path of await listedAgentProfilePaths(source, listPinned)) {
     const read = parseAgentProfile(await readPinned(path)) as {
       ok: boolean;
-      profile?: { identity: string; mode: string; branch: string };
+      profile?: { identity: string; mode?: string; branch?: string };
     };
     if (
       read.ok &&

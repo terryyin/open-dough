@@ -67,6 +67,32 @@ test("complete on a Taken entry releases its agent's profile and leaves other ag
   );
 });
 
+test("complete releases only execution: a preparation assignment naming the same identity stays", async (t) => {
+  const project = scratchProject(t);
+  profiles(project, { Akiho: takenStory });
+  const preparing = renderAgentProfile({
+    name: "Yuma",
+    identity: takenStory,
+    activity: "preparation",
+  });
+  projectFile(project, agentIdentity("Yuma").path, preparing);
+
+  const result = await run(project, ["complete", "--identity", takenStory]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(agentsOf(project), ["yuma-chan.json"]);
+  assert.equal(
+    readFileSync(
+      join(project.directory, ".planning/agents/yuma-chan.json"),
+      "utf8",
+    ),
+    preparing,
+  );
+  assert.match(
+    result.stdout,
+    /Released agent profile agents\/akiho-chan\.json/,
+  );
+});
+
 test("complete without a matching profile succeeds and leaves every profile untouched", async (t) => {
   const project = scratchProject(t);
   profiles(project, { Yui: trunkQueue });

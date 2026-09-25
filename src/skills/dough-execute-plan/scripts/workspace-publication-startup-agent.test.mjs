@@ -150,6 +150,11 @@ test("Take is refused and publishes nothing when every agent name is held", asyn
   assert.equal(receipt.ok, false, JSON.stringify(receipt));
   assert.equal(receipt.status, "agent-unavailable");
   assert.match(receipt.error, /every agent name is held on remote trunk/);
+  // Each occupant is listed with its work for diagnosis, never reclaimed.
+  assert.deepEqual(
+    receipt.occupied.map(({ agent, identity }) => [agent, identity]),
+    agentNames.map((name) => [`${name}-chan`, identityB]).sort(),
+  );
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), before);
   assert.equal(
     await remoteShow(trunk, "show", "main:.planning/PRODUCT-BACKLOG.md"),

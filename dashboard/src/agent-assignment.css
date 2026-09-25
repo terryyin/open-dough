@@ -1,10 +1,14 @@
-/* Who holds a Taken card's work: the owner summary with its agent portrait
-   and the mode and host marks beside their labels,
-   branch context, and unreadable profiles. */
+/* Who holds a Taken card's work, or is preparing a queued card's work: the
+   developer summary with its agent portrait and the mode and host marks
+   beside their labels, branch context, and unreadable profiles. */
 
 .card-owner {
   margin-top: 0.35rem;
   overflow-wrap: anywhere;
+}
+
+.preparing-activity {
+  font-weight: 600;
 }
 
 .owner-agent,

@@ -690,22 +690,6 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
     and reused the observer.
   - Observed effect: slice 1 went briefly unobserved and needed a
     source-code search to recover; later slices were observed.
-  - Inference: Same gap as the 088 occurrence, recurring in a separate
-    execution the same day; a fresh Claude coordinator following only the
-    references leaves increments unobserved.
-
-- Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
-  - Timestamp: unknown (first increment delivery, after commit `567f9b2` at
-    2026-09-24T15:43:45+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.37
-  - Evidence: `567f9b2` receipt `observation.state: unobserved` ("host
-    session identity is required"); `ci-mailbox.mjs start` + `register-push`
-    attached `watch-IsEPZU`; later deliveries passed `--session-json` with
-    `$CLAUDE_CODE_SESSION_ID` and reused it.
-  - Observed effect: no duplicate observer this time, but finding the session
-    field again needed a read of `ci-host-bridge.mjs`.
 
 - Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
   - Timestamp: unknown (first increment delivery, after commit `3f64bc7` at
@@ -718,19 +702,6 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
     deliveries passed `--session-json` and reused it.
   - Observed effect: the session ID was taken from a tool-output path after
     rereading `ci-host-bridge.mjs`; a fourth Claude Code occurrence.
-
-- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
-  - Timestamp: unknown (first increment delivery, after commit `d4dbbdb` at
-    2026-09-25T08:53:13+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.38
-  - Evidence: `d4dbbdb` receipt `observation.state: unobserved` ("host
-    session identity is required"); `ci-mailbox.mjs start` + `register-push`
-    attached `watch-Uwu3Ey`; the four later deliveries passed `--session-json`
-    with `$CLAUDE_CODE_SESSION_ID` and reused it.
-  - Observed effect: a fifth Claude Code occurrence; recovery again needed a
-    read of `ci-host-bridge.mjs` and an environment listing.
 
 - Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
   - Timestamp: unknown (first increment delivery, after commit `3102053` at
@@ -766,6 +737,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Open Dough release: 0.3.39
   - Evidence: `0fdf13c` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` and attached `watch-rHq4vU`.
   - Observed effect: a sixth occurrence; slice 1's CI was checked by hand with `gh run list`.
+
+- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
+  - Timestamp: unknown (first increment delivery, after commit `9c142ed` at 2026-09-25T19:34:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `9c142ed` delivery `unobserved`; `--session-json` retry refused; next delivery "reused" unreported `watch-uBx7hd`, the one after it started `watch-qwZ6VX`.
+  - Observed effect: `9c142ed` never observed; two observers on one branch.
 
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
@@ -941,27 +920,6 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     was needed to read the receipt without the listings.
   - Inference: Qualified. A host that inlines tool output would spend roughly
     55k tokens of context on it at every startup.
-- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
-  - Timestamp: 2026-09-25T08:40:30+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.38
-  - Evidence: Take `04a034b` receipt, 227.3 KB, saved to a file by the host;
-    `beforeMaintenance.index` and `afterMaintenance.index` again held the listings.
-  - Observed effect: one extra command stripped the index fields to read the
-    receipt; recurs at every startup.
-
-- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
-  - Timestamp: 2026-09-25T12:42:19+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: Take `c995852` receipt, 230.6 KB, saved to a file by the host;
-    `beforeMaintenance.index` (115,287 chars) and `afterMaintenance.index`
-    (115,367 chars) held the listings.
-  - Observed effect: one extra command stripped the index fields to read the
-    receipt; a third startup occurrence.
-
 - Execution: `SEED-008#restore-ci-verdict-delivery` / plan 097 (ci-verdict-delivery), first related implementation commit `5317499`
   - Timestamp: 2026-09-25T15:15:20+08:00
   - Tool: Claude Code
@@ -971,6 +929,14 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     the index fields again held the listings.
   - Observed effect: one extra command stripped the index fields to read the
     receipt; a fourth startup occurrence.
+
+- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
+  - Timestamp: 2026-09-25T18:49:20+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: Take `cf4ee77` receipt, 231.5 KB, saved to a file by the host.
+  - Observed effect: one extra command stripped the index fields; fifth occurrence.
 
 ## DD-100 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
 
@@ -986,8 +952,37 @@ The plan required load below 4 before each baseline run; other work kept it at 5
   - Evidence: plan 096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
   - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
 
+## DD-101 — A numeric execute-plan argument named two different works
+
+`/dough-execute-plan 99` fit plan directory `099-…` and finding ODF-099, whose
+story (plan 100) topped the backlog. The coordinator asked before any Take.
+
+### Occurrences
+
+- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
+  - Timestamp: unknown (before Take `cf4ee77` at 2026-09-25T18:49:20+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: user chose "Plan 099"; trunk meanwhile held another agent's Take `5fdeb4c` of ODF-099's story.
+  - Observed effect: one question avoided a wrong published Take and a claim collision.
+
+## DD-102 — A delegated journey spec reported green failed the coordinator's rerun under load
+
+New `backlog-preparing.spec.ts` built a 6.3 s Git journey in a 30 s `beforeAll`; beside one spec at load ~15 it timed out.
+
+### Occurrences
+
+- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
+  - Timestamp: 2026-09-25T20:53+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: slice 4 return claimed 13/13 and 115/115; rerun: "beforeAll hook timeout of 30000ms exceeded"; fixed in `e11c09a`.
+  - Observed effect: the coordinator's independent rerun caught a load-sensitive test before delivery.
+
 ## Retention
 
-- Highest allocated local number: 100
-- Recovery: `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 102
+- Recovery: `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

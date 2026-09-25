@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
-- [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states ([plan](quick/099-published-preparing-assignments/PLAN.md))
 
 ## Backlog list
 
@@ -22,6 +21,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations
 - [Finish story 1 event synchronization and native evidence inputs](quick/102-finish-story-event-synchronization/PLAN.md)
 - [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
+- [Release a lost workspace's preparation assignment and stop keeps whose story left the queue](quick/103-lost-workspace-preparation-release/PLAN.md)
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
