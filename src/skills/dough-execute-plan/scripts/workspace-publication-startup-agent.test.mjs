@@ -105,12 +105,17 @@ test("Take from a bare repository's linked worktree authors only the Take commit
   await assert.rejects(git(bare, "config", "extensions.worktreeConfig"));
 });
 
-test("Story Branch Mode profile records its origin branch and leaves unreported host and model unrecorded", async (t) => {
+test("Story Branch Mode Take publishes the branch its profile records and leaves unreported host and model unrecorded", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const { receipt } = await startCliResult(trunk, "story-branch");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.agent, "Yui-chan");
+  // Readers of the published profile find the branch it names on origin.
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/exec/story-branch"),
+    receipt.publishedSha,
+  );
   assert.deepEqual(
     JSON.parse(
       await remoteShow(trunk, "show", "main:.planning/agents/yui-chan.json"),
