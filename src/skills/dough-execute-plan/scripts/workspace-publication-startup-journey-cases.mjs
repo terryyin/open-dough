@@ -1,8 +1,9 @@
 // The coordinator continues from the start result alone: setup readiness,
-// then the first managed delivery based on the returned accepted revision.
+// only after the accepted claim and only in the owned workspace, then the
+// first managed delivery based on the returned accepted revision.
 // The result stays the same size however large the default checkout is.
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -34,9 +35,34 @@ for (const mode of agentModes) {
     const { receipt, code, workspace } = await startCliResult(trunk, mode);
     assert.equal(code, 0);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
+    assert.equal(receipt.created, true);
+    const markers = [".setup-ran", ".command-ran"];
+    for (const marker of markers) {
+      assert.equal(existsSync(join(workspace, marker)), false, marker);
+    }
 
     const readiness = await runReadinessGate(workspace, process.env);
     assert.equal(readiness.ok, true, readiness.report);
+    assert.deepEqual(
+      readiness.invocations.map(({ role }) => role),
+      ["setup", "command", "delegate"],
+    );
+    assert.equal(
+      readiness.invocations.every(({ cwd }) => cwd === workspace),
+      true,
+    );
+    for (const marker of markers) {
+      assert.equal(existsSync(join(workspace, marker)), true, marker);
+      assert.equal(existsSync(join(trunk.integration, marker)), false, marker);
+    }
+    assert.equal(
+      await revParse(trunk.integration, "HEAD"),
+      receipt.publishedSha,
+    );
+    assert.equal(
+      (await git(trunk.integration, "status", "--porcelain")).stdout,
+      "",
+    );
 
     writeFileSync(join(workspace, "feature.txt"), "first increment\n");
     await git(workspace, "add", "feature.txt");

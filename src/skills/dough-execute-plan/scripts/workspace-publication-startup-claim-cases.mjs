@@ -9,7 +9,6 @@ import {
   createQueuedTrunk,
   failingContributing,
   identityA,
-  readyContributing,
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -154,38 +153,6 @@ test("failed project command after accepted startup leaves the claim and workspa
     receipt.publishedSha,
   );
   assert.equal(existsSync(workspace), true);
-});
-
-test("accepted startup precedes project readiness in the owned workspace", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: readyContributing });
-  t.after(trunk.cleanup);
-  const { receipt, workspace } = await startCliResult(trunk, "story-branch");
-  assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.created, true);
-  assert.equal(
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-    receipt.publishedSha,
-  );
-  assert.equal(existsSync(join(workspace, ".setup-ran")), false);
-  assert.equal(existsSync(join(workspace, ".command-ran")), false);
-  const readiness = await runReadinessGate(workspace, process.env);
-  assert.equal(readiness.ok, true, readiness.report);
-  assert.deepEqual(
-    readiness.invocations.map(({ role }) => role),
-    ["setup", "command", "delegate"],
-  );
-  assert.equal(
-    readiness.invocations.every(({ cwd }) => cwd === workspace),
-    true,
-  );
-  assert.equal(existsSync(join(workspace, ".setup-ran")), true);
-  assert.equal(existsSync(join(workspace, ".command-ran")), true);
-  assert.equal(existsSync(join(trunk.integration, ".setup-ran")), false);
-  assert.equal(await revParse(trunk.integration, "HEAD"), receipt.publishedSha);
-  assert.equal(
-    (await git(trunk.integration, "status", "--porcelain")).stdout,
-    "",
-  );
 });
 
 test("workspace setup failure preserves recovery context and leaves trunk unpublished", async (t) => {

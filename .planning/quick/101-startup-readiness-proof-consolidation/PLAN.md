@@ -67,7 +67,7 @@ receive setup or the SHA from a fixture.
 ### 1. Startup readiness is proved once, inside the first-delivery journey
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs`
 passes with the older test absent and the journey carrying every row above;
 compare the two tests' combined duration (about 3.95 s at `075e955`) with the
@@ -78,3 +78,15 @@ delete the older test and any imports it alone used. Directly owned
 retrospective correction; enables no later Behavior.
 
 ## Learnings
+
+- Slice 1 accepted: the journey case in
+  `workspace-publication-startup-journey-cases.mjs` now observes, in both
+  trunk and story-branch modes, `receipt.created`, markers absent before
+  `runReadinessGate`, roles `setup, command, delegate`, every `cwd ===
+  workspace`, markers present in the workspace and absent from the integration
+  checkout, and integration `HEAD === receipt.publishedSha` with clean status.
+  No mode difference invalidated any observation. The older claim-cases test
+  and its `readyContributing` import are removed; remote-trunk SHA equality
+  stays covered by "installed startup publishes an isolated ${mode} claim to
+  remote trunk". Proof command passed 44/44. Paired timing under load: before
+  6.39–6.62 s for the old test plus both journey cases, after 4.52–4.78 s.
