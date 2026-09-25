@@ -8,7 +8,7 @@
 // shared readers, and the page decide everything shown.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import { publishFiles } from "./publishedOrigin.ts";
@@ -32,12 +32,6 @@ import {
 
 const noProfileLabel = "no agent profile records the Take";
 
-// Page time stands still at `opened` until a journey lets it pass.
-async function pauseAtOpening(page: Page) {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
-}
-
 // Opens the dashboard once every Taken card's clock has been read.
 async function openedTaken(page: Page) {
   await page.goto("/");
@@ -59,7 +53,7 @@ async function expectBarStays(card: Locator) {
 test("each Taken card's clock measures from the later of its last plan commit and its Take, ticking with page time", async ({
   page,
 }) => {
-  await pauseAtOpening(page);
+  await pausePageClockAt(page, opened);
   const requests = await publishFiles(page, {
     repository,
     revision,
@@ -145,7 +139,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
 test("when agent profiles cannot be read, the clock is a gap rather than a plan-only clock", async ({
   page,
 }) => {
-  await pauseAtOpening(page);
+  await pausePageClockAt(page, opened);
   // The same records, but the profile directory cannot be listed.
   const published = publishes({ revision, files, committed });
   githubFor(page).serve(repository, (call) =>

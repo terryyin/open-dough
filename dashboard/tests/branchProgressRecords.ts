@@ -1,6 +1,7 @@
 // The records the branch slice progress journeys
 // (branch-slice-progress.spec.ts, auto-refresh-branches.spec.ts,
-// auto-refresh-unusable-branch.spec.ts) publish:
+// auto-refresh-unusable-branch.spec.ts) publish, and the plan shapes
+// taken-execution-complete.spec.ts also publishes:
 // trunk at one revision, with Taken stories, their plans, and the agent
 // profiles recording where each is published (spelled by the shared
 // profile renderer), and the story branches published beside it, each at its
@@ -108,6 +109,17 @@ Proof: A journey observes slice ${String(index)}.
 `;
   });
   return `# Plan\n\n## Slices\n\n${slices.join("\n")}`;
+}
+
+// A plan whose `total` slices are all recorded complete, followed by its
+// execution-complete record: with this product advice, or, without it, a
+// record that has no readable advice.
+export function completedPlan(total: number, advice?: string): string {
+  const record =
+    advice === undefined
+      ? "The retrospective found nothing to record."
+      : `Product advice: ${advice}`;
+  return `${slicePlan(total, total)}\n## Execution complete\n\n${record}\n`;
 }
 
 // The agent profile recording who took the story at `anchor`, in which mode

@@ -2,16 +2,22 @@
 // filled for each slice recorded complete, and the count in words. It is a
 // count of recorded statuses, not an estimate of how complete the story is,
 // shown with when the current slice started, and where those slices
-// were published when that is not plainly trunk. The slices and the clock's
-// start come from whatever the snapshot already read; nothing here reads or
-// interprets a plan.
+// were published when that is not plainly trunk. When the plan there records
+// its execution as complete, the card says it awaits wrap-up and how long ago
+// it completed instead, or shows the record's gap. The slices, the record,
+// and the clock's start come from whatever the snapshot already read; nothing
+// here reads or interprets a plan.
 
 import { useId } from "react";
 import type { ProgressSource } from "./progressSource.ts";
 import { shortRevision } from "./publishedWork.ts";
-import { SliceClock } from "./SliceClock.tsx";
+import { CompletionClock, SliceClock } from "./SliceClock.tsx";
 import type { SliceClock as Clock } from "./sliceClockStart.ts";
-import { recordedCompleteCount, type WorkPlanSlices } from "./storyPlan.ts";
+import {
+  recordedCompleteCount,
+  type PlanCompletion,
+  type WorkPlanSlices,
+} from "./storyPlan.ts";
 import "./slice-progress.css";
 
 // Plan slices that cannot be counted yet or at all: still being read, no
@@ -83,6 +89,30 @@ export function ProgressSourceLabel({
   }
 }
 
+// What follows the count: the current slice's clock while no completion is
+// recorded; once it is, the complete state with how long ago it completed, or
+// the record's gap.
+function SliceProgressState({
+  completion,
+  sliceClock,
+}: {
+  completion: PlanCompletion | undefined;
+  sliceClock: Clock | undefined;
+}) {
+  if (completion === undefined) {
+    return <SliceClock clock={sliceClock} />;
+  }
+  if ("problem" in completion) {
+    return <p className="preparation-problem">{completion.problem}</p>;
+  }
+  return (
+    <>
+      <p className="execution-complete">Execution complete, awaiting wrap-up</p>
+      <CompletionClock clock={sliceClock} />
+    </>
+  );
+}
+
 export function SliceProgress({
   planSlices,
   progressSource,
@@ -104,7 +134,7 @@ export function SliceProgress({
       </div>
     );
   }
-  const { slices } = planSlices;
+  const { slices, completion } = planSlices;
   const done = recordedCompleteCount(slices);
   return (
     <div className="card-progress">
@@ -125,7 +155,7 @@ export function SliceProgress({
       <p id={countId} className="slice-count">
         {done} of {slices.length} slices recorded complete
       </p>
-      <SliceClock clock={sliceClock} />
+      <SliceProgressState completion={completion} sliceClock={sliceClock} />
     </div>
   );
 }

@@ -185,7 +185,15 @@ and the zod projection in `dashboard/src/storyPlan.ts`.
 ### 2. Taken cards show "execution complete, awaiting wrap-up"
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `SliceProgress` shows "Execution complete, awaiting wrap-up" and
+`CompletionClock` "Completed N min ago" in place of the current-slice clock
+for an interpreted plan with a completion record, or the record's gap
+(`dashboard/tests/taken-execution-complete.spec.ts`); a moved recorded
+branch reaches the complete state on the automatic check reading only that
+plan and its commit time (`dashboard/tests/auto-refresh-branches.spec.ts`);
+delivered clock and progress specs stay green; wording recorded in
+`docs/dashboard-ux-ui-north-star.md`.
 Proof: new `dashboard/tests/taken-execution-complete.spec.ts` via
 `npm run test:dashboard -- taken-execution-complete`. It reuses
 `publishFiles` with `branches` and `committed` and pauses the page clock.
@@ -290,3 +298,8 @@ The deferred promises have no slice.
   `Product advice:` entries inside fenced code blocks, because plans (this one
   included) quote the record form as an example. `PlanCompletion` is exported
   from `dashboard/src/storyPlan.ts` for the slice 2 card.
+- Slice 2: a completion record without readable advice, or on an
+  uninterpretable plan, shows only its gap on the card, with no clock. Page
+  clocks in dashboard specs are paused through `pausePageClockAt`
+  (`dashboard/tests/dashboardTest.ts`), because installing at a time and then
+  pausing at that same time could fail under parallel load.

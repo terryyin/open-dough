@@ -90,14 +90,13 @@ It is part of this temporary design direction and carries the same authority.
 
 When spatial navigation is introduced, animate viewport movement when focusing
 work or returning to the overview, using short, interruptible transitions to
-help preserve orientation. After a
-successful explicit refresh, motion can explain observed placement or order
-changes for the same identity between the previous and new snapshots. Start
-with a small transition if it clarifies that change; continuous card travel
-between stages and an animation engine are not first-story acceptance criteria.
-Apply the new facts as one coherent snapshot; the transition illustrates that
-change, not an
-intermediate authoritative state. Source links and controls remain usable.
+help preserve orientation. After a successful explicit refresh, motion can
+explain observed placement or order changes for the same identity between the
+previous and new snapshots. Start with a small transition if it clarifies that
+change; continuous card travel between stages and an animation engine are not
+first-story acceptance criteria. Apply the new facts as one coherent snapshot;
+the transition illustrates that change, not an intermediate authoritative state.
+Source links and controls remain usable.
 
 Do not animate a story traversing stages it was never observed in, infer a
 completion from disappearance, or show looping motion, pulsing agents, or
@@ -125,6 +124,7 @@ reason to introduce an animation engine now.
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |
 | Completed slices | Use “2 of 5 slices recorded complete” on cards and detail alike, only for a known plan and supported completion records. Counts describe slices, not effort, elapsed time, or percentage of the story outcome achieved. |
 | Current slice clock | Use “Current slice started 12 min ago”: time since the later of the last recorded plan update and the Take, not evidence that an agent is active. Avoid “running.” |
+| Execution complete | When the plan records its execution as complete with product advice, a Taken card uses “Execution complete, awaiting wrap-up” and “Completed 40 min ago” (time since the plan's last commit where its progress is read, the completion commit) in place of the current slice clock. A record without readable advice is shown as that gap, not as complete. It is not story closure. |
 
 When no plan is recorded, say so instead of “0%” or “0 of 0.” If planless
 execution is explicitly recorded, name it without treating it as missing work.

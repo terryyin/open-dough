@@ -4,7 +4,7 @@
 // (./auto-refresh-branches.spec.ts, ./auto-refresh-unusable-branch.spec.ts).
 
 import type { Page } from "@playwright/test";
-import { expect } from "./dashboardTest.ts";
+import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   branches,
@@ -55,8 +55,7 @@ export async function openedSettled(
     readonly branches: Readonly<Record<string, PublishedRevision>>;
   } = { trunk, branches },
 ) {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
+  await pausePageClockAt(page, opened);
   const origin = publishMovingFiles(page, {
     repository,
     ...published.trunk,

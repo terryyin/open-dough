@@ -10,7 +10,7 @@
 // and the page decide everything shown.
 
 import type { Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
@@ -34,8 +34,7 @@ import {
 } from "./branchProgressRecords.ts";
 
 async function openedAtOpening(page: Page) {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
+  await pausePageClockAt(page, opened);
   const requests = await publishFiles(page, {
     repository,
     ...trunk,

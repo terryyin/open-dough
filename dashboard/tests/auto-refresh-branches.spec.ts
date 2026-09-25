@@ -4,7 +4,8 @@
 // progress is read again -- its plan and its commit time at the new head --
 // without Refresh. Other branches moving read nothing; trunk moving reads
 // the whole snapshot as before; an unchanged listing is answered by GitHub's
-// `304`; a recorded branch deleted becomes that gap. The fake GitHub only
+// `304`; a completion commit on the recorded branch shows the story awaiting
+// wrap-up; a recorded branch deleted becomes that gap. The fake GitHub only
 // publishes trunk and branch heads that move (./publishedFiles.ts); the local
 // read boundary, the shared readers, and the page decide everything shown.
 // A recorded branch whose name cannot be used:
@@ -24,6 +25,7 @@ import {
 import {
   branchHead,
   branches,
+  completedPlan,
   planPath,
   profilePath,
   opened,
@@ -42,6 +44,7 @@ import type { PublishedRevision } from "./publishedFiles.ts";
 const example = "story/example";
 const unrelated = "story/unrelated-work";
 const movedHead = "e6".repeat(20);
+const completedHead = "e7".repeat(20);
 
 // The branch heads published beside trunk, by name.
 function headsOf(
@@ -134,6 +137,38 @@ test("the automatic check follows each recorded story branch, reading only the p
     );
     expect(reads).toContain(`branch ${example}`);
     expect(reads).not.toContain("ref main");
+  });
+
+  await test.step("a completion commit on the recorded branch shows the story awaiting wrap-up within the check pace, reading only its plan and commit time there", async () => {
+    const now = await page.evaluate(() => Date.now());
+    published[example] = {
+      revision: completedHead,
+      files: {
+        ...trunk.files,
+        [planPath("on-branch")]: completedPlan(8, "Queue the next story."),
+      },
+      committed: {
+        [planPath("on-branch")]: new Date(now - 60_000),
+        [profilePath("Akiho")]: new Date(opened.getTime() - 60 * 60_000),
+      },
+    };
+    origin.moveBranch(example, published[example]);
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    await expect(progress).toContainText(
+      "Execution complete, awaiting wrap-up",
+    );
+    await expect(progress).toContainText("Completed 1 min ago");
+    await expect(progress).toContainText(
+      `From branch ${example} at ${completedHead.slice(0, 7)}; not in trunk.`,
+    );
+    await expect(progress).not.toContainText("Current slice started");
+    expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(
+      [
+        `content ${planPath("on-branch")}@${completedHead}`,
+        `commit-list ${planPath("on-branch")}@${completedHead}`,
+      ].sort(),
+    );
   });
 
   await test.step("the recorded branch deleted shows, at the next check, that it is no longer published", async () => {

@@ -150,7 +150,10 @@ branch are each shown as that gap, never as trunk's count. The detail view
 shows the same source. When the plan carries an `## Execution complete` record,
 the detail shows "Execution complete" and its `Product advice:` as recorded,
 in plain text, or the record's gap when it has no readable advice; the shared
-plan reader decides both.
+plan reader decides both. The Taken card then says "Execution complete,
+awaiting wrap-up" and "Completed N min ago", measured from the plan's last
+commit where its progress is read, in place of the current slice clock, or
+shows the record's gap. Queued cards show no progress, complete or not.
 
 Each card and expanded detail offers the canonical record and a **Slice plan**
 link when its association is recorded in the canonical story-state or explicitly
