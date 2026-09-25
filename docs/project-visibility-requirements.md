@@ -285,7 +285,11 @@ one shared file.
   and model from the published profile. Branch context is labelled as story
   branch work, never as work on trunk. A missing profile shows "Owner not
   recorded", a missing field shows as not recorded, and an unreadable profile
-  is listed as unreadable without being matched to any entry.
+  is listed as unreadable without being matched to any entry. Decorative
+  identity marks sit beside their own text labels: the agent's portrait beside
+  its name, the mode symbol beside the mode, and the host tool's mark beside
+  the host. Text alone carries each fact; no mark is drawn for an unrecorded
+  or unreadable fact, and no mark implies that an agent is present or active.
 
 ### Future messaging and handover
 

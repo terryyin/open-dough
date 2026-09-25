@@ -1,9 +1,10 @@
 # Dashboard avatar assets
 
-These local assets are reserved for [SEED-038](../../.planning/seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar).
-Taken cards (`dashboard/src/TakenOwnerFacts.tsx`) show the agent portraits
-beside recorded agent names, and the mode symbols and tool marks as decorative
-images beside their mode and host labels; an unrecorded host gets no mark.
+Taken cards (`dashboard/src/TakenOwnerFacts.tsx`) show these local assets as
+decorative identity marks beside their text labels: the agent portraits beside
+recorded agent names, and the mode symbols and tool marks beside their mode and
+host labels. An unrecorded host gets no mark, and no mark implies that an agent
+is present or active.
 
 ## Agent portraits
 
@@ -39,7 +40,7 @@ current brand guidance before replacing these assets.
 ## Execution mode symbols
 
 `mode-icons/trunk.svg` and `mode-icons/story-branch.svg` are original, simple
-line symbols designed for this story. The straight line represents Trunk Mode;
+line symbols designed for the dashboard. The straight line represents Trunk Mode;
 the line diverging from a trunk represents Story Branch Mode. Place each
 beside its mode name, never in place of that text. Both have a 24 × 24 viewBox
 and use the dashboard's quiet dark-green stroke on its card background.
