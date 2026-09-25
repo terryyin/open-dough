@@ -14,11 +14,16 @@ if (!state) throw new Error("Expected a fixture state directory");
 
 guardFixtureProcess(state);
 
+// The wait starts before the announcement, so its first check for the release
+// has already run by the time a test sees "first-failure-recorded". A release
+// published after that is found by polling, not by that first check.
 function waitForRelease(signal) {
+  const released = waitForFixtureRelease(
+    join(state, "release-second-failure"),
+    { signal },
+  );
   writeFileSync(join(state, "first-failure-recorded"), "");
-  return waitForFixtureRelease(join(state, "release-second-failure"), {
-    signal,
-  });
+  return released;
 }
 
 let poll = 0;

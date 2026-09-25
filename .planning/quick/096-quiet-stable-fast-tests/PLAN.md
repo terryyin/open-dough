@@ -356,7 +356,20 @@ missed event fails with the name of what it waited for.
 ### 7. Node tests synchronize on events or injected time
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: the backlog write-safety and adopt-refusal runs await a
+`lock-busy` signal from a probe preloaded into the real CLI
+(`tests/support/product-backlog-lock-fixture.mjs`) instead of `delay(400)`;
+the stream fixture starts its release wait before announcing, so
+`ci-fixture-lifecycle` needs no pause; the pending checks in
+`ci-codex-completion` and `ci-mailbox-complete-unresolved-cases` wait for
+observed recheck pauses (one shared `recheckPauseProbe`) instead of 150 ms
+sleeps, and the second now asserts exactly `pending`. Temporary product
+breaks failed each test. The affected suites pass silently with local and
+CI-like git config. A scan of all Node test code finds no fixed wait of
+100 ms or more outside bounded polls; what remains are 10–25 ms poll
+intervals, 75 ms pending checks, keep-alive intervals, and a stub worker's
+300 ms post-result linger, which is the scenario under test.
 Proof: the affected suites pass silently with unchanged promises:
 - `tests/support/product-backlog-write-safety.test.mjs`
 - `tests/support/product-backlog-adopt-refusals.test.mjs`

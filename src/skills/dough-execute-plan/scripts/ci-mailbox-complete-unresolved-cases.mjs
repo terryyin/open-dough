@@ -173,16 +173,20 @@ test("unconfirmed shutdown names the limitation and does not stop another worker
 });
 
 test("a quiet gap without completion leaves the worker alive; explicit stop stays separate", async (t) => {
-  const fixture = await setupProcessMailbox(t);
+  const fixture = await setupProcessMailbox(t, undefined, {
+    observeWorkerRechecks: true,
+  });
   await register(fixture.env, fixture.mailbox);
-  await new Promise((resolve) => setTimeout(resolve, 150));
+  // The quiet gap is one full observation pass over the registered revision's
+  // still-running CI, ending in the worker's pause before its next recheck.
+  releaseRun(fixture.directory, { status: "in_progress", conclusion: null });
+  await waitFor(
+    () => existsSync(join(fixture.directory, "worker-rechecking")),
+    "worker recheck pause",
+  );
+  assert.equal(readRevisionCoverage(fixture.mailbox)[0]?.state, "pending");
   assertWorkerAlive(fixture);
   assert.equal(existsSync(join(fixture.mailbox, "result.json")), false);
-  assert.equal(
-    readRevisionCoverage(fixture.mailbox)[0]?.state === "undiscovered" ||
-      readRevisionCoverage(fixture.mailbox)[0]?.state === "pending",
-    true,
-  );
 
   const stopped = parseReceipt(
     (

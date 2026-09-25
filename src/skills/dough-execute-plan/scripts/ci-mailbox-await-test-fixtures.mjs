@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { launcher, sha } from "./ci-mailbox-process-test-fixtures.mjs";
+import {
+  launcher,
+  recheckPauseProbe,
+  sha,
+} from "./ci-mailbox-process-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
 
@@ -29,13 +33,15 @@ export function launchComplete(env, mailbox, revision = sha) {
 }
 
 function launchMailboxCommand(env, args) {
-  // Observe handler registration without adding test hooks to the CLI protocol.
+  // Observe handler registration and each recheck pause without adding test
+  // hooks to the CLI protocol.
   const readinessProbe = `data:text/javascript,${encodeURIComponent(`
     process.on("newListener", (event) => {
       if (event === "SIGTERM") {
         queueMicrotask(() => process.send("cancellation-ready"));
       }
     });
+    ${recheckPauseProbe(`if (process.connected) process.send("rechecking")`)}
   `)}`;
   const child = spawn(
     process.execPath,
@@ -46,8 +52,14 @@ function launchMailboxCommand(env, args) {
     },
   );
   let cancellationReady = false;
+  let rechecks = 0;
+  let closed = false;
   child.on("message", (message) => {
     if (message === "cancellation-ready") cancellationReady = true;
+    if (message === "rechecking") rechecks += 1;
+  });
+  child.once("close", () => {
+    closed = true;
   });
   let stdout = "";
   let stderr = "";
@@ -69,6 +81,11 @@ function launchMailboxCommand(env, args) {
     output: () => stdout,
     waitForCancellationReady: () =>
       waitFor(() => cancellationReady, "CLI cancellation handler"),
+    // Resolves once the command has paused to recheck `count` times, each
+    // after finding nothing to report yet, or once it has ended, so a caller
+    // can assert what it wrote by then.
+    waitForRechecks: (count) =>
+      waitFor(() => rechecks >= count || closed, `${count} rechecks`),
   };
 }
 

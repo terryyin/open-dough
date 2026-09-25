@@ -5,7 +5,6 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { setTimeout as pause } from "node:timers/promises";
 import { completingFixture } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { createCustomBridgeFixture } from "./ci-custom-bridge-test-fixtures.mjs";
 import {
@@ -38,9 +37,9 @@ test(
     child.stdout.on("data", (chunk) => {
       output += chunk;
     });
+    // The fixture announces this only after its first check for the release,
+    // so the release below can only be found by the later polling.
     await waitForFile(join(root, "first-failure-recorded"));
-    // Publish after watch registration/recheck, exercising a missed notification.
-    await pause(100);
     writeFileSync(join(root, "release-second-failure"), "");
     assert.equal((await closed)[0], 0);
     assert.equal(output.split("CI_FAILURE").length - 1, 2);

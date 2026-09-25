@@ -63,7 +63,9 @@ test("real stream identity supports pending exact and ancestor completion", asyn
         );
         const waiting = launchAwait(env, attached.directory, sha);
         t.after(() => waiting.child.kill("SIGTERM"));
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        // Each recheck follows a pass that read the pending coverage and found
+        // the stream alive; a receipt written instead would end the wait.
+        await waiting.waitForRechecks(2);
         assert.equal(
           waiting.output(),
           "",
