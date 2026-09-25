@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Sola-chan",
+  "email": "sola-chan@example.org",
+  "identity": "quick/097-keep-execution-complete-record-readable/PLAN.md",
+  "mode": "story-branch",
+  "branch": "claude/097-keep-execution-complete-record-readable",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Keep plans with quoted records readable and prove the completion record once](quick/097-keep-execution-complete-record-readable/PLAN.md)
+
 ## Backlog list
 
-- [Keep plans with quoted records readable and prove the completion record once](quick/097-keep-execution-complete-record-readable/PLAN.md)
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
