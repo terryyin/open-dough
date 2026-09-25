@@ -13,7 +13,6 @@ import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
   advanceRemote,
   assertPublishedAgent,
-  awaitFile,
   holdFirstPush,
   remoteProfiles,
   startProcess,
@@ -28,7 +27,7 @@ test("real startup commands replay distinct claims from one base without losing 
     barrier.release();
     a.child.kill();
   });
-  await awaitFile(barrier.arrived);
+  await barrier.awaitArrival(a);
   const b = await startProcess(trunk, "b", identityB).result;
   assert.equal(b.receipt.ok, true, JSON.stringify(b));
   barrier.release();
@@ -70,7 +69,7 @@ test("distinct claims also converge when the other execution wins the first push
     barrier.release();
     b.child.kill();
   });
-  await awaitFile(barrier.arrived);
+  await barrier.awaitArrival(b);
   const a = await startProcess(trunk, "a", identityA).result;
   assert.equal(a.receipt.ok, true, JSON.stringify(a));
   barrier.release();
@@ -110,7 +109,7 @@ test("real competing same-story command stops on the first owner's provenance", 
     barrier.release();
     a.child.kill();
   });
-  await awaitFile(barrier.arrived);
+  await barrier.awaitArrival(a);
   const b = await startProcess(trunk, "b", identityA).result;
   assert.equal(b.receipt.ok, true, JSON.stringify(b));
   barrier.release();
@@ -137,7 +136,7 @@ test("remote advance replays an owned suffix, but changed selected source stops 
       barrier.release();
       a.child.kill();
     });
-    await awaitFile(barrier.arrived);
+    await barrier.awaitArrival(a);
     if (changedSource) {
       const path = join(trunk.integration, ".planning/seeds/A.md");
       const source = (
@@ -181,7 +180,7 @@ test("real startup stops on identical Taken text without publication provenance"
     barrier.release();
     contender.child.kill();
   });
-  await awaitFile(barrier.arrived);
+  await barrier.awaitArrival(contender);
   const owner = await startProcess(trunk, "b", identityA).result;
   assert.equal(owner.receipt.ok, true, JSON.stringify(owner));
   const acceptedBacklog = (

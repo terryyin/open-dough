@@ -108,9 +108,10 @@ Facts this plan relies on (planning survey at `04a034b`):
 dispatched, measure under the conditions below.
 
 - **Revision:** the revision execution starts from.
-- **Machine:** no other test suite, VM, or browser test runner is active, and
-  the 1-minute load average is below 4 when each run starts. Record the load
-  averages.
+- **Machine:** the developer's machine as it is; record the load averages
+  when each run starts. (Changed during execution on the developer's
+  instruction: unrelated work kept the load at 50–170, so the comparison is
+  relative. See **Comparable measurement**.)
 - **Settings:** Bash 5 first on `PATH`, dependencies installed with `npm ci`,
   Playwright Chromium present, `OPEN_DOUGH_TEST_JOBS` unset.
 - **Runs:** run `npm test` then `npm run test:dashboard` three times, and
@@ -123,8 +124,9 @@ dispatched, measure under the conditions below.
   - machine, OS, Node, Bash and Playwright versions;
   - failures, if any.
 
-The target is at most 25% of the baseline sum. The planning profile below is
-**not** this baseline: it was taken at a load average of 38 to 53.
+The target is at most 25% of the start revision's sum, measured in the same
+paired session (see **Comparable measurement**). The planning profile below
+is **not** this baseline.
 
 | Key example (seed) | Slice | Observation |
 | --- | --- | --- |
@@ -168,9 +170,22 @@ The target is at most 25% of the baseline sum. The planning profile below is
 - **Stable means cause-fixed.** No retries, skips, quarantines, or longer
   timeouts alone. A timeout may grow only when the operation's own lifecycle
   justifies it, and the plan records why.
-- **Comparable measurement.** Baseline and final use the same machine and
-  conditions and the medians of three runs. If slice 9 changes the default
-  job count, the final measurement uses the new default, as the seed allows.
+- **Comparable measurement (relative).** On the developer's instruction
+  (2026-09-25), measurements do not wait for an idle machine. Every
+  measurement that is judged against the target runs the start revision
+  (`bad3717`, kept as a detached reference checkout) and the candidate back to
+  back, or alternating, under the same load, three runs each. It records the
+  loads and judges the ratio of the medians: candidate sum ≤ 25% of the
+  start-revision sum. The initial baseline run supplies the per-check profile
+  and case counts. If slice 9 changes the default job count, the candidate
+  uses the new default, as the seed allows.
+- **Execution identity.** Story Branch Mode; workspace
+  `.claude/worktrees/096-quiet-stable-fast-tests` on branch
+  `claude/096-quiet-stable-fast-tests`, started from `0168768`. Claim
+  `bad3717` published to `origin/main` (agent Yua-chan, publisher
+  `claude-53d97dfe-096`); increments publish to
+  `origin/claude/096-quiet-stable-fast-tests`. CI source: GitHub Actions
+  `ci.yml` / `CI`.
 
 - **Decisive checkpoint (for `dough-test-optimization`).** After slice 9 and
   again after slice 11, compare the measured complete-suite median with the
@@ -185,7 +200,13 @@ The target is at most 25% of the baseline sum. The planning profile below is
 ### 1. The complete local suite passes locally as it does in CI
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test` of `workspace-publication-startup-agent-race.test.mjs`
+and `workspace-publication-startup-race.test.mjs` passes 7/7 alone and in six
+to eight concurrent copies at load 48–80 (the old fixture failed 5 of 8);
+`bash tests/execution-ci-runtime.sh` passed 314/314 beside a concurrent
+`npm test` at load 68–78. Observations: each race test's
+`barrier.awaitArrival(<process>)` followed by its receipt assertions.
 Proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-race.test.mjs`
 passes alone, and passes inside `bash tests/execution-ci-runtime.sh` while the
 machine is under load. Load it with a concurrent `npm test`, the condition in
@@ -433,3 +454,15 @@ The deferred promises have no slice.
 
   Only the relative weights are usable. The real baseline must be taken under
   the recorded conditions.
+- **Slice 1 cause: a fixed wait budget, not leftovers or the hook barrier.**
+  The race fixtures' `awaitFile` gave startup 5 s (200 × 25 ms) to reach its
+  held push. Before that push, `execution-start.mjs` runs Node start plus about
+  75 sequential git processes (GIT_TRACE2: ~138 git starts per run, first push
+  ~2.4 s after the first). Alone at load ~70 the push arrived after 3–4 s; at
+  eight-fold concurrency 3.1–7.8 s, with every child still healthy. The
+  baseline runs at the start revision failed the same way: 4 then 2 of the
+  startup race tests, all `timed out waiting for …/push-arrived`. The wait is
+  now `holdFirstPush(...).awaitArrival(started)`, bounded by the started
+  process's lifecycle: it fails, with exit code and stderr, only if that
+  process exits before pushing. A startup that hangs without exiting stays as
+  unbounded as the tests' existing `await started.result`.
