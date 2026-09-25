@@ -381,3 +381,22 @@ or begin execution. Keep all current preparation files uncommitted for review.
 - An explicit no-publish or no-commit instruction skips `start`, reports that
   no Preparing assignment was published, and lets preparation continue only as
   that instruction allows.
+
+## Execution complete
+
+Product advice:
+- Queue a native acceptance story (ADR 0005) for the preparation start, pause
+  and keep journey and for abandonment before the next release. No native run
+  has been made on any host.
+- Decide how a preparation assignment whose story is no longer queued should
+  surface. Today the dashboard drops it, and it keeps its name until someone
+  inspects `occupied`. Options are showing it as uncertainty, or reporting it
+  in the Take receipt.
+- Consider a story that scripts Dough Land's deterministic landing sequence.
+  Landing is exercised only through a test model today.
+- Decide whether to queue correction
+  [103](../103-lost-workspace-preparation-release/PLAN.md). It releases a
+  lost workspace's assignment by exact allocation, homes the shared helpers,
+  and removes redundant tests.
+- ODF-092 recurred here, adding evidence for the queued
+  SEED-008#attach-first-claude-publication.
