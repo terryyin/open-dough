@@ -230,6 +230,4 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'cleared-by-learning-only: false' \
     'instruction-words-only: false'
   ! delivery_evidence_gaps_assess "${work}/missing-fields.txt"
-
-  echo 'PASS: delivery-evidence/gaps assessor rejects learning-only clearance and accept-without-proof; accepts incomplete gap naming, repair-and-proceed with obtained observation, unavailable-proof incomplete with preserved independent evidence, and sufficient reused evidence; refuses format/blanket rerun, instruction-words-only, and missing fields.'
 }

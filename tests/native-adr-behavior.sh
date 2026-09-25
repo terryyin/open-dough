@@ -106,5 +106,3 @@ if [[ ${native_adr_behavior_status} == 'fail' ]]; then
   exit 1
 fi
 [[ ${native_adr_behavior_status} == 'inconclusive' ]]
-
-echo 'PASS: shared ADR clear/conflict assessment accepts a valid recommendation, a valid stop, and a conditional stop; rejects misleading wording; leaves uncertain prose inconclusive; and does not fail incidental skill-instruction rephrasing.'

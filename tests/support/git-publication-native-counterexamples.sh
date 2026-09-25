@@ -207,6 +207,4 @@ run_assessor_counterexamples() {
     "${work}/valid-response.md"
   git_publication_suite_expect_assess fail \
     'candidate is not confined to the new Story Branch'
-
-  echo 'PASS: publication assessor accepts equivalent publication wording, local-only retention, and one exact new Story Branch push; rejects missing remote acceptance, captured human edits, wrong claim ownership, claim-race foreign ownership with remote acceptance, malformed push retries, changed trunk, and incomplete or stale streams.'
 }

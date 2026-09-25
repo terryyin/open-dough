@@ -148,7 +148,7 @@ seed_empty_host_settings "${conflict_target}"
 bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" > /dev/null
 printf '%s\n' edited > "${conflict_target}/.claude/skills/dough-update/SKILL.md"
 before=$(snapshot_path_state "${conflict_target}")
-if bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" 2>&1; then
+if bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" > /dev/null 2>&1; then
   echo 'FAIL: edited sibling must refuse ordinary all-tool installation.' >&2
   exit 1
 fi
@@ -245,5 +245,3 @@ bash "${source_dir}/src/install/open-dough-release.sh" apply --target "${update_
 fixture_source=$(cd "${fixture}" && pwd -P)
 assert_all_roots "${update_target}" 0.1.10 payload-0.1.10 "${fixture_source}"
 assert_managed_host_hooks "${update_target}"
-
-echo 'PASS: each entry context installs the complete client payload in two shared roots with both native hooks; Cursor repairs a missing managed entry and proves the final no-op; Claude repairs a missing settings file; both repairs preserve payload bytes and mtimes; current-root malformed/conflicting settings still refuse; force repairs payload conflicts; unsafe hooks refuse before mutation; and one-root update restores missing integrations.'

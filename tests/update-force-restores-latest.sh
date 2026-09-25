@@ -176,5 +176,3 @@ output=$(run_force_apply "${supplied_target}" "${supplied_tmp}" \
   --url "${fixture}")
 assert_force_success "${output}" "${supplied_dest}" "${supplied_target}" \
   "${supplied_tmp}" "${expected_source}"
-
-echo 'PASS: explicit force restores the latest payload plus SOURCE then VERSION for edited, incomplete, equal, and newer installations from recorded SOURCE, and from a supplied URL when SOURCE is absent.'

@@ -151,5 +151,4 @@ run_delivery_evidence_observer_layout_counterexamples() {
       fi
     done
   done
-  echo 'PASS: delivery-evidence selection, claims, consumers, and gaps observers read heading, bold, table, and line-leading promise statuses through one recognizer, and a leading incomplete status wins over later accepted words.'
 }

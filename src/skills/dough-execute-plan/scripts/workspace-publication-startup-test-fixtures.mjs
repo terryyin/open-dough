@@ -3,6 +3,10 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  awaitSignalWhileRunning,
+  settledProbe,
+} from "./process-lifetime-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
 import {
   agentIdentity,
@@ -67,14 +71,6 @@ export function startProcess(
   return { child, result, workspace };
 }
 
-export async function awaitFile(path) {
-  for (let attempt = 0; attempt < 200; attempt += 1) {
-    if (existsSync(path)) return;
-    await new Promise((resolve) => setTimeout(resolve, 25));
-  }
-  throw new Error(`timed out waiting for ${path}`);
-}
-
 // Runs `script` before every push from the trunk's integration checkout.
 async function installPrePush(trunk, script) {
   const hooks = join(trunk.fixture, "hooks");
@@ -102,7 +98,17 @@ export async function holdFirstPush(trunk, name = "a") {
     `if [ "$(git branch --show-current)" = exec/${name} ]; then\n  touch '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
   );
   return {
-    arrived,
+    // Waits until `started` holds its push for as long as that process runs.
+    async awaitArrival(started) {
+      await awaitSignalWhileRunning(
+        () => existsSync(arrived),
+        settledProbe(started.result),
+        async () => {
+          const exited = await started.result;
+          return `process exited (code ${exited.code}) before its push arrived: ${exited.stderr}`;
+        },
+      );
+    },
     release: () => {
       if (existsSync(trunk.fixture)) writeFileSync(released, "go\n");
     },

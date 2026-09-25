@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
-const cli = fileURLToPath(
+export const cli = fileURLToPath(
   new URL(
     "../../src/skills/dough-product-backlog/scripts/product-backlog.mjs",
     import.meta.url,

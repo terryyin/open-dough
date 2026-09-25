@@ -120,5 +120,3 @@ after_project_file=$(shasum -a 256 "${target}/keep.txt")
 [[ "${after_selected_sidecars}" == "${before_selected_sidecars}" ]]
 [[ "${after_selected_unrelated}" == "${before_selected_unrelated}" ]]
 [[ "${after_project_file}" == "${before_project_file}" ]]
-
-echo 'PASS: ordinary repeat preserves the edited installation, explicit force replaces the declared Cursor payload files, and preserves all other content.'

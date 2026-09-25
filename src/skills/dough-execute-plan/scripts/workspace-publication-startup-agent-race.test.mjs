@@ -13,7 +13,6 @@ import {
 } from "./workspace-publication-fixtures.mjs";
 import {
   assertPublishedAgent,
-  awaitFile,
   holdFirstPush,
   profileDirectory,
   profilePath,
@@ -36,7 +35,7 @@ test("a rival holding a different agent name leaves the replayed claim its origi
     barrier.release();
     a.child.kill();
   });
-  await awaitFile(barrier.arrived);
+  await barrier.awaitArrival(a);
   // A rival started from another base, where Yui-chan was held, published
   // Akiho-chan's profile first.
   await publishProfiles(trunk, ["Akiho"], identityB);

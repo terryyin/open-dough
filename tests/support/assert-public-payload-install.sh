@@ -15,17 +15,11 @@ shift
 managed_files=("$@")
 
 case "${platform}" in
-  codex)
+  codex | cursor)
     relative_skill_root=.agents/skills
-    platform_label=Codex
-    ;;
-  cursor)
-    relative_skill_root=.agents/skills
-    platform_label=Cursor
     ;;
   claude)
     relative_skill_root=.claude/skills
-    platform_label='Claude Code'
     ;;
   *)
     echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
@@ -59,7 +53,7 @@ printf '%s\n' 'Keep this project file.' > "${target}/keep.txt"
 
 cd -- "${temporary_dir}"
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
-  --platform "${platform}"
+  --platform "${platform}" > /dev/null
 
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
@@ -140,5 +134,3 @@ after=$(list_files "${incomplete_target}")
 [[ ! -e "${incomplete_target}/${relative_skill_root%%/*}" ]]
 sentinel_contents=$(cat "${incomplete_target}/sentinel.txt")
 [[ "${sentinel_contents}" == 'Do not change me.' ]]
-
-echo "PASS: ${platform_label} receives the complete declared client payload, incomplete source is rejected before writes, and other platform, internal, and unrelated material is preserved."

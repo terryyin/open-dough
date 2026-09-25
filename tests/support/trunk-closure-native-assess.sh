@@ -140,5 +140,4 @@ run_trunk_closure_assessor_counterexamples() {
   trunk_closure_write_assessor_observation \
     "${work}/forced-stop.txt" source success none 1 1 normal true
   ! trunk_closure_assess source "${work}/forced-stop.txt"
-  echo 'PASS: Trunk closure assessor accepts source and ignored-only completion; rejects a missing complete-revision, early shutdown, invented ignored-only provider run, and fixture-masked shutdown.'
 }

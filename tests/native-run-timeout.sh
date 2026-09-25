@@ -163,5 +163,3 @@ grep -Fq 'partial hang output' "${attempt}/response.md"
 [[ ! -e ${attempt}/adopter ]]
 [[ ! -e ${attempt}/candidate ]]
 [[ ! -e ${attempt}/codex-state ]]
-
-echo 'PASS: hung selected context times out within deadline plus grace, owned processes are gone, partial evidence is retained, a prior attempt is unchanged, and the invocation log shows no retry.'

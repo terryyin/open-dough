@@ -218,6 +218,11 @@ GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'` or
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
 
+A passing run prints nothing (`tests/support/quietReporter.ts`). A failing
+spec is shown with its error, output, and retained trace; a passing spec that
+writes output, or output from the run itself such as global setup, fails the
+run and is shown. Keep specs and their helpers silent.
+
 The automatic-freshness journeys (`tests/auto-refresh*.spec.ts`) pause the
 page's clock and step it with the helpers in `tests/autoRefreshJourney.ts`, so
 the 15-second pace, the 30-second target, hidden-page pauses, and a rate

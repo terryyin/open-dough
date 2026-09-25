@@ -5,7 +5,6 @@
 import assert from "node:assert/strict";
 import { mkdirSync, rmSync } from "node:fs";
 import { test } from "node:test";
-import { setTimeout as delay } from "node:timers/promises";
 import {
   adopt,
   headings,
@@ -17,6 +16,7 @@ import {
   takenLink,
 } from "./product-backlog-adoption-fixture.mjs";
 import { run } from "./product-backlog-fixture.mjs";
+import { runBlockedOnLock } from "./product-backlog-lock-fixture.mjs";
 
 const oldCopy = "seeds/SEED-008-old-copy.md";
 
@@ -123,10 +123,10 @@ test("adopt identity: a concurrent allocation collision is reported, not combine
 
   // This run waits for the lock, so it reads the canonical homes only after
   // the other writer has already allocated an identity of its own.
-  const waiting = run(project, adopt, {
+  const waiting = runBlockedOnLock(project, adopt, {
     DOUGH_BACKLOG_LOCK_TIMEOUT_MS: "20000",
   });
-  await delay(400);
+  await waiting.blocked;
   project.write(
     seedEight,
     project
@@ -139,7 +139,7 @@ test("adopt identity: a concurrent allocation collision is reported, not combine
   const competitor = project.snapshot();
   rmSync(`${project.file}.lock`, { recursive: true });
 
-  const result = await waiting;
+  const result = await waiting.completed;
   assert.equal(result.code, 1, result.stdout);
   assert.match(
     result.stderr,

@@ -20,6 +20,7 @@ import {
 } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import {
   blockingGithubEnvironment,
+  awaitWorkerSignal,
   waitForFile,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
@@ -57,7 +58,10 @@ test("Codex recovers only its retained identity after losing handles and coopera
   const attached = await replay.setup();
   const child = attached.process;
   t.after(() => child.kill("SIGTERM"));
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(
+    attached.directory,
+    join(root, "github-request-started"),
+  );
   assert.equal(attached.pid, child.pid);
   const note = join(root, "PLAN.md");
   writeFileSync(
@@ -137,7 +141,10 @@ test("Codex reuses one execution observer through normal and repair pushes, then
 
   const attached = await replay.setup();
   t.after(() => attached.process.kill("SIGTERM"));
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(
+    attached.directory,
+    join(root, "github-request-started"),
+  );
   const repeatedSetup = await replay.setup();
   const afterNormalPush = await replay.setup();
   const afterRepairPush = await replay.setup();

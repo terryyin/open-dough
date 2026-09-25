@@ -181,5 +181,3 @@ bash "${helper}" apply --target "${update_absent}" --platform cursor --force \
   > /dev/null
 assert_config_absent "${update_absent}" 'force update without config'
 assert_sentinels "${update_absent}"
-
-echo 'PASS: install and update preserve optional open-dough.json bytes or absence across Codex/Cursor and Claude paths, including force replacement, without adding it to managed payload lists.'

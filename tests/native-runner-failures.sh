@@ -188,5 +188,3 @@ if [[ ${launches} -ne 1 ]]; then
 fi
 assert_prior_identical
 [[ -d ${missing_attempt} && -d ${fail_attempt} && -d ${denied_attempt} ]]
-
-echo 'PASS: missing executable, nonzero launch, and denied operation stay nonpassing with stderr/reason, unknown runtime is not inferred, a prior attempt is unchanged, and the invocation log shows no retry.'

@@ -113,5 +113,3 @@ rewrite_file "${work_dir}/failed-update.txt" \
   -e 's/real-transition: true/real-transition: false/'
 assert_not_pass failed-update.txt \
   'failed update cannot pass as a successful journey' valid-conflict.md
-
-echo 'PASS: shared journey-state assessment accepts the expected real fixture update and a catalog/ARC-12 conflict stop; wrong bytes/version, protected writes, stale-target use, and a failed update with a success claim cannot pass.'

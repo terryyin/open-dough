@@ -27,11 +27,9 @@ if bash "${fixture}/scripts/test.sh" > "${temporary_dir}/suite.log" 2>&1; then
   echo 'FAIL: the suite accepted a failed story payload test.' >&2
   exit 1
 fi
-if ! grep -F -- "${story} -> ${missing}" "${temporary_dir}/suite.log" \
-  || ! grep -F -- 'FAIL: tests/story-payload-update.sh' "${temporary_dir}/suite.log"; then
+if ! grep -q -F -- "${story} -> ${missing}" "${temporary_dir}/suite.log" \
+  || ! grep -q -F -- 'FAIL: tests/story-payload-update.sh' "${temporary_dir}/suite.log"; then
   cat "${temporary_dir}/suite.log" >&2
   echo 'FAIL: the suite must report the failed story test and missing dependency.' >&2
   exit 1
 fi
-
-echo 'PASS: a missing installed story dependency fails the suite with the referring file and missing target.'

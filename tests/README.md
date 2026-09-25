@@ -19,14 +19,45 @@ Direct test scripts rely on this prerequisite; the version guard lives in the
 suite runner. This is a contributor test requirement; the product installer
 continues to support Bash 3.2.
 
-The runner discovers only `tests/*.sh` outside `tests/support/`. It runs up to
-four of those checks at a time; each one keeps its own temporary directory.
-`OPEN_DOUGH_TEST_JOBS` selects that count from 1 to 4. A
-`node --test` suite, including one beside a skill's scripts under
-`src/skills/`, runs in `npm test` and CI only when one of those shell entries
-invokes it. Entries that glob a directory's `*.test.mjs`, such as
-`tests/execution-ci-runtime.sh` and `tests/workspace-publication-callers.sh`,
-pick up suites added there; entries that list files need each new suite added.
+The runner is the suite's one scheduler. Its jobs are each `tests/*.sh` outside
+`tests/support/`, plus each `node --test` file matched by a glob in
+`tests/node-test-files` (relative to the repository root), such as the suites
+beside a skill's scripts under `src/skills/`. A new `*.test.mjs` under a listed
+glob runs without further wiring. Each node file runs alone through
+`tests/support/node-test-failures-reporter.mjs`, which prints nothing when
+every test passes silently. It shows each failing test's name, location,
+error, and its file's captured output, and any output a passing file wrote,
+under `output from passing <file>:`. No job starts a worker pool of its own.
+
+The runner runs one job per online CPU at a time; each job keeps its own
+temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
+Jobs named in `tests/longest-first` start first, in that order, so the longest
+job does not start last; the rest follow. `OPEN_DOUGH_TEST_TIMES=<file>`
+writes every job's wall seconds and name, longest first, which is how that
+list is refreshed (see its header).
+
+A passing job must write nothing, so a passing suite prints nothing. For each
+failing job the runner prints `FAIL: <job>` and that job's captured output. A
+job that exits 0 but wrote anything to stdout or stderr also fails the run,
+reported as `FAIL: <job> (passed but printed output)` with that output.
+Silence such output at its source (for example `grep -q`, or a quiet flag or
+setting on the noisy command) rather than filtering it. `OPEN_DOUGH_TEST_DIR`
+names another directory of checks, with its own optional `node-test-files` and
+`longest-first`, to run instead of the suite's own, which is how
+`tests/test-runner-failure-report.sh` runs substitute checks. To run one node
+suite directly, pass its files to `node --test`, optionally with that
+reporter.
+
+Tests wait for an observable event, never for elapsed wall time. Shell checks
+use `wait_for` or `poll_until` from `tests/helpers/wait-for.bash`; a missed
+event fails naming what it awaited. A wait for a signal from a started process
+lasts while that process lives and fails, naming its exit, if it ends first
+(`src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
+File timestamps that must differ are set explicitly, and the dashboard's timed
+journeys step a paused page clock. CI's Git has no global or system
+configuration, so a local run can hide output CI would fail on (such as Git's
+default-branch hint); check with
+`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm test`.
 
 ## Native ADR-awareness check wrappers
 

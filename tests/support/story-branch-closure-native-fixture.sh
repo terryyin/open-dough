@@ -4,6 +4,13 @@
 # integration, waiting, shutdown, and cleanup ordering.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
+
+# Per-step controller bound; each step awaits one action of the native agent.
+story_closure_wait_limit=420
+
 story_closure_git() {
   local cwd=$1
   shift
@@ -19,7 +26,6 @@ story_closure_write_node() {
     '#!/usr/bin/env bash' \
     'set -euo pipefail' \
     'printf "%s\n" "$*" >> "${STORY_CLOSURE_NODE_LOG}"' \
-    'if [[ " $* " == *" complete-revision "* ]]; then sleep 1; fi' \
     "exec ${real_node_q} \"\$@\"" > "${destination}"
   chmod +x "${destination}"
 }
@@ -42,17 +48,6 @@ story_closure_write_gh() {
     '  jq -n --arg base "${STORY_CLOSURE_TRUNK_SHA}" '\''[{databaseId:21,attempt:1,headSha:$base,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/trunk-base",createdAt:"2026-09-22T00:02:00Z"}]'\''' \
     'fi' > "${destination}"
   chmod +x "${destination}"
-}
-
-story_closure_wait_for() {
-  local description=$1 command=$2 deadline=$((SECONDS + 420))
-  until eval "${command}"; do
-    if ((SECONDS >= deadline)); then
-      printf 'error: timed out waiting for %s\n' "${description}" >&2
-      return 1
-    fi
-    sleep 0.05
-  done
 }
 
 story_closure_create_fixture() {
@@ -159,7 +154,7 @@ story_closure_create_fixture() {
   (cd "${story_closure_workspace}" && node "${story_closure_launcher}" \
     register-push "${story_closure_branch_mailbox}" "${story_closure_branch_sha}") \
     > /dev/null
-  story_closure_wait_for branch-coverage \
+  wait_for branch-coverage "${story_closure_wait_limit}" \
     "grep -q '\"state\":\"success\"' '${story_closure_branch_mailbox}/coverage/${story_closure_branch_sha}.json'"
 
   mkdir -p "${story_closure_workspace}/.planning"

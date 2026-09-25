@@ -16,7 +16,7 @@ for platform in codex; do
   target="${temporary_dir}/${platform} target"
   mkdir -p -- "${target}"
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
-    --platform "${platform}"
+    --platform "${platform}" > /dev/null
 
   destination=$(destination_for "${target}" "${platform}")
   skill_root=$(dirname -- "${destination}")
@@ -51,7 +51,7 @@ for platform in codex; do
   target="${temporary_dir}/${platform} record-fail target"
   mkdir -p -- "${target}"
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
-    --platform "${platform}"
+    --platform "${platform}" > /dev/null
 
   destination=$(destination_for "${target}" "${platform}")
   version_record="${destination}/VERSION"
@@ -106,5 +106,3 @@ for platform in codex; do
   version_contents=$(cat "${version_record}")
   [[ "${version_contents}" == 'unwritable-version' ]]
 done
-
-echo 'PASS: Codex, Cursor, and Claude report a real mid-copy replacement failure and real record-write failures without certifying or advancing SOURCE/VERSION.'

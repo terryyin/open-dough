@@ -10,8 +10,8 @@ import {
   launcher,
 } from "./ci-cursor-lifecycle-test-fixtures.mjs";
 import {
+  awaitWorkerSignal,
   blockingGithubEnvironment,
-  waitForFile,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 
@@ -25,7 +25,7 @@ test("Cursor reports its detached observer lost when the worker dies, and a repe
     { cwd: checkout, env },
   );
   const directory = JSON.parse(stdout.slice(receiptPrefix.length)).directory;
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(directory, join(root, "github-request-started"));
 
   const attachment = await configuredHook(
     "postToolUse",

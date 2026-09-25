@@ -10,7 +10,6 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { setTimeout as delay } from "node:timers/promises";
 import {
   added,
   addArguments,
@@ -22,6 +21,7 @@ import {
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
+import { runBlockedOnLock } from "./product-backlog-lock-fixture.mjs";
 
 test("write safety: concurrent cooperating runs keep every update", async (t) => {
   const project = scratchProject(t);
@@ -75,17 +75,19 @@ test("write safety: a waiting run applies to the newest file content", async (t)
   addedHome(project);
   mkdirSync(`${project.file}.lock`);
 
-  const waiting = run(project, addArguments(added, ["--position", "last"]), {
-    DOUGH_BACKLOG_LOCK_TIMEOUT_MS: "20000",
-  });
-  await delay(400);
+  const waiting = runBlockedOnLock(
+    project,
+    addArguments(added, ["--position", "last"]),
+    { DOUGH_BACKLOG_LOCK_TIMEOUT_MS: "20000" },
+  );
+  await waiting.blocked;
   const newerLine =
     "- [Written while the lock was held](seeds/SEED-006-newer.md#newer) — SEED-006#newer";
   const newer = `${backlog}${newerLine}\n`;
   writeFileSync(project.file, newer, "utf8");
   rmSync(`${project.file}.lock`, { recursive: true });
 
-  const result = await waiting;
+  const result = await waiting.completed;
   assert.equal(result.code, 0, result.stderr);
   assert.equal(project.read(), `${newer}${addedLine}\n`);
 });

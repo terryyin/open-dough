@@ -59,7 +59,7 @@ EOF
   [[ "${pin_commit}" == "${commit}" ]]
   [[ "${pin_version}" == 0.1.10 ]]
   bash "${clone_dir}/install.sh" --target "${platform_target}" --source "${fixture}" \
-    --platform "${platform}"
+    --platform "${platform}" > /dev/null
   dest=$(bash "${helper}" destination "${platform_target}" "${platform}")
   assert_payload "${dest}" 0.1.10 payload-0.1.10
   recorded_source=$(cat "${dest}/SOURCE")
@@ -74,7 +74,7 @@ done
 relative_target="${temporary_dir}/relative source project"
 prepare_target "${relative_target}"
 bash "${temporary_dir}/cursor clone/install.sh" --target "${relative_target}" \
-  --source fixture.git --platform cursor
+  --source fixture.git --platform cursor > /dev/null
 relative_dest=$(bash "${helper}" destination "${relative_target}" cursor)
 assert_payload "${relative_dest}" 0.1.10 payload-0.1.10
 recorded_source=$(cat "${relative_dest}/SOURCE")
@@ -141,5 +141,3 @@ fi
 [[ "${output}" != *'installed 0.1.2'* ]]
 [[ ! -e "${target}/.agents/skills/dough-update" ]]
 assert_sentinels "${target}"
-
-echo "PASS: numeric latest from the supplied URL is pinned, fetched, and installed; fetch/tag/metadata failures leave the target untouched."

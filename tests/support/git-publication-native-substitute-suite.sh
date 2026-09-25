@@ -105,7 +105,4 @@ run_substitute_host_journeys() {
       exit 1
     fi
   done
-
-  echo 'PASS: credential-free publication runner exercises complete streams on Codex, Cursor, and Claude Code substitutes; rejects truncated streams, missing remote acceptance, and a nonzero host exit after a complete stream; and covers local-only, claim-race, uncertain-recovery, preparation, first Story Branch increment, trunk-closure, story-branch-closure, and bug-disposition journeys.'
-  echo 'EVIDENCE: mechanical Git observations plus substitute adapter streams; not live native agent behavior. Live host proof remains under --native.'
 }

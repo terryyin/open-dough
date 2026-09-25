@@ -79,13 +79,22 @@ test("foreground mailbox stream delivers successive real-observer records before
   const parser = createObserverStreamParser();
   const directories = [];
   const events = [];
-  child.stdout.on("data", (chunk) => {
-    const parsed = parser.push(chunk.toString());
-    directories.push(...parsed.directories);
-    events.push(...parsed.events);
+  // The fixture's file and its stdout are separate channels: the file can be
+  // seen before the pipe delivers the record written ahead of it.
+  const firstEvent = new Promise((resolve, reject) => {
+    child.once("exit", (code) =>
+      reject(new Error(`fixture exited ${code} before its first record`)),
+    );
+    child.stdout.on("data", (chunk) => {
+      const parsed = parser.push(chunk.toString());
+      directories.push(...parsed.directories);
+      events.push(...parsed.events);
+      if (events.length) resolve();
+    });
   });
 
   await waitForFile(join(state, "first-failure-recorded"));
+  await firstEvent;
   assert.equal(events.length, 1);
   assert.match(events[0].failedJobs[0].name, /backend failure/);
   assert.equal(child.exitCode, null);

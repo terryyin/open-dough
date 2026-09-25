@@ -73,8 +73,6 @@ source_before=$(snapshot_path_state "${candidate}")
 if [[ $# == 0 ]]; then
   [[ ${before} == "$(snapshot_path_state "${target}")" ]]
   [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
-  echo 'PASS: direct installed-use fixture has repaired callers, retained context and protected files, no obsolete original, and the exact tagged payload.'
-  echo 'PENDING: native Codex installed-guidance use; run --native explicit and --native automatic.'
   exit 0
 fi
 

@@ -19,9 +19,39 @@ export const launcher = fileURLToPath(
 const hook = fileURLToPath(new URL("./ci-host-hook.mjs", import.meta.url));
 export const sha = "a".repeat(40);
 
+// Preload source that runs `announce` at each pause before the product
+// rechecks CI (its pauses go through node:timers/promises), so a test can wait
+// for a finished observation pass instead of sleeping.
+export function recheckPauseProbe(announce, imports = "") {
+  return `
+    import timers from "node:timers/promises";
+    import { syncBuiltinESMExports } from "node:module";
+    ${imports}
+    const pause = timers.setTimeout;
+    timers.setTimeout = (...args) => {
+      ${announce};
+      return pause(...args);
+    };
+    syncBuiltinESMExports();
+  `;
+}
+
+// Preloaded into every process of the fixture; only the detached worker marks
+// its recheck pauses.
+const workerRecheckProbe = `data:text/javascript,${encodeURIComponent(
+  recheckPauseProbe(
+    `if (process.argv[2] === "worker") {
+      writeFileSync(join(process.env.CI_TEST_ROOT, "worker-rechecking"), "");
+    }`,
+    `import { writeFileSync } from "node:fs";
+    import { join } from "node:path";`,
+  ),
+)}`;
+
 export async function setupProcessMailbox(
   t,
   startArguments = ["--execution", "owner/repo", "main", "60000"],
+  { observeWorkerRechecks = false } = {},
 ) {
   const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
   const bin = join(directory, "bin");
@@ -58,6 +88,16 @@ if (process.argv[3] === 'list') {
     TMPDIR: directory,
     CI_TEST_ROOT: directory,
     PATH: `${bin}:${process.env.PATH}`,
+    ...(observeWorkerRechecks
+      ? {
+          NODE_OPTIONS: [
+            process.env.NODE_OPTIONS,
+            `--import=${workerRecheckProbe}`,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        }
+      : {}),
   };
   const { stdout } = await exec(
     process.execPath,

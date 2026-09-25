@@ -759,6 +759,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: nothing went unobserved, but three extra commands
     reading source were needed to find the field.
 
+- Execution: `SEED-037#quiet-stable-four-times-faster-tests` / plan 096, first related implementation commit `0fdf13c`
+  - Timestamp: unknown (first increment delivery, after commit `0fdf13c` at 2026-09-25T12:43:01+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.39
+  - Evidence: `0fdf13c` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` and attached `watch-rHq4vU`.
+  - Observed effect: a sixth occurrence; slice 1's CI was checked by hand with `gh run list`.
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -964,8 +972,22 @@ default checkout's staged files; the coordinator needed only results and SHAs.
   - Observed effect: one extra command stripped the index fields to read the
     receipt; a fourth startup occurrence.
 
+## DD-100 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
+
+The plan required load below 4 before each baseline run; other work kept it at 50–180, and the only resolution was the developer's instruction to measure relatively (paired start-revision and candidate runs under the same load).
+
+### Occurrences
+
+- Execution: `SEED-037#quiet-stable-four-times-faster-tests` / plan 096, first related implementation commit `0fdf13c`
+  - Timestamp: unknown (wait began after claim `bad3717` at 2026-09-25T11:35:32+08:00 and lasted about 40 minutes)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.39
+  - Evidence: plan 096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
+  - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
+
 ## Retention
 
-- Highest allocated local number: 99
+- Highest allocated local number: 100
 - Recovery: `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

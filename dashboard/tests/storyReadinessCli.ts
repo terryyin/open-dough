@@ -108,7 +108,11 @@ export function recordAssessed(
 }
 
 export function commitAll(directory: string, message: string): string {
-  execFileSync("git", ["-C", directory, "init"], { encoding: "utf8" });
+  execFileSync(
+    "git",
+    ["-C", directory, "init", "--quiet", "--initial-branch=main"],
+    { encoding: "utf8" },
+  );
   return commitChanges(directory, message);
 }
 
