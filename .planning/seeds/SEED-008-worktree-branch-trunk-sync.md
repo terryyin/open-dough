@@ -219,7 +219,7 @@ Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure
 observer cycle. No raw transcript established the repeated-setup cause. The
 full investigation is retained in Git at `1352844` and linked findings
-[ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results).
+[ODF-069](../../docs/maintainer/finding-names.md#odf-069).
 Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
@@ -252,14 +252,14 @@ These are evaluable queued stories, not refined stories or execution plans.
 
 **Identity:** SEED-008#restore-ci-verdict-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this maintenance run authorizes queueing only."],"basis":{"document":"6f740d3f8d44e518dbd818939c87a19f250b289d4f9caef32e9e6dc29dd380e1"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Priority reviewed; story refinement and execution approach selection remain."],"basis":{"document":"580e411737f39b5a8e42b0ee639bb1bef21c0815805e1a12e41b49b7d32e3181"}}
 ```
 
 - **For / why:** Developers and coordinators must learn that a published revision failed while execution can still respond, rather than build later slices on a silently red branch.
 - **Bounded scope:** Diagnose the supplied undiscovered-run and missing-failure reports at their actual acquisition, registration, and host-delivery boundaries, then correct the demonstrated mechanism through the existing observer. Preserve exact-revision ownership, truthful lost-coverage reporting, and the existing asynchronous delivery contract. Do not assume wider listing limits or another observer is the answer.
-- **Evaluation:** Reproduce a reported registered revision whose actual CI run completed but whose observer stayed undiscovered; observe its real terminal verdict reaching the owning coordinator. Include a failed story-branch revision and a later repair revision, and show that a discovery advisory or network loss cannot masquerade as successful coverage. A controlled observation must exercise the diagnosed boundary; a passing unrelated suite or an attached receipt alone is insufficient.
-- **Supporting findings:** [ODF-069](../../docs/maintainer/finding-names.md#odf-069--ci-discovery-gaps-obscure-later-terminal-results), [ODF-112](../../docs/maintainer/finding-names.md#odf-112--attached-story-branch-observation-misses-failed-revisions). Execution evidence remains in the catalog.
-- **Priority rationale:** Highest priority: six newly retained ODF-069 executions plus the distinct ODF-112 execution show the outcome still failing after the v0.3.28 partial response and v0.3.33 managed delivery. Reports span v0.3.33, v0.3.37 and v0.3.38; plan 029 continued on a red branch for about an hour. Cause remains unverified; this story diagnoses before selecting a repair.
+- **Evaluation:** Reproduce a reported registered revision whose actual CI run completed but whose observer stayed undiscovered; observe its real terminal verdict reaching the owning coordinator. Use the Doughnut reported workflow, branch and revision as the first concrete case, including its configured workflow name and the observer's actual environment. Observe a failed revision and its repair; distinguish an explicit coverage gap from a verdict. A controlled observation must exercise the diagnosed boundary; a passing unrelated suite or an attached receipt alone is insufficient.
+- **Supporting findings:** [ODF-069](../../docs/maintainer/finding-names.md#odf-069), [ODF-112](../../docs/maintainer/finding-names.md#odf-112). Execution evidence remains in the catalog.
+- **Priority rationale:** First among queued work: silent missed failures undermine safe parallel delivery, with actual downstream work on a red branch. Six recent ODF-069 executions plus plan 029 in ODF-112 are seven distinct Doughnut executions, not seven separate root causes. Reports span 0.3.33, 0.3.37 and 0.3.38 after earlier partial responses. Diagnose one concrete report before promising a broad observer repair. Current source filters workflow display name to `CI` by default while Doughnut uses `donut CI`; missing execution-environment evidence prevents calling this the cause. If configuration explains the report, correct that setup/validation boundary instead of expanding observer machinery.
 - **Completion:** Record the actual response, implementation commit, and first containing release on every addressed supporting finding in `docs/maintainer/finding-names.md`; record remaining uncertainty instead of declaring resolution from publication alone.
 - **Depends on:** Existing managed delivery and observer operations, already shipped; no unfinished backlog prerequisite. The two selected stories can be evaluated independently.
 - **Safe stopping point:** The bounded outcome is proved with truthful remaining coverage limits; unrelated CI, host, publication and planning work remains outside scope.
@@ -270,14 +270,31 @@ These are evaluable queued stories, not refined stories or execution plans.
 
 **Identity:** SEED-008#attach-first-claude-publication
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Story refinement and execution approach selection remain; this maintenance run authorizes queueing only."],"basis":{"document":"6f740d3f8d44e518dbd818939c87a19f250b289d4f9caef32e9e6dc29dd380e1"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Priority reviewed; story refinement and execution approach selection remain."],"basis":{"document":"580e411737f39b5a8e42b0ee639bb1bef21c0815805e1a12e41b49b7d32e3181"}}
 ```
 
 - **For / why:** A developer using a fresh Claude Code coordinator gets CI observation from the first authorized managed increment without script archaeology or manual mailbox setup.
-- **Bounded scope:** Make the existing managed-delivery path obtain or explicitly receive the supported session identity at its taught invocation, attach the first accepted revision to its owner, and reuse that observer. Keep genuine bridge unavailability explicit. Address the recorded retry/hidden-observer recovery within this same first-attachment journey; do not replace the observer lifecycle or duplicate the separate verdict-discovery story.
-- **Evaluation:** From a fresh supported Claude Code session and owned execution worktree, follow the published invocation and observe first-publication attachment plus a real event reaching that session. A second increment reuses the observer; missing supported context reports an actionable gap; retry after an accepted or refused publication preserves truthful publication and observer ownership without duplicate push or hidden observer.
-- **Supporting findings:** [ODF-092](../../docs/maintainer/finding-names.md#odf-092--claude-code-managed-delivery-omits-the-session-identity-needed-for-first-attachment), [ODF-073](../../docs/maintainer/finding-names.md#odf-073--ci-observation-starts-after-the-first-publication). Execution evidence remains in the catalog.
-- **Priority rationale:** Second priority: ODF-092 retains twenty failing executions across all three projects, including the specifically moved ODF-073 plan 183 occurrence. Count each execution once; Pygardon plan 185 is successful workaround evidence. The gap repeatedly delays first-push coverage, but many coordinators recover it promptly, so actual missed failures rank above it.
+- **Bounded scope:** Make the existing managed-delivery path obtain or explicitly receive the supported session identity at its taught invocation, attach the first accepted revision to its owner, and reuse that observer. Keep genuine bridge unavailability explicit. Do not expand this story into accepted-publication replay or hidden-observer cleanup without evidence that first attachment requires it; those are separate from the repeated missing-input mechanism.
+- **Evaluation:** From a fresh supported Claude Code session and owned execution worktree, follow the published invocation and observe first-publication attachment plus a real event reaching that session. A second increment reuses the observer; missing supported context reports an actionable gap; publication ownership and existing replay behavior remain intact.
+- **Supporting findings:** [ODF-092](../../docs/maintainer/finding-names.md#odf-092). Execution evidence remains in the catalog.
+- **Priority rationale:** Second among queued work: twenty failing executions across three projects show a reproducible missing-input boundary, with later attachment after supplying the identity. Many recover promptly and no missed failure is specifically attributed to that initial gap, so its urgency is below silent failed-run loss. It still outranks receipt-size cleanup and new dashboard visibility because it repeatedly impairs an existing safety mechanism and has a narrower, better-supported remedy. Exclude successful Pygardon plan 185 from the failure count; the moved plan 183 occurrence is counted once.
 - **Completion:** Record the actual response, implementation commit, and first containing release on every addressed supporting finding in `docs/maintainer/finding-names.md`; record remaining uncertainty instead of declaring resolution from publication alone.
 - **Depends on:** Existing managed delivery and observer operations, already shipped; no unfinished backlog prerequisite. The two selected stories can be evaluated independently.
 - **Safe stopping point:** The bounded outcome is proved with truthful remaining coverage limits; unrelated CI, host, publication and planning work remains outside scope.
+
+## Priority challenge (2026-09-25)
+
+Keep these two stories first and second among queued work, without interrupting
+SEED-037's Taken test-speed/stability work. They restore an existing promise
+needed for parallel delivery; dashboard preparation visibility adds value but
+has no comparably evidenced escaped failure in these records.
+
+The strongest alternatives are ODF-093/105 (two distinct stash-ownership
+incidents, serious potential harm but recovered without reported permanent
+loss), ODF-099 (13 oversized receipts, frequent yet mostly an extra read), and
+ODF-074/110/114 (planning-premise failures with costly stops but different
+mechanisms and less confidence in one bounded general remedy). None is erased
+or declared harmless. Another ownership incident or evidence that a CI report
+was already corrected would justify re-ranking. High frequency alone is not
+the priority rule, and the two CI stories do not count overlapping executions
+as independent harm.
