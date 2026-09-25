@@ -252,7 +252,7 @@ These stories remain queued. Each story records its own preparation state.
 
 **Identity:** SEED-008#attach-first-claude-publication
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/098-first-claude-ci-attachment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f3c7d28c0bcb820d8ff0e99f148a28b63ee4e8f08107c1693f06733072d8283","plan":"6163bf8a332e10b988654b9d2eea5bceb6df11536e38a810b77f72890a70e982"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/098-first-claude-ci-attachment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"42c05da5375b605991a35a5c2eb1c6ec4078d30e9c36a80af610b18059cca081","plan":"6163bf8a332e10b988654b9d2eea5bceb6df11536e38a810b77f72890a70e982"}}
 ```
 
 - **Goal:** A fresh Claude Code coordinator following the published managed-delivery invocation observes its first accepted implementation increment without source-code searches or manual observer setup. Its CI event reaches that coordinator at the next supported interaction.
