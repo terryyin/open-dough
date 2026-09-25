@@ -759,3 +759,28 @@ The deferred promises have no slice.
   has `timeout: 10000` and was killed at 10 s. It never appeared at load up
   to about 166. Slice 9's default runs decide whether it needs its own slice.
 
+
+## Execution complete
+
+Product advice:
+- Keep SEED-037 story 2 ("Bring the complete local suite to a quarter of its
+  original time") first, as the developer placed it. When refining it,
+  include the confirmed product side of the 30 s CI-observer poll:
+  `register-push` does not wake the worker, so a revision whose CI already
+  finished waits up to 30 s; an immediate re-check after registration helps
+  users as well as `execution-payload-update.sh`.
+- Execute correction plan
+  [099](../099-finish-story-event-synchronization/PLAN.md) to finish story 1's
+  event-synchronization promise (four 75 ms pending waits, the dashboard's
+  500 ms negative pause, the worker-loss `stop` timeout) and give native
+  evidence identities one list of supervision inputs.
+- Feed this execution's learning into SEED-004#continue-test-optimization-plans:
+  measure relatively (paired start-revision and candidate runs) on a shared
+  machine, and trust a measured cost share over usage counts when planning
+  experiments; the decisive checkpoint saved three low-value experiments.
+- Consider a small backlog correction: the backlog merge adapter
+  (`product-backlog-git-repository.mjs`) passes git's own messages to its
+  caller's stderr.
+- Developer decisions still open: a bound or diagnostic for a hung runner job
+  (the suite waits for every job with no deadline), and whether npm's two
+  banner lines count as output on a passing run.
