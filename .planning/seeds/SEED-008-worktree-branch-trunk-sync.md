@@ -246,27 +246,6 @@ Git migration.
 
 These stories remain queued. Each story records its own preparation state.
 
-<a id="restore-ci-verdict-delivery"></a>
-
-### Deliver real CI verdicts for registered execution revisions
-
-**Identity:** SEED-008#restore-ci-verdict-delivery
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/097-ci-verdict-delivery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a9ae0d0238526d7802887f843ade3b9077da71b79a794747b9f35d5792adcc88","plan":"d73ccb558a1f1c335cddfb5318ac7ac819ecc3f2abd33e3554252bd51f279ae8"}}
-```
-
-- **Goal:** An already attached execution observer delivers a registered revision's failed CI verdict to its owning coordinator while execution can still respond, then records the repair revision's success. Delivery uses the next supported coordinator interaction; it does not promise an immediate interrupt or make each slice wait for CI.
-- **Scope:** Start with Doughnut plan 029's undiscovered revisions and correct the demonstrated workflow-selection/setup boundary through the existing acquisition, revision coverage and host-delivery path. Preserve exact repository, branch, revision and coordinator ownership. The current default display-name filter drops `donut CI` even when `ci.yml` is selected. Verify configuration before attributing the historical incident; the retained mailbox does not contain its environment. Prefer a coherent selection/setup correction over broader observer machinery.
-- **Key examples:** (1) With an observer already attached, the selected workflow has a non-default display name: a registered revision's late-discovered failed run reaches only its owner with its run and revision identity. (2) A later registered repair succeeds: its success is recorded and delivered through existing semantics without erasing the earlier failure. (3) Acquisition becomes unavailable: the owner receives a truthful coverage-gap event, never an invented pass or an indefinitely healthy observation claim. An unrelated revision or workflow cannot satisfy these examples.
-- **Excluded:** First-session Claude attachment, publication replay, automatic CI reruns, dashboard work, new adapters, general observer redesign and per-slice CI gates. Historical root-cause certainty is not promised when the original environment cannot be recovered. If a supported configuration already prevents the reproduced loss, correct the taught setup/validation boundary; if diagnosis requires a different independent mechanism, revise scope before implementing it.
-- **Evaluation:** Exercise the actual selected-workflow acquisition → registered-revision coverage → owning-coordinator hook path with controlled GitHub responses, covering failure then repair and honest coverage loss. Do not inject a terminal mailbox event as a substitute for acquisition proof. Separate this reproducible product evidence from any available native observation and from the unresolved historical attribution.
-- **Plan:** [097 — CI verdict delivery](../quick/097-ci-verdict-delivery/PLAN.md).
-- **Supporting findings:** [ODF-069](../../docs/maintainer/finding-names.md#odf-069), [ODF-112](../../docs/maintainer/finding-names.md#odf-112). Execution evidence remains in the catalog.
-- **Priority rationale:** First among queued work: silent missed failures undermine safe parallel delivery, with actual downstream work on a red branch. Six recent ODF-069 executions plus plan 029 in ODF-112 are seven distinct Doughnut executions, not seven separate root causes. Reports span 0.3.33, 0.3.37 and 0.3.38 after earlier partial responses. Diagnose one concrete report before promising a broad observer repair. Current source filters workflow display name to `CI` by default while Doughnut uses `donut CI`; missing execution-environment evidence prevents calling this the cause. If configuration explains the report, correct that setup/validation boundary instead of expanding observer machinery.
-- **Completion:** Record the actual response, implementation commit, and first containing release on every addressed supporting finding in `docs/maintainer/finding-names.md`; record remaining uncertainty instead of declaring resolution from publication alone.
-- **Depends on:** Existing managed delivery and observer operations, already shipped; no unfinished backlog prerequisite. The two selected stories can be evaluated independently.
-- **Safe stopping point:** The bounded outcome is proved with truthful remaining coverage limits; unrelated CI, host, publication and planning work remains outside scope.
-
 <a id="attach-first-claude-publication"></a>
 
 ### Attach CI observation to the first Claude Code publication
