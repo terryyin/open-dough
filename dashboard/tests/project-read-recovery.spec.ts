@@ -20,7 +20,6 @@ import {
   publishMovingOrigin,
   type OriginAnswer,
 } from "./publishedOrigin.ts";
-import { startDashboardServer } from "./support/dashboardServer.ts";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 const pygardonRepository = "terryyin/pygardon";
@@ -168,18 +167,13 @@ test.describe("project read recovery", () => {
     });
   });
 
-  test("the bounded stalled-read timeout resolves into the same ordinary recoverable failure as any other cause, and Retry after restored access succeeds", async ({
-    page,
-    github,
-  }) => {
-    // Its own server, for a read bound short enough to wait out here, yet
-    // long enough that the ordinary Open Dough read finishes under load.
-    const server = await startDashboardServer({
-      mode: "dev",
-      github,
-      readTimeoutMs: 2_000,
-    });
-    try {
+  test.describe("with a read bound short enough to wait out here", () => {
+    // Yet long enough that the ordinary Open Dough read finishes under load.
+    test.use({ readTimeoutMs: 2_000 });
+
+    test("the bounded stalled-read timeout resolves into the same ordinary recoverable failure as any other cause, and Retry after restored access succeeds", async ({
+      page,
+    }) => {
       await publishOpenDough(page);
       const pygardonOrigin = await publishMovingOrigin(
         page,
@@ -187,7 +181,7 @@ test.describe("project read recovery", () => {
       );
       const releaseRef = pygardonOrigin.hold("main");
 
-      await page.goto(server.baseURL);
+      await page.goto("/");
       const { project, problem, retry } = parts(page);
       await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
@@ -211,8 +205,6 @@ test.describe("project read recovery", () => {
         backlog: [pygardonQueuedTitle],
       });
       await expect(problem).toHaveCount(0);
-    } finally {
-      await server.close();
-    }
+    });
   });
 });

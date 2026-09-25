@@ -8,7 +8,7 @@
 // shared readers, and the page decide everything shown.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import { publishFiles } from "./publishedOrigin.ts";
@@ -32,12 +32,6 @@ import {
 
 const noProfileLabel = "no agent profile records the Take";
 
-// Page time stands still at `opened` until a journey lets it pass.
-async function pauseAtOpening(page: Page) {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
-}
-
 // Opens the dashboard once every Taken card's clock has been read.
 async function openedTaken(page: Page) {
   await page.goto("/");
@@ -59,7 +53,7 @@ async function expectBarStays(card: Locator) {
 test("each Taken card's clock measures from the later of its last plan commit and its Take, ticking with page time", async ({
   page,
 }) => {
-  await pauseAtOpening(page);
+  await pausePageClockAt(page, opened);
   const requests = await publishFiles(page, {
     repository,
     revision,
@@ -100,20 +94,27 @@ test("each Taken card's clock measures from the later of its last plan commit an
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("each commit time was asked once, for the plan and the single profile at the revision", () => {
-    const asked = requests.flatMap(({ request }) =>
-      request.kind === "commit-list"
-        ? [`${request.path}@${request.revision}`]
-        : [],
-    );
-    expect(asked.sort()).toEqual(
-      [
-        ...stories.map(({ anchor }) => planPath(anchor)),
-        ...["Akiho", "Yuma", "Sola"].map(profilePath),
-      ]
-        .map((path) => `${path}@${revision}`)
-        .sort(),
-    );
+  // A failed plan commit shows its card's gap without waiting for that card's
+  // Take time, whose ask may still be on its way.
+  await test.step("each commit time was asked once, for the plan and the single profile at the revision", async () => {
+    const asked = () =>
+      requests
+        .flatMap(({ request }) =>
+          request.kind === "commit-list"
+            ? [`${request.path}@${request.revision}`]
+            : [],
+        )
+        .sort();
+    await expect
+      .poll(asked)
+      .toEqual(
+        [
+          ...stories.map(({ anchor }) => planPath(anchor)),
+          ...["Akiho", "Yuma", "Sola"].map(profilePath),
+        ]
+          .map((path) => `${path}@${revision}`)
+          .sort(),
+      );
   });
 
   await test.step("60 s more of page time shows 13 min, asking GitHub nothing but revision checks", async () => {
@@ -145,7 +146,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
 test("when agent profiles cannot be read, the clock is a gap rather than a plan-only clock", async ({
   page,
 }) => {
-  await pauseAtOpening(page);
+  await pausePageClockAt(page, opened);
   // The same records, but the profile directory cannot be listed.
   const published = publishes({ revision, files, committed });
   githubFor(page).serve(repository, (call) =>

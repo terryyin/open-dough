@@ -27,7 +27,8 @@
   font-size: 0.95rem;
 }
 
-.story-purpose {
+.story-purpose,
+.product-advice {
   white-space: pre-wrap;
 }
 

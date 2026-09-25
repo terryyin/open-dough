@@ -1,7 +1,8 @@
 // Accessible detail for one selected work entry: purpose, assessment, recorded
-// slice completion and evidence, and pinned source links. Taken membership,
-// readiness, recorded completion, and story closure stay distinct. Prospective
-// Proof is never described as a passed result.
+// slice completion and evidence, the plan's recorded execution completion and
+// product advice, and pinned source links. Taken membership, readiness,
+// recorded completion, and story closure stay distinct. Prospective Proof is
+// never described as a passed result.
 
 import type { WorkEntry } from "./publishedWork.ts";
 import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
@@ -161,6 +162,35 @@ function PlanSlicesBlock({
   );
 }
 
+// The plan's execution-complete record: its advice as recorded, as plain
+// text, or the record's gap. Nothing without a record.
+function ExecutionCompleteBlock({
+  planSlices,
+}: {
+  planSlices: WorkPlanSlices | undefined;
+}) {
+  const completion =
+    planSlices !== undefined && "completion" in planSlices
+      ? planSlices.completion
+      : undefined;
+  if (completion === undefined) {
+    return null;
+  }
+  return (
+    <div>
+      <h4>Execution complete</h4>
+      {"problem" in completion ? (
+        <p className="preparation-problem">{completion.problem}</p>
+      ) : (
+        <>
+          <p>Product advice:</p>
+          <p className="product-advice">{completion.advice}</p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function StoryDetail({
   entry,
   detailId,
@@ -179,6 +209,7 @@ export function StoryDetail({
       <div>
         <ProgressSourceLabel progressSource={entry.progressSource} />
         <PlanSlicesBlock planSlices={entry.planSlices} />
+        <ExecutionCompleteBlock planSlices={entry.planSlices} />
       </div>
       <div>
         <h4>Pinned source links</h4>

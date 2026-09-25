@@ -3,7 +3,7 @@
 // ./auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
-import { githubFor } from "./dashboardTest.ts";
+import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";
 import { isHeadsCheck } from "./originObservation.ts";
@@ -49,8 +49,7 @@ export function contentReads(calls: readonly GhCall[]): string[] {
 // Opens the page at A with its clock paused, and waits until the whole
 // snapshot, detail included, has been read.
 export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
-  await page.clock.install({ time: opened });
-  await page.clock.pauseAt(opened);
+  await pausePageClockAt(page, opened);
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, backlogA, recordsAt("A"));
   await page.goto("/");

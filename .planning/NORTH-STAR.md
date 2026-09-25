@@ -65,8 +65,8 @@ Use ordinary functions and components; these responsibilities do not require
 services, repositories, plugin interfaces, or separate packages. The browser
 must not import filesystem/store/merge orchestration. A snapshot describes
 published membership; loading and refresh failure describe observation, not
-new story lifecycle states. This direction supports
-[SEED-021's first view and subsequent project/readiness work](seeds/SEED-021-observe-published-story-progress.md),
+new story lifecycle states. This direction supports the
+[story dashboard](../dashboard/README.md) and its later project and readiness work,
 following [ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md) and
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
 Keep later assignment, feature, structure, and local-lock models out until their

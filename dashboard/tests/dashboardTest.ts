@@ -26,6 +26,15 @@ export { expect };
 
 const githubServing = new WeakMap<BrowserContext, FakeGitHub>();
 
+// Page time stands still at `at` until a journey lets it pass. The clock is
+// installed an hour earlier because it runs until paused, and Playwright
+// refuses to pause it in the past; no page is open yet, so that hour fires
+// nothing.
+export async function pausePageClockAt(page: Page, at: Date): Promise<void> {
+  await page.clock.install({ time: new Date(at.getTime() - 60 * 60_000) });
+  await page.clock.pauseAt(at);
+}
+
 // The fake GitHub answering the `gh` behind this page's dashboard.
 export function githubFor(page: Page): FakeGitHub {
   const github = githubServing.get(page.context());
@@ -36,9 +45,14 @@ export function githubFor(page: Page): FakeGitHub {
 }
 
 export const test = base.extend<{
+  // How long this page's dashboard waits on its `gh` before reporting a
+  // stalled read; the server's own bound when unset. A journey that waits
+  // the bound out sets a short one with `test.use`.
+  readTimeoutMs: number | undefined;
   github: FakeGitHub;
   dashboard: DashboardServer;
 }>({
+  readTimeoutMs: [undefined, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -46,11 +60,12 @@ export const test = base.extend<{
     await use(github);
     await github.close();
   },
-  dashboard: async ({ github }, use) => {
+  dashboard: async ({ github, readTimeoutMs }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
       github,
+      readTimeoutMs,
     });
     await use(server);
     await server.close();

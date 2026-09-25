@@ -86,5 +86,5 @@ change the current lifecycle, or authorize implementation.
 
 - Maintainer request on 2026-09-23 to capture preparation states as a longer-term goal.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- [Published story dashboard work](SEED-021-observe-published-story-progress.md).
+- [Story dashboard](../../dashboard/README.md).
 - [Preparation recording](../../src/skills/dough-product-backlog/references/record-preparation.md).

@@ -781,6 +781,19 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: the session ID was taken from a tool-output path after
     rereading `ci-host-bridge.mjs`; a fourth Claude Code occurrence.
 
+- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
+  - Timestamp: unknown (first increment delivery, after commit `d4dbbdb` at
+    2026-09-25T08:53:13+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: `d4dbbdb` receipt `observation.state: unobserved` ("host
+    session identity is required"); `ci-mailbox.mjs start` + `register-push`
+    attached `watch-Uwu3Ey`; the four later deliveries passed `--session-json`
+    with `$CLAUDE_CODE_SESSION_ID` and reused it.
+  - Observed effect: a fifth Claude Code occurrence; recovery again needed a
+    read of `ci-host-bridge.mjs` and an environment listing.
+
 ## DD-094 — A delegated agent's `git stash pop` applied another session's stash
 
 Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh),
@@ -941,6 +954,15 @@ default checkout's staged files; the coordinator needed only results and SHAs.
     was needed to read the receipt without the listings.
   - Inference: Qualified. A host that inlines tool output would spend roughly
     55k tokens of context on it at every startup.
+- Execution: `SEED-021#see-finished-execution` / plan 094, first related implementation commit `d4dbbdb`
+  - Timestamp: 2026-09-25T08:40:30+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.38
+  - Evidence: Take `04a034b` receipt, 227.3 KB, saved to a file by the host;
+    `beforeMaintenance.index` and `afterMaintenance.index` again held the listings.
+  - Observed effect: one extra command stripped the index fields to read the
+    receipt; recurs at every startup.
 
 ## Retention
 
