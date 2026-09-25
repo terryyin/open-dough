@@ -23,6 +23,7 @@ import {
 import {
   claimMembership,
   publishClaimSha,
+  publishStoryBranch,
 } from "./workspace-publication-push.mjs";
 import {
   backlogPath,
@@ -90,6 +91,8 @@ export async function startQueuedExecution(requestInput) {
   let checked;
   try {
     checked = await claimMembership(claimRequest);
+    if (checked.ownership === "owned" && request.retained)
+      await publishStoryBranch(claimRequest, checked.provenance.sha);
   } catch (error) {
     return stopped("unpublished", {
       workspace: selected.workspace,
@@ -210,6 +213,7 @@ export async function startQueuedExecution(requestInput) {
         error: "remote containment or claim ownership is unconfirmed",
       });
     }
+    await publishStoryBranch(claimRequest, published.publishedSha);
   } catch (error) {
     return stopped("unpublished", {
       workspace: selected.workspace,

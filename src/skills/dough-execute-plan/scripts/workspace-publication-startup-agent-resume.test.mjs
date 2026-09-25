@@ -95,3 +95,23 @@ test("an owned published claim resumes naming its agent and restores missing wor
   );
   assert.equal(await workspaceCommitAuthor(first.workspace), akiho);
 });
+
+test("a resumed Story Branch claim publishes the branch its interrupted start left unpublished", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const first = await startProcess(trunk, "b", identityA).result;
+  assert.equal(first.receipt.ok, true, JSON.stringify(first));
+  // Interrupted after trunk accepted the Take, before the branch was pushed.
+  await git(trunk.origin, "branch", "-D", "exec/b");
+  const resumed = await startProcess(
+    trunk,
+    "b",
+    identityA,
+    resumeArgs(first.receipt),
+  ).result;
+  assert.equal(resumed.receipt.status, "resumed", JSON.stringify(resumed));
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/exec/b"),
+    first.receipt.publishedSha,
+  );
+});
