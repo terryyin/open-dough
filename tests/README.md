@@ -48,6 +48,17 @@ names another directory of checks, with its own optional `node-test-files` and
 suite directly, pass its files to `node --test`, optionally with that
 reporter.
 
+Tests wait for an observable event, never for elapsed wall time. Shell checks
+use `wait_for` or `poll_until` from `tests/helpers/wait-for.bash`; a missed
+event fails naming what it awaited. A wait for a signal from a started process
+lasts while that process lives and fails, naming its exit, if it ends first
+(`src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
+File timestamps that must differ are set explicitly, and the dashboard's timed
+journeys step a paused page clock. CI's Git has no global or system
+configuration, so a local run can hide output CI would fail on (such as Git's
+default-branch hint); check with
+`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm test`.
+
 ## Native ADR-awareness check wrappers
 
 Exact flags implemented for selecting and inspecting the existing native
