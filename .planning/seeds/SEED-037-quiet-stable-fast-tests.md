@@ -32,7 +32,7 @@ re-profile the complete local scope.
 
 <a id="quiet-stable-four-times-faster-tests"></a>
 
-### 1. Make the full test suite quiet, stable, and at least four times faster
+### 1. Make the full test suite quiet, stable, and twice as fast
 
 **Identity:** SEED-037#quiet-stable-four-times-faster-tests
 ```json dough-story-state
@@ -41,6 +41,11 @@ re-profile the complete local scope.
 
 **Status:** Refined 2026-09-25; kept as one story at the top of the queue.
 Planned in [plan 096](../quick/096-quiet-stable-fast-tests/PLAN.md).
+Split during execution on 2026-09-25 by the maintainer's decision at the
+plan's decisive checkpoint: this story delivers quiet and stable results and
+the measured twofold speedup; the fourfold target moved to
+[story 2](#fourfold-local-suite). Where the goal, scope, and examples below
+say "a quarter" or "fourfold", story 2 now owns that promise.
 
 **Goal:** An Open Dough developer running the complete local suite, or reading
 CI, can treat silence as success. A passing run prints nothing, a failure
@@ -157,6 +162,52 @@ file wait starved under more parallelism.
   coverage and truthful failures. The story is complete only after comparable
   full-suite measurement proves the fourfold target and the output and
   stability requirements pass.
+
+<a id="fourfold-local-suite"></a>
+
+### 2. Bring the complete local suite to a quarter of its original time
+
+**Identity:** SEED-037#fourfold-local-suite
+
+**Status:** Not refined. Split from story 1 on 2026-09-25 at plan 096's
+decisive checkpoint, with the evidence below.
+
+**Goal:** An Open Dough developer gets complete local test feedback
+(`npm test` then `npm run test:dashboard`) in at most a quarter of the
+pre-optimization time, while keeping story 1's quiet output, stable results,
+and behavioral coverage.
+
+**Measure:** paired and relative, as story 1 settled on the maintainer's
+instruction: alternate the start revision of story 1 (`bad3717`) and the
+candidate under the same load, three runs each, and compare medians. At story
+1's end the pair was 242.6 s against 121.6 s (ratio 0.50); the target is 0.25.
+
+**Evidence for scope (plan 096 checkpoint):**
+
+- Every job alone sums to about 632 s; at 16 slots effective parallelism is
+  about 6. Reaching 0.25 needs roughly a 58% cut in total work with no single
+  job over about 15 s alone.
+- Installer and updater runs dominate the long shell checks (about 30
+  `apply`/`install.sh` runs in `story-payload-update.sh`, 24 of them a
+  Cursor-only protection matrix). Fewer runs per promise, or a faster
+  installer, is the only lever of the needed size. Coverage rules from
+  story 1 apply: a promise keeps an observable proof at its boundary.
+- `execution-payload-update.sh` waits one full 30 s CI-observer poll on the
+  `.claude/skills` path (`ci-mailbox.mjs await-revision` 30.05 s against
+  0.40 s for `.agents/skills`); decide whether it is a test wait or a product
+  delay users also hit.
+- On macOS `/usr/bin/git` is a launcher stub costing about 7.5 ms per call;
+  the Command Line Tools git first on `PATH` measured −7.4% locally.
+- `assert_payload` compares files with one `cmp` per file (about 3 s per
+  calling check).
+- Release-fixture reuse and repository-copy setup were measured and are not
+  worth doing (about 1 s and 4–5 s of wall).
+
+- **Value / learning:** halves local feedback time again, and learns whether
+  the payload and update checks can prove the same promises with fewer
+  installer runs.
+- **Effort hypothesis:** M–L, provisional.
+- **Depends on:** story 1 (delivered).
 
 ## Ordering and Scope Reduction
 

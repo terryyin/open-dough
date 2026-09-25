@@ -240,10 +240,16 @@ is **not** this baseline.
     measured −7.4% on the complete local suite (no effect on Linux CI);
     (3) `assert_payload`'s per-file `cmp` loop (about 3 s per calling
     check).
-  - *Decision needed:* accept 2× as this story's result and split the speed
-    target into a follow-up story (installer-run consolidation, the items
-    above), or refine this plan with a different strategy. Quiet and stable
-    results (slices 1–9a) are delivered either way.
+  - *Decision (developer, 2026-09-25):* accept the measured twofold result
+    as this story's outcome and split the fourfold target into
+    [SEED-037 story 2](../../seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite),
+    placed first in the backlog list with the evidence above. Slices 10–12
+    are not executed here; story 2 owns the speed target and slice 12's
+    final fourfold measurement. The stable-results promise that slice 12
+    also owned is met by the six consecutive silent complete runs of the
+    delivered code (slice 9's three runs and the checkpoint's three
+    candidate runs, one with CI-like git config) and green CI on every
+    delivered code revision.
 
 ## Ordered slices
 
@@ -586,7 +592,7 @@ set, stop and record it for plan refinement.
 ### 10. Git release fixtures are built once per run and reused
 
 Type: Behavior
-Status: stopped at the decisive checkpoint after slice 9 (see Current decisions)
+Status: moved to SEED-037 story 2 (developer decision at the checkpoint; see Current decisions)
 Proof:
 - The 13 checks that call `build_latest_fixture` or
   `build_current_tagged_release_fixture` pass silently with unchanged
@@ -605,7 +611,7 @@ saving on the complete run, undo it and record that.
 ### 11. Execution-CI suites copy a prepared repository instead of rebuilding it
 
 Type: Behavior
-Status: stopped at the decisive checkpoint after slice 9 (see Current decisions)
+Status: moved to SEED-037 story 2 (developer decision at the checkpoint; see Current decisions)
 Proof:
 - The `dough-execute-plan` suites that build fresh git fixtures pass silently
   with unchanged assertions.
@@ -623,7 +629,7 @@ saving.
 ### 12. The complete local suite meets the fourfold target, confirmed by repeated runs
 
 Type: Behavior
-Status: planned
+Status: moved to SEED-037 story 2 (developer decision at the checkpoint; see Current decisions)
 Proof: final measurement under the baseline conditions:
 - the medians of three runs sum to ≤ 25% of the baseline sum;
 - five consecutive complete runs are silent and pass;
