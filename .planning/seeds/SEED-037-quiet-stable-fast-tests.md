@@ -36,39 +36,121 @@ re-profile the complete local scope.
 
 **Identity:** SEED-037#quiet-stable-four-times-faster-tests
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/096-quiet-stable-fast-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a275f5eb73484b01415c55116f72b86c8edc8a0540e150bca2c1e4781e643803","plan":"bc9c15aa63f75583b91989b7a2aedfe74edef64ca2c02694924c2d7fc98679af"}}
 ```
 
-**Status:** Captured and queued first on 2026-09-25; not refined or planned.
+**Status:** Refined 2026-09-25; kept as one story at the top of the queue.
+Planned in [plan 096](../quick/096-quiet-stable-fast-tests/PLAN.md).
 
-- **For / why:** A developer gets prompt, trustworthy test feedback locally and
-  in CI, with attention drawn only to failures.
-- **Evaluation:**
-  - Define and record the complete local test scope, including the shell/Node
-    suite and dashboard browser suite, then measure its ordinary wall time,
-    executed cases, runner settings, and relevant environment before changes.
-    Under comparable conditions after optimization, the complete local suite
-    runs in no more than one quarter of that baseline wall time while retaining
-    meaningful behavioral coverage and failure detection.
-  - A successful normal test run emits no stdout or stderr, including warnings
-    from child processes. If a local runner cannot be wholly silent, one dot
-    per successful test is the absolute output ceiling. CI applies the stricter
-    rule: any test-produced output or warning on an otherwise successful run
-    fails the test check. A genuine test failure remains a failure and exposes
-    enough captured context to diagnose it.
-  - Repeated complete and affected focused runs produce consistent results
-    without intermittent failures, hidden retries, skips, or suppressed
-    diagnostics. Fix the causes of flakiness rather than masking them.
-  - Tests synchronize on observable events. Remove fixed sleeps and waits for
-    elapsed wall-clock time; where no event subscription is available, use a
-    bounded background retry with a short interval and a useful timeout
-    failure. Time-sensitive product behavior may use a controlled clock rather
-    than make the test wait in real time.
+**Goal:** An Open Dough developer running the complete local suite, or reading
+CI, can treat silence as success. A passing run prints nothing, a failure
+points straight at the failing test with enough captured context to act on,
+the same revision gives the same result on every run and in CI, and the
+complete local suite takes no more than a quarter of its measured
+pre-optimization wall time. Today the shell runner replays every job's log
+after a successful run, child processes add warnings, several checks wait for
+real elapsed time, and the suite is capped at four jobs because one 15-second
+file wait starved under more parallelism.
+
+**Scope:**
+
+- **The complete local suite** is `npm test` followed by
+  `npm run test:dashboard`. The Playwright suite's global setup builds the
+  dashboard, and that build counts as part of its run. Lint, the dashboard
+  type check, CI's separate build step, and opt-in `--native` agent runs are
+  outside this scope. Execution may add one command that runs both parts, but
+  this is not required.
+- **Baseline and target.** Before any change, execution measures the complete
+  local suite on the developer's machine with default settings
+  (`OPEN_DOUGH_TEST_JOBS` unset, dependencies installed, Playwright Chromium
+  present) and records in the plan:
+  - the wall time of each part and their sum;
+  - the executed case counts;
+  - the runner settings;
+  - the machine, OS, Node, Bash, and Playwright versions.
+
+  The final measurement repeats the same sequence under the same conditions,
+  and its sum is at most one quarter of the baseline sum. Changing the job
+  count, including raising the four-job cap, is allowed when the suite stays
+  stable. It is not counted as a like-for-like comparison unless the default
+  settings themselves change.
+- **Quiet success.** On a successful run, both commands emit no stdout or
+  stderr: no per-job "Running …" headers, no replayed logs, and no warnings
+  from child processes, the Vite build, or Node. Where a runner cannot be
+  wholly silent, at most one dot per passing test is allowed locally. In CI,
+  any test-produced output on an otherwise successful run fails the `test`
+  check or the dashboard browser-suite step. CI's install, type-check, and
+  build steps are not test output. How CI enforces this is an execution
+  decision.
+- **Useful failure.** A failing test still fails the run, names itself, and
+  shows its own captured output, and the traces the Playwright suite already
+  keeps on failure. Output from passing tests stays hidden even when another
+  test fails.
+- **Stable results.** Repeated complete local runs, and the affected focused
+  tests, give the same result as each other and as CI for the same revision.
+  Flakiness is fixed at its cause. Retries, skips, quarantines, and
+  suppressed diagnostics are rejected because they hide the instability this
+  story removes.
+- **Event synchronization.** Tests wait for observable events, not for
+  elapsed wall-clock time. Where no event is available, a bounded poll with a
+  short interval and a timeout that reports what it was waiting for is the
+  fallback. An unbounded poll gets a bound. A stand-in process that simulates
+  a hang, such as a fake agent that sleeps, is not a wait as long as no test
+  waits for it to finish. Product behavior driven by time uses a controlled
+  clock, or an injected short interval observed by event, instead of real
+  delay:
+  - native-run deadlines and termination grace;
+  - CI observer and mailbox await timeouts;
+  - dashboard auto-refresh intervals and rate-limit backoff;
+  - slice elapsed-time displays.
+
+  File timestamps that must differ are set explicitly instead of waited for.
+- **Coverage is preserved.** Removing, merging, or moving redundant cases
+  through `dough-test-optimization` is allowed only while each behavioral
+  promise keeps an observable proof at its boundary. A quiet log, fewer
+  cases, or a faster isolated test does not count toward the fourfold result
+  on its own.
+- **Deferred:**
+  - a CI wall-time target (CI is expected to benefit, but is not measured);
+  - lint and type-check speed and output;
+  - the opt-in native agent checks;
+  - any change to the product installer's Bash 3.2 support.
+
+**Key examples:**
+
+- Before changes, the developer runs `npm test` then `npm run test:dashboard`
+  with default settings. The plan records each part's time, their sum, the
+  case counts, and the environment. After optimization, the same sequence on
+  the same machine finishes in at most a quarter of that sum.
+- Every test passes. Both commands print nothing, or at most one dot per
+  passing test locally. The shell runner no longer replays each job's log.
+- One shell check's assertion fails. The run exits non-zero, names that
+  check, and shows only its captured output. The passing checks stay silent.
+- All tests pass, but a child process prints a deprecation warning to stderr.
+  Locally the warning is visible because it exceeds the output ceiling. In CI
+  the `test` check fails and shows the warning.
+- `tests/update-skip-verified.sh` waits one second, three times, so that file
+  timestamps differ. It instead sets the timestamps it needs, and no longer
+  waits.
+- The native-run timeout test proves that a hung agent is stopped after its
+  deadline and grace. It uses short injected limits and observes the stop,
+  and the fake agent may still sleep because nothing waits for it to finish.
+- A dashboard journey proves that the page refreshes after its interval, or
+  backs off after a rate limit. It advances a controlled page clock instead
+  of waiting that long in real time.
+- A test fails about one run in ten because of a race. The race is fixed, and
+  repeated complete runs pass without a retry.
+- Two cases prove the same promise through the same boundary. One is removed
+  and the promise keeps its proof. Removing the only proof of a promise to
+  save time is not allowed.
+
 - **Value / learning:** Reduces local feedback time by at least 75% while
   making silence a reliable success signal and failures easier to act on.
 - **Effort hypothesis:** L, provisional. The complete suite spans shell, Node,
-  and browser tests; profiling must establish the true bottlenecks and the
-  scope of changes needed to meet the fourfold target.
+  and browser tests. Profiling must establish the true bottlenecks and the
+  scope of changes needed for the fourfold target. If execution runs long,
+  split at a safe boundary: quiet and stable results can be delivered before
+  the speed target.
 - **Depends on:** none. Use the existing test entry points and CI checks; no
   unrelated product work needs to precede this story.
 - **Safe stopping point:** Any delivered intermediate improvement preserves
@@ -84,13 +166,11 @@ related test families. Prefer changes that reduce the complete local feedback
 path, and keep measured experiments that preserve confidence. Do not count a
 quiet log, fewer cases, or a faster isolated test as the fourfold result.
 
-## Open Decisions for Refinement
+## Open Decisions
 
-- Which single local command or measured sequence represents the complete
-  locally runnable suite, including browser tests, for the baseline and final
-  fourfold comparison?
-- Which existing tests exercise time itself and therefore need a controlled
-  clock or event-based proof while fixed real-time waits are removed?
+None. Refinement on 2026-09-25 settled the complete local suite (`npm test`
+followed by `npm run test:dashboard`) and which time-driven behavior needs a
+controlled clock or event-based proof.
 
 ## When to Surface
 
