@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
-- [Name the check that hangs, and remove the runner's own hang and leaks](seeds/SEED-037-quiet-stable-fast-tests.md#diagnosable-test-hangs) — SEED-037#diagnosable-test-hangs ([plan](quick/104-diagnosable-test-hangs/PLAN.md))
 
 ## Backlog list
 

@@ -4,15 +4,16 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/105-teardown-rule-for-remaining-fixtures/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2103f89de563c5b51219f5bef262195236a726221b8e3c001758b496d8a80c68"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb8c4d374a6386276d740f252f1b32666343e1525ff66604f3bb4a54aaa0bf2c"}}
 ```
 
 ## Source
 
-Execution retrospective of story `SEED-037#diagnosable-test-hangs`
-(`.planning/seeds/SEED-037-quiet-stable-fast-tests.md`, story 3), executed
-through plan 104 (`.planning/quick/104-diagnosable-test-hangs/PLAN.md`) on
-`claude/104-diagnosable-test-hangs`. Reviewed commits `044c88f..bde06c7`.
+Execution retrospective of story `SEED-037#diagnosable-test-hangs`, executed
+through plan 104 on `claude/104-diagnosable-test-hangs`. Both are recoverable
+from before-cleanup commit `19cbad6`:
+`.planning/seeds/SEED-037-quiet-stable-fast-tests.md` (story 3) and
+`.planning/quick/104-diagnosable-test-hangs/PLAN.md`. Reviewed commits `044c88f..bde06c7`.
 Findings were rechecked for this plan at `bde06c7`.
 
 The story promise this correction completes (seed scope, "Teardown order"):
