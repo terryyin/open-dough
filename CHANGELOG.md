@@ -1,3 +1,12 @@
+## 0.3.39 - 2026-09-25
+
+- Carry the selected agent profile through execution startup, workspace authorship, publication, CI observation, resume, and backlog completion so one stable identity owns the work and is released when that work closes.
+- Follow each Taken story's published Story Branch in the dashboard, refresh branch progress independently from trunk, and show its recorded slice progress and current-slice clock while preserving explicit gaps and resilient trunk refresh when branch observation fails.
+- Publish an execution-complete plan record with required product advice, show completed work as awaiting wrap-up with its advice and completion time, and let wrap-up apply that durable handoff in a later session.
+- Keep local development and regression feedback steadier by removing Vite's native-loader warning, making process fixtures insensitive to colored output, and tightening branch-read and clock test synchronization.
+
+Native acceptance was explicitly skipped for `0.3.39` at the maintainer's request. Native acceptance for the changed execution, dashboard, and completion-handoff behavior, along with previously pending native requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.38 - 2026-09-24
 
 - Give every Taken work item a published, rotating `<Name>-chan` agent profile, preserve its identity and authorship across resume, release it on completion, and harden selection against concurrent claims and bare-repository worktrees.
