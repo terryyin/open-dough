@@ -115,8 +115,8 @@ report_job() {
   if [[ -z ${interrupt_status} || -e ${output_root}/${index}.status ]]; then
     read -r job_status < "${output_root}/${index}.status"
   fi
-  if [[ -n ${interrupt_status} \
-    && (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
+  if [[ -n ${interrupt_status} &&
+    (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
     if [[ -e ${output_root}/${index}.seconds ]]; then
       read -r seconds < "${output_root}/${index}.seconds"
     else

@@ -219,6 +219,12 @@ delivered. The full `npm test` passed silently (195 jobs, 115 s).
 Refactoring moved the native ADR-awareness wrapper documentation unchanged
 from `tests/README.md` into `tests/native-adr-awareness-wrappers.md`.
 
+CI repair (run 36147702793, `lint`, on `1e648d9`): shfmt required a `&&`
+line-continuation style in `report_job`. The coordinator had piped
+`npm run lint` into `tail`, which hid its failing exit status before commit.
+`npm run format` produced the fix, after which `npm run lint` and the three
+runner tests pass.
+
 ## Slice 4 — A job that leaves no status is reported as failed
 
 Type: Behavior
