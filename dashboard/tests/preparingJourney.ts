@@ -32,7 +32,7 @@ type Trunk = Awaited<ReturnType<typeof createPreparationTrunk>>;
 
 export type PreparingJourney = {
   readonly origin: string;
-  readonly cleanup: () => void;
+  readonly cleanup: () => Promise<void>;
   // Remote main after each published step.
   readonly queued: string;
   readonly announced: string;
@@ -186,7 +186,7 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
       },
     };
   } catch (error) {
-    trunk.cleanup();
+    await trunk.cleanup();
     throw error;
   }
 }

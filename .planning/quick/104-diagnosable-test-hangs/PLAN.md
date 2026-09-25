@@ -154,6 +154,17 @@ Learning: writing a release file is not enough when fixture removal follows
 immediately, because the poller can miss the file. Teardown waits for the
 held process to end.
 
+CI repair (run 36146130701, `lint`, on `0f07f9b`): the now-async trunk
+`cleanup` broke the TypeScript consumer `dashboard/tests/preparingJourney.ts`,
+which typed `cleanup` as `() => void` and did not await it in its catch. The
+failures were `no-misused-promises` and `no-floating-promises`. That consumer
+now types `cleanup` as `() => Promise<void>` and awaits it. Type-aware
+ESLint, `npm run typecheck:dashboard`, the `backlog-preparing` Playwright
+spec, and `npm run lint` all pass.
+
+Learning: running ESLint on only the changed files misses type errors in
+untouched callers. Run the full `npm run lint` before committing.
+
 ## Slice 3 — An interrupted run names the checks still running
 
 Type: Behavior
