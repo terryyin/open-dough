@@ -297,14 +297,138 @@ the relative order of all other queued stories remain unchanged.
 
 **Identity:** SEED-008#useful-startup-output
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/100-useful-startup-output/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"76cd2d2ad2d7aba443c66769d0900351146e17789cc459c03ba30b21edde666a","plan":"31806ed68ba33891eb58d0046279d3640add257dd1de91fe90cd40d19a305108"}}
 ```
 
-- **For / why:** Coordinating agents need to continue or recover execution correctly without loading routine Git inventories or other information they do not use into context. Developers benefit from lower startup overhead and clearer actionable results.
-- **Outcome:** Startup supplies information justified by the agent's next decision, with less frequently needed detail obtainable when needed. Preserve truthful startup/publication results and checkout safety. A shorter always-present receipt is a candidate, not a predetermined solution.
-- **Evaluation:** Compare current output, a minimal routine response, and on-demand detail against representative successful starts, resumes, and refused or partially successful starts. Identify which returned facts the agent actually uses, how often within the inspected sample, and whether it already knows them. Weigh total context delivered, follow-up calls, retrieval latency, and correctness; distinguish measured use from hypothetical usefulness and bytes from measured tokens. Confirm that omitted historical facts can actually be recovered when needed rather than assuming current Git state reconstructs them.
-- **Supporting finding:** [ODF-099](../../docs/maintainer/finding-names.md#odf-099). The recorded impact is oversized output and extra reads; context-token costs depend on host handling and are not established measurements.
-- **Open refinement:** Which facts must be delivered immediately for safe continuation or recovery? Which can be fetched from existing sources without losing event-specific evidence? Is any routine success output beyond command completion useful? Determine the appropriate balance from consumer evidence before selecting the response contract.
+- **Goal:** Coordinating agents start or recover execution correctly with only useful startup information in context. Reduce routine output and follow-up reads while preserving truthful publication, ownership, and checkout-maintenance results.
+- **Scope:** Evaluate and reduce the startup command's agent-facing information and its accompanying retention/recovery guidance. Return the outcome, new facts used by the next steps, a compact independent maintenance result, and actionable exceptions. Do not routinely return full Git index inventories or staged/unstaged patches. Reuse known invocation inputs and existing Git inspection for detail needed only on demand. Keep the small event-specific coordinates needed for safe recovery available without inventing a new receipt archive or forcing routine success through a second read.
+- **Key examples:** (1) Ordinary accepted start: the agent learns the accepted claim revision and assigned agent, can use the revision as its first delivery base, performs setup in the already supplied workspace, and does not need a second read to strip diagnostics. (2) Accepted claim with deferred/stopped checkout maintenance: publication remains accepted; the compact result exposes the maintenance reason and affected checkout without dumping its contents or treating refresh failure as publication failure. (3) Interrupted or uncertain publication: report uncertainty and preserve exact recovery coordinates, including a rewritten candidate when different; resumption confirms ownership and remote containment without creating a duplicate claim. (4) Refused start: the reason and preserved resources are visible immediately; the agent stops implementation and can inspect relevant detail using existing tools. (5) Trunk advances after startup: later inspection must not substitute today's trunk tip for this execution's accepted claim or original recovery basis.
+- **Constraints:** Preserve existing ownership, publication confirmation, refusal, and checkout-preservation behavior. A response reduction does not authorize weakening those checks or changing what counts as accepted. Keep publication and local maintenance distinguishable. Match supplied identity/location from invocation unless the operation resolves a different value, in which case return the actual value. Existing retained-receipt callers and cross-host guidance must be accounted for; exact encoding and compatibility mechanics belong to planning.
+- **Deferred promises:** General output redesign for other commands, a new diagnostic storage service, exhaustive historical snapshot recovery, telemetry, and population-wide usage measurements. The story need not promise that every discarded snapshot is recoverable: no inspected consumer needs historical index contents. Current Git inspection is explicitly current state, not a replay of startup.
+- **Supporting finding:** [ODF-099](../../docs/maintainer/finding-names.md#odf-099), queued, not resolved.
 - **Depends on:** Existing startup and checkout-maintenance operations; no unfinished story prerequisite identified.
-- **Safe stopping point:** Agents can start and recover work with the evaluated information contract; internal preservation checks and actionable failures remain effective. Broader output redesign across unrelated commands is not required.
-- **Completion:** Record the actual response, implementation commit, first containing release, and remaining uncertainty against ODF-099 in `docs/maintainer/finding-names.md`. Queueing is not resolution.
+- **Completion:** Record the actual response, implementation commit, first containing release, and remaining uncertainty against ODF-099 in `docs/maintainer/finding-names.md`.
+
+#### Bounded refinement evaluation (2026-09-25)
+
+Reviewed source at `5f9ed87`, the three local execution transcripts behind this
+project's ODF-099 reports, and one nearby refused execution. This is a purposive
+sample of reported oversized receipts, all Claude Code Story Branch starts;
+it is not a random sample, a cross-host benchmark, or the full catalog's thirteen
+executions. We inspected tool calls/results and visible agent messages, not
+private reasoning. Reading a field is not proof it changed an action; frequency
+below counts observable uses only.
+
+| Accepted claim / execution | Saved receipt bytes | Compact JSON after removing only both index fields | Illustrative decision-focused JSON bytes |
+| --- | ---: | ---: | ---: |
+| `1443c42` / plan 092 | 227,148 | 1,140 | 196 |
+| `04a034b` / plan 094 | 232,733 | 1,070 | 197 |
+| `c995852` / plan 097, agent/tool avatars | 236,119 | 1,144 | 195 |
+
+The last column projects the actual saved data to `ok`, `status`,
+`publishedSha`, `startingRevision`, `agent`, and the final maintenance result.
+It illustrates a candidate information contract, not an implemented schema or
+proof that every exception fits that size. Both projections were serialized as
+compact UTF-8 JSON. Saved receipts include their original newline. Measurements
+are bytes, not tokens or model-visible context; host spilling/truncation differs.
+Removing only the two index fields reduced serialized size by more than 99.4%
+in all three samples. No timing or billed-token saving is claimed.
+
+**Observed use and cost:** In 3/3 successful samples, the coordinator made an
+extra tool call to filter the saved receipt before continuing setup. In 3/3,
+the first `execution-increment-delivery.mjs deliver` command used the receipt's
+exact `publishedSha` as `--previously-published-base`. Index entries were
+removed or replaced by their size, with no observed use for the next execution
+action in these startup-to-first-delivery windows. The setup commands used
+workspace paths already supplied in the startup invocation. Agent names and
+claim/base revisions were also retained in progress or execution records; this
+supports making newly assigned identity available but does not establish that
+every field of the current receipt was necessary. All three before/after
+maintenance pairs were `already current` / `advanced`, so this sample says
+nothing about real-world exception frequency.
+
+**Refusal:** Plan 095 (`21143fae-b586-4a67-a2b0-eb75e3fcaddf`,
+2026-09-24 14:45–14:47 UTC) returned `claim-failed` with an actionable
+canonical-plan/duplicate-plan-link error. Subsequent calls filtered the index;
+the agent inspected the named source/Take boundary and then used the source
+command successfully. Count this as one execution with retries, not several
+independent incidents. It supports returning the reason immediately; it does
+not prove a general recovery success rate or justify suppressing failures.
+
+**Recovery evidence:** No real interrupted-start transcript was included in
+this bounded sample. Static inspection of
+[`execution-start-recovery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start-recovery.mjs),
+[`execution-start-operation.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start-operation.mjs),
+and existing
+[recovery cases](../../src/skills/dough-execute-plan/scripts/workspace-publication-startup-recovery.test.mjs)
+shows why exact starting and candidate revisions matter: a later remote tip is
+not the retained claim, and resumed ownership must survive remote advancement.
+Those tests were inspected, not rerun as part of refinement. Retaining a few
+small event-specific coordinates has a clear safety purpose even though these
+three successful starts did not exercise an interruption.
+
+**Internal snapshot correction:**
+[`captureCheckout`](../../src/skills/dough-execute-plan/scripts/publication-git.mjs)
+collects the index plus staged/unstaged patches. The inspected runtime consumers
+in `maintain-default-checkout.mjs`, `publication-git.mjs`, and
+`publication-resume.mjs` make maintenance decisions using `head` and `status`
+and separate Git ancestry/operation checks, not those full listings or patches.
+The earlier suggestion that these exact snapshots might be needed internally
+was not supported by this inspection. Preserve the checks; do not preserve
+expensive collection merely because it already exists. Any shared-helper change
+must still account for its actual callers during implementation.
+
+#### Selected information contract
+
+| Information | Proposed treatment and reason |
+| --- | --- |
+| Accepted, resumed, refused, or uncertain outcome | Immediate: determines whether execution may proceed. |
+| Exact accepted claim revision and small recovery basis | Immediate: accepted revision was used in 3/3 first deliveries; stable recovery coordinates avoid a new store/read and ambiguous reconstruction later. |
+| Assigned agent identity; any resolved value different from the invocation | Immediate: these are new facts, not input echoes. |
+| Checkout-maintenance outcome | Compact and separate; return actionable reason on deferred/stopped/failed maintenance. Routine before/after inventories add no observed decision value. |
+| Uncertain/refused publication details | Immediate reason plus exact available candidate/basis and preserved-resource location; no fabricated acceptance. |
+| Mode, identity, publisher, branch, remote, workspace, supplied plan | Reuse known invocation context when unchanged. Return resolved differences or needed recovery context, rather than echoing every input routinely. |
+| Preparation/setup constants and ordinary authorship success | Teach next steps once in guidance; surface exceptions such as authorship not configured. |
+| File inventories, patches, and low-level Git diagnostics | Existing on-demand inspection when needed. Do not collect/return historical snapshots by default without an identified consumer. |
+
+**Alternatives:** Full current output imposes the observed filtering call and
+carries unused inventories. Removing only indexes is a strong small fallback,
+but still echoes known inputs and can expose large diffs on dirty checkouts.
+Silent success or a receipt-path-only response saves another few hundred bytes
+but with the current consumer would require retrieving the accepted revision
+on every sampled first delivery (3/3); it also creates retrieval/retention
+obligations if historical facts are moved to a file. Prefer a small immediate
+result plus on-demand diagnostics. No new diagnostics command or archive is
+justified by this evaluation.
+
+**Planning handoff:** Validate the proposed contract through ordinary start,
+resume after remote advancement, refusal, uncertain publication/replay, and
+accepted publication with maintenance deferred. Measure total delivered
+output and extra retrieval calls through the first delivery or recovery action,
+including errors and dirty-checkout diffs, not just successful receipt size.
+Check that necessary facts remain discoverable, truthful, and usable with the
+published Codex, Cursor, and Claude Code guidance. The linked plan selects the retained SHA fields and proof ownership. Exact
+serialization remains an implementation choice within that contract; no universal
+output ceiling is required. Do not infer cross-host context savings from this
+Claude-only sample or require new telemetry to implement the bounded change.
+
+**Evidence locators:** Local transcript/result root inspected:
+`~/.claude/projects/-Users-terryyin-git-open-dough/`. Rows above map respectively
+to session/result pairs `6314aa87-5d06-4ea4-9e4c-88bac8882daa` /
+`tool-results/b1n0qt5xl.txt`, `961ded20-2755-427a-845a-7f540f953a12` /
+`tool-results/ber149vuq.txt`, and `c99d05b6-1f32-4f37-8120-a11cf3c6d0b4` /
+`tool-results/bcii1t3w4.txt`; transcripts are `<session>.jsonl` beside those
+directories. Their first delivery calls are timestamped
+2026-09-24T12:35:06.094Z, 2026-09-25T00:53:19.856Z, and
+2026-09-25T04:50:14.063Z. These local files are not committed or guaranteed
+portable; the three retained [ODF-099 occurrence summaries](../../DearDough.md#odf-099--the-startup-receipt-carried-two-full-git-index-listings)
+and claim SHAs provide repository-level provenance. No additional finding
+occurrences or catalog-wide frequencies were recorded during refinement.
+
+**Refinement completion (2026-09-25):** The bounded evaluation supports the
+selected contract; no open product-scope issue remains. Keep the small
+`startingRevision` and `candidateSha` coordinates with the accepted revision so
+existing resume inputs remain explicit, even when the two claim SHAs coincide.
+This modest redundancy avoids an unnecessary recovery translation rule.
+Implementation and proof are owned by
+[plan 100](../quick/100-useful-startup-output/PLAN.md).
