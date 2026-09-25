@@ -168,7 +168,7 @@ untouched callers. Run the full `npm run lint` before committing.
 ## Slice 3 — An interrupted run names the checks still running
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a run with a substitute check that never ends (after printing a
 line) and passing checks → the runner receives TERM, or INT → stderr lists
@@ -188,6 +188,36 @@ test then sends each signal, and asserts the report, the exit status, and
 (via a unique marker in the check's command line) that no process from the
 check remains. The existing passing-run silence assertion in
 `tests/test-runner-failure-report.sh` stays green.
+
+Accepted proof (2026-09-25): `scripts/test.sh` starts each job under `set -m`
+with `< /dev/null`, so each job has its own process group, and `run_job`
+records the raw exit status. On INT or TERM, the `interrupt` trap:
+
+1. sends TERM to the process group of each job without a status and waits;
+2. KILLs the groups it stopped (a coordinator decision, so a process that
+   ignores TERM does not outlive the run);
+3. prints `Test run interrupted by SIG<NAME>.`;
+4. reports each started job through `report_job`, which gives
+   `INTERRUPTED: <job> (after N.Ns)` and a 40-line log tail for a job with
+   no status or one ended by the same signal;
+5. exits 130 or 143.
+
+`tests/test-runner-interrupt.sh` drives the real runner with
+`OPEN_DOUGH_TEST_DIR` substitutes. It starts the runner under `set -m`,
+detects readiness from `.ready` files, and blocks the never-ending check on a
+FIFO no one writes. `interrupt_runner` asserts the exit status and the
+interrupt line, and `assert_interrupted` asserts the entry, the log tail, and
+that `pgrep -f` finds no remaining check process. With Bash 5 first on
+`PATH`, that test, `test-runner-failure-report.sh` and `test-runner-bash.sh`
+all exit 0 silently.
+
+The new test failed against the old runner (no report) and against a runner
+that signals only the job leader (a process remained). With `set -m` removed
+from the test harness, the INT case failed, which confirmed that INT is
+delivered. The full `npm test` passed silently (195 jobs, 115 s).
+
+Refactoring moved the native ADR-awareness wrapper documentation unchanged
+from `tests/README.md` into `tests/native-adr-awareness-wrappers.md`.
 
 ## Slice 4 — A job that leaves no status is reported as failed
 

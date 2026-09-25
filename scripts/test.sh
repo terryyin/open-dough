@@ -34,6 +34,11 @@ for ((slot = 0; slot < job_slots; slot++)); do
   printf '\n' >&3
 done
 
+# Prints the seconds between two EPOCHREALTIME readings, to a tenth.
+elapsed_seconds() {
+  awk -v start="$1" -v end="$2" 'BEGIN { printf "%.1f\n", end - start }'
+}
+
 node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
 run_job() {
   local index=$1 kind=$2 label=$3
@@ -41,13 +46,12 @@ run_job() {
   local job_status=0 started=${EPOCHREALTIME}
   if [[ ${kind} == node ]]; then
     node --test --test-reporter="${node_reporter}" "${label}" > "${log}" 2>&1 \
-      || job_status=1
+      || job_status=$?
   else
-    "${test_bash}" "${label}" > "${log}" 2>&1 || job_status=1
+    "${test_bash}" "${label}" > "${log}" 2>&1 || job_status=$?
   fi
   printf '%s\n' "${job_status}" > "${output_root}/${index}.status"
-  awk -v start="${started}" -v end="${EPOCHREALTIME}" \
-    'BEGIN { printf "%.1f\n", end - start }' > "${output_root}/${index}.seconds"
+  elapsed_seconds "${started}" "${EPOCHREALTIME}" > "${output_root}/${index}.seconds"
   printf '\n' >&3
 }
 
@@ -99,31 +103,94 @@ for label in "${discovered[@]}"; do
   [[ -n ${scheduled[${label}]+set} ]] || labels+=("${label}")
 done
 
-for index in "${!labels[@]}"; do
-  read -r -u 3
-  run_job "${index}" "${job_kinds[${labels[index]}]}" "${labels[index]}" &
-done
-
-wait
-
-# Report only failing checks, each with its own captured output. A passing
-# check must be silent, so a check that exits 0 but wrote anything fails too.
-status=0
-for index in "${!labels[@]}"; do
-  read -r job_status < "${output_root}/${index}.status"
-  log="${output_root}/${index}.log"
-  if [[ ${job_status} -ne 0 ]]; then
-    reason=''
-  elif [[ -s ${log} ]]; then
+# Reports one started job from what the runner observed: the exit status it
+# recorded, or none when an interrupt stopped it first. Only failing checks are
+# reported, each with its own captured output. A passing check must be silent,
+# so a check that exits 0 but wrote anything fails too. On an interrupt, a job
+# still running, or one that ended from the same signal, is reported as
+# interrupted with its elapsed time and the tail of its output. A reported job
+# sets the run's status to 1.
+report_job() {
+  local index=$1 log="${output_root}/$1.log" job_status='' seconds reason=''
+  if [[ -z ${interrupt_status} || -e ${output_root}/${index}.status ]]; then
+    read -r job_status < "${output_root}/${index}.status"
+  fi
+  if [[ -n ${interrupt_status} \
+    && (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
+    if [[ -e ${output_root}/${index}.seconds ]]; then
+      read -r seconds < "${output_root}/${index}.seconds"
+    else
+      seconds=$(elapsed_seconds "${job_started[index]}" "${interrupted_at}")
+    fi
+    {
+      printf 'INTERRUPTED: %s (after %ss); last lines of its output:\n' \
+        "${labels[index]}" "${seconds}"
+      tail -n 40 -- "${log}"
+    } >&2
+    status=1
+    return
+  fi
+  if [[ ${job_status} -eq 0 ]]; then
+    [[ -s ${log} ]] || return 0
     reason=' (passed but printed output)'
-  else
-    continue
   fi
   {
     printf 'FAIL: %s%s\n' "${labels[index]}" "${reason}"
     cat -- "${log}"
   } >&2
   status=1
+}
+
+# Each job runs in a process group of its own: job control is on only while
+# the job starts, which also keeps INT from being ignored in it. Stopping a job
+# therefore reaches everything it started, without `setsid`, which macOS lacks.
+# Workers a check deliberately detaches leave the group and stay that check's
+# own teardown. A terminal's Ctrl-C reaches the runner but not the jobs, so on
+# INT or TERM the runner stops the jobs still running, reports every started
+# job, and exits with the signal's status. Logs are removed after the report.
+interrupt_status=''
+status=0
+job_pids=()
+job_started=()
+# shellcheck disable=SC2329 # Invoked by the INT and TERM traps below.
+interrupt() {
+  trap '' INT TERM
+  interrupt_status=$2
+  interrupted_at=${EPOCHREALTIME}
+  local index pgid stopped=()
+  for index in "${!job_pids[@]}"; do
+    if [[ ! -e ${output_root}/${index}.status ]]; then
+      kill -TERM -- "-${job_pids[index]}" 2> /dev/null || true
+      stopped+=("${job_pids[index]}")
+    fi
+  done
+  wait || true
+  # A process that outlived TERM in a stopped group does not outlive KILL.
+  for pgid in "${stopped[@]}"; do
+    kill -KILL -- "-${pgid}" 2> /dev/null || true
+  done
+  printf 'Test run interrupted by SIG%s.\n' "$1" >&2
+  for index in "${!job_started[@]}"; do
+    report_job "${index}"
+  done
+  exit "${interrupt_status}"
+}
+trap 'interrupt INT 130' INT
+trap 'interrupt TERM 143' TERM
+
+for index in "${!labels[@]}"; do
+  read -r -u 3
+  job_started[index]=${EPOCHREALTIME}
+  set -m
+  run_job "${index}" "${job_kinds[${labels[index]}]}" "${labels[index]}" < /dev/null &
+  set +m
+  job_pids[index]=$!
+done
+
+wait
+
+for index in "${!labels[@]}"; do
+  report_job "${index}"
 done
 
 # OPEN_DOUGH_TEST_TIMES names a file that receives each job's wall seconds and
