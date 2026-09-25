@@ -170,6 +170,11 @@ access and recoverable stops; isolated publication stays independent of it.
 **Status:** Retained for its host-specific outcome; scope aligned on 2026-09-23,
 renewed refinement and native observation required before planning.
 
+**Partial evidence (2026-09-25):** a Claude Code background job ran queued
+Story Branch startup in its own worktree, subagent delegation, hook readiness,
+and CI observer attachment; it had branch-push authority, so restricted
+publication and closure handoff were not exercised.
+
 **Goal:** A developer using Claude Code background mode can execute in the
 session's owned checkout and finish with committed closure on its execution
 branch while retaining developer ownership of branch publication and any PR.

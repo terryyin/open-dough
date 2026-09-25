@@ -18,6 +18,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Prove startup readiness once in the first-delivery journey](quick/101-startup-readiness-proof-consolidation/PLAN.md)
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
