@@ -84,7 +84,7 @@ Survey base: `2c7521a2b3a40d414f322d16a75ca89d4aad0750`.
 ## Slice 1 — CI-observer tests stop their observer before removing the fixture
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: `ci-cursor-worktree-hook.test.mjs` and
 `ci-target-branch-worktree.test.mjs` pass → their teardown runs → the observer
@@ -97,6 +97,20 @@ mailbox recorded (`recordWorkerIdentity`) is no longer alive, waiting on that
 process's exit, not on elapsed time. Show once, by temporarily reversing the
 order, that the assertion fails. Then rerun both files and the leak-sweep
 command from the decisions above for these two files: no leftover worker.
+
+Accepted proof (2026-09-25): the shared teardown mechanism is
+`fixtureTeardown(root)` in `fixture-teardown-test-fixtures.mjs`. Tests
+register `t.after(cleanup)` when the fixture is created and pass each stop or
+release step to `defer`. `cleanup` runs those steps in reverse order, removes
+the fixture, and then rethrows any step failure. `deferObserverStop` in
+`watch-ci-test-fixtures.mjs` reads the recorded worker, runs the real
+`ci-mailbox.mjs stop` with no `.catch`, and asserts
+`checkMailboxWorkerLiveness(worker, directory) === "dead"`.
+`PATH="/opt/homebrew/bin:$PATH" node --test src/skills/dough-execute-plan/scripts/ci-cursor-worktree-hook.test.mjs src/skills/dough-execute-plan/scripts/ci-target-branch-worktree.test.mjs`
+passes (2 tests), and the leak sweep after each file is empty. With removal
+temporarily moved first, the stop failed with `ENOENT` and failed the test.
+With that failure also swallowed again, the liveness assertion failed with
+`'alive' !== 'dead'`.
 
 ## Slice 2 — Startup race tests release the held push before removing the fixture
 

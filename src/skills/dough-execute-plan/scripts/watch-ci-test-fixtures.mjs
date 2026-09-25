@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
   existsSync,
@@ -12,6 +13,7 @@ import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
+import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import { awaitSignalWhileRunning } from "./process-lifetime-test-fixtures.mjs";
 
 const runCommand = promisify(execFile);
@@ -88,6 +90,20 @@ export async function awaitWorkerSignal(directory, path) {
         existsSync(result) ? readFileSync(result, "utf8") : "none recorded"
       }; last event: ${JSON.stringify(readMailboxEvents(directory).at(-1)?.event ?? null)}`,
   );
+}
+
+// Registers, on a `fixtureTeardown`, stopping the CI observer started at
+// `directory` through the real `stop` command and proving its recorded worker
+// exited, so the fixture it runs from is removed only after it is gone.
+export function deferObserverStop(teardown, { launcher, directory, cwd, env }) {
+  const worker = readWorkerIdentity(directory);
+  teardown.defer(async () => {
+    await runCommand(process.execPath, [launcher, "stop", directory], {
+      cwd,
+      env,
+    });
+    assert.equal(checkMailboxWorkerLiveness(worker, directory), "dead");
+  });
 }
 
 export function blockingGithubEnvironment(t) {

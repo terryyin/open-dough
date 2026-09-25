@@ -6,7 +6,6 @@ import {
   mkdtempSync,
   readFileSync,
   realpathSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,7 +13,11 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { writeBlockingGithubListCommand } from "./watch-ci-test-fixtures.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import {
+  deferObserverStop,
+  writeBlockingGithubListCommand,
+} from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const source = fileURLToPath(new URL("../", import.meta.url));
@@ -71,7 +74,8 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
   const fixture = realpathSync(
     mkdtempSync(join(tmpdir(), "ci-worktree-hook-")),
   );
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(fixture);
+  t.after(teardown.cleanup);
   const originating = join(fixture, "originating");
   const execution = join(fixture, "execution");
   const unrelated = join(fixture, "unrelated");
@@ -132,16 +136,11 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
     { cwd: execution, env },
   );
   const startReceipt = JSON.parse(started.stdout.slice("CI_OBSERVER ".length));
-  t.after(async () => {
-    await exec(
-      process.execPath,
-      [
-        join(executionSkill, "scripts/ci-mailbox.mjs"),
-        "stop",
-        startReceipt.directory,
-      ],
-      { cwd: execution, env },
-    ).catch(() => undefined);
+  deferObserverStop(teardown, {
+    launcher: join(executionSkill, "scripts/ci-mailbox.mjs"),
+    directory: startReceipt.directory,
+    cwd: execution,
+    env,
   });
   assert.notEqual(startReceipt.directory, probeReceipt.directory);
   const startRequest = JSON.parse(
