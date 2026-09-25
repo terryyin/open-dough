@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep plans with quoted records readable and prove the completion record once](quick/097-keep-execution-complete-record-readable/PLAN.md)
-
 ## Backlog list
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests
