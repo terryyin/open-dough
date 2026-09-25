@@ -307,7 +307,7 @@ Findings, not changed:
 ## Slice 6 — A CI hang fails in 8 minutes and shows the interrupt report
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: each job in `.github/workflows/ci.yml` has `timeout-minutes: 8`.
 A CI run cancelled while `npm test` is running shows the runner's interrupt
@@ -338,6 +338,20 @@ step exits 130 with no processes left. `exec` at only one layer is not enough.
 Normal runs are unchanged, and a terminal Ctrl-C through `npm test` gives
 exactly one report (5 of 5 runs). The dashboard job's `npm` steps have the
 same gap and are out of scope.
+
+Second demonstration (run 36150600113 on `1db8280`, cancelled about 67 s into
+the `test` step): the `test` step log shows the report before
+`The operation was canceled.`:
+
+```text
+> exec bash scripts/test.sh
+Test run interrupted by SIGINT.
+INTERRUPTED: tests/execution-payload-update.sh (after 67.4s); last lines of its output:
+INTERRUPTED: tests/update-refuses-unverifiable.sh (after 2.3s); last lines of its output:
+INTERRUPTED: src/skills/dough-execute-plan/scripts/workspace-publication-startup-race.test.mjs (after 2.2s); last lines of its output:
+INTERRUPTED: src/skills/dough-execute-plan/scripts/workspace-publication-startup-recovery.test.mjs (after 1.6s); last lines of its output:
+##[error]The operation was canceled.
+```
 
 ## Preparation review and learnings
 
