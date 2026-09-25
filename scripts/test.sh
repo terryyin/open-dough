@@ -103,25 +103,34 @@ for label in "${discovered[@]}"; do
   [[ -n ${scheduled[${label}]+set} ]] || labels+=("${label}")
 done
 
+# Prints one started job's wall seconds: those its job recorded, or, when the
+# job left none, the time from its start until the runner observed it ended.
+job_seconds() {
+  local index=$1 seconds
+  if [[ -e ${output_root}/${index}.seconds ]]; then
+    read -r seconds < "${output_root}/${index}.seconds"
+    printf '%s\n' "${seconds}"
+  else
+    elapsed_seconds "${job_started[index]}" "${observed_at}"
+  fi
+}
+
 # Reports one started job from what the runner observed: the exit status it
-# recorded, or none when an interrupt stopped it first. Only failing checks are
-# reported, each with its own captured output. A passing check must be silent,
-# so a check that exits 0 but wrote anything fails too. On an interrupt, a job
-# still running, or one that ended from the same signal, is reported as
-# interrupted with its elapsed time and the tail of its output. A reported job
-# sets the run's status to 1.
+# recorded, or none. Only failing checks are reported, each with its own
+# captured output. A passing check must be silent, so a check that exits 0 but
+# wrote anything fails too. On an interrupt, a job still running, or one that
+# ended from the same signal, is reported as interrupted with its elapsed time
+# and the tail of its output. Otherwise a job that ended without recording a
+# status, such as one whose shell was killed, failed. A reported job sets the
+# run's status to 1.
 report_job() {
   local index=$1 log="${output_root}/$1.log" job_status='' seconds reason=''
-  if [[ -z ${interrupt_status} || -e ${output_root}/${index}.status ]]; then
+  if [[ -e ${output_root}/${index}.status ]]; then
     read -r job_status < "${output_root}/${index}.status"
   fi
   if [[ -n ${interrupt_status} &&
     (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
-    if [[ -e ${output_root}/${index}.seconds ]]; then
-      read -r seconds < "${output_root}/${index}.seconds"
-    else
-      seconds=$(elapsed_seconds "${job_started[index]}" "${interrupted_at}")
-    fi
+    seconds=$(job_seconds "${index}")
     {
       printf 'INTERRUPTED: %s (after %ss); last lines of its output:\n' \
         "${labels[index]}" "${seconds}"
@@ -132,7 +141,9 @@ report_job() {
     # bare `return` the interrupted `wait`'s status, which `set -e` ends on.
     return 0
   fi
-  if [[ ${job_status} -eq 0 ]]; then
+  if [[ -z ${job_status} ]]; then
+    reason=' (ended without recording an exit status)'
+  elif [[ ${job_status} -eq 0 ]]; then
     [[ -s ${log} ]] || return 0
     reason=' (passed but printed output)'
   fi
@@ -158,7 +169,7 @@ job_started=()
 interrupt() {
   trap '' INT TERM
   interrupt_status=$2
-  interrupted_at=${EPOCHREALTIME}
+  observed_at=${EPOCHREALTIME}
   local index pgid stopped=()
   for index in "${!job_pids[@]}"; do
     if [[ ! -e ${output_root}/${index}.status ]]; then
@@ -190,6 +201,7 @@ for index in "${!labels[@]}"; do
 done
 
 wait
+observed_at=${EPOCHREALTIME}
 
 for index in "${!labels[@]}"; do
   report_job "${index}"
@@ -199,7 +211,7 @@ done
 # label, longest first, for profiling and for keeping `longest-first` current.
 if [[ -n ${OPEN_DOUGH_TEST_TIMES:-} ]]; then
   for index in "${!labels[@]}"; do
-    read -r seconds < "${output_root}/${index}.seconds"
+    seconds=$(job_seconds "${index}")
     printf '%s\t%s\n' "${seconds}" "${labels[index]}"
   done | sort -rn > "${OPEN_DOUGH_TEST_TIMES}"
 fi

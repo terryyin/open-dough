@@ -245,7 +245,7 @@ trap behavior in a Linux container before publishing.
 ## Slice 4 — A job that leaves no status is reported as failed
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a substitute check that kills its own job subshell before a status
 is written (for example `kill -9 $PPID`), run with `OPEN_DOUGH_TEST_JOBS=2`
@@ -255,6 +255,25 @@ still writes a line for every job.
 
 Proof: a case in the runner failure-report test. Show once, on the current
 runner, that the report aborts on the missing status file.
+
+Accepted proof (2026-09-25): `report_job` reads `.status` only when it
+exists. Outside an interrupt, a job with no status is reported as
+`FAIL: <job> (ended without recording an exit status)` with its log. The same
+outcome model applies, with no per-case recognizer. `job_seconds` gives the
+recorded seconds, or the time from start until the runner observed the end
+(`observed_at`). It feeds both the interrupt report and
+`OPEN_DOUGH_TEST_TIMES`.
+
+The new case in `tests/test-runner-failure-report.sh` has `lost.sh` print
+`lost-started` and then `kill -9` its job subshell, beside `kept.sh`, with
+`OPEN_DOUGH_TEST_JOBS=2`. The run exits 1 with that FAIL line and log,
+`kept.sh` stays silent, and the times file has two numeric lines. The three
+runner tests pass on macOS and on Linux Bash 5.2.15 (Docker `node:24`).
+Against the old runner, the test failed on the missing status file.
+
+Finding, not changed: a job killed before it returns its slot keeps that slot
+for the rest of the run. The run hangs only if every slot is lost while jobs
+still wait. Parent-side slot accounting is excluded by the story.
 
 ## Slice 5 — The runner requires Bash 5
 

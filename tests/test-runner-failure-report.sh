@@ -14,9 +14,11 @@ write_check() {
   printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
 }
 
+# Runs the runner over the checks, or over the directory given second, logging
+# to <name>.log; runner settings such as OPEN_DOUGH_TEST_JOBS pass through.
 run_suite() {
   suite_status=0
-  OPEN_DOUGH_TEST_DIR="${checks}" "${BASH}" "${source_dir}/scripts/test.sh" \
+  OPEN_DOUGH_TEST_DIR="${2:-${checks}}" "${BASH}" "${source_dir}/scripts/test.sh" \
     > "${temporary_dir}/$1.log" 2>&1 || suite_status=$?
 }
 
@@ -102,9 +104,7 @@ write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
 printf '# longest first\n%s\n%s\n%s\n' "${checks}/gamma.sh" 'tests/not-a-job.sh' \
   "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
 times="${temporary_dir}/times"
-suite_status=0
-OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" OPEN_DOUGH_TEST_DIR="${checks}" \
-  "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/ordered.log" 2>&1 || suite_status=$?
+OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" run_suite ordered
 if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then
   printf 'FAIL: the ordered run exited %s or printed output.\n' "${suite_status}" >&2
   cat -- "${temporary_dir}/ordered.log" >&2
@@ -119,3 +119,29 @@ mapfile -t timed < "${times}"
 [[ ${#timed[@]} -eq 7 ]]
 grep -q -E -- "^[0-9]+\.[0-9]"$'\t'"${checks}/node/node-quiet\\.test\\.mjs\$" "${times}"
 sort -r -n -c -- "${times}"
+
+# A job whose shell is killed before it records a status is reported as failed
+# with its log; the run still finishes, and every job still gets a time line.
+lost="${temporary_dir}/lost"
+mkdir -p -- "${lost}"
+# shellcheck disable=SC2016 # The substitute check expands its own PPID.
+printf '#!/usr/bin/env bash\necho lost-started\nkill -9 "${PPID}"\n' > "${lost}/lost.sh"
+printf '#!/usr/bin/env bash\ntrue\n' > "${lost}/kept.sh"
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_TIMES="${times}" run_suite lost "${lost}"
+if ((suite_status != 1)); then
+  printf 'FAIL: the runner exited %s for a job that left no status, not 1.\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/lost.log" >&2
+  exit 1
+fi
+expect_in_log "${temporary_dir}/lost.log" -F -x -- \
+  "FAIL: ${lost}/lost.sh (ended without recording an exit status)"
+expect_in_log "${temporary_dir}/lost.log" -F -x -- 'lost-started'
+if grep -E -- 'FAIL: .*kept\.sh|No such file' "${temporary_dir}/lost.log"; then
+  echo 'FAIL: the runner reported the passing check or crashed on the missing status.' >&2
+  exit 1
+fi
+mapfile -t timed < "${times}"
+[[ ${#timed[@]} -eq 2 ]]
+for name in lost kept; do
+  expect_in_log "${times}" -E -- "^[0-9]+\.[0-9]"$'\t'"${lost}/${name}\\.sh\$"
+done
