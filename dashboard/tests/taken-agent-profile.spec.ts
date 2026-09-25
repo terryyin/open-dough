@@ -136,6 +136,22 @@ test("each Taken card shows its published agent profile, or says plainly that no
     }
   });
 
+  await test.step("hovering a portrait shows it larger from where it stands", async () => {
+    const portrait = card(trunkStory).locator(".agent-portrait");
+    const resting = await portrait.boundingBox();
+    expect(resting).not.toBeNull();
+    if (resting === null) return;
+    await portrait.hover();
+    await expect
+      .poll(async () => (await portrait.boundingBox())?.width)
+      .toBeCloseTo(resting.width * 3, 0);
+    expect((await portrait.boundingBox())?.x).toBeCloseTo(resting.x, 0);
+    await page.mouse.move(0, 0);
+    await expect
+      .poll(async () => (await portrait.boundingBox())?.width)
+      .toBeCloseTo(resting.width, 0);
+  });
+
   await test.step("each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths", async () => {
     const marked = [
       [trunkStory, "Trunk Mode", "trunk.svg", "Claude Code", "claude.png"],

@@ -24,6 +24,24 @@
   border-radius: 50%;
   background-size: 300% 300%;
   background-repeat: no-repeat;
+  transform-origin: left center;
+  transition: transform 0.15s ease-out;
+}
+
+/* Hovering the portrait shows it larger, over its neighbors, without moving
+   the line it sits on. It grows from its left edge so it stays inside the
+   card, and its atlas tile is large enough to stay sharp. */
+.agent-portrait:hover {
+  position: relative;
+  z-index: 1;
+  transform: scale(3);
+  box-shadow: 0 0.1rem 0.4rem rgb(0 0 0 / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-portrait {
+    transition: none;
+  }
 }
 
 .owner-mark {
