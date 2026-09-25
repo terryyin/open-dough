@@ -1,16 +1,20 @@
-// Card-facing ownership of Taken work: the recorded agent profile facts, or
-// the explicit gap when none is recorded or readable. Branch context is shown
-// as context only; it never says that branch work has reached trunk.
+// Card-facing assignments: who holds Taken work and who is preparing queued
+// work, from the recorded agent profile facts, or the explicit gap when none
+// is recorded or readable. Branch context is shown as context only; it never
+// says that branch work has reached trunk. Preparing is an annotation on the
+// queued card, never a stage or a claim that an agent is running.
 
 import type {
+  AgentAssignment,
   AgentHost,
   AgentMode,
   AgentOwner,
+  Preparing,
   TakenOwner,
   UnreadableProfile,
-} from "./takenOwner.ts";
+} from "./agentAssignments.ts";
 import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import "./taken-owner.css";
+import "./agent-assignment.css";
 
 // How each recorded mode and host is presented: its label, and the local mark
 // shown beside it (an original symbol for each mode and each host's official
@@ -72,30 +76,37 @@ function AgentPortrait({ name }: { name: string }) {
   );
 }
 
-// The one-line owner summary, for example
-// "Akiho-chan · Trunk Mode · Claude Code · claude-opus". Each fact is its own
-// group so a visual mark stays beside the label it belongs to; an unrecorded
-// host keeps its text gap and gets no mark.
-function OwnerSummary({ owner }: { owner: AgentOwner }) {
+// The one-line developer summary, for example
+// "Akiho-chan · Trunk Mode · Claude Code · claude-opus"; a preparation
+// assignment records no mode. Each fact is its own group so a visual mark
+// stays beside the label it belongs to; an unrecorded host keeps its text gap
+// and gets no mark.
+function DeveloperSummary({
+  developer,
+}: {
+  developer: AgentAssignment & { readonly mode?: AgentMode };
+}) {
   const facts = [
-    { kind: "mode", ...modes[owner.mode] },
+    ...(developer.mode === undefined
+      ? []
+      : [{ kind: "mode", ...modes[developer.mode] }]),
     {
       kind: "host",
-      ...(owner.host === undefined
+      ...(developer.host === undefined
         ? { label: "host not recorded", mark: undefined }
-        : hosts[owner.host]),
+        : hosts[developer.host]),
     },
     {
       kind: "model",
-      label: owner.model ?? "model not recorded",
+      label: developer.model ?? "model not recorded",
       mark: undefined,
     },
   ];
   return (
     <p className="owner-summary">
       <span className="owner-fact owner-agent">
-        <AgentPortrait name={owner.name} />
-        {owner.agent}
+        <AgentPortrait name={developer.name} />
+        {developer.agent}
       </span>
       {facts.map(({ kind, label, mark }) => (
         <span key={kind}>
@@ -136,9 +147,9 @@ export function TakenOwnerFacts({ owner }: { owner: TakenOwner | undefined }) {
   }
   return (
     <div className="card-owner">
-      {owner.owners.map((each) => (
+      {owner.assignments.map((each) => (
         <div key={each.agent}>
-          <OwnerSummary owner={each} />
+          <DeveloperSummary developer={each} />
           <BranchContext owner={each} />
         </div>
       ))}
@@ -146,7 +157,43 @@ export function TakenOwnerFacts({ owner }: { owner: TakenOwner | undefined }) {
   );
 }
 
-// Profiles the shared reader could not read name no Taken entry, so they are
+// A queued entry's published preparation assignment: Preparing and the
+// assigned developer. Nothing is shown when none is recorded, since Preparing
+// is not a stage every entry passes through; unread profiles and more than
+// one assignment for the entry are shown as uncertainty.
+export function PreparingFacts({
+  preparing,
+}: {
+  preparing: Preparing | undefined;
+}) {
+  if (preparing === undefined || preparing.status === "not-recorded") {
+    return null;
+  }
+  if (preparing.status === "unavailable") {
+    return (
+      <p className="card-owner preparation-problem">
+        Preparation assignment unknown. {preparing.problem}
+      </p>
+    );
+  }
+  const { assignments: preparers } = preparing;
+  return (
+    <div className="card-owner card-preparing">
+      <p className="preparing-activity">Preparing</p>
+      {preparers.map((each) => (
+        <DeveloperSummary key={each.agent} developer={each} />
+      ))}
+      {preparers.length > 1 && (
+        <p className="preparation-problem">
+          Conflicting records: {preparers.length} preparation assignments name
+          this entry.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Profiles the shared reader could not read name no entry, so they are
 // listed with the stage rather than guessed onto a card.
 export function UnreadableProfiles({
   profiles,
@@ -161,7 +208,7 @@ export function UnreadableProfiles({
       {profiles.map(({ file, problem }) => (
         <li key={file} className="preparation-problem">
           Agent profile {file} is unreadable: {problem}. It is not matched to
-          any Taken entry.
+          any entry.
         </li>
       ))}
     </ul>

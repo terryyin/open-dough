@@ -1,6 +1,6 @@
 # Dashboard avatar assets
 
-Taken cards (`dashboard/src/TakenOwnerFacts.tsx`) show these local assets as
+Taken and Preparing cards (`dashboard/src/AgentAssignmentFacts.tsx`) show these local assets as
 decorative identity marks beside their text labels: the agent portraits beside
 recorded agent names, and the mode symbols and tool marks beside their mode and
 host labels. An unrecorded host gets no mark, and no mark implies that an agent

@@ -81,6 +81,7 @@ for (const viewport of [
         "Refined",
         "Slice planned",
         "Ready for execution",
+        "Preparing",
       ]) {
         const badge = dialog.getByText(label, { exact: true });
         await badge.scrollIntoViewIfNeeded();

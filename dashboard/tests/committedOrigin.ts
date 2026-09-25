@@ -47,7 +47,8 @@ export type CommittedOrigin = {
   readonly repository: string;
   readonly repoDir: string;
   hold(repositoryPath: string): () => void;
-  // Answers "main" or a repository path with this raw answer until restore.
+  // Answers "main", a repository path, or a listed directory with this raw
+  // answer until restore.
   answerWith(what: string, answer: OriginAnswer): () => void;
   advanceTo(revision: string): void;
 };
@@ -78,9 +79,12 @@ export function publishCommittedOrigin(
       return asHeadsListing(instead.get("main") ?? commitAnswer(revision));
     }
     if (request.kind === "listing" && request.revision === revision) {
-      return directoryListingAnswer(
-        request.path,
-        listAt(repoDir, revision, request.path),
+      return (
+        instead.get(request.path) ??
+        directoryListingAnswer(
+          request.path,
+          listAt(repoDir, revision, request.path),
+        )
       );
     }
     // Only the currently published revision is readable; any other gets no

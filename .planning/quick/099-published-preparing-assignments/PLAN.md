@@ -247,7 +247,28 @@ automatic expiry or new agent session manager is introduced.
 ### 4. Show Preparing and its developer from published evidence
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/backlog-preparing.spec.ts` renders Git snapshots
+that `dashboard/tests/preparingJourney.ts` produced with the production
+preparation start/release/abandon commands, the recorder and a landing, served
+through `committedOrigin.ts`. It checks, in order:
+
+- no Preparing before any announcement;
+- Preparing with the developer, tool and model, or "not recorded";
+- priorities and badges unchanged;
+- profiles read at the shown revision;
+- a refinement-only landing shows Refined without Ready;
+- abandonment keeps the previously ready badges;
+- a planned landing shows Ready with the rotation advanced;
+- unreadable profiles show as unknown, and two assignments show a conflict at
+  320px.
+
+`taken-agent-profile.spec.ts` shows that a preparation profile never becomes an
+owner. `npm run typecheck:dashboard`, `npm run lint` and the full
+`npm run test:dashboard` pass (115/115). The journey build gets its own
+`beforeAll` budget: under heavy machine load it once exceeded the default
+30-second timeout. Profile reading now lives in `dashboard/src/agentAssignments.ts`
+and `AgentAssignmentFacts.tsx`.
 Proof: a browser journey reads actual production-published assignment/result
 snapshots and shows the appropriate queued card before and after landing.
 
@@ -350,10 +371,13 @@ or begin execution. Keep all current preparation files uncommitted for review.
   `already-released` with `endedBy`, or a `successor` when the name was reused.
   `agent-unavailable` lists `occupied` assignments, and nothing is reclaimed by
   age. Still untested: a second rejection after the one announcement rebuild.
-- For Slice 4: `takenOwner.ts` `interpretProfiles` drops preparation profiles
-  today; project them there for queued cards. The `taken-agent-profile.spec.ts`
-  step asserting backlog entries claim no owner must change once Preparing is
-  shown.
+- Slice 4 shows preparation profiles only on queued entries, as `preparing`.
+  Execution owners, progress routes and slice clocks read only execution
+  profiles. Legend wording avoids live-activity words, which the published-work
+  body scan rejects.
+- Native evidence is still owed. No native start/pause/keep or abandonment run
+  has been made on any host. Under ADR 0005, that acceptance must be owned
+  before release; implementation completion does not certify it.
 - An explicit no-publish or no-commit instruction skips `start`, reports that
   no Preparing assignment was published, and lets preparation continue only as
   that instruction allows.

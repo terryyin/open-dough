@@ -66,8 +66,8 @@ const rina = renderAgentProfile({
   model: "claude-opus-5-5",
 });
 
-// A preparation assignment for the queued story: readable, but it holds no
-// Taken work.
+// A preparation assignment for the queued story: shown as Preparing on its
+// queued card, never as a Taken owner. It records no model.
 const kirara = renderAgentProfile({
   name: "Kirara",
   identity: "SEED-008#planning-workspace-procedure",

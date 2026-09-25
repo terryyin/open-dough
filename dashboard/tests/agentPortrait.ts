@@ -1,4 +1,4 @@
-// What a Taken card shows beside its recorded agent's name, mode, and host.
+// What a card shows beside its recorded agent's name, mode, and host.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";

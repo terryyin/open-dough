@@ -154,7 +154,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(
       taken.getByRole("list", { name: "Unreadable agent profiles" }),
     ).toHaveText([
-      "Agent profile mana-chan.json is unreadable: profile is not JSON. It is not matched to any Taken entry.",
+      "Agent profile mana-chan.json is unreadable: profile is not JSON. It is not matched to any entry.",
     ]);
     for (const agent of ["Mana-chan", "Kirara-chan"])
       await expect(
@@ -164,9 +164,27 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(taken.locator(".owner-mark")).toHaveCount(8);
   });
 
-  await test.step("Backlog entries claim no owner", async () => {
-    await expect(queue).not.toContainText("-chan");
-    await expect(queue).not.toContainText("Owner");
+  await test.step("a queued entry shows its preparation assignment as Preparing, never as an owner", async () => {
+    const preparing = queue.getByRole("article", { name: queued });
+    await expect(preparing.locator(".preparing-activity")).toHaveText(
+      "Preparing",
+    );
+    await expect(preparing.locator(".owner-summary")).toHaveText(
+      "Kirara-chan · Claude Code · model not recorded",
+    );
+    await expectPortrait(preparing, "Kirara-chan", {
+      atlas: 2,
+      position: "0% 12.5%",
+    });
+    await expectMark(
+      preparing,
+      "host",
+      "Claude Code",
+      "tool-avatars/claude.png",
+    );
+    await expect(preparing.locator(".owner-mode")).toHaveCount(0);
+    await expect(preparing).not.toContainText("Owner");
+    await expect(preparing).not.toContainText(/Mode|Branch context|Trunk:/);
   });
 
   await test.step("the profile directory is listed at the revision, and only profile files are read", () => {

@@ -43,6 +43,10 @@ title, owner, or inferred activity. Do not add Refined, Planned, Running, or
 Done stages to fill out a pipeline before their meaning and evidence are
 selected. Later refinement and planning facts may be independent annotations,
 not exclusive destinations. A missing entry is not proof of completion.
+Show **Preparing** and its assigned developer as such an annotation on a queued
+card while a published preparation assignment names that story. The card keeps
+its region, priority, and badges; Preparing is not a stage every story passes
+through or evidence that an agent is running. The badge legend explains it.
 
 The initial layout hypothesis is a left-to-right flow with a visible connector,
 clear region boundaries, and story cards that stay attached to their stage as

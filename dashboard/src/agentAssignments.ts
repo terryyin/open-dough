@@ -1,11 +1,12 @@
-// Who holds each Taken entry, from the agent profiles published beside the
-// backlog at the snapshot's revision. What a profile says is decided by the
-// shared profile reader under `src/skills/dough-product-backlog/scripts/`;
-// its answer is checked here for the fields this dashboard shows. A profile
-// refers to its work by identity. An unreadable profile names no identity, so
-// it is reported as unreadable and never matched to an entry by guess. A
-// preparation assignment is readable but owns no Taken work, so it records no
-// execution mode or branch and never becomes an execution owner here.
+// Who holds each Taken entry, and who is preparing each queued entry, from
+// the agent profiles published beside the backlog at the snapshot's revision.
+// What a profile says is decided by the shared profile reader under
+// `src/skills/dough-product-backlog/scripts/`; its answer is checked here for
+// the fields this dashboard shows. A profile refers to its work by identity.
+// An unreadable profile names no identity, so it is reported as unreadable and
+// never matched to an entry by guess. A preparation assignment records no
+// execution mode or branch: it is only ever a queued entry's preparer, never
+// an execution owner, so it cannot route progress or start a slice clock.
 
 import { z } from "zod";
 import {
@@ -50,25 +51,38 @@ const readProfile = z.discriminatedUnion("ok", [
 export type AgentMode = z.infer<typeof agentMode>;
 export type AgentHost = z.infer<typeof agentHost>;
 
-// One published profile's facts, and the repository path it is published
-// at; host and model stay undefined when the profile does not record them.
-// `name` is the agent's place in the shared rotation; `agent` is how it is
-// shown.
-export type AgentOwner = {
+// One published assignment's developer facts, and the repository path its
+// profile is published at; host and model stay undefined when the profile
+// does not record them. `name` is the agent's place in the shared rotation;
+// `agent` is how it is shown.
+export type AgentAssignment = {
   readonly profilePath: string;
   readonly name: string;
   readonly agent: string;
-  readonly mode: AgentMode;
-  readonly branch: string;
   readonly host: AgentHost | undefined;
   readonly model: string | undefined;
 };
 
-export type TakenOwner =
-  | { readonly status: "loading" }
+// An execution assignment also records where its work is published.
+export type AgentOwner = AgentAssignment & {
+  readonly mode: AgentMode;
+  readonly branch: string;
+};
+
+// The published assignments naming one entry, or the gap when none is
+// recorded or the profiles could not be read.
+type Assignments<T extends AgentAssignment> =
   | { readonly status: "unavailable"; readonly problem: string }
   | { readonly status: "not-recorded" }
-  | { readonly status: "recorded"; readonly owners: readonly AgentOwner[] };
+  | { readonly status: "recorded"; readonly assignments: readonly T[] };
+
+export type TakenOwner =
+  { readonly status: "loading" } | Assignments<AgentOwner>;
+
+// Queued entries only: the published preparation assignments naming the
+// entry. More than one is conflicting evidence, shown as such, never resolved
+// by picking one. It records an undertaking, not live activity.
+export type Preparing = Assignments<AgentAssignment>;
 
 // A published profile the shared reader could not read, by its file name.
 export type UnreadableProfile = {
@@ -76,15 +90,23 @@ export type UnreadableProfile = {
   readonly problem: string;
 };
 
-type Ownership = {
+type ProfileAssignments = {
   readonly owners: ReadonlyMap<string, readonly AgentOwner[]>;
+  readonly preparers: ReadonlyMap<string, readonly AgentAssignment[]>;
   readonly unreadable: readonly UnreadableProfile[];
 };
 
 const profilesUnreadProblem = "Agent profiles could not be read.";
 
-function interpretProfiles(profiles: readonly PublishedProfile[]): Ownership {
+function add<T>(map: Map<string, T[]>, identity: string, value: T) {
+  map.set(identity, [...(map.get(identity) ?? []), value]);
+}
+
+function interpretProfiles(
+  profiles: readonly PublishedProfile[],
+): ProfileAssignments {
   const owners = new Map<string, AgentOwner[]>();
+  const preparers = new Map<string, AgentAssignment[]>();
   const unreadable: UnreadableProfile[] = [];
   for (const { path, text } of profiles) {
     const file = path.split("/").pop() ?? path;
@@ -111,35 +133,35 @@ function interpretProfiles(profiles: readonly PublishedProfile[]): Ownership {
       continue;
     }
     const { profile } = read.data;
-    if (profile.activity !== "execution") continue;
-    const { name, identity, mode, branch, host, model } = profile;
-    owners.set(identity, [
-      ...(owners.get(identity) ?? []),
-      {
-        profilePath: path,
-        name,
-        agent: agentIdentity(name).agent,
-        mode,
-        branch,
-        host,
-        model,
-      },
-    ]);
+    const { name, identity, host, model } = profile;
+    const assignment: AgentAssignment = {
+      profilePath: path,
+      name,
+      agent: agentIdentity(name).agent,
+      host,
+      model,
+    };
+    if (profile.activity === "preparation") {
+      add(preparers, identity, assignment);
+    } else {
+      const { mode, branch } = profile;
+      add(owners, identity, { ...assignment, mode, branch });
+    }
   }
-  return { owners, unreadable };
+  return { owners, preparers, unreadable };
 }
 
-function ownerOf(
+function assignmentsOf<T extends AgentAssignment>(
   identity: string,
-  ownership: Ownership | undefined,
-): TakenOwner {
-  if (ownership === undefined) {
+  byIdentity: ReadonlyMap<string, readonly T[]> | undefined,
+): Assignments<T> {
+  if (byIdentity === undefined) {
     return { status: "unavailable", problem: profilesUnreadProblem };
   }
-  const owners = ownership.owners.get(identity);
-  return owners === undefined
+  const assignments = byIdentity.get(identity);
+  return assignments === undefined
     ? { status: "not-recorded" }
-    : { status: "recorded", owners };
+    : { status: "recorded", assignments };
 }
 
 // Every Taken entry waits for its owner while profiles are read.
@@ -154,12 +176,12 @@ export function awaitingOwners(work: PublishedWork): PublishedWork {
 }
 
 // Reads the revision's profiles; a failed or abandoned read is a gap on each
-// Taken entry, never an empty ownership.
-export async function readOwnership(
+// Taken and queued entry, never an empty set of assignments.
+export async function readAssignments(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-): Promise<Ownership | undefined> {
+): Promise<ProfileAssignments | undefined> {
   try {
     return interpretProfiles(
       await readAgentProfilesAt(source, revision, signal),
@@ -169,16 +191,20 @@ export async function readOwnership(
   }
 }
 
-export function withOwners(
+export function withAssignments(
   work: PublishedWork,
-  ownership: Ownership | undefined,
+  assignments: ProfileAssignments | undefined,
 ): PublishedWork {
   return {
     ...work,
     taken: work.taken.map((entry) => ({
       ...entry,
-      owner: ownerOf(entry.identity, ownership),
+      owner: assignmentsOf(entry.identity, assignments?.owners),
     })),
-    unreadableProfiles: ownership?.unreadable ?? [],
+    backlog: work.backlog.map((entry) => ({
+      ...entry,
+      preparing: assignmentsOf(entry.identity, assignments?.preparers),
+    })),
+    unreadableProfiles: assignments?.unreadable ?? [],
   };
 }
