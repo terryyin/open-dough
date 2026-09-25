@@ -4,6 +4,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/expect-in-log.bash
+source "${source_dir}/tests/helpers/expect-in-log.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
@@ -36,8 +39,8 @@ if PATH="${temporary_dir}/bin:${PATH}" "${BASH}" "${fixture}/scripts/test.sh" > 
   echo 'FAIL: the runner accepted unsupported child Bash.' >&2
   exit 1
 fi
-grep -q -F -- "${temporary_dir}/bin/bash (version 3.2.57(1)-release)" "${temporary_dir}/old.log"
-grep -q -F -- 'put its bin directory first on PATH' "${temporary_dir}/old.log"
+expect_in_log "${temporary_dir}/old.log" -F -- "${temporary_dir}/bin/bash (version 3.2.57(1)-release)"
+expect_in_log "${temporary_dir}/old.log" -F -- 'put its bin directory first on PATH'
 if [[ -e ${markers}/test-started || -e ${markers}/self-check ]] \
   || grep -E -- 'test-started|unsupported-child-ran' "${temporary_dir}/old.log"; then
   echo 'FAIL: unsupported Bash reached a suite check.' >&2
@@ -51,8 +54,8 @@ if PATH="${temporary_dir}/bin:${PATH}" "${BASH}" "${fixture}/scripts/test.sh" > 
   echo 'FAIL: the runner accepted a failing assertion.' >&2
   exit 1
 fi
-grep -q -F -- 'test-started' "${temporary_dir}/failed.log"
-grep -q -F -- 'FAIL: tests/assertion.sh' "${temporary_dir}/failed.log"
+expect_in_log "${temporary_dir}/failed.log" -F -- 'test-started'
+expect_in_log "${temporary_dir}/failed.log" -F -- 'FAIL: tests/assertion.sh'
 if grep -F -- 'assertion-was-masked' "${temporary_dir}/failed.log"; then
   echo 'FAIL: Bash ignored the assertion failure.' >&2
   exit 1

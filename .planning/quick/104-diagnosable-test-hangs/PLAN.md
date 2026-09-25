@@ -225,6 +225,23 @@ line-continuation style in `report_job`. The coordinator had piped
 `npm run format` produced the fix, after which `npm run lint` and the three
 runner tests pass.
 
+CI repair (runs 36147702793 and 36147903046, `test`, on `1e648d9` and
+`decb252`): `tests/test-runner-interrupt.sh` failed silently on ubuntu-24.04.
+The cause is a runner defect exposed by Bash 5.2 (CI) and hidden by Bash 5.3
+(macOS). `report_job` ended its interrupted branch with a bare `return`. When
+it is called from the INT/TERM trap, Bash before 5.3 gives that `return` the
+interrupted `wait`'s status, so `set -e` ended the report after the first
+interrupted job. The fix is `return 0`.
+
+The runner tests now assert report lines through
+`tests/helpers/expect-in-log.bash`, which prints the log instead of dying
+silently. In Docker ubuntu:24.04 (Bash 5.2.21) the old code failed 3 of 3
+runs. The fixed code passed 21 Linux runs, direct and as a runner job. On
+macOS all three runner tests pass.
+
+Learning: macOS Homebrew Bash is newer than CI's Bash, so check runner and
+trap behavior in a Linux container before publishing.
+
 ## Slice 4 — A job that leaves no status is reported as failed
 
 Type: Behavior

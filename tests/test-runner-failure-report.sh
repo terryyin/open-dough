@@ -2,6 +2,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/expect-in-log.bash
+source "${source_dir}/tests/helpers/expect-in-log.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 checks="${temporary_dir}/checks"
@@ -34,8 +37,8 @@ if ((suite_status != 1)); then
   printf 'FAIL: the runner exited %s for a failing check, not 1.\n' "${suite_status}" >&2
   exit 1
 fi
-grep -q -F -- "FAIL: ${checks}/failing.sh" "${temporary_dir}/failing.log"
-grep -q -F -- 'failing-started' "${temporary_dir}/failing.log"
+expect_in_log "${temporary_dir}/failing.log" -F -- "FAIL: ${checks}/failing.sh"
+expect_in_log "${temporary_dir}/failing.log" -F -- 'failing-started'
 if grep -E -- 'Running |helper-ran|failing-continued|FAIL: .*(first|second|helper)' \
   "${temporary_dir}/failing.log"; then
   echo 'FAIL: the runner reported more than the failing check and its output.' >&2
@@ -52,9 +55,9 @@ if ((suite_status != 1)); then
   exit 1
 fi
 for noisy in noisy-stderr:stderr-warning noisy-stdout:stdout-chatter; do
-  grep -q -F -- "FAIL: ${checks}/${noisy%%:*}.sh (passed but printed output)" \
-    "${temporary_dir}/noisy.log"
-  grep -q -F -x -- "${noisy#*:}" "${temporary_dir}/noisy.log"
+  expect_in_log "${temporary_dir}/noisy.log" \
+    -F -- "FAIL: ${checks}/${noisy%%:*}.sh (passed but printed output)"
+  expect_in_log "${temporary_dir}/noisy.log" -F -x -- "${noisy#*:}"
 done
 if grep -E -- 'FAIL: .*(first|second|helper)|helper-ran' "${temporary_dir}/noisy.log"; then
   echo 'FAIL: the runner reported a silent passing check or a support file.' >&2
@@ -81,7 +84,7 @@ fi
 for expected in "FAIL: ${checks}/node/node-failing.test.mjs" 'not ok: node-failing' \
   node-failing-error node-failing-output \
   "FAIL: ${checks}/node/node-noisy.test.mjs (passed but printed output)" node-noisy-output; do
-  grep -q -F -- "${expected}" "${temporary_dir}/node.log"
+  expect_in_log "${temporary_dir}/node.log" -F -- "${expected}"
 done
 if grep -E -- 'node-quiet|FAIL: .*(first|second)' "${temporary_dir}/node.log"; then
   echo 'FAIL: the runner reported a silent passing node file or shell check.' >&2

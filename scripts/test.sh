@@ -128,7 +128,9 @@ report_job() {
       tail -n 40 -- "${log}"
     } >&2
     status=1
-    return
+    # An explicit status: under the interrupt trap, Bash before 5.3 gives a
+    # bare `return` the interrupted `wait`'s status, which `set -e` ends on.
+    return 0
   fi
   if [[ ${job_status} -eq 0 ]]; then
     [[ -s ${log} ]] || return 0

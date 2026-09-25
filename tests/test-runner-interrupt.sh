@@ -8,6 +8,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/wait-for.bash
 source "${source_dir}/tests/helpers/wait-for.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/expect-in-log.bash
+source "${source_dir}/tests/helpers/expect-in-log.bash"
 temporary_dir=$(mktemp -d)
 checks="${temporary_dir}/checks"
 cleanup() {
@@ -59,7 +62,10 @@ await_ready() {
     cat -- "${temporary_dir}"/*.log >&2
     exit 1
   fi
-  pgrep -f -- "${checks}/$1" > /dev/null
+  if ! pgrep -f -- "${checks}/$1" > /dev/null; then
+    printf 'FAIL: %s announced it was running, but no process runs it.\n' "$1" >&2
+    exit 1
+  fi
 }
 
 # Sends SIGNAL to the runner started for RUN, then asserts that the runner
@@ -76,13 +82,13 @@ interrupt_runner() {
     cat -- "${log}" >&2
     exit 1
   fi
-  grep -q -F -x -- "Test run interrupted by SIG${signal}." "${log}"
+  expect_in_log "${log}" -F -x -- "Test run interrupted by SIG${signal}."
 }
 
 assert_interrupted() {
   local log="${temporary_dir}/$1.log" check=$2
-  grep -q -E -- "^INTERRUPTED: ${checks}/${check} \\(after [0-9]+\\.[0-9]s\\); last lines of its output:\$" "${log}"
-  grep -q -F -x -- "${check}-printed" "${log}"
+  expect_in_log "${log}" -E -- "^INTERRUPTED: ${checks}/${check} \\(after [0-9]+\\.[0-9]s\\); last lines of its output:\$"
+  expect_in_log "${log}" -F -x -- "${check}-printed"
   wait_for "no process from ${check} to remain" 10 \
     "! pgrep -f -- '${checks}/${check}' > /dev/null"
 }
