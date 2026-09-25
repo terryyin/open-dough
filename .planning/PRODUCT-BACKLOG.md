@@ -18,10 +18,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
-- [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations
 - [Finish story 1 event synchronization and native evidence inputs](quick/102-finish-story-event-synchronization/PLAN.md)
-- [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
 - [Release a lost workspace's preparation assignment and stop keeps whose story left the queue](quick/103-lost-workspace-preparation-release/PLAN.md)
+- [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations
+- [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
