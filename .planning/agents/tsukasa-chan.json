@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsukasa-chan",
+  "email": "tsukasa-chan@example.org",
+  "identity": "quick/101-startup-readiness-proof-consolidation/PLAN.md",
+  "mode": "story-branch",
+  "branch": "claude/101-startup-readiness-proof-consolidation",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
