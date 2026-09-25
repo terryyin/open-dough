@@ -56,6 +56,10 @@ signal ended, `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its
 output; it then exits 130 for INT or 143 for TERM. Workers a check detaches
 from its process group are that check's own teardown.
 `tests/test-runner-interrupt.sh` proves this with substitute checks.
+`npm test` execs the runner (`package.json`), and CI's check step execs `npm`,
+so a signal sent only to the step's top process, as a cancelled Actions run
+does, still reaches the runner (see that step's comment in
+`.github/workflows/ci.yml`).
 
 Tests wait for an observable event, never for elapsed wall time. Shell checks
 use `wait_for` or `poll_until` from `tests/helpers/wait-for.bash`; a missed

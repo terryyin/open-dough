@@ -323,6 +323,22 @@ Workflow change accepted (2026-09-25): `timeout-minutes: 8` on `check` and
 `dashboard`. `ci-workflow-path-policy.test.mjs` passes 6/6. No repository
 prose documented the old value. Recent jobs ran 34–200 s.
 
+First demonstration (run 36149578405, cancelled about 80 s into the `test`
+step): the step log showed no report, which the plan names a slice 3 defect in
+signal delivery. The actions/runner `ProcessInvoker` sends
+`kill(pid, SIGINT)`, then SIGTERM 7.5 s later, to the step shell's pid only.
+The step's `bash -e` did not exec `npm`, and `npm`'s `sh -c` (dash) did not
+exec the runner, so the runner never got a signal.
+
+The fix is `exec npm run …` in the workflow step and
+`"test": "exec bash scripts/test.sh"` in `package.json`, and
+`tests/README.md` links the two. In a Docker `node:24` harness that imitates
+`ProcessInvoker`, the report now appears within a second of SIGINT and the
+step exits 130 with no processes left. `exec` at only one layer is not enough.
+Normal runs are unchanged, and a terminal Ctrl-C through `npm test` gives
+exactly one report (5 of 5 runs). The dashboard job's `npm` steps have the
+same gap and are out of scope.
+
 ## Preparation review and learnings
 
 - CI observation (Story Branch Mode): GitHub Actions `ci.yml` (`CI`) on
