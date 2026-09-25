@@ -223,7 +223,14 @@ baseline shows other local-only failures, they belong here too.
 ### 2. The suite runner reports only failing checks
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `bash tests/test-runner-failure-report.sh` (substitute checks
+through the new `OPEN_DOUGH_TEST_DIR` input: all pass → empty stdout and
+stderr, exit 0; one fails → exit 1, only `FAIL: <label>` and its log, no
+`Running` headers, passing output and `support/` hidden);
+`bash tests/test-runner-bash.sh` (marker files prove default discovery still
+runs a valid check and `check-self-installation.sh`); a full `npm test` exited
+0 with empty stderr and only npm's banner on stdout.
 Proof: a runner test (a new `tests/*.sh` entry) runs `scripts/test.sh`
 against substitute checks through a runner-supported test-directory input:
 - all substitutes pass → the runner prints nothing and exits 0;
@@ -466,3 +473,27 @@ The deferred promises have no slice.
   process's lifecycle: it fails, with exit code and stderr, only if that
   process exits before pushing. A startup that hangs without exiting stays as
   unbounded as the tests' existing `await started.result`.
+- **Baseline (start revision `bad3717`, relative conditions).** Apple M4 Max
+  (16 cores), macOS 26.6.2, Node 24.5.0, Bash 5.3.20 first on `PATH`,
+  Playwright 1.63.0, `npm ci`, `OPEN_DOUGH_TEST_JOBS` unset, measured in a
+  detached reference checkout of `bad3717` with a timing `bash` shim that
+  records each top-level check's wall time. 1-minute load at run starts:
+  61, 66, 54 (`npm test`) and 62, 69, 28 (dashboard).
+  - `npm test`: 747.9 s (fail), 625.8 s (fail), 353.7 s (pass); median
+    **625.8 s**. Dashboard: 50.3, 23.8, 39.1 s; median **39.1 s**. Sum
+    **664.9 s**. Treat these absolute numbers as a profile only; the target is
+    judged by paired runs (see **Comparable measurement**).
+  - Cases per run: 56 shell checks plus `check-self-installation.sh`, 507
+    `node --test` tests, 114 Playwright tests. A passing `npm test` printed
+    932 lines.
+  - Failures: runs 1 and 2 failed 4 and 2 startup race tests, all
+    `timed out waiting for …/push-arrived` (slice 1's cause); nothing else.
+  - Median per-check wall time (s): `execution-ci-runtime.sh` 569,
+    `install-all-tools.sh` 199, `product-backlog-payload-update.sh` 139,
+    `git-publication-native.sh` 102, `execution-payload-update.sh` 101,
+    `retrospective-reference-payload.sh` 97, `update-skip-verified.sh` 90,
+    `native-stream-completeness.sh` 83, `closure-publication.sh` 82,
+    `update-refuses-unverifiable.sh` 63, `native-result-retention.sh` 59,
+    `workspace-publication-callers.sh` 56; every other check under 55. Serial
+    sum of per-check medians about 2250 s against a 626 s wall median, so the
+    four slots are busy and `execution-ci-runtime.sh` is the critical path.

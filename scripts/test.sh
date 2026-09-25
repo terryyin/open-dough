@@ -59,23 +59,31 @@ launch() {
   run_job "${index}" "$@" &
 }
 
-find tests -type f -name '*.sh' ! -path 'tests/support/*' -print0 > "${output_root}/tests"
+# OPEN_DOUGH_TEST_DIR names another directory of checks, such as substitutes
+# in a runner test; it replaces the suite's own checks entirely.
+test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
+  > "${output_root}/tests"
 while IFS= read -r -d '' test_file; do
   launch "${test_file}" "${test_bash}" "${test_file}"
 done < "${output_root}/tests"
 
-launch 'scripts/check-self-installation.sh' \
-  "${test_bash}" "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
+if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
+  launch 'scripts/check-self-installation.sh' \
+    "${test_bash}" "${source_dir}/scripts/check-self-installation.sh" "${source_dir}"
+fi
 
 wait
 
+# Report only failing checks, each with its own captured output.
 status=0
 for index in "${!labels[@]}"; do
-  printf '\nRunning %s\n' "${labels[index]}"
-  cat -- "${output_root}/${index}.log"
   read -r job_status < "${output_root}/${index}.status"
   if [[ ${job_status} -ne 0 ]]; then
-    printf 'FAIL: %s\n' "${labels[index]}" >&2
+    {
+      printf 'FAIL: %s\n' "${labels[index]}"
+      cat -- "${output_root}/${index}.log"
+    } >&2
     status=1
   fi
 done
