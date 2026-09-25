@@ -24,6 +24,7 @@ import {
   runCommand,
 } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { blockingGithubEnvironment } from "./watch-ci-test-fixtures.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 // The provider is blocked so these tests isolate the live stream/completion
 // boundary while publishing the same atomic coverage records as the observer.
@@ -32,6 +33,8 @@ test("real stream identity supports pending exact and ancestor completion", asyn
     for (const verdict of ["success", "failure"]) {
       await t.test(`${source} pending to ${verdict}`, async (t) => {
         const env = blockingGithubEnvironment(t);
+        const commands = fixtureTeardown();
+        t.after(commands.cleanup);
         const replay = createCodexReplay(env);
         const attached = await replay.setup();
         t.after(() => attached.process.kill("SIGKILL"));
@@ -61,8 +64,7 @@ test("real stream identity supports pending exact and ancestor completion", asyn
           `${sha}.json`,
           coverage("pending"),
         );
-        const waiting = launchAwait(env, attached.directory, sha);
-        t.after(() => waiting.child.kill("SIGTERM"));
+        const waiting = launchAwait(commands, env, attached.directory, sha);
         // Each recheck follows a pass that read the pending coverage and found
         // the stream alive; a receipt written instead would end the wait.
         await waiting.waitForRechecks(2);
@@ -84,8 +86,12 @@ test("real stream identity supports pending exact and ancestor completion", asyn
           result.effectiveEvidence.source,
           source === "exact" ? "exact" : "not_required_basis",
         );
-        const completion = launchComplete(env, attached.directory, sha);
-        t.after(() => completion.child.kill("SIGTERM"));
+        const completion = launchComplete(
+          commands,
+          env,
+          attached.directory,
+          sha,
+        );
         const completionOutput = await completion.completed;
         assert.equal(completionOutput.code, 0, completionOutput.stderr);
         const finished = parseReceipt(completionOutput.stdout);

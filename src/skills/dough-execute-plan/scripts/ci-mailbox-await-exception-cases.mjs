@@ -37,7 +37,7 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
   await t.test("terminal incomplete coverage", async (t) => {
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
-    const waiting = launchAwait(fixture.env, fixture.mailbox);
+    const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
     releaseRun(fixture.directory, {
       status: "completed",
       conclusion: "cancelled",
@@ -51,7 +51,7 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
   await t.test("monitor unavailable event", async (t) => {
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
-    const waiting = launchAwait(fixture.env, fixture.mailbox);
+    const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
     publishMailboxEvent(fixture.mailbox, {
       type: "CI_MONITOR_UNAVAILABLE",
       repo: "owner/repo",
@@ -67,7 +67,7 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
   await t.test("wait cancellation", async (t) => {
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
-    const waiting = launchAwait(fixture.env, fixture.mailbox);
+    const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
     await waiting.waitForCancellationReady();
     waiting.child.kill("SIGTERM");
     const completed = await waiting.completed;
@@ -83,7 +83,7 @@ test("a discovery advisory is nonterminal, while stopped observation and timeout
   await t.test("discovery advisory and observation cancellation", async (t) => {
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
-    const waiting = launchAwait(fixture.env, fixture.mailbox);
+    const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
     publishMailboxEvent(fixture.mailbox, {
       type: "CI_DISCOVERY_DELAYED",
       repo: "owner/repo",

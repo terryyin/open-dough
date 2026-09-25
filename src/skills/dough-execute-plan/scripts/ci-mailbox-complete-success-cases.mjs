@@ -23,7 +23,11 @@ test("complete-revision awaits pending success, returns one receipt with confirm
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   const deliveryBefore = readDeliveryProgress(fixture.mailbox);
-  const waiting = launchComplete(fixture.env, fixture.mailbox);
+  const waiting = launchComplete(
+    fixture.teardown,
+    fixture.env,
+    fixture.mailbox,
+  );
   await new Promise((resolve) => setTimeout(resolve, 75));
   assert.equal(waiting.output(), "");
 

@@ -339,7 +339,7 @@ asserts a worker that is already dead.
 ### 3. Process-mailbox observers and CLI children are stopped before removal
 
 Type: Structure (owns F4)
-Status: planned
+Status: done
 
 Change: `setupProcessMailbox` uses `fixtureTeardown` and defers its observer
 stop. `launchMailboxCommand` takes the fixture's teardown and defers kill and
@@ -355,6 +355,30 @@ file) running; after, the file exits and no child remains. A temporarily
 failing stop fails the test and the directory is gone. The test files that
 import the five `-cases` modules, `ci-mailbox-launch.test.mjs` and
 `ci-mailbox-worker-loss.test.mjs` pass; leak sweep empty.
+
+Accepted proof (2026-09-26; private `TMPDIR`):
+
+- Correction to the planned before-observation: with a working stop, a
+  temporary failure right after `launchAwait` in "the real CLI quietly awaits
+  pending exact coverage" did not keep the child alive on HEAD — the teardown
+  `stop` ended the mailbox and `await-revision` exited `observation_cancelled`.
+  The exposure is a failing stop (or a child that outlives its mailbox). With
+  that failure plus a temporarily failing stop, HEAD kept the file, the
+  `await-revision` child, and the worker running until the worker's 60 s
+  budget (about 86 s) and left `ci-process-test-*`; after the fix the file
+  exited in about 1 s (1 fail, 0 cancelled), the child was gone, and the
+  fixture was removed.
+- A temporarily wrong launcher in `setupProcessMailbox`'s deferred stop failed
+  the test with `Command failed: … stop` and the fixture directory was gone.
+- From the repository root (`ci-mailbox-complete.test.mjs` needs the root as
+  cwd): `node --test src/skills/dough-execute-plan/scripts/{ci-mailbox-await,ci-mailbox-complete,ci-mailbox-launch,ci-mailbox-worker-loss,ci-codex-completion}.test.mjs`
+  → 56 pass, 0 fail, 0 cancelled; leak sweep and private `TMPDIR` empty.
+
+Delivered structure: `setupProcessMailbox` owns a `fixtureTeardown` with
+`deferObserverStop` and returns it; `launchAwait`/`launchComplete(teardown, …)`
+defer SIGKILL plus awaited exit for each command child. The extra consumer
+`ci-codex-completion.test.mjs` uses a root-less teardown for its command
+children until slice 4 folds it into `blockingGithubEnvironment`'s teardown.
 
 ### 4. Blocking-GitHub environment tests stop observers before the root is removed
 
