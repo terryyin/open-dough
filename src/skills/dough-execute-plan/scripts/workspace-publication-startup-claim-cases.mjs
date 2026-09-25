@@ -29,7 +29,6 @@ for (const mode of agentModes) {
       "owner",
     ]);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
-    assert.equal(receipt.projectSetupRequired, true);
     assert.equal(receipt.plan, "quick/A/PLAN.md");
     assert.equal(
       await lsRemoteSha(trunk.origin, "refs/heads/main"),
@@ -39,8 +38,8 @@ for (const mode of agentModes) {
       await revParse(trunk.integration, "HEAD"),
       receipt.publishedSha,
     );
-    assert.equal(receipt.beforeMaintenance.result, "already current");
-    assert.equal(receipt.afterMaintenance.result, "advanced");
+    assert.deepEqual(receipt.maintenance, { result: "advanced" });
+    assert.equal("earlierMaintenance" in receipt, false);
     const remote = await remoteBacklog(workspace);
     assert.equal(takenIdentities(remote).includes(identityA), true);
     assert.match(remote, /\(\[plan\]\(quick\/A\/PLAN\.md\)\)/);
@@ -65,8 +64,9 @@ test("startup resolves a non-default remote and trunk branch", async (t) => {
     "trunk",
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.remote, "upstream");
-  assert.equal(receipt.target, "refs/heads/trunk");
+  // Supplied remote and target are invocation context, not echoed back.
+  assert.equal("remote" in receipt, false);
+  assert.equal("target" in receipt, false);
   assert.equal(
     await lsRemoteSha(trunk.origin, "refs/heads/trunk"),
     receipt.publishedSha,
@@ -135,7 +135,6 @@ test("failed project command after accepted startup leaves the claim and workspa
   t.after(trunk.cleanup);
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.projectSetupRequired, true);
   const readiness = await runReadinessGate(workspace, process.env);
   assert.equal(readiness.ok, false);
   assert.deepEqual(

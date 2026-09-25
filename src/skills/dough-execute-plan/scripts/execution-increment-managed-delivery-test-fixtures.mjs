@@ -90,17 +90,29 @@ export async function createManagedFixture({
   preferredAlias,
 } = {}) {
   const base = await createCleanTrunkFixture();
-  const storage = join(base.fixture, "mailboxes");
-  const releasePath = join(base.fixture, "release.json");
-  const callsPath = join(base.fixture, "calls.jsonl");
-  mkdirSync(join(base.execution, ".planning"), { recursive: true });
-  const skills = platforms.map((platform) =>
-    deploySkill(base.execution, platform),
-  );
+  return {
+    ...base,
+    preferredAlias,
+    ...(await installManagedDelivery(base.fixture, base.execution, platforms)),
+  };
+}
+
+// Installs the skill and a controlled CI adapter into an existing execution
+// checkout `root`, keeping fixture-owned state under `fixture`.
+export async function installManagedDelivery(
+  fixture,
+  root,
+  platforms = [".agents"],
+) {
+  const storage = join(fixture, "mailboxes");
+  const releasePath = join(fixture, "release.json");
+  const callsPath = join(fixture, "calls.jsonl");
+  mkdirSync(join(root, ".planning"), { recursive: true });
+  const skills = platforms.map((platform) => deploySkill(root, platform));
   const skill = skills[0];
-  const adapter = writeAdapter(base.fixture, releasePath, callsPath);
+  const adapter = writeAdapter(fixture, releasePath, callsPath);
   writeFileSync(
-    join(base.execution, ".planning/open-dough.json"),
+    join(root, ".planning/open-dough.json"),
     JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
   );
   const env = {
@@ -122,17 +134,15 @@ export async function createManagedFixture({
     session,
     authority: "publish",
     env,
-    root: base.execution,
+    root,
     storage,
     maxDurationMs: 60_000,
   };
   return {
-    ...base,
     storage,
     skill,
     env,
     session,
-    preferredAlias,
     requestBase,
     deliverManagedExecutionIncrement,
     resumeManagedExecutionIncrement,
@@ -160,7 +170,7 @@ export async function createManagedFixture({
       const child = spawn(
         process.execPath,
         [join(skill, "scripts/ci-mailbox.mjs"), "stop", directory],
-        { cwd: base.execution, env, stdio: "ignore" },
+        { cwd: root, env, stdio: "ignore" },
       );
       await once(child, "exit");
     },

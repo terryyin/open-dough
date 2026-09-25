@@ -3,8 +3,15 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
+  assertCheckoutUnchanged,
+  captureCheckout,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
+import {
+  busyCheckout,
   createQueuedTrunk,
   identityA,
 } from "./workspace-publication-fixtures.mjs";
@@ -22,38 +29,54 @@ import {
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
-test("pre-push interruption resumes the retained candidate without another Take", async (t) => {
+test("a pre-push interruption in a busy checkout returns compact recovery that resumes without another Take", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
+  await busyCheckout(trunk, 1500, 2000);
   await interruptFirstPush(trunk);
+  const before = await captureCheckout(trunk.integration);
   const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.code, 1);
   assert.equal(interrupted.receipt.status, "unpublished");
-  assert.equal(
-    interrupted.receipt.recovery.candidateSha,
-    await revParse(interrupted.workspace, "HEAD"),
+  assert.deepEqual(interrupted.receipt.maintenance, {
+    result: "deferred",
+    reason: "pending-edit",
+  });
+  assert.doesNotMatch(
+    JSON.stringify(interrupted.receipt),
+    /inventory|staged\.txt|unrelated patch/,
   );
+  const { recovery } = interrupted.receipt;
   assert.equal(
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
-    trunk.trunkSha,
+    recovery.startingRevision,
   );
-  const resume = await startProcess(
+  assert.equal(
+    recovery.startingRevision,
+    await revParse(trunk.integration, "HEAD"),
+  );
+  assert.equal(
+    recovery.candidateSha,
+    await revParse(interrupted.workspace, "HEAD"),
+  );
+  const resumed = await startProcess(
     trunk,
     "a",
     identityA,
-    resumeArgs({
-      ...interrupted.receipt.recovery,
-      startingRevision: trunk.trunkSha,
-    }),
+    resumeArgs(recovery),
   ).result;
-  assert.equal(resume.receipt.ok, true, JSON.stringify(resume));
-  assert.equal(resume.receipt.created, false);
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  assert.equal(resumed.receipt.created, false);
+  assert.equal(resumed.receipt.publishedSha, recovery.candidateSha);
   assert.equal(
-    resume.receipt.publishedSha,
-    interrupted.receipt.recovery.candidateSha,
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    recovery.candidateSha,
   );
-  const log = (await git(resume.workspace, "log", "--format=%B", "origin/main"))
-    .stdout;
+  const log = (
+    await git(resumed.workspace, "log", "--format=%B", "origin/main")
+  ).stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
+  assertCheckoutUnchanged(before, await captureCheckout(trunk.integration));
 });
 
 test("a claim made without a profile resumes without naming an agent", async (t) => {
@@ -167,37 +190,6 @@ test("lost push response and later remote descendant resume as owned without ano
     await git(trunk.integration, "log", "--format=%B", "origin/main")
   ).stdout;
   assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
-});
-
-test("accepted claim with deferred refresh resumes local maintenance only", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const first = await startProcess(trunk, "a", identityA, [
-    "--declared-owner",
-    "other",
-    "--requester",
-    "owner",
-  ]).result;
-  assert.equal(first.receipt.ok, true, JSON.stringify(first));
-  assert.equal(first.receipt.afterMaintenance.reason, "another-writer");
-  assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
-  const resumed = await startProcess(trunk, "a", identityA, [
-    ...resumeArgs(first.receipt),
-    "--declared-owner",
-    "owner",
-    "--requester",
-    "owner",
-  ]).result;
-  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
-  assert.equal(resumed.receipt.status, "resumed");
-  assert.equal(
-    await revParse(trunk.integration, "HEAD"),
-    first.receipt.publishedSha,
-  );
-  assert.equal(
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-    first.receipt.publishedSha,
-  );
 });
 
 test("a second remote race stops after one replay and preserves the rewritten candidate", async (t) => {

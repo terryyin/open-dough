@@ -128,6 +128,21 @@ export async function createQueuedTrunk({
   };
 }
 
+// Commits `files` unrelated tracked files to trunk, then leaves staged and
+// unstaged patches of `lines` lines each in the integration checkout.
+export async function busyCheckout(trunk, files, lines) {
+  mkdirSync(join(trunk.integration, "inventory"));
+  for (let index = 0; index < files; index += 1)
+    writeFileSync(join(trunk.integration, "inventory", `${index}.txt`), "x\n");
+  await git(trunk.integration, "add", "inventory");
+  await git(trunk.integration, "commit", "-m", "unrelated inventory");
+  await git(trunk.integration, "push", "origin", "main");
+  const patch = `${"unrelated patch line".padEnd(79, ".")}\n`.repeat(lines);
+  writeFileSync(join(trunk.integration, "staged.txt"), patch);
+  await git(trunk.integration, "add", "staged.txt");
+  writeFileSync(join(trunk.integration, "trunk.txt"), patch);
+}
+
 const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),
 );
@@ -159,8 +174,13 @@ export async function startCliResult(trunk, mode, extra = [], cli = startCli) {
   ];
   try {
     const { stdout } = await exec(process.execPath, args);
-    return { receipt: JSON.parse(stdout), workspace };
+    return { receipt: JSON.parse(stdout), stdout, code: 0, workspace };
   } catch (error) {
-    return { receipt: JSON.parse(error.stdout), workspace };
+    return {
+      receipt: JSON.parse(error.stdout),
+      stdout: error.stdout,
+      code: error.code,
+      workspace,
+    };
   }
 }

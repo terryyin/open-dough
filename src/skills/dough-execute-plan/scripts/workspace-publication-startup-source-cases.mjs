@@ -39,10 +39,11 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
     "owner",
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  assert.equal(receipt.beforeMaintenance.result, "deferred");
-  assert.equal(receipt.afterMaintenance.result, "deferred");
-  assert.equal(receipt.beforeMaintenance.reason, "pending-edit");
-  assert.equal(receipt.afterMaintenance.reason, "pending-edit");
+  assert.deepEqual(receipt.maintenance, {
+    result: "deferred",
+    reason: "pending-edit",
+  });
+  assert.equal("earlierMaintenance" in receipt, false);
   assert.equal(
     (await git(trunk.integration, "diff", "--cached")).stdout,
     before.staged,
@@ -161,9 +162,12 @@ test("stale published readiness stops without a Taken claim", async (t) => {
   await git(trunk.integration, "commit", "-m", "stale assessment");
   await git(trunk.integration, "push", "origin", "main");
   const tip = await revParse(trunk.integration, "HEAD");
-  const { receipt, workspace } = await startCliResult(trunk, "trunk");
+  const { receipt, code, workspace } = await startCliResult(trunk, "trunk");
+  assert.equal(code, 1);
+  assert.equal(receipt.ok, false);
   assert.equal(receipt.status, "source-refused");
   assert.match(receipt.error, /needs-reassessment/);
+  assert.equal("publishedSha" in receipt, false);
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
   assert.equal(existsSync(workspace), false);
 });

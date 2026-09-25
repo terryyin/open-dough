@@ -99,7 +99,7 @@ that structure; no new direction topic or ADR exception is needed.
 ## Slice 1 — Continue and recover from a compact startup result
 
 **Type:** Behavior
-**Status:** planned
+**Status:** done
 
 **Behavior:** Given a prepared queued item and an authorized start, the command
 returns only the information required by the selected contract. The coordinator
@@ -222,3 +222,67 @@ owners; success and exception tests are variations of the same contract and can
 be green at the first delivery. No remaining slice-specific concern was found
 in this review, so no separate plan-refinement rewrite was necessary. This is a
 preparation judgment, not a claim that implementation/native checks already pass.
+
+## Execution
+
+- **Mode:** Story Branch Mode; agent Mana-chan (Claude Code, `claude-opus-5-5`),
+  publisher `claude-100-useful-startup-output`.
+- **Checkouts:** originating and integration checkout
+  `/Users/terryyin/git/open-dough` (`main`); execution worktree
+  `.claude/worktrees/100-useful-startup-output` on branch
+  `claude/100-useful-startup-output` (created from `f495734`).
+- **Published revisions:** claim `5fdeb4c` accepted on `origin/main`
+  (CI unobserved: Story Branch claim before the branch observer is armed).
+- **CI:** GitHub Actions `ci.yml` / `CI`; Claude Code bridge ready.
+
+### Slice 1 delivery evidence
+
+**Result.** The start command prints one compact line:
+`ok`, `status`, `publishedSha`, `startingRevision`, `candidateSha`, `created`,
+`agent` when named, `workspaceAuthorship` only when `not-configured`, `plan`/
+`remote` only when resolved rather than supplied, and `maintenance`
+(`result`, `reason`/`error` when present) plus `earlierMaintenance` only when a
+distinct earlier issue is still unresolved. Stops keep `status`, `error`,
+`recovery`, and `provenance` unchanged and report the same compact
+`maintenance`. Production `captureCheckout` became `inspectCheckout`
+(`{head, status}`); the test helper keeps full snapshots.
+
+**Measured stdout bytes (real CLI, local bare-remote fixtures, baseline →
+candidate):** small 2,049 → 306; +2,000 tracked files 286,049 → 306; 200 KB
+staged + 200 KB unstaged 818,729 → 330; both 1,102,729 → 330 (Story Branch
+within 28 bytes of Trunk). Interrupted `unpublished` 551,818 → 838 (push error
+text kept); resume 1,102,730 → 331; source refusal 127 → 127. This execution's
+own real startup receipt was 236,870 bytes and needed a filtering read.
+
+**Accepted proof (inspected):**
+
+- `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs`
+  — `workspace-publication-startup-journey-cases.mjs`: both modes feed CLI
+  stdout `publishedSha` through the readiness gate into real managed delivery;
+  remote tip equals the increment and its parent equals `publishedSha`; equal
+  stdout bytes for small vs 1,500-file/2,000-line-patch checkouts with
+  independent preservation snapshots. Recovery file: busy-checkout pre-push
+  interruption returns compact recovery that resumes with one
+  `Claim-Publisher`, `created: false`, checkout unchanged; lost-response,
+  rewritten-candidate race, legacy no-agent, and authored-agent resume cases.
+  Maintenance cases: compact deferred/stopped reasons with edits, locks, and
+  divergence preserved; `reportedMaintenance` unit test.
+- `node --test` over checkout maintenance, publication resume, current-branch
+  publication, closure publication, and Dough Land tests — shared
+  `refreshDefaultCheckout`/`inspectCheckout` callers retain head/result facts.
+- All `execution-increment-managed-delivery*.test.mjs` (extracted fixture);
+  `tests/workspace-publication-callers.sh`, `tests/execution-payload-update.sh`,
+  `tests/git-publication-native.sh` (credential-free) with Bash 5.
+
+**Refactor:** removed a duplicate maintenance inspection in
+`publication-resume.mjs`; merged the superseded pre-push interruption test into
+the busy-checkout recovery test and moved the deferred-refresh resume case into
+the maintenance cases file.
+
+**Remaining obligations:** No fresh native observation yet of compact output
+and continuation (`tests/git-publication-native.sh --native HOST --case
+publication/startup-story-branch`, and `publication/startup-resume`) for
+Claude, Codex, or Cursor; the native assessor still checks neither result size
+nor a first delivery. Under ADR 0005 this stays a linked acceptance obligation
+before release. `refresh-failed` is covered only by the `reportedMaintenance`
+unit test, not end to end through the CLI.

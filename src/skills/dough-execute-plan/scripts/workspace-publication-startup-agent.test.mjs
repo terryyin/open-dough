@@ -30,7 +30,8 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
   ]);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(receipt.agent, "Yui-chan");
-  assert.equal(receipt.workspaceAuthorship, "configured");
+  // Ordinary configured authorship is not echoed; only the exception is.
+  assert.equal("workspaceAuthorship" in receipt, false);
   assert.equal(
     await remoteShow(trunk, "show", "--name-status", "--format=", "main"),
     "M\t.planning/PRODUCT-BACKLOG.md\nA\t.planning/agents/yui-chan.json\n",
