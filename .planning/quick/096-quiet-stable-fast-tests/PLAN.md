@@ -527,3 +527,15 @@ The deferred promises have no slice.
     `workspace-publication-callers.sh` 56; every other check under 55. Serial
     sum of per-check medians about 2250 s against a 626 s wall median, so the
     four slots are busy and `execution-ci-runtime.sh` is the critical path.
+- **CI repair after slice 5 (run 36097850869, `eb56cc4`).** CI's dashboard job
+  failed: three story-readiness specs passed but printed git's
+  `hint: Using 'master' as the name for the initial branch…`, because
+  `commitAll()` in `dashboard/tests/storyReadinessCli.ts` ran a bare
+  `git init` and CI's git has no `init.defaultBranch`. It now runs
+  `git init --quiet --initial-branch=main`. On this Mac both the global
+  config and Apple's system gitconfig set `main`, so reproducing CI's git
+  environment needs `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`; the
+  full dashboard suite passes silently under that and under plain config.
+  Use the same environment to check the shell and Node suites before relying
+  on local silence.
+
