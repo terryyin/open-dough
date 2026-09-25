@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
+- [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
 
 ## Backlog list
 
-- [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
 - [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations
 - [Finish story 1 event synchronization and native evidence inputs](quick/102-finish-story-event-synchronization/PLAN.md)
 - [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
