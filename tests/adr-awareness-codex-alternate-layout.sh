@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# An alternate-layout fixture supplies its own ADR home, lifecycle words,
+# catalog, supersession, and exception trail; the ADR-awareness skill still
+# cites that authority, stops a conflicting implementation, and leaves the
+# decision with the human. --native runs the same session in Codex.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -32,8 +36,6 @@ grep -Fq 'stop the conflicting implementation' "${candidate}"
 grep -Fq 'ask the human to choose' "${candidate}"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the alternate-layout fixture supplies its own ADR home, Adopted/Replaced lifecycle, catalog authority, supersession links, architecture scope, and human-owned exception trail.'
-  echo 'PASS: the maintained ADR skill cites current project authority, stops a conflicting implementation, and leaves the decision with the human.'
   exit 0
 fi
 

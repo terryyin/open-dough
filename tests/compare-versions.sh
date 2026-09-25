@@ -53,5 +53,3 @@ ${resolved}
 EOF
 [[ "${tag}" == v0.9.0 ]]
 [[ "${version}" == 0.9.0 ]]
-
-echo "PASS: numeric version compare orders leading-zero and oversized components without shell-arithmetic diagnostics."

@@ -27,39 +27,39 @@ story_closure_complete_seen() {
 
 story_closure_controller() {
   local remote_sha trunk_mailbox coverage
-  story_closure_wait_for branch-complete \
+  wait_for branch-complete "${story_closure_wait_limit}" \
     "story_closure_complete_seen '${story_closure_branch_mailbox}' '${story_closure_branch_sha}'" || return
   printf 'branch-complete\n' >> "${story_closure_control_log}"
-  story_closure_wait_for branch-shutdown \
+  wait_for branch-shutdown "${story_closure_wait_limit}" \
     "[[ -f '${story_closure_branch_mailbox}/result.json' ]] && grep -Eq '\"status\":\"(stopped|finished)\"' '${story_closure_branch_mailbox}/result.json'" || return
   printf 'branch-shutdown\n' >> "${story_closure_control_log}"
-  story_closure_wait_for trunk-setup \
+  wait_for trunk-setup "${story_closure_wait_limit}" \
     "[[ -n \$(story_closure_trunk_mailbox) ]]" || return
   trunk_mailbox=$(story_closure_trunk_mailbox)
   printf '%s\n' "${trunk_mailbox}" > "${story_closure_integrated_sha_file}.mailbox"
   printf 'trunk-setup\n' >> "${story_closure_control_log}"
-  story_closure_wait_for integration-publication \
+  wait_for integration-publication "${story_closure_wait_limit}" \
     "[[ \$(git ls-remote '${story_closure_origin}' refs/heads/main | awk '{print \$1}') != '${story_closure_trunk_sha}' ]]" || return
   remote_sha=$(git ls-remote "${story_closure_origin}" refs/heads/main | awk '{print $1}')
   [[ ${remote_sha} != "${story_closure_branch_sha}" ]]
   printf '%s\n' "${remote_sha}" > "${story_closure_integrated_sha_file}"
   printf 'integration-publication\n' >> "${story_closure_control_log}"
-  story_closure_wait_for trunk-registration \
+  wait_for trunk-registration "${story_closure_wait_limit}" \
     "grep -Fq 'register-push ${trunk_mailbox} ${remote_sha}' '${story_closure_node_log}'" || return
   printf 'trunk-registration\n' >> "${story_closure_control_log}"
-  story_closure_wait_for trunk-complete \
+  wait_for trunk-complete "${story_closure_wait_limit}" \
     "story_closure_complete_seen '${trunk_mailbox}' '${remote_sha}'" || return
   printf 'trunk-complete\n' >> "${story_closure_control_log}"
   : > "${story_closure_release}"
   printf 'trunk-ci-release\n' >> "${story_closure_control_log}"
   coverage="${trunk_mailbox}/coverage/${remote_sha}.json"
-  story_closure_wait_for trunk-coverage \
+  wait_for trunk-coverage "${story_closure_wait_limit}" \
     "grep -q '\"state\":\"success\"' '${coverage}'" || return
   printf 'trunk-coverage-success\n' >> "${story_closure_control_log}"
-  story_closure_wait_for trunk-shutdown \
+  wait_for trunk-shutdown "${story_closure_wait_limit}" \
     "[[ -f '${trunk_mailbox}/result.json' ]] && grep -Eq '\"status\":\"(stopped|finished)\"' '${trunk_mailbox}/result.json'" || return
   printf 'trunk-shutdown\n' >> "${story_closure_control_log}"
-  story_closure_wait_for cleanup \
+  wait_for cleanup "${story_closure_wait_limit}" \
     "test -f '${story_closure_cleanup_marker}'" || return
   printf 'cleanup-complete\n' >> "${story_closure_control_log}"
 }

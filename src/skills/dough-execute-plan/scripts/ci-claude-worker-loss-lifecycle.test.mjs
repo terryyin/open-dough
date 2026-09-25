@@ -11,7 +11,7 @@ import {
 } from "./ci-claude-lifecycle-test-fixtures.mjs";
 import {
   blockingGithubEnvironment,
-  waitForFile,
+  awaitWorkerSignal,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 
@@ -25,7 +25,7 @@ test("Claude Code reports its detached observer lost when the worker dies, and a
     { cwd: checkout, env },
   );
   const directory = JSON.parse(stdout.slice(receiptPrefix.length)).directory;
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(directory, join(root, "github-request-started"));
 
   const attachment = await configuredHook(
     "PostToolUse",

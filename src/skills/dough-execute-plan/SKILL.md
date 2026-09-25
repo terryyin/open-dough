@@ -124,8 +124,9 @@ trunk, checks the published selected source and preparation, selects or reuses
 the workspace, names you as an agent, commits an isolated Take that publishes
 your agent profile, makes that agent the author of your workspace commits
 (`workspaceAuthorship: "not-configured"` means only the Take commit names the
-agent), confirms publication on remote trunk, and reports local refresh
-separately.
+agent), confirms publication on remote trunk, publishes a Story Branch Mode
+execution branch at that Take so the branch the profile names exists on the
+remote, and reports local refresh separately.
 
 Use its compact one-line result directly; do not filter or fetch it again.
 Values you supplied stay in your execution context and are not echoed. An

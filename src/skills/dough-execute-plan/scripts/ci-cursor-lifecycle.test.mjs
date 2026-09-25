@@ -13,6 +13,7 @@ import {
   launcher,
 } from "./ci-cursor-lifecycle-test-fixtures.mjs";
 import {
+  awaitWorkerSignal,
   waitForFile,
   writeBlockingGithubListCommand,
 } from "./watch-ci-test-fixtures.mjs";
@@ -43,7 +44,10 @@ test("Cursor reuses one execution observer through pushes and stops its exact ma
   const ready = await replay.readiness();
   assert.match(ready.additional_context, /CI_MONITOR_READY/);
   const attached = await replay.setup();
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(
+    attached.directory,
+    join(root, "github-request-started"),
+  );
   assert.match(
     attached.attachment.additional_context,
     /CI observer attached to this coordinator/,

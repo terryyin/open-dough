@@ -2,18 +2,13 @@
 # Fixture and independently timed CI controller for execution/review native journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-ci_completion_wait_for() {
-  local description=$1
-  local command=$2
-  local deadline=$((SECONDS + 120))
-  until eval "${command}"; do
-    if ((SECONDS >= deadline)); then
-      printf 'error: timed out waiting for %s\n' "${description}" >&2
-      return 1
-    fi
-    sleep 0.05
-  done
-}
+# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
+
+# Per-step bound for the controller and the fixture's review release; each
+# step awaits one action of the native agent or the controller.
+ci_completion_wait_limit=120
 
 ci_completion_stamp() {
   printf '%s %s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -24,30 +19,33 @@ ci_completion_controller() {
   local scenario=$1
   local review_start="${ci_completion_project}/.planning/review-observation/start"
   local review_complete="${ci_completion_project}/.planning/review-observation/complete"
+  local review_release="${ci_completion_project}/.planning/review-observation/release"
   # Agents may quote paths or bypass the PATH node shim; accept either log.
   local complete_seen="native_completion_seen '${ci_completion_node_log}' '${CI_COMPLETION_TRANSCRIPT:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
   case ${scenario} in
     pending | failure)
-      ci_completion_wait_for review-start "test -f '${review_start}'" || return
+      wait_for review-start "${ci_completion_wait_limit}" "test -f '${review_start}'" || return
       ci_completion_stamp review-start
-      ci_completion_wait_for complete-start "${complete_seen}" || return
+      : > "${review_release}"
+      wait_for complete-start "${ci_completion_wait_limit}" "${complete_seen}" || return
       ci_completion_stamp complete-start
       : > "${ci_completion_release}"
       ci_completion_stamp ci-release
       ;;
     ready)
-      ci_completion_wait_for review-start "test -f '${review_start}'" || return
+      wait_for review-start "${ci_completion_wait_limit}" "test -f '${review_start}'" || return
       ci_completion_stamp review-start
       : > "${ci_completion_release}"
       ci_completion_stamp ci-release
-      ci_completion_wait_for terminal-coverage \
+      wait_for terminal-coverage "${ci_completion_wait_limit}" \
         "grep -Eq '\"state\":\"(success|failure)\"' '${ci_completion_mailbox}/coverage/${ci_completion_sha}.json'" || return
       ci_completion_stamp coverage-terminal
-      ci_completion_wait_for review-complete "test -f '${review_complete}'" || return
+      : > "${review_release}"
+      wait_for review-complete "${ci_completion_wait_limit}" "test -f '${review_complete}'" || return
       ci_completion_stamp review-complete
       ;;
     skip-retro)
-      ci_completion_wait_for complete-start "${complete_seen}" || return
+      wait_for complete-start "${ci_completion_wait_limit}" "${complete_seen}" || return
       ci_completion_stamp complete-start
       : > "${ci_completion_release}"
       ci_completion_stamp ci-release
@@ -103,12 +101,16 @@ ci_completion_create_fixture() {
     'set -euo pipefail' \
     'root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)' \
     'mkdir -p "${root}/.planning/review-observation"' \
+    'source "${root}/tests/wait-for.bash"' \
+    'release="${root}/.planning/review-observation/release"' \
     ': > "${root}/.planning/review-observation/start"' \
-    'sleep 2' \
+    "wait_for review-release ${ci_completion_wait_limit} 'test -f \"\${release}\"'" \
     'grep -Fq "delivered behavior" "${root}/product.txt"' \
     ': > "${root}/.planning/review-observation/complete"' \
     > "${ci_completion_project}/tests/review-boundary.sh"
   chmod +x "${ci_completion_project}/tests/review-boundary.sh"
+  cp -- "${source_dir}/tests/helpers/wait-for.bash" \
+    "${ci_completion_project}/tests/wait-for.bash"
   printf '%s\n' \
     '{"skipProcessRetrospective":true,"ciAdapter":["node",".planning/ci-adapter.mjs"]}' \
     > "${ci_completion_project}/.planning/open-dough.json"
@@ -148,7 +150,6 @@ ci_completion_create_fixture() {
   printf '%s\n' \
     '#!/usr/bin/env bash' \
     'printf "%s\\n" "$*" >> "${CI_COMPLETION_NODE_LOG}"' \
-    'if [[ " $* " == *" complete-revision "* ]]; then sleep 1; fi' \
     "exec ${real_node_q} \"\$@\"" \
     > "${root}/bin/node"
   chmod +x "${root}/bin/node"

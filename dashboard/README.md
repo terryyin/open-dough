@@ -125,6 +125,11 @@ as unreadable and is not matched to any entry. A revision without a profile
 directory simply has no profiles. What a profile means is decided by the
 shared profile module under `src/skills/dough-product-backlog/scripts/`.
 
+A queued card named by a published preparation assignment shows **Preparing**
+and that developer, keeping its priority and badges; it is never a Taken owner.
+It disappears when preparation lands or is abandoned. Unreadable profiles show
+"Preparation assignment unknown"; two assignments show as conflicting records.
+
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and
 "N of M slices recorded complete". It counts recorded statuses, not how much
@@ -217,6 +222,11 @@ built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
 GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'` or
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
+
+A passing run prints nothing (`tests/support/quietReporter.ts`). A failing
+spec is shown with its error, output, and retained trace; a passing spec that
+writes output, or output from the run itself such as global setup, fails the
+run and is shown. Keep specs and their helpers silent.
 
 The automatic-freshness journeys (`tests/auto-refresh*.spec.ts`) pause the
 page's clock and step it with the helpers in `tests/autoRefreshJourney.ts`, so

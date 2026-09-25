@@ -201,6 +201,4 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'incomplete-named: true' \
     'instruction-words-only: false'
   ! delivery_evidence_selection_assess "${work}/missing-fields.txt"
-
-  echo 'PASS: delivery-evidence/selection assessor rejects zero-test acceptance, partial over-accept, and all-accepted-with-incomplete; accepts precise incomplete naming and corrected or complete selection; refuses instruction-words-only or missing selection fields.'
 }

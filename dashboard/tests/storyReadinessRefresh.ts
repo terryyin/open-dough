@@ -1,8 +1,13 @@
 // Refresh and isolation observations for story readiness: failed refresh
 // retention, Retry, project-switch rejection of late held reads, and no
-// re-read right after settlement.
+// re-read after settlement across a steady check interval.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  expectSteadyPace,
+  passTimeUntilAsked,
+  passTimeUntilChecked,
+} from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -109,11 +114,18 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   ).toBeVisible();
 }
 
+// With the page clock paused since the page opened, lets page time pass the
+// steady check interval until the selected project's revision check is asked
+// and answered, then until the next check is asked. Checks wait for any read
+// to settle, so a read that settlement, a retry, or the unchanged answer
+// started would already be among what these origins observed.
 export async function expectNoRereadAfterSettlement(
-  origin: CommittedOrigin,
   page: Page,
+  origins: readonly CommittedOrigin[],
 ) {
-  const settled = origin.requests.length;
-  await page.waitForTimeout(1500);
-  expect(origin.requests.length).toBe(settled);
+  const settled = origins.map((origin) => origin.requests.length);
+  await passTimeUntilChecked(page);
+  const passed = await passTimeUntilAsked(page);
+  expect(origins.map((origin) => origin.requests.length)).toEqual(settled);
+  expectSteadyPace(passed);
 }

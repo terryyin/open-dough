@@ -66,5 +66,3 @@ if [[ "${prepare_step}" != *'Do not create a Git tag'* ]]; then
   echo 'FAIL: preparation must remain metadata-only.' >&2
   exit 1
 fi
-
-echo 'PASS: release-version names the self-installation check in the finalization path before commit or tag, and does not block prepare.'

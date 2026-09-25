@@ -211,5 +211,3 @@ assert_update_refuses_host_hook_conflict "${conflict_target}" --force
 # after the remembered release source is no longer available.
 mv -- "${fixture}" "${temporary_dir}/source-unavailable"
 assert_installed_wait_entrypoints "${target}"
-
-echo 'PASS: execution payload upgrades both roots from remembered SOURCE, installs publication references and runtime modules, runs relocated entrypoints, protects runtime collisions/edits, restores by force, registers or adopts managed hooks without disturbing unrelated settings, preserves project configuration, and refuses host-hook conflicts before replacement.'

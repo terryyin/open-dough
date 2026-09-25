@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# The generalized ADR-awareness skill keeps the original contract on a
+# controlled fixture: current status, supersession, conflict stopping, and
+# human-owned lifecycle changes. --native compares both skills in Codex.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -32,7 +35,6 @@ grep -Fq 'stop the conflicting implementation' "${candidate}"
 grep -Fq 'Do not change an ADR to Accepted, Rejected, or Superseded' "${candidate}"
 
 if [[ ${1:-} != '--native' ]]; then
-  echo 'PASS: the controlled source-context fixture and generalized ADR-awareness contract cover current status, supersession, conflict stopping, and human-owned lifecycle changes.'
   exit 0
 fi
 

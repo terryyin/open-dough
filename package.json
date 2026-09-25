@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bash scripts/test.sh",
+    "test": "exec bash scripts/test.sh",
     "lint": "node scripts/lint.mjs",
     "format": "node scripts/lint.mjs --fix",
     "dev:dashboard": "vite --config dashboard/vite.config.mts",

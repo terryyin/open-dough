@@ -224,6 +224,4 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'Producer evidence: accepted.' > "${work}/outcome-leading-incomplete.md"
   [[ $(delivery_evidence_consumers_promise_accepted \
     "${work}/outcome-leading-incomplete.md" '') == false ]]
-
-  echo 'PASS: delivery-evidence/consumers assessor rejects stale-exclusion acceptance and accept-without-alignment; accepts incomplete gap naming, corrected consumer with executed compatibility proof, and unchanged-boundary retained proof; refuses instruction-words-only and missing fields; observer reads line-leading promise statuses.'
 }

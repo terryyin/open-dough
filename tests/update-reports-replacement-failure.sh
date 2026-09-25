@@ -32,7 +32,7 @@ prepare_apply_with_previous_records() {
   apply_target="${temporary_dir}/${name} project"
   apply_dest="${apply_target}/.agents/skills/dough-update"
   prepare_target "${apply_target}"
-  bash "${helper}" apply --url "${fixture}" --target "${apply_target}" --platform cursor
+  bash "${helper}" apply --url "${fixture}" --target "${apply_target}" --platform cursor > /dev/null
   printf '%s\n' "${previous_source}" > "${apply_dest}/SOURCE"
   printf '%s\n' "${previous_version}" > "${apply_dest}/VERSION"
   : > "${trace_file}"
@@ -97,5 +97,3 @@ assert_apply_incomplete_install_report "${output}" \
 assert_preserved_install_records "${real_record_dest}" \
   "${previous_source}" "${previous_version}"
 grep -q '^install ' "${trace_file}"
-
-echo 'PASS: apply reports copy, verification, and record-write replacement failures without certifying or advancing SOURCE/VERSION.'

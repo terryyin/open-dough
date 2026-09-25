@@ -47,7 +47,7 @@ async function deliverHostHook(hook, host, input, env, project) {
     stderr += chunk;
   });
   child.stdin.end(JSON.stringify(input));
-  const [code] = await once(child, "exit");
+  const [code] = await once(child, "close");
   assert.equal(code, 0, stderr);
   return JSON.parse(stdout);
 }

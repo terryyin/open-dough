@@ -1,8 +1,10 @@
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -10,6 +12,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
+import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
+import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import {
+  awaitSignalWhileRunning,
+  processEnded,
+} from "./process-lifetime-test-fixtures.mjs";
 
 const runCommand = promisify(execFile);
 
@@ -50,21 +58,40 @@ export async function waitForFile(path, timeoutMs = 5000) {
 export async function waitForPidExit(pid, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    try {
-      const { stdout } = await runCommand("ps", [
-        "-p",
-        String(pid),
-        "-o",
-        "stat=",
-      ]);
-      if (stdout.trim().startsWith("Z")) return true;
-    } catch (error) {
-      if (error.code !== 1) throw error;
-      return true;
-    }
+    if (await processEnded(pid)) return true;
     await pause(20);
   }
   return false;
+}
+
+// Waits for a started CI observer's first sign of life (`path`) for as long
+// as the mailbox's recorded worker lives; the fixtures start it with a 60 s
+// execution budget, after which it records a result and exits.
+export async function awaitWorkerSignal(directory, path) {
+  const { pid } = readWorkerIdentity(directory);
+  const result = join(directory, "result.json");
+  await awaitSignalWhileRunning(
+    () => existsSync(path),
+    () => processEnded(pid),
+    () =>
+      `CI observer worker ${pid} exited before ${path} appeared; result: ${
+        existsSync(result) ? readFileSync(result, "utf8") : "none recorded"
+      }; last event: ${JSON.stringify(readMailboxEvents(directory).at(-1)?.event ?? null)}`,
+  );
+}
+
+// Registers, on a `fixtureTeardown`, stopping the CI observer started at
+// `directory` through the real `stop` command and proving its recorded worker
+// exited, so the fixture it runs from is removed only after it is gone.
+export function deferObserverStop(teardown, { launcher, directory, cwd, env }) {
+  const worker = readWorkerIdentity(directory);
+  teardown.defer(async () => {
+    await runCommand(process.execPath, [launcher, "stop", directory], {
+      cwd,
+      env,
+    });
+    assert.equal(checkMailboxWorkerLiveness(worker, directory), "dead");
+  });
 }
 
 export function blockingGithubEnvironment(t) {

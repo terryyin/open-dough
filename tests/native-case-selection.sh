@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Native case listing and invalid case selection are answered without
+# launching the native path.
 # shellcheck disable=SC1091,SC2034,SC2312 # Sourced asserts use work paths; pipefail covers listings.
 set -euo pipefail
 
@@ -117,5 +119,3 @@ assert_invalid "${codex_wrapper}" --native --unknown
 assert_invalid "${cursor_wrapper}" --native extra
 assert_invalid "${claude_wrapper}" --case delivery/not-a-case
 assert_invalid "${codex_wrapper}" --native --case delivery/not-a-case --bogus
-
-echo 'PASS: native case listing and invalid selection stay off the native path.'

@@ -81,6 +81,7 @@ for (const viewport of [
         "Refined",
         "Slice planned",
         "Ready for execution",
+        "Preparing",
       ]) {
         const badge = dialog.getByText(label, { exact: true });
         await badge.scrollIntoViewIfNeeded();
@@ -106,6 +107,18 @@ for (const viewport of [
       await expect(
         dialog.getByRole("heading", { name: "Preparation badges" }),
       ).toBeInViewport({ ratio: 1 });
+      // Keyboard scrolling is animated. A busy browser drops an End pressed
+      // while Home's scroll is still finishing, so End waits until Home has
+      // reached the top and the frames after it have been drawn.
+      await expect
+        .poll(() => content.evaluate((element) => element.scrollTop))
+        .toBe(0);
+      await page.evaluate(
+        () =>
+          new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+          }),
+      );
       await page.keyboard.press("End");
       await expect(explanation).toBeInViewport({ ratio: 1 });
       await page.keyboard.press("Tab");

@@ -13,6 +13,7 @@ import {
   observerReceipt,
   waitFor,
 } from "./ci-target-branch-worktree-test-fixtures.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 
@@ -50,12 +51,7 @@ test("worktree launch observes target-branch final SHA and ignores old coverage"
     { cwd: execution, env },
   );
   const directory = observerReceipt(launched.stdout).directory;
-  t.after(async () => {
-    await exec(process.execPath, [launcher, "stop", directory], {
-      cwd: execution,
-      env,
-    }).catch(() => undefined);
-  });
+  deferObserverStop(fixture, { launcher, directory, cwd: execution, env });
   const request = JSON.parse(
     readFileSync(join(directory, "request.json"), "utf8"),
   );

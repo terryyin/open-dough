@@ -125,8 +125,67 @@ test("a published profile reads back into the facts it was rendered from", () =>
   };
   assert.deepEqual(parseAgentProfile(renderAgentProfile(facts)), {
     ok: true,
-    profile: facts,
+    profile: { ...facts, activity: "execution" },
   });
+});
+
+test("an execution profile keeps its original spelling and reads as execution with or without an activity", () => {
+  const facts = {
+    name: "Yui",
+    identity: "SEED-A#a",
+    mode: "trunk",
+    branch: "origin/main",
+  };
+  const legacy = renderAgentProfile(facts);
+  assert.equal("activity" in JSON.parse(legacy), false);
+  const spelled = JSON.stringify({
+    ...JSON.parse(legacy),
+    activity: "execution",
+  });
+  for (const text of [legacy, spelled])
+    assert.deepEqual(parseAgentProfile(text), {
+      ok: true,
+      profile: { ...facts, activity: "execution" },
+    });
+});
+
+test("a preparation profile records its activity and no execution mode or branch", () => {
+  const text = renderAgentProfile({
+    name: "Yuma",
+    identity: "SEED-A#a",
+    activity: "preparation",
+    host: "claude",
+  });
+  assert.deepEqual(JSON.parse(text), {
+    schemaVersion: 1,
+    agent: "Yuma-chan",
+    email: "yuma-chan@example.org",
+    activity: "preparation",
+    identity: "SEED-A#a",
+    host: "claude",
+  });
+  assert.deepEqual(parseAgentProfile(text), {
+    ok: true,
+    profile: {
+      name: "Yuma",
+      identity: "SEED-A#a",
+      activity: "preparation",
+      host: "claude",
+    },
+  });
+  assert.throws(
+    () =>
+      renderAgentProfile({
+        name: "Yuma",
+        identity: "SEED-A#a",
+        activity: "preparation",
+        mode: "trunk",
+        branch: "origin/main",
+      }),
+    /preparation profile records no execution mode or branch/,
+  );
+  const withBranch = JSON.stringify({ ...JSON.parse(text), branch: "x" });
+  assert.match(parseAgentProfile(withBranch).error, /no execution mode/);
 });
 
 test("an unreadable profile says why instead of yielding facts", () => {
@@ -146,6 +205,7 @@ test("an unreadable profile says why instead of yielding facts", () => {
   assert.match(read({ email: "x@example.org" }).error, /email/);
   assert.match(read({ identity: "" }).error, /identity/);
   assert.match(read({ mode: "solo" }).error, /execution mode/);
+  assert.match(read({ activity: "idle" }).error, /assignment activity/);
   assert.match(read({ branch: "" }).error, /branch/);
   assert.match(read({ host: "vim" }).error, /host must be one of/);
 });

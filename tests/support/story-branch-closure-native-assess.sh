@@ -153,5 +153,4 @@ run_story_closure_assessor_counterexamples() {
     > "${work}/contaminated" && ! story_closure_assess "${work}/contaminated"
   sed 's/forced-stop: false/forced-stop: true/' "${valid}" \
     > "${work}/forced" && ! story_closure_assess "${work}/forced"
-  echo 'PASS: Story Branch closure assessor rejects a green branch tip, retargeted or duplicate observers, fixture-masked shutdown, and a harness-contaminated transcript.'
 }

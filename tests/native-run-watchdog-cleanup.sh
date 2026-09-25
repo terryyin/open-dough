@@ -27,8 +27,15 @@ native_run_watchdog() {
 start=$(date +%s)
 native_case_deadline=5
 native_case_grace=0
-native_run_owned "${work_dir}/stdout" "${work_dir}/stderr" '' \
-  bash -c 'while [[ ! -f $1 ]]; do sleep 0.01; done' _ "${ready}"
+# The command awaits the watchdog within its own deadline, so a missed ready
+# signal fails by name before the watchdog would stop it.
+if ! native_run_owned "${work_dir}/stdout" "${work_dir}/stderr" '' \
+  bash -c 'ready_file=$1; source "$2"; wait_for watchdog-ready 4 '\''test -f "${ready_file}"'\''' \
+  _ "${ready}" "${source_dir}/tests/helpers/wait-for.bash"; then
+  printf 'FAIL: completed command did not observe its watchdog:\n' >&2
+  cat "${work_dir}/stderr" >&2
+  exit 1
+fi
 elapsed=$(($(date +%s) - start))
 
 if ((elapsed > 2)); then
@@ -49,5 +56,3 @@ if [[ -n ${leftover} ]]; then
   printf 'FAIL: watchdog scratch remained:\n%s\n' "${leftover}" >&2
   exit 1
 fi
-
-echo 'PASS: completed command stops its watchdog without running its handlers, reaps it, and leaves no scratch.'

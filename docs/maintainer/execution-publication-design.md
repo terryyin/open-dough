@@ -88,7 +88,9 @@ permission, declare prose ready, or authorize another push destination.
    story or plan; return for renewed review when necessary.
 4. Confirm remote containment plus current claim membership/ownership, attempt
    local refresh, and return the accepted revision and owned workspace before
-   implementation. Progress in Story Branch Mode retains its separate target.
+   implementation. Story Branch Mode also publishes its execution branch at
+   the accepted claim, so the branch its published profile names exists on the
+   remote; later progress retains that separate target.
 
 Local main normally fast-forwards when clean, behind, and without a declared
 competing owner. An unrelated dirty, busy, or ahead/divergent checkout stays intact

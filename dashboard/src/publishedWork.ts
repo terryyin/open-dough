@@ -32,11 +32,12 @@ import type { WorkPlanSlices } from "./storyPlan.ts";
 import type { WorkPurpose } from "./storyPurpose.ts";
 import {
   awaitingOwners,
-  readOwnership,
-  withOwners,
+  readAssignments,
+  withAssignments,
+  type Preparing,
   type TakenOwner,
   type UnreadableProfile,
-} from "./takenOwner.ts";
+} from "./agentAssignments.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -84,6 +85,9 @@ export type WorkEntry = {
   // Taken entries only: who holds the work, from the agent profile published
   // at this revision.
   readonly owner?: TakenOwner;
+  // Queued entries only: who is preparing the work, from the preparation
+  // assignments published at this revision; absent until profiles are read.
+  readonly preparing?: Preparing;
   // Taken entries with counted plan slices only: when the current slice
   // started, from commit times where those slices were read.
   readonly sliceClock?: SliceClock;
@@ -97,8 +101,8 @@ export type PublishedWork = {
   readonly direction: string;
   readonly taken: readonly WorkEntry[];
   readonly backlog: readonly WorkEntry[];
-  // Published agent profiles that could not be read; none are matched to a
-  // Taken entry.
+  // Published agent profiles that could not be read; none are matched to an
+  // entry.
   readonly unreadableProfiles?: readonly UnreadableProfile[];
 };
 
@@ -192,13 +196,15 @@ export async function readPublishedWork(
         ...interpret(markdown, revision, source, { status: "loading" }),
       });
       onPartial?.(work);
-      // Owners come from the agent profiles at the same revision, read beside
-      // the preparation facts.
-      const [prepared, ownership] = await Promise.all([
+      // Owners and preparers come from the agent profiles at the same
+      // revision, read beside the preparation facts.
+      const [prepared, assignments] = await Promise.all([
         enrichPreparation(work, untilEither),
-        readOwnership(source, revision, untilEither),
+        readAssignments(source, revision, untilEither),
       ]);
-      const owned = awaitingProgressSources(withOwners(prepared, ownership));
+      const owned = awaitingProgressSources(
+        withAssignments(prepared, assignments),
+      );
       signal.throwIfAborted();
       onPartial?.(awaitingSliceClocks(owned));
       // A Story Branch Mode entry's slices come from its recorded branch

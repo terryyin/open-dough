@@ -71,8 +71,6 @@ bash "${candidate}/install.sh" --target "${target}" --source "${candidate}" \
 before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")
 if [[ $# == 0 ]]; then
-  echo 'PASS: candidate updater declares the unsupported local-guidance boundary while ordinary release update remains available.'
-  echo 'PENDING: native Codex, Cursor, and Claude Code rejection; run --native for each platform.'
   exit 0
 fi
 

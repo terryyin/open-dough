@@ -100,5 +100,3 @@ for platform in codex cursor claude; do
   assert_sentinels "${target}"
   assert_project_configuration "${target}"
 done
-
-echo 'PASS: all entry contexts upgrade older payloads with story dependencies; both installed layouts load closure and publication modules; their shared roots refuse edited or missing references without writes and restore them by explicit force; project configuration stays in place.'

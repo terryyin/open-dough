@@ -52,7 +52,6 @@ test("a story completed through the backlog command releases Akiho-chan and the 
   );
 
   const next = startProcess(trunk, "b", identityB);
-  t.after(() => next.child.kill());
   const result = await next.result;
   assert.equal(result.receipt.ok, true, JSON.stringify(result));
   assert.equal(result.receipt.agent, "Yuma-chan");

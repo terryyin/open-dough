@@ -24,7 +24,7 @@ import {
   setupProcessMailbox,
   spawnIdleNode,
 } from "./ci-mailbox-process-test-fixtures.mjs";
-import { waitForFile } from "./watch-ci-test-fixtures.mjs";
+import { awaitWorkerSignal, waitForFile } from "./watch-ci-test-fixtures.mjs";
 
 test("a symlink-equivalent entry path still runs the probe CLI body", async (t) => {
   const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-symlink-storage-"));
@@ -61,7 +61,7 @@ test("execution launcher returns before startup discovery and appends its eventu
     "main",
     "60000",
   ]);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
   assert.equal(existsSync(join(mailbox, "result.json")), false);
   writeFileSync(join(directory, "caller-continued"), "");
   await deliver("cursor", stdout);
@@ -106,7 +106,7 @@ for (const host of ["cursor", "claude"])
     test(`${host}: detached execution observer delivers ${conclusion} through the actual hook process`, async (t) => {
       const { directory, mailbox, stdout, deliver, env } =
         await setupProcessMailbox(t);
-      await waitForFile(join(directory, "started"));
+      await awaitWorkerSignal(mailbox, join(directory, "started"));
       assert.equal(existsSync(join(mailbox, "result.json")), false);
       await deliver(host, stdout);
       assert.deepEqual(await deliver(host), {});
@@ -135,7 +135,7 @@ test("launcher retains its exact worker while receipt and normal stop stay uncha
     "main",
     "60000",
   ]);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
   assert.deepEqual(readWorkerIdentity(mailbox), {
     pid: Number(readFileSync(join(directory, "worker-pid"))),
   });
@@ -174,7 +174,7 @@ test("missing terminal publication stops only the retained worker and reports lo
     "main",
     "60000",
   ]);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
   const { pid } = readWorkerIdentity(mailbox);
   const unrelated = await spawnIdleNode(t, [launcher, "worker"]);
 
@@ -213,7 +213,7 @@ test("stop and publication race retains prior unread evidence without continuati
       "main",
       "60000",
     ]);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
   await deliver("cursor", stdout);
   const retained = { type: "CI_FAILURE", runId: 41, attempt: 1 };
   publishMailboxEvent(mailbox, retained);

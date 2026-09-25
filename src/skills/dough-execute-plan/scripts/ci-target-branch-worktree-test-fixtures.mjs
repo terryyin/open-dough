@@ -6,7 +6,6 @@ import {
   mkdirSync,
   mkdtempSync,
   realpathSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -88,6 +88,7 @@ export async function createTargetBranchWorktreeFixture() {
   const adapterState = join(fixture, "attempts.json");
   const adapterCalls = join(fixture, "adapter-calls.jsonl");
   const release = join(fixture, "release");
+  const teardown = fixtureTeardown(fixture);
 
   await exec("git", ["init", "--bare", "-b", "main", origin]);
   mkdirSync(project, { recursive: true });
@@ -163,7 +164,8 @@ if (request.operation === 'discover') {
     oldSha,
     release,
     siblingSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
+    cleanup: teardown.cleanup,
+    defer: teardown.defer,
     publishAttempts: (attempts) =>
       writeFileSync(adapterState, JSON.stringify({ attempts })),
     releaseDiscovery: () => writeFileSync(release, ""),

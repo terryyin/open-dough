@@ -8,6 +8,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native
 # shellcheck source=tests/support/trunk-closure-native-assess.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-assess.sh"
+# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
 
 trunk_closure_write_evidence_identity() {
   printf 'helper-identity: tests/support/trunk-closure-native-run.sh\n'
@@ -29,18 +32,8 @@ trunk_closure_write_evidence_identity() {
   native_result_input_hash_line src/skills/dough-story-wrap-up/SKILL.md
 }
 
-trunk_closure_wait_for() {
-  local description=$1
-  local command=$2
-  local deadline=$((SECONDS + 360))
-  until eval "${command}"; do
-    if ((SECONDS >= deadline)); then
-      printf 'error: timed out waiting for %s\n' "${description}" >&2
-      return 1
-    fi
-    sleep 0.05
-  done
-}
+# Per-step controller bound; each step awaits one action of the native agent.
+trunk_closure_wait_limit=360
 
 trunk_closure_complete_seen() {
   native_completion_seen "${trunk_closure_node_log}" \
@@ -51,32 +44,32 @@ trunk_closure_complete_seen() {
 trunk_closure_controller() {
   local scenario=$1
   local remote_sha coverage
-  trunk_closure_wait_for publication \
+  wait_for publication "${trunk_closure_wait_limit}" \
     "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
   printf 'publication\n' >> "${trunk_closure_control_log}"
-  trunk_closure_wait_for registration \
+  wait_for registration "${trunk_closure_wait_limit}" \
     "test -f '${trunk_closure_registered}'" || return
   printf 'registration\n' >> "${trunk_closure_control_log}"
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   if [[ ${scenario} == source ]]; then
-    trunk_closure_wait_for complete-start \
+    wait_for complete-start "${trunk_closure_wait_limit}" \
       "trunk_closure_complete_seen" || return
     printf 'complete-start\n' >> "${trunk_closure_control_log}"
     : > "${trunk_closure_release}"
     printf 'ci-release\n' >> "${trunk_closure_control_log}"
-    trunk_closure_wait_for coverage "grep -q '\"state\":\"success\"' '${coverage}'" || return
+    wait_for coverage "${trunk_closure_wait_limit}" "grep -q '\"state\":\"success\"' '${coverage}'" || return
   else
-    trunk_closure_wait_for coverage "grep -q '\"state\":\"not_required\"' '${coverage}'" || return
+    wait_for coverage "${trunk_closure_wait_limit}" "grep -q '\"state\":\"not_required\"' '${coverage}'" || return
     printf 'coverage-not-required\n' >> "${trunk_closure_control_log}"
-    trunk_closure_wait_for complete-start \
+    wait_for complete-start "${trunk_closure_wait_limit}" \
       "trunk_closure_complete_seen" || return
     printf 'complete-start\n' >> "${trunk_closure_control_log}"
   fi
   [[ ${scenario} != source ]] || printf 'coverage-success\n' >> "${trunk_closure_control_log}"
-  trunk_closure_wait_for shutdown \
+  wait_for shutdown "${trunk_closure_wait_limit}" \
     "[[ -f '${trunk_closure_mailbox}/result.json' ]] && grep -Eq '\"status\":\"(stopped|finished)\"' '${trunk_closure_mailbox}/result.json'" || return
   printf 'shutdown\n' >> "${trunk_closure_control_log}"
-  trunk_closure_wait_for cleanup "test -f '${trunk_closure_cleanup_marker}'" || return
+  wait_for cleanup "${trunk_closure_wait_limit}" "test -f '${trunk_closure_cleanup_marker}'" || return
   printf 'cleanup-complete\n' >> "${trunk_closure_control_log}"
   remote_sha=$(git ls-remote "${trunk_closure_origin}" refs/heads/main | awk '{print $1}')
   [[ ${remote_sha} == "${trunk_closure_candidate_sha}" ]]

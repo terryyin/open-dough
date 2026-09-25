@@ -157,5 +157,3 @@ if grep -Fq 'use-pending: true' "${fail_use}/observations.txt"; then
   cat "${fail_use}/observations.txt" >&2
   exit 1
 fi
-
-echo 'PASS: Codex delivery/updated-use retains a combined real-update then use journey, keeps failures without retry, and does not launch extra supervised sessions.'

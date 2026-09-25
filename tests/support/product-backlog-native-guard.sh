@@ -181,7 +181,6 @@ for (const [tool, toolInput, expect] of checks) {
   }
 }
 if (failed) process.exit(1);
-console.log("decision-logic-ok");
 EOF
   node "${probe}" "${scripts_root}/product-backlog-guard-hook.mjs" "${project_dir}" \
     || {
@@ -217,10 +216,4 @@ guard_run_deterministic() {
     --platform claude > /dev/null
   guard_assert_no_duplicate_pretooluse "${target}"
   guard_run_deterministic_cursor "${source_dir}" "${temporary_dir}"
-
-  echo 'PASS: install registers the Claude Code PreToolUse product-backlog guard alongside the existing CI hooks, delivers its script and fragment to both roots, and repeat install/update stays idempotent.'
-  echo 'PASS: install registers the Cursor preToolUse product-backlog guard alongside the existing CI hooks, preserves unrelated Cursor configuration, and repeat install/update stays idempotent.'
-  echo 'PASS: the guard denies Claude Edit/Write/MultiEdit, Cursor Write/StrReplace/Delete, and Codex apply_patch on the resolved backlog path, while leaving unrelated edits, Read, and Bash undecided.'
-  echo 'PASS: Cursor native CLI emits permission deny/allow, and Claude-compatibility loading with cursor_version skips a second denial.'
-  echo 'PENDING: native Claude Code denial and allow-paths; run --native claude --case guard.'
 }

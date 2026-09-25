@@ -197,6 +197,4 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'Other checks: accepted.' > "${work}/outcome-leading-incomplete.md"
   [[ $(delivery_evidence_claims_promise_accepted \
     "${work}/outcome-leading-incomplete.md" '') == false ]]
-
-  echo 'PASS: delivery-evidence/claims assessor rejects unsupported covered claims and accept-without-gap; accepts corrected no-link and equivalent substantiated layout; refuses format-resend when evidence is sufficient, instruction-words-only, and missing fields; observer reads line-leading promise statuses.'
 }

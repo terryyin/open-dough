@@ -239,6 +239,4 @@ run_delivery_evidence_selection_observer_counterexamples() {
   grep -Fxq 'promises-accepted-count: 3' <<< "${obs}"
   grep -Fxq 'incomplete-named: false' <<< "${obs}"
   delivery_evidence_selection_assess "${work}/obs.txt"
-
-  echo 'PASS: delivery-evidence/selection observer reads heading, bold, dash, and table promise statuses from the outcome once, ignores gap words in obtained-proof accounts, and counts distinct named tests across corrected selections.'
 }

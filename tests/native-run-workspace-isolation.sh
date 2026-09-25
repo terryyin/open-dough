@@ -119,5 +119,3 @@ source "${source_dir}/tests/support/native-run-supervise.sh"
 native_run_write_output 1
 [[ -f ${output_file} ]]
 rm -rf -- "${harness_dir}"
-
-echo 'PASS: selected context keeps complete stream evidence when dirname(workspace) vanishes, and incomplete decode recreates a missing output_file parent.'

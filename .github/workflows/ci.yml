@@ -18,7 +18,7 @@ jobs:
   check:
     name: ${{ matrix.check }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 8
     strategy:
       fail-fast: false
       matrix:
@@ -53,8 +53,12 @@ jobs:
           sudo install -m 755 "${tool_dir}/shfmt" /usr/local/bin/shfmt
           shellcheck --version
           shfmt --version
+      # On cancellation the Actions runner signals only the step shell's pid
+      # (INT, then TERM 7.5 s later). `exec` makes npm that process; npm
+      # forwards the signal to its `sh -c`, which the `exec` in package.json's
+      # test script replaces with the runner, so it reports what was running.
       - name: Run ${{ matrix.check }}
-        run: npm run "${{ matrix.check }}"
+        run: exec npm run "${{ matrix.check }}"
 
   # The dashboard's browser suite is not a shell test, so `npm test` never
   # discovers it. It runs here as its own check, against controlled GitHub
@@ -62,7 +66,7 @@ jobs:
   dashboard:
     name: dashboard
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
         with:

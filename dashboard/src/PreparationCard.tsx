@@ -149,6 +149,15 @@ export function BadgeLegend() {
           <span className="badge badge-ready">Ready for execution</span>
           <span> — green; a separate readiness fact when supported.</span>
         </li>
+        <li>
+          <span className="preparing-activity">Preparing</span>
+          <span>
+            {" "}
+            — with its developer, on a queued entry: a published preparation
+            assignment. It is neither a stage nor a sign that an agent is at
+            work now; the entry keeps its priority and badges.
+          </span>
+        </li>
       </ul>
       <p className="quiet">
         Text carries every color meaning. Warning styles are for evidence

@@ -31,6 +31,7 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line tests/support/git-publication-native-host.sh
       native_result_input_hash_line tests/support/ci-completion-native-run.sh
       native_result_input_hash_line tests/support/ci-completion-native-fixture.sh
+      native_result_input_hash_line tests/helpers/wait-for.bash
       native_result_input_hash_line tests/support/git-publication-native-run.sh
       native_result_input_hash_line tests/support/git-publication-native-evidence.sh
       native_result_input_hash_line tests/support/native-run-supervise.sh

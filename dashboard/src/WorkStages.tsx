@@ -5,8 +5,12 @@ import { PreparationLegend } from "./PreparationLegend.tsx";
 import { SliceProgress } from "./SliceProgress.tsx";
 import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
 import { StoryDetail } from "./StoryDetail.tsx";
-import { TakenOwnerFacts, UnreadableProfiles } from "./TakenOwnerFacts.tsx";
-import type { UnreadableProfile } from "./takenOwner.ts";
+import {
+  PreparingFacts,
+  TakenOwnerFacts,
+  UnreadableProfiles,
+} from "./AgentAssignmentFacts.tsx";
+import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
 
 function count(entries: readonly WorkEntry[]): string {
@@ -42,6 +46,7 @@ function WorkCard({
       <h3>{entry.title}</h3>
       <p className="card-identity">{entry.identity}</p>
       <TakenOwnerFacts owner={entry.owner} />
+      <PreparingFacts preparing={entry.preparing} />
       <PreparationFacts preparation={entry.preparation} />
       {showsSliceProgress && (
         <SliceProgress
