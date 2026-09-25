@@ -15,11 +15,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Make the full test suite quiet, stable, and at least four times faster](seeds/SEED-037-quiet-stable-fast-tests.md#quiet-stable-four-times-faster-tests) — SEED-037#quiet-stable-four-times-faster-tests ([plan](quick/096-quiet-stable-fast-tests/PLAN.md))
 - [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
+- [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states ([plan](quick/099-published-preparing-assignments/PLAN.md))
 
 ## Backlog list
 
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
-- [See refinement in progress and prepared stories in the product backlog](seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states) — SEED-025#show-backlog-preparation-states
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
