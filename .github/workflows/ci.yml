@@ -18,7 +18,7 @@ jobs:
   check:
     name: ${{ matrix.check }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 8
     strategy:
       fail-fast: false
       matrix:
@@ -62,7 +62,7 @@ jobs:
   dashboard:
     name: dashboard
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
         with:

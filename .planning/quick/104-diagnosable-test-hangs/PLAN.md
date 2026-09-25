@@ -301,6 +301,10 @@ log lines naming the checks still running recorded here. A missing report
 is a slice 3 defect about signal delivery through `npm`, not a reason to
 automate this check.
 
+Workflow change accepted (2026-09-25): `timeout-minutes: 8` on `check` and
+`dashboard`. `ci-workflow-path-policy.test.mjs` passes 6/6. No repository
+prose documented the old value. Recent jobs ran 34–200 s.
+
 ## Preparation review and learnings
 
 - CI observation (Story Branch Mode): GitHub Actions `ci.yml` (`CI`) on
