@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [See when an execution has finished and what it learned before wrap-up](seeds/SEED-021-observe-published-story-progress.md#see-finished-execution) — SEED-021#see-finished-execution ([plan](quick/094-see-finished-execution/PLAN.md))
-
 ## Backlog list
 
 - [Keep plans with quoted records readable and prove the completion record once](quick/096-keep-execution-complete-record-readable/PLAN.md)

@@ -4,14 +4,15 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/096-keep-execution-complete-record-readable/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2d335d427546a7327f5ac2367e72aa4fd97b13292fb002a0849c49d42ed481bd"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86b965a0d68b30342fde9dac4d75556dcf39cf673a08bc1bfcff6c1872cb783c"}}
 ```
 
 ## Source and provenance
 
 Execution retrospective of `SEED-021#see-finished-execution` (story 5 of
-`.planning/seeds/SEED-021-observe-published-story-progress.md`), plan
-`.planning/quick/094-see-finished-execution/PLAN.md`. Reviewed commits on
+`3dd84041696b0c2be144b64d510f395c49b2f8db:.planning/seeds/SEED-021-observe-published-story-progress.md`),
+plan `3dd84041696b0c2be144b64d510f395c49b2f8db:.planning/quick/094-see-finished-execution/PLAN.md`.
+Reviewed commits on
 `claude/094-see-finished-execution`: `d4dbbdb`, `7ec2fef`, `102c659`,
 `c06c4d3`, `f10aa01`; claim `04a034b` is provenance. That story's promises
 stand: the record's form, the card and detail wording, the waiting time, the

@@ -160,9 +160,7 @@ disposable browser storage for preferences or cache is permitted if useful.
 
 The delivered [story dashboard](../dashboard/README.md) observes Open Dough,
 Doughnut, and Pygardon, one selected project at a time. Its project catalog and
-access boundary supply published records for the selected project. Further
-story detail and assignment visibility are scoped in
-[SEED-021](../.planning/seeds/SEED-021-observe-published-story-progress.md).
+access boundary supply published records for the selected project.
 
 The implementation should have very strong typing. The
 [dashboard technology recommendation](dashboard-tech-stack.md) proposes the UI,
@@ -446,11 +444,9 @@ scheduler, or dashboard control interface is selected by this document.
 
 ## Relationship to existing work and decisions
 
-The first remote-only dashboard increments are decomposed in
-[SEED-021](../.planning/seeds/SEED-021-observe-published-story-progress.md).
-They precede same-machine coordination; the seed does not authorize execution.
-The refined first story uses existing backlog membership and links; new entry
-metadata and persisted story states remain outside its selected overview scope.
+The remote-only [story dashboard](../dashboard/README.md) precedes
+same-machine coordination. Its overview uses existing backlog membership and
+links; new entry metadata and persisted story states remain outside it.
 It begins the connected-stage direction with readable entry facts from the same
 snapshot rather than fetched story/plan detail. The broader zoom and animation
 ambition does not expand this outcome into a general navigation system.
