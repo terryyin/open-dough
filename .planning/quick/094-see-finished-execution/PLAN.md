@@ -225,7 +225,15 @@ the advice.
 ### 3. Execute-plan publishes one completion commit with the product advice
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `finish-or-stop.md#record-execution-completion` writes the
+`## Execution complete` record after review or skip, commits it with the
+retrospective's records as one commit, and publishes it through increment
+delivery before the completion operation; skip values, the context stop, and
+the handoff's advice are stated; `planning.md` names the element and links
+there; the retrospective names the invoking execution as committer
+(`src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs`,
+7 tests; related guidance tests and payload scripts green).
 Proof: new assertions in
 `src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`
 (or a sibling `execution-completion-record-guidance.test.mjs`) via
@@ -303,3 +311,6 @@ The deferred promises have no slice.
   clocks in dashboard specs are paused through `pausePageClockAt`
   (`dashboard/tests/dashboardTest.ts`), because installing at a time and then
   pausing at that same time could fail under parallel load.
+- Slice 3: `finish-or-stop.md#record-execution-completion` is the only place
+  that spells out the record's form; other guidance, including slice 4's
+  wrap-up change, links there.
