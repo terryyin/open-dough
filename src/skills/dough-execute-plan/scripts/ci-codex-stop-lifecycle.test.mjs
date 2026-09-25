@@ -15,7 +15,7 @@ import {
 import { runDocumentedCodexStopBinding } from "./ci-notify-codex-test-fixtures.mjs";
 import {
   blockingGithubEnvironment,
-  waitForFile,
+  awaitWorkerSignal,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 
@@ -26,7 +26,10 @@ test("documented Codex stop ends only its observer with multiple pending revisio
   const attached = await replay.setup();
   const child = attached.process;
   t.after(() => child.kill("SIGTERM"));
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(
+    attached.directory,
+    join(root, "github-request-started"),
+  );
   const pending = ["a".repeat(40), "b".repeat(40)];
   for (const sha of pending) registerPushedRevision(attached.directory, sha);
   const failure = {

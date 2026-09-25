@@ -10,6 +10,7 @@ import {
   createClaudeReplay,
 } from "./ci-claude-lifecycle-test-fixtures.mjs";
 import {
+  awaitWorkerSignal,
   waitForFile,
   writeBlockingGithubListCommand,
 } from "./watch-ci-test-fixtures.mjs";
@@ -42,7 +43,10 @@ test("Claude Code reuses one execution observer through pushes and stops its exa
   );
 
   const attached = await replay.setup();
-  await waitForFile(join(root, "github-request-started"));
+  await awaitWorkerSignal(
+    attached.directory,
+    join(root, "github-request-started"),
+  );
   assert.match(
     attached.attachment.hookSpecificOutput.additionalContext,
     /CI observer attached to this coordinator/,

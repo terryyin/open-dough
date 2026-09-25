@@ -137,7 +137,7 @@ is **not** this baseline.
 | `update-skip-verified.sh` stops waiting for mtimes | 6 | The check sets timestamps explicitly; no `sleep` remains; its assertions unchanged |
 | Hung-agent deadline proof uses short injected limits and observes the stop; the stand-in may still sleep | 6 | `tests/native-run-timeout.sh` still passes, and nothing waits for the stand-in to finish |
 | A dashboard refresh or backoff journey advances a controlled clock | 8 | `storyReadinessRefresh.ts` uses `page.clock`; no `waitForTimeout` remains in `dashboard/tests` |
-| A race fixed at its cause; repeated runs pass without retry | 1, 9, 12 | Slice 1 regression under load; slice 9 under raised parallelism; five consecutive complete runs in slice 12, no retries configured |
+| A race fixed at its cause; repeated runs pass without retry | 1, 9, 9a, 12 | Slice 1 regression under load; slices 9 and 9a under raised parallelism (9a's load-stress before/after, then slice 9's three default runs); five consecutive complete runs in slice 12, no retries configured |
 | Redundant case removed only when the promise keeps its proof | 10, 11, 12 | Each removal names the promise and its surviving proof in Learnings |
 
 ## Current decisions
@@ -161,7 +161,19 @@ is **not** this baseline.
 - **Parallelism waits for event synchronization.** Slots or Node concurrency
   are raised only in slice 9, after slices 6 to 8 remove the elapsed-time
   waits that starved under load in plan 073. If raised parallelism destabilizes
-  a test, fix its cause in that slice; do not lower the target to hide it.
+  a test, fix its cause (slice 9, or slice 9a for the detached-process start
+  waits); do not lower the default or the target to hide it.
+- **One scheduling owner (slice 9).** `scripts/test.sh` schedules every job:
+  each `tests/*.sh` check and each `node --test` file (listed through
+  `tests/node-test-files`) is its own job, so no worker pool is nested under
+  another. Default slots = online CPUs; `OPEN_DOUGH_TEST_JOBS` accepts any
+  count of 1 or more; the checked-in `tests/longest-first` starts known long
+  jobs first. The five aggregator entries (`tests/execution-ci-runtime.sh`,
+  `closure-publication.sh`, `workspace-publication-callers.sh`,
+  `product-backlog.sh`, `product-backlog-git.sh`) are removed. The CPU-count
+  default is the least settled choice (see Learnings); the decisive
+  checkpoint may revisit it with paired measurements, but never to hide an
+  unfixed timing cause.
 - **Shared bounded waits stay inside their module boundaries.** Bash tests
   get one bounded wait helper under `tests/helpers/`, replacing the three
   copies. The `dough-execute-plan` scripts keep reusing their own
@@ -187,12 +199,12 @@ is **not** this baseline.
   `origin/claude/096-quiet-stable-fast-tests`. CI source: GitHub Actions
   `ci.yml` / `CI`.
 
-- **Decisive checkpoint (for `dough-test-optimization`).** After slice 9 and
-  again after slice 11, compare the measured complete-suite median with the
-  target (≤ 25% of the baseline sum). If the remaining candidates cannot
-  plausibly close the gap, stop before the next experiment slice. Record the
+- **Decisive checkpoint (for `dough-test-optimization`).** After slice 9
+  completes (which follows slice 9a) and again after slice 11, compare the
+  measured complete-suite median with the target (≤ 25% of the baseline
+  sum). If the remaining candidates cannot plausibly close the gap, stop before the next experiment slice. Record the
   measurement, the gap, and the candidates, and return to the developer for
-  plan refinement or a story split. Quiet and stable results (slices 1–9)
+  plan refinement or a story split. Quiet and stable results (slices 1–9a)
   remain delivered either way.
 
 ## Ordered slices
@@ -424,12 +436,27 @@ Behavior: a "no re-read after settlement" check → it advances a paused
 ### 9. Independent checks and Node suites run with enough parallelism to shorten the critical path
 
 Type: Behavior
-Status: planned
-Proof:
-- Three complete `npm test` runs under the baseline conditions pass silently.
-- Per-check durations show `execution-ci-runtime.sh` is no longer serialized
-  as one 76-file job: its files run concurrently, or are split into
-  scheduled checks.
+Status: in progress — implementation done; stability proof waits on slice 9a
+Done so far (uncommitted at refinement, 2026-09-25):
+- One scheduling owner in `scripts/test.sh`: every `node --test` file is its
+  own runner job (186 jobs in all), default slots = online CPUs, checked-in
+  `tests/longest-first` ordering, `OPEN_DOUGH_TEST_JOBS` any count ≥ 1; the
+  five aggregator entries are removed (see Current decisions).
+- `npm test` wall ~101–135 s against the baseline median 626 s, under similar
+  or heavier load (not yet a paired measurement).
+- Two timing causes exposed and fixed at their cause, each with a stress
+  before/after: `ci-observer-stream.test.mjs:72` (9/120 → 0/120) and
+  `ci-command-adapter-unavailable.test.mjs` (→ 0/80 at load 73–84). A third
+  cause (six detached-process start waits) exceeded the slice's two-test
+  limit and moved to slice 9a. With it unfixed, 2 of 3 full runs passed.
+- See Learnings for causes, the timeout-growth reason, and slot measurements.
+
+Proof (completes after slice 9a):
+- Three complete `npm test` runs under the baseline conditions, with the new
+  default, pass silently; one of them uses CI-like git config
+  (`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`).
+- Per-check durations show the former `execution-ci-runtime.sh` files run as
+  concurrent jobs, not as one serialized 76-file job.
 - The two 15-second lifecycle waits pass under the new default.
 - Record the wall time, new defaults, and fresh per-check profile in
   Learnings.
@@ -438,13 +465,68 @@ Behavior: the developer runs `npm test` with default settings → independent
 work runs concurrently up to a machine-derived default, longest known checks
 first, and the run is stable.
 
-Replace `--test-concurrency=1`, or schedule Node test files as runner jobs,
-and raise the four-slot cap. Choose one scheduling owner, so that no worker
-pool is nested under another.
+If completing the proof exposes a further timing-dependent test outside slice
+9a's recorded set, stop and record it for plan refinement instead of widening
+this slice or slice 9a.
 
-If raised parallelism exposes a timing-dependent test, fix its cause here,
-applying the rules of slices 6 and 7. If more than two such tests appear, stop
-and record them for plan refinement instead of widening the slice.
+### 9a. Detached observer and worker start waits end with the process, not after five seconds
+
+Type: Behavior
+Status: done
+Accepted proof: the start waits in the eight files (plus the same call in
+`ci-cursor-worker-loss-lifecycle` and `ci-mailbox-launch`) now wait while the
+worker PID the product records in the mailbox's `worker.json` is alive, or
+while the spawned `watch-ci.mjs` child is open, through one shared
+`awaitSignalWhileRunning` (`process-lifetime-test-fixtures.mjs`, also used by
+slice 1's `awaitArrival`). A worker that ends first fails at once naming its
+exit, result, and last event (temporary product breaks). The two stdout reads
+wait for `close`. The observers run under their own 60 s budget, after which
+the worker records a terminal result and exits, so a silent live worker is
+still bounded. Stress, 8 files × 12–24 concurrent copies: before, up to
+24/24 failures per file at load 67–256; after, 0 at load 76–166. All eight
+files pass alone silently, and full `npm test` runs with slice 9's runner
+passed silently with local and CI-like git config.
+Proof:
+- Load-stress reproduction before and after, as in slices 1 and 9: run the six
+  affected files in several concurrent copies at a load comparable to the
+  failure (load ~90, or concurrent `npm test`); record failures before (the
+  current fixture) and after, with the counts, loads, and copies in Learnings.
+  After: no failures.
+- The affected files pass silently, alone and under the new default runner:
+  `ci-claude-lifecycle`, `ci-claude-worker-loss-lifecycle`,
+  `ci-codex-lifecycle`, `ci-codex-stop-lifecycle`, `ci-cursor-lifecycle`,
+  `ci-mailbox-worker-loss`, `ci-custom-host-bridge`, `ci-command-adapter`
+  (all `src/skills/dough-execute-plan/scripts/*.test.mjs`), with unchanged
+  assertions.
+- A temporary break (the started process exits before its first sign of life)
+  fails the wait promptly, naming the process's exit rather than a missing
+  file after 5 s.
+
+Behavior: a lifecycle test starts a detached observer or worker under load →
+the test waits for that process's first sign of life (`github-request-started`,
+`started`) for as long as the process is alive, and fails, naming its exit,
+only if it exits first.
+
+- Bound the six start waits (`ci-claude-lifecycle:45`,
+  `ci-claude-worker-loss-lifecycle:28`, `ci-codex-lifecycle:60`,
+  `ci-codex-stop-lifecycle:29`, `ci-cursor-lifecycle:46`,
+  `ci-mailbox-worker-loss:140`) by the started process's lifecycle, like slice
+  1's `holdFirstPush(...).awaitArrival(started)`, inside the
+  `dough-execute-plan` fixtures (`watch-ci-test-fixtures.mjs` or its
+  neighbours), not in `tests/`. Apply the same rule to the other start waits
+  of the same shape in these files. Where the test holds no handle on the
+  started process, observe it through what the fixture already records; if
+  none exists, stop and record it rather than raising the 5 s number.
+- A process that stays alive without signalling keeps a bound its own
+  lifecycle justifies (for example the observer's own deadline), recorded
+  here; "Stable means cause-fixed" applies.
+- Read child stdout after `close`, not `exit`, in
+  `ci-custom-host-bridge.test.mjs:50` and `ci-command-adapter.test.mjs:103`
+  (latent: exit can precede the stdout drain).
+
+This is the third cause slice 9 exposed; slice 9's two fixed causes are
+recorded in Learnings. If the stress run exposes another cause outside this
+set, stop and record it for plan refinement.
 
 ### 10. Git release fixtures are built once per run and reused
 
@@ -508,8 +590,8 @@ Each seed scope bullet maps to the proof table:
 - the complete local suite, baseline and target: before slice 1 and slice 12;
 - quiet success: slices 2 to 5;
 - useful failure: slices 2, 3 and 5;
-- stable results: slice 1 (known failure), slice 9 (under parallelism), and
-  slice 12 (repeated runs);
+- stable results: slice 1 (known failure), slices 9 and 9a (under
+  parallelism), and slice 12 (repeated runs);
 - event synchronization: slices 6 to 8;
 - coverage preserved: slices 10 to 12, with each change or removal recorded.
 
@@ -588,4 +670,31 @@ The deferred promises have no slice.
   the review off, which the old 2 s window never risked. `native-run-supervise.sh`
   and the closure controllers now source `wait-for.bash`, which, like
   `native-run-stream.sh`, is not in their retained-evidence hash lists.
+- **Slice 9 causes (raised parallelism, 186 jobs, default = online CPUs).**
+  1. `ci-observer-stream.test.mjs:72` asserted stdout records after waiting on
+     a separate file channel; it now also waits for the first stdout record.
+     40× stress: 9/120 failures before, 0/120 after.
+  2. `ci-command-adapter-unavailable.test.mjs` applied `adapterTimeoutMs: 250`
+     to every mode, so under load it killed a real adapter before the adapter
+     recorded its request. Now only the two hang modes set an adapter timeout;
+     answering modes keep the product default 20 s. 0/80 failures at load
+     73–84. **Timeout growth, 250 ms → 2,000 ms (hang modes):** the timeout
+     must outlast the adapter's own Node start and request record before the
+     hang it proves begins, so its lower bound is that process lifecycle, not
+     the old elapsed budget.
+  3. At load 90, six tests failed together at `waitForFile`'s default 5 s
+     (`watch-ci-test-fixtures.mjs:41`) waiting for a detached observer's or
+     worker's first sign of life. Same class as slice 1 (a fixed elapsed
+     budget for process start); moved to slice 9a under slice 9's two-test
+     limit. Latent, not seen failing: `ci-custom-host-bridge.test.mjs:50` and
+     `ci-command-adapter.test.mjs:103` read stdout after `exit`, not `close`.
+- **Slot measurements (single runs, loaded machine; not paired).** 6 → 175 s;
+  8 → 108 and 123 s; 12 → 133 s (failed on cause 1); 16 (default here)
+  → 101–135 s; 24 → 116.5 s. Above 8 slots, single loaded runs do not separate
+  the options, so the default is the least settled slice 9 decision.
+- **Slice 9a residual cause (recorded, not absorbed).** At load 181–240,
+  2 of 24 concurrent copies failed `ci-mailbox-worker-loss.test.mjs:23`
+  ("a reused worker pid is not signaled…"): its `ci-mailbox.mjs stop` call
+  has `timeout: 10000` and was killed at 10 s. It never appeared at load up
+  to about 166. Slice 9's default runs decide whether it needs its own slice.
 

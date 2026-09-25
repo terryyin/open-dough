@@ -3,6 +3,10 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  awaitSignalWhileRunning,
+  settledProbe,
+} from "./process-lifetime-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
 import {
   agentIdentity,
@@ -94,22 +98,16 @@ export async function holdFirstPush(trunk, name = "a") {
     `if [ "$(git branch --show-current)" = exec/${name} ]; then\n  touch '${arrived}'\n  while [ ! -e '${released}' ]; do sleep 0.05; done\nfi\n`,
   );
   return {
-    // Waits until `started` holds its push, bounded by that process's own
-    // lifecycle rather than elapsed time: startup's work before its first push
-    // scales with machine load, so only the process exiting first means the
-    // push never arrives.
+    // Waits until `started` holds its push for as long as that process runs.
     async awaitArrival(started) {
-      let exited = null;
-      started.result.then((result) => {
-        exited = result;
-      });
-      while (!existsSync(arrived)) {
-        if (exited)
-          throw new Error(
-            `process exited (code ${exited.code}) before its push arrived: ${exited.stderr}`,
-          );
-        await new Promise((resolve) => setTimeout(resolve, 25));
-      }
+      await awaitSignalWhileRunning(
+        () => existsSync(arrived),
+        settledProbe(started.result),
+        async () => {
+          const exited = await started.result;
+          return `process exited (code ${exited.code}) before its push arrived: ${exited.stderr}`;
+        },
+      );
     },
     release: () => {
       if (existsSync(trunk.fixture)) writeFileSync(released, "go\n");

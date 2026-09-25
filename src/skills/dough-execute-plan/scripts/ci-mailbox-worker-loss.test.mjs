@@ -18,7 +18,11 @@ import {
   setupProcessMailbox,
   spawnIdleNode,
 } from "./ci-mailbox-process-test-fixtures.mjs";
-import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
+import {
+  awaitWorkerSignal,
+  waitForFile,
+  waitForPidExit,
+} from "./watch-ci-test-fixtures.mjs";
 
 test("a reused worker pid is not signaled when it does not belong to the mailbox", async (t) => {
   const { directory, storage, unrelated } = await mailboxWithUnrelatedWorker(t);
@@ -56,7 +60,7 @@ test("a detached worker that dies is reported lost at the next ordinary interact
       "main",
       "60000",
     ]);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
 
   const attached = await deliver("claude", stdout);
   assert.match(
@@ -137,7 +141,7 @@ test("a detached worker that dies is reported lost at the next ordinary interact
 test("a normally stopped detached observer keeps ended coverage, not lost, at the next ordinary interaction", async (t) => {
   const { directory, mailbox, stdout, deliver, env } =
     await setupProcessMailbox(t);
-  await waitForFile(join(directory, "started"));
+  await awaitWorkerSignal(mailbox, join(directory, "started"));
   await deliver("claude", stdout);
 
   await exec(process.execPath, [launcher, "stop", mailbox], { env });
