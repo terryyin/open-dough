@@ -5,7 +5,9 @@
 # operation's own lifecycle.
 
 # Sets _wait_now to the current time in microseconds, or in whole seconds
-# where the shell has no EPOCHREALTIME (bash before 5).
+# where the shell has no EPOCHREALTIME (bash before 5). The suite requires
+# Bash 5, but native fixtures copy this helper into scripts that an agent host
+# runs with its own `bash`, which on macOS can still be Bash 3.2.
 wait_for_clock() {
   if [[ -n ${EPOCHREALTIME:-} ]]; then
     _wait_now=${EPOCHREALTIME//[.,]/}

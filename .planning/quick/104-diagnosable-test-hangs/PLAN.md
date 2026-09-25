@@ -278,13 +278,31 @@ still wait. Parent-side slot accounting is excluded by the story.
 ## Slice 5 — The runner requires Bash 5
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Bash 4 first on `PATH` → the runner starts → it refuses before any
 check runs, naming the Bash 5 requirement. `tests/README.md` states Bash 5.
 
 Proof: `tests/test-runner-bash.sh` gains a Bash 4 version string that must be
 refused; its existing unsupported-Bash and supported-Bash cases stay green.
+
+Accepted proof (2026-09-25): the child-Bash guard in `scripts/test.sh` is
+`-lt 5`. Its refusal names Bash 5 and gives the reason (`EPOCHREALTIME`).
+`tests/README.md` states Bash 5 or newer. The unsupported-child case in
+`tests/test-runner-bash.sh` loops over fake Bash 3.2.57 and 4.4.23 and
+asserts four things: a non-zero exit, the Bash 5 message, the resolved path
+and version, and that no check ran. The three runner tests pass on macOS and
+on Linux Bash 5.2.15. Against the old runner, the Bash 4 child was accepted
+and ran both checks.
+
+Findings, not changed:
+
+- The `wait-for.bash` fallback for Bash before 5 stays, with a comment. Native
+  fixtures copy the helper into scripts an agent host runs with its own
+  `bash`, which can be 3.2 on macOS.
+- The guard checks the `bash` found on `PATH`, not the runner's own
+  interpreter. For example, `/bin/bash scripts/test.sh` with Bash 5 first on
+  `PATH` passes the guard.
 
 ## Slice 6 — A CI hang fails in 8 minutes and shows the interrupt report
 

@@ -1,8 +1,9 @@
 # Tests
 
-Shell tests require **Bash 4 or newer**, with that `bash` first on `PATH`.
+Shell tests require **Bash 5 or newer**, with that `bash` first on `PATH`.
 macOS's bundled Bash 3.2 can silently ignore failing `[[ ... ]]` assertions
-under `set -e`. `npm test` (or `bash scripts/test.sh`) therefore checks the
+under `set -e`, and the runner times each check with `EPOCHREALTIME`, which
+Bash 5 introduced. `npm test` (or `bash scripts/test.sh`) therefore checks the
 resolved child Bash before running any checks and refuses unsupported versions.
 Launching the runner with an explicit newer Bash path alone is insufficient:
 the tests also launch `bash` through `PATH`.
