@@ -192,10 +192,13 @@ candidate under the same load, three runs each, and compare medians. At story
   Cursor-only protection matrix). Fewer runs per promise, or a faster
   installer, is the only lever of the needed size. Coverage rules from
   story 1 apply: a promise keeps an observable proof at its boundary.
-- `execution-payload-update.sh` waits one full 30 s CI-observer poll on the
-  `.claude/skills` path (`ci-mailbox.mjs await-revision` 30.05 s against
-  0.40 s for `.agents/skills`); decide whether it is a test wait or a product
-  delay users also hit.
+- **In scope (maintainer decision, 2026-09-25): the CI observer checks
+  immediately when a push is registered.** Today `watch-ci-execution.mjs`
+  polls every 30 s (`pollMs = 30_000`) and `register-push` does not wake the
+  worker, so a revision whose CI already finished waits up to 30 s for a
+  verdict that already exists. Users re-publishing a covered revision hit
+  it, and `execution-payload-update.sh` pays it on some runs (30.05 s
+  against 0.40 s when the first poll comes after registration).
 - On macOS `/usr/bin/git` is a launcher stub costing about 7.5 ms per call;
   the Command Line Tools git first on `PATH` measured −7.4% locally.
 - `assert_payload` compares files with one `cmp` per file (about 3 s per
@@ -207,6 +210,57 @@ candidate under the same load, three runs each, and compare medians. At story
   the payload and update checks can prove the same promises with fewer
   installer runs.
 - **Effort hypothesis:** M–L, provisional.
+- **Depends on:** story 1 (delivered).
+
+<a id="diagnosable-test-hangs"></a>
+
+### 3. Name the check that hangs, and remove the runner's own hang and leaks
+
+**Identity:** SEED-037#diagnosable-test-hangs
+
+**Status:** Not refined. Raised on 2026-09-25 from a hang-risk analysis after
+story 1; the maintainer chose fixes without time limits, at low cost.
+
+**Goal:** When a test run hangs or is interrupted, an Open Dough developer
+(locally or reading CI) sees which checks were still running and their
+output, instead of an empty log; and the runner and test fixtures no longer
+cause hangs or leave processes behind themselves.
+
+**Evidence:** 65 of 133 CI runs on 2026-09-22/23 hit the 20-minute timeout
+(a leaked watchdog `sleep` holding a `$(...)` pipe, fixed in `8277965`); the
+logs could not say which check hung because `scripts/test.sh` prints nothing
+and deletes every log when interrupted. A job subshell that dies early never
+returns its slot, so the runner blocks forever once all slots are lost
+(reproduced by removing `EPOCHREALTIME`, which the Bash 4 the runner accepts
+lacks). A failing startup race test deletes its fixture before releasing its
+push barrier, leaving a `git push` looping forever; `ci-cursor-worktree-hook`
+and `ci-target-branch-worktree` remove their fake `gh` before stopping the
+observer, which then calls the real `gh` for up to 60 s.
+
+**Scope:**
+
+- On INT or TERM, the runner reports each job still running, with its elapsed
+  time and the tail of its log, before cleaning up, then stops those jobs.
+- A job always returns its slot, however it ends; the runner requires the
+  Bash it actually needs (5+) or no longer depends on `EPOCHREALTIME`.
+- The startup race tests release their push barrier before fixture cleanup;
+  the two observer tests stop the worker before removing the fixture.
+- Excluded: time limits on jobs or tests (maintainer decision), and further
+  environment hardening (closed stdin, `GIT_TERMINAL_PROMPT`, a guard `gh`),
+  which the analysis found unreached today.
+
+**Key examples:**
+
+- A substitute check that never ends, interrupted with TERM: the runner names
+  it with its elapsed time and output, and no process from it remains.
+- A substitute check whose job subshell dies before reporting: the run still
+  finishes and reports that check as failed.
+- A startup race test that fails between arrival and release leaves no
+  `git push` or pre-push loop running.
+
+- **Value / learning:** a future hang costs one look at the log instead of a
+  20-minute timeout with no clue.
+- **Effort hypothesis:** S, provisional.
 - **Depends on:** story 1 (delivered).
 
 ## Ordering and Scope Reduction

@@ -18,6 +18,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Name the check that hangs, and remove the runner's own hang and leaks](seeds/SEED-037-quiet-stable-fast-tests.md#diagnosable-test-hangs) — SEED-037#diagnosable-test-hangs
 - [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations
 - [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
