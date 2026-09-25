@@ -345,7 +345,17 @@ bounded, and slice 9 re-checks it under load.
 ### 8. Browser journeys advance a controlled clock instead of waiting
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- --grep 'story readiness keeps
+evidence gaps and refreshes truthful'` selects the one test that runs all
+three `storyReadinessRefresh.ts` journeys; it passed 5/5 with
+`--repeat-each 5`, and the whole spec 2/2. `grep -rn waitForTimeout
+dashboard/tests` finds nothing. The spec pauses the page clock before
+`page.goto`; `expectNoRereadAfterSettlement(page, origins)` passes page time
+to the next revision check and asserts unchanged origin read counts
+(`storyReadinessRefresh.ts:129`), then `expectSteadyPace`. Sensitivity: a
+temporary product break that re-read on an unchanged check failed there
+(`[8, 3]` against `[6, 3]`).
 Proof: the `storyReadinessRefresh.ts` journeys pass with
 `npm run test:dashboard -- --grep '<those journeys>'`, and no
 `waitForTimeout` remains in `dashboard/tests`.

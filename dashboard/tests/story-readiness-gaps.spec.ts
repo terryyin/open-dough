@@ -3,7 +3,7 @@
 // never planted in fixtures.
 
 import { expectChangedQueuedAssociations } from "./queuedPlanGaps.ts";
-import { expect, test } from "./dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
@@ -56,6 +56,8 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       repository: doughnutRepository,
     });
 
+    // The page clock stands still unless a step lets page time pass.
+    await pausePageClockAt(page, new Date("2026-09-23T09:00:00.000Z"));
     await page.goto("/");
     const { project, source, backlog, taken, refresh, retry, problem } =
       parts(page);
@@ -137,8 +139,10 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     });
 
     await test.step("no immediate re-read or unbounded retries after settlement", async () => {
-      await expectNoRereadAfterSettlement(doughnutOrigin, page);
-      await expectNoRereadAfterSettlement(openDoughOrigin, page);
+      await expectNoRereadAfterSettlement(page, [
+        doughnutOrigin,
+        openDoughOrigin,
+      ]);
     });
   } finally {
     for (const cleanup of cleanups.reverse()) {
