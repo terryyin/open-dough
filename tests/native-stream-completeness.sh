@@ -205,5 +205,3 @@ for host in codex cursor claude; do
   assert_incomplete "${host}" unknown 'unknown event shape' \
     "${status}" "${attempt}"
 done
-
-echo 'PASS: selected context retains complete streams with shared behavior assessment and keeps truncated, missing, and unknown terminal evidence nonpassing without a wording pass.'

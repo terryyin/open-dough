@@ -75,8 +75,6 @@ delivery_run_deterministic_transition() {
   output="${delivery_temporary_dir}/deterministic-update-output.txt"
   delivery_apply_ordinary_from_recorded_source "${output}"
   delivery_assert_update "${output}" 0
-  echo "PASS: the ${delivery_host_name} delivery-to-use fixture installs a verified older current-contract payload with recorded SOURCE, ordinarily updates to the newer tagged release from that SOURCE without a URL, and preserves coexistence."
-  echo "PENDING: native ${delivery_host_name} ordinary update and improved ADR use; run --native."
 }
 
 delivery_snapshot() {

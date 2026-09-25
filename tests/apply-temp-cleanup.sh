@@ -56,5 +56,3 @@ fi
 [[ ! -e "${target}/.cursor/skills/dough-update" ]]
 assert_sentinels "${target}"
 assert_apply_tmp_empty
-
-echo "PASS: failed apply setup removes operation-owned temporary work and leaves the target untouched."

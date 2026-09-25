@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# compare-payload verifies an installation against a supplied local tagged
+# checkout, names the native root and path of each mismatch, writes nothing,
+# and treats candidate-only collisions as mismatches.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -84,5 +87,3 @@ assert_compare_payload_mismatch "${agents_dest}" "${agents_root}" \
 
 rm -- "${agents_root}/dough-slice-planning/SKILL.md"
 assert_compare_payload_match "${agents_dest}"
-
-echo 'PASS: compare-payload verifies a supplied local tagged checkout, names native root and path, writes nothing, and treats candidate-only collisions as mismatches.'

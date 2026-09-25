@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# The installer puts the shared Codex/Cursor and Claude skills and records in
+# place, rejects unsupported platforms, stops ordinary repeats, replaces by
+# force, and preserves other skills and project files.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -46,7 +49,7 @@ assert_sentinels() {
 
 # Run outside the checkout so the installer must locate its own source.
 cd -- "${temporary_dir}"
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}"
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" > /dev/null
 
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
@@ -79,12 +82,12 @@ contents=$(cat "${installed_skill}")
 cmp "${source_dir}/VERSION" "${installed_record}"
 assert_sentinels
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --force
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --force > /dev/null
 assert_verified_install "${target}/.agents/skills/dough-update"
 contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor > /dev/null
 cursor_skill="${target}/.agents/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
@@ -102,11 +105,11 @@ cmp "${source_dir}/VERSION" "${target}/.agents/skills/dough-update/VERSION"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor --force
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor --force > /dev/null
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude > /dev/null
 claude_skill="${target}/.claude/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.claude/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
@@ -126,12 +129,12 @@ assert_verified_install "${target}/.agents/skills/dough-update"
 contents=$(cat "${claude_sentinel}")
 [[ "${contents}" == 'Keep this Claude sentinel.' ]]
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude --force
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude --force > /dev/null
 assert_verified_install "${target}/.claude/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex --force
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex --force > /dev/null
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_verified_install "${target}/.claude/skills/dough-update"
 
@@ -151,5 +154,3 @@ if output=$(bash "${bad_source}/install.sh" --target "${untouched_target}" \
 fi
 [[ "${output}" == *'Missing dated changelog entry'* ]]
 [[ ! -e "${untouched_target}/.agents" ]]
-
-echo "PASS: installs the shared Codex/Cursor and Claude skills and records, rejects unsupported platforms, stops repeats, forces replacement, and preserves other copies."

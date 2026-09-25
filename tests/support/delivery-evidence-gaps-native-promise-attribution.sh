@@ -84,6 +84,4 @@ run_delivery_evidence_gaps_observer_counterexamples() {
   printf '%s\n' 'I obtained the missing requeue observation; the runner accepted the tag.' \
     > "${outcome}"
   delivery_evidence_gaps_expect_attribution incidental "${outcome}" false true
-
-  echo 'PASS: delivery-evidence/gaps observer attributes each promise status to the readiness/requeue or happy-path promise it names, including same-line, table, and heading-labelled statuses, and ignores incidental accepted words.'
 }

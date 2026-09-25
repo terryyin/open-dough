@@ -26,20 +26,37 @@ agents_root="${target}/.agents/skills"
 claude_root="${target}/.claude/skills"
 dest="${agents_root}/dough-update"
 
+# Prints each path's mtime and digest, so a comparison catches any rewrite.
+write_state() {
+  local path
+  for path in "$@"; do
+    printf '%s %s %s\n' "${path}" "$(file_mtime "${path}")" "$(shasum -a 256 < "${path}")"
+  done
+}
+
+assert_write_state() {
+  local label=$1 expected=$2 actual
+  shift 2
+
+  actual=$(write_state "$@")
+  if [[ ${actual} != "${expected}" ]]; then
+    printf 'FAIL: %s: bytes or mtime changed.\nbefore:\n%s\nafter:\n%s\n' \
+      "${label}" "${expected}" "${actual}" >&2
+    exit 1
+  fi
+}
+
+payload_records=("${dest}/VERSION" "${dest}/SOURCE" "${dest}/SKILL.md")
+host_settings=("${target}/.cursor/hooks.json" "${target}/.claude/settings.json")
+
 capture_payload_baseline() {
   payload_snapshot=$(snapshot_path_state "${agents_root}")
   claude_payload_snapshot=$(snapshot_path_state "${claude_root}")
-  version_mtime=$(file_mtime "${dest}/VERSION")
-  source_mtime=$(file_mtime "${dest}/SOURCE")
-  skill_mtime=$(file_mtime "${dest}/SKILL.md")
-  version_bytes=$(shasum -a 256 "${dest}/VERSION")
-  source_bytes=$(shasum -a 256 "${dest}/SOURCE")
-  skill_bytes=$(shasum -a 256 "${dest}/SKILL.md")
+  payload_records_state=$(write_state "${payload_records[@]}")
 }
 
 assert_payload_unwritten() {
   local label=$1
-  local path expected_mtime expected_bytes
 
   if [[ $(snapshot_path_state "${agents_root}") != "${payload_snapshot}" ]]; then
     echo "FAIL: ${label}: agents payload tree changed." >&2
@@ -49,52 +66,16 @@ assert_payload_unwritten() {
     echo "FAIL: ${label}: Claude payload tree changed." >&2
     exit 1
   fi
-  for path in VERSION SOURCE SKILL.md; do
-    case "${path}" in
-      VERSION)
-        expected_mtime=${version_mtime}
-        expected_bytes=${version_bytes}
-        ;;
-      SOURCE)
-        expected_mtime=${source_mtime}
-        expected_bytes=${source_bytes}
-        ;;
-      SKILL.md)
-        expected_mtime=${skill_mtime}
-        expected_bytes=${skill_bytes}
-        ;;
-    esac
-    if [[ $(file_mtime "${dest}/${path}") != "${expected_mtime}" ]]; then
-      echo "FAIL: ${label}: ${path} mtime changed." >&2
-      exit 1
-    fi
-    if [[ $(shasum -a 256 "${dest}/${path}") != "${expected_bytes}" ]]; then
-      echo "FAIL: ${label}: ${path} bytes changed." >&2
-      exit 1
-    fi
-  done
+  assert_write_state "${label}: payload records" "${payload_records_state}" \
+    "${payload_records[@]}"
 }
 
 capture_settings_baseline() {
-  cursor_settings_mtime=$(file_mtime "${target}/.cursor/hooks.json")
-  claude_settings_mtime=$(file_mtime "${target}/.claude/settings.json")
-  cursor_settings_bytes=$(shasum -a 256 "${target}/.cursor/hooks.json")
-  claude_settings_bytes=$(shasum -a 256 "${target}/.claude/settings.json")
+  host_settings_state=$(write_state "${host_settings[@]}")
 }
 
 assert_settings_unwritten() {
-  local label=$1
-
-  if [[ $(file_mtime "${target}/.cursor/hooks.json") != "${cursor_settings_mtime}" ]] \
-    || [[ $(shasum -a 256 "${target}/.cursor/hooks.json") != "${cursor_settings_bytes}" ]]; then
-    echo "FAIL: ${label}: Cursor settings bytes or mtime changed." >&2
-    exit 1
-  fi
-  if [[ $(file_mtime "${target}/.claude/settings.json") != "${claude_settings_mtime}" ]] \
-    || [[ $(shasum -a 256 "${target}/.claude/settings.json") != "${claude_settings_bytes}" ]]; then
-    echo "FAIL: ${label}: Claude settings bytes or mtime changed." >&2
-    exit 1
-  fi
+  assert_write_state "$1: host settings" "${host_settings_state}" "${host_settings[@]}"
 }
 
 assert_full_noop() {
@@ -139,7 +120,6 @@ assert_hooks_repaired_without_payload_writes() {
 # Intact complete install remains a full no-op.
 trace="${temporary_dir}/trace-intact"
 assert_full_noop 'intact current install' "${temporary_dir}/output-intact" "${trace}"
-echo 'PASS: intact verified current install skips without target writes.'
 
 # Semantically identical registrations stay unwritten despite compact JSON and
 # reversed object-key order throughout managed handlers and unrelated settings.
@@ -176,7 +156,6 @@ assert_full_noop \
   'semantically complete noncanonical settings' \
   "${temporary_dir}/output-semantic-noop" \
   "${trace}"
-echo 'PASS: semantically complete noncanonical settings remain wholly unwritten.'
 
 # Missing managed entry restores only settings; payload records stay unwritten.
 capture_payload_baseline
@@ -196,12 +175,10 @@ cursor_repaired_digest=$(shasum -a 256 "${target}/.cursor/hooks.json")
 [[ "${cursor_repaired_digest}" != "${cursor_damaged_digest}" ]]
 assert_managed_host_hooks "${target}"
 assert_unrelated_preserved "${target}"
-echo 'PASS: missing managed entry restores only host registration.'
 
 # Re-run repaired target proves a full no-op.
 trace="${temporary_dir}/trace-repaired-noop"
 assert_full_noop 'repaired then complete' "${temporary_dir}/output-repaired-noop" "${trace}"
-echo 'PASS: repaired target is a full no-op on the next ordinary update.'
 
 # Missing settings file restores registration without payload writes.
 claude_before_missing_file=$(shasum -a 256 "${target}/.claude/settings.json")
@@ -217,7 +194,6 @@ assert_hooks_repaired_without_payload_writes \
 [[ -f "${target}/.cursor/hooks.json" ]]
 [[ $(shasum -a 256 "${target}/.claude/settings.json") == "${claude_before_missing_file}" ]]
 assert_cursor_managed_commands "${target}"
-echo 'PASS: missing hooks file restores only host registration.'
 
 # Conflicting modified managed entry refuses without writes.
 seed_edited_managed_timeout "${target}"
@@ -244,7 +220,6 @@ fi
 assert_payload_unwritten 'conflicting managed hooks'
 [[ $(shasum -a 256 "${target}/.cursor/hooks.json") == "${cursor_conflict_bytes}" ]]
 [[ $(shasum -a 256 "${target}/.claude/settings.json") == "${claude_conflict_bytes}" ]]
-echo 'PASS: conflicting managed hooks refuse without writes.'
 
 # A known managed command followed by a tab-separated argument is the same
 # conflict, not an unrelated command, at equal-version update (R6).
@@ -272,6 +247,3 @@ fi
 assert_payload_unwritten 'tab-suffixed managed command conflict'
 [[ $(shasum -a 256 "${target}/.cursor/hooks.json") == "${cursor_suffix_conflict_bytes}" ]]
 [[ $(shasum -a 256 "${target}/.claude/settings.json") == "${claude_suffix_conflict_bytes}" ]]
-echo 'PASS: a tab-suffixed managed command conflict refuses without writes.'
-
-echo 'PASS: equal-version update skips complete installs, repairs missing registration only, and refuses conflicts without writes.'

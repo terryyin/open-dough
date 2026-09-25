@@ -68,5 +68,3 @@ if grep -Eq '(two|both) (declared client payload|managed files|installed payload
   echo 'FAIL: client-payload guidance contains a stale fixed-cardinality boundary.' >&2
   exit 1
 fi
-
-echo 'PASS: documented inspection discovers release additions, refuses missing sources, and preserves complete-payload guidance.'

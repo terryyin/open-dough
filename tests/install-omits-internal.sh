@@ -119,25 +119,23 @@ assert_public_payload() {
 # Run outside the checkout so the installer must locate its own source.
 cd -- "${temporary_dir}"
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex > /dev/null
 assert_public_payload .agents/skills
 assert_public_payload .claude/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor > /dev/null
 assert_public_payload .agents/skills
 assert_public_payload .claude/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude > /dev/null
 assert_public_payload .claude/skills
 assert_public_payload .agents/skills
 assert_internal_absent "${target}"
 assert_sentinels
 expect_files .agents/skills .claude/skills
-
-echo "PASS: installer writes only the declared client payload and updater VERSION to the shared Codex/Cursor root and Claude root, enumerates those outputs, and omits internal release-version, reconcile-retrospective-findings, triage-retrospective-findings, their Claude discovery pointers, the maintainer finding-names record, AGENTS.md, and CLAUDE.md."

@@ -14,49 +14,23 @@ source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
-assert_unsafe_destination_refused() {
-  local target=$1 outside=$2 description=$3 option output
-  local target_before outside_before succeeded
+# Ordinary and forced installation both refuse for REASON before any write to
+# TARGET or, when named, OUTSIDE.
+assert_install_refused() {
+  local reason=$1 description=$2 target=$3 outside=${4:-} option output
+  local target_before outside_before=''
 
-  for option in ordinary force; do
+  for option in '' --force; do
     target_before=$(snapshot_path_state "${target}")
-    outside_before=$(snapshot_path_state "${outside}")
-    if [[ "${option}" == ordinary ]]; then
-      output=$(bash "${source_dir}/install.sh" --target "${target}" \
-        --source "${source_dir}" 2>&1) && succeeded=1 || succeeded=0
-    else
-      output=$(bash "${source_dir}/install.sh" --target "${target}" \
-        --source "${source_dir}" --force 2>&1) && succeeded=1 || succeeded=0
-    fi
-    if [[ ${succeeded} -eq 1 ]]; then
-      echo "FAIL: ${description} must refuse ${option} installation before writes." >&2
+    [[ -z ${outside} ]] || outside_before=$(snapshot_path_state "${outside}")
+    if output=$(bash "${source_dir}/install.sh" --target "${target}" \
+      --source "${source_dir}" ${option:+"${option}"} 2>&1); then
+      echo "FAIL: ${description} must refuse ${option:-ordinary} installation before writes." >&2
       exit 1
     fi
-    [[ "${output}" == *'unsafe-hooks-destination'* ]]
+    [[ "${output}" == *"${reason}"* ]]
     [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
-    [[ $(snapshot_path_state "${outside}") == "${outside_before}" ]]
-  done
-}
-
-assert_managed_conflict_refused() {
-  local target=$1 description=$2 option output
-  local before succeeded
-
-  before=$(snapshot_path_state "${target}")
-  for option in ordinary force; do
-    if [[ "${option}" == ordinary ]]; then
-      output=$(bash "${source_dir}/install.sh" --target "${target}" \
-        --source "${source_dir}" 2>&1) && succeeded=1 || succeeded=0
-    else
-      output=$(bash "${source_dir}/install.sh" --target "${target}" \
-        --source "${source_dir}" --force 2>&1) && succeeded=1 || succeeded=0
-    fi
-    if [[ ${succeeded} -eq 1 ]]; then
-      echo "FAIL: ${description} must refuse ${option} installation before writes." >&2
-      exit 1
-    fi
-    [[ "${output}" == *'conflicting-managed-hooks'* ]]
-    [[ $(snapshot_path_state "${target}") == "${before}" ]]
+    [[ -z ${outside} || $(snapshot_path_state "${outside}") == "${outside_before}" ]]
   done
 }
 
@@ -124,34 +98,20 @@ fi
 [[ ! -e "${malformed_target}/.agents/skills/dough-update" ]]
 [[ ! -e "${malformed_target}/.claude/skills/dough-update" ]]
 
-# Edited managed timeout/command conflicts; conflict in one host blocks both.
+# Edited managed timeout/command conflicts; conflict in one host blocks both,
+# and --force for managed skill payloads still cannot clobber the settings.
 conflict_target="${temporary_dir}/conflict"
 prepare_target "${conflict_target}"
 seed_edited_managed_timeout "${conflict_target}"
-before=$(snapshot_path_state "${conflict_target}")
-if output=$(bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" 2>&1); then
-  echo 'FAIL: edited managed handler must refuse before writes.' >&2
-  exit 1
-fi
-[[ "${output}" == *'conflicting-managed-hooks'* ]]
-[[ $(snapshot_path_state "${conflict_target}") == "${before}" ]]
-[[ ! -e "${conflict_target}/.agents/skills/dough-update" ]]
-[[ ! -e "${conflict_target}/.claude/skills/dough-update" ]]
-
-# --force for managed skill payloads still cannot clobber conflicting settings.
-if output=$(bash "${source_dir}/install.sh" --target "${conflict_target}" --source "${source_dir}" --force 2>&1); then
-  echo 'FAIL: --force must not override conflicting host hook settings.' >&2
-  exit 1
-fi
-[[ "${output}" == *'conflicting-managed-hooks'* ]]
-[[ $(snapshot_path_state "${conflict_target}") == "${before}" ]]
+assert_install_refused conflicting-managed-hooks 'edited managed handler' \
+  "${conflict_target}"
 
 # A known managed script with local arguments remains managed and conflicts.
 local_argument_target="${temporary_dir}/local-argument"
 prepare_target "${local_argument_target}"
 seed_managed_command_with_local_argument "${local_argument_target}"
-assert_managed_conflict_refused "${local_argument_target}" \
-  'managed command with a local argument'
+assert_install_refused conflicting-managed-hooks \
+  'managed command with a local argument' "${local_argument_target}"
 
 # A known managed command followed by a tab or a shell separator is still the
 # known command invoked with edited arguments, for both hosts and under both
@@ -167,8 +127,8 @@ for host in cursor claude; do
     suffix_target="${temporary_dir}/${host}-${variant}-suffix"
     prepare_target "${suffix_target}"
     seed_managed_command_with_suffix "${suffix_target}" "${host}" "${suffix}"
-    assert_managed_conflict_refused "${suffix_target}" \
-      "managed ${host} command with a ${variant} suffix"
+    assert_install_refused conflicting-managed-hooks \
+      "managed ${host} command with a ${variant} suffix" "${suffix_target}"
   done
 done
 
@@ -203,15 +163,15 @@ done
 duplicate_target="${temporary_dir}/duplicate"
 prepare_target "${duplicate_target}"
 seed_duplicate_exact_managed_entry "${duplicate_target}"
-assert_managed_conflict_refused "${duplicate_target}" \
-  'duplicate exact managed entries'
+assert_install_refused conflicting-managed-hooks \
+  'duplicate exact managed entries' "${duplicate_target}"
 
 # A managed Claude handler under a narrower matcher cannot be adopted.
 matcher_target="${temporary_dir}/managed-read-matcher"
 prepare_target "${matcher_target}"
 seed_claude_managed_read_matcher "${matcher_target}"
-assert_managed_conflict_refused "${matcher_target}" \
-  'managed Claude handler under matcher Read'
+assert_install_refused conflicting-managed-hooks \
+  'managed Claude handler under matcher Read' "${matcher_target}"
 
 # A valid settings-file symlink remains unsafe and refuses before writes.
 unsafe_target="${temporary_dir}/unsafe"
@@ -221,7 +181,8 @@ outside="${temporary_dir}/unsafe-outside"
 mkdir -p -- "${outside}"
 mv -- "${unsafe_target}/.claude/settings.json" "${outside}/settings.json"
 ln -s -- "${outside}/settings.json" "${unsafe_target}/.claude/settings.json"
-assert_unsafe_destination_refused "${unsafe_target}" "${outside}" 'valid settings-file symlink'
+assert_install_refused unsafe-hooks-destination 'valid settings-file symlink' \
+  "${unsafe_target}" "${outside}"
 
 # Dangling settings-file links for both hosts are inspected as links, not absences.
 for host in cursor claude; do
@@ -239,8 +200,8 @@ for host in cursor claude; do
     ln -s -- "${dangling_outside}/missing-settings.json" \
       "${dangling_target}/.claude/settings.json"
   fi
-  assert_unsafe_destination_refused "${dangling_target}" "${dangling_outside}" \
-    "dangling ${host} settings-file symlink"
+  assert_install_refused unsafe-hooks-destination \
+    "dangling ${host} settings-file symlink" "${dangling_target}" "${dangling_outside}"
 done
 
 # A dangling host-settings parent is likewise refused before payload or outside writes.
@@ -252,7 +213,6 @@ mv -- "${dangling_parent_target}/.claude" \
   "${dangling_parent_target}/preserved-claude-directory"
 ln -s -- "${dangling_parent_outside}/missing-claude-directory" \
   "${dangling_parent_target}/.claude"
-assert_unsafe_destination_refused "${dangling_parent_target}" \
-  "${dangling_parent_outside}" 'dangling host-settings parent symlink'
-
-echo 'PASS: installer adopts only one exact unscoped managed registration while preserving unrelated handlers and matcher siblings; creates missing settings files; refuses malformed, edited, argument-extended, tab-suffixed, semicolon-suffixed, duplicate, matcher-scoped, valid-symlink, and dangling-symlink settings without target or outside mutation while leaving a genuinely different similarly-prefixed script unrelated; --force cannot clobber shared settings; a conflict in one host blocks both.'
+assert_install_refused unsafe-hooks-destination \
+  'dangling host-settings parent symlink' "${dangling_parent_target}" \
+  "${dangling_parent_outside}"

@@ -18,7 +18,7 @@ prepare_installed_adr_awareness_target() {
   mkdir -p -- "${target}"
   cp -R -- "${fixture_source}/." "${target}/"
   bash "${candidate}/install.sh" --target "${target}" --source "${candidate}" \
-    --platform "${platform}"
+    --platform "${platform}" > /dev/null
 
   if [[ ${skill_root} != '.agents/skills' ]]; then
     for caller in \

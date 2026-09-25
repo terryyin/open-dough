@@ -21,10 +21,14 @@ continues to support Bash 3.2.
 
 The runner discovers only `tests/*.sh` outside `tests/support/`. It runs up to
 four of those checks at a time; each one keeps its own temporary directory.
-`OPEN_DOUGH_TEST_JOBS` selects that count from 1 to 4. The runner hides the
-output of passing checks; for each failing check it prints `FAIL: <check>` and
-that check's captured output. `OPEN_DOUGH_TEST_DIR` names another directory of
-checks to run instead of the suite's own, which is how
+`OPEN_DOUGH_TEST_JOBS` selects that count from 1 to 4. A passing check must
+write nothing, so a passing suite prints nothing. For each failing check the
+runner prints `FAIL: <check>` and that check's captured output. A check that
+exits 0 but wrote anything to stdout or stderr also fails the run, reported as
+`FAIL: <check> (passed but printed output)` with that output. Silence such
+output at its source (for example `grep -q`, or a quiet flag or setting on the
+noisy command) rather than filtering it. `OPEN_DOUGH_TEST_DIR` names another
+directory of checks to run instead of the suite's own, which is how
 `tests/test-runner-failure-report.sh` runs substitute checks. A
 `node --test` suite, including one beside a skill's scripts under
 `src/skills/`, runs in `npm test` and CI only when one of those shell entries

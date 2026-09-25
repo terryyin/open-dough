@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Git bootstrap executes only the inspected pinned release, never the
+# default-branch helper; apply --checkout does not replace inspected files; a
+# direct install cleans its checkout and refuses a newer release that appears
+# after inspection, without writes or repinning.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -228,5 +232,3 @@ head_before_cleanup=$(cat "${stale_checkout}.head")
 [[ "${head_before_cleanup}" == "${pinned_commit}" ]]
 [[ ! -s "${stale_checkout}.diff" ]]
 [[ ! -e "${stale_checkout}" && -d "${temporary_dir}" ]]
-
-echo "PASS: git bootstrap executes only the inspected pinned release; default-branch helper never runs on that path; apply --checkout does not replace inspected files; direct install cleans its checkout and refuses a valid newer selection without writes or repinning."

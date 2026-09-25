@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# The self-installation check accepts installed copies matching local tags and
+# ignores source-only development; it names drifted, disagreeing, malformed,
+# trailing-record, missing-tag, SOURCE-conflicting, and colliding native paths
+# without writes.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -176,5 +180,3 @@ printf '%s\n' 'Keep this unrelated local slice-planning skill.' > \
   "${collision}/.agents/skills/dough-slice-planning/SKILL.md"
 assert_checker_fail "${collision}" 'candidate-path collision' \
   "Managed payload mismatch: ${collision}/.agents/skills dough-slice-planning/SKILL.md"
-
-echo 'PASS: self-installation check accepts matching local tags, ignores source-only development, and names drifted, disagreeing, malformed, trailing-record, missing-tag, SOURCE-conflicting, and colliding native paths without writes.'

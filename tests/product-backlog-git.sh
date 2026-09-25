@@ -16,26 +16,22 @@ run_merge() {
   node --test --test-reporter="${failures_only_reporter}" \
     tests/support/product-backlog-git-merge.test.mjs \
     tests/support/product-backlog-git-merge-conflict.test.mjs
-  echo 'PASS: real Git merges of the product backlog, reconciled and gated through the shared resolver.'
 }
 
 run_rebase_conflict() {
   node --test --test-reporter="${failures_only_reporter}" \
     tests/support/product-backlog-git-rebase.test.mjs \
     tests/support/product-backlog-git-rebase-sequence.test.mjs
-  echo 'PASS: real conflicted Git rebase replays of the product backlog, reconciled and gated through the shared resolver, with the unpublished suffix replayed exactly once.'
 }
 
 run_rebase_clean() {
   node --test --test-reporter="${failures_only_reporter}" \
     tests/support/product-backlog-git-rebase-clean.test.mjs \
     tests/support/product-backlog-git-rebase-clean-accepted.test.mjs
-  echo 'PASS: clean (no per-step Git conflict) multi-commit Git rebase replays of the product backlog, gated by the whole-rebase aggregate comparison before a managed caller could publish them.'
 }
 
 run_rebase_onto() {
   node --test --test-reporter="${failures_only_reporter}" tests/support/product-backlog-git-rebase-onto.test.mjs
-  echo 'PASS: owned-suffix Git rebase replays, including a branch that is not checked out, gated through the shared resolver.'
 }
 
 run_cherry_pick() {
@@ -43,7 +39,6 @@ run_cherry_pick() {
     tests/support/product-backlog-git-cherry-pick.test.mjs \
     tests/support/product-backlog-git-cherry-pick-clean.test.mjs \
     tests/support/product-backlog-git-cherry-pick-sequence.test.mjs
-  echo 'PASS: real Git cherry-picks of the product backlog (single commit and multi-commit sequences), reconciled and gated through the shared resolver, including the missing-mainline refusal and the cherry-pick-specific "empty step" stop.'
 }
 
 case "${suite}" in

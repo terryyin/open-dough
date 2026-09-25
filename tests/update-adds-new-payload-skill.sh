@@ -97,5 +97,3 @@ if bash "${source_dir}/src/install/open-dough-release.sh" apply \
 fi
 after=$(snapshot_path_state "${collision_target}")
 [[ "${after}" == "${before}" ]]
-
-echo 'PASS: ordinary update adds newly released skills and refuses a pre-existing path collision.'

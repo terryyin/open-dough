@@ -110,5 +110,3 @@ for platform in codex cursor claude; do
     done
   done
 done
-
-echo 'PASS: Codex and Cursor through their shared root, and Claude through its root, refuse symlinked skill roots and managed-path collisions before writes, with or without force.'

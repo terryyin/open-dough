@@ -237,5 +237,3 @@ if [[ ${clear_prompt} != "${conflict_prompt}" ]]; then
   printf '%s\n%s\n' "${clear_prompt}" "${conflict_prompt}" >&2
   exit 1
 fi
-
-echo 'PASS: selected context attempts stay readable after scratch cleanup, listing reports them unreviewed, a second attempt is distinct, and an unwritable destination launches nothing.'

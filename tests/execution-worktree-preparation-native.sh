@@ -39,8 +39,6 @@ if [[ ${prep_native_mode} == default ]]; then
   run_cheap_assessor_contracts
   run_cheap_flag_contracts "${cheap_work}" "${wrapper}"
   run_cheap_isolation "${cheap_work}" "${wrapper}"
-  echo 'PASS: wrapper flags, fixture isolation, and native assessor contracts hold without launching Codex, Cursor, or Claude Code.'
-  echo 'PENDING: native execute-plan readiness in Codex, Cursor, and Claude Code; run each host with --native.'
   exit 0
 fi
 

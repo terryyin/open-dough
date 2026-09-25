@@ -75,17 +75,24 @@ fi
 
 wait
 
-# Report only failing checks, each with its own captured output.
+# Report only failing checks, each with its own captured output. A passing
+# check must be silent, so a check that exits 0 but wrote anything fails too.
 status=0
 for index in "${!labels[@]}"; do
   read -r job_status < "${output_root}/${index}.status"
+  log="${output_root}/${index}.log"
   if [[ ${job_status} -ne 0 ]]; then
-    {
-      printf 'FAIL: %s\n' "${labels[index]}"
-      cat -- "${output_root}/${index}.log"
-    } >&2
-    status=1
+    reason=''
+  elif [[ -s ${log} ]]; then
+    reason=' (passed but printed output)'
+  else
+    continue
   fi
+  {
+    printf 'FAIL: %s%s\n' "${labels[index]}" "${reason}"
+    cat -- "${log}"
+  } >&2
+  status=1
 done
 
 exit "${status}"

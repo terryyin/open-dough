@@ -111,5 +111,3 @@ for declaration in missing malformed; do
   fi
   [[ "${output}" == *'Cannot read managed payload declaration:'* ]]
 done
-
-echo 'PASS: all entry contexts install and ordinarily upgrade the retrospective reference in both roots, resolve its links, preserve preferences and unrelated files, and protect it as managed payload.'

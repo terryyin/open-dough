@@ -190,5 +190,3 @@ run_offline_record_state_and_reader_proof \
   "${installed_skill}" \
   "${claude_target}" \
   "${temporary_dir}"
-
-echo 'PASS: install and update deliver the product backlog'\''s full transitive script set into both managed roots across Codex, Cursor, and Claude Code; story-state recorder modules and record-preparation.md are delivered; edited or missing backlog scripts refuse and restore by force; project backlog bytes are untouched; and, with the release source unavailable, the installed product-backlog.mjs, product-backlog-git-merge.mjs, and record-state/read-state actually run -- a non-default --file, a launch subdirectory, a real non-fast-forward Git merge through the installed driver, a clean lock-free refusal of a directory supplied for --file, and published fixture bytes the shared reader observes as refined/planned/ready.'

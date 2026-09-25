@@ -49,5 +49,3 @@ if [[ -n ${leftover} ]]; then
   printf 'FAIL: watchdog scratch remained:\n%s\n' "${leftover}" >&2
   exit 1
 fi
-
-echo 'PASS: completed command stops its watchdog without running its handlers, reaps it, and leaves no scratch.'

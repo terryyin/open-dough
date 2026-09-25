@@ -191,5 +191,3 @@ assert_ordinary_update_refuses_unwritten \
   'not falling back to another release or branch' \
   "${unverifiable_dest}" \
   "${unverifiable_tmp}"
-
-echo "PASS: ordinary update refuses an unverifiable installation without guessing a source, writing, or treating it as a first install."

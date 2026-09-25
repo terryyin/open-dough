@@ -276,7 +276,18 @@ strict rule becomes enforceable.
 ### 4. Shell checks succeed silently, and a passing check that prints fails the suite
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/test-runner-failure-report.sh` adds passing
+substitutes that write to stdout and to stderr; the run exits 1 with
+`FAIL: <label> (passed but printed output)` and each printed line, and a
+runner with the rule disabled fails that test. A full `npm test` exited 0 with
+empty stderr and only npm's two banner lines on stdout, both with local git
+config and with `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`. 63
+default-path `PASS:`/`PENDING:` echoes were removed (opt-in `--native`
+verdicts kept); 15 checks that the rule exposed were silenced at their source
+(installer/updater success output, a leaking negative install, `grep` without
+`-q`, git merge chatter through the backlog merge adapter). Header comments
+keep a check's promise where the removed sentence was its only statement.
 Proof:
 - The slice 2 runner test gains a substitute that passes but writes to
   stderr: the run fails, naming it and showing the output.
@@ -538,4 +549,11 @@ The deferred promises have no slice.
   full dashboard suite passes silently under that and under plain config.
   Use the same environment to check the shell and Node suites before relying
   on local silence.
+- **Product finding (not in scope).** The installed backlog merge adapter
+  (`product-backlog-git-merge.mjs` through `gitOutcome` in
+  `product-backlog-git-repository.mjs`) passes git's "Automatic merge went
+  well; stopped before committing as requested" through to its caller's
+  stderr. Capturing it broke `product-backlog-git-merge-conflict.test.mjs:46`,
+  whose merge-driver diagnostic must reach stderr, so slice 4 silenced it in
+  the test helper only.
 
