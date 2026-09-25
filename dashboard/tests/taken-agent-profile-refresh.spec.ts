@@ -8,7 +8,7 @@ import {
   defaultRepository as repository,
   publishFiles,
 } from "./publishedOrigin.ts";
-import { expectPortrait } from "./agentPortrait.ts";
+import { expectMark, expectPortrait } from "./agentPortrait.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -43,6 +43,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
     await expect(source).toContainText(revisionA);
     await expect(card).toContainText("Owner not recorded");
     await expect(card.locator(".agent-portrait")).toHaveCount(0);
+    await expect(card.locator("img")).toHaveCount(0);
     await expect(problem).toHaveCount(0);
   });
 
@@ -72,5 +73,10 @@ test("a project without agent profiles still loads, and a refresh shows a profil
       atlas: 1,
       position: "50% 12.5%",
     });
+    // The unrecorded host stays a text gap: no tool mark is invented.
+    await expect(card.locator(".owner-host")).toHaveText("host not recorded");
+    await expect(card.locator(".owner-host img")).toHaveCount(0);
+    await expectMark(card, "mode", "Trunk Mode", "mode-icons/trunk.svg");
+    await expect(card.locator("img")).toHaveCount(1);
   });
 });

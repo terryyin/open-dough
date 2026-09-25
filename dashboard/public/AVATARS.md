@@ -1,9 +1,9 @@
 # Dashboard avatar assets
 
 These local assets are reserved for [SEED-038](../../.planning/seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar).
-Taken cards show the agent portraits beside recorded agent names
-(`dashboard/src/TakenOwnerFacts.tsx`); the tool marks and mode symbols are not
-used yet.
+Taken cards (`dashboard/src/TakenOwnerFacts.tsx`) show the agent portraits
+beside recorded agent names, and the mode symbols and tool marks as decorative
+images beside their mode and host labels; an unrecorded host gets no mark.
 
 ## Agent portraits
 

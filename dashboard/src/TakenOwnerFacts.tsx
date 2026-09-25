@@ -12,16 +12,38 @@ import type {
 import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import "./taken-owner.css";
 
-const modeLabels: Readonly<Record<AgentMode, string>> = {
-  trunk: "Trunk Mode",
-  "story-branch": "Story Branch Mode",
+// How each recorded mode and host is presented: its label, and the local mark
+// shown beside it (an original symbol for each mode and each host's official
+// mark). See dashboard/public/AVATARS.md for provenance.
+const modes: Readonly<Record<AgentMode, { label: string; mark: string }>> = {
+  trunk: { label: "Trunk Mode", mark: "mode-icons/trunk.svg" },
+  "story-branch": {
+    label: "Story Branch Mode",
+    mark: "mode-icons/story-branch.svg",
+  },
 };
 
-const hostLabels: Readonly<Record<AgentHost, string>> = {
-  claude: "Claude Code",
-  codex: "Codex",
-  cursor: "Cursor",
+const hosts: Readonly<Record<AgentHost, { label: string; mark: string }>> = {
+  claude: { label: "Claude Code", mark: "tool-avatars/claude.png" },
+  codex: { label: "Codex", mark: "tool-avatars/codex.png" },
+  cursor: { label: "Cursor", mark: "tool-avatars/cursor.png" },
 };
+
+// A decorative mark: the label beside it carries the meaning.
+function OwnerMark({ file }: { file: string | undefined }) {
+  if (file === undefined) {
+    return null;
+  }
+  return (
+    <img
+      className="owner-mark"
+      src={`${import.meta.env.BASE_URL}${file}`}
+      alt=""
+      width={16}
+      height={16}
+    />
+  );
+}
 
 const portraitsPerAtlas = 6;
 
@@ -52,16 +74,22 @@ function AgentPortrait({ name }: { name: string }) {
 
 // The one-line owner summary, for example
 // "Akiho-chan · Trunk Mode · Claude Code · claude-opus". Each fact is its own
-// group so a visual mark stays beside the label it belongs to.
+// group so a visual mark stays beside the label it belongs to; an unrecorded
+// host keeps its text gap and gets no mark.
 function OwnerSummary({ owner }: { owner: AgentOwner }) {
   const facts = [
-    { kind: "mode", label: modeLabels[owner.mode] },
+    { kind: "mode", ...modes[owner.mode] },
     {
       kind: "host",
-      label:
-        owner.host === undefined ? "host not recorded" : hostLabels[owner.host],
+      ...(owner.host === undefined
+        ? { label: "host not recorded", mark: undefined }
+        : hosts[owner.host]),
     },
-    { kind: "model", label: owner.model ?? "model not recorded" },
+    {
+      kind: "model",
+      label: owner.model ?? "model not recorded",
+      mark: undefined,
+    },
   ];
   return (
     <p className="owner-summary">
@@ -69,10 +97,13 @@ function OwnerSummary({ owner }: { owner: AgentOwner }) {
         <AgentPortrait name={owner.name} />
         {owner.agent}
       </span>
-      {facts.map(({ kind, label }) => (
+      {facts.map(({ kind, label, mark }) => (
         <span key={kind}>
           {" · "}
-          <span className={`owner-fact owner-${kind}`}>{label}</span>
+          <span className={`owner-fact owner-${kind}`}>
+            <OwnerMark file={mark} />
+            {label}
+          </span>
         </span>
       ))}
     </p>

@@ -8,7 +8,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { expectPortrait } from "./agentPortrait.ts";
+import { expectMark, expectPortrait } from "./agentPortrait.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const repository = "terryyin/open-dough";
@@ -136,6 +136,39 @@ test("each Taken card shows its published agent profile, or says plainly that no
     }
   });
 
+  await test.step("each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths", async () => {
+    const marked = [
+      [trunkStory, "Trunk Mode", "trunk.svg", "Claude Code", "claude.png"],
+      [
+        branchStory,
+        "Story Branch Mode",
+        "story-branch.svg",
+        "Codex",
+        "codex.png",
+      ],
+      [modelless, "Trunk Mode", "trunk.svg", "Cursor", "cursor.png"],
+      [
+        lastInRotation,
+        "Story Branch Mode",
+        "story-branch.svg",
+        "Claude Code",
+        "claude.png",
+      ],
+    ] as const;
+    for (const width of [1280, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [title, mode, modeFile, host, hostFile] of marked) {
+        await expectMark(card(title), "mode", mode, `mode-icons/${modeFile}`);
+        await expectMark(card(title), "host", host, `tool-avatars/${hostFile}`);
+        // The model has no mark, and the owner text is unchanged.
+        await expect(card(title).locator(".owner-model img")).toHaveCount(0);
+      }
+    }
+    await expect(card(trunkStory)).toContainText(
+      "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
+    );
+  });
+
   await test.step("a Story Branch Mode profile shows its branch as context, never as work on trunk", async () => {
     const branch = card(branchStory);
     await expect(branch).toContainText(
@@ -158,6 +191,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(card(older)).toContainText("Owner not recorded");
     await expect(card(older)).not.toContainText("-chan");
     await expect(card(older).locator(".agent-portrait")).toHaveCount(0);
+    await expect(card(older).locator("img")).toHaveCount(0);
   });
 
   await test.step("a malformed profile is shown as unreadable and matched to no entry", async () => {
@@ -170,6 +204,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       taken.getByRole("article").filter({ hasText: "Mana-chan" }),
     ).toHaveCount(0);
     await expect(taken.locator(".agent-portrait")).toHaveCount(4);
+    await expect(taken.locator(".owner-mark")).toHaveCount(8);
   });
 
   await test.step("Backlog entries claim no owner", async () => {

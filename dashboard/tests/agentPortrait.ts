@@ -1,4 +1,4 @@
-// What a Taken card shows beside its recorded agent's name.
+// What a Taken card shows beside its recorded agent's name, mode, and host.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -25,15 +25,68 @@ export async function expectPortrait(
     (element) =>
       /url\("(.*)"\)/.exec(getComputedStyle(element).backgroundImage)?.[1],
   );
-  const served = await card.page().request.get(image ?? "");
-  expect(served.ok()).toBe(true);
-  expect(served.headers()["content-type"]).toContain("image/webp");
+  await expectServed(card, image ?? "", "image/webp");
   // Beside the name: the portrait ends where the name begins, on its line.
-  const portraitBox = await portrait.boundingBox();
-  const groupBox = await group.boundingBox();
+  await expectStartsGroup(portrait, group);
+}
+
+// The local mark beside a card's recorded mode or host label: a decorative
+// image, served, at the start of the group holding exactly that label, and
+// clear of the agent portrait.
+export async function expectMark(
+  card: Locator,
+  kind: "mode" | "host",
+  label: string,
+  file: string,
+) {
+  const group = card.locator(`.owner-${kind}`);
+  await expect(group).toHaveText(label);
+  const mark = group.locator("img.owner-mark");
+  await expect(mark).toHaveCount(1);
+  await expect(mark).toBeVisible();
+  await expect(mark).toHaveAttribute("alt", "");
+  await expect(mark).toHaveAttribute("src", new RegExp(`/${file}$`));
+  const source = await mark.evaluate(
+    (image) => (image as HTMLImageElement).currentSrc,
+  );
+  await expectServed(
+    card,
+    source,
+    file.endsWith(".svg") ? "image/svg+xml" : "image/png",
+  );
+  expect(
+    await mark.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+  ).toBeGreaterThan(0);
+  // Beside its label: the mark starts the label's group.
+  const markBox = await expectStartsGroup(mark, group);
+  const portraitBox = await card.locator(".agent-portrait").boundingBox();
   expect(portraitBox).not.toBeNull();
+  if (markBox === null || portraitBox === null) return;
+  // Never on the portrait.
+  const apart =
+    markBox.x >= portraitBox.x + portraitBox.width ||
+    portraitBox.x >= markBox.x + markBox.width ||
+    markBox.y >= portraitBox.y + portraitBox.height ||
+    portraitBox.y >= markBox.y + markBox.height;
+  expect(apart).toBe(true);
+}
+
+// The image behind a mark or portrait is actually served, as its type.
+async function expectServed(card: Locator, url: string, contentType: string) {
+  const served = await card.page().request.get(url);
+  expect(served.ok()).toBe(true);
+  expect(served.headers()["content-type"]).toContain(contentType);
+}
+
+// A visual sits at the start of the group holding its label, narrower than the
+// group, so the label follows it on the same line. Returns the visual's box.
+async function expectStartsGroup(visual: Locator, group: Locator) {
+  const visualBox = await visual.boundingBox();
+  const groupBox = await group.boundingBox();
+  expect(visualBox).not.toBeNull();
   expect(groupBox).not.toBeNull();
-  if (portraitBox === null || groupBox === null) return;
-  expect(portraitBox.x).toBeCloseTo(groupBox.x, 0);
-  expect(portraitBox.width).toBeLessThan(groupBox.width);
+  if (visualBox === null || groupBox === null) return null;
+  expect(visualBox.x).toBeCloseTo(groupBox.x, 0);
+  expect(visualBox.width).toBeLessThan(groupBox.width);
+  return visualBox;
 }

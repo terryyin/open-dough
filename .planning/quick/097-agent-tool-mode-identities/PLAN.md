@@ -123,7 +123,7 @@ the rotation name from the shared reader. Owner styles live in
 ### 2. Tool and mode marks sit beside their labels
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the same Taken-card journey: Trunk Mode with Claude Code and
 Story Branch Mode with Codex use the corresponding local files; a Cursor host
 uses the Cursor mark; each icon is in the group containing its exact text label.
@@ -137,6 +137,21 @@ Behavior: a Taken card shows a recorded mode and host → the appropriate mode
 symbol and official host mark appear immediately beside their respective
 labels, leaving the portrait clear. An unrecorded host remains an explicit
 text gap without a fabricated icon.
+
+Accepted proof (2026-09-25): `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/taken-agent-profile.spec.ts
+dashboard/tests/taken-agent-profile-refresh.spec.ts` passed 2/2 after
+refactoring; `npm run typecheck:dashboard` and `npm run build:dashboard`
+passed. The step "each recorded mode and host has its own mark beside its
+label, clear of the portrait, at desktop and narrow widths" runs `expectMark`
+(`dashboard/tests/agentPortrait.ts`) at 1280 px and 360 px for Trunk
+Mode/Claude Code, Story Branch Mode/Codex, Trunk Mode/Cursor, and Story
+Branch Mode/Claude Code: one decorative `alt=""` image at the start of the
+group holding exactly its label, expected local file served, box disjoint
+from the portrait. The refresh journey's missing-host card shows
+`host not recorded` with no tool image; not-recorded cards have no images.
+Gaps: asset URLs are observed only under the default base path, and loading
+or unavailable-profile states are covered by code inspection only.
 
 ## Remaining concerns
 
