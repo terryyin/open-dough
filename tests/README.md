@@ -31,6 +31,10 @@ checks to run instead of the suite's own, which is how
 invokes it. Entries that glob a directory's `*.test.mjs`, such as
 `tests/execution-ci-runtime.sh` and `tests/workspace-publication-callers.sh`,
 pick up suites added there; entries that list files need each new suite added.
+Each entry passes `--test-reporter=tests/support/node-test-failures-reporter.mjs`
+(by its absolute path), which prints nothing when every test passes silently.
+It shows each failing test's name, location, error, and its file's captured
+output, and any output a passing file wrote, under `output from passing <file>:`.
 
 ## Native ADR-awareness check wrappers
 

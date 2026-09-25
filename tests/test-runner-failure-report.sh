@@ -43,4 +43,8 @@ if grep -E -- 'Running |first-passed|second-passed|helper-ran|failing-continued|
   echo 'FAIL: the runner reported more than the failing check and its output.' >&2
   exit 1
 fi
+
+# The shared `node --test` reporter prints only failing tests, with their output.
+node --test --test-reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs" \
+  "${source_dir}/tests/support/node-test-failures-reporter.test.mjs"
 echo 'PASS: the runner prints nothing for passing checks and reports only a failing check with its output.'

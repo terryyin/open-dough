@@ -245,7 +245,16 @@ fails → only that check is reported.
 ### 3. Node test entries report only failing tests
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `tests/support/node-test-failures-reporter.test.mjs`, run from
+`tests/test-runner-failure-report.sh`, drives substitute files through the
+reporter: a failing test shows `not ok: <suite > test>`, its location, error,
+and the file's captured stdout and stderr; a silent passing file prints
+nothing; a passing file that prints is shown under `output from passing
+<file>:` (so slice 4's rule can fail it); a file exiting non-zero is named with
+its exit code. All six `node --test` entries use the reporter with their
+concurrency unchanged, and each passed; no real node test wrote output while
+passing. A full `npm test` exited 0 with empty stderr.
 Proof:
 - A deliberately failing substitute `node --test` file, run through the
   shared reporter, shows the test name, error, location, and captured output.

@@ -2,9 +2,10 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+failures_only_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
 cd -- "${source_dir}"
 
-node --test \
+node --test --test-reporter="${failures_only_reporter}" \
   tests/support/product-backlog.test.mjs \
   tests/support/product-backlog-write-safety.test.mjs \
   tests/support/product-backlog-place.test.mjs \
