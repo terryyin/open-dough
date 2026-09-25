@@ -4,15 +4,15 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/103-lost-workspace-preparation-release/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"23cf92933a38c4ba7955f9ef1f3ac480e06714058111cab71d41c585831158b1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c628ba3ad09d4b1e4ac13783d5caa20fa94c84776c37676dec3e360bc87efceb"}}
 ```
 
 ## Source
 
 Execution retrospective of story `SEED-025#show-backlog-preparation-states`
-([seed](../../seeds/SEED-025-backlog-preparation-states.md#show-backlog-preparation-states)),
-executed through plan
-[099](../099-published-preparing-assignments/PLAN.md) on
+(seed at `94b8c3661f2699bf7c3511414aa382a6b00e0dae:.planning/seeds/SEED-025-backlog-preparation-states.md`),
+executed through plan 099
+(`94b8c3661f2699bf7c3511414aa382a6b00e0dae:.planning/quick/099-published-preparing-assignments/PLAN.md`) on
 `claude/099-published-preparing-assignments`. Reviewed commits `9c142ed`,
 `315ab39` and `e11c09a` (net `git diff cf4ee77 e11c09a`). The retrospective
 rechecked its findings at `e11c09a`, and this plan was surveyed at the same
