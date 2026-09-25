@@ -77,6 +77,10 @@ Structure: move the older test's unique assertions into the journey case and
 delete the older test and any imports it alone used. Directly owned
 retrospective correction; enables no later Behavior.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Learnings
 
 - Slice 1 accepted: the journey case in
