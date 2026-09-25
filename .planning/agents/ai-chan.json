@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-038#recognize-agents-and-tools-by-avatar",
+  "mode": "story-branch",
+  "branch": "claude/097-agent-tool-mode-identities",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
