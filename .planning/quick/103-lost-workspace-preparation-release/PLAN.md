@@ -285,7 +285,7 @@ change.
 ### 2. A developer releases a lost workspace's preparation assignment by its exact allocation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new production-CLI journey file (capability-named, for example
 `preparation-assignment-lost-workspace.test.mjs`) against a local bare
 origin, then the rest of the assignment suite and callers:
@@ -495,3 +495,18 @@ still-owned proof. Record timing only after the retirements are done.
   `${remote}/${target}` now uses `remoteRef`. Preparation `stop` and
   execution `stopped` stay separate, because merging would add or remove
   `implemented: false` in a receipt.
+- Slice 2 accepted proof: `preparation-assignment-lost-workspace.test.mjs`
+  (one journey through the production `abandon --profile … [--allocation
+  <sha> --confirmed-abandoned]` CLI) observes `confirmation-required` with the
+  held assignment's fields, `allocation-mismatch`, `not-preparation` for an
+  execution profile, a confirmed release publishing one commit whose only
+  change deletes the profile (queue, other profiles and the integration
+  checkout's pending edit byte-identical, refresh deferred), a repeat
+  `already-released` with `endedBy`, and a later same-name allocation kept as
+  `successor`. The preparation-assignment suite is 25/25, and the directory
+  callers command, the agent-profile/startup suites and the payload checks pass.
+  Both abandonment paths share `publishEnding`, so no separate race case was
+  added. `addressedAssignment` lives in
+  `preparation-assignment-lost-workspace.mjs`. A profile whose recorded name
+  disagrees with its file name is refused rather than reported released;
+  `start` never writes one.

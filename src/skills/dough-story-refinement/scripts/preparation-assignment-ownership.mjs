@@ -4,11 +4,15 @@
 // The workspace remembers its own announcement commit under a per-worktree
 // ref, recorded before the announcement is pushed. Trunk history alone cannot
 // tell a workspace's own allocation from a later one of the same name that a
-// fast-forward brought into the workspace, so only that record counts.
-import { dirname, join, resolve } from "node:path";
+// fast-forward brought into the workspace, so only that record counts. When
+// that workspace is lost, a developer addresses the assignment instead by its
+// profile path and allocation (preparation-assignment-lost-workspace.mjs).
+import { basename, dirname, join, resolve } from "node:path";
 import {
   agentIdentity,
+  agentProfileDirectory,
   agentReportError,
+  profileAgentName,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   addedProfile,
@@ -34,17 +38,37 @@ export const profilePathOf = (name) =>
 // Operations that publish to trunk need authority and a separate workspace.
 const publishing = new Set(["start", "abandon"]);
 
+// Why an abandonment addressed by profile path cannot be read as one, or
+// undefined when it can: a lost workspace's assignment is named by its
+// profile beside the backlog and its allocation, not by workspace or story.
+function addressingError(input) {
+  if (input.workspace !== undefined || input.identity !== undefined)
+    return "--profile addresses an assignment by its allocation; do not also name --workspace or --identity";
+  const directory = join(dirname(backlogPath), agentProfileDirectory);
+  if (
+    dirname(input.profile) !== directory ||
+    !profileAgentName(basename(input.profile))
+  )
+    return `--profile must name an agent profile under ${directory}/`;
+  return undefined;
+}
+
 // The validated request for an operation, or a stop saying why not.
 export function requestOf(operation, input) {
-  const required = ["workspace", "identity", "target"];
+  const addressed = operation === "abandon" && input.profile !== undefined;
+  const required = addressed
+    ? ["profile", "target"]
+    : ["workspace", "identity", "target"];
   if (publishing.has(operation)) required.push("integration");
   for (const field of required)
     if (!input[field])
       return stop("invalid-request", { error: `missing ${field}` });
+  const invalid = addressed && addressingError(input);
+  if (invalid) return stop("invalid-request", { error: invalid });
   const request = {
     ...input,
     remote: input.remote ?? "origin",
-    workspace: resolve(input.workspace),
+    ...(input.workspace ? { workspace: resolve(input.workspace) } : {}),
     ...(input.integration ? { integration: resolve(input.integration) } : {}),
   };
   const reportError = agentReportError(request);
@@ -75,30 +99,20 @@ export async function restoreAllocation(workspace, sha) {
   else await git(workspace, "update-ref", "-d", recordRef);
 }
 
-export async function recordedAllocation(workspace) {
-  try {
-    const { stdout } = await git(
-      workspace,
-      "rev-parse",
-      "--verify",
-      "-q",
-      `${recordRef}^{commit}`,
-    );
-    return stdout.trim();
-  } catch {
-    return undefined;
-  }
-}
+export const recordedAllocation = (workspace) => commitOf(workspace, recordRef);
 
 // The preparation profile the announcement commit `sha` added, as an
-// assignment: its name, path, allocation, and recorded facts.
-async function announcedAssignment(workspace, sha) {
+// assignment: its name, path, allocation, and recorded facts. `only` narrows
+// it to the profile of that rotation name.
+export async function announcedAssignment(cwd, sha, only) {
   const added = await addedProfile(
-    workspace,
+    cwd,
     sha,
     backlogPath,
     (profile, name) =>
-      profile.activity === "preparation" && profile.name === name,
+      profile.activity === "preparation" &&
+      profile.name === name &&
+      (only === undefined || name === only),
   );
   return added && { ...added, allocation: sha };
 }
@@ -129,13 +143,19 @@ export async function workspaceAssignment(request, ref) {
       ? { state: "none", assigned: own }
       : { state: "none" };
   if (current === sha) return { state: "held", own };
+  return endedAssignment(workspace, ref, own, current);
+}
+
+// An allocation `own` that trunk `ref` no longer holds: the commit that
+// removed it, and `current`, any later allocation of the same name.
+export async function endedAssignment(cwd, ref, own, current) {
   const { stdout } = await git(
-    workspace,
+    cwd,
     "log",
     "--reverse",
     "--diff-filter=D",
     "--format=%H",
-    `${sha}..${ref}`,
+    `${own.allocation}..${ref}`,
     "--",
     own.path,
   );
@@ -147,10 +167,14 @@ export async function workspaceAssignment(request, ref) {
   };
 }
 
-export function assignmentFields(request, { name, path, allocation, profile }) {
+// The receipt fields of a preparation assignment of the story `identity`.
+export function assignmentFields(
+  { identity },
+  { name, path, allocation, profile },
+) {
   return {
     activity: "preparation",
-    identity: request.identity,
+    identity,
     agent: agentIdentity(name).agent,
     profile: path,
     allocation,
@@ -176,9 +200,26 @@ export function alreadyReleased(request, found) {
   return {
     ok: true,
     status: "already-released",
-    ...assignmentFields(request, found.own),
+    ...assignmentFields(found.own.profile, found.own),
     endedBy: found.endedBy,
     ...(found.successor ? { successor: found.successor } : {}),
     workspace: request.workspace,
   };
+}
+
+// The commit `rev` names in `cwd`, or undefined when it names none.
+export async function commitOf(cwd, rev) {
+  if (rev === undefined) return undefined;
+  try {
+    const { stdout } = await git(
+      cwd,
+      "rev-parse",
+      "--verify",
+      "-q",
+      `${rev}^{commit}`,
+    );
+    return stdout.trim();
+  } catch {
+    return undefined;
+  }
 }

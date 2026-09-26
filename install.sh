@@ -130,6 +130,7 @@ managed_files=(
   dough-story-refinement/references/preparation-workspace.md
   dough-story-refinement/scripts/preparation-assignment.mjs
   dough-story-refinement/scripts/preparation-assignment-abandon.mjs
+  dough-story-refinement/scripts/preparation-assignment-lost-workspace.mjs
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
   dough-story-refinement/scripts/preparation-assignment-release.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
