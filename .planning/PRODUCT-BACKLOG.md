@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
-- [Finish story 1 event synchronization and native evidence inputs](quick/102-finish-story-event-synchronization/PLAN.md)
 
 ## Backlog list
 
