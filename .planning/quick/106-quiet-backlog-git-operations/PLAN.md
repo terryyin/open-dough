@@ -131,6 +131,10 @@ requires the merge adapter's combined output to be exactly `accepted`. The
 clean-merge, clean-rebase, hook, and payload assertions fail against the
 pre-slice adapters.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Learnings
 
 - The collector is an `AsyncLocalStorage` scope that each
