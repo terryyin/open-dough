@@ -29,7 +29,7 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
   const shaC = await deliver();
 
   // Many polls with no matching run: stay quiet and undiscovered.
-  for (let calls = 2; calls <= 8; calls += 1) await advancePoll(calls);
+  for (let poll = 0; poll < 7; poll += 1) await advancePoll();
   assert.deepEqual(
     coverageStates(mailbox, directory),
     new Map([
@@ -48,7 +48,7 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
       outcome: "pending",
     },
   ]);
-  await advancePoll(9);
+  await advancePoll();
   const pendingA = mailbox
     .readRevisionCoverage(directory)
     .find(({ sha }) => sha === shaA);
@@ -88,7 +88,7 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
       outcome: "success",
     },
   ]);
-  await advancePoll(10);
+  await advancePoll();
   assert.deepEqual(
     coverageStates(mailbox, directory),
     new Map([
@@ -128,7 +128,7 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
       outcome: "pending",
     },
   ]);
-  await advancePoll(11);
+  await advancePoll();
   mailbox.requestMailboxStop(directory, { root: project, storage });
   await worker;
 

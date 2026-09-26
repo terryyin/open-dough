@@ -146,7 +146,7 @@ The planning profile in Learnings is not this baseline.
 ### 1. Registering a pushed revision makes the CI observer check at once
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Extend the mailbox await journey (`ci-mailbox-await.test.mjs` and its case
   modules, or the closest existing worker journey) with the real mailbox
@@ -304,8 +304,31 @@ The deferred promises have no slice.
   slices 2–4 own that risk. Slice 2 changes `install.sh` itself and is the
   least certain in size; its checkpoint bounds it.
 
+## Execution
+
+Story Branch Mode. Workspace `.worktrees/107-cut-test-work-and-ci-wait` on
+`claude/107-cut-test-work-and-ci-wait`, pushed to `origin`; claim published on
+`origin/main` as `489396e` (starting revision `025e9fa`), CI unobserved for
+the claim. Reference checkout for paired measurement: detached
+`.worktrees/107-reference` at `489396e`.
+
 ## Learnings
 
+- **Baseline (start revision `489396e`).** 2026-09-26, Apple M4 Max (16
+  cores), Bash 5 first on `PATH`, default job count, 1-minute load 5.2 at
+  start. One profiled `npm test` passed in 131 s wall; 198 jobs summed to
+  2,033.1 job-seconds. Top jobs: `workspace-publication.test.mjs` 100.1,
+  `story-payload-update.sh` 100.0, `install-all-tools.sh` 94.0,
+  `execution-payload-update.sh` 90.4, `product-backlog-payload-update.sh`
+  88.2, `native-delivery-updated-use-adapters.sh` 74.4,
+  `native-stream-completeness.sh` 70.3, `retrospective-reference-payload.sh`
+  68.1, `self-installation-baseline.sh` 63.5, `git-publication-native.sh`
+  62.2; `workspace-publication-startup-*` 24–49 each;
+  `preparation-assignment-*` about 22 each. The native-evidence shell family
+  (`native-*.sh`, `git-publication-native.sh`) is a candidate replacement for
+  slice 3 or 4 if profiling ranks it higher. CI `Run test` step of the last six
+  successful `main` runs (`36206088697`…`36210067165`, through `ee40a7e`; later
+  commits are planning-only): 189, 155, 180, 131, 208, 168 s, median 174 s.
 - **Planning profile, not the baseline.** 2026-09-26 at `a339d41`, Apple M4
   Max (16 cores), Bash 5.3.20, load average 24–31 from unrelated agents.
   `npm test` passed in 135 s wall; 197 jobs summed to 2,079 job-seconds under
@@ -325,3 +348,18 @@ The deferred promises have no slice.
   installed `await-revision` took 30.05 s against 0.40 s for `.agents/skills`
   because the observer polled before `register-push` landed and then slept a
   full interval.
+- **Slice 1 delivered.** Each poll arms a registration wake before it runs;
+  the mailbox worker's existing `fs.watch` plus 100 ms fallback
+  (`ci-mailbox-change-watch.mjs`) aborts it when a new SHA name appears in
+  `coverage/`, ending the post-poll pause. Error retries, budget, and abort
+  are unchanged. Proof: `ci-mailbox-await-wake-cases.mjs` (finished run →
+  verdict within 5 s against a 600 s interval; failed before the change with
+  `unresolvedReason: timeout`; in-progress run → later poll) and
+  `watch-ci-execution-wake.test.mjs` (one extra check after an in-flight
+  registration; error, budget, abort). Poll-count assertions in the
+  revision-coverage and custom-bridge journeys now count relative to the
+  extra check. The installed `.claude/skills` 30 s wait was a race, not a
+  constant: 1 of 3 traced reference runs versus 0 of 9 candidate runs (await
+  ≤ 0.4 s). Paired `execution-payload-update.sh` job times, reference versus
+  candidate at loads 5–10: 47.0/16.1, 16.2/16.4, 17.3/16.6 s. A new script
+  under `src/skills/*/scripts` needs its `install.sh` `managed_files` entry.

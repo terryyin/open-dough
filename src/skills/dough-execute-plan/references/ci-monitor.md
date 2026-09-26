@@ -39,6 +39,7 @@ without promising notifications.
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally; it never dispatches or retries a check, observes
 deployment, or changes the checkout. Assess coverage with runtime-setup bounds.
+Registering a revision checks it at once, so a finished run needs no poll wait.
 
 Within the startup snapshot, inspect the newest completed attempt and unfinished
 attempts. Preserve opaque run and attempt identities. Retain unfinished
@@ -183,11 +184,10 @@ until that missing history is accounted for.
    cause is uncertain, enter the analysis/repair path below.
    Skip steps 2–5 when this execution does not own the repair.
 2. **Pause this execution's writers on the execution checkout.** Hold new
-   delegation, formatting, and commits. Require every implementation and
-   refactor agent to satisfy [the pause contract](#pause-and-resume-writers)
-   before stashing. A sent message or interrupt does not prove subprocesses
-   stopped; verify quiescence after an interrupt. Never stash under a live
-   writer.
+   delegation, formatting, and commits. Require every implementation and refactor
+   agent to satisfy [the pause contract](#pause-and-resume-writers) before
+   stashing. A sent message or interrupt does not prove subprocesses stopped;
+   verify quiescence after an interrupt. Never stash under a live writer.
 3. **Preserve unfinished owned work in the execution checkout.** Record branch,
    HEAD, staged/unstaged/untracked paths, and the previous stash OID. Once all
    writers are quiescent, if the tree is dirty use `git stash push

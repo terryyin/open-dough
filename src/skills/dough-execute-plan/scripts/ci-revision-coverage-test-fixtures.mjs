@@ -101,14 +101,21 @@ export async function createRevisionCoverageFixture(
     },
     { root: project, storage },
   );
+  // A pause ended by its signal (stop, or a registration waking the
+  // observer) is no longer pending for the test to resolve.
   const sleeps = [];
   const sleep = (...[, , { signal }]) =>
     new Promise((resolve, reject) => {
       const entry = { resolve };
       sleeps.push(entry);
-      signal.addEventListener("abort", () => reject(signal.reason), {
-        once: true,
-      });
+      signal.addEventListener(
+        "abort",
+        () => {
+          sleeps.splice(sleeps.indexOf(entry), 1);
+          reject(signal.reason);
+        },
+        { once: true },
+      );
     });
   writeFileSync(
     adapterState,
@@ -141,6 +148,16 @@ export async function createRevisionCoverageFixture(
     () => Number(readFileSync(adapterCalls, "utf8")) === 1,
     "initial poll",
   );
+  let polls = 1;
+  // Waits for the next poll to finish and the observer to pause again.
+  const nextPollCompleted = async () => {
+    polls += 1;
+    await waitFor(
+      () => Number(readFileSync(adapterCalls, "utf8")) === polls,
+      `poll ${polls}`,
+    );
+    await waitFor(() => sleeps.length > 0, `poll ${polls} completed`);
+  };
 
   const deliver = async () => {
     const sha = (await git(project, "rev-parse", "HEAD")).stdout.trim();
@@ -166,17 +183,15 @@ export async function createRevisionCoverageFixture(
       JSON.parse(stdout.slice(mailbox.receiptPrefix.length)).revision.sha,
       sha,
     );
+    // The registration wakes the paused observer for one immediate poll.
+    await nextPollCompleted();
     return sha;
   };
 
-  const advancePoll = async (expectedCalls) => {
+  const advancePoll = async () => {
     await waitFor(() => sleeps.length > 0, "poll sleep");
     sleeps.shift().resolve();
-    await waitFor(
-      () => Number(readFileSync(adapterCalls, "utf8")) === expectedCalls,
-      `poll ${expectedCalls}`,
-    );
-    await waitFor(() => sleeps.length > 0, `poll ${expectedCalls} completed`);
+    await nextPollCompleted();
   };
 
   const setAttempts = (attempts) =>

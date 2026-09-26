@@ -28,12 +28,12 @@ test("one discovery-delay advisory names overdue revisions and never repeats", a
   await git(project, "commit", "-am", "revision C");
   const shaC = await deliver();
 
-  await advancePoll(2);
+  await advancePoll();
   assert.deepEqual(mailbox.readMailboxEvents(directory), []);
   assert.equal(discoveryAdvisoryEmitted(directory), false);
 
   clock += discoveryDelayBoundMs + 1;
-  await advancePoll(3);
+  await advancePoll();
   assert.deepEqual(
     mailbox.readMailboxEvents(directory).map(({ event }) => event),
     [
@@ -51,9 +51,9 @@ test("one discovery-delay advisory names overdue revisions and never repeats", a
   writeFileSync(join(project, "application.txt"), "D\n");
   await git(project, "commit", "-am", "revision D");
   const shaD = await deliver();
-  await advancePoll(4);
+  await advancePoll();
   clock += discoveryDelayBoundMs * 2;
-  await advancePoll(5);
+  await advancePoll();
   assert.deepEqual(
     mailbox.readMailboxEvents(directory).map(({ event }) => event.type),
     ["CI_DISCOVERY_DELAYED"],
@@ -85,7 +85,7 @@ test("a registration discovered before the bound produces no advisory", async (t
   });
 
   const sha = await deliver();
-  await advancePoll(2);
+  await advancePoll();
   setAttempts([
     {
       runId: "run:early",
@@ -94,7 +94,7 @@ test("a registration discovered before the bound produces no advisory", async (t
       outcome: "success",
     },
   ]);
-  await advancePoll(3);
+  await advancePoll();
   assert.equal(
     mailbox.readRevisionCoverage(directory).find(({ sha: s }) => s === sha)
       .state,
@@ -103,7 +103,7 @@ test("a registration discovered before the bound produces no advisory", async (t
   assert.deepEqual(mailbox.readMailboxEvents(directory), []);
 
   clock += discoveryDelayBoundMs * 2;
-  await advancePoll(4);
+  await advancePoll();
   assert.deepEqual(mailbox.readMailboxEvents(directory), []);
   assert.equal(discoveryAdvisoryEmitted(directory), false);
 
