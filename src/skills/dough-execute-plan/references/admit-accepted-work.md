@@ -32,7 +32,9 @@ you already hold this claim; continue under it. A refusal starts no dependent
 work: `source-refused` names missing identity, preparation, or Goal, already
 queued work, or a home listed under another identity; `source-conflict` names
 the `path` that fetched trunk changed differently, with both versions kept for
-a human decision; `conflict` means another claim holds the work. After an
-unconfirmed admission, keep its reported `recovery` fields and stop. An
+a human decision; `conflict` means another claim holds the work. If publication
+is interrupted, resume it as the startup command describes, keeping the same
+admission flags: the resumed start publishes or confirms the preserved
+candidate, reconciled onto current trunk, never later edits to your drafts. An
 accepted admission continues with the same checkout-bound setup as any
 accepted start.

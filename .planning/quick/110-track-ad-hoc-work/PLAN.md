@@ -168,7 +168,7 @@ checks under a modern bash.
 
 ### 2. Recover admission without losing its story or duplicating ownership
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Concurrent trunk movement, agent-name collision or interrupted claim
 publication occurs → the same admission retries or resumes → remote trunk has
@@ -190,6 +190,15 @@ Keep the new admission journey green.
 
 Safe stop: Admission is resumable under the existing publication contract; no
 unfinished source or another writer's work is discarded.
+
+Accepted proof: recovery rebuilds an isolated admission candidate by
+reconciling it per section onto current trunk (resume publishes the preserved
+candidate, never later drafts), through the existing `reselectClaimAgent`
+rebuild and publisher recheck. Admission recovery/race cases live in
+`workspace-publication-startup-admission-recovery.test.mjs` (kept separate to
+hold file size) and the name collision in the agent-race file. Passing:
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs`
+(58).
 
 ### 3. Track an investigation through its ordinary continuation
 Type: Behavior
@@ -344,3 +353,8 @@ planned, not already passed. Reassess when implementation exposes contrary facts
   the identity Taken and returns `existing` without admission content, and an
   agent-name collision replays by rebase instead of the reselection rebuild;
   both are slice 2 obligations.
+- Slice 2: ordinary line-based rebase replay is unsafe for admitted seeds (it
+  conflicts on adjacent appended stories and leaves the workspace mid-rebase),
+  so every admission retry rebuilds from its candidate's own parent. Untested:
+  a second lost race after a rebuild, and a name collision during a resumed
+  admission.

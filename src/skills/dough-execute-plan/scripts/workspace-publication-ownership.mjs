@@ -95,3 +95,13 @@ export const pathOf = (request) => request.backlogPath ?? backlogPath;
 export function stopped(status, fields) {
   return { ok: false, status, implemented: false, ...fields };
 }
+
+// A stop for a source read that refused the selected work: the error names
+// its own stop status and fields, such as a reconciliation conflict, or is
+// an ordinary source refusal.
+export function sourceStopped(error, fields) {
+  return stopped(error.status ?? "source-refused", {
+    ...error.fields,
+    ...fields,
+  });
+}

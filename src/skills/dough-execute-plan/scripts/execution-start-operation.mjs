@@ -35,6 +35,7 @@ import {
   isAncestor,
   remoteOf,
   remoteRef,
+  sourceStopped,
   stopped,
 } from "./workspace-publication-ownership.mjs";
 
@@ -64,10 +65,7 @@ export async function startExecution(requestInput) {
         );
     }
   } catch (error) {
-    return stopped(error.status ?? "source-refused", {
-      ...error.fields,
-      error: error.stderr || error.message,
-    });
+    return sourceStopped(error, { error: error.stderr || error.message });
   }
   if (selectedSource.existing && !request.retained)
     return existingClaim(request, ref);
@@ -166,23 +164,27 @@ export async function startExecution(requestInput) {
   const published = await publishClaimSha({
     ...claimRequest,
     candidateSha: committed.candidateSha,
-    async recheckSource() {
+    async recheckSource({ candidateSha }) {
       await git(request.integration, "fetch", remote);
-      const refreshed = await source.read(request, ref);
+      const refreshed = await source.read(request, ref, candidateSha);
       if (source.changed(refreshed, selectedSource)) {
         throw new Error(
           "selected published source changed during claim publication",
         );
       }
+      // The candidate's admission, reconciled again onto newer trunk.
+      if (source.admitting) selectedSource = refreshed;
     },
-    // Rebuilding an admission on newer trunk would also need its content
-    // reconciled again, so an admission replays instead.
     reselectClaim:
-      agent &&
-      !source.admitting &&
-      reselectClaimAgent(claimRequest, agent, (next) => {
-        agent = next;
-      }),
+      (agent || source.admitting) &&
+      reselectClaimAgent(
+        claimRequest,
+        agent,
+        (next) => {
+          agent = next;
+        },
+        source.admitting && (() => selectedSource.admission),
+      ),
   });
   if (!published.ok)
     return {

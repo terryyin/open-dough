@@ -13,15 +13,18 @@ import {
   stopped,
 } from "./workspace-publication-ownership.mjs";
 
-// `changed` tells whether a source reread during claim publication no longer
-// supports the claim. An admission's source is its own reconciled candidate,
-// carried by the retained claim commit rather than read back from trunk, so
-// it only changes when the work has meanwhile been listed.
+// `read(request, ref, candidateSha)` reads it on fetched trunk; `changed`
+// tells whether a source reread during claim publication no longer supports
+// the claim. An admission's source is its claim candidate once one exists (a
+// resumed start's retained candidate by default), reconciled again onto the
+// trunk it reads rather than drafted anew, so it only changes when the work
+// has meanwhile been listed.
 export function startSource(request) {
   if (request.admit === true)
     return {
       admitting: true,
-      read: readAdmissionSource,
+      read: (reader, ref, candidateSha = request.retained?.candidateSha) =>
+        readAdmissionSource(reader, ref, candidateSha),
       changed: (refreshed) => Boolean(refreshed.existing),
     };
   return {

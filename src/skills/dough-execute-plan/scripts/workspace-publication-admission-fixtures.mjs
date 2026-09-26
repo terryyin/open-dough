@@ -106,3 +106,64 @@ export async function pushFromElsewhere(trunk, path, edit) {
   await git(other, "push", "-q", "origin", "HEAD:main");
   return revParse(other, "HEAD");
 }
+
+// An unlisted planned story drafted after Story A in seed A, with a new
+// declared plan, in the originating checkout only.
+export function draftLateStory(trunk) {
+  const identity = "SEED-A#late";
+  const link = "seeds/A.md#late";
+  const seedPath = ".planning/seeds/A.md";
+  const planPath = ".planning/quick/late/PLAN.md";
+  const plan = "# Late plan\n\nDeliver late work.\n";
+  writeDraft(trunk, planPath, plan);
+  const seed = withFacts(
+    `${readFileSync(join(trunk.integration, seedPath), "utf8")}\n${storySection("late", identity, "Late story", "Deliver late work.")}`,
+    link,
+    identity,
+    "planned",
+    "../quick/late/PLAN.md",
+  );
+  writeDraft(trunk, seedPath, seed);
+  return {
+    identity,
+    seedPath,
+    planPath,
+    plan,
+    section: seed.slice(seed.indexOf('<a id="late">')),
+    args: admitArgs(identity, link, "Late story"),
+  };
+}
+
+// Appends a sibling story to `seedPath` on remote trunk from another clone.
+export function appendSiblingElsewhere(trunk, seedPath, anchor) {
+  return pushFromElsewhere(
+    trunk,
+    seedPath,
+    (text) =>
+      `${text}\n${storySection(anchor, `SEED-A#${anchor}`, `Sibling ${anchor}`, "Kept.")}`,
+  );
+}
+
+// Remote trunk at `rev` holds the story's drafted section once and its plan,
+// lists it once, in Taken, and one claim commit of `publisher` admitted it.
+export async function assertAdmittedOnce(trunk, rev, story, publisher) {
+  const seed = await remoteText(trunk, rev, story.seedPath);
+  assert.equal(seed.split('<a id="late">').length, 2, seed);
+  assert.ok(seed.includes(story.section), seed);
+  assert.equal(await remoteText(trunk, rev, story.planPath), story.plan);
+  const entries = (await listed(trunk, rev)).filter(
+    (entry) => entry.identity === story.identity,
+  );
+  assert.deepEqual(
+    entries.map((entry) => entry.list),
+    ["Taken"],
+  );
+  const log = (await git(trunk.origin, "log", "--format=%B", rev)).stdout;
+  const claims = log.match(
+    /^Claim-Identity: SEED-A#late\nClaim-Publisher: .+$/gm,
+  );
+  assert.deepEqual(claims, [
+    `Claim-Identity: ${story.identity}\nClaim-Publisher: ${publisher}`,
+  ]);
+  await neverQueued(trunk, rev, story.identity);
+}

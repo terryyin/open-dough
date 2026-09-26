@@ -10,44 +10,15 @@ import {
 } from "./agent-assignments.mjs";
 import { git, revParse } from "./publication-git.mjs";
 import { commitWorkspaceClaim } from "./workspace-publication-select.mjs";
+import { isAncestor } from "./workspace-publication-ownership.mjs";
 import {
   configureAgentAuthorship,
   workspaceAuthorship,
 } from "./workspace-agent-authorship.mjs";
 
-// publishClaimSha's reselection hook. When the rejected push's trunk already
-// holds the selected name, rebuild the still-isolated Take on that trunk under
-// the rotation's next name instead of replaying it; otherwise leave the replay alone.
-// `onAgent` learns the name that was actually committed.
-export function reselectClaimAgent(claimRequest, agent, onAgent) {
-  const { workspace, backlogPath, startingRevision } = claimRequest;
-  return async ({ onto, candidateSha }) => {
-    const { name, held } = await nextAgentName(workspace, onto, backlogPath);
-    if (!held.includes(agent.name)) return undefined;
-    const isolated =
-      (await revParse(workspace, "HEAD")) === candidateSha &&
-      (await revParse(workspace, `${candidateSha}^`)) === startingRevision &&
-      (await git(workspace, "status", "--porcelain")).stdout === "";
-    if (!isolated) return undefined;
-    if (!name) return agentUnavailable(workspace, onto, backlogPath);
-    await git(workspace, "reset", "--hard", onto);
-    const next = { ...agent, name };
-    const recreated = await commitWorkspaceClaim({
-      ...claimRequest,
-      startingRevision: onto,
-      agent: next,
-    });
-    if (recreated.ok) onAgent(next);
-    return recreated;
-  };
-}
-
-// A resumed claim keeps the agent its claim commit named: the execution
-// profile that commit added for `identity`. A preparation profile naming the
-// same identity is never the claim's agent. Restores that agent's authorship
-// in the reused workspace and returns its name, or undefined for a claim made
-// without a profile. No new name is chosen and no profile is written.
-async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
+// The execution profile the claim commit `claimSha` added for `identity`; a
+// preparation profile naming the same identity is never the claim's agent.
+async function claimProfile(workspace, claimSha, identity, backlogPath) {
   const added = await addedProfile(
     workspace,
     claimSha,
@@ -55,8 +26,59 @@ async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
     (profile) =>
       profile.activity === "execution" && profile.identity === identity,
   );
-  if (!added) return undefined;
-  const agent = agentIdentity(added.profile.name);
+  return added?.profile;
+}
+
+// publishClaimSha's reselection hook. When the rejected push's trunk already
+// holds the selected name, rebuild the still-isolated Take on that trunk under
+// the rotation's next name instead of replaying it. An admission, given its
+// `admission()` reconciled onto that trunk, is always rebuilt so its content
+// lands per section rather than by line replay; a resumed one keeps the agent
+// its candidate named. Otherwise leave the replay alone. `onAgent` learns the
+// name that was actually committed.
+export function reselectClaimAgent(claimRequest, chosen, onAgent, admission) {
+  const { workspace, backlogPath, identity } = claimRequest;
+  return async ({ onto, candidateSha }) => {
+    const agent =
+      chosen ??
+      (await claimProfile(workspace, candidateSha, identity, backlogPath));
+    if (!agent) return undefined;
+    const { name, held } = await nextAgentName(workspace, onto, backlogPath);
+    const collides = held.includes(agent.name);
+    if (!collides && !admission) return undefined;
+    const isolated =
+      (await revParse(workspace, "HEAD")) === candidateSha &&
+      (await isAncestor(workspace, `${candidateSha}^`, onto)) &&
+      (await git(workspace, "status", "--porcelain")).stdout === "";
+    if (!isolated) return undefined;
+    if (collides && !name)
+      return agentUnavailable(workspace, onto, backlogPath);
+    await git(workspace, "reset", "--hard", onto);
+    const next = collides ? { ...agent, name } : agent;
+    const recreated = await commitWorkspaceClaim({
+      ...claimRequest,
+      startingRevision: onto,
+      agent: next,
+      ...(admission ? { admission: admission() } : {}),
+    });
+    if (recreated.ok) onAgent(next);
+    return recreated;
+  };
+}
+
+// A resumed claim keeps the agent its claim commit named. Restores that
+// agent's authorship in the reused workspace and returns its name, or
+// undefined for a claim made without a profile. No new name is chosen and no
+// profile is written.
+async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
+  const profile = await claimProfile(
+    workspace,
+    claimSha,
+    identity,
+    backlogPath,
+  );
+  if (!profile) return undefined;
+  const agent = agentIdentity(profile.name);
   await configureAgentAuthorship(workspace, agent);
   return agent.agent;
 }

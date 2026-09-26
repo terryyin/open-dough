@@ -3,10 +3,11 @@
 // the originating checkout. Admission carries only that owned content: the
 // selected story's section of its seed (the whole seed when the seed itself is
 // new) and the whole declared plan. Each is reconciled with fetched trunk
-// against the checkout's merge base, so sibling sections on trunk survive,
-// other local edits stay local, and an edit trunk also made differently stops
-// with both versions intact for a human decision. Preparation is read as recorded; admission
-// never records readiness or approach of its own.
+// against the revision it was drafted from, so sibling sections on trunk
+// survive, other local edits stay local, and an edit trunk also made
+// differently stops with both versions intact for a human decision.
+// Preparation is read as recorded; admission never records readiness or
+// approach of its own.
 import { dirname, posix } from "node:path";
 import {
   parseBacklog,
@@ -28,6 +29,7 @@ import {
   show,
   worktreeSource,
 } from "./execution-source.mjs";
+import { revParse } from "./publication-git.mjs";
 import { backlogPath } from "./workspace-publication-ownership.mjs";
 
 // A refusal that names its stop status, such as a reconciliation conflict.
@@ -42,16 +44,31 @@ class AdmissionRefusal extends Error {
 const refused = (message, fields) =>
   new AdmissionRefusal("source-refused", message, fields);
 
-// The file at the checkout's merge base with trunk, on fetched trunk, and as
-// drafted in the originating worktree. A file the worktree lacks is drafted
-// as trunk has it: there is nothing local to carry.
-async function versionsOf(request, remoteRef, base, path) {
+// Where admitted content is drafted, and the revision it was drafted from:
+// the originating worktree against its merge base with trunk, or a preserved
+// claim candidate against its own parent. Recovery reconciles that candidate
+// again, so later local drafting never changes an accepted admission.
+async function draftsOf(integration, remoteRef, candidateSha) {
+  if (candidateSha)
+    return {
+      base: await revParse(integration, `${candidateSha}^`),
+      read: (path) => show(integration, candidateSha, path),
+    };
+  return {
+    base: await mergeBase(integration, remoteRef),
+    read: async (path) => worktreeSource(integration, path),
+  };
+}
+
+// The file at the drafts' base, on fetched trunk, and as drafted. A file the
+// drafts lack is drafted as trunk has it: there is nothing to carry.
+async function versionsOf(request, remoteRef, drafts, path) {
   const trunk = await show(request.integration, remoteRef, path);
   return {
     path,
-    base: await show(request.integration, base, path),
+    base: await show(request.integration, drafts.base, path),
     trunk,
-    draft: worktreeSource(request.integration, path) ?? trunk,
+    draft: (await drafts.read(path)) ?? trunk,
   };
 }
 
@@ -153,7 +170,10 @@ function requireAdmissibleStory(source, href, identity, options = {}) {
   return state;
 }
 
-export async function readAdmissionSource(request, remoteRef) {
+// With `candidateSha`, the admission that preserved claim candidate carries.
+// Once the work is listed, only the listing and its plan, whose owner the
+// claim's provenance decides.
+export async function readAdmissionSource(request, remoteRef, candidateSha) {
   const { integration, identity, link } = request;
   const backlog = await show(integration, remoteRef, backlogPath);
   if (backlog === null) throw refused("fetched trunk has no product backlog");
@@ -163,15 +183,15 @@ export async function readAdmissionSource(request, remoteRef) {
     throw refused(
       "selected identity is already queued on fetched trunk; start it as queued work",
     );
-  if (entry) return { existing: entry };
+  if (entry) return { existing: entry, planTarget: entry.plan?.target };
   const listed = entries.find((item) => item.href === link);
   if (listed)
     throw refused(
       `canonical home ${link} is already listed as "${listed.identity}"`,
     );
   const homePath = canonicalHomePath(integration, link);
-  const base = await mergeBase(integration, remoteRef);
-  const home = await versionsOf(request, remoteRef, base, homePath);
+  const drafts = await draftsOf(integration, remoteRef, candidateSha);
+  const home = await versionsOf(request, remoteRef, drafts, homePath);
   if (home.draft === null)
     throw refused(`selected canonical home ${homePath} is absent`);
   const drafted = requireAdmissibleStory(home.draft, link, identity);
@@ -183,7 +203,7 @@ export async function readAdmissionSource(request, remoteRef) {
     if (request.plan && request.plan !== planHref)
       throw refused("requested plan disagrees with recorded preparation");
     if (planPath !== homePath) {
-      plan = await versionsOf(request, remoteRef, base, planPath);
+      plan = await versionsOf(request, remoteRef, drafts, planPath);
       if (plan.draft === null)
         throw refused(`declared plan ${planPath} is absent`);
     }
