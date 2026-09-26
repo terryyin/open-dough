@@ -17,7 +17,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
-- [Preserve other executions' work during recovery and cleanup](seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work) — SEED-008#preserve-other-executions-work
+- [Preserve other writers' work in shared worktrees](seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work) — SEED-008#preserve-other-executions-work
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Keep admitted work coherent after its first delivery](seeds/SEED-028-track-ad-hoc-work.md#admission-coherence) — SEED-028#admission-coherence
