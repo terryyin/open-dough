@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
-
 ## Backlog list
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment

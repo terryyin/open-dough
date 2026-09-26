@@ -23,6 +23,7 @@ import {
   waitForFile,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
+import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
 
 test("a reused worker pid is not signaled when it does not belong to the mailbox", async (t) => {
   const { directory, storage, unrelated } = await mailboxWithUnrelatedWorker(t);
@@ -76,7 +77,7 @@ test("a detached worker that dies is reported lost at the next ordinary interact
   const { pid } = readWorkerIdentity(mailbox);
   const githubPid = Number(readFileSync(join(directory, "github-pid"), "utf8"));
   process.kill(pid, "SIGKILL");
-  assert.equal(await waitForPidExit(pid), true);
+  await awaitProcessExit(pid);
   assert.equal(
     await waitForPidExit(githubPid),
     true,

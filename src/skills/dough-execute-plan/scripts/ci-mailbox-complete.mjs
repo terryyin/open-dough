@@ -23,10 +23,11 @@ export function requestMailboxStop(directory, options = {}) {
   writeFileSync(join(directory, "stop"), "", { mode: 0o600 });
 }
 
-// Aborts once the recorded worker no longer runs as this mailbox's worker.
-// Only that worker publishes the terminal result, always before it exits, so
-// a stop need not wait out its deadline for a worker that is already gone.
-function watchWorkerDeparture(directory) {
+// Aborts once the recorded worker has exited. Only that worker publishes the
+// terminal result, always before it exits, so a stop need not wait out its
+// deadline for a worker that is already gone. A live PID running another
+// command (unknown identity) is not a departure: the deadline stays in charge.
+function watchWorkerDeparture(directory, readCommand) {
   const departed = new AbortController();
   let identity;
   try {
@@ -37,7 +38,10 @@ function watchWorkerDeparture(directory) {
   }
   const check = () => {
     try {
-      if (checkMailboxWorkerLiveness(identity, directory) !== "alive")
+      if (
+        checkMailboxWorkerLiveness(identity, directory, { readCommand }) ===
+        "dead"
+      )
         departed.abort();
     } catch {
       // An unreadable process table leaves the lifecycle deadline in charge.
@@ -50,7 +54,8 @@ function watchWorkerDeparture(directory) {
 
 export async function stopMailbox(directory, options = {}) {
   requestMailboxStop(directory, options);
-  const departure = watchWorkerDeparture(directory);
+  const { readCommand } = options;
+  const departure = watchWorkerDeparture(directory, readCommand);
   let terminal;
   try {
     terminal = await waitForTerminalResult(directory, {
@@ -71,7 +76,9 @@ export async function stopMailbox(directory, options = {}) {
   }
   // Read before terminating, which itself ends the worker.
   const departed = departure.signal.aborted;
-  await terminateMailboxWorker(readWorkerIdentity(directory), directory);
+  await terminateMailboxWorker(readWorkerIdentity(directory), directory, {
+    readCommand,
+  });
   return recordLostTerminalResult(
     directory,
     departed ? workerLossReason : undefined,

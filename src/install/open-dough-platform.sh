@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2312
-# Shared platform destinations and requested-version refusal.
+# Shared platform destinations, requested-version refusal, and payload bytes.
 # Sourced by install.sh and open-dough-release.sh.
 
 # Reports an installer failure partway through a replacement and exits;
@@ -145,4 +145,35 @@ assert_no_managed_collision() {
     echo "Unsafe destination collision: expected a managed file at ${path}." >&2
     return 1
   }
+}
+
+# Run match, copy, or copy-then-match for the listed files from source_root to
+# dest_root in one Node process. match exits 1 on a missing or different file
+# and 2 on an unexpected read. copy exits 1 when a file cannot be written,
+# after earlier files in the listed order have already been replaced.
+# copy-then-match copies, then verifies the written bytes, exiting 3 on a
+# difference and 4 when verification cannot read a file. Without Node, fall
+# back to cp and cmp so a hook-less install or update still works.
+payload_bytes_run() {
+  local mode=$1 source_root=$2 dest_root=$3
+  shift 3
+  local helper
+  helper="$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-bytes.mjs"
+  local managed_file
+  if [[ -f ${helper} ]] && command -v node > /dev/null 2>&1; then
+    printf '%s\n' "$@" | node "${helper}" "${mode}" "${source_root}" "${dest_root}"
+    return
+  fi
+  if [[ ${mode} != match ]]; then
+    for managed_file in "$@"; do
+      cp -- "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || return 1
+    done
+    [[ ${mode} == copy-then-match ]] || return 0
+  fi
+  for managed_file in "$@"; do
+    cmp -s -- "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || {
+      [[ ${mode} == match ]] && return 1
+      return 3
+    }
+  done
 }

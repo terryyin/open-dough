@@ -66,9 +66,9 @@ or duplicated mechanics.
   maintainer's decision.
 - Re-profile CI's longest jobs from the latest `test-times` artifact.
 
-**Cleanup carried from SEED-037** (not covered by correction plan
-`slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md`, which
-stays separate):
+**Cleanup carried from SEED-037** (not covered by completed correction plan
+117, recoverable at
+`f10d52e:.planning/slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md`):
 
 - `tests/support/native-updated-use-adapter-assert.sh`'s `run_selected` can
   still fail silently when the wrapper prints no result path; the

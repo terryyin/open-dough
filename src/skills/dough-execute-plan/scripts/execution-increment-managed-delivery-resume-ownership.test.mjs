@@ -4,7 +4,6 @@ import assert from "node:assert/strict";
 import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { setTimeout as pause } from "node:timers/promises";
 import {
   mailboxWorkerLoss,
   readRevisionCoverage,
@@ -14,20 +13,22 @@ import { messageCount } from "./publication-test-fixtures.mjs";
 import { isLiveMatchingMailbox } from "./ci-mailbox-match.mjs";
 import {
   createManagedFixture,
-  waitForPidExit,
   watchCount,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
+import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
 
-async function waitForLiveMailbox(directory, options) {
-  const deadline = Date.now() + 5_000;
-  while (Date.now() < deadline) {
-    if (isLiveMatchingMailbox(directory, options)) return;
-    await pause(20);
-  }
-  assert.fail(`observer did not become live: ${directory}`);
+// Waits, while the observer worker at `directory` lives, until it is the live
+// observer matching `options`.
+function waitForLiveMailbox(directory, options) {
+  return awaitWorkerState(
+    directory,
+    () => isLiveMatchingMailbox(directory, options),
+    "it became the live matching observer",
+  );
 }
 
 test("ended observer reports explicit unobserved gap without push or replacement", async (t) => {
@@ -101,7 +102,7 @@ test("dead worker reports coverage gap without duplicate push or replacement", a
   const directory = delivered.observation.directory;
   const { pid } = readWorkerIdentity(directory);
   process.kill(pid, "SIGKILL");
-  assert.equal(await waitForPidExit(pid), true);
+  await awaitProcessExit(pid);
   const watchesBefore = watchCount(fixture.storage);
 
   const resumed = await fixture.resumeManagedExecutionIncrement({

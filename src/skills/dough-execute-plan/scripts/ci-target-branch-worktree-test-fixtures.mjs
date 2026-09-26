@@ -23,15 +23,6 @@ async function git(root, ...args) {
   return exec("git", args, { cwd: root });
 }
 
-export async function waitFor(predicate, message) {
-  const deadline = Date.now() + 10_000;
-  while (Date.now() < deadline) {
-    if (predicate()) return;
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  }
-  throw new Error(message);
-}
-
 export function hookInput(host, receipt = "") {
   return {
     session_id: "coordinator",

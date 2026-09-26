@@ -1,58 +1,61 @@
 # Jobs known to run longest, longest first. scripts/test.sh starts these
 # before every other job so the longest does not start last. Names that no
-# longer match a job are ignored. To refresh from a run on your machine:
-#   OPEN_DOUGH_TEST_TIMES=/tmp/times npm test
-#   awk -F '\t' '$1 >= 10 { print $2 }' /tmp/times
-src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs
-tests/install-all-tools.sh
-tests/native-delivery-updated-use-adapters.sh
-tests/native-stream-completeness.sh
-tests/self-installation-baseline.sh
+# longer match a job are ignored. To refresh from CI's latest `test-times`
+# artifact (jobs of 3 s or more):
+#   gh run download RUN_ID -n test-times -D /tmp/times
+#   awk -F '\t' '$1 >= 3 { print $2 }' /tmp/times/test-times.txt
 tests/git-publication-native.sh
-src/skills/dough-execute-plan/scripts/workspace-publication-startup-race.test.mjs
-tests/update-skip-verified.sh
-tests/native-delivery-updated-use.sh
+src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs
+tests/native-delivery-updated-use-adapters.sh
+tests/install-all-tools.sh
+tests/self-installation-baseline.sh
 tests/native-result-retention.sh
-tests/story-payload-update.sh
-src/skills/dough-execute-plan/scripts/workspace-publication-startup-recovery.test.mjs
+tests/update-skip-verified.sh
 tests/update-refuses-unverifiable.sh
-src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs
-tests/retrospective-reference-payload.sh
-tests/update-force-restores-latest.sh
-tests/install-preserves-open-dough-json.sh
-tests/product-backlog-payload-update.sh
-src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs
-tests/install-latest-release.sh
-tests/install-refuses-unsafe-topology.sh
+tests/native-stream-completeness.sh
+tests/native-delivery-updated-use.sh
+tests/install-ci-host-hooks.sh
 tests/execution-payload-update.sh
-src/skills/dough-story-refinement/scripts/preparation-assignment-abandon.test.mjs
+tests/install-preserves-open-dough-json.sh
 tests/native-evidence-identity.sh
-src/skills/dough-story-refinement/scripts/preparation-assignment-reuse.test.mjs
+tests/story-payload-update.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-race.test.mjs
+src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs
 src/skills/dough-execute-plan/scripts/ci-mailbox-complete.test.mjs
+tests/update-force-restores-latest.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-admission-recovery.test.mjs
+src/skills/dough-execute-plan/scripts/ci-command-adapter-unavailable.test.mjs
+tests/install-latest-release.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-recovery.test.mjs
+src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse.test.mjs
+tests/install-refuses-unsafe-topology.sh
+tests/product-backlog-payload-update.sh
+src/skills/dough-story-refinement/scripts/preparation-assignment-reuse.test.mjs
+src/skills/dough-story-refinement/scripts/preparation-assignment-abandon.test.mjs
+tests/compare-payload.sh
 src/skills/dough-story-refinement/scripts/preparation-assignment-stops.test.mjs
-src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs
+src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs
 tests/pin-and-inspect.sh
-src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs
+tests/retrospective-reference-payload.sh
+tests/install.sh
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs
 tests/native-runner-failures.sh
-tests/update-adds-new-payload-skill.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-admission-continuation.test.mjs
+src/skills/dough-story-wrap-up/scripts/closure-admitted-work.test.mjs
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs
+src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs
+tests/native-run-timeout.sh
+src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs
+tests/dough-adr-awareness-context.sh
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation-stops.test.mjs
 tests/update-reports-replacement-failure.sh
 tests/dough-adr-awareness-cursor-delivery-to-use.sh
-src/skills/dough-story-refinement/scripts/preparation-assignment-story-left-queue.test.mjs
 tests/dough-adr-awareness-codex-delivery-to-use.sh
-src/skills/dough-story-refinement/scripts/preparation-assignment-landing-retry.test.mjs
-src/skills/dough-story-wrap-up/scripts/closure-publication-resume.test.mjs
-src/skills/dough-story-wrap-up/scripts/closure-publication-resume-published.test.mjs
 tests/dough-adr-awareness-claude-delivery-to-use.sh
-tests/install-ci-host-hooks.sh
+src/skills/dough-story-refinement/scripts/preparation-assignment-story-left-queue.test.mjs
 src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-race.test.mjs
-src/skills/dough-story-refinement/scripts/dough-land.test.mjs
-src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs
-src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs
-src/skills/dough-story-refinement/scripts/preparation-assignment-lost-workspace.test.mjs
-tests/compare-payload.sh
-src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation-stops.test.mjs
-src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs
 src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation.test.mjs
-src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs
-src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-release.test.mjs
-src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs
+src/skills/dough-execute-plan/scripts/ci-codex-completion.test.mjs
+src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-lifecycle.test.mjs
+src/skills/dough-execute-plan/scripts/ci-custom-host-bridge.test.mjs

@@ -13,8 +13,8 @@ import {
   blockingGithubEnvironment,
   awaitWorkerSignal,
   deferObserverStop,
-  waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
+import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
 
 test("Claude Code reports its detached observer lost when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
@@ -41,7 +41,7 @@ test("Claude Code reports its detached observer lost when the worker dies, and a
 
   const { pid } = readWorkerIdentity(directory);
   process.kill(pid, "SIGKILL");
-  assert.equal(await waitForPidExit(pid), true);
+  await awaitProcessExit(pid);
 
   const lost = await configuredHook(
     "PostToolUse",

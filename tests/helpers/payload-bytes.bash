@@ -3,12 +3,16 @@
 # Callers set source_dir and managed_files.
 # shellcheck disable=SC2154
 
-# Fall back to cmp or cp when Node is unavailable.
+# shellcheck source=src/install/open-dough-platform.sh
+# shellcheck disable=SC1091
+source "${source_dir}/src/install/open-dough-platform.sh"
+
+# Compare or copy the declared files through the installer's shared
+# payload_bytes_run; copy first creates the destination directories.
 payload_bytes_transfer() {
   local mode=$1
   local source_root=$2
   local dest_root=$3
-  local helper="${source_dir}/src/install/open-dough-payload-bytes.mjs"
   local managed_file directory
   local seen=$'\n'
   local -a directories=()
@@ -22,20 +26,7 @@ payload_bytes_transfer() {
     done
     mkdir -p -- "${directories[@]}"
   fi
-  if [[ -f ${helper} ]] && command -v node > /dev/null 2>&1; then
-    printf '%s\n' "${managed_files[@]}" | node "${helper}" "${mode}" \
-      "${source_root}" "${dest_root}"
-    return
-  fi
-  if [[ ${mode} == copy ]]; then
-    for managed_file in "${managed_files[@]}"; do
-      cp -- "${source_root}/${managed_file}" "${dest_root}/${managed_file}"
-    done
-    return 0
-  fi
-  for managed_file in "${managed_files[@]}"; do
-    cmp -s "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || return 1
-  done
+  payload_bytes_run "${mode}" "${source_root}" "${dest_root}" "${managed_files[@]}"
 }
 
 # Every declared file under dest_root has source_root's bytes. One process

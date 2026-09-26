@@ -16,15 +16,13 @@ import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitWorkerSignal,
   waitForFile,
-  writeBlockingGithubListCommand,
+  blockingGithubCommandDirectory,
 } from "./watch-ci-test-fixtures.mjs";
 
 test("Cursor reuses one execution observer through pushes and stops its exact mailbox", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-cursor-lifecycle-test-"));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
-  const bin = join(root, "bin");
-  writeBlockingGithubListCommand(bin);
   const nixTmp = join(root, "nix-shell");
   const nativeTmp = join(root, "native-tmp");
   mkdirSync(nixTmp);
@@ -33,7 +31,7 @@ test("Cursor reuses one execution observer through pushes and stops its exact ma
     ...process.env,
     DOUGH_CI_MAILBOX_ROOT: root,
     CI_TEST_ROOT: root,
-    PATH: `${bin}:${process.env.PATH}`,
+    PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,
   };
   const replay = createCursorReplay(
     teardown,
