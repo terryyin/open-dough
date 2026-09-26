@@ -504,3 +504,7 @@ only while its command still matches.
   hooks in registration order, so a stop added by a test after the fixture
   registered its removal runs too late (second F1 probe). The stop has to be
   deferred through the fixture's own teardown.
+
+## Execution complete
+
+Product advice: retrospective skipped
