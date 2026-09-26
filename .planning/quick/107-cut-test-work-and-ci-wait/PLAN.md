@@ -31,8 +31,7 @@ back as tests are added.
 
 - Fewer installer runs per promise, including the 24-run Cursor-only
   protection matrix in `story-payload-update.sh`. This belongs to
-  [SEED-037#fewer-installer-runs-per-promise](../../seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise),
-  queued next.
+  SEED-037#fewer-installer-runs-per-promise, since delivered and recoverable from `43e306c`.
 - Dashboard Playwright time. It runs in parallel with the CI `test` job and
   does not set the verdict time.
 - Machine-specific speedups that do not reach CI, such as the macOS git

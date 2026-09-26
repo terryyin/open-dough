@@ -4,15 +4,16 @@ This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/109-complete-payload-update-owners/PLAN.md
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"149135c1d58f516c02a2bdc3c0d660ba355c28123bc734fb16ccce43ad94e741"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"483da2ff596b9c8fe08c5f354ec32dcf735eccf6773253a435f4bd0766588df8"}}
 ```
 
 ## Source
 
 Execution retrospective of story `SEED-037#fewer-installer-runs-per-promise`,
-executed through plan 108 on `claude/108-fewer-installer-runs-per-promise`
-(`.planning/quick/108-fewer-installer-runs-per-promise/PLAN.md`, story 4 of
-`.planning/seeds/SEED-037-quiet-stable-fast-tests.md`). Reviewed commits
+executed through plan 108 on `claude/108-fewer-installer-runs-per-promise`.
+Both are recoverable from before-cleanup commit `43e306c`:
+`.planning/quick/108-fewer-installer-runs-per-promise/PLAN.md` and story 4 of
+`.planning/seeds/SEED-037-quiet-stable-fast-tests.md`. Reviewed commits
 `c7112a5`, `3dc3e85`, `9d0cc88`, `975a27a`, `da8f86a` (claim `1c8e8af`, start
 `fa1549a`). Findings were rechecked for this plan at `da8f86a`.
 
