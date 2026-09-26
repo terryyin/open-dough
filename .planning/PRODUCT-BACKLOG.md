@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Release a lost workspace's preparation assignment and stop keeps whose story left the queue](quick/103-lost-workspace-preparation-release/PLAN.md)
-
 ## Backlog list
 
 - [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite

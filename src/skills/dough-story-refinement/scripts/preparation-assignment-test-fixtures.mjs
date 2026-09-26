@@ -148,6 +148,24 @@ export function abandonPreparation(trunk, workspace, identity) {
   return assignment("abandon", workspace, identity, publishing(trunk));
 }
 
+// Abandons the assignment at `profile` from the integration checkout, as the
+// guidance teaches for a lost workspace; `extra` carries the allocation and
+// confirmation the developer supplies.
+export function abandonLostPreparation(trunk, profile, extra = []) {
+  return runJson([
+    assignmentCli,
+    "abandon",
+    "--profile",
+    profile,
+    "--remote",
+    "origin",
+    "--target",
+    "main",
+    ...publishing(trunk),
+    ...extra,
+  ]);
+}
+
 export function releasePreparation(workspace, identity) {
   return assignment("release", workspace, identity, []);
 }

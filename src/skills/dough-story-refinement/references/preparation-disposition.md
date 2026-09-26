@@ -109,7 +109,10 @@ After a validated explicit keep instruction, when this session announced a
 preparation assignment, first stage its release in the owned workspace under
 [Release it with the kept result](preparation-assignment.md#release-it-with-the-kept-result).
 A stop there leaves the result and the assignment unchanged: report it and do
-not land.
+not land. In particular, `story-left-queue` means the story was taken,
+completed, or removed on the remote target since this preparation began. The
+keep stops there and the decision goes to the developer or coordinator; do not
+land, retry, or reinterpret the story's new state.
 
 Then land the owned workspace through
 [Dough Land](../../dough-land/SKILL.md).

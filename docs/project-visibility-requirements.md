@@ -184,7 +184,8 @@ The state available from the repository should include:
 - Which stories are Taken.
 - Whether a story has been refined or slice planned.
 - The execution mode recorded for each active story.
-- The developer name assigned to each Taken story.
+- The developer name assigned to each Taken story, and to each queued story
+  being prepared.
 - The origin branch carrying a Taken story's execution in Story Branch Mode.
 - Which slices have been completed.
 
@@ -251,11 +252,14 @@ not human contributors.
 
 Each active agent has one JSON profile at
 `.planning/agents/<lowercase name>-chan.json` beside the backlog. It records
-the agent name and email, the work item identity, execution mode, branch
-context (the owned execution branch in Story Branch Mode, remote trunk in Trunk
-Mode), and, when the agent reports them, its host tool (Claude Code, Codex, or
-Cursor) and AI model. Separate files keep parallel claims from contending for
-one shared file.
+the agent name and email, the work item identity, and its activity: either
+execution, with its execution mode and branch context (the owned execution
+branch in Story Branch Mode, remote trunk in Trunk Mode), or preparation of a
+queued story, which records no mode or branch. When the agent reports them, it
+also records its host tool (Claude Code, Codex, or Cursor) and AI model.
+Execution profiles written before activities existed record none and read as
+execution. Separate files keep parallel claims from contending for one shared
+file.
 
 - **Assignment.** The shared startup operation (`execution-start`) selects the
   name, writes the profile, and commits it with the Take. A name is held while
@@ -266,7 +270,11 @@ one shared file.
   a name published while startup fetches is skipped rather than stopping the
   Take. When every name is held, the Take is refused and nothing is published.
   When a lost publication race finds the selected name now held, the claim is
-  rebuilt on the new trunk under the next available name.
+  rebuilt on the new trunk under the next available name. Preparation start
+  (`preparation-assignment start`) assigns a name from the same rotation when
+  refinement or planning of a queued story begins, publishing a commit that
+  adds only its preparation profile; the story stays queued. Each profile is
+  one allocation, identified by its path and the commit that added it.
 - **Authorship.** The agent is the Git author of the Take commit and of
   ordinary commits in its owned workspace; the configured Git user remains the
   committer. Startup configures this through per-worktree Git config, so other
@@ -278,14 +286,23 @@ one shared file.
   authors are the history trace; the profile records current ownership.
 - **Resume and release.** Resume keeps the profile and restores the
   workspace's authorship from it. Completing the Taken entry through
-  `product-backlog complete` deletes its profile in the same change, releasing
-  the name. Silence or age never releases a name; an abandoned profile keeps
-  its name held until the entry is completed.
+  `product-backlog complete` deletes its execution profile in the same change,
+  releasing the name. A preparation assignment is released when its kept
+  result lands (the landing removes the profile beside the result), when its
+  workspace explicitly abandons the preparation, or, when that workspace is
+  lost, when a developer confirms that one exact allocation is abandoned and
+  the release is addressed by profile path and allocation. A release of an
+  allocation that trunk already ended publishes nothing and never removes a
+  later allocation of the same name. Silence, age, a missing process, or a
+  lost workspace alone never releases a name; an abandoned profile keeps its
+  name held until one of these releases.
 - **Dashboard.** Each Taken card shows the agent, mode, branch context, host,
-  and model from the published profile. Branch context is labelled as story
-  branch work, never as work on trunk. A missing profile shows "Owner not
-  recorded", a missing field shows as not recorded, and an unreadable profile
-  is listed as unreadable without being matched to any entry. Decorative
+  and model from the published profile. A queued card whose story has a
+  published preparation profile shows Preparing and its developer. Branch
+  context is labelled as story branch work, never as work on trunk. A missing
+  profile shows "Owner not recorded", a missing field shows as not recorded,
+  and an unreadable profile is listed as unreadable without being matched to
+  any entry. Decorative
   identity marks sit beside their own text labels: the agent's portrait beside
   its name, the mode symbol beside the mode, and the host tool's mark beside
   the host. Hovering the portrait shows it larger in place, over the card,

@@ -131,6 +131,7 @@ managed_files=(
   dough-story-refinement/references/preparation-workspace.md
   dough-story-refinement/scripts/preparation-assignment.mjs
   dough-story-refinement/scripts/preparation-assignment-abandon.mjs
+  dough-story-refinement/scripts/preparation-assignment-lost-workspace.mjs
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
   dough-story-refinement/scripts/preparation-assignment-release.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
@@ -189,6 +190,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-start.mjs
+  dough-execute-plan/scripts/agent-assignments.mjs
   dough-execute-plan/scripts/execution-start-agent.mjs
   dough-execute-plan/scripts/execution-start-maintenance.mjs
   dough-execute-plan/scripts/execution-start-operation.mjs
