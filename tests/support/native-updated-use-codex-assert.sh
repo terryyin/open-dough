@@ -72,7 +72,12 @@ run_selected() {
     return 1
   fi
   assert_watched_empty
-  parse_result_path
+  if ! parse_result_path; then
+    echo 'FAIL: selected delivery/updated-use printed no result-path.' >&2
+    cat "${stdout_file}" >&2
+    cat "${stderr_file}" >&2
+    return 1
+  fi
 }
 
 assert_record_identity() {

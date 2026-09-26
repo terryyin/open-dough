@@ -2,7 +2,7 @@
 # Credential-free proof that Codex delivery/updated-use keeps ordinary no-URL
 # update then use as one retained journey: real fixture apply, no retry.
 # shellcheck disable=SC2016,SC2034,SC2312 # Literal invocation marker; sourced asserts use work paths.
-set -euo pipefail
+set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 codex_wrapper="${source_dir}/tests/dough-adr-awareness-codex-delivery-to-use.sh"
@@ -10,7 +10,14 @@ journey_fixture="${source_dir}/tests/support/native-agent-journey.sh"
 fail_fixture="${source_dir}/tests/support/native-agent-fail.sh"
 
 work_dir=$(mktemp -d)
+# Most assertions below are bare tests; name the one that stopped the check.
+failed_at=
+trap 'failed_at="line ${LINENO}: ${BASH_COMMAND}"' ERR
 finish() {
+  local status=$?
+  if ((status != 0)) && [[ -n ${failed_at} ]]; then
+    printf 'FAIL: exit %s at %s\n' "${status}" "${failed_at}" >&2
+  fi
   chmod -R u+w "${work_dir}" 2> /dev/null || true
   rm -rf -- "${work_dir}"
 }
