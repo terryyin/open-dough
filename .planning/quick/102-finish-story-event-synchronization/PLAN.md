@@ -3,6 +3,9 @@
 This bounded retrospective correction has this plan as its canonical home.
 
 **Identity:** quick/102-finish-story-event-synchronization/PLAN.md
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9f8bd183a44a39a6dc43b29d34ac3a29167fcb9b93956ff444c2a37c8ad3f380"}}
+```
 
 ## Source
 
