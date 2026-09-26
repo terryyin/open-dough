@@ -337,3 +337,16 @@ final candidate (2m09s).
   still hand-builds its releases and could use `build_upgrade_releases`; about
   17 tests repeat `git init` plus `configure_fixture_git` that
   `init_fixture_repo` now names.
+
+## Execution complete
+
+Product advice:
+- Queue correction [109](../109-complete-payload-update-owners/PLAN.md):
+  sibling-root owner coverage, the edited-file snapshot, and residue.
+- Story 2 (plan 107) should re-measure CI test time after this story
+  integrates; its uncommitted `release-fixture.bash` edits will meet this
+  story's split into `install-target-fixture.bash`.
+- Open choice: fold `tests/update-adds-new-payload-skill.sh` (hand-built
+  releases, duplicate collision refusal) into a follow-up.
+- Maintainer decision: ADR 0003 line 22 still claims a matching declaration in
+  `src/install/open-dough-release-version.sh`.
