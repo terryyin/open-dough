@@ -10,22 +10,10 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 fixture="${temporary_dir}/source"
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-write_candidate_payload "${fixture}" 0.1.1 before-execution
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-execute-plan\//d; /dough-post-change-refactor\//d' "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
-rm -rf -- "${fixture}/src/skills/dough-execute-plan" "${fixture}/src/skills/dough-post-change-refactor"
-commit_all "${fixture}" 'release before execution skills'
-tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
-checkout_tagged_release "${fixture}" "${older}" 0.1.1
-write_candidate_payload "${fixture}" 0.1.2 with-execution
-commit_all "${fixture}" 'release execution skills and runtime dependencies'
-tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
+build_upgrade_releases "${fixture}" "${older}" before-execution with-execution \
+  --withhold dough-execute-plan/ --withhold dough-post-change-refactor/ \
+  --remove dough-execute-plan --remove dough-post-change-refactor
 newer="${temporary_dir}/newer"
 checkout_tagged_release "${fixture}" "${newer}" 0.1.2
 helper="${source_dir}/src/install/open-dough-release.sh"
@@ -57,12 +45,6 @@ assert_upgraded_execution_payload() {
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
-    assert_installed_contract_links "${target}/${root}" \
-      dough-execute-plan/SKILL.md \
-      dough-execute-plan/references/ci-monitor.md \
-      dough-execute-plan/references/execution-decisions.md \
-      dough-bug-fixing/SKILL.md \
-      dough-execution-retrospective/SKILL.md
     assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
@@ -70,57 +52,11 @@ assert_upgraded_execution_payload() {
   assert_project_configuration "${target}"
 }
 
-assert_installed_contract_links() {
-  local root=$1
-  local file link
-  shift
-  for file in "$@"; do
-    sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${root}/${file}" > "${temporary_dir}/links"
-    while IFS= read -r link; do
-      link=${link%%#*}
-      [[ -n "${link}" ]] || continue
-      [[ "${link}" == http:* || "${link}" == https:* ]] && continue
-      if [[ ! -f "${root}/${file%/*}/${link}" ]]; then
-        printf 'FAIL: missing installed dependency: %s -> %s\n' "${file}" "${link}" >&2
-        exit 1
-      fi
-    done < "${temporary_dir}/links"
-  done
-}
-
 # Ordinary no-URL update from remembered SOURCE: no registered hooks → register.
 target="${temporary_dir}/client project"
 install_older_verified "${target}"
 seed_mergeable_host_settings "${target}"
-collision="${target}/.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs"
-mkdir -p -- "${collision%/*}"
-printf '%s\n' 'local script' > "${collision}"
-before=$(snapshot_path_state "${target}")
-if bash "${helper}" apply --target "${target}" > /dev/null 2>&1; then
-  echo 'FAIL: execution dependency collision was overwritten.' >&2
-  exit 1
-fi
-after=$(snapshot_path_state "${target}")
-[[ "${before}" == "${after}" ]]
-rm -- "${collision}"
 bash "${helper}" apply --target "${target}" > /dev/null
-assert_upgraded_execution_payload "${target}"
-assert_unrelated_preserved "${target}"
-for dependency in dough-execute-plan/scripts/ci-mailbox.mjs \
-  dough-execute-plan/assets/claude-hooks.json \
-  dough-execute-plan/manuals/custom-ci.md \
-  dough-post-change-refactor/references/refactor-checks.md; do
-  path="${target}/.claude/skills/${dependency}"
-  printf '\nlocal edit\n' >> "${path}"
-  before=$(snapshot_path_state "${target}")
-  if bash "${helper}" apply --target "${target}" > /dev/null 2>&1; then
-    echo 'FAIL: ordinary update accepted an edited execution dependency.' >&2
-    exit 1
-  fi
-  after=$(snapshot_path_state "${target}")
-  [[ "${before}" == "${after}" ]]
-  bash "${helper}" apply --target "${target}" --force > /dev/null
-done
 assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"
 

@@ -34,7 +34,6 @@ tests/update-adds-new-payload-skill.sh
 tests/dough-adr-awareness-cursor-delivery-to-use.sh
 tests/dough-adr-awareness-codex-delivery-to-use.sh
 tests/dough-adr-awareness-claude-delivery-to-use.sh
-tests/story-payload-assertions.sh
 tests/install-ci-host-hooks.sh
 src/skills/dough-story-wrap-up/scripts/closure-publication-resume-published.test.mjs
 src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-race.test.mjs

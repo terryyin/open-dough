@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Cut total test work and the CI verdict wait, and keep them within budget](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite ([plan](quick/107-cut-test-work-and-ci-wait/PLAN.md))
-- [Prove each installation promise with fewer installer runs](seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise) — SEED-037#fewer-installer-runs-per-promise ([plan](quick/108-fewer-installer-runs-per-promise/PLAN.md))
 
 ## Backlog list
 
+- [Prove each shared protection in both skill roots, and clear plan 108's residue](quick/109-complete-payload-update-owners/PLAN.md)
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format

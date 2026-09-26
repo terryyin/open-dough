@@ -953,21 +953,6 @@ The plan required load below 4 before each baseline run; other work kept it at 5
   - Evidence: plan 096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
   - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
 
-## DD-101 — A numeric execute-plan argument named two different works
-
-`/dough-execute-plan 99` fit plan directory `099-…` and finding ODF-099, whose
-story (plan 100) topped the backlog. The coordinator asked before any Take.
-
-### Occurrences
-
-- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
-  - Timestamp: unknown (before Take `cf4ee77` at 2026-09-25T18:49:20+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: user chose "Plan 099"; trunk meanwhile held another agent's Take `5fdeb4c` of ODF-099's story.
-  - Observed effect: one question avoided a wrong published Take and a claim collision.
-
 ## DD-102 — A delegated journey spec reported green failed the coordinator's rerun under load
 
 New `backlog-preparing.spec.ts` built a 6.3 s Git journey in a 30 s `beforeAll`; beside one spec at load ~15 it timed out.
@@ -982,8 +967,23 @@ New `backlog-preparing.spec.ts` built a 6.3 s Git journey in a 30 s `beforeAll`;
   - Evidence: slice 4 return claimed 13/13 and 115/115; rerun: "beforeAll hook timeout of 30000ms exceeded"; fixed in `e11c09a`.
   - Observed effect: the coordinator's independent rerun caught a load-sensitive test before delivery.
 
+## DD-103 — Removing a test's assertion broke a meta-test that mutated against it
+
+Slice 1 moved installed link walking to a new declaration check; `tests/story-payload-assertions.sh` still expected the removed loop to report its injected broken link. Plan, implementer, acceptance, and refactor pass all missed it; CI failed.
+
+### Occurrences
+
+- Execution: `SEED-037#fewer-installer-runs-per-promise` / plan 108, first related implementation commit `c7112a5`
+  - Timestamp: 2026-09-26T11:34:31+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance at start revision `fa1549a`
+  - Evidence: CI run 36215060849 ("the suite accepted a failed story payload test"); repair `3dc3e85`; the slice 1 return said "No shared helper changed" for the consumer check.
+  - Observed effect: one failed CI run, a stash and repair cycle with two extra agents; a dependent-test search added to slices 2–4 prompts found nothing more.
+  - Inference: Qualified. The consumer check covers changed helpers, not assertions removed from a test; resembles ODF-003 and ODF-098 without the same cause.
+
 ## Retention
 
-- Highest allocated local number: 102
-- Recovery: `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; full copy in `docs/maintainer/finding-names.md`); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 103
+- Recovery: `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; full copy in `docs/maintainer/finding-names.md`); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

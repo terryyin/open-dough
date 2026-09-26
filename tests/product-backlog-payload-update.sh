@@ -6,8 +6,9 @@
 # install.sh/update delivered the documentation but none of the automation
 # slices 1-4 built. This proves a fresh install and an ordinary update
 # deliver the whole transitive script set to both managed roots across all
-# three entry contexts, that edited/missing backlog scripts refuse and
-# restore by force, and that project backlog bytes are untouched. The
+# three entry contexts, and that project backlog bytes are untouched. Refusal
+# of an edited or missing managed file and its --force restore belong to the
+# shared installation and update checks, not to this payload. The
 # offline "actually run the installed copy" proof (an ordinary op, a real
 # Git-aware merge, the bounded EISDIR refusal, and installed
 # record-state/read-state producing published bytes the shared reader
@@ -54,29 +55,16 @@ assert_story_state_payload() {
   done
 }
 
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-write_candidate_payload "${fixture}" 0.1.1 before-backlog-scripts
+older="${temporary_dir}/older"
 # Model the release this repository actually shipped until scripts (and later
 # the story-state recorder modules / record-preparation procedure) were
 # declared: docs could install, but the automation and shared procedure did not.
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed \
-    -e '/dough-product-backlog\/scripts\//d' \
-    -e '/dough-product-backlog\/references\/record-preparation\.md/d' \
-    "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
-rm -rf -- "${fixture}/src/skills/dough-product-backlog/scripts"
-rm -f -- "${fixture}/src/skills/dough-product-backlog/references/record-preparation.md"
-commit_all "${fixture}" 'release before backlog scripts were declared'
-tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
-older="${temporary_dir}/older"
-checkout_tagged_release "${fixture}" "${older}" 0.1.1
-write_candidate_payload "${fixture}" 0.1.2 with-backlog-scripts
-commit_all "${fixture}" 'declare and deliver the full backlog script set'
-tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
+build_upgrade_releases "${fixture}" "${older}" \
+  before-backlog-scripts with-backlog-scripts \
+  --withhold dough-product-backlog/scripts/ \
+  --withhold dough-product-backlog/references/record-preparation.md \
+  --remove dough-product-backlog/scripts \
+  --remove dough-product-backlog/references/record-preparation.md
 
 project_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 write_project_backlog_sentinel() {
@@ -129,40 +117,6 @@ for platform in codex cursor claude; do
     exit 1
   fi
   assert_sentinels "${target}"
-
-  # Successful delivery traverses the same physical roots for every entry
-  # hint, so one representative platform owns the edited/missing-file
-  # refusal matrix for the newly-declared backlog scripts.
-  if [[ "${platform}" == cursor ]]; then
-    for dependency in dough-product-backlog/scripts/product-backlog-git-merge.mjs \
-      dough-product-backlog/scripts/product-backlog-git-repository.mjs \
-      dough-product-backlog/scripts/product-backlog-story-state.mjs \
-      dough-product-backlog/references/record-preparation.md; do
-      for change in edit remove; do
-        path="${target}/.claude/skills/${dependency}"
-        if [[ "${change}" == edit ]]; then
-          printf '\n// local edit\n' >> "${path}"
-        else
-          rm -- "${path}"
-        fi
-        before=$(snapshot_path_state "${target}")
-        if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
-          echo 'FAIL: changed backlog script accepted by ordinary update.' >&2
-          exit 1
-        fi
-        if bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null 2>&1; then
-          echo 'FAIL: changed backlog script accepted by repeat install.' >&2
-          exit 1
-        fi
-        after=$(snapshot_path_state "${target}")
-        [[ "${before}" == "${after}" ]]
-        bash "${helper}" apply --target "${target}" --platform "${platform}" --force > /dev/null
-        assert_payload "${target}/.claude/skills/dough-update" 0.1.2 with-backlog-scripts
-      done
-    done
-    assert_story_state_payload "${target}"
-    assert_sentinels "${target}"
-  fi
 done
 
 # Real installed use, with the release source unavailable: the Claude Code
