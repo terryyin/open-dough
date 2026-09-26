@@ -30,6 +30,7 @@ import {
   requireUnlistedWork,
 } from "./product-backlog-add.mjs";
 import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
+import { splitHref } from "./product-backlog-identity.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
@@ -108,6 +109,25 @@ export function takeEntry(source, request) {
     line,
   );
   return { source: renderBacklog(document), entry, result: "taken" };
+}
+
+// Links the plan that preparation recorded after the work was taken: an entry
+// already in "## Taken" resumes through the take above and gains only the
+// missing link, never a different one. An entry whose link names a section of
+// that plan file already links its plan and is left as it is. Work that no
+// list holds in "## Taken" is left for its take to link. Returns undefined
+// when there is nothing to resume.
+export function linkTakenPlan(source, request) {
+  const entry = parseBacklog(source).entries.find(
+    (item) => item.identity === request.identity,
+  );
+  if (entry?.list !== takenHeading) {
+    return undefined;
+  }
+  if (entry.plan && splitHref(entry.plan.target).path === request.plan) {
+    return { source, entry, result: "unchanged" };
+  }
+  return takeEntry(source, request);
 }
 
 // Admits one identified work item that neither list holds yet directly to the

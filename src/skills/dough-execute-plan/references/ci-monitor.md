@@ -8,7 +8,7 @@ Managed ordinary increments and authorized repairs use
 for establish/reuse and exact-revision attachment — no separate probe, start, or
 `register-push` recipe on that path.
 
-For callers not yet on managed delivery (queue claims before the story-branch
+For callers not yet on managed delivery (claims before the story-branch
 observer is armed, wrap-up closure recovering an ended observer, and other
 explicit paths), start one observer per repository/branch/coordinator before
 the first publication it must cover, where branch is the authorized **target**

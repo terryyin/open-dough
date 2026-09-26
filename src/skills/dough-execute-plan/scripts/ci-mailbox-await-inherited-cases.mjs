@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
-import { waitFor } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
   createMailbox,
+  readMailboxEvents,
   readRevisionCoverage,
   registerPushedRevision,
   requestMailboxStop,
@@ -18,7 +18,7 @@ import {
   initRepo,
   writeWorkflow,
 } from "./ci-path-applicability-test-fixtures.mjs";
-import { controllableSleep } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import {
   deferWorkerStop,
@@ -80,16 +80,18 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     if (args[0] === "run" && args[1] === "view") return { jobs: [] };
     throw new Error(`Unexpected gh call: ${JSON.stringify(args)}`);
   };
-  const { sleep, sleeps } = controllableSleep();
+  const polls = controllableSleep();
   const worker = runMailboxWorker(directory, {
     root: repo,
     storage,
-    observe: (request) => watchCiExecution({ ...request, gh, sleep }),
+    observe: (request) =>
+      watchCiExecution({ ...request, gh, sleep: polls.sleep }),
   });
   deferWorkerStop(teardown, worker, () =>
     requestMailboxStop(directory, { root: repo, storage }),
   );
-  await waitFor(() => sleeps.length > 0, "initial inherited poll");
+  const poll = polls.of(worker, () => readMailboxEvents(directory));
+  await poll.reached();
   assert.deepEqual(
     readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
       .basis,
@@ -120,7 +122,7 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     conclusion: "failure",
     databaseId: 72,
   });
-  sleeps.shift().resolve();
+  poll.release();
   assert.equal((await inheritedSuccessWait).verdict, "success");
   assert.equal((await inheritedFailureWait).verdict, "failure");
 
@@ -129,12 +131,12 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     conclusion: "failure",
     databaseId: 74,
   });
-  await waitFor(() => sleeps.length > 0, "next inherited poll");
-  sleeps.shift().resolve();
-  await waitFor(
-    () =>
-      readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
-        ?.state === "failure",
+  await poll.reached();
+  await poll.advance();
+  assert.equal(
+    readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
+      ?.state,
+    "failure",
     "exact ignored revision attempt",
   );
   const exact = await awaitRevision(directory, ignoredSuccess, {

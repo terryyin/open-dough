@@ -3,8 +3,9 @@
 // record-state operation and published as ordinary preparation, then the
 // ordinary startup command continues the claim instead of taking the work
 // again. Investigation, Taken membership, or unpublished preparation alone
-// never starts implementation. Driven through the real CLIs against a local
-// bare remote.
+// never starts implementation. Admitting the same work again continues its
+// claim only for the claim's publisher. Driven through the real CLIs against a
+// local bare remote.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -19,6 +20,7 @@ import {
   listed,
   neverQueued,
   publishPlannedPreparation,
+  pushFromElsewhere,
   remoteText,
   storySection,
   withFacts,
@@ -28,6 +30,7 @@ import {
 const identity = "SEED-N#slow";
 const link = "seeds/N.md#slow";
 const seedPath = ".planning/seeds/N.md";
+const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 const story = { identity, link, planHref: "../slice-plans/N/PLAN.md" };
 const plan = "# Plan N\n\n### 1. Speed up start\n";
 
@@ -70,10 +73,39 @@ test("an admitted investigation continues into planned implementation under its 
   const plannedSha = await publishPlannedPreparation(trunk, story, { plan });
   await refusal(/published preparation is absent/, plannedSha);
 
-  const readySha = await publishPlannedPreparation(trunk, story, {
+  let readySha = await publishPlannedPreparation(trunk, story, {
     plan,
     ready: true,
   });
+
+  // Recording the planned approach linked the plan to the Taken entry it
+  // already holds, published with the preparation, without claiming it again.
+  const takenAt = async (rev) =>
+    (await listed(trunk, rev))
+      .filter((entry) => entry.list === "Taken")
+      .map((entry) => [entry.identity, entry.plan?.target]);
+  const admittedTaken = await takenAt(claimSha);
+  const linkedTaken = admittedTaken.map(([id, target]) =>
+    id === identity ? [id, "slice-plans/N/PLAN.md"] : [id, target],
+  );
+  assert.deepEqual(await takenAt(plannedSha), linkedTaken);
+  assert.deepEqual(await takenAt(readySha), linkedTaken);
+  assert.match(
+    await remoteText(trunk, readySha, backlogFile),
+    /^- \[Investigate slow start\]\(seeds\/N\.md#slow\).* \(\[plan\]\(slice-plans\/N\/PLAN\.md\)\)$/m,
+  );
+
+  // A published Taken story whose preparation declares a plan it does not
+  // link is refused, naming the recorder that links it.
+  const unlinkedSha = await pushFromElsewhere(trunk, backlogFile, (text) =>
+    text.replace(" ([plan](slice-plans/N/PLAN.md))", ""),
+  );
+  await refusal(/does not link.*record-state/s, unlinkedSha);
+  readySha = await publishPlannedPreparation(trunk, story, {
+    plan,
+    ready: true,
+  });
+  assert.deepEqual(await takenAt(readySha), linkedTaken);
 
   // An unpublished local story edit stops continuation; the admission draft
   // left in the originating checkout does not.
@@ -130,4 +162,42 @@ test("an admitted investigation continues into planned implementation under its 
     .split("\n");
   assert.deepEqual(profiles, [".planning/agents/yui-chan.json"]);
   assert.equal(readFileSync(join(trunk.integration, seedPath), "utf8"), draft);
+});
+
+test("the same publisher continues its admitted claim; another publisher is refused", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const fix = { identity: "SEED-N#fix", link: "seeds/N.md#fix" };
+  writeDraft(
+    trunk,
+    ".planning/seeds/N.md",
+    withFacts(
+      `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("fix", fix.identity, "Fix N", "Repair N.")}`,
+      fix.link,
+      fix.identity,
+      "planless",
+    ),
+  );
+  const args = admitArgs(fix.identity, fix.link, "Fix N");
+  const first = await startCliResult(trunk, "trunk", args);
+  assert.equal(
+    first.receipt.status,
+    "published",
+    JSON.stringify(first.receipt),
+  );
+  const again = await startCliResult(trunk, "trunk", args);
+  assert.equal(again.receipt.status, "existing", JSON.stringify(again.receipt));
+  assert.equal(again.receipt.publishedSha, first.receipt.publishedSha);
+  const rival = await startCliResult(trunk, "rival", [
+    ...args,
+    "--mode",
+    "trunk",
+  ]);
+  assert.equal(rival.receipt.status, "conflict", JSON.stringify(rival.receipt));
+  assert.equal(rival.receipt.ownership, "other");
+  assert.equal(existsSync(rival.workspace), false);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    first.receipt.publishedSha,
+  );
 });

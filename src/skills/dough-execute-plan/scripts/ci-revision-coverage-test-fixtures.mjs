@@ -17,18 +17,10 @@ import {
   deferWorkerStop,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
-
-export async function waitFor(predicate, message) {
-  const deadline = Date.now() + 5000;
-  while (Date.now() < deadline) {
-    if (predicate()) return;
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-  throw new Error(message);
-}
 
 export async function git(root, ...args) {
   return exec("git", args, { cwd: root });
@@ -101,15 +93,7 @@ export async function createRevisionCoverageFixture(
     },
     { root: project, storage },
   );
-  const sleeps = [];
-  const sleep = (...[, , { signal }]) =>
-    new Promise((resolve, reject) => {
-      const entry = { resolve };
-      sleeps.push(entry);
-      signal.addEventListener("abort", () => reject(signal.reason), {
-        once: true,
-      });
-    });
+  const polls = controllableSleep();
   writeFileSync(
     adapterState,
     JSON.stringify({
@@ -130,17 +114,17 @@ export async function createRevisionCoverageFixture(
       watcher.watchCiExecution({
         ...request,
         root: project,
-        sleep,
+        sleep: polls.sleep,
         ...(now ? { now } : {}),
       }),
   });
   deferWorkerStop(teardown, worker, () =>
     mailbox.requestMailboxStop(directory, { root: project, storage }),
   );
-  await waitFor(
-    () => Number(readFileSync(adapterCalls, "utf8")) === 1,
-    "initial poll",
-  );
+  const adapterCallCount = () => Number(readFileSync(adapterCalls, "utf8"));
+  const poll = polls.of(worker, () => mailbox.readMailboxEvents(directory));
+  await poll.reached();
+  assert.equal(adapterCallCount(), 1, "initial poll");
 
   const deliver = async () => {
     const sha = (await git(project, "rev-parse", "HEAD")).stdout.trim();
@@ -170,13 +154,8 @@ export async function createRevisionCoverageFixture(
   };
 
   const advancePoll = async (expectedCalls) => {
-    await waitFor(() => sleeps.length > 0, "poll sleep");
-    sleeps.shift().resolve();
-    await waitFor(
-      () => Number(readFileSync(adapterCalls, "utf8")) === expectedCalls,
-      `poll ${expectedCalls}`,
-    );
-    await waitFor(() => sleeps.length > 0, `poll ${expectedCalls} completed`);
+    await poll.advance();
+    assert.equal(adapterCallCount(), expectedCalls, `poll ${expectedCalls}`);
   };
 
   const setAttempts = (attempts) =>

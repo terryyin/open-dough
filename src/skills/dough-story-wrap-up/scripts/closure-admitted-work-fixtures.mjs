@@ -1,7 +1,8 @@
 // Admitted-work closure fixtures: admission through the real startup CLI into
-// a Trunk Mode workspace of its own, the real backlog `complete` CLI, wrap-up's
-// removal of one spent story section, one ordinary Trunk Mode closure, and
-// observations of the remote tree's lists and agent profiles.
+// a Trunk Mode workspace of its own, the real backlog `complete` CLI, a
+// scripted stand-in for wrap-up's removal of one spent story section, one
+// ordinary Trunk Mode closure, and observations of the remote tree's lists and
+// agent profiles.
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,8 +49,9 @@ export const completeCli = (workspace, identity) =>
     ...["--file", join(workspace, backlogFile)],
   ]).catch((error) => error);
 
-// Wrap-up's removal of one spent story section: from its anchor to the next
-// story anchor, or to the end with the blank lines that separated it.
+// A scripted stand-in for wrap-up's removal of one spent story section: from
+// its anchor to the next story anchor, or to the end with the blank lines that
+// separated it. Tests supply this edit, so it proves no product behavior.
 export function withoutStory(source, anchor) {
   const start = source.indexOf(`<a id="${anchor}">`);
   const next = source.indexOf("<a id=", start + 1);

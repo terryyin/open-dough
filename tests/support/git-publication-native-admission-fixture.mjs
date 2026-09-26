@@ -8,6 +8,10 @@
 // was admitted to Taken by this journey's publisher, then its plan and ready
 // assessment were recorded by the real record-state operation and published
 // as ordinary preparation.
+// admission-closure: trunk whose README already documents the probe's
+// finding, where an unselected investigation in its own new seed was admitted
+// to Taken by this journey's publisher and, afterwards, another publisher
+// admitted a planned story of seed A from a workspace of its own.
 // admission-correction: trunk holds seed R with a completed story; its
 // retrospective drafted, in the originating checkout only, a minimal
 // correction story in that seed linked to its new correction plan, with the
@@ -26,8 +30,13 @@ const load = (name) => import(pathToFileURL(join(scripts, name)).href);
 const { createQueuedTrunk, readyContributing } = await load(
   "workspace-publication-fixtures.mjs",
 );
-const { publishPlannedPreparation, storySection, withFacts, writeDraft } =
-  await load("workspace-publication-admission-fixtures.mjs");
+const {
+  draftLateStory,
+  publishPlannedPreparation,
+  storySection,
+  withFacts,
+  writeDraft,
+} = await load("workspace-publication-admission-fixtures.mjs");
 const { startExecution } = await load("execution-start.mjs");
 
 const git = (cwd, ...args) =>
@@ -56,22 +65,15 @@ const coordinates = {
   identity: "",
 };
 
-if (journey === "admission-continuation") {
-  const identity = "SEED-N#slow";
-  const link = "seeds/N.md#slow";
-  const seed = withFacts(
-    `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("slow", identity, "Investigate slow start", "Find why startup is slow and make it fast.")}`,
-    link,
-    identity,
-    "unselected",
-  );
-  writeFileSync(join(integration, ".planning/seeds/N.md"), seed);
+// Admits `identity` from the originating checkout into `workspace` on
+// `branch` under `publisherId` through the real startup operation.
+async function admit(identity, link, title, workspace, branch, publisherId) {
   const admitted = await startExecution({
     integration,
-    workspace: coordinates.workspace,
-    branch: coordinates.branch,
+    workspace,
+    branch,
     identity,
-    publisherId: coordinates.publisher,
+    publisherId,
     mode: "trunk",
     remote: "origin",
     target: "main",
@@ -79,10 +81,40 @@ if (journey === "admission-continuation") {
     workspaceAuthorized: true,
     admit: true,
     link,
-    title: "Investigate slow start",
+    title,
   });
   if (admitted.status !== "published")
     throw new Error(`admission failed: ${JSON.stringify(admitted)}`);
+}
+
+// An unselected investigation drafted in its own new seed N and admitted by
+// this journey's publisher into the owned workspace.
+async function admitInvestigation(goal) {
+  const identity = "SEED-N#slow";
+  const link = "seeds/N.md#slow";
+  const seed = withFacts(
+    `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("slow", identity, "Investigate slow start", goal)}`,
+    link,
+    identity,
+    "unselected",
+  );
+  writeFileSync(join(integration, ".planning/seeds/N.md"), seed);
+  await admit(
+    identity,
+    link,
+    "Investigate slow start",
+    coordinates.workspace,
+    coordinates.branch,
+    coordinates.publisher,
+  );
+  coordinates.identity = identity;
+  return { identity, link };
+}
+
+if (journey === "admission-continuation") {
+  const { identity, link } = await admitInvestigation(
+    "Find why startup is slow and make it fast.",
+  );
   // Implementation was authorized; ordinary preparation publishes its plan.
   await publishPlannedPreparation(
     trunk,
@@ -92,7 +124,31 @@ if (journey === "admission-continuation") {
       ready: true,
     },
   );
-  coordinates.identity = identity;
+}
+
+if (journey === "admission-closure") {
+  writeFileSync(
+    join(integration, "README.md"),
+    "# Product\n\nStartup spends most of its time loading configuration; that cost is expected.\n",
+  );
+  git(integration, "add", "README.md");
+  git(integration, "commit", "-qm", "document startup cost");
+  git(integration, "push", "-q", "origin", "main");
+  await admitInvestigation("Find why startup is slow; investigation only.");
+  const late = draftLateStory(trunk);
+  const link = late.args[late.args.indexOf("--link") + 1];
+  await admit(
+    late.identity,
+    link,
+    "Late story",
+    join(fixture, "other-execution"),
+    "exec/native-other",
+    "native-other-publisher",
+  );
+  // The originating checkout was since refreshed to trunk, drafts included.
+  git(integration, "checkout", "-q", "--", ".planning");
+  git(integration, "clean", "-qfd", "--", ".planning");
+  git(integration, "pull", "-q", "--ff-only", "origin", "main");
 }
 
 if (journey === "admission-correction") {

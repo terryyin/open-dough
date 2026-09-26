@@ -140,12 +140,14 @@ and continue that unfinished obligation only.
    For stale feature-story understanding, record `awaiting story review` and
    identify the selected story in its seed and the affected field. For stale
    correction understanding, record `awaiting correction review` and identify
-   the correction plan and affected field. Stop at the safe delivery boundary
+   the correction story's Goal or Scope in its seed, or the affected plan field;
+   a plan-homed correction's plan holds both. Stop at the safe delivery boundary
    without changing other stories or the correction outcome. This plan update
    alone does not trigger another formatting pass. Record a CI repair result
    with the interrupted slice's existing status. For quick execution, do not
    create or update a plan, completion note, project summary, or substitute
-   execution record; retain learnings and delivery progress in the conversation.
+   execution record; retain learnings, decisions, delivery progress, and proof
+   in the conversation. An admitted story keeps only its scope.
    If source understanding is stale, identify the affected field and, when a
    story is the source, its canonical seed location; stop for human review
    without changing its scope or inventing a story.

@@ -12,11 +12,8 @@ import {
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
-import {
-  lateFailureWithIgnoredOnlyDescendantsGithub,
-  controllableSleep,
-  waitFor,
-} from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { lateFailureWithIgnoredOnlyDescendantsGithub } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
 import {
   deferWorkerStop,
@@ -93,7 +90,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
       .map(({ event }) => event)
       .filter(({ type }) => type === "CI_FAILURE");
 
-  const { sleep, sleeps } = controllableSleep();
+  const polls = controllableSleep();
   const github = lateFailureWithIgnoredOnlyDescendantsGithub({
     branch,
     shaA,
@@ -103,7 +100,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     root: repo,
     storage,
     observe: (request) =>
-      watchCiExecution({ ...request, gh: github.gh, sleep }),
+      watchCiExecution({ ...request, gh: github.gh, sleep: polls.sleep }),
   });
   deferWorkerStop(teardown, worker, () =>
     requestMailboxStop(directory, { root: repo, storage }),
@@ -124,25 +121,23 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     ],
     jobs: { 900: [{ databaseId: 9000, name: "build", conclusion: "failure" }] },
   });
-  const { sleep: otherSleep } = controllableSleep();
+  const otherPolls = controllableSleep();
   const otherWorker = runMailboxWorker(otherDirectory, {
     storage,
     observe: (request) =>
       watchCiExecution({
         ...request,
         gh: otherOwnerGithub.gh,
-        sleep: otherSleep,
+        sleep: otherPolls.sleep,
       }),
   });
   deferWorkerStop(teardown, otherWorker, () =>
     requestMailboxStop(otherDirectory, { storage }),
   );
 
-  await waitFor(() => sleeps.length > 0, "initial poll");
-  const advancePoll = async () => {
-    sleeps.shift().resolve();
-    await waitFor(() => sleeps.length > 0, "poll advanced");
-  };
+  const poll = polls.of(worker, () => readMailboxEvents(directory));
+  await poll.reached();
+  const advancePoll = poll.advance;
 
   // While A is still pending, B and C already identify it as their
   // applicable basis — the worker follows the applicable attempt rather than
@@ -174,7 +169,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   // A now fails. Its attempt remains the one being observed for B and C.
   github.failNow();
   await advancePoll();
-  await waitFor(() => failureEvents().length > 0, "A's failure delivered");
+  assert.ok(failureEvents().length > 0, "A's failure delivered");
 
   const [failure] = failureEvents();
   assert.equal(failure.sha, shaA);
@@ -196,15 +191,17 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   // does not duplicate or newly acknowledge the already-delivered failure.
   registerPushedRevision(directory, shaD);
   await advancePoll();
-  await waitFor(() => coverageOf(shaD)?.state === "not_required", "D basis");
+  assert.equal(coverageOf(shaD)?.state, "not_required", "D basis");
   assert.deepEqual(coverageOf(shaD).basis, { sha: shaA, state: "failure" });
   assert.equal(failureEvents().length, 1);
 
-  await waitFor(
-    () =>
-      readMailboxEvents(otherDirectory).some(
-        ({ event }) => event.type === "CI_FAILURE",
-      ),
+  await otherPolls
+    .of(otherWorker, () => readMailboxEvents(otherDirectory))
+    .reached();
+  assert.ok(
+    readMailboxEvents(otherDirectory).some(
+      ({ event }) => event.type === "CI_FAILURE",
+    ),
     "other coordinator's real failure",
   );
 

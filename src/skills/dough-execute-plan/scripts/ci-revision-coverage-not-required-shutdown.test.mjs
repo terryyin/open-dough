@@ -19,10 +19,7 @@ import {
   deferWorkerStop,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
-import {
-  controllableSleep,
-  waitFor,
-} from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import {
   allBranchesWorkflow,
   commitAll,
@@ -137,7 +134,7 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
   registerPushedRevision(directory, shaB3);
   registerPushedRevision(directory, shaB4);
 
-  const { sleep, sleeps } = controllableSleep();
+  const polls = controllableSleep();
   const github = fourAncestorsGithub({
     branch,
     ancestors: [
@@ -171,13 +168,13 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
     root: repo,
     storage,
     observe: (request) =>
-      watchCiExecution({ ...request, gh: github.gh, sleep }),
+      watchCiExecution({ ...request, gh: github.gh, sleep: polls.sleep }),
   });
   deferWorkerStop(teardown, worker, () =>
     requestMailboxStop(directory, { root: repo, storage }),
   );
 
-  await waitFor(() => sleeps.length > 0, "initial poll");
+  await polls.of(worker, () => readMailboxEvents(directory)).reached();
 
   const coverageOf = (sha) =>
     readRevisionCoverage(directory).find((revision) => revision.sha === sha);

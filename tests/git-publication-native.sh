@@ -51,7 +51,7 @@ usage() {
 usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
-   or: tests/git-publication-native.sh --native HOST --case publication/admission-investigation|admission-continuation|admission-correction
+   or: tests/git-publication-native.sh --native HOST --case publication/admission-investigation|admission-continuation|admission-correction|admission-closure
    or: tests/git-publication-native.sh --native codex --case story-branch-increment
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
    or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only

@@ -5,9 +5,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 import {
+  backlogOf,
   projectFile,
+  queued,
   run,
   scratchProject,
+  takenEntry,
 } from "./product-backlog-fixture.mjs";
 import { importedModules } from "./pure-module-imports.mjs";
 import {
@@ -180,4 +183,71 @@ test("story-state: concurrent cooperating writes to different stories preserve b
   assert.equal(seed.split("```json dough-story-state").length - 1, 2);
   assert.match(seed, /\*\*Identity:\*\* SEED-021#first-story/);
   assert.match(seed, /\*\*Identity:\*\* SEED-021#second-story/);
+});
+
+test("story-state: a planned record links the plan of its Taken entry and leaves other entries alone", async (t) => {
+  const firstLine = `- [${first.title}](${first.link}) — ${first.identity}`;
+  const secondLine = `- [${second.title}](${second.link}) — ${second.identity}`;
+  const project = scratchProject(
+    t,
+    backlogOf([takenEntry, firstLine], [...queued, secondLine]),
+  );
+  plantSeed(project);
+  projectFile(project, "slice-plans/075-example/PLAN.md", "# Example plan\n");
+  const planned = {
+    refinement: "refined",
+    approach: "planned",
+    plan: "../slice-plans/075-example/PLAN.md",
+  };
+  const before = backlogBytes(project);
+
+  // Unselected and planless records name no plan to link.
+  for (const approach of ["unselected", "planless"]) {
+    const recorded = await run(
+      project,
+      recordArgs(first, { refinement: "refined", approach }),
+    );
+    assert.equal(recorded.code, 0, recorded.stderr);
+    assert.equal(backlogBytes(project), before);
+  }
+
+  // A queued story's plan is linked when it is taken, not when it is planned.
+  const queuedRecord = await run(project, recordArgs(second, planned));
+  assert.equal(queuedRecord.code, 0, queuedRecord.stderr);
+  assert.equal(backlogBytes(project), before);
+
+  const linked = await run(project, recordArgs(first, planned));
+  assert.equal(linked.code, 0, linked.stderr);
+  assert.match(linked.stdout, /Linked its Taken entry to the plan/);
+  const expected = backlogOf(
+    [takenEntry, `${firstLine} ([plan](slice-plans/075-example/PLAN.md))`],
+    [...queued, secondLine],
+  );
+  assert.equal(backlogBytes(project), expected);
+
+  // Recording the same plan again leaves the linked entry as it is.
+  const again = await run(project, recordArgs(first, planned));
+  assert.equal(again.code, 0, again.stderr);
+  assert.equal(backlogBytes(project), expected);
+});
+
+test("story-state: a planned record leaves a Taken entry already linking a section of that plan unchanged", async (t) => {
+  const firstLine =
+    `- [${first.title}](${first.link}) — ${first.identity} ` +
+    `([plan](slice-plans/075-example/PLAN.md#ordered-slices))`;
+  const project = scratchProject(t, backlogOf([takenEntry, firstLine], queued));
+  plantSeed(project);
+  projectFile(project, "slice-plans/075-example/PLAN.md", "# Example plan\n");
+  const before = backlogBytes(project);
+
+  const recorded = await run(
+    project,
+    recordArgs(first, {
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/075-example/PLAN.md",
+    }),
+  );
+  assert.equal(recorded.code, 0, recorded.stderr);
+  assert.equal(backlogBytes(project), before);
 });

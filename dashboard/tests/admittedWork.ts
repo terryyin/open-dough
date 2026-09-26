@@ -2,7 +2,9 @@
 // local bare remote and publishes that remote, so the dashboard reads the
 // accepted admission commit itself rather than a hand-built Taken entry. The story is drafted in the
 // originating checkout and its preparation recorded with the real backlog CLI
-// (refined, approach unselected, no assessment).
+// (refined, approach unselected, no assessment). Admitting runs Git-heavy
+// production commands, so a journey admits once in its setup and each page
+// then serves that admission.
 
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
@@ -44,11 +46,15 @@ function story(anchor: string, identity: string, title: string) {
   return `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n`;
 }
 
-// Serves the bare remote at the admission commit it accepted.
-export function publishAdmittedInvestigation(
-  page: Page,
+// The bare remote the startup CLI admitted into, and the commit it accepted.
+export type Admission = {
+  readonly origin: string;
+  readonly revision: string;
+};
+
+export function admitInvestigation(
   after: (cleanup: () => void) => void,
-) {
+): Admission {
   const root = scratchRepo(after, "dough-admitted-work-");
   const origin = join(root, "origin.git");
   const checkout = join(root, "checkout");
@@ -118,9 +124,14 @@ export function publishAdmittedInvestigation(
     ),
   ) as { ok: boolean; publishedSha: string };
   if (!receipt.ok) throw new Error(JSON.stringify(receipt));
+  return { origin, revision: receipt.publishedSha };
+}
+
+// Serves the bare remote at the admission commit it accepted.
+export function publishAdmission(page: Page, admission: Admission) {
   return publishCommittedOrigin(page, {
-    repoDir: origin,
-    revision: receipt.publishedSha,
+    repoDir: admission.origin,
+    revision: admission.revision,
     repository: "terryyin/open-dough",
   });
 }

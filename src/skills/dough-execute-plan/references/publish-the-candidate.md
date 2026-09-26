@@ -21,7 +21,7 @@ sequence below.
 
 Resolve the owned workspace, the authorized remote target, and the owned
 unpublished suffix. The suffix is that workspace's commits not yet on the
-authorized remote target. For a queue claim, that suffix is the Taken commit
+authorized remote target. For a claim, that suffix is the Taken commit
 in the execution workspace. For an increment, it is the caller's consecutive
 unpublished commits in the workspace that already holds them. Its parent is the
 previously published base when this caller has recorded one. Rewrite only that
@@ -31,7 +31,7 @@ publish a branch other than the authorized target.
 
 The owned workspace is where the suffix is reconciled and from where it is
 pushed. A preparation keep uses the preparation workspace. An execution
-increment uses the execution worktree. A queue claim is committed and pushed
+increment uses the execution worktree. A claim is committed and pushed
 from the execution workspace selected before that claim.
 
 A pending human edit on the default checkout does not block publication from

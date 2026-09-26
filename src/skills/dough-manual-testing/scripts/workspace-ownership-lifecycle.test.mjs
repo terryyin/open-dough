@@ -47,7 +47,7 @@ test("the shared lifecycle owns selection, local checkout role, and target selec
   assert.doesNotMatch(shared, /npm ci/);
   assert.doesNotMatch(shared, /one setup lifecycle/);
   assert.doesNotMatch(shared, /keep-and-publish/);
-  assert.doesNotMatch(shared, /Take queued work/);
+  assert.doesNotMatch(shared, /Take (?:queued|or admit) work/);
 });
 
 test("preparation continues from the shared rule into its own disposition", () => {
@@ -71,7 +71,7 @@ test("preparation continues from the shared rule into its own disposition", () =
     /does not apply execution mode or project-command readiness/,
   );
   assert.match(preparation, /preparation-disposition\.md/);
-  assert.match(preparation, /does not apply to \[take queued work\]/);
+  assert.match(preparation, /does not apply to \[take or admit work\]/);
   assert.doesNotMatch(preparation, /git worktree add/);
   assert.match(disposition, /local checkout role and the target\s+selection/);
   assert.match(
@@ -114,7 +114,7 @@ test("contextual execution and queued execution keep their own continuations", (
   );
   assert.match(
     publication,
-    /Before replaying a queue claim, recheck that identity's membership on the\s+fetched remote/,
+    /Before replaying a claim, recheck that identity's membership on the\s+fetched remote/,
   );
   assert.match(
     publication,

@@ -37,6 +37,7 @@ story_state_payload_files=(
   dough-product-backlog/scripts/product-backlog-story-state-assessment.mjs
   dough-product-backlog/scripts/product-backlog-story-state-basis.mjs
   dough-product-backlog/scripts/product-backlog-story-state-block.mjs
+  dough-product-backlog/scripts/product-backlog-story-state-command.mjs
   dough-product-backlog/scripts/product-backlog-story-state-home.mjs
   dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
   dough-product-backlog/scripts/product-backlog-story-state.mjs

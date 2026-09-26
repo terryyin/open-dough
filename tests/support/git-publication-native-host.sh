@@ -137,7 +137,7 @@ native_case_known() {
       publication/preparation | publication/trunk-closure | \
       publication/story-branch-closure | publication/bug-disposition | \
       publication/admission-investigation | publication/admission-continuation | \
-      publication/admission-correction | \
+      publication/admission-correction | publication/admission-closure | \
       story-branch-increment | \
       execution-review/pending | execution-review/ready | \
       execution-review/failure | execution-review/skip-retro)

@@ -113,11 +113,12 @@ run_substitute_host_journeys() {
 # Admission journeys through the installed CLIs in both stream shapes, plus
 # real-state counterexamples: investigating before admission, continuing
 # through admission instead of ordinary startup, and admitting a new story
-# instead of the retrospective's correction story.
+# instead of the retrospective's correction story, and closing an admitted
+# investigation while keeping its seed or by force-pushing a stale closure.
 run_substitute_admission_journeys() {
   local work=$1 run_log=$2 journey journey_host artifact status
   for journey in admission-investigation admission-continuation \
-    admission-correction; do
+    admission-correction admission-closure; do
     for journey_host in codex claude; do
       artifact=$(mktemp -d "${work}/${journey_host}-${journey}.XXXXXX")
       set +e
@@ -153,4 +154,16 @@ run_substitute_admission_journeys() {
     git_publication_run_journey "${source_dir}" cursor \
     admission-correction "${artifact}"
   git_publication_suite_expect_assess fail 'exactly one owned claim'
+
+  artifact=$(mktemp -d "${work}/closure-keep-seed.XXXXXX")
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_ADMISSION_CLOSURE=keep-seed \
+    git_publication_run_journey "${source_dir}" cursor \
+    admission-closure "${artifact}"
+  git_publication_suite_expect_assess fail 'still holds the closed investigation'
+
+  artifact=$(mktemp -d "${work}/closure-stale-force.XXXXXX")
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_ADMISSION_CLOSURE=stale-force \
+    git_publication_run_journey "${source_dir}" cursor \
+    admission-closure "${artifact}"
+  git_publication_suite_expect_assess fail 'rewrote or removed other trunk content'
 }

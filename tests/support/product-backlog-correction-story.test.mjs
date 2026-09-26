@@ -1,9 +1,10 @@
 // A retrospective's new bounded correction, followed through the real backlog
 // CLI: its minimal story in a seed links the correction plan, the story is the
-// one work item queued and then taken, and the plan keeps the findings,
-// provenance, and proof without ever being listed as work of its own. A
-// plan-homed correction written before stories held corrections keeps its
-// identity and is still listed through its plan.
+// one work item listed, and the plan keeps the findings, provenance, and proof
+// without ever being listed as work of its own, whether the story is queued or
+// taken with the plan linked. A plan-homed correction written before stories
+// held corrections keeps its identity and is still listed through its plan.
+// Taking and resuming listed work is owned by product-backlog-take.test.mjs.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -12,7 +13,6 @@ import { readHome } from "../../src/skills/dough-product-backlog/scripts/product
 import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 import {
   backlogOf,
-  occurrences,
   projectFile,
   queued,
   run,
@@ -100,7 +100,7 @@ const add = (identity, link, title = story.title) => [
   "first",
 ];
 
-test("a new correction's story is queued and taken once while its plan keeps the evidence", async (t) => {
+test("a new correction's story is its one listed work item while its plan keeps the evidence", async (t) => {
   const project = scratchProject(t);
   plantCorrection(project);
 
@@ -134,28 +134,18 @@ test("a new correction's story is queued and taken once while its plan keeps the
     assert.equal(project.read(), listed);
   }
 
-  const taken = await run(project, [
-    "take",
-    "--identity",
-    story.identity,
-    "--plan",
-    planPath,
-  ]);
-  assert.equal(taken.code, 0, taken.stderr);
-  const claimed = `${storyLine} ([plan](${planPath}))`;
-  assert.equal(project.read(), backlogOf([takenEntry, claimed], queued));
-  const resumed = await run(project, [
-    "take",
-    "--identity",
-    story.identity,
-    "--plan",
-    planPath,
-  ]);
-  assert.equal(resumed.code, 0, resumed.stderr);
-  assert.equal(occurrences(project.read(), story.identity), 1);
-  assert.equal(occurrences(project.read(), planPath), 1);
-  const planAsWork = await run(project, add(planPath, planPath));
+  // Once the story is taken with its plan linked, the plan is still never
+  // listed as work of its own.
+  const claimed = backlogOf(
+    [takenEntry, `${storyLine} ([plan](${planPath}))`],
+    queued,
+  );
+  const taken = scratchProject(t, claimed);
+  plantCorrection(taken);
+  const planAsWork = await run(taken, add(planPath, planPath));
+  assert.equal(planAsWork.code, 1, planAsWork.stdout);
   assert.match(planAsWork.stderr, /already the plan of "SEED-030#order/);
+  assert.equal(taken.read(), claimed);
 
   // The story names the work; the plan names no work of its own and keeps
   // its findings, provenance, and proof unchanged.
@@ -225,13 +215,4 @@ test("a plan-homed correction keeps its recorded identity and is listed through 
   assert.equal(listed.code, 0, listed.stderr);
   const line = `- [Repair the release notes](${legacyPlan}) — ${identity}`;
   assert.equal(project.read(), backlogOf([takenEntry], [line, ...queued]));
-
-  const taken = await run(project, [
-    "take",
-    "--identity",
-    identity,
-    "--no-plan",
-  ]);
-  assert.equal(taken.code, 0, taken.stderr);
-  assert.equal(project.read(), backlogOf([takenEntry, line], queued));
 });
