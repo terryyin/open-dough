@@ -87,6 +87,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-git-cli.mjs
   dough-product-backlog/scripts/product-backlog-git-driver.mjs
   dough-product-backlog/scripts/product-backlog-git-merge.mjs
+  dough-product-backlog/scripts/product-backlog-git-operation-state.mjs
   dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs
   dough-product-backlog/scripts/product-backlog-git-rebase.mjs
   dough-product-backlog/scripts/product-backlog-git-repository.mjs

@@ -43,10 +43,7 @@ test("merge stops a genuine textual conflict Git itself cannot resolve, and leav
   assert.equal(stage(repo, 1), ancestor);
   assert.equal(stage(repo, 2), renamedOne);
   assert.equal(stage(repo, 3), renamedTwo);
-  assert.match(
-    merged.stdout + merged.stderr,
-    /the versions give it different titles/,
-  );
+  assert.match(merged.stderr, /the versions give it different titles/);
   // No partial write: the worktree file is real conflict markers holding
   // both full sides, not half of either candidate.
   const worktree = repo.read();

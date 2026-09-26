@@ -93,7 +93,7 @@ surprised). No Accepted ADR or North Star topic governs this. It stays inside
 ### 1. Backlog Git adapters are silent on success and keep every failure diagnostic
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 
 ```sh
@@ -123,6 +123,26 @@ Work:
 Safe stop: all listed commands green. Before this slice the adapters behave
 as today; there is no intermediate state.
 
+Accepted proof: `node --test tests/support/product-backlog-git-*.test.mjs`
+(31 pass), `/opt/homebrew/bin/bash tests/product-backlog-payload-update.sh`
+(exit 0), and `npm run lint` (clean). The hook pass/fail case lives in
+`tests/support/product-backlog-git-merge-hook.test.mjs`. The payload proof
+requires the merge adapter's combined output to be exactly `accepted`. The
+clean-merge, clean-rebase, hook, and payload assertions fail against the
+pre-slice adapters.
+
 ## Learnings
 
-None yet.
+- The collector is an `AsyncLocalStorage` scope that each
+  `runGitOperationCli` dispatch opens (`collectingGitDiagnostics`). Git calls
+  made outside such a scope still forward stderr as before. Threading an
+  explicit collector through about 30 call sites was judged churn without a
+  behavior change.
+- On a failing status, Git's diagnostics now follow the stdout receipt
+  instead of streaming ahead of it. The CLI sets `process.exitCode` so the
+  replayed stderr is not cut off on a pipe.
+- The stopped rebase and cherry-pick state readers moved to
+  `product-backlog-git-operation-state.mjs` to keep the repository module
+  under the size limit. A new backlog script needs its `install.sh`
+  `managed_files` entry, and `tests/product-backlog-payload-update.sh`
+  catches a missing one.

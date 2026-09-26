@@ -81,6 +81,7 @@ test("rebase accepts a genuinely compatible multi-commit clean replay, with no f
     rebased.stdout + rebased.stderr,
     /aggregate comparison .* agrees with the result/,
   );
+  assert.equal(rebased.stderr, "", "a clean rebase shows only its receipt");
   assert.equal(
     repo.read(),
     backlogOf(

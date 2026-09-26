@@ -136,15 +136,15 @@ run_offline_git_merge_proof() {
 
   git -C "${git_project}" checkout --quiet close-a
 
-  # Git's own merge chatter reaches the adapter's stderr; keep it for failures.
+  # A successful merge shows only its receipt: anything Git wrote to stderr
+  # would appear in this combined output after the receipt.
   merge_output=$(
     cd -- "${git_project}/sub/nested"
     node "${scripts_root}/product-backlog-git-merge.mjs" merge \
-      --ref close-b --file "${git_backlog_rel}" 2> "${git_project}.merge-stderr"
+      --ref close-b --file "${git_backlog_rel}" 2>&1
   )
-  if [[ "${merge_output}" != *'accepted'* ]]; then
-    echo "FAIL: the installed Git merge adapter did not report acceptance: ${merge_output}" >&2
-    cat -- "${git_project}.merge-stderr" >&2
+  if [[ "${merge_output}" != 'accepted' ]]; then
+    echo "FAIL: the installed Git merge adapter did not report only its acceptance: ${merge_output}" >&2
     return 1
   fi
   resulting_backlog=$(cat "${git_project}/${git_backlog_rel}")
