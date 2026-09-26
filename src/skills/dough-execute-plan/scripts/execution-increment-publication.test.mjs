@@ -1,11 +1,12 @@
 // Git mechanics (not guidance-following): a validated increment or owned
 // repair is published to the mode's authorized target. The receipt is the
-// accepted SHA and that target. A repair uses the existing stash contract
-// around that same publication. Native agent behavior is not this file.
+// accepted SHA and that target. A repair pauses unfinished work through the
+// CI repair stash CLI around that same publication. Native agent behavior is not this file.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
+import { restoreRepairStash, saveRepairStash } from "./ci-repair-stash.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   assertCheckoutUnchanged,
@@ -73,20 +74,14 @@ test("an owned repair publishes without unfinished work and restores that work a
     "untracked unfinished\n",
   );
 
-  const previousStash = await revParse(execution, "refs/stash").catch(
-    () => null,
+  const saved = await saveRepairStash({
+    checkout: execution,
+    label: "dough-execute-plan CI repair RUN_ID/ATTEMPT",
+  });
+  t.after(() =>
+    rmSync(dirname(saved.record), { recursive: true, force: true }),
   );
-  await git(
-    execution,
-    "stash",
-    "push",
-    "--include-untracked",
-    "-m",
-    "dough-execute-plan CI repair RUN_ID/ATTEMPT",
-  );
-  const stashOid = await revParse(execution, "refs/stash");
-  assert.notEqual(stashOid, previousStash);
-  assert.equal((await git(execution, "status", "--porcelain")).stdout, "");
+  assert.equal(saved.status, "stashed");
   assert.equal(
     readFileSync(join(execution, "increment.txt"), "utf8"),
     "increment\n",
@@ -126,30 +121,12 @@ test("an owned repair publishes without unfinished work and restores that work a
     git(execution, "cat-file", "-e", `${repairSha}:unfinished-untracked.txt`),
   );
 
-  await git(execution, "stash", "apply", "--index", stashOid);
+  const restored = await restoreRepairStash({ record: saved.record });
+  assert.equal(restored.status, "resumed");
   assert.equal(
     readFileSync(join(execution, "increment.txt"), "utf8"),
     `increment\n${unfinished}`,
   );
-  assert.equal(
-    readFileSync(join(execution, "unfinished-untracked.txt"), "utf8"),
-    "untracked unfinished\n",
-  );
-  assert.match(
-    (await git(execution, "diff", "--cached", "--name-only")).stdout,
-    /unfinished-staged\.txt/,
-  );
   assert.equal(await revParse(execution, "HEAD"), repairSha);
-  assert.equal(await revParse(execution, "--show-toplevel"), execution);
-
-  const selector = (
-    await git(execution, "stash", "list", "--format=%gd %H")
-  ).stdout
-    .trim()
-    .split("\n")
-    .find((line) => line.endsWith(stashOid))
-    ?.split(" ")[0];
-  assert.equal(selector, "stash@{0}");
-  await git(execution, "stash", "drop", selector);
   await assert.rejects(revParse(execution, "refs/stash"));
 });

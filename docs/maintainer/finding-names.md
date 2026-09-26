@@ -315,7 +315,7 @@ An execution switches the shared checkout to its own feature branch and leaves a
 An execution worktree and branch are removed during an active delegated task, forcing recovery while another execution uses shared integration.
 
 - **Sources:** [doughnut / DD-072](../../../doughnut/DearDough.md#odf-084--a-concurrent-session-deleted-an-active-story-branch-execution-worktree-and-branch-while-a-delegated-subagent-was-mid-slice).
-- **Follow-up:** open, no queued response. Excluded on 2026-09-26 from [Preserve other writers' work in shared worktrees](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work): the remover is unknown and the incident predates Dough Land's retirement gate.
+- **Follow-up:** open, no queued response. Excluded on 2026-09-26 from `SEED-008#preserve-other-executions-work` (closed; recoverable at `d96674e:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`): the remover is unknown and the incident predates Dough Land's retirement gate.
 
 <a id="odf-085"></a>
 
@@ -369,7 +369,7 @@ A failed stash push is followed by an unqualified stash pop, applying another se
 
 - **Sources:** [open-dough / DD-094](../../DearDough.md#odf-093--a-delegated-agents-git-stash-pop-applied-another-sessions-stash).
 - **Current evidence:** Four conflicted files were restored; no permanent loss reported. Distinct from stashing a live writer's files (ODF-105). High potential harm, one observed incident.
-- **Follow-up:** queued, not resolved: [Preserve other writers' work in shared worktrees](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work).
+- **Response:** `f157f0e` moves the CI repair pause into `ci-repair-stash.mjs`, which records its own entry's OID and applies and drops only that entry; `86e5069` bars delegated agents from stash, pop, reset, clean, path checkout, and branch switch in a shared checkout. Not yet in a release (after 0.3.41). Proof is deterministic tests plus behavior review (ADR 0005 section 4); effectiveness is judged from later use. See the [watch](near-term-watch-list.md#odf-093).
 
 <a id="odf-094"></a>
 
@@ -466,7 +466,7 @@ A delivery command stashes another active slice's uncommitted files instead of s
 
 - **Sources:** [pygardon / DD-094](../../../pygardon/DearDough.md#odf-105--a-coordinator-command-stashed-a-concurrent-slices-uncommitted-files).
 - **Current evidence:** The other writer's files were restored and its proof used a separate clone. No loss reported; unsafe staging interference remains actionable.
-- **Follow-up:** queued, not resolved: [Preserve other writers' work in shared worktrees](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work).
+- **Response:** `86e5069` makes coordinator commits isolate owned work by staging owned paths only, never stashing, resetting, or restaging a sibling writer's work; `f157f0e` leaves the CI repair pause as the only sanctioned stash. Not yet in a release (after 0.3.41). See the [watch](near-term-watch-list.md#odf-105).
 
 <a id="odf-106"></a>
 

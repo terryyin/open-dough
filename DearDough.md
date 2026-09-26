@@ -653,6 +653,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Evidence: `4286761` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID` and attached `watch-KacOun`. Source `trunk-publication.md` already reads that variable; the installed copy did not.
   - Observed effect: slice 1 never observed; no duplicate observer (no retry of the accepted SHA).
 
+- Execution: `SEED-008#preserve-other-executions-work` / plan 114, first related implementation commit `f157f0e`
+  - Timestamp: unknown (first increment delivery, after commit `f157f0e` at 2026-09-26T17:09:03+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `f157f0e` receipt `observation.state: unobserved` ("host session identity is required"); no retry; slice 2 delivery with `--session-json` from `CLAUDE_CODE_SESSION_ID` attached `watch-3NF61x`. Installed `trunk-publication.md` lacks the source's env-var sentence.
+  - Observed effect: slice 1 never observed individually; recovery needed a read of `ci-host-bridge.mjs`.
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -868,6 +876,14 @@ checkout also keeps in-checkout execution worktrees under an unignored
   - Evidence: `execution-start.mjs start` → `source-refused`; leftover blobs equal `d021218`'s; local commit `2de5b10` (kept on `backup/2de5b10-local-seed-042`) swept in three `.worktrees/*` gitlinks; claim and delivery reported `maintenance: deferred`.
   - Observed effect: one human round trip and a manual reset of the default checkout to `origin/main` before the claim.
   - Inference: Qualified. The source check compares only local HEAD, index and worktree, so a stale published copy looks unpublished; ignoring the worktree root would end the deferral and the gitlink risk.
+- Execution: `SEED-008#preserve-other-executions-work` / plan 114, first related implementation commit `f157f0e`
+  - Timestamp: unknown (startup refusal before claim `b22ecab` at 2026-09-26T16:53:33+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `execution-start.mjs start` → `source-refused`, "SEED-008… has no story anchored at preserve-other-executions-work"; the default checkout's uncommitted and untracked planning edits equalled published `5668d56` (minus its SEED-044 lines) while local `main` was 12 commits behind; `execution-source.mjs` `unpublishedSource` parses the merge-base version, which predates the story, and throws before its own refusal message. The developer approved discarding; the auto-mode classifier blocked `git checkout -- .`, so the six paths went into a labelled pathspec stash in the default checkout for the developer to drop. Start then reported `maintenance: deferred`, `pending-edit`.
+  - Observed effect: one human round trip, about eight coordinator calls to diagnose, and a stash left on the shared stack.
+  - Inference: Qualified. A second occurrence in one day; the misleading message is a new symptom of the same source check.
 
 ## ODF-100 — A piped lint failure did not stop publication
 

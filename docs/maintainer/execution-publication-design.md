@@ -160,6 +160,15 @@ run probe/start/register separately. Recover only the matching owner, target,
 and workspace; use their established completion operation. A tiny association
 needed for resume belongs with existing CI ownership, not a new workflow ledger.
 
+Git shares one stash stack across every worktree of a repository, and parallel
+slices share one execution worktree. The CI repair pause is therefore the only
+sanctioned stash, performed by the installed `ci-repair-stash.mjs`: it records
+the one entry it created by OID outside the tree, restores and drops only that
+entry, and stops with the record on any failed, ambiguous, unclean, conflicting,
+or missing case. Delegated agents take a baseline from a separate checkout
+instead of stashing, and coordinator commits stage owned paths only. Detecting
+writers across sessions, locks, and takeover are out of scope.
+
 Receipt-driven attribution replaces ref-movement inference on this managed path.
 Terry previously accepted possible fresh-base attribution by a hook; that tolerance
 does not require implementing an additional fallback when the publisher already
