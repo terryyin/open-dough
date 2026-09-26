@@ -7,7 +7,7 @@
 [Correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore).
 A bounded retrospective correction of the completed execution of
 `SEED-008#preserve-other-executions-work` under plan 114
-(`.planning/slice-plans/114-preserve-other-writers/PLAN.md`): claim `b22ecab`,
+(recoverable at `d96674e:.planning/slice-plans/114-preserve-other-writers/PLAN.md`): claim `b22ecab`,
 attributable commits `f157f0e` (slice 1) and `86e5069` (slice 2) on branch
 `claude/114-preserve-other-writers`, base `fe6a661`. That story's promises
 stay as delivered; this correction adds no feature promise. The retrospective

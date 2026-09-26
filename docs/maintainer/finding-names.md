@@ -315,7 +315,7 @@ An execution switches the shared checkout to its own feature branch and leaves a
 An execution worktree and branch are removed during an active delegated task, forcing recovery while another execution uses shared integration.
 
 - **Sources:** [doughnut / DD-072](../../../doughnut/DearDough.md#odf-084--a-concurrent-session-deleted-an-active-story-branch-execution-worktree-and-branch-while-a-delegated-subagent-was-mid-slice).
-- **Follow-up:** open, no queued response. Excluded on 2026-09-26 from [Preserve other writers' work in shared worktrees](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work): the remover is unknown and the incident predates Dough Land's retirement gate.
+- **Follow-up:** open, no queued response. Excluded on 2026-09-26 from `SEED-008#preserve-other-executions-work` (closed; recoverable at `d96674e:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`): the remover is unknown and the incident predates Dough Land's retirement gate.
 
 <a id="odf-085"></a>
 
