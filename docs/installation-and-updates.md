@@ -60,11 +60,11 @@ inspection and execution into an unattended one-shot command.
    It is an entry-context hint only; each successful install/update writes both
    physical roots:
 
-   | Running tool | `platform` | Native skill root |
-   | --- | --- | --- |
-   | Codex | `codex` | `.agents/skills/` |
-   | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
-   | Claude Code | `claude` | `.claude/skills/` |
+   | Running tool | `platform` | Native skill root                     |
+   | ------------ | ---------- | ------------------------------------- |
+   | Codex        | `codex`    | `.agents/skills/`                     |
+   | Cursor       | `cursor`   | `.agents/skills/` (shared with Codex) |
+   | Claude Code  | `claude`   | `.claude/skills/`                     |
 
 2. Create a fresh temporary `install_dir` and use `snapshot="${install_dir}/release"`.
    Own cleanup from this point until the workflow ends, including failures during
@@ -92,6 +92,7 @@ inspection and execution into an unattended one-shot command.
 4. Read and inspect these files from that snapshot before executing any of them:
    - `install.sh`
    - `src/install/open-dough-install-payload.sh`
+   - `src/install/open-dough-payload-bytes.mjs`
    - `src/install/open-dough-release.sh`
    - `src/install/open-dough-release-apply.sh`
    - `src/install/open-dough-release-baseline.sh`

@@ -157,7 +157,20 @@ another identity is still never signalled.
 ### 2. The installer and updater compare payload bytes through one helper
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `compare-payload.sh`, every `install-*.sh` and `update-*.sh`,
+`pin-and-inspect.sh`, `self-installation-baseline.sh`,
+`story-payload-update.sh`, `dough-update-guidance-payload.sh`,
+`execution-payload-update.sh`, `payload-declaration-links.sh`,
+`retrospective-reference-payload.sh`, and `product-backlog-payload-update.sh`
+pass silently under Bash 5. A scratch check showed the updater naming the first
+changed managed file in declaration order, both with and without Node on
+`PATH`. The shared compare returns the same statuses with and without Node.
+Learning: `payload_bytes_run` in `open-dough-platform.sh` is the one compare.
+The installer (`declared_payload_bytes`), the updater's
+`managed_payload_unchanged`, and the test helper `payload_bytes_transfer` all
+call it. The `dough-update` skill's inspection step also names
+`open-dough-payload-bytes.mjs`.
 Proof:
 - Every installer, updater, and payload check passes silently with unchanged
   assertions (`install-*.sh`, `update-*.sh`, `story-payload-update.sh`,

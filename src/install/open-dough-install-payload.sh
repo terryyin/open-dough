@@ -6,38 +6,11 @@
 # Caller assigns managed_files, source_dir, target, recorded_source, force,
 # replace_verified, and version.
 
-# Run match, copy, or copy-then-match for the declared files in one Node
-# process. match exits 1 on a difference. copy exits 1 when a file cannot be
-# written, after earlier files in the declaration order have already been
-# replaced. copy-then-match copies, then verifies the written bytes, exiting 3
-# on a difference and 4 when verification cannot read a file. Without Node,
-# fall back to cp and cmp so a hook-less install still works.
-payload_bytes_run() {
-  local mode=$1
-  local root=$2
-  local helper="${source_dir}/src/install/open-dough-payload-bytes.mjs"
-  local managed_file
-  if [[ -f ${helper} ]] && command -v node > /dev/null 2>&1; then
-    printf '%s\n' "${managed_files[@]}" | node "${helper}" "${mode}" \
-      "${source_dir}/src/skills" "${root}"
-    return
-  fi
-  if [[ ${mode} != match ]]; then
-    for managed_file in "${managed_files[@]}"; do
-      cp -- "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || return 1
-    done
-    [[ ${mode} == copy-then-match ]] || return 0
-  fi
-  for managed_file in "${managed_files[@]}"; do
-    cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || {
-      [[ ${mode} == match ]] && return 1
-      return 3
-    }
-  done
-}
-
-payload_bytes_match() {
-  payload_bytes_run match "$1"
+# Compare or copy the declared files between the source skills and one
+# native root through the shared payload_bytes_run.
+declared_payload_bytes() {
+  local mode=$1 root=$2
+  payload_bytes_run "${mode}" "${source_dir}/src/skills" "${root}" "${managed_files[@]}"
 }
 
 create_payload_directories() {
@@ -78,7 +51,7 @@ install_declared_payload() {
       && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then
       current=1
       status=0
-      payload_bytes_match "${root}" || status=$?
+      declared_payload_bytes match "${root}" || status=$?
       if [[ ${status} -ne 0 ]]; then
         [[ ${status} -eq 1 ]] || exit "${status}"
         current=0
@@ -122,7 +95,7 @@ install_declared_payload() {
     # One process copies, then verifies the written bytes.
     verification_failed=0
     status=0
-    payload_bytes_run copy-then-match "${root}" || status=$?
+    declared_payload_bytes copy-then-match "${root}" || status=$?
     case ${status} in
       0) ;;
       3) verification_failed=1 ;;

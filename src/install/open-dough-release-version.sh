@@ -31,7 +31,7 @@ managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
   local skill_root managed_file historical_files
-  local self_root current_declaration helper mismatch=''
+  local self_root current_declaration mismatch=''
   local -a files=() delivered=()
 
   # This file's own repository always ships install.sh's managed_files
@@ -68,13 +68,12 @@ managed_payload_unchanged() {
     fi
     delivered+=("${managed_file}")
   done
-  # One Node process compares every delivered file. A difference, or no Node,
-  # walks them with cmp so the first mismatch in declaration order is reported.
-  helper="${self_root}/src/install/open-dough-payload-bytes.mjs"
-  if [[ -z "${mismatch}" ]] && ((${#delivered[@]} > 0)) && [[ -f "${helper}" ]] \
-    && command -v node > /dev/null 2>&1 \
-    && printf '%s\n' "${delivered[@]}" | node "${helper}" match \
-      "${checkout}/src/skills" "${skill_root}" 2> /dev/null; then
+  # One compare covers every delivered file. A difference, or an unexpected
+  # read, walks them with cmp so the first mismatch in declaration order is
+  # reported.
+  if [[ -z "${mismatch}" ]] && ((${#delivered[@]} > 0)) \
+    && payload_bytes_run match "${checkout}/src/skills" "${skill_root}" \
+      "${delivered[@]}" 2> /dev/null; then
     return 0
   fi
   # The guarded expansion keeps an empty list safe under Bash 3.2 set -u.
