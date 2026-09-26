@@ -216,7 +216,12 @@ promises; native-evidence checks are unchanged.
 ### 5. The runner schedules today's longest checks first
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `tests/longest-first` now lists every job of 3 s or more from
+CI run 36278006776's `test-times` artifact (main at `2b18837`), longest first,
+and its header describes how to refresh it from that artifact. With Bash 5
+first on `PATH`, `test-runner-failure-report.sh`, `test-runner-interrupt.sh`,
+`test-runner-budget.sh`, and `test-runner-bash.sh` pass silently.
 Proof:
 - `tests/longest-first` lists the longest jobs from the latest CI
   `test-times` artifact, and the runner tests that read it pass silently.
