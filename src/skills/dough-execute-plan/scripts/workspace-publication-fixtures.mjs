@@ -144,8 +144,16 @@ const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),
 );
 
-export async function startCliResult(trunk, mode, extra = [], cli = startCli) {
-  const workspace = join(trunk.fixture, `start-${mode}`);
+// `name` distinguishes the workspace, branch, and publisher of several starts
+// in one mode; it defaults to the mode.
+export async function startCliResult(
+  trunk,
+  mode,
+  extra = [],
+  { cli = startCli, name = mode } = {},
+) {
+  const workspace = join(trunk.fixture, `start-${name}`);
+  const branch = `exec/${name}`;
   const args = [
     cli,
     "start",
@@ -154,11 +162,11 @@ export async function startCliResult(trunk, mode, extra = [], cli = startCli) {
     "--workspace",
     workspace,
     "--branch",
-    `exec/${mode}`,
+    branch,
     "--identity",
     identityA,
     "--publisher-id",
-    `publisher-${mode}`,
+    `publisher-${name}`,
     "--mode",
     mode,
     "--remote",
@@ -171,13 +179,14 @@ export async function startCliResult(trunk, mode, extra = [], cli = startCli) {
   ];
   try {
     const { stdout } = await exec(process.execPath, args);
-    return { receipt: JSON.parse(stdout), stdout, code: 0, workspace };
+    return { receipt: JSON.parse(stdout), stdout, code: 0, workspace, branch };
   } catch (error) {
     return {
       receipt: JSON.parse(error.stdout),
       stdout: error.stdout,
       code: error.code,
       workspace,
+      branch,
     };
   }
 }

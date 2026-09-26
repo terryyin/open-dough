@@ -306,7 +306,7 @@ backlog parses under the stricter invariant. Native live runs are pending.
 
 ### 5. Close admitted work through the ordinary lifecycle
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The accepted mission's outcome is complete, including an evidenced
 no-change investigation → ordinary wrap-up publishes closure → Taken entry,
@@ -333,6 +333,22 @@ reuse earlier slice proof, adding only missing boundary evidence.
 
 Safe stop: All admitted work has one complete lifecycle; the separately queued
 one-shot story can later invoke admission on escalation.
+
+Accepted proof: ordinary wrap-up closure and backlog `complete` already handle
+admitted Taken work by identity; wrap-up now judges a no-plan investigation
+(approach unselected) with an evidenced no-change conclusion complete.
+`src/skills/dough-story-wrap-up/scripts/closure-admitted-work.test.mjs` starts
+from real admission output, publishes a result increment and Trunk Mode
+closure with real `complete`, and inspects the remote tree: a planned mission
+and a new correction story close in turn keeping the unfinished sibling; a
+no-change investigation removes its whole new seed while another agent's
+claim, profile, plan and trunk advances remain; a repeated closure removes
+nothing. Passing: `node --test src/skills/dough-story-wrap-up/scripts/*.test.mjs`
+(14), `node --test tests/support/product-backlog-complete.test.mjs` (6), the
+closure publication/resume/cleanup tests (4), every `startCliResult` caller
+(44), guidance-wording tests (29) and the payload checks. The admitted Taken
+dashboard view reuses slice 1 proof; the post-closure view is the existing
+absent-entry shape.
 
 ## Promise coverage and current decisions
 
@@ -403,3 +419,11 @@ planned, not already passed. Reassess when implementation exposes contrary facts
   identity. `dashboard/tests/catalogProjectRecords.ts` still holds a Taken
   whole-document home recording an anchored identity, which readers accept
   but `add` would refuse.
+- Slice 5: seed files reconcile line by line at closure, so deleting a closed
+  story section that another writer appended a sibling directly after
+  conflicts on the seed: at Story Branch integration whenever that happened
+  during execution, and in Trunk Mode only between the before-cleanup and
+  final-closure publications. The stop is safe and the existing
+  publication-rebase-conflict procedure combines the compatible sides; this
+  predates admission, which makes it more frequent. Automatic section-aware
+  seed reconciliation is outside this story.

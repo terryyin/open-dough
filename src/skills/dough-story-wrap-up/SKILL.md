@@ -62,8 +62,8 @@ action instead of reconstructing or guessing it after plan deletion.
 Judge completion from the selected work and available execution evidence.
 
 - Planned work is complete when every slice is done.
-- Planless work is complete when the supplied story or instruction, changes, and
-  execution results show the promised outcome, including evidenced no-change.
+- Work without a plan, including an investigation whose approach stayed unselected, is
+  complete when its story or instruction, changes, and execution results show the promised outcome, including evidenced no-change.
 - Incomplete implementation leaves the affected active work intact. Report the
   unfinished implementation and stop. Do not delete an unfinished correction
   plan to manufacture a wrap-up.
