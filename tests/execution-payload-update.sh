@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2154,SC2312 # Sourced fixtures supply helpers and managed_files.
+# shellcheck disable=SC1091,SC2312 # Sourced fixtures supply helpers.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"

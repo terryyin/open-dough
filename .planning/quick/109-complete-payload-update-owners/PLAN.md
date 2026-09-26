@@ -175,7 +175,7 @@ Accepted proof (Bash 5, each silent pass):
 ### 2. The checks plan 108 edited carry no stale residue
 
 Type: Structure
-Status: planned
+Status: done
 Proof:
 - ShellCheck with the repository `.shellcheckrc` passes on the three payload
   checks without their `SC2154` disables.
@@ -189,6 +189,15 @@ Proof:
 
 Structure: removes stale knowledge exposed by plan 108 so the next reader of
 these checks and the release procedure is not misled; no behavior changes.
+
+Accepted proof: `shellcheck -- tests/execution-payload-update.sh
+tests/product-backlog-payload-update.sh tests/retrospective-reference-payload.sh`
+clean without `SC2154` (`SC2312` is still needed and stays);
+`grep -n '[Ss]lice [0-9]' tests/product-backlog-payload-update.sh` empty;
+`tests/longest-first` rewritten with its header's `awk` rule from
+`PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_TIMES=<file> npm test`, then the
+complete suite passed silently with the new list; the release-version skill
+names `install.sh`'s `managed_files` as the one payload declaration.
 
 ## Promise ownership
 
@@ -208,3 +217,6 @@ these checks and the release procedure is not misled; no behavior changes.
 
 - Slice 1: the force-restore mutation for the sibling root was not run; only
   the refusal owner was mutation-checked, as planned.
+- Slice 2: under a full parallel run the payload-update checks took 27-43 s,
+  not the 10-17 s paired medians, and 53 jobs crossed the 10-second rule; the
+  list follows the header's full-run rule, so its length tracks machine load.
