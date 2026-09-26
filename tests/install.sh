@@ -15,16 +15,20 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 # A repeat installation over an edited, partial, or unverifiable managed
-# installation stops and points at --force.
+# installation stops without writes and points at --force.
 assert_repeat_install_refused() {
   local failure=$1
+  local before after
   shift
+  before=$(snapshot_path_state "${target}")
   if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" "$@" 2>&1); then
     echo "FAIL: ${failure}" >&2
     exit 1
   fi
   [[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
   [[ "${output}" == *'--force'* ]]
+  after=$(snapshot_path_state "${target}")
+  [[ "${after}" == "${before}" ]]
 }
 
 target="${temporary_dir}/target project"
@@ -99,10 +103,7 @@ contents=$(cat "${sentinel}")
 removed_reference=dough-story-refinement/references/planning.md
 removed_file="${target}/.claude/skills/${removed_reference}"
 rm -- "${removed_file}"
-before=$(snapshot_path_state "${target}")
 assert_repeat_install_refused "repeat installation must stop on a removed managed file."
-after=$(snapshot_path_state "${target}")
-[[ "${after}" == "${before}" ]]
 [[ ! -e "${removed_file}" ]]
 
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --force > /dev/null

@@ -133,7 +133,7 @@ Run counts in the four payload-update checks and the owners do not rise.
 ### 1. Each shared protection's owner proves it in both skill roots
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - `update-refuses-unverifiable.sh`: one of the two cases changes a file under
   `.claude/skills` and still asserts refusal, the message, an unchanged
@@ -152,6 +152,25 @@ Proof:
 Behavior: a developer edits or removes a managed file in either installed skill
 root → ordinary update and repeat install refuse without writes and `--force`
 restores it, each observed by its one owner at that root.
+
+Accepted proof (Bash 5, each silent pass):
+`PATH="/opt/homebrew/bin:$PATH" bash tests/update-refuses-unverifiable.sh`,
+`... tests/update-force-restores-latest.sh`, `... tests/install.sh`.
+- Refusal: the edited case now edits `.claude/skills/dough-update/SKILL.md`
+  after `restore_clean_older_cursor` (0.1.1 Cursor-hinted install, both roots)
+  and is observed by `assert_ordinary_update_refuses_unwritten`; the missing
+  case stays at `.agents/skills`. Mutation: skipping the Claude root in
+  `all_roots_verified_for_release` made the check fail ("edited managed file
+  in the Claude root"); reverted.
+- Force restore: the incomplete case removes `.claude/skills` files after
+  `prepare_recorded_latest` (Cursor-hinted apply) and adds `assert_payload` on
+  that root (whole-root `cmp`); `assert_force_success` stays on the entry root
+  because its trace names only the entry destination. The edited case stays at
+  `.agents/skills`.
+- Repeat install: the whole-target `snapshot_path_state` comparison moved into
+  `assert_repeat_install_refused`, so every repeat refusal, including the
+  edited-file, Cursor, and Claude cases, observes "without writes".
+- No installer or updater run added.
 
 ### 2. The checks plan 108 edited carry no stale residue
 
@@ -186,3 +205,6 @@ these checks and the release procedure is not misled; no behavior changes.
 - No slice-specific concerns remain from this review.
 
 ## Learnings
+
+- Slice 1: the force-restore mutation for the sibling root was not run; only
+  the refusal owner was mutation-checked, as planned.
