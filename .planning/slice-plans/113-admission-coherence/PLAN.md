@@ -293,7 +293,17 @@ Safe stop: the suites prove the same promises with less duplication.
 
 ### 5. Show wrap-up closing an admitted no-change investigation natively
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: default substitute mode passes, with the closure assessor
+rejecting nine crafted overrides and the keep-seed and stale-force substitute
+journeys. Fresh native Claude run (Claude Code 2.1.283, candidate `c700a61`
+plus the harness) passed: wrap-up deleted seed N, ran `complete` (Taken entry
+and profile removed), rebased onto the other agent's advance, pushed without
+force; trunk diff only the backlog line, the profile and the seed. ADR 0005:
+Claude has native evidence; Codex and Cursor are recorded as justified reuse
+of the same wrap-up, trunk-publication and backlog `complete` sources, with
+the credential-free substitute covering the runner and assessor for their
+stream shapes; no live Codex or Cursor run exists.
 Proof: new `publication/admission-closure` case in the existing admission
 native harness (`tests/support/git-publication-native-admission*.sh`,
 `git-publication-native-admission-observe.mjs`), with a substitute journey and
@@ -365,3 +375,17 @@ added.
 Execution context: Story Branch Mode, workspace
 `.worktrees/113-admission-coherence`, branch `claude/113-admission-coherence`;
 claim `5a05150` accepted on `origin/main`.
+
+- Slice 5 native run: the closure commit carried `Claim-Identity` and
+  `Claim-Publisher` trailers, so trunk holds a second commit naming that
+  identity as a claim. Provenance still reads the commit that moved the
+  identity into Taken, but guidance may invite claim trailers on closure
+  commits. Left for the retrospective; no guidance changed.
+- Native admission fixtures install skills only in the originating checkout,
+  so managed delivery in the execution worktree refuses ("CI runtime is
+  missing") and native agents fall back to plain Git publication. Harness
+  limitation, not product behavior.
+- CI on `733fe46` failed at checkout on every job: `1b66466` (already on
+  trunk) committed three local worktrees as gitlinks. Repaired in `56ae2aa`
+  by removing them and ignoring `/.worktrees/`; trunk stays red until this
+  branch integrates.

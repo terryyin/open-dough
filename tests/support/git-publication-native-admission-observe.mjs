@@ -38,6 +38,19 @@ const show = (rev, path) => {
   }
 };
 const entriesAt = (rev) => parseBacklog(show(rev, backlogPath) ?? "").entries;
+const homeOf = (href) => posix.join(dirname(backlogPath), splitHref(href).path);
+// Agent profiles on `rev` that name `identity`.
+const profilesAt = (rev, identity) =>
+  git(origin, "ls-tree", "--name-only", rev, ".planning/agents/")
+    .split("\n")
+    .filter(Boolean)
+    .filter((path) => {
+      try {
+        return JSON.parse(show(rev, path)).identity === identity;
+      } catch {
+        return false;
+      }
+    });
 
 const tip = git(origin, "rev-parse", "refs/heads/main");
 const taken = entriesAt(tip).filter((entry) => entry.list === takenHeading);
@@ -55,7 +68,7 @@ const fields = {
 
 if (entry) {
   const { identity, href } = entry;
-  const homePath = posix.join(dirname(backlogPath), splitHref(href).path);
+  const homePath = homeOf(href);
   const claim = await claimProvenance(origin, "refs/heads/main", identity);
   const subject = claim?.sha
     ? git(origin, "log", "-1", "--format=%s", claim.sha)
@@ -88,22 +101,6 @@ if (entry) {
     : "";
   const anchor = splitHref(href).anchor;
   const log = git(origin, "log", "--format=%B", tip);
-  const profiles = git(
-    origin,
-    "ls-tree",
-    "--name-only",
-    tip,
-    ".planning/agents/",
-  )
-    .split("\n")
-    .filter(Boolean)
-    .filter((path) => {
-      try {
-        return JSON.parse(show(tip, path)).identity === identity;
-      } catch {
-        return false;
-      }
-    });
   Object.assign(fields, {
     "claim-owned": claim?.publisher === publisher,
     "claim-admitted": subject.startsWith("Admit accepted work:"),
@@ -112,7 +109,7 @@ if (entry) {
       : false,
     "story-in-claim": changed.includes(homePath),
     "claim-count": log.split(`Claim-Identity: ${identity}\n`).length - 1,
-    "profile-count": profiles.length,
+    "profile-count": profilesAt(tip, identity).length,
     "story-section-count": anchor
       ? home.split(`<a id="${anchor}">`).length - 1
       : 0,
@@ -124,6 +121,45 @@ if (entry) {
       : 0,
     approach: state?.approach?.kind ?? "unrecorded",
     assessment: state?.assessment?.status ?? "unrecorded",
+  });
+}
+
+// Closure: what remote trunk still holds of the wanted work, and whether
+// everything else the base held survived unchanged — every other backlog
+// entry in its list and order, and every file but the backlog, the work's
+// home and its agent profile.
+if (wanted) {
+  const at = (rev) =>
+    entriesAt(rev).map((item) => [item.list, item.identity, item.href]);
+  const others = (rev) =>
+    JSON.stringify(at(rev).filter(([, identity]) => identity !== wanted));
+  const baseEntry = entriesAt(base).find((item) => item.identity === wanted);
+  const home = baseEntry ? homeOf(baseEntry.href) : "";
+  const tree = (rev) =>
+    new Map(
+      git(origin, "ls-tree", "-r", rev)
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => line.split("\t").reverse()),
+    );
+  const [before, after] = [tree(base), tree(tip)];
+  const spent = new Set([backlogPath, home, ...profilesAt(base, wanted)]);
+  let ancestor = true;
+  try {
+    git(origin, "merge-base", "--is-ancestor", base, tip);
+  } catch {
+    ancestor = false;
+  }
+  Object.assign(fields, {
+    "base-ancestor": ancestor,
+    "identity-listed": at(tip).some(([, identity]) => identity === wanted),
+    "identity-profiles": profilesAt(tip, wanted).length,
+    "home-present": Boolean(home) && after.has(home),
+    "others-preserved":
+      others(base) === others(tip) &&
+      [...before].every(
+        ([path, blob]) => spent.has(path) || after.get(path) === blob,
+      ),
   });
 }
 

@@ -10,6 +10,8 @@
 # NATIVE_ADMISSION_ORDER=probe-first runs the investigation before admission.
 # NATIVE_ADMISSION_CORRECTION=new-story admits a newly drafted story instead of
 # the retrospective's correction story.
+# NATIVE_ADMISSION_CLOSURE=keep-seed closes without deleting the spent seed;
+# =stale-force force-pushes the closure from the stale admission base.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 admission_events=
@@ -35,8 +37,14 @@ admission_record() {
 
 # Runs one command in the originating checkout and records it.
 admission_run() {
-  local output
-  output=$(cd -- "${workspace}" && "$@" 2>&1) || true
+  admission_run_in "${workspace}" "$@"
+}
+
+# Runs one command in directory $1 and records it.
+admission_run_in() {
+  local output dir=$1
+  shift
+  output=$(cd -- "${dir}" && "$@" 2>&1) || true
   admission_record "$*" "${output}"
   admission_last=${output}
 }
@@ -135,6 +143,35 @@ EOF
         --title 'Order release notes by tag date'
       response="Admitted the retrospective's correction story ${identity} to Taken with its plan. No product change was made."
       ;;
+    admission-closure)
+      admission_close "${skills}"
+      response="Closed ${NATIVE_ADMISSION_IDENTITY}: the investigation concluded no product change is needed; its Taken entry, agent profile and spent seed were removed on remote trunk."
+      ;;
     *) return 1 ;;
   esac
+}
+
+# Ordinary Trunk Mode wrap-up of the concluded investigation from its owned
+# workspace: nothing to commit before cleanup (the admission is published),
+# then delete the spent seed, complete the entry and publish final closure.
+admission_close() {
+  local skills=$1 execution=${NATIVE_ADMISSION_EXECUTION}
+  if [[ ${NATIVE_ADMISSION_CLOSURE:-} != stale-force ]]; then
+    admission_run_in "${execution}" git fetch -q origin
+    admission_run_in "${execution}" git rebase -q origin/main
+  fi
+  if [[ ${NATIVE_ADMISSION_CLOSURE:-} != keep-seed ]]; then
+    admission_run_in "${execution}" git rm -q .planning/seeds/N.md
+  fi
+  admission_run_in "${execution}" node \
+    "${skills}/dough-product-backlog/scripts/product-backlog.mjs" complete \
+    --identity "${NATIVE_ADMISSION_IDENTITY}"
+  admission_run_in "${execution}" git add -A .planning
+  admission_run_in "${execution}" git commit -qm \
+    "Close ${NATIVE_ADMISSION_IDENTITY}"
+  if [[ ${NATIVE_ADMISSION_CLOSURE:-} == stale-force ]]; then
+    admission_run_in "${execution}" git push -q --force origin HEAD:main
+  else
+    admission_run_in "${execution}" git push -q origin HEAD:main
+  fi
 }
