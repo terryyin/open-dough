@@ -20,6 +20,11 @@ the final atlas has five portraits and an unused sixth tile. Keep that mapping
 if displaying or moving the portraits. The atlases are intentionally sized for
 small dashboard avatars; there is no external image dependency.
 
+`agent-avatars/atlas-1-large.webp` through `atlas-5-large.webp` are the same
+approved images at their original 1254 × 1254 generated resolution, with the
+same tile layout. The enlarged portrait shown on hover uses them so it stays
+sharp.
+
 ## Tool marks
 
 The files in `tool-avatars/` are official vendor assets saved locally for

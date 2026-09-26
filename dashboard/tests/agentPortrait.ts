@@ -21,13 +21,35 @@ export async function expectPortrait(
     new RegExp(`/agent-avatars/atlas-${atlas}\\.webp"\\)$`),
   );
   await expect(portrait).toHaveCSS("background-position", position);
-  const image = await portrait.evaluate(
-    (element) =>
-      /url\("(.*)"\)/.exec(getComputedStyle(element).backgroundImage)?.[1],
-  );
+  const [image] = await backgroundImages(portrait);
   await expectServed(card, image ?? "", "image/webp");
   // Beside the name: the portrait ends where the name begins, on its line.
   await expectStartsGroup(portrait, group);
+  await expectEnlargedSharply(portrait, atlas, position);
+}
+
+// Hovering shows the portrait larger from the high-resolution atlas, at the
+// same tile, rather than upscaling the small one.
+async function expectEnlargedSharply(
+  portrait: Locator,
+  atlas: number,
+  position: string,
+) {
+  await portrait.hover();
+  const layerFiles = async () =>
+    (await backgroundImages(portrait)).map((url) =>
+      new URL(url).pathname.split("/").pop(),
+    );
+  await expect
+    .poll(layerFiles)
+    .toEqual([`atlas-${atlas}-large.webp`, `atlas-${atlas}.webp`]);
+  await expect(portrait).toHaveCSS(
+    "background-position",
+    `${position}, ${position}`,
+  );
+  const [large] = await backgroundImages(portrait);
+  await expectServed(portrait, large ?? "", "image/webp");
+  await portrait.page().mouse.move(0, 0);
 }
 
 // The local mark beside a card's recorded mode or host label: a decorative
@@ -69,6 +91,15 @@ export async function expectMark(
     markBox.y >= portraitBox.y + portraitBox.height ||
     portraitBox.y >= markBox.y + markBox.height;
   expect(apart).toBe(true);
+}
+
+// The image URLs of a visual's computed background layers, top layer first.
+function backgroundImages(visual: Locator) {
+  return visual.evaluate((element) =>
+    [
+      ...getComputedStyle(element).backgroundImage.matchAll(/url\("(.*?)"\)/g),
+    ].map((match) => match[1] ?? ""),
+  );
 }
 
 // The image behind a mark or portrait is actually served, as its type.

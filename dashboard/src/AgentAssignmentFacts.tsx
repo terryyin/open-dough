@@ -4,6 +4,7 @@
 // says that branch work has reached trunk. Preparing is an annotation on the
 // queued card, never a stage or a claim that an agent is running.
 
+import type { CSSProperties } from "react";
 import type {
   AgentAssignment,
   AgentHost,
@@ -64,14 +65,19 @@ function AgentPortrait({ name }: { name: string }) {
   const tile = index % portraitsPerAtlas;
   const column = tile % 3;
   const row = Math.floor(tile / 3);
+  const atlasUrl = (suffix: string) =>
+    `url("${import.meta.env.BASE_URL}agent-avatars/atlas-${atlas}${suffix}.webp")`;
   return (
     <span
       className="agent-portrait"
       aria-hidden="true"
-      style={{
-        backgroundImage: `url("${import.meta.env.BASE_URL}agent-avatars/atlas-${atlas}.webp")`,
-        backgroundPosition: `${column * 50}% ${row === 0 ? 12.5 : 87.5}%`,
-      }}
+      style={
+        {
+          "--portrait": atlasUrl(""),
+          "--portrait-large": atlasUrl("-large"),
+          "--portrait-tile": `${column * 50}% ${row === 0 ? 12.5 : 87.5}%`,
+        } as CSSProperties
+      }
     />
   );
 }
