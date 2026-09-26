@@ -60,11 +60,11 @@ inspection and execution into an unattended one-shot command.
    It is an entry-context hint only; each successful install/update writes both
    physical roots:
 
-   | Running tool | `platform` | Native skill root                     |
-   | ------------ | ---------- | ------------------------------------- |
-   | Codex        | `codex`    | `.agents/skills/`                     |
-   | Cursor       | `cursor`   | `.agents/skills/` (shared with Codex) |
-   | Claude Code  | `claude`   | `.claude/skills/`                     |
+   | Running tool | `platform` | Native skill root |
+   | --- | --- | --- |
+   | Codex | `codex` | `.agents/skills/` |
+   | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
+   | Claude Code | `claude` | `.claude/skills/` |
 
 2. Create a fresh temporary `install_dir` and use `snapshot="${install_dir}/release"`.
    Own cleanup from this point until the workflow ends, including failures during

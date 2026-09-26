@@ -24,16 +24,16 @@ Ordinary Open Dough release updates remain available from the recorded source.
    from the Open Dough source fetched below.
 2. If the user asked to install or update a specific version, tag, or branch,
    stop. Say `Open Dough installs and updates the latest numeric release only.
-Requested-version updates are not supported.` Do not fetch or write.
+   Requested-version updates are not supported.` Do not fetch or write.
 3. Identify the running tool from the current host. Do not infer it from which
    skill directories exist. Pass it as the installer platform hint, then
    install the same released payload into every native root:
 
-   | Running tool | `--platform`                                  | Installed files                       |
-   | ------------ | --------------------------------------------- | ------------------------------------- |
-   | Codex        | `codex` (omitting `--platform` is equivalent) | `.agents/skills/`                     |
-   | Cursor       | `cursor`                                      | `.agents/skills/` (shared with Codex) |
-   | Claude Code  | `claude`                                      | `.claude/skills/`                     |
+   | Running tool | `--platform` | Installed files |
+   | --- | --- | --- |
+   | Codex | `codex` (omitting `--platform` is equivalent) | `.agents/skills/` |
+   | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
+   | Claude Code | `claude` | `.claude/skills/` |
 
    The release payload includes skill entrypoints and supporting files declared by the
    pinned release's installer and baseline-comparison helper. Treat that
@@ -62,40 +62,39 @@ Requested-version updates are not supported.` Do not fetch or write.
    the working tree or from an unpinned clone.
 
    a. Run `git ls-remote --tags -- <source-url>`. Keep `vMAJOR.MINOR.PATCH`
-   tags. When both a tag object and a peeled `^{}` line exist, use the
-   peeled commit. Select the highest version by comparing each component
-   as a decimal integer string; do not use shell arithmetic.
+      tags. When both a tag object and a peeled `^{}` line exist, use the
+      peeled commit. Select the highest version by comparing each component
+      as a decimal integer string; do not use shell arithmetic.
    b. `git init` the work directory, `git fetch --depth 1 <source-url>
-   <commit>`, and check out that commit detached. Confirm
-   `git rev-parse HEAD` equals the peeled commit.
+      <commit>`, and check out that commit detached. Confirm
+      `git rev-parse HEAD` equals the peeled commit.
    c. Inspect that snapshot's `src/install/open-dough-release.sh`,
-   `src/install/open-dough-release-apply.sh`, `install.sh`,
-   `src/install/open-dough-install-payload.sh`, the helpers they
-   source or run (including `src/install/open-dough-payload-bytes.mjs`,
-   `src/install/open-dough-register-hooks.sh`,
-   `src/install/open-dough-register-hooks.mjs`,
-   `src/install/open-dough-register-hooks-merge.mjs`, and
-   `src/install/open-dough-register-hooks-fragments.mjs` when present), and
-   every release payload source they declare under `src/skills/`.
+      `src/install/open-dough-release-apply.sh`, `install.sh`,
+      `src/install/open-dough-install-payload.sh`, the helpers they
+      source or run (including `src/install/open-dough-payload-bytes.mjs`,
+      `src/install/open-dough-register-hooks.sh`,
+      `src/install/open-dough-register-hooks.mjs`,
+      `src/install/open-dough-register-hooks-merge.mjs`, and
+      `src/install/open-dough-register-hooks-fragments.mjs` when present), and
+      every release payload source they declare under `src/skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
-   For an ordinary update of a recorded installation, run
-   `bash <snapshot>/src/install/open-dough-release.sh apply --target
-   <captured-project> --platform <tool> --checkout <snapshot>` and do not
-   pass `--url`; the helper reads `SOURCE`. For a first installation, also
-   pass `--url <source-url>`. Pass `--force` only when the user explicitly
-   authorized a forced reinstall. When the invoking root has a usable
-   SOURCE, omit `--url`; otherwise include `--url <source-url>`.
-   If apply reports that HEAD is not the pinned latest, stop. Do not fetch
-   or check out replacement files after inspection. Proceed only if the
-   inspected files write solely to the release-declared payload paths
-   under both native skill roots, each updater's `SOURCE` and `VERSION`
-   records, and the managed host-hook settings they register
-   (`.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json`) in the captured
-   target project, preserving distributable source, unrelated project
-   files, unrelated settings entries, and home guidance. Registration is an
-   install/update concern; after apply, observation readiness and observer
-   start/stop belong to execute-plan and must not rewrite those settings.
-
+      For an ordinary update of a recorded installation, run
+      `bash <snapshot>/src/install/open-dough-release.sh apply --target
+      <captured-project> --platform <tool> --checkout <snapshot>` and do not
+      pass `--url`; the helper reads `SOURCE`. For a first installation, also
+      pass `--url <source-url>`. Pass `--force` only when the user explicitly
+      authorized a forced reinstall. When the invoking root has a usable
+      SOURCE, omit `--url`; otherwise include `--url <source-url>`.
+      If apply reports that HEAD is not the pinned latest, stop. Do not fetch
+      or check out replacement files after inspection. Proceed only if the
+      inspected files write solely to the release-declared payload paths
+      under both native skill roots, each updater's `SOURCE` and `VERSION`
+      records, and the managed host-hook settings they register
+      (`.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json`) in the captured
+      target project, preserving distributable source, unrelated project
+      files, unrelated settings entries, and home guidance. Registration is an
+      install/update concern; after apply, observation readiness and observer
+      start/stop belong to execute-plan and must not rewrite those settings.
 6. Trust the helper's comparison. An ordinary update without a supplied URL
    fetches the recorded VERSION tag as data and compares the installation with
    the payload declared by that recorded release before any skip or
