@@ -45,8 +45,9 @@ export function reselectClaimAgent(claimRequest, agent, onAgent) {
 // A resumed claim keeps the agent its claim commit named: the execution
 // profile that commit added for `identity`. A preparation profile naming the
 // same identity is never the claim's agent. Restores that agent's authorship
-// in the reused workspace and returns its name, or undefined for a claim made
-// without a profile. No new name is chosen and no profile is written.
+// in the reused workspace and returns its name with that workspace's
+// authorship, or undefined for a claim made without a profile. No new name is
+// chosen and no profile is written.
 async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
   const added = await addedProfile(
     workspace,
@@ -57,8 +58,10 @@ async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
   );
   if (!added) return undefined;
   const agent = agentIdentity(added.profile.name);
-  await configureAgentAuthorship(workspace, agent);
-  return agent.agent;
+  return {
+    agent: agent.agent,
+    workspaceAuthorship: await configureAgentAuthorship(workspace, agent),
+  };
 }
 
 // The receipt's agent for the claim at `claimSha`: the agent this Take chose,
@@ -66,9 +69,10 @@ async function resumeClaimAgent(workspace, claimSha, identity, backlogPath) {
 // ordinary commits as that agent; nothing for a claim made without an agent.
 export async function claimReceiptAgent(claimRequest, chosen, claimSha) {
   const { workspace, identity, backlogPath } = claimRequest;
-  const agent = chosen
-    ? agentIdentity(chosen.name).agent
-    : await resumeClaimAgent(workspace, claimSha, identity, backlogPath);
-  if (!agent) return {};
+  if (!chosen)
+    return (
+      (await resumeClaimAgent(workspace, claimSha, identity, backlogPath)) ?? {}
+    );
+  const agent = agentIdentity(chosen.name).agent;
   return { agent, workspaceAuthorship: await workspaceAuthorship(workspace) };
 }

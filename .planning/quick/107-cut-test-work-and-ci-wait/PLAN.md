@@ -327,7 +327,7 @@ Decisive checkpoint afterwards.
 ### 5. Execution startup and preparation make fewer git calls
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Every `workspace-publication*.test.mjs`,
   `preparation-assignment-*.test.mjs`, `maintain-default-checkout*`,
@@ -566,3 +566,26 @@ the claim. Reference checkout for paired measurement: detached
   in progress there; the isolated run without those edits passed, so that
   failure belongs to slice 5's proof. Concurrent slices whose checks install
   and compare `src/skills` must not share a checkout during full-suite proof.
+- **Slice 5 delivered.** Git calls per accepted `execution-start` 89 → 71
+  (trunk) and 91 → 73 (story branch); preparation `start` 52 → 42; the two
+  families' git calls 8,007 → 6,741. Kept, each exact unless noted: the
+  pre-fetch state is read only when refresh stops early; one `rev-parse
+  --git-path index.lock -q --verify MERGE_HEAD` answers the lock path and the
+  first in-progress ref, falling back to separate reads on any other failure
+  (checked for absent, present, dangling, and branch-named `MERGE_HEAD`, in a
+  linked worktree and outside a repository); one `rev-parse HEAD <remote>
+  --symbolic-full-name HEAD` reads the post-fetch state, falling back on any
+  other shape; local story and plan reads use one `merge-base` and one
+  `cat-file --batch`, falling back to `git show` per name for anything but a
+  blob of at most 256 KiB (identical to `git show` on 14 cases); preparation
+  start reads the recorded allocation once; the authorship report reuses the
+  value `configureAgentAuthorship` read (differs only if another process
+  edits the shared `core.bare`/`core.worktree` during a start). A new
+  maintenance test pins in-progress refs, dangling `MERGE_HEAD`, and detached
+  HEAD outcomes (passes on the old code). Paired families (17 files, eight in
+  parallel) against `c2e340d`: 236.7/183.1, 286.1/192.5, 277.7/212.3, and an
+  extra 314.1/239.5 job-seconds; about 23–24% less excluding a pair that ran
+  through a load spike. Rejected: one `merge-base --all` for ahead/behind (not
+  exact) and fewer fetches per start (a freshness decision). The three
+  payload-comparing failures seen earlier in the shared checkout did not
+  recur on the final candidate.

@@ -23,10 +23,13 @@ export async function workspaceAuthorship(workspace) {
 
 // The agent authors every ordinary commit in its owned workspace; the
 // configured Git user stays the committer, and other checkouts keep their
-// usual author. Leaves a bare repository's shared config untouched.
+// usual author. Leaves a bare repository's shared config untouched. Returns
+// the workspace's authorship, which configuring does not change.
 export async function configureAgentAuthorship(workspace, { agent, email }) {
-  if ((await workspaceAuthorship(workspace)) !== "configured") return;
+  const authorship = await workspaceAuthorship(workspace);
+  if (authorship !== "configured") return authorship;
   await git(workspace, "config", "extensions.worktreeConfig", "true");
   await git(workspace, "config", "--worktree", "author.name", agent);
   await git(workspace, "config", "--worktree", "author.email", email);
+  return authorship;
 }
