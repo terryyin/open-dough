@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
-- [Prove startup readiness once in the first-delivery journey](quick/101-startup-readiness-proof-consolidation/PLAN.md)
 
 ## Backlog list
 
