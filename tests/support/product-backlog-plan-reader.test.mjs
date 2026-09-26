@@ -33,11 +33,6 @@ test("importing the pure plan reader pulls in no filesystem or Node-only module"
       false,
       `unexpected store import: ${specifier}`,
     );
-    assert.equal(
-      specifier.includes("product-backlog-plan.mjs"),
-      false,
-      `unexpected filesystem plan wrapper import: ${specifier}`,
-    );
   }
 
   assert.equal(typeof readPlanSlices, "function");

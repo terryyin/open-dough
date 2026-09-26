@@ -13,12 +13,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Decide a Taken entry's plan link by one rule](seeds/SEED-028-track-ad-hoc-work.md#plan-link-rule) — SEED-028#plan-link-rule ([plan](slice-plans/116-plan-link-rule/PLAN.md))
-
 ## Backlog list
 
 - [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
+- [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness

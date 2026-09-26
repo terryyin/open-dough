@@ -6,6 +6,7 @@
 
 import { dirname, relative as relativePath, resolve, sep } from "node:path";
 import { splitHref } from "./product-backlog-identity.mjs";
+import { sameDocument } from "./product-backlog-plan.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 import { applyToFile, readFile } from "./product-backlog-store.mjs";
 import { preparationPayload } from "./product-backlog-story-state-preparation.mjs";
@@ -22,12 +23,26 @@ function homePath(backlogDirectory, href) {
   };
 }
 
-// The plan file a planned approach names beside its canonical home, or
-// undefined when that plan is the home itself: the home is then its own plan,
-// digested once and never linked as a second reference.
-function separatePlanPath(canonicalPath, plan) {
-  const resolved = resolve(dirname(canonicalPath), plan);
-  return resolved === canonicalPath ? undefined : resolved;
+// The plan a planned approach declares beside the canonical home `href` names:
+// its backlog-relative link target, as declared, and the file it names. A plan
+// that is the home itself is its own plan, digested once and never linked as
+// a second reference, so it names no separate plan.
+function separatePlan(backlogDirectory, href, plan) {
+  const home = homePath(backlogDirectory, href).path;
+  const { path, anchor } = splitHref(plan);
+  const file = resolve(dirname(home), path);
+  const target = backlogLink(backlogDirectory, file, anchor);
+  return sameDocument(target, backlogLink(backlogDirectory, home))
+    ? undefined
+    : { target, file };
+}
+
+// How the backlog links `file`, and a section of it when `anchor` names one.
+function backlogLink(backlogDirectory, file, anchor = "") {
+  const relative = relativePath(resolve(backlogDirectory), file)
+    .split(sep)
+    .join("/");
+  return anchor === "" ? relative : `${relative}#${anchor}`;
 }
 
 // The backlog-relative link target of the separate plan a planned approach
@@ -37,25 +52,21 @@ export function declaredPlanTarget(backlogDirectory, href, approach, plan) {
   if (approach !== "planned" || typeof plan !== "string") {
     return undefined;
   }
-  const home = homePath(backlogDirectory, href).path;
-  const planPath = separatePlanPath(home, plan);
-  return planPath === undefined
-    ? undefined
-    : relativePath(resolve(backlogDirectory), planPath).split(sep).join("/");
+  return separatePlan(backlogDirectory, href, plan)?.target;
 }
 
 // Loads plan text beside the canonical home when digests need it. A plan that
 // is the home itself is marked canonical so the basis digests it once.
-function planLoadOptions(canonicalPath, approach, plan) {
+function planLoadOptions(backlogDirectory, href, approach, plan) {
   if (approach !== "planned") {
     return { planSource: undefined, planIsCanonical: false };
   }
-  const planPath = separatePlanPath(canonicalPath, plan);
-  if (planPath === undefined) {
+  const separate = separatePlan(backlogDirectory, href, plan);
+  if (separate === undefined) {
     return { planSource: undefined, planIsCanonical: true };
   }
   const planSource = readFile(
-    planPath,
+    separate.file,
     `Unresolved plan: ${plan} is not there, relative to the canonical file. ` +
       `Create the plan first, or supply the path the story should associate.`,
   );
@@ -69,7 +80,12 @@ export function readPreparation(backlogDirectory, href) {
   const source = readFile(path, `canonical home not found: ${relative}`);
   const preview = readStoryState(source, href);
   if (preview.status === "recorded" && preview.approach.kind === "planned") {
-    const options = planLoadOptions(path, "planned", preview.approach.plan);
+    const options = planLoadOptions(
+      backlogDirectory,
+      href,
+      "planned",
+      preview.approach.plan,
+    );
     return readStoryState(source, href, options);
   }
   return preview;
@@ -93,7 +109,8 @@ export async function recordPreparation(
     (source) => {
       const preparation = preparationPayload(request);
       const options = planLoadOptions(
-        path,
+        backlogDirectory,
+        request.href,
         preparation.approach,
         preparation.plan,
       );

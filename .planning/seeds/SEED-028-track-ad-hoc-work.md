@@ -191,37 +191,30 @@ implementation remains an execution dependency; reconcile the admission
 interface and retained-work continuation against that delivered version before
 execution. Planning does not assume it has already landed.
 
-<a id="plan-link-rule"></a>
+<a id="plan-link-readers"></a>
 
-### Correction: Decide a Taken entry's plan link by one rule
+### Correction: Read every plan link by its file
 
-**Identity:** SEED-028#plan-link-rule
+**Identity:** SEED-028#plan-link-readers
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a5cba09905029d8c64c05acc12f1832b8808e587dbab60c55d67cf15cad2653","plan":"5eaf834c407e43d3d239226f284fcf8c21d51797cfa78202a68703011ff2f01d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/118-plan-link-readers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3b8f65f06e56e096dca85eee41b577fde5e7663c5a36084f922d3e566af84278","plan":"c17f6f53daaf7dcff3d26a6af5f5a6fe04dd955c9d353c33d584f5f25e4850cf"}}
 ```
 
-**Goal:** Developers taking, admitting, preparing and continuing work get the
-same answer from every command about which plan link an entry needs and
-whether its current link satisfies it, so a Taken entry that preparation
-accepts is one that take resume and execution startup can continue.
+**Goal:** Developers whose backlog or recorded preparation links a section of
+a plan get the same answer from every reader — the listing checks, `adopt`,
+and the dashboard — as from take, record-state and startup, so a backlog the
+product's own commands write is never refused or misreported elsewhere.
 
-**Scope:** A bounded retrospective correction of the delivered
-admission coherence correction (recoverable at
-`ee563d5:.planning/seeds/SEED-028-track-ad-hoc-work.md#admission-coherence`). Take and admission,
-`record-state`, the backlog's listing checks, and execution startup and
-continuation apply one plan-link rule, including when a plan is its story's own
-home; `record-state` and `read-state` refuse a missing `--link` cleanly; an
-oversized story-state test file is split; and two seed links to a renamed
-execution-startup heading are repaired. Key examples: a Taken entry linking
-`PLAN.md#ordered-slices` of its declared plan is left unchanged by
-`record-state`, by `take` resume, and by ordinary continuation; `take --plan`
-naming a section of a resolvable plan is accepted; `take --plan` naming the
-seed file that is an anchored story's own home is refused as needing no plan
-link; `record-state` without `--link` is refused with nothing written.
-Excluded: normalizing existing section links, refusing fragments, and changing
-the dashboard's already path-based reading.
+**Scope:** A bounded retrospective correction of the delivered plan-link rule
+correction (`SEED-028#plan-link-rule`, commits `c97afbb..6b3f02b`). The
+listing checks again refuse a plan link that exactly names another entry's
+anchored home; `adopt` opens a section-linked plan by its file; the dashboard
+reads a recorded story-state plan with a `#section` by its file; and a lasting
+test keeps the backlog modules the dashboard bundles free of Node-only
+imports. Excluded: refresh repoint semantics, merge comparison in
+`product-backlog-version.mjs`, and test consolidation.
 
-**Plan:** [Decide plan links by one rule](../slice-plans/116-plan-link-rule/PLAN.md).
+**Plan:** [Read every plan link by its file](../slice-plans/118-plan-link-readers/PLAN.md).
 
 ## Ordering and Scope Reduction
 

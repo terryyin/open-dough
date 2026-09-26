@@ -201,6 +201,18 @@ test("refresh reference refuses a plan it cannot link", async (t) => {
       `needs no duplicate plan link.\nThe backlog was not changed.`,
   );
 
+  // ...and for the home's file without the story's anchor, which is still
+  // that one document...
+  const homeFile = await run(
+    project,
+    refresh(identities.taken, "--plan", seedEight),
+  );
+  assert.equal(
+    homeFile.stderr.trim(),
+    `The plan "${seedEight}" is the canonical home this entry links, which ` +
+      `needs no duplicate plan link.\nThe backlog was not changed.`,
+  );
+
   // ...and for the relocated home supplied in the same request, which the
   // refusal reads rather than the link the backlog still carries.
   const movedHome = await run(
@@ -219,7 +231,7 @@ test("refresh reference refuses a plan it cannot link", async (t) => {
       `which needs no duplicate plan link.\nThe backlog was not changed.`,
   );
 
-  for (const result of [unplanned, absent, ownHome, movedHome]) {
+  for (const result of [unplanned, absent, ownHome, homeFile, movedHome]) {
     assert.equal(result.code, 1, result.stdout);
   }
   assert.equal(project.read(), adoptedBacklog);

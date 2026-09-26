@@ -152,7 +152,7 @@ ignore it. Rechecks and preservation still apply. This story adds no agent
 scheduler, continuous liveness monitor, new publication policy, or remote lock.
 
 **Depends on:** The production publisher and checkout-maintenance boundary from
-[startup](../../src/skills/dough-execute-plan/SKILL.md#take-queued-work). It automates access to that
+[startup](../../src/skills/dough-execute-plan/SKILL.md#take-or-admit-work). It automates access to that
 existing owner; startup can safely defer refresh before this story is delivered.
 
 **Safe stopping point:** Participating direct edits and refreshes share bounded

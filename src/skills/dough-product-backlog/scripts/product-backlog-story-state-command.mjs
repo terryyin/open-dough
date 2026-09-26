@@ -4,7 +4,7 @@
 
 import { existsSync } from "node:fs";
 import { dirname } from "node:path";
-import { BacklogError } from "./product-backlog-refusal.mjs";
+import { requireField } from "./product-backlog-refusal.mjs";
 import { reportRecordState } from "./product-backlog-report.mjs";
 import { readExpectedBasis } from "./product-backlog-request.mjs";
 import { applyToBacklog, readFile } from "./product-backlog-store.mjs";
@@ -21,6 +21,8 @@ import { linkTakenPlan } from "./product-backlog-take.mjs";
 // plan refuses with nothing written. The backlog is written only when the
 // entry gains its link, once the home holds the plan it names.
 export async function recordState(file, values) {
+  requireField(values.identity, "identity");
+  requireField(values.link, "link");
   const request = {
     identity: values.identity,
     href: values.link,
@@ -34,7 +36,7 @@ export async function recordState(file, values) {
   const backlogDirectory = dirname(file);
   const target = declaredPlanTarget(
     backlogDirectory,
-    request.href ?? "",
+    request.href,
     request.approach,
     request.plan,
   );
@@ -62,9 +64,7 @@ export async function recordState(file, values) {
 }
 
 export async function readState(file, values) {
-  if (values.link === undefined || values.link.trim() === "") {
-    throw new BacklogError(`Missing link: supply --link.`);
-  }
+  requireField(values.link, "link");
   const state = readPreparation(dirname(file), values.link);
   console.log(JSON.stringify(state, null, 2));
 }

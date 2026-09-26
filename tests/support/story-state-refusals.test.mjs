@@ -1,11 +1,10 @@
-// Slice 2 refusal proof: duplicate blocks, wrong identity, unsupported schema,
-// and legacy absence leave files unchanged and stay distinct outcomes.
+// Story-state refusal proof: duplicate blocks, wrong identity, unsupported
+// schema, and legacy absence leave files unchanged and stay distinct outcomes.
+// A missing --identity or --link gets the one missing-input refusal.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  backlogOf,
   projectFile,
-  queued,
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
@@ -23,6 +22,35 @@ import {
   seedBytes,
   twoStorySeed,
 } from "./story-state-fixture.mjs";
+
+const withoutOption = (args, option) => {
+  const at = args.indexOf(option);
+  return [...args.slice(0, at), ...args.slice(at + 2)];
+};
+
+test("story-state: a missing identity or link gets the missing-input refusal", async (t) => {
+  const project = scratchProject(t);
+  plantSeed(project);
+  const before = seedBytes(project);
+  const backlogBefore = backlogBytes(project);
+  const record = recordArgs(first, {
+    refinement: "refined",
+    approach: "planless",
+  });
+  for (const [args, field] of [
+    [withoutOption(record, "--link"), "link"],
+    [withoutOption(record, "--identity"), "identity"],
+    [["read-state"], "link"],
+  ]) {
+    const refused = await run(project, args);
+    assert.equal(refused.code, 1, args[0]);
+    const refusal = `Missing ${field}: supply --${field}\\.\nNothing was written\\.\n?$`;
+    assert.match(refused.stderr, new RegExp(refusal));
+    assert.doesNotMatch(refused.stderr, /TypeError/);
+    assert.equal(seedBytes(project), before);
+    assert.equal(backlogBytes(project), backlogBefore);
+  }
+});
 
 test("story-state: a planned correction requires an explicit plan without writes", async (t) => {
   const project = scratchProject(t);
@@ -130,40 +158,4 @@ Goal, scope, and examples for the first story.`,
 
   const neighbor = JSON.parse((await run(project, readArgs(second))).stdout);
   assert.equal(neighbor.status, "not-recorded");
-});
-
-test("story-state: a Taken entry linking another plan refuses without writes", async (t) => {
-  const project = scratchProject(
-    t,
-    backlogOf(
-      [
-        `- [${first.title}](${first.link}) — ${first.identity} ([plan](slice-plans/075-other/PLAN.md))`,
-      ],
-      queued,
-    ),
-  );
-  plantSeed(project);
-  projectFile(project, "slice-plans/075-other/PLAN.md", "# Other plan\n");
-  projectFile(project, "slice-plans/075-example/PLAN.md", "# Example plan\n");
-  const seedBefore = seedBytes(project);
-  const backlogBefore = backlogBytes(project);
-
-  const refused = await run(
-    project,
-    recordArgs(first, {
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/075-example/PLAN.md",
-    }),
-  );
-
-  assert.equal(refused.code, 1);
-  assert.match(
-    refused.stderr,
-    /already links the plan "slice-plans\/075-other\/PLAN.md"/,
-  );
-  assert.match(refused.stderr, /never repoints/);
-  assert.match(refused.stderr, /Nothing was written/);
-  assert.equal(seedBytes(project), seedBefore);
-  assert.equal(backlogBytes(project), backlogBefore);
 });
