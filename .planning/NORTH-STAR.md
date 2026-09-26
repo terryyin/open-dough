@@ -58,8 +58,8 @@ plan to that same story. New corrections use a seed story linked to their plan;
 retain compatibility for existing plan-homed identities without migration. New canonical
 content must survive claim retry and agent reselection together with the claim.
 The dashboard continues to derive its view from those published records. This
-direction serves [emergent admission](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work)
-and [one-shot escalation](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work);
+direction serves [one-shot escalation](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work)
+and [admission coherence](seeds/SEED-028-track-ad-hoc-work.md#admission-coherence);
 it creates no ad hoc entity, origin flag, parallel publisher or speculative
 one-shot machinery. Follow the separate-facts and cohesion principles in
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).

@@ -7,7 +7,7 @@
 [Correction story](../../seeds/SEED-028-track-ad-hoc-work.md#admission-coherence).
 A bounded retrospective correction of the completed execution of
 `SEED-028#track-ad-hoc-work` under
-[its plan](../../quick/110-track-ad-hoc-work/PLAN.md): claim `b55a409`,
+its plan (recoverable at `41e65aa:.planning/quick/110-track-ad-hoc-work/PLAN.md`): claim `b55a409`,
 attributable commits `4286761`, `6bd1ab3`, `bd38782`, `f17c877`, `91f054c` on
 branch `claude/110-track-ad-hoc-work` (net diff `b55a409..91f054c`). That
 story's promises stay as delivered; this correction adds no feature promise.

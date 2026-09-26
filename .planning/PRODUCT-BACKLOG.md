@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Cut total test work and the CI verdict wait, and keep them within budget](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite ([plan](quick/107-cut-test-work-and-ci-wait/PLAN.md))
-- [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work ([plan](quick/110-track-ad-hoc-work/PLAN.md))
 
 ## Backlog list
 
