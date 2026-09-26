@@ -15,6 +15,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Discard a retained preparation draft through the installed script](seeds/SEED-040-scripted-preparation-discard.md#scripted-preparation-discard) — SEED-040#scripted-preparation-discard
 - [Bring the complete local suite to a quarter of its original time](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work

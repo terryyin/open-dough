@@ -69,8 +69,11 @@ new story lifecycle states. This direction supports the
 [story dashboard](../dashboard/README.md) and its later project and readiness work,
 following [ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md) and
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-Keep later assignment, feature, structure, and local-lock models out until their
-selected behavior needs them. UI choices stay in the separate
+Agent assignments are published facts like any other: an execution or
+preparation assignment is the agent profile on trunk, and the page derives
+Taken owners and Preparing from that profile's presence. Keep later feature,
+structure, and local-lock models out until their selected behavior needs them.
+UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
 
 
