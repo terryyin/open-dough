@@ -13,6 +13,7 @@ import {
   queueHeading,
   requireUnlistedHome,
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
+import { sameDocument } from "../../dough-product-backlog/scripts/product-backlog-plan.mjs";
 import { BacklogError } from "../../dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import {
   joinSource,
@@ -193,7 +194,8 @@ export async function readAdmissionSource(request, remoteRef, candidateSha) {
   const { planPath, planHref, planTarget, planIsCanonical } = declaredPlan;
   let plan;
   if (drafted.approach.kind === "planned") {
-    if (request.plan && request.plan !== planHref)
+    // A requested section of the declared plan requests that plan.
+    if (request.plan && !sameDocument(request.plan, planHref))
       throw refused("requested plan disagrees with recorded preparation");
     if (!planIsCanonical) {
       plan = await versionsOf(request, remoteRef, drafts, planPath);

@@ -315,7 +315,7 @@ Safe stop: independent of slices 1, 2 and 4.
 
 ### 4. Continue and start section-linked work through the same rule
 Type: Behavior
-Status: planned
+Status: done
 Proof: through the real startup CLI with bare remotes:
 
 - `workspace-publication-admission-continuation.test.mjs` (or a new sibling if
@@ -344,6 +344,35 @@ and 2 (`sameDocument` for both the own-home and link-agreement checks).
 Keep refusal statuses and the other messages the tests assert.
 
 Safe stop: every command applies the one rule; R1 closed.
+
+Accepted proof (2026-09-26): startup and admission suite (focused command
+above) 68/68 through the real `execution-start.mjs start` CLI with bare
+remotes. New `workspace-publication-startup-plan-link-cases.mjs`: a queued
+entry linking a section of its declared plan is taken with its line
+byte-identical; queued and Taken entries linking a different plan file are
+refused `source-refused` with "queued plan link disagrees…" / "Taken plan link
+disagrees…", tip unchanged, no workspace; a story whose declared plan is a
+section of its own seed is taken with no plan link; startup and admission
+`--plan` naming a section of the declared plan select it, while a different
+file is refused "requested plan disagrees…", tip unchanged, no workspace.
+`workspace-publication-admission-continuation.test.mjs` "an admitted
+investigation continues into planned implementation under its one claim":
+after a section-link push, `existing` at the claim sha, tip unchanged, one
+`Claim-Identity`. The new cases failed against the pre-change sources.
+Existing canonical-plan cases unchanged and green. `node --test
+tests/support/*.test.mjs` 192/192; dashboard readiness specs
+(`source-navigation`, `preparation-legend`, `story-readiness*`) 11/11;
+payload link check passes.
+
+As delivered: `execution-source.mjs` and `execution-admission-source.mjs`
+consume `planFileOf` and `sameDocument` for own-home, entry-link agreement and
+the requested `--plan`. Startup's `--plan` only selects the declared plan; the
+take always writes the declared `planTarget`, so "a missing link is written as
+the caller supplied it" holds for the backlog CLI's `take --plan`, not for
+startup's `--plan`. Remaining whole-target comparisons are Excluded (refresh
+repoint, `product-backlog-version.mjs`) or compare derived snapshots;
+`product-backlog-adopt.mjs:64` (`entry.plan.target !== entry.href`) is outside
+the named commands and shows no divergence.
 
 ### 5. Repair the renamed startup heading links in seeds
 Type: Structure

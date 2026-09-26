@@ -137,6 +137,24 @@ test("an admitted investigation continues into planned implementation under its 
   assert.equal(existsSync(rival.workspace), false);
   await tipIs(readySha);
 
+  // A link to a section of the declared plan links that plan: continuation
+  // continues the claim and writes nothing.
+  const sectionSha = await pushFromElsewhere(trunk, backlogFile, (text) =>
+    text.replace(
+      "(slice-plans/N/PLAN.md)",
+      "(slice-plans/N/PLAN.md#ordered-slices)",
+    ),
+  );
+  const sectioned = await startCliResult(trunk, "trunk", continueArgs);
+  assert.equal(sectioned.receipt.status, "existing", JSON.stringify(sectioned));
+  assert.equal(sectioned.receipt.publishedSha, claimSha);
+  await tipIs(sectionSha);
+  const sectionLog = await git(trunk.origin, "log", "--format=%B", sectionSha);
+  assert.equal(
+    sectionLog.stdout.split(`Claim-Identity: ${identity}`).length,
+    2,
+  );
+
   // One story, one Taken entry, one claim and one profile throughout.
   const seed = await remoteText(trunk, readySha, seedPath);
   assert.equal(seed.split('<a id="slow">').length, 2);

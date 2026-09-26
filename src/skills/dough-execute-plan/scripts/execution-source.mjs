@@ -10,6 +10,10 @@ import {
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readHome } from "../../dough-product-backlog/scripts/product-backlog-home-reader.mjs";
 import { splitHref } from "../../dough-product-backlog/scripts/product-backlog-identity.mjs";
+import {
+  planFileOf,
+  sameDocument,
+} from "../../dough-product-backlog/scripts/product-backlog-plan.mjs";
 import { readStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { BacklogError } from "../../dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import { git } from "./publication-git.mjs";
@@ -70,11 +74,12 @@ export async function mergeBase(integration, remoteRef) {
 
 // Where the selected story's preparation lives and what it declares. The
 // canonical home's project path follows its backlog link; `declaredPlan`
-// resolves the plan a recorded approach names, relative to that home. A plan
-// whose path is the home itself is canonical: it is read and digested as the
-// home, and a Taken entry never links it. Any other plan is its own file,
-// linked by `planTarget`. `read` reads the preparation recorded in a home's
-// text, digesting the declared plan's `planSource` when one is given.
+// resolves the plan a recorded approach names, relative to that home, and the
+// file `planPath` that plan link names. A plan naming the home's own document
+// is canonical: it is read and digested as the home, and a Taken entry never
+// links it. Any other plan is its own file, linked by `planTarget`. `read`
+// reads the preparation recorded in a home's text, digesting the declared
+// plan's `planSource` when one is given.
 export function selectedPreparation(integration, href) {
   const homePath = within(
     integration,
@@ -84,12 +89,13 @@ export function selectedPreparation(integration, href) {
     homePath,
     declaredPlan(approach) {
       if (approach.kind !== "planned") return {};
-      const planPath = within(
+      const declared = within(
         integration,
         posix.join(dirname(homePath), approach.plan),
       );
-      const planHref = posix.relative(dirname(backlogPath), planPath);
-      if (planPath === homePath)
+      const planPath = planFileOf(declared);
+      const planHref = posix.relative(dirname(backlogPath), declared);
+      if (sameDocument(planHref, href))
         return { planPath, planHref, planIsCanonical: true };
       return { planPath, planHref, planTarget: planHref };
     },
@@ -168,8 +174,15 @@ export async function readPublishedExecutionSource(request, remoteRef) {
       plan = await show(request.integration, remoteRef, planPath);
       if (plan === null) throw new Error("published plan is absent");
     }
-    if (entry.plan && entry.plan.target !== planTarget)
-      throw new Error("queued plan link disagrees with preparation");
+    // A link to a section of the declared plan links that plan.
+    if (
+      entry.plan &&
+      (planTarget === undefined || !sameDocument(entry.plan.target, planTarget))
+    )
+      throw new Error(
+        `${entry.list === takenHeading ? "Taken" : "queued"} plan link ` +
+          `disagrees with preparation`,
+      );
     // Continuation writes nothing: the recorder links a Taken entry's plan.
     if (claim && planTarget && !entry.plan)
       throw new Error(
@@ -177,7 +190,8 @@ export async function readPublishedExecutionSource(request, remoteRef) {
           `preparation declares; record the planned approach again with ` +
           `record-state and publish it`,
       );
-    if (request.plan && request.plan !== planHref)
+    // A requested section of the declared plan requests that plan.
+    if (request.plan && !sameDocument(request.plan, planHref))
       throw new Error("requested plan disagrees with published preparation");
   } else if (preview.approach.kind === "unselected") {
     throw new Error("published approach is unselected");
