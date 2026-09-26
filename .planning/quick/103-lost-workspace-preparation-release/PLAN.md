@@ -541,3 +541,7 @@ still-owned proof. Record timing only after the retirements are done.
 - `.planning/NORTH-STAR.md:72` ("Keep later assignment … models out until
   their selected behavior needs them") is outdated now that preparation
   assignments exist. It was left unedited for its owner, as decided.
+
+## Execution complete
+
+Product advice: retrospective skipped
