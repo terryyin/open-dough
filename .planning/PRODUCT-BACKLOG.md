@@ -25,3 +25,4 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design
 - [Continue test optimization plans into execution or the backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans) — SEED-004#continue-test-optimization-plans
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
+- [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
