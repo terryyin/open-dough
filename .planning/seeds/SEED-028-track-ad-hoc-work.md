@@ -282,6 +282,31 @@ workflows are refined. S/M/L remains unset because project bands are undefined.
 workflows, and interaction with pre-existing queued or Taken work. Refine these
 before executable planning; do not invent a universal time or file-count limit.
 
+<a id="admission-coherence"></a>
+
+### Correction: Keep admitted work coherent after its first delivery
+
+**Identity:** SEED-028#admission-coherence
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/113-admission-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1ab3a2e250f55a6b3cd5e89ad6d1cbfcbd669a1e1d32fa518f47ee4acb0ccc2b","plan":"7823f948190b98520894a5a24fa21fa2129fe677e7f51ac9a5a89bb4e5907780"}}
+```
+
+**Goal:** Developers coordinating admitted work see a Taken entry that links
+the plan later attached to it, and maintainers can rely on admission's proof,
+tests, and guidance to say what the delivered admission actually does.
+
+**Scope:** A bounded retrospective correction of the delivered
+[shared admission](#track-ad-hoc-work): link a later-attached plan to its Taken
+entry without a second claim or forged readiness; prove admission's untested
+reconciliation and refusal paths; scope closure and correction-story tests to
+what they prove, add closure evidence for an admitted no-change investigation,
+and repair a dashboard fixture shape the backlog now refuses; align admission
+guidance and naming; and resolve published and admitted preparation once.
+Excluded: whole-seed readiness basis, continuation ownership across sessions,
+section-aware seed reconciliation, and plan-directory renames.
+
+**Plan:** [Keep admission coherent](../slice-plans/113-admission-coherence/PLAN.md).
+
 ## Ordering and Scope Reduction
 
 Queue these two stories in this order at the original story's current position:

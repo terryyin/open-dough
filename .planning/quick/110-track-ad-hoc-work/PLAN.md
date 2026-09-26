@@ -427,3 +427,27 @@ planned, not already passed. Reassess when implementation exposes contrary facts
   publication-rebase-conflict procedure combines the compatible sides; this
   predates admission, which makes it more frequent. Automatic section-aware
   seed reconciliation is outside this story.
+- Native evidence on the final candidate `91f054c` (all FRESH PROOF pass):
+  codex `publication/admission-continuation`, codex
+  `publication/admission-correction`, claude
+  `publication/admission-investigation`, in addition to codex
+  `publication/admission-investigation` at slice 3. Remaining native gaps:
+  Cursor on every admission case, and Claude continuation/correction. No
+  native wrap-up closure journey was added for admitted work.
+
+## Execution complete
+
+Product advice:
+- Reassess `SEED-028#one-shot-work` (plan 112) against the delivered
+  admission interface: escalation must carry already-attributed product
+  edits, while `--admit` carries only the story section and plan.
+- Decide the whole-seed readiness basis (sibling stories go stale on every
+  admission or closure in a shared seed), continuation ownership across
+  sessions (publisher ID), and section-aware seed reconciliation for closure
+  and merge before proposing stories for them.
+- `.worktrees/` is untracked in the default checkout, so every refresh
+  deferred; relevant to `SEED-008#same-machine-merge-queue` or a one-line
+  ignore.
+- Retrospective correction `SEED-028#admission-coherence`
+  (`../../slice-plans/113-admission-coherence/PLAN.md`) is recorded ready and
+  not queued.
