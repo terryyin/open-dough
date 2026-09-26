@@ -84,25 +84,6 @@ duplicate the planning-format rules independently in each hook or host adapter.
   host-specific or unreliable, the explicit command and CI integration retain
   value while hook coverage remains a separately reviewable extension.
 
-<a id="slice-plans-home"></a>
-
-### 2. Keep this repository's executable plans in the slice-plans home
-
-**Identity:** SEED-024#slice-plans-home
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
-```
-
-**Goal:** On `main`, every executable plan lives under
-`.planning/slice-plans/`, and this repository's internal planning records and
-maintainer documents name that folder wherever they point at a plan.
-**Expected:** No tracked plan or internal reference outside the released Open
-Dough guidance uses another plan folder.
-**Actual:** One Taken plan and several internal references still use the
-legacy folder name.
-**Scope:** Released guidance under `src/` and the installed managed copies stay
-untouched. Other branches settle their own plan paths when they integrate.
-
 ## Ordering and Scope Reduction
 
 This single story follows the current dashboard and worktree-direction cluster

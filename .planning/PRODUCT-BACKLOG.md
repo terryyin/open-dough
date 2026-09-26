@@ -16,7 +16,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Cut total test work and the CI verdict wait, and keep them within budget](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite ([plan](slice-plans/107-cut-test-work-and-ci-wait/PLAN.md))
 - [Preserve other writers' work in shared worktrees](seeds/SEED-008-worktree-branch-trunk-sync.md#preserve-other-executions-work) — SEED-008#preserve-other-executions-work ([plan](slice-plans/114-preserve-other-writers/PLAN.md))
 - [Keep admitted work coherent after its first delivery](seeds/SEED-028-track-ad-hoc-work.md#admission-coherence) — SEED-028#admission-coherence ([plan](slice-plans/113-admission-coherence/PLAN.md))
-- [Keep this repository's executable plans in the slice-plans home](seeds/SEED-024-validate-planning-material-format.md#slice-plans-home) — SEED-024#slice-plans-home
 
 ## Backlog list
 
