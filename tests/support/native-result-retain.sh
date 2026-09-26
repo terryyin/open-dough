@@ -8,6 +8,9 @@ native_result_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=tests/support/native-adr-behavior.sh
 # shellcheck disable=SC1091
 source "${native_result_support_dir}/native-adr-behavior.sh"
+# shellcheck source=tests/support/native-result-identity.sh
+# shellcheck disable=SC1091
+source "${native_result_support_dir}/native-result-identity.sh"
 
 native_result_assert_no_discovery_fields() {
   local record=$1
@@ -77,30 +80,6 @@ native_result_write_text() {
   printf '%s\n' "${text}" > "${native_result_attempt_dir}/${dest_name}"
 }
 
-native_result_input_hash_line() {
-  local rel=$1
-  local digest
-
-  digest=$(shasum -a 256 "${source_dir}/${rel}")
-  printf 'input-hash: %s %s\n' "${digest%% *}" "${rel}"
-}
-
-native_result_version_command_for() {
-  case $1 in
-    cursor) printf '%s\n' 'cursor agent --version' ;;
-    claude) printf '%s\n' 'claude --version' ;;
-    *) printf '%s\n' 'codex --version' ;;
-  esac
-}
-
-native_result_adapter_identity() {
-  case ${native_case_host} in
-    cursor) printf 'cursor-agent-stream-json\n' ;;
-    claude) printf 'claude-stream-json\n' ;;
-    *) printf 'tests/support/native-codex.sh\n' ;;
-  esac
-}
-
 native_result_write_if_set() {
   local dest_name=$1
   local is_set=$2
@@ -137,27 +116,6 @@ native_result_execution_status_fields() {
 native_result_execution_fields() {
   native_result_execution_status_fields
   native_adr_behavior_print_fields
-}
-
-native_result_print_tool_identity() {
-  local version_command executable source_revision
-
-  version_command=$(native_result_version_command_for "${native_case_host}")
-  executable=$(command -v "${native_case_host}" 2> /dev/null) || executable=
-  if [[ -z ${executable} ]]; then
-    executable=unknown
-  fi
-  source_revision=$(git -C "${source_dir}" rev-parse HEAD)
-  printf 'native-executable: %s\n' "${executable}"
-  printf 'native-version-command: %s\n' "${version_command}"
-  printf 'native-version: %s\n' "${tool_version:-unknown}"
-  printf 'native-model: unknown\n'
-  printf 'native-runtime-settings: unknown\n'
-  printf 'source-revision: %s\n' "${source_revision}"
-}
-
-native_result_print_adapter_identity() {
-  printf 'adapter-identity: %s\n' "$(native_result_adapter_identity)"
 }
 
 native_result_finalize_context() {
@@ -219,13 +177,19 @@ native_result_finalize_context() {
     printf 'artifact-stderr: stderr.log\n'
     printf 'artifact-commands: commands.txt\n'
     printf 'artifact-observations: observations.txt\n'
-    native_result_input_hash_line tests/dough-adr-awareness-context.sh
-    native_result_input_hash_line tests/support/native-result-retain.sh
-    native_result_input_hash_line tests/support/native-adr-behavior.sh
-    native_result_input_hash_line tests/support/dough-adr-awareness-use.sh
-    native_result_input_hash_line tests/support/native-codex.sh
-    native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
+    native_result_context_input_hash_lines
   } > "${record_file}"
+}
+
+native_result_context_input_hash_lines() {
+  native_result_input_hash_line tests/dough-adr-awareness-context.sh
+  native_result_input_hash_line tests/support/native-result-retain.sh
+  native_result_input_hash_line tests/support/native-result-identity.sh
+  native_result_input_hash_line tests/support/native-adr-behavior.sh
+  native_result_input_hash_line tests/support/dough-adr-awareness-use.sh
+  native_result_input_hash_line tests/support/native-codex.sh
+  native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
+  native_result_supervision_input_hash_lines
 }
 
 native_result_report_context() {

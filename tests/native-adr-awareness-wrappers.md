@@ -145,6 +145,10 @@ native invocation or behavior.
   runtime identity comes from `cursor agent --version`. An unwritable
   `--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
   path are accepted; omitted flags use the defaults.
+- `tests/native-evidence-identity.sh` — in a scratch copy of the source, every
+  retained evidence identity's `input-hash` lines change when any native
+  supervision input changes, and every identity takes those inputs from the
+  one list in `native-run-supervise.sh`.
 - `tests/native-run-timeout.sh` — a hang substitute starts a child, emits
   partial output, and ignores SIGTERM. Selected context with a short
   `--deadline`/`--grace` returns 124 within that bound plus cleanup slack;

@@ -6,6 +6,15 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
 
 native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# The files that decide how a native run is supervised, relative to the source
+# root. Evidence identities hash each one through
+# native_result_supervision_input_hash_lines (native-result-retain.sh).
+native_run_supervision_inputs=(
+  tests/support/native-run-supervise.sh
+  tests/support/native-run-stream.sh
+  tests/support/native-run-watchdog.sh
+  tests/helpers/wait-for.bash
+)
 # shellcheck source=tests/support/native-run-stream.sh
 # shellcheck disable=SC1091
 source "${native_run_support_dir}/native-run-stream.sh"

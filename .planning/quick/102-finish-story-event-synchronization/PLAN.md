@@ -253,7 +253,7 @@ auto-refresh behavior the tests prove stays unchanged.
 ### 3. Every native evidence identity includes the one list of supervision inputs
 
 Type: Structure (retrospective correction F3)
-Status: planned
+Status: done
 Proof:
 - **One list.**
   - `native-run-supervise.sh` declares its supervision inputs:
@@ -340,3 +340,22 @@ of the record, stays unchanged.
   - The 4-test grep passed silently with `--repeat-each 5`; the whole
     dashboard suite passed silently. Paired A/B at the same load saved
     about 4–9 s per run of the 4 tests.
+- **Slice 3, delivered:**
+  - The deterministic check is its own test,
+    `tests/native-evidence-identity.sh`, rather than an extension of
+    `tests/native-result-retention.sh`; the refactor pass split it out to
+    keep files under the size limit. Its accepted proof is
+    `PATH=/opt/homebrew/bin:$PATH bash tests/native-evidence-identity.sh`.
+  - It sources every writer from a scratch copy of `tests/` and `src/`, so
+    it needs no credentials. It covers 11 writer calls, including the four
+    delivery-evidence cases, and it adds a probe entry to the copied list
+    to prove each writer takes the one list rather than repeating it.
+  - The identity functions moved into `tests/support/native-result-identity.sh`,
+    which `native-result-retain.sh` sources. The ADR-awareness context and
+    journey identities also hash that new file, so they did not lose
+    coverage when the code moved.
+  - Sensitivity: removing the shared call from the story-branch writer, and
+    separately from the trunk writer, produced 5 FAIL lines naming that
+    writer (one per input plus the list probe).
+  - `shellcheck` passes on all changed shell files. The related native checks
+    passed silently with Bash 5.
