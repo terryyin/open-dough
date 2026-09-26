@@ -220,3 +220,7 @@ names `install.sh`'s `managed_files` as the one payload declaration.
 - Slice 2: under a full parallel run the payload-update checks took 27-43 s,
   not the 10-17 s paired medians, and 53 jobs crossed the 10-second rule; the
   list follows the header's full-run rule, so its length tracks machine load.
+
+## Execution complete
+
+Product advice: retrospective skipped
