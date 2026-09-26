@@ -158,7 +158,7 @@ existing owner; startup can safely defer refresh before this story is delivered.
 **Safe stopping point:** Participating direct edits and refreshes share bounded
 access and recoverable stops; isolated publication stays independent of it.
 
-**Evidence:** [DD-104](../../DearDough.md#dd-104--leftover-state-in-the-default-checkout-blocked-execution-startup-and-never-let-it-refresh):
+**Evidence:** [ODF-119](../../docs/maintainer/finding-names.md#odf-119):
 execution worktrees kept under an unignored in-checkout `.worktrees/` make every
 automatic refresh of the default checkout defer with `pending-edit`, and a stale
 published copy left there blocked a later execution startup.
@@ -233,6 +233,47 @@ full investigation is retained in Git at `1352844` and linked findings
 Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
+
+<a id="preserve-other-executions-work"></a>
+
+### Preserve other executions' work during recovery and cleanup
+
+**Identity:** SEED-008#preserve-other-executions-work
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why:** Developers running concurrent agents need one execution's recovery,
+staging, and retirement to preserve another execution's files, stash, branch and
+active worktree. Existing isolation did not prevent these incidents.
+
+**Outcome / scope:** Keep owned staging, pause recovery and worktree retirement
+within the identified execution's authority. On ambiguous ownership or an active
+writer, preserve the state and return a useful handoff. Reuse existing lifecycle
+boundaries; no global lock service, agent scheduler or automatic takeover.
+
+**Evaluation:** Attempt recovery after a failed stash creation while a foreign
+stash exists; publish an owned change beside another writer's unstaged files;
+and attempt retirement while a delegated task is still using that worktree.
+Observe that foreign state and the active checkout survive, while an ordinary
+owned recovery and an idle completed retirement can finish. Include actual agent
+behavior or justified reuse under ADR 0005; command fixtures alone do not establish
+follow-through on guidance.
+
+**Supporting findings:** [ODF-093](../../docs/maintainer/finding-names.md#odf-093),
+[ODF-105](../../docs/maintainer/finding-names.md#odf-105), and
+[ODF-084](../../docs/maintainer/finding-names.md#odf-084). These are three distinct
+mechanisms; ODF-084's remover is unknown. Keep detailed evidence in the catalog.
+
+**Completion:** Record the actual mechanism addressed, response commit and first
+containing release on each addressed catalog finding; retain unaddressed causes
+and effectiveness limits. Queueing is not resolution.
+
+**Depends on:** None; use existing ownership and publication contracts. The
+separate default-checkout coordination candidate is not a prerequisite.
+
+**Safe stopping point:** Recovery and retirement preserve other active work even
+if no later local coordination work proceeds.
 
 ## Architectural Context
 

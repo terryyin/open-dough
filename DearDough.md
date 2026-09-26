@@ -562,125 +562,6 @@ dependents run correctly from inside the nested worktree with no setup step.
     check, before reporting a tooling gap") would prevent recurrence was not
     tested here.
 
-## ODF-071 — A coordinator-started nested observer for a native acceptance session is silently orphaned
-
-Former local code: DD-068.
-
-The CI-mailbox binding that lets a hook deliver a queued event only forms
-when the *observed* session's own tool output contains the `CI_OBSERVER`
-receipt line for that mailbox (`ci-host-hook.mjs`'s `selectCiEvents` scans
-`Shell`/`Bash` `tool_output` for the receipt and only then writes the
-`owner`/`bindings` files). A coordinator that starts the observer itself,
-outside the native session it intends to observe, produces a mailbox with no
-owner: the native session's later hook invocations never see that receipt in
-their own tool output, so the queued event is never delivered, and the
-mailbox reports `unread: 1` at stop with no error.
-
-### Occurrences
-
-- Execution: `.planning/quick/032-refuse-managed-hook-command-variants/PLAN.md @ 29dadf3`
-  - Timestamp: 2026-09-21T09:06+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: modified; revision 29dadf3; base 0.3.26
-  - Evidence: the coordinator ran
-    `node .agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs start
-    --execution fixture/dough-032-compat main` directly from a Bash tool
-    call in its own conversation (mailbox `/tmp/dough-ci-501/watch-yj19Ms`),
-    confirmed the controlled failure was recorded
-    (`events/000000000001.json`), then stopped it and received
-    `"evidence":{"recordedThrough":1,"deliveredThrough":0,"unread":1}` —
-    the event was never delivered because no native-session tool output
-    ever contained that mailbox's receipt line. The correct design, already
-    used by this same plan's earlier Slice 4 evidence
-    (`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/cursor-claude-compatibility/README.md`), has the *native
-    session's own prompt* run the readiness probe and the `start` command,
-    so the receipt appears in its own `Shell` tool output at the exact hook
-    invocation that establishes ownership.
-  - Observed effect: one wasted observer start/stop cycle plus a source-code
-    read of `ci-mailbox-location.mjs` and `ci-host-hook.mjs` to discover the
-    binding rule, before the acceptance session was redesigned to start its
-    own observer. No incorrect result was delivered; the redesigned run
-    (session `1330b4c2-7b3e-4be6-a1cc-ad13ed781a38`) then bound and
-    delivered correctly.
-  - Inference: Qualified, single occurrence. The Quick 032 Slice 4 evidence
-    already encoded the correct pattern but did not state the underlying
-    rule (ownership binds to the tool call that emits the receipt, not to
-    whichever process started the observer), so a later executor without
-    that evidence in context has to rediscover it from source. Whether
-    stating this rule directly in
-    `.claude/skills/dough-execute-plan/references/ci-notify-hosts.md`'s
-    "Start once and continue immediately" section would prevent recurrence
-    was not tested here.
-
-## ODF-072 — Cursor's Shell tool does not inherit the launching process's `PATH`, only its other environment variables
-
-Former local code: DD-069.
-
-`cursor agent --print` reconstructs its own `Shell`-tool `PATH` (a fixed,
-login-shell-like list) rather than inheriting the `PATH` set on the process
-that launched `cursor agent`; ordinary environment variables set the same
-way (not `PATH`) do propagate to that Shell tool's subprocess. A stand-in
-binary meant to intercept a command the agent runs (for example a controlled
-`gh`) must have its directory prepended to `PATH` inline, inside the exact
-command text the agent is told to run, not via the launching shell's `PATH`.
-
-### Occurrences
-
-- Execution: `.planning/quick/032-refuse-managed-hook-command-variants/PLAN.md @ 29dadf3`
-  - Timestamp: 2026-09-21T09:08+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: modified; revision 29dadf3; base 0.3.26
-  - Evidence: launching
-    `PATH="<fixture>/bin:/opt/homebrew/bin:..." CONTROLLED_GH_TOKEN=env-inherit-check-xyz
-    cursor agent --print ... "which gh && echo TOKEN=$CONTROLLED_GH_TOKEN"`
-    returned `gh` resolved to `/Users/terryyin/.nix-profile/bin/gh` (not the
-    fixture stand-in) while `TOKEN=env-inherit-check-xyz` printed correctly;
-    a follow-up `echo PATH=$PATH` inside the same kind of session showed a
-    fixed system `PATH` unrelated to the launching shell's.
-  - Observed effect: one extra diagnostic native session run to isolate
-    which of `PATH` vs. arbitrary environment variables actually propagates,
-    before the acceptance prompt was written with the `PATH=` prefix placed
-    inline in the exact command text.
-  - Inference: Qualified, single occurrence. Recording this distinction in
-    `.claude/skills/dough-execute-plan/references/ci-notify-hosts.md` next
-    to its existing disposable-command guidance would let a future executor
-    reuse this fact instead of re-deriving it from a fresh diagnostic
-    session; not tested here.
-
-## ODF-089 — A GitHub observer that gives up after persistent errors gives `register-push` no distinguishable "ended" signal
-
-Former local code: DD-090.
-After three consecutive polling errors, `watch-ci-execution.mjs` deliberately
-ends observation, and `ci-mailbox.mjs` records one `CI_MONITOR_UNAVAILABLE`
-event plus a normal `{"status":"finished"}` result — legitimate, but
-distinct from the "lost its worker" crash case `ci-notify-hosts.md` already
-documents a hook message for. A coordinator that keeps calling
-`register-push` against that same directory afterward gets an
-ordinary-looking `CI_OBSERVER {"revision":{"state":"unchecked",...}}`
-receipt and a repeated "CI observer attached" hook message — nothing
-distinguishes "still polling" from "ended, will never poll this SHA."
-
-### Occurrences
-
-- Execution: `.planning/quick/076-path-filter-aware-ci-observation/PLAN.md @ a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865`
-  - Timestamp: 2026-09-22T07:12+00:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: modified; revision a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865; base 0.3.28
-  - Evidence: mailbox `/tmp/dough-ci-501/watch-Q6ZEF0`'s event 3
-    (`CI_MONITOR_UNAVAILABLE`, TLS timeout) and `result.json` (`finished`)
-    both predate two later `register-push` calls (mtimes ~10/~30 min
-    after); `ps` confirmed the worker pid was gone.
-  - Observed effect: two SHAs registered against an ended observer with no
-    distinguishing signal; the gap surfaced only via a manual `gh`
-    cross-check near execution end.
-  - Inference: Qualified, single occurrence; mechanism is deterministic and
-    the triggering network instability recurred repeatedly this session, so
-    recurrence is plausible. Not tested: a distinct "CI observer ended"
-    hook message, mirroring "lost its worker."
-
 ## ODF-092 — Claude Code managed delivery lacked session identity; a refused retry left a hidden observer
 
 Former local code: DD-095.
@@ -893,14 +774,6 @@ says formatting must succeed before staging.
   - Observed effect: one extra commit, push, and failed CI run.
   - Inference: A one-off coordinator error, not a guidance gap; gate
     commands with `&&`.
-- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
-  - Timestamp: 2026-09-25T22:28:16+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1;
-    `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
-  - Observed effect: one extra commit, push, and failed CI lint job.
 
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
@@ -926,7 +799,9 @@ it. Slice 1 was not CI-safe until slice 3 was folded into it.
     without tracing which existing suites a new invariant (unique active
     agent names) would break.
 
-## DD-100 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
+## ODF-117 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
+
+Former local code: DD-100.
 
 The plan required load below 4 before each baseline run; other work kept it at 50–180, and the only resolution was the developer's instruction to measure relatively (paired start-revision and candidate runs under the same load).
 
@@ -940,21 +815,9 @@ The plan required load below 4 before each baseline run; other work kept it at 5
   - Evidence: plan 096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
   - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
 
-## DD-102 — A delegated journey spec reported green failed the coordinator's rerun under load
+## ODF-118 — Removing a test's assertion broke a meta-test that mutated against it
 
-New `backlog-preparing.spec.ts` built a 6.3 s Git journey in a 30 s `beforeAll`; beside one spec at load ~15 it timed out.
-
-### Occurrences
-
-- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
-  - Timestamp: 2026-09-25T20:53+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: slice 4 return claimed 13/13 and 115/115; rerun: "beforeAll hook timeout of 30000ms exceeded"; fixed in `e11c09a`.
-  - Observed effect: the coordinator's independent rerun caught a load-sensitive test before delivery.
-
-## DD-103 — Removing a test's assertion broke a meta-test that mutated against it
+Former local code: DD-103.
 
 Slice 1 moved installed link walking to a new declaration check; `tests/story-payload-assertions.sh` still expected the removed loop to report its injected broken link. Plan, implementer, acceptance, and refactor pass all missed it; CI failed.
 
@@ -969,7 +832,9 @@ Slice 1 moved installed link walking to a new declaration check; `tests/story-pa
   - Observed effect: one failed CI run, a stash and repair cycle with two extra agents; a dependent-test search added to slices 2–4 prompts found nothing more.
   - Inference: Qualified. The consumer check covers changed helpers, not assertions removed from a test; resembles ODF-003 and ODF-098 without the same cause.
 
-## DD-104 — Leftover state in the default checkout blocked execution startup and never let it refresh
+## ODF-119 — Leftover state in the default checkout blocked execution startup and never let it refresh
+
+Former local code: DD-104.
 
 Startup refused a queued story ("unpublished selected story source in originating
 checkout"): the default checkout held an untracked seed and backlog edit
@@ -988,8 +853,25 @@ checkout also keeps in-checkout execution worktrees under an unignored
   - Observed effect: one human round trip and a manual reset of the default checkout to `origin/main` before the claim.
   - Inference: Qualified. The source check compares only local HEAD, index and worktree, so a stale published copy looks unpublished; ignoring the worktree root would end the deferral and the gitlink risk.
 
+## ODF-100 — A piped lint failure did not stop publication
+
+Former local code: DD-097 (plan 104 occurrence only).
+
+Pipeline exit status hid the failed lint command; the earlier semicolon-chain occurrence remains ODF-097.
+
+### Occurrences
+
+- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
+  - Timestamp: 2026-09-25T22:28:16+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
+  - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1;
+    `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
+  - Observed effect: one extra commit, push, and failed CI lint job.
+
 ## Retention
 
 - Highest allocated local number: 104
-- Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; full copy in `docs/maintainer/finding-names.md`); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
