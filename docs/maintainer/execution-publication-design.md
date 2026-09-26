@@ -1,7 +1,7 @@
 # Execution and publication with less agent coordination
 
-**Status:** Maintained design context. Queued-start publication uses the
-installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
+**Status:** Maintained design context. Queued-start and admission publication
+use the installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
 preparation, closure, and local checkout coordination remain separate work. Not
 an executable plan or a new Accepted ADR. The
 [seed](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md)
@@ -37,7 +37,7 @@ publisher at their own boundaries.
 | --- | --- |
 | Backlog | [`product-backlog.mjs`](../../src/skills/dough-product-backlog/scripts/product-backlog.mjs) is a real CLI. Its domain API owns identity, membership, preparation state, and semantic reconciliation; local Take alone does not publish. Reuse its Git adapters even for textually clean backlog merges. |
 | Publication | [`publish-the-candidate.md`](../../src/skills/dough-execute-plan/references/publish-the-candidate.md) owns the shared contract. The startup command uses production Git helpers; other publication callers still have their existing paths. |
-| Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start publication. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
+| Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start and admission publication through one orchestration and publisher. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
 | Delivery | [`execution-increment-delivery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs) owns managed execution increment and repair delivery, runtime resolution, and observation attachment. |
 | Landing | [`dough-land`](../../src/skills/dough-land/SKILL.md) owns landing a reviewed worktree: commit everything, publish through the shared contract, refresh, and retire the worktree once trunk contains it. It has no runtime of its own. Preparation keep and bug-triage keep land through it. Wrap-up applies only its refresh and retirement sections, behind wrap-up's CI completion gate, because wrap-up must also publish before deleting history, register each SHA with its observer, and integrate Story Branch history. |
 | Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) honors a declared competing owner and checks Git state for automatic refresh; missing owner declarations do not block it. Direct edits still require declared access. It does not acquire exclusive interprocess access. |
@@ -105,6 +105,29 @@ access for direct edits and refreshes when that story is delivered. Remote
 publication from another worktree does not acquire local access. Nonparticipating
 human/tool edits still require preservation and conservative refusal; a cooperative lock cannot
 promise to prevent them.
+
+## Admission: accepted work no backlog list holds
+
+`start --admit` uses the same operation for accepted work that was never
+queued. Only the source reader differs: the admission reader takes the
+selected story's section (or a new seed whole) and any declared plan from the
+originating checkout, reconciles them per section onto fetched trunk, and
+refuses a section or plan changed on both sides. Sibling sections keep trunk's
+text; other local edits in that seed stay local. The claim commit carries that
+content, the new Taken entry and the agent profile together, so no queue-only
+state is ever published. Admission requires a recorded Goal and preparation
+facts and publishes them as recorded; it never records an assessment or a plan.
+
+Recovery reuses the agent-reselection rebuild: an isolated admission candidate
+is always rebuilt from its own parent onto current trunk, never replayed line
+by line, because line replay conflicts on adjacent appended stories. A resume
+therefore publishes the preserved candidate, not later drafts.
+
+Ordinary startup continues a Taken story only for the claim's own publisher,
+from ready published preparation, and returns `existing` without a second
+claim. A local copy that matches this publisher's claim commit counts as
+published, so the admission draft left in the originating checkout does not
+block continuation. Closure uses ordinary wrap-up and backlog completion.
 
 ## Publication, recovery, and CI
 
