@@ -15,7 +15,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Cut total test work and the CI verdict wait, and keep them within budget](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite ([plan](quick/107-cut-test-work-and-ci-wait/PLAN.md))
 - [Prove each installation promise with fewer installer runs](seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise) — SEED-037#fewer-installer-runs-per-promise ([plan](quick/108-fewer-installer-runs-per-promise/PLAN.md))
-- [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication ([plan](quick/098-first-claude-ci-attachment/PLAN.md))
 
 ## Backlog list
 
