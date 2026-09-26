@@ -115,6 +115,8 @@ for (const host of ["cursor", "claude"])
       ),
       {},
     );
+    // The first poll is running, blocked on the provider.
+    await fixture.waitForCalls(1);
     await runCli(fixture.launcher, ["register-push", directory, failedSha], {
       cwd: fixture.project,
       env: fixture.env,
@@ -145,10 +147,15 @@ for (const host of ["cursor", "claude"])
       ),
       {},
     );
+    // Registering the failed revision during the first, still-running poll
+    // brought one more check right after it.
+    await fixture.waitForCalls(3);
     await runCli(fixture.launcher, ["register-push", directory, repairSha], {
       cwd: fixture.project,
       env: fixture.env,
     });
+    // The repair registration wakes the observer for one more check.
+    await fixture.waitForCalls(4);
     const stopped = await runCli(fixture.launcher, ["stop", directory], {
       cwd: fixture.project,
       env: fixture.env,
@@ -164,7 +171,7 @@ for (const host of ["cursor", "claude"])
     });
     assert.deepEqual(
       readCalls(fixture.calls).map(({ operation }) => operation),
-      ["discover", "diagnose"],
+      ["discover", "diagnose", "discover", "discover"],
     );
   });
 

@@ -1,17 +1,15 @@
 import { execFile, spawn } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  renameSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createMailbox, recordWorkerIdentity } from "./ci-mailbox.mjs";
-import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { publishJson } from "./ci-mailbox-json-file.mjs";
+import {
+  fixtureTeardown,
+  sharedCommandDirectory,
+} from "./fixture-teardown-test-fixtures.mjs";
 import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
@@ -50,19 +48,9 @@ const workerRecheckProbe = `data:text/javascript,${encodeURIComponent(
   ),
 )}`;
 
-export async function setupProcessMailbox(
-  t,
-  startArguments = ["--execution", "owner/repo", "main", "60000"],
-  { observeWorkerRechecks = false } = {},
-) {
-  const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
-  const teardown = fixtureTeardown(directory);
-  t.after(teardown.cleanup);
-  const bin = join(directory, "bin");
-  mkdirSync(bin);
-  writeFileSync(
-    join(bin, "gh"),
-    `#!${process.execPath}
+// Records the worker it serves under CI_TEST_ROOT and answers `run list` with
+// the runs released there, blocking until they are.
+const githubCommand = `#!${process.execPath}
 (async () => {
 const fs = require('node:fs');
 const path = require('node:path');
@@ -83,15 +71,22 @@ if (process.argv[3] === 'list') {
   fs.writeFileSync(path.join(root, 'observed'), '');
 } else { process.stdout.write(JSON.stringify({jobs: []})); }
 })();
-`,
-    { mode: 0o700 },
-  );
+`;
+
+export async function setupProcessMailbox(
+  t,
+  startArguments = ["--execution", "owner/repo", "main", "60000"],
+  { observeWorkerRechecks = false } = {},
+) {
+  const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
+  const teardown = fixtureTeardown(directory);
+  t.after(teardown.cleanup);
   const env = {
     ...process.env,
     DOUGH_CI_MAILBOX_ROOT: directory,
     TMPDIR: directory,
     CI_TEST_ROOT: directory,
-    PATH: `${bin}:${process.env.PATH}`,
+    PATH: `${sharedCommandDirectory("gh", githubCommand)}:${process.env.PATH}`,
     ...(observeWorkerRechecks
       ? {
           NODE_OPTIONS: [
@@ -128,8 +123,10 @@ if (process.argv[3] === 'list') {
   return { directory, mailbox, stdout, deliver, env, teardown };
 }
 
-export function releaseRun(directory, overrides = {}) {
-  const run = {
+// Releases the fixture's blocked `gh run list` with one run per overrides
+// object, each a completed failing push run of `sha` unless overridden.
+export function releaseRun(directory, ...runOverrides) {
+  const runs = (runOverrides.length ? runOverrides : [{}]).map((overrides) => ({
     databaseId: 42,
     attempt: 1,
     headSha: sha,
@@ -139,9 +136,8 @@ export function releaseRun(directory, overrides = {}) {
     status: "completed",
     conclusion: "failure",
     ...overrides,
-  };
-  writeFileSync(join(directory, "release.tmp"), JSON.stringify([run]));
-  renameSync(join(directory, "release.tmp"), join(directory, "release"));
+  }));
+  publishJson(directory, "release", runs);
 }
 
 // A mailbox whose recorded worker identity is a live but unrelated process,

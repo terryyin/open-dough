@@ -64,20 +64,25 @@ export async function waitForPidExit(pid, timeoutMs = 5000) {
   return false;
 }
 
-// Waits for a started CI observer's first sign of life (`path`) for as long
-// as the mailbox's recorded worker lives; the fixtures start it with a 60 s
-// execution budget, after which it records a result and exits.
-export async function awaitWorkerSignal(directory, path) {
+// Waits until `arrived()` holds for as long as the mailbox's recorded worker
+// lives, since that worker produces what the test awaits; the fixtures start
+// it with a 60 s execution budget, after which it records a result and exits.
+export async function awaitWorkerState(directory, arrived, description) {
   const { pid } = readWorkerIdentity(directory);
   const result = join(directory, "result.json");
   await awaitSignalWhileRunning(
-    () => existsSync(path),
+    arrived,
     () => processEnded(pid),
     () =>
-      `CI observer worker ${pid} exited before ${path} appeared; result: ${
+      `CI observer worker ${pid} exited before ${description}; result: ${
         existsSync(result) ? readFileSync(result, "utf8") : "none recorded"
       }; last event: ${JSON.stringify(readMailboxEvents(directory).at(-1)?.event ?? null)}`,
   );
+}
+
+// Waits for a started CI observer's first sign of life (`path`).
+export async function awaitWorkerSignal(directory, path) {
+  await awaitWorkerState(directory, () => existsSync(path), `${path} appeared`);
 }
 
 // Registers, on a `fixtureTeardown`, stopping the CI observer started at

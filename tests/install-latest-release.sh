@@ -45,7 +45,9 @@ head=$(git -C "${release_dir}" rev-parse HEAD)
 grep -Fq 'open-dough-payload payload-0.1.10' \
   "${release_dir}/src/skills/dough-update/SKILL.md"
 
-for platform in codex cursor claude; do
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; its clone is reused below.
+for platform in cursor claude; do
   platform_target="${temporary_dir}/${platform} project"
   prepare_target "${platform_target}"
   clone_dir="${temporary_dir}/${platform} clone"

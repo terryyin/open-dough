@@ -15,6 +15,8 @@ finish() {
   rm -rf -- "${work_dir}"
 }
 trap finish EXIT
+# Wrapper runs copy each fixture this check builds once.
+export OPEN_DOUGH_TEST_FIXTURE_CACHE="${work_dir}/fixture-cache"
 
 sentinel_bin="${work_dir}/bin"
 watched_dir="${work_dir}/watched"
@@ -71,8 +73,8 @@ assert_attempt() {
 
   [[ -d ${attempt} ]]
   [[ -f ${attempt}/record ]]
-  [[ -f ${attempt}/events.jsonl ]]
-  [[ -f ${attempt}/response.md ]]
+  [[ -s ${attempt}/events.jsonl ]]
+  [[ -s ${attempt}/response.md ]]
   [[ -f ${attempt}/observations.txt ]]
   [[ -f ${attempt}/before-snapshot.txt ]]
   [[ ! -e ${attempt}/adopter ]]
@@ -82,6 +84,9 @@ assert_attempt() {
   grep -Fq "case: ${case_id}" "${attempt}/record"
   grep -Fq 'origin: fresh' "${attempt}/record"
   grep -Fq 'execution-status: completed' "${attempt}/record"
+  grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
+  [[ ${host} != codex ]] || grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
+  [[ ${host} != codex ]] || grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"
   grep -Fq "native-version-command: ${version_command}" "${attempt}/record"
   grep -Fq 'assessment-status: pass' "${attempt}/record"
   grep -Fq 'assessment-reason:' "${attempt}/record"

@@ -14,24 +14,35 @@ source "${source_dir}/tests/helpers/host-hooks-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
-# Ordinary and forced installation both refuse for REASON before any write to
-# TARGET or, when named, OUTSIDE.
-assert_install_refused() {
-  local reason=$1 description=$2 target=$3 outside=${4:-} option output
+# Installation with OPTION ('' or --force) refuses for REASON before any write
+# to TARGET or, when named, OUTSIDE.
+assert_refused_with() {
+  local option=$1 reason=$2 description=$3 target=$4 outside=${5:-} output
   local target_before outside_before=''
 
-  for option in '' --force; do
-    target_before=$(snapshot_path_state "${target}")
-    [[ -z ${outside} ]] || outside_before=$(snapshot_path_state "${outside}")
-    if output=$(bash "${source_dir}/install.sh" --target "${target}" \
-      --source "${source_dir}" ${option:+"${option}"} 2>&1); then
-      echo "FAIL: ${description} must refuse ${option:-ordinary} installation before writes." >&2
-      exit 1
-    fi
-    [[ "${output}" == *"${reason}"* ]]
-    [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
-    [[ -z ${outside} || $(snapshot_path_state "${outside}") == "${outside_before}" ]]
-  done
+  target_before=$(snapshot_path_state "${target}")
+  [[ -z ${outside} ]] || outside_before=$(snapshot_path_state "${outside}")
+  if output=$(bash "${source_dir}/install.sh" --target "${target}" \
+    --source "${source_dir}" ${option:+"${option}"} 2>&1); then
+    echo "FAIL: ${description} must refuse ${option:-ordinary} installation before writes." >&2
+    exit 1
+  fi
+  [[ "${output}" == *"${reason}"* ]]
+  [[ $(snapshot_path_state "${target}") == "${target_before}" ]]
+  [[ -z ${outside} || $(snapshot_path_state "${outside}") == "${outside_before}" ]]
+}
+
+# Ordinary installation refuses for REASON before any write. The preflight
+# runs whether or not --force is given, so each refusal reason's force case
+# is proved once, by assert_install_refused_even_forced.
+assert_install_refused() {
+  assert_refused_with '' "$@"
+}
+
+# Ordinary and forced installation both refuse for REASON before any write.
+assert_install_refused_even_forced() {
+  assert_refused_with '' "$@"
+  assert_refused_with --force "$@"
 }
 
 # Unrelated event handlers and matcher siblings merge without duplicates.
@@ -103,7 +114,7 @@ fi
 conflict_target="${temporary_dir}/conflict"
 prepare_target "${conflict_target}"
 seed_edited_managed_timeout "${conflict_target}"
-assert_install_refused conflicting-managed-hooks 'edited managed handler' \
+assert_install_refused_even_forced conflicting-managed-hooks 'edited managed handler' \
   "${conflict_target}"
 
 # A known managed script with local arguments remains managed and conflicts.
@@ -181,7 +192,7 @@ outside="${temporary_dir}/unsafe-outside"
 mkdir -p -- "${outside}"
 mv -- "${unsafe_target}/.claude/settings.json" "${outside}/settings.json"
 ln -s -- "${outside}/settings.json" "${unsafe_target}/.claude/settings.json"
-assert_install_refused unsafe-hooks-destination 'valid settings-file symlink' \
+assert_install_refused_even_forced unsafe-hooks-destination 'valid settings-file symlink' \
   "${unsafe_target}" "${outside}"
 
 # Dangling settings-file links for both hosts are inspected as links, not absences.

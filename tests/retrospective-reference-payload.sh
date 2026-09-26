@@ -22,16 +22,10 @@ assert_reference_delivered() {
   done
 }
 
-for platform in codex cursor claude; do
-  target="${temporary_dir}/fresh ${platform}"
-  prepare_target "${target}"
-  printf '%s\n' '{"skipProcessRetrospective":false,"sentinel":"keep"}' > "${target}/open-dough.json"
-  cp -- "${target}/open-dough.json" "${temporary_dir}/preferences"
-  bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null
-  assert_reference_delivered "${target}"
-  cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
-  assert_sentinels "${target}"
-
+printf '%s\n' '{"skipProcessRetrospective":false,"sentinel":"keep"}' > "${temporary_dir}/preferences"
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; claude reads the .claude entry root.
+for platform in cursor claude; do
   target="${temporary_dir}/upgrade ${platform}"
   prepare_target "${target}"
   cp -- "${temporary_dir}/preferences" "${target}/open-dough.json"

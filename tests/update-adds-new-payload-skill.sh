@@ -36,11 +36,16 @@ prepare_target "${target}"
 agents_root="${target}/.agents/skills"
 actual_version=''
 mkdir -p -- "${agents_root}/dough-update" "${agents_root}/dough-adr-awareness"
+# Install the files the older release shipped by hand, as its payload.
+older_managed_files=()
 for managed_file in "${managed_files[@]}"; do
   [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
-  mkdir -p -- "${agents_root}/${managed_file%/*}"
-  cp -- "${older_checkout}/src/skills/${managed_file}" "${agents_root}/${managed_file}"
+  older_managed_files+=("${managed_file}")
 done
+(
+  managed_files=("${older_managed_files[@]}")
+  payload_bytes_transfer copy "${older_checkout}/src/skills" "${agents_root}"
+)
 printf '%s\n' "${fixture}" > "${agents_root}/dough-update/SOURCE"
 printf '%s\n' '0.1.1' > "${agents_root}/dough-update/VERSION"
 
@@ -49,9 +54,7 @@ output=$(bash "${source_dir}/src/install/open-dough-release.sh" apply \
 
 [[ "${output}" == *'installed or updated the shared Codex/Cursor root and Claude Code to 0.1.2'* ]]
 for root in "${agents_root}" "${target}/.claude/skills"; do
-  for managed_file in "${managed_files[@]}"; do
-    cmp "${fixture}/src/skills/${managed_file}" "${root}/${managed_file}"
-  done
+  assert_payload_bytes_match "${fixture}/src/skills" "${root}"
   actual_version=$(cat "${root}/dough-update/VERSION")
   [[ "${actual_version}" == '0.1.2' ]]
 done

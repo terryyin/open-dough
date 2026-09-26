@@ -5,8 +5,8 @@
 # managed_files (only SKILL.md and its two references were), so a real
 # install.sh/update delivered the documentation but none of its backlog
 # automation. This proves a fresh install and an ordinary update
-# deliver the whole transitive script set to both managed roots across all
-# three entry contexts, and that project backlog bytes are untouched. Refusal
+# deliver the whole transitive script set to both managed roots from each
+# physical entry root, and that project backlog bytes are untouched. Refusal
 # of an edited or missing managed file and its --force restore belong to the
 # shared installation and update checks, not to this payload. The
 # offline "actually run the installed copy" proof (an ordinary op, a real
@@ -82,7 +82,9 @@ write_project_backlog_sentinel() {
 EOF
 }
 
-for platform in codex cursor claude; do
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; claude reads the .claude entry root.
+for platform in cursor claude; do
   target="${temporary_dir}/${platform}"
   prepare_target "${target}"
   write_project_backlog_sentinel "${target}"

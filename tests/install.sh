@@ -111,23 +111,8 @@ cmp "${source_dir}/src/skills/${removed_reference}" "${removed_file}"
 assert_verified_install "${target}/.claude/skills/dough-update"
 assert_sentinels
 
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor > /dev/null
-cursor_skill="${target}/.agents/skills/dough-update/SKILL.md"
-assert_verified_install "${target}/.agents/skills/dough-update"
-assert_sentinels
-
-printf '%s\n' 'Keep my Cursor edits.' > "${cursor_skill}"
-assert_repeat_install_refused "Cursor repeat installation must stop." --platform cursor
-contents=$(cat "${cursor_skill}")
-[[ "${contents}" == 'Keep my Cursor edits.' ]]
-cmp "${source_dir}/VERSION" "${target}/.agents/skills/dough-update/VERSION"
-contents=$(cat "${claude_sentinel}")
-[[ "${contents}" == 'Keep this Claude sentinel.' ]]
-
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor --force > /dev/null
-assert_verified_install "${target}/.agents/skills/dough-update"
-assert_sentinels
-
+# The cursor hint selects the same .agents entry root as the default codex hint
+# above, so the repeat, edited, and forced cases above cover it.
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude > /dev/null
 claude_skill="${target}/.claude/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.claude/skills/dough-update"
@@ -147,10 +132,6 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --
 assert_verified_install "${target}/.claude/skills/dough-update"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
-
-bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform codex --force > /dev/null
-assert_verified_install "${target}/.agents/skills/dough-update"
-assert_verified_install "${target}/.claude/skills/dough-update"
 
 bad_source="${temporary_dir}/bad source"
 mkdir -p -- "${bad_source}/src/skills"

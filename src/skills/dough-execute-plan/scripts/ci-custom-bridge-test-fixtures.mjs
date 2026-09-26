@@ -34,6 +34,15 @@ async function waitForCustomFailure(directory) {
   throw new Error("custom failure event");
 }
 
+async function waitForAdapterCalls(path, count) {
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    if (existsSync(path) && readCalls(path).length >= count) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`${count} adapter calls`);
+}
+
 // A project with a custom CI adapter and an installed runtime. Callers defer
 // stopping what they start from it through the returned `teardown`, which
 // `t.after` runs before the fixture is removed.
@@ -92,6 +101,7 @@ if (request.operation === 'discover') {
     teardown,
     releaseFailure: () => writeFileSync(release, ""),
     waitForFailure: waitForCustomFailure,
+    waitForCalls: (count) => waitForAdapterCalls(calls, count),
   };
 }
 

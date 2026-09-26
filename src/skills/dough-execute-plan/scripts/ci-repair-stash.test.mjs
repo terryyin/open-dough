@@ -13,7 +13,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { exec, git, indexLockPath } from "./publication-git.mjs";
+import { exec, git } from "./publication-git.mjs";
+import { indexLockPath } from "./publication-test-fixtures.mjs";
 
 const script = fileURLToPath(new URL("./ci-repair-stash.mjs", import.meta.url));
 

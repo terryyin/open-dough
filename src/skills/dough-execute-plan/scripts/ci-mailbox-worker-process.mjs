@@ -111,10 +111,23 @@ function readProcessCommandSync(pid) {
   }
 }
 
+// An exited process is gone whatever its state: `ps` shows it as gone or
+// `<defunct>`, including, on Linux, a node process whose main thread exited
+// while other threads unwind and whose state is not yet a zombie's. macOS
+// shows an exiting process, whose arguments are already gone, by its bare
+// name in parentheses, such as `(node)`, before it becomes a zombie.
+function commandShowsExit(command) {
+  return (
+    command === undefined ||
+    command.endsWith("<defunct>") ||
+    /^\(.+\)$/.test(command)
+  );
+}
+
 async function verifyMailboxWorker(identity, directory) {
   const { pid } = identity;
   const command = await readProcessCommand(pid);
-  if (command === undefined) return false;
+  if (commandShowsExit(command)) return false;
   if (!commandMatchesMailboxWorker(command, directory, identity))
     throw new Error(`CI observer worker ${pid} does not match this mailbox`);
   return true;
@@ -142,10 +155,11 @@ export function checkMailboxWorkerLiveness(
     if (error.code === "EPERM" || error.code === "EACCES") return "alive";
     throw error;
   }
-  if (command === undefined) return "dead";
-  return commandMatchesMailboxWorker(command, directory, identity)
-    ? "alive"
-    : "unknown";
+  if (commandShowsExit(command)) return "dead";
+  if (commandMatchesMailboxWorker(command, directory, identity)) return "alive";
+  // Any other command is a different process only if it still runs: a worker
+  // that exits during the read can show a transient command, such as `[node]`.
+  return workerIsRunning(pid) ? "unknown" : "dead";
 }
 
 // Read-only: reports an already-recorded loss, or newly detects one from the

@@ -172,6 +172,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-host-bridge.mjs
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs
+  dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
   dough-execute-plan/scripts/ci-mailbox-complete.mjs
   dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs

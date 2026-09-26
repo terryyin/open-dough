@@ -38,6 +38,24 @@ payload_bytes_transfer() {
   done
 }
 
+# Every declared file under dest_root has source_root's bytes. One process
+# compares them all; only a difference walks the declaration with cmp, whose
+# own report names the first differing file.
+assert_payload_bytes_match() {
+  local source_root=$1
+  local dest_root=$2
+  local managed_file
+
+  if payload_bytes_transfer match "${source_root}" "${dest_root}"; then
+    return 0
+  fi
+  for managed_file in "${managed_files[@]}"; do
+    cmp "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || return 1
+  done
+  echo "FAIL: payload bytes differ under ${dest_root}" >&2
+  return 1
+}
+
 # The tagged tree's declared skills match dest_root byte for byte.
 assert_tagged_payload_matches() {
   local candidate=$1

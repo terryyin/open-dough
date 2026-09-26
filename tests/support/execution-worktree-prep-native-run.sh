@@ -112,16 +112,18 @@ prep_native_retain() {
 }
 
 prep_native_input_hash_lines() {
-  native_result_input_hash_line tests/execution-worktree-preparation-native.sh
-  native_result_input_hash_line tests/support/execution-worktree-prep-native.sh
-  native_result_input_hash_line tests/support/execution-worktree-prep-native-run.sh
-  native_result_input_hash_line tests/support/execution-worktree-prep-native-assess.mjs
-  native_result_input_hash_line tests/support/execution-worktree-prep-native-observe.mjs
-  native_result_input_hash_line tests/support/execution-worktree-prep-native-fixture.mjs
+  native_result_input_hash_lines \
+    tests/execution-worktree-preparation-native.sh \
+    tests/support/execution-worktree-prep-native.sh \
+    tests/support/execution-worktree-prep-native-run.sh \
+    tests/support/execution-worktree-prep-native-assess.mjs \
+    tests/support/execution-worktree-prep-native-observe.mjs \
+    tests/support/execution-worktree-prep-native-fixture.mjs
   native_result_supervision_input_hash_lines
-  native_result_input_hash_line tests/support/native-codex.sh
-  native_result_input_hash_line src/skills/dough-execute-plan/references/execution-location.md
-  native_result_input_hash_line src/skills/dough-execute-plan/SKILL.md
+  native_result_input_hash_lines \
+    tests/support/native-codex.sh \
+    src/skills/dough-execute-plan/references/execution-location.md \
+    src/skills/dough-execute-plan/SKILL.md
 }
 
 prep_native_assess_live() {

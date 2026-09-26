@@ -9,9 +9,9 @@ import {
   launchComplete,
   parseReceipt,
   register,
-  waitFor,
 } from "./ci-mailbox-await-test-fixtures.mjs";
 import { assertWorkerDead } from "./ci-mailbox-complete-test-fixtures.mjs";
+import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import {
   launcher,
   releaseRun,
@@ -48,7 +48,8 @@ test("complete-revision handles already-terminal success without a separate stop
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "success" });
-  await waitFor(
+  await awaitWorkerState(
+    fixture.mailbox,
     () => readRevisionCoverage(fixture.mailbox)[0]?.state === "success",
     "success coverage",
   );
@@ -68,7 +69,8 @@ test("complete-revision preserves exact and ignored-only evidence without changi
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
     releaseRun(fixture.directory, { conclusion: "success" });
-    await waitFor(
+    await awaitWorkerState(
+      fixture.mailbox,
       () => readRevisionCoverage(fixture.mailbox)[0]?.state === "success",
       "exact success",
     );

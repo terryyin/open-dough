@@ -7,8 +7,10 @@ import {
   readMailboxEvents,
   readWorkerIdentity,
   recordLostTerminalResult,
+  terminalResultDeadline,
   terminalResultDeadlineCode,
   waitForTerminalResult,
+  workerLossReason,
 } from "./ci-mailbox-store.mjs";
 import {
   awaitMailboxWorkerExit,
@@ -21,21 +23,59 @@ export function requestMailboxStop(directory, options = {}) {
   writeFileSync(join(directory, "stop"), "", { mode: 0o600 });
 }
 
+// Aborts once the recorded worker no longer runs as this mailbox's worker.
+// Only that worker publishes the terminal result, always before it exits, so
+// a stop need not wait out its deadline for a worker that is already gone.
+function watchWorkerDeparture(directory) {
+  const departed = new AbortController();
+  let identity;
+  try {
+    identity = readWorkerIdentity(directory);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    return { signal: departed.signal, close: () => undefined };
+  }
+  const check = () => {
+    try {
+      if (checkMailboxWorkerLiveness(identity, directory) !== "alive")
+        departed.abort();
+    } catch {
+      // An unreadable process table leaves the lifecycle deadline in charge.
+    }
+  };
+  const timer = setInterval(check, 50);
+  check();
+  return { signal: departed.signal, close: () => clearInterval(timer) };
+}
+
 export async function stopMailbox(directory, options = {}) {
   requestMailboxStop(directory, options);
+  const departure = watchWorkerDeparture(directory);
+  let terminal;
   try {
-    const terminal = await waitForTerminalResult(directory);
+    terminal = await waitForTerminalResult(directory, {
+      deadline: AbortSignal.any([terminalResultDeadline(), departure.signal]),
+    });
+  } catch (error) {
+    if (error.code !== terminalResultDeadlineCode) throw error;
+  } finally {
+    departure.close();
+  }
+  if (terminal) {
     try {
       await awaitMailboxWorkerExit(readWorkerIdentity(directory), directory);
     } catch (error) {
       if (error.code !== "ENOENT") throw error;
     }
     return terminal;
-  } catch (error) {
-    if (error.code !== terminalResultDeadlineCode) throw error;
-    await terminateMailboxWorker(readWorkerIdentity(directory), directory);
-    return recordLostTerminalResult(directory);
   }
+  // Read before terminating, which itself ends the worker.
+  const departed = departure.signal.aborted;
+  await terminateMailboxWorker(readWorkerIdentity(directory), directory);
+  return recordLostTerminalResult(
+    directory,
+    departed ? workerLossReason : undefined,
+  );
 }
 
 function unreadActionableFailures(directory) {

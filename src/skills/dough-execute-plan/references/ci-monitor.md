@@ -39,6 +39,7 @@ without promising notifications.
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally; it never dispatches or retries a check, observes
 deployment, or changes the checkout. Assess coverage with runtime-setup bounds.
+Registering a revision checks it at once, so a finished run needs no poll wait.
 
 Within the startup snapshot, inspect the newest completed attempt and unfinished
 attempts. Preserve opaque run and attempt identities. Retain unfinished

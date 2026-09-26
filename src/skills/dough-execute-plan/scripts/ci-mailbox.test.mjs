@@ -24,7 +24,10 @@ import {
   requestMailboxStop,
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
-import { waitForTerminalResult } from "./ci-mailbox-store.mjs";
+import {
+  terminalResultDeadlineMs,
+  waitForTerminalResult,
+} from "./ci-mailbox-store.mjs";
 
 function createTestMailbox(t, request = {}) {
   const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-test-"));
@@ -91,6 +94,23 @@ test("terminal result remains observable when its file notification is missed", 
     );
   }
   assert.deepEqual(received, terminal);
+});
+
+test("the terminal result deadline stays 5 s unless a test shortens it", (t) => {
+  const name = "DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS";
+  const inherited = process.env[name];
+  t.after(() => {
+    if (inherited === undefined) delete process.env[name];
+    else process.env[name] = inherited;
+  });
+  delete process.env[name];
+  assert.equal(terminalResultDeadlineMs(), 5_000);
+  for (const invalid of ["", "0", "-1", "soon"]) {
+    process.env[name] = invalid;
+    assert.equal(terminalResultDeadlineMs(), 5_000, invalid);
+  }
+  process.env[name] = "300";
+  assert.equal(terminalResultDeadlineMs(), 300);
 });
 
 test("stopping an active watcher records no failure event", async (t) => {

@@ -182,13 +182,14 @@ native_result_finalize_context() {
 }
 
 native_result_context_input_hash_lines() {
-  native_result_input_hash_line tests/dough-adr-awareness-context.sh
-  native_result_input_hash_line tests/support/native-result-retain.sh
-  native_result_input_hash_line tests/support/native-result-identity.sh
-  native_result_input_hash_line tests/support/native-adr-behavior.sh
-  native_result_input_hash_line tests/support/dough-adr-awareness-use.sh
-  native_result_input_hash_line tests/support/native-codex.sh
-  native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
+  native_result_input_hash_lines \
+    tests/dough-adr-awareness-context.sh \
+    tests/support/native-result-retain.sh \
+    tests/support/native-result-identity.sh \
+    tests/support/native-adr-behavior.sh \
+    tests/support/dough-adr-awareness-use.sh \
+    tests/support/native-codex.sh \
+    src/skills/dough-adr-awareness/SKILL.md
   native_result_supervision_input_hash_lines
 }
 

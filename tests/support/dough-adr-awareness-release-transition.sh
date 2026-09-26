@@ -10,7 +10,7 @@ delivery_payload_skill_roots() {
 }
 
 delivery_assert_baseline_install() {
-  local managed_file skill_root
+  local skill_root
 
   git -C "${delivery_fixture_source}" rev-parse --verify \
     "v${delivery_baseline_version}^{commit}" > /dev/null
@@ -23,10 +23,8 @@ delivery_assert_baseline_install() {
   grep -Fq "${delivery_improvement}" \
     "${delivery_fixture_source}/src/skills/dough-adr-awareness/SKILL.md"
   while IFS= read -r skill_root; do
-    for managed_file in "${delivery_current_managed_files[@]}"; do
-      cmp "${delivery_older_checkout}/src/skills/${managed_file}" \
-        "${delivery_target}/${skill_root}/${managed_file}"
-    done
+    assert_payload_bytes_match "${delivery_older_checkout}/src/skills" \
+      "${delivery_target}/${skill_root}"
     [[ $(cat "${delivery_target}/${skill_root}/dough-update/VERSION") == "${delivery_baseline_version}" ]]
     [[ $(cat "${delivery_target}/${skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]]
     if grep -Fq "${delivery_improvement}" \
@@ -57,17 +55,15 @@ delivery_capture_update_state() {
 
 delivery_assert_update_payload() {
   local source_after source_status companion_after actual_changes expected_changes
-  local skill_root managed_file
+  local skill_root
 
   source_after=$(delivery_snapshot "${delivery_fixture_source}")
   source_status=$(git -C "${delivery_fixture_source}" status --porcelain)
   [[ "${delivery_source_before}" == "${source_after}" ]] || return 1
   [[ -z ${source_status} ]] || return 1
   while IFS= read -r skill_root; do
-    for managed_file in "${delivery_current_managed_files[@]}"; do
-      cmp "${delivery_fixture_source}/src/skills/${managed_file}" \
-        "${delivery_target}/${skill_root}/${managed_file}" || return 1
-    done
+    assert_payload_bytes_match "${delivery_fixture_source}/src/skills" \
+      "${delivery_target}/${skill_root}" || return 1
     [[ $(cat "${delivery_target}/${skill_root}/dough-update/SOURCE") == "${delivery_source_url}" ]] || return 1
     [[ $(cat "${delivery_target}/${skill_root}/dough-update/VERSION") == "${delivery_update_version}" ]] || return 1
   done < <(delivery_payload_skill_roots)
@@ -111,7 +107,7 @@ delivery_assert_update() {
     # and rely on delivery_assert_update_payload above for byte-exact proof
     # of what actually landed on disk.
     local skill_name
-    for managed_file in "${delivery_current_managed_files[@]}"; do
+    for managed_file in "${managed_files[@]}"; do
       skill_name=${managed_file%%/*}
       grep -Fq "${skill_name}" "${update_output}" || {
         echo "FAIL: update output omitted managed skill ${skill_name}." >&2

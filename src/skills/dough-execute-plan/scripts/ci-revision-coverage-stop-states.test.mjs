@@ -40,7 +40,7 @@ test("stop reports one pending and one undiscovered revision without waiting", a
       outcome: "pending",
     },
   ]);
-  await advancePoll(2);
+  await advancePoll();
   assert.deepEqual(
     mailbox
       .readRevisionCoverage(directory)

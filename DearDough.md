@@ -584,6 +584,7 @@ Former local code: DD-095.
 Delivery without `--session-json` returned `pendingCi: unobserved`; no guidance
 names Claude Code's `$CLAUDE_CODE_SESSION_ID`. A retry for the accepted SHA was
 refused ("rebase left the pre-rebase SHA") after starting an unreported observer.
+Seven older occurrences (plans 089, 092, 096, 097 twice, 099, 100) are pruned; see Retention.
 
 ### Occurrences
 
@@ -594,64 +595,6 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Open Dough release: 0.3.36
   - Evidence: retry-created `watch-Vcl3dH` reused at 5650123; plus `watch-ljLxgl`.
   - Observed effect: two observers for one branch until one was stopped.
-- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
-  - Timestamp: unknown (first delivery, 2026-09-24 after 11:56+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.34
-  - Evidence: first delivery receipt for `eff3e76` said `observation.state:
-    unobserved` ("host session identity is required"); re-delivery with the same base refused
-    ("rebase left the pre-rebase SHA as the candidate"); explicit
-    `ci-mailbox.mjs start` + `register-push` attached it; later deliveries
-    with `--session-json '{"session_id":"$CLAUDE_CODE_SESSION_ID"}'` attached
-    and reused the observer.
-  - Observed effect: slice 1 went briefly unobserved and needed a
-    source-code search to recover; later slices were observed.
-
-- Execution: `SEED-021#follow-published-story-branch` / plan 092, first related implementation commit `3f64bc7`
-  - Timestamp: unknown (first increment delivery, after commit `3f64bc7` at
-    2026-09-24T20:35:01+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.38
-  - Evidence: `3f64bc7` receipt `observation.state: unobserved`;
-    `ci-mailbox.mjs start` + `register-push` attached `watch-oQrMZX`; later
-    deliveries passed `--session-json` and reused it.
-  - Observed effect: the session ID was taken from a tool-output path after
-    rereading `ci-host-bridge.mjs`; a fourth Claude Code occurrence.
-
-- Execution: `SEED-038#recognize-agents-and-tools-by-avatar` / plan 097, first related implementation commit `3102053`
-  - Timestamp: unknown (first increment delivery, after commit `3102053` at
-    2026-09-25T12:50:10+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: `3102053` receipt `observation.state: unobserved` ("host
-    session identity is required"); re-delivery with the same base,
-    `--validated-candidate 3102053`, and `--session-json` taken from the
-    transcript path attached `watch-5kshKo` (`reconciliations: 1`, no refusal);
-    slice 2 delivery reused it.
-  - Observed effect: a sixth Claude Code occurrence; recovery again needed a
-    read of `ci-host-bridge.mjs`. No duplicate observer this time.
-
-- Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
-  - Timestamp: unknown (first increment delivery, after commit `9c142ed` at 2026-09-25T19:34:58+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: `9c142ed` delivery `unobserved`; `--session-json` retry refused; next delivery "reused" unreported `watch-uBx7hd`, the one after it started `watch-qwZ6VX`.
-  - Observed effect: `9c142ed` never observed; two observers on one branch.
-
-- Execution: `SEED-008#useful-startup-output` / plan 100, first related implementation commit `075e955`
-  - Timestamp: 2026-09-25T19:11:03+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: first delivery `unobserved` ("host session identity is required");
-    a retry with `CLAUDE_CODE_SESSION_ID` was refused (exit 2) yet left
-    `watch-KU7jG9` running beside the manually started `watch-pgkPLM`.
-  - Observed effect: again a hidden duplicate observer, found only by the retrospective.
-
 - Execution: `SEED-042#rename-slice-plan-folder-references` / plan 111, first related implementation commit `e7b7ad1`
   - Timestamp: unknown (first increment delivery, after commit `e7b7ad1` at 2026-09-26T14:11:57+08:00)
   - Tool: Claude Code
@@ -675,6 +618,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Open Dough release: unknown; installed guidance last updated by `f87d34c`
   - Evidence: `f157f0e` receipt `observation.state: unobserved` ("host session identity is required"); no retry; slice 2 delivery with `--session-json` from `CLAUDE_CODE_SESSION_ID` attached `watch-3NF61x`. Installed `trunk-publication.md` lacks the source's env-var sentence.
   - Observed effect: slice 1 never observed individually; recovery needed a read of `ci-host-bridge.mjs`.
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (first increment delivery, after commit `273ae9a` at 2026-09-26T11:06:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `273ae9a` receipt `unobserved` ("host session identity is required"); `ci-host-bridge.mjs` read, then manual `start` + `register-push` (`watch-20kX7p`); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID`.
+  - Observed effect: a ninth occurrence; no retry, so no hidden duplicate observer.
 
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
@@ -981,8 +932,64 @@ agents kept editing the checkout.
     a repair that cannot touch other writers' files; whether it should is
     open.
 
+## DD-108 — A host permission check refused maintainer-approved test removals relayed to an agent
+
+The maintainer approved a coverage map through the coordinator; the implementation agent's first run-removing edit was refused by Claude Code auto mode as "Security Test Removal", since relayed approval is not user consent.
+
+### Occurrences
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (between `8da97ee` at 2026-09-26T12:56:27+08:00 and `cee3f07` at 2026-09-26T14:09:29+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: agent report "refused … Security Test Removal", no edits made; maintainer's direct instruction; coordinator applied the removals in `cee3f07`.
+  - Observed effect: slice 3 blocked for one extra maintainer round trip.
+
+## DD-109 — Full-suite proof in a checkout another agent was editing reported false failures
+
+`npm test` in the shared execution checkout, while a parallel slice edited `src/skills`, failed three payload-comparing checks; an isolated worktree with only the finished slice passed.
+
+### Occurrences
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (after `c2e340d`, before `cee3f07` at 2026-09-26T14:09:29+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: failures in `install-all-tools.sh`, `native-delivery-updated-use{,-adapters}.sh`; isolated rerun at `c2e340d` plus slice 3 passed; slice 5's final candidate passed all three.
+  - Observed effect: one wasted full suite and a diagnosis detour; later proof used detached worktrees.
+
+## DD-110 — A checkpoint stop offered unranked options, and the maintainer could not choose
+
+At the slice-6 checkpoint the coordinator listed four options without their effect on the goal; the maintainer: "I don't really know how to choose … choose the one that is getting us closer to the goal."
+
+### Occurrences
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (after `69620a0`, before `bedad7a` at 2026-09-26T15:53:51+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: plan 107 "Checkpoint after slice 6 measurement" and its Resolution.
+  - Observed effect: one round trip; later checkpoints led with a recommendation.
+
+## DD-111 — A delegated implementation agent handed back before finishing its own required proof
+
+Slice 2's agent returned three times with its ablation and paired measurement unfinished while its background runs continued, asking the coordinator to finish them. Possibly related to ODF-059 (a stall after editing), but here the agent returned.
+
+### Occurrences
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (between `8da97ee` and `342b939`'s delivery on 2026-09-26)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: reports "measurement incomplete" and "I had to hand back before your remaining steps were finished"; the coordinator stopped it and ran the reruns and 3×3 pairs; later briefs saying "finish all required proof yourself" returned complete.
+  - Observed effect: about an hour of coordinator-driven measurement on slice 2.
+
 ## Retention
 
-- Highest allocated local number: 107
-- Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 111
+- Recovery: `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

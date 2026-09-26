@@ -95,8 +95,6 @@ git_publication_run_native_command() {
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-evidence.sh"
 
-# Run one journey. Sets git_publication_assess_* and optionally retains under
-# native_case_results_dir. Leaves fixture cleaned unless GIT_PUBLICATION_KEEP=1.
 git_publication_fixture_install_skills() {
   local source_dir=$1
   local host=$2
@@ -105,6 +103,8 @@ git_publication_fixture_install_skills() {
     --source "${source_dir}" --platform "${host}" > /dev/null
 }
 
+# Run one journey. Sets git_publication_assess_* and optionally retains under
+# native_case_results_dir. Leaves fixture cleaned unless GIT_PUBLICATION_KEEP=1.
 git_publication_run_journey() {
   local source_dir=$1
   local host=$2

@@ -13,6 +13,7 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout as pause } from "node:timers/promises";
+import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readMailboxEvents } from "./ci-mailbox-store.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
@@ -117,7 +118,8 @@ export async function installManagedDelivery(
   platforms = [".agents"],
 ) {
   const storage = join(fixture, "mailboxes");
-  const releasePath = join(fixture, "release.json");
+  const releaseName = "release.json";
+  const releasePath = join(fixture, releaseName);
   const callsPath = join(fixture, "calls.jsonl");
   mkdirSync(join(root, ".planning"), { recursive: true });
   const skills = platforms.map((platform) => deploySkill(root, platform));
@@ -180,20 +182,19 @@ export async function installManagedDelivery(
       return directory;
     },
     releaseFailure(sha, branch = "main") {
-      writeFileSync(
-        releasePath,
-        JSON.stringify({
-          attempts: [
-            {
-              runId: "run:opaque/managed",
-              attemptId: "attempt:opaque/first",
-              sha,
-              outcome: "failure",
-              url: "https://ci.example.test/run/managed",
-            },
-          ],
-        }),
-      );
+      // The adapter reads the release as soon as it exists; publish it whole
+      // so discovery never parses a created but unwritten file.
+      publishJson(fixture, releaseName, {
+        attempts: [
+          {
+            runId: "run:opaque/managed",
+            attemptId: "attempt:opaque/first",
+            sha,
+            outcome: "failure",
+            url: "https://ci.example.test/run/managed",
+          },
+        ],
+      });
       return { sha, branch };
     },
     stopObserver: (directory) => stopObserver(observer(directory)),

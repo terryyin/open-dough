@@ -19,10 +19,7 @@ import {
   revParse,
   tryPushExactRef,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import {
-  configureAgentAuthorship,
-  workspaceAuthorship,
-} from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
+import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   backlogPath,
   isAncestor,
@@ -115,7 +112,8 @@ export async function startPreparation(input) {
       fetched: base,
       error: `${identity} is not queued on ${ref}`,
     });
-  const found = await workspaceAssignment(request, ref);
+  const recorded = recordedAllocation(workspace);
+  const found = await workspaceAssignment(request, ref, recorded);
   if (found.state === "held") {
     await configureAgentAuthorship(workspace, agentIdentity(found.own.name));
     return {
@@ -134,8 +132,12 @@ export async function startPreparation(input) {
       error:
         "this workspace still holds a published assignment this request does not name; end it before preparing another",
     });
-  if (found.state === "unconfirmed") await dropUnconfirmed(workspace, found);
-  const previous = await recordedAllocation(workspace);
+  // Only dropping an unconfirmed announcement changes the record.
+  let previous = await recorded;
+  if (found.state === "unconfirmed") {
+    await dropUnconfirmed(workspace, found);
+    previous = await recordedAllocation(workspace);
+  }
   const startHead = await revParse(workspace, "HEAD");
   if (
     (await git(workspace, "status", "--porcelain")).stdout !== "" ||
@@ -207,7 +209,10 @@ export async function startPreparation(input) {
       error: "remote trunk did not accept the preparation announcement",
     });
   }
-  await configureAgentAuthorship(workspace, agentIdentity(agent.name));
+  const authorship = await configureAgentAuthorship(
+    workspace,
+    agentIdentity(agent.name),
+  );
   const refresh = await maintenance(request);
   return {
     ok: true,
@@ -220,7 +225,7 @@ export async function startPreparation(input) {
     }),
     publishedSha: announced.sha,
     workspace,
-    workspaceAuthorship: await workspaceAuthorship(workspace),
+    workspaceAuthorship: authorship,
     refresh,
   };
 }

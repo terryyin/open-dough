@@ -8,6 +8,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
+source "${source_dir}/tests/helpers/fixture-cache.bash"
 source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
@@ -58,8 +59,16 @@ finish() {
   exit "${status}"
 }
 trap finish EXIT
+
+# The selected run's adopter under <root>, installed from <candidate> for <host>.
+build_context_adopter() {
+  prepare_installed_adr_awareness_target "$1/adopter" "$2" "$3"
+}
+
 candidate="${temporary_dir}/candidate"
-build_current_tagged_release_fixture "${candidate}"
+fixture_cache_fill context-candidate "${candidate}" \
+  build_current_tagged_release_fixture
+candidate_build=${fixture_cache_built}
 version=$(cat "${candidate}/VERSION")
 tag="v${version}"
 source_commit=$(git -C "${candidate}" rev-parse HEAD)
@@ -101,7 +110,8 @@ output_file="${artifact_root}/response.md"
 native_stderr="${artifact_root}/stderr.log"
 : > "${native_stderr}"
 target="${temporary_dir}/adopter"
-prepare_installed_adr_awareness_target "${target}" "${candidate}" "${platform}"
+fixture_cache_fill "context-${platform}" "${temporary_dir}" \
+  build_context_adopter "${candidate_build}" "${platform}"
 if [[ ${scenario} == 'conflict' ]]; then
   sed 's/| Accepted |/| Proposed |/' "${target}/docs/adrs/README.md" \
     > "${temporary_dir}/index"

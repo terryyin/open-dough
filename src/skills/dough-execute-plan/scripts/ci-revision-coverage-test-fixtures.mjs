@@ -125,6 +125,13 @@ export async function createRevisionCoverageFixture(
   const poll = polls.of(worker, () => mailbox.readMailboxEvents(directory));
   await poll.reached();
   assert.equal(adapterCallCount(), 1, "initial poll");
+  let expectedCalls = 1;
+  // Waits until `paused` sees the observer pause after one more poll.
+  const pollCompleted = async (paused) => {
+    expectedCalls += 1;
+    await paused();
+    assert.equal(adapterCallCount(), expectedCalls, `poll ${expectedCalls}`);
+  };
 
   const deliver = async () => {
     const sha = (await git(project, "rev-parse", "HEAD")).stdout.trim();
@@ -140,6 +147,7 @@ export async function createRevisionCoverageFixture(
       ).stdout.trim(),
       sha,
     );
+    const woken = poll.pauseAfterNow();
     const { stdout } = await exec(
       process.execPath,
       [launcher, "register-push", directory, sha],
@@ -150,13 +158,12 @@ export async function createRevisionCoverageFixture(
       JSON.parse(stdout.slice(mailbox.receiptPrefix.length)).revision.sha,
       sha,
     );
+    // The registration wakes the paused observer for one immediate poll.
+    await pollCompleted(woken);
     return sha;
   };
 
-  const advancePoll = async (expectedCalls) => {
-    await poll.advance();
-    assert.equal(adapterCallCount(), expectedCalls, `poll ${expectedCalls}`);
-  };
+  const advancePoll = () => pollCompleted(poll.advance);
 
   const setAttempts = (attempts) =>
     writeFileSync(adapterState, JSON.stringify({ attempts }));

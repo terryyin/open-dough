@@ -58,7 +58,19 @@ jobs:
       # forwards the signal to its `sh -c`, which the `exec` in package.json's
       # test script replaces with the runner, so it reports what was running.
       - name: Run ${{ matrix.check }}
+        env:
+          OPEN_DOUGH_TEST_TIMES: ${{ runner.temp }}/test-times.txt
         run: exec npm run "${{ matrix.check }}"
+      # The test runner's per-job seconds on this runner (lint writes none),
+      # for calibrating the time budget.
+      - name: Keep per-job test times
+        if: matrix.check == 'test' && !cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-times
+          path: ${{ runner.temp }}/test-times.txt
+          if-no-files-found: ignore
+          retention-days: 7
 
   # The dashboard's browser suite is not a shell test, so `npm test` never
   # discovers it. It runs here as its own check, against controlled GitHub

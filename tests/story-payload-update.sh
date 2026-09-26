@@ -19,7 +19,9 @@ build_upgrade_releases "${fixture}" "${older}" before-stories with-stories \
   --withhold dough-story-decomposition/ --withhold dough-story-refinement/ \
   --remove dough-story-decomposition --remove dough-story-refinement
 
-for platform in codex cursor claude; do
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; claude reads the .claude entry root.
+for platform in cursor claude; do
   target="${temporary_dir}/${platform}"
   prepare_target "${target}"
   write_project_configuration "${target}"

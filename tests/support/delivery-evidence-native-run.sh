@@ -47,12 +47,19 @@ delivery_evidence_case_profile() {
   esac
 }
 
-# Reads KEY from a case observations file of "key: value" lines.
+# Reads KEY from a case observations file of "key: value" lines: the text
+# after "KEY: " on the first line that starts with it. Parsed in the shell:
+# assessors read many fields per case.
 delivery_evidence_obs_get() {
   local key=$1
   local file=$2
-  awk -v k="${key}" -F': ' '$1 == k {print substr($0, index($0, ": ") + 2); exit}' \
-    "${file}"
+  local line
+  while IFS= read -r line || [[ -n ${line} ]]; do
+    if [[ ${line} == "${key}: "* ]]; then
+      printf '%s\n' "${line#"${key}: "}"
+      return 0
+    fi
+  done < "${file}"
 }
 
 delivery_evidence_git() {
@@ -99,24 +106,25 @@ delivery_evidence_write_evidence_identity() {
   printf 'scenario-content-identity: %s-scenario-content.sh\n' "${case_prefix}"
   printf 'observe-identity: %s-observe.sh\n' "${case_prefix}"
   printf 'assessor-identity: %s-assess.sh\n' "${case_prefix}"
-  native_result_input_hash_line tests/git-publication-native.sh
-  native_result_input_hash_line tests/support/git-publication-native-host.sh
-  native_result_input_hash_line tests/support/delivery-evidence-native-run.sh
-  native_result_input_hash_line "${case_prefix}-assess.sh"
-  native_result_input_hash_line "${case_prefix}-observe.sh"
-  native_result_input_hash_line "${case_prefix}-scenario-content.sh"
-  native_result_input_hash_line tests/support/git-publication-native-run.sh
+  native_result_input_hash_lines \
+    tests/git-publication-native.sh \
+    tests/support/git-publication-native-host.sh \
+    tests/support/delivery-evidence-native-run.sh \
+    "${case_prefix}-assess.sh" \
+    "${case_prefix}-observe.sh" \
+    "${case_prefix}-scenario-content.sh" \
+    tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
-  native_result_input_hash_line \
-    src/skills/dough-execute-plan/references/wrap-up.md
-  native_result_input_hash_line \
+  native_result_input_hash_lines \
+    src/skills/dough-execute-plan/references/wrap-up.md \
     src/skills/dough-execute-plan/references/delegation.md
   if [[ ${case_name} == selection ]]; then
-    native_result_input_hash_line "${case_prefix}-repository-content.sh"
-    native_result_input_hash_line "${case_prefix}-proof-logger.sh"
+    native_result_input_hash_lines \
+      "${case_prefix}-repository-content.sh" \
+      "${case_prefix}-proof-logger.sh"
   fi
   if [[ ${case_name} == consumers ]]; then
-    native_result_input_hash_line \
+    native_result_input_hash_lines \
       src/skills/dough-story-refinement/references/executable-proof.md
   fi
 }

@@ -90,6 +90,7 @@ inspected_helpers=(
   src/install/open-dough-install-payload.sh
   src/install/open-dough-release.sh
   src/install/open-dough-release-apply.sh
+  src/install/open-dough-release-baseline.sh
   src/install/open-dough-platform.sh
   src/install/open-dough-release-version.sh
   src/install/open-dough-release-resolve.sh

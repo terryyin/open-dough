@@ -26,13 +26,19 @@ export OPEN_DOUGH_TRACE="${trace_file}"
 previous_source='previous-successful-source'
 previous_version='0.1.0'
 
+applied_template="${temporary_dir}/applied template"
 prepare_apply_with_previous_records() {
   local name=$1
 
   apply_target="${temporary_dir}/${name} project"
   apply_dest="${apply_target}/.agents/skills/dough-update"
-  prepare_target "${apply_target}"
-  bash "${helper}" apply --url "${fixture}" --target "${apply_target}" --platform cursor > /dev/null
+  # Each case copies one applied installation instead of applying again.
+  if [[ ! -d "${applied_template}" ]]; then
+    prepare_target "${applied_template}"
+    bash "${helper}" apply --url "${fixture}" --target "${applied_template}" \
+      --platform cursor > /dev/null
+  fi
+  cp -a -- "${applied_template}" "${apply_target}"
   printf '%s\n' "${previous_source}" > "${apply_dest}/SOURCE"
   printf '%s\n' "${previous_version}" > "${apply_dest}/VERSION"
   : > "${trace_file}"
@@ -66,20 +72,6 @@ assert_apply_incomplete_install_report "${output}" \
   'Installed payload verification failed.'
 assert_preserved_install_records "${verify_dest}" \
   "${previous_source}" "${previous_version}"
-
-prepare_apply_with_previous_records record-fail
-record_fail=${apply_target}
-record_dest=${apply_dest}
-if output=$(OPEN_DOUGH_INSTALL_FAULT=record bash "${helper}" apply --url "${fixture}" \
-  --target "${record_fail}" --platform cursor --force 2>&1); then
-  echo "FAIL: record-write fault must not report success." >&2
-  exit 1
-fi
-assert_apply_incomplete_install_report "${output}" \
-  'Failed to write installation records after replacement started.'
-assert_preserved_install_records "${record_dest}" \
-  "${previous_source}" "${previous_version}"
-grep -q '^install ' "${trace_file}"
 
 prepare_apply_with_previous_records real-record-fail
 real_record_fail=${apply_target}

@@ -3,7 +3,7 @@
 // trunk. Publication acceptance stays independent of that result. Native
 // agent behavior is not this file.
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { refreshDefaultCheckout } from "./maintain-default-checkout.mjs";
@@ -141,6 +141,48 @@ test("refresh preserves a pending edit, unpublished commits, another writer's ow
   assert.equal(lockResult.reason, "ongoing-operation");
   assert.equal(await revParse(locked.integration, "HEAD"), lockHead);
   assert.equal(lockResult.status, null);
+});
+
+test("refresh defers for every in-progress operation ref, even a dangling one, and stops on a detached HEAD", async (t) => {
+  const { integration, trunkSha, cleanup } = await createCleanTrunkFixture();
+  t.after(cleanup);
+
+  // This fixture stores refs as files, so each in-progress ref is planted
+  // where Git itself leaves it.
+  const refFile = async (ref) =>
+    (
+      await git(
+        integration,
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-path",
+        ref,
+      )
+    ).stdout.trim();
+  const planted = [
+    ["MERGE_HEAD", trunkSha],
+    ["REBASE_HEAD", trunkSha],
+    ["CHERRY_PICK_HEAD", trunkSha],
+    ["REVERT_HEAD", trunkSha],
+    ["MERGE_HEAD", "1".repeat(trunkSha.length)],
+  ];
+  for (const [ref, value] of planted) {
+    const file = await refFile(ref);
+    writeFileSync(file, `${value}\n`);
+    const result = await refresh(integration);
+    unlinkSync(file);
+    assert.deepEqual(
+      [result.result, result.reason, result.head, result.status],
+      ["deferred", "ongoing-operation", trunkSha, null],
+      `${ref} ${value}`,
+    );
+  }
+
+  await git(integration, "checkout", "--quiet", "--detach");
+  const detached = await refresh(integration);
+  assert.equal(detached.result, "stopped");
+  assert.equal(detached.reason, "unexpected-branch");
+  assert.equal(detached.head, trunkSha);
 });
 
 test("a busy checkout accepts a remote publication and a later refresh fast-forwards to current remote history", async (t) => {

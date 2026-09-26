@@ -1,4 +1,6 @@
-import { rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 // A test stops or releases what it started before removing the fixture those
 // things run from. Register `cleanup` with `t.after` when the fixture is
@@ -52,4 +54,25 @@ export function deferChildExit(teardown, child, signal = "SIGTERM") {
     child.kill(signal);
     await exited;
   });
+}
+
+// macOS assesses each newly written executable on its first run, which costs
+// a few hundred milliseconds, and seconds on a loaded machine. A fixture
+// command whose behavior depends only on its environment is therefore written
+// once per test process into a shared directory that each fixture using it
+// puts on its PATH. The directory is removed when the process exits.
+const sharedCommandDirectories = new Map();
+export function sharedCommandDirectory(name, source) {
+  const key = `${name}\0${source}`;
+  let directory = sharedCommandDirectories.get(key);
+  if (!directory) {
+    directory = mkdtempSync(join(tmpdir(), "fixture-command-"));
+    const created = directory;
+    process.once("exit", () => {
+      rmSync(created, { recursive: true, force: true });
+    });
+    writeFileSync(join(directory, name), source, { mode: 0o700 });
+    sharedCommandDirectories.set(key, directory);
+  }
+  return directory;
 }

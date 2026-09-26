@@ -32,7 +32,6 @@ platform_skill_root() {
 
   case "${platform}" in
     codex) printf '%s\n' "${target}/.agents/skills" ;;
-    cursor) printf '%s\n' "${target}/.agents/skills" ;;
     claude) printf '%s\n' "${target}/.claude/skills" ;;
     *) return 1 ;;
   esac
@@ -67,7 +66,9 @@ assert_refused_unchanged() {
   [[ "${after_target}" == "${before_target}" ]]
 }
 
-for platform in codex cursor claude; do
+# The codex and cursor hints select the same .agents root, so codex represents
+# both; claude is the other physical root.
+for platform in codex claude; do
   for force_arg in '' --force; do
     target="${temporary_dir}/${platform}-${force_arg:-ordinary}-symlink-target"
     outside="${temporary_dir}/${platform}-${force_arg:-ordinary}-outside"
@@ -83,7 +84,9 @@ for platform in codex cursor claude; do
     [[ "${after_outside}" == "${before_outside}" ]]
   done
 
-  for managed_skill in dough-update dough-adr-awareness dough-product-backlog dough-story-decomposition dough-story-refinement dough-resplit-story dough-slice-planning dough-slice-plan-refinement dough-execute-plan dough-post-change-refactor dough-execution-retrospective dough-story-wrap-up; do
+  # One preflight walk covers every declared skill, so the first declared
+  # skill, the one that proves no earlier write, and a late one represent it.
+  for managed_skill in dough-update dough-adr-awareness dough-story-wrap-up; do
     for force_arg in '' --force; do
       target="${temporary_dir}/${platform}-${managed_skill}-${force_arg:-ordinary}-collision"
       skill_root=$(platform_skill_root "${target}" "${platform}")
