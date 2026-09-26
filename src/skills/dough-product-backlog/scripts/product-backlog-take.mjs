@@ -4,6 +4,10 @@
 // "## Taken" is a resume: it keeps its place in that list and only gains a
 // plan link it was missing.
 //
+// Accepted work that was never queued is admitted straight to the end of
+// "## Taken" under the same rules a new queue entry follows: an identity its
+// canonical home names, a home no other entry links, and a resolved plan.
+//
 // This applies a claim the caller has already decided on. It does not decide
 // whether execution may start, who may execute the work, or where the caller
 // commits the claim, and it gives no run exclusive ownership of an item.
@@ -17,8 +21,13 @@ import {
 import {
   appendIndex,
   findEntry,
+  insertEntryLine,
   moveEntryLine,
 } from "./product-backlog-placement.mjs";
+import {
+  requireNamedHome,
+  requireUnlistedWork,
+} from "./product-backlog-add.mjs";
 import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
@@ -97,4 +106,21 @@ export function takeEntry(source, request) {
     line,
   );
   return { source: renderBacklog(document), entry, result: "taken" };
+}
+
+// Admits one identified work item that neither list holds yet directly to the
+// end of "## Taken", with the plan link the caller selected. Queued or already
+// Taken work is refused rather than duplicated or silently resumed.
+export function admitEntry(source, request) {
+  const document = parseBacklog(source);
+  requireUnlistedWork(document, request);
+  requireNamedHome(request.backlogDirectory, request);
+  const entry = {
+    identity: request.identity,
+    title: request.title,
+    href: request.href,
+  };
+  const line = renderEntry({ ...entry, plan: resolvePlan(entry, request) });
+  insertEntryLine(document, appendIndex(document, document.taken), line);
+  return { source: renderBacklog(document), entry, result: "admitted" };
 }

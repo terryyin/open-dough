@@ -125,7 +125,7 @@ if payload declarations change, use their existing functional checks.
 
 ### 1. Admit an unlisted mission with useful published details
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An authorized mission with a selected existing/new seed story has no
 backlog entry → shared admission publishes its canonical content, Taken entry
@@ -154,6 +154,17 @@ with the added representative case in its suitable existing owner.
 
 Safe stop: Explicit admission works and publishes honest ownership; specialist
 entry workflows still await slice 3. Do not claim all callers are integrated.
+
+Accepted proof: `execution-start.mjs start --admit --identity --link --title`
+runs through the single `startExecution` orchestration and publisher, with the
+queued/admission source choice held in `execution-start-source.mjs` and
+admission reconciliation in `execution-admission-source.mjs`; guidance lives in
+`src/skills/dough-execute-plan/references/admit-accepted-work.md`. Passing:
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs`
+(52), `node --test tests/support/product-backlog-take.test.mjs tests/support/product-backlog-add*.test.mjs tests/support/story-state*.test.mjs`
+(20), `npm run test:dashboard -- dashboard/tests/taken-agent-profile.spec.ts dashboard/tests/story-readiness.spec.ts`
+(3, including the admitted-investigation Taken case) and the payload shell
+checks under a modern bash.
 
 ### 2. Recover admission without losing its story or duplicating ownership
 Type: Behavior
@@ -323,4 +334,13 @@ planned, not already passed. Reassess when implementation exposes contrary facts
 
 ## Learnings
 
-None from execution; implementation has not begun.
+- Slice 1: owned admission content is the selected story's section (or a new
+  seed whole) plus the declared plan, reconciled per section onto fetched trunk;
+  a line-level three-way merge falsely conflicted on adjacent appended stories.
+  Local sibling edits in the same seed stay unpublished.
+- Slice 1: admission requires a recorded Goal and preparation facts (written
+  first through `record-state`) and publishes them as recorded, with no
+  assessment. Retained-admission resume currently re-reads the source, finds
+  the identity Taken and returns `existing` without admission content, and an
+  agent-name collision replays by rebase instead of the reselection rebuild;
+  both are slice 2 obligations.

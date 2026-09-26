@@ -159,6 +159,14 @@ startup boundary. Queued current-branch work keeps its existing local Take
 contract and gains no publication authority. Leave taken work through pauses,
 failures, completion, and retrospective; wrap-up removes it.
 
+### Admit accepted work that no backlog list holds
+
+When the current instruction accepts a mission for tracked work that no
+backlog list holds, follow
+[admit accepted work](references/admit-accepted-work.md) before its
+substantive work: draft and record its story, then run the same start command
+with `--admit`.
+
 ## Choose the execution location
 
 Follow [execution location](references/execution-location.md) for mode,

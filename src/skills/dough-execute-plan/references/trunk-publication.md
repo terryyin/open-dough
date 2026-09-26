@@ -10,8 +10,8 @@ armed from the execution checkout against the authorized target branch.
 
 ## Publish a queue claim
 
-For queued Story Branch and Trunk Mode, [Take queued work](../SKILL.md#take-queued-work)
-uses the installed startup operation to publish and confirm the claim on remote
+For queued Story Branch and Trunk Mode, [Take queued work](../SKILL.md#take-queued-work),
+including [admission](admit-accepted-work.md) of accepted unlisted work, uses the installed startup operation to publish and confirm the claim on remote
 trunk before implementation. Retain the published SHA and recovery
 coordinates from its compact result and register that SHA after the observer
 is armed. Later environment preparation does

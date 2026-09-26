@@ -16,7 +16,7 @@ import {
 } from "./product-backlog-placement.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
-function requireUnlistedWork(document, request) {
+export function requireUnlistedWork(document, request) {
   const existing = document.entries.find(
     (entry) => entry.identity === request.identity,
   );
@@ -46,7 +46,7 @@ function requireUnlistedWork(document, request) {
 // home: nothing beyond the entry's own claim exists there to confirm or
 // dispute an identity, so there is nothing to gain by requiring the file be
 // there at all.
-function requireNamedHome(backlogDirectory, request) {
+export function requireNamedHome(backlogDirectory, request) {
   if (!recordsOwnIdentity(request.identity, request.href)) {
     return;
   }

@@ -14,7 +14,7 @@ import {
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { startQueuedExecution } from "./execution-start.mjs";
+import { startExecution } from "./execution-start.mjs";
 
 test("startup preserves unrelated staged, tracked, untracked, and sibling source edits", async (t) => {
   const trunk = await createQueuedTrunk();
@@ -221,7 +221,7 @@ test("missing publication authority refuses before fetch or workspace selection"
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "unauthorized");
-  const receipt = await startQueuedExecution({
+  const receipt = await startExecution({
     integration: trunk.integration,
     workspace,
     branch: "exec/unauthorized",

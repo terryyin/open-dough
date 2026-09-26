@@ -9,6 +9,11 @@ import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { enlargedView, expectMark, expectPortrait } from "./agentPortrait.ts";
 import {
+  admitted,
+  publishAdmittedInvestigation,
+  stillQueued,
+} from "./admittedWork.ts";
+import {
   agents,
   branchStory,
   files,
@@ -201,4 +206,42 @@ test("each Taken card shows its published agent profile, or says plainly that no
     }
     expect(asked).not.toContain(`content ${agents}/README.md?ref=${revisionA}`);
   });
+});
+
+test("an admitted investigation that was never queued shows its purpose, owner, and unselected preparation in Taken", async ({
+  page,
+}) => {
+  const cleanups: Array<() => void> = [];
+  try {
+    await publishAdmittedInvestigation(page, (cleanup) =>
+      cleanups.push(cleanup),
+    );
+    await page.goto("/");
+    await expectMembership(page, {
+      taken: [admitted.title],
+      backlog: [stillQueued.title],
+    });
+    const card = parts(page).taken.getByRole("article", {
+      name: admitted.title,
+    });
+    await expect(card).toContainText(
+      "Yui-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
+    );
+    await expect(card).toContainText(
+      `Branch context: ${admitted.branch} (story branch work; not on trunk)`,
+    );
+    await expect(card.getByText("Refined", { exact: true })).toBeVisible();
+    await expect(
+      card.getByText("Ready for execution", { exact: true }),
+    ).toHaveCount(0);
+    await card.getByText("Preparation facts").click();
+    await expect(card).toContainText("Approach: Unselected");
+    await expect(card).toContainText("Assessment: Absent");
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    await expect(
+      card.getByRole("region", { name: `Detail for ${admitted.title}` }),
+    ).toContainText(admitted.purpose);
+  } finally {
+    for (const cleanup of cleanups) cleanup();
+  }
 });

@@ -7,11 +7,12 @@ import {
   takenHeading,
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readHome } from "../../dough-product-backlog/scripts/product-backlog-home-reader.mjs";
+import { splitHref } from "../../dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { readStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { git } from "./publication-git.mjs";
 import { backlogPath } from "./workspace-publication-ownership.mjs";
 
-async function show(cwd, rev, path) {
+export async function show(cwd, rev, path) {
   try {
     return (await git(cwd, "show", `${rev}:${path}`)).stdout;
   } catch {
@@ -27,7 +28,7 @@ function within(root, path) {
   return relative(project, absolute).split(sep).join("/");
 }
 
-function selectedRegion(source, href) {
+export function selectedRegion(source, href) {
   if (source === null) return null;
   const home = readHome(source, href);
   const lines = home.document.lines.slice(home.region.start, home.region.end);
@@ -37,18 +38,39 @@ function selectedRegion(source, href) {
   return lines.join("\n");
 }
 
-async function unpublishedSource(integration, remoteRef, path, href) {
-  const base = (
+// The originating checkout's working-tree copy, or null when it has none.
+export function worktreeSource(root, path) {
+  try {
+    return readFileSync(join(root, path), "utf8");
+  } catch {
+    return null;
+  }
+}
+
+export async function mergeBase(integration, remoteRef) {
+  return (
     await git(integration, "merge-base", "HEAD", remoteRef)
   ).stdout.trim();
+}
+
+// The project path of the canonical home a backlog link names.
+export function canonicalHomePath(integration, href) {
+  return within(
+    integration,
+    posix.join(dirname(backlogPath), splitHref(href).path),
+  );
+}
+
+// The project path of the plan a canonical home's preparation declares.
+export function declaredPlanPath(integration, homePath, plan) {
+  return within(integration, posix.join(dirname(homePath), plan));
+}
+
+async function unpublishedSource(integration, remoteRef, path, href) {
+  const base = await mergeBase(integration, remoteRef);
   const head = await show(integration, "HEAD", path);
   const index = await show(integration, "", path);
-  let worktree;
-  try {
-    worktree = readFileSync(join(integration, path), "utf8");
-  } catch {
-    worktree = null;
-  }
+  const worktree = worktreeSource(integration, path);
   const versions = [await show(integration, base, path), head, index, worktree];
   const selected = versions.map((source) =>
     href ? selectedRegion(source, href) : source,
@@ -71,10 +93,7 @@ export async function readPublishedExecutionSource(request, remoteRef) {
   )
     throw new Error("selected identity is not queued on fetched trunk");
   const backlogDir = dirname(backlogPath);
-  const homePath = within(
-    request.integration,
-    posix.join(backlogDir, entry.href.split("#")[0]),
-  );
+  const homePath = canonicalHomePath(request.integration, entry.href);
   const home = await show(request.integration, remoteRef, homePath);
   if (home === null)
     throw new Error("selected canonical home is absent on fetched trunk");
@@ -83,9 +102,10 @@ export async function readPublishedExecutionSource(request, remoteRef) {
     throw new Error("selected canonical preparation or identity is unresolved");
   let planPath, plan, planTarget;
   if (preview.approach.kind === "planned") {
-    planPath = within(
+    planPath = declaredPlanPath(
       request.integration,
-      posix.join(dirname(homePath), preview.approach.plan),
+      homePath,
+      preview.approach.plan,
     );
     plan = await show(request.integration, remoteRef, planPath);
     if (plan === null) throw new Error("published plan is absent");
