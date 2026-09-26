@@ -146,3 +146,19 @@ macOS's bundled Bash 3.2 without an interpreter upgrade.
 installed dependency and a valid payload in disposable fixtures. It checks the
 real dependency checker and propagation through `scripts/test.sh`. This is
 focused coverage of that check, not certification of every shell assertion.
+
+## Installation and update coverage gaps
+
+The installer and updater checks prove each promise once at its boundary:
+the codex and cursor hints share the `.agents` entry root, so one of them
+represents both, and `tests/story-payload-update.sh` alone proves that an
+edited or removed managed file in the sibling root is refused and restored by
+`--force`. No check yet observes these installation and update promises:
+
+- refusing a requested version (`--version`, `--tag`, or `v1.2.3`) instead of
+  installing the latest numeric release;
+- `apply` with an unsupported platform (only `install.sh` is checked);
+- updating a Claude-only installation from the Claude entry, which must create
+  the shared `.agents` root;
+- installing without Node (the `cp`/`cmp` fallback and the hook-registration
+  refusal).
