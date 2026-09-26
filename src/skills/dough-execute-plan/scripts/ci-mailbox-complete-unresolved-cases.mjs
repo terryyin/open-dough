@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -70,6 +71,31 @@ test("permission-denied process inspection keeps a live worker observable", asyn
       readCommand: denied,
     }),
     "alive",
+  );
+});
+
+test("a worker that exits while its command is read is dead, not unknown", async (t) => {
+  const { checkMailboxWorkerLiveness } =
+    await import("./ci-mailbox-worker-process.mjs");
+  const { spawnIdleNode } =
+    await import("./ci-mailbox-process-test-fixtures.mjs");
+  const child = await spawnIdleNode(t);
+  // This process cannot reap the child while the read runs synchronously, so
+  // the killed child stays a zombie, as an exiting detached worker does.
+  const exitsDuringRead = (pid) => {
+    child.kill("SIGKILL");
+    const state = () =>
+      execFileSync("ps", ["-p", String(pid), "-o", "stat="], {
+        encoding: "utf8",
+      }).trim();
+    while (!state().startsWith("Z"));
+    return "<defunct>";
+  };
+  assert.equal(
+    checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
+      readCommand: exitsDuringRead,
+    }),
+    "dead",
   );
 });
 

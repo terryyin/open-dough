@@ -1,16 +1,11 @@
 import { execFile, spawn } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  renameSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createMailbox, recordWorkerIdentity } from "./ci-mailbox.mjs";
+import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
@@ -140,8 +135,7 @@ export function releaseRun(directory, overrides = {}) {
     conclusion: "failure",
     ...overrides,
   };
-  writeFileSync(join(directory, "release.tmp"), JSON.stringify([run]));
-  renameSync(join(directory, "release.tmp"), join(directory, "release"));
+  publishJson(directory, "release", [run]);
 }
 
 // A mailbox whose recorded worker identity is a live but unrelated process,

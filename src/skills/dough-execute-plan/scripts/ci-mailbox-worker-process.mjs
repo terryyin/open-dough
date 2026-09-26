@@ -143,9 +143,10 @@ export function checkMailboxWorkerLiveness(
     throw error;
   }
   if (command === undefined) return "dead";
-  return commandMatchesMailboxWorker(command, directory, identity)
-    ? "alive"
-    : "unknown";
+  if (commandMatchesMailboxWorker(command, directory, identity)) return "alive";
+  // A worker exiting between the two reads shows a zombie's command, such as
+  // `<defunct>`; only a process still running here is a different one.
+  return workerIsRunning(pid) ? "unknown" : "dead";
 }
 
 // Read-only: reports an already-recorded loss, or newly detects one from the

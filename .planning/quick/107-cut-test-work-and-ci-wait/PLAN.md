@@ -228,6 +228,22 @@ The planning profile in Learnings is not this baseline.
   file-backed refs; report any remaining edge-case difference to the
   maintainer.
 
+## Checkpoint after slice 6 measurement (2026-09-26): stopped for the maintainer
+
+- **Measurement.** CI `Run test` median 142 s over three runs of the delivered
+  candidate (target 120 s, baseline 174 s; ratio 0.82). Local paired total
+  work about 0.90 of the start revision under unrelated load of 30–118
+  (target 0.65); weak evidence at that load, consistent with CI's 0.82.
+- **Gap.** About 22 s of CI time, roughly 15% more of the suite's work.
+- **Invalidated assumption.** That per-run savings, fewer installer runs, and
+  cheaper startup git would together reach both targets.
+- **Remaining candidates, each needing a decision.** Fewer `git fetch` calls
+  per `execution-start` (7 per start; changes remote freshness); the
+  native-evidence shell family (`native-*.sh`, `git-publication-native.sh`,
+  about 351 baseline job-seconds, not yet profiled); per-job CI times from a
+  times artifact to find CI's own dominant jobs; or accept the achieved times
+  and set the budget (slice 7) from them.
+
 ## Ordered slices
 
 ### 1. Registering a pushed revision makes the CI observer check at once
@@ -589,3 +605,30 @@ the claim. Reference checkout for paired measurement: detached
   exact) and fewer fetches per start (a freshness decision). The three
   payload-comparing failures seen earlier in the shared checkout did not
   recur on the final candidate.
+- **Slice 6 measurement (in progress).** CI `Run test` for the delivered
+  candidate `1318439`: 141 (push), 142 and 148 s (`workflow_dispatch`), median
+  142 s against the 174 s baseline median and the 120 s target. Earlier
+  single story-branch runs: 204 (`273ae9a`), 172 (`342b939`), 165
+  (`c2e340d`), 142 s (`cee3f07`). Local paired full suites, start revision
+  versus a detached candidate at `1318439`, under unrelated load of 9–118 on
+  16 cores; pairs whose start loads differ by more than 30% or whose candidate
+  run failed are excluded: 2,071.9/1,871.2, 2,062.6/1,739.0, 2,208.2/2,512.1,
+  3,171.2/2,228.9, 2,237.6/2,010.7, 2,646.0/1,998.2 job-seconds; medians
+  2,222.9 versus 2,004.5, ratio 0.90. At that load wall job-seconds largely
+  measure CPU contention, so the local ratio is weak evidence; CI's 0.82 is
+  the stronger signal. Two defects surfaced: the runner's passing run printed
+  Bash's `child setpgid … Operation not permitted` line under load (also on
+  the start revision; fixed in `f03d737`), and one candidate run failed
+  `execution-increment-managed-delivery.test.mjs` "timed out waiting for
+  CI_FAILURE". Measurements in a checkout another agent is editing are
+  invalid; use a detached worktree at the candidate.
+- **Stability fixes found by slice 6.** The timeout was a fixture race, present
+  since before this story: `releaseFailure` created `release.json` before
+  writing it, so under load the adapter could parse an empty file, which the
+  observer treats as a poll error followed by its full 30 s retry wait
+  (reproduced deterministically by widening the window). Release fixtures now
+  publish through `publishJson`. Stressing that test exposed a product
+  defect: `checkMailboxWorkerLiveness` reported a worker that exited between
+  its two `ps` reads (a `<defunct>` zombie) as `unknown` rather than `dead`
+  (4 of 1,008 stressed runs); it now reports `unknown` only for a process
+  still running, with a new test. After both: 0 of 960 stressed runs.
