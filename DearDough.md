@@ -738,27 +738,6 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Observed effect: a sixth Claude Code occurrence; recovery again needed a
     read of `ci-host-bridge.mjs`. No duplicate observer this time.
 
-- Execution: `SEED-008#restore-ci-verdict-delivery` / plan 097 (ci-verdict-delivery), first related implementation commit `5317499`
-  - Timestamp: unknown (first increment delivery, after commit `5317499` at
-    2026-09-25T15:35:22+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: before delivery, `grep session` over
-    `execution-increment-delivery.mjs` and `ci-host-bridge.mjs`, then `env`
-    for `CLAUDE_CODE_SESSION_ID`; the first delivery with a hand-built
-    `--session-json` attached `watch-GSzOqq`.
-  - Observed effect: nothing went unobserved, but three extra commands
-    reading source were needed to find the field.
-
-- Execution: `SEED-037#quiet-stable-four-times-faster-tests` / plan 096, first related implementation commit `0fdf13c`
-  - Timestamp: unknown (first increment delivery, after commit `0fdf13c` at 2026-09-25T12:43:01+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.39
-  - Evidence: `0fdf13c` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` and attached `watch-rHq4vU`.
-  - Observed effect: a sixth occurrence; slice 1's CI was checked by hand with `gh run list`.
-
 - Execution: `SEED-025#show-backlog-preparation-states` / plan 099, first related implementation commit `9c142ed`
   - Timestamp: unknown (first increment delivery, after commit `9c142ed` at 2026-09-25T19:34:58+08:00)
   - Tool: Claude Code
@@ -776,6 +755,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
     a retry with `CLAUDE_CODE_SESSION_ID` was refused (exit 2) yet left
     `watch-KU7jG9` running beside the manually started `watch-pgkPLM`.
   - Observed effect: again a hidden duplicate observer, found only by the retrospective.
+
+- Execution: `SEED-042#rename-slice-plan-folder-references` / plan 111, first related implementation commit `e7b7ad1`
+  - Timestamp: unknown (first increment delivery, after commit `e7b7ad1` at 2026-09-26T14:11:57+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `e7b7ad1` receipt `unobserved` ("host session identity is required"); no retry; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-1QARos`.
+  - Observed effect: no duplicate observer, but recovery again needed a read of `ci-host-bridge.mjs`.
 
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
@@ -982,8 +969,27 @@ Slice 1 moved installed link walking to a new declaration check; `tests/story-pa
   - Observed effect: one failed CI run, a stash and repair cycle with two extra agents; a dependent-test search added to slices 2–4 prompts found nothing more.
   - Inference: Qualified. The consumer check covers changed helpers, not assertions removed from a test; resembles ODF-003 and ODF-098 without the same cause.
 
+## DD-104 — Leftover state in the default checkout blocked execution startup and never let it refresh
+
+Startup refused a queued story ("unpublished selected story source in originating
+checkout"): the default checkout held an untracked seed and backlog edit
+byte-identical to published `d021218`, and the refusal did not say so. That
+checkout also keeps in-checkout execution worktrees under an unignored
+`.worktrees/`, so automatic refresh always defers with `pending-edit`.
+
+### Occurrences
+
+- Execution: `SEED-042#rename-slice-plan-folder-references` / plan 111, first related implementation commit `e7b7ad1`
+  - Timestamp: unknown (startup refusal before claim `b1f5dc8` at 2026-09-26T13:53:24+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `execution-start.mjs start` → `source-refused`; leftover blobs equal `d021218`'s; local commit `2de5b10` (kept on `backup/2de5b10-local-seed-042`) swept in three `.worktrees/*` gitlinks; claim and delivery reported `maintenance: deferred`.
+  - Observed effect: one human round trip and a manual reset of the default checkout to `origin/main` before the claim.
+  - Inference: Qualified. The source check compares only local HEAD, index and worktree, so a stale published copy looks unpublished; ignoring the worktree root would end the deferral and the gitlink risk.
+
 ## Retention
 
-- Highest allocated local number: 103
-- Recovery: `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; full copy in `docs/maintainer/finding-names.md`); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 104
+- Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; full copy in `docs/maintainer/finding-names.md`); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; full copy in `docs/maintainer/finding-names.md`); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `61bb3853099c3d6d426ef15e367e65452f928095:DearDough.md` (ODF-072 evidence detail); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

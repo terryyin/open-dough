@@ -130,3 +130,16 @@ and return the evidence for a scope decision.
 
 Review result: no remaining slice-boundary concern identified. Planning does
 not constitute implementation proof or execution authority.
+
+## Execution complete
+
+Product advice:
+
+- This repository now holds plans under both `quick/` (107, 110) and
+  `slice-plans/` (111). Until those plans' wrap-ups remove them, record
+  `slice-plans/` as this project's plan root so a planner allocating from
+  `quick/` does not reuse number 111.
+- Carry DD-104's evidence into
+  [default-checkout coordination](../../seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue):
+  an unignored in-checkout `.worktrees/` keeps every automatic refresh
+  deferred with `pending-edit`.
