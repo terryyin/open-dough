@@ -3,7 +3,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  backlogOf,
   projectFile,
+  queued,
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
@@ -128,4 +130,40 @@ Goal, scope, and examples for the first story.`,
 
   const neighbor = JSON.parse((await run(project, readArgs(second))).stdout);
   assert.equal(neighbor.status, "not-recorded");
+});
+
+test("story-state: a Taken entry linking another plan refuses without writes", async (t) => {
+  const project = scratchProject(
+    t,
+    backlogOf(
+      [
+        `- [${first.title}](${first.link}) — ${first.identity} ([plan](slice-plans/075-other/PLAN.md))`,
+      ],
+      queued,
+    ),
+  );
+  plantSeed(project);
+  projectFile(project, "slice-plans/075-other/PLAN.md", "# Other plan\n");
+  projectFile(project, "slice-plans/075-example/PLAN.md", "# Example plan\n");
+  const seedBefore = seedBytes(project);
+  const backlogBefore = backlogBytes(project);
+
+  const refused = await run(
+    project,
+    recordArgs(first, {
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/075-example/PLAN.md",
+    }),
+  );
+
+  assert.equal(refused.code, 1);
+  assert.match(
+    refused.stderr,
+    /already links the plan "slice-plans\/075-other\/PLAN.md"/,
+  );
+  assert.match(refused.stderr, /never repoints/);
+  assert.match(refused.stderr, /Nothing was written/);
+  assert.equal(seedBytes(project), seedBefore);
+  assert.equal(backlogBytes(project), backlogBefore);
 });

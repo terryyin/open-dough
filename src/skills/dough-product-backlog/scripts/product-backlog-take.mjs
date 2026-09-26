@@ -110,6 +110,21 @@ export function takeEntry(source, request) {
   return { source: renderBacklog(document), entry, result: "taken" };
 }
 
+// Links the plan that preparation recorded after the work was taken: an entry
+// already in "## Taken" resumes through the take above and gains only the
+// missing link, never a different one. Work that no list holds in "## Taken"
+// is left for its take to link. Returns undefined when there is nothing to
+// resume.
+export function linkTakenPlan(source, request) {
+  const entry = parseBacklog(source).entries.find(
+    (item) => item.identity === request.identity,
+  );
+  if (entry?.list !== takenHeading) {
+    return undefined;
+  }
+  return takeEntry(source, request);
+}
+
 // Admits one identified work item that neither list holds yet directly to the
 // end of "## Taken", with the plan link the caller selected. Queued or already
 // Taken work is refused rather than duplicated or silently resumed.

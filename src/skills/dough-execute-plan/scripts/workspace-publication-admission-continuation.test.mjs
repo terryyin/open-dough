@@ -20,6 +20,7 @@ import {
   listed,
   neverQueued,
   publishPlannedPreparation,
+  pushFromElsewhere,
   remoteText,
   storySection,
   withFacts,
@@ -29,6 +30,7 @@ import {
 const identity = "SEED-N#slow";
 const link = "seeds/N.md#slow";
 const seedPath = ".planning/seeds/N.md";
+const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 const story = { identity, link, planHref: "../slice-plans/N/PLAN.md" };
 const plan = "# Plan N\n\n### 1. Speed up start\n";
 
@@ -71,10 +73,39 @@ test("an admitted investigation continues into planned implementation under its 
   const plannedSha = await publishPlannedPreparation(trunk, story, { plan });
   await refusal(/published preparation is absent/, plannedSha);
 
-  const readySha = await publishPlannedPreparation(trunk, story, {
+  let readySha = await publishPlannedPreparation(trunk, story, {
     plan,
     ready: true,
   });
+
+  // Recording the planned approach linked the plan to the Taken entry it
+  // already holds, published with the preparation, without claiming it again.
+  const takenAt = async (rev) =>
+    (await listed(trunk, rev))
+      .filter((entry) => entry.list === "Taken")
+      .map((entry) => [entry.identity, entry.plan?.target]);
+  const admittedTaken = await takenAt(claimSha);
+  const linkedTaken = admittedTaken.map(([id, target]) =>
+    id === identity ? [id, "slice-plans/N/PLAN.md"] : [id, target],
+  );
+  assert.deepEqual(await takenAt(plannedSha), linkedTaken);
+  assert.deepEqual(await takenAt(readySha), linkedTaken);
+  assert.match(
+    await remoteText(trunk, readySha, backlogFile),
+    /^- \[Investigate slow start\]\(seeds\/N\.md#slow\).* \(\[plan\]\(slice-plans\/N\/PLAN\.md\)\)$/m,
+  );
+
+  // A published Taken story whose preparation declares a plan it does not
+  // link is refused, naming the recorder that links it.
+  const unlinkedSha = await pushFromElsewhere(trunk, backlogFile, (text) =>
+    text.replace(" ([plan](slice-plans/N/PLAN.md))", ""),
+  );
+  await refusal(/does not link.*record-state/s, unlinkedSha);
+  readySha = await publishPlannedPreparation(trunk, story, {
+    plan,
+    ready: true,
+  });
+  assert.deepEqual(await takenAt(readySha), linkedTaken);
 
   // An unpublished local story edit stops continuation; the admission draft
   // left in the originating checkout does not.

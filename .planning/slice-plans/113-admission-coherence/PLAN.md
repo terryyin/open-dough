@@ -246,7 +246,17 @@ one resolution slice 3 can rely on.
 
 ### 3. Link a plan attached after admission to its Taken entry
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: startup and admission suite 62 pass (continuation test:
+remote Taken entry links `slice-plans/N/PLAN.md` in place, one
+`Claim-Identity`, continuation `existing` at the claim; stripped link refused
+`source-refused`, tip unchanged); `tests/support` 182 pass (Taken entry
+linked; queued, planless and unselected records leave the backlog unchanged;
+another plan refused with nothing written); wrap-up 14 pass; payload update
+and payload link checks pass. `record-state` and `read-state` now live in
+`product-backlog-story-state-command.mjs`; the backlog is written only when
+a link is added. Known pre-existing defect left alone: `record-state`
+without `--link` throws a TypeError in `splitHref`.
 Proof: extend `workspace-publication-admission-continuation.test.mjs`: after
 the ready planned preparation is published through the real `record-state`,
 remote trunk's Taken entry is `… ([plan](quick/N/PLAN.md))`, the entry stays in

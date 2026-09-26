@@ -168,6 +168,13 @@ export async function readPublishedExecutionSource(request, remoteRef) {
     }
     if (entry.plan && entry.plan.target !== planTarget)
       throw new Error("queued plan link disagrees with preparation");
+    // Continuation writes nothing: the recorder links a Taken entry's plan.
+    if (claim && planTarget && !entry.plan)
+      throw new Error(
+        `Taken entry does not link the plan ${planTarget} its published ` +
+          `preparation declares; record the planned approach again with ` +
+          `record-state and publish it`,
+      );
     if (request.plan && request.plan !== planHref)
       throw new Error("requested plan disagrees with published preparation");
   } else if (preview.approach.kind === "unselected") {
