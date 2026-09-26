@@ -7,7 +7,9 @@
 [Correction story](../../seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers).
 A bounded retrospective correction of the completed execution of
 `SEED-028#plan-link-rule` under plan 116
-(`.planning/slice-plans/116-plan-link-rule/PLAN.md`, all five slices done):
+(recoverable at
+`12d9cf8:.planning/slice-plans/116-plan-link-rule/PLAN.md`, all five slices
+done):
 claim `c97afbb`, attributable commits `7af15d4`, `2567d65`, `91382b9`,
 `9bf7393`, `6b3f02b` on branch `claude/116-plan-link-rule` (net diff
 `c97afbb..6b3f02b`). That correction's outcomes stay as delivered; this
