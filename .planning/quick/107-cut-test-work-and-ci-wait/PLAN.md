@@ -767,3 +767,25 @@ the claim. Reference checkout for paired measurement: detached
   Saving is Linux-only: family 31.65 → 29.5 container job-seconds (0.93),
   about 6–7 CI job-seconds; neutral on macOS, where a copy creates as many
   files as a build.
+- **CI target met at `49c4ce3`.** Five green runs: `Run test` 82, 106, 115,
+  125, 127 s (job sums 325.2, 422.7, 455.7, 493.8, 503.5); median 115 s
+  against the 120 s target and the 174 s baseline median (0.66). GitHub
+  assigns runner classes up to about 1.5× apart, so single runs range 82–127
+  s; the slowest class still takes about 125 s. Earlier `f83b163`: 86, 125,
+  126, 126 s.
+- **Slice 7 local measurement at `49c4ce3`.** Five consecutive complete
+  candidate runs passed silently. Paired full suites against the start
+  revision (loads within 30%): 2,195.9/1,958.8 (loads 43.4/35.8) and
+  2,273.0/2,077.2 (36.1/38.6) job-seconds, ratio about 0.90; the first pair
+  (10.8/37.6) was discarded. At that contention the ratio understates the
+  saving; the cleaner unpaired comparison (2,033 at load 5.2 versus about
+  1,440 at load 14.6 before fixture reuse) is about 0.71. The local 0.65
+  target is not met; the CI target is.
+
+## Checkpoint after slice 7 (2026-09-26): stopped for the maintainer
+
+- **Measurement.** CI `Run test` median 115 s over five runs (target 120 s,
+  baseline 174 s). Local total work about 0.71–0.90 of the start revision
+  depending on load (target 0.65). Passing runs are silent and stable.
+- **Decision needed.** Accept the local shortfall and proceed to the budget
+  (slice 8) and wrap-up, or continue cutting local work.
