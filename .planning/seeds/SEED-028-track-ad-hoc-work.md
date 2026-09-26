@@ -191,31 +191,6 @@ implementation remains an execution dependency; reconcile the admission
 interface and retained-work continuation against that delivered version before
 execution. Planning does not assume it has already landed.
 
-<a id="admission-coherence"></a>
-
-### Correction: Keep admitted work coherent after its first delivery
-
-**Identity:** SEED-028#admission-coherence
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/113-admission-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6779e7090b7e999954fa0edf6528b43874396d6c390042f9c8fc1c8dfd06b718","plan":"63a93f38f40f467fd97256b79a6d680a48c3fe24b4f708119791db94bd777879"}}
-```
-
-**Goal:** Developers coordinating admitted work see a Taken entry that links
-the plan later attached to it, and maintainers can rely on admission's proof,
-tests, and guidance to say what the delivered admission actually does.
-
-**Scope:** A bounded retrospective correction of the delivered
-[shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md): link a later-attached plan to its Taken
-entry without a second claim or forged readiness; prove admission's untested
-reconciliation and refusal paths; scope closure and correction-story tests to
-what they prove, add closure evidence for an admitted no-change investigation,
-and repair a dashboard fixture shape the backlog now refuses; align admission
-guidance and naming; and resolve published and admitted preparation once.
-Excluded: whole-seed readiness basis, continuation ownership across sessions,
-section-aware seed reconciliation, and plan-directory renames.
-
-**Plan:** [Keep admission coherent](../slice-plans/113-admission-coherence/PLAN.md).
-
 <a id="plan-link-rule"></a>
 
 ### Correction: Decide a Taken entry's plan link by one rule
@@ -231,7 +206,8 @@ whether its current link satisfies it, so a Taken entry that preparation
 accepts is one that take resume and execution startup can continue.
 
 **Scope:** A bounded retrospective correction of the delivered
-[admission coherence](#admission-coherence) correction. Take and admission,
+admission coherence correction (recoverable at
+`ee563d5:.planning/seeds/SEED-028-track-ad-hoc-work.md#admission-coherence`). Take and admission,
 `record-state`, the backlog's listing checks, and execution startup and
 continuation apply one plan-link rule, including when a plan is its story's own
 home; `record-state` and `read-state` refuse a missing `--link` cleanly; an

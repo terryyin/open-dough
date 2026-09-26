@@ -7,7 +7,9 @@
 [Correction story](../../seeds/SEED-028-track-ad-hoc-work.md#plan-link-rule).
 A bounded retrospective correction of the completed execution of
 `SEED-028#admission-coherence` under its plan
-([113](../113-admission-coherence/PLAN.md), all six slices done): claim
+(recoverable at
+`ee563d5:.planning/slice-plans/113-admission-coherence/PLAN.md`, all six
+slices done): claim
 `5a05150`, attributable commits `733fe46`, `56ae2aa`, `c700a61`, `0ecd71f`,
 `c7893ac`, `73a4763`, `5ce3a25`, `9e635ae`, `33fd629`, `3c54727` on branch
 `claude/113-admission-coherence` (net diff `5a05150..3c54727`). That
