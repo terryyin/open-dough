@@ -7,7 +7,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { expectMark, expectPortrait } from "./agentPortrait.ts";
+import { enlargedView, expectMark, expectPortrait } from "./agentPortrait.ts";
 import {
   agents,
   branchStory,
@@ -81,15 +81,18 @@ test("each Taken card shows its published agent profile, or says plainly that no
     const resting = await portrait.boundingBox();
     expect(resting).not.toBeNull();
     if (resting === null) return;
+    const enlarged = async () => {
+      const { shown, width, left } = await enlargedView(portrait);
+      return { shown, width, left };
+    };
     await portrait.hover();
-    await expect
-      .poll(async () => (await portrait.boundingBox())?.width)
-      .toBeCloseTo(resting.width * 3, 0);
-    expect((await portrait.boundingBox())?.x).toBeCloseTo(resting.x, 0);
+    await expect.poll(enlarged).toEqual({
+      shown: true,
+      width: resting.width * 3,
+      left: 0,
+    });
     await page.mouse.move(0, 0);
-    await expect
-      .poll(async () => (await portrait.boundingBox())?.width)
-      .toBeCloseTo(resting.width, 0);
+    await expect.poll(async () => (await enlarged()).shown).toBe(false);
   });
 
   await test.step("each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths", async () => {

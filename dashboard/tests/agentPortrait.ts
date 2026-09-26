@@ -29,25 +29,29 @@ export async function expectPortrait(
 }
 
 // Hovering shows the portrait larger from the high-resolution atlas, at the
-// same tile, rather than upscaling the small one.
+// same tile. Neither the portrait nor its enlarged view is scaled up, so the
+// browser paints the enlarged view at its size instead of stretching the
+// small portrait's pixels.
 async function expectEnlargedSharply(
   portrait: Locator,
   atlas: number,
   position: string,
 ) {
   await portrait.hover();
-  const layerFiles = async () =>
-    (await backgroundImages(portrait)).map((url) =>
-      new URL(url).pathname.split("/").pop(),
-    );
+  const fileName = (url: string) => new URL(url).pathname.split("/").pop();
   await expect
-    .poll(layerFiles)
-    .toEqual([`atlas-${atlas}-large.webp`, `atlas-${atlas}.webp`]);
-  await expect(portrait).toHaveCSS(
-    "background-position",
-    `${position}, ${position}`,
-  );
-  const [large] = await backgroundImages(portrait);
+    .poll(async () => {
+      const { layers, position, scale, portraitScale } =
+        await enlargedView(portrait);
+      return { layers: layers.map(fileName), position, scale, portraitScale };
+    })
+    .toEqual({
+      layers: [`atlas-${atlas}-large.webp`, `atlas-${atlas}.webp`],
+      position: `${position}, ${position}`,
+      scale: 1,
+      portraitScale: 1,
+    });
+  const [large] = (await enlargedView(portrait)).layers;
   await expectServed(portrait, large ?? "", "image/webp");
   await portrait.page().mouse.move(0, 0);
 }
@@ -93,12 +97,37 @@ export async function expectMark(
   expect(apart).toBe(true);
 }
 
-// The image URLs of a visual's computed background layers, top layer first.
-function backgroundImages(visual: Locator) {
-  return visual.evaluate((element) =>
-    [
-      ...getComputedStyle(element).backgroundImage.matchAll(/url\("(.*?)"\)/g),
-    ].map((match) => match[1] ?? ""),
+// The enlarged view drawn over a portrait (its ::after): whether it shows,
+// its image layers (top first) and their tile positions, its outer width, its
+// outer left edge relative to the portrait's, and the scale applied to it and
+// to the portrait itself.
+export async function enlargedView(portrait: Locator) {
+  const view = await portrait.evaluate((element) => {
+    const own = getComputedStyle(element);
+    const view = getComputedStyle(element, "::after");
+    return {
+      shown: view.opacity === "1",
+      position: view.backgroundPosition,
+      width: parseFloat(view.width),
+      left: parseFloat(view.left) + parseFloat(own.borderLeftWidth),
+      scale: new DOMMatrix(view.transform).a,
+      portraitScale: new DOMMatrix(own.transform).a,
+    };
+  });
+  return { ...view, layers: await backgroundImages(portrait, "::after") };
+}
+
+// The image URLs of a visual's (or its pseudo-element's) computed background
+// layers, top layer first.
+function backgroundImages(visual: Locator, pseudo: string | null = null) {
+  return visual.evaluate(
+    (element, pseudo) =>
+      [
+        ...getComputedStyle(element, pseudo).backgroundImage.matchAll(
+          /url\("(.*?)"\)/g,
+        ),
+      ].map((match) => match[1] ?? ""),
+    pseudo,
   );
 }
 
