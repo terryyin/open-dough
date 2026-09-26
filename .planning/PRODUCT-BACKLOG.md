@@ -17,6 +17,8 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
+- [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
 - [Discard a retained preparation draft through the installed script](seeds/SEED-040-scripted-preparation-discard.md#scripted-preparation-discard) — SEED-040#scripted-preparation-discard
 - [Attach CI observation to the first Claude Code publication](seeds/SEED-008-worktree-branch-trunk-sync.md#attach-first-claude-publication) — SEED-008#attach-first-claude-publication
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
