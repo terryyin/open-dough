@@ -22,7 +22,8 @@ const stories = [
   { title: adviceless, anchor: "adviceless" },
 ];
 
-const planPath = (anchor: string) => `.planning/quick/094-${anchor}/PLAN.md`;
+const planPath = (anchor: string) =>
+  `.planning/slice-plans/094-${anchor}/PLAN.md`;
 
 const advice = `Queue a story to show <b>advice</b> on the card.
 - Keep the detail wording as it is.`;
@@ -79,7 +80,7 @@ ${stories
 
 **Identity:** SEED-094#${anchor}
 \`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/094-${anchor}/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/094-${anchor}/PLAN.md"}
 \`\`\``,
   )
   .join("\n")}

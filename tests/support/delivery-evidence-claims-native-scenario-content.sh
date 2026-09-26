@@ -50,8 +50,8 @@ import assert from 'node:assert/strict';
 import { repositoryPath } from '../lib/sourceLink.mjs';
 
 test('recorded plan paths resolve under planning', () => {
-  assert.deepEqual(repositoryPath('quick/061-plan/PLAN.md'), [
-    'quick',
+  assert.deepEqual(repositoryPath('slice-plans/061-plan/PLAN.md'), [
+    'slice-plans',
     '061-plan',
     'PLAN.md',
   ]);
@@ -68,8 +68,8 @@ import assert from 'node:assert/strict';
 import { isFollowable, repositoryPath } from '../lib/sourceLink.mjs';
 
 test('recorded plan paths resolve under planning', () => {
-  assert.deepEqual(repositoryPath('quick/061-plan/PLAN.md'), [
-    'quick',
+  assert.deepEqual(repositoryPath('slice-plans/061-plan/PLAN.md'), [
+    'slice-plans',
     '061-plan',
     'PLAN.md',
   ]);

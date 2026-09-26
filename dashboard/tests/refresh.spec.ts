@@ -66,7 +66,7 @@ test("refresh published work replaces revision A with revision B as one result",
       moved.getByRole("link", { name: /^Slice plan/ }),
     ).toHaveAttribute(
       "href",
-      `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/quick/061-published-story-dashboard/PLAN.md`,
+      `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
     );
   });
 

@@ -82,7 +82,7 @@ export const stories: readonly Story[] = [
 ];
 
 export const planPath = (anchor: string) =>
-  `.planning/quick/092-${anchor}/PLAN.md`;
+  `.planning/slice-plans/092-${anchor}/PLAN.md`;
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
@@ -162,7 +162,7 @@ ${stories
 
 **Identity:** SEED-092#${anchor}
 \`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-${anchor}/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/092-${anchor}/PLAN.md"}
 \`\`\`
 `,
   )

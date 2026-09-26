@@ -168,12 +168,12 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
     },
     {
       read: "that names a file without the branch head",
-      query: `revision=${revision}&branch=story%2Fexample&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      query: `revision=${revision}&branch=story%2Fexample&path=${encodeURIComponent(".planning/slice-plans/092/PLAN.md")}`,
       error: "A read on a branch names the branch head it resolved.",
     },
     {
       read: "at a head that is not a commit sha",
-      query: `revision=${revision}&branch=story%2Fexample&head=main&path=${encodeURIComponent(".planning/quick/092/PLAN.md")}`,
+      query: `revision=${revision}&branch=story%2Fexample&head=main&path=${encodeURIComponent(".planning/slice-plans/092/PLAN.md")}`,
       error: "The branch head is not a commit sha.",
     },
     {

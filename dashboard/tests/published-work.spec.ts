@@ -24,8 +24,8 @@ Derive it solely from Git state published to origin.
 
 ## Taken
 
-- [Repair the installer's update report](quick/059-installer-update-report/PLAN.md)
-- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work ([plan](quick/061-published-story-dashboard/PLAN.md))
+- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
+- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work ([plan](slice-plans/061-published-story-dashboard/PLAN.md))
 
 ## Backlog list
 
@@ -92,7 +92,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
       taken.getByRole("article", {
         name: "Repair the installer's update report",
       }),
-    ).toContainText("quick/059-installer-update-report/PLAN.md");
+    ).toContainText("slice-plans/059-installer-update-report/PLAN.md");
     // The parenthesized plan spelling leaves the recorded identity intact.
     const planned = taken.getByRole("article", {
       name: "See the project's published work in a story dashboard",

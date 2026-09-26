@@ -55,7 +55,7 @@ export async function expectChangedQueuedAssociations(
   recordState(repo.directory, plannedBlocked, {
     refinement: "refined",
     approach: "planned",
-    plan: "../quick/075-ready/PLAN.md",
+    plan: "../slice-plans/075-ready/PLAN.md",
   });
   let revision = await publish(
     [seedRelative],
@@ -88,7 +88,7 @@ export async function expectChangedQueuedAssociations(
   writeFileSync(
     seed,
     original.replace(
-      '"plan":"../quick/075-ready/PLAN.md"',
+      '"plan":"../slice-plans/075-ready/PLAN.md"',
       '"plan":"../../../outside/PLAN.md"',
     ),
   );

@@ -18,7 +18,7 @@ export const workspaceStory =
 const queue = "Queue trunk integration for agents on the same machine";
 const claims = "Publish shared backlog claims";
 
-const repairEntry = `- [${repair}](quick/059-installer-update-report/PLAN.md)`;
+const repairEntry = `- [${repair}](slice-plans/059-installer-update-report/PLAN.md)`;
 const dashboardEntry = `- [${dashboardStory}](seeds/SEED-021-progress.md#see-published-work) — SEED-021#see-published-work`;
 const workspaceEntry = `- [${workspaceStory}](seeds/SEED-008-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure`;
 const queueEntry = `- [${queue}](seeds/SEED-008-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue`;
@@ -36,7 +36,7 @@ export const backlogA = backlogOf(
 // work is queued, and the workspace story is no longer recorded anywhere.
 export const backlogB = backlogOf(
   [
-    `${dashboardEntry} ([plan](quick/061-published-story-dashboard/PLAN.md))`,
+    `${dashboardEntry} ([plan](slice-plans/061-published-story-dashboard/PLAN.md))`,
     repairEntry,
   ],
   [queueEntry, claimsEntry],

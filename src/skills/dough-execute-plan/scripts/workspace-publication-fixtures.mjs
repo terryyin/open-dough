@@ -55,8 +55,8 @@ export async function createQueuedTrunk({
     backlogOf([], [storyA, storyB]),
   );
   mkdirSync(join(integration, ".planning/seeds"), { recursive: true });
-  mkdirSync(join(integration, ".planning/quick/A"), { recursive: true });
-  mkdirSync(join(integration, ".planning/quick/B"), { recursive: true });
+  mkdirSync(join(integration, ".planning/slice-plans/A"), { recursive: true });
+  mkdirSync(join(integration, ".planning/slice-plans/B"), { recursive: true });
   const plan = "# Story A plan\n\nExecute the selected startup story.\n";
   const seed =
     '---\nid: SEED-A\n---\n\n# Seed A\n\n<a id="a"></a>\n\n### Story A\n\n**Identity:** SEED-A#a\n\nExecute A.\n';
@@ -68,7 +68,7 @@ export async function createQueuedTrunk({
       identity: identityA,
       refinement: "refined",
       approach: "planned",
-      plan: "../quick/A/PLAN.md",
+      plan: "../slice-plans/A/PLAN.md",
       assessment: "ready",
       reasons: [],
       expectedBasis: computeBasis(seed, plan),
@@ -76,7 +76,7 @@ export async function createQueuedTrunk({
     { planSource: plan },
   );
   writeFileSync(join(integration, ".planning/seeds/A.md"), recorded.source);
-  writeFileSync(join(integration, ".planning/quick/A/PLAN.md"), plan);
+  writeFileSync(join(integration, ".planning/slice-plans/A/PLAN.md"), plan);
   const planB = "# Story B plan\n\nExecute the selected startup story.\n";
   const seedB =
     '---\nid: SEED-B\n---\n\n# Seed B\n\n<a id="b"></a>\n\n### Story B\n\n**Identity:** SEED-B#b\n\nExecute B.\n';
@@ -87,7 +87,7 @@ export async function createQueuedTrunk({
       identity: identityB,
       refinement: "refined",
       approach: "planned",
-      plan: "../quick/B/PLAN.md",
+      plan: "../slice-plans/B/PLAN.md",
       assessment: "ready",
       reasons: [],
       expectedBasis: computeBasis(seedB, planB),
@@ -95,7 +95,7 @@ export async function createQueuedTrunk({
     { planSource: planB },
   );
   writeFileSync(join(integration, ".planning/seeds/B.md"), recordedB.source);
-  writeFileSync(join(integration, ".planning/quick/B/PLAN.md"), planB);
+  writeFileSync(join(integration, ".planning/slice-plans/B/PLAN.md"), planB);
   if (contributing) {
     mkdirSync(join(integration, "scripts"), { recursive: true });
     const marker = (name) =>

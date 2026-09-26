@@ -27,7 +27,7 @@ export const stories = [
 ] as const;
 
 export const planPath = (anchor: string) =>
-  `.planning/quick/091-${anchor}/PLAN.md`;
+  `.planning/slice-plans/091-${anchor}/PLAN.md`;
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
@@ -55,7 +55,7 @@ ${stories
 
 **Identity:** SEED-091#${anchor}
 \`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/091-${anchor}/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/091-${anchor}/PLAN.md"}
 \`\`\`
 `,
   )

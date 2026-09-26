@@ -169,7 +169,7 @@ test.describe("project read isolation of automatic checks", () => {
           [
             ".planning/seeds/SEED-021-progress.md",
             ".planning/seeds/SEED-008-sync.md",
-            ".planning/quick/059-installer-update-report/PLAN.md",
+            ".planning/slice-plans/059-installer-update-report/PLAN.md",
           ].map((path) => `${path}?ref=${revisionA}`),
         ),
       );

@@ -12,7 +12,7 @@ run_offline_record_state_and_reader_proof() {
   local project_root=$3
   local scratch_root=$4
   local seed_rel='seeds/SEED-PAYLOAD-STATE.md'
-  local plan_rel='quick/075-payload-state/PLAN.md'
+  local plan_rel='slice-plans/075-payload-state/PLAN.md'
   local seed_path plan_path launch_subdir backlog_file read_output
   local basis_document basis_plan published_seed_file published_plan_file
   local reader_observation

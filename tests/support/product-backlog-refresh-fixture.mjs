@@ -22,8 +22,8 @@ import { occurrences } from "./product-backlog-fixture.mjs";
 // Nothing here moves a file: the command records a move a human has made.
 export const movedSeed = "seeds/SEED-001-install-open-dough.md";
 export const movedAnchor = `${movedSeed}#default-skip-process-retrospective`;
-export const movedPlan = "quick/061-script-product-backlog/PLAN.md";
-export const movedCorrection = "quick/032-refuse-hook-variants/PLAN.md";
+export const movedPlan = "slice-plans/061-script-product-backlog/PLAN.md";
+export const movedCorrection = "slice-plans/032-refuse-hook-variants/PLAN.md";
 export const renamedSeedEight = "seeds/SEED-008-trunk-sync.md";
 // A move after which the link spells none of the identity: the file name no
 // longer holds the seed token and the story sits under a new anchor.
@@ -34,13 +34,13 @@ export const unspelledStory = `${unspelledSeed}#skip-process-retrospectives`;
 // naming one does not take the product's own rendering as its expectation.
 export const lines = {
   taken:
-    "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](quick/057-script-product-backlog/PLAN.md))",
+    "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](slice-plans/057-script-product-backlog/PLAN.md))",
   trunk:
     "- [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue",
   retrospective:
     "- [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective",
   correction:
-    "- [Complete hook-registration corrections and deferred Claude Code acceptance](quick/032-refuse-managed-hook-command-variants/PLAN.md)",
+    "- [Complete hook-registration corrections and deferred Claude Code acceptance](slice-plans/032-refuse-managed-hook-command-variants/PLAN.md)",
 };
 
 // The whole backlog with exactly one entry line rewritten in place. Every

@@ -28,7 +28,7 @@ for (const mode of agentModes) {
       "owner",
     ]);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
-    assert.equal(receipt.plan, "quick/A/PLAN.md");
+    assert.equal(receipt.plan, "slice-plans/A/PLAN.md");
     assert.equal(
       await lsRemoteSha(trunk.origin, "refs/heads/main"),
       receipt.publishedSha,
@@ -41,7 +41,7 @@ for (const mode of agentModes) {
     assert.equal("earlierMaintenance" in receipt, false);
     const remote = await remoteBacklog(workspace);
     assert.equal(takenIdentities(remote).includes(identityA), true);
-    assert.match(remote, /\(\[plan\]\(quick\/A\/PLAN\.md\)\)/);
+    assert.match(remote, /\(\[plan\]\(slice-plans\/A\/PLAN\.md\)\)/);
     assert.match(
       (await git(workspace, "log", "-1", "--format=%B")).stdout,
       new RegExp(`Claim-Publisher: publisher-${mode}`),

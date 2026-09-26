@@ -132,10 +132,10 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     expect(reads.sort()).toEqual(
       [
         ".planning/PRODUCT-BACKLOG.md",
-        ".planning/quick/059-installer-update-report/PLAN.md",
         ".planning/seeds/SEED-008-sync.md",
         ".planning/seeds/SEED-021-progress.md",
         ".planning/seeds/SEED-040-claims.md",
+        ".planning/slice-plans/059-installer-update-report/PLAN.md",
       ].map((path) => `${path}?ref=${revisionB}`),
     );
   });

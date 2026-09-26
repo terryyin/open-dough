@@ -58,7 +58,7 @@ North Star topics require no change for this naming convention.
 
 ### 1. Create and reference plans using the Slice Plans convention
 Type: Behavior
-Status: planned
+Status: done
 Proof: Representative guidance walkthrough plus existing path/link checks using
 positive `slice-plans/` fixtures, as mapped below.
 
@@ -90,6 +90,33 @@ workflow. Tests listed above are prospective proof, not claimed results.
 
 Safe stopping point: Guidance, examples and consumers agree on the convention,
 and affected checks pass in the same delivered change.
+
+Accepted proof (execution on `claude/111-slice-plan-folder-references`):
+
+- Guidance walkthrough: `dough-slice-planning` takes the plan root from project
+  guidance and hard-codes no folder; the one folder example, in
+  `src/skills/dough-product-backlog/references/record-preparation.md`, now
+  shows `slice-plans/075-correction/PLAN.md`.
+- `node --test tests/support/product-backlog-take.test.mjs tests/support/story-state.test.mjs`:
+  8/8 pass; observed in `product-backlog-take.test.mjs` (“Unresolved plan:
+  slice-plans/058-…”) and `story-state.test.mjs` (`../slice-plans/075-example/PLAN.md`).
+- `npm run test:dashboard -- dashboard/tests/source-navigation.spec.ts`: 3/3
+  pass; “source navigation opens canonical and plan records at the inspected
+  revision” asserts `.planning/slice-plans/…` snapshot URLs and link text.
+- Wider implementer runs: all 58 affected `node --test` files (220/220), full
+  `npm run test:dashboard`, `npm run typecheck:dashboard`, `npm run lint`, and
+  the default-mode shell suites `tests/product-backlog-native.sh`,
+  `tests/product-backlog-payload-update.sh`, `tests/native-evidence-identity.sh`
+  and `tests/git-publication-native.sh`.
+- Diff review: added lines carry no naming history, absence or rejection
+  assertions, alias or fallback. Refactor pass: already clean.
+- Untested: the `--native` host cases in `tests/support/product-backlog-native-take.sh`
+  and `tests/support/ci-completion-native-fixture.sh` launch real agents and
+  were not run; only their fixture path strings changed.
+
+Learnings: runtime consumers resolve supplied plan links generically, so the
+convention lives only in guidance examples and fixtures. Expected file lists
+in dashboard specs are sorted, so `seeds` now precedes `slice-plans`.
 
 ## Boundary and sizing review
 

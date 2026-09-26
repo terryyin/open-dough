@@ -215,7 +215,7 @@ test("refresh reference follows a correction plan identified by its old path", a
   assert.equal(project.readHome(movedCorrection), home, "the plan was changed");
   assert.match(
     result.stdout,
-    /Refreshed the canonical link of "quick\/032-refuse-managed-hook-command-variants\/PLAN.md" in "## Backlog list"/,
+    /Refreshed the canonical link of "slice-plans\/032-refuse-managed-hook-command-variants\/PLAN.md" in "## Backlog list"/,
   );
 
   await placedFirst(project, identities.correction, refreshed, line);

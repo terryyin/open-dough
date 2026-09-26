@@ -11,7 +11,7 @@ const longAnchor = `${"a-long-anchor-".repeat(6)}end`;
 
 export const longTitle = `Keep a title holding one ${unbroken} word, and many ordinary words after it, readable wherever the overview is opened and however narrow the window becomes`;
 export const longIdentity = `SEED-090#${longAnchor}`;
-export const longPlan = `quick/090-${"readable-".repeat(12)}overview/PLAN.md`;
+export const longPlan = `slice-plans/090-${"readable-".repeat(12)}overview/PLAN.md`;
 export const longAddress = `https://status.example.com/${"notes/".repeat(24)}2026-09?view=full#api`;
 export const unusableTarget = `javascript:${"x".repeat(140)}`;
 
@@ -25,7 +25,7 @@ Derive it solely from Git state published to origin.
 ## Taken
 
 - [${longTitle}](${longPath}#${longAnchor}) — ${longIdentity} ([plan](${longPlan}))
-- [Repair the installer's update report](quick/059-installer-update-report/PLAN.md)
+- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
 
 ## Backlog list
 
@@ -47,7 +47,7 @@ export const largeBacklog = `# Product backlog
 
 ## Taken
 
-- [Repair the installer's update report](quick/059-installer-update-report/PLAN.md)
+- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
 
 ## Backlog list
 

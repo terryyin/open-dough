@@ -34,7 +34,7 @@ function project(
     queued: `${label}'s own queued story`,
     direction: `Show ${label}'s own published direction through local gh.`,
     purpose: `Read ${label}'s queued purpose at its own revision.`,
-    takenPath: `.planning/quick/${String(number)}-taken/PLAN.md`,
+    takenPath: `.planning/slice-plans/${String(number)}-taken/PLAN.md`,
     queuedPath: `.planning/seeds/SEED-${String(number)}-queued.md`,
   };
 }
@@ -57,7 +57,7 @@ ${published.direction}
 
 ## Taken
 
-- [${published.taken}](quick/${number}-taken/PLAN.md) — TAKEN-${number}#story
+- [${published.taken}](slice-plans/${number}-taken/PLAN.md) — TAKEN-${number}#story
 
 ## Backlog list
 

@@ -40,7 +40,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
     const revision = "a7".repeat(20);
     const head = "b8".repeat(20);
     const seedPath = ".planning/seeds/SEED-branch.md";
-    const planPath = ".planning/quick/092-branch/PLAN.md";
+    const planPath = ".planning/slice-plans/092-branch/PLAN.md";
     const planText = "# Plan\n\n## Slices\n";
     const backlogTaken = `# Product backlog
 
@@ -78,7 +78,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
 
 **Identity:** SEED-branch#story
 \`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/092-branch/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/092-branch/PLAN.md"}
 \`\`\`
 `,
         [planPath]: planText,
@@ -172,7 +172,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
         "api",
         "-H",
         "Accept: application/vnd.github.raw+json",
-        `repos/${knownRepository}/contents/.planning/quick/092-branch/PLAN.md?ref=${head}`,
+        `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${head}`,
       ],
     ]);
 
@@ -220,7 +220,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
         "api",
         "-H",
         "Accept: application/vnd.github.raw+json",
-        `repos/${knownRepository}/contents/.planning/quick/092-branch/PLAN.md?ref=${checkedHead}`,
+        `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${checkedHead}`,
       ],
     ]);
   });

@@ -59,7 +59,7 @@ ${pygardonDirection}
 
 ## Taken
 
-- [${pygardonTakenTitle}](quick/200-pygardon-story/PLAN.md) — PYG-200#story
+- [${pygardonTakenTitle}](slice-plans/200-pygardon-story/PLAN.md) — PYG-200#story
 
 ## Backlog list
 

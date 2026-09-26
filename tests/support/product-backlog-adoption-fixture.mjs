@@ -12,9 +12,9 @@ import { scratchProject } from "./product-backlog-fixture.mjs";
 export const direction = `Enable agents to execute stories in parallel while collaborating through
 trunk-based development, with each agent working in its own Git worktree.`;
 
-export const takenLink = "quick/057-script-product-backlog/PLAN.md";
+export const takenLink = "slice-plans/057-script-product-backlog/PLAN.md";
 export const correctionLink =
-  "quick/032-refuse-managed-hook-command-variants/PLAN.md";
+  "slice-plans/032-refuse-managed-hook-command-variants/PLAN.md";
 export const seedEight = "seeds/SEED-008-worktree-branch-trunk-sync.md";
 export const seedOne = "seeds/SEED-001-install-and-update-open-dough.md";
 
@@ -159,8 +159,8 @@ const correctionPlanSource = `${headings.correction}
 
 ## Source and scope
 
-Execution retrospective of Quick 031, recoverable at
-\`aa32c106ad5d:.planning/quick/031-register-ci-host-hooks/PLAN.md\`. This is a
+Execution retrospective of Slice Plan 031, recoverable at
+\`aa32c106ad5d:.planning/slice-plans/031-register-ci-host-hooks/PLAN.md\`. This is a
 bounded correction of an existing promise; it has no seed of its own.
 
 ## Ordered slices

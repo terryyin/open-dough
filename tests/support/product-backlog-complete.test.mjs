@@ -23,7 +23,7 @@ import {
 } from "./product-backlog-fixture.mjs";
 
 const seedPath = "seeds/SEED-008-worktree-branch-trunk-sync.md";
-const planPath = "quick/057-script-product-backlog/PLAN.md";
+const planPath = "slice-plans/057-script-product-backlog/PLAN.md";
 // Status text a script that judged completion might read. Nothing here may
 // make an entry removable, and nothing here may be rewritten or deleted.
 const seedSource = `---
@@ -192,7 +192,7 @@ test("complete happens only when asked, never as another operation's effect", as
   const project = scratchProject(t);
   const homesUnchanged = canonicalHomes(project);
   addedHome(project);
-  const claimedPlan = "quick/058-queue-trunk-integration/PLAN.md";
+  const claimedPlan = "slice-plans/058-queue-trunk-integration/PLAN.md";
   projectFile(project, claimedPlan);
   const titleOf = (line) => line.slice(0, line.indexOf("]"));
 

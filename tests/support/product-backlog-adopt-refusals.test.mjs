@@ -51,9 +51,9 @@ const cases = [
     why: "the Taken entry's active plan is missing",
     backlog: legacyBacklog.replace(
       `([plan](${takenLink}))`,
-      "([plan](quick/999-gone/PLAN.md))",
+      "([plan](slice-plans/999-gone/PLAN.md))",
     ),
-    expect: /canonical home not found: quick\/999-gone\/PLAN\.md/,
+    expect: /canonical home not found: slice-plans\/999-gone\/PLAN\.md/,
   },
   {
     why: "the entry's token disagrees with the home's own ID",

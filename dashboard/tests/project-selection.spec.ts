@@ -38,7 +38,7 @@ Show Open Dough's own published direction, distinct from any other project.
 
 ## Taken
 
-- [${openDoughTakenTitle}](quick/900-open-dough-story/PLAN.md) — OD-1#story
+- [${openDoughTakenTitle}](slice-plans/900-open-dough-story/PLAN.md) — OD-1#story
 
 ## Backlog list
 
@@ -54,7 +54,7 @@ Show Doughnut's own published direction, distinct from Open Dough's.
 
 ## Taken
 
-- [${doughnutTakenTitle}](quick/500-doughnut-story/PLAN.md) — DN-1#story
+- [${doughnutTakenTitle}](slice-plans/500-doughnut-story/PLAN.md) — DN-1#story
 
 ## Backlog list
 

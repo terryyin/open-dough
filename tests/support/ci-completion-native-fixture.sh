@@ -65,7 +65,7 @@ ci_completion_create_fixture() {
   ci_completion_release="${root}/release-ci"
   ci_completion_node_log="${root}/node-calls.log"
   ci_completion_control_log="${root}/control.log"
-  mkdir -p "${ci_completion_project}/.planning/quick/001-finished" \
+  mkdir -p "${ci_completion_project}/.planning/slice-plans/001-finished" \
     "${ci_completion_project}/.planning/seeds" \
     "${ci_completion_project}/tests" "${root}/bin"
   : > "${ci_completion_node_log}"
@@ -89,7 +89,7 @@ ci_completion_create_fixture() {
     '## Slice 1' '' \
     'Status: done' '' \
     'Proof: product.txt contains the delivered behavior.' \
-    > "${ci_completion_project}/.planning/quick/001-finished/PLAN.md"
+    > "${ci_completion_project}/.planning/slice-plans/001-finished/PLAN.md"
   # shellcheck disable=SC2016 # Backticks are literal fixture guidance.
   printf '%s\n' \
     '# Fixture project guidance' '' \
@@ -176,7 +176,7 @@ ci_completion_create_fixture() {
 
 ci_completion_prompt_for() {
   local scenario=$1
-  printf '%s' "Use \$dough-execute-plan from this project's installed Open Dough guidance to finish the already-delivered planned execution in .planning/quick/001-finished/PLAN.md. Treat .planning/execution-state.txt as the retained execution state. Do not implement new product behavior or invoke story wrap-up."
+  printf '%s' "Use \$dough-execute-plan from this project's installed Open Dough guidance to finish the already-delivered planned execution in .planning/slice-plans/001-finished/PLAN.md. Treat .planning/execution-state.txt as the retained execution state. Do not implement new product behavior or invoke story wrap-up."
   if [[ ${scenario} == skip-retro ]]; then
     printf '%s' ' Explicitly skip the automatic retrospective for this execution.'
   elif [[ ${scenario} == failure ]]; then

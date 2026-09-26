@@ -26,8 +26,8 @@ Trace each entry to its <img src=x onerror="document.title='direction ran'"> pub
 
 ## Taken
 
-- [Repair the installer's update report](quick/059-installer-update-report/PLAN.md)
-- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work ([plan](./quick/061-published-story-dashboard/PLAN.md#ordered-slices))
+- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
+- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work ([plan](./slice-plans/061-published-story-dashboard/PLAN.md#ordered-slices))
 
 ## Backlog list
 
