@@ -30,7 +30,7 @@ import { snapshot } from "./preparation-assignment-recovery-fixtures.mjs";
 const remoteTip = (trunk) => lsRemoteSha(trunk.origin, "refs/heads/main");
 
 const seedA = ".planning/seeds/A.md";
-const planA = ".planning/quick/A/PLAN.md";
+const planA = ".planning/slice-plans/A/PLAN.md";
 
 // Queued story A, already Takeable, prepared again in its own workspace:
 // announced on trunk, with a committed seed revision and an uncommitted plan

@@ -21,7 +21,7 @@ import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
 
 const revision = "5e".repeat(20);
 const repairEntry =
-  "- [Repair the installer's update report](quick/059-installer-update-report/PLAN.md)";
+  "- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)";
 const claimsEntry =
   "- [Publish shared backlog claims](seeds/SEED-040-claims.md#publish-claims) — SEED-040#publish-claims";
 

@@ -82,10 +82,10 @@ test("story-state: records one story's preparation and leaves its neighbor intac
   const project = scratchProject(t);
   const backlogBefore = backlogBytes(project);
   plantSeed(project);
-  const planRelative = "../quick/075-example/PLAN.md";
+  const planRelative = "../slice-plans/075-example/PLAN.md";
   projectFile(
     project,
-    "quick/075-example/PLAN.md",
+    "slice-plans/075-example/PLAN.md",
     "# Example plan\n\n### 1. Slice\nType: Behavior\nStatus: planned\n",
   );
   const seedBefore = seedBytes(project);

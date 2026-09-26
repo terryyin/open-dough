@@ -58,8 +58,8 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
 
 // Queues correction C, whose backlog link is its own recorded plan.
 async function queueSelfHomedCorrection(trunk) {
-  const identity = "quick/C";
-  const href = "quick/C/PLAN.md";
+  const identity = "slice-plans/C";
+  const href = "slice-plans/C/PLAN.md";
   const plan = `# Correction C\n\n**Identity:** ${identity}\n\nCorrect C.\n`;
   const recorded = recordStoryState(
     plan,
@@ -75,7 +75,7 @@ async function queueSelfHomedCorrection(trunk) {
     },
     { planIsCanonical: true },
   );
-  mkdirSync(join(trunk.integration, ".planning/quick/C"));
+  mkdirSync(join(trunk.integration, ".planning/slice-plans/C"));
   writeFileSync(join(trunk.integration, `.planning/${href}`), recorded.source);
   const entry = `- [Correction C](${href}) \u2014 ${identity}`;
   const backlog = join(trunk.integration, ".planning/PRODUCT-BACKLOG.md");
@@ -176,10 +176,10 @@ test("selected plan changes at every local Git layer stop without a claim", asyn
   for (const layer of ["worktree", "index", "commit"]) {
     const trunk = await createQueuedTrunk();
     t.after(trunk.cleanup);
-    const plan = join(trunk.integration, ".planning/quick/A/PLAN.md");
+    const plan = join(trunk.integration, ".planning/slice-plans/A/PLAN.md");
     writeFileSync(plan, `${readFileSync(plan, "utf8")}Changed local plan.\n`);
     if (layer !== "worktree")
-      await git(trunk.integration, "add", ".planning/quick/A/PLAN.md");
+      await git(trunk.integration, "add", ".planning/slice-plans/A/PLAN.md");
     if (layer === "commit")
       await git(trunk.integration, "commit", "-m", "local plan change");
     const before = readFileSync(plan, "utf8");

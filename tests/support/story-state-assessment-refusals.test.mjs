@@ -21,10 +21,10 @@ import {
 test("story-state: content change makes ready outdated and stale submit refuses", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
-  const planRelative = "../quick/075-example/PLAN.md";
+  const planRelative = "../slice-plans/075-example/PLAN.md";
   const planBody =
     "# Example plan\n\n### 1. Slice\nType: Behavior\nStatus: planned\n";
-  projectFile(project, "quick/075-example/PLAN.md", planBody);
+  projectFile(project, "slice-plans/075-example/PLAN.md", planBody);
 
   await run(
     project,
@@ -87,7 +87,7 @@ test("story-state: content change makes ready outdated and stale submit refuses"
 
   projectFile(
     project,
-    "quick/075-example/PLAN.md",
+    "slice-plans/075-example/PLAN.md",
     `${planBody}\n### 2. Extra\nType: Structure\nStatus: planned\n`,
   );
   const afterPlanEdit = await readState(project, first);

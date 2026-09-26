@@ -16,9 +16,9 @@ import {
   trunkQueue,
 } from "./product-backlog-fixture.mjs";
 
-const planPath = "quick/058-queue-trunk-integration/PLAN.md";
-const otherPlan = "quick/059-strengthen-architectural-review/PLAN.md";
-const correctionPlan = "quick/060-repair-the-release-notes/PLAN.md";
+const planPath = "slice-plans/058-queue-trunk-integration/PLAN.md";
+const otherPlan = "slice-plans/059-strengthen-architectural-review/PLAN.md";
+const correctionPlan = "slice-plans/060-repair-the-release-notes/PLAN.md";
 const correctionEntry = `- [Repair the release notes](${correctionPlan})`;
 const withCorrection = `${backlog}${correctionEntry}\n`;
 
@@ -160,7 +160,8 @@ test("take refuses missing, ambiguous, and unresolved requests unchanged", async
     {
       why: "the selected plan is not there",
       arguments_: claim(trunkQueue, ...withPlan(planPath)),
-      expect: /Unresolved plan: quick\/058-queue-trunk-integration\/PLAN\.md/,
+      expect:
+        /Unresolved plan: slice-plans\/058-queue-trunk-integration\/PLAN\.md/,
     },
     {
       why: "--no-plan contradicts a recorded plan link",

@@ -34,7 +34,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
     );
     expect(plan.origin).toBe("https://github.com");
     expect(plan.pathname).toBe(
-      `${snapshotRoot}/.planning/quick/061-published-story-dashboard/PLAN.md`,
+      `${snapshotRoot}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
     );
     expect(plan.hash).toBe("#ordered-slices");
     await expect(story.getByRole("link")).toHaveCount(2);
@@ -48,11 +48,11 @@ test("source navigation opens canonical and plan records at the inspected revisi
     const links = correction.getByRole("link");
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAccessibleName(
-      "Canonical record quick/059-installer-update-report/PLAN.md",
+      "Canonical record slice-plans/059-installer-update-report/PLAN.md",
     );
     const canonical = await destination(links);
     expect(canonical.pathname).toBe(
-      `${snapshotRoot}/.planning/quick/059-installer-update-report/PLAN.md`,
+      `${snapshotRoot}/.planning/slice-plans/059-installer-update-report/PLAN.md`,
     );
     expect(canonical.hash).toBe("");
   });
@@ -91,8 +91,8 @@ test("source navigation opens canonical and plan records at the inspected revisi
       [
         // The agent profile directory is listed for Taken owners.
         ".planning/agents",
-        ".planning/quick/059-installer-update-report/PLAN.md",
         ".planning/seeds/SEED-021-observe-published-story-progress.md",
+        ".planning/slice-plans/059-installer-update-report/PLAN.md",
         "docs/adrs/0001-ubiquitous-language-accepted.md",
         "docs/release%20notes/2026.md",
       ].map(

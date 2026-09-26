@@ -111,7 +111,7 @@ test("resume refuses a newly prepared selected source changed since the retained
   assert.equal(interrupted.receipt.status, "unpublished");
   const seedPath = join(trunk.integration, ".planning/seeds/A.md");
   const plan = readFileSync(
-    join(trunk.integration, ".planning/quick/A/PLAN.md"),
+    join(trunk.integration, ".planning/slice-plans/A/PLAN.md"),
     "utf8",
   );
   const changed = readFileSync(seedPath, "utf8").replace(
@@ -125,7 +125,7 @@ test("resume refuses a newly prepared selected source changed since the retained
       identity: identityA,
       refinement: "refined",
       approach: "planned",
-      plan: "../quick/A/PLAN.md",
+      plan: "../slice-plans/A/PLAN.md",
       assessment: "ready",
       reasons: [],
       expectedBasis: computeBasis(changed, plan),

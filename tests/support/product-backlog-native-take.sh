@@ -5,9 +5,9 @@
 
 take_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 take_seed_rel='.planning/seeds/SEED-101-native-claim.md'
-take_plan_rel='.planning/quick/101-native-claim/PLAN.md'
-take_plan_from_backlog='quick/101-native-claim/PLAN.md'
-take_plan_from_seed='../quick/101-native-claim/PLAN.md'
+take_plan_rel='.planning/slice-plans/101-native-claim/PLAN.md'
+take_plan_from_backlog='slice-plans/101-native-claim/PLAN.md'
+take_plan_from_seed='../slice-plans/101-native-claim/PLAN.md'
 take_identity='SEED-101#publish-native-claim'
 
 take_cleanup() {

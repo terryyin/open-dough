@@ -188,7 +188,7 @@ during wrap-up.
   (for example `seeds/SEED-021-example.md#first-story`). `--identity` must match
   the identity that home already records.
 - **Whole-document correction:** when the plan is the canonical home, `--link`
-  is that plan path (for example `quick/075-correction/PLAN.md`). For
+  is that plan path (for example `slice-plans/075-correction/PLAN.md`). For
   `--approach planned`, `--plan` is relative to that file; use the plan's own
   basename (for example `PLAN.md`) so the association stays on the same
   document.

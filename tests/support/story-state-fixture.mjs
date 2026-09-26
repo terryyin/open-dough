@@ -105,7 +105,7 @@ export function readArgs(story) {
   return ["read-state", "--link", story.link];
 }
 
-export const correctionRelative = "quick/075-correction/PLAN.md";
+export const correctionRelative = "slice-plans/075-correction/PLAN.md";
 
 export const correction = {
   identity: "CORR-075-correction",

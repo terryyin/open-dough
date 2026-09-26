@@ -78,6 +78,13 @@ Unusual host or delivery cases get manual attention when they arise.
 Installation, update, and coexistence keep their own functional checks in the
 stories that own them.
 
+## Planning records
+
+This repository keeps its product backlog in `.planning/PRODUCT-BACKLOG.md`,
+seeds in `.planning/seeds/`, and executable plans (“Slice Plans”) in
+`.planning/slice-plans/<NNN>-<slug>/PLAN.md`. Number a new plan after the
+highest existing plan number in `.planning/`.
+
 ## Cross-tool delivery
 
 Open Dough skills and rules must work in Codex, Cursor, and Claude Code.

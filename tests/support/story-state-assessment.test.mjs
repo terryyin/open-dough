@@ -25,10 +25,10 @@ import {
 test("story-state: read returns a basis; ready and not-ready round-trip", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
-  const planRelative = "../quick/075-example/PLAN.md";
+  const planRelative = "../slice-plans/075-example/PLAN.md";
   projectFile(
     project,
-    "quick/075-example/PLAN.md",
+    "slice-plans/075-example/PLAN.md",
     "# Example plan\n\n### 1. Slice\nType: Behavior\nStatus: planned\n",
   );
 
@@ -105,7 +105,7 @@ test("story-state: read returns a basis; ready and not-ready round-trip", async 
 
   const { readStoryState } = await import(pathToFileURL(readerPath).href);
   const shared = readStoryState(seedBytes(project), first.link, {
-    planSource: planningFile(project, "quick/075-example/PLAN.md"),
+    planSource: planningFile(project, "slice-plans/075-example/PLAN.md"),
   });
   assert.equal(shared.assessment.status, "ready");
   assert.deepEqual(shared.basis, afterReady.basis);

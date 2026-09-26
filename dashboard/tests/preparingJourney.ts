@@ -141,7 +141,12 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
       "codex",
     ]);
     planStoryC(planning.workspace);
-    const planned = ["--approach", "planned", "--plan", "../quick/C/PLAN.md"];
+    const planned = [
+      "--approach",
+      "planned",
+      "--plan",
+      "../slice-plans/C/PLAN.md",
+    ];
     await record(planning.workspace, ...planned);
     const { basis } = JSON.parse(
       await recorder(

@@ -21,10 +21,10 @@ export const plannedReady = {
   title: "Ready planned story",
 };
 
-export const planBlockedRelative = "../quick/075-blocked/PLAN.md";
-export const planReadyRelative = "../quick/075-ready/PLAN.md";
-export const planBlockedPath = "quick/075-blocked/PLAN.md";
-export const planReadyPath = "quick/075-ready/PLAN.md";
+export const planBlockedRelative = "../slice-plans/075-blocked/PLAN.md";
+export const planReadyRelative = "../slice-plans/075-ready/PLAN.md";
+export const planBlockedPath = "slice-plans/075-blocked/PLAN.md";
+export const planReadyPath = "slice-plans/075-ready/PLAN.md";
 
 export const threeStorySeed = `---
 id: SEED-075

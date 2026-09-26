@@ -119,7 +119,7 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
           .getByRole("link", { name: /^Slice plan/ }),
       ).toHaveAttribute(
         "href",
-        `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/quick/061-published-story-dashboard/PLAN.md`,
+        `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
       );
       await expect(problem).toHaveCount(0);
       await expect(refresh).toHaveAccessibleName("Refresh");

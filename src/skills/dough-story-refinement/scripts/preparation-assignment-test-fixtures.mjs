@@ -33,7 +33,7 @@ export const backlogCli = fileURLToPath(
 export const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 export const identityC = "SEED-C#c";
 export const seedC = ".planning/seeds/C.md";
-export const planC = ".planning/quick/C/PLAN.md";
+export const planC = ".planning/slice-plans/C/PLAN.md";
 
 export const profileOf = (name) => `.planning/${agentIdentity(name).path}`;
 
@@ -222,7 +222,7 @@ export function refineStoryC(workspace) {
 
 // Planning's write: an executable plan for story C.
 export function planStoryC(workspace) {
-  mkdirSync(join(workspace, ".planning/quick/C"), { recursive: true });
+  mkdirSync(join(workspace, ".planning/slice-plans/C"), { recursive: true });
   writeFileSync(
     join(workspace, planC),
     "# Story C plan\n\n### 1. Do C\n\nType: Behavior\nStatus: planned\n",

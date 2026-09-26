@@ -30,7 +30,7 @@ export const queued = [
 ];
 
 export const takenEntry =
-  "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](quick/057-script-product-backlog/PLAN.md))";
+  "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](slice-plans/057-script-product-backlog/PLAN.md))";
 
 // The identity each line above records, spelled out rather than derived, so a
 // test naming one of them does not take the product's own derivation as its

@@ -130,7 +130,7 @@ test("refresh reference refuses a home its identity could not be read back from"
   assert.equal(result.code, 1, result.stdout);
   assert.match(
     result.stderr,
-    /Ambiguous canonical home: identity "quick\/032-refuse-managed-hook-command-variants\/PLAN.md" names no anchor but the link ".*" names "refuse-variants"/,
+    /Ambiguous canonical home: identity "slice-plans\/032-refuse-managed-hook-command-variants\/PLAN.md" names no anchor but the link ".*" names "refuse-variants"/,
   );
   assert.deepEqual(project.snapshot(), before);
 });
@@ -185,7 +185,7 @@ test("refresh reference refuses a plan it cannot link", async (t) => {
   );
   assert.match(
     absent.stderr,
-    /Unresolved plan: quick\/061-script-product-backlog\/PLAN.md is not there/,
+    /Unresolved plan: slice-plans\/061-script-product-backlog\/PLAN.md is not there/,
   );
 
   // A plan link naming the entry's own canonical home would name one document

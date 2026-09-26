@@ -110,7 +110,7 @@ test("adopt identity: an interrupted adoption keeps what it recorded and a retry
   }
   const project = legacyProject(t);
   const before = project.snapshot();
-  const planDirectory = project.path("quick/057-script-product-backlog");
+  const planDirectory = project.path("slice-plans/057-script-product-backlog");
   chmodSync(planDirectory, 0o555);
   t.after(() => {
     try {

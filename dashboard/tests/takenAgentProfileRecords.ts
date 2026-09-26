@@ -24,7 +24,7 @@ const backlog = `# Product backlog
 - [${trunkStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
 - [${branchStory}](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [${modelless}](seeds/SEED-030-models.md#known-model) — SEED-030#known-model
-- [${older}](quick/059-installer-update-report/PLAN.md)
+- [${older}](slice-plans/059-installer-update-report/PLAN.md)
 - [${lastInRotation}](seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar) — SEED-038#recognize-agents-and-tools-by-avatar
 
 ## Backlog list

@@ -61,7 +61,8 @@ const stories: readonly Story[] = [
   { title: queued, anchor: "queued" },
 ];
 
-const planPath = (anchor: string) => `.planning/quick/094-${anchor}/PLAN.md`;
+const planPath = (anchor: string) =>
+  `.planning/slice-plans/094-${anchor}/PLAN.md`;
 
 const entry = ({ title, anchor }: Story) =>
   `- [${title}](seeds/SEED-094-complete.md#${anchor}) — SEED-094#${anchor}`;
@@ -87,7 +88,7 @@ ${stories
 
 **Identity:** SEED-094#${anchor}
 \`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/094-${anchor}/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/094-${anchor}/PLAN.md"}
 \`\`\`
 `,
   )

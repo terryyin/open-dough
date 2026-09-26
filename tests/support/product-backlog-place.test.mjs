@@ -109,7 +109,7 @@ test("place in queue returns taken work only when the return is requested", asyn
   // The same return placed between two queued entries, in a Taken section that
   // still holds other work afterwards.
   const [, retrospective, review] = queued;
-  const alsoTaken = `${queued[0]} ([plan](quick/058-queue-trunk-integration/PLAN.md))`;
+  const alsoTaken = `${queued[0]} ([plan](slice-plans/058-queue-trunk-integration/PLAN.md))`;
   const shared = backlogOf([takenEntry, alsoTaken], [retrospective, review]);
   const between = scratchProject(t, shared);
   const moved = await run(

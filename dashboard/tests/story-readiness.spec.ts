@@ -143,10 +143,10 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
         `.planning/seeds/SEED-075-readiness.md?ref=${openDough.revision}`,
       );
       expect(paths).toContain(
-        `.planning/quick/075-blocked/PLAN.md?ref=${openDough.revision}`,
+        `.planning/slice-plans/075-blocked/PLAN.md?ref=${openDough.revision}`,
       );
       expect(paths).toContain(
-        `.planning/quick/075-ready/PLAN.md?ref=${openDough.revision}`,
+        `.planning/slice-plans/075-ready/PLAN.md?ref=${openDough.revision}`,
       );
       expect(paths).toHaveLength(5);
       const distinctFiles = new Set(

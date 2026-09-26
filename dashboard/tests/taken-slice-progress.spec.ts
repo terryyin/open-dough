@@ -21,9 +21,9 @@ const planless = "Taken before plans were associated";
 const unreadable = "Plan with a status the reader refuses";
 const queued = "Queued story with a plan";
 
-const countedPlanPath = ".planning/quick/090-counted/PLAN.md";
-const unreadablePlanPath = ".planning/quick/090-unreadable/PLAN.md";
-const queuedPlanPath = ".planning/quick/090-queued/PLAN.md";
+const countedPlanPath = ".planning/slice-plans/090-counted/PLAN.md";
+const unreadablePlanPath = ".planning/slice-plans/090-unreadable/PLAN.md";
+const queuedPlanPath = ".planning/slice-plans/090-queued/PLAN.md";
 
 const backlog = `# Product backlog
 
@@ -55,7 +55,7 @@ id: SEED-090
 ### ${counted}
 
 **Identity:** SEED-090#counted
-${storyState("../quick/090-counted/PLAN.md")}
+${storyState("../slice-plans/090-counted/PLAN.md")}
 
 <a id="planless"></a>
 
@@ -70,14 +70,14 @@ ${storyState("../quick/090-counted/PLAN.md")}
 ### ${unreadable}
 
 **Identity:** SEED-090#unreadable
-${storyState("../quick/090-unreadable/PLAN.md")}
+${storyState("../slice-plans/090-unreadable/PLAN.md")}
 
 <a id="queued"></a>
 
 ### ${queued}
 
 **Identity:** SEED-090#queued
-${storyState("../quick/090-queued/PLAN.md")}
+${storyState("../slice-plans/090-queued/PLAN.md")}
 `;
 
 function plan(statuses: readonly string[]): string {
