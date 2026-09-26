@@ -301,7 +301,7 @@ Safe stop: every command applies the one rule; R1 closed.
 
 ### 5. Repair the renamed startup heading links in seeds
 Type: Structure
-Status: planned
+Status: done
 Proof: the two links in `SEED-004` and `SEED-008` point at
 `../../src/skills/dough-execute-plan/SKILL.md#take-or-admit-work`; a one-off
 check that every `SKILL.md#anchor` link under `.planning/seeds/` and
@@ -311,6 +311,18 @@ check that every `SKILL.md#anchor` link under `.planning/seeds/` and
 Structure: removes R4's stale navigation; product behavior unchanged.
 
 Safe stop: independent of the other slices.
+
+Accepted proof (2026-09-26): both links now target
+`../../src/skills/dough-execute-plan/SKILL.md#take-or-admit-work` (heading
+`## Take or admit work`). One-off check — a throwaway node script, not
+committed, that resolves every `](…SKILL.md#anchor)` link in `.planning/seeds/`
+and `src/skills/**/*.md` relative to its file and matches GitHub heading slugs
+or `<a id>` anchors — `node check-anchors.mjs <root>`: at `c97afbb`
+"checked 37 SKILL.md#anchor links; broken 2" (exactly the two R4 links); after
+the change "checked 37 SKILL.md#anchor links; broken 0".
+`/opt/homebrew/bin/bash tests/payload-declaration-links.sh` passes. Installed
+copies under `.agents/skills/` and `.claude/skills/` still carry the old anchor
+until a released payload updates them.
 
 ## Promise coverage
 
