@@ -1,6 +1,14 @@
 // Disposable trunk, queued backlog, and command-readiness scripts for
 // workspace-publication Git-mechanics tests.
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,14 +43,18 @@ export const failingContributing = [
   "",
 ].join("\n");
 
-export async function createQueuedTrunk({
-  contributing,
-  durableCommandEvidence = false,
-  parent = tmpdir(),
-} = {}) {
-  const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
+const queuedTrunkLayout = (fixture) => ({
+  origin: join(fixture, "remote.git"),
+  integration: join(fixture, "integration"),
+});
+
+// A bare remote and an integration checkout whose trunk commit queues stories
+// A and B; with `contributing`, it also holds CONTRIBUTING.md and its scripts.
+async function buildQueuedTrunk(
+  fixture,
+  { contributing, durableCommandEvidence },
+) {
+  const { origin, integration } = queuedTrunkLayout(fixture);
   await exec("git", ["init", "--bare", "-b", "main", origin]);
   await exec("git", ["init", "-b", "main", integration]);
   await git(integration, "config", "user.name", "Integration Checkout");
@@ -114,6 +126,51 @@ export async function createQueuedTrunk({
   await git(integration, "add", ".");
   await git(integration, "commit", "-m", "base trunk commit");
   await git(integration, "push", "origin", "main");
+}
+
+// Without durable command evidence a queued trunk holds no path of its own, so
+// each test process builds it once per CONTRIBUTING text and copies it.
+const templates = new Map();
+
+function queuedTrunkTemplate(contributing) {
+  const key = contributing ?? "";
+  if (!templates.has(key)) {
+    const template = realpathSync(
+      mkdtempSync(join(tmpdir(), "queued-trunk-template-")),
+    );
+    process.once("exit", () =>
+      rmSync(template, { recursive: true, force: true }),
+    );
+    templates.set(
+      key,
+      buildQueuedTrunk(template, { contributing }).then(() => template),
+    );
+  }
+  return templates.get(key);
+}
+
+// The copied checkout's `origin` names the template's remote; point it at the
+// copy's own.
+async function copyQueuedTrunk(fixture, contributing) {
+  const template = await queuedTrunkTemplate(contributing);
+  cpSync(template, fixture, { recursive: true });
+  const config = join(queuedTrunkLayout(fixture).integration, ".git/config");
+  writeFileSync(
+    config,
+    readFileSync(config, "utf8").replaceAll(template, fixture),
+  );
+}
+
+export async function createQueuedTrunk({
+  contributing,
+  durableCommandEvidence = false,
+  parent = tmpdir(),
+} = {}) {
+  const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
+  const { origin, integration } = queuedTrunkLayout(fixture);
+  if (durableCommandEvidence)
+    await buildQueuedTrunk(fixture, { contributing, durableCommandEvidence });
+  else await copyQueuedTrunk(fixture, contributing);
   const teardown = fixtureTeardown(fixture);
   return {
     fixture,

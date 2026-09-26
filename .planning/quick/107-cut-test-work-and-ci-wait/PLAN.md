@@ -193,6 +193,34 @@ The planning profile in Learnings is not this baseline.
   as they were before this resolution: workspace publication and preparation
   assignment are now slices 4 and 5, measurement 6, and the budget 7.
 
+## Checkpoint after slice 4 (2026-09-26): stopped for the maintainer
+
+- **Measurement.** Slice 4 kept one change, about 5% of its family (paired
+  medians against the start revision 121.4 → 115.5, ratio 0.951). The family
+  is dominated by the product's own git processes: about 90 per real
+  `execution-start`, 99.5 of 124 git-seconds, which the journeys must
+  exercise. About half of the local git cost is the macOS `/usr/bin/git`
+  stub, which CI does not pay.
+- **Gap.** About 400 job-seconds remained after slice 2. Slice 4 contributes
+  about 13. Slice 3's approved map is estimated at 150–210 but is blocked on
+  permission. Slice 5's shared fixture saving is already counted in slice 4;
+  the rest of that family is product git volume (3,122 calls). Even with
+  slice 3 the local target stays about 180–230 job-seconds short.
+- **Invalidated assumption.** That the workspace-publication and
+  preparation-assignment families hold removable test-side cost; their cost
+  is the product's git plumbing per start.
+- **Remaining candidates, each needing a decision.** Batch the ongoing-
+  operation checks in `maintain-default-checkout.mjs` (about 12 of ~90 calls
+  per start; dangling `MERGE_HEAD`, git ≥ 2.46, and reftable semantics
+  differ); batch source reads with `cat-file --batch` (about 9 per start;
+  tree paths and conflicted entries differ); exactly safe `merge-base` and
+  lock-path reuse (about 4 per start); fold 2–3 overlapping real starts.
+  Together about 50–60 suite job-seconds. The CI target may be closer than
+  the local one because of the git stub; story-branch CI runs will show it.
+- **Decision needed.** Unblock slice 3; then whether to pursue the product
+  git reductions, accept lower targets, or proceed to measurement and the
+  budget (slices 6–7) with what is achieved.
+
 ## Ordered slices
 
 ### 1. Registering a pushed revision makes the CI observer check at once
@@ -250,7 +278,9 @@ checkpoint afterwards.
 ### 3. Installer and updater checks prove each promise with fewer runs
 
 Type: Behavior
-Status: planned
+Status: blocked — the approved removals were refused by the host's
+permission check; awaiting the maintainer's direct instruction or a
+permission rule
 Proof:
 - Coverage map, then stop: for each installer and updater check, list every
   `install.sh` and `apply` run, the promise it observes, and the boundary it
@@ -273,7 +303,7 @@ payload-update checks. Decisive checkpoint afterwards.
 ### 4. Workspace-publication suites cost less
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - `workspace-publication*.test.mjs`, including the
   `workspace-publication-startup-*` files, pass silently with unchanged
@@ -461,3 +491,41 @@ the claim. Reference checkout for paired measurement: detached
   runs straddled an external load spike (a VM and Spotlight, load 13 → 66)
   and were retaken; a pair whose sides start at very different loads is not
   comparable.
+- **Slice 3 coverage map, approved by the maintainer on 2026-09-26.** Basis
+  read in source: the `codex` and `cursor` hints map to the same
+  `.agents/skills/dough-update` destination and the installer always walks the
+  full two-root topology, so they differ only in argv; `claude` reads the
+  `.claude` entry root and is kept wherever it carries that boundary. One
+  `install.sh` `managed_files` declaration drives both delivery and protection;
+  edit and remove take different branches, as do the two newly-managed-path
+  collision branches. Approved: (A) remove Codex iterations that repeat Cursor
+  (and the Cursor iteration of `install-refuses-unsafe-topology.sh`), narrow
+  `story-payload-update.sh`'s 24-run protection matrix to (problem-decomposition,
+  edit) and (planning, remove), and drop 10 `--force` repeats in
+  `install-ci-host-hooks.sh`'s refusal helper, keeping them for the edited
+  handler and the settings symlink; (B) `story-payload-update.sh` alone owns
+  "an edited or removed managed file in the sibling root is refused by update
+  and repeat install, and force restores it", and the product-backlog,
+  retrospective-reference, and execution payload checks keep only their
+  delivery assertions; (C) the unsafe-topology per-skill list shrinks to
+  dough-update, dough-adr-awareness, and dough-story-wrap-up; drop the
+  retrospective reference's fresh-install run, the injected
+  `OPEN_DOUGH_INSTALL_FAULT=record` cases together with that now-dead product
+  hook, and the tab-suffix equal-version `apply` case; (D) repeated setup
+  installs and applies become copies of one prepared target. Estimated saving
+  about 37% of the family (sequential 143 → about 90 s). Reported coverage
+  gaps, not fixed here: no test observes refusing a requested version, `apply`
+  with an unsupported platform, updating a Claude-only installation from the
+  Claude entry, or the installer without Node.
+- **Slice 4 delivered.** The workspace-publication fixture builds the queued
+  trunk once per test process per CONTRIBUTING text and copies it, repointing
+  the copy's `origin` (micro-benchmark 187.9 → 41.7 ms per trunk, three pairs;
+  about 7.6 s per family run); the durable-evidence path still builds in
+  place. Consumers `workspace-publication*`, `preparation-assignment-*`,
+  `git-publication-native.sh`, and `native-evidence-identity.sh` pass
+  silently; the full suite passed silently at 1,997.8 job-seconds (load 14.1).
+  Profile: about 5,500 git calls in the family, 4,345 from 61 real starts.
+  Incidental possible defect, not fixed: `ensureDriverRegistered`
+  (`src/skills/dough-product-backlog/scripts/product-backlog-git-repository.mjs`)
+  writes `.git/info/attributes` without creating `info/`, failing with ENOENT
+  on a repository initialized without templates.
