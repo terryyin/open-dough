@@ -229,7 +229,7 @@ now resolves by file too (the shared resolution check, in scope).
 
 ### 2. Keep own-home plans unlinked and compare plan files in listing checks
 Type: Behavior
-Status: planned
+Status: done
 Proof: in `tests/support/product-backlog-plan-link.test.mjs` (or a sibling if
 it would pass 250 lines), through the real backlog CLI:
 
@@ -262,6 +262,27 @@ and `planOfOther` through the slice 1 and slice 2 predicates.
 
 Safe stop: every backlog command applies the one rule; execution startup is
 externally unchanged (it still refuses section links before calling take).
+
+Accepted proof (2026-09-26): `node --test tests/support/*.test.mjs` 192/192.
+New `tests/support/product-backlog-plan-home.test.mjs` ("plan home: …", setup
+`projectWith()`): take and `admitEntry` refuse the story's own home file as
+its plan; a planned record whose plan is its own home file, with or without
+an anchor, writes no link and has no `basis.plan`; a section link to another
+entry's whole-document home is refused by `take`, and `add` of a home another
+entry links a section of is refused; a backlog listing a home and a section of
+it as another plan is refused (`planOfOther`); each unchanged. New `homeFile`
+row in `product-backlog-refresh-refusals.test.mjs`. All new tests failed
+against the pre-change product files except the plain-file own-home record,
+which `separatePlanPath` already handled. Startup and admission suite 63/63;
+dashboard `vite build` succeeds with no `node:` import in the bundle.
+
+Design as delivered: `product-backlog-plan.mjs` is pure (the dashboard bundles
+it through `product-backlog-document.mjs`) and owns `planFileOf`,
+`sameDocument(link, other)` — one predicate for both "an entry's link already
+links this plan" and "a declared plan is the entry's own home", replacing
+slice 1's `linksPlan` — and the asymmetric `planNamesHome(target, href)` for
+listing clashes. `requireResolvedPlan` moved to `product-backlog-home.mjs`, the
+existing filesystem loader for documents backlog links name.
 
 ### 3. Refuse a missing record-state or read-state link cleanly
 Type: Behavior
@@ -319,7 +340,7 @@ and a genuinely different plan link is refused naming its list.
 
 Replace `selectedPreparation.declaredPlan`'s own-home comparison and
 continuation's whole-target comparison with the domain predicates from slices 1
-and 2.
+and 2 (`sameDocument` for both the own-home and link-agreement checks).
 Keep refusal statuses and the other messages the tests assert.
 
 Safe stop: every command applies the one rule; R1 closed.

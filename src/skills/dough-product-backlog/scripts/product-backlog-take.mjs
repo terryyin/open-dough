@@ -29,16 +29,14 @@ import {
   requireNamedHome,
   requireUnlistedWork,
 } from "./product-backlog-add.mjs";
-import {
-  linksPlan,
-  planLabel,
-  requireResolvedPlan,
-} from "./product-backlog-plan.mjs";
+import { requireResolvedPlan } from "./product-backlog-home.mjs";
+import { planLabel, sameDocument } from "./product-backlog-plan.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
 // A quick story and a plan-homed correction take none: such a correction's
-// canonical home already is its plan, so a second link would name it twice.
+// canonical home already is its plan, so a second link would name it twice,
+// whichever section of that home either link points into.
 // Nor may the plan already be listed as another entry's canonical home. A link
 // already recorded to that plan file, or to a section of it, is kept as written.
 function resolvePlan(document, entry, request) {
@@ -54,14 +52,14 @@ function resolvePlan(document, entry, request) {
   }
 
   const target = request.plan;
-  if (entry.plan && !linksPlan(entry.plan.target, target)) {
+  if (entry.plan && !sameDocument(entry.plan.target, target)) {
     throw new BacklogError(
       `"${entry.identity}" already links the plan "${entry.plan.target}", ` +
         `not "${target}". Taking work never repoints a recorded link; ` +
         `refreshing the reference is a separate decision.`,
     );
   }
-  if (target === entry.href) {
+  if (sameDocument(target, entry.href)) {
     throw new BacklogError(
       `The plan "${target}" is already the canonical home of ` +
         `"${entry.identity}", which needs no duplicate plan link. Take it ` +
