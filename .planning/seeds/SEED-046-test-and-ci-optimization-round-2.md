@@ -74,14 +74,9 @@ stays separate):
   still fail silently when the wrapper prints no result path; the
   updated-use check gained a diagnostic for this, the adapters check did not.
   The same result-path `awk` parse is copied in about six test scripts.
-- Native-agent fixture repositories that commit with inline `-c` identity
-  and no `maintenance.auto false` (`product-backlog-native-guard-*`,
-  `product-backlog-native-take`, `delivery-evidence-native-run`,
-  `ci-completion-native-fixture`, `trunk-closure`, `story-branch-closure`,
-  `git-publication`) are exposed to Git's detached auto-maintenance, which
-  broke a native check on CI once.
-- `ci-repair-stash.test.mjs` fails under git 2.39 and 2.43 because it
-  matches git's error text; CI's git 2.55 passes.
+- Fixture repositories exposed to Git's background maintenance and the
+  Git-version-dependent `ci-repair-stash.test.mjs` moved to
+  [SEED-048#explicit-test-environment](SEED-048-explicit-test-environment.md#explicit-test-environment).
 - The local budget report prints on most local runs, because the ceilings
   are CI-calibrated; decide whether to keep it, make the check CI-only, or
   compare local times against a local ceiling.
