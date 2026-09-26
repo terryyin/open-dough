@@ -230,3 +230,24 @@ test("story-state: a planned record links the plan of its Taken entry and leaves
   assert.equal(again.code, 0, again.stderr);
   assert.equal(backlogBytes(project), expected);
 });
+
+test("story-state: a planned record leaves a Taken entry already linking a section of that plan unchanged", async (t) => {
+  const firstLine =
+    `- [${first.title}](${first.link}) — ${first.identity} ` +
+    `([plan](slice-plans/075-example/PLAN.md#ordered-slices))`;
+  const project = scratchProject(t, backlogOf([takenEntry, firstLine], queued));
+  plantSeed(project);
+  projectFile(project, "slice-plans/075-example/PLAN.md", "# Example plan\n");
+  const before = backlogBytes(project);
+
+  const recorded = await run(
+    project,
+    recordArgs(first, {
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/075-example/PLAN.md",
+    }),
+  );
+  assert.equal(recorded.code, 0, recorded.stderr);
+  assert.equal(backlogBytes(project), before);
+});

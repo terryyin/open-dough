@@ -424,3 +424,11 @@ claim `5a05150` accepted on `origin/main`.
   now wait on the worker's own poll-sleep signal
   (`ci-observer-poll-sleep-test-fixtures.mjs`); with a 0.12s git start-up
   delay the old test failed and the new ones pass.
+- CI on `9e635ae` (slice 3) failed the dashboard readiness specs: their Taken
+  entry links `PLAN.md#ordered-slices`, and the new record-state link step
+  compared the whole target, refusing it as another plan. Repaired: an entry
+  whose link names a section of the declared plan file already links it and
+  stays unchanged. Slice 3 acceptance had not run the dashboard fixtures that
+  drive `record-state`. `take --plan` on resume and continuation's older
+  `entry.plan.target !== planTarget` check (`execution-source.mjs`) still
+  compare whole targets, fragment included; left for the retrospective.
