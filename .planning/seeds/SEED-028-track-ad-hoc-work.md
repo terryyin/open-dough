@@ -223,6 +223,31 @@ the dashboard's already path-based reading.
 
 **Plan:** [Decide plan links by one rule](../slice-plans/116-plan-link-rule/PLAN.md).
 
+<a id="plan-link-readers"></a>
+
+### Correction: Read every plan link by its file
+
+**Identity:** SEED-028#plan-link-readers
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/117-plan-link-readers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0e9eb8ff8705b92ab247e73abb0edfb9153d29ebc43bc98906212d72ee5f3309","plan":"975c70c3325bf98ad67be9a1393cfbf5499d723292c005b58e1f19d7d4ffaa8d"}}
+```
+
+**Goal:** Developers whose backlog or recorded preparation links a section of
+a plan get the same answer from every reader — the listing checks, `adopt`,
+and the dashboard — as from take, record-state and startup, so a backlog the
+product's own commands write is never refused or misreported elsewhere.
+
+**Scope:** A bounded retrospective correction of the delivered plan-link rule
+correction (`SEED-028#plan-link-rule`, commits `c97afbb..6b3f02b`). The
+listing checks again refuse a plan link that exactly names another entry's
+anchored home; `adopt` opens a section-linked plan by its file; the dashboard
+reads a recorded story-state plan with a `#section` by its file; and a lasting
+test keeps the backlog modules the dashboard bundles free of Node-only
+imports. Excluded: refresh repoint semantics, merge comparison in
+`product-backlog-version.mjs`, and test consolidation.
+
+**Plan:** [Read every plan link by its file](../slice-plans/117-plan-link-readers/PLAN.md).
+
 ## Ordering and Scope Reduction
 
 Queue these two stories in this order at the original story's current position:

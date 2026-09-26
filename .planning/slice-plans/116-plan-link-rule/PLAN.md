@@ -436,3 +436,20 @@ slices 3, 4 and 5 (formerly 2, 3 and 4), each one gate and one proof loop.
 ## Learnings
 
 None yet.
+
+## Execution complete
+
+Product advice:
+
+- Queue the follow-up correction
+  [Read every plan link by its file](../../seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers)
+  (plan 117, recorded ready): the listing checks, `adopt` and the dashboard
+  still read some plan links by whole target. The dashboard fix is the
+  retrospective's recommendation; confirm it at wrap-up.
+- Reassess `SEED-028#one-shot-work`: its not-ready reason (shared admission
+  still Taken) has lapsed, and this correction settled continuation's plan
+  link rule.
+- Feed ODF-119's self-perpetuating refresh deferral into
+  `SEED-008#same-machine-merge-queue`.
+- Slice 3's wrong refusal-wording premise is further evidence for
+  `SEED-044#verify-planning-premises`.

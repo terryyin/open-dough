@@ -838,22 +838,6 @@ it. Slice 1 was not CI-safe until slice 3 was folded into it.
     without tracing which existing suites a new invariant (unique active
     agent names) would break.
 
-## ODF-117 — An idle-machine precondition for the speed baseline stalled execution on a shared machine
-
-Former local code: DD-100.
-
-The plan required load below 4 before each baseline run; other work kept it at 50–180, and the only resolution was the developer's instruction to measure relatively (paired start-revision and candidate runs under the same load).
-
-### Occurrences
-
-- Execution: `SEED-037#quiet-stable-four-times-faster-tests` / plan 096, first related implementation commit `0fdf13c`
-  - Timestamp: unknown (wait began after claim `bad3717` at 2026-09-25T11:35:32+08:00 and lasted about 40 minutes)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.39
-  - Evidence: plan 096 (`.planning/slice-plans/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
-  - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
-
 ## ODF-118 — Removing a test's assertion broke a meta-test that mutated against it
 
 Former local code: DD-103.
@@ -899,6 +883,14 @@ checkout also keeps in-checkout execution worktrees under an unignored
   - Evidence: `execution-start.mjs start` → `source-refused`, "SEED-008… has no story anchored at preserve-other-executions-work"; the default checkout's uncommitted and untracked planning edits equalled published `5668d56` (minus its SEED-044 lines) while local `main` was 12 commits behind; `execution-source.mjs` `unpublishedSource` parses the merge-base version, which predates the story, and throws before its own refusal message. The developer approved discarding; the auto-mode classifier blocked `git checkout -- .`, so the six paths went into a labelled pathspec stash in the default checkout for the developer to drop. Start then reported `maintenance: deferred`, `pending-edit`.
   - Observed effect: one human round trip, about eight coordinator calls to diagnose, and a stash left on the shared stack.
   - Inference: Qualified. A second occurrence in one day; the misleading message is a new symptom of the same source check.
+- Execution: `SEED-028#plan-link-rule` / plan 116, first related implementation commit `7af15d4`
+  - Timestamp: unknown (every refresh this session, from Preparing announcement `eba94c3` at 2026-09-26T20:25:46+08:00 onward)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `1b66466`
+  - Evidence: announce, land, claim `c97afbb` and all five deliveries reported refresh `deferred`, `pending-edit`, the only status being `?? .worktrees/`; the default checkout stayed at `a063e9f`, 18 behind trunk, whose `56ae2aa` already ignores `/.worktrees/`; local `read-state` then misreported the story as absent.
+  - Observed effect: the default checkout never refreshed, so the ignore rule that would end the deferral cannot arrive by itself.
+  - Inference: Qualified. Self-perpetuating until a manual fast-forward; any untracked path the incoming tree does not touch blocks refresh.
 
 ## ODF-100 — A piped lint failure did not stop publication
 
@@ -981,8 +973,25 @@ agents kept editing the checkout.
     a repair that cannot touch other writers' files; whether it should is
     open.
 
+## DD-108 — A fixable sizing concern recorded as not-ready stopped execution for a human round trip
+
+Planning recorded `not-ready` for a slice-sizing concern its own refinement
+could resolve, so execute-plan startup refused and the split needed a
+separate preparation cycle and an explicit keep before any work started.
+
+### Occurrences
+
+- Execution: `SEED-028#plan-link-rule` / plan 116, first related implementation commit `7af15d4`
+  - Timestamp: 2026-09-26T20:25:46+08:00 (Preparing announcement `eba94c3` after the refusal)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `1b66466`
+  - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
+  - Observed effect: one human round trip plus an announce/land publication cycle before the claim.
+  - Inference: Qualified. The concern named its own remedy (split); slice-plan refinement at planning time would have recorded ready.
+
 ## Retention
 
-- Highest allocated local number: 107
-- Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 108
+- Recovery: `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
