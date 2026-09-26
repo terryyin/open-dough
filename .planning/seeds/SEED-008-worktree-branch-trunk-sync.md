@@ -158,6 +158,11 @@ existing owner; startup can safely defer refresh before this story is delivered.
 **Safe stopping point:** Participating direct edits and refreshes share bounded
 access and recoverable stops; isolated publication stays independent of it.
 
+**Evidence:** [DD-104](../../DearDough.md#dd-104--leftover-state-in-the-default-checkout-blocked-execution-startup-and-never-let-it-refresh):
+execution worktrees kept under an unignored in-checkout `.worktrees/` make every
+automatic refresh of the default checkout defer with `pending-edit`, and a stale
+published copy left there blocked a later execution startup.
+
 <a id="claude-code-background-mode"></a>
 
 ### Complete execution and wrap-up in fresh Claude Code background mode
