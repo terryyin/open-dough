@@ -1,3 +1,13 @@
+## 0.3.41 - 2026-09-26
+
+- Admit accepted standalone work that no backlog list holds into one published Taken claim before implementation, resume that exact claim, and close it through ordinary wrap-up; give new retrospective corrections a seed-backed story instead of a plan-only identity.
+- Make preparation assignments safer to end: release a lost workspace's assignment only by its exact allocation and explicit developer confirmation, stop a prepared draft from landing after its story leaves the queue, and centralize assignment state behind one shared reader.
+- Attach managed Claude Code CI observation to the coordinator identity supplied by `CLAUDE_CODE_SESSION_ID` when explicit session input is absent, while keeping explicit input authoritative and reporting missing identity as a coverage gap.
+- Reduce duplicated installer and payload-update work with shared release fixtures, declaration-based link checks, single owners for each protection, failure-propagation coverage, and longest-first scheduling for the deterministic suite.
+- Rename executable-plan records to the Slice Plans convention and sharpen the dashboard's agent portrait hover with full-resolution assets.
+
+Native acceptance was explicitly skipped for `0.3.41` at the maintainer's request. Native evidence completed within the included first-Claude-CI-attachment work is retained; native acceptance for the other changed preparation, execution-admission, dashboard, and test-runtime behavior, along with previously pending native requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.40 - 2026-09-26
 
 - Publish story-preparation assignments before refinement and planning, preserve newer ownership through resume or abandonment, release assignments on landing, and show each Preparing story with its developer in the dashboard.
