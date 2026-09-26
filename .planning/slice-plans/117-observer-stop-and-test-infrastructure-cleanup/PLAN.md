@@ -213,7 +213,16 @@ waits in `watch-ci-test-fixtures.mjs`, and environment-only `gh` stubs move to
 ### 4. The fixture cache copies binary files unchanged
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: a scratch check copied a file containing NUL bytes and the
+build path byte-identical. Before the fix, the rewrite truncated it from 94
+bytes to 4. A scratch fresh-versus-cached comparison matched every path's type,
+mode, and hash, the index, refs, tags, and HEAD for context and delivery on all
+three hosts. It pinned commit dates and invoked no paid host. On real fixtures,
+selecting with and without `-I` picks the same 12 files. The helper's consumers
+pass in their non-paid modes.
+Learning: neither check is part of the suite. The native wrappers' paid modes
+were not run.
 Proof:
 - The fixture-equivalence check (fresh versus cached, including `.git`,
   refs, tags, and modes) still passes for delivery and context on all three

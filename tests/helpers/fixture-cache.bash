@@ -10,7 +10,8 @@
 #
 # A builder writes only under its root; it may embed in text files that root's
 # path or the fixture_cache_built of an earlier fill in this process, which a
-# copy rewrites, logical and physical, to where this process filled them. Each
+# copy rewrites, logical and physical, to where this process filled them; a
+# copy leaves every other file, binary ones included, byte-identical. Each
 # build lives at <cache>/<NAME>/fixture, so no build path is a substring of
 # another and any NAME is safe. A run thus sees exactly what fresh builds at its
 # own paths would hold.
@@ -54,7 +55,8 @@ fixture_cache_fill() {
   fixture_cache_physical_moves+=("${built_physical}"$'\t'"${root_physical}")
   fixture_cache_logical_moves+=("${built_logical}"$'\t'"${root}")
   cache_physical=$(cd -- "${cache}" && pwd -P)
-  files=$(grep -rlF -e "${cache}/" -e "${cache_physical}/" -- "${root}") \
+  # -I skips binary files, which the rewrite below would truncate at a NUL.
+  files=$(grep -rlIF -e "${cache}/" -e "${cache_physical}/" -- "${root}") \
     || [[ $? -eq 1 ]]
   [[ -n ${files} ]] || return 0
   while IFS= read -r file; do
