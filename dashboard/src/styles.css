@@ -122,7 +122,16 @@ main {
 }
 
 .direction {
+  flex: 1;
+  min-width: 0;
   max-width: 60rem;
+}
+
+.direction-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .direction summary {

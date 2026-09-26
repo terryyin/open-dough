@@ -6,12 +6,12 @@ Its authority, scope, and revision policy apply to this guidance.
 ## Connected stages and spatial navigation
 
 Keep one story overview with an always-visible banner pinned to the viewport top.
-Use **OpenDO** as the dashboard brand, distinct from the observed project's name.
+Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected
-project highlighted and native arrow-key switching. Keep compact project/repository
-and ref information and manual refresh in this banner. Keep repository/ref visible and
-full source revision and retrieval time available through a Source evidence
-disclosure, so detailed metadata does not fill the viewport at browser zoom. Render refresh as an SVG icon
+project highlighted and native arrow-key switching. Keep manual refresh in this
+banner. Keep repository/ref, full source revision, and retrieval time available
+through the Source evidence disclosure, so detailed metadata does not fill the
+viewport at browser zoom. Render refresh as an SVG icon
 with the accessible name Refresh, changing to Retry after a failed read; preserve
 its focus and guarded behavior during reads. Keep readable loading and source
 problems near the source context. Make the header wrap without covering focused
@@ -22,8 +22,8 @@ disclosure. Activation reveals its full published text or the existing
 no-direction explanation; activation again collapses it. Preserve the choice
 across same-project refreshes and start collapsed on project changes. Replace
 the expanded **Preparation badges** legend with a compact question-mark help
-control beside the work overview, named Preparation badge legend. Open the
-existing legend in a titled modal above the banner; provide a visible Close
+control on the same line, opposite the direction disclosure, named Preparation
+badge legend. Open the existing legend in a titled modal above the banner; provide a visible Close
 control and Escape, contain focus inside, and return focus to the launcher.
 Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
@@ -82,10 +82,8 @@ Illustrative compact overview; placeholders are not observed project data:
 
 ```text
 ┌──────────────── pinned viewport-top banner ──────────────┐
-│ OpenDO   [Open Dough] [Doughnut] [Pygardon]       [↻]  │
-│ ▸ Source evidence: <repository/ref>                     │
+│ ▸ <selected project> [Open Dough] [Doughnut] [Pygardon] [↻] │
 └──────────────────────────────────────────────────────────┘
-Published work
 ▸ Near-future direction                                [?]
 
 ┌──────────────────── connected stage ──────────────────────┐

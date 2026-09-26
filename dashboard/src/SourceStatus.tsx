@@ -37,10 +37,8 @@ export function SourceStatus({
         </svg>
       </button>
       <details className="source-evidence" key={source.id}>
-        <summary aria-label="Source evidence">
-          <span>
-            {source.repository} · {source.ref}
-          </span>
+        <summary aria-label={`Source evidence for ${source.label}`}>
+          <h1>{source.label}</h1>
         </summary>
         <div className="source-evidence-body">
           <dl>

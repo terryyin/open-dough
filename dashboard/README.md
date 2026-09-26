@@ -1,17 +1,17 @@
 # Open Dough story dashboard
 
-A locally launched page that shows the work Open Dough has published: the
+A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages.
 
-The pinned **Open Dough** banner keeps the three **Project** choices and SVG **Refresh**
-control reachable while scrolling. Its repository/ref disclosure opens the full
+The pinned banner shows the selected project in a disclosure and keeps the three
+**Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
 source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
 or high browser zoom. The icon is named **Retry** after a failed read.
 
-**Near-future direction** starts collapsed below the banner. Click its title or
-use Enter/Space to read the complete published direction (or its no-direction
+**Near-future direction** starts collapsed below the banner, opposite the **?**
+help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
 explanation), then activate it again to collapse. Refreshing the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request.

@@ -3,27 +3,24 @@
   top: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 2.75rem;
-  align-items: center;
-  grid-template-rows: 2.75rem auto;
+  grid-template-columns: minmax(0, 1fr) auto 2.75rem;
+  grid-template-rows: minmax(2.75rem, auto);
+  align-items: start;
   gap: 0.25rem 0.75rem;
   padding: 0.5rem clamp(0.75rem, 4vw, 1.5rem);
   background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
 
-.brand {
-  font-size: 1.25rem;
-  font-weight: 750;
-}
-
 .banner .project-select {
+  grid-column: 2;
+  grid-row: 1;
   justify-self: end;
 }
 
 .banner .source {
-  grid-column: 1 / -1;
-  grid-row: 2;
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
 }
 
@@ -36,6 +33,11 @@
   cursor: pointer;
   width: fit-content;
   min-height: 1.5rem;
+}
+
+.source-evidence summary h1 {
+  display: inline;
+  font-size: 1.25rem;
 }
 
 .source-evidence-body {
@@ -93,6 +95,8 @@ html {
 
 @media (max-width: 600px) {
   .banner {
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+    grid-template-rows: minmax(2.75rem, auto) auto;
     row-gap: 0.125rem;
     padding-block: 0.375rem;
   }
@@ -107,10 +111,6 @@ html {
     flex: 1;
     font-size: 0.9rem;
     padding-inline: 0.25rem;
-  }
-
-  .banner .source {
-    grid-row: 3;
   }
 }
 

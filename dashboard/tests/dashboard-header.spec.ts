@@ -11,7 +11,7 @@ import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 
 for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
-  test(`Open Dough banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
+  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
     page,
   }) => {
     await page.setViewportSize(viewport);
@@ -27,7 +27,7 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     await expect(
-      banner.getByRole("paragraph").getByText("Open Dough", { exact: true }),
+      banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
     for (const control of [project, sourceEvidence, refresh]) {
       await expect(control).toBeInViewport({ ratio: 1 });
@@ -52,13 +52,14 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
         }),
       ),
     ).toEqual([1, 1, 1]);
-    await expect(sourceEvidence).toContainText("terryyin/open-dough · main");
+    await expect(sourceEvidence).toContainText("Open Dough");
     await expect(refresh).toHaveAccessibleName("Refresh");
     await expect(refresh.locator("svg")).toHaveAttribute("aria-hidden", "true");
     await expectReadableContrast(refresh.locator("svg"), 3);
     await expectNoSidewaysScrollAndWholeText(page);
 
     await sourceEvidence.click();
+    await expect(source).toContainText("terryyin/open-dough");
     await expect(source.getByText(revision, { exact: true })).toBeVisible();
     await source.locator("time").scrollIntoViewIfNeeded();
     await expect(source.locator("time")).toBeInViewport({ ratio: 1 });
@@ -99,7 +100,7 @@ test("banner project selection and icon refresh read the selected project's actu
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
   await page.goto("/");
-  const { project, source, refresh } = parts(page);
+  const { project, source, sourceEvidence, refresh } = parts(page);
   await expect(source).toContainText(revision);
   const openDoughChoice = project.getByRole("radio", {
     name: "Open Dough",
@@ -118,7 +119,11 @@ test("banner project selection and icon refresh read the selected project's actu
     taken: [],
     backlog: ["Doughnut's next story"],
   });
-  await expect(source).toContainText("nerds-odd-e/doughnut · main");
+  await expect(sourceEvidence).toContainText("Doughnut");
+  await sourceEvidence.click();
+  await expect(source).toContainText("nerds-odd-e/doughnut");
+  await expect(source).toContainText("main");
+  await sourceEvidence.click();
   await expect(source).toContainText(doughnutRevision);
   doughnut.push(nextRevision, backlog("Doughnut's refreshed story"));
   await refresh.click();
