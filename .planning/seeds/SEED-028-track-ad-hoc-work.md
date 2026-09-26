@@ -216,6 +216,37 @@ section-aware seed reconciliation, and plan-directory renames.
 
 **Plan:** [Keep admission coherent](../slice-plans/113-admission-coherence/PLAN.md).
 
+<a id="plan-link-rule"></a>
+
+### Correction: Decide a Taken entry's plan link by one rule
+
+**Identity:** SEED-028#plan-link-rule
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"not-ready","reasons":["Awaiting human confirmation of the section-link decision (Current decisions: plan links satisfied by file path, fragments supported; rejected: refuse fragments everywhere); slices 1 and 3 depend on it.","Slice 1 routes many backlog callers (take, admit, refresh own-home, listing checks, story-state plan target) through one predicate in one proof loop; sizing is uncertain."],"basis":{"document":"873c8816b77a3cd194f1ebc2396dd044c2457660bc1704c4261b8f624f19ad77","plan":"740fe682327c441a7d6ce658cd05b7fe127704c5febd7ec030b4cd47bd7bb0d1"}}
+```
+
+**Goal:** Developers taking, admitting, preparing and continuing work get the
+same answer from every command about which plan link an entry needs and
+whether its current link satisfies it, so a Taken entry that preparation
+accepts is one that take resume and execution startup can continue.
+
+**Scope:** A bounded retrospective correction of the delivered
+[admission coherence](#admission-coherence) correction. Take and admission,
+`record-state`, the backlog's listing checks, and execution startup and
+continuation apply one plan-link rule, including when a plan is its story's own
+home; `record-state` and `read-state` refuse a missing `--link` cleanly; an
+oversized story-state test file is split; and two seed links to a renamed
+execution-startup heading are repaired. Key examples: a Taken entry linking
+`PLAN.md#ordered-slices` of its declared plan is left unchanged by
+`record-state`, by `take` resume, and by ordinary continuation; `take --plan`
+naming a section of a resolvable plan is accepted; `take --plan` naming the
+seed file that is an anchored story's own home is refused as needing no plan
+link; `record-state` without `--link` is refused with nothing written.
+Excluded: normalizing existing section links, refusing fragments, and changing
+the dashboard's already path-based reading.
+
+**Plan:** [Decide plan links by one rule](../slice-plans/116-plan-link-rule/PLAN.md).
+
 ## Ordering and Scope Reduction
 
 Queue these two stories in this order at the original story's current position:

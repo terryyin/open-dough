@@ -385,6 +385,16 @@ line counts.
 Safe stop: guidance matches delivered behavior; installed copies still await a
 released payload.
 
+## Execution complete
+
+Product advice: `SEED-028#one-shot-work` was recorded not-ready only because
+admission's retained-work continuation interface was undelivered; it is now
+delivered (the recorder links a Taken entry's plan, continuation refuses a
+missing link), so reassess one-shot readiness after this wrap-up. DD-105
+corroborates `SEED-044#verify-planning-premises`. Keep current queue order;
+the follow-up correction `SEED-028#plan-link-rule` (plan 116) awaits the
+section-link decision before it can be ready.
+
 ## Promise coverage
 
 | Finding | Owner / decisive observation |

@@ -483,6 +483,21 @@ explicit contract in the focused CI runtime suite.
     `36146130701` `lint` failed in `dashboard/tests/preparingJourney.ts`.
   - Observed effect: one failed CI run, a pause-and-stash cycle, repair `2b3b02e`.
   - Inference: The TypeScript consumer lay outside the assumed file types.
+- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
+  - Timestamp: 2026-09-26T18:42:15+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: slice 3 (`9e635ae`) changed the `record-state` CLI; the
+    coordinator told the slice agent not to run Playwright because another
+    agent was using it, and the refactor return judged the dashboard
+    unaffected because it imports only the pure story-state reader. CI run
+    `36236595203` `dashboard` failed in fixtures that shell out to
+    `record-state` (`dashboard/tests/storyReadinessCli.ts`); repair `33fd629`.
+  - Observed effect: one failed CI run, a stash-and-repair cycle.
+  - Inference: Qualified match: the consumer check followed imports, not
+    command-line callers, and a concurrency convenience removed the suite
+    that would have caught it.
 
 ## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
 
@@ -886,8 +901,72 @@ Pipeline exit status hid the failed lint command; the earlier semicolon-chain oc
     `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
   - Observed effect: one extra commit, push, and failed CI lint job.
 
+## DD-105 — Two binding plan decisions conflicted, and only implementation found it
+
+The plan's decision to call the backlog domain's listing check and its rule to
+keep refusal messages the tests assert could not both hold, because the domain
+refuses with different wording.
+
+### Occurrences
+
+- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: slice 2 return (before `c7893ac`, 2026-09-26) stopped on the
+    conflict; the coordinator chose the domain wording and one regex was
+    loosened.
+  - Observed effect: one stop and resume of the slice 2 agent; the stop was
+    correct behavior.
+  - Inference: Plans that move a message-bearing rule to another owner could
+    say whether that owner's wording may replace the asserted one.
+
+## DD-106 — Concurrent slices in one checkout shared Playwright's output directory
+
+Running disjoint slices concurrently in one execution checkout let one agent's
+Playwright run delete artifacts another run was writing.
+
+### Occurrences
+
+- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: coordinator's dashboard consumer run for slice 2 (before
+    `c7893ac`, 2026-09-26) failed with `ENOENT` on
+    `dashboard/test-results/.playwright-artifacts-2/*.zip` while the flake
+    agent ran Playwright; rerun alone passed 4/4.
+  - Observed effect: one invalid proof run, repeated after the other agent
+    returned.
+  - Inference: Concurrent slices were otherwise useful here; file-disjoint
+    changes do not make shared test output directories disjoint.
+
+## DD-107 — A CI repair was committed without pausing live writers
+
+The CI repair protocol pauses every writer and stashes unfinished work before
+repairing; the coordinator instead committed an index-only repair while two
+agents kept editing the checkout.
+
+### Occurrences
+
+- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
+  - Timestamp: 2026-09-26T17:21:53+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: CI run `36232460397` failed at checkout on gitlinks committed
+    by `1b66466`; repair `56ae2aa` (`git rm --cached` plus `.gitignore`) was
+    staged and committed alongside the unstaged work of two live agents.
+  - Observed effect: the repair published and CI went green; no agent work
+    was lost.
+  - Inference: A deliberate deviation. The protocol has no lighter path for
+    a repair that cannot touch other writers' files; whether it should is
+    open.
+
 ## Retention
 
-- Highest allocated local number: 104
+- Highest allocated local number: 107
 - Recovery: `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
