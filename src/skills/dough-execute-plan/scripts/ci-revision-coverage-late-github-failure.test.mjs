@@ -14,10 +14,7 @@ import {
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import { context, input, runHostHook } from "./ci-host-hook-test-fixtures.mjs";
-import {
-  controllableSleep,
-  waitFor,
-} from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
 import {
   deferWorkerStop,
@@ -101,22 +98,19 @@ test("a selected workflow with a non-default display name delivers a late failur
     );
     return worker;
   };
-  const { sleep, sleeps } = controllableSleep();
-  const worker = startWorker(directory, sleep);
-  const otherWorker = startWorker(otherDirectory, controllableSleep().sleep);
+  const polls = controllableSleep();
+  const worker = startWorker(directory, polls.sleep);
+  const otherPolls = controllableSleep();
+  const otherWorker = startWorker(otherDirectory, otherPolls.sleep);
 
-  await waitFor(
-    () => sleeps.length > 0 && github.listCallCount(branch) === 1,
-    "initial poll",
-  );
-  let polls = 1;
+  const poll = polls.of(worker, () => readMailboxEvents(directory));
+  await poll.reached();
+  assert.equal(github.listCallCount(branch), 1, "initial poll");
+  let pollCount = 1;
   const advancePoll = async () => {
-    polls += 1;
-    sleeps.shift().resolve();
-    await waitFor(
-      () => github.listCallCount(branch) === polls && sleeps.length > 0,
-      `poll ${polls}`,
-    );
+    pollCount += 1;
+    await poll.advance();
+    assert.equal(github.listCallCount(branch), pollCount, `poll ${pollCount}`);
   };
   // A selected run for this branch, still running when it first appears.
   const runningCiRun = (databaseId, headSha) => ({
@@ -174,11 +168,13 @@ test("a selected workflow with a non-default display name delivers a late failur
     [["CI_FAILURE", shaA, 501, "ci.yml"]],
   );
 
-  await waitFor(
-    () =>
-      readMailboxEvents(otherDirectory).some(
-        ({ event }) => event.type === "CI_FAILURE",
-      ),
+  await otherPolls
+    .of(otherWorker, () => readMailboxEvents(otherDirectory))
+    .reached();
+  assert.ok(
+    readMailboxEvents(otherDirectory).some(
+      ({ event }) => event.type === "CI_FAILURE",
+    ),
     "other coordinator's real failure",
   );
 

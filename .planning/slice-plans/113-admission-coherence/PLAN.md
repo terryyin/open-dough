@@ -408,3 +408,9 @@ claim `5a05150` accepted on `origin/main`.
   the admitted-investigation journey admits once in its own `beforeAll`
   budget (`taken-admitted-investigation.spec.ts`). Paired A/B under the same
   load: 16/24 failures before, 0/24 after.
+- `ci-revision-coverage-not-required-shutdown.test.mjs` flaked locally: its
+  5s deadline waited for the observer's first poll, which runs about 44
+  synchronous git spawns whose time scales with process start-up load. Tests
+  now wait on the worker's own poll-sleep signal
+  (`ci-observer-poll-sleep-test-fixtures.mjs`); with a 0.12s git start-up
+  delay the old test failed and the new ones pass.

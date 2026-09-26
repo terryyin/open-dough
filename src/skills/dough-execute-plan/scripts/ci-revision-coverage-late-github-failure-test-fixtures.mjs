@@ -73,24 +73,3 @@ export function lateFailureWithIgnoredOnlyDescendantsGithub({
     },
   };
 }
-
-export function controllableSleep() {
-  const sleeps = [];
-  const sleep = (...[, , { signal }]) =>
-    new Promise((resolve, reject) => {
-      sleeps.push({ resolve });
-      signal.addEventListener("abort", () => reject(signal.reason), {
-        once: true,
-      });
-    });
-  return { sleep, sleeps };
-}
-
-export async function waitFor(predicate, message) {
-  const deadline = Date.now() + 5000;
-  while (Date.now() < deadline) {
-    if (predicate()) return;
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-  throw new Error(message);
-}
