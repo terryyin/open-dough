@@ -4,26 +4,32 @@
 # shellcheck disable=SC2154 # Wrapper globals come from the sourcing check.
 # shellcheck disable=SC2312 # pipefail covers digests and the source revision.
 
-native_result_input_hash_line() {
-  local rel=$1
-  local digest
+# One input-hash line per repository-relative input, in argument order, from a
+# single digest process.
+native_result_input_hash_lines() {
+  local rel line digests
+  local -a paths=() rels=("$@")
+  local index=0
 
-  digest=$(shasum -a 256 "${source_dir}/${rel}")
-  printf 'input-hash: %s %s\n' "${digest%% *}" "${rel}"
+  (($#)) || return 0
+  for rel in "${rels[@]}"; do
+    paths+=("${source_dir}/${rel}")
+  done
+  digests=$(shasum -a 256 "${paths[@]}") || return
+  while IFS= read -r line; do
+    printf 'input-hash: %s %s\n' "${line%% *}" "${rels[index]}"
+    index=$((index + 1))
+  done <<< "${digests}"
 }
 
 # One input-hash line per native supervision input, from the list that
 # native-run-supervise.sh declares next to the helpers it sources.
 native_result_supervision_input_hash_lines() {
-  local rel
-
   if ! declare -p native_run_supervision_inputs > /dev/null 2>&1; then
     echo 'error: source native-run-supervise.sh before writing an evidence identity' >&2
     return 1
   fi
-  for rel in "${native_run_supervision_inputs[@]}"; do
-    native_result_input_hash_line "${rel}"
-  done
+  native_result_input_hash_lines "${native_run_supervision_inputs[@]}"
 }
 
 native_result_version_command_for() {

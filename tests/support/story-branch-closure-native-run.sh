@@ -69,18 +69,20 @@ story_closure_write_evidence_identity() {
   native_result_print_adapter_identity
   printf 'fixture-identity: tests/support/story-branch-closure-native-fixture.sh\n'
   printf 'assessor-identity: tests/support/story-branch-closure-native-assess.sh\n'
-  native_result_input_hash_line tests/git-publication-native.sh
-  native_result_input_hash_line tests/support/git-publication-native-host.sh
-  native_result_input_hash_line tests/support/story-branch-closure-native-run.sh
-  native_result_input_hash_line tests/support/story-branch-closure-native-assess.sh
-  native_result_input_hash_line tests/support/native-completion-observation.sh
-  native_result_input_hash_line tests/support/story-branch-closure-native-fixture.sh
-  native_result_input_hash_line tests/support/git-publication-native-run.sh
+  native_result_input_hash_lines \
+    tests/git-publication-native.sh \
+    tests/support/git-publication-native-host.sh \
+    tests/support/story-branch-closure-native-run.sh \
+    tests/support/story-branch-closure-native-assess.sh \
+    tests/support/native-completion-observation.sh \
+    tests/support/story-branch-closure-native-fixture.sh \
+    tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
-  native_result_input_hash_line src/skills/dough-story-wrap-up/SKILL.md
-  native_result_input_hash_line src/skills/dough-execute-plan/references/trunk-publication.md
-  native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
-  native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
+  native_result_input_hash_lines \
+    src/skills/dough-story-wrap-up/SKILL.md \
+    src/skills/dough-execute-plan/references/trunk-publication.md \
+    src/skills/dough-execute-plan/references/ci-monitor.md \
+    src/skills/dough-execute-plan/references/ci-completion-wait.md
 }
 
 story_closure_run_journey() {

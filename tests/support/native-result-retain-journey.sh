@@ -75,19 +75,20 @@ native_result_finalize_journey() {
 }
 
 native_result_journey_input_hash_lines() {
-  native_result_input_hash_line \
-    "tests/dough-adr-awareness-${native_case_host}-delivery-to-use.sh"
-  native_result_input_hash_line tests/support/dough-adr-awareness-delivery-to-use.sh
-  native_result_input_hash_line tests/support/dough-adr-awareness-updated-use.sh
-  native_result_input_hash_line tests/support/native-result-retain.sh
-  native_result_input_hash_line tests/support/native-result-identity.sh
-  native_result_input_hash_line tests/support/native-result-retain-journey.sh
-  native_result_input_hash_line tests/support/native-journey-state.sh
-  native_result_input_hash_line tests/support/native-adr-behavior.sh
+  native_result_input_hash_lines \
+    "tests/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
+    tests/support/dough-adr-awareness-delivery-to-use.sh \
+    tests/support/dough-adr-awareness-updated-use.sh \
+    tests/support/native-result-retain.sh \
+    tests/support/native-result-identity.sh \
+    tests/support/native-result-retain-journey.sh \
+    tests/support/native-journey-state.sh \
+    tests/support/native-adr-behavior.sh
   native_result_supervision_input_hash_lines
-  native_result_input_hash_line tests/support/native-codex.sh
-  native_result_input_hash_line src/skills/dough-update/SKILL.md
-  native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
+  native_result_input_hash_lines \
+    tests/support/native-codex.sh \
+    src/skills/dough-update/SKILL.md \
+    src/skills/dough-adr-awareness/SKILL.md
 }
 
 native_result_report_journey() {

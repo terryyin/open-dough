@@ -9,34 +9,38 @@ git_publication_write_evidence_identity() {
       native_result_print_adapter_identity
       printf 'fixture-identity: tests/support/git-publication-native-fixture.sh\n'
       printf 'assessor-identity: tests/support/git-publication-native-assess.sh\n'
-      native_result_input_hash_line tests/git-publication-native.sh
-      native_result_input_hash_line tests/support/git-publication-native-assess.sh
-      native_result_input_hash_line tests/support/git-publication-native-startup-assess.sh
-      native_result_input_hash_line tests/support/git-publication-native-prose.sh
-      native_result_input_hash_line tests/support/git-publication-native-fixture.sh
-      native_result_input_hash_line tests/support/git-publication-native-startup-fixture.sh
-      native_result_input_hash_line tests/support/git-publication-native-run.sh
-      native_result_input_hash_line tests/support/git-publication-native-evidence.sh
-      native_result_input_hash_line tests/support/git-publication-native-prompt.sh
+      native_result_input_hash_lines \
+        tests/git-publication-native.sh \
+        tests/support/git-publication-native-assess.sh \
+        tests/support/git-publication-native-startup-assess.sh \
+        tests/support/git-publication-native-prose.sh \
+        tests/support/git-publication-native-fixture.sh \
+        tests/support/git-publication-native-startup-fixture.sh \
+        tests/support/git-publication-native-run.sh \
+        tests/support/git-publication-native-evidence.sh \
+        tests/support/git-publication-native-prompt.sh
       native_result_supervision_input_hash_lines
-      native_result_input_hash_line src/skills/dough-execute-plan/references/publish-the-candidate.md
+      native_result_input_hash_lines \
+        src/skills/dough-execute-plan/references/publish-the-candidate.md
       ;;
     execution-review)
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'
       native_result_print_adapter_identity
       printf 'fixture-identity: tests/support/ci-completion-native-fixture.sh\n'
       printf 'assessor-identity: tests/support/ci-completion-native-run.sh\n'
-      native_result_input_hash_line tests/git-publication-native.sh
-      native_result_input_hash_line tests/support/git-publication-native-host.sh
-      native_result_input_hash_line tests/support/ci-completion-native-run.sh
-      native_result_input_hash_line tests/support/ci-completion-native-fixture.sh
-      native_result_input_hash_line tests/support/git-publication-native-run.sh
-      native_result_input_hash_line tests/support/git-publication-native-evidence.sh
+      native_result_input_hash_lines \
+        tests/git-publication-native.sh \
+        tests/support/git-publication-native-host.sh \
+        tests/support/ci-completion-native-run.sh \
+        tests/support/ci-completion-native-fixture.sh \
+        tests/support/git-publication-native-run.sh \
+        tests/support/git-publication-native-evidence.sh
       native_result_supervision_input_hash_lines
-      native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
-      native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
-      native_result_input_hash_line src/skills/dough-execute-plan/references/finish-or-stop.md
-      native_result_input_hash_line src/skills/dough-execution-retrospective/SKILL.md
+      native_result_input_hash_lines \
+        src/skills/dough-execute-plan/references/ci-monitor.md \
+        src/skills/dough-execute-plan/references/ci-completion-wait.md \
+        src/skills/dough-execute-plan/references/finish-or-stop.md \
+        src/skills/dough-execution-retrospective/SKILL.md
       ;;
     trunk-closure)
       trunk_closure_write_evidence_identity

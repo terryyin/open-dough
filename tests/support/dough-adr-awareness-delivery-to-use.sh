@@ -11,7 +11,6 @@ delivery_improvement='When authoritative status sources disagree, enumerate each
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
-delivery_current_managed_files=("${managed_files[@]}")
 delivery_baseline_version=0.2.1
 delivery_update_version=0.2.2
 

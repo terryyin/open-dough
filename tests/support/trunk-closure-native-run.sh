@@ -17,18 +17,20 @@ trunk_closure_write_evidence_identity() {
   native_result_print_adapter_identity
   printf 'fixture-identity: tests/support/trunk-closure-native-fixture.sh\n'
   printf 'assessor-identity: tests/support/trunk-closure-native-assess.sh\n'
-  native_result_input_hash_line tests/git-publication-native.sh
-  native_result_input_hash_line tests/support/git-publication-native-host.sh
-  native_result_input_hash_line tests/support/trunk-closure-native-run.sh
-  native_result_input_hash_line tests/support/trunk-closure-native-assess.sh
-  native_result_input_hash_line tests/support/native-completion-observation.sh
-  native_result_input_hash_line tests/support/trunk-closure-native-fixture.sh
-  native_result_input_hash_line tests/support/git-publication-native-run.sh
+  native_result_input_hash_lines \
+    tests/git-publication-native.sh \
+    tests/support/git-publication-native-host.sh \
+    tests/support/trunk-closure-native-run.sh \
+    tests/support/trunk-closure-native-assess.sh \
+    tests/support/native-completion-observation.sh \
+    tests/support/trunk-closure-native-fixture.sh \
+    tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
-  native_result_input_hash_line src/skills/dough-execute-plan/references/trunk-publication.md
-  native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
-  native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
-  native_result_input_hash_line src/skills/dough-story-wrap-up/SKILL.md
+  native_result_input_hash_lines \
+    src/skills/dough-execute-plan/references/trunk-publication.md \
+    src/skills/dough-execute-plan/references/ci-monitor.md \
+    src/skills/dough-execute-plan/references/ci-completion-wait.md \
+    src/skills/dough-story-wrap-up/SKILL.md
 }
 
 # Per-step controller bound; each step awaits one action of the native agent.

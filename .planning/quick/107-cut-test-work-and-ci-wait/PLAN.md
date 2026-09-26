@@ -379,7 +379,7 @@ afterwards.
 ### 6. Native-evidence checks cost less
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Every `tests/native-*.sh` and `tests/git-publication-native.sh` check, and
   every check sourcing a changed helper, passes silently with unchanged
@@ -660,3 +660,28 @@ the claim. Reference checkout for paired measurement: detached
   its two `ps` reads (a `<defunct>` zombie) as `unknown` rather than `dead`
   (4 of 1,008 stressed runs); it now reports `unknown` only for a process
   still running, with a new test. After both: 0 of 960 stressed runs.
+- **CI per-job times (first artifact, `bedad7a`, run success).** 199 jobs
+  summed to 471.8 CI job-seconds and `Run test` took 119 s (about four
+  effective slots), so total work sets the CI time. Top jobs: native-stream-completeness
+  20.1, native-evidence-identity 19.3, native-delivery-updated-use-adapters
+  18.0, git-publication-native 17.2, install-all-tools 15.8,
+  story-payload-update 15.2, ci-mailbox-complete 14.7, native-result-retention
+  14.1, execution-payload-update 13.0, workspace-publication 12.6,
+  native-delivery-updated-use 11.7; the native-evidence family is about 100
+  of 472.
+- **Slice 6 delivered.** Profile: `native-evidence-identity` spent almost all
+  its time in 923 per-file `shasum` starts; the delivery journeys ran about 660
+  `cmp` forks per run; `git-publication-native` ran about 3,600 forks from
+  field parsing. Kept: one `shasum` per identity input list (output
+  byte-identical; `native-evidence-identity` 10.0 → 2.9 s); one Node payload
+  compare with a `cmp` fallback naming the file (delivery journeys 43.4 → 30.4
+  s); field parsing with a shell `read` loop (`git-publication-native` 16.9 →
+  14.3 s; nine edge cases and parser mutations). An install-once-and-copy seam
+  (about 1 s) was removed in refactoring because it replaced `install.sh`'s
+  config merge with a copy. Paired family (13 checks, six in parallel,
+  against `69620a0`): 120.2/95.2, 125.3/99.1, 131.8/108.9 job-seconds;
+  medians 125.3 versus 99.1, ratio 0.79. Candidates held for the maintainer:
+  dropping `native-stream-completeness.sh`'s three complete runs and its
+  claude missing run (about 7 CI job-seconds, needs three assertions moved to
+  `native-result-retention.sh`), and release-fixture reuse in this family
+  (about 18% of it; excluded by this plan).
