@@ -133,10 +133,29 @@ no-nesting, and unresolved-repair rules), and listing the script in
 
 ### 2. Agents never improvise stash or reset in a shared checkout
 Type: Behavior
-Status: planned
+Status: done
 Proof: guidance assertions in a `dough-execute-plan` guidance test (paraphrase
 tolerant) for `delegation.md` and `wrap-up.md` step 6; behavior review walk
 recorded here.
+
+Accepted proof: `node --test
+src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs`
+(2 pass; both fail against the pre-change references), plus the other
+`wrap-up.md` readers; full `npm test` and `npm run lint` pass. Refactoring
+folded the new step 6 sentence into its existing never-clause.
+
+Behavior review walk (after slice 1 landed): coordinator of this two-slice
+parallel execution, with foreign stash entries on the shared stack. Delegation
+hands each slice agent the ban on stash, pop, reset, clean, path checkout, and
+branch switch, with a separate temporary checkout or a report back for a
+baseline; a CI repair agent is a delegated agent under the same ban. The CI
+pause reaches `ci-repair-stash.mjs save` in step 3 and `restore` in step 5,
+which never pops or assumes `stash@{0}`. The slice 1 increment commit was made
+by staging slice 1's paths only while slice 2's files stayed unstaged,
+unmodified, and unstashed, as step 6 now directs. No step directs a stash of
+sibling files or a bare pop. The one remaining reset instruction,
+`execution-decisions.md`'s permitted soft reset of an attempt-owned unpushed
+commit, leaves the working tree and siblings' files alone.
 
 Behavior: a delegated agent or coordinator working beside another writer in
 the same execution worktree → it needs a baseline or must isolate its own
