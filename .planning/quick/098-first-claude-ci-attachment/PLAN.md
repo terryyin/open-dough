@@ -223,3 +223,11 @@ story's evaluation.
 **Out-of-scope observation.** A missing or crashing installed hook makes
 `invokeHostHook` throw, so `deliver` exits 2 instead of returning a coverage
 gap; pre-existing and unchanged here.
+
+## Execution complete
+
+Product advice: At wrap-up, record the response and `9880cbb` (with its first
+containing release) on ODF-092; do not declare it resolved before a release
+carries it. Candidate follow-up for backlog judgment: a missing or crashing
+installed hook makes `invokeHostHook` throw so `deliver` exits 2 instead of
+reporting a coverage gap (pre-existing, outside this story).
