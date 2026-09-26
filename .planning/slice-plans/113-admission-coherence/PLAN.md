@@ -254,7 +254,15 @@ queued take and plan-homed behavior unchanged.
 
 ### 4. Scope closure and correction-story tests to what they prove
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `node --test src/skills/dough-story-wrap-up/scripts/*.test.mjs`
+(14 pass), `node --test tests/support/*.test.mjs` (180 pass), dashboard
+overview and taken-profile specs (4 pass). Closure tests now assert only the
+real `complete` CLI and closure publication; seed/plan deletions are the
+fixture's scripted stand-in. Take/resume steps removed from the correction
+story test are owned by `product-backlog-take.test.mjs`; its plan-as-work
+refusal now runs against an already-taken backlog. The dashboard Taken fixture
+is a plan-homed correction that `add` accepts.
 Proof: `node --test src/skills/dough-story-wrap-up/scripts/*.test.mjs`,
 `node --test tests/support/*.test.mjs`, and the dashboard command above green;
 removed assertions each name their surviving owner in the commit message.
@@ -345,3 +353,7 @@ focused proof. No speculative Structure, new publication path or lifecycle is
 added.
 
 ## Learnings
+
+Execution context: Story Branch Mode, workspace
+`.worktrees/113-admission-coherence`, branch `claude/113-admission-coherence`;
+claim `5a05150` accepted on `origin/main`.

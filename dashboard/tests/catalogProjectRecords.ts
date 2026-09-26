@@ -49,6 +49,9 @@ export const projects: readonly Project[] = [
 
 export function filesOf(published: Project): Record<string, string> {
   const number = published.takenPath.split("/")[2]?.split("-")[0] ?? "";
+  // A plan-homed correction, listed through its own plan and recording that
+  // plan's own path identity, as the backlog `add` accepts it.
+  const takenIdentity = `slice-plans/${number}-taken`;
   const backlog = `# Product backlog
 
 ## Near-future direction
@@ -57,7 +60,7 @@ ${published.direction}
 
 ## Taken
 
-- [${published.taken}](slice-plans/${number}-taken/PLAN.md) — TAKEN-${number}#story
+- [${published.taken}](${takenIdentity}/PLAN.md) — ${takenIdentity}
 
 ## Backlog list
 
@@ -65,7 +68,7 @@ ${published.direction}
 `;
   return {
     [backlogPath]: backlog,
-    [published.takenPath]: `# Taken story\n\n**Identity:** TAKEN-${number}#story\n\nWhole-document correction home without a story-state block.\n`,
+    [published.takenPath]: `# Taken story\n\n**Identity:** ${takenIdentity}\n\nWhole-document correction home without a story-state block.\n`,
     [published.queuedPath]: `# Queued seed\n\n<a id="queued"></a>\n\n### Queued story\n\n**Identity:** SEED-${number}#queued\n\n**Goal:** ${published.purpose}\n`,
   };
 }

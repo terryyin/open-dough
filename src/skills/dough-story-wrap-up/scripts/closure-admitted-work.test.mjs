@@ -1,10 +1,12 @@
 // Git mechanics (not guidance-following), not proof an agent follows guidance.
 // Work admitted by the real startup CLI closes through ordinary Trunk Mode
-// wrap-up: the before-cleanup publication brings the owned workspace onto
-// current trunk, the spent story section (or seed), plan, Taken entry and
-// agent profile go through the real backlog `complete` CLI and the closure
-// publication, and the remote tree keeps result commits, enduring knowledge,
-// unfinished sibling stories and another agent's assignment.
+// wrap-up: the real backlog `complete` CLI removes its Taken entry and
+// releases its agent profile, and the closure publication lands that on
+// current trunk while keeping result commits, enduring knowledge, another
+// agent's claim, profile and plan, and trunk advances made elsewhere; a
+// repeat changes nothing. Which spent story section, seed or plan wrap-up
+// deletes is the fixture's own `cleanup` edit, so these tests do not assert
+// it.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -36,10 +38,9 @@ import {
   lsRemoteSha,
 } from "./closure-publication-fixtures.mjs";
 
-test("an admitted planned mission and a new correction story close in turn, keeping the unfinished sibling", async (t) => {
+test("admitted planned missions close in turn, each keeping the other's claim, profile and plan", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const originalSeed = await remoteText(trunk, "main", seedA);
   const late = draftLateStory(trunk);
   const lateOwned = await admit(trunk, "late", late.args);
 
@@ -95,11 +96,6 @@ test("an admitted planned mission and a new correction story close in turn, keep
     },
   );
   const { tip } = closed;
-  const seed = await remoteText(trunk, tip, seedA);
-  assert.doesNotMatch(seed, /SEED-A#late/);
-  assert.match(seed, /\*\*Identity:\*\* SEED-A#a\n/);
-  assert.match(seed, /\*\*Identity:\*\* SEED-A#order-notes\n/);
-  assert.equal(await remoteText(trunk, tip, late.planPath), null);
   assert.equal(await remoteText(trunk, tip, "late.txt"), "late result\n");
   assert.equal(
     await remoteText(trunk, tip, "docs/late.md"),
@@ -123,8 +119,8 @@ test("an admitted planned mission and a new correction story close in turn, keep
   assert.equal(repeated.ok, true, JSON.stringify(repeated));
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
 
-  // The correction closes the same way from its own admission base; Story A
-  // still needs seed A, so the seed stays with that section as it was.
+  // The correction closes the same way from its own admission base, onto
+  // trunk that has since advanced with the late mission's closure.
   const last = await closeInTrunkMode(
     trunk,
     correctionOwned,
@@ -141,8 +137,6 @@ test("an admitted planned mission and a new correction story close in turn, keep
       },
     },
   );
-  assert.equal(await remoteText(trunk, last.tip, seedA), originalSeed);
-  assert.equal(await remoteText(trunk, last.tip, correctionPlan), null);
   assert.equal(await remoteText(trunk, last.tip, "late.txt"), "late result\n");
   assert.deepEqual(await lists(trunk, last.tip), [
     ["Backlog list", "SEED-A#a"],
@@ -151,7 +145,7 @@ test("an admitted planned mission and a new correction story close in turn, keep
   assert.deepEqual(await remoteProfileNames(trunk, last.tip), []);
 });
 
-test("a no-change investigation closes its whole new seed while another agent's claim and trunk advances stay", async (t) => {
+test("an admitted no-change investigation closes from its admission while another agent's claim and trunk advances stay", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const identity = "SEED-N#slow";
@@ -187,7 +181,6 @@ test("a no-change investigation closes its whole new seed while another agent's 
     },
     beforeFinal: () => appendSiblingElsewhere(trunk, seedA, "kept"),
   });
-  assert.equal(await remoteText(trunk, tip, seedN), null);
   assert.match(
     await remoteText(trunk, tip, seedA),
     /SEED-A#late[\s\S]*SEED-A#kept/,
