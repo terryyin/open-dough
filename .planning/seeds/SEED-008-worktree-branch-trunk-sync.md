@@ -330,6 +330,30 @@ resolution.
 **Safe stopping point:** Each of the three scope items independently leaves
 other writers' work safer; the script alone already removes the ODF-093 path.
 
+<a id="truthful-repair-restore"></a>
+
+### Correction: Report conflicting CI repair restores truthfully and drop through the script
+
+**Identity:** SEED-008#truthful-repair-restore
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-truthful-repair-restore/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9e378c697b287700d1e4ffe34c7ea45104b777207d0015f090591e8cd9d5c01f","plan":"518ef1526293d83e69e6c0e5df63f659dec30734832f3123fb8928024e582f31"}}
+```
+
+**Goal:** A coordinator resuming after a CI repair knows exactly what a
+conflicting restore already put back in the tree, and finishes that restore
+without handling the shared stash stack by hand, so it neither applies the
+saved work twice nor drops another writer's entry.
+
+**Scope:** A bounded retrospective correction of the delivered
+[preserve other writers' work](#preserve-other-executions-work) (plan 114,
+commits `f157f0e`, `86e5069`). The restore script reports what a failed apply
+changed, including saved staged state it could not restore; a script command
+drops the recorded entry after a resolved conflict and confirms the dropped OID;
+`ci-monitor.md` step 5 uses that command. Excluded: detecting other sessions'
+concurrent stash pushes, and branch or HEAD checks on restore.
+
+**Plan:** [Report conflicting repair restores truthfully](../slice-plans/115-truthful-repair-restore/PLAN.md).
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)

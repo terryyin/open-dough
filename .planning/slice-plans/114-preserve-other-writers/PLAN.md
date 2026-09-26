@@ -172,3 +172,23 @@ remains the only sanctioned stash.
 On ODF-093 and ODF-105, record the mechanism addressed, response commit, and
 first containing release, and start their near-term watch; ODF-084 stays open
 as excluded (see the story).
+
+## Execution complete
+
+Product advice:
+
+- Queue correction [Report conflicting repair restores truthfully](../115-truthful-repair-restore/PLAN.md)
+  (`SEED-008#truthful-repair-restore`) near the top: a conflicting CI repair
+  restore misreports what it applied and still sends the coordinator to drop a
+  shared stash entry by hand, the act this story set out to remove.
+- ODF-119 recurred on the same day: a stale already-published copy in the
+  default checkout refused startup with a misleading "no story anchored"
+  message. Consider moving "Coordinate direct edits and refreshes of the
+  default checkout" (`SEED-008#same-machine-merge-queue`) up, or a small fix
+  so the startup source check ignores content already on fetched trunk.
+- Update this repository's installed Open Dough payload (`dough-update`): the
+  installed `trunk-publication.md` still lacks the source's
+  `CLAUDE_CODE_SESSION_ID` handling, so ODF-092 keeps recurring here.
+- At wrap-up, cite ADR 0005 section 4 (conventional skill change judged by
+  useful behavior) rather than section 3 for excluding native agent-behavior
+  evidence. ODF-084 stays open with no queued response.
