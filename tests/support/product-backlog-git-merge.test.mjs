@@ -8,7 +8,8 @@
 // Every case here performs a real `git merge` (or real plumbing that stands
 // in for one identically) in a scratch repository and asserts on real Git
 // and file-system state afterward: index stages, `MERGE_HEAD`, ref
-// positions, and the worktree's own bytes.
+// positions, and the worktree's own bytes. A successful merge shows only its
+// receipt; `product-backlog-git-merge-hook.test.mjs` covers a project hook.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { backlogOf } from "./product-backlog-fixture.mjs";
@@ -49,6 +50,7 @@ test("merge resolves concurrent sibling closures through a real Git merge, with 
   assert.equal(unresolvedPaths(repo), "", "nothing was left unmerged");
   assert.equal(isMidMerge(repo), false, "the merge was committed");
   assert.equal(parentCount(repo), 2, "a real merge commit was made");
+  assert.equal(merged.stderr, "", "a successful merge shows only its receipt");
 });
 
 test("merge reconciles through the registered driver when run from a linked Git worktree", async (t) => {
