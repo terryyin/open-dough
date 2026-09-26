@@ -13,23 +13,11 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
 helper="${source_dir}/src/install/open-dough-release.sh"
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-write_candidate_payload "${fixture}" 0.1.1 before-stories
-# Model a release before decomposition and refinement, including its declared payload.
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-story-decomposition\//d; /dough-story-refinement\//d' "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
-rm -rf -- "${fixture}/src/skills/dough-story-decomposition" "${fixture}/src/skills/dough-story-refinement"
-commit_all "${fixture}" 'release without decomposition and refinement skills'
-tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
-checkout_tagged_release "${fixture}" "${older}" 0.1.1
-write_candidate_payload "${fixture}" 0.1.2 with-stories
-commit_all "${fixture}" 'promote story skills and references'
-tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
+# Model a release before decomposition and refinement, including its declared payload.
+build_upgrade_releases "${fixture}" "${older}" before-stories with-stories \
+  --withhold dough-story-decomposition/ --withhold dough-story-refinement/ \
+  --remove dough-story-decomposition --remove dough-story-refinement
 
 for platform in codex cursor claude; do
   target="${temporary_dir}/${platform}"

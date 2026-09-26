@@ -9,24 +9,11 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 reference=dough-execution-retrospective/references/bounded-process-log.md
 fixture="${temporary_dir}/source"
 helper="${source_dir}/src/install/open-dough-release.sh"
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-write_candidate_payload "${fixture}" 0.1.1 missing-reference
-# The earlier release shipped the skill with a dangling link, omitting only
-# this reference from both declarations (the source file itself existed).
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-execution-retrospective\/references\/bounded-process-log.md/d' \
-    "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
-commit_all "${fixture}" 'release with omitted retrospective reference'
-tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
-checkout_tagged_release "${fixture}" "${older}" 0.1.1
-write_candidate_payload "${fixture}" 0.1.2 with-reference
-commit_all "${fixture}" 'ship retrospective reference'
-tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
+# The earlier release shipped the skill with a dangling link, omitting only
+# this reference from its declaration (the source file itself existed).
+build_upgrade_releases "${fixture}" "${older}" missing-reference with-reference \
+  --withhold "${reference}"
 
 assert_reference_delivered() {
   local target=$1 root

@@ -10,22 +10,10 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 fixture="${temporary_dir}/source"
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-write_candidate_payload "${fixture}" 0.1.1 before-execution
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-execute-plan\//d; /dough-post-change-refactor\//d' "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
-rm -rf -- "${fixture}/src/skills/dough-execute-plan" "${fixture}/src/skills/dough-post-change-refactor"
-commit_all "${fixture}" 'release before execution skills'
-tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
-checkout_tagged_release "${fixture}" "${older}" 0.1.1
-write_candidate_payload "${fixture}" 0.1.2 with-execution
-commit_all "${fixture}" 'release execution skills and runtime dependencies'
-tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
+build_upgrade_releases "${fixture}" "${older}" before-execution with-execution \
+  --withhold dough-execute-plan/ --withhold dough-post-change-refactor/ \
+  --remove dough-execute-plan --remove dough-post-change-refactor
 newer="${temporary_dir}/newer"
 checkout_tagged_release "${fixture}" "${newer}" 0.1.2
 helper="${source_dir}/src/install/open-dough-release.sh"

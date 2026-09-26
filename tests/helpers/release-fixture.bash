@@ -15,6 +15,9 @@ source "${source_dir}/tests/helpers/path-state-snapshot.bash"
 # shellcheck source=tests/helpers/payload-bytes.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/payload-bytes.bash"
+# shellcheck source=tests/helpers/install-target-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/install-target-fixture.bash"
 
 # Commit identity and settings every fixture repository needs.
 configure_fixture_git() {
@@ -23,6 +26,12 @@ configure_fixture_git() {
   # Commits otherwise start a detached auto-maintenance repack (Git 2.55)
   # that can still be writing .git/objects when the test removes the fixture.
   git -C "$1" config maintenance.auto false
+}
+
+init_fixture_repo() {
+  mkdir -p -- "$1"
+  git -C "$1" init --quiet -b main
+  configure_fixture_git "$1"
 }
 
 copy_installer_modules() {
@@ -89,8 +98,7 @@ build_current_tagged_release_fixture() {
 
   version=$(cat "${source_dir}/VERSION")
   copy_current_release_files "${repo}"
-  git -C "${repo}" init --quiet -b main
-  configure_fixture_git "${repo}"
+  init_fixture_repo "${repo}"
 
   commit_all "${repo}" "release ${version} exact candidate"
   tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
@@ -99,9 +107,7 @@ build_current_tagged_release_fixture() {
 build_latest_fixture() {
   local repo=$1
 
-  mkdir -p -- "${repo}"
-  git -C "${repo}" init --quiet -b main
-  configure_fixture_git "${repo}"
+  init_fixture_repo "${repo}"
 
   # Tagged A is 0.1.1; tagged B / numeric latest is 0.1.10.
   write_candidate_payload "${repo}" 0.1.1 payload-0.1.1
@@ -143,94 +149,57 @@ checkout_tagged_release() {
   [[ "${head}" == "${commit}" ]]
 }
 
-prepare_target() {
-  local target=$1
+# Build a release source whose tagged 0.1.1 lacks part of the current payload
+# and whose tagged 0.1.2 is the current payload, and check 0.1.1 out at
+# OLDER_DIR so a test can install that older release with its own install.sh.
+#   build_upgrade_releases FIXTURE OLDER_DIR OLDER_LABEL NEWER_LABEL \
+#     [--withhold DECLARED_PREFIX]... [--remove SKILLS_PATH]...
+# --withhold drops every managed_files entry starting with DECLARED_PREFIX from
+# 0.1.1's install.sh; --remove deletes src/skills/SKILLS_PATH from 0.1.1.
+build_upgrade_releases() {
+  local fixture=$1 older_dir=$2 older_label=$3 newer_label=$4
+  local prefix path
+  local -a withheld=() removed=()
+  shift 4
+  while (($# > 0)); do
+    case $1 in
+      --withhold) withheld+=("$2") ;;
+      --remove) removed+=("$2") ;;
+      *)
+        echo "build_upgrade_releases: unknown option $1" >&2
+        return 1
+        ;;
+    esac
+    shift 2
+  done
 
-  mkdir -p -- "${target}/.agents/skills/unrelated" \
-    "${target}/.cursor/skills/other-cursor-skill" \
-    "${target}/.claude/skills/other-skill"
-  printf '%s\n' 'Keep this unrelated skill.' > \
-    "${target}/.agents/skills/unrelated/SKILL.md"
-  printf '%s\n' 'Keep this Cursor sentinel.' > \
-    "${target}/.cursor/skills/other-cursor-skill/SKILL.md"
-  printf '%s\n' 'Keep this Claude sentinel.' > \
-    "${target}/.claude/skills/other-skill/SKILL.md"
-  printf '%s\n' 'Keep this project file.' > "${target}/keep this file.txt"
-}
-
-assert_sentinels() {
-  local target=$1
-  local contents
-
-  contents=$(cat "${target}/.agents/skills/unrelated/SKILL.md")
-  if [[ "${contents}" != 'Keep this unrelated skill.' ]]; then
-    echo "FAIL: assert_sentinels lost unrelated agents skill" >&2
-    return 1
-  fi
-  contents=$(cat "${target}/.cursor/skills/other-cursor-skill/SKILL.md")
-  if [[ "${contents}" != 'Keep this Cursor sentinel.' ]]; then
-    echo "FAIL: assert_sentinels lost Cursor sentinel" >&2
-    return 1
-  fi
-  contents=$(cat "${target}/.claude/skills/other-skill/SKILL.md")
-  if [[ "${contents}" != 'Keep this Claude sentinel.' ]]; then
-    echo "FAIL: assert_sentinels lost Claude sentinel" >&2
-    return 1
-  fi
-  contents=$(cat "${target}/keep this file.txt")
-  if [[ "${contents}" != 'Keep this project file.' ]]; then
-    echo "FAIL: assert_sentinels lost project file" >&2
-    return 1
-  fi
-}
-
-assert_payload() {
-  local destination=$1
-  local version=$2
-  local marker=$3
-  local contents
-  local skill_root managed_file
-
-  if ! grep -Fq "open-dough-payload ${marker}" "${destination}/SKILL.md"; then
-    echo "FAIL: assert_payload missing marker ${marker} in ${destination}/SKILL.md" >&2
-    return 1
-  fi
-  skill_root=$(dirname -- "${destination}")
-  for managed_file in "${managed_files[@]}"; do
-    if [[ "${managed_file}" == 'dough-update/SKILL.md' ]]; then
-      continue
-    fi
-    if ! cmp "${source_dir}/src/skills/${managed_file}" \
-      "${skill_root}/${managed_file}"; then
-      echo "FAIL: assert_payload mismatch for ${managed_file} under ${skill_root}" >&2
+  init_fixture_repo "${fixture}"
+  write_candidate_payload "${fixture}" 0.1.1 "${older_label}"
+  for prefix in "${withheld[@]}"; do
+    if ! awk -v prefix="${prefix}" '
+      /^managed_files=\(/ { in_payload = 1 }
+      in_payload && /^\)/ { in_payload = 0 }
+      in_payload && index($1, prefix) == 1 { withheld = 1; next }
+      { print }
+      END { exit !withheld }
+    ' "${fixture}/install.sh" > "${fixture}/filtered"; then
+      echo "build_upgrade_releases: nothing declared under ${prefix}" >&2
       return 1
     fi
+    mv -- "${fixture}/filtered" "${fixture}/install.sh"
   done
-  contents=$(cat "${destination}/VERSION")
-  if [[ "${contents}" != "${version}" ]]; then
-    echo "FAIL: assert_payload VERSION is ${contents}, expected ${version}" >&2
-    return 1
-  fi
-}
+  for path in "${removed[@]}"; do
+    if [[ ! -e "${fixture}/src/skills/${path}" ]]; then
+      echo "build_upgrade_releases: no source to remove at ${path}" >&2
+      return 1
+    fi
+    rm -rf -- "${fixture}/src/skills/${path}"
+  done
+  commit_all "${fixture}" "release 0.1.1 ${older_label}"
+  tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
+  checkout_tagged_release "${fixture}" "${older_dir}" 0.1.1
 
-file_mtime() {
-  if stat -f '%m' "$1" > /dev/null 2>&1; then
-    stat -f '%m' "$1"
-  else
-    stat -c '%Y' "$1"
-  fi
-}
-
-assert_owned_tmp_empty() {
-  local tmp=$1
-  local context=$2
-  local leftover
-
-  # Apple's developer-tool launcher may create xcrun_db in TMPDIR.
-  leftover=$(find "${tmp}" -mindepth 1 ! -name xcrun_db -print -quit)
-  if [[ -n "${leftover}" ]]; then
-    echo "FAIL: ${context} left temporary work under ${tmp}: ${leftover}" >&2
-    find "${tmp}" -mindepth 1 ! -name xcrun_db -print >&2
-    exit 1
-  fi
+  write_candidate_payload "${fixture}" 0.1.2 "${newer_label}"
+  commit_all "${fixture}" "release 0.1.2 ${newer_label}"
+  tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 }

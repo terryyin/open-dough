@@ -239,7 +239,7 @@ still fails the retrospective upgrade. Counts: 9, 6, 7, 9 (31).
 ### 4. Every payload-update check builds its releases from one fixture helper
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - A helper in `tests/helpers/release-fixture.bash` builds the older and newer
   tagged releases from the two payload labels, the declaration lines to
@@ -257,6 +257,13 @@ Behavior: a test author adds a payload-update check → one helper call builds
 its older and newer releases, and the check contains only its payload's own
 promises; the four checks together run about two thirds fewer installer and
 updater runs.
+
+Accepted proof: `build_upgrade_releases` in `tests/helpers/release-fixture.bash`
+(`--withhold` declared prefixes, `--remove` source paths, each failing when
+nothing matches) is the only release-building sequence in the four checks,
+which pass unchanged; withholding nothing fails the retrospective and backlog
+checks. `PATH="/opt/homebrew/bin:$PATH" npm test` passes silently on the
+final candidate (2m09s).
 
 ## Promise ownership
 
@@ -314,3 +321,19 @@ updater runs.
   test now drives `payload-declaration-links.sh` through `scripts/test.sh`
   and is renamed `tests/payload-declaration-links-suite-failure.sh`. Removing
   an assertion needs a search for tests that mutate against it.
+- **Run counts and paired timing.** Installer and updater runs: story 33 → 9,
+  backlog 30 → 6, execution 16 → 7, retrospective 18 → 9 (97 → 31). Three
+  paired runs of the four checks, alternating `fa1549a` and the candidate under
+  the same load, gave medians of 45.5 → 16.9 s, 37.8 → 11.9 s, 55.5 → 10.2 s,
+  and 24.2 → 12.8 s: 163.0 → 57.0 s in total, about 65% less.
+- **Dead declaration edit.** The per-check `sed` over
+  `src/install/open-dough-release-version.sh` removed nothing; only
+  `install.sh` declares managed files, so the helper filters that alone.
+- **Helper split.** `release-fixture.bash` crossed 250 lines, so target
+  preparation and assertions moved unchanged to
+  `tests/helpers/install-target-fixture.bash`, which it sources; builders share
+  `init_fixture_repo`.
+- **Follow-up candidates outside scope.** `tests/update-adds-new-payload-skill.sh`
+  still hand-builds its releases and could use `build_upgrade_releases`; about
+  17 tests repeat `git init` plus `configure_fixture_git` that
+  `init_fixture_repo` now names.

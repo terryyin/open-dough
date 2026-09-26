@@ -108,6 +108,9 @@ a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 A shell Git fixture repository is configured with `configure_fixture_git`
 (`tests/helpers/release-fixture.bash`), which also turns off Git's automatic
 maintenance so no detached repack is still writing when the fixture is removed.
+A payload-update check builds its older and newer tagged releases with
+`build_upgrade_releases` from the same helper, withholding the older release's
+declarations and sources instead of editing a copied installer by hand.
 
 The native ADR-awareness check wrappers and their focused proof scripts are
 described in `tests/native-adr-awareness-wrappers.md`.
