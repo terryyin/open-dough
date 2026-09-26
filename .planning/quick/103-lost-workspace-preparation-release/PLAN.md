@@ -246,13 +246,13 @@ supply the release the product promises.
 ### 1. Agent-assignment Git reading has one neutral home and no residue
 
 Type: Structure (retrospective correction, findings 2 and 3)
-Status: planned
+Status: done
 Proof: existing external behavior stays green, unchanged:
 
 ```sh
 node --test tests/support/product-backlog-agent-profile.test.mjs tests/support/product-backlog-complete-profile.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent*.test.mjs
 node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs
-/opt/homebrew/bin/bash tests/workspace-publication-callers.sh
+node --test --test-reporter=./tests/support/node-test-failures-reporter.mjs --test-concurrency=1 src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-bug-fixing/scripts/*.test.mjs src/skills/dough-manual-testing/scripts/*.test.mjs
 /opt/homebrew/bin/bash tests/install.sh && /opt/homebrew/bin/bash tests/compare-payload.sh && /opt/homebrew/bin/bash tests/execution-payload-update.sh
 ```
 
@@ -292,7 +292,7 @@ origin, then the rest of the assignment suite and callers:
 
 ```sh
 node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs
-/opt/homebrew/bin/bash tests/workspace-publication-callers.sh
+node --test --test-reporter=./tests/support/node-test-failures-reporter.mjs --test-concurrency=1 src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-bug-fixing/scripts/*.test.mjs src/skills/dough-manual-testing/scripts/*.test.mjs
 node --test tests/support/product-backlog-agent-profile.test.mjs tests/support/product-backlog-complete-profile.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent*.test.mjs
 ```
 
@@ -411,7 +411,7 @@ Proof:
   `node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/*.test.mjs`
   alternately with the post-change tree at least twice each.
 - After editing, run every named surviving test green, run
-  `/opt/homebrew/bin/bash tests/workspace-publication-callers.sh`, and repeat
+  `node --test --test-reporter=./tests/support/node-test-failures-reporter.mjs --test-concurrency=1 src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-bug-fixing/scripts/*.test.mjs src/skills/dough-manual-testing/scripts/*.test.mjs`, and repeat
   the paired timing. Record the relative before/after in Learnings.
 - If a dashboard spec is touched, also run
   `npm run test:dashboard -- dashboard/tests/taken-agent-profile.spec.ts`.
@@ -480,4 +480,18 @@ still-owned proof. Record timing only after the retirements are done.
 
 ## Learnings
 
-None yet. No proof in this plan has run.
+- `tests/workspace-publication-callers.sh` no longer exists (commit 3fc3a8b
+  moved each test file into its own `scripts/test.sh` job). Its former
+  command, now written in the proof lists above, is the substitute.
+- Slice 1 accepted proof: the startup/profile suites
+  (`workspace-publication-startup*.test.mjs`, `workspace-publication-race.test.mjs`,
+  both `tests/support/product-backlog-*-profile.test.mjs`) 41/41, the
+  preparation-assignment suite 24/24, the directory-callers command, and the
+  payload shell checks all pass unchanged. The neutral module is
+  `src/skills/dough-execute-plan/scripts/agent-assignments.mjs`
+  (`selectAgent({ cwd, host, model }, …)`, `profileAllocation`,
+  `addedProfile`, `agentUnavailable`); `execution-start-agent.mjs` keeps the
+  Take-specific reselect and `claimReceiptAgent`. Every inline
+  `${remote}/${target}` now uses `remoteRef`. Preparation `stop` and
+  execution `stopped` stay separate, because merging would add or remove
+  `implemented: false` in a receipt.

@@ -13,7 +13,7 @@ import {
 import {
   addedProfile,
   profileAllocation,
-} from "../../dough-execute-plan/scripts/execution-start-agent.mjs";
+} from "../../dough-execute-plan/scripts/agent-assignments.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import {
   backlogPath,

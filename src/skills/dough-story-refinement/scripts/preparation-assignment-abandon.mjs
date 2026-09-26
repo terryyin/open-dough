@@ -15,6 +15,7 @@ import {
   revParse,
   tryPushExactRef,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
+import { remoteRef } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   alreadyReleased,
   assignmentFields,
@@ -64,7 +65,7 @@ export async function abandonPreparation(input) {
   if (!requested.ok) return requested;
   const { request } = requested;
   const { workspace, remote, target, identity } = request;
-  const ref = `${remote}/${target}`;
+  const ref = remoteRef(request);
   let candidate;
   for (let pass = 0; ; pass += 1) {
     let found;

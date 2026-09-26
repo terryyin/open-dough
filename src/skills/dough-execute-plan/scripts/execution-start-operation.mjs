@@ -11,13 +11,11 @@ import {
   sameSelectedSource,
 } from "./execution-start-recovery.mjs";
 import { acceptedReceipt } from "./execution-start-receipt.mjs";
-import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { startRequest } from "./execution-start-request.mjs";
+import { selectAgent } from "./agent-assignments.mjs";
 import {
-  receiptAgent,
+  claimReceiptAgent,
   reselectClaimAgent,
-  resumeClaimAgent,
-  selectClaimAgent,
 } from "./execution-start-agent.mjs";
 import {
   commitWorkspaceClaim,
@@ -33,6 +31,7 @@ import {
   claimProvenance,
   isAncestor,
   remoteOf,
+  remoteRef,
   stopped,
 } from "./workspace-publication-ownership.mjs";
 
@@ -41,7 +40,7 @@ export async function startQueuedExecution(requestInput) {
   if (!started.ok) return started;
   const { request } = started;
   const remote = remoteOf(request);
-  const ref = `${remote}/${request.target}`;
+  const ref = remoteRef(request);
   let selectedSource, fetched, origin;
   try {
     origin = (
@@ -63,11 +62,11 @@ export async function startQueuedExecution(requestInput) {
   } catch (error) {
     return stopped("source-refused", { error: error.stderr || error.message });
   }
+  // The rotation is read in the integration checkout, which fetched trunk.
+  const selection = { ...request, cwd: request.integration };
   let agent;
   if (!request.retained) {
-    const chosen = await selectClaimAgent(request, ref, backlogPath, {
-      fetched,
-    });
+    const chosen = await selectAgent(selection, ref, backlogPath, { fetched });
     if (!chosen.ok) return chosen;
     agent = chosen.agent;
   }
@@ -81,7 +80,7 @@ export async function startQueuedExecution(requestInput) {
   if (agent && selected.startingRevision !== fetched) {
     const { startingRevision: base, workspace, branch } = selected;
     const stop = { fetched, workspace, branch, ...stopMaintenance };
-    const chosen = await selectClaimAgent(request, base, backlogPath, stop);
+    const chosen = await selectAgent(selection, base, backlogPath, stop);
     if (!chosen.ok) return chosen;
     agent = chosen.agent;
   }
@@ -117,14 +116,10 @@ export async function startQueuedExecution(requestInput) {
         publishedSha: checked.provenance.sha,
         candidateSha: request.retained.candidateSha,
         created: false,
-        ...(await receiptAgent(
-          selected.workspace,
-          await resumeClaimAgent(
-            selected.workspace,
-            checked.provenance.sha,
-            request.identity,
-            backlogPath,
-          ),
+        ...(await claimReceiptAgent(
+          claimRequest,
+          agent,
+          checked.provenance.sha,
         )),
       },
       beforeMaintenance,
@@ -235,17 +230,7 @@ export async function startQueuedExecution(requestInput) {
     {
       ...published,
       created: selected.created,
-      ...(await receiptAgent(
-        selected.workspace,
-        agent
-          ? agentIdentity(agent.name).agent
-          : await resumeClaimAgent(
-              selected.workspace,
-              published.publishedSha,
-              request.identity,
-              backlogPath,
-            ),
-      )),
+      ...(await claimReceiptAgent(claimRequest, agent, published.publishedSha)),
     },
     beforeMaintenance,
     afterMaintenance,

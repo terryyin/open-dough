@@ -6,6 +6,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
+import { remoteRef } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   alreadyReleased,
   assignmentFields,
@@ -38,8 +39,8 @@ export async function releasePreparation(input) {
   const requested = requestOf("release", input);
   if (!requested.ok) return requested;
   const { request } = requested;
-  const { workspace, remote, target } = request;
-  const ref = `${remote}/${target}`;
+  const { workspace, remote } = request;
+  const ref = remoteRef(request);
   try {
     await git(workspace, "fetch", "--quiet", remote);
   } catch (error) {

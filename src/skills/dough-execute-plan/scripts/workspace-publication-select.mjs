@@ -14,8 +14,8 @@ import {
   isAncestor,
   pathOf,
   remoteOf,
+  remoteRef,
   stopped,
-  targetOf,
   trailers,
 } from "./workspace-publication-ownership.mjs";
 import { configureAgentAuthorship } from "./workspace-agent-authorship.mjs";
@@ -36,10 +36,7 @@ async function stageAgentProfile(request, { identity, profile }) {
       name: agent.name,
       identity: request.identity,
       mode: request.mode,
-      branch:
-        request.mode === "trunk"
-          ? `${remoteOf(request)}/${targetOf(request)}`
-          : request.branch,
+      branch: request.mode === "trunk" ? remoteRef(request) : request.branch,
       host: agent.host,
       model: agent.model,
     }),
@@ -103,11 +100,9 @@ async function verifyRetained(request) {
 
 export async function selectOwnedWorkspace(request) {
   if (request.retained?.workspace) return verifyRetained(request);
-  const remote = remoteOf(request);
-  const target = targetOf(request);
   try {
-    await git(request.integration, "fetch", remote);
-    const base = await revParse(request.integration, `${remote}/${target}`);
+    await git(request.integration, "fetch", remoteOf(request));
+    const base = await revParse(request.integration, remoteRef(request));
     if (existsSync(request.workspace)) {
       const actual = await revParse(request.workspace, "--show-toplevel");
       const branch = (

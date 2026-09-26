@@ -13,8 +13,8 @@ import {
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   profileAllocation,
-  selectClaimAgent,
-} from "../../dough-execute-plan/scripts/execution-start-agent.mjs";
+  selectAgent,
+} from "../../dough-execute-plan/scripts/agent-assignments.mjs";
 import { maintenance } from "../../dough-execute-plan/scripts/execution-start-maintenance.mjs";
 import {
   git,
@@ -30,6 +30,7 @@ import {
   backlogPath,
   fileAt,
   isAncestor,
+  remoteRef,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   assignmentFields,
@@ -112,7 +113,7 @@ export async function startPreparation(input) {
   if (!requested.ok) return requested;
   const { request } = requested;
   const { workspace, remote, target, identity } = request;
-  const ref = `${remote}/${target}`;
+  const ref = remoteRef(request);
   let base;
   try {
     await git(workspace, "fetch", "--quiet", remote);
@@ -160,8 +161,8 @@ export async function startPreparation(input) {
     });
   let agent, announced;
   for (let attempt = 1; ; attempt += 1) {
-    const chosen = await selectClaimAgent(
-      { ...request, integration: workspace },
+    const chosen = await selectAgent(
+      { ...request, cwd: workspace },
       base,
       backlogPath,
     );
