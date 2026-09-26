@@ -19,3 +19,6 @@ playwright-report/
 .env.*
 !.env.example
 !.env.*.example
+
+# Local execution worktrees are never tracked.
+/.worktrees/
