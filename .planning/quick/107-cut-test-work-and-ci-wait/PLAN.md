@@ -220,6 +220,13 @@ The planning profile in Learnings is not this baseline.
 - **Decision needed.** Unblock slice 3; then whether to pursue the product
   git reductions, accept lower targets, or proceed to measurement and the
   budget (slices 6–7) with what is achieved.
+- **Resolution (maintainer, 2026-09-26).** Make slice 3's approved removals,
+  and cut git calls in the startup code: slice 5 becomes "Execution startup
+  and preparation make fewer git calls", covering the product git volume
+  behind both the workspace-publication and preparation-assignment families.
+  Prefer exactly preserving changes; do not require git ≥ 2.46 or assume
+  file-backed refs; report any remaining edge-case difference to the
+  maintainer.
 
 ## Ordered slices
 
@@ -278,9 +285,7 @@ checkpoint afterwards.
 ### 3. Installer and updater checks prove each promise with fewer runs
 
 Type: Behavior
-Status: blocked — the approved removals were refused by the host's
-permission check; awaiting the maintainer's direct instruction or a
-permission rule
+Status: done
 Proof:
 - Coverage map, then stop: for each installer and updater check, list every
   `install.sh` and `apply` run, the promise it observes, and the boundary it
@@ -319,23 +324,34 @@ the local bare remote, product process starts, or waits. If the baseline
 profile ranks another family above this one, replace it here and record why.
 Decisive checkpoint afterwards.
 
-### 5. Preparation-assignment suites cost less
+### 5. Execution startup and preparation make fewer git calls
 
 Type: Behavior
 Status: planned
 Proof:
-- `preparation-assignment-*.test.mjs` pass silently with unchanged promises.
-- A focused paired before/after of the family's summed job-seconds is
-  recorded in Learnings, with the kept changes and surviving proof.
+- Every `workspace-publication*.test.mjs`,
+  `preparation-assignment-*.test.mjs`, `maintain-default-checkout*`,
+  execution-source, and native publication check passes silently with
+  unchanged promises; every caller of a changed shared git helper is run.
+- A git-call count per accepted `execution-start` before and after (PATH
+  wrapper, as in slice 4's profile), and a focused paired before/after of the
+  workspace-publication plus preparation-assignment families' summed
+  job-seconds, recorded in Learnings with each kept change.
+- Each changed git read states whether it is exactly equivalent; any
+  remaining semantic difference (for example dangling `MERGE_HEAD`,
+  conflicted index entries, tree paths) is listed for the maintainer.
 
-Behavior: the developer or CI runs the suite → the preparation-assignment
-journeys (announce, land, abandon, release) prove the same promises with less
-work.
+Behavior: an agent starts or prepares queued work → the same claims,
+refreshes, refusals, and recoveries happen with fewer git processes, so both
+agents and the suite pay less per start.
 
-Profile first. If slice 4 found a cost these suites share (for example the
-same publication fixture), reuse that change here instead of a second one,
-and count its saving once. If the baseline profile ranks another family above
-this one, replace it here and record why. Decisive checkpoint afterwards.
+Candidates from slice 4's profile: merge-base and `index.lock` path reuse
+(exact, about 4 calls per start); the ongoing-operation checks in
+`maintain-default-checkout.mjs` (about 12 of ~90 per start); batched
+published and local source reads (about 9 per start); then the
+preparation-assignment family's `rev-parse` volume (951 of 3,122 calls).
+Do not require git ≥ 2.46 or file-backed refs. Decisive checkpoint
+afterwards.
 
 ### 6. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
 
@@ -529,3 +545,24 @@ the claim. Reference checkout for paired measurement: detached
   (`src/skills/dough-product-backlog/scripts/product-backlog-git-repository.mjs`)
   writes `.git/info/attributes` without creating `info/`, failing with ENOENT
   on a repository initialized without templates.
+- **Slice 3 delivered.** The approved map was applied by the coordinator on
+  the maintainer's direct instruction (the host's permission check had
+  refused the same edits to an implementation agent acting on the
+  coordinator's message). `story-payload-update.sh` alone owns sibling-root
+  protection with one edited and one removed file; negative controls in a
+  scratch copy showed each kept case failing when, respectively, byte
+  comparison or missing-file detection in `managed_payload_unchanged` was
+  disabled. The `OPEN_DOUGH_INSTALL_FAULT=record` hook was removed from
+  `src/install/open-dough-platform.sh`. Three update checks install once and
+  copy the prepared target per case. Refactor: the always-true guard in
+  `install-all-tools.sh` and the no-op `open-dough-release-version.sh`
+  declaration filters were removed. Paired installer family against
+  `c2e340d`, six in parallel, pairs with loads within 30%: 244.8/169.4,
+  251.0/145.4, 386.4/247.9 job-seconds; medians 251.0 versus 169.4, ratio
+  0.675. Standalone: `story-payload-update.sh` 17.3 → 9.5 s,
+  `product-backlog-payload-update.sh` 15.0 → 4.1 s. An isolated full suite of
+  exactly this change passed silently. A full suite in the shared checkout
+  failed three payload-comparing checks while slice 5's product edits were
+  in progress there; the isolated run without those edits passed, so that
+  failure belongs to slice 5's proof. Concurrent slices whose checks install
+  and compare `src/skills` must not share a checkout during full-suite proof.

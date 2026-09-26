@@ -19,7 +19,6 @@ write_certified_records() {
   local restore_source='' source_path version_path status=0
   source_path="${destination}/SOURCE"
   version_path="${destination}/VERSION"
-  [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != record ]] || return 1
   if [[ -f "${source_path}" ]]; then
     restore_source=$(mktemp)
     cp -- "${source_path}" "${restore_source}"

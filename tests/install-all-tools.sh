@@ -78,8 +78,10 @@ assert_payload_unchanged() {
 }
 
 # Any entry context gives a clean project the same two physical roots, bytes,
-# and both native hook registrations (including a path with spaces).
-for entry in codex cursor claude; do
+# and both native hook registrations (including a path with spaces). The codex
+# and cursor hints select the same .agents entry root, so cursor represents
+# both here; the default codex hint installs fresh below.
+for entry in cursor claude; do
   target="${temporary_dir}/fresh ${entry}"
   prepare_target "${target}"
   seed_empty_host_settings "${target}"
@@ -95,33 +97,31 @@ for entry in codex cursor claude; do
   assert_managed_host_hooks "${target}"
   assert_no_git_commit "${target}" "${head_before}"
 
-  if [[ "${entry}" != codex ]]; then
-    agents_payload_state=$(snapshot_path_state "${target}/.agents/skills")
-    claude_payload_state=$(snapshot_path_state "${target}/.claude/skills")
-    payload_mtimes=$(snapshot_payload_mtimes "${target}")
-    if [[ "${entry}" == claude ]]; then
-      rm -- "${target}/.cursor/hooks.json"
-    else
-      remove_one_cursor_managed_entry "${target}"
-    fi
-
-    # Representative missing-entry repair and Claude's missing-file repair do
-    # not rewrite the shared payload.
-    repeat_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
-    [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
-    [[ "${repeat_output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
-    assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
-      "${payload_mtimes}" \
-      "${entry} repeat-install hook repair"
-    if [[ "${entry}" == claude ]]; then
-      [[ $(node "${source_dir}/src/install/open-dough-register-hooks.mjs" status \
-        "${target}" "${source_dir}") == complete ]]
-      assert_cursor_managed_commands "${target}"
-    else
-      assert_managed_host_hooks "${target}"
-    fi
-    assert_no_git_commit "${target}" "${head_before}"
+  agents_payload_state=$(snapshot_path_state "${target}/.agents/skills")
+  claude_payload_state=$(snapshot_path_state "${target}/.claude/skills")
+  payload_mtimes=$(snapshot_payload_mtimes "${target}")
+  if [[ "${entry}" == claude ]]; then
+    rm -- "${target}/.cursor/hooks.json"
+  else
+    remove_one_cursor_managed_entry "${target}"
   fi
+
+  # Representative missing-entry repair and Claude's missing-file repair do
+  # not rewrite the shared payload.
+  repeat_output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform "${entry}")
+  [[ "${repeat_output}" == *'already current; left unwritten.'* ]]
+  [[ "${repeat_output}" == *'hooks: registered Open Dough entries in .cursor/hooks.json.'* ]]
+  assert_payload_unchanged "${target}" "${agents_payload_state}" "${claude_payload_state}" \
+    "${payload_mtimes}" \
+    "${entry} repeat-install hook repair"
+  if [[ "${entry}" == claude ]]; then
+    [[ $(node "${source_dir}/src/install/open-dough-register-hooks.mjs" status \
+      "${target}" "${source_dir}") == complete ]]
+    assert_cursor_managed_commands "${target}"
+  else
+    assert_managed_host_hooks "${target}"
+  fi
+  assert_no_git_commit "${target}" "${head_before}"
 
   if [[ "${entry}" == cursor ]]; then
     # Once repaired, another installation is a full no-op, including mtimes.

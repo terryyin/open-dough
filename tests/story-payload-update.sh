@@ -19,10 +19,8 @@ git -C "${fixture}" init --quiet -b main
 configure_fixture_git "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 before-stories
 # Model a release before decomposition and refinement, including its declared payload.
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-story-decomposition\//d; /dough-story-refinement\//d' "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
+sed '/dough-story-decomposition\//d; /dough-story-refinement\//d' "${fixture}/install.sh" > "${fixture}/filtered"
+mv -- "${fixture}/filtered" "${fixture}/install.sh"
 rm -rf -- "${fixture}/src/skills/dough-story-decomposition" "${fixture}/src/skills/dough-story-refinement"
 commit_all "${fixture}" 'release without decomposition and refinement skills'
 tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
@@ -32,7 +30,9 @@ write_candidate_payload "${fixture}" 0.1.2 with-stories
 commit_all "${fixture}" 'promote story skills and references'
 tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 
-for platform in codex cursor claude; do
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; claude reads the .claude entry root.
+for platform in cursor claude; do
   target="${temporary_dir}/${platform}"
   prepare_target "${target}"
   write_project_configuration "${target}"
@@ -68,33 +68,34 @@ for platform in codex cursor claude; do
     assert_installed_publication_modules "${target}/${root}"
   done
   # Successful operations traverse the same physical roots for every entry hint,
-  # so one representative owns the shared payload-protection matrix.
+  # so one representative owns payload protection. One
+  # install.sh declaration drives protection for every managed file, so one
+  # edited and one removed file (their branches differ) prove it for all; this
+  # check is the suite's owner of sibling-root protection.
   if [[ "${platform}" == cursor ]]; then
-    for reference in dough-story-decomposition/references/problem-decomposition.md \
-      dough-story-decomposition/references/seed-format.md \
-      dough-story-refinement/references/executable-proof.md \
-      dough-story-refinement/references/planning.md; do
-      for change in edit remove; do
-        path="${target}/.claude/skills/${reference}"
-        if [[ "${change}" == edit ]]; then
-          printf '\nLocal edit\n' >> "${path}"
-        else
-          rm -- "${path}"
-        fi
-        before=$(snapshot_path_state "${target}")
-        if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
-          echo 'FAIL: changed reference accepted by ordinary update.' >&2
-          exit 1
-        fi
-        if bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null 2>&1; then
-          echo 'FAIL: changed reference accepted by repeat install.' >&2
-          exit 1
-        fi
-        after=$(snapshot_path_state "${target}")
-        [[ "${before}" == "${after}" ]]
-        bash "${helper}" apply --target "${target}" --platform "${platform}" --force > /dev/null
-        assert_payload "${target}/.claude/skills/dough-update" 0.1.2 with-stories
-      done
+    for protection_case in dough-story-decomposition/references/problem-decomposition.md:edit \
+      dough-story-refinement/references/planning.md:remove; do
+      reference=${protection_case%:*}
+      change=${protection_case##*:}
+      path="${target}/.claude/skills/${reference}"
+      if [[ "${change}" == edit ]]; then
+        printf '\nLocal edit\n' >> "${path}"
+      else
+        rm -- "${path}"
+      fi
+      before=$(snapshot_path_state "${target}")
+      if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
+        echo 'FAIL: changed reference accepted by ordinary update.' >&2
+        exit 1
+      fi
+      if bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null 2>&1; then
+        echo 'FAIL: changed reference accepted by repeat install.' >&2
+        exit 1
+      fi
+      after=$(snapshot_path_state "${target}")
+      [[ "${before}" == "${after}" ]]
+      bash "${helper}" apply --target "${target}" --platform "${platform}" --force > /dev/null
+      assert_payload "${target}/.claude/skills/dough-update" 0.1.2 with-stories
     done
   fi
   assert_sentinels "${target}"

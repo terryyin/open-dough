@@ -14,12 +14,11 @@ git -C "${fixture}" init --quiet -b main
 configure_fixture_git "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 missing-reference
 # The earlier release shipped the skill with a dangling link, omitting only
-# this reference from both declarations (the source file itself existed).
-for script in install.sh src/install/open-dough-release-version.sh; do
-  sed '/dough-execution-retrospective\/references\/bounded-process-log.md/d' \
-    "${fixture}/${script}" > "${fixture}/filtered"
-  mv -- "${fixture}/filtered" "${fixture}/${script}"
-done
+# this reference from its install.sh declaration (the source file itself
+# existed).
+sed '/dough-execution-retrospective\/references\/bounded-process-log.md/d' \
+  "${fixture}/install.sh" > "${fixture}/filtered"
+mv -- "${fixture}/filtered" "${fixture}/install.sh"
 commit_all "${fixture}" 'release with omitted retrospective reference'
 tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
 older="${temporary_dir}/older"
@@ -43,16 +42,10 @@ assert_reference_links() {
   done
 }
 
-for platform in codex cursor claude; do
-  target="${temporary_dir}/fresh ${platform}"
-  prepare_target "${target}"
-  printf '%s\n' '{"skipProcessRetrospective":false,"sentinel":"keep"}' > "${target}/open-dough.json"
-  cp -- "${target}/open-dough.json" "${temporary_dir}/preferences"
-  bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null
-  assert_reference_links "${target}"
-  cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
-  assert_sentinels "${target}"
-
+printf '%s\n' '{"skipProcessRetrospective":false,"sentinel":"keep"}' > "${temporary_dir}/preferences"
+# The codex and cursor hints select the same .agents entry root, so cursor
+# represents both; claude reads the .claude entry root.
+for platform in cursor claude; do
   target="${temporary_dir}/upgrade ${platform}"
   prepare_target "${target}"
   cp -- "${temporary_dir}/preferences" "${target}/open-dough.json"
@@ -80,20 +73,8 @@ for platform in codex cursor claude; do
   assert_reference_links "${target}"
   cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
   assert_sentinels "${target}"
-
-  # Both payload declarations must protect the newly managed reference.
-  rm -- "${target}/.claude/skills/${reference}"
-  before=$(snapshot_path_state "${target}")
-  if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
-    echo 'FAIL: ordinary update accepted a missing managed reference.' >&2
-    exit 1
-  fi
-  if bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null 2>&1; then
-    echo 'FAIL: repeat installation accepted a missing managed reference.' >&2
-    exit 1
-  fi
-  after=$(snapshot_path_state "${target}")
-  [[ "${after}" == "${before}" ]]
+  # Protection of edited or removed managed files, driven by the one install.sh
+  # declaration for every file, is owned by story-payload-update.sh.
 done
 
 # A missing or malformed historical declaration must not turn all paths into

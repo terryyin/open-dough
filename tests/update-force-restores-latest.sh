@@ -30,13 +30,19 @@ trace_file="${temporary_dir}/trace.log"
 rm -f -- "${trace_file}"
 export OPEN_DOUGH_TRACE="${trace_file}"
 
+# Every state starts from the same recorded-latest installation, applied once
+# into a template and copied with its Git metadata, sentinels, and mtimes.
+recorded_latest_template="${temporary_dir}/recorded latest template"
 prepare_recorded_latest() {
   local target=$1
-  prepare_target "${target}"
-  git -C "${target}" init --quiet
-  git -C "${target}" remote add origin "${decoy}"
-  bash "${helper}" apply --url "${fixture}" --target "${target}" --platform cursor \
-    > /dev/null
+  if [[ ! -d "${recorded_latest_template}" ]]; then
+    prepare_target "${recorded_latest_template}"
+    git -C "${recorded_latest_template}" init --quiet
+    git -C "${recorded_latest_template}" remote add origin "${decoy}"
+    bash "${helper}" apply --url "${fixture}" --target "${recorded_latest_template}" \
+      --platform cursor > /dev/null
+  fi
+  cp -a -- "${recorded_latest_template}" "${target}"
 }
 
 assert_complete_latest() {

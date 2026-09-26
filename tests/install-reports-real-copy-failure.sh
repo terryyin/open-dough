@@ -58,16 +58,6 @@ for platform in codex; do
   printf '%s\n' 'last-successful-source' > "${destination}/SOURCE"
   printf '%s\n' 'last-successful-version' > "${version_record}"
 
-  if output=$(OPEN_DOUGH_INSTALL_FAULT=record bash "${source_dir}/install.sh" \
-    --target "${target}" --source "${source_dir}" --platform "${platform}" --force 2>&1); then
-    echo "FAIL: ${platform} installation reported success after a record-write fault." >&2
-    exit 1
-  fi
-  assert_direct_incomplete_install_report "${output}" \
-    'Failed to write installation records after replacement started.'
-  assert_preserved_install_records "${destination}" \
-    'last-successful-source' 'last-successful-version'
-
   chmod a-w "${version_record}"
   if output=$(bash "${source_dir}/install.sh" \
     --target "${target}" --source "${source_dir}" --platform "${platform}" --force 2>&1); then

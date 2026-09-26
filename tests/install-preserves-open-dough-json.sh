@@ -97,7 +97,9 @@ install_current() {
 
 assert_not_managed
 
-# Shared Codex/Cursor entry: first install must not create a default file.
+# Every entry hint installs the same two roots and leaves the project's
+# .planning/open-dough.json alone, so the cursor hint represents them.
+# First install must not create a default file.
 absent_cursor="${temporary_dir}/absent cursor"
 prepare_target "${absent_cursor}"
 install_current "${absent_cursor}" cursor > /dev/null
@@ -105,15 +107,7 @@ assert_config_absent "${absent_cursor}" 'cursor first install'
 assert_custom_ci_manual "${absent_cursor}"
 assert_sentinels "${absent_cursor}"
 
-# Claude entry: first install must not create a default file.
-absent_claude="${temporary_dir}/absent claude"
-prepare_target "${absent_claude}"
-install_current "${absent_claude}" claude > /dev/null
-assert_config_absent "${absent_claude}" 'claude first install'
-assert_custom_ci_manual "${absent_claude}"
-assert_sentinels "${absent_claude}"
-
-# Existing true + unknown keys survive Codex/Cursor install and --force.
+# Existing true + unknown keys survive install and --force.
 present_cursor="${temporary_dir}/present cursor"
 prepare_target "${present_cursor}"
 write_skip_true_unknown "${present_cursor}/${config_rel}"
@@ -128,20 +122,6 @@ assert_config_bytes "${present_cursor}" "${expected_present}" \
   'cursor --force with existing config'
 assert_custom_ci_manual "${present_cursor}"
 assert_sentinels "${present_cursor}"
-
-# Existing true + unknown keys survive Claude install and --force.
-present_claude="${temporary_dir}/present claude"
-prepare_target "${present_claude}"
-write_skip_true_unknown "${present_claude}/${config_rel}"
-install_current "${present_claude}" claude > /dev/null
-assert_config_bytes "${present_claude}" "${expected_present}" \
-  'claude first install with existing config'
-assert_sentinels "${present_claude}"
-install_current "${present_claude}" claude --force > /dev/null
-assert_config_bytes "${present_claude}" "${expected_present}" \
-  'claude --force with existing config'
-assert_custom_ci_manual "${present_claude}"
-assert_sentinels "${present_claude}"
 
 # Ordinary no-URL update and supported force replacement from recorded SOURCE.
 fixture="${temporary_dir}/fixture.git"

@@ -94,9 +94,11 @@ assert_ordinary_update_refuses_unwritten() {
   assert_sentinels "${unverifiable}"
 }
 
+# Each case starts from the same clean older installation, installed once and
+# copied (with its Git metadata, sentinels, and mtimes) before each case.
 restore_clean_older_cursor() {
-  bash "${older_checkout}/install.sh" --target "${unverifiable}" \
-    --source "${fixture}" --platform cursor --force > /dev/null
+  rm -rf -- "${unverifiable}"
+  cp -a -- "${clean_older_template}" "${unverifiable}"
 }
 
 unverifiable="${temporary_dir}/unverifiable project"
@@ -105,7 +107,10 @@ git -C "${unverifiable}" init --quiet
 git -C "${unverifiable}" remote add origin "${decoy}"
 unverifiable_dest="${unverifiable}/.agents/skills/dough-update"
 unverifiable_tmp="${temporary_dir}/unverifiable-tmp"
-restore_clean_older_cursor
+bash "${older_checkout}/install.sh" --target "${unverifiable}" \
+  --source "${fixture}" --platform cursor > /dev/null
+clean_older_template="${temporary_dir}/clean older template"
+cp -a -- "${unverifiable}" "${clean_older_template}"
 
 printf '%s\n' 'local managed edit' >> "${unverifiable_dest}/SKILL.md"
 assert_ordinary_update_refuses_unwritten \

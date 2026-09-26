@@ -30,12 +30,10 @@ write_candidate_payload "${fixture}" 0.1.1 payload-before-added-skills
 for managed_file in "${new_managed_files[@]}"; do
   rm -- "${fixture}/src/skills/${managed_file}"
 done
-for script in install.sh src/install/open-dough-release-version.sh; do
-  for managed_file in "${new_managed_files[@]}"; do
-    awk -v managed_file="${managed_file}" '$1 != managed_file' \
-      "${fixture}/${script}" > "${fixture}/filtered"
-    mv -- "${fixture}/filtered" "${fixture}/${script}"
-  done
+for managed_file in "${new_managed_files[@]}"; do
+  awk -v managed_file="${managed_file}" '$1 != managed_file' \
+    "${fixture}/install.sh" > "${fixture}/filtered"
+  mv -- "${fixture}/filtered" "${fixture}/install.sh"
 done
 commit_all "${fixture}" 'release before added skills'
 tag_release "${fixture}" 0.1.1 '2026-06-01T00:00:00'
