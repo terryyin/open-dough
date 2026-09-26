@@ -290,3 +290,9 @@ updater runs.
   links after skipping anchors and schemes; none is undeclared. A mutation back
   to last-link-only extraction fails only the two-link case, which is what
   guards that defect.
+- **Slice 1 CI repair.** CI run 36215060849 failed on `c7112a5`:
+  `tests/story-payload-assertions.sh` injected a missing story link and
+  expected `story-payload-update.sh`'s removed link loop to report it. The
+  test now drives `payload-declaration-links.sh` through `scripts/test.sh`
+  and is renamed `tests/payload-declaration-links-suite-failure.sh`. Removing
+  an assertion needs a search for tests that mutate against it.

@@ -13,7 +13,7 @@ directory for both the full suite and direct focused tests, for example:
 
 ```sh
 PATH="/path/to/current-bash/bin:$PATH" npm test
-PATH="/path/to/current-bash/bin:$PATH" bash tests/story-payload-assertions.sh
+PATH="/path/to/current-bash/bin:$PATH" bash tests/payload-declaration-links-suite-failure.sh
 ```
 
 Direct test scripts rely on this prerequisite; the version guard lives in the
@@ -112,14 +112,15 @@ maintenance so no detached repack is still writing when the fixture is removed.
 The native ADR-awareness check wrappers and their focused proof scripts are
 described in `tests/native-adr-awareness-wrappers.md`.
 
-## Installed story dependency checks
+## Payload declaration link checks
 
-`bash tests/story-payload-update.sh` checks links in installed story guidance
-as part of its installation/update scenarios. A missing target fails explicitly
-and reports the referring installed file and unresolved target, including on
-macOS's bundled Bash 3.2 without an interpreter upgrade.
+`bash tests/payload-declaration-links.sh` checks that every relative link in a
+declared Markdown file under `src/skills/` points at a file declared in
+`install.sh`'s `managed_files`, without running the installer. An undeclared
+target fails explicitly and names the linking file and the link.
 
-`bash tests/story-payload-assertions.sh` exercises a deliberately missing
-installed dependency and a valid payload in disposable fixtures. It checks the
-real dependency checker and propagation through `scripts/test.sh`. This is
-focused coverage of that check, not certification of every shell assertion.
+`bash tests/payload-declaration-links-suite-failure.sh` adds a deliberately
+missing link to story guidance in a disposable fixture and checks that the real
+declaration check reports it and that the failure propagates through
+`scripts/test.sh`. This is focused coverage of that check, not certification of
+every shell assertion.
