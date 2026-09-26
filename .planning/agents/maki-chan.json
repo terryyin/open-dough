@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "quick/109-complete-payload-update-owners/PLAN.md",
+  "mode": "story-branch",
+  "branch": "claude/109-complete-payload-update-owners",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
