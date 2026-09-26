@@ -5,6 +5,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
+# shellcheck source=tests/helpers/payload-bytes.bash
+source "${source_dir}/tests/helpers/payload-bytes.bash"
 
 for internal_skill_name in "${internal_skill_names[@]}"; do
   [[ -f "${source_dir}/.agents/skills/${internal_skill_name}/SKILL.md" ]]
@@ -103,12 +105,9 @@ expect_files() {
 
 assert_public_payload() {
   local relative_skill_root=$1
-  local managed_file expected_source recorded_source
+  local expected_source recorded_source
 
-  for managed_file in "${managed_files[@]}"; do
-    cmp "${source_dir}/src/skills/${managed_file}" \
-      "${target}/${relative_skill_root}/${managed_file}"
-  done
+  assert_payload_bytes_match "${source_dir}/src/skills" "${target}/${relative_skill_root}"
   cmp "${source_dir}/VERSION" \
     "${target}/${relative_skill_root}/dough-update/VERSION"
   expected_source=$(cd -- "${source_dir}" && pwd -P)

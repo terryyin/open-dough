@@ -35,7 +35,9 @@ snapshot_path_state() {
   )
 
   while ((offset < ${#regular_paths[@]})); do
-    batch_size=64
+    # One shasum per 512 files covers an installed payload tree in one process
+    # while keeping each argument list far below the platform limit.
+    batch_size=512
     if ((batch_size > ${#regular_paths[@]} - offset)); then
       batch_size=$((${#regular_paths[@]} - offset))
     fi

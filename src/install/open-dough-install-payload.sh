@@ -6,10 +6,12 @@
 # Caller assigns managed_files, source_dir, target, recorded_source, force,
 # replace_verified, and version.
 
-# Run match or copy for the declared files in one Node process.
-# match exits 1 on a difference. copy exits 1 when a file cannot be written,
-# after earlier files in the declaration order have already been replaced.
-# Without Node, fall back to cmp or cp so a hook-less install still works.
+# Run match, copy, or copy-then-match for the declared files in one Node
+# process. match exits 1 on a difference. copy exits 1 when a file cannot be
+# written, after earlier files in the declaration order have already been
+# replaced. copy-then-match copies, then verifies the written bytes, exiting 3
+# on a difference and 4 when verification cannot read a file. Without Node,
+# fall back to cp and cmp so a hook-less install still works.
 payload_bytes_run() {
   local mode=$1
   local root=$2
@@ -20,14 +22,17 @@ payload_bytes_run() {
       "${source_dir}/src/skills" "${root}"
     return
   fi
-  if [[ ${mode} == copy ]]; then
+  if [[ ${mode} != match ]]; then
     for managed_file in "${managed_files[@]}"; do
       cp -- "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || return 1
     done
-    return 0
+    [[ ${mode} == copy-then-match ]] || return 0
   fi
   for managed_file in "${managed_files[@]}"; do
-    cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || return 1
+    cmp -s "${source_dir}/src/skills/${managed_file}" "${root}/${managed_file}" || {
+      [[ ${mode} == match ]] && return 1
+      return 3
+    }
   done
 }
 
@@ -114,16 +119,16 @@ install_declared_payload() {
       printf '%s\n' partial-install > "${destination}/SKILL.md"
       report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'
     }
-    status=0
-    payload_bytes_run copy "${root}" || status=$?
-    [[ ${status} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.'
+    # One process copies, then verifies the written bytes.
     verification_failed=0
     status=0
-    payload_bytes_match "${root}" || status=$?
-    if [[ ${status} -ne 0 ]]; then
-      [[ ${status} -eq 1 ]] || exit "${status}"
-      verification_failed=1
-    fi
+    payload_bytes_run copy-then-match "${root}" || status=$?
+    case ${status} in
+      0) ;;
+      3) verification_failed=1 ;;
+      4) exit 2 ;;
+      *) report_incomplete_install "${platforms[index]}" 'Copy failed after replacement started.' ;;
+    esac
     [[ "${OPEN_DOUGH_INSTALL_FAULT:-}" != verify && ${verification_failed} -eq 0 ]] || report_incomplete_install "${platforms[index]}" 'Installed payload verification failed.'
     write_certified_records "${destination}" "${recorded_source}" "${version}" || report_incomplete_install "${platforms[index]}" 'Failed to write installation records after replacement started.'
     echo "${platforms[index]}: installed Open Dough guidance in ${root} (version ${version})."

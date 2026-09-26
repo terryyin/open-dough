@@ -5,6 +5,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 # shellcheck source=tests/helpers/public-payload-fixture.bash
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
+# shellcheck source=tests/helpers/payload-bytes.bash
+source "${source_dir}/tests/helpers/payload-bytes.bash"
 
 if (($# < 2)); then
   echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
@@ -57,10 +59,7 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
 
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
-  for managed_file in "${managed_files[@]}"; do
-    cmp "${source_dir}/src/skills/${managed_file}" \
-      "${target}/${skill_root}/${managed_file}"
-  done
+  assert_payload_bytes_match "${source_dir}/src/skills" "${target}/${skill_root}"
   recorded_source=$(cat "${target}/${skill_root}/dough-update/SOURCE")
   [[ "${recorded_source}" == "${expected_source}" ]]
 done
@@ -108,14 +107,10 @@ cp -- "${source_dir}/install.sh" "${incomplete_source}/install.sh"
 cp -- "${source_dir}/VERSION" "${incomplete_source}/VERSION"
 cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
 cp -R -- "${source_dir}/src/install" "${incomplete_source}/src/install"
-for managed_file in "${managed_files[@]}"; do
-  if [[ "${managed_file}" == "${missing_managed_file}" ]]; then
-    continue
-  fi
-  mkdir -p -- "${incomplete_source}/src/skills/$(dirname -- "${managed_file}")"
-  cp -- "${source_dir}/src/skills/${managed_file}" \
-    "${incomplete_source}/src/skills/${managed_file}"
-done
+(
+  managed_files=("${managed_files[@]:0:missing_index}")
+  payload_bytes_transfer copy "${source_dir}/src/skills" "${incomplete_source}/src/skills"
+)
 
 incomplete_target="${temporary_dir}/incomplete target"
 mkdir -p -- "${incomplete_target}"

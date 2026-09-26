@@ -31,8 +31,8 @@ managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
   local skill_root managed_file historical_files
-  local self_root current_declaration
-  local -a files=()
+  local self_root current_declaration helper mismatch=''
+  local -a files=() delivered=()
 
   # This file's own repository always ships install.sh's managed_files
   # declaration alongside it in the same commit, so the current side of the
@@ -56,22 +56,39 @@ managed_payload_unchanged() {
     if [[ ! -e "${checkout}/src/skills/${managed_file}" ]] \
       || [[ $'\n'${historical_files}$'\n' != *$'\n'"${managed_file}"$'\n'* ]]; then
       if [[ -e "${skill_root}/${managed_file}" ]]; then
-        report_managed_payload_mismatch "${skill_root}" "${managed_file}"
-        return 1
+        mismatch=${managed_file}
+        break
       fi
       continue
     fi
     if [[ ! -f "${checkout}/src/skills/${managed_file}" ]] \
       || [[ ! -f "${skill_root}/${managed_file}" ]]; then
-      report_managed_payload_mismatch "${skill_root}" "${managed_file}"
-      return 1
+      mismatch=${managed_file}
+      break
     fi
+    delivered+=("${managed_file}")
+  done
+  # One Node process compares every delivered file. A difference, or no Node,
+  # walks them with cmp so the first mismatch in declaration order is reported.
+  helper="${self_root}/src/install/open-dough-payload-bytes.mjs"
+  if [[ -z "${mismatch}" ]] && ((${#delivered[@]} > 0)) && [[ -f "${helper}" ]] \
+    && command -v node > /dev/null 2>&1 \
+    && printf '%s\n' "${delivered[@]}" | node "${helper}" match \
+      "${checkout}/src/skills" "${skill_root}" 2> /dev/null; then
+    return 0
+  fi
+  # The guarded expansion keeps an empty list safe under Bash 3.2 set -u.
+  for managed_file in ${delivered[@]+"${delivered[@]}"}; do
     if ! cmp -s -- "${skill_root}/${managed_file}" \
       "${checkout}/src/skills/${managed_file}"; then
       report_managed_payload_mismatch "${skill_root}" "${managed_file}"
       return 1
     fi
   done
+  if [[ -n "${mismatch}" ]]; then
+    report_managed_payload_mismatch "${skill_root}" "${mismatch}"
+    return 1
+  fi
 }
 read_version_file() {
   local file=$1

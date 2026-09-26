@@ -141,6 +141,39 @@ The planning profile in Learnings is not this baseline.
 - **Stable means cause-fixed**, as in plan 096: a destabilized test gets its
   cause fixed, never a retry or a lower default.
 
+## Checkpoint after slice 2 (2026-09-26): stopped for the maintainer
+
+- **Measurement.** Paired installer and updater family, start revision versus
+  candidate, three alternating runs each at loads 9–13, six in parallel:
+  283.4/176.8, 303.2/174.1, 292.3/177.7 job-seconds; medians 292.3 versus
+  176.8, ratio 0.605. The full candidate suite passed silently at 1,854.4
+  job-seconds (load 10.9; unpaired). Estimated paired suite total: the other
+  jobs' baseline 1,241 plus the family at 0.605 × 792 ≈ 479, about 1,720
+  job-seconds, 0.85 of the start revision. The 0.65 target is about 1,321, a
+  gap of about 400 job-seconds. At the baseline's CI rate (2,033 job-seconds
+  in a 174 s `Run test` median) 1,720 is roughly 147 s against the 120 s
+  target.
+- **Gap versus remaining experiments.** Slice 3's family
+  (`workspace-publication*`) is 271.9 baseline job-seconds and slice 4's
+  (`preparation-assignment-*`) 128.1, 400 together: closing the gap would need
+  essentially all of both. Substituting the larger native-evidence shell
+  family (`native-*.sh`, `git-publication-native.sh`, 350.6) for slice 4 still
+  needs a 64% cut across 622 job-seconds, while the installer family, with the
+  best-evidenced hypotheses, yielded 40%.
+- **Invalidated assumption.** The targets (35% less total work, 120 s CI
+  median) were assumed reachable without fewer installer runs per promise. The
+  remaining installer cost is dominated by the number of installer and updater
+  runs (Node starts, release fetches, fixture commits per run), which
+  [SEED-037#fewer-installer-runs-per-promise](../../seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise)
+  owns.
+- **Remaining candidates.** Slice 3 (workspace publication, 272), slice 4
+  (preparation assignment, 128), the native-evidence shell family (351), and
+  the fewer-installer-runs story. Slices 1 and 2 stay delivered.
+- **Decision needed.** Whether to continue slices 3–4 toward a lower accepted
+  target, change the targets, bring the fewer-installer-runs work into this
+  story, or close this story at slices 1–2 plus the budget (slice 6) set from
+  the achieved times.
+
 ## Ordered slices
 
 ### 1. Registering a pushed revision makes the CI observer check at once
@@ -173,7 +206,7 @@ in CI is picked up by later polls as before.
 ### 2. Installer and updater checks cost less per run
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Every installer, updater, and payload check passes silently with unchanged
   assertions, including `install-all-tools.sh`, `story-payload-update.sh`,
@@ -363,3 +396,25 @@ the claim. Reference checkout for paired measurement: detached
   ≤ 0.4 s). Paired `execution-payload-update.sh` job times, reference versus
   candidate at loads 5–10: 47.0/16.1, 16.2/16.4, 17.3/16.6 s. A new script
   under `src/skills/*/scripts` needs its `install.sh` `managed_files` entry.
+- **Slice 2 delivered.** Profiling (timestamped `PS4`, process counts) showed
+  about 26,700 per-file `cmp` calls, 1,280 Node starts, and 225 release plus
+  225 baseline fetches across the family. Kept changes, each with a paired
+  saving (three alternating pairs, loads matched within a pair; the whole
+  family in parallel unless noted): the updater compares an unchanged payload
+  in one Node `match` inside the single declaration walk (focused, 62.1 →
+  48.1 s median on five checks); the installer copies and verifies in one
+  Node process (`copy-then-match`, 221.5 → 210.8 s); the updater fetches each
+  recorded release once and reuses a clean fetched tagged tree, never a
+  supplied `--checkout` (225.7 → 202.4 s); `assert_payload` and three
+  per-file `cmp` loops use one Node match with a `cmp` fallback that names the
+  file (focused, 54.9 → 42.5 s); `install-all-tools.sh` reads all mtimes with
+  one `stat` (33.1 → 11.5 s); path-state snapshots hash 512 files per
+  `shasum` (focused, 50.2 → 46.2 s); fixture copies use one Node copy (10.7 →
+  5.1 s on three checks). Every check keeps its installer and updater run
+  count and assertions; `assert_payload` now reports "mismatch under <root>"
+  after `cmp`'s line naming the file. Refactor: recorded-release baseline
+  verification moved to `src/install/open-dough-release-baseline.sh`, and the
+  uncalled `require_ordinary_recorded_baseline` was removed. Two C2 ablation
+  runs straddled an external load spike (a VM and Spotlight, load 13 → 66)
+  and were retaken; a pair whose sides start at very different loads is not
+  comparable.

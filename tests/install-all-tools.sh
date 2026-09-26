@@ -49,13 +49,16 @@ assert_no_git_commit() {
   [[ "${after}" == "${before}" ]]
 }
 
+# Every payload file's mtime, sorted by path, read by one stat process.
 snapshot_payload_mtimes() {
-  local target=$1 root path relative
-  for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
-    while IFS= read -r -d '' path; do
-      relative=${path#"${target}/"}
-      printf '%s\t%s\n' "${relative}" "$(file_mtime "${path}")"
-    done < <(find "${root}" -type f -print0 | LC_ALL=C sort -z)
+  local target=$1 index
+  local -a paths=() mtimes=()
+  mapfile -d '' -t paths < <(find "${target}/.agents/skills" "${target}/.claude/skills" \
+    -type f -print0 | LC_ALL=C sort -z)
+  mapfile -t mtimes < <(file_mtime "${paths[@]}")
+  ((${#mtimes[@]} == ${#paths[@]})) || return 1
+  for index in "${!paths[@]}"; do
+    printf '%s\t%s\n' "${paths[index]#"${target}/"}" "${mtimes[index]}"
   done
 }
 

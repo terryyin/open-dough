@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Ordinary, supplied-URL, and explicit-force apply: resolve source, pin,
 # compare unless forced, then install.
-# Sourced by open-dough-release.sh after platform, register-hooks, version, and
-# resolve modules.
+# Sourced by open-dough-release.sh after platform, register-hooks, version,
+# resolve, and baseline modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2312,SC2249
 
@@ -50,51 +50,6 @@ finish_equal_version_host_hooks() {
   return 0
 }
 
-report_unverifiable_installation() {
-  local dest=$1
-  local outcome=${2:-'refused; preserved the selected installation.'}
-
-  trace_line "apply-unverifiable ${dest}"
-  printf 'Outcome: %s\n' "${outcome}"
-}
-
-refuse_if_ordinary_unverifiable() {
-  local dest=$1
-  local supplied_url=$2
-
-  if [[ "${supplied_url}" -eq 0 ]]; then
-    report_unverifiable_installation "${dest}"
-  fi
-}
-
-recorded_baseline_unchanged() {
-  local dest=$1
-  local url=$2
-  local baseline=$3
-  local installed=$4
-
-  if ! fetch_tagged_release "${url}" "${baseline}" "${installed}" > /dev/null; then
-    return 1
-  fi
-  if ! managed_payload_unchanged "${dest}" "${baseline}"; then
-    echo "Installed files do not match recorded release ${installed}; ordinary update requires an unchanged installation." >&2
-    return 1
-  fi
-}
-
-require_ordinary_recorded_baseline() {
-  local dest=$1
-  local supplied_url=$2
-  local url=$3
-  local work_root=$4
-  local installed=$5
-
-  if [[ "${supplied_url}" -ne 0 ]]; then
-    return 0
-  fi
-  recorded_baseline_unchanged "${dest}" "${url}" "${work_root}/baseline" "${installed}"
-}
-
 run_installer() {
   local checkout=$1
   local target=$2
@@ -113,39 +68,6 @@ run_installer() {
   bash "${checkout}/install.sh" "${args[@]}"
 }
 
-all_roots_verified_for_release() {
-  local target=$1 url=$2 work_root=$3 latest_version=$4
-  local current_platform current_dest installed relation
-
-  while IFS=$'\t' read -r current_platform current_dest; do
-    if [[ ! -d "${current_dest}" ]]; then
-      continue
-    fi
-    if [[ $(read_source_record "${current_dest}/SOURCE" 2> /dev/null || true) != "${url}" ]]; then
-      echo "${current_platform}: SOURCE conflicts with the shared installation; ordinary update refuses without writes." >&2
-      return 1
-    fi
-    installed=$(read_record "${current_dest}/VERSION") || {
-      echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
-      return 1
-    }
-    if [[ -z "${installed}" ]]; then
-      echo "Missing installed version record: ${current_dest}/VERSION" >&2
-      echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
-      return 1
-    fi
-    if ! recorded_baseline_unchanged "${current_dest}" "${url}" "${work_root}/baseline-${current_platform}" "${installed}"; then
-      return 1
-    fi
-    relation=$(compare_versions "${installed}" "${latest_version}")
-    if [[ "${relation}" == newer ]]; then
-      echo "${current_platform}: installed ${installed} is newer than source ${latest_version}; ordinary all-tool update refuses without a downgrade." >&2
-      return 1
-    fi
-  done < <(all_destinations_for "${target}")
-
-}
-
 # Clear and remove the apply work root. Prefer this over relying on EXIT alone.
 clear_apply_work_root() {
   [[ -n "${_open_dough_apply_work_root:-}" ]] && rm -rf -- "${_open_dough_apply_work_root}"
@@ -161,6 +83,7 @@ apply_release() {
   local supplied_url=0
   local work resolved tag commit version
   local dest installed relation
+  local -a fetched_release=()
   # Non-local: EXIT trap must still see the path if set -e aborts this function
   # before an explicit clear (bash 5 drops locals when the function unwinds).
   _open_dough_apply_work_root=
@@ -275,14 +198,18 @@ EOF
     return 1
   fi
 
-  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" "${version}"; then
+  # A fetched release is a clean tagged tree; a caller's inspected checkout
+  # may carry local edits, so it never stands in for a recorded baseline.
+  [[ -n "${checkout}" ]] || fetched_release=("${version}" "${work}")
+  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" "${version}" \
+    ${fetched_release[@]+"${fetched_release[@]}"}; then
     report_unverifiable_installation "${dest}"
     clear_apply_work_root
     return 1
   fi
 
   needs_replacement=0
-  while IFS=$'\t' read -r current_platform current_dest; do
+  while IFS=$'\t' read -r _ current_dest; do
     if [[ ! -d "${current_dest}" ]]; then
       needs_replacement=1
     else
