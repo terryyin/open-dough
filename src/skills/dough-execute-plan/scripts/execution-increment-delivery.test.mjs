@@ -63,8 +63,10 @@ test("execution entry routes name the same increment and repair owner", () => {
   assert.doesNotMatch(location, /does not push the execution branch/);
   assert.doesNotMatch(location, /recorded remote execution branch/);
   assert.doesNotMatch(location, /exclusive-turn/);
-  assert.match(monitor, /git stash push/);
-  assert.match(monitor, /git stash apply --index STASH_OID/);
+  assert.match(monitor, /ci-repair-stash\.mjs'?\s+save\b/);
+  assert.match(monitor, /ci-repair-stash\.mjs'?\s+restore\b/);
+  assert.match(monitor, /never\s+(?:use\s+)?`?pop`?|not\s+`?pop`?/);
+  assert.match(monitor, /never\s+assuming\s+`stash@\{0\}`/);
   assert.match(monitor, /never nest stash\/repair cycles/);
   assert.match(monitor, /Do not use a second repair push/);
 

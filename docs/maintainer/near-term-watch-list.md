@@ -57,6 +57,15 @@ After persistent polling errors produce a normal terminal result, later push reg
 - open-dough: Execution: `.planning/quick/076-path-filter-aware-ci-observation/PLAN.md @ a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865` - Timestamp: 2026-09-22T07:12+00:00 - Tool: Claude Code - Model: claude-sonnet-5 - Open Dough release: modified; revision a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865; base 0.3.28 - Evidence: mailbox `/tmp/dough-ci-501/watch-Q6ZEF0`'s event 3 (`CI_MONITOR_UNAVAILABLE`, TLS timeout) and `result.json` (`finished`) both predate two later `register-push` calls (mtimes ~10/~30 min after); `ps` confirmed the worker pid was gone. - Observed effect: two SHAs registered against an ended observer with no distinguishing signal; the gap surfaced only via a manual `gh` cross-check near execution end. - Inference: Qualified, single occurrence; mechanism is deterministic and the triggering network instability recurred repeatedly this session, so recurrence is plausible. Not tested: a distinct "CI observer ended" hook message, mirroring "lost its worker."
 - **Source snapshot:** open-dough `a951fc04a5e8dfcc0f1f55660b00ae0eb9611bc5:DearDough.md`; DD-090.
 
+<a id="odf-093"></a>
+
+## ODF-093 — Foreign stash restoration
+
+- **Response:** `f157f0e` (CI repair pause through `ci-repair-stash.mjs`, own entry by OID only) and `86e5069` (delegated agents barred from stash, pop, reset, clean, path checkout, and branch switch in a shared checkout); not yet released after 0.3.41.
+- **Watch start:** 2026-09-26 (date-only; delivered, unreleased). Exercised only by deterministic tests and a behavior review walk; no real CI repair pause or shared-stack incident observed yet.
+- **Review after:** seven days after the first release containing `f157f0e`.
+- **Last assessed:** 2026-09-26; a conflicting restore still misreports what it applied and leaves the final drop to the coordinator, owned by the queued correction `SEED-008#truthful-repair-restore`.
+
 <a id="odf-099"></a>
 
 ## ODF-099 — Oversized startup receipts
@@ -89,3 +98,12 @@ Startup serializes full before/after Git index snapshots into its coordinator re
 - **Source snapshot:** doughnut `0d92ca6c226fc0d755a9b159e2cb3259a68f009f:DearDough.md`; DD-108.
 
 ODF-099 earlier Open Dough evidence remains at `b633e1d:DearDough.md`, `876a0b0:DearDough.md`, `bde06c7:DearDough.md`, `6494de2:DearDough.md` and `e11c09a:DearDough.md`. Plan 100 / 075e955, Claude Code claude-opus-5-5[1m], unknown execution release, reported a 236,870-byte pre-change receipt; real CLI fixtures at 989a34c measured 286 KB–1.1 MB before versus 306–330 bytes after. Those fixture observations do not establish client adoption.
+
+<a id="odf-105"></a>
+
+## ODF-105 — Stashing another writer's work
+
+- **Response:** `86e5069` makes coordinator commits stage owned paths only, never stashing, resetting, or restaging a sibling writer's work; not yet released after 0.3.41.
+- **Watch start:** 2026-09-26 (date-only; delivered, unreleased). Plan 114 itself committed two parallel slices from one worktree by owned-path staging with the sibling's files left unstaged.
+- **Review after:** seven days after the first release containing `86e5069`.
+- **Last assessed:** 2026-09-26; no recurrence.

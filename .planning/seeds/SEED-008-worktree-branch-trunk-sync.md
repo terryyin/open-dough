@@ -234,101 +234,30 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
-<a id="preserve-other-executions-work"></a>
+<a id="truthful-repair-restore"></a>
 
-### Preserve other writers' work in shared worktrees
+### Correction: Report conflicting CI repair restores truthfully and drop through the script
 
-**Identity:** SEED-008#preserve-other-executions-work
+**Identity:** SEED-008#truthful-repair-restore
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/114-preserve-other-writers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1629930be761b798cf0f86c815e0494a9d74b10dce241fb0600ec551e5b739c","plan":"6721714c8da5271f044a140b255968f0fed1bf4163135507934deaa09cf98da7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-truthful-repair-restore/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"88d95c9fdf476d183e7b3d006a82415c25aa28047ca962868d6c7cd84b6018fd","plan":"77bd39ef621099c92e2007cfd796594834ac0c87a65c65298a0819f42d9980da"}}
 ```
 
-**Goal:** Developers running concurrent agents keep every other writer's
-uncommitted files and stash entries intact when an execution sets aside,
-restores, or commits its own work. Git shares one stash stack across all
-worktrees, and parallel slices share one execution worktree, so any unqualified
-stash, pop, or whole-tree staging reaches work this execution does not own. This
-protects the multi-agent, one-machine direction without a lock or scheduler.
+**Goal:** A coordinator resuming after a CI repair knows exactly what a
+conflicting restore already put back in the tree, and finishes that restore
+without handling the shared stash stack by hand, so it neither applies the
+saved work twice nor drops another writer's entry.
 
-**Why this scope (2026-09-26 review):** Existing guidance already bans each
-observed act in one context: the CI pause applies its stash by exact OID and
-never under a live writer, and wrap-up stages only owned files. The remaining
-gap is Git housekeeping that an agent improvises outside those procedures
-([ODF-093](../../docs/maintainer/finding-names.md#odf-093): a delegated agent's
-bare `pop` after a failed push;
-[ODF-105](../../docs/maintainer/finding-names.md#odf-105): a coordinator stashed
-a sibling slice's files while isolating a commit). A further prose reminder
-beside the existing ones is the weakest response, so the mechanical stash cycle
-moves into a script and the prohibition sits once in the delegation contract.
-Terry accepted this narrowing and kept the story first on 2026-09-26.
+**Scope:** A bounded retrospective correction of the delivered
+`SEED-008#preserve-other-executions-work` (recoverable at
+`d96674e:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`; plan 114,
+commits `f157f0e`, `86e5069`). The restore script reports what a failed apply
+changed, including saved staged state it could not restore; a script command
+drops the recorded entry after a resolved conflict and confirms the dropped OID;
+`ci-monitor.md` step 5 uses that command. Excluded: detecting other sessions'
+concurrent stash pushes, and branch or HEAD checks on restore.
 
-**Scope:**
-
-- The CI repair pause saves and restores the execution checkout's unfinished
-  work through one installed script instead of prose Git steps. Save records the
-  inventory and the exact new stash OID in private metadata outside the tree,
-  or records that no stash was needed; it never adopts an existing entry. Restore
-  applies only the recorded OID with its index, drops only the entry that still
-  has that OID, and keeps the entry and reports on any conflict. `ci-monitor.md`
-  calls the script instead of restating those steps.
-- The delegation contract states once that a delegated agent does not stash,
-  pop, reset, clean, check out paths, or switch branches in the shared checkout;
-  one needing a clean baseline uses a separate temporary checkout or reports back.
-- Increment and repair commits isolate owned work by staging owned paths only;
-  a sibling writer's files stay in place, never stashed or restaged to make the
-  commit.
-
-**Rejection constraints:** Never touch a stash entry whose OID this execution
-did not record (ODF-093's harm). Never move a live writer's files
-(the existing pause contract).
-
-**Deferred / excluded:**
-
-- [ODF-084](../../docs/maintainer/finding-names.md#odf-084) (active worktree and
-  branch deleted): the remover is unknown and it predates Dough Land's
-  retirement gate (clean, created by this work, tip contained by the target).
-  No mechanism is addressed; it stays open in the catalog. A clean, just-started
-  worktree can still pass that gate while in use; that is unobserved and not
-  designed for here.
-- Detecting active writers across sessions (process checks, locks), a global
-  lock service, scheduler, or automatic takeover.
-- Native agent-behavior acceptance. Script behavior is proved by deterministic
-  tests and the two guidance lines by behavior review under ADR 0005 section 3;
-  effectiveness is judged from later real use through the watch list, not
-  claimed here.
-
-**Key examples:**
-
-1. *Foreign stash survives a failed save.* Another session's entry is
-   `stash@{0}`; the execution checkout is dirty but the save's stash push fails.
-   Save reports failure with no recorded OID; restore does nothing; the foreign
-   entry is still listed and nothing was applied.
-2. *Ordinary pause round trip.* The checkout has staged, unstaged, and untracked
-   owned work and a foreign entry already exists. Save records a new OID and
-   leaves the tree clean; after a repair commit, restore reapplies staged,
-   unstaged, and untracked work and drops only its own entry; the foreign entry
-   remains at whatever selector it now has.
-3. *Clean tree.* Save records "no stash"; restore resumes without touching the
-   stack, even when a foreign entry is on top.
-4. *Restore conflict.* The repair edited a line the saved work also changed.
-   Restore keeps the entry, reports the conflicting paths and OID, and does not
-   drop anything.
-5. *Delegated agent needs a baseline.* A delegated agent wants to see behavior
-   before its change while a foreign stash exists. It uses a separate temporary
-   checkout (or reports the need) and does not stash in the shared worktree.
-6. *Commit beside a sibling slice.* Slice A is ready while slice B's agent still
-   has uncommitted files in the same worktree. The coordinator stages and commits
-   only A's paths; B's files remain unstaged, unmodified, and unstashed.
-
-**Completion:** On ODF-093 and ODF-105, record the mechanism addressed, response
-commit, and first containing release, and start their near-term watch. Mark
-ODF-084 excluded from this story with the reason above. Queueing is not
-resolution.
-
-**Depends on:** None.
-
-**Safe stopping point:** Each of the three scope items independently leaves
-other writers' work safer; the script alone already removes the ODF-093 path.
+**Plan:** [Report conflicting repair restores truthfully](../slice-plans/115-truthful-repair-restore/PLAN.md).
 
 ## Architectural Context
 
