@@ -22,7 +22,8 @@ test("the real CLI quietly awaits pending exact coverage, returns one success re
   await register(fixture.env, fixture.mailbox);
   const deliveryBefore = readDeliveryProgress(fixture.mailbox);
   const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
-  await new Promise((resolve) => setTimeout(resolve, 75));
+  // The first recheck follows a complete read that found the coverage pending.
+  await waiting.waitForRechecks(1);
   assert.equal(waiting.output(), "");
 
   releaseRun(fixture.directory, { conclusion: "success" });
@@ -97,7 +98,8 @@ test("the real CLI handles already-terminal success and pending-to-terminal fail
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
     const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
-    await new Promise((resolve) => setTimeout(resolve, 75));
+    // The first recheck follows a complete read that found the coverage pending.
+    await waiting.waitForRechecks(1);
     assert.equal(waiting.output(), "");
     releaseRun(fixture.directory, { conclusion: "failure" });
     assert.equal(

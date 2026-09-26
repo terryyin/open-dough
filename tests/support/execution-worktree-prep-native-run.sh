@@ -106,19 +106,22 @@ prep_native_retain() {
     printf 'artifact-response: response.md\n'
     printf 'artifact-stderr: stderr.log\n'
     printf 'artifact-observations: observations.txt\n'
-    native_result_input_hash_line tests/execution-worktree-preparation-native.sh
-    native_result_input_hash_line tests/support/execution-worktree-prep-native.sh
-    native_result_input_hash_line tests/support/execution-worktree-prep-native-run.sh
-    native_result_input_hash_line tests/support/execution-worktree-prep-native-assess.mjs
-    native_result_input_hash_line tests/support/execution-worktree-prep-native-observe.mjs
-    native_result_input_hash_line tests/support/execution-worktree-prep-native-fixture.mjs
-    native_result_input_hash_line tests/support/native-run-supervise.sh
-    native_result_input_hash_line tests/support/native-run-watchdog.sh
-    native_result_input_hash_line tests/support/native-codex.sh
-    native_result_input_hash_line src/skills/dough-execute-plan/references/execution-location.md
-    native_result_input_hash_line src/skills/dough-execute-plan/SKILL.md
+    prep_native_input_hash_lines
   } > "${record_file}"
   printf 'result-path: %s\n' "${native_result_attempt_dir}"
+}
+
+prep_native_input_hash_lines() {
+  native_result_input_hash_line tests/execution-worktree-preparation-native.sh
+  native_result_input_hash_line tests/support/execution-worktree-prep-native.sh
+  native_result_input_hash_line tests/support/execution-worktree-prep-native-run.sh
+  native_result_input_hash_line tests/support/execution-worktree-prep-native-assess.mjs
+  native_result_input_hash_line tests/support/execution-worktree-prep-native-observe.mjs
+  native_result_input_hash_line tests/support/execution-worktree-prep-native-fixture.mjs
+  native_result_supervision_input_hash_lines
+  native_result_input_hash_line tests/support/native-codex.sh
+  native_result_input_hash_line src/skills/dough-execute-plan/references/execution-location.md
+  native_result_input_hash_line src/skills/dough-execute-plan/SKILL.md
 }
 
 prep_native_assess_live() {

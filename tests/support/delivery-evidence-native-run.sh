@@ -106,8 +106,7 @@ delivery_evidence_write_evidence_identity() {
   native_result_input_hash_line "${case_prefix}-observe.sh"
   native_result_input_hash_line "${case_prefix}-scenario-content.sh"
   native_result_input_hash_line tests/support/git-publication-native-run.sh
-  native_result_input_hash_line tests/support/native-run-supervise.sh
-  native_result_input_hash_line tests/support/native-run-watchdog.sh
+  native_result_supervision_input_hash_lines
   native_result_input_hash_line \
     src/skills/dough-execute-plan/references/wrap-up.md
   native_result_input_hash_line \

@@ -32,7 +32,6 @@ test("a reused worker pid is not signaled when it does not belong to the mailbox
   await assert.rejects(
     exec(process.execPath, [launcher, "stop", directory], {
       env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage },
-      timeout: 10000,
     }),
     /does not match this mailbox/,
   );

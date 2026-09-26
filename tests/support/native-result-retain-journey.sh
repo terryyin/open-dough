@@ -70,20 +70,24 @@ native_result_finalize_journey() {
     printf 'artifact-use-response: use-response.md\n'
     printf 'artifact-use-stderr: use-stderr.log\n'
     printf 'artifact-observations: observations.txt\n'
-    native_result_input_hash_line \
-      "tests/dough-adr-awareness-${native_case_host}-delivery-to-use.sh"
-    native_result_input_hash_line tests/support/dough-adr-awareness-delivery-to-use.sh
-    native_result_input_hash_line tests/support/dough-adr-awareness-updated-use.sh
-    native_result_input_hash_line tests/support/native-result-retain.sh
-    native_result_input_hash_line tests/support/native-result-retain-journey.sh
-    native_result_input_hash_line tests/support/native-journey-state.sh
-    native_result_input_hash_line tests/support/native-adr-behavior.sh
-    native_result_input_hash_line tests/support/native-run-supervise.sh
-    native_result_input_hash_line tests/support/native-run-watchdog.sh
-    native_result_input_hash_line tests/support/native-codex.sh
-    native_result_input_hash_line src/skills/dough-update/SKILL.md
-    native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
+    native_result_journey_input_hash_lines
   } > "${record_file}"
+}
+
+native_result_journey_input_hash_lines() {
+  native_result_input_hash_line \
+    "tests/dough-adr-awareness-${native_case_host}-delivery-to-use.sh"
+  native_result_input_hash_line tests/support/dough-adr-awareness-delivery-to-use.sh
+  native_result_input_hash_line tests/support/dough-adr-awareness-updated-use.sh
+  native_result_input_hash_line tests/support/native-result-retain.sh
+  native_result_input_hash_line tests/support/native-result-identity.sh
+  native_result_input_hash_line tests/support/native-result-retain-journey.sh
+  native_result_input_hash_line tests/support/native-journey-state.sh
+  native_result_input_hash_line tests/support/native-adr-behavior.sh
+  native_result_supervision_input_hash_lines
+  native_result_input_hash_line tests/support/native-codex.sh
+  native_result_input_hash_line src/skills/dough-update/SKILL.md
+  native_result_input_hash_line src/skills/dough-adr-awareness/SKILL.md
 }
 
 native_result_report_journey() {

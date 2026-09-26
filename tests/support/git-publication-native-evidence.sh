@@ -18,8 +18,7 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line tests/support/git-publication-native-run.sh
       native_result_input_hash_line tests/support/git-publication-native-evidence.sh
       native_result_input_hash_line tests/support/git-publication-native-prompt.sh
-      native_result_input_hash_line tests/support/native-run-supervise.sh
-      native_result_input_hash_line tests/support/native-run-watchdog.sh
+      native_result_supervision_input_hash_lines
       native_result_input_hash_line src/skills/dough-execute-plan/references/publish-the-candidate.md
       ;;
     execution-review)
@@ -31,11 +30,9 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_line tests/support/git-publication-native-host.sh
       native_result_input_hash_line tests/support/ci-completion-native-run.sh
       native_result_input_hash_line tests/support/ci-completion-native-fixture.sh
-      native_result_input_hash_line tests/helpers/wait-for.bash
       native_result_input_hash_line tests/support/git-publication-native-run.sh
       native_result_input_hash_line tests/support/git-publication-native-evidence.sh
-      native_result_input_hash_line tests/support/native-run-supervise.sh
-      native_result_input_hash_line tests/support/native-run-watchdog.sh
+      native_result_supervision_input_hash_lines
       native_result_input_hash_line src/skills/dough-execute-plan/references/ci-monitor.md
       native_result_input_hash_line src/skills/dough-execute-plan/references/ci-completion-wait.md
       native_result_input_hash_line src/skills/dough-execute-plan/references/finish-or-stop.md
