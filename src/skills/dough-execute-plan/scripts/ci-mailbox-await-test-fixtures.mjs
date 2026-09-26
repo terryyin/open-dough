@@ -3,6 +3,10 @@ import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 import {
+  awaitSignalWhileRunning,
+  settledProbe,
+} from "./process-lifetime-test-fixtures.mjs";
+import {
   launcher,
   recheckPauseProbe,
   sha,
@@ -10,13 +14,16 @@ import {
 
 export const exec = promisify(execFile);
 
-export async function waitFor(predicate, description) {
-  const deadline = Date.now() + 5_000;
-  while (Date.now() < deadline) {
-    if (predicate()) return;
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-  throw new Error(`Timed out waiting for ${description}`);
+// Returns a wait for what the in-process CI observer `worker` produces: each
+// call waits until `arrived()` holds for as long as that worker runs.
+export function whileObserving(worker) {
+  const ended = settledProbe(worker);
+  return (arrived, description) =>
+    awaitSignalWhileRunning(
+      arrived,
+      ended,
+      () => `The CI observer ended before ${description}`,
+    );
 }
 
 export async function register(env, mailbox, revision = sha) {
@@ -87,17 +94,25 @@ function launchMailboxCommand(teardown, env, args) {
       resolve({ code, signal, stdout, stderr }),
     );
   });
+  // The command itself produces what these wait for, so they wait for as
+  // long as it runs.
+  const whileRunning = (arrived, description) =>
+    awaitSignalWhileRunning(
+      arrived,
+      () => closed,
+      () => `CI mailbox command ended before ${description}: ${stderr}`,
+    );
   return {
     child,
     completed,
     output: () => stdout,
     waitForCancellationReady: () =>
-      waitFor(() => cancellationReady, "CLI cancellation handler"),
+      whileRunning(() => cancellationReady, "its cancellation handler"),
     // Resolves once the command has paused to recheck `count` times, each
     // after finding nothing to report yet, or once it has ended, so a caller
     // can assert what it wrote by then.
     waitForRechecks: (count) =>
-      waitFor(() => rechecks >= count || closed, `${count} rechecks`),
+      whileRunning(() => rechecks >= count || closed, `${count} rechecks`),
   };
 }
 

@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
-import { waitFor } from "./ci-mailbox-await-test-fixtures.mjs";
+import { publishJson } from "./ci-mailbox-json-file.mjs";
+import { whileObserving } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
   createMailbox,
   readRevisionCoverage,
@@ -43,15 +44,14 @@ process.stdout.write(readFileSync(${JSON.stringify(attempts)}, 'utf8'));
     join(project, ".planning/open-dough.json"),
     JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
   );
+  // Published whole: the adapter may read it while a poll is in flight, and
+  // a partial read would be a poll error, which waits a full interval.
   const setAttempt = (outcome) =>
-    writeFileSync(
-      attempts,
-      JSON.stringify({
-        attempts: outcome
-          ? [{ runId: "run", attemptId: "1", sha: pushed, outcome }]
-          : [],
-      }),
-    );
+    publishJson(project, "attempts.json", {
+      attempts: outcome
+        ? [{ runId: "run", attemptId: "1", sha: pushed, outcome }]
+        : [],
+    });
   setAttempt(undefined);
   const directory = createMailbox(
     {
@@ -68,7 +68,8 @@ process.stdout.write(readFileSync(${JSON.stringify(attempts)}, 'utf8'));
     requestMailboxStop(directory, { root: project, storage }),
   );
   const pollCount = () => Number(readFileSync(calls, "utf8"));
-  await waitFor(() => pollCount() === 1, "initial poll");
+  const awaitObserved = whileObserving(worker);
+  await awaitObserved(() => pollCount() === 1, "initial poll");
   const awaitPushed = () =>
     awaitRevision(directory, pushed, {
       root: project,
@@ -76,7 +77,7 @@ process.stdout.write(readFileSync(${JSON.stringify(attempts)}, 'utf8'));
       deadlineMs: 5_000,
       workerLiveness: () => "alive",
     });
-  return { directory, setAttempt, pollCount, awaitPushed };
+  return { directory, setAttempt, pollCount, awaitPushed, awaitObserved };
 }
 
 test("registering a revision whose CI already finished delivers its verdict without waiting for the next poll", async (t) => {
@@ -93,7 +94,7 @@ test("a registered revision still in CI gets its verdict from a later poll", asy
   const observed = await startObservedProject(t, 50);
   observed.setAttempt("pending");
   registerPushedRevision(observed.directory, pushed);
-  await waitFor(
+  await observed.awaitObserved(
     () => readRevisionCoverage(observed.directory)[0]?.state === "pending",
     "revision in CI",
   );

@@ -14,7 +14,6 @@ import {
   exec,
   parseReceipt,
   register,
-  waitFor,
 } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
   assertWorkerAlive,
@@ -23,11 +22,14 @@ import {
 } from "./ci-mailbox-complete-test-fixtures.mjs";
 import {
   launcher,
+  mailboxWithUnrelatedWorker,
   releaseRun,
   setupProcessMailbox,
   sha,
+  spawnIdleNode,
 } from "./ci-mailbox-process-test-fixtures.mjs";
-import { waitForPidExit } from "./watch-ci-test-fixtures.mjs";
+import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import { awaitWorkerState, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 test("bounded timeout completion shuts down without claiming success", async (t) => {
   const fixture = await setupProcessMailbox(t);
@@ -56,10 +58,6 @@ test("invalid mailbox identity never authorizes completion shutdown", async () =
 });
 
 test("permission-denied process inspection keeps a live worker observable", async (t) => {
-  const { checkMailboxWorkerLiveness } =
-    await import("./ci-mailbox-worker-process.mjs");
-  const { spawnIdleNode } =
-    await import("./ci-mailbox-process-test-fixtures.mjs");
   const child = await spawnIdleNode(t);
   const denied = () => {
     const error = new Error("spawnSync ps EPERM");
@@ -75,10 +73,6 @@ test("permission-denied process inspection keeps a live worker observable", asyn
 });
 
 test("a worker that exits while its command is read is dead, not unknown", async (t) => {
-  const { checkMailboxWorkerLiveness } =
-    await import("./ci-mailbox-worker-process.mjs");
-  const { spawnIdleNode } =
-    await import("./ci-mailbox-process-test-fixtures.mjs");
   const child = await spawnIdleNode(t);
   // This process cannot reap the child while the read runs synchronously, so
   // the killed child stays a zombie, as an exiting detached worker does.
@@ -100,27 +94,34 @@ test("a worker that exits while its command is read is dead, not unknown", async
   );
 });
 
-test("a worker whose main thread exited while other threads unwind is dead", async (t) => {
-  const { checkMailboxWorkerLiveness } =
-    await import("./ci-mailbox-worker-process.mjs");
-  const { spawnIdleNode } =
-    await import("./ci-mailbox-process-test-fixtures.mjs");
-  // Linux reports such a multithreaded process as `Sl` rather than a zombie,
-  // with the exited main thread's command shown as defunct.
-  const child = await spawnIdleNode(t);
-  assert.equal(
-    checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
-      readCommand: () => "[MainThread] <defunct>",
-    }),
-    "dead",
-  );
-});
+// An exiting worker that is not yet a zombie can still show that it exited:
+// Linux reports a multithreaded process whose main thread exited as `Sl`, with
+// that thread's command shown as defunct; macOS shows it by its bare name in
+// parentheses once its arguments are gone.
+for (const [exiting, command] of [
+  [
+    "whose main thread exited while other threads unwind",
+    "[MainThread] <defunct>",
+  ],
+  ["whose arguments are gone while it exits", "(node)"],
+]) {
+  test(`a worker ${exiting} is dead`, async (t) => {
+    const child = await spawnIdleNode(t);
+    assert.equal(
+      checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
+        readCommand: () => command,
+      }),
+      "dead",
+    );
+  });
+}
 
 test("await-revision remains read-only while complete-revision owns shutdown", async (t) => {
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "success" });
-  await waitFor(
+  await awaitWorkerState(
+    fixture.mailbox,
     () => readRevisionCoverage(fixture.mailbox)[0]?.state === "success",
     "success coverage",
   );
@@ -191,8 +192,6 @@ test("unreadable and unavailable outcomes stay unresolved and still shut down", 
 });
 
 test("unconfirmed shutdown names the limitation and does not stop another worker", async (t) => {
-  const { mailboxWithUnrelatedWorker } =
-    await import("./ci-mailbox-process-test-fixtures.mjs");
   const { directory, storage, unrelated } = await mailboxWithUnrelatedWorker(t);
   registerPushedRevision(directory, sha);
   publishJson(join(directory, "coverage"), `${sha}.json`, {
@@ -223,7 +222,8 @@ test("a quiet gap without completion leaves the worker alive; explicit stop stay
   // The quiet gap is one full observation pass over the registered revision's
   // still-running CI, ending in the worker's pause before its next recheck.
   releaseRun(fixture.directory, { status: "in_progress", conclusion: null });
-  await waitFor(
+  await awaitWorkerState(
+    fixture.mailbox,
     () => existsSync(join(fixture.directory, "worker-rechecking")),
     "worker recheck pause",
   );

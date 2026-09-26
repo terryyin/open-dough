@@ -97,8 +97,9 @@ function terminalResult(directory, request, status) {
 }
 
 // Distinct from terminalResultDeadlineReason: this records an unexpected
-// worker death discovered by a liveness check at an ordinary coordinator
-// interaction, not the stop command's own publication deadline.
+// worker death discovered by a liveness check, at an ordinary coordinator
+// interaction or while stop awaits the result, not the stop command's own
+// publication deadline.
 export const workerLossReason =
   "CI observer worker exited without recording a normal terminal result";
 
@@ -122,9 +123,13 @@ export function recordLostTerminalResult(
   return result;
 }
 
+export function terminalResultDeadline() {
+  return AbortSignal.timeout(terminalResultDeadlineMs);
+}
+
 export async function waitForTerminalResult(
   directory,
-  { deadline = AbortSignal.timeout(terminalResultDeadlineMs) } = {},
+  { deadline = terminalResultDeadline() } = {},
 ) {
   const path = join(directory, "result.json");
   if (!existsSync(path))

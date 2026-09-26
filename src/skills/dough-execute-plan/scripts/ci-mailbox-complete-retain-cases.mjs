@@ -9,18 +9,17 @@ import {
   readRevisionCoverage,
   recordDeliveryProgress,
 } from "./ci-mailbox.mjs";
-import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
   exec,
   launchComplete,
   parseReceipt,
   register,
-  waitFor,
 } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
   assertWorkerAlive,
   assertWorkerDead,
 } from "./ci-mailbox-complete-test-fixtures.mjs";
+import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import {
   launcher,
   releaseRun,
@@ -30,11 +29,16 @@ import {
 
 // The worker records failure coverage before it publishes the failure event.
 async function waitForRecordedFailure(mailbox) {
-  await waitFor(
+  await awaitWorkerState(
+    mailbox,
     () => readRevisionCoverage(mailbox)[0]?.state === "failure",
     "failure coverage",
   );
-  await waitFor(() => readMailboxEvents(mailbox).length > 0, "failure event");
+  await awaitWorkerState(
+    mailbox,
+    () => readMailboxEvents(mailbox).length > 0,
+    "failure event",
+  );
 }
 
 test("complete-revision retains the observer on failure without acknowledging events", async (t) => {
@@ -70,7 +74,8 @@ test("an unread earlier failure blocks shutdown of a later green revision", asyn
   });
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "success" });
-  await waitFor(
+  await awaitWorkerState(
+    fixture.mailbox,
     () =>
       readRevisionCoverage(fixture.mailbox).some(
         (revision) => revision.sha === sha && revision.state === "success",
@@ -115,16 +120,16 @@ test("authorized repair registration reuses the live observer for a later comple
     readMailboxEvents(fixture.mailbox).at(-1)?.sequence ?? 0;
   recordDeliveryProgress(fixture.mailbox, deliveredThrough);
 
+  // The same live worker observes the repair's green run: registering the
+  // repair wakes it for an immediate check instead of the 30 s cadence.
   const repair = "c".repeat(40);
+  releaseRun(
+    fixture.directory,
+    { conclusion: "failure" },
+    { databaseId: 99, headSha: repair, conclusion: "success" },
+  );
   await register(fixture.env, fixture.mailbox, repair);
   assertWorkerAlive(fixture);
-  // Same live mailbox/worker owns the repair registration; write the observed
-  // success coverage the next poll would record without waiting the 30s cadence.
-  publishJson(join(fixture.mailbox, "coverage"), `${repair}.json`, {
-    sha: repair,
-    state: "success",
-    checkedBy: { runId: 99, attemptId: 1 },
-  });
   const completed = parseReceipt(
     (
       await exec(

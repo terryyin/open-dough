@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
-import { waitFor } from "./ci-mailbox-await-test-fixtures.mjs";
+import { whileObserving } from "./ci-mailbox-await-test-fixtures.mjs";
 import {
   createMailbox,
   readRevisionCoverage,
@@ -89,7 +89,8 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
   deferWorkerStop(teardown, worker, () =>
     requestMailboxStop(directory, { root: repo, storage }),
   );
-  await waitFor(() => sleeps.length > 0, "initial inherited poll");
+  const awaitObserved = whileObserving(worker);
+  await awaitObserved(() => sleeps.length > 0, "initial inherited poll");
   assert.deepEqual(
     readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
       .basis,
@@ -129,9 +130,9 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     conclusion: "failure",
     databaseId: 74,
   });
-  await waitFor(() => sleeps.length > 0, "next inherited poll");
+  await awaitObserved(() => sleeps.length > 0, "next inherited poll");
   sleeps.shift().resolve();
-  await waitFor(
+  await awaitObserved(
     () =>
       readRevisionCoverage(directory).find(({ sha }) => sha === ignoredSuccess)
         ?.state === "failure",

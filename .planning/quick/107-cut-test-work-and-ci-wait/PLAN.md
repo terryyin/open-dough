@@ -397,6 +397,28 @@ check. Baseline job-seconds (start revision): `native-delivery-updated-use-adapt
 `native-delivery-updated-use.sh` 47.9, `native-result-retention.sh` 43.8,
 family about 351. Decisive checkpoint afterwards.
 
+### 6b. CI observer journeys wait on events, not elapsed time
+
+Type: Behavior
+Status: done
+Proof:
+- `ci-mailbox-*.test.mjs`, `ci-command-adapter-*.test.mjs`, and every other
+  CI observer journey pass silently with unchanged promises, including at 50
+  parallel copies on a loaded machine where they now time out.
+- A focused paired before/after of the family's summed job-seconds is
+  recorded in Learnings, with CI per-job times from the artifact.
+
+Behavior: the developer or CI runs the suite → the CI observer journeys prove
+the same promises by waiting for the events they observe rather than fixed
+intervals and elapsed-time bounds, so they cost less and stay stable under
+load.
+
+Added at the checkpoint after slice 6 (maintainer: pursue what moves the CI
+target most). CI per-job times for `e335f77` rank `ci-mailbox-complete.test.mjs`
+third (16.3 s) and `ci-mailbox-launch.test.mjs` 11.0 s, and a refactor pass
+saw `waitFor` timeouts in `ci-mailbox-complete` at 50 parallel copies under
+load, before and after the liveness repair. Decisive checkpoint afterwards.
+
 ### 7. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
 
 Type: Behavior
@@ -685,3 +707,30 @@ the claim. Reference checkout for paired measurement: detached
   claude missing run (about 7 CI job-seconds, needs three assertions moved to
   `native-result-retention.sh`), and release-fixture reuse in this family
   (about 18% of it; excluded by this plan).
+- **CI after slice 6 (`e335f77`).** `Run test` 128 (push), 130 and 116 s
+  (`workflow_dispatch`; the 116 s run failed), median 128 s. CI job sums
+  510.8 and 519.1 against 471.8 on `bedad7a`'s runner: runner-to-runner
+  variance (about 9%) exceeds slice 6's saving, so the CI target needs several
+  runs. The failure (`ci-mailbox-complete.test.mjs`, liveness `'unknown' !==
+  'dead'`) was a product defect: on Linux a node worker whose main thread has
+  exited shows state `Sl` with command `[MainThread] <defunct>` while other
+  threads unwind (observed in a `node:24` container); any `<defunct>` command
+  is now dead (`bb6e850`), with a deterministic test.
+- **Slice 6b delivered.** Profile of 49 `ci-*`/`watch-ci*` files (113
+  job-seconds): the stop command's 5 s deadline paid in full for a worker
+  already gone, macOS's first-run check of each newly written `gh` stub
+  (0.12–0.38 s each, serialized under load; the real cause of the load
+  timeouts), and deliberate timeout promises. Kept: test waits end on the
+  producing process's exit instead of a 5 s bound; the repair test releases a
+  real run before registering it (slice 1's wake had made its hand-written
+  coverage race the worker); `commandShowsExit` treats `<defunct>` and macOS's
+  `(node)` for an exiting process as gone; `stop` ends its terminal-result
+  wait once the recorded worker no longer runs (a worker publishes before
+  exiting, and the abort path re-checks `result.json`), recording the loss
+  with the worker-exit reason, while a live stalled worker keeps the 5 s
+  deadline (focused set 35.0 → 20.0 job-seconds); one shared `gh` stub per
+  test process (macOS only); two torn-read fixes. `ci-mailbox-complete` at 50
+  parallel copies: 0 failures (start revision failed 11 of 16 such runs).
+  Paired family: 75.5/57.9, 73.7/56.0, 74.8/56.5 job-seconds; medians 74.8
+  versus 56.5, ratio 0.755. Other fixtures with fixed 5 s waits or per-test
+  `gh` stubs remain.

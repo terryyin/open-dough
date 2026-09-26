@@ -7,9 +7,9 @@ import {
   launchAwait,
   parseReceipt,
   register,
-  waitFor,
 } from "./ci-mailbox-await-test-fixtures.mjs";
 import { readDeliveryProgress, readRevisionCoverage } from "./ci-mailbox.mjs";
+import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import {
   launcher,
   releaseRun,
@@ -57,7 +57,8 @@ test("an already-recorded exact failure takes precedence and the wait reader mak
   const fixture = await setupProcessMailbox(t);
   await register(fixture.env, fixture.mailbox);
   releaseRun(fixture.directory, { conclusion: "failure" });
-  await waitFor(
+  await awaitWorkerState(
+    fixture.mailbox,
     () => readRevisionCoverage(fixture.mailbox)[0]?.state === "failure",
     "failure coverage",
   );
@@ -82,7 +83,8 @@ test("the real CLI handles already-terminal success and pending-to-terminal fail
     const fixture = await setupProcessMailbox(t);
     await register(fixture.env, fixture.mailbox);
     releaseRun(fixture.directory, { conclusion: "success" });
-    await waitFor(
+    await awaitWorkerState(
+      fixture.mailbox,
       () => readRevisionCoverage(fixture.mailbox)[0]?.state === "success",
       "success coverage",
     );
