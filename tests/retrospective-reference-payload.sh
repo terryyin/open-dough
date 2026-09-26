@@ -28,18 +28,10 @@ write_candidate_payload "${fixture}" 0.1.2 with-reference
 commit_all "${fixture}" 'ship retrospective reference'
 tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 
-assert_reference_links() {
-  local target=$1 root file link
+assert_reference_delivered() {
+  local target=$1 root
   for root in .agents/skills .claude/skills; do
     cmp "${source_dir}/src/skills/${reference}" "${target}/${root}/${reference}"
-    for file in dough-execution-retrospective/SKILL.md "${reference}"; do
-      sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${target}/${root}/${file}" > "${temporary_dir}/links"
-      while IFS= read -r link; do
-        link=${link%%#*}
-        [[ -n "${link}" ]] || continue
-        [[ -f "${target}/${root}/${file%/*}/${link}" ]]
-      done < "${temporary_dir}/links"
-    done
   done
 }
 
@@ -49,7 +41,7 @@ for platform in codex cursor claude; do
   printf '%s\n' '{"skipProcessRetrospective":false,"sentinel":"keep"}' > "${target}/open-dough.json"
   cp -- "${target}/open-dough.json" "${temporary_dir}/preferences"
   bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null
-  assert_reference_links "${target}"
+  assert_reference_delivered "${target}"
   cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
   assert_sentinels "${target}"
 
@@ -77,7 +69,7 @@ for platform in codex cursor claude; do
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-reference
   done
-  assert_reference_links "${target}"
+  assert_reference_delivered "${target}"
   cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
   assert_sentinels "${target}"
 

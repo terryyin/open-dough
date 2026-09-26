@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154 # Sourced fixture defines managed_files.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -52,19 +51,6 @@ for platform in codex cursor claude; do
   bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-stories
-    for managed_file in "${managed_files[@]}"; do
-      [[ "${managed_file}" == dough-story-* ]] || continue
-      sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${target}/${root}/${managed_file}" > "${temporary_dir}/links"
-      while IFS= read -r link; do
-        link=${link%%#*}
-        [[ -n "${link}" ]] || continue
-        if [[ ! -f "${target}/${root}/${managed_file%/*}/${link}" ]]; then
-          printf 'FAIL: missing installed story dependency: %s -> %s\n' \
-            "${target}/${root}/${managed_file}" "${link}" >&2
-          exit 1
-        fi
-      done < "${temporary_dir}/links"
-    done
     assert_installed_publication_modules "${target}/${root}"
   done
   # Successful operations traverse the same physical roots for every entry hint,

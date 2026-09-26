@@ -57,35 +57,11 @@ assert_upgraded_execution_payload() {
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
-    assert_installed_contract_links "${target}/${root}" \
-      dough-execute-plan/SKILL.md \
-      dough-execute-plan/references/ci-monitor.md \
-      dough-execute-plan/references/execution-decisions.md \
-      dough-bug-fixing/SKILL.md \
-      dough-execution-retrospective/SKILL.md
     assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
   assert_sentinels "${target}"
   assert_project_configuration "${target}"
-}
-
-assert_installed_contract_links() {
-  local root=$1
-  local file link
-  shift
-  for file in "$@"; do
-    sed -nE 's/.*\]\(([^)]+)\).*/\1/p' "${root}/${file}" > "${temporary_dir}/links"
-    while IFS= read -r link; do
-      link=${link%%#*}
-      [[ -n "${link}" ]] || continue
-      [[ "${link}" == http:* || "${link}" == https:* ]] && continue
-      if [[ ! -f "${root}/${file%/*}/${link}" ]]; then
-        printf 'FAIL: missing installed dependency: %s -> %s\n' "${file}" "${link}" >&2
-        exit 1
-      fi
-    done < "${temporary_dir}/links"
-  done
 }
 
 # Ordinary no-URL update from remembered SOURCE: no registered hooks → register.

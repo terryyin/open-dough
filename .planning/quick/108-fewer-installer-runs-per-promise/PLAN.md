@@ -144,7 +144,7 @@ start revision and the candidate under the same load, comparing medians.
 ### 1. A link to an undeclared file fails without running the installer
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - New `tests/payload-declaration-links.sh` passes on the repository.
 - The same check, pointed at a temporary copy of `install.sh` and
@@ -164,6 +164,15 @@ Behavior: a declared managed file links to a file the payload does not
 declare → the declaration check fails, naming both, with no installer run; a
 declared target passes; and no payload-update check walks installed links any
 more.
+
+Accepted proof: `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`
+(`check_declared_links` on the repository; `expect_undeclared` requires the
+exact `FAIL: declared dough-update/SKILL.md links to undeclared
+references/forgotten.md` and, for the two-link line, `references/other.md`;
+the copy's `install.sh` starts with an exit-1 tripwire), plus
+`story-payload-update.sh`, `execution-payload-update.sh`, and
+`retrospective-reference-payload.sh` passing without their link loops
+(`assert_reference_links` is now `assert_reference_delivered`, keeping `cmp`).
 
 ### 2. One owner for an edited or removed declared file
 
@@ -274,3 +283,10 @@ updater runs.
   maintainer restored them on 2026-09-26: the story includes what its goal
   needs and leaves no duplicate. The run target moved from 48 removed runs in
   two checks to 97 → 31 across four.
+- **Declaration reader location.** `read_managed_files_declaration` lives in
+  `src/install/open-dough-release-version.sh`; `public-payload-fixture.bash`
+  only calls it. The declaration check sources the former.
+- **Link count.** 53 of the 164 declared files are Markdown, with 394 relative
+  links after skipping anchors and schemes; none is undeclared. A mutation back
+  to last-link-only extraction fails only the two-link case, which is what
+  guards that defect.
