@@ -3,8 +3,9 @@
 // record-state operation and published as ordinary preparation, then the
 // ordinary startup command continues the claim instead of taking the work
 // again. Investigation, Taken membership, or unpublished preparation alone
-// never starts implementation. Driven through the real CLIs against a local
-// bare remote.
+// never starts implementation. Admitting the same work again continues its
+// claim only for the claim's publisher. Driven through the real CLIs against a
+// local bare remote.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -130,4 +131,42 @@ test("an admitted investigation continues into planned implementation under its 
     .split("\n");
   assert.deepEqual(profiles, [".planning/agents/yui-chan.json"]);
   assert.equal(readFileSync(join(trunk.integration, seedPath), "utf8"), draft);
+});
+
+test("the same publisher continues its admitted claim; another publisher is refused", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const fix = { identity: "SEED-N#fix", link: "seeds/N.md#fix" };
+  writeDraft(
+    trunk,
+    ".planning/seeds/N.md",
+    withFacts(
+      `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("fix", fix.identity, "Fix N", "Repair N.")}`,
+      fix.link,
+      fix.identity,
+      "planless",
+    ),
+  );
+  const args = admitArgs(fix.identity, fix.link, "Fix N");
+  const first = await startCliResult(trunk, "trunk", args);
+  assert.equal(
+    first.receipt.status,
+    "published",
+    JSON.stringify(first.receipt),
+  );
+  const again = await startCliResult(trunk, "trunk", args);
+  assert.equal(again.receipt.status, "existing", JSON.stringify(again.receipt));
+  assert.equal(again.receipt.publishedSha, first.receipt.publishedSha);
+  const rival = await startCliResult(trunk, "rival", [
+    ...args,
+    "--mode",
+    "trunk",
+  ]);
+  assert.equal(rival.receipt.status, "conflict", JSON.stringify(rival.receipt));
+  assert.equal(rival.receipt.ownership, "other");
+  assert.equal(existsSync(rival.workspace), false);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    first.receipt.publishedSha,
+  );
 });

@@ -214,7 +214,20 @@ Safe stop: admission behavior is fully characterized before slice 2 moves it.
 
 ### 2. Resolve published and admitted preparation through one reader
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: startup and admission suite 62 pass; all execute-plan script
+tests 344 pass; native substitute mode and the dashboard overview and
+taken-profile specs pass. `selectedPreparation` (home path, `declaredPlan`,
+`read`) and `sectionOf` in `execution-source.mjs` serve both readers. The
+self-planned seed case lives in
+`workspace-publication-startup-canonical-plan-cases.mjs` beside the legacy
+plan-homed case. Admission's pre-check calls the domain's
+`requireUnlistedHome` (the identity is already known unlisted there, so
+`requireUnlistedWork` would repeat its identity check), with the domain's
+refusal wording; a home that is another entry's plan is now `source-refused`
+before any workspace exists instead of `claim-failed` at claim publication.
+The backlog domain's `planLoadOptions` repeats the same-file plan rule for
+file reads; unifying it would cross into the backlog subsystem.
 Proof: startup and admission suite, including slice 1's cases and the legacy
 plan-homed correction startup case, green and unchanged in assertions; one new
 startup source case in `workspace-publication-startup-source-cases.mjs` for an

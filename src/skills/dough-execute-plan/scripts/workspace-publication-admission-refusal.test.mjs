@@ -1,7 +1,7 @@
-// Admission that must not publish, or that continues an existing claim:
-// another claim, refused sources, missing authority, and a story edited both on
-// trunk and in the draft. Driven through the real startup CLI against a local
-// bare remote; nothing is written and every draft survives.
+// Admission that must not publish: refused sources, missing authority, and a
+// story edited both on trunk and in the draft. Driven through the real startup
+// CLI against a local bare remote; nothing is written and every draft
+// survives.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -21,45 +21,6 @@ import {
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
 import { startExecution } from "./execution-start.mjs";
-
-test("the same publisher continues its admitted claim; another publisher is refused", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const identity = "SEED-N#fix";
-  const link = "seeds/N.md#fix";
-  writeDraft(
-    trunk,
-    ".planning/seeds/N.md",
-    withFacts(
-      `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("fix", identity, "Fix N", "Repair N.")}`,
-      link,
-      identity,
-      "planless",
-    ),
-  );
-  const args = admitArgs(identity, link, "Fix N");
-  const first = await startCliResult(trunk, "trunk", args);
-  assert.equal(
-    first.receipt.status,
-    "published",
-    JSON.stringify(first.receipt),
-  );
-  const again = await startCliResult(trunk, "trunk", args);
-  assert.equal(again.receipt.status, "existing", JSON.stringify(again.receipt));
-  assert.equal(again.receipt.publishedSha, first.receipt.publishedSha);
-  const rival = await startCliResult(trunk, "rival", [
-    ...args,
-    "--mode",
-    "trunk",
-  ]);
-  assert.equal(rival.receipt.status, "conflict", JSON.stringify(rival.receipt));
-  assert.equal(rival.receipt.ownership, "other");
-  assert.equal(existsSync(rival.workspace), false);
-  assert.equal(
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-    first.receipt.publishedSha,
-  );
-});
 
 test("refused admissions write nothing and keep every draft", async (t) => {
   const trunk = await createQueuedTrunk();
@@ -114,7 +75,8 @@ test("refused admissions write nothing and keep every draft", async (t) => {
       drafts: { [seedPath]: local },
       href: "seeds/A.md#a",
       status: "source-refused",
-      error: /canonical home seeds\/A\.md#a is already listed as "SEED-A#a"/,
+      error:
+        /canonical home "seeds\/A\.md#a" is already listed .* as identity "SEED-A#a"/,
     },
     {
       name: "planless story started with a plan",
@@ -157,6 +119,30 @@ test("refused admissions write nothing and keep every draft", async (t) => {
       status: "source-conflict",
       error: /PLAN\.md was also changed on fetched trunk/,
       path: planPath,
+    },
+    {
+      // Trunk links Story B's plan from Story B's entry; that plan is then
+      // drafted as a whole-document home of its own.
+      name: "home already another entry's plan",
+      setup: () =>
+        pushFromElsewhere(trunk, ".planning/PRODUCT-BACKLOG.md", (text) =>
+          text.replace(
+            "SEED-B#b\n",
+            "SEED-B#b ([plan](slice-plans/B/PLAN.md))\n",
+          ),
+        ),
+      drafts: {
+        ".planning/slice-plans/B/PLAN.md": withFacts(
+          "# Plan B\n\n**Identity:** slice-plans/B\n\n**Goal:** Deliver B.\n",
+          "slice-plans/B/PLAN.md",
+          "slice-plans/B",
+          "unselected",
+        ),
+      },
+      id: "slice-plans/B",
+      href: "slice-plans/B/PLAN.md",
+      status: "source-refused",
+      error: /"slice-plans\/B\/PLAN\.md" is already the plan of "SEED-B#b"/,
     },
   ];
   for (const row of cases) {
