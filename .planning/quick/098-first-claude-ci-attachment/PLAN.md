@@ -86,7 +86,7 @@ no new architectural decision or direction topic is needed.
 ## Slice 1 — Observe the first increment in its owning Claude session
 
 **Type:** Behavior
-**Status:** in progress — deterministic proof and native foreground accepted; native background acceptance pending
+**Status:** done
 
 **Behavior:** Given a fresh supported Claude coordinator with its documented
 session environment, the taught managed-delivery command establishes observation
@@ -204,11 +204,21 @@ SHAs through PostToolUse. Learning: the session must reach a later tool
 boundary after the verdict; a harness-blocked standalone `sleep` ended an
 earlier attempt with the event recorded but undelivered.
 
-**Remaining gap.** Native `claude --bg` refused the untrusted disposable
-fixture ("Workspace not trusted"). Completing it needs a human to trust a
-disposable fixture location through Claude's native prompt; the agent must
-not write that trust itself. Interactive native was not run. ODF-092 is not
-resolved by this increment alone.
+**Native background accepted.** Claude Code 2.1.283, `claude --bg` with the
+prompt before options (a trailing prompt is consumed by variadic
+`--allowedTools`), launched under `env -i` from a disposable fixture whose
+project root is itself the human-trusted directory (trust of a parent does not
+cover a nested Git root). Session `3c022a2d` ran the taught
+`deliver --host claude` without session JSON: first accepted `734f268`
+`attached` at `watch-AQTtfK`, second `9feb129` `reused` on the same mailbox;
+its transcript received "CI observer attached to this coordinator" and
+`CI_FAILURE` for both SHAs through PostToolUse (`deliveredThrough: 2`). The
+background daemon did not carry the launcher's `DOUGH_CI_MAILBOX_ROOT`, so it
+used the default root consistently for launcher and hooks. The observer was
+stopped with the fixture's own runtime (another checkout's runtime correctly
+refuses), terminal `recordedThrough 2, deliveredThrough 2, unread 0`; fixture
+removed. Interactive native was not run; foreground and background cover the
+story's evaluation.
 
 **Out-of-scope observation.** A missing or crashing installed hook makes
 `invokeHostHook` throw, so `deliver` exits 2 instead of returning a coverage
