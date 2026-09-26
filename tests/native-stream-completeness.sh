@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Credential-free proof that selected context retains complete streams with
-# shared behavior assessment, and keeps truncated, missing, or unknown terminal
-# evidence nonpassing without a wording pass. Recorded streams prove adapters.
+# Credential-free proof that selected context keeps truncated, missing, or
+# unknown terminal evidence nonpassing without a wording pass; complete streams
+# are proved by native-result-retention.sh. Recorded streams prove adapters.
 # shellcheck disable=SC2312 # pipefail covers listings, logs, and result-path parses.
 set -euo pipefail
 
@@ -99,32 +99,6 @@ run_selected_stream() {
   printf '%s %s\n' "${status}" "${attempt}"
 }
 
-assert_complete() {
-  local host=$1
-  local status=$2
-  local attempt=$3
-
-  if [[ ${status} -ne 0 ]]; then
-    echo "FAIL: complete ${host} stream exited ${status}." >&2
-    cat "${stdout_file}" >&2
-    cat "${stderr_file}" >&2
-    return 1
-  fi
-  grep -Fq 'execution-status: completed' "${attempt}/record"
-  grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
-  grep -Fq 'assessment-status: pass' "${attempt}/record"
-  grep -Fq 'assessment-reason:' "${attempt}/record"
-  grep -Fq 'followed and cited Accepted authority' "${attempt}/record"
-  native_result_assert_no_discovery_fields \
-    "${attempt}/record" "complete ${host} stream"
-  [[ -s ${attempt}/events.jsonl ]]
-  [[ -s ${attempt}/response.md ]]
-  if [[ ${host} == codex ]]; then
-    grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
-    grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"
-  fi
-}
-
 assert_incomplete() {
   local host=$1
   local stream_kind=$2
@@ -187,9 +161,6 @@ assert_incomplete() {
 }
 
 for host in codex cursor claude; do
-  read -r status attempt < <(run_selected_stream "${host}" complete)
-  assert_complete "${host}" "${status}" "${attempt}"
-
   read -r status attempt < <(run_selected_stream "${host}" truncated)
   assert_incomplete "${host}" truncated 'truncated terminal stream' \
     "${status}" "${attempt}"
@@ -197,9 +168,14 @@ for host in codex cursor claude; do
     grep -Fq '0001-session-state.md' "${attempt}/response.md"
   fi
 
-  read -r status attempt < <(run_selected_stream "${host}" missing)
-  assert_incomplete "${host}" missing 'missing terminal stream' \
-    "${status}" "${attempt}"
+  # A missing stream is classified the same way for every host, and cursor
+  # and claude share their output branch, so claude's missing run repeats
+  # cursor's.
+  if [[ ${host} != claude ]]; then
+    read -r status attempt < <(run_selected_stream "${host}" missing)
+    assert_incomplete "${host}" missing 'missing terminal stream' \
+      "${status}" "${attempt}"
+  fi
 
   read -r status attempt < <(run_selected_stream "${host}" unknown)
   assert_incomplete "${host}" unknown 'unknown event shape' \

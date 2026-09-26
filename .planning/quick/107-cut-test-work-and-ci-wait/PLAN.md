@@ -734,3 +734,23 @@ the claim. Reference checkout for paired measurement: detached
   Paired family: 75.5/57.9, 73.7/56.0, 74.8/56.5 job-seconds; medians 74.8
   versus 56.5, ratio 0.755. Other fixtures with fixed 5 s waits or per-test
   `gh` stubs remain.
+- **CI after slice 6b (`47658ff`), five green runs.** `Run test` 106, 108
+  (job sums 420.3, 428.7) and 128, 128, 129 s (job sums 510.0–513.8); median
+  128 s. GitHub assigned two runner classes about 20% apart; the fast class
+  meets the target. On slow runners slice 6b cut `ci-mailbox-complete` 16.3 →
+  6.6 s and `ci-mailbox-worker-loss` 6.5 → 2.0 s, but the total stayed about
+  512, so reaching 120 s there needs about 35 more CI job-seconds. Next, within
+  authority: test-only settings for the deliberate deadlines in
+  `ci-mailbox-launch` (5 s) and `ci-command-adapter-unavailable` (3 × 2 s),
+  about 11 CI job-seconds. Proposed to the maintainer: native-evidence
+  release-fixture reuse (about 16) and the stream-completeness run removals
+  (about 7).
+- **Maintainer decision (2026-09-26): yes to both proposals.** Lift the
+  release-fixture-reuse exclusion for the native-evidence family, and drop
+  `native-stream-completeness.sh`'s three complete runs and its claude missing
+  run. Applied by the coordinator: `native-result-retention.sh`'s clear runs
+  now also assert `execution-reason: native command exited 0`, non-empty
+  events and response, and Codex's `item.completed`/`turn.completed` (a
+  scratch copy expecting a different event name failed); the missing-stream
+  classification is host-independent and cursor and claude share their
+  output branch. `native-stream-completeness.sh` standalone about 20 → 10.7 s.

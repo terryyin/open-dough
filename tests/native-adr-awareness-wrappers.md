@@ -141,8 +141,10 @@ native invocation or behavior.
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument wrapper checks run independently.
 - `tests/native-result-retention.sh` — selected context runs with recorded PATH
-  substitutes keep an inspectable unreviewed attempt after scratch cleanup. Cursor
-  runtime identity comes from `cursor agent --version`. An unwritable
+  substitutes keep an inspectable unreviewed attempt after scratch cleanup.
+  Every host's complete stream records shared behavior assessment with its
+  events and response. Cursor runtime identity comes from
+  `cursor agent --version`. An unwritable
   `--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
   path are accepted; omitted flags use the defaults.
 - `tests/native-evidence-identity.sh` — in a scratch copy of the source, every
@@ -161,12 +163,11 @@ native invocation or behavior.
   previously completed attempt stays byte-identical; the invocation log has no
   retry. When Cursor Agent version cannot be obtained, the record stores
   `native-version: unknown` and does not call `cursor --version`.
-- `tests/native-stream-completeness.sh` — per-host complete, truncated, and
+- `tests/native-stream-completeness.sh` — per-host truncated and
   missing-terminal recorded streams through the selected context entry point.
-  Complete execution records shared behavior assessment. Incomplete evidence
-  with process exit 0 is retained as nonpassing with a reason and raw
-  artifacts, including unknown event shapes. Complete execution is not
-  recorded as a wording pass. Substitutes log every invocation.
+  Incomplete evidence with process exit 0 is retained as nonpassing with a
+  reason and raw artifacts, including unknown event shapes. Incomplete
+  execution is not recorded as a wording pass. Substitutes log every invocation.
 - `tests/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   ordinary no-URL update from recorded `SOURCE`, then emits recorded use
