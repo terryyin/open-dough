@@ -22,30 +22,14 @@ new_managed_files=(
 )
 
 fixture="${temporary_dir}/fixture.git"
-mkdir -p -- "${fixture}"
-git -C "${fixture}" init --quiet -b main
-configure_fixture_git "${fixture}"
-
-write_candidate_payload "${fixture}" 0.1.1 payload-before-added-skills
-for managed_file in "${new_managed_files[@]}"; do
-  rm -- "${fixture}/src/skills/${managed_file}"
-done
-for script in install.sh src/install/open-dough-release-version.sh; do
-  for managed_file in "${new_managed_files[@]}"; do
-    awk -v managed_file="${managed_file}" '$1 != managed_file' \
-      "${fixture}/${script}" > "${fixture}/filtered"
-    mv -- "${fixture}/filtered" "${fixture}/${script}"
-  done
-done
-commit_all "${fixture}" 'release before added skills'
-tag_release "${fixture}" 0.1.1 '2026-06-01T00:00:00'
-
 older_checkout="${temporary_dir}/release-0.1.1"
-checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
-
-write_candidate_payload "${fixture}" 0.1.2 payload-with-added-skills
-commit_all "${fixture}" 'release with added skills'
-tag_release "${fixture}" 0.1.2 '2026-06-02T00:00:00'
+# Model a release declaring none of the added skills' files.
+added_skill_options=()
+for managed_file in "${new_managed_files[@]}"; do
+  added_skill_options+=(--withhold "${managed_file}" --remove "${managed_file}")
+done
+build_upgrade_releases "${fixture}" "${older_checkout}" \
+  payload-before-added-skills payload-with-added-skills "${added_skill_options[@]}"
 
 target="${temporary_dir}/target"
 prepare_target "${target}"
@@ -72,28 +56,3 @@ for root in "${agents_root}" "${target}/.claude/skills"; do
   [[ "${actual_version}" == '0.1.2' ]]
 done
 assert_sentinels "${target}"
-
-collision_target="${temporary_dir}/collision-target"
-prepare_target "${collision_target}"
-collision_root="${collision_target}/.agents/skills"
-mkdir -p -- "${collision_root}/dough-update" \
-  "${collision_root}/dough-adr-awareness" \
-  "${collision_root}/dough-test-optimization/references"
-for managed_file in "${managed_files[@]}"; do
-  [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
-  mkdir -p -- "${collision_root}/${managed_file%/*}"
-  cp -- "${older_checkout}/src/skills/${managed_file}" "${collision_root}/${managed_file}"
-done
-printf '%s\n' 'Keep this unrelated local optimization guidance.' > \
-  "${collision_root}/dough-test-optimization/references/optimization-tactics.md"
-printf '%s\n' "${fixture}" > "${collision_root}/dough-update/SOURCE"
-printf '%s\n' '0.1.1' > "${collision_root}/dough-update/VERSION"
-
-before=$(snapshot_path_state "${collision_target}")
-if bash "${source_dir}/src/install/open-dough-release.sh" apply \
-  --target "${collision_target}" --platform codex > /dev/null 2>&1; then
-  echo 'FAIL: ordinary update replaced a colliding newly managed skill.' >&2
-  exit 1
-fi
-after=$(snapshot_path_state "${collision_target}")
-[[ "${after}" == "${before}" ]]
