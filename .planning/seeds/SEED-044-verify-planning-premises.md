@@ -26,36 +26,87 @@ low coordination cost and empirical improvement goals of
 
 **Identity:** SEED-044#verify-planning-premises
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-verify-planning-premises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a761b7c02e596e191c9ffbd5b33aca84acbe7fae5fb1f571d55c457613b837d","plan":"a0903b80bbbf7681c1f2697122fff642c0fe66cbe6a1acaf0343dfa567e1f7ca"}}
 ```
 
-**For / why:** An execution coordinator can rely on the concrete premises that
-make the selected plan executable, without rediscovering readily checkable
-contradictions after Take.
+**Goal:** An execution coordinator can Take a plan recorded `ready` without
+its decisive factual premises proving false during execution. Ready plans stop
+causing avoidable owner stops, paid retries, red CI and mid-execution replans,
+which unattended parallel execution cannot absorb. This serves low
+coordination cost under ADR 0002.
 
-**Outcome / scope:** Before declaring a plan ready, establish the specific
-existing-code claims, fixture and environment prerequisites, and proof paths
-that determine whether its promised journey can proceed. Use current project
-inspection and the smallest safe observation that resolves each material
-uncertainty. A readiness replay covers the relevant promised journey, including
-its next operation when that operation depends on the replayed result.
+**Scope:** A decisive premise is a factual claim about the target project's
+current state that a slice's approach, sizing or proof depends on: existing
+code and tests, host or environment state, fixture content, workload data, or
+a named proof or measurement command. Premises inherited from the story, such
+as "works as today", count the same as those the planner writes.
 
-Reuse existing planning, proof ownership and readiness assessment. Inspect why
-their current instructions missed these cases before adding more instructions.
-Do not introduce a general checklist, new state registry, automatic semantic
-validator, routine full-suite run or approval for ordinary inspection. Paid,
-credentialed or state-changing observations keep their existing authority
-requirements; when unavailable, retain the specific uncertainty instead of
-claiming readiness. Planning does not implement the proposed feature.
+- Before recording `ready`, planning establishes each decisive premise with the
+  smallest safe observation: reading, searching, listing, a read-only host
+  query, or one unpaid, side-effect-free local run of the named command. The
+  plan records the premise, the literal observation and its result. This
+  generalizes slice planning's existing rule for uncertain infrastructure
+  assumptions instead of adding a checklist.
+- A decisive premise that is cheap to observe but was not observed is a
+  `not-ready` reason. Reassessment re-observes the premise behind a blocking
+  reason; citing earlier evidence again does not resolve it.
+- When only a paid, credentialed, owner-held or state-changing observation can
+  establish a premise, planning still observes its cheap parts. The remainder
+  becomes an early probe slice whose failure stops dependent work and changes
+  the plan. Such a plan may be `ready`. That observation keeps its existing
+  authority requirements.
+- A readiness replay or premise observation covers the slice's promised
+  journey through the next operation that consumes its result, not only the
+  seam a concern named.
+- The change lives in the existing owners: slice planning and the shared
+  readiness criteria, which plan refinement already uses.
 
-**Evaluation:** A proposed ready plan names a nonexistent proof selector, an
-empty audio fixture, an unavailable workload dataset, or an existing-code
-premise contradicted by inspection. Preparation detects the contradiction and
-corrects the plan or records the bounded unresolved concern before Take. A
-pull-then-publish journey cannot be declared ready from a replay that establishes
-only pull. A comparable plan with supported premises proceeds without redundant
-inspection or invented gates. Assess actual agent behavior or justified reuse
-under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Why current guidance missed these cases, observed while refining: `ready`
+requires bounded slices, mapped proof and no remaining concern, so a confidently
+wrong claim is never a concern. Slice planning limits inspection to what is
+needed to find the proof entry point, behavior and dependencies; it verifies
+stated assumptions only for infrastructure and storage. Plans that already
+carried "planning evidence" sections still missed, and one plan was reassessed
+`ready` with its blocking premise unchecked.
+
+Excluded or deferred: measurement representativeness and re-baselining after a
+change (ODF-115); inventory or sizing deliberately left for execution to
+discover, unless the plan states it as fact; premise checks during story
+refinement; planless and one-shot paths; any checklist, state registry,
+script or semantic validator, routine full-suite run, or new approval for
+ordinary inspection. Planning does not implement the proposed feature.
+
+**Evaluation / key examples:**
+
+- A plan names `strategy_verify.feature` as proof that moved seeding still
+  works, but only `live_strategies.feature` runs the seeding script. A search
+  for the script's callers finds this, and the plan names the covering proof
+  before `ready`.
+- A plan says "the hook has no test today" while
+  `scripts/test/quality_changed.test` exists. A search finds it, and the plan
+  extends that test instead.
+- A live proof assumes "diarization works as today" with `sample.wav`. An
+  unpaid local diarization run exposes a 44-byte fixture and a broken
+  dependency, so the plan corrects both. Gated-model access, which needs the
+  owner, becomes an early probe slice with a stop, and the paid transcription
+  runs once.
+- A non-regression measurement targets a profile without market data. One
+  local run shows `Cannot load 'SPY'`, and the plan chooses a usable dataset
+  before `ready`.
+- A slice promises pull then publish. A replay proving only pull leaves the
+  plan `not-ready` until the replay also exercises publish.
+- A plan was `not-ready` because its premise needed rechecking. Reassessment
+  records `ready` only after observing the premise again.
+- A comparable plan with sound premises records its brief observations and
+  becomes `ready` with no extra gate and no inspection of claims its approach
+  does not depend on.
+
+Assess agent behavior under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md): a native
+Claude Code re-planning of two recorded cases from their pre-plan revisions
+(Doughnut quick/045 and Pygardon quick/196) plus the sound-premise control.
+Codex and Cursor stay pending in a linked native acceptance story, not
+inferred from Claude Code.
 
 **Supporting findings:** [ODF-074](../../docs/maintainer/finding-names.md#odf-074),
 [ODF-114](../../docs/maintainer/finding-names.md#odf-114), and
