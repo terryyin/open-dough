@@ -12,11 +12,12 @@ import {
 import {
   blockingGithubEnvironment,
   awaitWorkerSignal,
+  deferObserverStop,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 
 test("Claude Code reports its detached observer lost when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
-  const env = blockingGithubEnvironment(t);
+  const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
 
   const { stdout } = await exec(
@@ -25,6 +26,7 @@ test("Claude Code reports its detached observer lost when the worker dies, and a
     { cwd: checkout, env },
   );
   const directory = JSON.parse(stdout.slice(receiptPrefix.length)).directory;
+  deferObserverStop(teardown, { launcher, directory, cwd: checkout, env });
   await awaitWorkerSignal(directory, join(root, "github-request-started"));
 
   const attachment = await configuredHook(

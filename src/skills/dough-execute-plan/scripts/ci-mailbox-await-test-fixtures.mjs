@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
+import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 import {
   launcher,
   recheckPauseProbe,
@@ -61,11 +62,7 @@ function launchMailboxCommand(teardown, env, args) {
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     },
   );
-  const exited = new Promise((resolve) => child.once("exit", resolve));
-  teardown.defer(async () => {
-    child.kill("SIGKILL");
-    await exited;
-  });
+  deferChildExit(teardown, child, "SIGKILL");
   let cancellationReady = false;
   let rechecks = 0;
   let closed = false;

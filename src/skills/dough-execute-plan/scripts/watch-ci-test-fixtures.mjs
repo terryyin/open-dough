@@ -5,7 +5,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,6 +13,7 @@ import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   processEnded,
@@ -104,17 +104,24 @@ export async function stopObserver({ launcher, directory, cwd, env }) {
   });
 }
 
+// A fixture root whose `gh` blocks every request. Callers defer stopping what
+// they start from it through the returned `teardown`, which `t.after` runs
+// before the root is removed.
 export function blockingGithubEnvironment(t) {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-lifecycle-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const bin = join(root, "bin");
   writeBlockingGithubListCommand(bin);
-  t.after(() => rmSync(root, { recursive: true, force: true }));
   return {
-    ...process.env,
-    DOUGH_CI_MAILBOX_ROOT: root,
-    TMPDIR: root,
-    CI_TEST_ROOT: root,
-    PATH: `${bin}:${process.env.PATH}`,
+    teardown,
+    env: {
+      ...process.env,
+      DOUGH_CI_MAILBOX_ROOT: root,
+      TMPDIR: root,
+      CI_TEST_ROOT: root,
+      PATH: `${bin}:${process.env.PATH}`,
+    },
   };
 }
 

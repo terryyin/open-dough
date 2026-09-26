@@ -13,6 +13,7 @@ import {
   runCommand,
 } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { runDocumentedCodexStopBinding } from "./ci-notify-codex-test-fixtures.mjs";
+import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 import {
   blockingGithubEnvironment,
   awaitWorkerSignal,
@@ -20,12 +21,12 @@ import {
 } from "./watch-ci-test-fixtures.mjs";
 
 test("documented Codex stop ends only its observer with multiple pending revisions", async (t) => {
-  const env = blockingGithubEnvironment(t);
+  const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
   const replay = createCodexReplay(env);
   const attached = await replay.setup();
   const child = attached.process;
-  t.after(() => child.kill("SIGTERM"));
+  deferChildExit(teardown, child);
   await awaitWorkerSignal(
     attached.directory,
     join(root, "github-request-started"),
@@ -41,7 +42,7 @@ test("documented Codex stop ends only its observer with multiple pending revisio
   publishMailboxEvent(attached.directory, failure);
   const other = createCodexReplay(env);
   const unaffected = await other.setup();
-  t.after(() => unaffected.process.kill("SIGTERM"));
+  deferChildExit(teardown, unaffected.process);
 
   const started = Date.now();
   const texts = [];

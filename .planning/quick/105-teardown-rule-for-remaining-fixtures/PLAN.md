@@ -383,7 +383,7 @@ children until slice 4 folds it into `blockingGithubEnvironment`'s teardown.
 ### 4. Blocking-GitHub environment tests stop observers before the root is removed
 
 Type: Structure (owns F5)
-Status: planned
+Status: done
 
 Change: `blockingGithubEnvironment` takes (or returns) a `fixtureTeardown` for
 its root. Callers defer their stream-child kills (with awaited exit) and
@@ -401,6 +401,32 @@ and its `gh` after the file ends; after, none. `ci-fixture-lifecycle`'s
 loss variants still observe the fixture guard exiting (they remove the root
 or kill the parent as their trigger, unchanged). The six callers pass; leak
 sweep empty.
+
+Accepted proof (2026-09-26; from the repository root, private `TMPDIR`):
+
+- Before: a temporary failure before the SIGKILL in
+  `ci-claude-worker-loss-lifecycle.test.mjs` exited in about 1 s but left its
+  detached `ci-mailbox.mjs worker` (ppid 1, root already removed) running for
+  its 60 s budget. Correction to the planned before-observation: the blocked
+  `gh` did not remain, because `guardFixtureProcess` ends it once the root is
+  removed; the leaked worker is the defect. After: exit 1 in about 1 s, no
+  worker, no `gh`, empty `TMPDIR`.
+- A temporary log inside `deferChildExit` and before removal showed the child
+  exited before the root was removed. A temporarily failing child step and a
+  temporarily wrong observer launcher each failed an otherwise passing test,
+  and the root was removed. (A teardown failure after a failed body is not
+  reported separately by `node:test`, so such probes need a passing body.)
+- `node --test src/skills/dough-execute-plan/scripts/{ci-claude-worker-loss-lifecycle,ci-cursor-worker-loss-lifecycle,ci-codex-stop-lifecycle,ci-codex-lifecycle,ci-codex-completion,ci-fixture-lifecycle}.test.mjs`
+  → 18 pass. A wider run over 33 files (importers of
+  `ci-mailbox-await-test-fixtures` and `watch-ci-test-fixtures`,
+  `ci-mailbox-launch`, `ci-mailbox-worker-loss`, and all
+  `workspace-publication-startup*.test.mjs`) → 133 pass, 0 fail, 0 cancelled,
+  silent; leak sweep and `TMPDIR` empty.
+
+Delivered structure: `blockingGithubEnvironment(t)` returns `{ env, teardown }`
+with its root's teardown registered at creation; `deferChildExit(teardown,
+child, signal)` beside `fixtureTeardown` is the one kill-and-await step, now
+also used by `launchMailboxCommand` and `startProcess`.
 
 ### 5. Remaining host-lifecycle and child-process fixtures follow the same rule
 

@@ -13,12 +13,19 @@ import {
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 import { waitForFixtureRelease } from "./ci-process-lifetime-test-fixtures.mjs";
+import {
+  deferChildExit,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
+import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
 
 test(
   "stream fixture completes even when filesystem watch notifications are lost",
   { timeout: 5000 },
   async (t) => {
     const root = mkdtempSync(join(tmpdir(), "ci-fixture-notifications-"));
+    const teardown = fixtureTeardown(root);
+    t.after(teardown.cleanup);
     const shim =
       "import fs from 'node:fs'; import {syncBuiltinESMExports} from 'node:module'; const watch=fs.watch; fs.watch=(path)=>watch(path,()=>{}); syncBuiltinESMExports();";
     const child = spawn(
@@ -28,10 +35,7 @@ test(
         env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: root, TMPDIR: root },
       },
     );
-    t.after(() => {
-      child.kill("SIGKILL");
-      rmSync(root, { recursive: true, force: true });
-    });
+    deferChildExit(teardown, child, "SIGKILL");
     const closed = once(child, "close");
     let output = "";
     child.stdout.on("data", (chunk) => {
@@ -52,9 +56,9 @@ for (const kind of ["github", "adapter"]) {
       `${kind} fixture exits after losing its ${loss}`,
       { timeout: 10000 },
       async (t) => {
-        let root, command, env, ready;
+        let root, command, env, ready, teardown;
         if (kind === "github") {
-          env = blockingGithubEnvironment(t);
+          ({ env, teardown } = blockingGithubEnvironment(t));
           root = env.CI_TEST_ROOT;
           command = [join(root, "bin/gh")];
           ready = join(root, "github-request-started");
@@ -64,7 +68,8 @@ for (const kind of ["github", "adapter"]) {
           command = [join(root, "adapter.mjs")];
           env = fixture.env;
           ready = fixture.calls;
-          t.after(fixture.cleanup);
+          teardown = fixtureTeardown(root);
+          t.after(teardown.cleanup);
         }
         const parent = spawn(
           process.execPath,
@@ -81,15 +86,16 @@ for (const kind of ["github", "adapter"]) {
           ],
           { env },
         );
+        deferChildExit(teardown, parent, "SIGKILL");
         const [chunk] = await once(parent.stdout, "data");
         const pid = Number(String(chunk).trim());
-        t.after(() => {
-          parent.kill("SIGKILL");
+        teardown.defer(async () => {
           try {
             process.kill(pid, "SIGKILL");
           } catch (error) {
             if (error.code !== "ESRCH") throw error;
           }
+          await awaitProcessExit(pid);
         });
         await waitForFile(ready);
         if (loss === "parent") parent.kill("SIGKILL");

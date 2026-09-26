@@ -39,3 +39,17 @@ export function deferWorkerStop(teardown, worker, requestStop) {
     await worker;
   });
 }
+
+// Registers, on a `fixtureTeardown`, ending a child process of this test right
+// after it is spawned: send `signal` unless it already exited, then await its
+// exit. A child the test already ended or awaited is only confirmed gone.
+export function deferChildExit(teardown, child, signal = "SIGTERM") {
+  const exited =
+    child.exitCode !== null || child.signalCode !== null
+      ? Promise.resolve()
+      : new Promise((resolve) => child.once("exit", resolve));
+  teardown.defer(async () => {
+    child.kill(signal);
+    await exited;
+  });
+}
