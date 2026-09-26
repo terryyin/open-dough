@@ -33,7 +33,7 @@ native acceptance is complete on Codex, Cursor, and Claude Code (Terry's
 decision of 2026-09-24 to run the last check outside the executing plan 089).
 Ordinary startup, refusal, and Codex/Cursor resume were accepted in plan 82,
 recoverable from
-`820077c3e7fcf16421c97231eb5bc01bb69ea3dc:.planning/quick/082-accept-queued-start-native/PLAN.md`.
+`820077c3e7fcf16421c97231eb5bc01bb69ea3dc:.planning/slice-plans/082-accept-queued-start-native/PLAN.md`.
 The behavior has been released since 0.3.27, so this is retroactive acceptance.
 
 - **Claude resume: fresh pass (2026-09-24).** Claude Code `2.1.281`, candidate
@@ -59,7 +59,7 @@ user work, and truthful remote/CI evidence while reducing total instructions.
 
 **Reviewed decomposition (2026-09-23):** The installed startup operation;
 ordinary execution publication plus CI attachment, delivered by plan 083
-(recoverable at `463c48a:.planning/quick/083-publish-execution-ci/PLAN.md`);
+(recoverable at `463c48a:.planning/slice-plans/083-publish-execution-ci/PLAN.md`);
 preparation keep; and closure. The previous separate execution-increment candidate
 duplicated the CI story's publication boundary and was absorbed there.
 Preparation keep and closure adoption are delivered by the
@@ -240,7 +240,7 @@ and ref-watching proposals; do not implement those historical mechanisms.
 
 **Identity:** SEED-008#preserve-other-executions-work
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/114-preserve-other-writers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1629930be761b798cf0f86c815e0494a9d74b10dce241fb0600ec551e5b739c","plan":"6721714c8da5271f044a140b255968f0fed1bf4163135507934deaa09cf98da7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/114-preserve-other-writers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"49cc39de8bf97451ebdb00a060508518c743b199b47ce1cb7a24e2e06f6ac2f8","plan":"6721714c8da5271f044a140b255968f0fed1bf4163135507934deaa09cf98da7"}}
 ```
 
 **Goal:** Developers running concurrent agents keep every other writer's

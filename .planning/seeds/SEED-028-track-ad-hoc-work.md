@@ -197,7 +197,7 @@ execution. Planning does not assume it has already landed.
 
 **Identity:** SEED-028#admission-coherence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/113-admission-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6779e7090b7e999954fa0edf6528b43874396d6c390042f9c8fc1c8dfd06b718","plan":"63a93f38f40f467fd97256b79a6d680a48c3fe24b4f708119791db94bd777879"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/113-admission-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6779e7090b7e999954fa0edf6528b43874396d6c390042f9c8fc1c8dfd06b718","plan":"ba2055348f0e7cf0f0622b2647fffa4543dfabc3b63d65e10e595491ff6fe6de"}}
 ```
 
 **Goal:** Developers coordinating admitted work see a Taken entry that links

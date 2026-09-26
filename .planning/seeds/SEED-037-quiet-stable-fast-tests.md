@@ -37,7 +37,7 @@ re-profile the complete local scope.
 
 **Identity:** SEED-037#fourfold-local-suite
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/107-cut-test-work-and-ci-wait/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ab6c09a10b87aa766c34f7e998561f833f36770ba7ff7adab953bd2d8c83fec","plan":"54aa45ca73a5fb68cf6fff350e56415cdb9abbd5d78dc7ee1212ac364fda8fe6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/107-cut-test-work-and-ci-wait/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ab6c09a10b87aa766c34f7e998561f833f36770ba7ff7adab953bd2d8c83fec","plan":"54aa45ca73a5fb68cf6fff350e56415cdb9abbd5d78dc7ee1212ac364fda8fe6"}}
 ```
 
 **Status:** Refined on 2026-09-26. Split on 2026-09-25 from the delivered

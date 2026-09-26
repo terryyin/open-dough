@@ -115,7 +115,7 @@ that already supplies the outcome is evidence to drop that extension.
 **Depends on:** Evidence from using the delivered lightweight guidance. Its
 completed source contract and plan are recoverable at
 `7f672bf:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
-`7f672bf:.planning/quick/044-lightweight-pfe-and-direction/PLAN.md`.
+`7f672bf:.planning/slice-plans/044-lightweight-pfe-and-direction/PLAN.md`.
 **Safe stopping point:** Any selected review improvement delivers its own useful
 correction or reduced burden; no further process rollout is required.
 **Effort hypothesis:** Uncertain until a concrete review gap is observed; no

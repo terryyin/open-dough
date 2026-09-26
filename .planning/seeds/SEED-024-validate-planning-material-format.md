@@ -131,7 +131,7 @@ if a malformed backlog, seed, or plan causes a workflow failure.
 
 - `.planning/PRODUCT-BACKLOG.md`
 - `.planning/seeds/`
-- `.planning/quick/*/PLAN.md` and other canonical executable-plan homes
+- `.planning/slice-plans/*/PLAN.md` and other canonical executable-plan homes
 - `src/skills/dough-product-backlog/`
 - `src/skills/dough-story-decomposition/`
 - `src/skills/dough-story-refinement/`

@@ -7,7 +7,7 @@
 [Correction story](../../seeds/SEED-028-track-ad-hoc-work.md#admission-coherence).
 A bounded retrospective correction of the completed execution of
 `SEED-028#track-ad-hoc-work` under
-its plan (recoverable at `41e65aa:.planning/quick/110-track-ad-hoc-work/PLAN.md`): claim `b55a409`,
+its plan (recoverable at `41e65aa:.planning/slice-plans/110-track-ad-hoc-work/PLAN.md`): claim `b55a409`,
 attributable commits `4286761`, `6bd1ab3`, `bd38782`, `f17c877`, `91f054c` on
 branch `claude/110-track-ad-hoc-work` (net diff `b55a409..91f054c`). That
 story's promises stay as delivered; this correction adds no feature promise.
@@ -105,8 +105,8 @@ by the findings below, each rechecked against `91f054c`.
 
 Whole-seed readiness basis invalidating sibling stories (F1); continuation
 ownership across sessions or publisher ID (F2); section-aware seed
-reconciliation in the backlog domain (F9); `quick/` to `slice-plans/` fixture
-renames and the `record-preparation.md` trunk conflict, owned by integration
+reconciliation in the backlog domain (F9); `slice-plans/` fixture
+paths and the `record-preparation.md` trunk conflict, owned by integration
 at the reviewed story's wrap-up. Do not change these while executing this plan.
 
 ## Current decisions
@@ -228,7 +228,7 @@ Type: Behavior
 Status: planned
 Proof: extend `workspace-publication-admission-continuation.test.mjs`: after
 the ready planned preparation is published through the real `record-state`,
-remote trunk's Taken entry is `… ([plan](quick/N/PLAN.md))`, the entry stays in
+remote trunk's Taken entry is `… ([plan](slice-plans/N/PLAN.md))`, the entry stays in
 place, provenance and `Claim-Identity` count are unchanged, and continuation
 returns `existing` with the claim sha. Countercase in the same file: a
 published Taken planned story without the link is refused by continuation

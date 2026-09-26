@@ -29,7 +29,7 @@ superseded: this run used `--dangerously-skip-permissions` against an
 entirely local, disposable fixture, which is the project's already-
 established pattern for this exact native check (see the sibling
 Codex/Cursor `dough-adr-awareness-*-delivery-to-use.sh` tests). Evidence:
-`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/claude-update-use/`.
+`f7ab0e4:.planning/slice-plans/032-refuse-managed-hook-command-variants/evidence/claude-update-use/`.
 **Candidate:** `6682816a2385d96066883b5e4dc073b28e4b3d4f`.
 **Goal:** The maintainer can run the ordinary updater and use its result in Claude Code.
 **Scope:** Start an ordinary permitted session on a disposable client, update

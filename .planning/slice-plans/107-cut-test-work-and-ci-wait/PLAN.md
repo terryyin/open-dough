@@ -7,7 +7,7 @@
 [Refined story](../../seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite),
 refined and planned on 2026-09-26. It continues plan 096's decisive
 checkpoint (recoverable from Git at
-`59b21d7^:.planning/quick/096-quiet-stable-fast-tests/PLAN.md`), whose
+`59b21d7^:.planning/slice-plans/096-quiet-stable-fast-tests/PLAN.md`), whose
 unexecuted slices 10–12 and three independent findings moved here. First queued story;
 preparation grants no Take or execution.
 

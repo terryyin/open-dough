@@ -8,7 +8,7 @@ Released execution-location guidance requires setup then a project command befor
 
 ### Occurrences
 
-- Execution: `a168a39f64a75c579a713674a5dda5ca46bed6ea:.planning/quick/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
+- Execution: `a168a39f64a75c579a713674a5dda5ca46bed6ea:.planning/slice-plans/069-prepare-execution-worktree/PLAN.md`, first related implementation commit `6d7f7f30cea464f0ae2d6e269a3fd578d899390d`
   - Timestamp: 2026-09-21T09:08:13Z
   - Tool: Cursor
   - Model: Cursor Grok 4.6
@@ -53,7 +53,7 @@ summary line can be wrong, or silently absent, without any test failing.
     publishes the changed order while printing "neither changed the ancestor".
     `transitions()` omits order, so an empty report is not evidence of no change.
     This is additional evidence for the same execution and assertion gap;
-    correction ownership is `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md`.
+    correction ownership is `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md`.
 
 ## ODF-059 — Delegated refactor pass stalled after editing and before reporting
 
@@ -114,7 +114,7 @@ self-consistent.
 
 ### Occurrences
 
-- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+- Execution: `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
   - Timestamp: 2026-09-18T22:37:13+08:00
   - Tool: Claude Code
   - Model: claude-opus-5
@@ -152,7 +152,7 @@ aborted with no diagnostic at all.
 
 ### Occurrences
 
-- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+- Execution: `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
   - Timestamp: 2026-09-18T23:13:21+08:00
   - Tool: Claude Code
   - Model: claude-opus-5
@@ -185,7 +185,7 @@ aborted with no diagnostic at all.
     green run of the shell suite is not evidence that its `[[ ]]` assertions
     hold. The first occurrence note above is retained as written.
 
-- Execution: `.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
+- Execution: `.planning/slice-plans/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
   - Timestamp: 2026-09-19T18:37:57+08:00
   - Tool: Claude Code
   - Model: claude-sonnet-5
@@ -233,7 +233,7 @@ without any gate noticing, because nothing downstream depends on it having run.
 
 ### Occurrences
 
-- Execution: `.planning/quick/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
+- Execution: `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
   - Timestamp: 2026-09-18T23:13:21+08:00
   - Tool: Claude Code
   - Model: claude-opus-5
@@ -254,7 +254,7 @@ without any gate noticing, because nothing downstream depends on it having run.
     recovered from rather than as an ordinary slice, which may make its delivery
     gates easier to shorten; the record shows the omission but not the reason.
 
-- Execution: `.planning/quick/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
+- Execution: `.planning/slice-plans/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
   - Timestamp: 2026-09-19T18:37:57+08:00
   - Tool: Claude Code
   - Model: claude-sonnet-5
@@ -572,7 +572,7 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
 
 ### Occurrences
 
-- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+- Execution: `slice-plans/088-dough-land/PLAN.md @ 647ff01`
   - Timestamp: 2026-09-24T10:50:57+08:00
   - Tool: Claude Code
   - Model: claude-opus-5-5[1m]
@@ -662,7 +662,7 @@ Stashes are shared by all worktrees. After a failed `git stash push -- $G` (zsh)
 
 ### Occurrences
 
-- Execution: `quick/088-dough-land/PLAN.md @ 647ff01`
+- Execution: `slice-plans/088-dough-land/PLAN.md @ 647ff01`
   - Timestamp: unknown; 2026-09-24 between e2a453e (10:40:49+08:00) and 647ff01
   - Tool: Claude Code
   - Model: claude-opus-5-5[1m]
@@ -724,7 +724,7 @@ waste.
     `tests/support/delivery-evidence-{selection,claims,consumers,gaps}-native-*.sh`
     sets; plan 085 Proof approach said first slice creates the shared
     adaptation; retrospective correction plan
-    `8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/quick/086-share-delivery-evidence-native-harness/PLAN.md`.
+    `8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/slice-plans/086-share-delivery-evidence-native-harness/PLAN.md`.
   - Observed effect: Four Behavior slices delivered acceptance mechanisms with
     Cursor native proof, but left shotgun run/fixture residue requiring a
     follow-up Structure correction before maintainable extension.
@@ -828,7 +828,7 @@ The plan required load below 4 before each baseline run; other work kept it at 5
   - Tool: Claude Code
   - Model: claude-opus-5-5[1m]
   - Open Dough release: 0.3.39
-  - Evidence: plan 096 (`.planning/quick/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
+  - Evidence: plan 096 (`.planning/slice-plans/096-quiet-stable-fast-tests/PLAN.md` at `704cd20`) Outside-in proof "Machine" bullet and "Comparable measurement (relative)"; the unpaired baseline under load 54–66 read 664.9 s where the paired start revision read 242.6 s.
   - Observed effect: no slice could start until the developer intervened; the loaded baseline overstated the start revision by about 2.7×.
 
 ## ODF-118 — Removing a test's assertion broke a meta-test that mutated against it

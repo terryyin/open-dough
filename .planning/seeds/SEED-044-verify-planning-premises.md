@@ -26,7 +26,7 @@ low coordination cost and empirical improvement goals of
 
 **Identity:** SEED-044#verify-planning-premises
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-verify-planning-premises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a761b7c02e596e191c9ffbd5b33aca84acbe7fae5fb1f571d55c457613b837d","plan":"a0903b80bbbf7681c1f2697122fff642c0fe66cbe6a1acaf0343dfa567e1f7ca"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-verify-planning-premises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ee7f9e962144718423468f07d834759eb981368bd52633c515b8fc76886d051b","plan":"44aff2b381110dd52e2d88fefe05c8e7452b5fd61c74ad50a3704e3e31edb9c5"}}
 ```
 
 **Goal:** An execution coordinator can Take a plan recorded `ready` without
@@ -104,7 +104,7 @@ ordinary inspection. Planning does not implement the proposed feature.
 Assess agent behavior under
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md): a native
 Claude Code re-planning of two recorded cases from their pre-plan revisions
-(Doughnut quick/045 and Pygardon quick/196) plus the sound-premise control.
+(Doughnut slice-plans/045 and Pygardon slice-plans/196) plus the sound-premise control.
 Codex and Cursor stay pending in a linked native acceptance story, not
 inferred from Claude Code.
 
