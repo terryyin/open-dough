@@ -44,10 +44,14 @@
   max-height: calc(100dvh - 9rem);
   overflow-y: auto;
   padding: 0.5rem 0.25rem;
+  scroll-padding-block: var(--focus-ring-clearance);
 }
 
+/* Focus and reveal scrolling land below the pinned banner and clear of the
+   viewport's bottom edge. */
 html {
   scroll-padding-top: calc(var(--banner-height, 0px) + 1rem);
+  scroll-padding-bottom: var(--focus-ring-clearance);
 }
 
 .project-select {

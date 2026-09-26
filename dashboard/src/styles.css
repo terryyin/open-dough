@@ -10,6 +10,9 @@
   --quiet: #55554f;
   --accent: #1b5fa8;
   --problem: #9b1c1c;
+  /* Room beyond an element's edge for the focus ring below, so scrolling a
+     revealed or focused element into view never clips the ring. */
+  --focus-ring-clearance: 0.5rem;
   font-family: system-ui, sans-serif;
   line-height: 1.45;
   color: var(--text);
