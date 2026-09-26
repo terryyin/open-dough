@@ -82,23 +82,6 @@ rm -- "${collision}"
 bash "${helper}" apply --target "${target}" > /dev/null
 assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"
-for dependency in dough-execute-plan/scripts/ci-mailbox.mjs \
-  dough-execute-plan/assets/claude-hooks.json \
-  dough-execute-plan/manuals/custom-ci.md \
-  dough-post-change-refactor/references/refactor-checks.md; do
-  path="${target}/.claude/skills/${dependency}"
-  printf '\nlocal edit\n' >> "${path}"
-  before=$(snapshot_path_state "${target}")
-  if bash "${helper}" apply --target "${target}" > /dev/null 2>&1; then
-    echo 'FAIL: ordinary update accepted an edited execution dependency.' >&2
-    exit 1
-  fi
-  after=$(snapshot_path_state "${target}")
-  [[ "${before}" == "${after}" ]]
-  bash "${helper}" apply --target "${target}" --force > /dev/null
-done
-assert_upgraded_execution_payload "${target}"
-assert_unrelated_preserved "${target}"
 
 # The standalone manual is human-discoverable without becoming runtime guidance,
 # and its extracted example speaks the installed adapter contract.

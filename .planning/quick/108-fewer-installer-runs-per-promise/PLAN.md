@@ -177,7 +177,7 @@ the copy's `install.sh` starts with an exit-1 tripwire), plus
 ### 2. One owner for an edited or removed declared file
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Before editing, confirm the start-revision counts above.
 - `tests/install.sh`: after an installation, removing a managed file (for
@@ -200,6 +200,16 @@ Proof:
 Behavior: a developer edits or removes a declared file → ordinary update and
 repeat install refuse without writes and `--force` restores, each proved by
 one named owner; no payload-update check re-proves it.
+
+Accepted proof: start-revision counts confirmed at `c7112a5` (33, 30, 16, 18;
+97). `/opt/homebrew/bin/bash tests/install.sh` removes
+`dough-story-refinement/references/planning.md` and, through
+`assert_repeat_install_refused`, requires the refusal message and `--force`
+guidance, an unchanged `snapshot_path_state`, and the file still absent; then
+`--force` restores it byte for byte (mutants failed as expected). The owners
+(`update-refuses-unverifiable.sh`, `update-force-restores-latest.sh`,
+`payload-declaration-links.sh`) and the four payload-update checks pass.
+Counts after this slice: 9, 6, 8, 12 (35).
 
 ### 3. One owner for an unrelated file at a newly managed path
 

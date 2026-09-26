@@ -72,20 +72,6 @@ for platform in codex cursor claude; do
   assert_reference_delivered "${target}"
   cmp "${temporary_dir}/preferences" "${target}/open-dough.json"
   assert_sentinels "${target}"
-
-  # Both payload declarations must protect the newly managed reference.
-  rm -- "${target}/.claude/skills/${reference}"
-  before=$(snapshot_path_state "${target}")
-  if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
-    echo 'FAIL: ordinary update accepted a missing managed reference.' >&2
-    exit 1
-  fi
-  if bash "${fixture}/install.sh" --target "${target}" --source "${fixture}" --platform "${platform}" > /dev/null 2>&1; then
-    echo 'FAIL: repeat installation accepted a missing managed reference.' >&2
-    exit 1
-  fi
-  after=$(snapshot_path_state "${target}")
-  [[ "${after}" == "${before}" ]]
 done
 
 # A missing or malformed historical declaration must not turn all paths into

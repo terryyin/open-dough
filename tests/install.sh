@@ -14,6 +14,19 @@ source "${source_dir}/tests/helpers/release-fixture.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
+# A repeat installation over an edited, partial, or unverifiable managed
+# installation stops and points at --force.
+assert_repeat_install_refused() {
+  local failure=$1
+  shift
+  if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" "$@" 2>&1); then
+    echo "FAIL: ${failure}" >&2
+    exit 1
+  fi
+  [[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
+  [[ "${output}" == *'--force'* ]]
+}
+
 target="${temporary_dir}/target project"
 mkdir -p -- "${target}/.agents/skills/unrelated" \
   "${target}/.claude/skills/other-skill"
@@ -71,12 +84,7 @@ contents=$(cat "${claude_sentinel}")
 installed_skill="${target}/.agents/skills/dough-update/SKILL.md"
 installed_record="${target}/.agents/skills/dough-update/VERSION"
 printf '%s\n' 'Keep my local changes.' > "${installed_skill}"
-if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" 2>&1); then
-  echo "FAIL: repeat installation must stop." >&2
-  exit 1
-fi
-[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
-[[ "${output}" == *'--force'* ]]
+assert_repeat_install_refused "repeat installation must stop."
 contents=$(cat "${installed_skill}")
 [[ "${contents}" == 'Keep my local changes.' ]]
 cmp "${source_dir}/VERSION" "${installed_record}"
@@ -87,18 +95,28 @@ assert_verified_install "${target}/.agents/skills/dough-update"
 contents=$(cat "${sentinel}")
 [[ "${contents}" == 'Keep this unrelated skill.' ]]
 
+# A removed managed file also stops a repeat installation without writes.
+removed_reference=dough-story-refinement/references/planning.md
+removed_file="${target}/.claude/skills/${removed_reference}"
+rm -- "${removed_file}"
+before=$(snapshot_path_state "${target}")
+assert_repeat_install_refused "repeat installation must stop on a removed managed file."
+after=$(snapshot_path_state "${target}")
+[[ "${after}" == "${before}" ]]
+[[ ! -e "${removed_file}" ]]
+
+bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --force > /dev/null
+cmp "${source_dir}/src/skills/${removed_reference}" "${removed_file}"
+assert_verified_install "${target}/.claude/skills/dough-update"
+assert_sentinels
+
 bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor > /dev/null
 cursor_skill="${target}/.agents/skills/dough-update/SKILL.md"
 assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
 printf '%s\n' 'Keep my Cursor edits.' > "${cursor_skill}"
-if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform cursor 2>&1); then
-  echo "FAIL: Cursor repeat installation must stop." >&2
-  exit 1
-fi
-[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
-[[ "${output}" == *'--force'* ]]
+assert_repeat_install_refused "Cursor repeat installation must stop." --platform cursor
 contents=$(cat "${cursor_skill}")
 [[ "${contents}" == 'Keep my Cursor edits.' ]]
 cmp "${source_dir}/VERSION" "${target}/.agents/skills/dough-update/VERSION"
@@ -116,12 +134,7 @@ assert_verified_install "${target}/.agents/skills/dough-update"
 assert_sentinels
 
 printf '%s\n' 'Keep my Claude edits.' > "${claude_skill}"
-if output=$(bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" --platform claude 2>&1); then
-  echo "FAIL: Claude repeat installation must stop." >&2
-  exit 1
-fi
-[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
-[[ "${output}" == *'--force'* ]]
+assert_repeat_install_refused "Claude repeat installation must stop." --platform claude
 contents=$(cat "${claude_skill}")
 [[ "${contents}" == 'Keep my Claude edits.' ]]
 cmp "${source_dir}/VERSION" "${target}/.claude/skills/dough-update/VERSION"
