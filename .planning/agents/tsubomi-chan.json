@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-047#agent-and-developer-credit",
+  "mode": "story-branch",
+  "branch": "claude/119-agent-and-developer-commit-credit",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
