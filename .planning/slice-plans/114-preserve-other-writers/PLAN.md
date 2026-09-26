@@ -95,11 +95,30 @@ pop. Record the walk's result in this plan.
 
 ### 1. Pause and restore touch only this execution's own stash entry
 Type: Behavior
-Status: planned
+Status: done
 Proof: `ci-repair-stash.test.mjs` cases 1–4 above, plus one `missing` case
 (the recorded entry was dropped elsewhere: restore reports its OID, applies
 nothing, and leaves the stack unchanged); updated
 `execution-increment-delivery.test.mjs`; payload-declaration tests.
+
+Accepted proof: `node --test` on `ci-repair-stash.test.mjs` (7 cases: the five
+above plus `unclean` from submodule dirt beside owned work, and `ambiguous`
+from submodule-only dirt where a successful push creates no entry; restore on
+`ambiguous` does not resume), `execution-increment-delivery.test.mjs`,
+`execution-increment-publication.test.mjs` (its repair round trip now calls
+the script), and the six other `ci-monitor.md` guidance readers: 29 pass.
+Payload tests `tests/payload-declaration-links.sh`,
+`tests/install-public-payload.sh`, `tests/compare-payload.sh` pass under
+Bash 5. Full `npm test` and `npm run lint` pass. A mutation dropping
+`stash@{0}` fails the round-trip case.
+
+Learnings: save statuses grew beyond the planned three. A successful push that
+yields no single own entry must not report `failed` (which tells the
+coordinator the work is still in the tree), so it reports `ambiguous`;
+leftover dirt after a push reports `unclean`. Both stop with the record kept.
+Untested limits: two new entries carrying the same label (needs a concurrent
+push race), and the window between `stash list` and `stash drop` in which a
+selector could shift.
 
 Behavior: an execution checkout sharing its stash stack with another
 worktree → the coordinator pauses for a CI repair and later resumes through
