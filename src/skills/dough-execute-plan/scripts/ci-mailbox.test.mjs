@@ -28,6 +28,7 @@ import {
   terminalResultDeadlineMs,
   waitForTerminalResult,
 } from "./ci-mailbox-store.mjs";
+import { overrideTerminalResultDeadline } from "./ci-mailbox-complete-test-fixtures.mjs";
 
 function createTestMailbox(t, request = {}) {
   const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-test-"));
@@ -97,19 +98,14 @@ test("terminal result remains observable when its file notification is missed", 
 });
 
 test("the terminal result deadline stays 5 s unless a test shortens it", (t) => {
-  const name = "DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS";
-  const inherited = process.env[name];
-  t.after(() => {
-    if (inherited === undefined) delete process.env[name];
-    else process.env[name] = inherited;
-  });
-  delete process.env[name];
+  const setDeadline = overrideTerminalResultDeadline(t);
+  setDeadline(undefined);
   assert.equal(terminalResultDeadlineMs(), 5_000);
   for (const invalid of ["", "0", "-1", "soon"]) {
-    process.env[name] = invalid;
+    setDeadline(invalid);
     assert.equal(terminalResultDeadlineMs(), 5_000, invalid);
   }
-  process.env[name] = "300";
+  setDeadline("300");
   assert.equal(terminalResultDeadlineMs(), 300);
 });
 

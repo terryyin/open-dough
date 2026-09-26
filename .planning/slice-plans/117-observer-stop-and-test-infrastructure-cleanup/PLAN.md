@@ -127,7 +127,16 @@ with the same proof as before.
 ### 1. Stopping an observer whose worker is caught mid-exit reports lost coverage
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `ci-mailbox-complete-exit-cases.mjs` "stop reports a worker
+lost when it shows a transient command while exiting" failed before the fix
+with "does not match this mailbox" and passes after; the full completion
+journey, `ci-*.test.mjs`, and `watch-ci*.test.mjs` pass silently; 50 parallel
+copies of `ci-mailbox-complete.test.mjs` had no failures.
+Learning: `classifyWorkerCommand` is the one exit rule for liveness and
+termination. Because `unknown` no longer counts as departure, the
+unrelated-worker stop case waits out the lifecycle deadline, so it now
+shortens that deadline through `overrideTerminalResultDeadline`.
 Proof:
 - New deterministic case in the completion journey (`ci-mailbox-complete`
   cases), with the existing `readCommand` injection or an equivalent seam for

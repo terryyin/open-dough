@@ -26,3 +26,18 @@ export function assertWorkerDead(fixture) {
     "dead",
   );
 }
+
+const terminalResultDeadlineVariable = "DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS";
+
+function setTerminalResultDeadline(value) {
+  if (value === undefined) delete process.env[terminalResultDeadlineVariable];
+  else process.env[terminalResultDeadlineVariable] = value;
+}
+
+// Returns a setter for this test's terminal-result deadline override
+// (`undefined` removes it) and restores the inherited value after the test.
+export function overrideTerminalResultDeadline(t) {
+  const inherited = process.env[terminalResultDeadlineVariable];
+  t.after(() => setTerminalResultDeadline(inherited));
+  return setTerminalResultDeadline;
+}

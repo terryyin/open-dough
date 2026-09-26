@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -10,6 +10,7 @@ import {
   workerLossReason,
 } from "./ci-mailbox.mjs";
 import { stopMailbox } from "./ci-mailbox-complete.mjs";
+import { mailboxWithUnrelatedWorker } from "./ci-mailbox-process-test-fixtures.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import {
   deferChildExit,
@@ -113,4 +114,41 @@ setInterval(() => {}, 1000);
     checkMailboxWorkerLiveness({ pid: child.pid }, directory),
     "dead",
   );
+});
+
+test("stop reports a worker lost when it shows a transient command while exiting", async (t) => {
+  const {
+    directory,
+    storage,
+    unrelated: worker,
+  } = await mailboxWithUnrelatedWorker(t);
+  const reads = [
+    // Departure's read sees macOS's exiting form: the worker is gone.
+    () => "(node)",
+    // Termination's read catches the same worker later in its exit, showing
+    // neither its worker command nor an exit form; then it stops running.
+    (pid) => {
+      worker.kill("SIGKILL");
+      // This process cannot reap the child while the read runs synchronously,
+      // so the killed child stays a zombie, as an exiting detached worker does.
+      while (
+        !execFileSync("ps", ["-p", String(pid), "-o", "stat="], {
+          encoding: "utf8",
+        })
+          .trim()
+          .startsWith("Z")
+      );
+      return "[node]";
+    },
+  ];
+  const readCommand = (pid) => {
+    const read = reads.shift();
+    assert.ok(read, "stop read the worker command more than twice");
+    return read(pid);
+  };
+
+  const terminal = await stopMailbox(directory, { storage, readCommand });
+  assert.equal(terminal.coverage.state, "lost");
+  assert.equal(terminal.coverage.reason, workerLossReason);
+  assert.deepEqual(reads, []);
 });

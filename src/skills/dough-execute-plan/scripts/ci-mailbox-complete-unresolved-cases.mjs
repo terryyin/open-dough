@@ -18,6 +18,7 @@ import {
 import {
   assertWorkerAlive,
   assertWorkerDead,
+  overrideTerminalResultDeadline,
   workerPid,
 } from "./ci-mailbox-complete-test-fixtures.mjs";
 import {
@@ -193,6 +194,9 @@ test("unreadable and unavailable outcomes stay unresolved and still shut down", 
 
 test("unconfirmed shutdown names the limitation and does not stop another worker", async (t) => {
   const { directory, storage, unrelated } = await mailboxWithUnrelatedWorker(t);
+  // A live PID running another command is never a departure, so stop waits
+  // out its lifecycle deadline; a short one still fires, without the 5 s wait.
+  overrideTerminalResultDeadline(t)("300");
   registerPushedRevision(directory, sha);
   publishJson(join(directory, "coverage"), `${sha}.json`, {
     sha,
