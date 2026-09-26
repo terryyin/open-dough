@@ -17,6 +17,9 @@ delivery_update_version=0.2.2
 # shellcheck source=tests/helpers/release-fixture.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/release-fixture.bash"
+# shellcheck source=tests/helpers/fixture-cache.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/fixture-cache.bash"
 # shellcheck source=tests/helpers/rewrite-file.bash
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/rewrite-file.bash"
@@ -113,16 +116,50 @@ delivery_check_fixture() {
     "${delivery_source_dir}/src/skills/dough-update/SKILL.md"
 }
 
-delivery_prepare_fixture() {
-  delivery_temporary_dir=$(mktemp -d)
-  trap 'rm -rf -- "${delivery_temporary_dir}"' EXIT
-  delivery_fixture_source="${delivery_temporary_dir}/fixture-source"
-  delivery_older_checkout="${delivery_temporary_dir}/older-release"
-  delivery_target="${delivery_temporary_dir}/atlas adopter"
-  mkdir -p -- "${delivery_fixture_source}"
-  cp -R -- "${delivery_fixture}" "${delivery_target}"
+# The two tagged releases and a checkout of the older one, under <root>.
+delivery_build_releases() {
+  local root=$1
+  local release_source="${root}/fixture-source"
+
+  mkdir -p -- "${release_source}"
+  git -C "${release_source}" init --quiet -b main
+  configure_fixture_git "${release_source}"
+  write_candidate_payload "${release_source}" \
+    "${delivery_baseline_version}" baseline-adr
+  if grep -Fq "${delivery_improvement}" \
+    "${release_source}/src/skills/dough-adr-awareness/SKILL.md"; then
+    echo 'FAIL: baseline fixture already has the later ADR improvement.' >&2
+    return 1
+  fi
+  commit_all "${release_source}" 'release baseline current-contract payload'
+  tag_release "${release_source}" "${delivery_baseline_version}" \
+    '2026-09-06T00:00:00'
+
+  write_candidate_payload "${release_source}" \
+    "${delivery_update_version}" improved-adr
+  printf '\n%s\n' '## Improved conflict evidence' \
+    "${delivery_improvement}" >> \
+    "${release_source}/src/skills/dough-adr-awareness/SKILL.md"
+  commit_all "${release_source}" 'release improved ADR conflict evidence'
+  tag_release "${release_source}" "${delivery_update_version}" \
+    '2026-09-07T00:00:00'
+
+  checkout_tagged_release "${release_source}" \
+    "${root}/older-release" "${delivery_baseline_version}"
+}
+
+# This host's adopter under <root> with the older release installed from
+# <releases>, before the adopter becomes a repository.
+delivery_build_adopter() {
+  local root=$1
+  local releases=$2
+  local target="${root}/atlas adopter"
+  local source_url
+
+  source_url="file://$(cd -- "${releases}/fixture-source" && pwd -P)"
+  cp -R -- "${delivery_fixture}" "${target}"
   mkdir -p -- \
-    "${delivery_target}/${delivery_skill_root}/companion-integration"
+    "${target}/${delivery_skill_root}/companion-integration"
   printf '%s\n' \
     '---' \
     'name: companion-integration' \
@@ -132,47 +169,39 @@ delivery_prepare_fixture() {
     '# Companion integration' \
     '' \
     'Keep this installed integration unchanged.' > \
-    "${delivery_target}/${delivery_skill_root}/companion-integration/SKILL.md"
-  rewrite_file "${delivery_target}/architecture/decisions/CATALOG.md" \
+    "${target}/${delivery_skill_root}/companion-integration/SKILL.md"
+  rewrite_file "${target}/architecture/decisions/CATALOG.md" \
     's/| \[ARC-12\](\.\/retain-complete-telemetry-history\.md) | Adopted |/| [ARC-12](.\/retain-complete-telemetry-history.md) | Replaced |/'
 
-  git -C "${delivery_fixture_source}" init --quiet -b main
-  configure_fixture_git "${delivery_fixture_source}"
-  write_candidate_payload "${delivery_fixture_source}" \
-    "${delivery_baseline_version}" baseline-adr
-  if grep -Fq "${delivery_improvement}" \
-    "${delivery_fixture_source}/src/skills/dough-adr-awareness/SKILL.md"; then
-    echo 'FAIL: baseline fixture already has the later ADR improvement.' >&2
-    return 1
-  fi
-  commit_all "${delivery_fixture_source}" 'release baseline current-contract payload'
-  tag_release "${delivery_fixture_source}" "${delivery_baseline_version}" \
-    '2026-09-06T00:00:00'
-  delivery_baseline_revision=$(git -C "${delivery_fixture_source}" rev-parse HEAD)
-
-  write_candidate_payload "${delivery_fixture_source}" \
-    "${delivery_update_version}" improved-adr
-  printf '\n%s\n' '## Improved conflict evidence' \
-    "${delivery_improvement}" >> \
-    "${delivery_fixture_source}/src/skills/dough-adr-awareness/SKILL.md"
-  commit_all "${delivery_fixture_source}" 'release improved ADR conflict evidence'
-  tag_release "${delivery_fixture_source}" "${delivery_update_version}" \
-    '2026-09-07T00:00:00'
-  delivery_source_revision=$(git -C "${delivery_fixture_source}" rev-parse HEAD)
-  delivery_source_url="file://$(cd -- "${delivery_fixture_source}" && pwd -P)"
-
-  checkout_tagged_release "${delivery_fixture_source}" \
-    "${delivery_older_checkout}" "${delivery_baseline_version}"
-  bash "${delivery_older_checkout}/install.sh" \
-    --target "${delivery_target}" --source "${delivery_source_url}" \
+  bash "${releases}/older-release/install.sh" \
+    --target "${target}" --source "${source_url}" \
     --platform "${delivery_platform}" > /dev/null
 
   if grep -Fq "${delivery_improvement}" \
-    "${delivery_target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"; then
+    "${target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"; then
     printf 'FAIL: baseline %s installation already has fixture improvement.\n' \
       "${delivery_host_name}" >&2
     return 1
   fi
+}
+
+delivery_prepare_fixture() {
+  local revisions
+
+  delivery_temporary_dir=$(mktemp -d)
+  trap 'rm -rf -- "${delivery_temporary_dir}"' EXIT
+  delivery_fixture_source="${delivery_temporary_dir}/fixture-source"
+  delivery_older_checkout="${delivery_temporary_dir}/older-release"
+  delivery_target="${delivery_temporary_dir}/atlas adopter"
+  fixture_cache_fill delivery-releases "${delivery_temporary_dir}" \
+    delivery_build_releases
+  fixture_cache_fill "delivery-${delivery_platform}" "${delivery_temporary_dir}" \
+    delivery_build_adopter "${fixture_cache_built}"
+  # Each release commit, as made; delivery_assert_baseline_install checks the tags.
+  revisions=$(git -C "${delivery_fixture_source}" rev-parse HEAD~1 HEAD)
+  delivery_baseline_revision=${revisions%%$'\n'*}
+  delivery_source_revision=${revisions#*$'\n'}
+  delivery_source_url="file://$(cd -- "${delivery_fixture_source}" && pwd -P)"
 
   git -C "${delivery_target}" init -q --initial-branch=main
   git -C "${delivery_target}" add .

@@ -754,3 +754,16 @@ the claim. Reference checkout for paired measurement: detached
   scratch copy expecting a different event name failed); the missing-stream
   classification is host-independent and cursor and claude share their
   output branch. `native-stream-completeness.sh` standalone about 20 → 10.7 s.
+- **Deliberate deadlines and release-fixture reuse.** `f83b163`: a test-only
+  `DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS` (default 5 s, pinned by a test) lets
+  the missing-publication journey observe its deadline in 300 ms, and the
+  unavailable-adapter journey uses a 1 s timeout through `adapterTimeoutMs`
+  (worst measured adapter start 300 ms under load; headroom, not an event
+  bound); the two files 17.66 → 8.79 s paired. Release-fixture reuse
+  (`tests/helpers/fixture-cache.bash`, opt-in per check): each fixture is
+  built once per check at `<cache>/<NAME>/fixture` and copied per run with
+  embedded paths rewritten; fresh and cached fixtures are identical including
+  `.git`, refs, tags, and modes for delivery and context on all three hosts.
+  Saving is Linux-only: family 31.65 → 29.5 container job-seconds (0.93),
+  about 6–7 CI job-seconds; neutral on macOS, where a copy creates as many
+  files as a build.

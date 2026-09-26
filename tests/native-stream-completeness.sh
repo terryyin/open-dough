@@ -17,6 +17,8 @@ finish() {
   rm -rf -- "${work_dir}"
 }
 trap finish EXIT
+# Wrapper runs copy each fixture this check builds once.
+export OPEN_DOUGH_TEST_FIXTURE_CACHE="${work_dir}/fixture-cache"
 
 sentinel_bin="${work_dir}/bin"
 watched_dir="${work_dir}/watched"
