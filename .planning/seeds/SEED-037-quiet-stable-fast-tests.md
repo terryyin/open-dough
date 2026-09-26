@@ -156,79 +156,78 @@ another test still observes the same promise at the same boundary.
 
 **Identity:** SEED-037#fewer-installer-runs-per-promise
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/108-fewer-installer-runs-per-promise/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a2e8267d4a83b0f6275ef4cbe21f6fffc33e96bc33748a040471df2bb58ddf4e","plan":"1508753923500bef6fd5a207efecd6131b2b6754296ded1ea3e312ca3635b4f6"}}
 ```
 
 **Status:** Refined on 2026-09-26. Deferred from story 2 by the maintainer
 on 2026-09-26. The maintainer accepted narrowing it to duplicated payload
 protection proofs and accepted declaration in the managed payload as the proof
-that a file is protected. The former dependency on story 2 only attributed
-savings and is dropped; this story needs nothing story 2 delivers.
+that a file is protected. A second refinement on 2026-09-26 narrowed it again
+to the two identical protection matrices and a links-only declaration check,
+and the maintainer kept its queue position. The former dependency on story 2
+only attributed savings and is dropped; this story needs nothing story 2
+delivers.
 
 **Goal:** Agents publishing to trunk and developers running the tests get
-the same installation and update confidence from less test work. Each shared
-installation or update protection is proved once by its owning check, and each
-payload-update check proves only what its own payload adds, following the
-architectural North Star's one-owner cohesion and
+the same installation and update confidence from less test work, and authors
+of new payload files stop copying a per-file protection matrix. The installer
+protects every declared file through one mechanism, walking `install.sh`'s
+single `managed_files` declaration
+(`src/install/open-dough-install-payload.sh`), so one end-to-end owner proves
+that mechanism and a declaration-level check proves that a file is covered by
+it. This follows the architectural North Star's one-owner cohesion and
 [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)'s
-single payload declaration. This removes most of the installer runs in the
-payload-update checks, which lead every test profile, and so shortens the CI
+single payload declaration. The two payload-update checks that lead every
+test profile lose their largest duplicated block, which shortens the CI
 verdict wait that parallel agents repeat.
 
-**Measure:** installer and updater runs (`install.sh` and `apply`) in the
-payload-update checks, counted before and after; the summed job-seconds of
-those checks in a relative paired run under the same load. Target: at least
-two thirds fewer runs in those checks, with every removed run's promise
-naming its surviving owner.
+**Measure:** `install.sh` and `apply` runs in `story-payload-update.sh` and
+`product-backlog-payload-update.sh`, counted before and after, and the summed
+job-seconds of those two checks in a relative paired run under the same load.
+Target: the 48 runs of the two protection matrices are gone, with each removed
+promise naming its surviving owner. Job-seconds are reported, not targeted.
 
 **Scope:**
 
-- **One owner per shared protection.** The installer protects every file the
-  managed payload declares through one mechanism: it walks `install.sh`'s
-  single `managed_files` declaration
-  (`src/install/open-dough-install-payload.sh`). The payload-update checks
-  nevertheless re-prove that mechanism per newly added file, per change, and
-  often per platform:
-  - edited or missing managed file → ordinary update and repeat install
-    refuse without writes, and `--force` restores (the 24-run Cursor-only
-    matrices in `story-payload-update.sh` and
-    `product-backlog-payload-update.sh`, the edit loop in
-    `execution-payload-update.sh`, and the missing-reference check in
-    `retrospective-reference-payload.sh`);
-  - an unrelated pre-existing file at a newly managed path → ordinary update
-    refuses without writes (per platform in the story and retrospective
-    checks, and again in the execution check);
-  - every relative link in an installed file resolves to an installed file
-    (three separate copies of the same link-walking loop).
-
-  Keep one end-to-end owner for each of these, using the existing owner where
-  one exists (`tests/install.sh` and `tests/update-force-restores-latest.sh` for
-  edited-file refusal and force restore, and
-  `tests/install-refuses-unsafe-topology.sh` for collision refusal), and give it any
-  change kind or path it lacks (for example a removed file refused by both
-  ordinary update and repeat install) before removing the copies.
-- **Declaration proves a file is protected.** Replace per-file protection runs
-  with one declaration-level check: every file in the promoted payload is
-  declared in `managed_files`, and every relative link from a managed file
-  resolves to another declared managed file. It needs no installer run, covers
-  every managed file instead of the few each check listed, and catches the
-  "installed file links to an undeclared dependency" failure those per-file
-  runs were guarding.
-- **Payload-update checks keep only what their payload adds:** for example
-  host-hook registration, configuration preservation, installed publication
-  modules, and story-state runtime behavior. They share one helper for any
-  assertion they still have in common, instead of copies.
+- **One owner for the edited or removed declared file.** Today the Cursor-only
+  matrices in `story-payload-update.sh` and `product-backlog-payload-update.sh`
+  each prove, for four newly declared files, that an edited or removed managed
+  file makes ordinary update and repeat install refuse without writes, and
+  that `--force` restores it (4 files × 2 changes × 3 runs = 24 runs each).
+  Keep one end-to-end owner for that promise in the existing installer and
+  updater checks. Ordinary update refusing an edited or missing managed file
+  (`tests/update-refuses-unverifiable.sh`), `--force` restoring either
+  (`tests/update-force-restores-latest.sh`), and repeat install refusing an
+  edited one (`tests/install.sh`) already have owners. Repeat install refusing
+  a removed managed file has none and is added to `tests/install.sh` before
+  the matrices go.
+- **Declaration proves a file is covered: links only.** One check that runs
+  no installer: every relative Markdown link in a declared managed file,
+  ignoring its anchor, resolves to a path that `managed_files` also declares.
+  It covers every managed file instead of the four each matrix listed, and
+  catches the "installed file links to an undeclared dependency" failure the
+  per-file runs guarded. It does not require every file under a skill source
+  directory to be declared.
+- **Remove the two matrices.** Each payload-update check keeps its own
+  upgrade path from its older release: the story check still proves the story
+  skills arrive on each platform and that a new managed path does not
+  overwrite an unrelated file; the backlog check still proves the backlog
+  scripts arrive and the project's backlog is untouched.
 - **No change to installer or updater behavior.** This is a test-only change.
 
 **Deferred promises:**
 
+- The execution check's edit loop (8 runs), the retrospective check's
+  per-platform missing-reference refusals, per-platform collision refusals in
+  the story and retrospective checks, the three copies of the installed
+  link-walking loop, and a shared helper for the assertions the payload-update
+  checks still share. The declaration check makes them candidates for later
+  removal; this story does not remove them.
 - Fewer per-platform (codex, cursor, claude) runs of the checks that remain.
   AGENTS.md's cross-tool rule says success on one tool does not prove another,
   so reducing platform coverage needs its own decision.
 - Cheaper individual installer runs and `install.sh` speed, owned by
   [story 2](#fourfold-local-suite).
-- Installer and update checks other than the payload-update family, except
-  where they become the single owner above.
 
 **Rejection constraints:** no retries, skips, or loosened assertions, following
 this seed's stability goal. Remove a run only when a named check still
@@ -238,39 +237,41 @@ change.
 **Key examples:**
 
 1. **Edited declared file.** A project has the latest payload installed; a
-   developer edits any managed reference and runs an ordinary update → the
+   developer edits a managed reference and runs an ordinary update → the
    update refuses without writes; repeat install refuses; `--force` restores.
-   One check proves this for the mechanism; no payload-update check repeats it
-   per file.
-2. **New file forgotten in the declaration.** A skill starts linking to a new
-   reference that is not added to `managed_files` → the declaration-level
-   check fails and names the linking file and the undeclared target, without
+   One existing check proves this for the mechanism.
+2. **Removed declared file.** The same project, but the developer deletes a
+   managed reference → ordinary update and repeat install both refuse without
+   writes, and `--force` restores it; the existing owners plus the new
+   repeat-install case prove this once.
+3. **New file forgotten in the declaration.** A skill starts linking to a new
+   reference that is not added to `managed_files` → the declaration check
+   fails and names the linking file and the undeclared target, without
    running the installer.
-3. **New file declared.** The same reference is added to `managed_files` →
-   the declaration check passes, and the file is protected by example 1's
-   owner with no new per-file installer runs.
-4. **Unrelated file at a new managed path.** An older install lacks a newly
-   managed path and the project has its own file there → ordinary update
-   refuses without writes, proved once by the collision owner.
-5. **Feature-specific promise stays.** An update that adds execution hooks
-   still proves hook registration and preservation of unrelated host settings
-   in `execution-payload-update.sh`.
-6. **Run count.** Before/after counts of `install.sh` and `apply` runs in the
-   payload-update checks show at least two thirds fewer, and the paired
-   job-seconds of those checks drop accordingly.
+4. **New file declared.** The same reference is added to `managed_files` →
+   the declaration check passes, and the file is protected by examples 1
+   and 2's owner with no new per-file installer runs.
+5. **Upgrade path stays.** Updating from the release before the story skills
+   still delivers them on codex, cursor, and claude, and still refuses to
+   overwrite an unrelated file at a newly managed path.
+6. **Run count.** Before/after counts show the 48 matrix runs gone from the
+   two checks, and the paired job-seconds of those checks are reported.
 
-**Evidence (2026-09-26):** the two identical protection matrices alone are
-48 installer runs (4 files × edit/remove × update, reinstall, and force).
-In the planning profile, `story-payload-update.sh`,
-`product-backlog-payload-update.sh`, `execution-payload-update.sh`, and
-`retrospective-reference-payload.sh` together took about 348 of 2,079
-job-seconds under load; only relative weights are usable.
+**Evidence (2026-09-26):** the four payload-update checks run about 98
+installer and updater runs: `story-payload-update.sh` about 33 and
+`product-backlog-payload-update.sh` about 30, of which each check's matrix is
+24. In the planning profile these two checks took 102.5 and 87.7 of 2,079
+job-seconds under load; only relative weights are usable. No existing check
+proves repeat install refusing a removed file, and no check verifies links
+against the declaration without installing. A probe of the links-only rule on
+trunk at `b34db51` found 450 relative links across 164 declared files and no
+undeclared target.
 
-- **Value / learning:** removes the largest duplicated block of test work;
-  learns whether declaration-level proof holds up as new payload files are
-  added.
-- **Effort hypothesis:** S–M; a test-only change across four checks and
-  their existing owners.
+- **Value / learning:** removes the largest duplicated block of test work and
+  the pattern new payload stories copy; learns whether declaration-level proof
+  holds up as new payload files are added.
+- **Effort hypothesis:** S; a test-only change to two checks, one owner, and
+  one new check.
 - **Depends on:** none.
 
 ## Ordering and Scope Reduction
@@ -281,7 +282,9 @@ land first. Investigate shared setup, fixture cost, synchronization, and runner
 overhead as related test families, and keep measured experiments that preserve
 confidence. Do not count a quiet log, fewer promises proved, or a faster
 isolated test as the result. Story 4 is independent of story 2's code and
-queued after it; per-platform reduction stays deferred as its own decision.
+queued after it; the maintainer kept that position on 2026-09-26 rather than
+re-ranking it after story 2's checkpoints. Per-platform reduction stays
+deferred as its own decision.
 
 ## Open Decisions
 
@@ -289,8 +292,10 @@ None for story 2. Refinement on 2026-09-26 replaced the local fourfold target
 with CI test time, total local work, and a budget guard, and deferred fewer
 installer runs to story 4. Story 4's coverage decision was made on
 2026-09-26: declaration in the managed payload proves a file is protected, and
-each shared protection keeps one end-to-end owner. Reducing per-platform runs
-remains open and outside story 4.
+each shared protection keeps one end-to-end owner. A second refinement the
+same day narrowed story 4 to the two protection matrices with a links-only
+declaration check, deferring the other payload-update duplicates. Reducing
+per-platform runs remains open and outside story 4.
 
 ## When to Surface
 
