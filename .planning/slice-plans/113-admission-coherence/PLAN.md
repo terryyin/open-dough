@@ -167,7 +167,7 @@ Focused suites (existing unless marked):
 - Backlog and story state: `node --test tests/support/*.test.mjs`
 - Wrap-up: `node --test src/skills/dough-story-wrap-up/scripts/*.test.mjs`
 - Guidance wording: `node --test src/skills/dough-execute-plan/scripts/*guidance*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs`
-- Dashboard: `npm run test:dashboard -- dashboard/tests/authenticated-project-overview.spec.ts dashboard/tests/taken-agent-profile.spec.ts`
+- Dashboard: `npm run test:dashboard -- dashboard/tests/authenticated-project-overview.spec.ts dashboard/tests/taken-agent-profile.spec.ts dashboard/tests/taken-admitted-investigation.spec.ts`
 - Native harness default (substitute) mode: `/opt/homebrew/bin/bash tests/git-publication-native.sh`
 
 Run shell checks with a modern bash (`/opt/homebrew/bin/bash`); macOS system
@@ -402,3 +402,9 @@ claim `5a05150` accepted on `origin/main`.
   trunk) committed three local worktrees as gitlinks. Repaired in `56ae2aa`
   by removing them and ignoring `/.worktrees/`; trunk stays red until this
   branch integrates.
+- Local dashboard specs flaked under load ("Reading published work…" past its
+  5s wait): each server copied the fake `gh` to a new executable, which macOS
+  assesses on first run (seconds under load). The fake is now hard-linked and
+  the admitted-investigation journey admits once in its own `beforeAll`
+  budget (`taken-admitted-investigation.spec.ts`). Paired A/B under the same
+  load: 16/24 failures before, 0/24 after.
