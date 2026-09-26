@@ -2,17 +2,26 @@
 // and host-bridge transport. Registration receipts are product outcomes, not
 // injected fixtures.
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
 import { deliverHostBoundary } from "./ci-host-bridge.mjs";
-import { readRevisionCoverage, readWorkerIdentity } from "./ci-mailbox.mjs";
+import {
+  readDeliveryProgress,
+  readRevisionCoverage,
+  readWorkerIdentity,
+} from "./ci-mailbox.mjs";
 import {
   createManagedFixture,
   git,
   waitForFailureEvent,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import {
+  claudeHookInput,
+  deliverThroughCli,
+  invokeInstalledClaudeHook,
+} from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const storyTarget = "refs/heads/cursor/story-execution";
@@ -159,4 +168,76 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
   });
   assert.equal(delivered.observation.state, "attached");
   assert.equal(delivered.runtime.alias, ".agents");
+});
+
+// Records, from inside the remote's receive, which mailbox owners already
+// exist, so attachment order is observed at the actual push.
+function recordOwnersAtPush(origin, storage, log) {
+  const hook = join(origin, "hooks/pre-receive");
+  writeFileSync(
+    hook,
+    `#!/bin/sh\ncat >/dev/null\nfor f in ${JSON.stringify(storage)}/*/owner; do [ -f "$f" ] && echo "$f $(cat "$f")"; done >>${JSON.stringify(log)}\necho pushed >>${JSON.stringify(log)}\n`,
+  );
+  chmodSync(hook, 0o755);
+}
+
+test("a fresh Claude coordinator's taught deliver command attaches, receives its CI failure, and reuses the observer", async (t) => {
+  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  t.after(fixture.cleanup);
+  const pushLog = join(fixture.fixture, "owners-at-push.log");
+  recordOwnersAtPush(fixture.origin, fixture.storage, pushLog);
+  const coordinator = "claude-coordinator-session";
+  // The host supplies only its documented session variable; no session JSON.
+  const env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: coordinator };
+  const deliver = (base) => deliverThroughCli(fixture, { base, env });
+
+  const { delivered: first } = await deliver(fixture.trunkSha);
+  assert.equal(first.publication, "accepted");
+  assert.equal(first.observation.state, "attached", first.observation.reason);
+  const directory = first.observation.directory;
+  const worker = readWorkerIdentity(directory).pid;
+  const owner = readFileSync(join(directory, "owner"), "utf8");
+  const atPush = readFileSync(pushLog, "utf8").trim().split("\n");
+  assert.equal(atPush.at(-1), "pushed");
+  assert.equal(atPush.includes(`${join(directory, "owner")} ${owner}`), true);
+  assert.deepEqual(
+    readRevisionCoverage(directory).map(({ sha }) => sha),
+    [first.receipt.sha.toLowerCase()],
+  );
+
+  fixture.releaseFailure(first.receipt.sha, "main");
+  await waitForFailureEvent(directory);
+  const hook = (input) => invokeInstalledClaudeHook(fixture, input, env);
+  for (const foreign of [
+    claudeHookInput("another-coordinator"),
+    claudeHookInput(coordinator, { agent_id: "subagent-of-coordinator" }),
+  ])
+    assert.deepEqual(await hook(foreign), {});
+  assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 0 });
+  const context =
+    (await hook(claudeHookInput(coordinator))).hookSpecificOutput
+      ?.additionalContext ?? "";
+  assert.match(context, /CI_FAILURE/);
+  assert.match(context, new RegExp(first.receipt.sha, "i"));
+
+  writeFileSync(join(fixture.execution, "second.txt"), "second increment\n");
+  await git(fixture.execution, "add", "second.txt");
+  await git(fixture.execution, "commit", "-m", "second verified increment");
+  const { delivered: second } = await deliver(first.receipt.sha);
+  assert.equal(second.publication, "accepted");
+  assert.equal(second.observation.state, "reused");
+  assert.equal(second.observation.directory, directory);
+  assert.equal(readWorkerIdentity(directory).pid, worker);
+  assert.deepEqual(
+    readRevisionCoverage(directory)
+      .map(({ sha }) => sha)
+      .sort(),
+    [first.receipt.sha, second.receipt.sha]
+      .map((sha) => sha.toLowerCase())
+      .sort(),
+  );
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    second.receipt.sha,
+  );
 });

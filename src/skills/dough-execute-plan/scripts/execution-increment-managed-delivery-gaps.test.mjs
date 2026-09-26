@@ -1,6 +1,7 @@
 // Managed delivery authority, coverage-gap, and racing-remote cases.
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 import {
   advanceOriginFromAnotherWriter,
@@ -10,6 +11,7 @@ import {
   createManagedFixture,
   git,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
@@ -38,6 +40,67 @@ test("an unavailable host bridge reports unobserved coverage and preserves accep
     delivered.receipt.sha,
   );
   assert.equal(existsSync(fixture.storage), false);
+});
+
+test("a Claude delivery with neither explicit nor ambient session identity reports an actionable gap and keeps publication truthful", async (t) => {
+  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  t.after(fixture.cleanup);
+  // Deliberately remove any session identity inherited from the test runner.
+  const env = { ...fixture.env };
+  delete env.CLAUDE_CODE_SESSION_ID;
+
+  const local = await deliverThroughCli(fixture, {
+    base: fixture.trunkSha,
+    extra: ["--authority", "local-only"],
+    env,
+  });
+  assert.equal(local.delivered.publication, "pending");
+  assert.equal(local.delivered.report, "local-only");
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    fixture.trunkSha,
+  );
+
+  const { delivered } = await deliverThroughCli(fixture, {
+    base: fixture.trunkSha,
+    env,
+  });
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.state, "unobserved");
+  assert.equal(delivered.observation.pendingCi, "unobserved");
+  assert.match(delivered.observation.reason, /CLAUDE_CODE_SESSION_ID is unset/);
+  assert.match(delivered.observation.reason, /--session-json/);
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    delivered.receipt.sha,
+  );
+  assert.equal(existsSync(fixture.storage), false);
+});
+
+test("a Claude delivery whose hook does not confirm readiness reports an unavailable bridge and keeps acceptance", async (t) => {
+  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  t.after(fixture.cleanup);
+  // An installed hook that answers without delivering (as when disabled).
+  writeFileSync(
+    join(fixture.skill, "scripts/ci-host-hook.mjs"),
+    'process.stdout.write("{}\\n");\n',
+  );
+
+  const { delivered } = await deliverThroughCli(fixture, {
+    base: fixture.trunkSha,
+    env: { ...fixture.env, CLAUDE_CODE_SESSION_ID: "claude-coordinator" },
+  });
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.state, "unobserved");
+  assert.equal(
+    delivered.observation.reason,
+    "host bridge did not confirm CI_MONITOR_READY",
+  );
+  assert.equal(delivered.observation.directory, undefined);
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    delivered.receipt.sha,
+  );
 });
 
 test("local-only authority does not push", async (t) => {

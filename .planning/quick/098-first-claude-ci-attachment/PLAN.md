@@ -86,7 +86,7 @@ no new architectural decision or direction topic is needed.
 ## Slice 1 — Observe the first increment in its owning Claude session
 
 **Type:** Behavior
-**Status:** planned
+**Status:** in progress — deterministic proof and native foreground accepted; native background acceptance pending
 
 **Behavior:** Given a fresh supported Claude coordinator with its documented
 session environment, the taught managed-delivery command establishes observation
@@ -166,3 +166,50 @@ preserve evidence and reassess scope before extending this slice.
   no blocking scope or proof-design concern was found in this review.
 - Runtime identity is verified on 2.1.282; future delivery behavior has not been
   implemented or accepted. Story state records preparation readiness only.
+
+## Execution progress (Slice 1, 2026-09-26)
+
+Story Branch Mode, branch `claude/098-first-claude-ci-attachment`; claim
+published on trunk at `1d6649f` (unobserved Story Branch claim).
+
+**Delivered implementation.** `resolveHostSession` in `ci-host-bridge.mjs`
+returns non-null explicit session input unchanged; otherwise, for `claude`
+only, `{session_id}` from the supplied environment's `CLAUDE_CODE_SESSION_ID`.
+`establishObservation` resolves once and passes that owner to both verify and
+bind. Claude's missing-identity reason names the variable and `--session-json`.
+`references/trunk-publication.md` "Publish the candidate" teaches running
+`deliver` from the coordinator's own tool. The gap was reproduced at the CLI
+boundary before the change (`unobserved`, generic identity reason, publication
+accepted).
+
+**Accepted deterministic proof.**
+`node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-gaps.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-process.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-session.test.mjs`
+passes 16/16; `src/skills/dough-execute-plan/scripts/*.test.mjs` passed 328/328
+before refactoring, and the managed-delivery family 23/23 after it. The journey
+test "a fresh Claude coordinator's taught deliver command attaches, receives
+its CI failure, and reuses the observer" observes owner existence at
+pre-receive, exact SHA coverage, foreign-session and subagent refusal, owner
+`CI_FAILURE`, and second-increment reuse with an unchanged worker pid. The
+session test covers explicit-wins-with-metadata, malformed JSON refusal and
+non-Claude hosts; the gaps tests cover missing identity and an unavailable
+bridge.
+
+**Native foreground accepted.** Claude Code 2.1.283, `claude --print` under
+`env -i` (no inherited session variable) in a disposable installed fixture
+with a local bare remote and controlled `ciAdapter`. The coordinator ran the
+taught `deliver --host claude` without session JSON: first delivery
+`attached`, second `reused` with the same mailbox; its transcript received
+"CI observer attached to this coordinator" and `CI_FAILURE` for both accepted
+SHAs through PostToolUse. Learning: the session must reach a later tool
+boundary after the verdict; a harness-blocked standalone `sleep` ended an
+earlier attempt with the event recorded but undelivered.
+
+**Remaining gap.** Native `claude --bg` refused the untrusted disposable
+fixture ("Workspace not trusted"). Completing it needs a human to trust a
+disposable fixture location through Claude's native prompt; the agent must
+not write that trust itself. Interactive native was not run. ODF-092 is not
+resolved by this increment alone.
+
+**Out-of-scope observation.** A missing or crashing installed hook makes
+`invokeHostHook` throw, so `deliver` exits 2 instead of returning a coverage
+gap; pre-existing and unchanged here.

@@ -197,6 +197,7 @@ export async function installManagedDelivery(
       return { sha, branch };
     },
     stopObserver: (directory) => stopObserver(observer(directory)),
+    stopAtTeardown: deferStop,
   };
 }
 
