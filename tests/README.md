@@ -47,8 +47,8 @@ one line per job over the per-job ceiling and one for a total over the total
 ceiling, for example:
 
 ```text
-OVER BUDGET: tests/install.sh took 31.2s; the per-job ceiling is 25s (tests/time-budget).
-OVER BUDGET: all jobs took 802.4 job-seconds; the total ceiling is 760 (tests/time-budget).
+OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 70s (tests/time-budget).
+OVER BUDGET: all jobs took 902.4 job-seconds; the total ceiling is 840 (tests/time-budget).
 ```
 
 In CI (`CI=true`) a breach fails the `test` check; elsewhere it is only
@@ -130,7 +130,9 @@ a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 
 A shell Git fixture repository is configured with `configure_fixture_git`
 (`tests/helpers/release-fixture.bash`), which also turns off Git's automatic
-maintenance so no detached repack is still writing when the fixture is removed.
+maintenance so no detached repack is still rewriting `.git/objects` while the
+check snapshots or removes the fixture. Fixture snapshots prune `.git` rather
+than walking it.
 A payload-update check builds its older and newer tagged releases with
 `build_upgrade_releases` from the same helper, withholding the older release's
 declarations and sources instead of editing a copied installer by hand.

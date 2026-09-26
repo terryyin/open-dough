@@ -84,7 +84,7 @@ delivery_snapshot() {
   (
     cd -- "${root}" || exit
     # shellcheck disable=SC2312 # pipefail preserves failures across the digest pipeline.
-    find . -type f ! -path './.git/*' -print0 \
+    find . -path ./.git -prune -o -type f -print0 \
       | LC_ALL=C sort -z \
       | xargs -0 shasum -a 256
   )
@@ -121,9 +121,7 @@ delivery_build_releases() {
   local root=$1
   local release_source="${root}/fixture-source"
 
-  mkdir -p -- "${release_source}"
-  git -C "${release_source}" init --quiet -b main
-  configure_fixture_git "${release_source}"
+  init_fixture_repo "${release_source}"
   write_candidate_payload "${release_source}" \
     "${delivery_baseline_version}" baseline-adr
   if grep -Fq "${delivery_improvement}" \
@@ -203,12 +201,9 @@ delivery_prepare_fixture() {
   delivery_source_revision=${revisions#*$'\n'}
   delivery_source_url="file://$(cd -- "${delivery_fixture_source}" && pwd -P)"
 
-  git -C "${delivery_target}" init -q --initial-branch=main
+  init_fixture_repo "${delivery_target}"
   git -C "${delivery_target}" add .
-  git -C "${delivery_target}" \
-    -c user.name='Adopter fixture' \
-    -c user.email='fixture@example.invalid' \
-    commit -qm 'fixture: install previous public guidance'
+  git -C "${delivery_target}" commit -qm 'fixture: install previous public guidance'
 }
 
 delivery_assert_use() {

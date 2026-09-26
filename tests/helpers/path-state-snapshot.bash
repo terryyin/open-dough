@@ -30,8 +30,8 @@ snapshot_path_state() {
     ((index += 1))
   done < <(
     # shellcheck disable=SC2312 # pipefail preserves failures across the sorted snapshot pipeline.
-    find "${root}" -mindepth 1 ! -path "${root}/.git" \
-      ! -path "${root}/.git/*" -print0 | LC_ALL=C sort -z
+    find "${root}" -mindepth 1 -path "${root}/.git" -prune -o -print0 \
+      | LC_ALL=C sort -z
   )
 
   while ((offset < ${#regular_paths[@]})); do

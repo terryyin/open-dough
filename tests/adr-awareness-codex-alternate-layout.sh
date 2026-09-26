@@ -55,7 +55,7 @@ snapshot() {
   local root=$1
   (
     cd -- "${root}"
-    find . -type f ! -path './.git/*' -print0 \
+    find . -path ./.git -prune -o -type f -print0 \
       | LC_ALL=C sort -z \
       | xargs -0 shasum -a 256
   )

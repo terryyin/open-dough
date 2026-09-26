@@ -2,8 +2,9 @@
 # per-job-seconds, and all jobs together no more than total-job-seconds.
 # scripts/test.sh compares each run's job times with it; a breach fails CI's
 # `test` check and is only reported locally. Set from CI's test-times artifact
-# at 1.5x or more of the largest observed values (largest job 15.8 s, largest
-# total 503.5 job-seconds over five CI runs of 49c4ce3). Raising either
+# at 1.5x or more of the largest observed values (largest job 46.3 s,
+# git-publication-native.sh; largest total 554.4 job-seconds over four CI runs
+# of 146c373, the suite as integrated with main). Raising either
 # number is a reviewed edit, not a way to make a slow change pass.
-per-job-seconds=25
-total-job-seconds=760
+per-job-seconds=70
+total-job-seconds=840
