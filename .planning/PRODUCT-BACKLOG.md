@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
-
 ## Backlog list
 
 - [Bring the integrated CI verdict back under 120 s and clear SEED-037's leftovers](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2
