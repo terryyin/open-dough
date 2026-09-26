@@ -127,3 +127,19 @@ missing link to story guidance in a disposable fixture and checks that the real
 declaration check reports it and that the failure propagates through
 `scripts/test.sh`. This is focused coverage of that check, not certification of
 every shell assertion.
+
+## Shared installation and update protections
+
+Every declared payload file is protected by the same installer and updater
+walk, so each shared protection has one owning check, and a payload-update
+check proves only what its own payload adds:
+
+| Protection | Owning check |
+| --- | --- |
+| Ordinary update refuses an edited or missing managed file without writes | `tests/update-refuses-unverifiable.sh` |
+| Repeat install refuses an edited or removed managed file without writes | `tests/install.sh` |
+| `--force` restores an edited or incomplete installation | `tests/update-force-restores-latest.sh` |
+| Ordinary update refuses an unrelated file at a newly managed path | `tests/story-payload-update.sh` |
+| Linked supporting files are declared | `tests/payload-declaration-links.sh` |
+
+A new payload file needs a declaration, not another copy of these proofs.
