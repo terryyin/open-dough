@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2154,SC2312 # Sourced fixtures supply helpers and managed_files.
+# shellcheck disable=SC1091,SC2312 # Sourced fixtures supply helpers.
 #
-# The product backlog's scripts were never declared in the client payload
-# manifest (only SKILL.md and its two references were), so a real
-# install.sh/update delivered the documentation but none of the automation
-# slices 1-4 built. This proves a fresh install and an ordinary update
+# The product backlog's scripts were never declared in install.sh's
+# managed_files (only SKILL.md and its two references were), so a real
+# install.sh/update delivered the documentation but none of its backlog
+# automation. This proves a fresh install and an ordinary update
 # deliver the whole transitive script set to both managed roots across all
 # three entry contexts, and that project backlog bytes are untouched. Refusal
 # of an edited or missing managed file and its --force restore belong to the
@@ -14,7 +14,7 @@
 # record-state/read-state producing published bytes the shared reader
 # observes) lives in the product-backlog-payload runtime helpers, run at the
 # end of this file against the Claude Code root once the release source is
-# unavailable. Slice 12 extends that offline proof to the story-state recorder
+# unavailable. The same offline proof covers the story-state recorder
 # modules and record-preparation.md declared here.
 set -euo pipefail
 
@@ -124,7 +124,7 @@ done
 # proving no relative import or path reaches back to it. Verifies required
 # imports actually load (an ordinary op and a real non-fast-forward Git
 # merge, both exercising the transitive closure of the declared files), not
-# merely that files exist. Slice 12 also records preparation through the
+# merely that files exist. It also records preparation through the
 # installed recorder and observes the published bytes with the shared reader.
 claude_target="${temporary_dir}/claude"
 scripts_root=$(cd "${claude_target}/.claude/skills/dough-product-backlog/scripts" && pwd -P)

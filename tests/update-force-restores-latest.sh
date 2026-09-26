@@ -131,13 +131,16 @@ fi
 incomplete_target="${temporary_dir}/incomplete project"
 prepare_recorded_latest "${incomplete_target}"
 incomplete_dest="${incomplete_target}/.agents/skills/dough-update"
-incomplete_root=$(dirname -- "${incomplete_dest}")
-rm -f -- "${incomplete_dest}/VERSION" \
-  "${incomplete_root}/dough-adr-awareness/SKILL.md"
+# Remove files from the sibling Claude root the Cursor-hinted install filled.
+incomplete_claude_dest="${incomplete_target}/.claude/skills/dough-update"
+incomplete_claude_root=$(dirname -- "${incomplete_claude_dest}")
+rm -- "${incomplete_claude_dest}/VERSION" \
+  "${incomplete_claude_root}/dough-adr-awareness/SKILL.md"
 incomplete_tmp="${temporary_dir}/incomplete-tmp"
 output=$(run_force_apply "${incomplete_target}" "${incomplete_tmp}")
 assert_force_success "${output}" "${incomplete_dest}" "${incomplete_target}" \
   "${incomplete_tmp}" "${expected_source}"
+assert_payload "${incomplete_claude_dest}" 0.1.10 payload-0.1.10
 
 equal_target="${temporary_dir}/equal project"
 prepare_recorded_latest "${equal_target}"

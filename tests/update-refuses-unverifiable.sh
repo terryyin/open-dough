@@ -107,11 +107,14 @@ unverifiable_dest="${unverifiable}/.agents/skills/dough-update"
 unverifiable_tmp="${temporary_dir}/unverifiable-tmp"
 restore_clean_older_cursor
 
-printf '%s\n' 'local managed edit' >> "${unverifiable_dest}/SKILL.md"
+# The Cursor-hinted install also fills the sibling Claude root; an edit there
+# must stop the ordinary update just as an entry-root change does.
+unverifiable_claude_dest="${unverifiable}/.claude/skills/dough-update"
+printf '%s\n' 'local managed edit' >> "${unverifiable_claude_dest}/SKILL.md"
 assert_ordinary_update_refuses_unwritten \
-  'edited managed file' \
+  'edited managed file in the Claude root' \
   'ordinary update requires an unchanged installation' \
-  "${unverifiable_dest}" \
+  "${unverifiable_claude_dest}" \
   "${unverifiable_tmp}"
 
 restore_clean_older_cursor
