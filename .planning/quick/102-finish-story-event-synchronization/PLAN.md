@@ -221,7 +221,7 @@ under load. The external behavior the tests prove stays unchanged.
 ### 2. Dashboard negative checks settle on the page's own requests, not real time
 
 Type: Structure (retrospective correction F2)
-Status: planned
+Status: done
 Proof:
 - `checksAskedWhilePassing` no longer waits in real time.
   - After the clock steps, it gives the page its message turns: pull
@@ -326,3 +326,17 @@ of the record, stays unchanged.
     fixed deadline is story 2's excluded "other fixed timeouts" work.
   - The combined change passed `PATH=/opt/homebrew/bin:$PATH npm test`
     silently (140 s, load 30) and again with CI-like Git settings (137 s).
+- **Slice 2, delivered:**
+  - Page-request noting and the shared message-turn helper moved into
+    `dashboard/tests/pageRequestNotes.ts` (`givePageItsTurns`,
+    `untilPageRequestsAnswered`); `autoRefreshJourney.ts` keeps its API.
+    `noteChecksInPage` tracks every `fetch` until a clone of its answer is
+    read whole, or it fails or is aborted.
+  - Sensitivity: eight temporary product breaks each failed their targeted
+    negative (rate-limit :77, :80, :102, :120; recovery :138; visibility
+    :53, :89; taken-slice :131 in the :122 step). A break only proves a
+    negative when it causes a real, uncached `gh` call on a fresh signal:
+    two earlier taken-slice breaks produced no `gh` call and passed.
+  - The 4-test grep passed silently with `--repeat-each 5`; the whole
+    dashboard suite passed silently. Paired A/B at the same load saved
+    about 4–9 s per run of the 4 tests.

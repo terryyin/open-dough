@@ -14,6 +14,12 @@ import {
   revisionA,
   titlesOfA,
 } from "./refreshJourney.ts";
+import {
+  givePageItsTurns,
+  isCheck,
+  untilPageRequestsAnswered,
+  whileNotingChecks,
+} from "./pageRequestNotes.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
 export const queueStory =
@@ -77,72 +83,9 @@ export function headsCheckArgv(
   ];
 }
 
-// A browser request to the local boundary is a revision check when it names
-// the revision the page already shows with this search parameter.
-const checkParameter = "since";
-
-function isCheck(url: string): boolean {
-  return new URL(url).searchParams.has(checkParameter);
-}
-
 // Page time passes in steps this small; a check is seen once the step in
 // which the page asked for it has passed.
 const pageTimeStepMs = 250;
-
-// The page times at which the page asked for revision checks, as noted by
-// the page itself (see `noteChecksInPage`).
-type ChecksNoted = { revisionChecksAskedAt?: number[] };
-
-// From now on, the page notes the page time at which it asks for each
-// revision check, at the moment it calls `fetch`. Noting it there, rather
-// than from Playwright's `request` event, keeps the note in step with page
-// time: the event may arrive only after later steps have already passed.
-// The page's requests themselves are left exactly as asked.
-async function noteChecksInPage(page: Page): Promise<void> {
-  await page.evaluate((parameter) => {
-    const noted = window as ChecksNoted & typeof window;
-    if (noted.revisionChecksAskedAt !== undefined) {
-      return;
-    }
-    const askedAt: number[] = [];
-    noted.revisionChecksAskedAt = askedAt;
-    const send = window.fetch.bind(window);
-    window.fetch = (input, init) => {
-      const url =
-        input instanceof Request
-          ? input.url
-          : new URL(input, window.location.href).href;
-      if (new URL(url).searchParams.has(parameter)) {
-        askedAt.push(Date.now());
-      }
-      return send(input, init);
-    };
-  }, checkParameter);
-}
-
-// The page times of the revision checks the page has asked for so far.
-async function checksAskedAt(page: Page): Promise<readonly number[]> {
-  return page.evaluate(() => [
-    ...((window as ChecksNoted & typeof window).revisionChecksAskedAt ?? []),
-  ]);
-}
-
-// Runs `passing` from the current page time while noting the revision checks
-// the page asks for; it can ask at which page times, since that start, they
-// have been asked so far.
-async function whileNotingChecks<T>(
-  page: Page,
-  passing: (askedAfter: () => Promise<readonly number[]>) => Promise<T>,
-): Promise<T> {
-  await noteChecksInPage(page);
-  const alreadyAsked = (await checksAskedAt(page)).length;
-  const startedAt = await page.evaluate(() => Date.now());
-  return passing(async () =>
-    (await checksAskedAt(page))
-      .slice(alreadyAsked)
-      .map((askedAt) => askedAt - startedAt),
-  );
-}
 
 // Lets page time pass in small steps until the page asks for the next
 // revision check, without waiting for its answer. Says how much page time
@@ -175,9 +118,9 @@ export async function passTimeUntilChecked(
   return passed;
 }
 
-// Lets `ms` of page time pass in the same small steps, then lets real time
-// pass for any request those steps started to be sent, and says how many
-// revision checks the page asked for meanwhile.
+// Lets `ms` of page time pass in the same small steps, then waits, with page
+// time standing still, until every request the page sent meanwhile is
+// answered, and says how many revision checks it asked for.
 export async function checksAskedWhilePassing(
   page: Page,
   ms: number,
@@ -186,7 +129,7 @@ export async function checksAskedWhilePassing(
     for (let passed = 0; passed < ms; passed += pageTimeStepMs) {
       await page.clock.runFor(pageTimeStepMs);
     }
-    await new Promise((settle) => setTimeout(settle, 500));
+    await untilPageRequestsAnswered(page);
     return (await askedAfter()).length;
   });
 }
@@ -223,7 +166,7 @@ export async function setPageVisibility(
   page: Page,
   state: "hidden" | "visible",
 ): Promise<void> {
-  await page.evaluate(async (next) => {
+  await page.evaluate((next) => {
     Object.defineProperty(document, "visibilityState", {
       configurable: true,
       get: () => next,
@@ -233,16 +176,6 @@ export async function setPageVisibility(
       get: () => next === "hidden",
     });
     document.dispatchEvent(new Event("visibilitychange"));
-    // The page's own work runs on message turns, which the paused page clock
-    // does not hold back; a few of them let it commit the change.
-    for (let turn = 0; turn < 3; turn += 1) {
-      await new Promise<void>((done) => {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = () => {
-          done();
-        };
-        channel.port2.postMessage(undefined);
-      });
-    }
   }, state);
+  await givePageItsTurns(page);
 }
