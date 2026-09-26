@@ -16,7 +16,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
 - [Finish story 1 event synchronization and native evidence inputs](quick/102-finish-story-event-synchronization/PLAN.md)
 - [Release a lost workspace's preparation assignment and stop keeps whose story left the queue](quick/103-lost-workspace-preparation-release/PLAN.md)
-- [Keep backlog Git operations quiet on success](seeds/SEED-039-quiet-backlog-git-operations.md#quiet-backlog-git-operations) — SEED-039#quiet-backlog-git-operations ([plan](quick/106-quiet-backlog-git-operations/PLAN.md))
 
 ## Backlog list
 
