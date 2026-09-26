@@ -86,6 +86,12 @@ not a developer's local run, is the feedback loop they repeat most.
   shared fixture setup, and `assert_payload`'s per-file `cmp`. Use
   `dough-test-optimization` to profile, run measured experiments, and
   re-profile.
+- **Fewer installer runs per promise** (merged from
+  [story 4](#fewer-installer-runs-per-promise) by the maintainer on
+  2026-09-26). Installer and updater checks, starting with the 24-run
+  Cursor-only protection matrix in `story-payload-update.sh`, drop a run only
+  where another run still observes the same promise at the same boundary. The
+  maintainer reviews a promise-to-run coverage map before any run is removed.
 - **Budget guard.** CI checks the recorded per-job times against a committed
   budget: a ceiling for any single job and one for the total. Set the budget
   from the times this story achieves plus headroom for runner variance, so that
@@ -98,10 +104,6 @@ not a developer's local run, is the feedback loop they repeat most.
 
 **Deferred promises:**
 
-- Proving an installation or update promise with fewer installer runs,
-  including the 24-run Cursor-only protection matrix in
-  `story-payload-update.sh`. This is a coverage decision and belongs to
-  [fewer installer runs per promise](#fewer-installer-runs-per-promise).
 - Dashboard Playwright time (`npm run test:dashboard`). It runs in parallel
   with the CI `test` job and does not set the verdict time.
 - Machine-specific speedups that do not reach CI, such as putting the Command
@@ -159,8 +161,9 @@ another test still observes the same promise at the same boundary.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Status:** Not refined. Deferred from story 2 by the maintainer on
-2026-09-26 and queued directly after it.
+**Status:** Merged into [story 2](#fourfold-local-suite) by the maintainer
+on 2026-09-26, at story 2's checkpoint after its installer per-run savings;
+its promise and coverage decision are delivered there. Not queued separately.
 
 **Goal:** Installer and updater checks prove each installation or update
 promise with the fewest installer runs that keep an observable proof at the
@@ -184,15 +187,15 @@ observer's immediate check is independent of the test-work reductions and can
 land first. Investigate shared setup, fixture cost, synchronization, and runner
 overhead as related test families, and keep measured experiments that preserve
 confidence. Do not count a quiet log, fewer promises proved, or a faster
-isolated test as the result. Story 4 is queued directly after story 2 and
-is the first to drop.
+isolated test as the result. Story 4 was merged into story 2 on 2026-09-26.
 
 ## Open Decisions
 
 None for story 2. Refinement on 2026-09-26 replaced the local fourfold target
-with CI test time, total local work, and a budget guard, and deferred fewer
-installer runs to story 4. Story 4's promise-by-promise coverage decision
-stays with the maintainer.
+with CI test time, total local work, and a budget guard. Its first checkpoint
+the same day merged story 4 (fewer installer runs) back in; the
+promise-by-promise coverage decision stays with the maintainer, through a
+reviewed coverage map.
 
 ## When to Surface
 

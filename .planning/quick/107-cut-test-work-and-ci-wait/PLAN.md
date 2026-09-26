@@ -9,7 +9,10 @@ refined and planned on 2026-09-26. It continues plan 096's decisive
 checkpoint (recoverable from Git at
 `59b21d7^:.planning/quick/096-quiet-stable-fast-tests/PLAN.md`), whose
 unexecuted slices 10–12 and three independent findings moved here. First queued story;
-preparation grants no Take or execution.
+preparation grants no Take or execution. On 2026-09-26, at the checkpoint
+after slice 2, the maintainer merged
+[SEED-037#fewer-installer-runs-per-promise](../../seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise)
+into this story (slice 3) and kept the targets.
 
 ## Goal and scope
 
@@ -24,15 +27,15 @@ back as tests are added.
 - Cheaper tests that prove the same promises: the installer and updater
   itself, the workspace-publication and preparation-assignment suites, and any
   other family the baseline profile shows to be a dominant removable cost.
+- Fewer installer and updater runs per promise, including the 24-run
+  Cursor-only protection matrix in `story-payload-update.sh`, where another
+  run still observes the same promise at the same boundary and the maintainer
+  approved the coverage map.
 - A committed time budget, one ceiling for any single job and one for the
   total, enforced in CI and reported locally.
 
 ### Material exclusions
 
-- Fewer installer runs per promise, including the 24-run Cursor-only
-  protection matrix in `story-payload-update.sh`. This belongs to
-  [SEED-037#fewer-installer-runs-per-promise](../../seeds/SEED-037-quiet-stable-fast-tests.md#fewer-installer-runs-per-promise),
-  queued next.
 - Dashboard Playwright time. It runs in parallel with the CI `test` job and
   does not set the verdict time.
 - Machine-specific speedups that do not reach CI, such as the macOS git
@@ -102,11 +105,12 @@ The planning profile in Learnings is not this baseline.
 | 1. Finished run → verdict at once | 1 | Mailbox journey with an injected poll interval far longer than the test's own lifetime: the registered finished revision's verdict still arrives, so only the wake can have delivered it |
 | 2. Run in progress → polling continues | 1 | Same journey: a registration whose run is still in progress gets its verdict from a later poll after the run completes |
 | Verdict delay removed for the installed wait | 1 | `execution-payload-update.sh`: the `.claude/skills` `await-revision` no longer takes about 30 s (paired job time in Learnings) |
-| 3. CI `Run test` median ≤ 120 s | 5 | At least three CI runs of the delivered candidate on the story branch (push or `workflow_dispatch`); step times and median in Learnings |
-| 4. Total local work ≥ 35% less | 5 | Paired runs: the candidate's median total job-seconds ≤ 0.65 × the start revision's |
-| 5. Over budget → CI fails, naming job, time, and ceiling; locally prints and passes | 6 | Runner tests with substitute checks and a budget small enough to exceed; CI mode fails, local mode passes and reports |
-| 6. Within budget → silent | 6 | Runner test within budget prints nothing; the delivered candidate's CI run passes without any budget output |
-| Quiet, stable, same proofs | 2–5 | Each kept experiment names the promise and its surviving proof in Learnings; five consecutive silent passing complete local runs in slice 5 |
+| 3. CI `Run test` median ≤ 120 s | 6 | At least three CI runs of the delivered candidate on the story branch (push or `workflow_dispatch`); step times and median in Learnings |
+| 4. Total local work ≥ 35% less | 6 | Paired runs: the candidate's median total job-seconds ≤ 0.65 × the start revision's |
+| 5. Over budget → CI fails, naming job, time, and ceiling; locally prints and passes | 7 | Runner tests with substitute checks and a budget small enough to exceed; CI mode fails, local mode passes and reports |
+| 6. Within budget → silent | 7 | Runner test within budget prints nothing; the delivered candidate's CI run passes without any budget output |
+| Each promise observed with fewer installer runs | 3 | Maintainer-approved coverage map: every removed run names the surviving test that observes the same promise at the same boundary; the remaining checks pass silently |
+| Quiet, stable, same proofs | 2–6 | Each kept experiment names the promise and its surviving proof in Learnings; five consecutive silent passing complete local runs in slice 6 |
 
 ## Current decisions
 
@@ -130,18 +134,23 @@ The planning profile in Learnings is not this baseline.
   keeps only a supported saving, and records the surviving proof for any
   changed case. Replace a slice's hypothesis with the dominant cost the
   baseline profile shows, and record why, before starting it.
-- **Decisive checkpoints.** After each of slices 2, 3, and 4, compare
+- **Coverage map before removal.** Slice 3 removes an installer or updater
+  run only after the maintainer approves a promise-to-run map in which each
+  proposed removal names the surviving test that observes the same promise at
+  the same boundary (the seed's rejection constraint). The map is a stop for
+  review, not a proof by itself.
+- **Decisive checkpoints.** After each of slices 2 through 5, compare
   paired total job-seconds with the 0.65 target and estimate the CI time on
   about four cores. If the recorded remaining experiments cannot plausibly
   close the gap, record the measurement, gap, invalidated assumption, and
   remaining candidates here, and stop for the maintainer before the next
   experiment. Slice 1 and any kept savings remain delivered either way; slice
-  5 then records what was achieved, and slice 6 may still set the budget from
+  6 then records what was achieved, and slice 7 may still set the budget from
   it.
 - **Stable means cause-fixed**, as in plan 096: a destabilized test gets its
   cause fixed, never a retry or a lower default.
 
-## Checkpoint after slice 2 (2026-09-26): stopped for the maintainer
+## Checkpoint after slice 2 (2026-09-26): resolved by the maintainer
 
 - **Measurement.** Paired installer and updater family, start revision versus
   candidate, three alternating runs each at loads 9–13, six in parallel:
@@ -173,6 +182,16 @@ The planning profile in Learnings is not this baseline.
   target, change the targets, bring the fewer-installer-runs work into this
   story, or close this story at slices 1–2 plus the budget (slice 6) set from
   the achieved times.
+- **Resolution (maintainer, 2026-09-26).** Keep both targets; they are not the
+  cause of the gap. Continue the workspace-publication and
+  preparation-assignment experiments, and bring the fewer-installer-runs work
+  into this story as slice 3, whose coverage map the maintainer reviews
+  before any run is removed. The remaining installer family (about 479
+  job-seconds) plus the two experiment families (400) make the roughly 400
+  job-second gap plausible to close; the next checkpoint follows slice 3.
+  Slice numbers above, in Preparation review, and in earlier Learnings are
+  as they were before this resolution: workspace publication and preparation
+  assignment are now slices 4 and 5, measurement 6, and the budget 7.
 
 ## Ordered slices
 
@@ -228,7 +247,30 @@ calling check); repeated identical setup across one check's runs. Speeding up
 checks are the proof, and its user-visible behavior must not change. Decisive
 checkpoint afterwards.
 
-### 3. Workspace-publication suites cost less
+### 3. Installer and updater checks prove each promise with fewer runs
+
+Type: Behavior
+Status: planned
+Proof:
+- Coverage map, then stop: for each installer and updater check, list every
+  `install.sh` and `apply` run, the promise it observes, and the boundary it
+  observes it at; propose removals, each naming the surviving test that still
+  observes that promise at that boundary. Record the map in Learnings and stop
+  for the maintainer's approval before removing any run.
+- After approval, remove only approved runs. Every installer, updater, and
+  payload check passes silently with its remaining assertions unchanged.
+- A focused paired before/after of the family's summed job-seconds against the
+  slice 2 candidate is recorded in Learnings, with the approved removals.
+
+Behavior: the developer or CI runs the suite → every installation and update
+promise is still observed at its boundary, with fewer installer and updater
+runs.
+
+Start with the 24-run Cursor-only protection matrix in
+`story-payload-update.sh` (about 30 runs in that check), then the other
+payload-update checks. Decisive checkpoint afterwards.
+
+### 4. Workspace-publication suites cost less
 
 Type: Behavior
 Status: planned
@@ -247,7 +289,7 @@ the local bare remote, product process starts, or waits. If the baseline
 profile ranks another family above this one, replace it here and record why.
 Decisive checkpoint afterwards.
 
-### 4. Preparation-assignment suites cost less
+### 5. Preparation-assignment suites cost less
 
 Type: Behavior
 Status: planned
@@ -260,12 +302,12 @@ Behavior: the developer or CI runs the suite → the preparation-assignment
 journeys (announce, land, abandon, release) prove the same promises with less
 work.
 
-Profile first. If slice 3 found a cost these suites share (for example the
+Profile first. If slice 4 found a cost these suites share (for example the
 same publication fixture), reuse that change here instead of a second one,
 and count its saving once. If the baseline profile ranks another family above
 this one, replace it here and record why. Decisive checkpoint afterwards.
 
-### 5. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
+### 6. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
 
 Type: Behavior
 Status: planned
@@ -274,7 +316,7 @@ Proof:
   total job-seconds ≤ 0.65 × the start revision's. Record both sides, the
   loads, and local wall times.
 - At least three CI runs of the delivered candidate: `Run test` step median
-  ≤ 120 s. Record each run's per-job times; slice 6 calibrates the budget
+  ≤ 120 s. Record each run's per-job times; slice 7 calibrates the budget
   from them.
 - Five consecutive complete local runs (`npm test`) pass silently.
 - Learnings list every kept experiment's saving and surviving proof.
@@ -283,7 +325,7 @@ Behavior: an agent publishes a revision → CI's test step returns its verdict i
 at most 120 s by median, and a developer's complete local run does at least
 35% less work than at the start revision, with the same quiet, stable proof.
 
-### 6. A committed time budget fails CI when a job or the total exceeds it
+### 7. A committed time budget fails CI when a job or the total exceeds it
 
 Type: Behavior
 Status: planned
@@ -297,7 +339,7 @@ Proof:
   - within budget → no output.
 - The CI `test` job keeps its per-job times file as a short-lived workflow
   artifact, so calibration reads CI's own times rather than local ones.
-  Ceilings come from slice 5's CI runs; record them and the calibration in
+  Ceilings come from slice 6's CI runs; record them and the calibration in
   Learnings.
 - The delivered candidate's CI `test` job passes within budget and prints
   nothing about it.
@@ -309,18 +351,19 @@ Behavior: a change makes a job or the whole suite exceed the committed budget
 the run still passes and prints the same comparison. A run within budget
 prints nothing.
 
-Dispatch after slice 5, or after a checkpoint stop, so the ceilings reflect
-the achieved times. The CI times artifact may land earlier, with slice 5, if
+Dispatch after slice 6, or after a checkpoint stop, so the ceilings reflect
+the achieved times. The CI times artifact may land earlier, with slice 6, if
 its CI runs need it.
 
 ## Promise ownership
 
 - Immediate check on registration and continued polling: slice 1.
-- CI test time ≤ 120 s median: slices 2–4 (savings), slice 5 (measurement).
-- Total local work ≥ 35% less: slices 1–4 (savings), slice 5 (measurement).
-- Budget guard, its breach report, and a silent within-budget run: slice 6,
+- CI test time ≤ 120 s median: slices 2–5 (savings), slice 6 (measurement).
+- Total local work ≥ 35% less: slices 1–5 (savings), slice 6 (measurement).
+- Each installation and update promise observed with fewer runs: slice 3.
+- Budget guard, its breach report, and a silent within-budget run: slice 7,
   including the delivered candidate's CI run.
-- Quiet, stable, same proofs: every slice's surviving-proof record; slice 5's
+- Quiet, stable, same proofs: every slice's surviving-proof record; slice 6's
   repeated runs.
 
 The deferred promises have no slice.
