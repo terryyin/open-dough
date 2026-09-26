@@ -26,11 +26,7 @@ import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-
 for (const mode of agentModes) {
   test(`a ${mode} start result alone carries setup and the first delivery to remote acceptance`, async (t) => {
     const trunk = await createQueuedTrunk({ contributing: readyContributing });
-    const observer = {};
-    t.after(async () => {
-      await observer.delivery?.stopObserver(observer.directory);
-      trunk.cleanup();
-    });
+    t.after(trunk.cleanup);
     const branch = `exec/${mode}`;
     const { receipt, code, workspace } = await startCliResult(trunk, mode);
     assert.equal(code, 0);
@@ -69,8 +65,11 @@ for (const mode of agentModes) {
     await git(workspace, "commit", "-m", "first verified increment");
     const increment = await revParse(workspace, "HEAD");
 
-    const delivery = await installManagedDelivery(trunk.fixture, workspace);
-    observer.delivery = delivery;
+    const delivery = await installManagedDelivery(
+      trunk,
+      trunk.fixture,
+      workspace,
+    );
     const targetRef =
       mode === "trunk" ? "refs/heads/main" : `refs/heads/${branch}`;
     const delivered = await delivery.deliverManagedExecutionIncrement({
@@ -81,7 +80,6 @@ for (const mode of agentModes) {
       targetRef,
       repo: "owner/project",
     });
-    observer.directory = delivered.observation?.directory;
 
     assert.equal(delivered.ok, true, JSON.stringify(delivered));
     assert.equal(delivered.publication, "accepted");

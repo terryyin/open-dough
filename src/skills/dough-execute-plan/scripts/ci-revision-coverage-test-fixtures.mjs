@@ -6,7 +6,6 @@ import {
   mkdtempSync,
   readFileSync,
   realpathSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,6 +13,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
+import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -57,7 +60,8 @@ export async function createRevisionCoverageFixture(
   const installed = join(project, ".agents/skills/dough-execute-plan");
   const adapterState = join(fixture, "attempts.json");
   const adapterCalls = join(fixture, "adapter-calls");
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(fixture);
+  t.after(teardown.cleanup);
   mkdirSync(project, { recursive: true });
   mkdirSync(join(project, ".planning"));
   cpSync(sourceSkill, installed, { recursive: true });
@@ -130,6 +134,9 @@ export async function createRevisionCoverageFixture(
         ...(now ? { now } : {}),
       }),
   });
+  deferWorkerStop(teardown, worker, () =>
+    mailbox.requestMailboxStop(directory, { root: project, storage }),
+  );
   await waitFor(
     () => Number(readFileSync(adapterCalls, "utf8")) === 1,
     "initial poll",

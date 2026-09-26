@@ -12,6 +12,7 @@ import {
   exec,
   launcher,
 } from "./ci-cursor-lifecycle-test-fixtures.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitWorkerSignal,
   waitForFile,
@@ -20,6 +21,8 @@ import {
 
 test("Cursor reuses one execution observer through pushes and stops its exact mailbox", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-cursor-lifecycle-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const bin = join(root, "bin");
   writeBlockingGithubListCommand(bin);
   const nixTmp = join(root, "nix-shell");
@@ -33,13 +36,10 @@ test("Cursor reuses one execution observer through pushes and stops its exact ma
     PATH: `${bin}:${process.env.PATH}`,
   };
   const replay = createCursorReplay(
+    teardown,
     { ...shared, TMPDIR: nixTmp },
     { ...shared, TMPDIR: nativeTmp },
   );
-  t.after(async () => {
-    await replay.stop();
-    rmSync(root, { recursive: true, force: true });
-  });
 
   const ready = await replay.readiness();
   assert.match(ready.additional_context, /CI_MONITOR_READY/);

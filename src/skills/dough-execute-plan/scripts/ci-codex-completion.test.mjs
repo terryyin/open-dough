@@ -31,10 +31,11 @@ test("real stream identity supports pending exact and ancestor completion", asyn
   for (const source of ["exact", "ancestor"]) {
     for (const verdict of ["success", "failure"]) {
       await t.test(`${source} pending to ${verdict}`, async (t) => {
-        const env = blockingGithubEnvironment(t);
-        const replay = createCodexReplay(env);
+        const { env, teardown } = blockingGithubEnvironment(t);
+        const replay = createCodexReplay(teardown, env, {
+          exitSignal: "SIGKILL",
+        });
         const attached = await replay.setup();
-        t.after(() => attached.process.kill("SIGKILL"));
         const identity = readWorkerIdentity(attached.directory);
         assert.equal(
           identity.pid,
@@ -61,8 +62,7 @@ test("real stream identity supports pending exact and ancestor completion", asyn
           `${sha}.json`,
           coverage("pending"),
         );
-        const waiting = launchAwait(env, attached.directory, sha);
-        t.after(() => waiting.child.kill("SIGTERM"));
+        const waiting = launchAwait(teardown, env, attached.directory, sha);
         // Each recheck follows a pass that read the pending coverage and found
         // the stream alive; a receipt written instead would end the wait.
         await waiting.waitForRechecks(2);
@@ -84,8 +84,12 @@ test("real stream identity supports pending exact and ancestor completion", asyn
           result.effectiveEvidence.source,
           source === "exact" ? "exact" : "not_required_basis",
         );
-        const completion = launchComplete(env, attached.directory, sha);
-        t.after(() => completion.child.kill("SIGTERM"));
+        const completion = launchComplete(
+          teardown,
+          env,
+          attached.directory,
+          sha,
+        );
         const completionOutput = await completion.completed;
         assert.equal(completionOutput.code, 0, completionOutput.stderr);
         const finished = parseReceipt(completionOutput.stdout);
@@ -107,13 +111,13 @@ test("real stream identity supports pending exact and ancestor completion", asyn
 });
 
 test("stream completion rejects missing, wrong-mailbox, unknown-mode, and dead identities without signaling another stream", async (t) => {
-  const env = blockingGithubEnvironment(t);
-  const replay = createCodexReplay(env);
-  const otherReplay = createCodexReplay(env);
+  const { env, teardown } = blockingGithubEnvironment(t);
+  const replay = createCodexReplay(teardown, env, { exitSignal: "SIGKILL" });
+  const otherReplay = createCodexReplay(teardown, env, {
+    exitSignal: "SIGKILL",
+  });
   const attached = await replay.setup();
   const other = await otherReplay.setup();
-  t.after(() => attached.process.kill("SIGKILL"));
-  t.after(() => other.process.kill("SIGKILL"));
   const identity = readWorkerIdentity(attached.directory);
   const sha = "a".repeat(40);
   registerPushedRevision(attached.directory, sha);

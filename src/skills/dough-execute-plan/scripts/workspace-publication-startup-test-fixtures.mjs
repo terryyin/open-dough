@@ -8,6 +8,7 @@ import {
   awaitSignalWhileRunning,
   settledProbe,
 } from "./process-lifetime-test-fixtures.mjs";
+import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
 import {
   agentIdentity,
@@ -53,11 +54,7 @@ export function startProcess(
     ...extra,
   ];
   const child = spawn(process.execPath, args, { env });
-  const exited = new Promise((resolve) => child.once("exit", resolve));
-  trunk.defer(async () => {
-    child.kill();
-    await exited;
-  });
+  deferChildExit(trunk, child);
   let stdout = "",
     stderr = "";
   child.stdout.on("data", (data) => {

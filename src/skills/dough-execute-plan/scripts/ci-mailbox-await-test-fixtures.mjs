@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
+import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 import {
   launcher,
   recheckPauseProbe,
@@ -24,15 +25,25 @@ export async function register(env, mailbox, revision = sha) {
   });
 }
 
-export function launchAwait(env, mailbox, revision = sha) {
-  return launchMailboxCommand(env, ["await-revision", mailbox, revision]);
+// Each command child is killed if still running, and its exit awaited, by the
+// fixture's `fixtureTeardown` before the fixture is removed.
+export function launchAwait(teardown, env, mailbox, revision = sha) {
+  return launchMailboxCommand(teardown, env, [
+    "await-revision",
+    mailbox,
+    revision,
+  ]);
 }
 
-export function launchComplete(env, mailbox, revision = sha) {
-  return launchMailboxCommand(env, ["complete-revision", mailbox, revision]);
+export function launchComplete(teardown, env, mailbox, revision = sha) {
+  return launchMailboxCommand(teardown, env, [
+    "complete-revision",
+    mailbox,
+    revision,
+  ]);
 }
 
-function launchMailboxCommand(env, args) {
+function launchMailboxCommand(teardown, env, args) {
   // Observe handler registration and each recheck pause without adding test
   // hooks to the CLI protocol.
   const readinessProbe = `data:text/javascript,${encodeURIComponent(`
@@ -51,6 +62,7 @@ function launchMailboxCommand(env, args) {
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     },
   );
+  deferChildExit(teardown, child, "SIGKILL");
   let cancellationReady = false;
   let rechecks = 0;
   let closed = false;

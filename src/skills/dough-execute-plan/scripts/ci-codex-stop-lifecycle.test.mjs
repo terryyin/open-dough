@@ -20,12 +20,11 @@ import {
 } from "./watch-ci-test-fixtures.mjs";
 
 test("documented Codex stop ends only its observer with multiple pending revisions", async (t) => {
-  const env = blockingGithubEnvironment(t);
+  const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
-  const replay = createCodexReplay(env);
+  const replay = createCodexReplay(teardown, env);
   const attached = await replay.setup();
   const child = attached.process;
-  t.after(() => child.kill("SIGTERM"));
   await awaitWorkerSignal(
     attached.directory,
     join(root, "github-request-started"),
@@ -39,9 +38,8 @@ test("documented Codex stop ends only its observer with multiple pending revisio
     attempt: 1,
   };
   publishMailboxEvent(attached.directory, failure);
-  const other = createCodexReplay(env);
+  const other = createCodexReplay(teardown, env);
   const unaffected = await other.setup();
-  t.after(() => unaffected.process.kill("SIGTERM"));
 
   const started = Date.now();
   const texts = [];

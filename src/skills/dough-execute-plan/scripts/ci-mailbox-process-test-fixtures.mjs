@@ -11,6 +11,8 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createMailbox, recordWorkerIdentity } from "./ci-mailbox.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
 export const launcher = fileURLToPath(
@@ -54,6 +56,8 @@ export async function setupProcessMailbox(
   { observeWorkerRechecks = false } = {},
 ) {
   const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
+  const teardown = fixtureTeardown(directory);
+  t.after(teardown.cleanup);
   const bin = join(directory, "bin");
   mkdirSync(bin);
   writeFileSync(
@@ -105,10 +109,7 @@ if (process.argv[3] === 'list') {
     { env, timeout: 5000 },
   );
   const mailbox = JSON.parse(stdout.slice("CI_OBSERVER ".length)).directory;
-  t.after(async () => {
-    await exec(process.execPath, [launcher, "stop", mailbox], { env });
-    rmSync(directory, { recursive: true, force: true });
-  });
+  deferObserverStop(teardown, { launcher, directory: mailbox, env });
   const deliver = async (host, receipt = "") => {
     const input = JSON.stringify({
       session_id: "process-test",
@@ -124,7 +125,7 @@ if (process.argv[3] === 'list') {
     result.child.stdin.end(input);
     return JSON.parse((await result).stdout);
   };
-  return { directory, mailbox, stdout, deliver, env };
+  return { directory, mailbox, stdout, deliver, env, teardown };
 }
 
 export function releaseRun(directory, overrides = {}) {

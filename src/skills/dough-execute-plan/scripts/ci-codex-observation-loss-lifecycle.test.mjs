@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { completingFixture } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { runDocumentedCodexHostBinding } from "./ci-notify-codex-test-fixtures.mjs";
+import {
+  deferChildExit,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 import { waitForFile } from "./watch-ci-test-fixtures.mjs";
 
 const documentedKey = "ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR";
@@ -46,13 +50,12 @@ function bridgeCodexStream(child) {
 
 test("documented Codex host binding reports lost observation, not finished, when a real disposable stream process exits without terminal evidence", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-loss-test-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const child = spawn(process.execPath, [completingFixture, root], {
     env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: root, TMPDIR: root },
   });
-  t.after(() => {
-    if (child.exitCode === null && !child.killed) child.kill("SIGKILL");
-  });
+  deferChildExit(teardown, child, "SIGKILL");
   const tools = bridgeCodexStream(child);
 
   const notifications = [];

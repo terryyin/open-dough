@@ -38,10 +38,7 @@ const otherD = "- [Item D, other writer](seeds/D.md#d)";
 
 test("sibling backlog change preserves backlog semantics through the rebase adapter", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   // Seed the shared backlog on trunk so sibling and owned edits share a base.
   mkdirSync(join(fixture.integration, ".planning"), { recursive: true });
@@ -85,7 +82,6 @@ test("sibling backlog change preserves backlog semantics through the rebase adap
       return { ok: true };
     },
   });
-  fixture.observerDirectory = delivered.observation.directory;
 
   assert.equal(delivered.ok, true, JSON.stringify(delivered));
   assert.equal(

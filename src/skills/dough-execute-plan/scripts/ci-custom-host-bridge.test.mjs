@@ -18,6 +18,8 @@ import {
   runId,
   spawnStream,
 } from "./ci-custom-bridge-test-fixtures.mjs";
+import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 function hookInput(host, receipt = "") {
   return {
@@ -79,22 +81,19 @@ function assertCustomFailure(event) {
 
 for (const host of ["cursor", "claude"])
   test(`${host}: custom failure crosses detached launch and native-shaped hook delivery`, async (t) => {
-    const fixture = await createCustomBridgeFixture();
-    let directory = null;
-    t.after(async () => {
-      if (directory)
-        await runCli(fixture.launcher, ["stop", directory], {
-          cwd: fixture.project,
-          env: fixture.env,
-        });
-      fixture.cleanup();
-    });
+    const fixture = await createCustomBridgeFixture(t);
     const launched = await runCli(
       fixture.launcher,
       ["start", "--execution", "owner/project", "feature/custom", "60000"],
       { cwd: fixture.project, env: fixture.env },
     );
-    directory = observerReceipt(launched.stdout).directory;
+    const directory = observerReceipt(launched.stdout).directory;
+    deferObserverStop(fixture.teardown, {
+      launcher: fixture.launcher,
+      directory,
+      cwd: fixture.project,
+      env: fixture.env,
+    });
     const attached = await deliverHostHook(
       fixture.hook,
       host,
@@ -170,15 +169,9 @@ for (const host of ["cursor", "claude"])
   });
 
 test("Codex stream carries the same custom failure as data and preserves unread shutdown evidence", async (t) => {
-  const fixture = await createCustomBridgeFixture();
+  const fixture = await createCustomBridgeFixture(t);
   const child = spawnStream(fixture.launcher, fixture.env, fixture.project);
-  t.after(async () => {
-    if (child.exitCode === null) {
-      child.kill("SIGTERM");
-      await once(child, "exit");
-    }
-    fixture.cleanup();
-  });
+  deferChildExit(fixture.teardown, child);
   const lines = createInterface({ input: child.stdout });
   const iterator = lines[Symbol.asyncIterator]();
   const receipt = (await iterator.next()).value;

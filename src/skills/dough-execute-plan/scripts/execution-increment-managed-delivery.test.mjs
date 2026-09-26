@@ -20,10 +20,7 @@ const repo = "owner/project";
 
 test("Trunk Mode managed delivery establishes observation, attaches the accepted SHA, and delivers a delayed failure", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -33,7 +30,6 @@ test("Trunk Mode managed delivery establishes observation, attaches the accepted
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
 
   assert.equal(delivered.ok, true);
   assert.equal(delivered.publication, "accepted");
@@ -69,10 +65,7 @@ test("Trunk Mode managed delivery establishes observation, attaches the accepted
 
 test("Story Branch managed delivery observes the recorded execution branch target", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -83,7 +76,6 @@ test("Story Branch managed delivery observes the recorded execution branch targe
     targetRef: storyTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
 
   assert.equal(delivered.observation.state, "attached");
   assert.equal(delivered.receipt.sha, fixture.candidateSha);
@@ -103,10 +95,7 @@ test("Story Branch managed delivery observes the recorded execution branch targe
 
 test("a second managed delivery reuses the matching live observer", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const first = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -116,7 +105,6 @@ test("a second managed delivery reuses the matching live observer", async (t) =>
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = first.observation.directory;
   assert.equal(first.observation.state, "attached");
 
   writeFileSync(join(fixture.execution, "second.txt"), "second increment\n");
@@ -150,10 +138,7 @@ test("a second managed delivery reuses the matching live observer", async (t) =>
 
 test("missing host alias still resolves a usable checkout runtime", async (t) => {
   const fixture = await createManagedFixture({ platforms: [".agents"] });
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const runtime = fixture.resolveCheckoutRuntime(fixture.execution, {
     host: "claude",
@@ -172,7 +157,6 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
   assert.equal(delivered.observation.state, "attached");
   assert.equal(delivered.runtime.alias, ".agents");
 });

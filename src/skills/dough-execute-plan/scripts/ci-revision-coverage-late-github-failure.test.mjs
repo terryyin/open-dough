@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -19,19 +19,15 @@ import {
   waitFor,
 } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
+import {
+  deferWorkerStop,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 
 test("a selected workflow with a non-default display name delivers a late failure to its owning coordinator and then records the registered repair's success, while unrelated runs, a sibling, and another owner stay isolated", async (t) => {
   const storage = mkdtempSync(join(tmpdir(), "ci-late-github-"));
-  // Declared with `let` (not const) so the cleanup below can stop whichever
-  // mailboxes/workers were actually created if setup fails partway through.
-  // eslint-disable-next-line prefer-const
-  let worker, otherWorker, directory, otherDirectory;
-  t.after(async () => {
-    if (directory) requestMailboxStop(directory, { storage });
-    if (otherDirectory) requestMailboxStop(otherDirectory, { storage });
-    await Promise.allSettled([worker, otherWorker]);
-    rmSync(storage, { recursive: true, force: true });
-  });
+  const teardown = fixtureTeardown(storage);
+  t.after(teardown.cleanup);
 
   const shaA = "a".repeat(40);
   const shaSibling = "b".repeat(40);
@@ -41,6 +37,13 @@ test("a selected workflow with a non-default display name delivers a late failur
   const branch = "feature/late";
   const otherBranch = "feature/other";
   const failed = { status: "completed", conclusion: "failure" };
+  const failedRun = (workflow, databaseId, headSha, headBranch) => ({
+    workflow,
+    databaseId,
+    headSha,
+    headBranch,
+    ...failed,
+  });
 
   // One modeled repository: the selected `ci.yml` declares a display name
   // other than `CI`, beside a deployment workflow. Every listing is answered
@@ -48,34 +51,10 @@ test("a selected workflow with a non-default display name delivers a late failur
   const github = modeledGithubActions({
     workflows: { "ci.yml": "Project checks", "deploy.yml": "Deploy" },
     runs: [
-      {
-        workflow: "deploy.yml",
-        databaseId: 300,
-        headSha: shaA,
-        headBranch: branch,
-        ...failed,
-      },
-      {
-        workflow: "ci.yml",
-        databaseId: 301,
-        headSha: shaUnrelated,
-        headBranch: branch,
-        ...failed,
-      },
-      {
-        workflow: "ci.yml",
-        databaseId: 302,
-        headSha: shaRepair,
-        headBranch: "main",
-        ...failed,
-      },
-      {
-        workflow: "ci.yml",
-        databaseId: 900,
-        headSha: shaOther,
-        headBranch: otherBranch,
-        ...failed,
-      },
+      failedRun("deploy.yml", 300, shaA, branch),
+      failedRun("ci.yml", 301, shaUnrelated, branch),
+      failedRun("ci.yml", 302, shaRepair, "main"),
+      failedRun("ci.yml", 900, shaOther, otherBranch),
     ],
     jobs: {
       300: [{ databaseId: 3000, name: "deploy", conclusion: "failure" }],
@@ -85,11 +64,11 @@ test("a selected workflow with a non-default display name delivers a late failur
     },
   });
 
-  directory = createMailbox(
+  const directory = createMailbox(
     { mode: "execution", repo: "owner/project", branch, maxDurationMs: 60_000 },
     { storage },
   );
-  otherDirectory = createMailbox(
+  const otherDirectory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -111,18 +90,20 @@ test("a selected workflow with a non-default display name delivers a late failur
     { storage },
   );
 
+  const startWorker = (mailbox, sleep) => {
+    const worker = runMailboxWorker(mailbox, {
+      storage,
+      observe: (request) =>
+        watchCiExecution({ ...request, gh: github.gh, sleep }),
+    });
+    deferWorkerStop(teardown, worker, () =>
+      requestMailboxStop(mailbox, { storage }),
+    );
+    return worker;
+  };
   const { sleep, sleeps } = controllableSleep();
-  worker = runMailboxWorker(directory, {
-    storage,
-    observe: (request) =>
-      watchCiExecution({ ...request, gh: github.gh, sleep }),
-  });
-  const { sleep: otherSleep } = controllableSleep();
-  otherWorker = runMailboxWorker(otherDirectory, {
-    storage,
-    observe: (request) =>
-      watchCiExecution({ ...request, gh: github.gh, sleep: otherSleep }),
-  });
+  const worker = startWorker(directory, sleep);
+  const otherWorker = startWorker(otherDirectory, controllableSleep().sleep);
 
   await waitFor(
     () => sleeps.length > 0 && github.listCallCount(branch) === 1,
@@ -137,6 +118,16 @@ test("a selected workflow with a non-default display name delivers a late failur
       `poll ${polls}`,
     );
   };
+  // A selected run for this branch, still running when it first appears.
+  const runningCiRun = (databaseId, headSha) => ({
+    workflow: "ci.yml",
+    databaseId,
+    headSha,
+    headBranch: branch,
+    status: "in_progress",
+    conclusion: null,
+    url: `https://github.com/owner/project/actions/runs/${databaseId}`,
+  });
   const coverage = () =>
     Object.fromEntries(
       readRevisionCoverage(directory).map(({ sha, state }) => [sha, state]),
@@ -153,15 +144,7 @@ test("a selected workflow with a non-default display name delivers a late failur
   });
   assert.deepEqual(readMailboxEvents(directory), []);
 
-  const runA = {
-    workflow: "ci.yml",
-    databaseId: 501,
-    headSha: shaA,
-    headBranch: branch,
-    status: "in_progress",
-    conclusion: null,
-    url: "https://github.com/owner/project/actions/runs/501",
-  };
+  const runA = runningCiRun(501, shaA);
   github.runs.push(runA);
   await advancePoll(); // exposes the running attempt for A only
   assert.deepEqual(coverage(), {
@@ -220,15 +203,7 @@ test("a selected workflow with a non-default display name delivers a late failur
 
   // The owner pushes and registers a repair; its selected run then succeeds.
   registerPushedRevision(directory, shaRepair);
-  const runRepair = {
-    workflow: "ci.yml",
-    databaseId: 502,
-    headSha: shaRepair,
-    headBranch: branch,
-    status: "in_progress",
-    conclusion: null,
-    url: "https://github.com/owner/project/actions/runs/502",
-  };
+  const runRepair = runningCiRun(502, shaRepair);
   github.runs.push(runRepair);
   await advancePoll();
   assert.equal(coverage()[shaRepair], "pending");

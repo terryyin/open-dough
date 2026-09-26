@@ -5,7 +5,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,6 +13,7 @@ import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   processEnded,
@@ -82,29 +82,46 @@ export async function awaitWorkerSignal(directory, path) {
 
 // Registers, on a `fixtureTeardown`, stopping the CI observer started at
 // `directory` through the real `stop` command and proving its recorded worker
-// exited, so the fixture it runs from is removed only after it is gone.
-export function deferObserverStop(teardown, { launcher, directory, cwd, env }) {
+// exited, so the fixture it runs from is removed only after it is gone. A
+// worker the test already ended is only confirmed dead: `stop` would wait on a
+// lost worker, or fail on a mailbox the test removed.
+export function deferObserverStop(teardown, observer) {
+  const { directory } = observer;
   const worker = readWorkerIdentity(directory);
   teardown.defer(async () => {
-    await runCommand(process.execPath, [launcher, "stop", directory], {
-      cwd,
-      env,
-    });
+    if (checkMailboxWorkerLiveness(worker, directory) !== "dead")
+      await stopObserver(observer);
     assert.equal(checkMailboxWorkerLiveness(worker, directory), "dead");
   });
 }
 
+// Stops the CI observer at `directory` through the real `stop` command of
+// `launcher`; a failing stop rejects.
+export async function stopObserver({ launcher, directory, cwd, env }) {
+  await runCommand(process.execPath, [launcher, "stop", directory], {
+    cwd,
+    env,
+  });
+}
+
+// A fixture root whose `gh` blocks every request. Callers defer stopping what
+// they start from it through the returned `teardown`, which `t.after` runs
+// before the root is removed.
 export function blockingGithubEnvironment(t) {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-lifecycle-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const bin = join(root, "bin");
   writeBlockingGithubListCommand(bin);
-  t.after(() => rmSync(root, { recursive: true, force: true }));
   return {
-    ...process.env,
-    DOUGH_CI_MAILBOX_ROOT: root,
-    TMPDIR: root,
-    CI_TEST_ROOT: root,
-    PATH: `${bin}:${process.env.PATH}`,
+    teardown,
+    env: {
+      ...process.env,
+      DOUGH_CI_MAILBOX_ROOT: root,
+      TMPDIR: root,
+      CI_TEST_ROOT: root,
+      PATH: `${bin}:${process.env.PATH}`,
+    },
   };
 }
 

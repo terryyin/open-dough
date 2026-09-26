@@ -16,10 +16,7 @@ const repo = "owner/project";
 
 test("lost push response resumes from remote evidence without another push", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -29,7 +26,6 @@ test("lost push response resumes from remote evidence without another push", asy
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
   assert.equal(delivered.observation.state, "attached");
   const accepted = delivered.receipt.sha;
   const pushesBefore = await messageCount(
@@ -70,10 +66,7 @@ test("lost push response resumes from remote evidence without another push", asy
 
 test("missing observation attachment recovers matching live owner without another push", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -83,7 +76,6 @@ test("missing observation attachment recovers matching live owner without anothe
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
   const accepted = delivered.receipt.sha;
   // Drop coverage to simulate lost attachment after acceptance.
   rmSync(

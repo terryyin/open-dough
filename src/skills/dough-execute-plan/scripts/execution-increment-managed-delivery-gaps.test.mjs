@@ -64,10 +64,7 @@ test("local-only authority does not push", async (t) => {
 
 test("managed delivery returns needs-validation when a racing remote tip changes the candidate", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(fixture.origin);
   const delivered = await fixture.deliverManagedExecutionIncrement({
@@ -78,7 +75,6 @@ test("managed delivery returns needs-validation when a racing remote tip changes
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation?.directory;
 
   assert.equal(delivered.ok, false);
   assert.equal(delivered.publication, "reconciled");

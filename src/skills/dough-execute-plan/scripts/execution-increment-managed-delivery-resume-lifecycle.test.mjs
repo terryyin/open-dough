@@ -24,10 +24,7 @@ const repo = "owner/project";
 
 test("unread failures survive resume and a later failure is delivered", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -37,7 +34,6 @@ test("unread failures survive resume and a later failure is delivered", async (t
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
   const accepted = delivered.receipt.sha;
 
   publishMailboxEvent(delivered.observation.directory, {
@@ -100,10 +96,7 @@ test("unread failures survive resume and a later failure is delivered", async (t
 
 test("undiscovered revision through completion reports truthful unproved coverage", async (t) => {
   const fixture = await createManagedFixture();
-  t.after(async () => {
-    await fixture.stopObserver(fixture.observerDirectory);
-    fixture.cleanup();
-  });
+  t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -113,7 +106,6 @@ test("undiscovered revision through completion reports truthful unproved coverag
     targetRef: trunkTarget,
     repo,
   });
-  fixture.observerDirectory = delivered.observation.directory;
   const accepted = delivered.receipt.sha;
   assert.equal(
     readRevisionCoverage(delivered.observation.directory)[0].state,
@@ -155,7 +147,6 @@ test("undiscovered revision through completion reports truthful unproved coverag
     ),
     true,
   );
-  fixture.observerDirectory = null;
 });
 
 test("ended observer receipt never reports active attachment on the host hook", async (t) => {

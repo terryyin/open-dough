@@ -7,7 +7,6 @@ import {
   mkdtempSync,
   readFileSync,
   realpathSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,6 +14,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -34,10 +34,15 @@ async function waitForCustomFailure(directory) {
   throw new Error("custom failure event");
 }
 
-export async function createCustomBridgeFixture() {
+// A project with a custom CI adapter and an installed runtime. Callers defer
+// stopping what they start from it through the returned `teardown`, which
+// `t.after` runs before the fixture is removed.
+export async function createCustomBridgeFixture(t) {
   const fixture = realpathSync(
     mkdtempSync(join(tmpdir(), "ci-custom-bridge-")),
   );
+  const teardown = fixtureTeardown(fixture);
+  t.after(teardown.cleanup);
   const project = join(fixture, "project");
   const installed = join(project, ".agents/skills/dough-execute-plan");
   const storage = join(fixture, "mailboxes");
@@ -84,7 +89,7 @@ if (request.operation === 'discover') {
     hook: join(installed, "scripts/ci-host-hook.mjs"),
     launcher: join(installed, "scripts/ci-mailbox.mjs"),
     project,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
+    teardown,
     releaseFailure: () => writeFileSync(release, ""),
     waitForFailure: waitForCustomFailure,
   };
