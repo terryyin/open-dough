@@ -19,6 +19,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Track ad hoc work in the product backlog](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work) — SEED-028#track-ad-hoc-work
+- [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective

@@ -4,6 +4,8 @@
 
 **Date:** 2026-09-13
 
+**Revised:** 2026-09-26, at Terry Yin's direction.
+
 **Decision makers:** Terry Yin
 
 **Consulted:** Terry Yin supplied the lifecycle direction; further advice pending.
@@ -29,6 +31,26 @@ of rotation: age or silence cannot establish abandonment. A lingering assignment
 is evidence for diagnosis and deliberate recovery. Recovery must not remove a
 newer assignment that reused the name. A continuing AI session obtains a fresh
 assignment for new work.
+
+### One lifecycle for accepted work
+
+Independently accepted product work enters Taken before execution, including
+work that arrives outside the backlog. Reuse an existing owning story or create
+one in a suitable seed. Publish the story, Taken entry and assignment together
+on remote trunk, then attempt safe default-checkout refresh under
+[ADR 0009](./0009-git-branching-and-integration.md).
+
+Queued and emergent work share execution and closure. Keep one authoritative
+record for each fact: purpose and preparation in the story, ownership and branch
+mode in the assignment, and executable detail in a plan when needed. Planless
+work can still be tracked. Closure removes spent tracking and planning records
+while preserving enduring product knowledge and unfinished work.
+
+Explicit `--one-shot` execution allows trivial work to publish only its verified
+result, without a Taken claim or temporary planning records. If the work grows,
+admit it into the ordinary story lifecycle before continuing. This exception
+changes tracking overhead; the same workspace, validation and publication rules
+apply.
 
 ### Story Branch Mode
 

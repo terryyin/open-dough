@@ -43,6 +43,27 @@ and [ADR 0006](../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
 proposal; human-owned ADR status decisions remain separate from this planning
 direction.
 
+## One admission path for accepted work
+
+Queued and emergent work converge on the same story identity, Taken membership,
+assignment and execution lifecycle. Extend the existing startup and backlog
+owners to admit a new canonical story and publish its claim together; keep remote
+publication, recovery and safe default-checkout refresh shared. Current startup
+requires an already published queued source, while contextual work bypasses it:
+that entry assumption is the gap, not a missing lifecycle or dashboard model.
+Keep acceptance/ownership distinct from preparation and execution readiness; do
+not manufacture a ready assessment merely to publish a claim. Independent
+investigations enter Taken on acceptance and can later attach an implementation
+plan to that same story. New corrections use a seed story linked to their plan;
+retain compatibility for existing plan-homed identities without migration. New canonical
+content must survive claim retry and agent reselection together with the claim.
+The dashboard continues to derive its view from those published records. This
+direction serves [emergent admission](seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work)
+and [one-shot escalation](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work);
+it creates no ad hoc entity, origin flag, parallel publisher or speculative
+one-shot machinery. Follow the separate-facts and cohesion principles in
+[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
+
 ## One backlog interpretation, separate observation and presentation
 
 For the first dashboard, keep the existing pure backlog document, identity, and
