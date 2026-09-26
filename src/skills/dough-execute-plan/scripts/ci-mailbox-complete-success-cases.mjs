@@ -24,7 +24,8 @@ test("complete-revision awaits pending success, returns one receipt with confirm
   await register(fixture.env, fixture.mailbox);
   const deliveryBefore = readDeliveryProgress(fixture.mailbox);
   const waiting = launchComplete(fixture.env, fixture.mailbox);
-  await new Promise((resolve) => setTimeout(resolve, 75));
+  // The first recheck follows a complete read that found the coverage pending.
+  await waiting.waitForRechecks(1);
   assert.equal(waiting.output(), "");
 
   releaseRun(fixture.directory, { conclusion: "success" });

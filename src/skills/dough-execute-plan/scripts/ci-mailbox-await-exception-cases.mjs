@@ -90,7 +90,9 @@ test("a discovery advisory is nonterminal, while stopped observation and timeout
       branch: "main",
       revisions: [sha],
     });
-    await new Promise((resolve) => setTimeout(resolve, 75));
+    // The second recheck follows a complete read that began after the advisory
+    // was published; a receipt written instead would end the wait.
+    await waiting.waitForRechecks(2);
     assert.equal(waiting.output(), "");
     await exec(process.execPath, [launcher, "stop", fixture.mailbox], {
       env: fixture.env,

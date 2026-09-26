@@ -178,7 +178,7 @@ faster, which is story 2's work.
 ### 1. Mailbox CLI tests end their waits on the command's own events
 
 Type: Structure (retrospective correction F1, F4)
-Status: planned
+Status: done
 Proof:
 - **F1.** At the four sites, replace the 75 ms wait with
   `await waiting.waitForRechecks(n)`. Use `n = 2` when an event is published
@@ -306,3 +306,23 @@ of the record, stays unchanged.
     `'auto refresh|each Taken card'` selected 8 in 6 files, including tests
     that never call `checksAskedWhilePassing`, so slice 2 uses the narrower
     grep.
+- **Slice 1, delivered:**
+  - The three quiet checks with nothing published after launch use
+    `waitForRechecks(1)`: the first recheck follows one complete read that
+    found coverage pending. The advisory case uses `waitForRechecks(2)`.
+  - The `stop` refusal needs no test-side bound. `stopMailbox` waits for a
+    terminal result only up to the product's `terminalResultDeadlineMs`
+    (5 s), then refuses. A temporary endless wait after `requestMailboxStop`
+    stayed visibly running past 30 s (normal run about 5.3 s).
+  - Sensitivity: returning an unresolved outcome for pending exact coverage
+    made all four empty-output assertions fail. A `stop` that SIGKILLs the
+    pid and still rethrows failed at `process.kill(unrelated.pid, 0)`;
+    removing `verifyMailboxWorker` failed earlier, at `assert.rejects`.
+  - Load stress (3 files × N copies): before/after at 12 copies, 0
+    failures each (peak load 46 and 100). At 24 copies, 46 and 47 of 72
+    files failed before and after, all in unchanged already-terminal cases
+    timing out on the fixture `waitFor`'s own 5 s deadline
+    (`ci-mailbox-await-test-fixtures.mjs:13`); no changed test failed. That
+    fixed deadline is story 2's excluded "other fixed timeouts" work.
+  - The combined change passed `PATH=/opt/homebrew/bin:$PATH npm test`
+    silently (140 s, load 30) and again with CI-like Git settings (137 s).
