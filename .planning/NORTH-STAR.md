@@ -64,6 +64,14 @@ it creates no ad hoc entity, origin flag, parallel publisher or speculative
 one-shot machinery. Follow the separate-facts and cohesion principles in
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
 
+For explicit one-shot work, reuse planless execution and ordinary verified
+publication/cleanup. A queued story can complete directly; an unlisted request
+needs no temporary story on success. Growth transfers the same owned edits and
+proof into normal admission before further work, then continues within the
+original authority. Recheck queued ownership before publishing cleanup so a
+concurrent claim is preserved. This is a policy at work entry and completion,
+not another execution engine, branch mode or persistent tracking state.
+
 ## One backlog interpretation, separate observation and presentation
 
 For the first dashboard, keep the existing pure backlog document, identity, and

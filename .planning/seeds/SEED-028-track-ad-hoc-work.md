@@ -226,7 +226,7 @@ requiring a one-shot option or completed-story archive.
 
 **Identity:** SEED-028#one-shot-work
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Eligibility, escalation signals, applicable entry workflows and existing-claim interactions need refinement; admission dependency is unfinished."],"basis":{"document":"abc16a97beeabbffc2ae8d04e311d8b0d3634671eadfd024ce3592235a572313"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/112-one-shot-work/PLAN.md","assessment":"not-ready","reasons":["Shared admission is still Taken; inspect its delivered retained-work continuation interface and bind the escalation proof before execution."],"basis":{"document":"ce36d6d44c965d602d1479d6b3a251eb381a26521a087deb082b1691dd0433de","plan":"59863aaa03a9ac8413cd14e3804953ddb5b6beb6d2ea652fdb075e8891b57d5f"}}
 ```
 
 **Goal:** Developers can explicitly request a genuinely trivial change without
@@ -236,9 +236,10 @@ story admission before further execution.
 **Scope:** Provide `--one-shot` as an explicit option at the applicable work-entry
 workflows, using one shared meaning. Attempt one coherent, verifiable result and
 publish that result to remote main with ordinary reconciliation and verification.
-Successful one-shot work leaves no Taken claim history, seed, temporary plan or
-assignment created for that attempt. Its result commit and enduring product
-changes remain. This is distinct from planless execution and is not another
+Successful one-shot work leaves no Taken claim history or temporary seed, plan
+or assignment for that attempt. For a queued story, its result commit also removes
+the entry and spent source/plan while preserving unfinished siblings. Its result
+commit and enduring product changes remain. This is distinct from planless execution and is not another
 branching mode.
 
 When the attempt proves too large or uncertain to finish coherently in one go,
@@ -278,9 +279,98 @@ story or completed-work archive is needed.
 and escalation risk; low confidence until eligibility and applicable entry
 workflows are refined. S/M/L remains unset because project bands are undefined.
 
-**Open decisions:** Concrete eligibility and escalation signals, applicable entry
-workflows, and interaction with pre-existing queued or Taken work. Refine these
-before executable planning; do not invent a universal time or file-count limit.
+#### One coherent attempt
+
+Use `--one-shot` explicitly for an independently requested outcome that the agent
+can reasonably complete and verify in one bounded attempt. Keep its meaning shared
+across direct contextual work and the mission entry workflows covered by admission
+(bug work, optimization, observation and reviews), rather than adding a per-skill
+meaning. The option selects tracking behavior; ordinary task authority, validation,
+workspace ownership and remote publication still apply.
+
+Eligibility rule: understood outcome and expected result, no known need
+for a multi-slice plan or unresolved product/architecture choice, and a credible
+focused verification path. No universal time, file-count or lines-changed threshold
+is proposed. Brief diagnosis and a normal test/fix loop can belong to one coherent
+attempt. Repeated failure to converge, discovery of separate outcomes or need for
+substantial investigation is evidence to leave the one-shot path. Existing
+project-specific limits still apply.
+
+A supported no-change finding can complete the request without manufacturing an
+empty commit. Successful changed work publishes its complete result and performs
+normal verification/CI and resource-cleanup obligations. No plan, completion note,
+assignment or claim is manufactured solely to satisfy a workflow. A transport
+failure or delayed CI verdict alone is publication/verification recovery, not
+proof the product task has become larger. Preserve the owned result and recover
+publication without duplicating it; report completion only on actual evidence.
+
+Existing Taken work retains its identity, owner and lifecycle. The flag must not
+remove another agent's claim or rewrite published history. A branch flag cannot
+silently redirect a successful one-shot result away from the authorized trunk;
+contradictory explicit delivery instructions need resolution before work starts.
+Default to the existing safe owned-workspace mechanism; do not add a direct-main
+editing prerequisite or a new workspace manager.
+
+#### Existing solutions and the remaining gap
+
+`dough-execute-plan` already supports contextual planless execution, focused proof,
+ordinary publication, completion/CI handling and wrap-up. Its oversized-slice
+procedure preserves compatible work and proof, but currently treats replanning
+permission independently and can continue without a canonical story. One-shot
+escalation must converge on the admission story's ordinary canonical home and
+claim instead of creating another continuation mechanism.
+
+The current shared admission work is Taken, not delivered. Its published plan
+owns atomic story/claim publication and ordinary continuation; this story owns
+the transition from an already-started unclaimed attempt, including preserved
+edits and proof. Inspect the delivered admission boundary before implementation;
+do not invent its API or duplicate it while it is still being built.
+
+The current contextual path creates a workspace without a claim and the common
+publication helpers already handle remote reconciliation and safe local refresh.
+Reuse these responsibilities. One-shot success must leave no published temporary
+tracking, so validate the result plus cleanup before the result is published.
+Keep any necessary interrupted-attempt recovery with existing workspace/conversation
+state rather than adding a one-shot registry or dashboard state.
+
+#### Agreed boundaries
+
+- Both unlisted requests and queued stories may use `--one-shot`. A queued
+  story finishes with its result and ordinary spent-record cleanup in the same
+  commit, without an intermediate Taken claim. Already-Taken work keeps its
+  current owner and lifecycle; do not remove or conceal its history.
+- Escalation automatically admits the work and continues within the original
+  authorization, including ordinary planning when needed. Ask only when the
+  scope, authority, disputed constraint or ownership requires a human decision.
+  An explicit stop or `--no-replan` instruction still limits continuation; it
+  cannot authorize silently continuing oversized untracked work.
+- Recheck queued ownership against freshly fetched trunk before publishing or
+  escalating. Another agent's intervening claim or preparation assignment is
+  competing ownership; preserve local work and stop that publication rather
+  than deleting the other's record. This supplies safe optimistic coordination
+  without inventing a hidden one-shot claim.
+- Eligibility is judged from an understood, coherent outcome and credible
+  verification path. An agent that already knows the work is larger enters
+  normal admission before starting. A short diagnosis/test/fix loop can remain
+  one attempt; failure to converge or discovery of multiple outcomes triggers
+  escalation. Verification and delivery recovery alone do not establish growth.
+- Use the common option at independently invoked mission entry workflows, with
+  shared semantics. It grants no additional action permission. Preparation-only
+  requests keep their existing publication/disposition contract; the flag does
+  not automatically land a draft or implement a recommendation.
+
+**Additional key examples:** A queued tiny change publishes its result and
+removes only its own spent story; a concurrent Taken claim stops that cleanup;
+an oversized unlisted attempt publishes a new minimal story and claim while
+preserving local edits, then plans/continues within scope; a delayed CI verdict
+retains ordinary verification ownership without fabricating a backlog entry.
+
+**Plan:** [Complete one-shot work or admit its continuation](../slice-plans/112-one-shot-work/PLAN.md).
+
+No product question remains from this refinement. The first story's published
+implementation remains an execution dependency; reconcile the admission
+interface and retained-work continuation against that delivered version before
+execution. Planning does not assume it has already landed.
 
 ## Ordering and Scope Reduction
 
