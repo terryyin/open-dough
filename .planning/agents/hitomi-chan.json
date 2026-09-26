@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-008#attach-first-claude-publication",
+  "mode": "story-branch",
+  "branch": "claude/098-first-claude-ci-attachment",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
