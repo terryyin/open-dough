@@ -120,7 +120,7 @@ changed: its reading is already path-based and agrees with the rule below.
 
 ## Current decisions
 
-- **Section links are supported (awaiting human confirmation).** An entry's
+- **Section links are supported (confirmed by the developer, 2026-09-26).** An entry's
   plan link satisfies a declared plan when the link's file path — the target
   without its `#fragment` — is that plan's path; the fragment is navigation
   inside the plan and never part of the comparison, of `take --plan`

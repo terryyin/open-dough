@@ -222,7 +222,7 @@ section-aware seed reconciliation, and plan-directory renames.
 
 **Identity:** SEED-028#plan-link-rule
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"not-ready","reasons":["Awaiting human confirmation of the section-link decision (Current decisions: plan links satisfied by file path, fragments supported; rejected: refuse fragments everywhere); slices 1 and 3 depend on it.","Slice 1 routes many backlog callers (take, admit, refresh own-home, listing checks, story-state plan target) through one predicate in one proof loop; sizing is uncertain."],"basis":{"document":"873c8816b77a3cd194f1ebc2396dd044c2457660bc1704c4261b8f624f19ad77","plan":"740fe682327c441a7d6ce658cd05b7fe127704c5febd7ec030b4cd47bd7bb0d1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"not-ready","reasons":["Slice 1 routes many backlog callers (take, admit, refresh own-home, listing checks, story-state plan target) through one predicate in one proof loop; sizing is uncertain."],"basis":{"document":"873c8816b77a3cd194f1ebc2396dd044c2457660bc1704c4261b8f624f19ad77","plan":"b067f7f7ffda6bf8ee57d9c278405c5a38212fefc982fe7d9820cb68f6e9a4a7"}}
 ```
 
 **Goal:** Developers taking, admitting, preparing and continuing work get the
