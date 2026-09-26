@@ -23,6 +23,14 @@ export function storySection(anchor, identity, title, goal) {
   return `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n**Goal:** ${goal}\n`;
 }
 
+// The text of the section anchored at `anchor`, up to the `next` anchor or the
+// end of `source`.
+export function sectionText(source, anchor, next) {
+  const start = source.indexOf(`<a id="${anchor}">`);
+  const end = next ? source.indexOf(`<a id="${next}">`) : undefined;
+  return source.slice(start, end);
+}
+
 // Records preparation facts only, as the record-state operation does; no
 // assessment is recorded.
 export function withFacts(source, href, identity, approach, plan) {
@@ -200,7 +208,7 @@ export function draftLateStory(trunk) {
     seedPath,
     planPath,
     plan,
-    section: seed.slice(seed.indexOf('<a id="late">')),
+    section: sectionText(seed, "late"),
     args: admitArgs(identity, link, "Late story"),
   };
 }

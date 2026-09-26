@@ -9,7 +9,6 @@ import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
-  identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import {
@@ -17,7 +16,6 @@ import {
   changedPaths,
   listed,
   neverQueued,
-  pushFromElsewhere,
   remoteText,
   storySection,
   withFacts,
@@ -98,74 +96,6 @@ test("a new seed's unselected investigation is admitted to Taken with its story 
   );
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
   assert.equal(await revParse(workspace, "HEAD"), sha);
-});
-
-test("a planned story added to an existing seed carries its plan and only its own section onto moved trunk", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const seedPath = ".planning/seeds/A.md";
-  const trunkSibling = await pushFromElsewhere(trunk, seedPath, (text) =>
-    text.replace("Execute A.", "Execute A, as refined on trunk."),
-  );
-  const identity = "SEED-A#n";
-  const link = "seeds/A.md#n";
-  const planPath = ".planning/slice-plans/N/PLAN.md";
-  const plan = "# Plan N\n\nExecute N.\n";
-  writeDraft(trunk, planPath, plan);
-  const local = readFileSync(join(trunk.integration, seedPath), "utf8");
-  const drafted = withFacts(
-    `${local.replace("Execute A.", "Local sibling draft.")}\n${storySection("n", identity, "Story N", "Deliver N.")}`,
-    link,
-    identity,
-    "planned",
-    "../slice-plans/N/PLAN.md",
-  );
-  writeDraft(trunk, seedPath, drafted);
-  const { receipt } = await startCliResult(
-    trunk,
-    "trunk",
-    admitArgs(identity, link, "Story N"),
-  );
-  assert.equal(receipt.status, "published", JSON.stringify(receipt));
-  assert.equal(receipt.plan, "slice-plans/N/PLAN.md");
-  const sha = receipt.publishedSha;
-  assert.equal(await revParse(trunk.origin, `${sha}^`), trunkSibling);
-  await neverQueued(trunk, sha, identity);
-  assert.deepEqual(await changedPaths(trunk, sha), [
-    "A\t.planning/agents/yui-chan.json",
-    `A\t${planPath}`,
-    "M\t.planning/PRODUCT-BACKLOG.md",
-    `M\t${seedPath}`,
-  ]);
-  const published = await remoteText(trunk, sha, seedPath);
-  assert.match(published, /Execute A, as refined on trunk\./);
-  assert.doesNotMatch(published, /Local sibling draft/);
-  assert.equal(
-    published.slice(published.indexOf('<a id="n">')),
-    drafted.slice(drafted.indexOf('<a id="n">')),
-  );
-  assert.equal(await remoteText(trunk, sha, planPath), plan);
-  const entry = (await listed(trunk, sha)).find((e) => e.identity === identity);
-  assert.deepEqual(
-    [entry.list, entry.plan?.target],
-    ["Taken", "slice-plans/N/PLAN.md"],
-  );
-  // Queued siblings keep their order.
-  assert.deepEqual(
-    (await listed(trunk, sha))
-      .filter((e) => e.list === "Backlog list")
-      .map((e) => e.identity),
-    [identityA, "SEED-B#b"],
-  );
-  assert.equal(
-    readFileSync(join(trunk.integration, seedPath), "utf8"),
-    drafted,
-  );
-  const state = readStoryState(published, link, { planSource: plan });
-  assert.deepEqual(
-    [state.approach.kind, state.assessment.status],
-    ["planned", "absent"],
-  );
 });
 
 test("an already published, unlisted planless story is admitted without rewriting its home", async (t) => {

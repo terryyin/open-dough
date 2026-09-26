@@ -179,7 +179,15 @@ Keep ordinary delivery, CI observation, retrospective and wrap-up gates.
 
 ### 1. Prove every admission reconciliation and refusal path
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: startup and admission suite, 61 pass; coverage of
+`execution-admission-source.mjs` lines 100%, branches 73.17% (from 63.83%).
+Reconciliation cases live in `workspace-publication-admission-sections.test.mjs`
+(split from the admission test for size); refusal rows (another identity,
+listed under another identity, planless with `--plan`, plan edited on both
+sides, new section before a trunk-absent section) in the refusal table. No
+product defect found. Still-untaken branches include line 220's
+`planIsCanonical` (plan-homed whole-document admission), relevant to slice 2.
 Proof: new cases in `workspace-publication-admission.test.mjs` and the table
 in `workspace-publication-admission-refusal.test.mjs`; startup and admission
 suite green; coverage measurement shows lines 105-108, 135-140, 153, 162-163,
