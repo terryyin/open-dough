@@ -295,6 +295,10 @@ looking current, against ADR 0005 §5. Second, the identities copied the list
 by hand in seven places. What each native run does, and every other line
 of the record, stays unchanged.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Learnings
 
 - **Planning, `0199610`, load 4.4:**
