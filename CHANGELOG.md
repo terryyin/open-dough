@@ -1,3 +1,13 @@
+## 0.3.40 - 2026-09-26
+
+- Publish story-preparation assignments before refinement and planning, preserve newer ownership through resume or abandonment, release assignments on landing, and show each Preparing story with its developer in the dashboard.
+- Make execution startup return one compact, recoverable result, prove readiness once through the first-delivery journey, publish Story Branches when work is Taken, and observe the selected CI workflow without depending on its display name.
+- Add recognizable agent portraits and tool and execution-mode marks to dashboard Taken cards, including an enlarged portrait view, while keeping recorded host and ownership facts together.
+- Make the deterministic suite quieter, faster, and easier to diagnose by parallelizing independent checks, reporting only failures, bounding CI duration, exposing interrupted checks, and replacing timing sleeps with event-driven synchronization and complete fixture teardown.
+- Preserve every executable-plan slice when Markdown contains inline or fenced code, validate completion-record guidance by behavior, and keep successful product-backlog Git operations silent.
+
+Native acceptance was explicitly skipped for `0.3.40` at the maintainer's request. Native acceptance for the changed preparation, execution, dashboard, and test-runtime behavior, along with previously pending native requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.39 - 2026-09-25
 
 - Carry the selected agent profile through execution startup, workspace authorship, publication, CI observation, resume, and backlog completion so one stable identity owns the work and is released when that work closes.
