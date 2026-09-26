@@ -18,6 +18,7 @@ import {
   addedProfile,
   profileAllocation,
 } from "../../dough-execute-plan/scripts/agent-assignments.mjs";
+import { parseBacklog } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import {
   backlogPath,
@@ -84,6 +85,15 @@ export function requestOf(operation, input) {
       });
   }
   return { ok: true, request };
+}
+
+// The backlog list holding story `identity` on trunk `ref` ("Backlog list"
+// or "Taken"), or undefined when the backlog there lists it nowhere.
+export async function storyListAt(cwd, ref, identity) {
+  const text = await fileAt(cwd, ref, backlogPath);
+  if (text === null) return undefined;
+  return parseBacklog(text).entries.find((entry) => entry.identity === identity)
+    ?.list;
 }
 
 const recordRef = "refs/worktree/dough/preparation-assignment";

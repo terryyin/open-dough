@@ -84,11 +84,12 @@ export async function profileAllocation(cwd, rev, path) {
   return stdout.trim() || undefined;
 }
 
-// Every file in the profile directory at `rev`, for diagnosing a full
-// rotation: each held name's recorded work and allocation, and any file that
-// is not a readable profile. Nothing here is released or reclaimed; age and
-// absence of a local process are not reasons to free a name.
-async function occupiedAssignments(cwd, rev, backlogPath) {
+// Every file in the profile directory at `rev`: each held name's recorded
+// work and allocation, and any file that is not a readable profile. It
+// diagnoses a full rotation and names who holds a story. Nothing here is
+// released or reclaimed; age and absence of a local process are not reasons
+// to free a name.
+export async function occupiedAssignments(cwd, rev, backlogPath) {
   const paths = await listedPaths(
     cwd,
     backlogPath,

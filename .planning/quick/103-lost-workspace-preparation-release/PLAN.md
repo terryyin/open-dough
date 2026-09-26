@@ -353,7 +353,7 @@ unconfirmed or stale requests change nothing.
 ### 3. Keeping a preparation whose story left the queue stops for the developer
 
 Type: Behavior (retrospective correction, finding 6)
-Status: planned
+Status: done
 Proof: production-CLI journeys against a local bare origin, in a
 capability-named file (for example
 `preparation-assignment-story-left-queue.test.mjs`), then the assignment suite
@@ -510,3 +510,19 @@ still-owned proof. Record timing only after the retirements are done.
   `preparation-assignment-lost-workspace.mjs`. A profile whose recorded name
   disagrees with its file name is refused rather than reported released;
   `start` never writes one.
+- Slice 3 accepted proof: `preparation-assignment-story-left-queue.test.mjs`
+  (2 tests) drives the production CLI. The story is Taken through the real
+  `execution-start.mjs`, then completed with `product-backlog.mjs complete`;
+  in the other test its entry is removed and `abandon` still ends the
+  assignment. `release` stops with `story-left-queue`, reporting
+  `story: { place: "taken", owners } | { place: "absent" }`, `fetched` and
+  three choices. HEAD, status, index, seed/plan bytes, the remote tip and
+  the remote profile stay identical, and a rerun gives the same stop. With
+  the check disabled, both tests fail. A still-queued keep stays
+  `release-staged` (existing land and landing-retry journeys). The
+  preparation-assignment suite is 27/27 (the new file adds about 5–6 s),
+  and the directory and agent-profile suites pass. Completed and removed
+  both read `absent`. `storyListAt` in `preparation-assignment-ownership.mjs`
+  is the shared "which list holds this story" reader for start and release.
+  `references/preparation-assignment.md` sits at the 250-line file-size
+  limit.

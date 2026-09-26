@@ -7,10 +7,7 @@ import {
   agentIdentity,
   renderAgentProfile,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  parseBacklog,
-  queueHeading,
-} from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
+import { queueHeading } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   profileAllocation,
   selectAgent,
@@ -28,7 +25,6 @@ import {
 } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   backlogPath,
-  fileAt,
   isAncestor,
   remoteRef,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
@@ -41,17 +37,9 @@ import {
   restoreAllocation,
   requestOf,
   stop,
+  storyListAt,
   workspaceAssignment,
 } from "./preparation-assignment-ownership.mjs";
-
-async function queuedAt(cwd, ref, identity) {
-  const text = await fileAt(cwd, ref, backlogPath);
-  if (text === null) return false;
-  const entry = parseBacklog(text).entries.find(
-    (each) => each.identity === identity,
-  );
-  return entry?.list === queueHeading;
-}
 
 // Commits only the new profile on top of fetched trunk, from a clean
 // workspace whose history trunk already contains; nothing else is staged.
@@ -121,7 +109,7 @@ export async function startPreparation(input) {
   } catch (error) {
     return stop("source-refused", { workspace, error: errorText(error) });
   }
-  if (!(await queuedAt(workspace, ref, identity)))
+  if ((await storyListAt(workspace, ref, identity)) !== queueHeading)
     return stop("not-queued", {
       workspace,
       fetched: base,

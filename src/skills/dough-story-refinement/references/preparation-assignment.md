@@ -110,6 +110,29 @@ what the
 [preparation recorder](../../dough-product-backlog/references/record-preparation.md)
 wrote, never something the release implies.
 
+`story-left-queue` means another developer took, completed, or removed the
+story on the fetched target since this preparation began. Nothing was staged;
+the draft, the workspace's commits, and the assignment stay as they were.
+`story` says where it is now: `place: "taken"` with `owners`, the execution
+assignments naming it (agent, mode, branch), or `place: "absent"`. Do not
+land, retry until it passes, or reinterpret the story's new state, for example
+by re-queuing it, folding the draft into the new owner's work, or treating a
+completed story as kept. Report the receipt and hand the decision to the
+developer or coordinator; its `choices` make none of them:
+
+- `abandon`: end this assignment under
+  [Abandon the preparation](#abandon-the-preparation); the draft stays;
+- `discard`: discard the draft under
+  [Discard an identified draft](preparation-disposition.md#discard-an-identified-draft);
+- `separate-work`: take the draft's content up as separate work with the
+  story's current owner.
+
+Rerunning `release` without that decision gives the same stop. One limit
+remains: the story can still leave the queue after `release` succeeds and
+before the landing's push, because the landing reconciles with trunk without
+rechecking the queue. Report that plainly if it happens rather than undoing
+the landing yourself.
+
 When the landing stopped before the remote target accepted it, or its push
 ended without a clear answer, rerun `release`, which reads trunk again, before
 rerunning that landing:
