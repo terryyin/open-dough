@@ -16,7 +16,7 @@ import { promisify } from "node:util";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   deferObserverStop,
-  writeBlockingGithubListCommand,
+  blockingGithubCommandDirectory,
 } from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
@@ -86,13 +86,11 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
   const executionSkill = deployRuntime(execution);
   const unrelatedSkill = deployRuntime(unrelated);
   const storage = join(fixture, "mailboxes");
-  const bin = join(fixture, "bin");
-  writeBlockingGithubListCommand(bin);
   const env = {
     ...process.env,
     DOUGH_CI_MAILBOX_ROOT: storage,
     CI_TEST_ROOT: fixture,
-    PATH: `${bin}:${process.env.PATH}`,
+    PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,
   };
 
   const probed = await exec(

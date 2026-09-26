@@ -1,19 +1,16 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
-import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import {
+  fixtureTeardown,
+  sharedCommandDirectory,
+} from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   processEnded,
@@ -55,6 +52,10 @@ export async function waitForFile(path, timeoutMs = 5000) {
   }
 }
 
+// Whether process `pid` ends within `timeoutMs`: for a test whose promise is
+// that something makes the process end promptly, which waiting out the
+// process's own budget would not prove. A test that only needs a process gone
+// awaits `awaitProcessExit` instead.
 export async function waitForPidExit(pid, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -80,7 +81,8 @@ export async function awaitWorkerState(directory, arrived, description) {
   );
 }
 
-// Waits for a started CI observer's first sign of life (`path`).
+// Waits, while the CI observer worker at `directory` lives, for `path` to
+// appear: its first sign of life or a record it publishes.
 export async function awaitWorkerSignal(directory, path) {
   await awaitWorkerState(directory, () => existsSync(path), `${path} appeared`);
 }
@@ -116,8 +118,6 @@ export function blockingGithubEnvironment(t) {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-lifecycle-test-"));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
-  const bin = join(root, "bin");
-  writeBlockingGithubListCommand(bin);
   return {
     teardown,
     env: {
@@ -125,16 +125,14 @@ export function blockingGithubEnvironment(t) {
       DOUGH_CI_MAILBOX_ROOT: root,
       TMPDIR: root,
       CI_TEST_ROOT: root,
-      PATH: `${bin}:${process.env.PATH}`,
+      PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,
     },
   };
 }
 
-export function writeBlockingGithubListCommand(bin) {
-  mkdirSync(bin, { recursive: true });
-  writeFileSync(
-    join(bin, "gh"),
-    `#!${process.execPath}
+// A `gh` that marks `github-request-started` under CI_TEST_ROOT and blocks
+// until SIGTERM, which it records as `github-request-stopped`.
+const blockingGithubCommand = `#!${process.execPath}
 (async () => {
 const fs = require('node:fs');
 const path = require('node:path');
@@ -148,9 +146,11 @@ process.on('SIGTERM', () => {
 fs.writeFileSync(path.join(root, 'github-request-started'), '');
 setInterval(() => {}, 1000);
 })();
-`,
-    { mode: 0o700 },
-  );
+`;
+
+// The directory holding the blocking `gh`, for a fixture's PATH.
+export function blockingGithubCommandDirectory() {
+  return sharedCommandDirectory("gh", blockingGithubCommand);
 }
 
 // A modeled GitHub Actions repository behind the `gh` seam. Unlike scripted

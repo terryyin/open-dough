@@ -8,6 +8,7 @@ import { test } from "node:test";
 import { completingFixture } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { createCustomBridgeFixture } from "./ci-custom-bridge-test-fixtures.mjs";
 import {
+  blockingGithubCommandDirectory,
   blockingGithubEnvironment,
   waitForFile,
   waitForPidExit,
@@ -60,7 +61,7 @@ for (const kind of ["github", "adapter"]) {
         if (kind === "github") {
           ({ env, teardown } = blockingGithubEnvironment(t));
           root = env.CI_TEST_ROOT;
-          command = [join(root, "bin/gh")];
+          command = [join(blockingGithubCommandDirectory(), "gh")];
           ready = join(root, "github-request-started");
         } else {
           const fixture = await createCustomBridgeFixture(t);

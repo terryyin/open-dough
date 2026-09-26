@@ -188,7 +188,18 @@ the duplicated rule; installer and updater behavior are unchanged.
 ### 3. CI observer tests share one wait and one command-stub home
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: the 252 `ci-*`, `watch-ci*`, and
+`execution-increment-managed-delivery*` tests and `workspace-publication.test.mjs`
+pass silently. Each affected file ran 30 parallel copies under load (average
+62–70) with no failures. Grep finds no duplicate fixed-deadline helper and no
+per-test `gh` stub.
+Learning: at HEAD, the two `ci-revision-coverage` `waitFor` helpers were
+already gone, and `ci-target-branch-worktree-test-fixtures.mjs` held another
+copy, now folded. A single `waitForPidExit` in `watch-ci-test-fixtures.mjs`
+remains for assertions that a process ends promptly. `waitForFile` is not
+named in the finding and still has a fixed deadline, which some callers use as
+a promptness assertion.
 Proof:
 - The journeys using the consolidated helpers pass silently, and at 30
   parallel copies under load without failures.

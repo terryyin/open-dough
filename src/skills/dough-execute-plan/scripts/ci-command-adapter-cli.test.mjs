@@ -31,10 +31,7 @@ async function runObserverUntil(path, count, fixture, entry = observer) {
     [entry, "--execution", "owner/project", "feature/custom", "60000"],
     {
       cwd: fixture.root,
-      env: {
-        ...process.env,
-        PATH: `${fixture.bin}:${process.env.PATH}`,
-      },
+      env: fixture.env,
     },
   );
   const stdout = [];

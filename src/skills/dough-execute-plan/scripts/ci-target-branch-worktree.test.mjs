@@ -11,9 +11,11 @@ import {
   deliveryContext,
   hookInput,
   observerReceipt,
-  waitFor,
 } from "./ci-target-branch-worktree-test-fixtures.mjs";
-import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
+import {
+  awaitWorkerSignal,
+  deferObserverStop,
+} from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 
@@ -121,9 +123,9 @@ test("worktree launch observes target-branch final SHA and ignores old coverage"
     deliveryContext(attached),
     /CI observer attached to this coordinator/,
   );
-  await waitFor(
-    () => existsSync(join(directory, "events", "000000000001.json")),
-    "owned failure event",
+  await awaitWorkerSignal(
+    directory,
+    join(directory, "events", "000000000001.json"),
   );
   const delivered = await deliverHostHook(
     hook,

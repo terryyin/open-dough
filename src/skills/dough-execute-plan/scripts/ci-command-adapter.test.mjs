@@ -9,7 +9,6 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { setTimeout as pause } from "node:timers/promises";
 import { test } from "node:test";
 import { createCommandRunAcquisition } from "./ci-command-adapter.mjs";
 import {
@@ -18,37 +17,45 @@ import {
   projectFixture,
 } from "./ci-command-adapter-test-fixtures.mjs";
 import { ciAttemptKey } from "./ci-failures.mjs";
+import {
+  awaitSignalWhileRunning,
+  settledProbe,
+} from "./process-lifetime-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 
-async function waitForCalls(path, count) {
-  const deadline = Date.now() + 5000;
-  while (Date.now() < deadline) {
-    if (callsReached(path, count)) return;
-    await pause(10);
+// Observes `watchCiExecution` with a 60 s execution budget until the adapter
+// counting its calls in `path` reaches `count`, then stops it and returns the
+// events it emitted.
+async function observeUntilCalls(root, path, count) {
+  const controller = new AbortController();
+  const events = [];
+  const observation = watchCiExecution({
+    repo: "owner/project",
+    branch: "feature/custom",
+    root,
+    maxDurationMs: 60_000,
+    signal: controller.signal,
+    sleep: async () => undefined,
+    emit: (event) => events.push(event),
+  });
+  try {
+    await awaitSignalWhileRunning(
+      () => callsReached(path, count),
+      settledProbe(observation),
+      () => `observation ended before ${path} reached ${count} calls`,
+    );
+  } finally {
+    controller.abort();
   }
-  throw new Error(`Adapter did not reach ${count} calls`);
+  await observation;
+  return events;
 }
 
 test("observer selects one configured command and stays quiet through pending then success", async (t) => {
   const fixture = projectFixture(t, (adapter) => ({
     ciAdapter: [process.execPath, adapter],
   }));
-  const controller = new AbortController();
-  const events = [];
-  const observation = watchCiExecution({
-    repo: "owner/project",
-    branch: "feature/custom",
-    root: fixture.root,
-    signal: controller.signal,
-    sleep: async () => undefined,
-    emit: (event) => events.push(event),
-  });
-  try {
-    await waitForCalls(fixture.calls, 2);
-  } finally {
-    controller.abort();
-  }
-  await observation;
+  const events = await observeUntilCalls(fixture.root, fixture.calls, 2);
   const requests = readFileSync(fixture.requests, "utf8")
     .trim()
     .split("\n")
@@ -172,22 +179,7 @@ if (request.operation === 'diagnose') {
     join(root, ".planning/open-dough.json"),
     JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
   );
-  const controller = new AbortController();
-  const events = [];
-  const observation = watchCiExecution({
-    repo: "owner/project",
-    branch: "feature/custom",
-    root,
-    signal: controller.signal,
-    sleep: async () => undefined,
-    emit: (event) => events.push(event),
-  });
-  try {
-    await waitForCalls(discoveries, 4);
-  } finally {
-    controller.abort();
-  }
-  await observation;
+  const events = await observeUntilCalls(root, discoveries, 4);
 
   assert.deepEqual(
     events.map(({ type, sha, runId }) => ({ type, sha, runId })),
