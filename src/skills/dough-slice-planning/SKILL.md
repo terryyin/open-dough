@@ -34,7 +34,9 @@ story's goal, scope, or examples are unresolved. Use
 [dough-story-decomposition](../dough-story-decomposition/SKILL.md) when the
 parent problem, candidate selection, or story ordering is unresolved. Never
 turn a decomposition seed directly into an execution plan. An understood
-instruction may be the source without a story.
+instruction may be the source without a story. When its mission was
+[admitted](../dough-execute-plan/references/admit-accepted-work.md), plan that
+admitted story instead: the plan attaches to it, never to another story.
 
 For a correction handed off by
 [dough-execution-retrospective](../dough-execution-retrospective/SKILL.md#reconcile-findings-with-current-truth),

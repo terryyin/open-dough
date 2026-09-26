@@ -68,7 +68,7 @@ export async function startExecution(requestInput) {
     return sourceStopped(error, { error: error.stderr || error.message });
   }
   if (selectedSource.existing && !request.retained)
-    return existingClaim(request, ref);
+    return existingClaim(request, ref, selectedSource);
   // The rotation is read in the integration checkout, which fetched trunk.
   const selection = { ...request, cwd: request.integration };
   let agent;

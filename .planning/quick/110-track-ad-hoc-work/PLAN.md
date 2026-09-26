@@ -202,7 +202,7 @@ hold file size) and the name collision in the agent-race file. Passing:
 
 ### 3. Track an investigation through its ordinary continuation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A developer accepts an independent bug investigation, optimization,
 exploratory test, review or contextual maintenance mission → the entry workflow
@@ -240,6 +240,23 @@ and select other host/case runs only for missing behavior evidence.
 
 Safe stop: Accepted mission entry and implementation continuation share one
 identity. Completion is retained for ordinary closure in slice 5.
+
+Accepted proof: bug fixing, test optimization, manual testing, contextual
+execution and slice planning link one shared
+`src/skills/dough-execute-plan/references/admit-accepted-work.md` (mission
+classification, story preparation, continuation, finish). Ordinary `start`
+continues a Taken story only for the claim's own publisher from ready
+published preparation, returning `existing` without a second claim; a local
+copy matching this publisher's claim commit counts as published. Passing:
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-continuation.test.mjs`
+(59), `node --test tests/support/story-state.test.mjs tests/support/story-state-assessment.test.mjs`
+(6), guidance-wording tests (13), and `bash tests/git-publication-native.sh`
+default mode with admission substitute journeys and assessor counterexamples.
+Native: `bash tests/git-publication-native.sh --native codex --case publication/admission-investigation`
+passed (FRESH PROOF; probe after claim, one claim/profile/story section,
+unselected, no product change). An earlier codex run failed only because its
+prompt forbade the probe's own marker file; the prompt was corrected.
+Native gaps: `admission-continuation` on any host, and Claude/Cursor runs.
 
 ### 4. Give new retrospective corrections one seed-backed story
 Type: Behavior
@@ -358,3 +375,12 @@ planned, not already passed. Reassess when implementation exposes contrary facts
   so every admission retry rebuilds from its candidate's own parent. Untested:
   a second lost race after a rebuild, and a name collision during a resumed
   admission.
+- Slice 3: no Open Dough skill owns independently requested reviews, so the
+  admission trigger sits in the execute-plan description and the shared
+  admission reference. An admitted bug investigation that ends inconclusive
+  stays Taken until an explicit return, per the story decisions. The Taken
+  entry's plan link is not rewritten when a plan attaches later; story state
+  records the plan and startup resolves it. Execute-plan and bug-fixing
+  SKILL.md files sit at 250 lines. Native prompts saying "trunk is
+  refs/heads/main" led Codex to pass that as `--target`; startup refuses it
+  safely.

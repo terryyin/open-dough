@@ -6,6 +6,28 @@ list holds it, admit it through the startup command in
 Work already queued starts as queued work; work already Taken continues under
 its existing claim.
 
+## Decide whether a mission was accepted
+
+A mission is an independently requested outcome you are undertaking: a bug
+diagnosis or repair, test profiling or optimization, exploratory or manual
+testing, a standalone review, or a direct maintenance or contextual
+instruction. Admit it once the developer or parent instruction accepts it,
+before diagnosis, profiling, exploration, review, or edits. The label of the
+request does not decide this; the acceptance does.
+
+These are not new missions and publish no admission:
+
+- clarifying a request to identify its outcome, a reporting-only or
+  refinement-only request, and recommendations nobody accepted for work;
+- a supporting step of an active story, such as its tests, refactoring, CI
+  repair, retrospective, or a nested repair: it continues under that story's
+  owner. A separately authorized outcome still needs its own admission;
+- preparing an already queued story, which keeps its Preparing assignment; and
+- caller-selected current-branch work, which has no remote claim to publish.
+
+Another agent's claim on the same work stops this path; report it rather than
+admitting a duplicate.
+
 ## Prepare the story
 
 First reuse or draft its story in a suitable seed in the originating checkout:
@@ -37,4 +59,31 @@ is interrupted, resume it as the startup command describes, keeping the same
 admission flags: the resumed start publishes or confirms the preserved
 candidate, reconciled onto current trunk, never later edits to your drafts. An
 accepted admission continues with the same checkout-bound setup as any
-accepted start.
+accepted start. Its owned workspace is the story's checkout: investigation,
+observation, and any later implementation use it rather than a nested one.
+
+## Continue into implementation
+
+Permission to investigate, observe, or review is not permission to implement,
+and Taken membership never implies readiness. An admission recorded `planless`
+under the instruction's explicit planless authority proceeds under that
+instruction. Otherwise, when implementation is authorized, attach it to the
+same story: plan it with ordinary slice planning (or record `planless` only
+under explicit planless authority), assess readiness through
+[record-state](../../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion),
+and publish that preparation through its ordinary keep. Then run the start
+command without `--admit`. It continues your claim as `status: "existing"`
+with the resolved `plan`, writing no second claim, profile, or story. It
+refuses, starting nothing, while the published approach is unselected, the
+published preparation is not ready, the originating checkout holds an
+unpublished edit of the story or plan (the draft your admission published is
+not one), or another agent holds the claim.
+
+## Finish the mission
+
+A supported no-change conclusion, such as behavior that already matches its
+intent, a profile with no worthwhile change, or observation with no findings,
+completes the mission; close it through ordinary
+[story wrap-up](../../dough-story-wrap-up/SKILL.md). Uncertainty alone is not
+completion: unfinished or inconclusive work stays Taken until it completes or
+an explicit disposition returns or abandons it.

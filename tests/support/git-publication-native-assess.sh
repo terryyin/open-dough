@@ -60,6 +60,10 @@ git_publication_assess() {
     git_publication_assess_startup "${obs}" "${journey}"
     return 0
   fi
+  if [[ ${journey} == admission-* ]]; then
+    git_publication_assess_admission "${obs}" "${journey}"
+    return 0
+  fi
 
   stream=$(git_publication_assess_field "${obs}" stream-status)
   remote_accepted=$(git_publication_assess_field "${obs}" remote-accepted)

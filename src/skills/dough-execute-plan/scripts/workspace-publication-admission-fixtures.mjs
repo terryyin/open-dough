@@ -1,14 +1,23 @@
 // Admission fixtures: drafted seed stories with recorded preparation facts,
-// the admission CLI arguments, and observations of what remote trunk
-// published. Shared by the admission journey and refusal tests.
+// the admission CLI arguments, the ordinary preparation published later for
+// an admitted story, and observations of what remote trunk published. Shared
+// by the admission journey, refusal and continuation tests and the native
+// admission harness.
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, posix } from "node:path";
+import { fileURLToPath } from "node:url";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
 import { parseBacklog } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { recordStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 
 const backlogFile = ".planning/PRODUCT-BACKLOG.md";
+const backlogCli = fileURLToPath(
+  new URL(
+    "../../dough-product-backlog/scripts/product-backlog.mjs",
+    import.meta.url,
+  ),
+);
 
 export function storySection(anchor, identity, title, goal) {
   return `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n**Goal:** ${goal}\n`;
@@ -105,6 +114,68 @@ export async function pushFromElsewhere(trunk, path, edit) {
   await git(other, "commit", "-qam", `elsewhere edits ${path}`);
   await git(other, "push", "-q", "origin", "HEAD:main");
   return revParse(other, "HEAD");
+}
+
+// Ordinary preparation of an admitted story's implementation, kept from a
+// preparation clone of its own: writes `plan` at the story's declared
+// `planHref`, records it with the real record-state operation, adds a ready
+// assessment when `ready`, and publishes that keep to remote trunk. Returns
+// the published SHA.
+export async function publishPlannedPreparation(
+  trunk,
+  { identity, link, planHref },
+  { plan, ready = false },
+) {
+  const clone = join(trunk.fixture, "preparation");
+  if (existsSync(clone)) await git(clone, "pull", "-q", "origin", "main");
+  else {
+    await exec("git", ["clone", "-q", trunk.origin, clone]);
+    await git(clone, "config", "user.name", "Preparation");
+    await git(clone, "config", "user.email", "preparation@example.test");
+  }
+  const home = posix.join(".planning", link.split("#")[0]);
+  const planFile = join(clone, posix.join(posix.dirname(home), planHref));
+  mkdirSync(dirname(planFile), { recursive: true });
+  writeFileSync(planFile, plan);
+  const record = async (...args) =>
+    (
+      await exec(process.execPath, [
+        backlogCli,
+        ...args,
+        "--file",
+        join(clone, backlogFile),
+      ])
+    ).stdout;
+  const planned = [
+    "record-state",
+    "--identity",
+    identity,
+    "--link",
+    link,
+    "--refinement",
+    "refined",
+    "--approach",
+    "planned",
+    "--plan",
+    planHref,
+  ];
+  await record(...planned);
+  if (ready) {
+    const { basis } = JSON.parse(await record("read-state", "--link", link));
+    await record(
+      ...planned,
+      "--assessment",
+      "ready",
+      "--expect-document",
+      basis.document,
+      "--expect-plan",
+      basis.plan,
+    );
+  }
+  await git(clone, "add", ".planning");
+  await git(clone, "commit", "-qm", `Prepare ${identity}`);
+  await git(clone, "push", "-q", "origin", "HEAD:main");
+  return revParse(clone, "HEAD");
 }
 
 // An unlisted planned story drafted after Story A in seed A, with a new

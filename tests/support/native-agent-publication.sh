@@ -134,6 +134,12 @@ case ${journey} in
         "Recovery: the retained candidate is already an ancestor of the accepted remote history after another writer's advance. No second push. Human edits on the default checkout remain preserved."
     )
     ;;
+  admission-*)
+    # shellcheck source=tests/support/native-agent-admission.sh
+    # shellcheck disable=SC1091
+    source "${0%/*}/native-agent-admission.sh"
+    native_admission_substitute
+    ;;
   story-branch-increment)
     if [[ -z ${NATIVE_PUBLICATION_SKIP_PUSH:-} ]]; then
       git -C "${workspace}" push --quiet origin \
@@ -161,9 +167,11 @@ if [[ ${host} == 'codex' ]]; then
     exit 1
   fi
   printf '%s\n' "${response}" > "${output_file}"
+  printf '%s' "${admission_events:-}"
   write_codex_complete
   [[ -z ${NATIVE_AGENT_EXIT_AFTER_COMPLETE:-} ]] || exit 1
   exit 0
 fi
+printf '%s' "${admission_events:-}"
 write_stream_result "${response}"
 [[ -z ${NATIVE_AGENT_EXIT_AFTER_COMPLETE:-} ]] || exit 1

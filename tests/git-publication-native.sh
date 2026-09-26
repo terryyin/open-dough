@@ -51,6 +51,7 @@ usage() {
 usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
+   or: tests/git-publication-native.sh --native HOST --case publication/admission-investigation|admission-continuation
    or: tests/git-publication-native.sh --native codex --case story-branch-increment
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
    or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only
@@ -133,6 +134,7 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_delivery_evidence_gaps_assessor_counterexamples
   run_delivery_evidence_gaps_observer_counterexamples
   run_delivery_evidence_observer_layout_counterexamples
+  run_admission_assessor_counterexamples
   run_substitute_host_journeys
   exit 0
 fi

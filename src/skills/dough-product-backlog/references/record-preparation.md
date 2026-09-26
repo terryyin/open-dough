@@ -166,12 +166,21 @@ the stale ready claim as current. After reviewing the changed content, record
 ready or not-ready with the current digests — never by copying the old basis or
 auto-renewing on the write that caused the mismatch.
 
-### Context-only quick execution
+### Accepted work and context-only quick execution
 
-A contextual instruction with no story or plan creates no canonical home, no
-plan file, no story-state block, and no queue entry. Successful quick execution
-keeps scope, decisions, progress, and proof in the conversation. Do not
-fabricate a seed, plan, or `record-state` write to satisfy this procedure.
+An independently accepted mission that no backlog list holds, including a
+contextual instruction, gets a minimal story whose actual facts are recorded
+here before [admission](../../dough-execute-plan/references/admit-accepted-work.md):
+`unselected` while undecided, `planless` only under explicit planless
+authority, with no assessment not actually made. Implementation later
+authorized for it attaches its plan and assessment to that same story through
+the procedures above; admission and Taken never renew or imply ready.
+
+Contextual quick execution with no claim to publish, and a supporting step of
+an active story, create no canonical home, plan file, story-state block, or
+queue entry. They keep scope, decisions, progress, and proof in the
+conversation or the active story. Do not fabricate a seed, plan, or
+`record-state` write to satisfy this procedure.
 
 ### Wrap-up cleanup
 

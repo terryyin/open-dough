@@ -34,15 +34,20 @@ export function startSource(request) {
   };
 }
 
-// Admission of work already Taken continues under the claim this publisher
-// already holds; any other claim is refused. Nothing is written either way.
-export async function existingClaim(request, ref) {
-  const provenance = await claimProvenance(
-    request.integration,
-    ref,
-    request.identity,
-    backlogPath,
-  );
+// Work already Taken continues under the claim this publisher already holds:
+// an admission of it, or an ordinary start once its published preparation
+// supports execution. Any other claim is refused. Nothing is written. The
+// source reports the claim when it already read that provenance.
+export async function existingClaim(request, ref, source = {}) {
+  const provenance =
+    "claim" in source
+      ? source.claim
+      : await claimProvenance(
+          request.integration,
+          ref,
+          request.identity,
+          backlogPath,
+        );
   if (provenance?.publisher !== request.publisherId)
     return stopped("conflict", {
       ownership: provenance?.publisher ? "other" : "ambiguous",
@@ -54,6 +59,7 @@ export async function existingClaim(request, ref) {
     status: "existing",
     publishedSha: provenance.sha,
     created: false,
+    ...(request.plan || !source.planTarget ? {} : { plan: source.planTarget }),
     ...reportedMaintenance(await maintenance(request)),
   };
 }

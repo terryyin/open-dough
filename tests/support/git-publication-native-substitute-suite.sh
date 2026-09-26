@@ -14,6 +14,7 @@ run_substitute_host_journeys() {
       "${sentinel_bin}/${host}"
     chmod a+x "${sentinel_bin}/${host}"
   done
+  cp -- "${source_dir}/tests/support/native-agent-admission.sh" "${sentinel_bin}/"
 
   export PATH="${sentinel_bin}:${PATH}"
   # Credential-free counterexamples do not retain attempt directories.
@@ -105,4 +106,43 @@ run_substitute_host_journeys() {
       exit 1
     fi
   done
+
+  run_substitute_admission_journeys "${work}" "${run_log}"
+}
+
+# Admission journeys through the installed CLIs in both stream shapes, plus
+# real-state counterexamples: investigating before admission, and continuing
+# through admission instead of ordinary startup.
+run_substitute_admission_journeys() {
+  local work=$1 run_log=$2 journey journey_host artifact status
+  for journey in admission-investigation admission-continuation; do
+    for journey_host in codex claude; do
+      artifact=$(mktemp -d "${work}/${journey_host}-${journey}.XXXXXX")
+      set +e
+      NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
+        git_publication_run_journey "${source_dir}" "${journey_host}" \
+        "${journey}" "${artifact}"
+      status=$?
+      set -e
+      if [[ ${status} -ne 0 || ${git_publication_assess_status} != 'pass' ]]; then
+        echo "FAIL: substitute ${journey_host} ${journey} exited ${status}, assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
+        cat "${artifact}/observations.txt" >&2 || true
+        cat "${artifact}/events.jsonl" >&2 || true
+        exit 1
+      fi
+    done
+  done
+
+  artifact=$(mktemp -d "${work}/probe-first.XXXXXX")
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" NATIVE_ADMISSION_ORDER=probe-first \
+    git_publication_run_journey "${source_dir}" cursor \
+    admission-investigation "${artifact}"
+  git_publication_suite_expect_assess fail 'investigation started before'
+
+  artifact=$(mktemp -d "${work}/continue-by-admission.XXXXXX")
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" \
+    NATIVE_ADMISSION_CONTINUE_FLAGS='--admit --link seeds/N.md#slow --title Investigate' \
+    git_publication_run_journey "${source_dir}" cursor \
+    admission-continuation "${artifact}"
+  git_publication_suite_expect_assess fail 'did not continue the claim'
 }
