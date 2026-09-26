@@ -68,17 +68,6 @@ assert_upgraded_execution_payload() {
 target="${temporary_dir}/client project"
 install_older_verified "${target}"
 seed_mergeable_host_settings "${target}"
-collision="${target}/.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs"
-mkdir -p -- "${collision%/*}"
-printf '%s\n' 'local script' > "${collision}"
-before=$(snapshot_path_state "${target}")
-if bash "${helper}" apply --target "${target}" > /dev/null 2>&1; then
-  echo 'FAIL: execution dependency collision was overwritten.' >&2
-  exit 1
-fi
-after=$(snapshot_path_state "${target}")
-[[ "${before}" == "${after}" ]]
-rm -- "${collision}"
 bash "${helper}" apply --target "${target}" > /dev/null
 assert_upgraded_execution_payload "${target}"
 assert_unrelated_preserved "${target}"

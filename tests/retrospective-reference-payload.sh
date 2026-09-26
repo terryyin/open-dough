@@ -52,19 +52,8 @@ for platform in codex cursor claude; do
   for root in .agents/skills .claude/skills; do
     [[ ! -e "${target}/${root}/${reference}" ]]
   done
-  # A source-only reference was not owned by the old installation; refuse
-  # an unrelated local file at that path before replacing either root.
-  collision="${target}/.claude/skills/${reference}"
-  mkdir -p -- "${collision%/*}"
-  printf '%s\n' 'Local reference; keep it.' > "${collision}"
-  before=$(snapshot_path_state "${target}")
-  if bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null 2>&1; then
-    echo 'FAIL: ordinary update overwrote an unmanaged reference collision.' >&2
-    exit 1
-  fi
-  after=$(snapshot_path_state "${target}")
-  [[ "${after}" == "${before}" ]]
-  rm -- "${collision}"
+  # The source-only reference was not owned by the old installation, yet
+  # ordinary update still verifies that installation and delivers it.
   bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-reference

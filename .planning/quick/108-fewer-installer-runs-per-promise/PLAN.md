@@ -214,7 +214,7 @@ Counts after this slice: 9, 6, 8, 12 (35).
 ### 3. One owner for an unrelated file at a newly managed path
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - `story-payload-update.sh` keeps its per-platform case: an unrelated local
   file at a newly managed reference path makes ordinary update fail with the
@@ -227,6 +227,14 @@ Proof:
 Behavior: a project already has its own file where a new release starts
 managing one → ordinary update refuses without writes on each platform, proved
 only by the story check.
+
+Accepted proof: `story-payload-update.sh`'s per-platform loop writes local
+guidance at `dough-story-refinement/references/planning.md`, requires
+`apply` to fail with `snapshot_path_state` unchanged, and succeeds after
+removal. `execution-payload-update.sh` and `retrospective-reference-payload.sh`
+pass without their collision cases; a mutation of the updater's absent-path
+check fails the story check, and a mutation of the undeclared-history clause
+still fails the retrospective upgrade. Counts: 9, 6, 7, 9 (31).
 
 ### 4. Every payload-update check builds its releases from one fixture helper
 
