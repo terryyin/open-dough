@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-028#plan-link-rule",
+  "mode": "story-branch",
+  "branch": "claude/116-plan-link-rule",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

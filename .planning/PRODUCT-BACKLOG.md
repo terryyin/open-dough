@@ -14,11 +14,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Cut total test work and the CI verdict wait, and keep them within budget](seeds/SEED-037-quiet-stable-fast-tests.md#fourfold-local-suite) — SEED-037#fourfold-local-suite ([plan](slice-plans/107-cut-test-work-and-ci-wait/PLAN.md))
+- [Decide a Taken entry's plan link by one rule](seeds/SEED-028-track-ad-hoc-work.md#plan-link-rule) — SEED-028#plan-link-rule ([plan](slice-plans/116-plan-link-rule/PLAN.md))
 
 ## Backlog list
 
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
-- [Decide a Taken entry's plan link by one rule](seeds/SEED-028-track-ad-hoc-work.md#plan-link-rule) — SEED-028#plan-link-rule
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work
