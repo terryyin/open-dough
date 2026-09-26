@@ -2,17 +2,15 @@
 // response lost: rerunning the production `release` command reports what
 // trunk actually shows, the assignment is never ended before the result is
 // published, and an accepted landing is never published again. Landing uses
-// the Dough Land Git model; the refresh result stays a separate outcome.
+// the Dough Land Git model, whose own outcomes dough-land*.test.mjs owns;
+// here only the release receipts and remote trunk are observed.
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
   backlogFile,
   createPreparationTrunk,
   createWorkspace,
-  git,
   identityC,
   lsRemoteSha,
   profileOf,
@@ -63,8 +61,6 @@ async function readyToLand(t) {
 
 test("a refused landing keeps the assignment published; the rerun reports the committed release and lands result and release once", async (t) => {
   const { trunk, workspace, announced, queue, land } = await readyToLand(t);
-  // A pending human edit in the default checkout defers its refresh.
-  writeFileSync(join(trunk.integration, "trunk.txt"), "human edit\n");
   const lift = refusePushes(trunk);
 
   const refused = await land();
@@ -85,9 +81,6 @@ test("a refused landing keeps the assignment published; the rerun reports the co
   lift();
   const landing = await land();
   assert.equal(landing.stopped, null, JSON.stringify(landing));
-  assert.equal(landing.commit, "nothing-to-commit");
-  assert.equal(landing.refresh.result, "deferred");
-  assert.equal(landing.refresh.reason, "pending-edit");
   const landed = await lsRemoteSha(trunk.origin, "refs/heads/main");
   assert.equal(
     await revParse(trunk.origin, `${landed}^`),
@@ -100,10 +93,6 @@ test("a refused landing keeps the assignment published; the rerun reports the co
   assert.equal(await remoteFile(trunk, landed, backlogFile), queue);
   assert.deepEqual(await remoteProfileNames(trunk), []);
   assert.deepEqual(await landings(trunk), [message]);
-  assert.equal(
-    (await git(trunk.integration, "status", "--porcelain")).stdout,
-    " M trunk.txt\n",
-  );
 });
 
 test("a landing accepted with its response lost is recognized on rerun: the release reports already released and nothing is published again", async (t) => {
@@ -132,10 +121,6 @@ test("a landing accepted with its response lost is recognized on rerun: the rele
 
   const rerun = await land({ sessionCreated: false });
   assert.equal(rerun.stopped, null, JSON.stringify(rerun));
-  assert.equal(rerun.commit, "nothing-to-commit");
-  assert.equal(rerun.publication.publication, "already-accepted");
-  assert.equal(rerun.publication.pushed, false);
-  assert.equal(rerun.refresh.result, "advanced");
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), landed);
   assert.deepEqual(await landings(trunk), [message]);
   assert.equal(await remoteFile(trunk, landed, backlogFile), queue);

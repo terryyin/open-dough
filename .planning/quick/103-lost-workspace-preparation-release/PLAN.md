@@ -403,7 +403,7 @@ left the queue unless a developer decides it.
 ### 4. Assignment and preparation tests keep one owner for each proof
 
 Type: Structure (retrospective correction, finding 4: test-suite weakness)
-Status: planned
+Status: done
 Proof:
 
 - Before editing, record a paired baseline under the same load: at the
@@ -526,3 +526,18 @@ still-owned proof. Record timing only after the retirements are done.
   is the shared "which list holds this story" reader for start and release.
   `references/preparation-assignment.md` sits at the 250-line file-size
   limit.
+- Slice 4 accepted proof: every listed retirement and trim is done, including
+  the optional dashboard trim, each with its named surviving proof green
+  before and after (27/27 across `publication-resume`,
+  `publication-checkout-maintenance`, both agent-profile suites,
+  `workspace-publication-startup-agent-release` and `dough-land`, plus
+  `taken-agent-profile.spec.ts` and `backlog-preparing.spec.ts`). The
+  retired discard test exercised only its own `git reset --keep`, so discard
+  now has guidance-only coverage.
+  Paired timing of `node --test --test-concurrency=1 src/skills/dough-story-refinement/scripts/*.test.mjs`
+  under the same load, alternating: 8d4f1c6 (39 tests) 65.4, 64.2, 64.6 s,
+  mean 64.7 s; after slice 4 (31 tests) 55.1, 53.6, 53.7 s, mean 54.1 s:
+  about −16%.
+- `.planning/NORTH-STAR.md:72` ("Keep later assignment … models out until
+  their selected behavior needs them") is outdated now that preparation
+  assignments exist. It was left unedited for its owner, as decided.

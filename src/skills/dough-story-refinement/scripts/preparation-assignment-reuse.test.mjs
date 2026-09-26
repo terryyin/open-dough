@@ -17,6 +17,7 @@ import {
   refineStoryC,
   releasePreparation,
   remoteFile,
+  revParse,
   seedC,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
@@ -112,7 +113,7 @@ test("retrying abandonment or release of an ended assignment leaves the later sa
       activity: "execution",
       mode: "trunk",
       branch: "origin/main",
-      allocation: await revParse(trunk, `${tip}^`),
+      allocation: await revParse(trunk.origin, `${tip}^`),
     },
   );
   const releaseAgain = await releasePreparation(first.workspace, identityC);
@@ -200,7 +201,3 @@ test("a landing whose committed release outlived its assignment is stopped befor
     `M\t${seedC}\n`,
   );
 });
-
-async function revParse(trunk, rev) {
-  return (await git(trunk.origin, "rev-parse", rev)).stdout.trim();
-}

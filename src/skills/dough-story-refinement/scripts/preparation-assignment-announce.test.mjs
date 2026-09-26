@@ -3,7 +3,7 @@
 // continuation by a second preparation skill, and shared rotation with
 // execution, including a rival taking the selected name.
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -12,7 +12,6 @@ import {
   backlogFile,
   createPreparationTrunk,
   createWorkspace,
-  git,
   identityC,
   lsRemoteSha,
   profileOf,
@@ -26,6 +25,10 @@ import {
   seedC,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
+import {
+  raceNextPush,
+  snapshot,
+} from "./preparation-assignment-recovery-fixtures.mjs";
 
 test("the announcement publishes only the assignment before draft work, refreshes a clean default checkout, and a later preparation skill continues it", async (t) => {
   const trunk = await createPreparationTrunk();
@@ -82,77 +85,26 @@ test("the announcement publishes only the assignment before draft work, refreshe
   assert.doesNotMatch(await remoteFile(trunk, "main", seedC), /C is useful/);
 });
 
-// Each variation leaves the default checkout in a state refresh must not
-// touch, and returns what must still be there afterwards.
-const unsafeCheckouts = [
-  {
-    name: "dirty",
-    async arrange({ integration }) {
-      writeFileSync(join(integration, "trunk.txt"), "human edit\n");
-    },
-    reason: "pending-edit",
-  },
-  {
-    name: "busy",
-    async arrange({ integration }) {
-      writeFileSync(
-        join(integration, ".git/MERGE_HEAD"),
-        `${await revParse(integration, "HEAD")}\n`,
-      );
-    },
-    reason: "ongoing-operation",
-  },
-  {
-    name: "diverged",
-    async arrange({ integration }) {
-      await git(
-        integration,
-        "commit",
-        "--quiet",
-        "--allow-empty",
-        "-m",
-        "local",
-      );
-    },
-    reason: "diverged",
-  },
-];
+// The refresh taxonomy belongs to publication-checkout-maintenance.test.mjs;
+// here one pending edit shows the announcement leaves it alone.
+test("a dirty default checkout is preserved and its refresh deferred while the announcement stands", async (t) => {
+  const trunk = await createPreparationTrunk();
+  t.after(trunk.cleanup);
+  const { workspace } = await createWorkspace(trunk, "c");
+  writeFileSync(join(trunk.integration, "trunk.txt"), "human edit\n");
+  const before = await snapshot(trunk.integration, ["trunk.txt"]);
 
-for (const checkout of unsafeCheckouts) {
-  test(`a ${checkout.name} default checkout is preserved and its refresh deferred while the announcement stands`, async (t) => {
-    const trunk = await createPreparationTrunk();
-    t.after(trunk.cleanup);
-    const { workspace } = await createWorkspace(trunk, "c");
-    await checkout.arrange(trunk);
-    const before = {
-      head: await revParse(trunk.integration, "HEAD"),
-      status: (await git(trunk.integration, "status", "--porcelain")).stdout,
-      trunkText: read(trunk.integration, "trunk.txt"),
-    };
-
-    const { code, receipt } = await startPreparation(
-      trunk,
-      workspace,
-      identityC,
-    );
-    assert.equal(code, 0, JSON.stringify(receipt));
-    assert.equal(receipt.status, "announced");
-    assert.equal(
-      await lsRemoteSha(trunk.origin, "refs/heads/main"),
-      receipt.publishedSha,
-    );
-    assert.notEqual(receipt.refresh.result, "advanced");
-    assert.equal(receipt.refresh.reason, checkout.reason);
-    assert.deepEqual(
-      {
-        head: await revParse(trunk.integration, "HEAD"),
-        status: (await git(trunk.integration, "status", "--porcelain")).stdout,
-        trunkText: read(trunk.integration, "trunk.txt"),
-      },
-      before,
-    );
-  });
-}
+  const { code, receipt } = await startPreparation(trunk, workspace, identityC);
+  assert.equal(code, 0, JSON.stringify(receipt));
+  assert.equal(receipt.status, "announced");
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    receipt.publishedSha,
+  );
+  assert.notEqual(receipt.refresh.result, "advanced");
+  assert.equal(receipt.refresh.reason, "pending-edit");
+  assert.deepEqual(await snapshot(trunk.integration, ["trunk.txt"]), before);
+});
 
 test("preparation takes the next free name after execution and preparation assignments, and execution startup then skips it", async (t) => {
   const trunk = await createPreparationTrunk();
@@ -192,35 +144,14 @@ test("when a rival claims the selected name during the push, the announcement is
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   // Before the first push leaves, another developer publishes Yui-chan.
-  const rival = join(trunk.fixture, "rival");
-  const rivalProfile = join(trunk.fixture, "rival-yui.json");
-  writeFileSync(
-    rivalProfile,
-    renderAgentProfile({
-      name: "Yui",
-      identity: "SEED-B#b",
-      activity: "preparation",
-    }),
-  );
-  const hooks = join(trunk.fixture, "hooks");
-  mkdirSync(hooks);
-  const marker = join(trunk.fixture, "raced");
-  writeFileSync(
-    join(hooks, "pre-push"),
-    `#!/bin/sh
-[ -e '${marker}' ] && exit 0
-touch '${marker}'
-unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
-git clone --quiet '${trunk.origin}' '${rival}'
-mkdir -p '${rival}/.planning/agents'
-cp '${rivalProfile}' '${rival}/.planning/agents/yui-chan.json'
-git -C '${rival}' add .planning/agents
-git -C '${rival}' -c user.name=Rival -c user.email=rival@example.test commit --quiet -m 'rival claims Yui'
-git -C '${rival}' push --quiet origin HEAD:main
-`,
-    { mode: 0o755 },
-  );
-  await git(trunk.integration, "config", "core.hooksPath", hooks);
+  const rivalYui = renderAgentProfile({
+    name: "Yui",
+    identity: "SEED-B#b",
+    activity: "preparation",
+  });
+  await raceNextPush(trunk, trunk.integration, {
+    [profileOf("Yui")]: rivalYui,
+  });
 
   const { receipt } = await startPreparation(trunk, workspace, identityC);
   assert.equal(receipt.status, "announced", JSON.stringify(receipt));
@@ -230,9 +161,6 @@ git -C '${rival}' push --quiet origin HEAD:main
   assert.deepEqual(await remoteChanges(trunk, tip), [
     "A\t.planning/agents/akiho-chan.json",
   ]);
-  assert.equal(
-    await remoteFile(trunk, "main", profileOf("Yui")),
-    read(trunk.fixture, "rival-yui.json"),
-  );
+  assert.equal(await remoteFile(trunk, "main", profileOf("Yui")), rivalYui);
   assert.equal(await revParse(workspace, "HEAD"), tip);
 });
