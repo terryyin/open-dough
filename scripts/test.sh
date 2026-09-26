@@ -238,13 +238,13 @@ for index in "${!labels[@]}"; do
   report_job "${index}"
 done
 
-# OPEN_DOUGH_TEST_TIMES names a file that receives each job's wall seconds and
-# label, longest first, for profiling and for keeping `longest-first` current.
-if [[ -n ${OPEN_DOUGH_TEST_TIMES:-} ]]; then
-  for index in "${!labels[@]}"; do
-    seconds=$(job_seconds "${index}")
-    printf '%s\t%s\n' "${seconds}" "${labels[index]}"
-  done | sort -rn > "${OPEN_DOUGH_TEST_TIMES}"
-fi
+# Each job's seconds and label, longest first; see scripts/test-budget.sh.
+times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
+for index in "${!labels[@]}"; do
+  seconds=$(job_seconds "${index}")
+  printf '%s\t%s\n' "${seconds}" "${labels[index]}"
+done | sort -rn > "${times_file}"
+[[ ! -f ${test_dir}/time-budget ]] \
+  || "${test_bash}" scripts/test-budget.sh "${test_dir}/time-budget" "${times_file}" || status=1
 
 exit "${status}"

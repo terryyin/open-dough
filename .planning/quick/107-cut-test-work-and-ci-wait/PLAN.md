@@ -422,7 +422,7 @@ load, before and after the liveness repair. Decisive checkpoint afterwards.
 ### 7. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
 
 Type: Behavior
-Status: planned
+Status: done — CI target met; local total-work target accepted short by the maintainer
 Proof:
 - Paired measurement under **Measurement conditions**: the candidate's median
   total job-seconds ≤ 0.65 × the start revision's. Record both sides, the
@@ -440,7 +440,7 @@ at most 120 s by median, and a developer's complete local run does at least
 ### 8. A committed time budget fails CI when a job or the total exceeds it
 
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - Runner tests in the existing `tests/test-runner-*.sh` style with substitute
   checks:
@@ -789,3 +789,19 @@ the claim. Reference checkout for paired measurement: detached
   depending on load (target 0.65). Passing runs are silent and stable.
 - **Decision needed.** Accept the local shortfall and proceed to the budget
   (slice 8) and wrap-up, or continue cutting local work.
+- **Resolution (maintainer, 2026-09-26).** Accept the local shortfall and
+  finish: slice 8 sets the budget from `49c4ce3`'s CI times (largest job 15.8
+  s, largest total 503.5 job-seconds over five runs), so the per-job ceiling
+  is 25 s and the total ceiling 760 job-seconds.
+- **Slice 8 delivered.** `tests/time-budget` holds `per-job-seconds=25` and
+  `total-job-seconds=760` (1.5× the largest job, 15.8 s, and total, 503.5,
+  across five CI runs of `49c4ce3`). The runner always writes its per-job
+  times and, when its test directory has a `time-budget`, runs
+  `scripts/test-budget.sh` after the failure reports: one `OVER BUDGET:` line
+  per breach, a non-zero exit only when `CI=true`, and nothing within budget;
+  a breach never hides a failure. `tests/test-runner-budget.sh` proves CI and
+  local breaches and a silent within-budget run with substitute checks, and
+  mutations of the CI rule and the total comparison fail it. A local full run
+  on this machine (times about twice CI's) printed eleven per-job breaches and
+  the total while passing; that is the designed local report, and
+  `tests/README.md` says only CI enforces it.

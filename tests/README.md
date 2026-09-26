@@ -38,6 +38,28 @@ writes every job's wall seconds and name, longest first, which is how that
 list is refreshed (see its header). CI's `test` check keeps that file for
 seven days as its `test-times` workflow artifact.
 
+The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
+ceiling (`per-job-seconds`) and a total ceiling over all jobs
+(`total-job-seconds`), set from CI's `test-times` with headroom. After every
+run the runner compares the same job times with it (`scripts/test-budget.sh`).
+Within budget it prints nothing. A breach prints, after any failure reports,
+one line per job over the per-job ceiling and one for a total over the total
+ceiling, for example:
+
+```text
+OVER BUDGET: tests/install.sh took 31.2s; the per-job ceiling is 25s (tests/time-budget).
+OVER BUDGET: all jobs took 802.4 job-seconds; the total ceiling is 760 (tests/time-budget).
+```
+
+In CI (`CI=true`) a breach fails the `test` check; elsewhere it is only
+reported and the run's exit status is unchanged. The ceilings are calibrated
+to CI's runner, so a local run on a slower or loaded machine will usually
+print the report while still passing; only CI enforces the budget. Fix the slow job rather than the number: raising a
+ceiling is an explicit edit of `tests/time-budget`, reviewed like any other
+change. A substitute test directory (`OPEN_DOUGH_TEST_DIR`) is held to its own
+`time-budget` if it has one; `tests/test-runner-budget.sh` proves the
+behavior that way.
+
 A passing job must write nothing, so a passing suite prints nothing. For each
 failing job the runner prints `FAIL: <job>` and that job's captured output. A
 job that exits 0 but wrote anything to stdout or stderr also fails the run,
