@@ -121,7 +121,7 @@ a misordered example while refining a seed or plan — still goes through this
 workspace rule. It gains no direct-edit exception on a shared or host checkout
 merely because it is small or already decided.
 
-This rule does not apply to [take queued work](../../dough-execute-plan/SKILL.md#take-queued-work)'s
+This rule does not apply to [take or admit work](../../dough-execute-plan/SKILL.md#take-or-admit-work)'s
 own commit moving a backlog entry to **Taken**. That execution-startup
 transition keeps its existing location, timing, and authority; none of the
 four preparation skills above route it through this reference or change its

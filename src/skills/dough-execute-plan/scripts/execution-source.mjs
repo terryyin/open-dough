@@ -136,7 +136,9 @@ export async function readPublishedExecutionSource(request, remoteRef) {
     (item) => item.identity === request.identity,
   );
   if (!entry || (entry.list !== queueHeading && entry.list !== takenHeading))
-    throw new Error("selected identity is not queued on fetched trunk");
+    throw new Error(
+      "selected identity is not queued on fetched trunk; admit accepted work that no backlog list holds with --admit",
+    );
   // Outside claim recovery, Taken work is a continuation: only the claim's
   // own publisher continues it, and only from ready published preparation.
   let claim;

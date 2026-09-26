@@ -347,7 +347,19 @@ Safe stop: admitted no-change closure has native evidence or a recorded gap.
 
 ### 6. Make admission guidance and naming agree
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: guidance wording tests 23 pass; payload link check passes; a
+one-off anchor check over `src/skills/**/*.md` found 0 of 279 links broken;
+startup and admission suite 63 pass, including "an unlisted identity is
+refused with a pointer to admission" (fails on the old message). SKILL line
+counts: bug fixing 250, story wrap-up 250 (untouched), execute-plan 249.
+Behavior review walks: an admitted bug investigation ending no-change reaches
+"Take or admit work", reuses its admitted workspace, and leaves closing to
+wrap-up; a correction with a stale Goal records `awaiting correction review`
+naming the correction story's Goal in its seed. Claim wording in execution
+location, trunk publication, publish-the-candidate and CI monitor now covers
+admitted claims. `.planning/seeds/SEED-004` and `SEED-008` still link the old
+`#take-queued-work` anchor (other stories' seeds; left unchanged).
 Proof: guidance wording command above (updating the heading assertion in
 `execution-increment-delivery.test.mjs`), the payload link check
 `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`, a new assertion of

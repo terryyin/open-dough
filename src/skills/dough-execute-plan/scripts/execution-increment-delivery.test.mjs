@@ -30,7 +30,7 @@ test("execution entry routes name the same increment and repair owner", () => {
     /Planned slices, planless and contextual work, bug repair, and a retrospective/,
   );
   assert.match(trunk, /do not add a second\s+repair push/);
-  assert.match(trunk, /## Publish a queue claim/);
+  assert.match(trunk, /^## Publish a claim$/m);
   assert.match(
     trunk,
     /uses the installed startup operation to publish and confirm the claim on remote\s+trunk before implementation/,

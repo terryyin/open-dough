@@ -2,7 +2,7 @@
 
 When the current instruction accepts a mission for tracked work and no backlog
 list holds it, admit it through the startup command in
-[Take queued work](../SKILL.md#take-queued-work) before its substantive work.
+[Take or admit work](../SKILL.md#take-or-admit-work) before its substantive work.
 Work already queued starts as queued work; work already Taken continues under
 its existing claim.
 

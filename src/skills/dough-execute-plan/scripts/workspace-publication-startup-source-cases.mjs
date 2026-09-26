@@ -8,6 +8,7 @@ import {
   createQueuedTrunk,
   identityA,
   startCliResult,
+  storyA,
 } from "./workspace-publication-fixtures.mjs";
 import { startExecution } from "./execution-start.mjs";
 
@@ -104,6 +105,25 @@ test("stale published readiness stops without a Taken claim", async (t) => {
   assert.equal(receipt.status, "source-refused");
   assert.match(receipt.error, /needs-reassessment/);
   assert.equal("publishedSha" in receipt, false);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
+  assert.equal(existsSync(workspace), false);
+});
+
+test("an unlisted identity is refused with a pointer to admission", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const backlog = join(trunk.integration, ".planning/PRODUCT-BACKLOG.md");
+  writeFileSync(
+    backlog,
+    readFileSync(backlog, "utf8").replace(`${storyA}\n`, ""),
+  );
+  await git(trunk.integration, "commit", "-am", "unlist A");
+  await git(trunk.integration, "push", "origin", "main");
+  const tip = await revParse(trunk.integration, "HEAD");
+  const { receipt, code, workspace } = await startCliResult(trunk, "trunk");
+  assert.equal(code, 1);
+  assert.equal(receipt.status, "source-refused", JSON.stringify(receipt));
+  assert.match(receipt.error, /not queued on fetched trunk; .*--admit/);
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
   assert.equal(existsSync(workspace), false);
 });
