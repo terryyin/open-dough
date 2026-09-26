@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Start execution without unnecessary agent context](seeds/SEED-008-worktree-branch-trunk-sync.md#useful-startup-output) — SEED-008#useful-startup-output ([plan](quick/100-useful-startup-output/PLAN.md))
-- [Stop what every remaining test fixture started before removing it](quick/105-teardown-rule-for-remaining-fixtures/PLAN.md)
 
 ## Backlog list
 
