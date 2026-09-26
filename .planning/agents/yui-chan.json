@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-008#preserve-other-executions-work",
+  "mode": "story-branch",
+  "branch": "claude/114-preserve-other-writers",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
