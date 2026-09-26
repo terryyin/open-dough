@@ -645,6 +645,14 @@ refused ("rebase left the pre-rebase SHA") after starting an unreported observer
   - Evidence: `e7b7ad1` receipt `unobserved` ("host session identity is required"); no retry; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-1QARos`.
   - Observed effect: no duplicate observer, but recovery again needed a read of `ci-host-bridge.mjs`.
 
+- Execution: `SEED-028#track-ad-hoc-work` / plan 110, first related implementation commit `4286761`
+  - Timestamp: unknown (first increment delivery, after commit `4286761` at 2026-09-26T13:30:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: `4286761` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID` and attached `watch-KacOun`. Source `trunk-publication.md` already reads that variable; the installed copy did not.
+  - Observed effect: slice 1 never observed; no duplicate observer (no retry of the accepted SHA).
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -753,6 +761,14 @@ known fault class was rediscovered with a paid failing run per case.
     accept-proof rule, allowed as fixture preparation, would likely have saved
     most of those runs. Useful practice: an offline byte-identical fixture
     comparison kept the native evidence valid through each refactor.
+
+- Execution: `SEED-028#track-ad-hoc-work` / plan 110, first related implementation commit `4286761`
+  - Timestamp: 2026-09-26T06:13:32Z (first native `admission-investigation` run)
+  - Tool: Claude Code (coordinator; the native host was Codex)
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision `bd38782`; base `0.3.40`
+  - Evidence: native results `codex/publication/admission-investigation/20260926T061332-6642` assessed fail; the prompt said not to write outside planning records while the probe writes a marker, so Codex rightly skipped the probe. Prompt fixed; rerun `20260926T063848-77f6` passed.
+  - Observed effect: one paid failed native run to learn that the fixture could not credibly show the promised ordering.
 
 ## ODF-097 — Coordinator published a commit after the formatter failed
 

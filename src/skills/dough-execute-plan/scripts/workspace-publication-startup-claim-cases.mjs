@@ -121,7 +121,9 @@ test("candidate installation runs the startup CLI without source-tree imports", 
     ".agents/skills/dough-execute-plan/scripts/execution-start.mjs",
   );
   assert.equal(existsSync(installed), true);
-  const { receipt } = await startCliResult(trunk, "trunk", [], installed);
+  const { receipt } = await startCliResult(trunk, "trunk", [], {
+    cli: installed,
+  });
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.equal(
     await lsRemoteSha(trunk.origin, "refs/heads/main"),

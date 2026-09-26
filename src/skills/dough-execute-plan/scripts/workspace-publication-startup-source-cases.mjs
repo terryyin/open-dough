@@ -14,7 +14,7 @@ import {
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { startQueuedExecution } from "./execution-start.mjs";
+import { startExecution } from "./execution-start.mjs";
 
 test("startup preserves unrelated staged, tracked, untracked, and sibling source edits", async (t) => {
   const trunk = await createQueuedTrunk();
@@ -56,7 +56,9 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
 });
 
-// Queues correction C, whose backlog link is its own recorded plan.
+// Queues correction C in the legacy shape a correction had before corrections
+// got stories: its backlog link is its own recorded plan. Such work keeps its
+// identity and stays executable without migration.
 async function queueSelfHomedCorrection(trunk) {
   const identity = "slice-plans/C";
   const href = "slice-plans/C/PLAN.md";
@@ -92,7 +94,7 @@ async function queueSelfHomedCorrection(trunk) {
   return { identity, href, entry };
 }
 
-test("a correction whose plan is its canonical home is Taken without a plan link", async (t) => {
+test("a legacy correction whose plan is its canonical home is Taken without a plan link", async (t) => {
   for (const selectPlan of [false, true]) {
     const trunk = await createQueuedTrunk();
     t.after(trunk.cleanup);
@@ -221,7 +223,7 @@ test("missing publication authority refuses before fetch or workspace selection"
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "unauthorized");
-  const receipt = await startQueuedExecution({
+  const receipt = await startExecution({
     integration: trunk.integration,
     workspace,
     branch: "exec/unauthorized",

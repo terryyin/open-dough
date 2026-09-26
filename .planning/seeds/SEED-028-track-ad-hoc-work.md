@@ -39,187 +39,6 @@ dashboard or research stories.
 
 ## Story Decomposition
 
-<a id="track-ad-hoc-work"></a>
-
-### 1. Track ad hoc work in the product backlog
-
-**Identity:** SEED-028#track-ad-hoc-work
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../quick/110-track-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f81b9e02a2bdacc3571b7c6c529ada831bf9a72cc0bb7d6b78b313ea833663ac","plan":"4553e17a2e17b3f2a8db158c745845153e1c8bf15260bc302851dbda2b4b8fa0"}}
-```
-
-**Goal:** Developers can see newly accepted product work in Taken and inspect
-its purpose, owner, and execution context even when it did not originate in
-the backlog, so coordination covers the work actually being done.
-
-**Scope:** Admit authorized emergent product work into the ordinary story
-lifecycle when the mission is accepted, before undertaking its work. This includes
-independent investigation, profiling, exploratory testing, direct maintenance,
-and newly accepted retrospective corrections, as well as bug repairs.
-
-#### Decisions from the 2026-09-26 refinement
-
-- When a developer or agent receives an unlisted task and decides to undertake
-  it, first create or reuse its canonical story and add it directly to Taken.
-  It need not wait in the queued list. Existing work must not gain a duplicate
-  story or claim, and unrelated queue priorities stay unchanged.
-- Put the story in a suitable existing seed, or create a seed when none fits.
-  Keep the record proportionate: purpose, bounded scope, known expectations,
-  stable identity, and the ordinary preparation facts. Creating a story does
-  not itself require an executable plan or broad decomposition exercise.
-- Publish the seed/story changes, Taken entry, and assigned agent/execution
-  facts together in one admission commit on origin/main before the mission starts.
-  Attempt the existing safe fast-forward refresh of the default main checkout;
-  a deferred local refresh does not undo successful remote publication.
-- Reuse the normal authoritative locations: the story records its goal and
-  planned/planless approach; the agent profile records assignment, execution
-  mode and branch context. Do not copy every fact into the seed merely because
-  the admission commit publishes them together.
-- Once admitted, use ordinary execution, delivery, retrospective and wrap-up.
-  Originating outside the queue creates no second ongoing lifecycle.
-- Completion removes the backlog entry and performs ordinary spent-story,
-  seed, plan and agent-profile cleanup, preserving unfinished sibling stories
-  and enduring product knowledge. A completed-story catalog, tombstones and
-  historical dashboard are outside this story. Existing Git recovery remains.
-- Test automation was an erroneous example in the original capture and is
-  removed from the requested examples; this is not a prohibition on tracking
-  any independently authorized work merely because it changes tests.
-
-- Independent investigations enter Taken when the mission is accepted, before
-  profiling, diagnosis or exploration; an implementation decision is not required.
-  Clarification to identify the requested outcome is not a separate mission.
-  Work within an existing story reuses that ownership. Preparation of an already
-  queued story retains the existing Preparing assignment.
-- New retrospective corrections have a minimal canonical story in a suitable
-  seed, linked to their correction plan. Preserve the plan's evidence without
-  duplicating the work item. Existing plan-homed work keeps its recorded identity
-  and compatibility; this story does not automatically migrate it.
-- Taken records responsibility, not execution readiness. Admission may retain
-  an unselected approach and unresolved implementation questions. Authorized
-  investigation can proceed; subsequent implementation still needs its normal
-  scope, approach, proof and authority. A later plan attaches to the same story.
-  Explicit planless authority remains necessary; no placeholder plan is required.
-- An investigation can complete with a supported no-change conclusion. Apply
-  ordinary closure to its accepted outcome. Incomplete work remains Taken;
-  returning work to the queue or abandoning it requires the existing explicit
-  disposition, not automatic cleanup on an inconclusive result.
-
-#### Key examples
-
-1. An accepted bug investigation has no existing story. Before diagnosis, its
-   minimal story in a suitable seed, Taken entry and agent profile appear
-   together on remote main. The dashboard can show purpose and ownership.
-2. An optimization request has an existing relevant seed but no story for this
-   outcome. Add one story there and publish admission before profiling. Later
-   planning and implementation keep that identity and the measured workflow.
-3. The requested fix is already part of an active story. Continue under that
-   identity and ownership instead of adding another entry for its test, refactor
-   or CI repair steps. A separately authorized outcome needs its own assessment.
-4. A small admitted task is explicitly authorized to proceed without slice
-   planning. It has a canonical story and Taken claim but needs no invented plan.
-5. Admission reaches origin/main while the default checkout has pending edits.
-   Report the deferred refresh and preserve those edits; the shared claim remains
-   published. A failed or uncertain remote admission stops dependent execution.
-6. Completion, including a supported no-change investigation, uses normal
-   wrap-up. Remove the spent story and temporary plan, preserve unfinished
-   siblings, and remove the Taken entry and assignment.
-7. A new retrospective correction is accepted. Its minimal seed story links
-   the correction plan and is the only queued/Taken entry. An existing plan-homed
-   correction retains its identity and remains usable without migration.
-
-#### Entry-path coverage
-
-The common boundary is an independently accepted product-work mission. The
-following source-backed cases establish coverage without a task-type registry:
-
-| Entry path | Current evidence | Refinement consequence |
-| --- | --- | --- |
-| Bug fixing | `src/skills/dough-bug-fixing/SKILL.md` routes bounded fixes into contextual planless execution; larger/inconclusive reports enter the backlog. | Admit at acceptance of an independent diagnosis/repair mission; retain supported no-change outcomes and existing-story ownership. |
-| Test optimization | `src/skills/dough-test-optimization/SKILL.md` profiles, creates a plan and invokes execution; profile-only and resolve-only modes also exist. | Admit before profiling, including independently requested profile-only or resolve-only missions. Attach a later plan to the same story. |
-| Direct contextual execution | `src/skills/dough-execute-plan/SKILL.md` accepts sufficient instructions with no story, plan or queue entry. | A general bypass that must converge on admission, including direct maintenance requests, rather than enumerating task labels. |
-| Retrospective corrections | `src/skills/dough-execution-retrospective/SKILL.md` can produce a bounded correction plan whose canonical home is the plan, without a seed; execution is separately authorized. | New corrections use a seed story linked to their plan; preserve existing identities. Review alone does not authorize correction execution. |
-| Refactoring and CI repair within active work | `dough-post-change-refactor` returns to its caller; execution publication includes owned CI repairs. | Reuse the owning story. Do not generate child backlog entries for every process step. Standalone requests still need classification. |
-| Manual testing and other observation/preparation | `dough-manual-testing` can run a standalone exploratory mission; preparing queued work already publishes a Preparing assignment. | Independent observation missions enter Taken; preparation of an existing queued story remains Preparing. Nested steps retain their owner. |
-
-Apply the same boundary to standalone reviews and maintenance requests. Do not
-create entries for ordinary conversation, recommendations not accepted for work,
-or supporting steps in an active story. Source guidance owns implementation;
-installed copies are updated only through a released payload.
-
-#### Architecture and current dashboard behavior
-
-The dashboard derives work from published backlog links, canonical documents,
-plans and agent profiles. `dashboard/src/storyPurpose.ts` uses the shared purpose
-reader. `src/skills/dough-product-backlog/scripts/product-backlog-home-reader.mjs`
-supports an anchored seed story or a whole-document home such as a correction
-plan. Therefore a seed is the ordinary story home, but not currently the only
-supported home. No new dashboard-specific ad hoc record is needed.
-
-Reuse admission/startup, identity, publication, safe default-checkout refresh,
-and closure behavior across queued and emergent stories. Keep planned versus
-planless execution distinct from trunk versus story-branch delivery and from
-whether work originally appeared in the queue.
-
-[ADR 0001 — Ubiquitous language](../../docs/adrs/0001-ubiquitous-language-accepted.md)
-places each story in one seed.
-[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-requires one authoritative representation per fact, published-record dashboard
-views, and reuse of cohesive solutions. These support a shared admission path
-and ordinary downstream lifecycle. Dashboard and Git ADRs 0008 and 0009 remain
-Proposed; they are not binding decisions.
-
-#### Shared solution assessment
-
-Inspection of the existing startup identifies a specific entry assumption:
-`execution-source.mjs` reads an already published queued canonical home and
-requires a ready assessment; `workspace-publication-select.mjs` commits a claim
-from a clean fetched-trunk workspace using `takeEntry`, which refuses an absent
-entry. Contextual work bypasses this queued-start contract. Generalize admission
-at those existing domain owners rather than building an ad hoc executor or
-publishing a temporary queued state first.
-
-Keep story identity, Taken membership, assignment, preparation, plan and
-publication as separate existing concepts. Admission must not invent readiness
-or planless authority to satisfy today's startup preconditions. Preserve the
-existing remote acceptance, competing claims, interrupted publication and
-safe-refresh contracts. Agent reselection currently rebuilds an isolated claim;
-the generalized path must retain newly admitted canonical content as well.
-
-Existing real-Git startup fixtures and source/race/recovery cases provide the
-outside-in boundary, but currently pre-create the queued source. New admission
-proof must start without that entry and observe the canonical story, claim and
-assignment in the same accepted remote commit. Dashboard shared readers should
-consume that actual result; fixtures that pre-create it would not prove admission.
-Closure should exercise the same resulting identity through existing wrap-up.
-No new storage engine, service, registry or dashboard lifecycle is needed.
-
-Direction is recorded in
-[One admission path for accepted work](../NORTH-STAR.md#one-admission-path-for-accepted-work).
-The developer confirmed both remaining scope choices: independent investigation
-is tracked on acceptance and new corrections are seed-backed. No unresolved
-product decision blocks planning. One-shot eligibility and escalation remain
-in the second story.
-
-**Plan:** [Track accepted work through the shared lifecycle](../quick/110-track-ad-hoc-work/PLAN.md).
-
-**Evaluation:** A developer sees a formerly unlisted bug fix or optimization in
-Taken with useful story details and ownership before execution; it then completes
-through ordinary closure without a second lifecycle or duplicate record.
-
-**Depends on:** Existing publication, identity, dashboard and closure contracts;
-no new prerequisite story. The existing optimization-continuation story owns
-whether a created optimization plan continues into implementation or is queued.
-This story admits the accepted investigation earlier and keeps one identity
-through that handoff; it does not expand implementation authority.
-
-**Effort hypothesis:** The larger of these two stories, with the main risk in
-claim recovery and alignment of callers, rather than new domain concepts. No project S/M/L band
-definitions were found, so a numeric or band estimate is deliberately unset.
-
-**Safe stopping point:** Independently accepted emergent work can join Taken
-with coherent details and complete through the ordinary lifecycle, without
-requiring a one-shot option or completed-story archive.
-
 <a id="one-shot-work"></a>
 
 ### 2. Complete trivial work with --one-shot and track it if it grows
@@ -266,7 +85,7 @@ required review, publication authority or unresolved architectural decisions.
   erase existing claims or their history, and completing quickly alone does not
   silently select the option.
 
-**Depends on:** [Track ad hoc work in the product backlog](#track-ad-hoc-work)
+**Depends on:** delivered [shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
 for safe escalation into ordinary admission. Existing workspace/publication
 contracts apply; exclusive access to the default checkout is not required when
 an owned workspace can publish safely.
@@ -371,6 +190,31 @@ No product question remains from this refinement. The first story's published
 implementation remains an execution dependency; reconcile the admission
 interface and retained-work continuation against that delivered version before
 execution. Planning does not assume it has already landed.
+
+<a id="admission-coherence"></a>
+
+### Correction: Keep admitted work coherent after its first delivery
+
+**Identity:** SEED-028#admission-coherence
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/113-admission-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6779e7090b7e999954fa0edf6528b43874396d6c390042f9c8fc1c8dfd06b718","plan":"63a93f38f40f467fd97256b79a6d680a48c3fe24b4f708119791db94bd777879"}}
+```
+
+**Goal:** Developers coordinating admitted work see a Taken entry that links
+the plan later attached to it, and maintainers can rely on admission's proof,
+tests, and guidance to say what the delivered admission actually does.
+
+**Scope:** A bounded retrospective correction of the delivered
+[shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md): link a later-attached plan to its Taken
+entry without a second claim or forged readiness; prove admission's untested
+reconciliation and refusal paths; scope closure and correction-story tests to
+what they prove, add closure evidence for an admitted no-change investigation,
+and repair a dashboard fixture shape the backlog now refuses; align admission
+guidance and naming; and resolve published and admitted preparation once.
+Excluded: whole-seed readiness basis, continuation ownership across sessions,
+section-aware seed reconciliation, and plan-directory renames.
+
+**Plan:** [Keep admission coherent](../slice-plans/113-admission-coherence/PLAN.md).
 
 ## Ordering and Scope Reduction
 

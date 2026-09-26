@@ -145,6 +145,7 @@ managed_files=(
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md
+  dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
@@ -197,7 +198,9 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-recovery.mjs
   dough-execute-plan/scripts/execution-start-receipt.mjs
   dough-execute-plan/scripts/execution-start-request.mjs
+  dough-execute-plan/scripts/execution-start-source.mjs
   dough-execute-plan/scripts/execution-source.mjs
+  dough-execute-plan/scripts/execution-admission-source.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs

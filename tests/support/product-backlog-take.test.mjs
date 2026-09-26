@@ -1,8 +1,13 @@
 // Runs the real backlog CLI to claim and resume queued work in a scratch
 // project, observing the file's membership and links before and after.
 import assert from "node:assert/strict";
+import { dirname } from "node:path";
 import { test } from "node:test";
+import { admitEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-take.mjs";
 import {
+  added,
+  addedHomeSource,
+  addedLine,
   architecture,
   backlog,
   occurrences,
@@ -196,4 +201,43 @@ test("take refuses missing, ambiguous, and unresolved requests unchanged", async
     assert.match(result.stderr, /The backlog was not changed\./, refusal.why);
     assert.equal(project.read(), source, `${refusal.why}: file changed`);
   }
+});
+
+// Startup admission uses this operation for accepted work no list holds yet.
+test("admission appends unlisted work to Taken and refuses work already listed", (t) => {
+  const project = scratchProject(t);
+  projectFile(project, added.link.split("#")[0], addedHomeSource);
+  projectFile(project, planPath);
+  const request = {
+    identity: added.identity,
+    title: added.title,
+    href: added.link,
+    plan: planPath,
+    backlogDirectory: dirname(project.file),
+  };
+  const admitted = admitEntry(backlog, request);
+  assert.equal(admitted.result, "admitted");
+  assert.equal(
+    admitted.source,
+    backlog.replace(
+      `${takenEntry}\n`,
+      `${takenEntry}\n${addedLine} ([plan](${planPath}))\n`,
+    ),
+  );
+  assert.throws(
+    () => admitEntry(admitted.source, request),
+    /is already listed in "## Taken"/,
+  );
+  assert.throws(
+    () => admitEntry(backlog, { ...request, identity: trunkQueue }),
+    /is already listed in "## Backlog list"/,
+  );
+  assert.throws(
+    () =>
+      admitEntry(backlog, {
+        ...request,
+        href: "seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue",
+      }),
+    /already listed/,
+  );
 });

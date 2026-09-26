@@ -77,7 +77,7 @@ Before committing or publishing anything, confirm — or require the calling
 skill (one of the four preparation skills [prepare records in an owned
 workspace](preparation-workspace.md) applies to, bug fixing for a bug-triage
 record, per its disposition/report step, or a standalone execution
-retrospective for its process-finding or correction-plan record) to have
+retrospective for its process-finding or correction story and plan record) to have
 already confirmed — that the keep instruction:
 
 - names this session's own retained seed, story, plan, bug-triage record, or

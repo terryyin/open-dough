@@ -127,15 +127,15 @@ test("contextual execution and queued execution keep their own continuations", (
 
   assert.match(
     execution,
-    /When no claim applies, including authorized contextual/,
+    /An accepted independent mission, including contextual planless work, is\s+\[admitted\]\(admit-accepted-work\.md\)/,
   );
   assert.match(
     execution,
-    /use verified current HEAD and create no story, plan, or queue/,
+    /When no claim applies, use verified current HEAD and create no story, plan, or queue/,
   );
   assert.match(
     execution,
-    /Contextual planless work with no claim supplies verified current HEAD/,
+    /Work with no claim to publish supplies verified current HEAD/,
   );
   assert.match(
     execution,

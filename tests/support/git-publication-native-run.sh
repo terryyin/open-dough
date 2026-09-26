@@ -9,6 +9,9 @@ git_publication_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && p
 # shellcheck source=tests/support/git-publication-native-fixture.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-fixture.sh"
+# shellcheck source=tests/support/git-publication-native-admission.sh
+# shellcheck disable=SC1091
+source "${git_publication_run_support_dir}/git-publication-native-admission.sh"
 # shellcheck source=tests/support/git-publication-native-prompt.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-prompt.sh"
@@ -125,7 +128,7 @@ git_publication_run_journey() {
 
   git_publication_create_fixture_for "${journey}" "${artifact_root}"
   prompt=$(git_publication_prompt_for "${journey}")
-  if [[ ${journey} == startup-* ]]; then
+  if [[ ${journey} == startup-* || ${journey} == admission-* ]]; then
     git_publication_fixture_install_skills "${source_dir}" "${host}" \
       "${git_publication_fixture_integration}"
     git_publication_fixture_human_before=$(
@@ -160,6 +163,9 @@ git_publication_run_journey() {
   # Ownership and remote acceptance come only from post-session Git state.
   if [[ ${journey} == startup-* ]]; then
     git_publication_fixture_observe_startup "${journey}" \
+      "${stream_status}" "${transcript}" > "${observations_file}"
+  elif [[ ${journey} == admission-* ]]; then
+    git_publication_fixture_observe_admission "${journey}" \
       "${stream_status}" "${transcript}" > "${observations_file}"
   else
     git_publication_fixture_observe "${journey}" "${authority}" \

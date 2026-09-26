@@ -127,6 +127,19 @@ export async function holdFirstPush(trunk, name = "a") {
   };
 }
 
+// An environment whose Git reports a lost response after each real push
+// succeeds. This is a process seam, not a CLI fault flag.
+export function lostPushResponse(trunk) {
+  const bin = join(trunk.fixture, "bin");
+  mkdirSync(bin);
+  writeFileSync(
+    join(bin, "git"),
+    `#!/bin/sh\nif [ "$1" = push ]; then\n  /usr/bin/git "$@" || exit $?\n  echo 'connection closed after acceptance' >&2\n  exit 1\nfi\nexec /usr/bin/git "$@"\n`,
+    { mode: 0o755 },
+  );
+  return { ...process.env, PATH: `${bin}:${process.env.PATH}` };
+}
+
 export async function advanceRemote(trunk, file, text = "advance\n") {
   writeFileSync(join(trunk.integration, file), text);
   await git(trunk.integration, "add", file);

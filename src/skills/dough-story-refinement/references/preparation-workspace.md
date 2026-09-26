@@ -7,7 +7,7 @@ Apply this rule in [dough-story-decomposition](../../dough-story-decomposition/S
 before any of them writes a seed, story, or plan record, including a small,
 already-decided correction.
 [dough-execution-retrospective](../../dough-execution-retrospective/SKILL.md#write-only-in-an-owned-checkout)
-applies it too before writing a process-finding or correction-plan record when
+applies it too before writing a process-finding or correction story and plan record when
 no invoking execution supplies its checkout. Reading, discussing, answering
 questions, or reviewing an existing record needs no workspace at all.
 

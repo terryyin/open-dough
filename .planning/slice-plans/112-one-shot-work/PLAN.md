@@ -47,7 +47,7 @@ default-checkout coordination or preparation publishing.
 
 ## Dependency and execution gate
 
-[Shared admission](../../seeds/SEED-028-track-ad-hoc-work.md#track-ad-hoc-work)
+[Shared admission](../../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
 is Taken, with its implementation not yet established on the inspected published
 revision `2f7ed7c`. Before executing this plan, verify its delivered canonical
 story admission, atomic claim publication, source evolution and recovery behavior.

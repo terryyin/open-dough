@@ -20,6 +20,10 @@ import {
   remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
+import {
+  assertAdmittedOnce,
+  draftLateStory,
+} from "./workspace-publication-admission-fixtures.mjs";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 async function remoteShow(trunk, ...args) {
@@ -105,6 +109,34 @@ git -C '${rival}' push --quiet origin HEAD:main >/dev/null 2>&1
     ".planning/agents/yui-chan.json",
   ]);
   await assertPublishedAgent(workspace, "Akiho", identityA);
+  assert.equal(
+    JSON.parse(await remoteShow(trunk, "show", `main:${profilePath("Yui")}`))
+      .identity,
+    identityB,
+  );
+});
+
+test("a rival holding an admission's agent name rebuilds it under the next name with its admitted content", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const story = draftLateStory(trunk);
+  const barrier = await holdFirstPush(trunk);
+  const a = startProcess(trunk, "a", story.identity, story.args);
+  await barrier.awaitArrival(a);
+  await publishProfiles(trunk, ["Yui"], identityB);
+  barrier.release();
+  const result = await a.result;
+  assert.equal(result.receipt.ok, true, JSON.stringify(result));
+  assert.equal(result.receipt.agent, "Akiho-chan");
+  const tip = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  assert.equal(result.receipt.publishedSha, tip);
+  assert.deepEqual(result.receipt.admitted, [story.seedPath, story.planPath]);
+  await assertAdmittedOnce(trunk, tip, story, "publisher-a");
+  assert.deepEqual(await remoteProfiles(result.workspace), [
+    ".planning/agents/akiho-chan.json",
+    ".planning/agents/yui-chan.json",
+  ]);
+  await assertPublishedAgent(result.workspace, "Akiho", story.identity);
   assert.equal(
     JSON.parse(await remoteShow(trunk, "show", `main:${profilePath("Yui")}`))
       .identity,

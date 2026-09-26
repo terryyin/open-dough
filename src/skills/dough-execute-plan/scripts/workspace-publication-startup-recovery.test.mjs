@@ -23,6 +23,7 @@ import {
 import {
   advanceRemote,
   interruptFirstPush,
+  lostPushResponse,
   profilePath,
   remoteProfiles,
   resumeArgs,
@@ -156,19 +157,13 @@ test("resume refuses a newly prepared selected source changed since the retained
 test("lost push response and later remote descendant resume as owned without another push", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const bin = join(trunk.fixture, "bin");
-  mkdirSync(bin);
-  // The wrapper delegates every Git operation, but reports a lost response
-  // after the real push succeeds. This is a process seam, not a CLI fault flag.
-  writeFileSync(
-    join(bin, "git"),
-    `#!/bin/sh\nif [ "$1" = push ]; then\n  /usr/bin/git "$@" || exit $?\n  echo 'connection closed after acceptance' >&2\n  exit 1\nfi\nexec /usr/bin/git "$@"\n`,
-    { mode: 0o755 },
-  );
-  const first = await startProcess(trunk, "a", identityA, [], {
-    ...process.env,
-    PATH: `${bin}:${process.env.PATH}`,
-  }).result;
+  const first = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    [],
+    lostPushResponse(trunk),
+  ).result;
   assert.equal(first.receipt.ok, true, JSON.stringify(first));
   assert.equal(first.receipt.status, "resumed");
   const accepted = first.receipt.publishedSha;
