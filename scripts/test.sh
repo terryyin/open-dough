@@ -28,7 +28,17 @@ if ((job_slots < 1)); then
 fi
 
 output_root=$(mktemp -d)
-trap 'rm -rf -- "${output_root}"' EXIT
+# fd 4 keeps the runner's stderr while it goes to a launching job's launch file
+# (see the launch loop); an exit mid-launch restores it and shows that file.
+exec 4>&2
+launching=''
+# shellcheck disable=SC2329 # Invoked by the EXIT trap below.
+finish() {
+  exec 2>&4
+  [[ ! -s ${launching} ]] || cat -- "${launching}" >&2
+  rm -rf -- "${output_root}"
+}
+trap finish EXIT
 mkfifo "${output_root}/slots"
 exec 3<> "${output_root}/slots"
 for ((slot = 0; slot < job_slots; slot++)); do
@@ -42,14 +52,26 @@ elapsed_seconds() {
 
 node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
 run_job() {
+  exec 2>&4 4>&-
   local index=$1 kind=$2 label=$3
-  local log="${output_root}/${index}.log"
+  local log="${output_root}/${index}.log" launch="${output_root}/${index}.launch"
   local job_status=0 started=${EPOCHREALTIME}
   if [[ ${kind} == node ]]; then
     node --test --test-reporter="${node_reporter}" "${label}" > "${log}" 2>&1 \
       || job_status=$?
   else
     "${test_bash}" "${label}" > "${log}" 2>&1 || job_status=$?
+  fi
+  # Job control has the runner and the job each put the job into a new group
+  # led by the job. On macOS those two calls can race; the loser fails with
+  # EPERM, and when that is the job, Bash prints one `child setpgid` line
+  # before the job starts. A group whose id is this job's pid exists only if
+  # one of the two calls moved the job into it, so only then is a launch file
+  # of exactly that line emptied. Any other launch output stays and fails the run.
+  local lost_race="${0}: child setpgid (${BASHPID} to ${BASHPID}): Operation not permitted"
+  if [[ -s ${launch} ]] && kill -0 -- "-${BASHPID}" 2> /dev/null \
+    && cmp -s - "${launch}" <<< "${lost_race}"; then
+    : > "${launch}"
   fi
   printf '%s\n' "${job_status}" > "${output_root}/${index}.status"
   elapsed_seconds "${started}" "${EPOCHREALTIME}" > "${output_root}/${index}.seconds"
@@ -125,32 +147,31 @@ job_seconds() {
 # status, such as one whose shell was killed, failed. A reported job sets the
 # run's status to 1.
 report_job() {
-  local index=$1 log="${output_root}/$1.log" job_status='' seconds reason=''
+  local index=$1 log="${output_root}/$1.log" launch="${output_root}/$1.launch"
+  local job_status='' seconds heading show_log=(cat --)
   if [[ -e ${output_root}/${index}.status ]]; then
     read -r job_status < "${output_root}/${index}.status"
   fi
   if [[ -n ${interrupt_status} &&
     (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
     seconds=$(job_seconds "${index}")
-    {
-      printf 'INTERRUPTED: %s (after %ss); last lines of its output:\n' \
-        "${labels[index]}" "${seconds}"
-      tail -n 40 -- "${log}"
-    } >&2
-    status=1
+    heading="INTERRUPTED: ${labels[index]} (after ${seconds}s); last lines of its output:"
+    show_log=(tail -n 40 --)
+  elif [[ -z ${job_status} ]]; then
+    heading="FAIL: ${labels[index]} (ended without recording an exit status)"
+  elif [[ ${job_status} -ne 0 ]]; then
+    heading="FAIL: ${labels[index]}"
+  elif [[ -s ${log} || -s ${launch} ]]; then
+    heading="FAIL: ${labels[index]} (passed but printed output)"
+  else
     # An explicit status: under the interrupt trap, Bash before 5.3 gives a
     # bare `return` the interrupted `wait`'s status, which `set -e` ends on.
     return 0
   fi
-  if [[ -z ${job_status} ]]; then
-    reason=' (ended without recording an exit status)'
-  elif [[ ${job_status} -eq 0 ]]; then
-    [[ -s ${log} ]] || return 0
-    reason=' (passed but printed output)'
-  fi
   {
-    printf 'FAIL: %s%s\n' "${labels[index]}" "${reason}"
-    cat -- "${log}"
+    printf '%s\n' "${heading}"
+    [[ ! -s ${launch} ]] || cat -- "${launch}"
+    "${show_log[@]}" "${log}"
   } >&2
   status=1
 }
@@ -169,6 +190,9 @@ job_started=()
 # shellcheck disable=SC2329 # Invoked by the INT and TERM traps below.
 interrupt() {
   trap '' INT TERM
+  # A launch cut short here is reported with its job below.
+  exec 2>&4
+  launching=''
   interrupt_status=$2
   observed_at=${EPOCHREALTIME}
   local index pgid stopped=()
@@ -195,9 +219,15 @@ trap 'interrupt TERM 143' TERM
 for index in "${!labels[@]}"; do
   read -r -u 3
   job_started[index]=${EPOCHREALTIME}
+  # What Bash writes while starting the job, before the job's own output
+  # redirection, goes to its launch file; the job and its report handle it.
+  launching="${output_root}/${index}.launch"
+  exec 2> "${launching}"
   set -m
   run_job "${index}" "${job_kinds[${labels[index]}]}" "${labels[index]}" < /dev/null &
   set +m
+  exec 2>&4
+  launching=''
   job_pids[index]=$!
 done
 
