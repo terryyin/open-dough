@@ -467,6 +467,23 @@ Dispatch after slice 7, or after a checkpoint stop, so the ceilings reflect
 the achieved times. The CI times artifact may land earlier, with slice 7, if
 its CI runs need it.
 
+## Execution complete
+
+Product advice: The CI verdict wait for agents publishing to trunk fell from a
+174 s to a 115 s `Run test` median, which directly serves the near-future
+direction of parallel agents on trunk. Give the four installation coverage
+gaps recorded in Learnings (refusing a requested version, `apply` with an
+unsupported platform, updating a Claude-only installation, installing without
+Node) a home, likely in SEED-001; route the `ensureDriverRegistered` defect
+(writes `.git/info/attributes` without creating `info/`) through bug fixing;
+decide whether the local budget report should stay (it prints on most local
+runs because the ceilings are CI-calibrated) or become CI-only. Correction
+plan `slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md`
+fixes the stop regression and duplicated mechanics; it is planned and ready
+but not queued. Fewer fetches per start: no change now. Wrap-up must
+reconcile trunk's relocation of this plan to `slice-plans/107-…` with this
+branch's `quick/107-…` copy.
+
 ## Promise ownership
 
 - Immediate check on registration and continued polling: slice 1.
