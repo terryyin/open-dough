@@ -196,11 +196,12 @@ during wrap-up.
 - **Anchored feature story:** `--link` is the seed path plus the story anchor
   (for example `seeds/SEED-021-example.md#first-story`). `--identity` must match
   the identity that home already records.
-- **Whole-document correction:** when the plan is the canonical home, `--link`
-  is that plan path (for example `quick/075-correction/PLAN.md`). For
-  `--approach planned`, `--plan` is relative to that file; use the plan's own
-  basename (for example `PLAN.md`) so the association stays on the same
-  document.
+- **Plan-homed correction:** when an existing correction's plan is its
+  canonical home, `--link` is that plan path (for example
+  `quick/075-correction/PLAN.md`). For `--approach planned`, `--plan` is
+  relative to that file; use the plan's own basename (for example `PLAN.md`)
+  so the association stays on the same document. A new correction's story is
+  an anchored story like any other.
 
 Create or update the plan file before recording a planned approach; the
 recorder refuses a missing plan path.

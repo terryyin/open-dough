@@ -260,7 +260,7 @@ Native gaps: `admission-continuation` on any host, and Claude/Cursor runs.
 
 ### 4. Give new retrospective corrections one seed-backed story
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A retrospective produces a new bounded correction → its retained
 canonical work item is a minimal story in a suitable seed linked to the correction
@@ -290,6 +290,19 @@ reuse shared integration evidence and record remaining tool-specific proof.
 
 Safe stop: New corrections have the same domain home as stories; existing work
 remains executable and recoverable under its original identity.
+
+Accepted proof: `dough-story-refinement/references/planning.md#choose-the-planning-level`
+owns the story/plan split for new corrections; retrospective, planning,
+backlog, wrap-up and execute-plan guidance link it. Backlog parse and
+add/take/admit refuse a story's plan listed as separate work, and `add`
+refuses a whole-document home that records another identity. Passing:
+`node --test tests/support/product-backlog-home-reader.test.mjs tests/support/product-backlog-identity.test.mjs tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-correction-story.test.mjs`
+(19), `node --test tests/support/*.test.mjs` (180), the six-file startup and
+admission suite (59, including the legacy plan-homed case), guidance-wording
+tests (29), wrap-up and story-refinement script tests (43), the full dashboard
+suite (120), and `bash tests/git-publication-native.sh` default mode including
+the new `publication/admission-correction` substitute journey. The live trunk
+backlog parses under the stricter invariant. Native live runs are pending.
 
 ### 5. Close admitted work through the ordinary lifecycle
 Type: Behavior
@@ -384,3 +397,9 @@ planned, not already passed. Reassess when implementation exposes contrary facts
   SKILL.md files sit at 250 lines. Native prompts saying "trunk is
   refs/heads/main" led Codex to pass that as `--target`; startup refuses it
   safely.
+- Slice 4: the rule that a story's plan is never listed separately is now
+  enforced at the backlog document and operation owner, not only in prose;
+  `add` now opens an existing whole-document home to check its recorded
+  identity. `dashboard/tests/catalogProjectRecords.ts` still holds a Taken
+  whole-document home recording an anchored identity, which readers accept
+  but `add` would refuse.

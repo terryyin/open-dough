@@ -77,7 +77,7 @@ test("execution completion writes the record after review returns or is skipped"
 test("the record and the retrospective's records form one published commit before the wait", () => {
   assert.match(
     record,
-    /[Cc]ommit[\s\S]+record[\s\S]+retrospective's records[\s\S]+execution\s+checkout[\s\S]+correction plan[\s\S]+`DearDough\.md`[\s\S]+one commit/,
+    /[Cc]ommit[\s\S]+record[\s\S]+retrospective's records[\s\S]+execution\s+checkout[\s\S]+correction story and plan[\s\S]+`DearDough\.md`[\s\S]+one commit/,
   );
   assert.match(
     record,
@@ -91,7 +91,7 @@ test("the record and the retrospective's records form one published commit befor
   );
   assert.match(
     finish,
-    /correction plans[\s\S]+this execution's changes[\s\S]+completion commit/,
+    /correction stories\s+and plans[\s\S]+this execution's changes[\s\S]+completion commit/,
   );
   assert.doesNotMatch(finish, /for wrap-up to commit/);
 });

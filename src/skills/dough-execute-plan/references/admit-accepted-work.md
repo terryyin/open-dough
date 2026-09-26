@@ -10,9 +10,10 @@ its existing claim.
 
 A mission is an independently requested outcome you are undertaking: a bug
 diagnosis or repair, test profiling or optimization, exploratory or manual
-testing, a standalone review, or a direct maintenance or contextual
-instruction. Admit it once the developer or parent instruction accepts it,
-before diagnosis, profiling, exploration, review, or edits. The label of the
+testing, a standalone review, a direct maintenance or contextual
+instruction, or a retrospective's follow-up correction accepted for execution.
+Admit it once the developer or parent instruction accepts it, before
+diagnosis, profiling, exploration, review, or edits. The label of the
 request does not decide this; the acceptance does.
 
 These are not new missions and publish no admission:
@@ -31,7 +32,9 @@ admitting a duplicate.
 ## Prepare the story
 
 First reuse or draft its story in a suitable seed in the originating checkout:
-`**Identity:**`, `**Goal:**`, bounded scope, and known expectations. Record its
+`**Identity:**`, `**Goal:**`, bounded scope, and known expectations. A new
+retrospective correction already has its minimal story linked to its plan;
+reuse that story and never list the plan separately. Record its
 actual preparation with the product backlog
 [record-state](../../dough-product-backlog/references/record-preparation.md)
 operation: approach `unselected` while the approach is undecided, `planless`

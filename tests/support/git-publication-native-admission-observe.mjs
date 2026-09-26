@@ -1,7 +1,7 @@
 // Observes an admission native journey from remote Git state only: which
 // work remote trunk holds in Taken, the claim commit that admitted it, its
-// published story and preparation, and the claims, profiles and story
-// sections that name it. Prints `field: value` lines for the assessor.
+// published story, preparation and plan, and the claims, profiles, story
+// sections and entries that name it. Prints `field: value` lines for the assessor.
 //
 // Usage: node git-publication-native-admission-observe.mjs <source-dir>
 //   <origin> <base-sha> <publisher> <workspace> [identity]
@@ -77,6 +77,15 @@ if (entry) {
   } catch {
     state = undefined;
   }
+  // The story's own plan, as the backlog would link it, and whether the
+  // claim carried it and the backlog also lists it as work of its own.
+  const planFile =
+    state?.approach?.kind === "planned"
+      ? posix.join(dirname(homePath), state.approach.plan)
+      : "";
+  const storyPlan = planFile
+    ? posix.relative(dirname(backlogPath), planFile)
+    : "";
   const anchor = splitHref(href).anchor;
   const log = git(origin, "log", "--format=%B", tip);
   const profiles = git(
@@ -106,6 +115,12 @@ if (entry) {
     "profile-count": profiles.length,
     "story-section-count": anchor
       ? home.split(`<a id="${anchor}">`).length - 1
+      : 0,
+    "story-plan": storyPlan,
+    "entry-plan": entry.plan?.target ?? "",
+    "plan-in-claim": Boolean(planFile) && changed.includes(planFile),
+    "plan-home-count": storyPlan
+      ? entriesAt(tip).filter((item) => item.href === storyPlan).length
       : 0,
     approach: state?.approach?.kind ?? "unrecorded",
     assessment: state?.assessment?.status ?? "unrecorded",

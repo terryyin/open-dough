@@ -27,9 +27,8 @@ implementation agents return uncommitted changes.
 Identify the execution source before changing project state:
 
 - **Planned:** require an executable plan. For a feature story, read its seed section.
-  For a bounded correction, require the complete correction input in the plan under
-  [planning scope and lifecycle](../dough-story-refinement/references/planning.md#choose-the-planning-level);
-  do not require or create a seed.
+  For a bounded correction, require its complete correction input — its story and
+  plan, or a plan-homed correction's plan — under [planning scope and lifecycle](../dough-story-refinement/references/planning.md#choose-the-planning-level).
 - **Quick:** require an explicit current instruction that authorizes planless
   execution. The source is either a canonical feature story with understood goal,
   scope, key examples, and no blocking decision, plus the instruction to skip slice

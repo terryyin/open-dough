@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # Admission journeys for the publication native harness: an accepted
-# investigation admitted to Taken before its first substantive action, and an
-# admitted investigation continued into implementation under the same claim.
+# investigation admitted to Taken before its first substantive action, an
+# admitted investigation continued into implementation under the same claim,
+# and an accepted retrospective correction admitted through its story.
 # Fixture, observation, prompt and assessment. Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
+
+# shellcheck source=tests/support/git-publication-native-admission-correction.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-admission-correction.sh"
 
 # The planted human edits only: an admission's own story draft stays beside
 # them in the originating checkout.
@@ -57,6 +62,7 @@ git_publication_admission_prompt() {
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. You already hold the Taken claim for story ${NATIVE_ADMISSION_IDENTITY} (Investigate slow start, seeds/N.md#slow), admitted earlier under your publisher ID. The investigation is finished and the developer has authorized implementation: its plan and ready assessment were published to remote trunk as ordinary preparation. ${where} Continue this story into implementation through the project's startup gate, then implement its plan as a new feature.txt containing 'implemented' in the owned execution workspace. Leave the implementation uncommitted and report the outcome."
       ;;
+    admission-correction) git_publication_admission_correction_prompt "${where}" ;;
     *) return 2 ;;
   esac
 }
@@ -136,6 +142,8 @@ git_publication_assess_admission() {
     git_publication_assess_fail 'remote trunk lacks exactly one owned claim, profile and story for the mission'
   elif [[ ${admitted} != true ]]; then
     git_publication_assess_fail 'the mission was not admitted with its story in one claim commit'
+  elif [[ ${journey} == admission-correction ]]; then
+    git_publication_assess_admission_correction "${obs}"
   elif [[ ${journey} == admission-investigation ]]; then
     if [[ ${admit_cli_observed} != true || ${probe_after_claim} != true ]]; then
       git_publication_assess_fail 'investigation started before its admission reached remote trunk'
@@ -208,5 +216,6 @@ run_admission_assessor_counterexamples() {
     git_publication_assess "${work}/bad.txt"
     git_publication_suite_expect_assess fail "${reason}"
   done
+  run_admission_correction_counterexamples "${work}/investigation.txt"
   rm -rf -- "${work}"
 }

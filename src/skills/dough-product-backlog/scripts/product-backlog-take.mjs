@@ -16,6 +16,7 @@ import {
   parseBacklog,
   renderBacklog,
   renderEntry,
+  requireUnlistedPlan,
   takenHeading,
 } from "./product-backlog-document.mjs";
 import {
@@ -32,9 +33,10 @@ import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
-// A quick story and a bounded correction take none: a correction's canonical
-// home already is its plan, so a second link would name it twice.
-function resolvePlan(entry, request) {
+// A quick story and a plan-homed correction take none: such a correction's
+// canonical home already is its plan, so a second link would name it twice.
+// Nor may the plan already be listed as another entry's canonical home.
+function resolvePlan(document, entry, request) {
   if (request.plan === undefined) {
     if (entry.plan) {
       throw new BacklogError(
@@ -67,6 +69,7 @@ function resolvePlan(entry, request) {
     `Take the work once its plan is resolved, or take a quick story with ` +
       `--no-plan.`,
   );
+  requireUnlistedPlan(document, target, entry);
   return { label: planLabel, target };
 }
 
@@ -82,12 +85,11 @@ export function takeEntry(source, request) {
     `This operation never writes an absent entry: queue the work first, or ` +
       `supply the identity the backlog carries.`,
   );
-  const plan = resolvePlan(entry, request);
   const line = renderEntry({
     identity: entry.identity,
     title: entry.title,
     href: entry.href,
-    plan,
+    plan: resolvePlan(document, entry, request),
   });
 
   if (entry.list === takenHeading) {
@@ -120,7 +122,10 @@ export function admitEntry(source, request) {
     title: request.title,
     href: request.href,
   };
-  const line = renderEntry({ ...entry, plan: resolvePlan(entry, request) });
+  const line = renderEntry({
+    ...entry,
+    plan: resolvePlan(document, entry, request),
+  });
   insertEntryLine(document, appendIndex(document, document.taken), line);
   return { source: renderBacklog(document), entry, result: "admitted" };
 }

@@ -56,7 +56,9 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
 });
 
-// Queues correction C, whose backlog link is its own recorded plan.
+// Queues correction C in the legacy shape a correction had before corrections
+// got stories: its backlog link is its own recorded plan. Such work keeps its
+// identity and stays executable without migration.
 async function queueSelfHomedCorrection(trunk) {
   const identity = "quick/C";
   const href = "quick/C/PLAN.md";
@@ -92,7 +94,7 @@ async function queueSelfHomedCorrection(trunk) {
   return { identity, href, entry };
 }
 
-test("a correction whose plan is its canonical home is Taken without a plan link", async (t) => {
+test("a legacy correction whose plan is its canonical home is Taken without a plan link", async (t) => {
   for (const selectPlan of [false, true]) {
     const trunk = await createQueuedTrunk();
     t.after(trunk.cleanup);

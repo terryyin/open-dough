@@ -8,6 +8,8 @@
 # NATIVE_ADMISSION_EXECUTION, _BRANCH, _PUBLISHER and _IDENTITY carry the
 # fixture's owned workspace, branch, publisher ID and admitted identity.
 # NATIVE_ADMISSION_ORDER=probe-first runs the investigation before admission.
+# NATIVE_ADMISSION_CORRECTION=new-story admits a newly drafted story instead of
+# the retrospective's correction story.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 admission_events=
@@ -113,6 +115,25 @@ EOF
         admission_record "write feature.txt" ''
       fi
       response="Continued ${NATIVE_ADMISSION_IDENTITY} under its existing claim and implemented feature.txt."
+      ;;
+    admission-correction)
+      if [[ ${NATIVE_ADMISSION_CORRECTION:-} == new-story ]]; then
+        # A counterexample: draft another story instead of reusing the
+        # retrospective's correction story.
+        identity=SEED-901#order-notes link=seeds/SEED-901.md#order-notes
+        printf -- '---\nid: SEED-901\n---\n\n# Notes\n\n<a id="order-notes"></a>\n\n### Order notes\n\n**Identity:** %s\n\n**Goal:** Order notes by tag.\n' \
+          "${identity}" > "${workspace}/.planning/seeds/SEED-901.md"
+        admission_run node "${skills}/dough-product-backlog/scripts/product-backlog.mjs" \
+          record-state --identity "${identity}" --link "${link}" \
+          --refinement refined --approach unselected
+      else
+        identity=${NATIVE_ADMISSION_IDENTITY} link=seeds/R.md#order-notes
+        admission_run node "${skills}/dough-product-backlog/scripts/product-backlog.mjs" \
+          read-state --link "${link}"
+      fi
+      admission_start "${identity}" --admit --link "${link}" \
+        --title 'Order release notes by tag date'
+      response="Admitted the retrospective's correction story ${identity} to Taken with its plan. No product change was made."
       ;;
     *) return 1 ;;
   esac

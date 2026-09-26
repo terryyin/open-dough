@@ -8,6 +8,10 @@
 // was admitted to Taken by this journey's publisher, then its plan and ready
 // assessment were recorded by the real record-state operation and published
 // as ordinary preparation.
+// admission-correction: trunk holds seed R with a completed story; its
+// retrospective drafted, in the originating checkout only, a minimal
+// correction story in that seed linked to its new correction plan, with the
+// planned approach recorded and no backlog entry.
 //
 // Usage: node git-publication-native-admission-fixture.mjs <source-dir>
 //   <journey> <parent>
@@ -22,9 +26,8 @@ const load = (name) => import(pathToFileURL(join(scripts, name)).href);
 const { createQueuedTrunk, readyContributing } = await load(
   "workspace-publication-fixtures.mjs",
 );
-const { publishPlannedPreparation, storySection, withFacts } = await load(
-  "workspace-publication-admission-fixtures.mjs",
-);
+const { publishPlannedPreparation, storySection, withFacts, writeDraft } =
+  await load("workspace-publication-admission-fixtures.mjs");
 const { startExecution } = await load("execution-start.mjs");
 
 const git = (cwd, ...args) =>
@@ -88,6 +91,34 @@ if (journey === "admission-continuation") {
       plan: "# Make startup fast\n\n### 1. Add feature.txt containing 'implemented'\nType: Behavior\nStatus: planned\n",
       ready: true,
     },
+  );
+  coordinates.identity = identity;
+}
+
+if (journey === "admission-correction") {
+  const identity = "SEED-R#order-notes";
+  const link = "seeds/R.md#order-notes";
+  const completed = `---\nid: SEED-R\n---\n\n# Seed R\n\n${storySection("publish-notes", "SEED-R#publish-notes", "Publish release notes", "Readers find the notes of every tagged release.")}`;
+  writeFileSync(join(integration, ".planning/seeds/R.md"), completed);
+  git(integration, "add", ".planning/seeds/R.md");
+  git(integration, "commit", "-qm", "complete Publish release notes");
+  git(integration, "push", "-q", "origin", "main");
+  writeDraft(
+    trunk,
+    ".planning/quick/R/PLAN.md",
+    `# Order release notes by tag date\n\n## Source\n\n**Identity:** ${identity}\n\nRetrospective of SEED-R#publish-notes.\n\n## Findings\n\n- Notes are listed in file-name order, so v1.10 precedes v1.9.\n\n## Ordered slices\n\n### 1. Newest tag first\nType: Behavior\nStatus: planned\nProof: The index lists v1.10 before v1.9.\n`,
+  );
+  const section = `${storySection("order-notes", identity, "Order release notes by tag date", "Readers see the newest tag's notes first, as the published notes promised.")}\n**Scope:** Correct the note order only.\n\n**Plan:** [Order release notes](../quick/R/PLAN.md).\n`;
+  writeDraft(
+    trunk,
+    ".planning/seeds/R.md",
+    withFacts(
+      `${completed}\n${section}`,
+      link,
+      identity,
+      "planned",
+      "../quick/R/PLAN.md",
+    ),
   );
   coordinates.identity = identity;
 }
