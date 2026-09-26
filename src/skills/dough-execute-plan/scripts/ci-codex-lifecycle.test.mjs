@@ -24,22 +24,19 @@ import {
   waitForFile,
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
-import {
-  deferChildExit,
-  fixtureTeardown,
-} from "./fixture-teardown-test-fixtures.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 test("Codex retains its execution handles until natural observer completion", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-completion-test-"));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
   const replay = createCodexReplay(
+    teardown,
     { ...process.env, DOUGH_CI_MAILBOX_ROOT: root, TMPDIR: root },
-    [completingFixture, root],
+    { command: [completingFixture, root] },
   );
 
   const attached = await replay.setup();
-  deferChildExit(teardown, attached.process);
   await waitForFile(join(root, "first-failure-recorded"), 15_000);
   const repeatedSetup = await replay.setup();
   writeFileSync(join(root, "release-second-failure"), "");
@@ -59,10 +56,9 @@ test("Codex retains its execution handles until natural observer completion", as
 test("Codex recovers only its retained identity after losing handles and cooperatively stops that observer", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
-  const replay = createCodexReplay(env);
+  const replay = createCodexReplay(teardown, env);
   const attached = await replay.setup();
   const child = attached.process;
-  deferChildExit(teardown, child);
   await awaitWorkerSignal(
     attached.directory,
     join(root, "github-request-started"),
@@ -85,9 +81,8 @@ test("Codex recovers only its retained identity after losing handles and coopera
     attempt: 1,
   };
   publishMailboxEvent(attached.directory, failure);
-  const other = createCodexReplay(env);
+  const other = createCodexReplay(teardown, env);
   const unaffected = await other.setup();
-  deferChildExit(teardown, unaffected.process);
 
   replay.forgetHandles();
   assert.equal(replay.state(), undefined);
@@ -142,10 +137,9 @@ test("Codex recovers only its retained identity after losing handles and coopera
 test("Codex reuses one execution observer through normal and repair pushes, then stops its exact handles", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
-  const replay = createCodexReplay(env);
+  const replay = createCodexReplay(teardown, env);
 
   const attached = await replay.setup();
-  deferChildExit(teardown, attached.process);
   await awaitWorkerSignal(
     attached.directory,
     join(root, "github-request-started"),

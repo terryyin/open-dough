@@ -17,7 +17,7 @@ import {
   deferChildExit,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
-import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
+import { endProcess } from "./process-lifetime-test-fixtures.mjs";
 
 test(
   "stream fixture completes even when filesystem watch notifications are lost",
@@ -63,13 +63,12 @@ for (const kind of ["github", "adapter"]) {
           command = [join(root, "bin/gh")];
           ready = join(root, "github-request-started");
         } else {
-          const fixture = await createCustomBridgeFixture();
+          const fixture = await createCustomBridgeFixture(t);
           root = fixture.fixture;
           command = [join(root, "adapter.mjs")];
           env = fixture.env;
           ready = fixture.calls;
-          teardown = fixtureTeardown(root);
-          t.after(teardown.cleanup);
+          teardown = fixture.teardown;
         }
         const parent = spawn(
           process.execPath,
@@ -89,14 +88,7 @@ for (const kind of ["github", "adapter"]) {
         deferChildExit(teardown, parent, "SIGKILL");
         const [chunk] = await once(parent.stdout, "data");
         const pid = Number(String(chunk).trim());
-        teardown.defer(async () => {
-          try {
-            process.kill(pid, "SIGKILL");
-          } catch (error) {
-            if (error.code !== "ESRCH") throw error;
-          }
-          await awaitProcessExit(pid);
-        });
+        teardown.defer(() => endProcess(pid, command[0]));
         await waitForFile(ready);
         if (loss === "parent") parent.kill("SIGKILL");
         else rmSync(root, { recursive: true, force: true });

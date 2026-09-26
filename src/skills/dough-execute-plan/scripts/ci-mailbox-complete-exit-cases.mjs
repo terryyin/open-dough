@@ -1,16 +1,21 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { createMailbox, recordWorkerIdentity } from "./ci-mailbox.mjs";
 import { stopMailbox } from "./ci-mailbox-complete.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import {
+  deferChildExit,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 
 test("explicit stop returns only after the worker exits the post-terminal window", async (t) => {
   const storage = mkdtempSync(join(tmpdir(), "ci-stop-exit-"));
-  t.after(() => rmSync(storage, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(storage);
+  t.after(teardown.cleanup);
   const directory = createMailbox(
     {
       mode: "execution",
@@ -44,13 +49,7 @@ setInterval(() => {}, 1000);
   const child = spawn(process.execPath, [stub, "worker", directory], {
     stdio: "ignore",
   });
-  t.after(() => {
-    try {
-      child.kill("SIGKILL");
-    } catch (error) {
-      if (error.code !== "ESRCH") throw error;
-    }
-  });
+  deferChildExit(teardown, child, "SIGKILL");
   await new Promise((resolve, reject) => {
     child.once("spawn", resolve);
     child.once("error", reject);

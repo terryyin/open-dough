@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { readMailboxEvents } from "./ci-mailbox.mjs";
 import { createObserverStreamParser } from "./ci-observer-stream.mjs";
+import {
+  deferChildExit,
+  fixtureTeardown,
+} from "./fixture-teardown-test-fixtures.mjs";
 import { waitForFile } from "./watch-ci-test-fixtures.mjs";
 
 const fixture = fileURLToPath(
@@ -71,11 +75,12 @@ test("observer output parser treats a discovery-delay advisory line as an event"
 
 test("foreground mailbox stream delivers successive real-observer records before exit", async (t) => {
   const state = mkdtempSync(join(tmpdir(), "ci-codex-stream-test-"));
-  t.after(() => rmSync(state, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(state);
+  t.after(teardown.cleanup);
   const child = spawn(process.execPath, [fixture, state], {
     env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: state, TMPDIR: state },
   });
-  t.after(() => child.kill("SIGTERM"));
+  deferChildExit(teardown, child);
   const parser = createObserverStreamParser();
   const directories = [];
   const events = [];

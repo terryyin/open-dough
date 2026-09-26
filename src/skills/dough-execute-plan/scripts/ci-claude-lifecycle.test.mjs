@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -9,6 +9,7 @@ import {
   claudeInput,
   createClaudeReplay,
 } from "./ci-claude-lifecycle-test-fixtures.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
   awaitWorkerSignal,
   waitForFile,
@@ -17,6 +18,8 @@ import {
 
 test("Claude Code reuses one execution observer through pushes and stops its exact mailbox", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-claude-lifecycle-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const bin = join(root, "bin");
   writeBlockingGithubListCommand(bin);
   const env = {
@@ -25,11 +28,7 @@ test("Claude Code reuses one execution observer through pushes and stops its exa
     CI_TEST_ROOT: root,
     PATH: `${bin}:${process.env.PATH}`,
   };
-  const replay = createClaudeReplay(env);
-  t.after(async () => {
-    await replay.stop();
-    rmSync(root, { recursive: true, force: true });
-  });
+  const replay = createClaudeReplay(teardown, env);
 
   const ready = await replay.readiness();
   assert.match(ready.hookSpecificOutput.additionalContext, /CI_MONITOR_READY/);

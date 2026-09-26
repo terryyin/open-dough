@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
 export const checkout = fileURLToPath(new URL("../../../../", import.meta.url));
@@ -40,7 +41,14 @@ export async function configuredHook(event, input, env) {
   return JSON.parse((await child).stdout);
 }
 
-export function createCursorReplay(launcherEnv, hookEnv = launcherEnv) {
+// Replays the host's observer lifecycle. The observer each `setup` starts is
+// stopped through `teardown` (a `fixtureTeardown`) before its fixture is
+// removed, even when the attachment hook fails.
+export function createCursorReplay(
+  teardown,
+  launcherEnv,
+  hookEnv = launcherEnv,
+) {
   let observer;
   let launches = 0;
 
@@ -67,6 +75,12 @@ export function createCursorReplay(launcherEnv, hookEnv = launcherEnv) {
       const directory = JSON.parse(
         stdout.slice(receiptPrefix.length),
       ).directory;
+      deferObserverStop(teardown, {
+        launcher,
+        directory,
+        cwd: checkout,
+        env: launcherEnv,
+      });
       const attachment = await configuredHook(
         "postToolUse",
         cursorInput("postToolUse", stdout),
@@ -84,7 +98,6 @@ export function createCursorReplay(launcherEnv, hookEnv = launcherEnv) {
     },
     launches: () => launches,
     async stop() {
-      if (!observer) return;
       return exec(process.execPath, [launcher, "stop", observer.directory], {
         cwd: checkout,
         env: launcherEnv,

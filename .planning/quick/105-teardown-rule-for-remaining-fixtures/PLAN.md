@@ -431,7 +431,7 @@ also used by `launchMailboxCommand` and `startProcess`.
 ### 5. Remaining host-lifecycle and child-process fixtures follow the same rule
 
 Type: Structure (owns F6 and the closing check)
-Status: planned
+Status: done
 
 Change: the Claude and Cursor lifecycle replays take the teardown and defer
 the observer stop right after `start` (before `configuredHook`);
@@ -452,7 +452,53 @@ temporary break that stops the product ending the blocking adapter fails
 is gone after the file. The six test files pass; leak sweep empty. Closing
 check (table above) recorded.
 
+Accepted proof (2026-09-26; from the repository root, private `TMPDIR`):
+
+- Correction to the planned before-observation: a `configuredHook` failure
+  right after `start` left nothing on HEAD (the worker ends by itself). With
+  the hook failing after the worker is blocked in `gh`, HEAD left the
+  `ci-mailbox.mjs worker` (ppid 1, root removed); after: exit 1 in about 1 s,
+  no worker.
+- With the product temporarily unable to end its adapters (`signal` and
+  `timeout` dropped, child orphaned), HEAD left `adapter.mjs` running with its
+  root removed; after, `observer cancellation terminates its blocking adapter
+  child` still fails as intended and no adapter remains. Keeping only the last
+  pid left two timeout-mode adapters, so the adapter now appends every pid,
+  including the hanging `diagnose-fails-then-discovery-lost` adapter.
+- Added within this correction's outcome after the sweep:
+  `ci-custom-host-bridge` ran `stop` and removal in one hook (a failing stop
+  left the fixture directory; now it is removed), and `createCodexReplay`
+  registered its stream child only after the receipt parsed (an unparsable
+  receipt kept the file running until killed at 32 s; now exit 1 in about
+  1 s). The plan's "already correct" note for `ci-custom-host-bridge` is
+  superseded.
+- `node --test src/skills/dough-execute-plan/scripts/{ci-claude-lifecycle,ci-cursor-lifecycle,ci-claude-worker-loss-lifecycle,ci-cursor-worker-loss-lifecycle,ci-observer-stream,ci-codex-observation-loss-lifecycle,ci-mailbox-complete,ci-command-adapter-unavailable,ci-codex-lifecycle,ci-codex-stop-lifecycle,ci-codex-completion,ci-custom-host-bridge,ci-fixture-lifecycle}.test.mjs`
+  → 55 pass, 0 fail, 0 cancelled, silent; after refactoring, the four files
+  it touched → 17 pass. Leak sweeps (including `dough-ci:`, the stream
+  child's title) and `TMPDIR` empty.
+- Closing check over the scripts directory: no `allSettled`; no
+  `t.after(async` stop-and-remove hooks; every `stdio: "ignore"` hit is stdin
+  of a spawned child, a disposable grandchild ended by teardown, synchronous
+  setup, or product code; every remaining `t.after(() => rmSync` is in a file
+  whose test starts nothing, only runs `probe`, awaits its work inline
+  (`ci-mailbox.test.mjs`, `ci-command-adapter-cli`), or registers it after
+  its only kill (`ci-mailbox-process-test-fixtures` `spawnIdleNode`).
+
+Delivered structure: the replays take a teardown and defer the observer stop
+(Claude, Cursor) or stream-child exit (Codex, with `exitSignal`) at start;
+`createCustomBridgeFixture` returns its teardown; `endProcess(pid, command)`
+in `process-lifetime-test-fixtures.mjs` ends a recorded non-child process
+only while its command still matches.
+
 ## Learnings
+
+- A failure right after a start rarely leaks: the worker or child ends with
+  its mailbox. Leaks appear once the worker is blocked in `gh` or the stop
+  fails, so failing-path probes need that condition.
+- Stream children retitle themselves `dough-ci:<hash>`; leak sweeps must match
+  that title, not only `ci-mailbox.mjs`.
+- `node:test` reports only the body's error when both body and teardown fail,
+  so a teardown-failure probe needs an otherwise passing body.
 
 - Registration order defeats a per-test stop: `node:test` runs `t.after`
   hooks in registration order, so a stop added by a test after the fixture

@@ -51,3 +51,29 @@ export async function processEnded(pid) {
 export async function awaitProcessExit(pid) {
   while (!(await processEnded(pid))) await pause(20);
 }
+
+// Ends process `pid`, which is not this one's child, and observes its exit.
+// A pid that has ended, or now runs something whose command line does not
+// include `command`, is left alone: that pid may since belong to another
+// process.
+export async function endProcess(pid, command) {
+  const running = await runCommand("ps", [
+    "-p",
+    String(pid),
+    "-o",
+    "command=",
+  ]).then(
+    ({ stdout }) => stdout.includes(command),
+    (error) => {
+      if (error.code !== 1) throw error;
+      return false;
+    },
+  );
+  if (!running) return;
+  try {
+    process.kill(pid, "SIGKILL");
+  } catch (error) {
+    if (error.code !== "ESRCH") throw error;
+  }
+  await awaitProcessExit(pid);
+}

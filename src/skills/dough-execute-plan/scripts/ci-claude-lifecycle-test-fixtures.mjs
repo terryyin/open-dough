@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { receiptPrefix } from "./ci-mailbox.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
 export const checkout = fileURLToPath(new URL("../../../../", import.meta.url));
@@ -39,7 +40,10 @@ export async function configuredHook(event, input, env) {
   return JSON.parse((await child).stdout);
 }
 
-export function createClaudeReplay(env) {
+// Replays the host's observer lifecycle. The observer each `setup` starts is
+// stopped through `teardown` (a `fixtureTeardown`) before its fixture is
+// removed, even when the attachment hook fails.
+export function createClaudeReplay(teardown, env) {
   let observer;
   let launches = 0;
 
@@ -66,6 +70,7 @@ export function createClaudeReplay(env) {
       const directory = JSON.parse(
         stdout.slice(receiptPrefix.length),
       ).directory;
+      deferObserverStop(teardown, { launcher, directory, cwd: checkout, env });
       const attachment = await configuredHook(
         "PostToolUse",
         claudeInput("PostToolUse", stdout),
@@ -80,7 +85,6 @@ export function createClaudeReplay(env) {
     },
     launches: () => launches,
     async stop() {
-      if (!observer) return;
       return exec(process.execPath, [launcher, "stop", observer.directory], {
         cwd: checkout,
         env,

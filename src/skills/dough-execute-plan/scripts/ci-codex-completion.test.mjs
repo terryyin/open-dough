@@ -24,7 +24,6 @@ import {
   runCommand,
 } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { blockingGithubEnvironment } from "./watch-ci-test-fixtures.mjs";
-import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 
 // The provider is blocked so these tests isolate the live stream/completion
 // boundary while publishing the same atomic coverage records as the observer.
@@ -33,9 +32,10 @@ test("real stream identity supports pending exact and ancestor completion", asyn
     for (const verdict of ["success", "failure"]) {
       await t.test(`${source} pending to ${verdict}`, async (t) => {
         const { env, teardown } = blockingGithubEnvironment(t);
-        const replay = createCodexReplay(env);
+        const replay = createCodexReplay(teardown, env, {
+          exitSignal: "SIGKILL",
+        });
         const attached = await replay.setup();
-        deferChildExit(teardown, attached.process, "SIGKILL");
         const identity = readWorkerIdentity(attached.directory);
         assert.equal(
           identity.pid,
@@ -112,12 +112,12 @@ test("real stream identity supports pending exact and ancestor completion", asyn
 
 test("stream completion rejects missing, wrong-mailbox, unknown-mode, and dead identities without signaling another stream", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
-  const replay = createCodexReplay(env);
-  const otherReplay = createCodexReplay(env);
+  const replay = createCodexReplay(teardown, env, { exitSignal: "SIGKILL" });
+  const otherReplay = createCodexReplay(teardown, env, {
+    exitSignal: "SIGKILL",
+  });
   const attached = await replay.setup();
-  deferChildExit(teardown, attached.process, "SIGKILL");
   const other = await otherReplay.setup();
-  deferChildExit(teardown, other.process, "SIGKILL");
   const identity = readWorkerIdentity(attached.directory);
   const sha = "a".repeat(40);
   registerPushedRevision(attached.directory, sha);

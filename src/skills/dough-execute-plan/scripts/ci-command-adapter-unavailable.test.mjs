@@ -7,7 +7,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,6 +14,8 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { watchCiExecution } from "./watch-ci.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { endProcess } from "./process-lifetime-test-fixtures.mjs";
 import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 const observer = fileURLToPath(new URL("./watch-ci.mjs", import.meta.url));
@@ -22,10 +23,20 @@ const checkedSha = "e".repeat(40).toUpperCase();
 
 function unavailableFixture(t, mode) {
   const root = mkdtempSync(join(tmpdir(), "ci-adapter-unavailable-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const planning = join(root, ".planning");
   const adapter = join(root, "adapter.mjs");
   const requests = join(root, "requests.jsonl");
-  const pid = join(root, "adapter.pid");
+  const pids = join(root, "adapter.pids");
+  // Each hanging adapter appends its pid. The product ends them; any it failed
+  // to end is ended here, after the test observed that, before the root it
+  // runs from is removed.
+  teardown.defer(async () => {
+    if (!existsSync(pids)) return;
+    for (const line of readFileSync(pids, "utf8").trim().split("\n"))
+      await endProcess(Number(line), adapter);
+  });
   const discovered = join(root, "failure-discovered");
   mkdirSync(planning);
   writeFileSync(
@@ -42,11 +53,14 @@ else if (mode === 'unknown-status') process.stdout.write(JSON.stringify({ attemp
 else if (mode === 'malformed-sha') process.stdout.write(JSON.stringify({ attempts: [{ runId: 'run', attemptId: 'attempt', sha: 'not-a-full-sha', outcome: 'failure' }] }));
 else if (mode === 'failed-command') { process.stderr.write('endpoint unavailable '.repeat(100)); process.exitCode = 2; }
 else if (mode === 'timeout' || mode === 'blocking') {
-  writeFileSync(${JSON.stringify(pid)}, String(process.pid));
+  appendFileSync(${JSON.stringify(pids)}, process.pid + '\\n');
   setInterval(() => {}, 1000);
 } else if (request.operation === 'discover') {
   const discoveries = readFileSync(${JSON.stringify(requests)}, 'utf8').split('\\n').filter((line) => line.includes('"discover"')).length;
-  if (mode === 'diagnose-fails-then-discovery-lost' && discoveries === 3) setInterval(() => {}, 1000);
+  if (mode === 'diagnose-fails-then-discovery-lost' && discoveries === 3) {
+    appendFileSync(${JSON.stringify(pids)}, process.pid + '\\n');
+    setInterval(() => {}, 1000);
+  }
   const first = !existsSync(${JSON.stringify(discovered)});
   writeFileSync(${JSON.stringify(discovered)}, '');
   process.stdout.write(JSON.stringify({ attempts: first ? [{ runId: 'known-run', attemptId: 'known-attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }] : [] }));
@@ -58,8 +72,7 @@ else if (mode === 'timeout' || mode === 'blocking') {
     join(planning, "open-dough.json"),
     JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
   );
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  return { root, requests, pid };
+  return { root, requests, pids };
 }
 
 // A hanging adapter records its request, then never answers, so only these
@@ -174,12 +187,12 @@ test("observer cancellation terminates its blocking adapter child", async (t) =>
   const stdout = [];
   child.stdout.on("data", (chunk) => stdout.push(chunk));
   try {
-    await waitForFile(fixture.pid);
+    await waitForFile(fixture.pids);
   } finally {
     child.kill("SIGTERM");
   }
   const [code, signal] = await once(child, "exit");
-  const adapterPid = Number(readFileSync(fixture.pid, "utf8"));
+  const adapterPid = Number(readFileSync(fixture.pids, "utf8"));
   assert.equal(code, 0, signal);
   assert.equal(Buffer.concat(stdout).toString(), "");
   assert.equal(await waitForPidExit(adapterPid), true);
