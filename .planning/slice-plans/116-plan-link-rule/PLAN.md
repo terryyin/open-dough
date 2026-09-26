@@ -175,7 +175,7 @@ delivery, CI observation, retrospective and wrap-up gates.
 
 ## Ordered slices
 
-### 1. Apply one plan-link rule across the backlog commands
+### 1. Let a section link satisfy its plan in take and record-state
 Type: Behavior
 Status: planned
 Proof: new `tests/support/product-backlog-plan-link.test.mjs`, through the
@@ -188,37 +188,69 @@ real backlog CLI:
 - queued work taken with `--plan slice-plans/N/PLAN.md#ordered-slices` moves
   to Taken with that link (resolved by path; an unresolved file is still
   refused);
-- `take --plan seeds/SEED-001-x.md` for an entry homed at
-  `seeds/SEED-001-x.md#one` is refused as the canonical home needing no plan
-  link, backlog unchanged; admission, which has no backlog CLI of its own, is
-  asserted through `admitEntry` the way the existing admission test in
-  `product-backlog-take.test.mjs` does;
-- `take --plan slice-plans/N/PLAN.md#x` when another entry's whole-document
-  home is `slice-plans/N/PLAN.md` is refused, and `add` of that home while
-  another entry links `slice-plans/N/PLAN.md#x` is refused, each unchanged;
+- a Taken entry linking a different plan file is still refused by `take` and
+  `record-state`, unchanged;
 - moved here from `story-state.test.mjs` (R3) and `story-state-refusals.test.mjs`:
   a planned record links its Taken entry's missing plan, leaves a section
   link unchanged, and refuses a Taken entry linking another plan file.
 
 `tests/support/story-state.test.mjs` ends at or below 250 lines; the whole
-`tests/support` suite and the take, refresh and refusal suites stay green.
+`tests/support` suite and the take and refusal suites stay green.
 
 Behavior: a Taken entry linking a section of its declared plan → `record-state`,
 `take` resume, or `take --plan` with or without the fragment → the entry is
-left unchanged, and a seed file that is its story's own home is never written
-as that story's plan link.
+left unchanged.
 
-Add the three predicates to `product-backlog-plan.mjs` and route every backlog
-caller listed in Current decisions through them; fold `linkTakenPlan`'s
-section special case into `takeEntry`. Update the backlog SKILL's
+Add to `product-backlog-plan.mjs` the predicates for the file a plan link
+names and whether an entry's link satisfies a plan path; resolve `take --plan`
+by that file (`requireResolvedPlan`). Route `takeEntry`/`admitEntry`
+(`resolvePlan`) and `linkTakenPlan` through them, folding `linkTakenPlan`'s
+section special case into the take rule. Update the backlog SKILL's
 "A planned story requires its resolvable slice-plan link" sentence only as far
 as needed to say a link to a section of that plan satisfies it, without growing
 the section.
 
-Safe stop: backlog commands agree; execution startup is externally unchanged
-(it still refuses section links before calling take).
+Safe stop: take and record-state agree on section links; own-home and listing
+checks keep their current whole-target comparison; execution startup is
+externally unchanged.
 
-### 2. Refuse a missing record-state or read-state link cleanly
+### 2. Keep own-home plans unlinked and compare plan files in listing checks
+Type: Behavior
+Status: planned
+Proof: in `tests/support/product-backlog-plan-link.test.mjs` (or a sibling if
+it would pass 250 lines), through the real backlog CLI:
+
+- `take --plan seeds/SEED-001-x.md` for an entry homed at
+  `seeds/SEED-001-x.md#one` is refused as the canonical home needing no plan
+  link, backlog unchanged; admission, which has no backlog CLI of its own, is
+  asserted through `admitEntry` the way the existing admission test in
+  `product-backlog-take.test.mjs` does;
+- `record-state --approach planned` whose declared plan is its own home file
+  writes no plan link (existing story-state own-home cases stay green);
+- `take --plan slice-plans/N/PLAN.md#x` when another entry's whole-document
+  home is `slice-plans/N/PLAN.md` is refused, and `add` of that home while
+  another entry links `slice-plans/N/PLAN.md#x` is refused, each unchanged;
+- `refresh` keeps its own-home decision for a section-anchored home (existing
+  refresh suite green, plus one own-home row when none covers the anchor).
+
+The whole `tests/support` suite and the take, refresh and refusal suites stay
+green.
+
+Behavior: a declared plan that is the story's own home file, with or without
+an anchor → take, admission, record-state or refresh → no plan link is
+written; a plan link and another entry's home that name the same file → the
+listing check refuses.
+
+Add the own-home predicate (same file path as the home link without its
+anchor → no link) to `product-backlog-plan.mjs` and route `refresh`'s
+own-home check (`planFor`), `declaredPlanTarget`/`separatePlanPath`/
+`planLoadOptions`, `requireUnlistedPlan`, `requireUnlistedHome`'s plan clause
+and `planOfOther` through the slice 1 and slice 2 predicates.
+
+Safe stop: every backlog command applies the one rule; execution startup is
+externally unchanged (it still refuses section links before calling take).
+
+### 3. Refuse a missing record-state or read-state link cleanly
 Type: Behavior
 Status: planned
 Proof: a table row in `tests/support/story-state-refusals.test.mjs` running
@@ -233,9 +265,9 @@ missing-input refusal, nothing written.
 Use `requireField` at the top of both commands; remove the `?? ""`
 workaround and `readState`'s hand-written refusal.
 
-Safe stop: independent of slices 1 and 3.
+Safe stop: independent of slices 1, 2 and 4.
 
-### 3. Continue and start section-linked work through the same rule
+### 4. Continue and start section-linked work through the same rule
 Type: Behavior
 Status: planned
 Proof: through the real startup CLI with bare remotes:
@@ -261,12 +293,13 @@ or continuation → it is taken or continued without writing a different link,
 and a genuinely different plan link is refused naming its list.
 
 Replace `selectedPreparation.declaredPlan`'s own-home comparison and
-continuation's whole-target comparison with the domain predicates from slice 1.
+continuation's whole-target comparison with the domain predicates from slices 1
+and 2.
 Keep refusal statuses and the other messages the tests assert.
 
 Safe stop: every command applies the one rule; R1 closed.
 
-### 4. Repair the renamed startup heading links in seeds
+### 5. Repair the renamed startup heading links in seeds
 Type: Structure
 Status: planned
 Proof: the two links in `SEED-004` and `SEED-008` point at
@@ -283,26 +316,35 @@ Safe stop: independent of the other slices.
 
 | Finding / promise | Owner / decisive observation |
 | --- | --- |
-| R1 backlog commands (take, admit, record-state, listing, refresh own-home) | 1: plan-link CLI tests |
-| R1 startup and continuation, "disagrees" refusal | 3: startup and continuation CLI cases |
-| R2 | 2: missing-input refusal rows |
+| R1 take, take --plan, resume, record-state section links | 1: plan-link CLI tests |
+| R1 own-home, admission, refresh own-home, listing clashes | 2: own-home and clash CLI tests |
+| R1 startup and continuation, "disagrees" refusal | 4: startup and continuation CLI cases |
+| R2 | 3: missing-input refusal rows |
 | R3 | 1: `story-state.test.mjs` ≤ 250 lines, moved cases green |
-| R4 | 4: repaired links, one-off anchor check |
-| Continuation writes nothing; one claim | 3: tip unchanged, one `Claim-Identity` |
-| Never repoint; plan-homed stays unlinked | 1 and 3: unchanged entries; existing canonical-plan cases |
-| Dashboard unaffected | 3: dashboard readiness specs green |
+| R4 | 5: repaired links, one-off anchor check |
+| Continuation writes nothing; one claim | 4: tip unchanged, one `Claim-Identity` |
+| Never repoint; plan-homed stays unlinked | 1, 2 and 4: unchanged entries; existing canonical-plan cases |
+| Dashboard unaffected | 4: dashboard readiness specs green |
 
 ## Plan review
 
-Four slices, one proof loop each. Slice 1 establishes the domain rule and
-proves it at the backlog CLI; slice 3 then makes startup consume it, so
-startup never depends on an unproved rule. Slices 2 and 4 are independent and
-may run in any order. The examples exercise one common rule — compare plan
-file paths; a plan that is the home file is unlinked — rather than a special
-case per command, which removes `linkTakenPlan`'s existing special case. No
-numeric slice target was supplied; size is judged by one coherent change with
-focused proof. Slice 1 touches several backlog callers but they share one
-predicate and one CLI proof loop.
+Five slices, one proof loop each. Slices 1 and 2 establish the domain rule
+and prove it at the backlog CLI — first section links in take and
+record-state, then own-home plans and listing clashes; slice 4 then makes
+startup consume it, so startup never depends on an unproved rule. Slices 3
+and 5 are independent and may run in any order. The examples exercise one
+common rule — compare plan file paths; a plan that is the home file is
+unlinked — rather than a special case per command, which removes
+`linkTakenPlan`'s existing special case. No numeric slice target was
+supplied; size is judged by one coherent change with focused proof.
+
+Refined 2026-09-26 (slice-plan refinement): the former slice 1 bundled two
+independently observable outcomes with separate proof — section links
+satisfying their plan in take and record-state, and own-home plans plus
+listing-clash comparisons across `refresh`, story-state and the document
+checks — so it was split into slices 1 and 2. Later slices were renumbered;
+their content is unchanged apart from dependency references. Retained:
+slices 3, 4 and 5 (formerly 2, 3 and 4), each one gate and one proof loop.
 
 ## Learnings
 

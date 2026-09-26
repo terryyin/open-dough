@@ -197,7 +197,7 @@ execution. Planning does not assume it has already landed.
 
 **Identity:** SEED-028#plan-link-rule
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"not-ready","reasons":["Slice 1 routes many backlog callers (take, admit, refresh own-home, listing checks, story-state plan target) through one predicate in one proof loop; sizing is uncertain."],"basis":{"document":"873c8816b77a3cd194f1ebc2396dd044c2457660bc1704c4261b8f624f19ad77","plan":"b067f7f7ffda6bf8ee57d9c278405c5a38212fefc982fe7d9820cb68f6e9a4a7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/116-plan-link-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a5cba09905029d8c64c05acc12f1832b8808e587dbab60c55d67cf15cad2653","plan":"5eaf834c407e43d3d239226f284fcf8c21d51797cfa78202a68703011ff2f01d"}}
 ```
 
 **Goal:** Developers taking, admitting, preparing and continuing work get the
