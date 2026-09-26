@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md",
+  "mode": "story-branch",
+  "branch": "claude/117-observer-stop-and-test-infrastructure-cleanup",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

@@ -13,10 +13,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
+
 ## Backlog list
 
 - [Bring the integrated CI verdict back under 120 s and clear SEED-037's leftovers](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2
-- [Report a mid-exit observer worker as lost and consolidate duplicated test-speed mechanics](slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md)
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
