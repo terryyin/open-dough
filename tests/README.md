@@ -35,7 +35,8 @@ temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
 Jobs named in `tests/longest-first` start first, in that order, so the longest
 job does not start last; the rest follow. `OPEN_DOUGH_TEST_TIMES=<file>`
 writes every job's wall seconds and name, longest first, which is how that
-list is refreshed (see its header).
+list is refreshed (see its header). CI's `test` check keeps that file for
+seven days as its `test-times` workflow artifact.
 
 A passing job must write nothing, so a passing suite prints nothing. For each
 failing job the runner prints `FAIL: <job>` and that job's captured output. A

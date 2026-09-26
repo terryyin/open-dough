@@ -105,12 +105,12 @@ The planning profile in Learnings is not this baseline.
 | 1. Finished run → verdict at once | 1 | Mailbox journey with an injected poll interval far longer than the test's own lifetime: the registered finished revision's verdict still arrives, so only the wake can have delivered it |
 | 2. Run in progress → polling continues | 1 | Same journey: a registration whose run is still in progress gets its verdict from a later poll after the run completes |
 | Verdict delay removed for the installed wait | 1 | `execution-payload-update.sh`: the `.claude/skills` `await-revision` no longer takes about 30 s (paired job time in Learnings) |
-| 3. CI `Run test` median ≤ 120 s | 6 | At least three CI runs of the delivered candidate on the story branch (push or `workflow_dispatch`); step times and median in Learnings |
-| 4. Total local work ≥ 35% less | 6 | Paired runs: the candidate's median total job-seconds ≤ 0.65 × the start revision's |
-| 5. Over budget → CI fails, naming job, time, and ceiling; locally prints and passes | 7 | Runner tests with substitute checks and a budget small enough to exceed; CI mode fails, local mode passes and reports |
-| 6. Within budget → silent | 7 | Runner test within budget prints nothing; the delivered candidate's CI run passes without any budget output |
+| 3. CI `Run test` median ≤ 120 s | 7 | At least three CI runs of the delivered candidate on the story branch (push or `workflow_dispatch`); step times and median in Learnings |
+| 4. Total local work ≥ 35% less | 7 | Paired runs: the candidate's median total job-seconds ≤ 0.65 × the start revision's |
+| 5. Over budget → CI fails, naming job, time, and ceiling; locally prints and passes | 8 | Runner tests with substitute checks and a budget small enough to exceed; CI mode fails, local mode passes and reports |
+| 6. Within budget → silent | 8 | Runner test within budget prints nothing; the delivered candidate's CI run passes without any budget output |
 | Each promise observed with fewer installer runs | 3 | Maintainer-approved coverage map: every removed run names the surviving test that observes the same promise at the same boundary; the remaining checks pass silently |
-| Quiet, stable, same proofs | 2–6 | Each kept experiment names the promise and its surviving proof in Learnings; five consecutive silent passing complete local runs in slice 6 |
+| Quiet, stable, same proofs | 2–7 | Each kept experiment names the promise and its surviving proof in Learnings; five consecutive silent passing complete local runs in slice 7 |
 
 ## Current decisions
 
@@ -139,13 +139,13 @@ The planning profile in Learnings is not this baseline.
   proposed removal names the surviving test that observes the same promise at
   the same boundary (the seed's rejection constraint). The map is a stop for
   review, not a proof by itself.
-- **Decisive checkpoints.** After each of slices 2 through 5, compare
+- **Decisive checkpoints.** After each of slices 2 through 6, compare
   paired total job-seconds with the 0.65 target and estimate the CI time on
   about four cores. If the recorded remaining experiments cannot plausibly
   close the gap, record the measurement, gap, invalidated assumption, and
   remaining candidates here, and stop for the maintainer before the next
   experiment. Slice 1 and any kept savings remain delivered either way; slice
-  6 then records what was achieved, and slice 7 may still set the budget from
+  7 then records what was achieved, and slice 8 may still set the budget from
   it.
 - **Stable means cause-fixed**, as in plan 096: a destabilized test gets its
   cause fixed, never a retry or a lower default.
@@ -243,6 +243,13 @@ The planning profile in Learnings is not this baseline.
   about 351 baseline job-seconds, not yet profiled); per-job CI times from a
   times artifact to find CI's own dominant jobs; or accept the achieved times
   and set the budget (slice 7) from them.
+- **Resolution (maintainer, 2026-09-26).** Pursue whatever moves the CI
+  verdict target most. The coordinator chose: keep CI's per-job times as a
+  workflow artifact now (part of the budget slice, landing early) to see
+  CI's dominant jobs, and add slice 6 for the native-evidence shell family,
+  the largest unexamined block. Fewer fetches per start stays out unless the
+  gap remains, because it saves little and changes remote freshness.
+  Measurement becomes slice 7 and the budget slice 8.
 
 ## Ordered slices
 
@@ -369,7 +376,28 @@ preparation-assignment family's `rev-parse` volume (951 of 3,122 calls).
 Do not require git ≥ 2.46 or file-backed refs. Decisive checkpoint
 afterwards.
 
-### 6. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
+### 6. Native-evidence checks cost less
+
+Type: Behavior
+Status: planned
+Proof:
+- Every `tests/native-*.sh` and `tests/git-publication-native.sh` check, and
+  every check sourcing a changed helper, passes silently with unchanged
+  promises.
+- A focused paired before/after of the family's summed job-seconds is
+  recorded in Learnings, with the kept changes and surviving proof, and CI's
+  per-job times for the family when the artifact is available.
+
+Behavior: the developer or CI runs the suite → the native-evidence checks
+prove the same promises with less work.
+
+Profile first: installs, fixture repositories, and product process starts per
+check. Baseline job-seconds (start revision): `native-delivery-updated-use-adapters.sh`
+74.4, `native-stream-completeness.sh` 70.3, `git-publication-native.sh` 62.2,
+`native-delivery-updated-use.sh` 47.9, `native-result-retention.sh` 43.8,
+family about 351. Decisive checkpoint afterwards.
+
+### 7. The delivered suite meets the CI and total-work targets, confirmed by repeated runs
 
 Type: Behavior
 Status: planned
@@ -378,7 +406,7 @@ Proof:
   total job-seconds ≤ 0.65 × the start revision's. Record both sides, the
   loads, and local wall times.
 - At least three CI runs of the delivered candidate: `Run test` step median
-  ≤ 120 s. Record each run's per-job times; slice 7 calibrates the budget
+  ≤ 120 s. Record each run's per-job times; slice 8 calibrates the budget
   from them.
 - Five consecutive complete local runs (`npm test`) pass silently.
 - Learnings list every kept experiment's saving and surviving proof.
@@ -387,7 +415,7 @@ Behavior: an agent publishes a revision → CI's test step returns its verdict i
 at most 120 s by median, and a developer's complete local run does at least
 35% less work than at the start revision, with the same quiet, stable proof.
 
-### 7. A committed time budget fails CI when a job or the total exceeds it
+### 8. A committed time budget fails CI when a job or the total exceeds it
 
 Type: Behavior
 Status: planned
@@ -401,7 +429,7 @@ Proof:
   - within budget → no output.
 - The CI `test` job keeps its per-job times file as a short-lived workflow
   artifact, so calibration reads CI's own times rather than local ones.
-  Ceilings come from slice 6's CI runs; record them and the calibration in
+  Ceilings come from slice 7's CI runs; record them and the calibration in
   Learnings.
 - The delivered candidate's CI `test` job passes within budget and prints
   nothing about it.
@@ -413,19 +441,19 @@ Behavior: a change makes a job or the whole suite exceed the committed budget
 the run still passes and prints the same comparison. A run within budget
 prints nothing.
 
-Dispatch after slice 6, or after a checkpoint stop, so the ceilings reflect
-the achieved times. The CI times artifact may land earlier, with slice 6, if
+Dispatch after slice 7, or after a checkpoint stop, so the ceilings reflect
+the achieved times. The CI times artifact may land earlier, with slice 7, if
 its CI runs need it.
 
 ## Promise ownership
 
 - Immediate check on registration and continued polling: slice 1.
-- CI test time ≤ 120 s median: slices 2–5 (savings), slice 6 (measurement).
-- Total local work ≥ 35% less: slices 1–5 (savings), slice 6 (measurement).
+- CI test time ≤ 120 s median: slices 2–6 (savings), slice 7 (measurement).
+- Total local work ≥ 35% less: slices 1–6 (savings), slice 7 (measurement).
 - Each installation and update promise observed with fewer runs: slice 3.
-- Budget guard, its breach report, and a silent within-budget run: slice 7,
+- Budget guard, its breach report, and a silent within-budget run: slice 8,
   including the delivered candidate's CI run.
-- Quiet, stable, same proofs: every slice's surviving-proof record; slice 6's
+- Quiet, stable, same proofs: every slice's surviving-proof record; slice 7's
   repeated runs.
 
 The deferred promises have no slice.
