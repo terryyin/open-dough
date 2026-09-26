@@ -182,8 +182,10 @@ test("missing terminal publication stops only the retained worker and reports lo
   publishMailboxEvent(mailbox, retained);
   await exec("mkfifo", [join(mailbox, "result.json.tmp")]);
 
+  // The FIFO holds the live worker's publication open, so no deadline length
+  // lets it publish; a short one still fires, without the 5 s default wait.
   const { stdout } = await exec(process.execPath, [launcher, "stop", mailbox], {
-    env,
+    env: { ...env, DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS: "300" },
     timeout: 10000,
   });
   const terminal = JSON.parse(stdout.slice("CI_OBSERVER ".length)).terminal;

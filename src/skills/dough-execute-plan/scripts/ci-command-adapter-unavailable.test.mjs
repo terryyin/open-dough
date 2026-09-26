@@ -77,10 +77,11 @@ else if (mode === 'timeout' || mode === 'blocking') {
 
 // A hanging adapter records its request, then never answers, so only these
 // modes rely on the adapter timeout. It must outlast the adapter's own Node
-// start and request record, which a loaded machine can stretch past 250 ms.
+// start and request record: from spawn to record took at most 300 ms across
+// 50 parallel copies of this file at load 25, so 1 s keeps over 3x that.
 // Every other mode answers, and keeps the product's default timeout.
 const hangingModes = new Set(["timeout", "diagnose-fails-then-discovery-lost"]);
-const hangTimeoutMs = 2_000;
+const hangTimeoutMs = 1_000;
 
 async function observeUnavailable(t, mode) {
   const fixture = unavailableFixture(t, mode);

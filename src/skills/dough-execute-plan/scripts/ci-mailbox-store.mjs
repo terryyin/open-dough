@@ -4,7 +4,7 @@ import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
 
 const eventFilePattern = /^(\d{12})\.json$/;
-const terminalResultDeadlineMs = 5_000;
+const defaultTerminalResultDeadlineMs = 5_000;
 export const terminalResultDeadlineCode = "CI_OBSERVER_TERMINAL_DEADLINE";
 export const terminalResultDeadlineReason =
   "CI observer terminal result was not published before its lifecycle deadline";
@@ -123,8 +123,17 @@ export function recordLostTerminalResult(
   return result;
 }
 
+// Tests shorten the deadline through DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS to
+// observe it firing without paying the full wait; nothing else sets it.
+export function terminalResultDeadlineMs() {
+  const configured = Number(process.env.DOUGH_CI_TERMINAL_RESULT_DEADLINE_MS);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : defaultTerminalResultDeadlineMs;
+}
+
 export function terminalResultDeadline() {
-  return AbortSignal.timeout(terminalResultDeadlineMs);
+  return AbortSignal.timeout(terminalResultDeadlineMs());
 }
 
 export async function waitForTerminalResult(
