@@ -11,7 +11,7 @@ fixture="${temporary_dir}/source"
 helper="${source_dir}/src/install/open-dough-release.sh"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
-git_identity "${fixture}"
+configure_fixture_git "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 missing-reference
 # The earlier release shipped the skill with a dangling link, omitting only
 # this reference from both declarations (the source file itself existed).

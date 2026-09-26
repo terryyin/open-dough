@@ -24,7 +24,7 @@ new_managed_files=(
 fixture="${temporary_dir}/fixture.git"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
-git_identity "${fixture}"
+configure_fixture_git "${fixture}"
 
 write_candidate_payload "${fixture}" 0.1.1 payload-before-added-skills
 for managed_file in "${new_managed_files[@]}"; do

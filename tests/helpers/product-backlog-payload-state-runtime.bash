@@ -164,7 +164,7 @@ EOF
   fi
 
   git -C "${project_root}" init --quiet -b main
-  git_identity "${project_root}"
+  configure_fixture_git "${project_root}"
   git -C "${project_root}" add -- .planning
   git -C "${project_root}" commit --quiet -m 'Publish installed recorder fixture'
   published_seed_file="${scratch_root}/published-seed.md"

@@ -16,7 +16,7 @@ fixture="${temporary_dir}/source"
 helper="${source_dir}/src/install/open-dough-release.sh"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
-git_identity "${fixture}"
+configure_fixture_git "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 before-stories
 # Model a release before decomposition and refinement, including its declared payload.
 for script in install.sh src/install/open-dough-release-version.sh; do

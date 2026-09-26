@@ -108,7 +108,7 @@ assert_sentinels "${target}"
 branch_only="${temporary_dir}/branch-only.git"
 mkdir -p -- "${branch_only}"
 git -C "${branch_only}" init --quiet -b main
-git_identity "${branch_only}"
+configure_fixture_git "${branch_only}"
 write_candidate_payload "${branch_only}" 0.1.0 payload-branch-only
 commit_all "${branch_only}" 'branch content'
 git -C "${branch_only}" tag not-a-release
@@ -124,7 +124,7 @@ fi
 invalid_highest="${temporary_dir}/invalid-highest.git"
 mkdir -p -- "${invalid_highest}"
 git -C "${invalid_highest}" init --quiet -b main
-git_identity "${invalid_highest}"
+configure_fixture_git "${invalid_highest}"
 write_candidate_payload "${invalid_highest}" 0.1.2 payload-0.1.2
 commit_all "${invalid_highest}" 'valid lower release'
 tag_release "${invalid_highest}" 0.1.2 '2026-09-01T00:00:00'

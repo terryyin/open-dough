@@ -163,7 +163,7 @@ assert_checker_fail "${source_conflict}" 'SOURCE conflict' \
 collision="${temporary_dir}/collision.git"
 mkdir -p -- "${collision}"
 git -C "${collision}" init --quiet -b main
-git_identity "${collision}"
+configure_fixture_git "${collision}"
 write_candidate_payload "${collision}" 0.1.1 payload-0.1.1
 rm -rf -- "${collision}/src/skills/dough-slice-planning"
 commit_all "${collision}" 'release 0.1.1 without slice-planning'

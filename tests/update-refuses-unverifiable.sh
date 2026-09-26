@@ -23,7 +23,7 @@ checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 decoy="${temporary_dir}/client-origin.git"
 mkdir -p -- "${decoy}"
 git -C "${decoy}" init --quiet -b main
-git_identity "${decoy}"
+configure_fixture_git "${decoy}"
 write_candidate_payload "${decoy}" 9.9.9 payload-client-remote
 commit_all "${decoy}" 'client remote decoy'
 tag_release "${decoy}" 9.9.9 '2026-09-08T00:00:00'
@@ -175,7 +175,7 @@ assert_ordinary_update_refuses_unwritten \
 mismatch="${temporary_dir}/mismatch.git"
 mkdir -p -- "${mismatch}"
 git -C "${mismatch}" init --quiet -b main
-git_identity "${mismatch}"
+configure_fixture_git "${mismatch}"
 write_candidate_payload "${mismatch}" 0.1.1 payload-0.1.1
 printf '%s\n' '0.1.8' > "${mismatch}/VERSION"
 commit_all "${mismatch}" 'tagged 0.1.1 with mismatched VERSION'

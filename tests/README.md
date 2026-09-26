@@ -86,7 +86,10 @@ register its `cleanup` with `t.after` when the fixture is created, and pass
 each stop or release step to its `defer` as soon as the process starts. The
 steps run in reverse order, the fixture is removed, and then a failing step
 fails the test. `deferObserverStop` in `watch-ci-test-fixtures.mjs` defers
-stopping a CI observer and asserts that its recorded worker exited.
+stopping a CI observer and asserts that its recorded worker exited. A shell
+Git fixture repository is configured with `configure_fixture_git`
+(`tests/helpers/release-fixture.bash`), which also turns off Git's automatic
+maintenance so no detached repack is still writing when the fixture is removed.
 
 The native ADR-awareness check wrappers and their focused proof scripts are
 described in `tests/native-adr-awareness-wrappers.md`.

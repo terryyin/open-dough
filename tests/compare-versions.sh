@@ -38,7 +38,7 @@ assert_compare 18446744073709551616.0.0 1.0.0 newer
 leading_zero="${temporary_dir}/leading-zero.git"
 mkdir -p -- "${leading_zero}"
 git -C "${leading_zero}" init --quiet -b main
-git_identity "${leading_zero}"
+configure_fixture_git "${leading_zero}"
 write_candidate_payload "${leading_zero}" 0.08.0 payload-0.08.0
 commit_all "${leading_zero}" 'release 0.08.0'
 tag_release "${leading_zero}" 0.08.0 '2026-01-01T00:00:00'

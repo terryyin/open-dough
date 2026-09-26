@@ -81,8 +81,7 @@ for entry in codex cursor claude; do
   prepare_target "${target}"
   seed_empty_host_settings "${target}"
   git -C "${target}" init --quiet
-  git -C "${target}" config user.email 'fixture@example.com'
-  git -C "${target}" config user.name 'Open Dough Fixture'
+  configure_fixture_git "${target}"
   git -C "${target}" add -A
   git -C "${target}" commit --quiet -m 'baseline before install'
   head_before=$(git -C "${target}" rev-parse HEAD)

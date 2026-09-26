@@ -38,7 +38,7 @@ assert_apply_tmp_empty
 invalid_highest="${temporary_dir}/invalid-highest.git"
 mkdir -p -- "${invalid_highest}"
 git -C "${invalid_highest}" init --quiet -b main
-git_identity "${invalid_highest}"
+configure_fixture_git "${invalid_highest}"
 write_candidate_payload "${invalid_highest}" 0.1.2 payload-0.1.2
 commit_all "${invalid_highest}" 'valid lower release'
 tag_release "${invalid_highest}" 0.1.2 '2026-09-01T00:00:00'

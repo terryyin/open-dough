@@ -138,7 +138,7 @@ delivery_prepare_fixture() {
     's/| \[ARC-12\](\.\/retain-complete-telemetry-history\.md) | Adopted |/| [ARC-12](.\/retain-complete-telemetry-history.md) | Replaced |/'
 
   git -C "${delivery_fixture_source}" init --quiet -b main
-  git_identity "${delivery_fixture_source}"
+  configure_fixture_git "${delivery_fixture_source}"
   write_candidate_payload "${delivery_fixture_source}" \
     "${delivery_baseline_version}" baseline-adr
   if grep -Fq "${delivery_improvement}" \

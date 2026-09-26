@@ -21,7 +21,7 @@ expected_source=${fixture}
 decoy="${temporary_dir}/client-origin.git"
 mkdir -p -- "${decoy}"
 git -C "${decoy}" init --quiet -b main
-git_identity "${decoy}"
+configure_fixture_git "${decoy}"
 write_candidate_payload "${decoy}" 9.9.9 payload-client-remote
 commit_all "${decoy}" 'client remote decoy'
 tag_release "${decoy}" 9.9.9 '2026-09-08T00:00:00'

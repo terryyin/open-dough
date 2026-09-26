@@ -94,3 +94,12 @@ Product advice: retrospective skipped
   stays covered by "installed startup publishes an isolated ${mode} claim to
   remote trunk". Proof command passed 44/44. Paired timing under load: before
   6.39–6.62 s for the old test plus both journey cases, after 4.52–4.78 s.
+- CI repair (run 36202909390 on `64633cd`, unrelated to slice 1): with Git
+  2.55 on the CI runner, fixture commits detach an auto-maintenance repack that
+  can still write `.git/objects` when `tests/compare-versions.sh` removes its
+  fixture. The shared fixture helper, renamed `configure_fixture_git`, now sets
+  `maintenance.auto false`; stress runs in an ubuntu:24.04 / Git 2.55 container
+  went from 4/480 failures to 0/480. Other fixture families that configure Git
+  themselves (`tests/support/ci-completion-native-fixture.sh`,
+  `tests/support/git-publication-native-startup-fixture.sh`) were left
+  unchanged.

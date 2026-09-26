@@ -12,7 +12,7 @@ source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 fixture="${temporary_dir}/source"
 mkdir -p -- "${fixture}"
 git -C "${fixture}" init --quiet -b main
-git_identity "${fixture}"
+configure_fixture_git "${fixture}"
 write_candidate_payload "${fixture}" 0.1.1 before-execution
 for script in install.sh src/install/open-dough-release-version.sh; do
   sed '/dough-execute-plan\//d; /dough-post-change-refactor\//d' "${fixture}/${script}" > "${fixture}/filtered"

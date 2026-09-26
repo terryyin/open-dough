@@ -101,7 +101,7 @@ run_offline_git_merge_proof() {
   git_project="${claude_target}/git-project"
   mkdir -p -- "${git_project}/docs" "${git_project}/sub/nested"
   git -C "${git_project}" init --quiet -b main
-  git_identity "${git_project}"
+  configure_fixture_git "${git_project}"
   git_backlog_rel='docs/BACKLOG.md'
   item_a='- [Item A](seeds/A.md#a) — A#a'
   item_b='- [Item B](seeds/B.md#b) — B#b'

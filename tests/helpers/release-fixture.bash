@@ -16,9 +16,13 @@ source "${source_dir}/tests/helpers/path-state-snapshot.bash"
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/payload-bytes.bash"
 
-git_identity() {
+# Commit identity and settings every fixture repository needs.
+configure_fixture_git() {
   git -C "$1" config user.email 'fixture@example.com'
   git -C "$1" config user.name 'Open Dough Fixture'
+  # Commits otherwise start a detached auto-maintenance repack (Git 2.55)
+  # that can still be writing .git/objects when the test removes the fixture.
+  git -C "$1" config maintenance.auto false
 }
 
 copy_installer_modules() {
@@ -86,7 +90,7 @@ build_current_tagged_release_fixture() {
   version=$(cat "${source_dir}/VERSION")
   copy_current_release_files "${repo}"
   git -C "${repo}" init --quiet -b main
-  git_identity "${repo}"
+  configure_fixture_git "${repo}"
 
   commit_all "${repo}" "release ${version} exact candidate"
   tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
@@ -97,7 +101,7 @@ build_latest_fixture() {
 
   mkdir -p -- "${repo}"
   git -C "${repo}" init --quiet -b main
-  git_identity "${repo}"
+  configure_fixture_git "${repo}"
 
   # Tagged A is 0.1.1; tagged B / numeric latest is 0.1.10.
   write_candidate_payload "${repo}" 0.1.1 payload-0.1.1
