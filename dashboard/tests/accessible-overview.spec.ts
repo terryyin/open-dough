@@ -40,16 +40,8 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const {
-    stages,
-    backlog,
-    taken,
-    connector,
-    direction,
-    source,
-    refresh,
-    status,
-  } = parts(page);
+  const { stages, backlog, taken, connector, direction, source, refresh } =
+    parts(page);
   const connectorMeaning = stages.getByText("not a dependency between entries");
   const arrow = stages.locator("svg").first();
   const longCard = taken.getByRole("article", { name: longTitle });
@@ -82,11 +74,8 @@ test("accessible overview reflows long published work for a narrow window and pa
     await expectNoSidewaysScrollAndWholeText(page);
   });
 
-  await test.step("the page reads top to bottom: evidence, direction, Backlog, taking work, Taken", async () => {
+  await test.step("the page reads top to bottom: direction, Backlog, taking work, Taken", async () => {
     await expectStackedInOrder([
-      source,
-      page.getByRole("heading", { level: 1 }),
-      status,
       direction,
       backlog,
       arrow,

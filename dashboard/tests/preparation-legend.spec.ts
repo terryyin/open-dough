@@ -55,6 +55,14 @@ for (const viewport of [
       const originalBadges = await badges.allTextContents();
       const reads = origin.requests.length;
       const launcher = parts(page).preparationHelp;
+      const direction = parts(page).directionToggle;
+      const [directionBox, helpBox] = await Promise.all([
+        box(direction),
+        box(launcher),
+      ]);
+      expect(directionBox.y).toBeLessThan(helpBox.y + helpBox.height);
+      expect(helpBox.y).toBeLessThan(directionBox.y + directionBox.height);
+      expect(directionBox.x + directionBox.width).toBeLessThan(helpBox.x);
       const dialog = page.getByRole("dialog", { name: "Preparation badges" });
       await expect(dialog).not.toBeVisible();
       await expect(

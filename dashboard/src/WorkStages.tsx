@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import { PreparationFacts } from "./PreparationCard.tsx";
-import { PreparationLegend } from "./PreparationLegend.tsx";
 import { SliceProgress } from "./SliceProgress.tsx";
 import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
 import { StoryDetail } from "./StoryDetail.tsx";
@@ -141,9 +140,6 @@ export function WorkStages({ work }: { work: PublishedWork }) {
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
-  const showsPreparation = [...work.taken, ...work.backlog].some(
-    (entry) => entry.preparation !== undefined,
-  );
   const select = (identity: string) => {
     setSelectedIdentity((current) =>
       current === identity ? undefined : identity,
@@ -151,7 +147,6 @@ export function WorkStages({ work }: { work: PublishedWork }) {
   };
   return (
     <>
-      {showsPreparation && <PreparationLegend />}
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
         <Stage
           name="Backlog"

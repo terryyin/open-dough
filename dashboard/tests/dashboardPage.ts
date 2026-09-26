@@ -9,7 +9,7 @@ export function parts(page: Page) {
   const status = page.getByRole("status");
   return {
     banner: page.getByRole("banner"),
-    sourceEvidence: page.getByLabel("Source evidence", { exact: true }),
+    sourceEvidence: page.getByLabel(/^Source evidence for /),
     project: page.getByRole("radiogroup", { name: "Project" }),
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),

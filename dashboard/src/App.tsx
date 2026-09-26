@@ -4,10 +4,16 @@ import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { WorkStages } from "./WorkStages.tsx";
+import { PreparationLegend } from "./PreparationLegend.tsx";
 
 export function App() {
   const { source, work, attempt, notice, reading, refresh, selectSource } =
     usePublishedObservation();
+  const showsPreparation =
+    work &&
+    [...work.taken, ...work.backlog].some(
+      (entry) => entry.preparation !== undefined,
+    );
   return (
     <>
       <DashboardBanner
@@ -19,7 +25,6 @@ export function App() {
         onRefresh={refresh}
       />
       <div className="page-header">
-        <h1>Published work</h1>
         {/* Both polite regions stay rendered while they have nothing to say:
             assistive technology speaks a change of text inside a region it
             already knows, and may never speak one inserted with its text.
@@ -89,18 +94,21 @@ export function App() {
           {notice}
         </p>
         {work && (
-          <section className="direction" aria-labelledby="direction-heading">
-            <details key={source.id}>
-              <summary>
-                <h2 id="direction-heading">Near-future direction</h2>
-              </summary>
-              {work.direction === "" ? (
-                <p className="quiet">No near-future direction is recorded.</p>
-              ) : (
-                <p className="direction-text">{work.direction}</p>
-              )}
-            </details>
-          </section>
+          <div className="direction-row">
+            <section className="direction" aria-labelledby="direction-heading">
+              <details key={source.id}>
+                <summary>
+                  <h2 id="direction-heading">Near-future direction</h2>
+                </summary>
+                {work.direction === "" ? (
+                  <p className="quiet">No near-future direction is recorded.</p>
+                ) : (
+                  <p className="direction-text">{work.direction}</p>
+                )}
+              </details>
+            </section>
+            {showsPreparation && <PreparationLegend />}
+          </div>
         )}
       </div>
       {work && (
