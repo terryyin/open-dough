@@ -1,5 +1,6 @@
-// Slice 2 refusal proof: duplicate blocks, wrong identity, unsupported schema,
-// and legacy absence leave files unchanged and stay distinct outcomes.
+// Story-state refusal proof: duplicate blocks, wrong identity, unsupported
+// schema, and legacy absence leave files unchanged and stay distinct outcomes.
+// A missing --identity or --link gets the one missing-input refusal.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -21,6 +22,35 @@ import {
   seedBytes,
   twoStorySeed,
 } from "./story-state-fixture.mjs";
+
+const withoutOption = (args, option) => {
+  const at = args.indexOf(option);
+  return [...args.slice(0, at), ...args.slice(at + 2)];
+};
+
+test("story-state: a missing identity or link gets the missing-input refusal", async (t) => {
+  const project = scratchProject(t);
+  plantSeed(project);
+  const before = seedBytes(project);
+  const backlogBefore = backlogBytes(project);
+  const record = recordArgs(first, {
+    refinement: "refined",
+    approach: "planless",
+  });
+  for (const [args, field] of [
+    [withoutOption(record, "--link"), "link"],
+    [withoutOption(record, "--identity"), "identity"],
+    [["read-state"], "link"],
+  ]) {
+    const refused = await run(project, args);
+    assert.equal(refused.code, 1, args[0]);
+    const refusal = `Missing ${field}: supply --${field}\\.\nNothing was written\\.\n?$`;
+    assert.match(refused.stderr, new RegExp(refusal));
+    assert.doesNotMatch(refused.stderr, /TypeError/);
+    assert.equal(seedBytes(project), before);
+    assert.equal(backlogBytes(project), backlogBefore);
+  }
+});
 
 test("story-state: a planned correction requires an explicit plan without writes", async (t) => {
   const project = scratchProject(t);

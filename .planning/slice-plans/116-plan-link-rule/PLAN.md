@@ -265,7 +265,7 @@ externally unchanged (it still refuses section links before calling take).
 
 ### 3. Refuse a missing record-state or read-state link cleanly
 Type: Behavior
-Status: planned
+Status: done
 Proof: a table row in `tests/support/story-state-refusals.test.mjs` running
 the real CLI: `record-state` without `--link` and without `--identity`, and
 `read-state` without `--link`, each exit with the `Missing link: supply
@@ -277,6 +277,18 @@ missing-input refusal, nothing written.
 
 Use `requireField` at the top of both commands; remove the `?? ""`
 workaround and `readState`'s hand-written refusal.
+
+Accepted proof (2026-09-26): `tests/support/story-state-refusals.test.mjs`
+"story-state: a missing identity or link gets the missing-input refusal"
+(real CLI, `scratchProject` + `plantSeed`): each row exits 1 with
+`Missing <field>: supply --<field>.` followed by "Nothing was written." — the
+story-state commands' existing refusal trailer via `preparationRefusal`, not
+"The backlog was not changed." as first planned — with seed and backlog
+byte-identical and no TypeError. Before the change the missing-`--link` row
+failed with a TypeError; the other two rows already refused and now guard the
+move to `requireField`. `node --test tests/support/story-state*.test.mjs`
+13/13; `node --test tests/support/*.test.mjs` 186/186. `recordStoryState`
+keeps its own guards: it is a shared API execute-plan fixtures call directly.
 
 Safe stop: independent of slices 1, 2 and 4.
 
