@@ -80,13 +80,30 @@ container such as `ubuntu:24.04`.
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a
-fixture builds its cleanup with `fixtureTeardown(root)`
+fixture builds its cleanup with `fixtureTeardown(...roots)`
 (`src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs`):
 register its `cleanup` with `t.after` when the fixture is created, and pass
-each stop or release step to its `defer` as soon as the process starts. The
-steps run in reverse order, the fixture is removed, and then a failing step
-fails the test. `deferObserverStop` in `watch-ci-test-fixtures.mjs` defers
-stopping a CI observer and asserts that its recorded worker exited.
+each stop or release step to its `defer` as soon as the process starts, before
+any further setup or assertion. The steps run in reverse order, every root is
+removed, and then a failing step fails the test; no stop swallows its failure.
+A shared fixture that starts something owns this teardown and hands it to
+its callers. The steps are:
+
+- `deferWorkerStop` requests an in-process mailbox worker's stop and awaits
+  it;
+- `deferChildExit` signals one of the test's own child processes and awaits
+  its exit;
+- `deferObserverStop` (`watch-ci-test-fixtures.mjs`) runs a CI observer's real
+  `stop`, skipped when its worker is already dead, and asserts that the
+  recorded worker exited;
+- `endProcess` (`process-lifetime-test-fixtures.mjs`) ends a recorded process
+  that is not the test's child, only while its command still matches.
+
+An inline stop a test asserts on stays inline; the deferred step then finds
+it already ended. A leak usually appears only when the worker is blocked (for
+example in `gh`) or its stop fails, so failing-path checks create that
+condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
+a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 
 The native ADR-awareness check wrappers and their focused proof scripts are
 described in `tests/native-adr-awareness-wrappers.md`.
