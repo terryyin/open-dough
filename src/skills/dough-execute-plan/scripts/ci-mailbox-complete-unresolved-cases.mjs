@@ -89,11 +89,28 @@ test("a worker that exits while its command is read is dead, not unknown", async
         encoding: "utf8",
       }).trim();
     while (!state().startsWith("Z"));
-    return "<defunct>";
+    // An exiting process can show neither its worker command nor `<defunct>`.
+    return "[node]";
   };
   assert.equal(
     checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
       readCommand: exitsDuringRead,
+    }),
+    "dead",
+  );
+});
+
+test("a worker whose main thread exited while other threads unwind is dead", async (t) => {
+  const { checkMailboxWorkerLiveness } =
+    await import("./ci-mailbox-worker-process.mjs");
+  const { spawnIdleNode } =
+    await import("./ci-mailbox-process-test-fixtures.mjs");
+  // Linux reports such a multithreaded process as `Sl` rather than a zombie,
+  // with the exited main thread's command shown as defunct.
+  const child = await spawnIdleNode(t);
+  assert.equal(
+    checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
+      readCommand: () => "[MainThread] <defunct>",
     }),
     "dead",
   );

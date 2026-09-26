@@ -142,10 +142,13 @@ export function checkMailboxWorkerLiveness(
     if (error.code === "EPERM" || error.code === "EACCES") return "alive";
     throw error;
   }
-  if (command === undefined) return "dead";
+  // An exited process is dead whatever its state: `ps` shows it as gone or
+  // `<defunct>`, including, on Linux, a node process whose main thread exited
+  // while other threads unwind and whose state is not yet a zombie's.
+  if (command === undefined || command.endsWith("<defunct>")) return "dead";
   if (commandMatchesMailboxWorker(command, directory, identity)) return "alive";
-  // A worker exiting between the two reads shows a zombie's command, such as
-  // `<defunct>`; only a process still running here is a different one.
+  // Any other command is a different process only if it still runs: a worker
+  // that exits during the read can show a transient command, such as `[node]`.
   return workerIsRunning(pid) ? "unknown" : "dead";
 }
 
