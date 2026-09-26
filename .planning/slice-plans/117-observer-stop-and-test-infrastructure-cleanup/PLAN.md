@@ -249,6 +249,10 @@ Proof:
 Structure: the scheduling list reflects plan 107's changed costs, so long
 jobs still start early; no check changes.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Promise ownership
 
 - Stop reports lost coverage for a mid-exit worker and never signals an
