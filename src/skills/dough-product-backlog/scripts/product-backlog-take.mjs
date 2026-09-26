@@ -29,14 +29,18 @@ import {
   requireNamedHome,
   requireUnlistedWork,
 } from "./product-backlog-add.mjs";
-import { planLabel, requireResolvedPlan } from "./product-backlog-plan.mjs";
-import { splitHref } from "./product-backlog-identity.mjs";
+import {
+  linksPlan,
+  planLabel,
+  requireResolvedPlan,
+} from "./product-backlog-plan.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 
 // The plan link the taken entry carries, from the caller's explicit choice.
 // A quick story and a plan-homed correction take none: such a correction's
 // canonical home already is its plan, so a second link would name it twice.
-// Nor may the plan already be listed as another entry's canonical home.
+// Nor may the plan already be listed as another entry's canonical home. A link
+// already recorded to that plan file, or to a section of it, is kept as written.
 function resolvePlan(document, entry, request) {
   if (request.plan === undefined) {
     if (entry.plan) {
@@ -50,7 +54,7 @@ function resolvePlan(document, entry, request) {
   }
 
   const target = request.plan;
-  if (entry.plan && entry.plan.target !== target) {
+  if (entry.plan && !linksPlan(entry.plan.target, target)) {
     throw new BacklogError(
       `"${entry.identity}" already links the plan "${entry.plan.target}", ` +
         `not "${target}". Taking work never repoints a recorded link; ` +
@@ -71,7 +75,7 @@ function resolvePlan(document, entry, request) {
       `--no-plan.`,
   );
   requireUnlistedPlan(document, target, entry);
-  return { label: planLabel, target };
+  return entry.plan ?? { label: planLabel, target };
 }
 
 // Applies the claim to one backlog document and returns the backlog to
@@ -113,19 +117,15 @@ export function takeEntry(source, request) {
 
 // Links the plan that preparation recorded after the work was taken: an entry
 // already in "## Taken" resumes through the take above and gains only the
-// missing link, never a different one. An entry whose link names a section of
-// that plan file already links its plan and is left as it is. Work that no
-// list holds in "## Taken" is left for its take to link. Returns undefined
-// when there is nothing to resume.
+// missing link, never a different one. Work that no list holds in "## Taken"
+// is left for its take to link. Returns undefined when there is nothing to
+// resume.
 export function linkTakenPlan(source, request) {
   const entry = parseBacklog(source).entries.find(
     (item) => item.identity === request.identity,
   );
   if (entry?.list !== takenHeading) {
     return undefined;
-  }
-  if (entry.plan && splitHref(entry.plan.target).path === request.plan) {
-    return { source, entry, result: "unchanged" };
   }
   return takeEntry(source, request);
 }

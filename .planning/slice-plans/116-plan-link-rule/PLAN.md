@@ -177,7 +177,7 @@ delivery, CI observation, retrospective and wrap-up gates.
 
 ### 1. Let a section link satisfy its plan in take and record-state
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/support/product-backlog-plan-link.test.mjs`, through the
 real backlog CLI:
 
@@ -213,6 +213,19 @@ the section.
 Safe stop: take and record-state agree on section links; own-home and listing
 checks keep their current whole-target comparison; execution startup is
 externally unchanged.
+
+Accepted proof (2026-09-26): `node --test tests/support/*.test.mjs` passes
+(184 before the refactor split one test; the edited file then 5/5).
+Observations in `tests/support/product-backlog-plan-link.test.mjs` ("plan
+link: …" tests, setup `projectWith()`): section-linked Taken entry byte-identical
+through `record-state` and both `take --plan` forms; queued take keeps the
+section link; a section of an absent plan file is refused unchanged; another
+plan file is refused by `take` and `record-state`, unchanged. Startup and
+admission suite (focused command above) 63/63, as `takeEntry`/`admitEntry`
+are consumed by `workspace-publication-select.mjs`. `story-state.test.mjs` is
+183 lines. `product-backlog-plan.mjs` owns private `planFileOf` and exported
+`linksPlan`; `requireResolvedPlan` resolves by file, so `refresh --plan X#s`
+now resolves by file too (the shared resolution check, in scope).
 
 ### 2. Keep own-home plans unlinked and compare plan files in listing checks
 Type: Behavior

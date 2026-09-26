@@ -6,18 +6,31 @@
 // be refused by an operation that needs more of the document than its path.
 
 import { resolve } from "node:path";
+import { splitHref } from "./product-backlog-identity.mjs";
 import { readFile } from "./product-backlog-store.mjs";
 
 // How the established backlog spells an active plan link.
 export const planLabel = "plan";
 
-// The check is mechanical and existence-only: the target must resolve to a
-// file relative to the backlog's own directory. `hint` says what the caller of
+// The plan file a link names. A `#fragment` is navigation inside that plan,
+// never part of which plan the link is.
+function planFileOf(target) {
+  return splitHref(target).path;
+}
+
+// Whether an entry's recorded plan link already links the plan `target`
+// names: both name the same plan file, whichever section either points into.
+export function linksPlan(link, target) {
+  return planFileOf(link) === planFileOf(target);
+}
+
+// The check is mechanical and existence-only: the file the target names must
+// resolve relative to the backlog's own directory. `hint` says what the caller of
 // that particular operation can do about a plan that is not there, because
 // claiming work and repointing an established link differ in that.
 export function requireResolvedPlan(backlogDirectory, target, hint) {
   readFile(
-    resolve(backlogDirectory, target),
+    resolve(backlogDirectory, planFileOf(target)),
     `Unresolved plan: ${target} is not there, relative to the backlog. ${hint}`,
   );
 }
