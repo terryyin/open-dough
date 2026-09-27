@@ -165,7 +165,10 @@ slices share one execution worktree. The CI repair pause is therefore the only
 sanctioned stash, performed by the installed `ci-repair-stash.mjs`: it records
 the one entry it created by OID outside the tree, restores and drops only that
 entry, and stops with the record on any failed, ambiguous, unclean, conflicting,
-or missing case. Delegated agents take a baseline from a separate checkout
+or missing case. A conflicting restore reports what it put back (`applied` as
+`none`, `partial`, or `all`, and the saved staged paths it could not restore),
+judged by content against the entry's own trees. A resolved conflict is finished
+by its `drop` command, which confirms the dropped entry by the OID Git reports. Delegated agents take a baseline from a separate checkout
 instead of stashing, and coordinator commits stage owned paths only. Detecting
 writers across sessions, locks, and takeover are out of scope.
 
