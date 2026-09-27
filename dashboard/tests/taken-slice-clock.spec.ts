@@ -16,6 +16,7 @@ import { publishFiles } from "./publishedOrigin.ts";
 import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import { noConnection } from "./originAnswers.ts";
+import { addedAt, pathChange } from "./pathHistoryAnswers.ts";
 import {
   afterTake,
   beforeProfiles,
@@ -107,7 +108,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
           switch (request.kind) {
             case "commit-list":
               return [
-                `${request.latestOnly ? "last commit" : "history"} ${request.path}@${request.revision}`,
+                `${request.perPage === 1 ? "last commit" : "history"} ${request.path}@${request.revision}`,
               ];
             case "commit":
               return [`commit ${request.sha}`];
@@ -180,4 +181,37 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
   await expect(card).not.toContainText("Current slice started");
   await expect(taken).not.toContainText(noProfileLabel);
   await expectBarStays(card);
+});
+
+test("a Take whose profile addition is not found, or names no usable time, is a clock gap", async ({
+  page,
+}) => {
+  await pausePageClockAt(page, opened);
+  await publishFiles(page, {
+    repository,
+    revision,
+    files,
+    committed,
+    history: {
+      ...history,
+      [profilePath("Akiho")]: [
+        pathChange(0x61, "modified", "Mo Modifier"),
+        pathChange(0x62, "removed", "Olde Allocator"),
+      ],
+      [profilePath("Yuma")]: [addedAt(0x63, null)],
+    },
+  });
+
+  const { taken } = await openedTaken(page);
+  const card = (title: string) => taken.getByRole("article", { name: title });
+  await expect(card(afterTake)).toContainText(
+    "Current slice time unavailable: The Take time cannot be determined: no commit adding the agent profile was found in its recent published history.",
+  );
+  await expect(card(justTaken)).toContainText(
+    "Current slice time unavailable: The Take time cannot be determined: the commit that added the agent profile names no usable commit time.",
+  );
+  for (const title of [afterTake, justTaken]) {
+    await expect(card(title)).not.toContainText("Current slice started");
+    await expectBarStays(card(title));
+  }
 });

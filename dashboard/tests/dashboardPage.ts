@@ -35,6 +35,25 @@ export function parts(page: Page) {
   };
 }
 
+// The agent roster: its members, one member by its agent's name, the card
+// portrait that opens the roster at an agent, and the way back to the
+// stories.
+export function rosterParts(page: Page) {
+  const roster = page.getByRole("region", { name: "Agent roster" });
+  const members = roster.getByRole("listitem");
+  return {
+    roster,
+    members,
+    member: (agent: string) =>
+      members.filter({
+        has: page.getByRole("heading", { name: agent, exact: true }),
+      }),
+    opener: (agent: string) =>
+      page.getByRole("button", { name: `Show ${agent} in the agent roster` }),
+    back: roster.getByRole("button", { name: "Back to stories" }),
+  };
+}
+
 // The titles each stage shows, in the order it shows them.
 export async function expectMembership(
   page: Page,

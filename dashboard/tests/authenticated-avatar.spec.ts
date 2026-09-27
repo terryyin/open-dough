@@ -136,7 +136,9 @@ test.describe("authenticated avatar read (dev launch mode)", () => {
     });
   }
 
-  const yui = encodeURIComponent(`${agents}/yui-chan.json`);
+  // A read at a moving ref, for a record that is not an agent profile, or for
+  // another repository is refused as an addition read is, by the same checks
+  // (authenticated-read-profile-addition.spec.ts).
   for (const refused of [
     {
       case: "naming an image address",
@@ -147,21 +149,6 @@ test.describe("authenticated avatar read (dev launch mode)", () => {
       case: "naming an account",
       query: `${profileQuery("yui-chan.json")}&login=terryyin`,
       status: 400,
-    },
-    {
-      case: "for a record that is not an agent profile",
-      query: `source=open-dough&revision=${revision}&path=${encodeURIComponent(".planning/PRODUCT-BACKLOG.md")}`,
-      status: 400,
-    },
-    {
-      case: "at a moving ref",
-      query: `source=open-dough&revision=main&path=${yui}`,
-      status: 400,
-    },
-    {
-      case: "for another repository",
-      query: `source=${encodeURIComponent("someone/elses-repo")}&revision=${revision}&path=${yui}`,
-      status: 404,
     },
     {
       case: "for a profile the revision does not list",

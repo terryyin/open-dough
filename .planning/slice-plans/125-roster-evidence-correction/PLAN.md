@@ -265,7 +265,7 @@ rows. Whole `npm run test:dashboard` 151 green.
 
 ### 7. The roster suite proves each behavior once, without noise
 Type: Structure
-Status: planned
+Status: done
 Proof: Each consolidation names its surviving coverage:
 - merge `agent-roster-attribution.spec.ts` into `agent-roster-avatar.spec.ts`
   (move its no-addition and failed-history steps; drop the walk-call step
@@ -285,6 +285,21 @@ The whole `npm run test:dashboard` stays green.
 
 Correction: removes repeated proof, fixture duplication, and older journeys'
 attribution noise (finding 7) with no product behavior change.
+
+Accepted proof: whole `npm run test:dashboard` 149 in 48 files (was 151 in
+49), typecheck green. The attribution spec merged into
+`agent-roster-avatar.spec.ts` (no-addition and failed-history humans moved;
+the walk-call step survives in `authenticated-read-profile-addition.spec.ts`'s
+call list); latency and bound behavior stay in
+`profile-addition-latency.spec.ts`. The avatar spec's shared refusals survive
+in the profile-addition spec; roster host/model gaps survive in
+`taken-agent-profile*.spec.ts` and `backlog-preparing.spec.ts`. `rosterParts`
+shares roster locators and one Akiho history serves both journeys. Published
+profiles get a default one-commit `added` history, so older card journeys no
+longer render human gaps. The fake honors `per_page`; new cases prove the ten-
+commit walk limit, a `changed` commit, a commit not naming the path, and clock
+gaps for a missing addition or unusable date. Both READMEs updated;
+`dashboard/README.md` is 249 lines.
 
 ## Learnings
 

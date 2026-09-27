@@ -154,15 +154,13 @@ the same rotating name. When no addition is found, the adding commit names no
 usable committer, or the history cannot be read, the card and roster say the
 human developer is unknown and why, never guessing from another commit.
 Beside a credited name is the avatar of the GitHub account GitHub matched to
-that same committer. The local boundary fetches it from the avatar address
-GitHub named for that account (only an https address on GitHub's avatar host,
-bounded in size, time, and image type) and keeps it in the running dashboard
-process, so each account's avatar is read from GitHub once however often cards
-and the roster show it; the page asks only the local boundary, naming a
-profile and revision, never an account or image address. When no account was
-matched, or its avatar is refused or cannot be fetched, the name stays with its
-initials. A name or avatar credits the assignment; neither says anyone is
-working now.
+that committer. The local boundary fetches it from the avatar address GitHub
+named for that account (only https on GitHub's avatar host, bounded in size,
+time, and image type) and keeps it in the running process by that address, so
+each avatar version is read from GitHub once however often it is shown, and a
+changed one is read afresh; the page names only a profile and revision to the
+local boundary. Without a matched account or a usable, fetched avatar, the
+name keeps its initials. Neither name nor avatar says anyone is working now.
 
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and

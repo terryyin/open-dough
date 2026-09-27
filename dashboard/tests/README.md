@@ -13,7 +13,7 @@ answers are replaced; the
 local read boundary, the `gh` invocation, reading, the shared backlog
 interpretation, and the page are the real ones, and a browser request to
 GitHub itself fails the test. The boundary specs
-(`authenticated-read-*.spec.ts`) and
+(`authenticated-read-*.spec.ts`, `authenticated-avatar.spec.ts`) and
 `authenticated-project-overview.spec.ts` also start their own dev and
 built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
 GitHub. Select one journey with, for example,
@@ -33,3 +33,15 @@ limit's directed wait are observed in page time; they read the fake GitHub's
 was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
+
+A path's published history (`pathHistoryAnswers.ts`) lists as many commits as
+a commit list asks for (`per_page`). A published agent profile no history or
+commit time names was added once, by a commit of its own, so every journey's
+Taken and Preparing cards credit a human without a failed read; a fixture that
+wants a missing addition or an unpublished history says so. Which commit added
+a profile is walked at the boundary
+(`authenticated-read-profile-addition.spec.ts`); the credited human and avatar
+on cards and the roster are `agent-roster-avatar.spec.ts`; how a slow or
+stalled addition read delays only its own profile's clock and human is
+`profile-addition-latency.spec.ts`; the roster itself is
+`agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.

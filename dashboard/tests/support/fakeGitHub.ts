@@ -83,8 +83,10 @@ export function failsWith(stderr: string): RepositoryAnswerer {
 // head listing; for any content read, the named file in
 // `files` or else `backlog`; for a directory listing, the `files` in that
 // directory; and for a path's commit list, the commits `history` lists for
-// it, or else its time in `committed`, each listed commit answering for its
-// own change to that path.
+// it, or else its time in `committed`, as many as it asks for, each listed
+// commit answering for its own change to that path; a published agent
+// profile nothing else dates was added by a commit of its own
+// (../pathHistoryAnswers.ts).
 export function publishes(published: {
   readonly revision: string;
   readonly backlog?: string;
@@ -95,14 +97,14 @@ export function publishes(published: {
   return ({ request }) => {
     const commitList =
       request.kind === "commit-list"
-        ? commitListIn(published, request.path)
+        ? commitListIn(published, request.path, request.perPage)
         : undefined;
     if (commitList !== undefined) {
       return Promise.resolve(commitList);
     }
     if (request.kind === "commit") {
       return Promise.resolve(
-        commitAnswerIn([published.history], request.sha) ?? noConnection,
+        commitAnswerIn([published], request.sha) ?? noConnection,
       );
     }
     if (request.kind === "ref") {

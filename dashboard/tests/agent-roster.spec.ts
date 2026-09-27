@@ -9,6 +9,7 @@ import {
   expectMembership,
   expectProblemAndNoSnapshot,
   parts,
+  rosterParts,
 } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
@@ -45,15 +46,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
   const takenCard = taken.getByRole("article", { name: takenStory });
-  const roster = page.getByRole("region", { name: "Agent roster" });
-  const members = roster.getByRole("listitem");
-  const member = (agent: string) =>
-    members.filter({
-      has: page.getByRole("heading", { name: agent, exact: true }),
-    });
-  const opener = (agent: string) =>
-    page.getByRole("button", { name: `Show ${agent} in the agent roster` });
-  const back = roster.getByRole("button", { name: "Back to stories" });
+  const { roster, members, member, opener, back } = rosterParts(page);
 
   await test.step("the Taken card's portrait opens the roster with every agent and the clicked one identified", async () => {
     await takenCard.getByRole("button", { name: "Inspect story" }).click();
@@ -73,7 +66,9 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     );
   });
 
-  await test.step("each assignment shows its task, activity, and recorded host and model, and unknowns stay distinct", async () => {
+  // How a card or roster member words a host or model its profile never
+  // recorded is taken-agent-profile.spec.ts's and backlog-preparing.spec.ts's.
+  await test.step("each assignment shows its task, activity, and recorded facts, and unknowns stay distinct", async () => {
     const akiho = member("Akiho-chan");
     await expect(akiho.locator(".roster-activity")).toHaveText("Taken");
     await expect(akiho).toContainText(takenStory);
@@ -86,20 +81,14 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(kirara.locator(".roster-activity")).toHaveText("Preparing");
     await expect(kirara).toContainText(queuedStory);
     await expect(kirara).toContainText(queuedIdentity);
-    await expect(kirara.locator(".owner-summary")).toHaveText(
-      "Cursor · model not recorded",
-    );
 
     // Its work is not in the backlog read: the recorded identity and a title
-    // gap, and nothing guessed for the host or model it never recorded.
+    // gap.
     const yuma = member("Yuma-chan");
     await expect(yuma.locator(".roster-activity")).toHaveText("Taken");
     await expect(yuma).toContainText(unlistedIdentity);
     await expect(yuma).toContainText(
       "Task title not found: the published backlog at this revision lists no entry with this identity.",
-    );
-    await expect(yuma.locator(".owner-summary")).toHaveText(
-      "Story Branch Mode · host not recorded · model not recorded",
     );
 
     // Assignment gaps look alike on the roster and on cards.

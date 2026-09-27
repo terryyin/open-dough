@@ -10,7 +10,7 @@ import {
   type AvatarAnswerer,
   type RepositoryAnswerer,
 } from "./support/fakeGitHub.ts";
-import { pathChange, type PathHistories } from "./pathHistoryAnswers.ts";
+import { pathChange, type PathChange } from "./pathHistoryAnswers.ts";
 import {
   avatarPng,
   avatarServerError,
@@ -97,7 +97,7 @@ function publication(
   firstCommit: number,
 ) {
   const files: Record<string, string> = {};
-  const history: Record<string, PathHistories[string]> = {};
+  const history: Record<string, readonly PathChange[]> = {};
   let n = firstCommit;
   for (const [file, account] of Object.entries(profiles)) {
     const name = file.split("-")[0] ?? "";

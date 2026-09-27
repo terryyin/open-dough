@@ -171,11 +171,7 @@ test("a queued card shows Preparing and its developer from published assignments
       `${first} · host not recorded · model not recorded`,
       `${second} · host not recorded · model not recorded`,
     ]);
-    await expect(
-      card(storyA).locator(".assignment-gap", {
-        hasText: "Conflicting records",
-      }),
-    ).toHaveText(
+    await expect(card(storyA).locator(".assignment-gap")).toHaveText(
       "Conflicting records: 2 preparation assignments name this entry.",
     );
     await expect(card(storyA)).not.toContainText(
