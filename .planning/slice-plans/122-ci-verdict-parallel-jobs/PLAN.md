@@ -159,12 +159,20 @@ merge) describe the split.
 
 ### 4. The dashboard job finishes within the target
 Type: Behavior
-Status: planned
+Status: done
 Proof: Three CI runs of the slice's revision: the dashboard job (or each
 dashboard shard) finishes at or below 105 s; the executed browser-test count
 from the HTML report (summed across shards when sharded) equals
 `playwright test --list`'s count for the same revision; no failure. Record
 the job times and the option chosen.
+
+Accepted proof: option chosen: two `--shard` jobs (workers alone missed; see
+Learnings), with all cores per shard on CI, the type-check in shard 1, and
+each shard's HTML report kept as `dashboard-playwright-report-<i>`. Five CI
+runs of `37679c6` (36289883048, 36289980256, 36290082744, 36290195759,
+36290300040): `dashboard (1/2)` 84, 74, 73, 72, 80 s and `dashboard (2/2)`
+88, 74, 76, 89, 94 s; each run's reports record 60 + 60 = 120 expected of
+`--list`'s 120, none skipped, flaky, or failed.
 
 Behavior: A revision is pushed → CI's dashboard job(s) run → every browser
 test runs and the dashboard no longer sets the verdict, using more workers in
@@ -181,6 +189,13 @@ largest split total), with the runs named in its header, and the
 `longest-first` list refreshed from the merged artifacts; the revision
 carrying that edit runs green on CI. Record all run times in this plan.
 External-wait exception: the CI runs themselves are the wait.
+
+Measured (candidate `37679c6`, five sequential runs, all green): workflow wall
+92, 94, 98, 98, 102 s, median 98 s. `test (1/2)` 86, 89, 93, 75, 96 s
+(`Run test` 77, 78, 79, 60, 79 s); `test (2/2)` 67, 75, 75, 77, 80 s
+(`Run test` 57, 59, 63, 69, 71 s); `lint` 36–48 s. Share totals 303.3/226.4,
+307.6/233.7, 310.6/250.1, 238.3/270.4, 312.1/283.2 job-seconds; largest job
+47.3 s (`tests/git-publication-native.sh`).
 
 Behavior: Trunk has the split workflow → a revision is published → its CI
 verdict arrives at a median of at most 120 s, and the budget describes the

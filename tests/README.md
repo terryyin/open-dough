@@ -58,8 +58,8 @@ one line per job over the per-job ceiling and one for a total over the total
 ceiling, for example:
 
 ```text
-OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 70s (tests/time-budget).
-OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is 460 (tests/time-budget).
+OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 71s (tests/time-budget).
+OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is 470 (tests/time-budget).
 ```
 
 A breach fails that split job. The ceilings are calibrated to CI's runner, so
