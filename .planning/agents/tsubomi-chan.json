@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#run-guided-commits-through-skill-alias",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}
