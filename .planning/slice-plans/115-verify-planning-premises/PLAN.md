@@ -132,7 +132,7 @@ the widened rule, and align only contradictions.
 ### 2. Claude Code planning catches recorded false premises natively
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: three native Claude Code planning runs assessed against the rubric
 below; Codex and Cursor recorded as pending in a linked story.
 
@@ -220,9 +220,41 @@ probe, approval or suite. `dough-slice-plan-refinement` and
 `/opt/homebrew/bin/bash tests/compare-payload.sh` and `git diff --check`
 pass. The refactor pass only rewrapped one line.
 
+Slice 2 (2026-09-27), guidance installed from `2c5ff71f` (slice 1) with the
+same host, model and recipe (`run-case.sh <case> after …`), one run per case;
+all three recorded `ready`:
+
+- Doughnut: **pass**. Plan 045's "Decisive premises" table records
+  `grep -rln 'quality_changed|…' scripts/test`, finds
+  `scripts/test/quality_changed.test` (and `pre-commit.test`), notes it will
+  fail after the change, observes both passing today, and extends it as proof
+  for key examples 1, 2, 5 and 6. The dependency wiring it could not observe
+  without writing the shared pnpm store became a probe step that stops slice 1.
+  This flips the baseline fail.
+- Pygardon: **pass**, weak attribution (the baseline also passed). Plan 208
+  records the seeding script `seed_named_genome_live_strategy_pair.py` as a
+  `gate_baseline_genome` caller and proves the move with
+  `live_strategies.feature` alongside `strategy_verify.feature`. Cost rose from
+  $1.54 to $6.59.
+- Open Dough control: **pass, with a limit**. Plan 111 records six premises
+  and reaches `ready` with no probe slice, new approval or full-suite run
+  (`npm test` appears only as a local runner note). Its observations were
+  heavier than brief: focused pre-change runs of 87 Node tests and three shell
+  scripts, and fixture builders (43 turns, $2.15). The rule's "one unpaid,
+  side-effect-free local run" allowed this, and it added no gate.
+
+Limits: one run per case on Claude Code only; Codex and Cursor are pending in
+[the native acceptance story](../../seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor).
+The diarization, dataset, reassessment and pull-then-publish examples rest on
+review only. Retained evidence under the job's temporary root is deleted after
+this summary (ADR 0005).
+
 ## Learnings
 
 - The baseline Doughnut miss came from searching where tests were expected
   (`scripts/*.test.mjs`) rather than for callers of the changed script, so
   slice 1's rule says to search for existing tests and callers wherever they
   live.
+- Premise observation can raise planning cost noticeably (Pygardon $1.54 →
+  $6.59; control ran focused suites). Watch whether "smallest safe
+  observation" needs tightening if later plans over-observe.
